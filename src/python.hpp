@@ -51,6 +51,7 @@ private:
   // public interface
 public:
   void execute(const std::string& code);
+  void executeFile(const std::string& file);
 
 private:
   class PythonSession : boost::noncopyable {

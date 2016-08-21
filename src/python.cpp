@@ -33,6 +33,12 @@ void PythonInterpreter::execute(const std::string& code)
   ::PyRun_SimpleStringFlags(code.c_str(), &flags);
 }
 
+void PythonInterpreter::executeFile(const std::string& file)
+{
+  FILE* fp = ::fopen(file.c_str(), "r");
+  ::PyRun_SimpleFile(fp, file.c_str());
+}
+
 
 PythonModule::PythonModule(const char* name)
   : PythonObject(::PyImport_AddModule(name)),

@@ -5,11 +5,18 @@ using namespace Rcpp;
 
 //' @export
 // [[Rcpp::export]]
-void test() {
+void testExpression(const std::string& expression) {
 
   PythonInterpreter& python = pythonInterpreter();
-  python.execute("x = 10");
+  python.execute(expression.c_str());
+}
 
+//' @export
+// [[Rcpp::export]]
+void testFile(const std::string& file) {
+
+  PythonInterpreter& python = pythonInterpreter();
+  python.executeFile(file);
 
 }
 

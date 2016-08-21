@@ -1,3 +1,5 @@
+#include <Rcpp.h>
+using namespace Rcpp;
 
 #include "Python.hpp"
 
@@ -27,3 +29,11 @@ Python::~Python()
 
   }
 }
+
+void Python::execute(const std::string& code)
+{
+  PyCompilerFlags flags;
+  flags.cf_flags = 0;
+  ::PyRun_SimpleStringFlags(code.c_str(), &flags);
+}
+

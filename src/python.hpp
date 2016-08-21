@@ -2,6 +2,8 @@
 #ifndef __PYTHON_HPP__
 #define __PYTHON_HPP__
 
+#include <string>
+
 #include <boost/noncopyable.hpp>
 
 // singleton
@@ -21,6 +23,11 @@ private:
   friend Python& python();
   Python(const Python& other);      // non construction-copyable
   Python& operator=(const Python&); // non copyable
+
+  // public interface
+public:
+  void execute(const std::string& code);
 };
+
 
 #endif // __PYTHON_HPP__

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-rm src/*.o
-rm src/tensorflow.so
-rm config.log
-rm config.status
+rm -f src/*.o
+rm -f src/tensorflow.so
+rm -f config.log
+rm -f config.status

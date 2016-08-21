@@ -594,7 +594,7 @@ CPPFLAGS
 LDFLAGS
 CFLAGS
 CC
-PKG_CFLAGS
+PKG_CPPFLAGS
 PKG_LIBS
 target_alias
 host_alias
@@ -1769,7 +1769,7 @@ if test -z "${PYTHONCONFIG}"; then
 fi
 
 PKG_LIBS=`$PYTHONCONFIG --ldflags`
-PKG_CFLAGS=`$PYTHONCONFIG --includes`
+PKG_CPPFLAGS=`$PYTHONCONFIG --includes`
 
 # Find the .so library for python
 : ${PYTHON=`which ${MYPYTHON}`}
@@ -1780,7 +1780,7 @@ fi
 
 PYTHONLIBFILE=libpython`$PYTHON -c "import sys; print(sys.version[:3])"`.so
 
-PKG_CFLAGS="$PKG_CFLAGS -D PYTHONLIBFILE=$PYTHONLIBFILE"
+PKG_CPPFLAGS="$PKG_CPPFLAGS -D PYTHONLIBFILE=$PYTHONLIBFILE"
 
 
 

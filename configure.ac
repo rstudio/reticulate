@@ -42,7 +42,7 @@ if test -z "${PYTHONCONFIG}"; then
 fi
 
 PKG_LIBS=`$PYTHONCONFIG --ldflags`
-PKG_CFLAGS=`$PYTHONCONFIG --includes`
+PKG_CPPFLAGS=`$PYTHONCONFIG --includes`
 
 # Find the .so library for python
 : ${PYTHON=`which ${MYPYTHON}`}
@@ -53,10 +53,10 @@ fi
 
 PYTHONLIBFILE=libpython`$PYTHON -c "import sys; print(sys.version[[:3]])"`.so
 
-PKG_CFLAGS="$PKG_CFLAGS -D PYTHONLIBFILE=$PYTHONLIBFILE"
+PKG_CPPFLAGS="$PKG_CPPFLAGS -D PYTHONLIBFILE=$PYTHONLIBFILE"
 
 AC_SUBST(PKG_LIBS)
-AC_SUBST(PKG_CFLAGS)
+AC_SUBST(PKG_CPPFLAGS)
 
 AC_PREREQ
 

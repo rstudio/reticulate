@@ -6,6 +6,10 @@ using namespace Rcpp;
 //' @export
 // [[Rcpp::export]]
 void test() {
-  python().execute("print('hello');");
+
+  PythonInterpreter& python = pythonInterpreter();
+  python.execute("x = 10");
+
+
 }
 

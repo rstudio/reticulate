@@ -3,37 +3,42 @@ using namespace Rcpp;
 
 #include "Python.hpp"
 
+#include <boost/make_shared.hpp>
+
 #include <Python.h>
 
-Python& python()
+PythonObject::~PythonObject() {
+  if (!borrowed_)
+    Py_DECREF(pObject_);
+}
+
+
+PythonInterpreter& pythonInterpreter()
 {
-  static Python instance;
+  static PythonInterpreter instance;
   return instance;
 }
 
 
-Python::Python()
+PythonInterpreter::PythonInterpreter()
+  : mainModule_("__main__")
 {
-  ::Py_Initialize();
 }
 
 
-Python::~Python()
-{
-  try
-  {
-    ::Py_Finalize();
-  }
-  catch(...)
-  {
-
-  }
-}
-
-void Python::execute(const std::string& code)
+void PythonInterpreter::execute(const std::string& code)
 {
   PyCompilerFlags flags;
   flags.cf_flags = 0;
   ::PyRun_SimpleStringFlags(code.c_str(), &flags);
 }
+
+
+PythonModule::PythonModule(const char* name)
+  : PythonObject(::PyImport_AddModule(name)),
+    dictionary_(::PyModule_GetDict(get()), true)
+{
+}
+
+
 

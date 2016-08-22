@@ -12,18 +12,18 @@
 class PythonObject : boost::noncopyable {
 
 public:
-  explicit PythonObject(PyObject* pObject, bool borrowed = false)
-    : pObject_(pObject), borrowed_(borrowed)
+  explicit PythonObject(PyObject* pObject, bool owned = true)
+    : pObject_(pObject), owned_(owned)
   {
   }
 
   virtual ~PythonObject();
 
-  PyObject* get() const { return pObject_; }
+  operator PyObject*() const { return pObject_; }
 
 private:
   PyObject* pObject_;
-  bool borrowed_;
+  bool owned_;
 };
 
 class PythonModule : public PythonObject {
@@ -40,13 +40,10 @@ PythonInterpreter& pythonInterpreter();
 
 class PythonInterpreter : boost::noncopyable {
 
-// construction/destruction
-public:
-  PythonInterpreter();
-
 // singleton
 private:
-  friend PythonInterpreter& python();
+  PythonInterpreter();
+  friend PythonInterpreter& pythonInterpreter();
 
   // public interface
 public:

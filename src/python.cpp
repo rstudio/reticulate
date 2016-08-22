@@ -8,7 +8,7 @@ using namespace Rcpp;
 #include <Python.h>
 
 PythonObject::~PythonObject() {
-  if (!borrowed_)
+  if (owned_)
     Py_DECREF(pObject_);
 }
 
@@ -42,7 +42,7 @@ void PythonInterpreter::executeFile(const std::string& file)
 
 PythonModule::PythonModule(const char* name)
   : PythonObject(::PyImport_AddModule(name)),
-    dictionary_(::PyModule_GetDict(get()), true)
+    dictionary_(::PyModule_GetDict(*this), false)
 {
 }
 

@@ -1,3 +1,5 @@
+#include <Python.h>
+
 #include <Rcpp.h>
 using namespace Rcpp;
 
@@ -5,13 +7,27 @@ using namespace Rcpp;
 
 #include <boost/make_shared.hpp>
 
-#include <Python.h>
+// https://docs.python.org/2/c-api/object.html
 
 PythonObject::~PythonObject() {
-  if (owned_)
+  if (owned_ && (pObject_ != NULL))
     Py_DECREF(pObject_);
 }
 
+
+PythonModule::PythonModule(PyObject* module)
+  : PythonObject(module, false),
+    dictionary_(::PyModule_GetDict(get()), false)
+{
+}
+
+PythonModule::PythonModule(const char* name)
+  : PythonObject(::PyImport_ImportModule(name)),
+    dictionary_(::PyModule_GetDict(get()), false)
+{
+  if (get() == NULL)
+    ::PyErr_Print();
+}
 
 PythonInterpreter& pythonInterpreter()
 {
@@ -21,8 +37,7 @@ PythonInterpreter& pythonInterpreter()
 
 
 PythonInterpreter::PythonInterpreter()
-  : mainModule_(::PyImport_AddModule("__main__"), false),
-    mainDictionary_(::PyModule_GetDict(mainModule_), false)
+  : pMainModule_(new PythonModule(::PyImport_AddModule("__main__")))
 {
 }
 

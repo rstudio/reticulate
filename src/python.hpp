@@ -19,11 +19,24 @@ public:
 
   virtual ~PythonObject();
 
-  operator PyObject*() const { return pObject_; }
+  PyObject* get() const { return pObject_; }
+  operator PyObject*() const { return get(); }
 
 private:
   PyObject* pObject_;
   bool owned_;
+};
+
+class PythonModule : public PythonObject {
+public:
+  // attach to existing module (reference not owned)
+  explicit PythonModule(PyObject* module);
+
+  // import module
+  explicit PythonModule(const char* name);
+
+private:
+  PythonObject dictionary_;
 };
 
 
@@ -38,10 +51,13 @@ private:
   PythonInterpreter();
   friend PythonInterpreter& pythonInterpreter();
 
-  // public interface
 public:
+  // code execution
   void execute(const std::string& code);
   void executeFile(const std::string& file);
+
+  // get the main module
+  boost::shared_ptr<PythonModule> mainModule() const { return pMainModule_; }
 
 private:
   class PythonSession : boost::noncopyable {
@@ -50,12 +66,8 @@ private:
     ~PythonSession() { ::Py_Finalize(); }
   };
   PythonSession session_;
-  PythonObject mainModule_;
-  PythonObject mainDictionary_;
+  boost::shared_ptr<PythonModule> pMainModule_;
 };
-
-
-
 
 
 #endif // __PYTHON_HPP__

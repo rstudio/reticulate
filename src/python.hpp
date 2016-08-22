@@ -26,13 +26,6 @@ private:
   bool owned_;
 };
 
-class PythonModule : public PythonObject {
-public:
-  explicit PythonModule(const char* name);
-
-private:
-  PythonObject dictionary_;
-};
 
 // singleton
 class PythonInterpreter;
@@ -57,7 +50,8 @@ private:
     ~PythonSession() { ::Py_Finalize(); }
   };
   PythonSession session_;
-  PythonModule mainModule_;
+  PythonObject mainModule_;
+  PythonObject mainDictionary_;
 };
 
 

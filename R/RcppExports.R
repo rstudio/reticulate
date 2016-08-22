@@ -2,12 +2,12 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 #' @export
-testExpression <- function(expression) {
-    invisible(.Call('tensorflow_testExpression', PACKAGE = 'tensorflow', expression))
+py_run_code <- function(code) {
+    invisible(.Call('tensorflow_py_run_code', PACKAGE = 'tensorflow', code))
 }
 
 #' @export
-testFile <- function(file) {
-    invisible(.Call('tensorflow_testFile', PACKAGE = 'tensorflow', file))
+py_run_file <- function(file) {
+    invisible(.Call('tensorflow_py_run_file', PACKAGE = 'tensorflow', file))
 }
 

@@ -5,23 +5,23 @@
 
 using namespace Rcpp;
 
-// testExpression
-void testExpression(const std::string& expression);
-RcppExport SEXP tensorflow_testExpression(SEXP expressionSEXP) {
+// py_run_code
+void py_run_code(const std::string& code);
+RcppExport SEXP tensorflow_py_run_code(SEXP codeSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope __rngScope;
-    Rcpp::traits::input_parameter< const std::string& >::type expression(expressionSEXP);
-    testExpression(expression);
+    Rcpp::traits::input_parameter< const std::string& >::type code(codeSEXP);
+    py_run_code(code);
     return R_NilValue;
 END_RCPP
 }
-// testFile
-void testFile(const std::string& file);
-RcppExport SEXP tensorflow_testFile(SEXP fileSEXP) {
+// py_run_file
+void py_run_file(const std::string& file);
+RcppExport SEXP tensorflow_py_run_file(SEXP fileSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope __rngScope;
     Rcpp::traits::input_parameter< const std::string& >::type file(fileSEXP);
-    testFile(file);
+    py_run_file(file);
     return R_NilValue;
 END_RCPP
 }

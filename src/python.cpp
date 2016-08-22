@@ -21,30 +21,26 @@ PythonInterpreter& pythonInterpreter()
 
 
 PythonInterpreter::PythonInterpreter()
-  : mainModule_("__main__")
+  : mainModule_(::PyImport_AddModule("__main__"), false),
+    mainDictionary_(::PyModule_GetDict(mainModule_), false)
 {
 }
 
 
 void PythonInterpreter::execute(const std::string& code)
 {
-  PyCompilerFlags flags;
-  flags.cf_flags = 0;
-  ::PyRun_SimpleStringFlags(code.c_str(), &flags);
+  ::PyRun_SimpleString(code.c_str());
 }
 
 void PythonInterpreter::executeFile(const std::string& file)
 {
   FILE* fp = ::fopen(file.c_str(), "r");
-  ::PyRun_SimpleFile(fp, file.c_str());
+  if (fp)
+    ::PyRun_SimpleFile(fp, file.c_str());
+  else
+    stop("Unable to read script file '%s' (does the file exist?)", file);
 }
 
-
-PythonModule::PythonModule(const char* name)
-  : PythonObject(::PyImport_AddModule(name)),
-    dictionary_(::PyModule_GetDict(*this), false)
-{
-}
 
 
 

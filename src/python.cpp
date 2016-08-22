@@ -2,7 +2,9 @@
 
 // TODO: Capture error text rather than PyError_Print
 // TODO: Capture ... (named and un-named args) and forward to call
-// TODO: py_object_convert (convert from Python to R)
+// TODO: py_object_convert (convert from Python to R). could be as.character,
+//   as.matrix, as.logical, etc. Could also be done automatically or via
+//   some sort of dynamic type annotation mechanism
 // TODO: consider R6 wrapper (would allow custom $ functions)
 
 using namespace Rcpp;

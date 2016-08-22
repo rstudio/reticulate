@@ -1,53 +1,34 @@
-#include <Python.h>
+#include "tensorflow_types.hpp"
 
-#include <Rcpp.h>
 using namespace Rcpp;
 
-#include "Python.hpp"
-
-#include <boost/make_shared.hpp>
-
-// https://docs.python.org/2/c-api/object.html
-
-PythonObject::~PythonObject() {
-  if (owned_ && (pObject_ != NULL))
-    Py_DECREF(pObject_);
+// [[Rcpp::export]]
+void py_initialize() {
+  ::Py_Initialize();
 }
 
-
-PythonModule::PythonModule(PyObject* module)
-  : PythonObject(module, false),
-    dictionary_(::PyModule_GetDict(get()), false)
-{
+// [[Rcpp::export]]
+void py_finalize() {
+  ::Py_Finalize();
 }
 
-PythonModule::PythonModule(const char* name)
-  : PythonObject(::PyImport_ImportModule(name)),
-    dictionary_(::PyModule_GetDict(get()), false)
-{
-  if (get() == NULL)
-    ::PyErr_Print();
+// helper function to wrap a PyObject in an XPtr
+PyObjectPtr py_object_ptr(PyObject* object, bool decref = true) {
+  PyObjectPtr ptr(object);
+  ptr.attr("class") = "py_object";
+  return ptr;
 }
 
-PythonInterpreter& pythonInterpreter()
-{
-  static PythonInterpreter instance;
-  return instance;
-}
-
-
-PythonInterpreter::PythonInterpreter()
-  : pMainModule_(new PythonModule(::PyImport_AddModule("__main__")))
-{
-}
-
-
-void PythonInterpreter::execute(const std::string& code)
+//' @export
+// [[Rcpp::export]]
+void py_run_string(const std::string& code)
 {
   ::PyRun_SimpleString(code.c_str());
 }
 
-void PythonInterpreter::executeFile(const std::string& file)
+//' @export
+// [[Rcpp::export]]
+void py_run_file(const std::string& file)
 {
   FILE* fp = ::fopen(file.c_str(), "r");
   if (fp)
@@ -55,6 +36,30 @@ void PythonInterpreter::executeFile(const std::string& file)
   else
     stop("Unable to read script file '%s' (does the file exist?)", file);
 }
+
+//' @export
+// [[Rcpp::export]]
+PyObjectPtr py_main_module() {
+  return py_object_ptr(::PyImport_AddModule("__main__"), false);
+}
+
+//' @export
+// [[Rcpp::export]]
+PyObjectPtr py_import(const std::string& module) {
+  PyObject* pModule = ::PyImport_ImportModule(module.c_str());
+  if (pModule == NULL) {
+    ::PyErr_Print();
+    stop("Unable to import module '%s'", module);
+  }
+  return py_object_ptr(pModule);
+}
+
+//' @export
+// [[Rcpp::export(print.py_object)]]
+void py_object_print(PyObjectPtr pObject) {
+  ::PyObject_Print(pObject.get(), stdout, Py_PRINT_RAW);
+}
+
 
 
 

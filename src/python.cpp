@@ -6,6 +6,8 @@
 //   as.matrix, as.logical, etc. Could also be done automatically or via
 //   some sort of dynamic type annotation mechanism
 // TODO: consider R6 wrapper (would allow custom $ functions)
+// TODO: .DollarNames
+// TODO: Globally available import function
 
 using namespace Rcpp;
 

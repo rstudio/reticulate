@@ -1,6 +1,12 @@
 #include "tensorflow_types.hpp"
 
+// TODO: Capture error text rather than PyError_Print
+// TODO: Capture ... (named and un-named args) and forward to call
+// TODO: py_object_convert (convert from Python to R)
+
 using namespace Rcpp;
+
+// https://docs.python.org/2/c-api/object.html
 
 // [[Rcpp::export]]
 void py_initialize() {
@@ -60,7 +66,34 @@ void py_object_print(PyObjectPtr pObject) {
   ::PyObject_Print(pObject.get(), stdout, Py_PRINT_RAW);
 }
 
+//' @export
+// [[Rcpp::export]]
+PyObjectPtr py_object_get_attr(PyObjectPtr pObject, const std::string& name) {
+  PyObject* attr = ::PyObject_GetAttrString(pObject.get(), name.c_str());
+  if (attr == NULL) {
+    ::PyErr_Print();
+    stop("Attribute '%s' not found.", name);
+  }
+  return py_object_ptr(attr);
+}
 
+//' @export
+// [[Rcpp::export]]
+bool py_object_is_callable(PyObjectPtr pObject) {
+  return ::PyCallable_Check(pObject.get()) == 1;
+}
 
-
-
+//' @export
+// [[Rcpp::export]]
+PyObjectPtr py_object_call(PyObjectPtr pObject) {
+  PyObject *args = PyTuple_New(0);
+  PyObject *keywords = ::PyDict_New();
+  PyObject* res = ::PyObject_Call(pObject.get(), args, keywords);
+  Py_DECREF(args);
+  Py_DECREF(keywords);
+  if (res == NULL) {
+    ::PyErr_Print();
+    stop("Error calling python function");
+  }
+  return py_object_ptr(res);
+}

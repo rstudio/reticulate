@@ -34,3 +34,18 @@ print.py_object <- function(pObject) {
     invisible(.Call('tensorflow_py_object_print', PACKAGE = 'tensorflow', pObject))
 }
 
+#' @export
+py_object_get_attr <- function(pObject, name) {
+    .Call('tensorflow_py_object_get_attr', PACKAGE = 'tensorflow', pObject, name)
+}
+
+#' @export
+py_object_is_callable <- function(pObject) {
+    .Call('tensorflow_py_object_is_callable', PACKAGE = 'tensorflow', pObject)
+}
+
+#' @export
+py_object_call <- function(pObject) {
+    .Call('tensorflow_py_object_call', PACKAGE = 'tensorflow', pObject)
+}
+

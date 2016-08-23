@@ -182,17 +182,38 @@ PyObjectPtr py_object_call(PyObjectPtr x, List args, List keywords) {
   PyObject *pyArgs = ::PyTuple_New(args.length());
   for (R_xlen_t i = 0; i<args.size(); i++) {
     PyObject* arg = r_to_py(args.at(i));
-    ::PyTuple_SetItem(pyArgs, i, arg);
+    int res = ::PyTuple_SetItem(pyArgs, i, arg);
+    if (res != 0) {
+      Py_DecRef(pyArgs);
+      stop(py_fetch_error());
+    }
   }
 
-
+  // named arguments
   PyObject *pyKeywords = ::PyDict_New();
+  if (keywords.length() > 0) {
+    CharacterVector names = keywords.names();
+    for (R_xlen_t i = 0; i<keywords.length(); i++) {
+      const char* name = names.at(i);
+      PyObject* arg = r_to_py(keywords.at(i));
+      int res = ::PyDict_SetItemString(pyKeywords, name, arg);
+      if (res != 0) {
+        Py_DecRef(pyKeywords);
+        stop(py_fetch_error());
+      }
+    }
+  }
+
+  // call the function
   PyObject* res = ::PyObject_Call(x, pyArgs, pyKeywords);
   ::Py_DecRef(pyArgs);
   ::Py_DecRef(pyKeywords);
+
+  // check for error
   if (res == NULL)
     stop(py_fetch_error());
 
+  // return in PyObject XPtr wrapper
   return py_object_ptr(res);
 }
 

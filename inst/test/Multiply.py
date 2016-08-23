@@ -11,7 +11,7 @@ class Multiply:
     print 'The result of', self.a, 'x', self.b, ':', c
     return c
 
-  def multiply2(self, a, b):
+  def multiply2(self, a = 5, b = 10):
     c = a*b
     print 'The result of', a, 'x', b, ':', c
     return c

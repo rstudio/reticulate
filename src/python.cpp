@@ -3,10 +3,10 @@
 // TODO: Capture ... (named and un-named args) and forward to call
 // TODO: py_object_convert (convert from Python to R). could be as.character,
 //   as.matrix, as.logical, etc. Could also be done automatically or via
-//   some sort of dynamic type annotation mechanism
+//   some sort of dynamic type annotation mechanism. we could simply convert
+//   anything that we can trivially round-trip back into python
 // TODO: consider R6 wrapper (would allow custom $ functions)
 // TODO: .DollarNames
-// TODO: Globally available import function
 
 using namespace Rcpp;
 

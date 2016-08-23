@@ -88,14 +88,14 @@ PyObjectPtr py_import(const std::string& module) {
 
 //' @export
 // [[Rcpp::export(print.py_object)]]
-void py_object_print(PyObjectPtr pObject) {
-  ::PyObject_Print(pObject.get(), stdout, Py_PRINT_RAW);
+void py_object_print(PyObjectPtr x) {
+  ::PyObject_Print(x, stdout, Py_PRINT_RAW);
 }
 
 //' @export
 // [[Rcpp::export]]
-PyObjectPtr py_object_get_attr(PyObjectPtr pObject, const std::string& name) {
-  PyObject* attr = ::PyObject_GetAttrString(pObject.get(), name.c_str());
+PyObjectPtr py_object_get_attr(PyObjectPtr x, const std::string& name) {
+  PyObject* attr = ::PyObject_GetAttrString(x, name.c_str());
   if (attr == NULL)
     stop(py_fetch_error());
 
@@ -104,16 +104,16 @@ PyObjectPtr py_object_get_attr(PyObjectPtr pObject, const std::string& name) {
 
 //' @export
 // [[Rcpp::export]]
-bool py_object_is_callable(PyObjectPtr pObject) {
-  return ::PyCallable_Check(pObject.get()) == 1;
+bool py_object_is_callable(PyObjectPtr x) {
+  return ::PyCallable_Check(x) == 1;
 }
 
 //' @export
 // [[Rcpp::export]]
-PyObjectPtr py_object_call(PyObjectPtr pObject) {
+PyObjectPtr py_object_call(PyObjectPtr x) {
   PyObject *args = PyTuple_New(0);
   PyObject *keywords = ::PyDict_New();
-  PyObject* res = ::PyObject_Call(pObject.get(), args, keywords);
+  PyObject* res = ::PyObject_Call(x, args, keywords);
   ::Py_DecRef(args);
   ::Py_DecRef(keywords);
   if (res == NULL)
@@ -124,9 +124,9 @@ PyObjectPtr py_object_call(PyObjectPtr pObject) {
 
 //' @export
 // [[Rcpp::export]]
-std::vector<std::string> py_list_attributes(PyObjectPtr pObject) {
+std::vector<std::string> py_list_attributes(PyObjectPtr x) {
   std::vector<std::string> attributes;
-  PyObject* attrs = ::PyObject_Dir(pObject);
+  PyObject* attrs = ::PyObject_Dir(x);
   if (attrs == NULL)
     stop(py_fetch_error());
 
@@ -136,6 +136,8 @@ std::vector<std::string> py_list_attributes(PyObjectPtr pObject) {
     const char* value = ::PyString_AsString(item);
     attributes.push_back(value);
   }
+
+  ::Py_DecRef(attrs);
 
   return attributes;
 }

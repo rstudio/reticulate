@@ -119,9 +119,9 @@ PyObject* r_to_py(RObject x) {
   int type = x.sexp_type();
   SEXP sexp = x.get__();
 
-  // NULL becomes python None (Py_IncRef since PyTuple_SetItem will steal
-  // the passed reference)
-  if (x.isNULL()) {
+  // NULL and empty vector become python None (Py_IncRef since PyTuple_SetItem
+  // will steal the passed reference)
+  if (x.isNULL() || (LENGTH(sexp) == 0)) {
     Py_IncRef(Py_None);
     return Py_None;
 
@@ -182,6 +182,35 @@ PyObject* r_to_py(RObject x) {
       return list;
     }
 
+  // list
+  } else if (type == VECSXP) {
+    // create a dict for names
+    if (x.hasAttribute("names")) {
+      PyObject *dict = ::PyDict_New();
+      CharacterVector names = x.attr("names");
+      for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
+        const char* name = names.at(i);
+        PyObject* item = r_to_py(RObject(VECTOR_ELT(sexp, i)));
+        int res = ::PyDict_SetItemString(dict, name, item);
+        if (res != 0) {
+          Py_DecRef(dict);
+          stop(py_fetch_error());
+        }
+      }
+      return dict;
+    // create a list if there are no names
+    } else {
+      PyObject* list = PyList_New(LENGTH(sexp));
+      for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
+        PyObject* item = r_to_py(RObject(VECTOR_ELT(sexp, i)));
+        int res = ::PyList_SetItem(list, i, item);
+        if (res != 0) {
+          Py_DecRef(list);
+          stop(py_fetch_error());
+        }
+      }
+      return list;
+    }
   } else {
     Rcpp::print(sexp);
     stop("Unable to convert R object to python type");

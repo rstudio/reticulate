@@ -16,7 +16,7 @@ py_main_module <- function() {
 
 #' @export
 py_run_string <- function(code) {
-    .Call('tensorflow_py_run_string', PACKAGE = 'tensorflow', code)
+    invisible(.Call('tensorflow_py_run_string', PACKAGE = 'tensorflow', code))
 }
 
 #' @export

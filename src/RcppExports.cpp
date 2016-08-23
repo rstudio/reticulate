@@ -35,14 +35,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // py_run_string
-PyObjectPtr py_run_string(const std::string& code);
+void py_run_string(const std::string& code);
 RcppExport SEXP tensorflow_py_run_string(SEXP codeSEXP) {
 BEGIN_RCPP
-    Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
     Rcpp::traits::input_parameter< const std::string& >::type code(codeSEXP);
-    __result = Rcpp::wrap(py_run_string(code));
-    return __result;
+    py_run_string(code);
+    return R_NilValue;
 END_RCPP
 }
 // py_run_file

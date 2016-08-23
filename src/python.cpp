@@ -51,9 +51,25 @@ std::string py_fetch_error() {
 
 //' @export
 // [[Rcpp::export]]
-void py_run_string(const std::string& code)
+PyObjectPtr py_main_module() {
+  PyObject* main = ::PyImport_AddModule("__main__");
+  if (main == NULL)
+    stop(py_fetch_error());
+  return py_object_ptr(main, false);
+}
+
+
+//' @export
+// [[Rcpp::export]]
+PyObjectPtr py_run_string(const std::string& code)
 {
-  ::PyRun_SimpleString(code.c_str());
+  PyObjectPtr main = py_main_module();
+  PyObject* dict = PyModule_GetDict(main);
+  PyObject* res  = PyRun_StringFlags(code.c_str(), Py_file_input, dict, dict, NULL);
+  if (res == NULL)
+    stop(py_fetch_error());
+
+  return py_object_ptr(res);
 }
 
 //' @export
@@ -67,11 +83,6 @@ void py_run_file(const std::string& file)
     stop("Unable to read script file '%s' (does the file exist?)", file);
 }
 
-//' @export
-// [[Rcpp::export]]
-PyObjectPtr py_main_module() {
-  return py_object_ptr(::PyImport_AddModule("__main__"), false);
-}
 
 //' @export
 // [[Rcpp::export]]

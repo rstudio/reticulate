@@ -10,18 +10,18 @@ py_finalize <- function() {
 }
 
 #' @export
+py_main_module <- function() {
+    .Call('tensorflow_py_main_module', PACKAGE = 'tensorflow')
+}
+
+#' @export
 py_run_string <- function(code) {
-    invisible(.Call('tensorflow_py_run_string', PACKAGE = 'tensorflow', code))
+    .Call('tensorflow_py_run_string', PACKAGE = 'tensorflow', code)
 }
 
 #' @export
 py_run_file <- function(file) {
     invisible(.Call('tensorflow_py_run_file', PACKAGE = 'tensorflow', file))
-}
-
-#' @export
-py_main_module <- function() {
-    .Call('tensorflow_py_main_module', PACKAGE = 'tensorflow')
 }
 
 #' @export

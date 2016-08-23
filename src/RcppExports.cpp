@@ -24,14 +24,25 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
+// py_main_module
+PyObjectPtr py_main_module();
+RcppExport SEXP tensorflow_py_main_module() {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    __result = Rcpp::wrap(py_main_module());
+    return __result;
+END_RCPP
+}
 // py_run_string
-void py_run_string(const std::string& code);
+PyObjectPtr py_run_string(const std::string& code);
 RcppExport SEXP tensorflow_py_run_string(SEXP codeSEXP) {
 BEGIN_RCPP
+    Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
     Rcpp::traits::input_parameter< const std::string& >::type code(codeSEXP);
-    py_run_string(code);
-    return R_NilValue;
+    __result = Rcpp::wrap(py_run_string(code));
+    return __result;
 END_RCPP
 }
 // py_run_file
@@ -42,16 +53,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const std::string& >::type file(fileSEXP);
     py_run_file(file);
     return R_NilValue;
-END_RCPP
-}
-// py_main_module
-PyObjectPtr py_main_module();
-RcppExport SEXP tensorflow_py_main_module() {
-BEGIN_RCPP
-    Rcpp::RObject __result;
-    Rcpp::RNGScope __rngScope;
-    __result = Rcpp::wrap(py_main_module());
-    return __result;
 END_RCPP
 }
 // py_import

@@ -4,7 +4,22 @@
   attr <- py_object_get_attr(x, name)
   if (py_object_is_callable(attr)) {
     function(...) {
-      py_object_call(attr)
+      args <- list()
+      keywords <- list()
+      dots <- list(...)
+      names <- names(dots)
+      if (!is.null(names)) {
+        for (i in 1:length(dots)) {
+          name <- names[[i]]
+          if (nzchar(name))
+            keywords[[name]] <- dots[[i]]
+          else
+            args[[length(args) + 1]] <- dots[[i]]
+        }
+      } else {
+        args <- dots
+      }
+      py_object_call(attr, args, keywords)
     }
   } else {
     attr

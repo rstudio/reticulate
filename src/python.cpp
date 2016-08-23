@@ -89,7 +89,8 @@ PyObjectPtr py_import(const std::string& module) {
 //' @export
 // [[Rcpp::export(print.py_object)]]
 void py_object_print(PyObjectPtr x) {
-  ::PyObject_Print(x, stdout, Py_PRINT_RAW);
+  if (x.get() != (&::_Py_NoneStruct))
+    ::PyObject_Print(x, stdout, Py_PRINT_RAW);
 }
 
 //' @export
@@ -108,14 +109,31 @@ bool py_object_is_callable(PyObjectPtr x) {
   return ::PyCallable_Check(x) == 1;
 }
 
+// http://statr.me/rcpp-note/api/RObject.html
+
 //' @export
 // [[Rcpp::export]]
-PyObjectPtr py_object_call(PyObjectPtr x) {
-  PyObject *args = PyTuple_New(0);
-  PyObject *keywords = ::PyDict_New();
-  PyObject* res = ::PyObject_Call(x, args, keywords);
-  ::Py_DecRef(args);
-  ::Py_DecRef(keywords);
+PyObjectPtr py_object_call(PyObjectPtr x, List args, List keywords) {
+
+  PyObject *pyArgs = ::PyTuple_New(args.length());
+  for (R_xlen_t i = 0; i<args.size(); i++) {
+    RObject item = args.at(i);
+    int type = item.sexp_type();
+    SEXP sexp = item.get__();
+    if (type == INTSXP) {
+      int value = INTEGER(sexp)[0];
+      ::PyTuple_SetItem(pyArgs, i, PyInt_FromLong(value));
+    } else if (type == REALSXP) {
+      double value = REAL(sexp)[0];
+      ::PyTuple_SetItem(pyArgs, i, PyFloat_FromDouble(value));
+    }
+  }
+
+
+  PyObject *pyKeywords = ::PyDict_New();
+  PyObject* res = ::PyObject_Call(x, pyArgs, pyKeywords);
+  ::Py_DecRef(pyArgs);
+  ::Py_DecRef(pyKeywords);
   if (res == NULL)
     stop(py_fetch_error());
 

@@ -99,13 +99,15 @@ BEGIN_RCPP
 END_RCPP
 }
 // py_object_call
-PyObjectPtr py_object_call(PyObjectPtr x);
-RcppExport SEXP tensorflow_py_object_call(SEXP xSEXP) {
+PyObjectPtr py_object_call(PyObjectPtr x, List args, List keywords);
+RcppExport SEXP tensorflow_py_object_call(SEXP xSEXP, SEXP argsSEXP, SEXP keywordsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
     Rcpp::traits::input_parameter< PyObjectPtr >::type x(xSEXP);
-    __result = Rcpp::wrap(py_object_call(x));
+    Rcpp::traits::input_parameter< List >::type args(argsSEXP);
+    Rcpp::traits::input_parameter< List >::type keywords(keywordsSEXP);
+    __result = Rcpp::wrap(py_object_call(x, args, keywords));
     return __result;
 END_RCPP
 }

@@ -45,8 +45,8 @@ py_object_is_callable <- function(x) {
 }
 
 #' @export
-py_object_call <- function(x) {
-    .Call('tensorflow_py_object_call', PACKAGE = 'tensorflow', x)
+py_object_call <- function(x, args, keywords) {
+    .Call('tensorflow_py_object_call', PACKAGE = 'tensorflow', x, args, keywords)
 }
 
 #' @export

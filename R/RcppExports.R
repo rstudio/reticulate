@@ -49,3 +49,8 @@ py_object_call <- function(pObject) {
     .Call('tensorflow_py_object_call', PACKAGE = 'tensorflow', pObject)
 }
 
+#' @export
+py_list_attributes <- function(pObject) {
+    .Call('tensorflow_py_list_attributes', PACKAGE = 'tensorflow', pObject)
+}
+

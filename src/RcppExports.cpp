@@ -109,3 +109,14 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
+// py_list_attributes
+std::vector<std::string> py_list_attributes(PyObjectPtr pObject);
+RcppExport SEXP tensorflow_py_list_attributes(SEXP pObjectSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< PyObjectPtr >::type pObject(pObjectSEXP);
+    __result = Rcpp::wrap(py_list_attributes(pObject));
+    return __result;
+END_RCPP
+}

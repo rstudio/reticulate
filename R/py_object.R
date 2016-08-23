@@ -11,3 +11,13 @@
   }
 }
 
+# Alias to [[
+#' @export
+`[[.py_object` <- `$.py_object`
+
+# Completion
+#' @export
+.DollarNames.py_object <- function(x, pattern = "") {
+  attrs <- py_list_attributes(x)
+  attrs[substr(attrs, 1, 1) != '_']
+}

@@ -5,8 +5,6 @@
 //   as.matrix, as.logical, etc. Could also be done automatically or via
 //   some sort of dynamic type annotation mechanism. we could simply convert
 //   anything that we can trivially round-trip back into python
-// TODO: consider R6 wrapper (would allow custom $ functions)
-// TODO: .DollarNames
 
 using namespace Rcpp;
 
@@ -123,3 +121,24 @@ PyObjectPtr py_object_call(PyObjectPtr pObject) {
 
   return py_object_ptr(res);
 }
+
+//' @export
+// [[Rcpp::export]]
+std::vector<std::string> py_list_attributes(PyObjectPtr pObject) {
+  std::vector<std::string> attributes;
+  PyObject* attrs = ::PyObject_Dir(pObject);
+  if (attrs == NULL)
+    stop(py_fetch_error());
+
+  Py_ssize_t len = ::PyList_Size(attrs);
+  for (Py_ssize_t index = 0; index<len; index++) {
+    PyObject* item = ::PyList_GetItem(attrs, index);
+    const char* value = ::PyString_AsString(item);
+    attributes.push_back(value);
+  }
+
+  return attributes;
+}
+
+
+

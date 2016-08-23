@@ -167,6 +167,21 @@ PyObject* r_to_py(RObject x) {
                                                    &(LOGICAL(sexp)[0]));
       return array;
     }
+
+  // character (pass length 1 vectors as scalars, otherwise pass list)
+  } else if (type == STRSXP) {
+    if (LENGTH(sexp) == 1) {
+      const char* value = CHAR(STRING_ELT(sexp, 0));
+      return PyString_FromString(value);
+    } else {
+      PyObject* list = PyList_New(LENGTH(sexp));
+      for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
+        const char* value = CHAR(STRING_ELT(sexp, i));
+        PyList_SetItem(list, i, PyString_FromString(value));
+      }
+      return list;
+    }
+
   } else {
     Rcpp::print(sexp);
     stop("Unable to convert R object to python type");

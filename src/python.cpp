@@ -1,5 +1,7 @@
 #include "tensorflow_types.hpp"
 
+#include "/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/include/numpy/arrayobject.h"
+
 // TODO: Capture ... (named and un-named args) and forward to call
 // TODO: py_object_convert (convert from Python to R). could be as.character,
 //   as.matrix, as.logical, etc. Could also be done automatically or via
@@ -13,6 +15,7 @@ using namespace Rcpp;
 // [[Rcpp::export]]
 void py_initialize() {
   ::Py_Initialize();
+  import_array();
 }
 
 // [[Rcpp::export]]
@@ -120,12 +123,34 @@ PyObjectPtr py_object_call(PyObjectPtr x, List args, List keywords) {
     RObject item = args.at(i);
     int type = item.sexp_type();
     SEXP sexp = item.get__();
-    if (type == INTSXP) {
-      int value = INTEGER(sexp)[0];
-      ::PyTuple_SetItem(pyArgs, i, PyInt_FromLong(value));
+    // pass python objects straight through (Py_IncRef since PyTuple_SetItem
+    // will steal the reference)
+    if (item.inherits("py_object")) {
+      PyObjectPtr obj = as<PyObjectPtr>(sexp);
+      Py_IncRef(obj.get());
+      ::PyTuple_SetItem(pyArgs, i, obj.get());
+    // Integers (pass length 1 vectors as scalars, otherwise pass numpy array)
+    } else if (type == INTSXP) {
+      if (LENGTH(sexp) == 1) {
+        int value = INTEGER(sexp)[0];
+        ::PyTuple_SetItem(pyArgs, i, PyInt_FromLong(value));
+      } else {
+        npy_intp dims = LENGTH(sexp);
+        PyObject* array = PyArray_SimpleNewFromData (1, &dims, NPY_INT,
+                                                     &(INTEGER(sexp)[0]));
+        ::PyTuple_SetItem(pyArgs, i, array);
+      }
+    // Doubles (pass length 1 vectors as scalars, otherwise pass numpy array)
     } else if (type == REALSXP) {
-      double value = REAL(sexp)[0];
-      ::PyTuple_SetItem(pyArgs, i, PyFloat_FromDouble(value));
+      if (LENGTH(sexp) == 1) {
+        double value = REAL(sexp)[0];
+        ::PyTuple_SetItem(pyArgs, i, PyFloat_FromDouble(value));
+      } else {
+        npy_intp dims = LENGTH(sexp);
+        PyObject* array = PyArray_SimpleNewFromData (1, &dims, NPY_DOUBLE,
+                                                     &(REAL(sexp)[0]));
+        ::PyTuple_SetItem(pyArgs, i, array);
+      }
     }
   }
 
@@ -159,6 +184,7 @@ std::vector<std::string> py_list_attributes(PyObjectPtr x) {
 
   return attributes;
 }
+
 
 
 

@@ -23,6 +23,10 @@ void py_finalize() {
   ::Py_Finalize();
 }
 
+bool Py_IsNone(PyObject* object) {
+  return object == &::_Py_NoneStruct;
+}
+
 // wrap a PyObject in an XPtr
 PyObjectPtr py_object_ptr(PyObject* object, bool decref = true) {
   PyObjectPtr ptr(object);
@@ -90,9 +94,15 @@ PyObjectPtr py_import(const std::string& module) {
 }
 
 //' @export
+// [[Rcpp::export]]
+bool py_object_is_none(PyObjectPtr x) {
+  return Py_IsNone(x);
+}
+
+//' @export
 // [[Rcpp::export(print.py_object)]]
 void py_object_print(PyObjectPtr x) {
-  if (x.get() != (&::_Py_NoneStruct))
+  if (!Py_IsNone(x))
     ::PyObject_Print(x, stdout, Py_PRINT_RAW);
 }
 
@@ -112,6 +122,20 @@ bool py_object_is_callable(PyObjectPtr x) {
   return ::PyCallable_Check(x) == 1;
 }
 
+
+// convert a python object to an R object
+SEXP py_to_r(PyObject* x) {
+
+  if (Py_IsNone(x)) {
+    return R_NilValue;
+
+  // default is to return opaque wrapper for python object
+  } else {
+    return py_object_ptr(x);
+  }
+}
+
+
 // convert an R object to a python object (the returned object
 // will have an active reference count on it)
 PyObject* r_to_py(RObject x) {
@@ -122,8 +146,8 @@ PyObject* r_to_py(RObject x) {
   // NULL and empty vector become python None (Py_IncRef since PyTuple_SetItem
   // will steal the passed reference)
   if (x.isNULL() || (LENGTH(sexp) == 0)) {
-    Py_IncRef(Py_None);
-    return Py_None;
+    Py_IncRef(&::_Py_NoneStruct);
+    return &::_Py_NoneStruct;
 
   // pass python objects straight through (Py_IncRef since PyTuple_SetItem
   // will steal the passed reference)
@@ -217,10 +241,15 @@ PyObject* r_to_py(RObject x) {
   }
 }
 
+//' @export
+// [[Rcpp::export]]
+SEXP py_object_to_r(PyObjectPtr x) {
+  return py_to_r(x);
+}
 
 //' @export
 // [[Rcpp::export]]
-PyObjectPtr py_object_call(PyObjectPtr x, List args, List keywords) {
+SEXP py_object_call(PyObjectPtr x, List args, List keywords) {
 
   // unnamed arguments
   PyObject *pyArgs = ::PyTuple_New(args.length());
@@ -257,8 +286,8 @@ PyObjectPtr py_object_call(PyObjectPtr x, List args, List keywords) {
   if (res == NULL)
     stop(py_fetch_error());
 
-  // return in PyObject XPtr wrapper
-  return py_object_ptr(res);
+  // return R object
+  return py_to_r(res);
 }
 
 //' @export

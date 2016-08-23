@@ -30,6 +30,11 @@ py_import <- function(module) {
 }
 
 #' @export
+py_object_is_none <- function(x) {
+    .Call('tensorflow_py_object_is_none', PACKAGE = 'tensorflow', x)
+}
+
+#' @export
 print.py_object <- function(x) {
     invisible(.Call('tensorflow_py_object_print', PACKAGE = 'tensorflow', x))
 }
@@ -42,6 +47,11 @@ py_object_get_attr <- function(x, name) {
 #' @export
 py_object_is_callable <- function(x) {
     .Call('tensorflow_py_object_is_callable', PACKAGE = 'tensorflow', x)
+}
+
+#' @export
+py_object_to_r <- function(x) {
+    .Call('tensorflow_py_object_to_r', PACKAGE = 'tensorflow', x)
 }
 
 #' @export

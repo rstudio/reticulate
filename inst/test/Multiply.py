@@ -2,9 +2,13 @@ class Multiply:
   def __init__(self):
     self.a = 6
     self.b = 5
+    self.foo = None
 
   def printObject(self, x):
     print x
+
+  def returnNone(self):
+    return None
 
   def multiply(self):
     c = self.a*self.b

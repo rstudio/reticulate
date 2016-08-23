@@ -19,10 +19,14 @@
       } else {
         args <- dots
       }
-      py_object_call(attr, args, keywords)
+      result = py_object_call(attr, args, keywords)
+      if (is.null(result))
+        invisible(result)
+      else
+        result
     }
   } else {
-    attr
+    py_object_to_r(attr)
   }
 }
 

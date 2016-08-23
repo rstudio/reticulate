@@ -44,15 +44,19 @@ fi
 PKG_LIBS=`$PYTHONCONFIG --ldflags`
 PKG_CPPFLAGS=`$PYTHONCONFIG --includes`
 
-# Find the .so library for python
+# find python
 : ${PYTHON=`which ${MYPYTHON}`}
 if test -z "${PYTHON}"; then
   echo "could not locate ${MYPYTHON}"
   exit 1
 fi
 
-PYTHONLIBFILE=libpython`$PYTHON -c "import sys; print(sys.version[[:3]])"`.so
+# find the numpy includes
+NUMPY_INCLUDE_DIR=`$PYTHON -c "import numpy; print(numpy.get_include())"`
+PKG_CPPFLAGS="$PKG_CPPFLAGS -I$NUMPY_INCLUDE_DIR"
 
+# Find the .so library for python
+PYTHONLIBFILE=libpython`$PYTHON -c "import sys; print(sys.version[[:3]])"`.so
 PKG_CPPFLAGS="$PKG_CPPFLAGS -D PYTHONLIBFILE=$PYTHONLIBFILE"
 
 AC_SUBST(PKG_LIBS)

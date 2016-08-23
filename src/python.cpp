@@ -1,6 +1,6 @@
 #include "tensorflow_types.hpp"
 
-#include "/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python/numpy/core/include/numpy/arrayobject.h"
+#include <numpy/arrayobject.h>
 
 // TODO: Capture ... (named and un-named args) and forward to call
 // TODO: py_object_convert (convert from Python to R). could be as.character,

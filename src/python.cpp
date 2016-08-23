@@ -120,16 +120,26 @@ PyObjectPtr py_object_call(PyObjectPtr x, List args, List keywords) {
 
   PyObject *pyArgs = ::PyTuple_New(args.length());
   for (R_xlen_t i = 0; i<args.size(); i++) {
+
+    // get the argument and it's type
     RObject item = args.at(i);
     int type = item.sexp_type();
     SEXP sexp = item.get__();
+
+    // NULL becomes python None (Py_IncRef since PyTuple_SetItem will steal
+    // the passed reference)
+    if (item.isNULL()) {
+      Py_IncRef(Py_None);
+      ::PyTuple_SetItem(pyArgs, i, Py_None);
+
     // pass python objects straight through (Py_IncRef since PyTuple_SetItem
-    // will steal the reference)
-    if (item.inherits("py_object")) {
+    // will steal the passed reference)
+    } else if (item.inherits("py_object")) {
       PyObjectPtr obj = as<PyObjectPtr>(sexp);
       Py_IncRef(obj.get());
       ::PyTuple_SetItem(pyArgs, i, obj.get());
-    // Integers (pass length 1 vectors as scalars, otherwise pass numpy array)
+
+    // integer (pass length 1 vectors as scalars, otherwise pass numpy array)
     } else if (type == INTSXP) {
       if (LENGTH(sexp) == 1) {
         int value = INTEGER(sexp)[0];
@@ -140,7 +150,8 @@ PyObjectPtr py_object_call(PyObjectPtr x, List args, List keywords) {
                                                      &(INTEGER(sexp)[0]));
         ::PyTuple_SetItem(pyArgs, i, array);
       }
-    // Doubles (pass length 1 vectors as scalars, otherwise pass numpy array)
+
+    // numeric (pass length 1 vectors as scalars, otherwise pass numpy array)
     } else if (type == REALSXP) {
       if (LENGTH(sexp) == 1) {
         double value = REAL(sexp)[0];
@@ -149,6 +160,18 @@ PyObjectPtr py_object_call(PyObjectPtr x, List args, List keywords) {
         npy_intp dims = LENGTH(sexp);
         PyObject* array = PyArray_SimpleNewFromData (1, &dims, NPY_DOUBLE,
                                                      &(REAL(sexp)[0]));
+        ::PyTuple_SetItem(pyArgs, i, array);
+      }
+
+    // logical (pass length 1 vectors as scalars, otherwise pass numpy array)
+    } else if (type == LGLSXP) {
+      if (LENGTH(sexp) == 1) {
+        int value = LOGICAL(sexp)[0];
+        ::PyTuple_SetItem(pyArgs, i, PyBool_FromLong(value));
+      } else {
+        npy_intp dims = LENGTH(sexp);
+        PyObject* array = PyArray_SimpleNewFromData (1, &dims, NPY_BOOL,
+                                                     &(LOGICAL(sexp)[0]));
         ::PyTuple_SetItem(pyArgs, i, array);
       }
     }

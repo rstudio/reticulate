@@ -31,22 +31,18 @@ PyObjectPtr py_object_ptr(PyObject* object, bool decref = true) {
 
 // get a string representing the last python error
 std::string py_fetch_error() {
-  std::ostringstream ostr;
   PyObject *pExcType , *pExcValue , *pExcTraceback;
   ::PyErr_Fetch(&pExcType , &pExcValue , &pExcTraceback) ;
-  if (pExcType != NULL) {
-    PyObject* pRepr = ::PyObject_Repr(pExcType ) ;
-    ostr << PyString_AsString(pRepr) << " ";
-    Py_DecRef(pRepr);
-    Py_DecRef(pExcType);
-  }
   if (pExcValue != NULL) {
-    PyObject* pRepr = ::PyObject_Repr(pExcValue) ;
-    ostr << ::PyString_AsString(pRepr);
-    Py_DecRef(pRepr) ;
-    Py_DecRef(pExcValue) ;
+    std::ostringstream ostr;
+    PyObject* pStr = ::PyObject_Str(pExcValue) ;
+    ostr << ::PyString_AsString(pStr);
+    Py_DecRef(pStr) ;
+    Py_DecRef(pExcValue);
+    return ostr.str();
+  } else {
+    return "<unknown error>";
   }
-  return ostr.str();
 }
 
 //' @export

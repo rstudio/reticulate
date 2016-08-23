@@ -3,6 +3,8 @@ class Multiply:
     self.a = 6
     self.b = 5
     self.foo = None
+    self.bar = "star"
+    self.list = [4,5,6]
 
   def printObject(self, x):
     print x

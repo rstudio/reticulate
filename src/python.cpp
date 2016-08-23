@@ -2,7 +2,6 @@
 
 #include <numpy/arrayobject.h>
 
-// TODO: Capture ... (named and un-named args) and forward to call
 // TODO: py_object_convert (convert from Python to R). could be as.character,
 //   as.matrix, as.logical, etc. Could also be done automatically or via
 //   some sort of dynamic type annotation mechanism. we could simply convert
@@ -126,13 +125,58 @@ bool py_object_is_callable(PyObjectPtr x) {
 // convert a python object to an R object
 SEXP py_to_r(PyObject* x) {
 
-  if (Py_IsNone(x)) {
+  // NULL for Python None
+  if (Py_IsNone(x))
     return R_NilValue;
 
-  // default is to return opaque wrapper for python object
-  } else {
-    return py_object_ptr(x);
+  // logical
+  else if (PyBool_Check(x))
+    return wrap(x == Py_True);
+
+  // integer
+  else if (PyInt_Check(x) || PyLong_Check(x))
+    return wrap(PyInt_AsLong(x));
+
+  // double
+  else if (PyFloat_Check(x))
+    return wrap(PyFloat_AsDouble(x));
+
+  // string
+  else if (PyString_Check(x))
+    return wrap(std::string(PyString_AsString(x)));
+
+  // list
+  // TODO: if all elements are of the same type then make it vector
+  else if (PyList_Check(x)) {
+    Py_ssize_t len = PyList_Size(x);
+    Rcpp::List list(len);
+    for (Py_ssize_t i = 0; i<len; i++) {
+      list[i] = py_to_r(PyList_GetItem(x, i));
+    }
+    return list;
   }
+
+  // tuple
+  /*
+  else if (PyTuple_Check(x)) {
+
+  }
+
+
+  // dict
+  else if (PyDict_Check(x)) {
+
+  }
+
+  // numpy array
+  else if (PyArray_Check(x)) {
+
+  }
+  */
+
+  // default is to return opaque wrapper for python object
+  else
+    return py_object_ptr(x);
 }
 
 

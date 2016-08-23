@@ -4,7 +4,7 @@ class Multiply:
     self.b = 5
     self.foo = None
     self.bar = "star"
-    self.list = [4,5,6]
+    self.list = ["foo", True, "wins"]
 
   def printObject(self, x):
     print x

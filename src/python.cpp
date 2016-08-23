@@ -122,6 +122,48 @@ bool py_object_is_callable(PyObjectPtr x) {
 }
 
 
+int r_scalar_type(PyObject* x) {
+
+  if (PyBool_Check(x))
+    return LGLSXP;
+
+  // integer
+  else if (PyInt_Check(x) || PyLong_Check(x))
+    return INTSXP;
+
+  // double
+  else if (PyFloat_Check(x))
+    return REALSXP;
+
+  // string
+  else if (PyString_Check(x))
+    return STRSXP;
+
+  // not a scalar
+  else
+    return NILSXP;
+}
+
+int scalar_list_type(PyObject* x) {
+
+  Py_ssize_t len = PyList_Size(x);
+  if (len == 0)
+    return NILSXP;
+
+  PyObject* first = PyList_GetItem(x, 0);
+  int scalarType = r_scalar_type(first);
+  if (scalarType == NILSXP)
+    return NILSXP;
+
+  for (Py_ssize_t i = 1; i<len; i++) {
+    PyObject* next = PyList_GetItem(x, i);
+    if (r_scalar_type(next) != scalarType)
+      return NILSXP;
+  }
+
+  return scalarType;
+}
+
 // convert a python object to an R object
 SEXP py_to_r(PyObject* x) {
 
@@ -129,33 +171,61 @@ SEXP py_to_r(PyObject* x) {
   if (Py_IsNone(x))
     return R_NilValue;
 
-  // logical
-  else if (PyBool_Check(x))
-    return wrap(x == Py_True);
+  // check for scalars
+  int scalarType = r_scalar_type(x);
+  if (scalarType != NILSXP) {
+    // logical
+    if (scalarType == LGLSXP)
+      return wrap(x == Py_True);
 
-  // integer
-  else if (PyInt_Check(x) || PyLong_Check(x))
-    return wrap(PyInt_AsLong(x));
+    // integer
+    else if (scalarType == INTSXP)
+      return wrap(PyInt_AsLong(x));
 
-  // double
-  else if (PyFloat_Check(x))
-    return wrap(PyFloat_AsDouble(x));
+    // double
+    else if (scalarType == REALSXP)
+      return wrap(PyFloat_AsDouble(x));
 
-  // string
-  else if (PyString_Check(x))
-    return wrap(std::string(PyString_AsString(x)));
+    // string
+    else if (scalarType == STRSXP)
+      return wrap(std::string(PyString_AsString(x)));
 
-  // list
-  // TODO: if all elements are of the same type then make it vector
-  else if (PyList_Check(x)) {
-    Py_ssize_t len = PyList_Size(x);
-    Rcpp::List list(len);
-    for (Py_ssize_t i = 0; i<len; i++) {
-      list[i] = py_to_r(PyList_GetItem(x, i));
-    }
-    return list;
+    else
+      return R_NilValue; // keep compiler happy
   }
 
+  // list
+  else if (PyList_Check(x)) {
+
+    Py_ssize_t len = PyList_Size(x);
+    int scalarType = scalar_list_type(x);
+    if (scalarType == REALSXP) {
+      Rcpp::NumericVector vec(len);
+      for (Py_ssize_t i = 0; i<len; i++)
+        vec[i] = PyFloat_AsDouble(PyList_GetItem(x, i));
+      return vec;
+    } else if (scalarType == INTSXP) {
+      Rcpp::IntegerVector vec(len);
+      for (Py_ssize_t i = 0; i<len; i++)
+        vec[i] = PyInt_AsLong(PyList_GetItem(x, i));
+      return vec;
+    } else if (scalarType == LGLSXP) {
+      Rcpp::LogicalVector vec(len);
+      for (Py_ssize_t i = 0; i<len; i++)
+        vec[i] = PyList_GetItem(x, i) == Py_True;
+      return vec;
+    } else if (scalarType == STRSXP) {
+      Rcpp::CharacterVector vec(len);
+      for (Py_ssize_t i = 0; i<len; i++)
+        vec[i] = PyString_AsString(PyList_GetItem(x, i));
+      return vec;
+    } else {
+      Rcpp::List list(len);
+      for (Py_ssize_t i = 0; i<len; i++)
+        list[i] = py_to_r(PyList_GetItem(x, i));
+      return list;
+    }
+  }
   // tuple
   /*
   else if (PyTuple_Check(x)) {

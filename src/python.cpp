@@ -112,69 +112,77 @@ bool py_object_is_callable(PyObjectPtr x) {
   return ::PyCallable_Check(x) == 1;
 }
 
-// http://statr.me/rcpp-note/api/RObject.html
+// convert an R object to a python object (the returned object
+// will have an active reference count on it)
+PyObject* r_to_py(RObject x) {
+
+  int type = x.sexp_type();
+  SEXP sexp = x.get__();
+
+  // NULL becomes python None (Py_IncRef since PyTuple_SetItem will steal
+  // the passed reference)
+  if (x.isNULL()) {
+    Py_IncRef(Py_None);
+    return Py_None;
+
+  // pass python objects straight through (Py_IncRef since PyTuple_SetItem
+  // will steal the passed reference)
+  } else if (x.inherits("py_object")) {
+    PyObjectPtr obj = as<PyObjectPtr>(sexp);
+    Py_IncRef(obj.get());
+    return obj.get();
+
+  // integer (pass length 1 vectors as scalars, otherwise pass numpy array)
+  } else if (type == INTSXP) {
+    if (LENGTH(sexp) == 1) {
+      int value = INTEGER(sexp)[0];
+      return PyInt_FromLong(value);
+    } else {
+      npy_intp dims = LENGTH(sexp);
+      PyObject* array = PyArray_SimpleNewFromData (1, &dims, NPY_INT,
+                                                   &(INTEGER(sexp)[0]));
+      return array;
+    }
+
+  // numeric (pass length 1 vectors as scalars, otherwise pass numpy array)
+  } else if (type == REALSXP) {
+    if (LENGTH(sexp) == 1) {
+      double value = REAL(sexp)[0];
+      return PyFloat_FromDouble(value);
+    } else {
+      npy_intp dims = LENGTH(sexp);
+      PyObject* array = PyArray_SimpleNewFromData (1, &dims, NPY_DOUBLE,
+                                                   &(REAL(sexp)[0]));
+      return array;
+    }
+
+  // logical (pass length 1 vectors as scalars, otherwise pass numpy array)
+  } else if (type == LGLSXP) {
+    if (LENGTH(sexp) == 1) {
+      int value = LOGICAL(sexp)[0];
+      return PyBool_FromLong(value);
+    } else {
+      npy_intp dims = LENGTH(sexp);
+      PyObject* array = PyArray_SimpleNewFromData (1, &dims, NPY_BOOL,
+                                                   &(LOGICAL(sexp)[0]));
+      return array;
+    }
+  } else {
+    Rcpp::print(sexp);
+    stop("Unable to convert R object to python type");
+  }
+}
+
 
 //' @export
 // [[Rcpp::export]]
 PyObjectPtr py_object_call(PyObjectPtr x, List args, List keywords) {
 
+  // unnamed arguments
   PyObject *pyArgs = ::PyTuple_New(args.length());
   for (R_xlen_t i = 0; i<args.size(); i++) {
-
-    // get the argument and it's type
-    RObject item = args.at(i);
-    int type = item.sexp_type();
-    SEXP sexp = item.get__();
-
-    // NULL becomes python None (Py_IncRef since PyTuple_SetItem will steal
-    // the passed reference)
-    if (item.isNULL()) {
-      Py_IncRef(Py_None);
-      ::PyTuple_SetItem(pyArgs, i, Py_None);
-
-    // pass python objects straight through (Py_IncRef since PyTuple_SetItem
-    // will steal the passed reference)
-    } else if (item.inherits("py_object")) {
-      PyObjectPtr obj = as<PyObjectPtr>(sexp);
-      Py_IncRef(obj.get());
-      ::PyTuple_SetItem(pyArgs, i, obj.get());
-
-    // integer (pass length 1 vectors as scalars, otherwise pass numpy array)
-    } else if (type == INTSXP) {
-      if (LENGTH(sexp) == 1) {
-        int value = INTEGER(sexp)[0];
-        ::PyTuple_SetItem(pyArgs, i, PyInt_FromLong(value));
-      } else {
-        npy_intp dims = LENGTH(sexp);
-        PyObject* array = PyArray_SimpleNewFromData (1, &dims, NPY_INT,
-                                                     &(INTEGER(sexp)[0]));
-        ::PyTuple_SetItem(pyArgs, i, array);
-      }
-
-    // numeric (pass length 1 vectors as scalars, otherwise pass numpy array)
-    } else if (type == REALSXP) {
-      if (LENGTH(sexp) == 1) {
-        double value = REAL(sexp)[0];
-        ::PyTuple_SetItem(pyArgs, i, PyFloat_FromDouble(value));
-      } else {
-        npy_intp dims = LENGTH(sexp);
-        PyObject* array = PyArray_SimpleNewFromData (1, &dims, NPY_DOUBLE,
-                                                     &(REAL(sexp)[0]));
-        ::PyTuple_SetItem(pyArgs, i, array);
-      }
-
-    // logical (pass length 1 vectors as scalars, otherwise pass numpy array)
-    } else if (type == LGLSXP) {
-      if (LENGTH(sexp) == 1) {
-        int value = LOGICAL(sexp)[0];
-        ::PyTuple_SetItem(pyArgs, i, PyBool_FromLong(value));
-      } else {
-        npy_intp dims = LENGTH(sexp);
-        PyObject* array = PyArray_SimpleNewFromData (1, &dims, NPY_BOOL,
-                                                     &(LOGICAL(sexp)[0]));
-        ::PyTuple_SetItem(pyArgs, i, array);
-      }
-    }
+    PyObject* arg = r_to_py(args.at(i));
+    ::PyTuple_SetItem(pyArgs, i, arg);
   }
 
 

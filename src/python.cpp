@@ -1,6 +1,5 @@
 #include "tensorflow_types.hpp"
 
-// TODO: Capture error text rather than PyError_Print
 // TODO: Capture ... (named and un-named args) and forward to call
 // TODO: py_object_convert (convert from Python to R). could be as.character,
 //   as.matrix, as.logical, etc. Could also be done automatically or via
@@ -23,11 +22,31 @@ void py_finalize() {
   ::Py_Finalize();
 }
 
-// helper function to wrap a PyObject in an XPtr
+// wrap a PyObject in an XPtr
 PyObjectPtr py_object_ptr(PyObject* object, bool decref = true) {
   PyObjectPtr ptr(object);
   ptr.attr("class") = "py_object";
   return ptr;
+}
+
+// get a string representing the last python error
+std::string py_fetch_error() {
+  std::ostringstream ostr;
+  PyObject *pExcType , *pExcValue , *pExcTraceback;
+  ::PyErr_Fetch(&pExcType , &pExcValue , &pExcTraceback) ;
+  if (pExcType != NULL) {
+    PyObject* pRepr = ::PyObject_Repr(pExcType ) ;
+    ostr << PyString_AsString(pRepr) << " ";
+    Py_DecRef(pRepr);
+    Py_DecRef(pExcType);
+  }
+  if (pExcValue != NULL) {
+    PyObject* pRepr = ::PyObject_Repr(pExcValue) ;
+    ostr << ::PyString_AsString(pRepr);
+    Py_DecRef(pRepr) ;
+    Py_DecRef(pExcValue) ;
+  }
+  return ostr.str();
 }
 
 //' @export
@@ -58,10 +77,9 @@ PyObjectPtr py_main_module() {
 // [[Rcpp::export]]
 PyObjectPtr py_import(const std::string& module) {
   PyObject* pModule = ::PyImport_ImportModule(module.c_str());
-  if (pModule == NULL) {
-    ::PyErr_Print();
-    stop("Unable to import module '%s'", module);
-  }
+  if (pModule == NULL)
+    stop(py_fetch_error());
+
   return py_object_ptr(pModule);
 }
 
@@ -75,10 +93,9 @@ void py_object_print(PyObjectPtr pObject) {
 // [[Rcpp::export]]
 PyObjectPtr py_object_get_attr(PyObjectPtr pObject, const std::string& name) {
   PyObject* attr = ::PyObject_GetAttrString(pObject.get(), name.c_str());
-  if (attr == NULL) {
-    ::PyErr_Print();
-    stop("Attribute '%s' not found.", name);
-  }
+  if (attr == NULL)
+    stop(py_fetch_error());
+
   return py_object_ptr(attr);
 }
 
@@ -94,11 +111,10 @@ PyObjectPtr py_object_call(PyObjectPtr pObject) {
   PyObject *args = PyTuple_New(0);
   PyObject *keywords = ::PyDict_New();
   PyObject* res = ::PyObject_Call(pObject.get(), args, keywords);
-  Py_DECREF(args);
-  Py_DECREF(keywords);
-  if (res == NULL) {
-    ::PyErr_Print();
-    stop("Error calling python function");
-  }
+  ::Py_DecRef(args);
+  ::Py_DecRef(keywords);
+  if (res == NULL)
+    stop(py_fetch_error());
+
   return py_object_ptr(res);
 }

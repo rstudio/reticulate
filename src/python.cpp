@@ -37,8 +37,8 @@ std::string py_fetch_error() {
     std::ostringstream ostr;
     PyObject* pStr = ::PyObject_Str(pExcValue) ;
     ostr << ::PyString_AsString(pStr);
-    Py_DecRef(pStr) ;
-    Py_DecRef(pExcValue);
+    ::Py_DecRef(pStr) ;
+    ::Py_DecRef(pExcValue);
     return ostr.str();
   } else {
     return "<unknown error>";

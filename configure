@@ -1753,11 +1753,11 @@ MYPYTHON=python
 # find user defined python version, if set
 if test -z "${TENSORFLOW_PYTHON_VERSION}"
 then
-  echo "A specific python version to use was not provided"
-  echo "Defaulting to the standard python in the system"
+  echo "Using system version of python"
 else
   MYPYTHON=python${TENSORFLOW_PYTHON_VERSION}
   MYPYTHONCONFIG=python${TENSORFLOW_PYTHON_VERSION}-config
+  echo "Using python version ${TENSORFLOW_PYTHON_VERSION}"
 fi
 
 

@@ -1,4 +1,4 @@
-
+#
 #' @export
 `$.py_object` <- function(x, name) {
   attr <- py_get_attr(x, name)
@@ -30,17 +30,15 @@
   }
 }
 
-# alias to [[
 #' @export
 `[[.py_object` <- `$.py_object`
 
-# printing
 #' @export
 print.py_object <- function(x, ...) {
   py_print(x)
 }
 
-# completion
+#' @importFrom utils .DollarNames
 #' @export
 .DollarNames.py_object <- function(x, pattern = "") {
   attrs <- py_list_attributes(x)

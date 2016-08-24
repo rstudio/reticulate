@@ -10,7 +10,9 @@ using namespace Rcpp;
 // TODO: roxygen for exported functions
 // TODO: verify memory management
 // TODO: write tests
-// TODO: complete marshalling
+// TODO: path expand for file
+
+// TODO: complete marshalling (numpy arrays and matrixes)
 // TODO: completion
 
 // check whether a PyObject is None
@@ -407,6 +409,8 @@ SEXP py_call(PyObjectPtr x, List args, List keywords) {
 
 
 
+//' Obtain a reference to the main python module
+//'
 //' @export
 // [[Rcpp::export]]
 PyObjectPtr py_main_module() {
@@ -416,6 +420,11 @@ PyObjectPtr py_main_module() {
   return py_xptr(main, false);
 }
 
+
+//' Obtain a reference to a python module
+//'
+//' @param module Name of module
+//'
 //' @export
 // [[Rcpp::export]]
 PyObjectPtr py_import(const std::string& module) {
@@ -426,6 +435,11 @@ PyObjectPtr py_import(const std::string& module) {
   return py_xptr(pModule);
 }
 
+
+//' Run python code
+//'
+//' @param code Code to run
+//'
 //' @export
 // [[Rcpp::export]]
 void py_run_string(const std::string& code)
@@ -437,6 +451,11 @@ void py_run_string(const std::string& code)
   py_decref(res);
 }
 
+
+//' Run python code from a file
+//'
+//' @param file File to run code from
+//'
 //' @export
 // [[Rcpp::export]]
 void py_run_file(const std::string& file)

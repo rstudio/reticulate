@@ -37,21 +37,35 @@ py_call <- function(x, args, keywords) {
     .Call('tensorflow_py_call', PACKAGE = 'tensorflow', x, args, keywords)
 }
 
+#' Obtain a reference to the main python module
+#'
 #' @export
 py_main_module <- function() {
     .Call('tensorflow_py_main_module', PACKAGE = 'tensorflow')
 }
 
+#' Obtain a reference to a python module
+#'
+#' @param module Name of module
+#'
 #' @export
 py_import <- function(module) {
     .Call('tensorflow_py_import', PACKAGE = 'tensorflow', module)
 }
 
+#' Run python code
+#'
+#' @param code Code to run
+#'
 #' @export
 py_run_string <- function(code) {
     invisible(.Call('tensorflow_py_run_string', PACKAGE = 'tensorflow', code))
 }
 
+#' Run python code from a file
+#'
+#' @param file File to run code from
+#'
 #' @export
 py_run_file <- function(file) {
     invisible(.Call('tensorflow_py_run_file', PACKAGE = 'tensorflow', file))

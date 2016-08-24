@@ -1,8 +1,8 @@
 
 #' @export
 `$.py_object` <- function(x, name) {
-  attr <- py_object_get_attr(x, name)
-  if (py_object_is_callable(attr)) {
+  attr <- py_get_attr(x, name)
+  if (py_is_callable(attr)) {
     function(...) {
       args <- list()
       keywords <- list()
@@ -19,14 +19,14 @@
       } else {
         args <- dots
       }
-      result = py_object_call(attr, args, keywords)
+      result = py_call(attr, args, keywords)
       if (is.null(result))
         invisible(result)
       else
         result
     }
   } else {
-    py_object_to_r(attr)
+    py_to_r(attr)
   }
 }
 
@@ -37,6 +37,6 @@
 # Completion
 #' @export
 .DollarNames.py_object <- function(x, pattern = "") {
-  attrs <- py_object_list_attributes(x)
+  attrs <- py_list_attributes(x)
   attrs[substr(attrs, 1, 1) != '_']
 }

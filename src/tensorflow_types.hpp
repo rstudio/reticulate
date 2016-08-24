@@ -1,6 +1,6 @@
 #include <Python.h>
 #include <Rcpp.h>
 
-void py_object_decref(PyObject* object);
+void py_decref(PyObject* object);
 
-typedef Rcpp::XPtr<PyObject, Rcpp::PreserveStorage, py_object_decref> PyObjectPtr;
+typedef Rcpp::XPtr<PyObject, Rcpp::PreserveStorage, py_decref> PyObjectPtr;

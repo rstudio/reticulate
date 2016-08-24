@@ -301,16 +301,27 @@ PyObject* r_to_py(RObject x) {
   }
 }
 
+// import numpy
+bool py_import_numpy_array_api() {
+  import_array1(false);
+  return true;
+}
 
 // [[Rcpp::export]]
 void py_initialize() {
   ::Py_Initialize();
-  import_array();
+  if (!py_import_numpy_array_api())
+    stop(py_fetch_error());
 }
 
 // [[Rcpp::export]]
 void py_finalize() {
-  ::Py_Finalize();
+
+  // multiple calls to PyFinalize are likely to cause problems so
+  // we comment this out to play better with other packages that include
+  // python embedding code.
+
+  // ::Py_Finalize();
 }
 
 // [[Rcpp::export]]

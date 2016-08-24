@@ -187,62 +187,68 @@ PyObject* r_to_py(RObject x) {
   // NULL and empty vector become python None (Py_IncRef since PyTuple_SetItem
   // will steal the passed reference)
   if (x.isNULL() || (LENGTH(sexp) == 0)) {
-    Py_IncRef(&::_Py_NoneStruct);
+    ::Py_IncRef(&::_Py_NoneStruct);
     return &::_Py_NoneStruct;
 
     // pass python objects straight through (Py_IncRef since PyTuple_SetItem
     // will steal the passed reference)
   } else if (x.inherits("py_object")) {
     PyObjectPtr obj = as<PyObjectPtr>(sexp);
-    Py_IncRef(obj.get());
+    ::Py_IncRef(obj.get());
     return obj.get();
 
-    // integer (pass length 1 vectors as scalars, otherwise pass numpy array)
+    // integer (pass length 1 vectors as scalars, otherwise pass list)
   } else if (type == INTSXP) {
     if (LENGTH(sexp) == 1) {
       int value = INTEGER(sexp)[0];
-      return PyInt_FromLong(value);
+      return ::PyInt_FromLong(value);
     } else {
-      npy_intp dims = LENGTH(sexp);
-      PyObject* array = PyArray_SimpleNewFromData (1, &dims, NPY_INT,
-                                                   &(INTEGER(sexp)[0]));
-      return array;
+      PyObject* list = ::PyList_New(LENGTH(sexp));
+      for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
+        int value = INTEGER(sexp)[i];
+        ::PyList_SetItem(list, i, ::PyInt_FromLong(value));
+      }
+      return list;
     }
 
-    // numeric (pass length 1 vectors as scalars, otherwise pass numpy array)
+    // numeric (pass length 1 vectors as scalars, otherwise pass list)
   } else if (type == REALSXP) {
     if (LENGTH(sexp) == 1) {
       double value = REAL(sexp)[0];
-      return PyFloat_FromDouble(value);
+      return ::PyFloat_FromDouble(value);
     } else {
-      npy_intp dims = LENGTH(sexp);
-      PyObject* array = PyArray_SimpleNewFromData (1, &dims, NPY_DOUBLE,
-                                                   &(REAL(sexp)[0]));
-      return array;
+      PyObject* list = ::PyList_New(LENGTH(sexp));
+      for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
+        double value = REAL(sexp)[i];
+        ::PyList_SetItem(list, i, ::PyFloat_FromDouble(value));
+      }
+      return list;
     }
 
-    // logical (pass length 1 vectors as scalars, otherwise pass numpy array)
+    // logical (pass length 1 vectors as scalars, otherwise pass list)
   } else if (type == LGLSXP) {
     if (LENGTH(sexp) == 1) {
       int value = LOGICAL(sexp)[0];
-      return PyBool_FromLong(value);
+      return ::PyBool_FromLong(value);
     } else {
-      npy_intp dims = LENGTH(sexp);
-      PyObject* array = PyArray_SimpleNewFromData (1, &dims, NPY_BOOL,
-                                                   &(LOGICAL(sexp)[0]));
-      return array;
+      PyObject* list = ::PyList_New(LENGTH(sexp));
+      for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
+        int value = LOGICAL(sexp)[i];
+        ::PyList_SetItem(list, i, ::PyBool_FromLong(value));
+      }
+      return list;
     }
 
     // character (pass length 1 vectors as scalars, otherwise pass list)
   } else if (type == STRSXP) {
     if (LENGTH(sexp) == 1) {
       const char* value = CHAR(STRING_ELT(sexp, 0));
-      return PyString_FromString(value);
+      return ::PyString_FromString(value);
     } else {
-      PyObject* list = PyList_New(LENGTH(sexp));
+      PyObject* list = ::PyList_New(LENGTH(sexp));
       for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
         const char* value = CHAR(STRING_ELT(sexp, i));
-        PyList_SetItem(list, i, PyString_FromString(value));
+        ::PyList_SetItem(list, i, ::PyString_FromString(value));
       }
       return list;
     }
@@ -263,18 +269,18 @@ PyObject* r_to_py(RObject x) {
         }
       }
       return dict;
-      // create a list if there are no names
+      // create a tuple if there are no names
     } else {
-      PyObject* list = PyList_New(LENGTH(sexp));
+      PyObject* tuple = ::PyTuple_New(LENGTH(sexp));
       for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
         PyObject* item = r_to_py(RObject(VECTOR_ELT(sexp, i)));
-        int res = ::PyList_SetItem(list, i, item);
+        int res = ::PyTuple_SetItem(tuple, i, item);
         if (res != 0) {
-          py_decref(list);
+          py_decref(tuple);
           stop(py_fetch_error());
         }
       }
-      return list;
+      return tuple;
     }
   } else {
     Rcpp::print(sexp);

@@ -15,8 +15,6 @@ using namespace Rcpp;
 
 #include "tensorflow_types.hpp"
 
-// TODO: write tests
-
 // TODO: completion
 
 // check whether a PyObject is None

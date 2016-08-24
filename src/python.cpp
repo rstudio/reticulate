@@ -15,7 +15,6 @@ using namespace Rcpp;
 
 #include "tensorflow_types.hpp"
 
-// TODO: verify memory management
 // TODO: write tests
 
 // TODO: completion
@@ -40,6 +39,9 @@ PyObjectPtr py_xptr(PyObject* object, bool decref = true) {
 
 // get a string representing the last python error
 std::string py_fetch_error() {
+
+  // determine error
+  std::string error;
   PyObject *pExcType , *pExcValue , *pExcTraceback;
   ::PyErr_Fetch(&pExcType , &pExcValue , &pExcTraceback) ;
   if (pExcValue != NULL) {
@@ -47,11 +49,18 @@ std::string py_fetch_error() {
     PyObject* pStr = ::PyObject_Str(pExcValue) ;
     ostr << ::PyString_AsString(pStr);
     py_decref(pStr) ;
-    py_decref(pExcValue);
-    return ostr.str();
+    error = ostr.str();
   } else {
-    return "<unknown error>";
+    error = "<unknown error>";
   }
+
+  // release referenes
+  py_decref(pExcType);
+  py_decref(pExcValue);
+  py_decref(pExcTraceback);
+
+  // return error
+  return error;
 }
 
 // check whether the PyObject can be mapped to an R scalar type
@@ -153,7 +162,7 @@ SEXP py_to_r(PyObject* x) {
       for (Py_ssize_t i = 0; i<len; i++)
         vec[i] = PyString_AsString(PyList_GetItem(x, i));
       return vec;
-    } else {
+    } else { // not a homegenous list of scalars, return a list
       Rcpp::List list(len);
       for (Py_ssize_t i = 0; i<len; i++)
         list[i] = py_to_r(PyList_GetItem(x, i));
@@ -218,18 +227,17 @@ SEXP py_to_r(PyObject* x) {
     case NPY_DOUBLE:
       typenum = NPY_DOUBLE;
       break;
-      // unsupported
+    // unsupported
     default:
       stop("Conversion from numpy array type %d is not supported", typenum);
       break;
     }
 
-    // cast it to fortran array (PyArray_Cast steals the descr) then
-    // get a copy of the data pointer
+    // cast it to a fortran array (PyArray_CastToType steals the descr)
+    // (note that we will decref the copied array below)
     PyArray_Descr* descr = PyArray_DescrFromType(typenum);
-    PyArrayObject* fortranArray = (PyArrayObject*)
-                        PyArray_CastToType(array, descr, NPY_ARRAY_FARRAY);
-    if (fortranArray == NULL)
+    array = (PyArrayObject*)PyArray_CastToType(array, descr, NPY_ARRAY_FARRAY);
+    if (array == NULL)
       stop(py_fetch_error());
 
     // R array to return
@@ -238,21 +246,21 @@ SEXP py_to_r(PyObject* x) {
     // copy the data as required per-type
     switch(typenum) {
       case NPY_BOOL: {
-        npy_bool* pData = (npy_bool*)PyArray_DATA(fortranArray);
+        npy_bool* pData = (npy_bool*)PyArray_DATA(array);
         rArray = Rf_allocArray(LGLSXP, dimsVector);
         for (int i=0; i<len; i++)
           LOGICAL(rArray)[i] = pData[i];
         break;
       }
       case NPY_LONG: {
-        npy_long* pData = (npy_long*)PyArray_DATA(fortranArray);
+        npy_long* pData = (npy_long*)PyArray_DATA(array);
         rArray = Rf_allocArray(INTSXP, dimsVector);
         for (int i=0; i<len; i++)
           INTEGER(rArray)[i] = pData[i];
         break;
       }
       case NPY_DOUBLE: {
-        npy_double* pData = (npy_double*)PyArray_DATA(fortranArray);
+        npy_double* pData = (npy_double*)PyArray_DATA(array);
         rArray = Rf_allocArray(REALSXP, dimsVector);
         for (int i=0; i<len; i++)
           REAL(rArray)[i] = pData[i];
@@ -261,15 +269,16 @@ SEXP py_to_r(PyObject* x) {
     }
 
     // free the numpy array
-    py_decref((PyObject*)fortranArray);
+    py_decref((PyObject*)array);
 
     // return the R Array
     return rArray;
   }
 
-  // default is to return opaque wrapper for python object
-  else
+  // default is to return opaque wrapper to python object
+  else {
     return py_xptr(x);
+  }
 }
 
 
@@ -287,13 +296,14 @@ PyObject* r_to_py(RObject x) {
     ::Py_IncRef(&::_Py_NoneStruct);
     return &::_Py_NoneStruct;
 
-    // pass python objects straight through (Py_IncRef since PyTuple_SetItem
-    // will steal the passed reference)
+  // pass python objects straight through (Py_IncRef since returning this
+  // creates a new reference from the caller)
   } else if (x.inherits("py_object")) {
     PyObjectPtr obj = as<PyObjectPtr>(sexp);
     ::Py_IncRef(obj.get());
     return obj.get();
 
+  // convert arrays and matrixes to numpy
   } else if (x.hasAttribute("dim")) {
 
     IntegerVector dimAttrib = x.attr("dim");
@@ -335,7 +345,7 @@ PyObject* r_to_py(RObject x) {
     // return it
     return matrix;
 
-    // integer (pass length 1 vectors as scalars, otherwise pass list)
+  // integer (pass length 1 vectors as scalars, otherwise pass list)
   } else if (type == INTSXP) {
     if (LENGTH(sexp) == 1 && !asis) {
       int value = INTEGER(sexp)[0];
@@ -349,7 +359,7 @@ PyObject* r_to_py(RObject x) {
       return list;
     }
 
-    // numeric (pass length 1 vectors as scalars, otherwise pass list)
+  // numeric (pass length 1 vectors as scalars, otherwise pass list)
   } else if (type == REALSXP) {
     if (LENGTH(sexp) == 1 && !asis) {
       double value = REAL(sexp)[0];
@@ -363,7 +373,7 @@ PyObject* r_to_py(RObject x) {
       return list;
     }
 
-    // logical (pass length 1 vectors as scalars, otherwise pass list)
+  // logical (pass length 1 vectors as scalars, otherwise pass list)
   } else if (type == LGLSXP) {
     if (LENGTH(sexp) == 1 && !asis) {
       int value = LOGICAL(sexp)[0];
@@ -377,7 +387,7 @@ PyObject* r_to_py(RObject x) {
       return list;
     }
 
-    // character (pass length 1 vectors as scalars, otherwise pass list)
+  // character (pass length 1 vectors as scalars, otherwise pass list)
   } else if (type == STRSXP) {
     if (LENGTH(sexp) == 1 && !asis) {
       const char* value = CHAR(STRING_ELT(sexp, 0));
@@ -391,7 +401,7 @@ PyObject* r_to_py(RObject x) {
       return list;
     }
 
-    // list
+  // list
   } else if (type == VECSXP) {
     // create a dict for names
     if (x.hasAttribute("names")) {
@@ -401,6 +411,7 @@ PyObject* r_to_py(RObject x) {
         const char* name = names.at(i);
         PyObject* item = r_to_py(RObject(VECTOR_ELT(sexp, i)));
         int res = ::PyDict_SetItemString(dict, name, item);
+        py_decref(item);
         if (res != 0) {
           py_decref(dict);
           stop(py_fetch_error());
@@ -426,7 +437,7 @@ PyObject* r_to_py(RObject x) {
   }
 }
 
-// import numpy
+// import numpy array api
 bool py_import_numpy_array_api() {
   import_array1(false);
   return true;
@@ -460,6 +471,7 @@ void py_print(PyObjectPtr x) {
   if (str == NULL)
     stop(py_fetch_error());
   Rcout << ::PyString_AsString(str);
+  py_decref(str);
 }
 
 // [[Rcpp::export]]
@@ -523,7 +535,9 @@ SEXP py_call(PyObjectPtr x, List args, List keywords) {
       const char* name = names.at(i);
       PyObject* arg = r_to_py(keywords.at(i));
       int res = ::PyDict_SetItemString(pyKeywords, name, arg);
+      py_decref(arg);
       if (res != 0) {
+        py_decref(pyArgs);
         py_decref(pyKeywords);
         stop(py_fetch_error());
       }

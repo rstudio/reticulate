@@ -30,11 +30,17 @@
   }
 }
 
-# Alias to [[
+# alias to [[
 #' @export
 `[[.py_object` <- `$.py_object`
 
-# Completion
+# printing
+#' @export
+print.py_object <- function(x, ...) {
+  py_print(x)
+}
+
+# completion
 #' @export
 .DollarNames.py_object <- function(x, pattern = "") {
   attrs <- py_list_attributes(x)

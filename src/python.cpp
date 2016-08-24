@@ -336,7 +336,7 @@ bool py_is_none(PyObjectPtr x) {
 }
 
 //' @export
-// [[Rcpp::export(print.py_object)]]
+// [[Rcpp::export]]
 void py_print(PyObjectPtr x) {
   ::PyObject_Print(x, stdout, Py_PRINT_RAW);
 }

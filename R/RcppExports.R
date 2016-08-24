@@ -35,7 +35,7 @@ py_is_none <- function(x) {
 }
 
 #' @export
-print.py_object <- function(x) {
+py_print <- function(x) {
     invisible(.Call('tensorflow_py_print', PACKAGE = 'tensorflow', x))
 }
 

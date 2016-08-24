@@ -8,7 +8,6 @@ using namespace Rcpp;
 
 // TODO: verify memory management
 // TODO: write tests
-// TODO: path expand for file
 
 // TODO: complete marshalling (numpy arrays and matrixes)
 // TODO: completion
@@ -461,9 +460,14 @@ void py_run_string(const std::string& code)
 // [[Rcpp::export]]
 void py_run_file(const std::string& file)
 {
-  FILE* fp = ::fopen(file.c_str(), "r");
+  // expand path
+  Function pathExpand("path.expand");
+  std::string expanded = as<std::string>(pathExpand(file));
+
+  // open and run
+  FILE* fp = ::fopen(expanded.c_str(), "r");
   if (fp)
-    ::PyRun_SimpleFile(fp, file.c_str());
+    ::PyRun_SimpleFile(fp, expanded.c_str());
   else
     stop("Unable to read script file '%s' (does the file exist?)", file);
 }

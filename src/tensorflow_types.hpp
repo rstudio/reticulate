@@ -1,11 +1,6 @@
 #include <Python.h>
-
 #include <Rcpp.h>
 
+void py_object_decref(PyObject* object);
 
-inline void decrementPyObject(PyObject* object) {
-  if (object != NULL)
-    ::Py_DecRef(object);
-}
-
-typedef Rcpp::XPtr<PyObject, Rcpp::PreserveStorage, decrementPyObject> PyObjectPtr;
+typedef Rcpp::XPtr<PyObject, Rcpp::PreserveStorage, py_object_decref> PyObjectPtr;

@@ -1,34 +1,25 @@
-#include "tensorflow_types.hpp"
-
+#include <Python.h>
 #include <numpy/arrayobject.h>
 
-// TODO: py_object_convert (convert from Python to R). could be as.character,
-//   as.matrix, as.logical, etc. Could also be done automatically or via
-//   some sort of dynamic type annotation mechanism. we could simply convert
-//   anything that we can trivially round-trip back into python
-
+#include <Rcpp.h>
 using namespace Rcpp;
 
-// https://docs.python.org/2/c-api/object.html
+#include "tensorflow_types.hpp"
 
-// [[Rcpp::export]]
-void py_initialize() {
-  ::Py_Initialize();
-  import_array();
-}
-
-// [[Rcpp::export]]
-void py_finalize() {
-  ::Py_Finalize();
-}
-
-bool Py_IsNone(PyObject* object) {
+// check whether a PyObject is None
+bool py_object_is_none(PyObject* object) {
   return object == &::_Py_NoneStruct;
 }
 
+// safely decrmement a PyObject
+void py_object_decref(PyObject* object) {
+  if (object != NULL)
+    ::Py_DecRef(object);
+}
+
 // wrap a PyObject in an XPtr
-PyObjectPtr py_object_ptr(PyObject* object, bool decref = true) {
-  PyObjectPtr ptr(object);
+PyObjectPtr py_object_xptr(PyObject* object, bool decref = true) {
+  PyObjectPtr ptr(object, decref);
   ptr.attr("class") = "py_object";
   return ptr;
 }
@@ -41,87 +32,15 @@ std::string py_fetch_error() {
     std::ostringstream ostr;
     PyObject* pStr = ::PyObject_Str(pExcValue) ;
     ostr << ::PyString_AsString(pStr);
-    ::Py_DecRef(pStr) ;
-    ::Py_DecRef(pExcValue);
+    py_object_decref(pStr) ;
+    py_object_decref(pExcValue);
     return ostr.str();
   } else {
     return "<unknown error>";
   }
 }
 
-//' @export
-// [[Rcpp::export]]
-PyObjectPtr py_main_module() {
-  PyObject* main = ::PyImport_AddModule("__main__");
-  if (main == NULL)
-    stop(py_fetch_error());
-  return py_object_ptr(main, false);
-}
-
-
-//' @export
-// [[Rcpp::export]]
-void py_run_string(const std::string& code)
-{
-  PyObject* dict = ::PyModule_GetDict(py_main_module());
-  PyObject* res  = ::PyRun_StringFlags(code.c_str(), Py_file_input, dict, dict, NULL);
-  if (res == NULL)
-    stop(py_fetch_error());
-  ::Py_DecRef(res);
-}
-
-//' @export
-// [[Rcpp::export]]
-void py_run_file(const std::string& file)
-{
-  FILE* fp = ::fopen(file.c_str(), "r");
-  if (fp)
-    ::PyRun_SimpleFile(fp, file.c_str());
-  else
-    stop("Unable to read script file '%s' (does the file exist?)", file);
-}
-
-
-//' @export
-// [[Rcpp::export]]
-PyObjectPtr py_import(const std::string& module) {
-  PyObject* pModule = ::PyImport_ImportModule(module.c_str());
-  if (pModule == NULL)
-    stop(py_fetch_error());
-
-  return py_object_ptr(pModule);
-}
-
-//' @export
-// [[Rcpp::export]]
-bool py_object_is_none(PyObjectPtr x) {
-  return Py_IsNone(x);
-}
-
-//' @export
-// [[Rcpp::export(print.py_object)]]
-void py_object_print(PyObjectPtr x) {
-  if (!Py_IsNone(x))
-    ::PyObject_Print(x, stdout, Py_PRINT_RAW);
-}
-
-//' @export
-// [[Rcpp::export]]
-PyObjectPtr py_object_get_attr(PyObjectPtr x, const std::string& name) {
-  PyObject* attr = ::PyObject_GetAttrString(x, name.c_str());
-  if (attr == NULL)
-    stop(py_fetch_error());
-
-  return py_object_ptr(attr);
-}
-
-//' @export
-// [[Rcpp::export]]
-bool py_object_is_callable(PyObjectPtr x) {
-  return ::PyCallable_Check(x) == 1;
-}
-
-
+// check whether the PyObject can be mapped to an R scalar type
 int r_scalar_type(PyObject* x) {
 
   if (PyBool_Check(x))
@@ -144,6 +63,7 @@ int r_scalar_type(PyObject* x) {
     return NILSXP;
 }
 
+// check whether the PyObject is a list of a single R scalar type
 int scalar_list_type(PyObject* x) {
 
   Py_ssize_t len = PyList_Size(x);
@@ -165,10 +85,10 @@ int scalar_list_type(PyObject* x) {
 }
 
 // convert a python object to an R object
-SEXP py_to_r(PyObject* x) {
+SEXP py_object_to_r(PyObject* x) {
 
   // NULL for Python None
-  if (Py_IsNone(x))
+  if (py_object_is_none(x))
     return R_NilValue;
 
   // check for scalars
@@ -222,7 +142,7 @@ SEXP py_to_r(PyObject* x) {
     } else {
       Rcpp::List list(len);
       for (Py_ssize_t i = 0; i<len; i++)
-        list[i] = py_to_r(PyList_GetItem(x, i));
+        list[i] = py_object_to_r(PyList_GetItem(x, i));
       return list;
     }
   }
@@ -246,13 +166,13 @@ SEXP py_to_r(PyObject* x) {
 
   // default is to return opaque wrapper for python object
   else
-    return py_object_ptr(x);
+    return py_object_xptr(x);
 }
 
 
 // convert an R object to a python object (the returned object
 // will have an active reference count on it)
-PyObject* r_to_py(RObject x) {
+PyObject* r_object_to_py(RObject x) {
 
   int type = x.sexp_type();
   SEXP sexp = x.get__();
@@ -263,14 +183,14 @@ PyObject* r_to_py(RObject x) {
     Py_IncRef(&::_Py_NoneStruct);
     return &::_Py_NoneStruct;
 
-  // pass python objects straight through (Py_IncRef since PyTuple_SetItem
-  // will steal the passed reference)
+    // pass python objects straight through (Py_IncRef since PyTuple_SetItem
+    // will steal the passed reference)
   } else if (x.inherits("py_object")) {
     PyObjectPtr obj = as<PyObjectPtr>(sexp);
     Py_IncRef(obj.get());
     return obj.get();
 
-  // integer (pass length 1 vectors as scalars, otherwise pass numpy array)
+    // integer (pass length 1 vectors as scalars, otherwise pass numpy array)
   } else if (type == INTSXP) {
     if (LENGTH(sexp) == 1) {
       int value = INTEGER(sexp)[0];
@@ -282,7 +202,7 @@ PyObject* r_to_py(RObject x) {
       return array;
     }
 
-  // numeric (pass length 1 vectors as scalars, otherwise pass numpy array)
+    // numeric (pass length 1 vectors as scalars, otherwise pass numpy array)
   } else if (type == REALSXP) {
     if (LENGTH(sexp) == 1) {
       double value = REAL(sexp)[0];
@@ -294,7 +214,7 @@ PyObject* r_to_py(RObject x) {
       return array;
     }
 
-  // logical (pass length 1 vectors as scalars, otherwise pass numpy array)
+    // logical (pass length 1 vectors as scalars, otherwise pass numpy array)
   } else if (type == LGLSXP) {
     if (LENGTH(sexp) == 1) {
       int value = LOGICAL(sexp)[0];
@@ -306,7 +226,7 @@ PyObject* r_to_py(RObject x) {
       return array;
     }
 
-  // character (pass length 1 vectors as scalars, otherwise pass list)
+    // character (pass length 1 vectors as scalars, otherwise pass list)
   } else if (type == STRSXP) {
     if (LENGTH(sexp) == 1) {
       const char* value = CHAR(STRING_ELT(sexp, 0));
@@ -320,7 +240,7 @@ PyObject* r_to_py(RObject x) {
       return list;
     }
 
-  // list
+    // list
   } else if (type == VECSXP) {
     // create a dict for names
     if (x.hasAttribute("names")) {
@@ -328,22 +248,22 @@ PyObject* r_to_py(RObject x) {
       CharacterVector names = x.attr("names");
       for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
         const char* name = names.at(i);
-        PyObject* item = r_to_py(RObject(VECTOR_ELT(sexp, i)));
+        PyObject* item = r_object_to_py(RObject(VECTOR_ELT(sexp, i)));
         int res = ::PyDict_SetItemString(dict, name, item);
         if (res != 0) {
-          Py_DecRef(dict);
+          py_object_decref(dict);
           stop(py_fetch_error());
         }
       }
       return dict;
-    // create a list if there are no names
+      // create a list if there are no names
     } else {
       PyObject* list = PyList_New(LENGTH(sexp));
       for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
-        PyObject* item = r_to_py(RObject(VECTOR_ELT(sexp, i)));
+        PyObject* item = r_object_to_py(RObject(VECTOR_ELT(sexp, i)));
         int res = ::PyList_SetItem(list, i, item);
         if (res != 0) {
-          Py_DecRef(list);
+          py_object_decref(list);
           stop(py_fetch_error());
         }
       }
@@ -355,58 +275,82 @@ PyObject* r_to_py(RObject x) {
   }
 }
 
-//' @export
+
 // [[Rcpp::export]]
-SEXP py_object_to_r(PyObjectPtr x) {
-  return py_to_r(x);
+void py_initialize() {
+  ::Py_Initialize();
+  import_array();
+}
+
+// [[Rcpp::export]]
+void py_finalize() {
+  ::Py_Finalize();
 }
 
 //' @export
 // [[Rcpp::export]]
-SEXP py_object_call(PyObjectPtr x, List args, List keywords) {
+PyObjectPtr py_main_module() {
+  PyObject* main = ::PyImport_AddModule("__main__");
+  if (main == NULL)
+    stop(py_fetch_error());
+  return py_object_xptr(main, false);
+}
 
-  // unnamed arguments
-  PyObject *pyArgs = ::PyTuple_New(args.length());
-  for (R_xlen_t i = 0; i<args.size(); i++) {
-    PyObject* arg = r_to_py(args.at(i));
-    int res = ::PyTuple_SetItem(pyArgs, i, arg);
-    if (res != 0) {
-      Py_DecRef(pyArgs);
-      stop(py_fetch_error());
-    }
-  }
-
-  // named arguments
-  PyObject *pyKeywords = ::PyDict_New();
-  if (keywords.length() > 0) {
-    CharacterVector names = keywords.names();
-    for (R_xlen_t i = 0; i<keywords.length(); i++) {
-      const char* name = names.at(i);
-      PyObject* arg = r_to_py(keywords.at(i));
-      int res = ::PyDict_SetItemString(pyKeywords, name, arg);
-      if (res != 0) {
-        Py_DecRef(pyKeywords);
-        stop(py_fetch_error());
-      }
-    }
-  }
-
-  // call the function
-  PyObject* res = ::PyObject_Call(x, pyArgs, pyKeywords);
-  ::Py_DecRef(pyArgs);
-  ::Py_DecRef(pyKeywords);
-
-  // check for error
-  if (res == NULL)
+//' @export
+// [[Rcpp::export]]
+PyObjectPtr py_import(const std::string& module) {
+  PyObject* pModule = ::PyImport_ImportModule(module.c_str());
+  if (pModule == NULL)
     stop(py_fetch_error());
 
-  // return R object
-  return py_to_r(res);
+  return py_object_xptr(pModule);
 }
 
 //' @export
 // [[Rcpp::export]]
-std::vector<std::string> py_list_attributes(PyObjectPtr x) {
+void py_run_string(const std::string& code)
+{
+  PyObject* dict = ::PyModule_GetDict(py_main_module());
+  PyObject* res  = ::PyRun_StringFlags(code.c_str(), Py_file_input, dict, dict, NULL);
+  if (res == NULL)
+    stop(py_fetch_error());
+  py_object_decref(res);
+}
+
+//' @export
+// [[Rcpp::export]]
+void py_run_file(const std::string& file)
+{
+  FILE* fp = ::fopen(file.c_str(), "r");
+  if (fp)
+    ::PyRun_SimpleFile(fp, file.c_str());
+  else
+    stop("Unable to read script file '%s' (does the file exist?)", file);
+}
+
+
+//' @export
+// [[Rcpp::export]]
+bool py_object_is_none(PyObjectPtr x) {
+  return py_object_is_none(x.get());
+}
+
+//' @export
+// [[Rcpp::export(print.py_object)]]
+void py_object_print(PyObjectPtr x) {
+  if (!py_object_is_none(x))
+    ::PyObject_Print(x, stdout, Py_PRINT_RAW);
+}
+
+//' @export
+// [[Rcpp::export]]
+bool py_object_is_callable(PyObjectPtr x) {
+  return ::PyCallable_Check(x) == 1;
+}
+
+//' @export
+// [[Rcpp::export]]
+std::vector<std::string> py_object_list_attributes(PyObjectPtr x) {
   std::vector<std::string> attributes;
   PyObject* attrs = ::PyObject_Dir(x);
   if (attrs == NULL)
@@ -419,9 +363,70 @@ std::vector<std::string> py_list_attributes(PyObjectPtr x) {
     attributes.push_back(value);
   }
 
-  ::Py_DecRef(attrs);
+  py_object_decref(attrs);
 
   return attributes;
+}
+
+
+
+//' @export
+// [[Rcpp::export]]
+PyObjectPtr py_object_get_attr(PyObjectPtr x, const std::string& name) {
+  PyObject* attr = ::PyObject_GetAttrString(x, name.c_str());
+  if (attr == NULL)
+    stop(py_fetch_error());
+
+  return py_object_xptr(attr);
+}
+
+//' @export
+// [[Rcpp::export]]
+SEXP py_object_to_r(PyObjectPtr x) {
+  return py_object_to_r(x.get());
+}
+
+//' @export
+// [[Rcpp::export]]
+SEXP py_object_call(PyObjectPtr x, List args, List keywords) {
+
+  // unnamed arguments
+  PyObject *pyArgs = ::PyTuple_New(args.length());
+  for (R_xlen_t i = 0; i<args.size(); i++) {
+    PyObject* arg = r_object_to_py(args.at(i));
+    int res = ::PyTuple_SetItem(pyArgs, i, arg);
+    if (res != 0) {
+      py_object_decref(pyArgs);
+      stop(py_fetch_error());
+    }
+  }
+
+  // named arguments
+  PyObject *pyKeywords = ::PyDict_New();
+  if (keywords.length() > 0) {
+    CharacterVector names = keywords.names();
+    for (R_xlen_t i = 0; i<keywords.length(); i++) {
+      const char* name = names.at(i);
+      PyObject* arg = r_object_to_py(keywords.at(i));
+      int res = ::PyDict_SetItemString(pyKeywords, name, arg);
+      if (res != 0) {
+        py_object_decref(pyKeywords);
+        stop(py_fetch_error());
+      }
+    }
+  }
+
+  // call the function
+  PyObject* res = ::PyObject_Call(x, pyArgs, pyKeywords);
+  py_object_decref(pyArgs);
+  py_object_decref(pyKeywords);
+
+  // check for error
+  if (res == NULL)
+    stop(py_fetch_error());
+
+  // return R object
+  return py_object_to_r(res);
 }
 
 

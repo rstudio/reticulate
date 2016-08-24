@@ -15,6 +15,11 @@ py_main_module <- function() {
 }
 
 #' @export
+py_import <- function(module) {
+    .Call('tensorflow_py_import', PACKAGE = 'tensorflow', module)
+}
+
+#' @export
 py_run_string <- function(code) {
     invisible(.Call('tensorflow_py_run_string', PACKAGE = 'tensorflow', code))
 }
@@ -22,11 +27,6 @@ py_run_string <- function(code) {
 #' @export
 py_run_file <- function(file) {
     invisible(.Call('tensorflow_py_run_file', PACKAGE = 'tensorflow', file))
-}
-
-#' @export
-py_import <- function(module) {
-    .Call('tensorflow_py_import', PACKAGE = 'tensorflow', module)
 }
 
 #' @export
@@ -40,13 +40,18 @@ print.py_object <- function(x) {
 }
 
 #' @export
-py_object_get_attr <- function(x, name) {
-    .Call('tensorflow_py_object_get_attr', PACKAGE = 'tensorflow', x, name)
+py_object_is_callable <- function(x) {
+    .Call('tensorflow_py_object_is_callable', PACKAGE = 'tensorflow', x)
 }
 
 #' @export
-py_object_is_callable <- function(x) {
-    .Call('tensorflow_py_object_is_callable', PACKAGE = 'tensorflow', x)
+py_object_list_attributes <- function(x) {
+    .Call('tensorflow_py_object_list_attributes', PACKAGE = 'tensorflow', x)
+}
+
+#' @export
+py_object_get_attr <- function(x, name) {
+    .Call('tensorflow_py_object_get_attr', PACKAGE = 'tensorflow', x, name)
 }
 
 #' @export
@@ -57,10 +62,5 @@ py_object_to_r <- function(x) {
 #' @export
 py_object_call <- function(x, args, keywords) {
     .Call('tensorflow_py_object_call', PACKAGE = 'tensorflow', x, args, keywords)
-}
-
-#' @export
-py_list_attributes <- function(x) {
-    .Call('tensorflow_py_list_attributes', PACKAGE = 'tensorflow', x)
 }
 

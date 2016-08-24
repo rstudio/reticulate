@@ -34,6 +34,17 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
+// py_import
+PyObjectPtr py_import(const std::string& module);
+RcppExport SEXP tensorflow_py_import(SEXP moduleSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< const std::string& >::type module(moduleSEXP);
+    __result = Rcpp::wrap(py_import(module));
+    return __result;
+END_RCPP
+}
 // py_run_string
 void py_run_string(const std::string& code);
 RcppExport SEXP tensorflow_py_run_string(SEXP codeSEXP) {
@@ -52,17 +63,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const std::string& >::type file(fileSEXP);
     py_run_file(file);
     return R_NilValue;
-END_RCPP
-}
-// py_import
-PyObjectPtr py_import(const std::string& module);
-RcppExport SEXP tensorflow_py_import(SEXP moduleSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject __result;
-    Rcpp::RNGScope __rngScope;
-    Rcpp::traits::input_parameter< const std::string& >::type module(moduleSEXP);
-    __result = Rcpp::wrap(py_import(module));
-    return __result;
 END_RCPP
 }
 // py_object_is_none
@@ -86,6 +86,28 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
+// py_object_is_callable
+bool py_object_is_callable(PyObjectPtr x);
+RcppExport SEXP tensorflow_py_object_is_callable(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< PyObjectPtr >::type x(xSEXP);
+    __result = Rcpp::wrap(py_object_is_callable(x));
+    return __result;
+END_RCPP
+}
+// py_object_list_attributes
+std::vector<std::string> py_object_list_attributes(PyObjectPtr x);
+RcppExport SEXP tensorflow_py_object_list_attributes(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< PyObjectPtr >::type x(xSEXP);
+    __result = Rcpp::wrap(py_object_list_attributes(x));
+    return __result;
+END_RCPP
+}
 // py_object_get_attr
 PyObjectPtr py_object_get_attr(PyObjectPtr x, const std::string& name);
 RcppExport SEXP tensorflow_py_object_get_attr(SEXP xSEXP, SEXP nameSEXP) {
@@ -95,17 +117,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< PyObjectPtr >::type x(xSEXP);
     Rcpp::traits::input_parameter< const std::string& >::type name(nameSEXP);
     __result = Rcpp::wrap(py_object_get_attr(x, name));
-    return __result;
-END_RCPP
-}
-// py_object_is_callable
-bool py_object_is_callable(PyObjectPtr x);
-RcppExport SEXP tensorflow_py_object_is_callable(SEXP xSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject __result;
-    Rcpp::RNGScope __rngScope;
-    Rcpp::traits::input_parameter< PyObjectPtr >::type x(xSEXP);
-    __result = Rcpp::wrap(py_object_is_callable(x));
     return __result;
 END_RCPP
 }
@@ -130,17 +141,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< List >::type args(argsSEXP);
     Rcpp::traits::input_parameter< List >::type keywords(keywordsSEXP);
     __result = Rcpp::wrap(py_object_call(x, args, keywords));
-    return __result;
-END_RCPP
-}
-// py_list_attributes
-std::vector<std::string> py_list_attributes(PyObjectPtr x);
-RcppExport SEXP tensorflow_py_list_attributes(SEXP xSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject __result;
-    Rcpp::RNGScope __rngScope;
-    Rcpp::traits::input_parameter< PyObjectPtr >::type x(xSEXP);
-    __result = Rcpp::wrap(py_list_attributes(x));
     return __result;
 END_RCPP
 }

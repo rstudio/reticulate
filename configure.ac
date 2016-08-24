@@ -7,7 +7,7 @@ AC_CONFIG_SRCDIR([src])
 # find R home and set CC/CFLAGS
 : ${R_HOME=`R RHOME`}
 if test -z "${R_HOME}"; then
-  echo "could not determine R_HOME"
+  echo "Could not determine R_HOME"
   exit 1
 fi
 RBIN="${R_HOME}/bin/R"
@@ -26,8 +26,8 @@ MYPYTHON=python
 # find user defined python version, if set
 if test -z "${TENSORFLOW_PYTHON_VERSION}"
 then
-  echo "a specific python version to use was not provided"
-  echo "defaulting to the standard python in the system"
+  echo "A specific python version to use was not provided"
+  echo "Defaulting to the standard python in the system"
 else
   MYPYTHON=python${TENSORFLOW_PYTHON_VERSION}
   MYPYTHONCONFIG=python${TENSORFLOW_PYTHON_VERSION}-config
@@ -37,7 +37,7 @@ fi
 # Extract the linker and include flags for python
 : ${PYTHONCONFIG=`which ${MYPYTHONCONFIG}`}
 if test -z "${PYTHONCONFIG}"; then
-  echo "could not locate ${MYPYTHONCONFIG}"
+  echo "Could not locate ${MYPYTHONCONFIG}"
   exit 1
 fi
 
@@ -47,12 +47,16 @@ PKG_CPPFLAGS=`$PYTHONCONFIG --includes`
 # find python
 : ${PYTHON=`which ${MYPYTHON}`}
 if test -z "${PYTHON}"; then
-  echo "could not locate ${MYPYTHON}"
+  echo "Could not locate ${MYPYTHON}"
   exit 1
 fi
 
 # find the numpy includes
 NUMPY_INCLUDE_DIR=`$PYTHON -c "import numpy; print(numpy.get_include())"`
+if test -z "${NUMPY_INCLUDE_DIR}"; then
+  echo "Could not locate numpy include directory"
+  exit 1
+fi
 PKG_CPPFLAGS="$PKG_CPPFLAGS -I$NUMPY_INCLUDE_DIR"
 
 # Find the .so library for python

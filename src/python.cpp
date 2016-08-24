@@ -1,5 +1,10 @@
 #include <Python.h>
 #include <numpy/arrayobject.h>
+#include <numpy/ndarraytypes.h>
+
+#ifndef NPY_ARRAY_FARRAY_RO
+#define NPY_ARRAY_FARRAY_RO NPY_FARRAY_RO
+#endif
 
 #include <Rcpp.h>
 using namespace Rcpp;
@@ -209,6 +214,47 @@ PyObject* r_to_py(RObject x) {
     PyObjectPtr obj = as<PyObjectPtr>(sexp);
     ::Py_IncRef(obj.get());
     return obj.get();
+
+  } else if (x.hasAttribute("dim")) {
+
+    IntegerVector dimAttrib = x.attr("dim");
+    int nd = dimAttrib.length();
+    std::vector<npy_intp> dims(nd);
+    for (int i = 0; i<nd; i++)
+      dims[i] = dimAttrib[i];
+    int typenum;
+    void* data;
+    if (type == INTSXP) {
+      typenum = NPY_INT;
+      data = &(INTEGER(sexp)[0]);
+    } else if (type == REALSXP) {
+      typenum = NPY_DOUBLE;
+      data = &(REAL(sexp)[0]);
+    } else if (type == LGLSXP) {
+      typenum = NPY_BOOL;
+      data = &(LOGICAL(sexp)[0]);
+    } else {
+      stop("Matrix type cannot be converted to python (only integer, "
+           "numeric, and logical matrixes can be converted");
+    }
+
+    // create the matrix
+    PyObject* matrix = PyArray_New(&PyArray_Type,
+                                   nd,
+                                   &(dims[0]),
+                                   typenum,
+                                   NULL,
+                                   data,
+                                   0,
+                                   NPY_ARRAY_FARRAY_RO,
+                                   NULL);
+
+    // check for error
+    if (matrix == NULL)
+      stop(py_fetch_error());
+
+    // return it
+    return matrix;
 
     // integer (pass length 1 vectors as scalars, otherwise pass list)
   } else if (type == INTSXP) {

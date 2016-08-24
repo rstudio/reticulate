@@ -15,8 +15,6 @@ using namespace Rcpp;
 
 #include "tensorflow_types.hpp"
 
-// TODO: completion
-
 // check whether a PyObject is None
 bool py_is_none(PyObject* object) {
   return object == &::_Py_NoneStruct;
@@ -504,6 +502,33 @@ PyObjectPtr py_get_attr(PyObjectPtr x, const std::string& name) {
 
   return py_xptr(attr);
 }
+
+// [[Rcpp::export]]
+IntegerVector py_get_attribute_types(
+    PyObjectPtr x,
+    const std::vector<std::string>& attributes) {
+
+  const int UNKNOWN  =  0;
+  const int ARRAY    =  2;
+  const int LIST     =  4;
+  const int FUNCTION =  6;
+
+  IntegerVector types(attributes.size());
+  for (size_t i = 0; i<attributes.size(); i++) {
+    PyObjectPtr attr = py_get_attr(x, attributes[i]);
+    if (::PyCallable_Check(attr))
+      types[i] = FUNCTION;
+    else if (PyList_Check(attr) || PyTuple_Check(attr))
+      types[i] = LIST;
+    else if (PyArray_Check(attr))
+      types[i] = ARRAY;
+    else
+      types[i] = UNKNOWN;
+  }
+
+  return types;
+}
+
 
 // [[Rcpp::export]]
 SEXP py_to_r(PyObjectPtr x) {

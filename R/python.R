@@ -41,6 +41,8 @@ print.py_object <- function(x, ...) {
 #' @importFrom utils .DollarNames
 #' @export
 .DollarNames.py_object <- function(x, pattern = "") {
-  attrs <- py_list_attributes(x)
-  attrs[substr(attrs, 1, 1) != '_']
+  names <- py_list_attributes(x)
+  names <- names[substr(names, 1, 1) != '_']
+  attr(names, "types") <- py_get_attribute_types(x, names)
+  names
 }

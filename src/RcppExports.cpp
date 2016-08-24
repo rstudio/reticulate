@@ -79,6 +79,18 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
+// py_get_attribute_types
+IntegerVector py_get_attribute_types(PyObjectPtr x, const std::vector<std::string>& attributes);
+RcppExport SEXP tensorflow_py_get_attribute_types(SEXP xSEXP, SEXP attributesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< PyObjectPtr >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const std::vector<std::string>& >::type attributes(attributesSEXP);
+    __result = Rcpp::wrap(py_get_attribute_types(x, attributes));
+    return __result;
+END_RCPP
+}
 // py_to_r
 SEXP py_to_r(PyObjectPtr x);
 RcppExport SEXP tensorflow_py_to_r(SEXP xSEXP) {

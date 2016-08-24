@@ -182,8 +182,7 @@ SEXP py_to_r(PyObject* x) {
   // dict
   else if (PyDict_Check(x)) {
     // allocate R list
-    Py_ssize_t len = ::PyDict_Size(x);
-    Rcpp::List list(len);
+    Rcpp::List list;
     // iterate over dict
     PyObject *key, *value;
     Py_ssize_t pos = 0;

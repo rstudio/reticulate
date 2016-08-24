@@ -6,8 +6,6 @@ using namespace Rcpp;
 
 #include "tensorflow_types.hpp"
 
-// TODO: print using cat
-// TODO: roxygen for exported functions
 // TODO: verify memory management
 // TODO: write tests
 // TODO: path expand for file
@@ -323,7 +321,10 @@ bool py_is_none(PyObjectPtr x) {
 
 // [[Rcpp::export]]
 void py_print(PyObjectPtr x) {
-  ::PyObject_Print(x, stdout, Py_PRINT_RAW);
+  PyObject* str = ::PyObject_Str(x);
+  if (str == NULL)
+    stop(py_fetch_error());
+  Rcout << ::PyString_AsString(str);
 }
 
 // [[Rcpp::export]]

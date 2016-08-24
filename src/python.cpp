@@ -153,23 +153,36 @@ SEXP py_to_r(PyObject* x) {
       return list;
     }
   }
+
   // tuple
-  /*
   else if (PyTuple_Check(x)) {
-
+    Py_ssize_t len = ::PyTuple_Size(x);
+    Rcpp::List list(len);
+    for (Py_ssize_t i = 0; i<len; i++)
+      list[i] = py_to_r(PyTuple_GetItem(x, i));
+    return list;
   }
-
 
   // dict
   else if (PyDict_Check(x)) {
-
+    // allocate R list
+    Py_ssize_t len = ::PyDict_Size(x);
+    Rcpp::List list(len);
+    // iterate over dict
+    PyObject *key, *value;
+    Py_ssize_t pos = 0;
+    while (PyDict_Next(x, &pos, &key, &value))
+      list[PyString_AsString(key)] = py_to_r(value);
+    return list;
   }
 
+  /*
   // numpy array
   else if (PyArray_Check(x)) {
 
   }
   */
+
 
   // default is to return opaque wrapper for python object
   else
@@ -183,6 +196,7 @@ PyObject* r_to_py(RObject x) {
 
   int type = x.sexp_type();
   SEXP sexp = x.get__();
+  bool asis = x.inherits("AsIs");
 
   // NULL and empty vector become python None (Py_IncRef since PyTuple_SetItem
   // will steal the passed reference)
@@ -199,7 +213,7 @@ PyObject* r_to_py(RObject x) {
 
     // integer (pass length 1 vectors as scalars, otherwise pass list)
   } else if (type == INTSXP) {
-    if (LENGTH(sexp) == 1) {
+    if (LENGTH(sexp) == 1 && !asis) {
       int value = INTEGER(sexp)[0];
       return ::PyInt_FromLong(value);
     } else {
@@ -213,7 +227,7 @@ PyObject* r_to_py(RObject x) {
 
     // numeric (pass length 1 vectors as scalars, otherwise pass list)
   } else if (type == REALSXP) {
-    if (LENGTH(sexp) == 1) {
+    if (LENGTH(sexp) == 1 && !asis) {
       double value = REAL(sexp)[0];
       return ::PyFloat_FromDouble(value);
     } else {
@@ -227,7 +241,7 @@ PyObject* r_to_py(RObject x) {
 
     // logical (pass length 1 vectors as scalars, otherwise pass list)
   } else if (type == LGLSXP) {
-    if (LENGTH(sexp) == 1) {
+    if (LENGTH(sexp) == 1 && !asis) {
       int value = LOGICAL(sexp)[0];
       return ::PyBool_FromLong(value);
     } else {
@@ -241,7 +255,7 @@ PyObject* r_to_py(RObject x) {
 
     // character (pass length 1 vectors as scalars, otherwise pass list)
   } else if (type == STRSXP) {
-    if (LENGTH(sexp) == 1) {
+    if (LENGTH(sexp) == 1 && !asis) {
       const char* value = CHAR(STRING_ELT(sexp, 0));
       return ::PyString_FromString(value);
     } else {

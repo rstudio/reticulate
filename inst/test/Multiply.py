@@ -4,7 +4,9 @@ class Multiply:
     self.b = 5
     self.foo = None
     self.bar = "star"
-    self.list = ["foo", True, "wins"]
+    self.list = ["foo", "bar", "wins"]
+    self.tuple = (1, 2, 3)
+    self.dict = {'a': 1, 'b': 2, 'c': 3}
 
   def printObject(self, x):
     print x

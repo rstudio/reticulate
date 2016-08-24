@@ -5,6 +5,10 @@
 #ifndef NPY_ARRAY_FARRAY_RO
 #define NPY_ARRAY_FARRAY_RO NPY_FARRAY_RO
 #endif
+#ifndef NPY_ARRAY_FARRAY
+#define NPY_ARRAY_FARRAY NPY_FARRAY
+#endif
+
 
 #include <Rcpp.h>
 using namespace Rcpp;
@@ -14,7 +18,6 @@ using namespace Rcpp;
 // TODO: verify memory management
 // TODO: write tests
 
-// TODO: complete marshalling (numpy arrays and matrixes)
 // TODO: completion
 
 // check whether a PyObject is None
@@ -180,13 +183,89 @@ SEXP py_to_r(PyObject* x) {
     return list;
   }
 
-  /*
   // numpy array
   else if (PyArray_Check(x)) {
 
-  }
-  */
+    // get the array
+    PyArrayObject* array = (PyArrayObject*)x;
 
+    // get the dimensions
+    npy_intp len = PyArray_SIZE(array);
+    int nd = PyArray_NDIM(array);
+    npy_intp *dims = PyArray_DIMS(array);
+    IntegerVector dimsVector(nd);
+    for (int i = 0; i<nd; i++)
+      dimsVector[i] = dims[i];
+
+    // determine the target type of the array
+    int typenum = PyArray_TYPE(array);
+    switch(typenum) {
+    // logical
+    case NPY_BOOL:
+      typenum = NPY_BOOL;
+      break;
+    // integer
+    case NPY_BYTE:
+    case NPY_UBYTE:
+    case NPY_SHORT:
+    case NPY_USHORT:
+    case NPY_INT:
+    case NPY_LONG:
+      typenum = NPY_LONG;
+      break;
+    // double
+    case NPY_FLOAT:
+    case NPY_DOUBLE:
+      typenum = NPY_DOUBLE;
+      break;
+      // unsupported
+    default:
+      stop("Conversion from numpy array type %d is not supported", typenum);
+      break;
+    }
+
+    // cast it to fortran array (PyArray_Cast steals the descr) then
+    // get a copy of the data pointer
+    PyArray_Descr* descr = PyArray_DescrFromType(typenum);
+    PyArrayObject* fortranArray = (PyArrayObject*)
+                        PyArray_CastToType(array, descr, NPY_ARRAY_FARRAY);
+    if (fortranArray == NULL)
+      stop(py_fetch_error());
+
+    // R array to return
+    SEXP rArray = R_NilValue;
+
+    // copy the data as required per-type
+    switch(typenum) {
+      case NPY_BOOL: {
+        npy_bool* pData = (npy_bool*)PyArray_DATA(fortranArray);
+        rArray = Rf_allocArray(LGLSXP, dimsVector);
+        for (int i=0; i<len; i++)
+          LOGICAL(rArray)[i] = pData[i];
+        break;
+      }
+      case NPY_LONG: {
+        npy_long* pData = (npy_long*)PyArray_DATA(fortranArray);
+        rArray = Rf_allocArray(INTSXP, dimsVector);
+        for (int i=0; i<len; i++)
+          INTEGER(rArray)[i] = pData[i];
+        break;
+      }
+      case NPY_DOUBLE: {
+        npy_double* pData = (npy_double*)PyArray_DATA(fortranArray);
+        rArray = Rf_allocArray(REALSXP, dimsVector);
+        for (int i=0; i<len; i++)
+          REAL(rArray)[i] = pData[i];
+        break;
+      }
+    }
+
+    // free the numpy array
+    py_decref((PyObject*)fortranArray);
+
+    // return the R Array
+    return rArray;
+  }
 
   // default is to return opaque wrapper for python object
   else

@@ -6,6 +6,13 @@ using namespace Rcpp;
 
 #include "tensorflow_types.hpp"
 
+// TODO: print using cat
+// TODO: roxygen for exported functions
+// TODO: verify memory management
+// TODO: write tests
+// TODO: complete marshalling
+// TODO: completion
+
 // check whether a PyObject is None
 bool py_is_none(PyObject* object) {
   return object == &::_Py_NoneStruct;

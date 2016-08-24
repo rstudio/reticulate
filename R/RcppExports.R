@@ -37,13 +37,6 @@ py_call <- function(x, args, keywords) {
     .Call('tensorflow_py_call', PACKAGE = 'tensorflow', x, args, keywords)
 }
 
-#' Obtain a reference to the main python module
-#'
-#' @export
-py_main_module <- function() {
-    .Call('tensorflow_py_main_module', PACKAGE = 'tensorflow')
-}
-
 #' Obtain a reference to a python module
 #'
 #' @param module Name of module

@@ -558,19 +558,6 @@ SEXP py_call(PyObjectPtr x, List args, List keywords) {
 }
 
 
-
-//' Obtain a reference to the main python module
-//'
-//' @export
-// [[Rcpp::export]]
-PyObjectPtr py_main_module() {
-  PyObject* main = ::PyImport_AddModule("__main__");
-  if (main == NULL)
-    stop(py_fetch_error());
-  return py_xptr(main, false);
-}
-
-
 //' Obtain a reference to a python module
 //'
 //' @param module Name of module
@@ -594,7 +581,7 @@ PyObjectPtr py_import(const std::string& module) {
 // [[Rcpp::export]]
 void py_run_string(const std::string& code)
 {
-  PyObject* dict = ::PyModule_GetDict(py_main_module());
+  PyObject* dict = ::PyModule_GetDict(::PyImport_AddModule("__main__"));
   PyObject* res  = ::PyRun_StringFlags(code.c_str(), Py_file_input, dict, dict, NULL);
   if (res == NULL)
     stop(py_fetch_error());

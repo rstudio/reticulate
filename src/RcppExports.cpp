@@ -103,16 +103,6 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
-// py_main_module
-PyObjectPtr py_main_module();
-RcppExport SEXP tensorflow_py_main_module() {
-BEGIN_RCPP
-    Rcpp::RObject __result;
-    Rcpp::RNGScope __rngScope;
-    __result = Rcpp::wrap(py_main_module());
-    return __result;
-END_RCPP
-}
 // py_import
 PyObjectPtr py_import(const std::string& module);
 RcppExport SEXP tensorflow_py_import(SEXP moduleSEXP) {

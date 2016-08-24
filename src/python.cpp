@@ -287,67 +287,21 @@ void py_finalize() {
   ::Py_Finalize();
 }
 
-//' @export
-// [[Rcpp::export]]
-PyObjectPtr py_main_module() {
-  PyObject* main = ::PyImport_AddModule("__main__");
-  if (main == NULL)
-    stop(py_fetch_error());
-  return py_xptr(main, false);
-}
-
-//' @export
-// [[Rcpp::export]]
-PyObjectPtr py_import(const std::string& module) {
-  PyObject* pModule = ::PyImport_ImportModule(module.c_str());
-  if (pModule == NULL)
-    stop(py_fetch_error());
-
-  return py_xptr(pModule);
-}
-
-//' @export
-// [[Rcpp::export]]
-void py_run_string(const std::string& code)
-{
-  PyObject* dict = ::PyModule_GetDict(py_main_module());
-  PyObject* res  = ::PyRun_StringFlags(code.c_str(), Py_file_input, dict, dict, NULL);
-  if (res == NULL)
-    stop(py_fetch_error());
-  py_decref(res);
-}
-
-//' @export
-// [[Rcpp::export]]
-void py_run_file(const std::string& file)
-{
-  FILE* fp = ::fopen(file.c_str(), "r");
-  if (fp)
-    ::PyRun_SimpleFile(fp, file.c_str());
-  else
-    stop("Unable to read script file '%s' (does the file exist?)", file);
-}
-
-
-//' @export
 // [[Rcpp::export]]
 bool py_is_none(PyObjectPtr x) {
   return py_is_none(x.get());
 }
 
-//' @export
 // [[Rcpp::export]]
 void py_print(PyObjectPtr x) {
   ::PyObject_Print(x, stdout, Py_PRINT_RAW);
 }
 
-//' @export
 // [[Rcpp::export]]
 bool py_is_callable(PyObjectPtr x) {
   return ::PyCallable_Check(x) == 1;
 }
 
-//' @export
 // [[Rcpp::export]]
 std::vector<std::string> py_list_attributes(PyObjectPtr x) {
   std::vector<std::string> attributes;
@@ -368,8 +322,6 @@ std::vector<std::string> py_list_attributes(PyObjectPtr x) {
 }
 
 
-
-//' @export
 // [[Rcpp::export]]
 PyObjectPtr py_get_attr(PyObjectPtr x, const std::string& name) {
   PyObject* attr = ::PyObject_GetAttrString(x, name.c_str());
@@ -379,13 +331,11 @@ PyObjectPtr py_get_attr(PyObjectPtr x, const std::string& name) {
   return py_xptr(attr);
 }
 
-//' @export
 // [[Rcpp::export]]
 SEXP py_to_r(PyObjectPtr x) {
   return py_to_r(x.get());
 }
 
-//' @export
 // [[Rcpp::export]]
 SEXP py_call(PyObjectPtr x, List args, List keywords) {
 
@@ -426,6 +376,49 @@ SEXP py_call(PyObjectPtr x, List args, List keywords) {
 
   // return R object
   return py_to_r(res);
+}
+
+
+
+//' @export
+// [[Rcpp::export]]
+PyObjectPtr py_main_module() {
+  PyObject* main = ::PyImport_AddModule("__main__");
+  if (main == NULL)
+    stop(py_fetch_error());
+  return py_xptr(main, false);
+}
+
+//' @export
+// [[Rcpp::export]]
+PyObjectPtr py_import(const std::string& module) {
+  PyObject* pModule = ::PyImport_ImportModule(module.c_str());
+  if (pModule == NULL)
+    stop(py_fetch_error());
+
+  return py_xptr(pModule);
+}
+
+//' @export
+// [[Rcpp::export]]
+void py_run_string(const std::string& code)
+{
+  PyObject* dict = ::PyModule_GetDict(py_main_module());
+  PyObject* res  = ::PyRun_StringFlags(code.c_str(), Py_file_input, dict, dict, NULL);
+  if (res == NULL)
+    stop(py_fetch_error());
+  py_decref(res);
+}
+
+//' @export
+// [[Rcpp::export]]
+void py_run_file(const std::string& file)
+{
+  FILE* fp = ::fopen(file.c_str(), "r");
+  if (fp)
+    ::PyRun_SimpleFile(fp, file.c_str());
+  else
+    stop("Unable to read script file '%s' (does the file exist?)", file);
 }
 
 

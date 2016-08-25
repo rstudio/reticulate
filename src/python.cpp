@@ -508,22 +508,33 @@ IntegerVector py_get_attribute_types(
     PyObjectPtr x,
     const std::vector<std::string>& attributes) {
 
-  const int UNKNOWN  =  0;
-  const int ARRAY    =  2;
-  const int LIST     =  4;
-  const int FUNCTION =  6;
+  //const int UNKNOWN     =  0;
+  const int VECTOR      =  1;
+  const int ARRAY       =  2;
+  const int LIST        =  4;
+  //const int ENVIRONMENT =  5;
+  const int FUNCTION    =  6;
 
   IntegerVector types(attributes.size());
   for (size_t i = 0; i<attributes.size(); i++) {
     PyObjectPtr attr = py_get_attr(x, attributes[i]);
     if (::PyCallable_Check(attr))
       types[i] = FUNCTION;
-    else if (PyList_Check(attr) || PyTuple_Check(attr))
+    else if (PyList_Check(attr)  ||
+             PyTuple_Check(attr) ||
+             PyDict_Check(attr))
       types[i] = LIST;
     else if (PyArray_Check(attr))
       types[i] = ARRAY;
+    else if (PyBool_Check(attr)   ||
+             PyInt_Check(attr)    ||
+             PyLong_Check(attr)   ||
+             PyFloat_Check(attr)  ||
+             PyString_Check(attr))
+      types[i] = VECTOR;
     else
-      types[i] = UNKNOWN;
+      // presume that other types are objects
+      types[i] = LIST;
   }
 
   return types;

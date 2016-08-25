@@ -285,9 +285,9 @@ PyObject* r_to_py(RObject x) {
   SEXP sexp = x.get__();
   bool asis = x.inherits("AsIs");
 
-  // NULL and empty vector become python None (Py_IncRef since PyTuple_SetItem
+  // NULL becomes python None (Py_IncRef since PyTuple_SetItem
   // will steal the passed reference)
-  if (x.isNULL() || (LENGTH(sexp) == 0)) {
+  if (x.isNULL()) {
     ::Py_IncRef(&::_Py_NoneStruct);
     return &::_Py_NoneStruct;
 

@@ -37,7 +37,7 @@ py_to_r <- function(x) {
     .Call('tensorflow_py_to_r', PACKAGE = 'tensorflow', x)
 }
 
-py_call <- function(x, args, keywords) {
+py_call <- function(x, args, keywords = NULL) {
     .Call('tensorflow_py_call', PACKAGE = 'tensorflow', x, args, keywords)
 }
 

@@ -547,7 +547,7 @@ SEXP py_to_r(PyObjectPtr x) {
 }
 
 // [[Rcpp::export]]
-SEXP py_call(PyObjectPtr x, List args, List keywords) {
+SEXP py_call(PyObjectPtr x, List args, List keywords = R_NilValue) {
 
   // unnamed arguments
   PyObject *pyArgs = ::PyTuple_New(args.length());
@@ -641,7 +641,4 @@ void py_run_file(const std::string& file)
   else
     stop("Unable to read script file '%s' (does the file exist?)", file);
 }
-
-
-
 

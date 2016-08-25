@@ -51,9 +51,8 @@ print.py_object <- function(x, ...) {
 
   # get the doc strings
   inspect <- py_import("inspect")
-  getdoc <- py_get_attr(inspect, "getdoc")
   attr(names, "docs") <- sapply(names, function(name) {
-    py_call(getdoc, list(py_get_attr(x, name)))
+    inspect$getdoc(py_get_attr(x, name))
   })
 
   # return

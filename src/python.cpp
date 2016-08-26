@@ -283,7 +283,6 @@ PyObject* r_to_py(RObject x) {
 
   int type = x.sexp_type();
   SEXP sexp = x.get__();
-  bool asis = x.inherits("AsIs");
 
   // NULL becomes python None (Py_IncRef since PyTuple_SetItem
   // will steal the passed reference)
@@ -342,7 +341,7 @@ PyObject* r_to_py(RObject x) {
 
   // integer (pass length 1 vectors as scalars, otherwise pass list)
   } else if (type == INTSXP) {
-    if (LENGTH(sexp) == 1 && !asis) {
+    if (LENGTH(sexp) == 1) {
       int value = INTEGER(sexp)[0];
       return ::PyInt_FromLong(value);
     } else {
@@ -356,7 +355,7 @@ PyObject* r_to_py(RObject x) {
 
   // numeric (pass length 1 vectors as scalars, otherwise pass list)
   } else if (type == REALSXP) {
-    if (LENGTH(sexp) == 1 && !asis) {
+    if (LENGTH(sexp) == 1) {
       double value = REAL(sexp)[0];
       return ::PyFloat_FromDouble(value);
     } else {
@@ -370,7 +369,7 @@ PyObject* r_to_py(RObject x) {
 
   // logical (pass length 1 vectors as scalars, otherwise pass list)
   } else if (type == LGLSXP) {
-    if (LENGTH(sexp) == 1 && !asis) {
+    if (LENGTH(sexp) == 1) {
       int value = LOGICAL(sexp)[0];
       return ::PyBool_FromLong(value);
     } else {
@@ -384,7 +383,7 @@ PyObject* r_to_py(RObject x) {
 
   // character (pass length 1 vectors as scalars, otherwise pass list)
   } else if (type == STRSXP) {
-    if (LENGTH(sexp) == 1 && !asis) {
+    if (LENGTH(sexp) == 1) {
       const char* value = CHAR(STRING_ELT(sexp, 0));
       return ::PyString_FromString(value);
     } else {

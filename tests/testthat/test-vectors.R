@@ -19,9 +19,9 @@ test_that("Multi-element vectors are treated as lists", {
   expect_true(main$isList(c(TRUE, TRUE)))
 })
 
-test_that("The I function forces single-element vectors to be lists", {
-  expect_false(main$isScalar(I(5)))
-  expect_false(main$isScalar(I(5L)))
-  expect_false(main$isScalar(I("5")))
-  expect_false(main$isScalar(I(TRUE)))
+test_that("The list function forces single-element vectors to be lists", {
+  expect_false(main$isScalar(list(5)))
+  expect_false(main$isScalar(list(5L)))
+  expect_false(main$isScalar(list("5")))
+  expect_false(main$isScalar(list(TRUE)))
 })

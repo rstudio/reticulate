@@ -439,7 +439,13 @@ bool py_import_numpy_array_api() {
 
 // [[Rcpp::export]]
 void py_initialize() {
+
   ::Py_Initialize();
+
+  // required to populate sys.
+  const char *argv[1] = {"python"};
+  PySys_SetArgv(1, const_cast<char**>(argv));
+
   if (!py_import_numpy_array_api())
     stop(py_fetch_error());
 }

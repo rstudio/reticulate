@@ -3,7 +3,7 @@
 library(tensorflow)
 
 # import tensorflow
-tf <- py_import("tensorflow")
+tf <- tf_import()
 
 # simple hello world
 hello <- tf$constant('Hello, TensorFlow!')
@@ -20,7 +20,7 @@ sess$run(a + b)
 flags <- tf$app$flags
 flags$DEFINE_string('data_dir', '/tmp/data/', 'Directory for storing data')
 FLAGS <- flags$FLAGS
-input_data <- py_import("tensorflow.examples.tutorials.mnist.input_data")
+input_data <- tf_import("examples.tutorials.mnist.input_data")
 mnist <- input_data$read_data_sets(FLAGS$data_dir, one_hot=TRUE)
 
 # TODO: getting a numpy deprecation warning during the build

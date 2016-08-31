@@ -23,6 +23,7 @@ FLAGS <- flags$FLAGS
 input_data <- py_import("tensorflow.examples.tutorials.mnist.input_data")
 mnist <- input_data$read_data_sets(FLAGS$data_dir, one_hot=TRUE)
 
+# TODO: getting a numpy deprecation warning during the build
 
 
 

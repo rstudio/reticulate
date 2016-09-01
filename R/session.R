@@ -15,7 +15,6 @@ interactive_session <- function(target = "", graph = NULL, config = NULL) {
 #' @export
 run <- function(session, fetches, feed_dict=NULL,
                 options=NULL, run_metadata=NULL) {
-  tf <- tf_import()
   session$run(fetches, feed_dict, options, run_metadata)
 }
 

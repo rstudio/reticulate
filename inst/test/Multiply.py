@@ -1,5 +1,8 @@
 
 import numpy as np
+import collections
+
+Person = collections.namedtuple('Person', 'name age gender')
 
 class Foo:
   def __init__(self):
@@ -18,6 +21,7 @@ class Multiply:
     self.matrix_int = np.matrix([[1, 2], [3, 4]])
     self.matrix_double = np.matrix([[1.4, 2.6], [3.8, 4.2]])
     self.matrix_logical = np.matrix([[True, False], [True, False]])
+    self.bob = Person(name='Bob', age=30, gender='male')
 
 
   def printObject(self, x):

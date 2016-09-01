@@ -103,6 +103,15 @@ int scalar_list_type(PyObject* x) {
   return scalarType;
 }
 
+// convert a tuple to a character vector
+CharacterVector py_tuple_to_character(PyObject* tuple) {
+  Py_ssize_t len = ::PyTuple_Size(tuple);
+  CharacterVector vec(len);
+  for (Py_ssize_t i = 0; i<len; i++)
+    vec[i] = PyString_AsString(PyTuple_GetItem(tuple, i));
+  return vec;
+}
+
 // convert a python object to an R object
 SEXP py_to_r(PyObject* x) {
 
@@ -172,6 +181,12 @@ SEXP py_to_r(PyObject* x) {
     Rcpp::List list(len);
     for (Py_ssize_t i = 0; i<len; i++)
       list[i] = py_to_r(PyTuple_GetItem(x, i));
+    // check for namedtuple
+    if (::PyObject_HasAttrString(x, "_fields") == 1) {
+      PyObjectPtr fieldsAttrPtr(::PyObject_GetAttrString(x, "_fields"));
+      if (PyTuple_Check(fieldsAttrPtr) && PyTuple_Size(fieldsAttrPtr) == len)
+        list.names() = py_tuple_to_character(fieldsAttrPtr);
+    }
     return list;
   }
 

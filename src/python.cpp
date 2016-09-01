@@ -32,8 +32,8 @@ PyObjectPtr py_xptr(PyObject* object, bool decref = true) {
   // wrap in XPtr
   PyObjectPtr ptr(object, decref);
 
-  // class attribute, start with py_object
-  CharacterVector attrClass = CharacterVector::create("py_object");
+  // class attribute
+  CharacterVector attrClass = CharacterVector::create();
 
   // determine underlying pyton class
   if (::PyObject_HasAttrString(object, "__class__")) {
@@ -45,6 +45,9 @@ PyObjectPtr py_xptr(PyObject* object, bool decref = true) {
             ::PyString_AsString(namePtr);
     attrClass.push_back(ostr.str());
   }
+
+  // add py_object
+  attrClass.push_back("py_object");
 
   // set generic py_object class and additional class (if any)
   ptr.attr("class") = attrClass;

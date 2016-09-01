@@ -1,9 +1,18 @@
 
+
 library(magrittr)
 library(tensorflow)
 
-hello <- constant('Hello, TensorFlow!')
+sess <- interactive_session()
 
-session() %>%
-  run(hello)
+a <- constant(10L)
+a
+
+
+b <- constant(32L)
+b
+
+x <- constant(matrix(c(1:4), nrow = 2, ncol = 2))
+
+sess %>% run(a + b)
 

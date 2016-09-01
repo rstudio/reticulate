@@ -35,6 +35,16 @@ constant <- function(value, dtype=NULL, shape=NULL, name="Const") {
 }
 
 #' @export
+print.tensorflow.python.framework.ops.Tensor <- function(x, ...) {
+  py_print(x, ...)
+  tf <- tf_import()
+  if (!is.null(py_to_r(tf$get_default_session()))) {
+    cat("\n")
+    py_print(x$eval())
+  }
+}
+
+#' @export
 "+.tensorflow.python.framework.ops.Tensor" <- function(a, b) {
   tf <- tf_import()
   tf$add(a, b)

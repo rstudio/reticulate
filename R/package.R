@@ -11,3 +11,6 @@ NULL
 .onUnload <- function(libpath) {
   py_finalize();
 }
+
+# package level globals
+.globals <- new.env(parent = emptyenv())

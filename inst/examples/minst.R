@@ -14,9 +14,9 @@ sess$run(hello)
 # TODO: we need to create class specific operator overloads for +, etc.
 a <- tf$constant(10)
 b <- tf$constant(32)
+c <- a + b
 sess$run(a + b)
 
-# TODO: mnist is likely a namedtuble however we are dropping the names!
 flags <- tf$app$flags
 flags$DEFINE_string('data_dir', '/tmp/data/', 'Directory for storing data')
 FLAGS <- flags$FLAGS

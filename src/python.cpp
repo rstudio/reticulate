@@ -28,8 +28,28 @@ void py_decref(PyObject* object) {
 
 // wrap a PyObject in an XPtr
 PyObjectPtr py_xptr(PyObject* object, bool decref = true) {
+
+  // wrap in XPtr
   PyObjectPtr ptr(object, decref);
-  ptr.attr("class") = "py_object";
+
+  // class attribute, start with py_object
+  CharacterVector attrClass = CharacterVector::create("py_object");
+
+  // determine underlying pyton class
+  if (::PyObject_HasAttrString(object, "__class__")) {
+    PyObjectPtr classPtr(::PyObject_GetAttrString(object, "__class__"));
+    PyObjectPtr modulePtr(::PyObject_GetAttrString(classPtr, "__module__"));
+    PyObjectPtr namePtr(::PyObject_GetAttrString(classPtr, "__name__"));
+    std::ostringstream ostr;
+    ostr << ::PyString_AsString(modulePtr) << "." <<
+            ::PyString_AsString(namePtr);
+    attrClass.push_back(ostr.str());
+  }
+
+  // set generic py_object class and additional class (if any)
+  ptr.attr("class") = attrClass;
+
+  // return XPtr
   return ptr;
 }
 

@@ -44,6 +44,9 @@ print.tensorflow.python.framework.ops.Tensor <- function(x, ...) {
   }
 }
 
+# Some math generics, see here for docs on more generics:
+# https://stat.ethz.ch/R-manual/R-devel/library/base/html/groupGeneric.html
+
 #' @export
 "+.tensorflow.python.framework.ops.Tensor" <- function(a, b) {
   tf <- tf_import()
@@ -82,7 +85,5 @@ print.tensorflow.python.framework.ops.Tensor <- function(x, ...) {
   tf <- tf_import()
   tf$mod(a, b)
 }
-
-# https://stat.ethz.ch/R-manual/R-devel/library/base/html/groupGeneric.html
 
 

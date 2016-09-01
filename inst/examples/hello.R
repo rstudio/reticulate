@@ -3,16 +3,13 @@
 library(magrittr)
 library(tensorflow)
 
-sess <- interactive_session()
+hello <- constant('Hello, TensorFlow!')
+sess = session()
 
-a <- constant(10L)
-a
+sess %>% run(hello)
 
-
-b <- constant(32L)
-b
-
-x <- constant(matrix(c(1:4), nrow = 2, ncol = 2))
+a <- constant(10)
+b <- constant(32)
 
 sess %>% run(a + b)
 

@@ -580,7 +580,6 @@ IntegerVector py_get_attribute_types(
   return types;
 }
 
-
 // [[Rcpp::export]]
 SEXP py_to_r(PyObjectPtr x) {
   return py_to_r(x.get());
@@ -626,16 +625,11 @@ SEXP py_call(PyObjectPtr x, List args, List keywords = R_NilValue) {
   if (res == NULL)
     stop(py_fetch_error());
 
-  // return R object
-  return py_to_r(res);
+  // return python object
+  return py_xptr(res);
 }
 
 
-//' Obtain a reference to a python module
-//'
-//' @param module Name of module
-//'
-//' @export
 // [[Rcpp::export]]
 PyObjectPtr py_import(const std::string& module) {
   PyObject* pModule = ::PyImport_ImportModule(module.c_str());
@@ -646,11 +640,6 @@ PyObjectPtr py_import(const std::string& module) {
 }
 
 
-//' Run python code
-//'
-//' @param code Code to run
-//'
-//' @export
 // [[Rcpp::export]]
 void py_run_string(const std::string& code)
 {
@@ -662,11 +651,6 @@ void py_run_string(const std::string& code)
 }
 
 
-//' Run python code from a file
-//'
-//' @param file File to run code from
-//'
-//' @export
 // [[Rcpp::export]]
 void py_run_file(const std::string& file)
 {

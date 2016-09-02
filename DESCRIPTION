@@ -13,4 +13,4 @@ Imports:
     utils, Rcpp (>= 0.12.0)
 LinkingTo: Rcpp
 RoxygenNote: 5.0.1
-Suggests: testthat
+Suggests: testthat, magrittr

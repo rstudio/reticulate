@@ -51,12 +51,6 @@ bool py_is_none(PyObject* object) {
   return object == &::_Py_NoneStruct;
 }
 
-// safely decrmement a PyObject
-void py_decref(PyObject* object) {
-  if (object != NULL)
-    ::Py_DecRef(object);
-}
-
 // wrap a PyObject in an XPtr
 PyObjectXPtr py_xptr(PyObject* object, bool decref = true) {
 
@@ -100,9 +94,8 @@ std::string py_fetch_error() {
 
   if (!pExcValue.is_null()) {
     std::ostringstream ostr;
-    PyObject* pStr = ::PyObject_Str(pExcValue) ;
+    PyObjectPtr pStr(::PyObject_Str(pExcValue));
     ostr << ::PyString_AsString(pStr);
-    py_decref(pStr) ;
     error = ostr.str();
   } else {
     error = "<unknown error>";
@@ -666,7 +659,6 @@ PyObjectXPtr py_import(const std::string& module) {
   PyObject* pModule = ::PyImport_ImportModule(module.c_str());
   if (pModule == NULL)
     stop(py_fetch_error());
-
   return py_xptr(pModule);
 }
 
@@ -675,10 +667,9 @@ PyObjectXPtr py_import(const std::string& module) {
 void py_run_string(const std::string& code)
 {
   PyObject* dict = ::PyModule_GetDict(::PyImport_AddModule("__main__"));
-  PyObject* res  = ::PyRun_StringFlags(code.c_str(), Py_file_input, dict, dict, NULL);
-  if (res == NULL)
+  PyObjectPtr res(::PyRun_StringFlags(code.c_str(), Py_file_input, dict, dict, NULL));
+  if (res.is_null())
     stop(py_fetch_error());
-  py_decref(res);
 }
 
 
@@ -691,8 +682,11 @@ void py_run_file(const std::string& file)
 
   // open and run
   FILE* fp = ::fopen(expanded.c_str(), "r");
-  if (fp)
-    ::PyRun_SimpleFile(fp, expanded.c_str());
+  if (fp) {
+    int res = ::PyRun_SimpleFile(fp, expanded.c_str());
+    if (res != 0)
+      stop(py_fetch_error());
+  }
   else
     stop("Unable to read script file '%s' (does the file exist?)", file);
 }

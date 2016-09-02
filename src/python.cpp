@@ -299,6 +299,9 @@ SEXP py_to_r(PyObject* x) {
     if (array == NULL)
       stop(py_fetch_error());
 
+    // ensure we release it within this scope
+    PyObjectPtr ptrArray((PyObject*)array);
+
     // R array to return
     SEXP rArray = R_NilValue;
 
@@ -326,9 +329,6 @@ SEXP py_to_r(PyObject* x) {
         break;
       }
     }
-
-    // free the numpy array
-    py_decref((PyObject*)array);
 
     // return the R Array
     return rArray;

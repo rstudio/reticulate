@@ -38,6 +38,11 @@ print.py_object <- function(x, ...) {
   py_print(x)
 }
 
+#' @export
+str.py_object <- function(x, ...) {
+  py_str(x)
+}
+
 #' @importFrom utils .DollarNames
 #' @export
 .DollarNames.py_object <- function(x, pattern = "") {

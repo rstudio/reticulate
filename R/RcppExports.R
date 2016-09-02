@@ -13,6 +13,10 @@ py_is_none <- function(x) {
     .Call('tensorflow_py_is_none', PACKAGE = 'tensorflow', x)
 }
 
+py_str <- function(x) {
+    .Call('tensorflow_py_str', PACKAGE = 'tensorflow', x)
+}
+
 py_print <- function(x) {
     invisible(.Call('tensorflow_py_print', PACKAGE = 'tensorflow', x))
 }

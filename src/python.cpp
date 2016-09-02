@@ -536,6 +536,14 @@ bool py_is_none(PyObjectXPtr x) {
 }
 
 // [[Rcpp::export]]
+CharacterVector py_str(PyObjectXPtr x) {
+  PyObjectPtr str(PyObject_Str(x));
+  if (str.is_null())
+    stop(py_fetch_error());
+  return ::PyString_AsString(str);
+}
+
+// [[Rcpp::export]]
 void py_print(PyObjectXPtr x) {
   PyObjectPtr str(PyObject_Str(x));
   if (str.is_null())

@@ -35,6 +35,17 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
+// py_str
+CharacterVector py_str(PyObjectXPtr x);
+RcppExport SEXP tensorflow_py_str(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< PyObjectXPtr >::type x(xSEXP);
+    __result = Rcpp::wrap(py_str(x));
+    return __result;
+END_RCPP
+}
 // py_print
 void py_print(PyObjectXPtr x);
 RcppExport SEXP tensorflow_py_print(SEXP xSEXP) {

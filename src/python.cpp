@@ -544,11 +544,10 @@ bool py_is_none(PyObjectXPtr x) {
 
 // [[Rcpp::export]]
 void py_print(PyObjectXPtr x) {
-  PyObject* str = ::PyObject_Str(x);
-  if (str == NULL)
+  PyObjectPtr str(PyObject_Str(x));
+  if (str.is_null())
     stop(py_fetch_error());
-  Rcout << ::PyString_AsString(str);
-  py_decref(str);
+  Rcout << ::PyString_AsString(str) << std::endl;
 }
 
 // [[Rcpp::export]]

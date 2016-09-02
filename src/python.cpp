@@ -15,6 +15,31 @@ using namespace Rcpp;
 
 #include "tensorflow_types.hpp"
 
+// helper class for ensuring decref of PyObject in the current scope
+class PyObjectPtr {
+public:
+  // attach on creation, decref on destruction
+  explicit PyObjectPtr(PyObject* object) : object_(object) {}
+  virtual ~PyObjectPtr() {
+    if (object_ != NULL)
+      ::Py_DecRef(object_);
+  }
+
+  operator PyObject*() const { return object_; }
+
+  PyObject* get() const { return object_; }
+
+  void detach() { object_ = NULL; }
+
+private:
+  // prevent copying
+  PyObjectPtr(const PyObjectPtr&);
+  PyObjectPtr& operator=(const PyObjectPtr&);
+
+  // underlying object
+  PyObject* object_;
+};
+
 // check whether a PyObject is None
 bool py_is_none(PyObject* object) {
   return object == &::_Py_NoneStruct;
@@ -35,11 +60,11 @@ PyObjectXPtr py_xptr(PyObject* object, bool decref = true) {
   // class attribute
   CharacterVector attrClass = CharacterVector::create();
 
-  // determine underlying pyton class
+  // determine underlying python class
   if (::PyObject_HasAttrString(object, "__class__")) {
-    PyObjectXPtr classPtr(::PyObject_GetAttrString(object, "__class__"));
-    PyObjectXPtr modulePtr(::PyObject_GetAttrString(classPtr, "__module__"));
-    PyObjectXPtr namePtr(::PyObject_GetAttrString(classPtr, "__name__"));
+    PyObjectPtr classPtr(::PyObject_GetAttrString(object, "__class__"));
+    PyObjectPtr modulePtr(::PyObject_GetAttrString(classPtr, "__module__"));
+    PyObjectPtr namePtr(::PyObject_GetAttrString(classPtr, "__name__"));
     std::ostringstream ostr;
     ostr << ::PyString_AsString(modulePtr) << "." <<
             ::PyString_AsString(namePtr);
@@ -206,7 +231,7 @@ SEXP py_to_r(PyObject* x) {
       list[i] = py_to_r(PyTuple_GetItem(x, i));
     // check for namedtuple
     if (::PyObject_HasAttrString(x, "_fields") == 1) {
-      PyObjectXPtr fieldsAttrPtr(::PyObject_GetAttrString(x, "_fields"));
+      PyObjectPtr fieldsAttrPtr(::PyObject_GetAttrString(x, "_fields"));
       if (PyTuple_Check(fieldsAttrPtr) && PyTuple_Size(fieldsAttrPtr) == len)
         list.names() = py_tuple_to_character(fieldsAttrPtr);
     }

@@ -29,7 +29,11 @@ public:
 
   PyObject* get() const { return object_; }
 
-  void detach() { object_ = NULL; }
+  PyObject* detach() {
+    PyObject* object = object_;
+    object_ = NULL;
+    return object;
+  }
 
   bool is_null() const { return object_ == NULL; }
 
@@ -410,12 +414,15 @@ PyObject* r_to_py(RObject x) {
       int value = INTEGER(sexp)[0];
       return ::PyInt_FromLong(value);
     } else {
-      PyObject* list = ::PyList_New(LENGTH(sexp));
+      PyObjectPtr list(::PyList_New(LENGTH(sexp)));
       for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
         int value = INTEGER(sexp)[i];
-        ::PyList_SetItem(list, i, ::PyInt_FromLong(value));
+        // NOTE: reference to added value is "stolen" by the list
+        int res = ::PyList_SetItem(list, i, ::PyInt_FromLong(value));
+        if (res != 0)
+          stop(py_fetch_error());
       }
-      return list;
+      return list.detach();
     }
 
   // numeric (pass length 1 vectors as scalars, otherwise pass list)
@@ -424,12 +431,15 @@ PyObject* r_to_py(RObject x) {
       double value = REAL(sexp)[0];
       return ::PyFloat_FromDouble(value);
     } else {
-      PyObject* list = ::PyList_New(LENGTH(sexp));
+      PyObjectPtr list(PyList_New(LENGTH(sexp)));
       for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
         double value = REAL(sexp)[i];
-        ::PyList_SetItem(list, i, ::PyFloat_FromDouble(value));
+        // NOTE: reference to added value is "stolen" by the list
+        int res = ::PyList_SetItem(list, i, ::PyFloat_FromDouble(value));
+        if (res != 0)
+          stop(py_fetch_error());
       }
-      return list;
+      return list.detach();
     }
 
   // logical (pass length 1 vectors as scalars, otherwise pass list)
@@ -438,12 +448,15 @@ PyObject* r_to_py(RObject x) {
       int value = LOGICAL(sexp)[0];
       return ::PyBool_FromLong(value);
     } else {
-      PyObject* list = ::PyList_New(LENGTH(sexp));
+      PyObjectPtr list(PyList_New(LENGTH(sexp)));
       for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
         int value = LOGICAL(sexp)[i];
-        ::PyList_SetItem(list, i, ::PyBool_FromLong(value));
+        // NOTE: reference to added value is "stolen" by the list
+        int res = ::PyList_SetItem(list, i, ::PyBool_FromLong(value));
+        if (res != 0)
+          stop(py_fetch_error());
       }
-      return list;
+      return list.detach();
     }
 
   // character (pass length 1 vectors as scalars, otherwise pass list)
@@ -452,43 +465,42 @@ PyObject* r_to_py(RObject x) {
       const char* value = CHAR(STRING_ELT(sexp, 0));
       return ::PyString_FromString(value);
     } else {
-      PyObject* list = ::PyList_New(LENGTH(sexp));
+      PyObjectPtr list(::PyList_New(LENGTH(sexp)));
       for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
         const char* value = CHAR(STRING_ELT(sexp, i));
-        ::PyList_SetItem(list, i, ::PyString_FromString(value));
+        // NOTE: reference to added value is "stolen" by the list
+        int res = ::PyList_SetItem(list, i, ::PyString_FromString(value));
+        if (res != 0)
+          stop(py_fetch_error());
       }
-      return list;
+      return list.detach();
     }
 
   // list
   } else if (type == VECSXP) {
     // create a dict for names
     if (x.hasAttribute("names")) {
-      PyObject *dict = ::PyDict_New();
+      PyObjectPtr dict(::PyDict_New());
       CharacterVector names = x.attr("names");
       for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
         const char* name = names.at(i);
-        PyObject* item = r_to_py(RObject(VECTOR_ELT(sexp, i)));
+        PyObjectPtr item(r_to_py(RObject(VECTOR_ELT(sexp, i))));
         int res = ::PyDict_SetItemString(dict, name, item);
-        py_decref(item);
-        if (res != 0) {
-          py_decref(dict);
+        if (res != 0)
           stop(py_fetch_error());
-        }
       }
-      return dict;
-      // create a tuple if there are no names
+      return dict.detach();
+    // create a tuple if there are no names
     } else {
-      PyObject* tuple = ::PyTuple_New(LENGTH(sexp));
+      PyObjectPtr tuple(::PyTuple_New(LENGTH(sexp)));
       for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
         PyObject* item = r_to_py(RObject(VECTOR_ELT(sexp, i)));
+        // NOTE: reference to added item is "stolen" by tuple
         int res = ::PyTuple_SetItem(tuple, i, item);
-        if (res != 0) {
-          py_decref(tuple);
+        if (res != 0)
           stop(py_fetch_error());
-        }
       }
-      return tuple;
+      return tuple.detach();
     }
   } else {
     Rcpp::print(sexp);

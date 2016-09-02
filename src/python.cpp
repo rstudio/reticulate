@@ -336,6 +336,7 @@ SEXP py_to_r(PyObject* x) {
 
   // default is to return opaque wrapper to python object
   else {
+    ::Py_IncRef(x);
     return py_xptr(x);
   }
 }
@@ -646,7 +647,7 @@ SEXP py_call(PyObjectXPtr x, List args, List keywords = R_NilValue) {
   }
 
   // call the function
-  PyObject* res = ::PyObject_Call(x, pyArgs, pyKeywords);
+  PyObjectPtr res(::PyObject_Call(x, pyArgs, pyKeywords));
   py_decref(pyArgs);
   py_decref(pyKeywords);
 

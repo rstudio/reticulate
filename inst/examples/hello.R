@@ -1,4 +1,3 @@
-
 library(tensorflow)
 
 sess = session()

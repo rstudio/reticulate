@@ -628,8 +628,8 @@ SEXP py_call(PyObjectPtr x, List args, List keywords = R_NilValue) {
   if (res == NULL)
     stop(py_fetch_error());
 
-  // return python object
-  return py_xptr(res);
+  // return as r object
+  return py_to_r(res);
 }
 
 

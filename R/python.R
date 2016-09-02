@@ -26,7 +26,7 @@
         result
     }
   } else {
-    attr
+    py_to_r(attr)
   }
 }
 

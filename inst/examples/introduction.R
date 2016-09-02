@@ -14,7 +14,7 @@ y = W * x_data + b
 # Minimize the mean squared errors.
 loss <- reduce_mean(square(y - y_data))
 train <-
-  gradient_descent_optmizer(0.5) %>%
+  gradient_descent_optimizer(0.5) %>%
   optimizer_minimize(loss)
 
 # Launch the graph and initialize the variables.

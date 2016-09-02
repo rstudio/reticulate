@@ -13,7 +13,7 @@
 #'
 #' If no \code{graph} argument is specified when constructing the session, the
 #' default graph will be launched in the session. If you are using more than one
-#' graph (created with \code{graph} in the same process, you will have to use
+#' graph (created with \code{graph}) in the same process, you will have to use
 #' different sessions for each graph, but each graph can be used in multiple
 #' sessions. In this case, it is often clearer to pass the graph to be launched
 #' explicitly to the session function

@@ -39,8 +39,8 @@ print.py_object <- function(x, ...) {
 }
 
 #' @export
-str.py_object <- function(x, ...) {
-  py_str(x)
+str.py_object <- function(object, ...) {
+  py_str(object)
 }
 
 #' @importFrom utils .DollarNames

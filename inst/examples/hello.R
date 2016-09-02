@@ -3,7 +3,7 @@ library(magrittr)
 library(tensorflow)
 
 hello <- constant('Hello, TensorFlow!')
-sess = interactive_session()
+sess = session()
 sess %>% run(hello)
 
 a <- constant(10)

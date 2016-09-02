@@ -31,6 +31,17 @@ public:
 
   void detach() { object_ = NULL; }
 
+  typedef void (*unspecified_bool_type)();
+  static void unspecified_bool_true() {}
+  operator unspecified_bool_type() const
+  {
+    return object_ == NULL ? 0 : unspecified_bool_true;
+  }
+  bool operator!() const
+  {
+    return object_ == NULL;
+  }
+
 private:
   // prevent copying
   PyObjectPtr(const PyObjectPtr&);

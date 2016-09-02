@@ -40,3 +40,8 @@ run <- function(session, fetches, feed_dict=NULL,
   session$run(fetches, feed_dict, options, run_metadata)
 }
 
+#' @export
+initialize_all_variables <- function() {
+  tf <- tf_import()
+  tf$initialize_all_variables()
+}

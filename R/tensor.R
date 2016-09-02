@@ -29,9 +29,28 @@
 #' @export
 constant <- function(value, dtype=NULL, shape=NULL, name="Const") {
   tf <- tf_import()
-  if (!is.null(dtype))
-    dtype <- tf$as_dtype(dtype)
-  tf$constant(value, dtype = dtype, shape = shape, name = name)
+  tf$constant(value, dtype = as_dtype(dtype), shape = shape, name = name)
+}
+
+#' @export
+variable <- function(initial_value=NULL, trainable=TRUE, collections=NULL,
+                     validate_shape=TRUE, caching_device=NULL, name=NULL,
+                     variable_def=NULL, dtype=NULL) {
+  tf <- tf_import()
+  tf$Variable(initial_value,
+              trainable = trainable,
+              collections = collections,
+              validate_shape = validate_shape,
+              caching_device = caching_device,
+              name = name,
+              variable_def = variable_def,
+              dtype = as_dtype(dtype))
+}
+
+#' @export
+zeros <- function(shape, dtype="float32", name=NULL) {
+  tf <- tf_import()
+  tf$zeros(list(as.integer(shape)), dtype = as_dtype(dtype), name = name)
 }
 
 #' @export
@@ -44,46 +63,18 @@ print.tensorflow.python.framework.ops.Tensor <- function(x, ...) {
   }
 }
 
-# Some math generics, see here for docs on more generics:
-# https://stat.ethz.ch/R-manual/R-devel/library/base/html/groupGeneric.html
-
-#' @export
-"+.tensorflow.python.framework.ops.Tensor" <- function(a, b) {
+as_dtype <- function(dtype) {
   tf <- tf_import()
-  tf$add(a, b)
-}
-
-#' @export
-"-.tensorflow.python.framework.ops.Tensor" <- function(a, b) {
-  tf <- tf_import()
-  if (missing(b))
-    tf$neg(a)
+  if (!is.null(dtype))
+    tf$as_dtype(dtype)
   else
-    tf$sub(a, b)
+    NULL
 }
 
-#' @export
-"*.tensorflow.python.framework.ops.Tensor" <- function(a, b) {
-  tf <- tf_import()
-  tf$mul(a, b)
+as_integer <- function(x) {
+  if (!is.null(x))
+    as.integer(x)
+  else
+    NULL
 }
-
-#' @export
-"/.tensorflow.python.framework.ops.Tensor" <- function(a, b) {
-  tf <- tf_import()
-  tf$truediv(a, b)
-}
-
-#' @export
-"%/%.tensorflow.python.framework.ops.Tensor" <- function(a, b) {
-  tf <- tf_import()
-  tf$floordiv(a, b)
-}
-
-#' @export
-"%%.tensorflow.python.framework.ops.Tensor" <- function(a, b) {
-  tf <- tf_import()
-  tf$mod(a, b)
-}
-
 

@@ -558,8 +558,8 @@ bool py_is_callable(PyObjectXPtr x) {
 // [[Rcpp::export]]
 std::vector<std::string> py_list_attributes(PyObjectXPtr x) {
   std::vector<std::string> attributes;
-  PyObject* attrs = ::PyObject_Dir(x);
-  if (attrs == NULL)
+  PyObjectPtr attrs(::PyObject_Dir(x));
+  if (attrs.is_null())
     stop(py_fetch_error());
 
   Py_ssize_t len = ::PyList_Size(attrs);
@@ -568,8 +568,6 @@ std::vector<std::string> py_list_attributes(PyObjectXPtr x) {
     const char* value = ::PyString_AsString(item);
     attributes.push_back(value);
   }
-
-  py_decref(attrs);
 
   return attributes;
 }
@@ -580,7 +578,6 @@ PyObjectXPtr py_get_attr(PyObjectXPtr x, const std::string& name) {
   PyObject* attr = ::PyObject_GetAttrString(x, name.c_str());
   if (attr == NULL)
     stop(py_fetch_error());
-
   return py_xptr(attr);
 }
 
@@ -630,37 +627,30 @@ SEXP py_to_r(PyObjectXPtr x) {
 SEXP py_call(PyObjectXPtr x, List args, List keywords = R_NilValue) {
 
   // unnamed arguments
-  PyObject *pyArgs = ::PyTuple_New(args.length());
+  PyObjectPtr pyArgs(::PyTuple_New(args.length()));
   for (R_xlen_t i = 0; i<args.size(); i++) {
     PyObject* arg = r_to_py(args.at(i));
+    // NOTE: reference to arg is "stolen" by the tuple
     int res = ::PyTuple_SetItem(pyArgs, i, arg);
-    if (res != 0) {
-      py_decref(pyArgs);
+    if (res != 0)
       stop(py_fetch_error());
-    }
   }
 
   // named arguments
-  PyObject *pyKeywords = ::PyDict_New();
+  PyObjectPtr pyKeywords(::PyDict_New());
   if (keywords.length() > 0) {
     CharacterVector names = keywords.names();
     for (R_xlen_t i = 0; i<keywords.length(); i++) {
       const char* name = names.at(i);
-      PyObject* arg = r_to_py(keywords.at(i));
+      PyObjectPtr arg(r_to_py(keywords.at(i)));
       int res = ::PyDict_SetItemString(pyKeywords, name, arg);
-      py_decref(arg);
-      if (res != 0) {
-        py_decref(pyArgs);
-        py_decref(pyKeywords);
+      if (res != 0)
         stop(py_fetch_error());
-      }
     }
   }
 
   // call the function
   PyObjectPtr res(::PyObject_Call(x, pyArgs, pyKeywords));
-  py_decref(pyArgs);
-  py_decref(pyKeywords);
 
   // check for error
   if (res == NULL)

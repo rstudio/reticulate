@@ -27,19 +27,19 @@ void py_decref(PyObject* object) {
 }
 
 // wrap a PyObject in an XPtr
-PyObjectPtr py_xptr(PyObject* object, bool decref = true) {
+PyObjectXPtr py_xptr(PyObject* object, bool decref = true) {
 
   // wrap in XPtr
-  PyObjectPtr ptr(object, decref);
+  PyObjectXPtr ptr(object, decref);
 
   // class attribute
   CharacterVector attrClass = CharacterVector::create();
 
   // determine underlying pyton class
   if (::PyObject_HasAttrString(object, "__class__")) {
-    PyObjectPtr classPtr(::PyObject_GetAttrString(object, "__class__"));
-    PyObjectPtr modulePtr(::PyObject_GetAttrString(classPtr, "__module__"));
-    PyObjectPtr namePtr(::PyObject_GetAttrString(classPtr, "__name__"));
+    PyObjectXPtr classPtr(::PyObject_GetAttrString(object, "__class__"));
+    PyObjectXPtr modulePtr(::PyObject_GetAttrString(classPtr, "__module__"));
+    PyObjectXPtr namePtr(::PyObject_GetAttrString(classPtr, "__name__"));
     std::ostringstream ostr;
     ostr << ::PyString_AsString(modulePtr) << "." <<
             ::PyString_AsString(namePtr);
@@ -206,7 +206,7 @@ SEXP py_to_r(PyObject* x) {
       list[i] = py_to_r(PyTuple_GetItem(x, i));
     // check for namedtuple
     if (::PyObject_HasAttrString(x, "_fields") == 1) {
-      PyObjectPtr fieldsAttrPtr(::PyObject_GetAttrString(x, "_fields"));
+      PyObjectXPtr fieldsAttrPtr(::PyObject_GetAttrString(x, "_fields"));
       if (PyTuple_Check(fieldsAttrPtr) && PyTuple_Size(fieldsAttrPtr) == len)
         list.names() = py_tuple_to_character(fieldsAttrPtr);
     }
@@ -331,7 +331,7 @@ PyObject* r_to_py(RObject x) {
   // pass python objects straight through (Py_IncRef since returning this
   // creates a new reference from the caller)
   } else if (x.inherits("py_object")) {
-    PyObjectPtr obj = as<PyObjectPtr>(sexp);
+    PyObjectXPtr obj = as<PyObjectXPtr>(sexp);
     ::Py_IncRef(obj.get());
     return obj.get();
 
@@ -499,12 +499,12 @@ void py_finalize() {
 }
 
 // [[Rcpp::export]]
-bool py_is_none(PyObjectPtr x) {
+bool py_is_none(PyObjectXPtr x) {
   return py_is_none(x.get());
 }
 
 // [[Rcpp::export]]
-void py_print(PyObjectPtr x) {
+void py_print(PyObjectXPtr x) {
   PyObject* str = ::PyObject_Str(x);
   if (str == NULL)
     stop(py_fetch_error());
@@ -513,12 +513,12 @@ void py_print(PyObjectPtr x) {
 }
 
 // [[Rcpp::export]]
-bool py_is_callable(PyObjectPtr x) {
+bool py_is_callable(PyObjectXPtr x) {
   return ::PyCallable_Check(x) == 1;
 }
 
 // [[Rcpp::export]]
-std::vector<std::string> py_list_attributes(PyObjectPtr x) {
+std::vector<std::string> py_list_attributes(PyObjectXPtr x) {
   std::vector<std::string> attributes;
   PyObject* attrs = ::PyObject_Dir(x);
   if (attrs == NULL)
@@ -538,7 +538,7 @@ std::vector<std::string> py_list_attributes(PyObjectPtr x) {
 
 
 // [[Rcpp::export]]
-PyObjectPtr py_get_attr(PyObjectPtr x, const std::string& name) {
+PyObjectXPtr py_get_attr(PyObjectXPtr x, const std::string& name) {
   PyObject* attr = ::PyObject_GetAttrString(x, name.c_str());
   if (attr == NULL)
     stop(py_fetch_error());
@@ -548,7 +548,7 @@ PyObjectPtr py_get_attr(PyObjectPtr x, const std::string& name) {
 
 // [[Rcpp::export]]
 IntegerVector py_get_attribute_types(
-    PyObjectPtr x,
+    PyObjectXPtr x,
     const std::vector<std::string>& attributes) {
 
   //const int UNKNOWN     =  0;
@@ -560,7 +560,7 @@ IntegerVector py_get_attribute_types(
 
   IntegerVector types(attributes.size());
   for (size_t i = 0; i<attributes.size(); i++) {
-    PyObjectPtr attr = py_get_attr(x, attributes[i]);
+    PyObjectXPtr attr = py_get_attr(x, attributes[i]);
     if (::PyCallable_Check(attr))
       types[i] = FUNCTION;
     else if (PyList_Check(attr)  ||
@@ -584,12 +584,12 @@ IntegerVector py_get_attribute_types(
 }
 
 // [[Rcpp::export]]
-SEXP py_to_r(PyObjectPtr x) {
+SEXP py_to_r(PyObjectXPtr x) {
   return py_to_r(x.get());
 }
 
 // [[Rcpp::export]]
-SEXP py_call(PyObjectPtr x, List args, List keywords = R_NilValue) {
+SEXP py_call(PyObjectXPtr x, List args, List keywords = R_NilValue) {
 
   // unnamed arguments
   PyObject *pyArgs = ::PyTuple_New(args.length());
@@ -634,7 +634,7 @@ SEXP py_call(PyObjectPtr x, List args, List keywords = R_NilValue) {
 
 
 // [[Rcpp::export]]
-PyObjectPtr py_import(const std::string& module) {
+PyObjectXPtr py_import(const std::string& module) {
   PyObject* pModule = ::PyImport_ImportModule(module.c_str());
   if (pModule == NULL)
     stop(py_fetch_error());

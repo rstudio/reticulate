@@ -8,8 +8,8 @@ y_data <- x_data * 0.1 + 0.3
 # (We know that W should be 0.1 and b 0.3, but TensorFlow will
 # figure that out for us.)
 W <- variable(random_uniform(1, -1.0, 1.0))
-b = variable(zeros(1))
-y = W * x_data + b
+b <- variable(zeros(1))
+y <- W * x_data + b
 
 # Minimize the mean squared errors.
 loss <- reduce_mean(square(y - y_data))
@@ -19,13 +19,13 @@ train <-
 
 # Launch the graph and initialize the variables.
 sess = session()
-run(sess, initialize_all_variables())
+sess %>% run(initialize_all_variables())
 
 # Fit the line (Learns best fit is W: 0.1, b: 0.3)
 for (step in 1:201) {
-  run(sess, train)
+  sess %>% run(train)
   if (step %% 20 == 0)
-    cat(step, "-", run(sess, W), run(sess, b), "\n")
+    cat(step, "-", sess %>% run(W), sess %>% run(b), "\n")
 }
 
 

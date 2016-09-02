@@ -31,16 +31,7 @@ public:
 
   void detach() { object_ = NULL; }
 
-  typedef void (*unspecified_bool_type)();
-  static void unspecified_bool_true() {}
-  operator unspecified_bool_type() const
-  {
-    return object_ == NULL ? 0 : unspecified_bool_true;
-  }
-  bool operator!() const
-  {
-    return object_ == NULL;
-  }
+  bool is_null() const { return object_ == NULL; }
 
 private:
   // prevent copying
@@ -97,9 +88,13 @@ std::string py_fetch_error() {
 
   // determine error
   std::string error;
-  PyObject *pExcType , *pExcValue , *pExcTraceback;
-  ::PyErr_Fetch(&pExcType , &pExcValue , &pExcTraceback) ;
-  if (pExcValue != NULL) {
+  PyObject *excType , *excValue , *excTraceback;
+  ::PyErr_Fetch(&excType , &excValue , &excTraceback);
+  PyObjectPtr pExcType(excType);
+  PyObjectPtr pExcValue(excValue);
+  PyObjectPtr pExcTraceback(excTraceback);
+
+  if (!pExcValue.is_null()) {
     std::ostringstream ostr;
     PyObject* pStr = ::PyObject_Str(pExcValue) ;
     ostr << ::PyString_AsString(pStr);
@@ -108,11 +103,6 @@ std::string py_fetch_error() {
   } else {
     error = "<unknown error>";
   }
-
-  // release referenes
-  py_decref(pExcType);
-  py_decref(pExcValue);
-  py_decref(pExcTraceback);
 
   // return error
   return error;

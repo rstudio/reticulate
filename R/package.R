@@ -8,6 +8,11 @@
 # TODO: API issues:
 #    - use train_ prefix (where to draw the line?)
 #    - perhaps use dots to namespace, e.g. tf.session?
+#    -    tf.Session, tf.session
+#    - consider wrapping objects as S4?
+#    - Explosion of namespaces with nn, slim, tflearn, etc.
+#      means it will be hard to not reflect them in our names
+#      identical names may be best! (allows easy translation)
 
 #' @useDynLib tensorflow
 #' @importFrom Rcpp evalCpp

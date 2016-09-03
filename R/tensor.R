@@ -47,7 +47,7 @@ variable <- function(initial_value=NULL, trainable=TRUE, collections=NULL,
 
 #' @export
 zeros <- function(shape, dtype="float32", name=NULL) {
-  tf$zeros(list(as.integer(shape)), dtype = as_dtype(dtype), name = name)
+  tf$zeros(as_shape(shape), dtype = as_dtype(dtype), name = name)
 }
 
 #' @export
@@ -67,9 +67,22 @@ as_dtype <- function(dtype) {
 }
 
 as_integer <- function(x) {
-  if (!is.null(x))
-    as.integer(x)
-  else
+  if (is.null(x))
     NULL
+  else
+    as.integer(x)
+}
+
+as_list <- function(x) {
+  if (is.null(x))
+    NULL
+  else if (length(x) == 1)
+    list(x)
+  else
+    x
+}
+
+as_shape <- function(shape) {
+  as_list(as_integer(shape))
 }
 

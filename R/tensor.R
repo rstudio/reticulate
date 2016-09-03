@@ -28,7 +28,6 @@
 #'
 #' @export
 constant <- function(value, dtype=NULL, shape=NULL, name="Const") {
-  tf <- tf_import()
   tf$constant(value, dtype = as_dtype(dtype), shape = shape, name = name)
 }
 
@@ -36,7 +35,6 @@ constant <- function(value, dtype=NULL, shape=NULL, name="Const") {
 variable <- function(initial_value=NULL, trainable=TRUE, collections=NULL,
                      validate_shape=TRUE, caching_device=NULL, name=NULL,
                      variable_def=NULL, dtype=NULL) {
-  tf <- tf_import()
   tf$Variable(initial_value,
               trainable = trainable,
               collections = collections,
@@ -49,14 +47,12 @@ variable <- function(initial_value=NULL, trainable=TRUE, collections=NULL,
 
 #' @export
 zeros <- function(shape, dtype="float32", name=NULL) {
-  tf <- tf_import()
   tf$zeros(list(as.integer(shape)), dtype = as_dtype(dtype), name = name)
 }
 
 #' @export
 print.tensorflow.python.framework.ops.Tensor <- function(x, ...) {
   py_print(x)
-  tf <- tf_import()
   if (!is.null(tf$get_default_session())) {
     cat("\n")
     cat(py_print(x$eval()))
@@ -64,7 +60,6 @@ print.tensorflow.python.framework.ops.Tensor <- function(x, ...) {
 }
 
 as_dtype <- function(dtype) {
-  tf <- tf_import()
   if (!is.null(dtype))
     tf$as_dtype(dtype)
   else

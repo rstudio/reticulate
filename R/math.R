@@ -1,14 +1,12 @@
 
 #' @export
 square <- function(x, name=NULL) {
-  tf <- tf_import()
   tf$square(x, name = name)
 }
 
 #' @export
 reduce_mean <- function(input_tensor, reduction_indices=NULL,
                         keep_dims=FALSE, name=NULL) {
-  tf <- tf_import()
   tf$reduce_mean(input_tensor,
                  reduction_indices = as_integer(reduction_indices),
                  keep_dims = keep_dims,
@@ -40,19 +38,16 @@ reduce_mean <- function(input_tensor, reduction_indices=NULL,
 
 #' @export
 "+.tensorflow.python.framework.ops.Tensor" <- function(a, b) {
-  tf <- tf_import()
   tf$add(a, b)
 }
 
 #' @export
 "+.tensorflow.python.framework.ops.Variable" <- function(a, b) {
-  tf <- tf_import()
   tf$add(a, b)
 }
 
 #' @export
 "-.tensorflow.python.framework.ops.Tensor" <- function(a, b) {
-  tf <- tf_import()
   if (missing(b))
     tf$neg(a)
   else
@@ -61,7 +56,6 @@ reduce_mean <- function(input_tensor, reduction_indices=NULL,
 
 #' @export
 "-.tensorflow.python.framework.ops.Variable" <- function(a, b) {
-  tf <- tf_import()
   if (missing(b))
     tf$neg(a)
   else
@@ -70,30 +64,25 @@ reduce_mean <- function(input_tensor, reduction_indices=NULL,
 
 #' @export
 "*.tensorflow.python.framework.ops.Tensor" <- function(a, b) {
-  tf <- tf_import()
   tf$mul(a, b)
 }
 
 #' @export
 "*.tensorflow.python.ops.variables.Variable" <- function(a, b) {
-  tf <- tf_import()
   tf$mul(a, b)
 }
 
 #' @export
 "/.tensorflow.python.framework.ops.Tensor" <- function(a, b) {
-  tf <- tf_import()
   tf$truediv(a, b)
 }
 
 #' @export
 "%/%.tensorflow.python.framework.ops.Tensor" <- function(a, b) {
-  tf <- tf_import()
   tf$floordiv(a, b)
 }
 
 #' @export
 "%%.tensorflow.python.framework.ops.Tensor" <- function(a, b) {
-  tf <- tf_import()
   tf$mod(a, b)
 }

@@ -21,7 +21,6 @@
 #'
 #' @export
 session <- function(target = "", graph = NULL, config = NULL) {
-  tf <- tf_import()
   sess <- tf$Session(target, graph, config)
   reg.finalizer(sess, function(sess) { sess$close() }, onexit = TRUE)
   sess
@@ -30,7 +29,6 @@ session <- function(target = "", graph = NULL, config = NULL) {
 
 #' @export
 interactive_session <- function(target = "", graph = NULL, config = NULL) {
-  tf <- tf_import()
   tf$InteractiveSession(target, graph, config)
 }
 
@@ -42,6 +40,5 @@ run <- function(session, fetches, feed_dict=NULL,
 
 #' @export
 initialize_all_variables <- function() {
-  tf <- tf_import()
   tf$initialize_all_variables()
 }

@@ -2,7 +2,6 @@
 #' @export
 gradient_descent_optimizer <- function(learning_rate, use_locking=FALSE,
                                        name="GradientDescent") {
-  tf <- tf_import()
   tf$train$GradientDescentOptimizer(learning_rate,
                                     use_locking = use_locking,
                                     name = name)

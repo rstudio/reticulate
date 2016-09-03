@@ -15,10 +15,10 @@
 
 
 # Import data
-input_data <- tf_import("examples.tutorials.mnist.input_data")
+input_data <- py_import("tensorflow.examples.tutorials.mnist.input_data")
 
 # import tensorflow as tf
-tf <- tf_import()
+tf <- py_import("tensorflow")
 
 flags <- tf$app$flags
 FLAGS <- flags$FLAGS

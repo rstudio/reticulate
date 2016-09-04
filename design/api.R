@@ -19,7 +19,7 @@ for (step in 1:201) {
 # call them out within the code. There are also lots and lots
 # of nested namespaces that will likely need treatment via
 # underscore separators. Here's a variation with underscore
-# underscore prefixes that map to the python namespaces:
+# prefixes that map to the python namespaces:
 
 loss <- tf_reduce_mean(tf_square(y - y_data))
 optimizer <- tf_train_gradient_descent_optimizer(0.5)

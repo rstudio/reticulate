@@ -2,3 +2,5 @@
 ^\.Rproj\.user$
 ^autom4te.cache$
 ^src/Makevars$
+^design$
+

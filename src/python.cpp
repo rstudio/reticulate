@@ -511,11 +511,13 @@ void py_initialize(const std::string& pythonSharedLibrary) {
   //   https://bugs.kde.org/show_bug.cgi?id=330032)
   //   http://stackoverflow.com/questions/29880931/
   //
+#ifndef __APPLE__
   void * lib = ::dlopen(pythonSharedLibrary.c_str(), RTLD_NOW|RTLD_GLOBAL);
   if (lib == NULL) {
     const char* err = ::dlerror();
     stop(err);
   }
+#endif
 
   // initialize python
   ::Py_Initialize();

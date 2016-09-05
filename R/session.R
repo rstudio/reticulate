@@ -6,7 +6,7 @@
 #'
 #' @param target Optional. The execution engine to connect to. Defaults to using
 #'   an in-process engine.
-#' @param graph: Optional. The Graph to be launched (described below).
+#' @param graph Optional. The Graph to be launched (described below).
 #' @param config (Optional.) A list with configuration options for the session.
 #'
 #' @details

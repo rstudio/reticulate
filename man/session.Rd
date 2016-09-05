@@ -10,9 +10,9 @@ session(target = "", graph = NULL, config = NULL)
 \item{target}{Optional. The execution engine to connect to. Defaults to using
 an in-process engine.}
 
-\item{config}{(Optional.) A list with configuration options for the session.}
+\item{graph}{Optional. The Graph to be launched (described below).}
 
-\item{graph:}{Optional. The Graph to be launched (described below).}
+\item{config}{(Optional.) A list with configuration options for the session.}
 }
 \description{
 A Session object encapsulates the environment in which Operation objects are

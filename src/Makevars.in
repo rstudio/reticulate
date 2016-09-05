@@ -1,3 +1,6 @@
+# Compile as C++11 to get (inter alia) 'long long'
+CXX_STD=CXX11
+
 # Required vars
 PKG_LIBS=@PKG_LIBS@
 PKG_CPPFLAGS=@PKG_CPPFLAGS@

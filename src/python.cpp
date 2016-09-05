@@ -1,16 +1,10 @@
 #include <Python.h>
+
+#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 #include <numpy/arrayobject.h>
 #include <numpy/ndarraytypes.h>
 
 #include <dlfcn.h>
-
-#ifndef NPY_ARRAY_FARRAY_RO
-#define NPY_ARRAY_FARRAY_RO NPY_FARRAY_RO
-#endif
-#ifndef NPY_ARRAY_FARRAY
-#define NPY_ARRAY_FARRAY NPY_FARRAY
-#endif
-
 
 #include <Rcpp.h>
 using namespace Rcpp;

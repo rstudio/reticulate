@@ -25,7 +25,7 @@ tf <- NULL
 .globals <- new.env(parent = emptyenv())
 
 .onLoad <- function(libname, pkgname) {
-  py_initialize();
+  py_initialize(pythonSharedLibrary());
   tf <<- py_import("tensorflow")
 }
 

@@ -7,11 +7,12 @@
 using namespace Rcpp;
 
 // py_initialize
-void py_initialize();
-RcppExport SEXP tensorflow_py_initialize() {
+void py_initialize(const std::string& pythonSharedLibrary);
+RcppExport SEXP tensorflow_py_initialize(SEXP pythonSharedLibrarySEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope __rngScope;
-    py_initialize();
+    Rcpp::traits::input_parameter< const std::string& >::type pythonSharedLibrary(pythonSharedLibrarySEXP);
+    py_initialize(pythonSharedLibrary);
     return R_NilValue;
 END_RCPP
 }

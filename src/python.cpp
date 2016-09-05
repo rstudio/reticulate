@@ -2,6 +2,8 @@
 #include <numpy/arrayobject.h>
 #include <numpy/ndarraytypes.h>
 
+#include <dlfcn.h>
+
 #ifndef NPY_ARRAY_FARRAY_RO
 #define NPY_ARRAY_FARRAY_RO NPY_FARRAY_RO
 #endif
@@ -508,14 +510,27 @@ bool py_import_numpy_array_api() {
 }
 
 // [[Rcpp::export]]
-void py_initialize() {
+void py_initialize(const std::string& pythonSharedLibrary) {
 
+  // force global availability of libpython symbols, see:
+  //
+  //   https://bugs.kde.org/show_bug.cgi?id=330032)
+  //   http://stackoverflow.com/questions/29880931/
+  //
+  void * lib = ::dlopen(pythonSharedLibrary.c_str(), RTLD_NOW|RTLD_GLOBAL);
+  if (lib == NULL) {
+    const char* err = ::dlerror();
+    stop(err);
+  }
+
+  // initialize python
   ::Py_Initialize();
 
   // required to populate sys.
   const char *argv[1] = {"python"};
   PySys_SetArgv(1, const_cast<char**>(argv));
 
+  // import numpy array api
   if (!py_import_numpy_array_api())
     stop(py_fetch_error());
 }

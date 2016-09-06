@@ -10,7 +10,7 @@ run_example <- function(example) {
   gc()
 }
 
-examples <- c("hello.R", "introduction.R")
+examples <- c("hello.R", "introduction.R", "mnist_softmax.R")
 
 for (example in examples) {
   test_that(paste(example, "example runs successfully"), {

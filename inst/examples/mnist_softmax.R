@@ -13,19 +13,20 @@
 # limitations under the License.
 # ==============================================================================
 
+library(tensorflow)
 
 # Import data
-input_data <- py_import("tensorflow.examples.tutorials.mnist.input_data")
+input_data <- tensorflow:::py_import("tensorflow.examples.tutorials.mnist.input_data")
 
 # import tensorflow as tf
-tf <- py_import("tensorflow")
+tf <- tensorflow:::py_import("tensorflow")
 
 flags <- tf$app$flags
 FLAGS <- flags$FLAGS
 flags$DEFINE_string('data_dir', '/tmp/data/', 'Directory for storing data')
 mnist <- input_data$read_data_sets(FLAGS$data_dir, one_hot=TRUE)
 
-sess <- tf$InteractiveSession()
+sess <- tf$Session()
 
 # Create the model
 x <- tf$placeholder(tf$float32, list(NULL, 784))
@@ -40,7 +41,7 @@ cross_entropy <- tf$reduce_mean(-tf$reduce_sum(y_ * tf$log(y), reduction_indices
 train_step <- tf$train$GradientDescentOptimizer(0.5)$minimize(cross_entropy)
 
 # Train
-tf$initialize_all_variables()$run()
+sess$run(tf$initialize_all_variables())
 for (i in 1:1000) {
   batches <- mnist$train$next_batch(100L)
   batch_xs <- batches[[1]]
@@ -52,11 +53,13 @@ for (i in 1:1000) {
   # "<op_name>:<output_index>".
   #
   # The problem is that the dictionary we are passing isn't keyed by tensors!
-  train_step$run(list(x = batch_xs, y_ = batch_ys))
+  sess$run(train_step,
+           feed_dict = dict(x = batch_xs, y_ = batch_ys))
 }
 
 
 # # Test trained model
-# correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1))
-# accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-# print(accuracy.eval({x: mnist.test.images, y_: mnist.test.labels}))
+correct_prediction <- tf$equal(tf$argmax(y, 1L), tf$argmax(y_, 1L))
+accuracy <- tf$reduce_mean(tf$cast(correct_prediction, tf$float32))
+sess$run(accuracy,
+         feed_dict = dict(x = mnist$test$images, y_ = mnist$test$labels))

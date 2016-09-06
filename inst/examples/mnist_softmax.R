@@ -46,13 +46,6 @@ for (i in 1:1000) {
   batches <- mnist$train$next_batch(100L)
   batch_xs <- batches[[1]]
   batch_ys <- batches[[2]]
-  # this line of code is failing with:
-  #
-  # Error: Cannot interpret feed_dict key as Tensor: The name 'x' looks like
-  # an (invalid) Operation name, not a Tensor. Tensor names must be of the form
-  # "<op_name>:<output_index>".
-  #
-  # The problem is that the dictionary we are passing isn't keyed by tensors!
   sess$run(train_step,
            feed_dict = dict(x = batch_xs, y_ = batch_ys))
 }

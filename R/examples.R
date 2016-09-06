@@ -1,7 +1,7 @@
 
 
 #' @export
-read_example_data <- function(dataset = c("minst")) {
+tf.read_example_data <- function(dataset = c("minst")) {
   dataset <- match.arg(dataset)
   if (dataset == "minst") {
   input_data <- py_import("tensorflow.examples.tutorials.mnist.input_data")

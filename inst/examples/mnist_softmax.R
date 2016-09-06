@@ -16,7 +16,7 @@
 library(tensorflow)
 
 # import data
-mnist <- read_example_data("minst")
+mnist <- tf.read_example_data("minst")
 
 # initialize the session
 sess <- tf.Session()

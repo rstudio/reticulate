@@ -5,12 +5,44 @@ tf.square <- function(x, name=NULL) {
 }
 
 #' @export
+tf.log <- function(x, name=NULL) {
+  tf$log(x, name = name)
+}
+
+
+#' @export
 tf.reduce_mean <- function(input_tensor, reduction_indices=NULL,
                            keep_dims=FALSE, name=NULL) {
   tf$reduce_mean(input_tensor,
                  reduction_indices = as_integer(reduction_indices),
                  keep_dims = keep_dims,
                  name = name)
+}
+
+#' @export
+tf.reduce_sum <- function(input_tensor, reduction_indices=NULL, keep_dims=FALSE,
+                          name=NULL) {
+  tf$reduce_sum(input_tensor,
+                reduction_indices = as_integer(reduction_indices),
+                keep_dims = keep_dims,
+                name = name)
+}
+
+
+#' @export
+tf.matmul <- function(a, b,
+                      transpose_a=FALSE, transpose_b=FALSE,
+                      a_is_sparse=FALSE, b_is_sparse=FALSE,
+                      name=NULL) {
+  tf$matmul(a, b,
+            transpose_a = transpose_a, transpose_b = transpose_b,
+            a_is_sparse = a_is_sparse, b_is_sparse = b_is_sparse,
+            name = name)
+}
+
+#' @export
+tf.argmax <- function(input, dimension, name=NULL) {
+  tf$argmax(input, dimension = as_integer(dimension), name = name)
 }
 
 

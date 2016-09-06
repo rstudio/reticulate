@@ -23,6 +23,11 @@ tf.placeholder <- function(dtype=NULL, shape=NULL, name=NULL) {
   tf$placeholder(dtype = dtype, shape = shape, name = name)
 }
 
+#' @export
+tf.cast <- function(x, dtype, name=NULL) {
+  tf$cast(x, dtype = dtype, name = name)
+}
+
 
 
 #' @export

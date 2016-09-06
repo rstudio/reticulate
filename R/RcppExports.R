@@ -49,6 +49,10 @@ py_import <- function(module) {
     .Call('tensorflow_py_import', PACKAGE = 'tensorflow', module)
 }
 
+py_dict <- function(keys, items) {
+    .Call('tensorflow_py_dict', PACKAGE = 'tensorflow', keys, items)
+}
+
 py_run_string <- function(code) {
     invisible(.Call('tensorflow_py_run_string', PACKAGE = 'tensorflow', code))
 }

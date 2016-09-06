@@ -15,23 +15,17 @@
 
 library(tensorflow)
 
-# Import data
-input_data <- tensorflow:::py_import("tensorflow.examples.tutorials.mnist.input_data")
+# import data
+input_data <- minst_read_data()
 
-# import tensorflow as tf
-tf <- tensorflow:::py_import("tensorflow")
-
-flags <- tf$app$flags
-FLAGS <- flags$FLAGS
-flags$DEFINE_string('data_dir', '/tmp/data/', 'Directory for storing data')
-mnist <- input_data$read_data_sets(FLAGS$data_dir, one_hot=TRUE)
-
-sess <- tf$Session()
+# initialize the session
+sess <- tf.Session()
 
 # Create the model
-x <- tf$placeholder(tf$float32, list(NULL, 784))
-W <- tf$Variable(tf$zeros(c(784, 10)))
-b <- tf$Variable(tf$zeros(10))
+x <- tf.placeholder(tf.float32, list(NULL, 784))
+W <- tf.Variable(tf.zeros(c(784, 10)))
+b <- tf.Variable(tf.zeros(10))
+
 y <- tf$nn$softmax(tf$matmul(x, W) + b)
 
 

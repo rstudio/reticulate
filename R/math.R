@@ -1,12 +1,12 @@
 
 #' @export
-square <- function(x, name=NULL) {
+tf.square <- function(x, name=NULL) {
   tf$square(x, name = name)
 }
 
 #' @export
-reduce_mean <- function(input_tensor, reduction_indices=NULL,
-                        keep_dims=FALSE, name=NULL) {
+tf.reduce_mean <- function(input_tensor, reduction_indices=NULL,
+                           keep_dims=FALSE, name=NULL) {
   tf$reduce_mean(input_tensor,
                  reduction_indices = as_integer(reduction_indices),
                  keep_dims = keep_dims,

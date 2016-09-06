@@ -1,10 +1,10 @@
 library(tensorflow)
 
-sess = session()
+sess = tf.Session()
 
-hello <- constant('Hello, TensorFlow!')
-run(sess, hello)
+hello <- tf.constant('Hello, TensorFlow!')
+sess$run(hello)
 
-a <- constant(10)
-b <- constant(32)
-run(sess, a + b)
+a <- tf.constant(10)
+b <- tf.constant(32)
+sess$run(a + b)

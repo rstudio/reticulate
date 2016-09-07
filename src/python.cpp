@@ -685,7 +685,7 @@ PyObjectXPtr py_import(const std::string& module) {
 // [[Rcpp::export]]
 PyObjectXPtr py_dict(const List& keys, const List& items) {
   PyObject* dict = ::PyDict_New();
-  for (size_t i = 0; i<keys.length(); i++) {
+  for (auto i = 0; i<keys.length(); i++) {
     PyObjectPtr key(r_to_py(keys.at(i)));
     PyObjectPtr item(r_to_py(items.at(i)));
     ::PyDict_SetItem(dict, key, item);

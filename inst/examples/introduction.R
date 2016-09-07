@@ -1,5 +1,8 @@
 library(tensorflow)
 
+# import tensorflow
+tf <- tensorflow()
+
 # Create 100 phony x, y data points, y = x * 0.1 + 0.3
 x_data <- runif(100, min=0, max=1)
 y_data <- x_data * 0.1 + 0.3

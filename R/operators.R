@@ -1,5 +1,4 @@
 
-
 # Some math generics, see here for docs on more generics:
 # https://stat.ethz.ch/R-manual/R-devel/library/base/html/groupGeneric.html
 
@@ -24,51 +23,51 @@
 
 #' @export
 "+.tensorflow.python.framework.ops.Tensor" <- function(a, b) {
-  tf$add(a, b)
+  tensorflow()$add(a, b)
 }
 
 #' @export
 "+.tensorflow.python.framework.ops.Variable" <- function(a, b) {
-  tf$add(a, b)
+  tensorflow()$add(a, b)
 }
 
 #' @export
 "-.tensorflow.python.framework.ops.Tensor" <- function(a, b) {
   if (missing(b))
-    tf$neg(a)
+    tensorflow()$neg(a)
   else
-    tf$sub(a, b)
+    tensorflow()$sub(a, b)
 }
 
 #' @export
 "-.tensorflow.python.framework.ops.Variable" <- function(a, b) {
   if (missing(b))
-    tf$neg(a)
+    tensorflow()$neg(a)
   else
-    tf$sub(a, b)
+    tensorflow()$sub(a, b)
 }
 
 #' @export
 "*.tensorflow.python.framework.ops.Tensor" <- function(a, b) {
-  tf$mul(a, b)
+  tensorflow()$mul(a, b)
 }
 
 #' @export
 "*.tensorflow.python.ops.variables.Variable" <- function(a, b) {
-  tf$mul(a, b)
+  tensorflow()$mul(a, b)
 }
 
 #' @export
 "/.tensorflow.python.framework.ops.Tensor" <- function(a, b) {
-  tf$truediv(a, b)
+  tensorflow()$truediv(a, b)
 }
 
 #' @export
 "%/%.tensorflow.python.framework.ops.Tensor" <- function(a, b) {
-  tf$floordiv(a, b)
+  tensorflow()$floordiv(a, b)
 }
 
 #' @export
 "%%.tensorflow.python.framework.ops.Tensor" <- function(a, b) {
-  tf$mod(a, b)
+  tensorflow()$mod(a, b)
 }

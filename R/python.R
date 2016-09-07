@@ -1,4 +1,4 @@
-#
+
 #' @export
 `$.py_object` <- function(x, name) {
   attr <- py_get_attr(x, name)

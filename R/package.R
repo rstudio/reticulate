@@ -19,6 +19,7 @@
 NULL
 
 # package level tf instance
+#' @export
 tf <- NULL
 
 # package level globals
@@ -30,49 +31,10 @@ tf <- NULL
 
   # import tensorflow api
   tf <<- py_import("tensorflow")
-
-  # alias data types
-  tf.float16 <<- tf$float16
-  tf.float16_ref <<- tf$float16_ref
-  tf.float32 <<- tf$float32
-  tf.float32_ref <<- tf$float32_ref
-  tf.float64 <<- tf$float64
-  tf.float64_ref <<- tf$float64_ref
-  tf.bfloat16 <<- tf$bfloat16
-  tf.bfloat16_ref <<- tf$bfloat16_ref
-  tf.complex64 <<- tf$complex64
-  tf.complex64_ref <<- tf$complex64_ref
-  tf.complex128 <<- tf$complex128
-  tf.complex128_ref <<- tf$complex128_ref
-  tf.int8 <<- tf$int8
-  tf.int8_ref <<- tf$int8_ref
-  tf.uint8 <<- tf$uint8
-  tf.uint8_ref <<- tf$uint8_ref
-  tf.int16 <<- tf$int16
-  tf.int16_ref <<- tf$int16_ref
-  tf.uint16 <<- tf$uint16
-  tf.uint16_ref <<- tf$uint16_ref
-  tf.int32 <<- tf$int32
-  tf.int32_ref <<- tf$int32_ref
-  tf.int64 <<- tf$int64
-  tf.int64_ref <<- tf$int64_ref
-  tf.bool <<- tf$bool
-  tf.bool_ref <<- tf$bool_ref
-  tf.qint8 <<- tf$qint8
-  tf.qint8_ref <<- tf$qint8_ref
-  tf.quint8 <<- tf$quint8
-  tf.quint8_ref <<- tf$quint8_ref
-  tf.qint16 <<- tf$qint16
-  tf.qint16_ref <<- tf$qint16_ref
-  tf.quint16 <<- tf$quint16
-  tf.quint16_ref <<- tf$quint16_ref
-  tf.qint32 <<- tf$qint32
-  tf.qint32_ref <<- tf$qint32_ref
 }
 
 .onUnload <- function(libpath) {
   py_finalize();
 }
-
 
 

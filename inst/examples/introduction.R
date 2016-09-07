@@ -7,18 +7,18 @@ y_data <- x_data * 0.1 + 0.3
 # Try to find values for W and b that compute y_data = W * x_data + b
 # (We know that W should be 0.1 and b 0.3, but TensorFlow will
 # figure that out for us.)
-W <- tf.Variable(tf.random_uniform(list(1L), -1.0, 1.0))
-b <- tf.Variable(tf.zeros(list(1L)))
+W <- tf$Variable(tf$random_uniform(list(1L), -1.0, 1.0))
+b <- tf$Variable(tf$zeros(list(1L)))
 y <- W * x_data + b
 
 # Minimize the mean squared errors.
-loss <- tf.reduce_mean(tf.square(y - y_data))
-optimizer <- tf.train.GradientDescentOptimizer(0.5)
+loss <- tf$reduce_mean(tf$square(y - y_data))
+optimizer <- tf$train$GradientDescentOptimizer(0.5)
 train <- optimizer$minimize(loss)
 
 # Launch the graph and initialize the variables.
-sess = tf.Session()
-sess$run(tf.initialize_all_variables())
+sess = tf$Session()
+sess$run(tf$initialize_all_variables())
 
 # Fit the line (Learns best fit is W: 0.1, b: 0.3)
 for (step in 1:201) {

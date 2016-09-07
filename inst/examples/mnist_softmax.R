@@ -22,15 +22,15 @@ mnist <- tf.read_example_data("minst")
 sess <- tf.Session()
 
 # Create the model
-x <- tf.placeholder(tf.float32, list(NULL, 784))
-W <- tf.Variable(tf.zeros(c(784, 10)))
-b <- tf.Variable(tf.zeros(10))
+x <- tf.placeholder(tf.float32, list(NULL, 784L))
+W <- tf.Variable(tf.zeros(list(784L, 10L)))
+b <- tf.Variable(tf.zeros(list(10L)))
 
 y <- tf.nn.softmax(tf.matmul(x, W) + b)
 
 # Define loss and optimizer
-y_ <- tf.placeholder(tf.float32, list(NULL, 10))
-cross_entropy <- tf.reduce_mean(-tf.reduce_sum(y_ * tf.log(y), reduction_indices=1))
+y_ <- tf.placeholder(tf.float32, list(NULL, 10L))
+cross_entropy <- tf.reduce_mean(-tf.reduce_sum(y_ * tf.log(y), reduction_indices=1L))
 train_step <- tf.train.GradientDescentOptimizer(0.5)$minimize(cross_entropy)
 
 # Train
@@ -44,7 +44,7 @@ for (i in 1:1000) {
 }
 
 # Test trained model
-correct_prediction <- tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1))
+correct_prediction <- tf.equal(tf.argmax(y, 1L), tf.argmax(y_, 1L))
 accuracy <- tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 sess$run(accuracy,
          feed_dict = dict(x = mnist$test$images, y_ = mnist$test$labels))

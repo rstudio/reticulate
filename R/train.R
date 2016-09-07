@@ -18,7 +18,7 @@ tf.train.OptimizerClass <- setRefClass(
                         colocate_gradients_with_ops=FALSE, name=NULL,
                         grad_loss=NULL) {
       optimizer$minimize(loss, global_step = global_step, var_list = var_list,
-                         gate_gradients = as.integer(gate_gradients),
+                         gate_gradients = gate_gradients,
                          aggregation_method = aggregation_method,
                          colocate_gradients_with_ops = colocate_gradients_with_ops,
                          name = name, grad_loss = grad_loss)

@@ -14,7 +14,7 @@ tf.log <- function(x, name=NULL) {
 tf.reduce_mean <- function(input_tensor, reduction_indices=NULL,
                            keep_dims=FALSE, name=NULL) {
   tf$reduce_mean(input_tensor,
-                 reduction_indices = as_integer(reduction_indices),
+                 reduction_indices = reduction_indices,
                  keep_dims = keep_dims,
                  name = name)
 }
@@ -23,7 +23,7 @@ tf.reduce_mean <- function(input_tensor, reduction_indices=NULL,
 tf.reduce_sum <- function(input_tensor, reduction_indices=NULL, keep_dims=FALSE,
                           name=NULL) {
   tf$reduce_sum(input_tensor,
-                reduction_indices = as_integer(reduction_indices),
+                reduction_indices = reduction_indices,
                 keep_dims = keep_dims,
                 name = name)
 }
@@ -42,7 +42,7 @@ tf.matmul <- function(a, b,
 
 #' @export
 tf.argmax <- function(input, dimension, name=NULL) {
-  tf$argmax(input, dimension = as_integer(dimension), name = name)
+  tf$argmax(input, dimension = dimension, name = name)
 }
 
 

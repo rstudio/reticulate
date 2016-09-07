@@ -64,37 +64,6 @@ str.py_object <- function(object, ...) {
   names
 }
 
-
-#' R aliases for various Python literals
-#'
-#' Aliases for various Python literals which make it easier to port existing
-#' TensorFlow Python code to R (note that the R equivalent R literals e.g.
-#' \code{NULL}, \code{TRUE}, etc. can always still be used).
-#'
-#' @name python-aliases
-#'
-#' @details
-#' \code{None} is an alias for \code{NULL}.
-#'
-#' \code{True} is an alias for \code{TRUE}.
-#'
-#' \code{False} is an alias for \code{FALSE}.
-#'
-#' @format An R object semantically equivalent to the Python literal.
-#'
-#' @export
-None <- NULL
-
-#' @rdname python-aliases
-#' @export
-True <- TRUE
-
-#' @rdname python-aliases
-#' @export
-False <- FALSE
-
-
-
 # find the name of the python shared library
 pythonSharedLibrary <- function() {
 

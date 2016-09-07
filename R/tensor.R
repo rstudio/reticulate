@@ -28,11 +28,9 @@ tf.cast <- function(x, dtype, name=NULL) {
   tf$cast(x, dtype = dtype, name = name)
 }
 
-
-
 #' @export
 tf.zeros <- function(shape, dtype=tf.float32, name=NULL) {
-  tf$zeros(as_shape(shape), dtype = dtype, name = name)
+  tf$zeros(shape, dtype = dtype, name = name)
 }
 
 #' @export
@@ -44,23 +42,4 @@ print.tensorflow.python.framework.ops.Tensor <- function(x, ...) {
   }
 }
 
-as_integer <- function(x) {
-  if (is.null(x))
-    NULL
-  else
-    as.integer(x)
-}
-
-as_list <- function(x) {
-  if (is.null(x))
-    NULL
-  else if (length(x) == 1)
-    list(x)
-  else
-    x
-}
-
-as_shape <- function(shape) {
-  as_list(as_integer(shape))
-}
 

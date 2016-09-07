@@ -3,10 +3,9 @@
 #' @export
 tensorflow <- function(module = NULL) {
   if (is.null(module))
-    module <- "tensorflow"
+    py_import("tensorflow")
   else
-    module <- paste("tensorflow", module, sep=".")
-  py_import(module)
+    py_import(paste("tensorflow", module, sep="."))
 }
 
 # Some math generics, see here for docs on more generics:

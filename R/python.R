@@ -64,6 +64,19 @@ str.py_object <- function(object, ...) {
   names
 }
 
+#' Create Python dictionary
+#'
+#' Create a Python dictionary object, including a dictionary whose keys
+#' are other Python objects rather than character vectors.
+#'
+#' @param ... Name/value pairs for dictionary
+#'
+#' @return A Python dictionary
+#'
+#' @note
+#' This is useful for creating dictionaries keyed by Tensor (required
+#' for `\code{feed_dict}` parameters).
+#'
 #' @export
 dict <- function(...) {
 

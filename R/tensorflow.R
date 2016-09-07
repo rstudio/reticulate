@@ -12,7 +12,23 @@ NULL
 }
 
 
-# convenience function for importing tensorflow
+#' Import TensorFlow
+#'
+#' Import the tensorflow python module (or one of it's sub-modules) for
+#' use in R.
+#'
+#' @param module Name of sub-module to import. Defaults to \code{NULL}, which
+#' imports the main tensorflow module.
+#'
+#' @return A tensorflow module
+#'
+#' @examples
+#' \dontrun{
+#' tf <- tensorflow()
+#' tflearn <- tensorflow("contrib.learn")
+#' slim <- tenstensorflow("contrib.slim")
+#' }
+#'
 #' @export
 tensorflow <- function(module = NULL) {
   if (is.null(module))

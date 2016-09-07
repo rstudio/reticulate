@@ -20,24 +20,13 @@ if test -n "$RLD"; then
    has_R_shlib=yes
 fi
 
-MYPYTHONCONFIG=python-config
-MYPYTHON=python
-
-# find user defined python version, if set
-if test -z "${TENSORFLOW_PYTHON_VERSION}"
-then
-  echo "Using system version of python"
-else
-  MYPYTHON=python${TENSORFLOW_PYTHON_VERSION}
-  MYPYTHONCONFIG=python${TENSORFLOW_PYTHON_VERSION}-config
-  echo "Using python version ${TENSORFLOW_PYTHON_VERSION}"
-fi
-
+PYTHONCONFIG=python-config
+PYTHON=python
 
 # Extract the linker and include flags for python
-: ${PYTHONCONFIG=`which ${MYPYTHONCONFIG}`}
+: ${PYTHONCONFIG=`which ${PYTHONCONFIG}`}
 if test -z "${PYTHONCONFIG}"; then
-  echo "Could not locate ${MYPYTHONCONFIG}"
+  echo "Could not locate ${PYTHONCONFIG}"
   exit 1
 fi
 
@@ -45,9 +34,9 @@ PKG_LIBS=`$PYTHONCONFIG --ldflags`
 PKG_CPPFLAGS=`$PYTHONCONFIG --includes`
 
 # find python
-: ${PYTHON=`which ${MYPYTHON}`}
+: ${PYTHON=`which ${PYTHON}`}
 if test -z "${PYTHON}"; then
-  echo "Could not locate ${MYPYTHON}"
+  echo "Could not locate ${PYTHON}"
   exit 1
 fi
 

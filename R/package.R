@@ -11,14 +11,3 @@ NULL
   py_finalize();
 }
 
-# convenience function for importing tensorflow
-#' @export
-tensorflow <- function(module = NULL) {
-  if (is.null(module))
-    module <- "tensorflow"
-  else
-    module <- paste("tensorflow", module, sep=".")
-  py_import(module)
-}
-
-

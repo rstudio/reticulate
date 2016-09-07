@@ -1,4 +1,14 @@
 
+# convenience function for importing tensorflow
+#' @export
+tensorflow <- function(module = NULL) {
+  if (is.null(module))
+    module <- "tensorflow"
+  else
+    module <- paste("tensorflow", module, sep=".")
+  py_import(module)
+}
+
 # Some math generics, see here for docs on more generics:
 # https://stat.ethz.ch/R-manual/R-devel/library/base/html/groupGeneric.html
 
@@ -71,3 +81,4 @@
 "%%.tensorflow.python.framework.ops.Tensor" <- function(a, b) {
   tensorflow()$mod(a, b)
 }
+

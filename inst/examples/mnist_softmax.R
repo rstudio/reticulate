@@ -4,7 +4,11 @@ library(tensorflow)
 tf <- tensorflow()
 
 # import data
-mnist <- read_example_data("minst")
+input_data <- tensorflow("examples.tutorials.mnist.input_data")
+flags <- tf$app$flags
+FLAGS <- flags$FLAGS
+flags$DEFINE_string('data_dir', '/tmp/data/', 'Directory for storing data')
+mnist <- input_data$read_data_sets(FLAGS$data_dir, one_hot=TRUE)
 
 # initialize the session
 sess <- tf$Session()

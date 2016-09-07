@@ -98,6 +98,13 @@ dict <- function(...) {
 }
 
 
+#' @export
+with.py_object <- function(data, expr, ...) {
+  data$`__enter__`()
+  force(expr)
+  data$`__exit__`(NULL, NULL, NULL)
+}
+
 # find the name of the python shared library
 pythonSharedLibrary <- function() {
 

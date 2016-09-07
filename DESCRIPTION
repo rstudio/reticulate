@@ -1,14 +1,30 @@
 Package: tensorflow
 Type: Package
-Title: What the Package Does (Title Case)
+Title: R Interface to TensorFlow
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: GPL-3
+Authors@R: c(
+  person("JJ", "Allaire", role = c("aut", "cre"),
+     comment = "R interface", email = "jj@rstudio.com"),
+  person(family = "RStudio", role = "cph"),
+  person("Dirk", "Eddelbuettel", role = c("aut", "cph"),
+         email = "edd@debian.org")
+  )
+Description: TensorFlow is an open source software library for
+  numerical computation using data flow graphs. Nodes in the
+  graph represent mathematical operations, while the graph edges
+  represent the multidimensional data arrays (tensors) communicated
+  between them. The flexible architecture allows you to deploy
+  computation to one or more CPUs or GPUs in a desktop, server, or
+  mobile device with a single API. TensorFlow was originally developed
+  by researchers and engineers working on the Google Brain Team within
+  Google's Machine Intelligence research organization for the purposes
+  of conducting machine learning and deep neural networks research,
+  but the system is general enough to be applicable in a wide variety
+  of other domains as well.
+License: Apache License 2.0
 Encoding: UTF-8
 LazyData: true
+Depends: R (>= 3.0)
 Imports:
     utils, Rcpp (>= 0.12.0)
 LinkingTo: Rcpp

@@ -665,7 +665,7 @@ SEXP py_call(PyObjectXPtr x, List args, List keywords = R_NilValue) {
   PyObjectPtr res(::PyObject_Call(x, pyArgs, pyKeywords));
 
   // check for error
-  if (res == NULL)
+  if (res.is_null())
     stop(py_fetch_error());
 
   // return as r object

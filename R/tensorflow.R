@@ -37,6 +37,21 @@ tensorflow <- function(module = NULL) {
     py_import(paste("tensorflow", module, sep="."))
 }
 
+#' Tensor shape
+#'
+#' @param ... Tensor dimensions
+#'
+#' @export
+shape <- function(...) {
+  dims <- list(...)
+  lapply(dims, function(dim) {
+    if (!is.null(dim))
+      as.integer(dim)
+    else
+      NULL
+  })
+}
+
 #' @export
 "+.tensorflow.python.framework.ops.Tensor" <- function(a, b) {
   tensorflow()$add(a, b)

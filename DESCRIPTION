@@ -22,6 +22,8 @@ Description: TensorFlow is an open source software library for
   but the system is general enough to be applicable in a wide variety
   of other domains as well.
 License: Apache License 2.0
+SystemRequirements: Python (>= 2.7.0) with header files and shared library;
+  TensorFlow (https://www.tensorflow.org/)
 Encoding: UTF-8
 LazyData: true
 Depends: R (>= 3.0)

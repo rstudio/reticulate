@@ -1,5 +1,7 @@
 context("examples")
 
+source("utils.R")
+
 # some helpers
 run_example <- function(example) {
   env <- new.env()
@@ -14,8 +16,7 @@ examples <- c("hello.R", "introduction.R", "mnist_softmax.R")
 
 for (example in examples) {
   test_that(paste(example, "example runs successfully"), {
-    skip_on_cran()
-    skip_on_os("mac")
+    skip_if_no_tensorflow()
     expect_error(run_example(example), NA)
   })
 }

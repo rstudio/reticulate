@@ -1,7 +1,5 @@
 
 # TODO: add python superclasses
-# TODO: implements with or with_context:
-#       http://preshing.com/20110920/the-python-with-statement-by-example/
 
 #' @useDynLib tensorflow
 #' @importFrom Rcpp evalCpp
@@ -165,4 +163,8 @@ shape <- function(...) {
 "^.tensorflow.python.framework.ops.Variable" <- function(a, b) {
   tf$pow(a, b)
 }
+
+
+
+
 

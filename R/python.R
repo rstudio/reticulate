@@ -108,9 +108,42 @@ dict <- function(...) {
 }
 
 
+#' Evaluate an expression within a context.
+#'
+#' The \code{with} method for objects of type \code{py_object} implements the
+#' context manager protocol used by the Python \code{with} statement. The passed
+#' object must implement the
+#' \href{https://docs.python.org/2/reference/datamodel.html#context-managers}{context
+#' manager} (\code{__enter__} and \code{__exit__} methods.
+#'
+#' @param data Context to enter and exit
+#' @param expr Expression to evaluate within the context
+#' @param as Name of variable to assign context to for the duration of the
+#'   expression's evaluation (optional).
+#' @param ... Unused
+#'
 #' @export
-with.py_object <- function(data, expr, ...) {
-  data$`__enter__`()
-  force(expr)
-  data$`__exit__`(NULL, NULL, NULL)
+with.py_object <- function(data, expr, as = NULL, ...) {
+
+  # enter the context
+  context <- data$`__enter__`()
+
+  # assign the context if we have an as parameter
+  asRestore <- NULL
+  if (!missing(as)) {
+    as <- deparse(substitute(as))
+    as <- gsub("\"", "", as)
+    if (exists(as, envir = parent.frame()))
+      asRestore <- get(as, envir = parent.frame())
+    assign(as, context, envir = parent.frame())
+  }
+
+  # evaluate the expression and exit the context
+  tryCatch(force(expr),
+           finally = {
+             data$`__exit__`(NULL, NULL, NULL)
+             if (!is.null(asRestore))
+               assign(as, asRestore, envir = parent.frame())
+           }
+          )
 }

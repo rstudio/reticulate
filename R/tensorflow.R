@@ -2,7 +2,6 @@
 # TODO: handle errors in print and $
 # TODO: forward full path to python lib for dlopen
 # TODO: specify system requirements
-# TODO: skip tests only when to tensorflow available
 # TODO: add python superclasses
 # TODO: implements with or with_context:
 #       http://preshing.com/20110920/the-python-with-statement-by-example/

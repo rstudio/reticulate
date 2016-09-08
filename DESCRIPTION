@@ -6,7 +6,7 @@ Authors@R: c(
   person("JJ", "Allaire", role = c("aut", "cre"),
      comment = "R interface", email = "jj@rstudio.com"),
   person(family = "RStudio", role = "cph"),
-  person("Dirk", "Eddelbuettel", role = c("aut", "cph"),
+  person("Dirk", "Eddelbuettel", role = c("ctb", "cph"),
          email = "edd@debian.org")
   )
 Description: TensorFlow is an open source software library for

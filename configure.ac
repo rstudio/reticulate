@@ -35,6 +35,7 @@ PKG_CPPFLAGS=`$PYTHONCONFIG --includes`
 
 # find python
 : ${PYTHON=`which ${PYTHON}`}
+PYTHON_BIN=`which ${PYTHON}`
 if test -z "${PYTHON}"; then
   echo "Could not locate ${PYTHON}"
   exit 1
@@ -52,8 +53,10 @@ PKG_CPPFLAGS="$PKG_CPPFLAGS -I$NUMPY_INCLUDE_DIR"
 PYTHONLIBFILE=libpython`$PYTHON -c "import sys; print(sys.version[[:3]])"`.so
 PKG_CPPFLAGS="$PKG_CPPFLAGS -D PYTHONLIBFILE=$PYTHONLIBFILE"
 
+AC_SUBST(PYTHON_BIN)
 AC_SUBST(PKG_LIBS)
 AC_SUBST(PKG_CPPFLAGS)
+AC_SUBST(NUMPY_INCLUDE_DIR)
 
 AC_PREREQ
 
@@ -69,5 +72,5 @@ AC_PROG_CC
 # Checks for typedefs, structures, and compiler characteristics.
 # (None)
 
-AC_CONFIG_FILES([src/Makevars src/config.h])
+AC_CONFIG_FILES([src/Makevars R/config.R])
 AC_OUTPUT

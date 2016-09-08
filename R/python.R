@@ -114,21 +114,3 @@ with.py_object <- function(data, expr, ...) {
   force(expr)
   data$`__exit__`(NULL, NULL, NULL)
 }
-
-# find the name of the python shared library
-pythonSharedLibrary <- function() {
-
-  # verify that we have python
-  if (!nzchar(Sys.which("python")))
-    stop("python not found!")
-
-  # determine version of python
-  pythonVersion <- system(intern = TRUE, paste0(
-    "python -c 'import sys; print(str(sys.version_info.major) +  \".\" + ",
-    " str(sys.version_info.minor))'")
-  )
-
-  # add ext and return
-  ext <- ifelse(Sys.info()[["sysname"]] == "Darwin", ".dylib", ".so")
-  paste0("libpython", pythonVersion, ext)
-}

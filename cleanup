@@ -5,4 +5,6 @@ rm -f src/tensorflow.so
 rm -f config.log
 rm -f config.status
 rm -f src/Makevars
+rm -f R/config.R
+
 

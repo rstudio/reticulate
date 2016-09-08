@@ -594,8 +594,10 @@ CPPFLAGS
 LDFLAGS
 CFLAGS
 CC
+NUMPY_INCLUDE_DIR
 PKG_CPPFLAGS
 PKG_LIBS
+PYTHON_BIN
 target_alias
 host_alias
 build_alias
@@ -1762,6 +1764,7 @@ PKG_CPPFLAGS=`$PYTHONCONFIG --includes`
 
 # find python
 : ${PYTHON=`which ${PYTHON}`}
+PYTHON_BIN=`which ${PYTHON}`
 if test -z "${PYTHON}"; then
   echo "Could not locate ${PYTHON}"
   exit 1
@@ -1778,6 +1781,8 @@ PKG_CPPFLAGS="$PKG_CPPFLAGS -I$NUMPY_INCLUDE_DIR"
 # Find the .so library for python
 PYTHONLIBFILE=libpython`$PYTHON -c "import sys; print(sys.version[:3])"`.so
 PKG_CPPFLAGS="$PKG_CPPFLAGS -D PYTHONLIBFILE=$PYTHONLIBFILE"
+
+
 
 
 
@@ -2584,7 +2589,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 # Checks for typedefs, structures, and compiler characteristics.
 # (None)
 
-ac_config_files="$ac_config_files src/Makevars src/config.h"
+ac_config_files="$ac_config_files src/Makevars R/config.R"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -3292,7 +3297,7 @@ for ac_config_target in $ac_config_targets
 do
   case $ac_config_target in
     "src/Makevars") CONFIG_FILES="$CONFIG_FILES src/Makevars" ;;
-    "src/config.h") CONFIG_FILES="$CONFIG_FILES src/config.h" ;;
+    "R/config.R") CONFIG_FILES="$CONFIG_FILES R/config.R" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac

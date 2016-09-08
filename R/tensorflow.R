@@ -1,5 +1,4 @@
 
-# TODO: forward full path to python lib for dlopen
 # TODO: add python superclasses
 # TODO: implements with or with_context:
 #       http://preshing.com/20110920/the-python-with-statement-by-example/
@@ -7,6 +6,7 @@
 
 #' @useDynLib tensorflow
 #' @importFrom Rcpp evalCpp
+#' @importFrom utils str
 NULL
 
 # package level tf instance
@@ -15,7 +15,8 @@ tf <- NULL
 .onLoad <- function(libname, pkgname) {
 
   # initialize python
-  py_initialize(pythonSharedLibrary());
+  config <- py_config()
+  py_initialize(config$libpython);
 
   # attempt to load tensorflow
   tf <<- tryCatch(tensorflow(), error = function(e) NULL)

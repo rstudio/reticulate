@@ -1,6 +1,6 @@
 
 #' @export
-`$.py_object` <- function(x, name) {
+`$.python.object` <- function(x, name) {
   attr <- py_get_attr(x, name)
   if (py_is_callable(attr)) {
     function(...) {
@@ -31,10 +31,10 @@
 }
 
 #' @export
-`[[.py_object` <- `$.py_object`
+`[[.python.object` <- `$.python.object`
 
 #' @export
-print.py_object <- function(x, ...) {
+print.python.object <- function(x, ...) {
   if (py_is_null_xptr(x))
     print.default(x)
   else
@@ -42,7 +42,7 @@ print.py_object <- function(x, ...) {
 }
 
 #' @export
-str.py_object <- function(object, ...) {
+str.python.object <- function(object, ...) {
   if (py_is_null_xptr(object))
     "<pointer: 0x0>"
   else
@@ -51,7 +51,7 @@ str.py_object <- function(object, ...) {
 
 #' @importFrom utils .DollarNames
 #' @export
-.DollarNames.py_object <- function(x, pattern = "") {
+.DollarNames.python.object <- function(x, pattern = "") {
 
   # skip if this is a NULL xptr
   if (py_is_null_xptr(x))
@@ -110,7 +110,7 @@ dict <- function(...) {
 
 #' Evaluate an expression within a context.
 #'
-#' The \code{with} method for objects of type \code{py_object} implements the
+#' The \code{with} method for objects of type \code{python.object} implements the
 #' context manager protocol used by the Python \code{with} statement. The passed
 #' object must implement the
 #' \href{https://docs.python.org/2/reference/datamodel.html#context-managers}{context
@@ -123,7 +123,7 @@ dict <- function(...) {
 #' @param ... Unused
 #'
 #' @export
-with.py_object <- function(data, expr, as = NULL, ...) {
+with.python.object <- function(data, expr, as = NULL, ...) {
 
   # enter the context
   context <- data$`__enter__`()

@@ -1,6 +1,4 @@
 
-# TODO: add python superclasses
-
 #' @useDynLib tensorflow
 #' @importFrom Rcpp evalCpp
 #' @importFrom utils str
@@ -80,7 +78,7 @@ shape <- function(...) {
 
 #' @export
 "print.tensorflow.python.framework.ops.Tensor" <- function(x, ...) {
-  print.py_object(x, ...)
+  print.python.object(x, ...)
   if (!is.null(tf$get_default_session())) {
     value <- tryCatch(x$eval(), error = function(e) NULL)
     if (!is.null(value))

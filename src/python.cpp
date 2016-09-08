@@ -47,6 +47,18 @@ bool py_is_none(PyObject* object) {
   return object == &::_Py_NoneStruct;
 }
 
+std::string as_r_class(PyObject* classPtr) {
+  PyObjectPtr modulePtr(::PyObject_GetAttrString(classPtr, "__module__"));
+  PyObjectPtr namePtr(::PyObject_GetAttrString(classPtr, "__name__"));
+  std::ostringstream ostr;
+  std::string module = ::PyString_AsString(modulePtr) + std::string(".");
+  std::string builtin("__builtin__");
+  if (module.find(builtin) == 0)
+    module.replace(0, builtin.length(), "python");
+  ostr << module << ::PyString_AsString(namePtr);
+  return ostr.str();
+}
+
 // wrap a PyObject in an XPtr
 PyObjectXPtr py_xptr(PyObject* object, bool decref = true) {
 
@@ -54,23 +66,32 @@ PyObjectXPtr py_xptr(PyObject* object, bool decref = true) {
   PyObjectXPtr ptr(object, decref);
 
   // class attribute
-  CharacterVector attrClass = CharacterVector::create();
+  std::vector<std::string> attrClass;
 
-  // determine underlying python class
+  // register R classes
   if (::PyObject_HasAttrString(object, "__class__")) {
+    // class
     PyObjectPtr classPtr(::PyObject_GetAttrString(object, "__class__"));
-    PyObjectPtr modulePtr(::PyObject_GetAttrString(classPtr, "__module__"));
-    PyObjectPtr namePtr(::PyObject_GetAttrString(classPtr, "__name__"));
-    std::ostringstream ostr;
-    ostr << ::PyString_AsString(modulePtr) << "." <<
-            ::PyString_AsString(namePtr);
-    attrClass.push_back(ostr.str());
+    attrClass.push_back(as_r_class(classPtr));
+
+    // base classes
+    if (::PyObject_HasAttrString(classPtr, "__bases__")) {
+      PyObjectPtr basesPtr(::PyObject_GetAttrString(classPtr, "__bases__"));
+      Py_ssize_t len = ::PyTuple_Size(basesPtr);
+      for (Py_ssize_t i = 0; i<len; i++) {
+        PyObject* base = ::PyTuple_GetItem(basesPtr, i); // borrowed
+        attrClass.push_back(as_r_class(base));
+      }
+    }
   }
 
-  // add py_object
-  attrClass.push_back("py_object");
+  // add python.object if we don't already have it
+  if (std::find(attrClass.begin(), attrClass.end(), "python.object")
+                                                      == attrClass.end()) {
+    attrClass.push_back("python.object");
+  }
 
-  // set generic py_object class and additional class (if any)
+  // set classes
   ptr.attr("class") = attrClass;
 
   // return XPtr
@@ -356,7 +377,7 @@ PyObject* r_to_py(RObject x) {
 
   // pass python objects straight through (Py_IncRef since returning this
   // creates a new reference from the caller)
-  } else if (x.inherits("py_object")) {
+  } else if (x.inherits("python.object")) {
     PyObjectXPtr obj = as<PyObjectXPtr>(sexp);
     ::Py_IncRef(obj.get());
     return obj.get();

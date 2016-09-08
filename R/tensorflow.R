@@ -10,8 +10,24 @@
 #' @importFrom Rcpp evalCpp
 NULL
 
+# package level tf instance
+tf <- NULL
+
 .onLoad <- function(libname, pkgname) {
+
+  # initialize python
   py_initialize(pythonSharedLibrary());
+
+  # attempt to load tensorflow
+  tf <<- tryCatch(tensorflow(), error = function(e) NULL)
+}
+
+
+.onAttach <- function(libname, pkgname) {
+  if (!is_tensorflow_installed()) {
+    packageStartupMessage("TensorFlow not currently installed, please see ",
+                          "https://www.tensorflow.org/get_started/")
+  }
 }
 
 .onUnload <- function(libpath) {
@@ -44,6 +60,12 @@ tensorflow <- function(module = NULL) {
     py_import(paste("tensorflow", module, sep="."))
 }
 
+#' @rdname tensorflow
+#' @export
+is_tensorflow_installed <-function() {
+  !is.null(tf)
+}
+
 #' Tensor shape
 #'
 #' @param ... Tensor dimensions
@@ -61,77 +83,77 @@ shape <- function(...) {
 
 #' @export
 "+.tensorflow.python.framework.ops.Tensor" <- function(a, b) {
-  tensorflow()$add(a, b)
+  tf$add(a, b)
 }
 
 #' @export
 "+.tensorflow.python.framework.ops.Variable" <- function(a, b) {
-  tensorflow()$add(a, b)
+  tf$add(a, b)
 }
 
 #' @export
 "-.tensorflow.python.framework.ops.Tensor" <- function(a, b) {
   if (missing(b))
-    tensorflow()$neg(a)
+    tf$neg(a)
   else
-    tensorflow()$sub(a, b)
+    tf$sub(a, b)
 }
 
 #' @export
 "-.tensorflow.python.framework.ops.Variable" <- function(a, b) {
   if (missing(b))
-    tensorflow()$neg(a)
+    tf$neg(a)
   else
-    tensorflow()$sub(a, b)
+    tf$sub(a, b)
 }
 
 #' @export
 "*.tensorflow.python.framework.ops.Tensor" <- function(a, b) {
-  tensorflow()$mul(a, b)
+  tf$mul(a, b)
 }
 
 #' @export
 "*.tensorflow.python.ops.variables.Variable" <- function(a, b) {
-  tensorflow()$mul(a, b)
+  tf$mul(a, b)
 }
 
 #' @export
 "/.tensorflow.python.framework.ops.Tensor" <- function(a, b) {
-  tensorflow()$truediv(a, b)
+  tf$truediv(a, b)
 }
 
 #' @export
 "/.tensorflow.python.framework.ops.Variable" <- function(a, b) {
-  tensorflow()$truediv(a, b)
+  tf$truediv(a, b)
 }
 
 #' @export
 "%/%.tensorflow.python.framework.ops.Tensor" <- function(a, b) {
-  tensorflow()$floordiv(a, b)
+  tf$floordiv(a, b)
 }
 
 #' @export
 "%/%.tensorflow.python.framework.ops.Variable" <- function(a, b) {
-  tensorflow()$floordiv(a, b)
+  tf$floordiv(a, b)
 }
 
 #' @export
 "%%.tensorflow.python.framework.ops.Tensor" <- function(a, b) {
-  tensorflow()$mod(a, b)
+  tf$mod(a, b)
 }
 
 #' @export
 "%%.tensorflow.python.framework.ops.Variable" <- function(a, b) {
-  tensorflow()$mod(a, b)
+  tf$mod(a, b)
 }
 
 #' @export
 "^.tensorflow.python.framework.ops.Tensor" <- function(a, b) {
-  tensorflow()$pow(a, b)
+  tf$pow(a, b)
 }
 
 #' @export
 "^.tensorflow.python.framework.ops.Variable" <- function(a, b) {
-  tensorflow()$pow(a, b)
+  tf$pow(a, b)
 }
 

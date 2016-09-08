@@ -1,5 +1,4 @@
 
-# TODO: handle errors in $
 # TODO: forward full path to python lib for dlopen
 # TODO: add python superclasses
 # TODO: implements with or with_context:
@@ -83,11 +82,11 @@ shape <- function(...) {
 
 #' @export
 "print.tensorflow.python.framework.ops.Tensor" <- function(x, ...) {
-  py_print(x)
+  print.py_object(x, ...)
   if (!is.null(tf$get_default_session())) {
     value <- tryCatch(x$eval(), error = function(e) NULL)
     if (!is.null(value))
-      cat(" ", value, "\n", sep = "")
+      cat(" ", str(value), "\n", sep = "")
   }
 }
 

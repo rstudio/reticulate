@@ -568,6 +568,12 @@ bool py_is_callable(PyObjectXPtr x) {
 }
 
 // [[Rcpp::export]]
+bool py_is_null_xptr(PyObjectXPtr x) {
+  return !x;
+}
+
+
+// [[Rcpp::export]]
 std::vector<std::string> py_list_attributes(PyObjectXPtr x) {
   std::vector<std::string> attributes;
   PyObjectPtr attrs(::PyObject_Dir(x));

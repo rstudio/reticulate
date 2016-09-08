@@ -68,6 +68,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// py_is_null_xptr
+bool py_is_null_xptr(PyObjectXPtr x);
+RcppExport SEXP tensorflow_py_is_null_xptr(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< PyObjectXPtr >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_is_null_xptr(x));
+    return rcpp_result_gen;
+END_RCPP
+}
 // py_list_attributes
 std::vector<std::string> py_list_attributes(PyObjectXPtr x);
 RcppExport SEXP tensorflow_py_list_attributes(SEXP xSEXP) {

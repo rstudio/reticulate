@@ -25,6 +25,10 @@ py_is_callable <- function(x) {
     .Call('tensorflow_py_is_callable', PACKAGE = 'tensorflow', x)
 }
 
+py_is_null_xptr <- function(x) {
+    .Call('tensorflow_py_is_null_xptr', PACKAGE = 'tensorflow', x)
+}
+
 py_list_attributes <- function(x) {
     .Call('tensorflow_py_list_attributes', PACKAGE = 'tensorflow', x)
 }

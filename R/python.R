@@ -35,17 +35,27 @@
 
 #' @export
 print.py_object <- function(x, ...) {
-  py_print(x)
+  if (py_is_null_xptr(x))
+    print.default(x)
+  else
+    py_print(x)
 }
 
 #' @export
 str.py_object <- function(object, ...) {
-  py_str(object)
+  if (py_is_null_xptr(object))
+    "<pointer: 0x0>"
+  else
+    py_str(object)
 }
 
 #' @importFrom utils .DollarNames
 #' @export
 .DollarNames.py_object <- function(x, pattern = "") {
+
+  # skip if this is a NULL xptr
+  if (py_is_null_xptr(x))
+    return(character())
 
   # get the names and filter out internal attributes (_*)
   names <- py_list_attributes(x)

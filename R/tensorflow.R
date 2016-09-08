@@ -86,6 +86,8 @@ shape <- function(...) {
   }
 }
 
+# https://stat.ethz.ch/R-manual/R-devel/library/base/html/groupGeneric.html
+
 #' @export
 "+.tensorflow.python.framework.ops.Tensor" <- function(a, b) {
   tf$add(a, b)
@@ -162,7 +164,110 @@ shape <- function(...) {
   tf$pow(a, b)
 }
 
+#' @export
+"&.tensorflow.python.framework.ops.Tensor" <- function(a, b) {
+  tf$logical_and(a, b)
+}
 
+#' @export
+"&.tensorflow.python.framework.ops.Variable" <- function(a, b) {
+  tf$logical_and(a, b)
+}
+
+#' @export
+"|.tensorflow.python.framework.ops.Tensor" <- function(a, b) {
+  tf$logical_or(a, b)
+}
+
+#' @export
+"!.tensorflow.python.framework.ops.Variable" <- function(x) {
+  tf$logical_not(x)
+}
+
+#' @export
+"!.tensorflow.python.framework.ops.Tensor" <- function(x) {
+  tf$logical_not(x)
+}
+
+#' @export
+"|.tensorflow.python.framework.ops.Variable" <- function(a, b) {
+  tf$logical_or(a, b)
+}
+
+#' @export
+"|.tensorflow.python.framework.ops.Variable" <- function(a, b) {
+  tf$logical_or(a, b)
+}
+
+#' @export
+"|.tensorflow.python.framework.ops.Tensor" <- function(a, b) {
+  tf$logical_or(a, b)
+}
+
+#' @export
+"|.tensorflow.python.framework.ops.Variable" <- function(a, b) {
+  tf$logical_or(a, b)
+}
+
+#' @export
+"==.tensorflow.python.framework.ops.Tensor" <- function(a, b) {
+  tf$equal(a, b)
+}
+
+#' @export
+"==.tensorflow.python.framework.ops.Variable" <- function(a, b) {
+  tf$equal(a, b)
+}
+
+#' @export
+"!=.tensorflow.python.framework.ops.Tensor" <- function(a, b) {
+  tf$not_equal(a, b)
+}
+
+#' @export
+"!=.tensorflow.python.framework.ops.Variable" <- function(a, b) {
+  tf$not_equal(a, b)
+}
+
+#' @export
+"<.tensorflow.python.framework.ops.Tensor" <- function(a, b) {
+  tf$less(a, b)
+}
+
+#' @export
+"<.tensorflow.python.framework.ops.Variable" <- function(a, b) {
+  tf$less(a, b)
+}
+
+#' @export
+"<=.tensorflow.python.framework.ops.Tensor" <- function(a, b) {
+  tf$less_equal(a, b)
+}
+
+#' @export
+"<=.tensorflow.python.framework.ops.Variable" <- function(a, b) {
+  tf$less_equal(a, b)
+}
+
+#' @export
+">.tensorflow.python.framework.ops.Tensor" <- function(a, b) {
+  tf$greater(a, b)
+}
+
+#' @export
+">.tensorflow.python.framework.ops.Variable" <- function(a, b) {
+  tf$greater(a, b)
+}
+
+#' @export
+">=.tensorflow.python.framework.ops.Tensor" <- function(a, b) {
+  tf$greater_equal(a, b)
+}
+
+#' @export
+">=.tensorflow.python.framework.ops.Variable" <- function(a, b) {
+  tf$greater_equal(a, b)
+}
 
 
 

@@ -15,7 +15,7 @@ b <- tf$Variable(tf$zeros(shape(1)))
 y <- W * x_data + b
 
 # Minimize the mean squared errors.
-loss <- tf$reduce_mean(tf$square(y - y_data))
+loss <- tf$reduce_mean((y - y_data) ^ 2)
 optimizer <- tf$train$GradientDescentOptimizer(0.5)
 train <- optimizer$minimize(loss)
 

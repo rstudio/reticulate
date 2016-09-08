@@ -88,10 +88,16 @@ std::string py_fetch_error() {
   PyObjectPtr pExcValue(excValue);
   PyObjectPtr pExcTraceback(excTraceback);
 
-  if (!pExcValue.is_null()) {
+  if (!pExcType.is_null() || !pExcValue.is_null()) {
     std::ostringstream ostr;
-    PyObjectPtr pStr(::PyObject_Str(pExcValue));
-    ostr << ::PyString_AsString(pStr);
+    if (!pExcType.is_null()) {
+      PyObjectPtr pStr(::PyObject_GetAttrString(pExcType, "__name__"));
+      ostr << ::PyString_AsString(pStr) << ": ";
+    }
+    if (!pExcValue.is_null()) {
+      PyObjectPtr pStr(::PyObject_Str(pExcValue));
+      ostr << ::PyString_AsString(pStr);
+    }
     error = ostr.str();
   } else {
     error = "<unknown error>";

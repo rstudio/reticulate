@@ -1,0 +1,7 @@
+
+#ifndef CONFIG_H_
+#define CONFIG_H_
+
+#define PKG_LIBS "@PKG_LIBS@"
+
+#endif // CONFIG_H_

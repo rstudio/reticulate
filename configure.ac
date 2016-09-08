@@ -69,5 +69,5 @@ AC_PROG_CC
 # Checks for typedefs, structures, and compiler characteristics.
 # (None)
 
-AC_CONFIG_FILES([src/Makevars])
+AC_CONFIG_FILES([src/Makevars src/config.h])
 AC_OUTPUT

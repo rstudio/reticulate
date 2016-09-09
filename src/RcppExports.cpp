@@ -138,17 +138,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// py_module
-PyObjectXPtr py_module(const std::string& module);
-RcppExport SEXP tensorflow_py_module(SEXP moduleSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const std::string& >::type module(moduleSEXP);
-    rcpp_result_gen = Rcpp::wrap(py_module(module));
-    return rcpp_result_gen;
-END_RCPP
-}
 // py_dict
 PyObjectXPtr py_dict(const List& keys, const List& items);
 RcppExport SEXP tensorflow_py_dict(SEXP keysSEXP, SEXP itemsSEXP) {
@@ -158,6 +147,17 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const List& >::type keys(keysSEXP);
     Rcpp::traits::input_parameter< const List& >::type items(itemsSEXP);
     rcpp_result_gen = Rcpp::wrap(py_dict(keys, items));
+    return rcpp_result_gen;
+END_RCPP
+}
+// py_module
+PyObjectXPtr py_module(const std::string& module);
+RcppExport SEXP tensorflow_py_module(SEXP moduleSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const std::string& >::type module(moduleSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_module(module));
     return rcpp_result_gen;
 END_RCPP
 }

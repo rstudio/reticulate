@@ -3,6 +3,13 @@ PYTHON_BIN <- "@PYTHON_BIN@"
 PKG_LIBS <- "@PKG_LIBS@"
 NUMPY_INCLUDE_DIR <- "@NUMPY_INCLUDE_DIR@"
 
+
+# Python configuration
+#
+# Retreive a list containing Python configuration information including the
+# \code{python} binary and \code{libpython} the package was built against and
+# the location of the \code{numpy} include directory the package was built
+# against.
 py_config <- function() {
 
   # extract full path to libpython from PKG_LIBS

@@ -707,15 +707,6 @@ SEXP py_call(PyObjectXPtr x, List args, List keywords = R_NilValue) {
 
 
 // [[Rcpp::export]]
-PyObjectXPtr py_module(const std::string& module = "__main__") {
-  PyObject* pModule = ::PyImport_ImportModule(module.c_str());
-  if (pModule == NULL)
-    stop(py_fetch_error());
-  return py_xptr(pModule);
-}
-
-
-// [[Rcpp::export]]
 PyObjectXPtr py_dict(const List& keys, const List& items) {
   PyObject* dict = ::PyDict_New();
   for (auto i = 0; i<keys.length(); i++) {
@@ -726,6 +717,35 @@ PyObjectXPtr py_dict(const List& keys, const List& items) {
   return py_xptr(dict);
 }
 
+//' Import a Python module
+//'
+//' Import the specified Python module for calling from R. If no module
+//' name is specified then the \code{__main__} module is imported.
+//'
+//' @param module Module name
+//'
+//' @return A Python module
+//'
+//' @export
+// [[Rcpp::export]]
+PyObjectXPtr py_module(const std::string& module = "__main__") {
+  PyObject* pModule = ::PyImport_ImportModule(module.c_str());
+  if (pModule == NULL)
+    stop(py_fetch_error());
+  return py_xptr(pModule);
+}
+
+
+//' Run Python code
+//'
+//' Execute code within the the \code{__main__} Python module.
+//'
+//' @param code Code to execute
+//' @param file File to execute
+//'
+//' @name py_run
+//'
+//' @export
 // [[Rcpp::export]]
 void py_run_string(const std::string& code)
 {
@@ -736,6 +756,8 @@ void py_run_string(const std::string& code)
 }
 
 
+//' @rdname py_run
+//' @export
 // [[Rcpp::export]]
 void py_run_file(const std::string& file)
 {

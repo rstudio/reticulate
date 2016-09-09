@@ -49,18 +49,40 @@ py_call <- function(x, args, keywords = NULL) {
     .Call('tensorflow_py_call', PACKAGE = 'tensorflow', x, args, keywords)
 }
 
-py_module <- function(module = "__main__") {
-    .Call('tensorflow_py_module', PACKAGE = 'tensorflow', module)
-}
-
 py_dict <- function(keys, items) {
     .Call('tensorflow_py_dict', PACKAGE = 'tensorflow', keys, items)
 }
 
+#' Import a Python module
+#'
+#' Import the specified Python module for calling from R. If no module
+#' name is specified then the \code{__main__} module is imported.
+#'
+#' @param module Module name
+#'
+#' @return A Python module
+#'
+#' @export
+py_module <- function(module = "__main__") {
+    .Call('tensorflow_py_module', PACKAGE = 'tensorflow', module)
+}
+
+#' Run Python code
+#'
+#' Execute code within the the \code{__main__} Python module.
+#'
+#' @param code Code to execute
+#' @param file File to execute
+#'
+#' @name py_run
+#'
+#' @export
 py_run_string <- function(code) {
     invisible(.Call('tensorflow_py_run_string', PACKAGE = 'tensorflow', code))
 }
 
+#' @rdname py_run
+#' @export
 py_run_file <- function(file) {
     invisible(.Call('tensorflow_py_run_file', PACKAGE = 'tensorflow', file))
 }

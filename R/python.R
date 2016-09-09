@@ -70,6 +70,9 @@ str.python.object <- function(object, ...) {
     inspect$getdoc(py_get_attr(x, name))
   })
 
+  # specify a help_handler
+  attr(names, "help_handler") <- "tensorflow:::help_handler"
+
   # return
   names
 }

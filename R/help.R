@@ -1,14 +1,17 @@
 
-# DollarNames function needs to return an attribute which is the name
-# of a function to call back for help. The help will either be a completion
-# popup snippet or will be a URL (for F1)
 
-# If this is included then we suppress the display of {package}
+help_handler <- function(type = c("completion", "url"), topic, source, ...) {
+  type <- match.arg(type)
+  if (type == "completion") {
+    list(package_name = "tensorflow",
+         title = NULL,
+         signature = "tf$constant(value, dtype=NULL, shape=NULL, name=\"Const\")",
+         description = "Creates a constant tensor.")
+  } else if (type == "url") {
+    help_url_handler.python.object(topic, source)
+  }
+}
 
-# The {package} in turn includes the scope information that is passed
-# to the custom help handler
-
-help_handler <- function(type, symbol) {
-
-
+help_url_handler.python.object <- function(topic, source) {
+  "https://tensorflow.org"
 }

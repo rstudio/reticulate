@@ -91,7 +91,7 @@ str.python.object <- function(object, ...) {
   })
 
   # specify a help_handler
-  attr(names, "help_handler") <- "tensorflow:::help_handler"
+  attr(names, "helpHandler") <- "tensorflow:::help_handler"
 
   # return
   names

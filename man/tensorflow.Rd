@@ -5,13 +5,16 @@
 \alias{tensorflow}
 \title{Import TensorFlow}
 \usage{
-tensorflow(module = NULL)
+tensorflow(module = NULL, silent = FALSE)
 
 is_tensorflow_installed()
 }
 \arguments{
 \item{module}{Name of sub-module to import. Defaults to \code{NULL}, which
 imports the main tensorflow module.}
+
+\item{silent}{Return \code{NULL} rather than throwing an error
+if the specified module cannot be loaded.}
 }
 \value{
 A tensorflow module

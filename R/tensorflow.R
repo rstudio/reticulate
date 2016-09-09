@@ -14,7 +14,7 @@ tf <- NULL
   py_initialize(config$libpython);
 
   # attempt to load tensorflow
-  tf <<- tryCatch(tensorflow(), error = function(e) NULL)
+  tf <<- tensorflow(silent = TRUE)
 }
 
 
@@ -35,6 +35,7 @@ tf <- NULL
 #' Import the tensorflow python module (or one of it's sub-modules) for
 #' use in R.
 #'
+#' @inheritParams py_module
 #' @param module Name of sub-module to import. Defaults to \code{NULL}, which
 #' imports the main tensorflow module.
 #'
@@ -48,11 +49,11 @@ tf <- NULL
 #' }
 #'
 #' @export
-tensorflow <- function(module = NULL) {
+tensorflow <- function(module = NULL, silent = FALSE) {
   if (is.null(module))
-    py_module("tensorflow")
+    py_module("tensorflow", silent = silent)
   else
-    py_module(paste("tensorflow", module, sep="."))
+    py_module(paste("tensorflow", module, sep="."), silent = silent)
 }
 
 #' @rdname tensorflow

@@ -49,8 +49,8 @@ py_call <- function(x, args, keywords = NULL) {
     .Call('tensorflow_py_call', PACKAGE = 'tensorflow', x, args, keywords)
 }
 
-py_import <- function(module) {
-    .Call('tensorflow_py_import', PACKAGE = 'tensorflow', module)
+py_module <- function(module = "__main__") {
+    .Call('tensorflow_py_module', PACKAGE = 'tensorflow', module)
 }
 
 py_dict <- function(keys, items) {

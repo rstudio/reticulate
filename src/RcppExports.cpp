@@ -138,14 +138,14 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// py_import
-PyObjectXPtr py_import(const std::string& module);
-RcppExport SEXP tensorflow_py_import(SEXP moduleSEXP) {
+// py_module
+PyObjectXPtr py_module(const std::string& module);
+RcppExport SEXP tensorflow_py_module(SEXP moduleSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const std::string& >::type module(moduleSEXP);
-    rcpp_result_gen = Rcpp::wrap(py_import(module));
+    rcpp_result_gen = Rcpp::wrap(py_module(module));
     return rcpp_result_gen;
 END_RCPP
 }

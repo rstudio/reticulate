@@ -1,7 +1,7 @@
 context("vectors")
 
 # some helpers
-main <- tensorflow:::py_import("__main__")
+main <- tensorflow:::py_module()
 tensorflow:::py_run_string("def isScalar(x): return not isinstance(x, (list, tuple))")
 tensorflow:::py_run_string("def isList(x): return isinstance(x, (list))")
 

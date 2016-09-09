@@ -65,7 +65,7 @@ str.python.object <- function(object, ...) {
   attr(names, "types") <- py_get_attribute_types(x, names)
 
   # get the doc strings
-  inspect <- py_import("inspect")
+  inspect <- py_module("inspect")
   attr(names, "docs") <- sapply(names, function(name) {
     inspect$getdoc(py_get_attr(x, name))
   })

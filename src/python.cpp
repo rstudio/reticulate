@@ -707,7 +707,7 @@ SEXP py_call(PyObjectXPtr x, List args, List keywords = R_NilValue) {
 
 
 // [[Rcpp::export]]
-PyObjectXPtr py_import(const std::string& module) {
+PyObjectXPtr py_module(const std::string& module = "__main__") {
   PyObject* pModule = ::PyImport_ImportModule(module.c_str());
   if (pModule == NULL)
     stop(py_fetch_error());

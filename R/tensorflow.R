@@ -50,9 +50,9 @@ tf <- NULL
 #' @export
 tensorflow <- function(module = NULL) {
   if (is.null(module))
-    py_import("tensorflow")
+    py_module("tensorflow")
   else
-    py_import(paste("tensorflow", module, sep="."))
+    py_module(paste("tensorflow", module, sep="."))
 }
 
 #' @rdname tensorflow

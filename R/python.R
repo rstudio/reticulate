@@ -1,4 +1,24 @@
 
+#' Import a Python module
+#'
+#' Import the specified Python module for calling from R. If no module
+#' name is specified then the \code{__main__} module is imported.
+#'
+#' @param module Module name
+#' @param silent Return \code{NULL} rather than throwing an error
+#'  if the specified module cannot be loaded.
+#'
+#' @return A Python module
+#'
+#' @export
+py_module <- function(module = "__main__", silent = FALSE) {
+  if (silent)
+    tryCatch(py_module_impl(module), error = function(e) NULL)
+  else
+    py_module_impl(module)
+}
+
+
 #' @export
 `$.python.object` <- function(x, name) {
   attr <- py_get_attr(x, name)

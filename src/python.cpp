@@ -717,18 +717,8 @@ PyObjectXPtr py_dict(const List& keys, const List& items) {
   return py_xptr(dict);
 }
 
-//' Import a Python module
-//'
-//' Import the specified Python module for calling from R. If no module
-//' name is specified then the \code{__main__} module is imported.
-//'
-//' @param module Module name
-//'
-//' @return A Python module
-//'
-//' @export
 // [[Rcpp::export]]
-PyObjectXPtr py_module(const std::string& module = "__main__") {
+PyObjectXPtr py_module_impl(const std::string& module) {
   PyObject* pModule = ::PyImport_ImportModule(module.c_str());
   if (pModule == NULL)
     stop(py_fetch_error());

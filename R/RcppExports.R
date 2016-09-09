@@ -53,18 +53,8 @@ py_dict <- function(keys, items) {
     .Call('tensorflow_py_dict', PACKAGE = 'tensorflow', keys, items)
 }
 
-#' Import a Python module
-#'
-#' Import the specified Python module for calling from R. If no module
-#' name is specified then the \code{__main__} module is imported.
-#'
-#' @param module Module name
-#'
-#' @return A Python module
-#'
-#' @export
-py_module <- function(module = "__main__") {
-    .Call('tensorflow_py_module', PACKAGE = 'tensorflow', module)
+py_module_impl <- function(module) {
+    .Call('tensorflow_py_module_impl', PACKAGE = 'tensorflow', module)
 }
 
 #' Run Python code

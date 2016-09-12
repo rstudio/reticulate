@@ -635,7 +635,7 @@ IntegerVector py_get_attribute_types(
   const int VECTOR      =  1;
   const int ARRAY       =  2;
   const int LIST        =  4;
-  //const int ENVIRONMENT =  5;
+  const int ENVIRONMENT =  5;
   const int FUNCTION    =  6;
 
   IntegerVector types(attributes.size());
@@ -655,6 +655,8 @@ IntegerVector py_get_attribute_types(
              PyFloat_Check(attr)  ||
              PyString_Check(attr))
       types[i] = VECTOR;
+    else if (PyObject_IsInstance(attr, (PyObject*)&PyModule_Type))
+      types[i] = ENVIRONMENT;
     else
       // presume that other types are objects
       types[i] = LIST;

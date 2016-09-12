@@ -1,7 +1,4 @@
 
-
-# TODO: this symbol gives an error when getting completion info: tf$train$gradients$contextlib$warn
-
 help_handler <- function(type = c("completion", "parameter", "url"), topic, source, ...) {
   type <- match.arg(type)
   if (type == "completion") {

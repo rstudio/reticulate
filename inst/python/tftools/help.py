@@ -21,6 +21,10 @@ def generate_signature_for_function(func):
       else:
         return None
 
+    # return None for builtins
+    if (inspect.isbuiltin(func)):
+        return None
+
     args_list = []
     argspec = inspect.getargspec(func)
     first_arg_with_default = (

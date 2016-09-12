@@ -1,6 +1,15 @@
 
+import sys
 import types
 import inspect
+
+def isstring(s):
+    # if we use Python 3
+    if (sys.version_info[0] >= 3):
+        return isinstance(s, str)
+    # we use Python 2
+    return isinstance(s, basestring)
+
 
 def generate_signature_for_function(func):
     """Given a function, returns a string representing its args."""
@@ -38,10 +47,17 @@ def generate_signature_for_function(func):
         else:
           if default is None:
             args_list.append("%s = NULL" % (arg))
-          elif default == True:
-            args_list.append("%s = TRUE" % (arg))
-          elif default == False:
-            args_list.append("%s = FALSE" % (arg))
+          elif type(default) == type(True):
+            if default == True:
+              args_list.append("%s = TRUE" % (arg))
+            else:
+              args_list.append("%s = FALSE" % (arg))
+          elif isstring(default):
+            args_list.append("%s = \"%s\"" % (arg, default))
+          elif isinstance(default, int):
+            args_list.append("%s = %rL" % (arg, default))
+          elif isinstance(default, float):
+            args_list.append("%s = %r" % (arg, default))
           else:
             args_list.append("%s = %r" % (arg, default))
     if argspec.varargs:
@@ -49,5 +65,4 @@ def generate_signature_for_function(func):
     if argspec.keywords:
       args_list.append("...")
     return "(" + ", ".join(args_list) + ")"
-
 

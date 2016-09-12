@@ -18,11 +18,11 @@ help_completion_handler.python.object <- function(topic, source) {
                      error = function(e) NULL)
 
   if (!is.null(source)) {
-    # get the docstring
+    # use the docstring as the description
     inspect <- py_module("inspect")
-    doc <- inspect$getdoc(py_get_attr(source, topic))
-    if (is.null(doc))
-      doc <- ""
+    description <- inspect$getdoc(py_get_attr(source, topic))
+    if (is.null(description))
+      description <- ""
 
     # try to generate a signature
     signature <- NULL
@@ -36,7 +36,7 @@ help_completion_handler.python.object <- function(topic, source) {
 
     list(title = topic,
          signature = signature,
-         description = doc)
+         description = description)
   } else {
     NULL
   }

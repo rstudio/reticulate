@@ -13,49 +13,52 @@ help_handler <- function(type = c("completion", "parameter", "url"), topic, sour
 
 help_completion_handler.python.object <- function(topic, source) {
 
-  # TODO: catch and return NULL
-
   # get a reference to the source
-  source <- eval(parse(text = source), envir = globalenv())
+  source <- tryCatch(eval(parse(text = source), envir = globalenv()),
+                     error = function(e) NULL)
 
-  # get the docstring
-  inspect <- py_module("inspect")
-  doc <- inspect$getdoc(py_get_attr(source, topic))
-  if (is.null(doc))
-    doc <- ""
+  if (!is.null(source)) {
+    # get the docstring
+    inspect <- py_module("inspect")
+    doc <- inspect$getdoc(py_get_attr(source, topic))
+    if (is.null(doc))
+      doc <- ""
 
-  # try to generate a signature
-  signature <- NULL
-  target <- py_get_attr(source, topic)
-  if (py_is_callable(target)) {
-    help <- py_module("tftools.help")
-    signature <- help$generate_signature_for_function(target)
-    if (!is.null(signature))
-      signature <- paste0(topic, signature)
+    # try to generate a signature
+    signature <- NULL
+    target <- py_get_attr(source, topic)
+    if (py_is_callable(target)) {
+      help <- py_module("tftools.help")
+      signature <- help$generate_signature_for_function(target)
+      if (!is.null(signature))
+        signature <- paste0(topic, signature)
+    }
+
+    list(title = topic,
+         signature = signature,
+         description = doc)
+  } else {
+    NULL
   }
-
-  list(package_name = "tensorflow",
-       title = topic,
-       signature = signature,
-       description = doc)
 }
 
 help_completion_parameter_handler.python.object <- function(source) {
 
-  # TODO: catch and return NULL
-
   # get a reference to the source
-  source <- eval(parse(text = source), envir = globalenv())
+  source <- tryCatch(eval(parse(text = source), envir = globalenv()),
+                     error = function(e) NULL)
 
-  list(package_name = "tensorflow",
-       description = "",
-       args = c("value", "dtype", "shape", "name"),
-       arg_descriptions = c(
-          "A constant value (or list) of output type dtype.",
-          "The type of the elements of the resulting tensor.",
-          "Optional dimensions of resulting tensor.",
-          "Optional name for the tensor.")
-  )
+  if (!is.null(source)) {
+    list(args = c("value", "dtype", "shape", "name"),
+         arg_descriptions = c(
+           "A constant value (or list) of output type dtype.",
+           "The type of the elements of the resulting tensor.",
+           "Optional dimensions of resulting tensor.",
+           "Optional name for the tensor.")
+    )
+  } else {
+    NULL
+  }
 }
 
 

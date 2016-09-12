@@ -84,12 +84,6 @@ str.python.object <- function(object, ...) {
   # get the types
   attr(names, "types") <- py_get_attribute_types(x, names)
 
-  # get the doc strings
-  inspect <- py_module("inspect")
-  attr(names, "docs") <- sapply(names, function(name) {
-    inspect$getdoc(py_get_attr(x, name))
-  })
-
   # specify a help_handler
   attr(names, "helpHandler") <- "tensorflow:::help_handler"
 

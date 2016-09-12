@@ -13,6 +13,11 @@ tf <- NULL
   config <- py_config()
   py_initialize(config$libpython);
 
+  # add our python scripts to the search path
+  py_run_string(paste0("import sys; sys.path.append('",
+                       system.file("python", package = "tensorflow") ,
+                       "')"))
+
   # attempt to load tensorflow
   tf <<- tensorflow(silent = TRUE)
 }

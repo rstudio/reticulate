@@ -90,6 +90,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// py_has_attr
+bool py_has_attr(PyObjectXPtr x, const std::string& name);
+RcppExport SEXP tensorflow_py_has_attr(SEXP xSEXP, SEXP nameSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< PyObjectXPtr >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type name(nameSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_has_attr(x, name));
+    return rcpp_result_gen;
+END_RCPP
+}
 // py_get_attr
 PyObjectXPtr py_get_attr(PyObjectXPtr x, const std::string& name);
 RcppExport SEXP tensorflow_py_get_attr(SEXP xSEXP, SEXP nameSEXP) {

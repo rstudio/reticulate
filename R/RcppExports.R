@@ -33,6 +33,10 @@ py_list_attributes <- function(x) {
     .Call('tensorflow_py_list_attributes', PACKAGE = 'tensorflow', x)
 }
 
+py_has_attr <- function(x, name) {
+    .Call('tensorflow_py_has_attr', PACKAGE = 'tensorflow', x, name)
+}
+
 py_get_attr <- function(x, name) {
     .Call('tensorflow_py_get_attr', PACKAGE = 'tensorflow', x, name)
 }

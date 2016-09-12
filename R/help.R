@@ -1,5 +1,7 @@
 
 
+# TODO: this symbol gives an error when getting completion info: tf$train$gradients$contextlib$warn
+
 help_handler <- function(type = c("completion", "parameter", "url"), topic, source, ...) {
   type <- match.arg(type)
   if (type == "completion") {
@@ -18,11 +20,14 @@ help_completion_handler.python.object <- function(topic, source) {
                      error = function(e) NULL)
 
   if (!is.null(source)) {
-    # use the docstring as the description
+    # use the first paragraph of the docstring as the description
     inspect <- py_module("inspect")
     description <- inspect$getdoc(py_get_attr(source, topic))
     if (is.null(description))
       description <- ""
+    matches <- regexpr(pattern ='\n', description, fixed=TRUE)
+    if (matches[[1]] != -1)
+      description <- substring(description, 1, matches[[1]])
 
     # try to generate a signature
     signature <- NULL
@@ -30,8 +35,9 @@ help_completion_handler.python.object <- function(topic, source) {
     if (py_is_callable(target)) {
       help <- py_module("tftools.help")
       signature <- help$generate_signature_for_function(target)
-      if (!is.null(signature))
-        signature <- paste0(topic, signature)
+      if (is.null(signature))
+        signature <- "()"
+      signature <- paste0(topic, signature)
     }
 
     list(title = topic,
@@ -51,7 +57,7 @@ help_completion_parameter_handler.python.object <- function(source) {
   if (!is.null(source)) {
     list(args = c("value", "dtype", "shape", "name"),
          arg_descriptions = c(
-           "A constant value (or list) of output type dtype.",
+           "A constant value (or list) of output type `dtype`.",
            "The type of the elements of the resulting tensor.",
            "Optional dimensions of resulting tensor.",
            "Optional name for the tensor.")

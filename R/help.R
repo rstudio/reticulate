@@ -251,8 +251,15 @@ class_help <- function(class, topic) {
 ))
 
 .class_help_pages <- list2env(parent = emptyenv(), list(
-  tensorflow.python.training.optimizer.Optimizer = "train.html",
-  tensorflow.python.framework.tensor_shape.Dimension = "framework.html"
+  tensorflow.python.framework.ops.Graph = "framework.html",
+  tensorflow.python.framework.ops.Operation = "framework.html",
+  tensorflow.python.framework.ops.Tensor = "framework.html",
+  tensorflow.python.framework.dtypes.DType = "framework.html",
+  tensorflow.python.framework.ops.GraphKeys = "framework.html",
+  tensorflow.python.framework.ops.RegisterGradient = "framework.html",
+  tensorflow.python.framework.tensor_shape.TensorShape = "framework.html",
+  tensorflow.python.framework.tensor_shape.Dimension = "framework.html",
+  tensorflow.python.framework.device.DeviceSpec = "framework.html"
 ))
 
 

@@ -26,6 +26,23 @@ import <- function(module, silent = FALSE) {
 
 
 #' @export
+print.tensorflow.python.object <- function(x, ...) {
+  if (py_is_null_xptr(x))
+    print.default(x)
+  else
+    py_print(x)
+}
+
+#' @importFrom utils str
+#' @export
+str.tensorflow.python.object <- function(object, ...) {
+  if (py_is_null_xptr(object))
+    "<pointer: 0x0>"
+  else
+    py_str(object)
+}
+
+#' @export
 `$.tensorflow.python.object` <- function(x, name) {
   attr <- py_get_attr(x, name)
   if (py_is_callable(attr)) {
@@ -59,21 +76,6 @@ import <- function(module, silent = FALSE) {
 #' @export
 `[[.tensorflow.python.object` <- `$.tensorflow.python.object`
 
-#' @export
-print.tensorflow.python.object <- function(x, ...) {
-  if (py_is_null_xptr(x))
-    print.default(x)
-  else
-    py_print(x)
-}
-
-#' @export
-str.tensorflow.python.object <- function(object, ...) {
-  if (py_is_null_xptr(object))
-    "<pointer: 0x0>"
-  else
-    py_str(object)
-}
 
 #' @importFrom utils .DollarNames
 #' @export

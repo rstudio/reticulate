@@ -1,36 +1,4 @@
 
-#' @useDynLib tensorflow
-#' @importFrom Rcpp evalCpp
-#' @importFrom utils str
-NULL
-
-.onLoad <- function(libname, pkgname) {
-
-  # initialize python
-  config <- py_config()
-  py_initialize(config$libpython);
-
-  # add our python scripts to the search path
-  py_run_string(paste0("import sys; sys.path.append('",
-                       system.file("python", package = "tensorflow") ,
-                       "')"))
-
-  # attempt to load tensorflow
-  tf <<- import("tensorflow", silent = TRUE)
-}
-
-
-.onAttach <- function(libname, pkgname) {
-  if (!is_installed()) {
-    packageStartupMessage("TensorFlow not currently installed, please see ",
-                          "https://www.tensorflow.org/get_started/")
-  }
-}
-
-.onUnload <- function(libpath) {
-  py_finalize();
-}
-
 
 #' Main TensorFlow module
 #'

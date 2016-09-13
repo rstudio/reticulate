@@ -522,9 +522,106 @@ help_pages <- function(...) {
   )),
   help_page("image.html", "tensorflow.python.ops.image_ops", c(
     "decode_jpeg",
-    "encode_jpeg"
+    "encode_jpeg",
+    "decode_png",
+    "encode_png",
+    "resize_images",
+    "resize_area",
+    "resize_bicubic",
+    "resize_bilinear",
+    "resize_nearest_neighbor",
+    "resize_image_with_crop_or_pad",
+    "central_crop",
+    "pad_to_bounding_box",
+    "crop_to_bounding_box",
+    "extract_glimpse",
+    "crop_and_resize",
+    "flip_up_down",
+    "random_flip_up_down",
+    "flip_left_right",
+    "random_flip_left_right",
+    "transpose_image",
+    "rot90",
+    "rgb_to_grayscale",
+    "grayscale_to_rgb",
+    "hsv_to_rgb",
+    "rgb_to_hsv",
+    "convert_image_dtype",
+    "adjust_brightness",
+    "random_brightness",
+    "adjust_contrast",
+    "random_contrast",
+    "adjust_hue",
+    "random_hue",
+    "adjust_saturation",
+    "random_saturation",
+    "per_image_whitening",
+    "draw_bounding_boxes",
+    "non_max_suppression",
+    "sample_distorted_bounding_box"
+  )),
+  help_page("sparse_ops.html", "tensorflow", c(
+    "SparseTensor",
+    "SparseTensorValue",
+    "sparse_to_dense",
+    "sparse_tensor_to_dense",
+    "sparse_to_indicator",
+    "sparse_merge",
+    "sparse_concat",
+    "sparse_reorder",
+    "sparse_reshape",
+    "sparse_split",
+    "sparse_retain",
+    "sparse_reset_shape",
+    "sparse_fill_empty_rows",
+    "sparse_reduce_sum",
+    "sparse_add",
+    "sparse_softmax",
+    "sparse_tensor_dense_matmul",
+    "sparse_maximum",
+    "sparse_minimum"
+  )),
+  help_page("io_ops.html", "tensorflow", c(
+    "placeholder",
+    "placeholder_with_default",
+    "sparse_placeholder",
+    "BaseReader",
+    "TextLineReader",
+    "WholeFileReader",
+    "IdentityReader",
+    "TFRecordReader",
+    "FixedLengthRecordReader",
+    "decode_csv",
+    "decode_raw",
+    "VarLenFeature",
+    "FixedLenFeature",
+    "FixedLenSequenceFeature",
+    "parse_example",
+    "parse_single_example",
+    "decode_json_example",
+    "QueueBase",
+    "FIFOQueue",
+    "PaddingFIFOQueue",
+    "RandomShuffleQueue",
+    "matching_files",
+    "read_file"
+  )),
+  help_page("io_ops.html", "tensorflow.python.training.training", c(
+    "match_filenames_once",
+    "limit_epochs",
+    "input_producer",
+    "range_input_producer",
+    "slice_input_producer",
+    "string_input_producer",
+    "batch",
+    "batch_join",
+    "shuffle_batch",
+    "shuffle_batch_join"
   ))
 )
+
+# Next up is Data IO (Python functions): https://www.tensorflow.org/versions/r0.10/api_docs/python/python_io.html#data-io-python-functions
+
 
 .class_help_pages <- help_pages(
   help_page("framework.html", "tensorflow.python.framework", c(
@@ -543,6 +640,21 @@ help_pages <- function(...) {
     "training.saver.Saver",
     "ops.variable_scope.VariableScope",
     "framework.ops.IndexedSlices"
+  )),
+  help_page("sparse_ops.html", "tensorflow.python.framework.ops", c(
+    "SparseTensor",
+    "SparseTensorValue"
+  )),
+  help_page("io_ops.html", "tensorflow.python.ops.io_ops", c(
+    "BaseReader",
+    "TextLineReader",
+    "WholeFileReader",
+    "IdentityReader",
+    "TFRecordReader",
+    "FixedLengthRecordReader"
+  )),
+  help_page("io_ops.html", "tensorflow.python.ops.data_flow_ops", c(
+    "QueueBase"
   ))
 )
 

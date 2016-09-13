@@ -26,6 +26,7 @@ help_completion_handler.tensorflow.python.object <- function(topic, source) {
   matches <- regexpr(pattern ='\n', description, fixed=TRUE)
   if (matches[[1]] != -1)
     description <- substring(description, 1, matches[[1]])
+  description <- convert_description_types(description)
 
   # try to generate a signature
   signature <- NULL
@@ -79,7 +80,7 @@ help_completion_parameter_handler.tensorflow.python.object <- function(source) {
               else
                 break
             }
-            arg_description <- sub("`None`", "`NULL`", arg_description)
+            arg_description <- convert_description_types(arg_description)
           } else {
             arg
           }
@@ -151,6 +152,14 @@ help_formals_handler.tensorflow.python.object <- function(topic, source) {
 
   # default to NULL if we couldn't get the arguments
   NULL
+}
+
+# convert types in description
+convert_description_types <- function(description) {
+  description <- sub("`None`", "`NULL`", description)
+  description <- sub("`True`", "`TRUE`", description)
+  description <- sub("`False`", "`FALSE`", description)
+  description
 }
 
 # convert source to object if necessary

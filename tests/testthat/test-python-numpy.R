@@ -1,6 +1,6 @@
 context("numpy")
 
-np <- tensorflow:::py_module("numpy")
+np <- import("numpy")
 
 test_that("R matrixes are converted to numpy ndarray", {
   m1 <- matrix(c(1,2,3,4), nrow = 2, ncol = 2)

@@ -1,7 +1,7 @@
 context("lists")
 
 # some helpers
-main <- tensorflow:::py_module()
+main <- import("__main__")
 tensorflow:::py_run_string("def asString(x): return str(x)")
 tensorflow:::py_run_string("def makeDict(): return {'a': 1.0, 'c': 3.0, 'b': 2.0}")
 tensorflow:::py_run_string("def makeTuple(): return (1.0, 2.0, 3.0)")

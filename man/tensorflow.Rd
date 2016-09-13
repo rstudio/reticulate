@@ -11,7 +11,7 @@ is_tensorflow_installed()
 }
 \arguments{
 \item{module}{Name of sub-module to import. Defaults to \code{NULL}, which
-imports the main tensorflow module.}
+imports the main tensorflow module (\code{tf}).}
 
 \item{silent}{Return \code{NULL} rather than throwing an error
 if the specified module cannot be loaded.}
@@ -26,8 +26,8 @@ use in R.
 \examples{
 \dontrun{
 tf <- tensorflow()
-tflearn <- tensorflow("contrib.learn")
-slim <- tenstensorflow("contrib.slim")
+learn <- tensorflow("contrib.learn")
+slim <- tensorflow("contrib.slim")
 }
 
 }

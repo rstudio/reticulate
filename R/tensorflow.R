@@ -40,25 +40,27 @@ tf <- NULL
 #' Import the tensorflow python module (or one of it's sub-modules) for
 #' use in R.
 #'
-#' @inheritParams py_module
+#' @inheritParams import
 #' @param module Name of sub-module to import. Defaults to \code{NULL}, which
-#' imports the main tensorflow module.
+#' imports the main tensorflow module (\code{tf}).
 #'
 #' @return A tensorflow module
 #'
 #' @examples
 #' \dontrun{
 #' tf <- tensorflow()
-#' tflearn <- tensorflow("contrib.learn")
-#' slim <- tenstensorflow("contrib.slim")
+#' learn <- tensorflow("contrib.learn")
+#' slim <- tensorflow("contrib.slim")
 #' }
 #'
 #' @export
 tensorflow <- function(module = NULL, silent = FALSE) {
   if (is.null(module))
-    py_module("tensorflow", silent = silent)
+    import("tensorflow", silent = silent)
+  else if (!grepl("tensorflow.", module, fixed = TRUE))
+    import(paste("tensorflow", module, sep="."), silent = silent)
   else
-    py_module(paste("tensorflow", module, sep="."), silent = silent)
+    import(module, silent = silent)
 }
 
 #' @rdname tensorflow

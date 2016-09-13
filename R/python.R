@@ -1,8 +1,8 @@
 
 #' Import a Python module
 #'
-#' Import the specified Python module for calling from R. If no module
-#' name is specified then the \code{__main__} module is imported.
+#' Import the specified Python module for calling from R. Use \code{"__main__"}
+#' to import the main module.
 #'
 #' @param module Module name
 #' @param silent Return \code{NULL} rather than throwing an error
@@ -10,8 +10,14 @@
 #'
 #' @return A Python module
 #'
+#' @examples
+#' \dontrun{
+#' main <- import("__main__")
+#' sys <- import("sys")
+#' }
+#'
 #' @export
-py_module <- function(module = "__main__", silent = FALSE) {
+import <- function(module, silent = FALSE) {
   if (silent)
     tryCatch(py_module_impl(module), error = function(e) NULL)
   else
@@ -187,7 +193,7 @@ help_completion_handler.tensorflow.python.object <- function(topic, source) {
 
   if (!is.null(source)) {
     # use the first paragraph of the docstring as the description
-    inspect <- py_module("inspect")
+    inspect <- import("inspect")
     description <- inspect$getdoc(py_get_attr(source, topic))
     if (is.null(description))
       description <- ""
@@ -199,7 +205,7 @@ help_completion_handler.tensorflow.python.object <- function(topic, source) {
     signature <- NULL
     target <- py_get_attr(source, topic)
     if (py_is_callable(target)) {
-      help <- py_module("tftools.help")
+      help <- import("tftools.help")
       signature <- help$generate_signature_for_function(target)
       if (is.null(signature))
         signature <- "()"

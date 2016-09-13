@@ -734,16 +734,15 @@ PyObjectXPtr py_module_impl(const std::string& module) {
 }
 
 
-//' Run Python code
-//'
-//' Execute code within the the \code{__main__} Python module.
-//'
-//' @param code Code to execute
-//' @param file File to execute
-//'
-//' @name py_run
-//'
-//' @export
+// Run Python code
+//
+// Execute code within the the \code{__main__} Python module.
+//
+// @param code Code to execute
+// @param file File to execute
+//
+// @name py_run
+//
 // [[Rcpp::export]]
 void py_run_string(const std::string& code)
 {
@@ -754,8 +753,7 @@ void py_run_string(const std::string& code)
 }
 
 
-//' @rdname py_run
-//' @export
+// @rdname py_run
 // [[Rcpp::export]]
 void py_run_file(const std::string& file)
 {

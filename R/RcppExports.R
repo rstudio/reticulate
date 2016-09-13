@@ -61,22 +61,10 @@ py_module_impl <- function(module) {
     .Call('tensorflow_py_module_impl', PACKAGE = 'tensorflow', module)
 }
 
-#' Run Python code
-#'
-#' Execute code within the the \code{__main__} Python module.
-#'
-#' @param code Code to execute
-#' @param file File to execute
-#'
-#' @name py_run
-#'
-#' @export
 py_run_string <- function(code) {
     invisible(.Call('tensorflow_py_run_string', PACKAGE = 'tensorflow', code))
 }
 
-#' @rdname py_run
-#' @export
 py_run_file <- function(file) {
     invisible(.Call('tensorflow_py_run_file', PACKAGE = 'tensorflow', file))
 }

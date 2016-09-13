@@ -617,10 +617,95 @@ help_pages <- function(...) {
     "batch_join",
     "shuffle_batch",
     "shuffle_batch_join"
+  )),
+  help_page("python_io.html", "tensorflow.python.lib.io.python_io", c(
+    "TFRecordWriter",
+    "tf_record_iterator"
+  )),
+  help_page("nn.html", "tensorflow.python.ops.nn", c(
+    "relu",
+    "relu6",
+    "elu",
+    "softplus",
+    "softsign",
+    "dropout",
+    "bias_add",
+    "sigmoid",
+    "tanh",
+    "conv2d",
+    "depthwise_conv2d",
+    "separable_conv2d",
+    "atrous_conv2d",
+    "conv2d_transpose",
+    "conv3d",
+    "avg_pool",
+    "max_pool",
+    "max_pool_with_argmax",
+    "avg_pool3d",
+    "max_pool3d",
+    "dilation2d",
+    "erosion2d",
+    "l2_normalize",
+    "local_response_normalization",
+    "sufficient_statistics",
+    "normalize_moments",
+    "moments",
+    "l2_loss",
+    "log_poisson_loss",
+    "sigmoid_cross_entropy_with_logits",
+    "softmax",
+    "log_softmax",
+    "softmax_cross_entropy_with_logits",
+    "sparse_softmax_cross_entropy_with_logits",
+    "weighted_cross_entropy_with_logits",
+    "embedding_lookup",
+    "embedding_lookup_sparse",
+    "dynamic_rnn",
+    "rnn",
+    "state_saving_rnn",
+    "bidirectional_rnn",
+    "ctc_loss",
+    "ctc_greedy_decoder",
+    "ctc_beam_search_decoder",
+    "top_k",
+    "in_top_k",
+    "nce_loss",
+    "sampled_softmax_loss",
+    "uniform_candidate_sampler",
+    "log_uniform_candidate_sampler",
+    "learned_unigram_candidate_sampler",
+    "fixed_unigram_candidate_sampler",
+    "compute_accidental_hits",
+    "batch_normalization",
+    "depthwise_conv2d_native"
+  )),
+  help_page("client.html", "tensorflow", c(
+    "Session",
+    "InteractiveSession",
+    "get_default_session",
+    "OpError"
+  )),
+  help_page("client.html", "tensorflow.python.framework.errors", c(
+    "OpError",
+    "CancelledError",
+    "UnknownError",
+    "InvalidArgumentError",
+    "DeadlineExceededError",
+    "NotFoundError",
+    "AlreadyExistsError",
+    "PermissionDeniedError",
+    "UnauthenticatedError",
+    "ResourceExhaustedError",
+    "FailedPreconditionError",
+    "AbortedError",
+    "OutOfRangeError",
+    "UnimplementedError",
+    "InternalError",
+    "UnavailableError",
+    "DataLossError"
   ))
 )
 
-# Next up is Data IO (Python functions): https://www.tensorflow.org/versions/r0.10/api_docs/python/python_io.html#data-io-python-functions
 
 
 .class_help_pages <- help_pages(
@@ -655,6 +740,15 @@ help_pages <- function(...) {
   )),
   help_page("io_ops.html", "tensorflow.python.ops.data_flow_ops", c(
     "QueueBase"
+  )),
+  help_page("python_io.html", "tensorflow.python.lib.io", c(
+    "tf_record.TFRecordWriter"
+  )),
+  help_page("client.html", "tensorflow.python.client.session", c(
+    "Session"
+  )),
+  help_page("client.html", "tensorflow.python.framework.errors", c(
+    "OpError"
   ))
 )
 

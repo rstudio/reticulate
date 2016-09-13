@@ -24,7 +24,7 @@ tf <- NULL
 
 
 .onAttach <- function(libname, pkgname) {
-  if (!is_tensorflow_installed()) {
+  if (!is_installed()) {
     packageStartupMessage("TensorFlow not currently installed, please see ",
                           "https://www.tensorflow.org/get_started/")
   }
@@ -61,12 +61,6 @@ tensorflow <- function(module = NULL, silent = FALSE) {
     import(paste("tensorflow", module, sep="."), silent = silent)
   else
     import(module, silent = silent)
-}
-
-#' @rdname tensorflow
-#' @export
-is_tensorflow_installed <-function() {
-  !is.null(tf)
 }
 
 #' Tensor shape
@@ -443,6 +437,11 @@ shape <- function(...) {
 #' @export
 "digamma.tensorflow.python.framework.ops.Variable" <- function(x) {
   tf$digamma(x)
+}
+
+# internal utility functions
+is_installed <-function() {
+  !is.null(tf)
 }
 
 

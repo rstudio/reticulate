@@ -218,48 +218,83 @@ class_help <- function(class, topic) {
   }
 }
 
-.module_help_pages <- list2env(parent = emptyenv(), list(
-  tensorflow.Graph = "framework.html",
-  tensorflow.Operation = "framework.html",
-  tensorflow.Tensor = "framework.html",
-  tensorflow.DType = "framework.html",
-  tensorflow.as_dtype = "framework.html",
-  tensorflow.device = "framework.html",
-  tensorflow.container = "framework.html",
-  tensorflow.name_scope = "framework.html",
-  tensorflow.control_dependencies = "framework.html",
-  tensorflow.convert_to_tensor = "framework.html",
-  tensorflow.convert_to_tensor_or_indexed_slices = "framework.html",
-  tensorflow.get_default_graph = "framework.html",
-  tensorflow.reset_default_graph = "framework.html",
-  tensorflow.import_graph_def = "framework.html",
-  tensorflow.load_file_system_library = "framework.html",
-  tensorflow.load_op_library = "framework.html",
-  tensorflow.add_to_collection = "framework.html",
-  tensorflow.get_collection = "framework.html",
-  tensorflow.get_collection_ref = "framework.html",
-  tensorflow.GraphKeys = "framework.html",
-  tensorflow.RegisterGradient = "framework.html",
-  tensorflow.NoGradient = "framework.html",
-  tensorflow.RegisterShape= "framework.html",
-  tensorflow.TensorShape = "framework.html",
-  tensorflow.Dimension = "framework.html",
-  tensorflow.op_scope = "framework.html",
-  tensorflow.register_tensor_conversion_function = "framework.html",
-  tensorflow.DeviceSpec = "framework.html",
-  tensorflow.bytes = "framework.html"
-))
+help_page <- function(page, prefix, topics) {
+  names <- paste(prefix, topics, sep = ".")
+  values <- rep_len(page, length(names))
+  names(values) <- names
+  values
+}
 
-.class_help_pages <- list2env(parent = emptyenv(), list(
-  tensorflow.python.framework.ops.Graph = "framework.html",
-  tensorflow.python.framework.ops.Operation = "framework.html",
-  tensorflow.python.framework.ops.Tensor = "framework.html",
-  tensorflow.python.framework.dtypes.DType = "framework.html",
-  tensorflow.python.framework.ops.GraphKeys = "framework.html",
-  tensorflow.python.framework.ops.RegisterGradient = "framework.html",
-  tensorflow.python.framework.tensor_shape.TensorShape = "framework.html",
-  tensorflow.python.framework.tensor_shape.Dimension = "framework.html",
-  tensorflow.python.framework.device.DeviceSpec = "framework.html"
-))
+help_pages <- function(...) {
+  pages <- c(...)
+  list2env(parent = emptyenv(), as.list(pages))
+}
+
+
+.module_help_pages <- help_pages(
+  help_page("framework.html", "tensorflow", c(
+    "Graph",
+    "Operation",
+    "Tensor",
+    "DType",
+    "as_dtype",
+    "device",
+    "container",
+    "name_scope",
+    "control_dependencies",
+    "convert_to_tensor",
+    "convert_to_tensor_or_indexed_slices",
+    "get_default_graph",
+    "reset_default_graph",
+    "import_graph_def",
+    "load_file_system_library",
+    "load_op_library",
+    "add_to_collection",
+    "get_collection",
+    "get_collection_ref",
+    "GraphKeys",
+    "RegisterGradient",
+    "NoGradient",
+    "RegisterShape",
+    "TensorShape",
+    "Dimension",
+    "op_scope",
+    "register_tensor_conversion_function",
+    "DeviceSpec",
+    "bytes")
+  ),
+  help_page("constant_op.html", "tensorflow", c(
+    "zeros",
+    "zeros_like",
+    "ones",
+    "ones_like",
+    "fill",
+    "constant",
+    "range",
+    "random_normal",
+    "truncated_normal",
+    "random_uniform",
+    "random_shuffle ",
+    "random_crop",
+    "multinomial",
+    "random_gamma",
+    "set_random_seed",
+    "contrib.graph_editor.ops"
+  ))
+)
+
+.class_help_pages <- help_pages(
+  help_page("framework.html", "tensorflow.python.framework", c(
+    "ops.Graph",
+    "ops.Operation",
+    "ops.Tensor",
+    "dtypes.DType",
+    "ops.GraphKeys",
+    "ops.RegisterGradient",
+    "tensor_shape.TensorShape",
+    "tensor_shape.Dimension",
+    "device.DeviceSpec"
+  ))
+)
 
 

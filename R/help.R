@@ -222,11 +222,37 @@ class_help <- function(class, topic) {
   tensorflow.Graph = "framework.html",
   tensorflow.Operation = "framework.html",
   tensorflow.Tensor = "framework.html",
-  tensorflow.DType = "framework.html"
+  tensorflow.DType = "framework.html",
+  tensorflow.as_dtype = "framework.html",
+  tensorflow.device = "framework.html",
+  tensorflow.container = "framework.html",
+  tensorflow.name_scope = "framework.html",
+  tensorflow.control_dependencies = "framework.html",
+  tensorflow.convert_to_tensor = "framework.html",
+  tensorflow.convert_to_tensor_or_indexed_slices = "framework.html",
+  tensorflow.get_default_graph = "framework.html",
+  tensorflow.reset_default_graph = "framework.html",
+  tensorflow.import_graph_def = "framework.html",
+  tensorflow.load_file_system_library = "framework.html",
+  tensorflow.load_op_library = "framework.html",
+  tensorflow.add_to_collection = "framework.html",
+  tensorflow.get_collection = "framework.html",
+  tensorflow.get_collection_ref = "framework.html",
+  tensorflow.GraphKeys = "framework.html",
+  tensorflow.RegisterGradient = "framework.html",
+  tensorflow.NoGradient = "framework.html",
+  tensorflow.RegisterShape= "framework.html",
+  tensorflow.TensorShape = "framework.html",
+  tensorflow.Dimension = "framework.html",
+  tensorflow.op_scope = "framework.html",
+  tensorflow.register_tensor_conversion_function = "framework.html",
+  tensorflow.DeviceSpec = "framework.html",
+  tensorflow.bytes = "framework.html"
 ))
 
 .class_help_pages <- list2env(parent = emptyenv(), list(
-  tensorflow.python.training.optimizer.Optimizer = "train.html"
+  tensorflow.python.training.optimizer.Optimizer = "train.html",
+  tensorflow.python.framework.tensor_shape.Dimension = "framework.html"
 ))
 
 

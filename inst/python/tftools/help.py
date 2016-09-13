@@ -25,17 +25,23 @@ def normalize_func(func):
 
     return func
 
+def get_doc(func):
+    func = normalize_func(func)
+    if func is None:
+      return None
+
+    return inspect.getdoc(func)
+
 def get_arguments(func):
     func = normalize_func(func)
     if func is None:
       return None
 
-    if (sys.version_info[0] >= 3):
-      return isinstance(s, str)
-    else:
-      args_list = []
-      argspec = inspect.getargspec(func)
-      return argspec.args
+    argspec = inspect.getargspec(func)
+    args = argspec.args
+    if 'self' in args:
+      args.remove('self')
+    return args
 
 def generate_signature_for_function(func):
     """Given a function, returns a string representing its args."""

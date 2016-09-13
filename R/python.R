@@ -172,6 +172,3 @@ with.tensorflow.python.object <- function(data, expr, as = NULL, ...) {
            }
           )
 }
-
-
-

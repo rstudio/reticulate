@@ -1,10 +1,7 @@
 library(tensorflow)
 
-# import tensorflow
-tf <- tensorflow()
-
 # import data
-input_data <- tensorflow("examples.tutorials.mnist.input_data")
+input_data <- import("tensorflow.examples.tutorials.mnist.input_data")
 flags <- tf$app$flags
 FLAGS <- flags$FLAGS
 flags$DEFINE_string('data_dir', '/tmp/data/', 'Directory for storing data')

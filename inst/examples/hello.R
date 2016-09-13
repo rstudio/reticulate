@@ -1,7 +1,5 @@
 library(tensorflow)
 
-tf <- tensorflow()
-
 sess = tf$Session()
 
 hello <- tf$constant('Hello, TensorFlow!')

@@ -4,9 +4,6 @@
 #' @importFrom utils str
 NULL
 
-# package level tf instance
-tf <- NULL
-
 .onLoad <- function(libname, pkgname) {
 
   # initialize python
@@ -19,7 +16,7 @@ tf <- NULL
                        "')"))
 
   # attempt to load tensorflow
-  tf <<- tensorflow(silent = TRUE)
+  tf <<- import("tensorflow", silent = TRUE)
 }
 
 
@@ -35,33 +32,27 @@ tf <- NULL
 }
 
 
-#' Import TensorFlow
+#' Main TensorFlow module
 #'
-#' Import the tensorflow python module (or one of it's sub-modules) for
-#' use in R.
+#' Interface to main TensorFlow  module. Provides access to top level classes
+#' and functions as well as sub-modules (e.g. \code{tf$nn},
+#' \code{tf$contrib$learn}, etc.).
 #'
-#' @inheritParams import
-#' @param module Name of sub-module to import. Defaults to \code{NULL}, which
-#' imports the main tensorflow module (\code{tf}).
-#'
-#' @return A tensorflow module
+#' @format TensorFlow module
 #'
 #' @examples
 #' \dontrun{
-#' tf <- tensorflow()
-#' learn <- tensorflow("contrib.learn")
-#' slim <- tensorflow("contrib.slim")
-#' }
+#' hello <- tf$constant('Hello, TensorFlow!')
+#' b <- tf$Variable(tf$zeros(shape(1)))
 #'
+#' sess <- tf$Session()
+#' sess$initialize_all_variables()
+#'
+#' learn <- tf$contrib$learn
+#' slim <- tf$contrib$slim
+#' }
 #' @export
-tensorflow <- function(module = NULL, silent = FALSE) {
-  if (is.null(module))
-    import("tensorflow", silent = silent)
-  else if (!grepl("tensorflow.", module, fixed = TRUE))
-    import(paste("tensorflow", module, sep="."), silent = silent)
-  else
-    import(module, silent = silent)
-}
+tf <- NULL
 
 #' Tensor shape
 #'

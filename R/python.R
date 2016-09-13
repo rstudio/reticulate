@@ -189,67 +189,131 @@ help_handler <- function(type = c("completion", "parameter", "url"), topic, sour
 
 help_completion_handler.tensorflow.python.object <- function(topic, source) {
 
-  # get a reference to the source
-  source <- tryCatch(eval(parse(text = source), envir = globalenv()),
-                     error = function(e) NULL)
+  # convert source to object if necessary
+  source <- source_as_object(source)
+  if (is.null(source))
+    return(NULL)
 
-  if (!is.null(source)) {
-    # use the first paragraph of the docstring as the description
-    inspect <- import("inspect")
-    description <- inspect$getdoc(py_get_attr(source, topic))
-    if (is.null(description))
-      description <- ""
-    matches <- regexpr(pattern ='\n', description, fixed=TRUE)
-    if (matches[[1]] != -1)
-      description <- substring(description, 1, matches[[1]])
+  # use the first paragraph of the docstring as the description
+  inspect <- import("inspect")
+  description <- inspect$getdoc(py_get_attr(source, topic))
+  if (is.null(description))
+    description <- ""
+  matches <- regexpr(pattern ='\n', description, fixed=TRUE)
+  if (matches[[1]] != -1)
+    description <- substring(description, 1, matches[[1]])
 
-    # try to generate a signature
-    signature <- NULL
-    target <- py_get_attr(source, topic)
-    if (py_is_callable(target)) {
-      help <- import("tftools.help")
-      signature <- help$generate_signature_for_function(target)
-      if (is.null(signature))
-        signature <- "()"
-      signature <- paste0(topic, signature)
-    }
-
-    list(title = topic,
-         signature = signature,
-         description = description)
-  } else {
-    NULL
+  # try to generate a signature
+  signature <- NULL
+  target <- py_get_attr(source, topic)
+  if (py_is_callable(target)) {
+    help <- import("tftools.help")
+    signature <- help$generate_signature_for_function(target)
+    if (is.null(signature))
+      signature <- "()"
+    signature <- paste0(topic, signature)
   }
+
+  list(title = topic,
+       signature = signature,
+       description = description)
 }
 
 help_completion_parameter_handler.tensorflow.python.object <- function(source) {
 
-  # get a reference to the source
-  source <- tryCatch(eval(parse(text = source), envir = globalenv()),
-                     error = function(e) NULL)
+  # split into topic and source
+  components <- strsplit(source, "\\$")[[1]]
+  topic <- components[[length(components)]]
+  source <- paste(components[1:(length(components)-1)], collapse = "$")
+  source <- source_as_object(source)
+  if (is.null(source))
+    return(NULL)
 
-  if (!is.null(source)) {
-    list(args = c("value", "dtype", "shape", "name"),
-         arg_descriptions = c(
-           "A constant value (or list) of output type `dtype`.",
-           "The type of the elements of the resulting tensor.",
-           "Optional dimensions of resulting tensor.",
-           "Optional name for the tensor.")
-    )
-  } else {
-    NULL
+  # get the function
+  target <- py_get_attr(source, topic)
+  if (py_is_callable(target)) {
+    help <- import("tftools.help")
+    args <- help$get_arguments(target)
+    if (!is.null(args)) {
+      # get the descriptions
+      doc <- help$get_doc(target)
+      if (is.null(doc))
+        arg_descriptions <- args
+      else {
+        doc <- strsplit(doc, "\n", fixed = TRUE)[[1]]
+        arg_descriptions <- sapply(args, function(arg) {
+          prefix <- paste0("  ", arg, ": ")
+          arg_line <- which(grepl(paste0("^", prefix), doc))
+          if (length(arg_line) > 0) {
+            arg_description <- substring(doc[[arg_line]], nchar(prefix))
+            next_line <- arg_line + 1
+            while((arg_line + 1) <= length(doc)) {
+              line <- doc[[arg_line + 1]]
+              if (grepl("^    ", line)) {
+                arg_description <- paste(arg_description, line)
+                arg_line <- arg_line + 1
+              }
+              else
+                break
+            }
+            arg_description <- sub("`None`", "`NULL`", arg_description)
+          } else {
+            arg
+          }
+        })
+      }
+      return(list(
+        args = args,
+        arg_descriptions = arg_descriptions
+      ))
+    }
   }
+
+  NULL
 }
 
 
 
 help_url_handler.tensorflow.python.object <- function(topic, source) {
+
+  # convert source to object if necessary
+  source <- source_as_object(source)
+  if (is.null(source))
+    return(NULL)
+
+
+
   "https://www.tensorflow.org/versions/r0.10/api_docs/python/constant_op.html#constant"
 }
 
 help_formals_handler.tensorflow.python.object <- function(topic, source) {
-  list(
-    formals = c("value", "dtype", "shape", "name"),
-    helpHandler = "tensorflow:::help_handler"
-  )
+
+  target <- py_get_attr(source, topic)
+  if (py_is_callable(target)) {
+    help <- import("tftools.help")
+    args <- help$get_arguments(target)
+    if (!is.null(args)) {
+      return(list(
+        formals = args,
+        helpHandler = "tensorflow:::help_handler"
+      ))
+    }
+  }
+
+  # default to NULL if we couldn't get the arguments
+  NULL
 }
+
+# convert source to object if necessary
+source_as_object <- function(source) {
+
+  if (is.character(source)) {
+    source <- tryCatch(eval(parse(text = source), envir = globalenv()),
+                       error = function(e) NULL)
+    if (is.null(source))
+      return(NULL)
+  }
+
+  source
+}
+

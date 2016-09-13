@@ -20,7 +20,7 @@ py_module <- function(module = "__main__", silent = FALSE) {
 
 
 #' @export
-`$.python.object` <- function(x, name) {
+`$.tensorflow.python.object` <- function(x, name) {
   attr <- py_get_attr(x, name)
   if (py_is_callable(attr)) {
     function(...) {
@@ -51,10 +51,10 @@ py_module <- function(module = "__main__", silent = FALSE) {
 }
 
 #' @export
-`[[.python.object` <- `$.python.object`
+`[[.tensorflow.python.object` <- `$.tensorflow.python.object`
 
 #' @export
-print.python.object <- function(x, ...) {
+print.tensorflow.python.object <- function(x, ...) {
   if (py_is_null_xptr(x))
     print.default(x)
   else
@@ -62,7 +62,7 @@ print.python.object <- function(x, ...) {
 }
 
 #' @export
-str.python.object <- function(object, ...) {
+str.tensorflow.python.object <- function(object, ...) {
   if (py_is_null_xptr(object))
     "<pointer: 0x0>"
   else
@@ -71,7 +71,7 @@ str.python.object <- function(object, ...) {
 
 #' @importFrom utils .DollarNames
 #' @export
-.DollarNames.python.object <- function(x, pattern = "") {
+.DollarNames.tensorflow.python.object <- function(x, pattern = "") {
 
   # skip if this is a NULL xptr
   if (py_is_null_xptr(x))
@@ -127,9 +127,9 @@ dict <- function(...) {
 
 #' Evaluate an expression within a context.
 #'
-#' The \code{with} method for objects of type \code{python.object} implements the
-#' context manager protocol used by the Python \code{with} statement. The passed
-#' object must implement the
+#' The \code{with} method for objects of type \code{tensorflow.python.object}
+#' implements the context manager protocol used by the Python \code{with}
+#' statement. The passed object must implement the
 #' \href{https://docs.python.org/2/reference/datamodel.html#context-managers}{context
 #' manager} (\code{__enter__} and \code{__exit__} methods.
 #'
@@ -140,7 +140,7 @@ dict <- function(...) {
 #' @param ... Unused
 #'
 #' @export
-with.python.object <- function(data, expr, as = NULL, ...) {
+with.tensorflow.python.object <- function(data, expr, as = NULL, ...) {
 
   # enter the context
   context <- data$`__enter__`()
@@ -163,4 +163,83 @@ with.python.object <- function(data, expr, as = NULL, ...) {
                assign(as, asRestore, envir = parent.frame())
            }
           )
+}
+
+
+help_handler <- function(type = c("completion", "parameter", "url"), topic, source, ...) {
+  type <- match.arg(type)
+  if (type == "completion") {
+    help_completion_handler.tensorflow.python.object(topic, source)
+  } else if (type == "parameter") {
+    help_completion_parameter_handler.tensorflow.python.object(source)
+  } else if (type == "url") {
+    help_url_handler.tensorflow.python.object(topic, source)
+  }
+}
+
+help_completion_handler.tensorflow.python.object <- function(topic, source) {
+
+  # get a reference to the source
+  source <- tryCatch(eval(parse(text = source), envir = globalenv()),
+                     error = function(e) NULL)
+
+  if (!is.null(source)) {
+    # use the first paragraph of the docstring as the description
+    inspect <- py_module("inspect")
+    description <- inspect$getdoc(py_get_attr(source, topic))
+    if (is.null(description))
+      description <- ""
+    matches <- regexpr(pattern ='\n', description, fixed=TRUE)
+    if (matches[[1]] != -1)
+      description <- substring(description, 1, matches[[1]])
+
+    # try to generate a signature
+    signature <- NULL
+    target <- py_get_attr(source, topic)
+    if (py_is_callable(target)) {
+      help <- py_module("tftools.help")
+      signature <- help$generate_signature_for_function(target)
+      if (is.null(signature))
+        signature <- "()"
+      signature <- paste0(topic, signature)
+    }
+
+    list(title = topic,
+         signature = signature,
+         description = description)
+  } else {
+    NULL
+  }
+}
+
+help_completion_parameter_handler.tensorflow.python.object <- function(source) {
+
+  # get a reference to the source
+  source <- tryCatch(eval(parse(text = source), envir = globalenv()),
+                     error = function(e) NULL)
+
+  if (!is.null(source)) {
+    list(args = c("value", "dtype", "shape", "name"),
+         arg_descriptions = c(
+           "A constant value (or list) of output type `dtype`.",
+           "The type of the elements of the resulting tensor.",
+           "Optional dimensions of resulting tensor.",
+           "Optional name for the tensor.")
+    )
+  } else {
+    NULL
+  }
+}
+
+
+
+help_url_handler.tensorflow.python.object <- function(topic, source) {
+  "https://www.tensorflow.org/versions/r0.10/api_docs/python/constant_op.html#constant"
+}
+
+help_formals_handler.tensorflow.python.object <- function(topic, source) {
+  list(
+    formals = c("value", "dtype", "shape", "name"),
+    helpHandler = "tensorflow:::help_handler"
+  )
 }

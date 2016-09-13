@@ -11,9 +11,7 @@ def isstring(s):
     return isinstance(s, basestring)
 
 
-def generate_signature_for_function(func):
-    """Given a function, returns a string representing its args."""
-
+def normalize_func(func):
     # convert class to __init__ method if we can
     if inspect.isclass(func):
       if (inspect.ismethod(func.__init__)):
@@ -24,6 +22,27 @@ def generate_signature_for_function(func):
     # return None for builtins
     if (inspect.isbuiltin(func)):
         return None
+
+    return func
+
+def get_arguments(func):
+    func = normalize_func(func)
+    if func is None:
+      return None
+
+    if (sys.version_info[0] >= 3):
+      return isinstance(s, str)
+    else:
+      args_list = []
+      argspec = inspect.getargspec(func)
+      return argspec.args
+
+def generate_signature_for_function(func):
+    """Given a function, returns a string representing its args."""
+
+    func = normalize_func(func)
+    if func is None:
+      return None
 
     args_list = []
     argspec = inspect.getargspec(func)
@@ -69,4 +88,5 @@ def generate_signature_for_function(func):
     if argspec.keywords:
       args_list.append("...")
     return "(" + ", ".join(args_list) + ")"
+
 

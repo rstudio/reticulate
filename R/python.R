@@ -166,6 +166,8 @@ with.tensorflow.python.object <- function(data, expr, as = NULL, ...) {
 }
 
 
+# RStudio IDE custom help handlers
+
 help_handler <- function(type = c("completion", "parameter", "url"), topic, source, ...) {
   type <- match.arg(type)
   if (type == "completion") {

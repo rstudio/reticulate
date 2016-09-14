@@ -153,22 +153,55 @@ with.tensorflow.python.object <- function(data, expr, as = NULL, ...) {
   # enter the context
   context <- data$`__enter__`()
 
-  # assign the context if we have an as parameter
-  asRestore <- NULL
+  # check for as and as_envir
   if (!missing(as)) {
     as <- deparse(substitute(as))
     as <- gsub("\"", "", as)
-    if (exists(as, envir = parent.frame()))
-      asRestore <- get(as, envir = parent.frame())
-    assign(as, context, envir = parent.frame())
+  } else {
+    as <- attr(data, "as")
+  }
+  envir <- attr(data, "as_envir")
+  if (is.null(envir))
+    envir <- parent.frame()
+
+  # assign the context if we have an as parameter
+  asRestore <- NULL
+  if (!is.null(as)) {
+    if (exists(as, envir = envir))
+      asRestore <- get(as, envir = envir)
+    assign(as, context, envir = envir)
   }
 
   # evaluate the expression and exit the context
   tryCatch(force(expr),
            finally = {
              data$`__exit__`(NULL, NULL, NULL)
-             if (!is.null(asRestore))
-               assign(as, asRestore, envir = parent.frame())
+             if (!is.null(as)) {
+               remove(list = as, envir = envir)
+               if (!is.null(asRestore))
+                 assign(as, asRestore, envir = envir)
+             }
            }
           )
 }
+
+#' Create local alias for objects in \code{with} statements.
+#'
+#' @param object Object to alias
+#' @param name Alias name
+#'
+#' @name with-as-operator
+#'
+#' @keywords internal
+#' @export
+"%as%" <- function(object, name) {
+  as <- deparse(substitute(name))
+  as <- gsub("\"", "", as)
+  attr(object, "as") <- as
+  attr(object, "as_envir") <- parent.frame()
+  object
+}
+
+
+
+

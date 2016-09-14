@@ -80,6 +80,7 @@ help_completion_parameter_handler.tensorflow.python.object <- function(source) {
               else
                 break
             }
+            arg_description <- gsub("^\\s*", "", arg_description)
             arg_description <- convert_description_types(arg_description)
           } else {
             arg

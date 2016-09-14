@@ -828,10 +828,91 @@ help_pages <- function(...) {
     "confusion_matrix",
     "aggregate_metrics",
     "aggregate_metric_map",
-    "set_difference"
+    "set_difference",
+    "set_intersection",
+    "set_size",
+    "set_union"
+  )),
+  help_page("contrib.learn.html", "tensorflow.contrib.learn", c(
+    "BaseEstimator",
+    "Estimator",
+    "ModeKeys",
+    "TensorFlowClassifier",
+    "DNNClassifier",
+    "DNNRegressor",
+    "TensorFlowDNNClassifier",
+    "TensorFlowDNNRegressor",
+    "TensorFlowEstimator",
+    "LinearClassifier",
+    "LinearRegressor",
+    "TensorFlowLinearClassifier",
+    "TensorFlowLinearRegressor",
+    "TensorFlowRNNClassifier",
+    "TensorFlowRNNRegressor",
+    "TensorFlowRegressor",
+    "NanLossDuringTrainingError",
+    "RunConfig",
+    "evaluate",
+    "infer",
+    "run_feeds",
+    "run_n",
+    "train",
+    "extract_dask_data",
+    "extract_dask_labels",
+    "extract_pandas_data",
+    "extract_pandas_labels",
+    "extract_pandas_matrix",
+    "read_batch_examples",
+    "read_batch_features",
+    "read_batch_record_features"
+  )),
+  help_page("contrib.framework.html", "tensorflow.contrib.framework", c(
+    "assert_same_float_dtype",
+    "assert_scalar_int",
+    "convert_to_tensor_or_sparse_tensor",
+    "get_graph_from_inputs",
+    "is_tensor",
+    "reduce_sum_n",
+    "safe_embedding_lookup_sparse",
+    "with_shape",
+    "with_same_shape",
+    "deprecated",
+    "deprecated_arg_values",
+    "arg_scope",
+    "add_arg_scope",
+    "has_arg_scope",
+    "arg_scoped_arguments",
+    "add_model_variable",
+    "assert_global_step",
+    "assert_or_get_global_step",
+    "create_global_step",
+    "get_global_step",
+    "get_or_create_global_step",
+    "get_local_variables",
+    "get_model_variables",
+    "get_unique_variable",
+    "get_variables_by_name",
+    "get_variables_by_suffix",
+    "get_variables_to_restore",
+    "get_variables",
+    "local_variable",
+    "model_variable",
+    "variable",
+    "VariableDeviceChooser"
+  )),
+  help_page("contrib.framework.html", "tensorflow", c(
+    "is_numeric_tensor",
+    "is_non_decreasing",
+    "is_strictly_increasing"
+  )),
+  help_page("contrib.util.html", "tensorflow.contrib.util", c(
+    "constant_value",
+    "make_tensor_proto",
+    "make_ndarray",
+    "ops_used_by_graph_def",
+    "stripped_op_list_for_graph"
   ))
 )
-
 
 .class_help_pages <- help_pages(
   help_page("framework.html", "tensorflow.python.framework", c(
@@ -886,6 +967,16 @@ help_pages <- function(...) {
     "server_lib.ClusterSpec",
     "summary_io.SummaryWriter",
     "coordinator.LooperThread"
+  )),
+  help_page("contrib.learn.html", "tensorflow.contrib.learn.python.learn.estimators", c(
+    "BaseEstimator",
+    "Estimator",
+    "ModeKeys",
+    "dnn.DNNClassifier",
+    "dnn.DNNRegressor",
+    "linear.LinearClassifier",
+    "linear.LinearRegressor",
+    "run_config.RunConfig"
   ))
 )
 

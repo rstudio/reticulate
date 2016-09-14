@@ -706,9 +706,131 @@ help_pages <- function(...) {
     "InternalError",
     "UnavailableError",
     "DataLossError"
+  )),
+  help_page("train.html", "tensorflow.python.training.training", c(
+    "Optimizer",
+    "GradientDescentOptimizer",
+    "AdadeltaOptimizer",
+    "AdagradOptimizer",
+    "MomentumOptimizer",
+    "AdamOptimizer",
+    "FtrlOptimizer",
+    "RMSPropOptimizer",
+    "exponential_decay",
+    "ExponentialMovingAverage",
+    "Coordinator",
+    "QueueRunner",
+    "add_queue_runner",
+    "start_queue_runners",
+    "Server",
+    "Supervisor",
+    "SessionManager",
+    "ClusterSpec",
+    "replica_device_setter",
+    "SummaryWriter",
+    "summary_iterator",
+    "global_step",
+    "write_graph",
+    "LooperThread",
+    "do_quantize_training_on_graphdef",
+    "generate_checkpoint_state_proto"
+  )),
+  help_page("train.html", "tensorflow", c(
+    "gradients",
+    "AggregationMethod",
+    "stop_gradient",
+    "clip_by_value",
+    "clip_by_norm",
+    "clip_by_average_norm",
+    "clip_by_global_norm",
+    "global_norm",
+    "scalar_summary",
+    "image_summary",
+    "audio_summary",
+    "histogram_summary",
+    "merge_summary",
+    "merge_all_summaries"
+  )),
+  help_page("train.html", "tensorflow.python.ops.nn", c(
+    "zero_fraction"
+  )),
+  help_page("script_ops.html", "tensorflow", c(
+    "py_func"
+  )),
+  help_page("test.html", "tensorflow.python.platform.test", c(
+    "main",
+    "assert_equal_graph_def",
+    "get_temp_dir",
+    "is_built_with_cuda",
+    "compute_gradient",
+    "compute_gradient_error"
+  )),
+  help_page("contrib.layers.html", "tensorflow.contrib.layers", c(
+    "avg_pool2d",
+    "batch_norm",
+    "convolution2d",
+    "convolution2d_in_plane",
+    "convolution2d_transpose",
+    "flatten",
+    "fully_connected",
+    "max_pool2d",
+    "one_hot_encoding",
+    "repeat",
+    "separable_convolution2d",
+    "stack",
+    "unit_norm",
+    "apply_regularization",
+    "l1_regularizer",
+    "l2_regularizer",
+    "sum_regularizer",
+    "xavier_initializer",
+    "xavier_initializer_conv2d",
+    "variance_scaling_initializer",
+    "optimize_loss",
+    "summarize_activation",
+    "summarize_tensor",
+    "summarize_tensors",
+    "summarize_collection",
+    "summarize_activations"
+  )),
+  help_page("contrib.losses.html", "tensorflow.contrib.losses", c(
+    "absolute_difference",
+    "add_loss",
+    "cosine_distance",
+    "get_losses",
+    "get_regularization_losses",
+    "get_total_loss",
+    "hinge_loss",
+    "log_loss",
+    "sigmoid_cross_entropy",
+    "softmax_cross_entropy",
+    "sum_of_pairwise_squares",
+    "sum_of_squares"
+  )),
+  help_page("contrib.metrics.html", "tensorflow.contrib.metrics", c(
+    "streaming_accuracy",
+    "streaming_mean",
+    "streaming_recall",
+    "streaming_precision",
+    "streaming_auc",
+    "streaming_recall_at_k",
+    "streaming_mean_absolute_error",
+    "streaming_mean_iou",
+    "streaming_mean_relative_error",
+    "streaming_mean_squared_error",
+    "streaming_root_mean_squared_error",
+    "streaming_mean_cosine_distance",
+    "streaming_percentage_less",
+    "streaming_sparse_precision_at_k",
+    "streaming_sparse_recall_at_k",
+    "auc_using_histogram",
+    "accuracy",
+    "confusion_matrix",
+    "aggregate_metrics",
+    "aggregate_metric_map",
+    "set_difference"
   ))
 )
-
 
 
 .class_help_pages <- help_pages(
@@ -752,6 +874,18 @@ help_pages <- function(...) {
   )),
   help_page("client.html", "tensorflow.python.framework.errors", c(
     "OpError"
+  )),
+  help_page("train.html", "tensorflow.python.training", c(
+    "optimizer.Optimizer",
+    "moving_averages.ExponentialMovingAverage",
+    "coordinator.Coordinator",
+    "queue_runner.QueueRunner",
+    "server_lib.Server",
+    "supervisor.Supervisor",
+    "session_manager.SessionManager",
+    "server_lib.ClusterSpec",
+    "summary_io.SummaryWriter",
+    "coordinator.LooperThread"
   ))
 )
 

@@ -139,15 +139,17 @@ help_url_handler.tensorflow.python.object <- function(topic, source) {
 
 help_formals_handler.tensorflow.python.object <- function(topic, source) {
 
-  target <- py_get_attr(source, topic)
-  if (py_is_callable(target)) {
-    help <- import("tftools.help")
-    args <- help$get_arguments(target)
-    if (!is.null(args)) {
-      return(list(
-        formals = args,
-        helpHandler = "tensorflow:::help_handler"
-      ))
+  if (py_has_attr(source, topic)) {
+    target <- py_get_attr(source, topic)
+    if (py_is_callable(target)) {
+      help <- import("tftools.help")
+      args <- help$get_arguments(target)
+      if (!is.null(args)) {
+        return(list(
+          formals = args,
+          helpHandler = "tensorflow:::help_handler"
+        ))
+      }
     }
   }
 

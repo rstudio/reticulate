@@ -1,103 +1,65 @@
-# Deep MNIST for Experts
+---
+title: "Deep MNIST for Experts"
+---
 
-TensorFlow is a powerful library for doing large-scale numerical computation.
-One of the tasks at which it excels is implementing and training deep neural
-networks.  In this tutorial we will learn the basic building blocks of a
-TensorFlow model while constructing a deep convolutional MNIST classifier.
+TensorFlow is a powerful library for doing large-scale numerical computation. One of the tasks at which it excels is implementing and training deep neural networks.  In this tutorial we will learn the basic building blocks of a TensorFlow model while constructing a deep convolutional MNIST classifier.
 
-*This introduction assumes familiarity with neural networks and the MNIST
-dataset. If you don't have
-a background with them, check out the
-[introduction for beginners](../beginners/index.md). Be sure to
-[install TensorFlow](../../../get_started/os_setup.md) before starting.*
-
+*This introduction assumes familiarity with neural networks and the MNIST dataset. If you don't have a background with them, check out the [introduction for beginners](tutorial_mnist_beginners.html). Be sure to [install TensorFlow](https://www.tensorflow.org/get_started/) before starting.*
 
 ## About this tutorial
 
 The first part of this tutorial explains what is happening in the
-[mnist_softmax.py](https://www.tensorflow.org/code/tensorflow/examples/tutorials/mnist/mnist_softmax.py)
-code, which is a basic implementation of a Tensorflow model.  The second part
-shows some ways to improve the accuracy.
+[mnist_softmax.R](https://github.com/jjallaire/tensorflow/blob/master/inst/examples/mnist/mnist_softmax.R)  code, which is a basic implementation of a TensorFlow model.  The second part shows some ways to improve the accuracy.
 
-You can copy and paste each code snippet from this tutorial into a Python
-environment, or you can choose to just read through the code.
+You can copy and paste each code snippet from this tutorial into an R environment, or you can choose to just read through the code.
 
 What we will accomplish in this tutorial:
 
-- Create a softmax regression function that is a model for recognizing MNIST
-  digits, based on looking at every pixel in the image
+- Create a softmax regression function that is a model for recognizing MNIST digits, based on looking at every pixel in the image
 
-- Use Tensorflow to train the model to recognize digits by having it "look" at
-  thousands of examples (and run our first Tensorflow session to do so)
+- Use TensorFlow to train the model to recognize digits by having it "look" at thousands of examples (and run our first TensorFlow session to do so)
 
 - Check the model's accuracy with our test data
 
-- Build, train, and test a multilayer convolutional neural network to improve
-  the results
+- Build, train, and test a multilayer convolutional neural network to improve the results
 
 ## Setup
 
-Before we create our model, we will first load the MNIST dataset, and start a
-TensorFlow session.
+Before we create our model, we will first load the MNIST dataset, and start a TensorFlow session.
 
 ### Load MNIST Data
 
-If you are copying and pasting in the code from this tutorial, start here with
-these two lines of code which will download and read in the data automatically:
+If you are copying and pasting in the code from this tutorial, start here with these two lines of code which will download and read in the data automatically:
 
-```python
-from tensorflow.examples.tutorials.mnist import input_data
-mnist = input_data.read_data_sets('MNIST_data', one_hot=True)
+```{r, include=FALSE}
+library(tensorflow)
+input_data <- import("tensorflow.examples.tutorials.mnist.input_data")
+mnist <- input_data$read_data_sets("MNIST_data/", one_hot=TRUE)
 ```
 
-Here `mnist` is a lightweight class which stores the training, validation, and
-testing sets as NumPy arrays.  It also provides a function for iterating through
-data minibatches, which we will use below.
+Here `mnist` is a lightweight class which stores the training, validation, and testing sets as R matrixes  It also provides a function for iterating through data minibatches, which we will use below.
 
 ### Start TensorFlow InteractiveSession
 
-TensorFlow relies on a highly efficient C++ backend to do its computation. The
-connection to this backend is called a session.  The common usage for TensorFlow
-programs is to first create a graph and then launch it in a session.
+TensorFlow relies on a highly efficient C++ backend to do its computation. The connection to this backend is called a session.The common usage for TensorFlow programs is to first create a graph and then launch it in a session.
 
-Here we instead use the convenient `InteractiveSession` class, which makes
-TensorFlow more flexible about how you structure your code.  It allows you to
-interleave operations which build a
-[computation graph](../../../get_started/basic_usage.md#the-computation-graph)
-with ones that run the graph.  This is particularly convenient when working in
-interactive contexts like IPython.  If you are not using an
-`InteractiveSession`, then you should build the entire computation graph before
-starting a session and
-[launching the graph](../../../get_started/basic_usage.md#launching-the-graph-in-a-session).
+Here we instead use the convenient `InteractiveSession` class, which makes TensorFlow more flexible about how you structure your code.  It allows you to interleave operations which build a [computation graph](https://www.tensorflow.org/get_started/basic_usage.html#the-computation-graph) with ones that run the graph.  This is particularly convenient when working in
+interactively in the R console.  If you are not using an `InteractiveSession`, then you should build the entire computation graph before starting a session and
+[launching the graph](https://www.tensorflow.org/versions/r0.10/get_started/basic_usage.html#launching-the-graph-in-a-session).
 
-```python
-import tensorflow as tf
-sess = tf.InteractiveSession()
+```{r}
+library(tensorflow)
+sess <- tf$InteractiveSession()
 ```
 
 #### Computation Graph
 
-To do efficient numerical computing in Python, we typically use libraries like
-[NumPy](http://www.numpy.org/) that do expensive operations such as matrix
-multiplication outside Python, using highly efficient code implemented in
-another language.  Unfortunately, there can still be a lot of overhead from
-switching back to Python every operation. This overhead is especially bad if you
-want to run computations on GPUs or in a distributed manner, where there can be
-a high cost to transferring data.
+To do efficient numerical computing in R we typically call base R functions that do expensive operations such as matrix multiplication outside R, using highly efficient code implemented in another language. Unfortunately, there can still be a lot of overhead from switching back to R for every operation. This overhead is especially bad if you want to run computations on GPUs or in a distributed manner, where there can be a high cost to transferring data.
 
-TensorFlow also does its heavy lifting outside Python, but it takes things a
-step further to avoid this overhead.  Instead of running a single expensive
-operation independently from Python, TensorFlow lets us describe a graph of
-interacting operations that run entirely outside Python.  This approach is
-similar to that used in Theano or Torch.
+TensorFlow also does its heavy lifting outside R, but it takes things a step further to avoid this overhead.  Instead of running a single expensive operation independently from R, TensorFlow lets us describe a graph of interacting operations that run entirely outside R  This approach is similar to that used in Theano or Torch.
 
-The role of the Python code is therefore to build this external computation
-graph, and to dictate which parts of the computation graph should be run. See
-the
-[Computation Graph](../../../get_started/basic_usage.md#the-computation-graph)
-section of
-[Basic Usage](../../../get_started/basic_usage.md)
-for more detail.
+The role of the R code is therefore to build this external computation graph, and to dictate which parts of the computation graph should be run. See the
+[Computation Graph](https://www.tensorflow.org/get_started/basic_usage.html#the-computation-graph) section of [Basic Usage](https://www.tensorflow.org/versions/r0.10/get_started/basic_usage.html) for more detail.
 
 ## Build a Softmax Regression Model
 

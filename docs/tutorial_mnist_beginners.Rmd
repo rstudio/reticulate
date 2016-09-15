@@ -69,6 +69,7 @@ For the purposes of this tutorial, we're going to want our labels as "one-hot ve
 ![](images/mnist-train-ys.png){.tutorial-illustration}
 
 We're now ready to actually make our model! 
+
 ## Softmax Regressions
 
 We know that every image in MNIST is of a handwritten digit between zero and nine. So there are only ten possible things that a given image can be. We want to be able to look at an image and give the probabilities for it being each digit. For example, our model might look at a picture of a nine and be 80% sure it's a nine, but give a 5% chance to it being an eight (because of the top loop) and a bit of probability to all the others because it isn't 100% sure.
@@ -180,7 +181,8 @@ cross_entropy <- tf$reduce_mean(-tf$reduce_sum(y_ * tf$log(y), reduction_indices
 
 First, `tf$log` computes the logarithm of each element of `y`. Next, we multiply each element of `y_` with the corresponding element of `tf$log(y)`. Then `tf$reduce_sum` adds the elements in the second dimension of y, due to the `reduction_indices=1L` parameter. Finally, `tf$reduce_mean` computes the mean over all the examples in the batch. 
 
-Note that indices are 0-based within the TensorFlow API rather than 1-based as is typical with R vectors -- this is because TensorFlow is implemented in Python which uses 0-based arrays.
+Note that indices (like the one used for `reduction_indices`) are 0-based within the TensorFlow API rather than 1-based as is typical with R vectors. This is because TensorFlow is implemented in Python which uses 0-based arrays.
+
 
 Now that we know what we want our model to do, it's very easy to have TensorFlow train it to do so.  Because TensorFlow knows the entire graph of your computations, it can automatically use the [backpropagation algorithm](http://colah.github.io/posts/2015-08-Backprop/) to
 efficiently determine how your variables affect the loss you ask it to minimize. Then it can apply your choice of optimization algorithm to modify the variables and reduce the loss.
@@ -190,7 +192,7 @@ optimizer <- tf$train$GradientDescentOptimizer(0.5)
 train_step <- optimizer$minimize(cross_entropy)
 ```
 
-In this case, we ask TensorFlow to minimize `cross_entropy` using the [gradient descent algorithm](https://en.wikipedia.org/wiki/Gradient_descent) with a learning rate of 0.5. Gradient descent is a simple procedure, where TensorFlow simply shifts each variable a little bit in the direction that reduces the cost. But TensorFlow also provides [many other optimization algorithms] (https://www.tensorflow.org/api_docs/python/train.html#optimizers#optimizers): using one is as simple as tweaking one line.
+In this case, we ask TensorFlow to minimize `cross_entropy` using the [gradient descent algorithm](https://en.wikipedia.org/wiki/Gradient_descent) with a learning rate of 0.5. Gradient descent is a simple procedure, where TensorFlow simply shifts each variable a little bit in the direction that reduces the cost. But TensorFlow also provides [many other optimization algorithms] (https://www.tensorflow.org/api_docs/python/train.html#optimizers): using one is as simple as tweaking one line.
 
 What TensorFlow actually does here, behind the scenes, is to add new operations to your graph which implement backpropagation and gradient descent. Then it gives you back a single operation which, when run, does a step of gradient descent training, slightly tweaking your variables to reduce the loss.
 

@@ -1,0 +1,64 @@
+---
+title: "Using the TensorFlow API"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Calling Functions
+
+The core implementation of TensorFlow is in Python. The `tensorflow` package provides an R wrapper around the core API, which is exposed via the `tf` object that is exported from the package. For example:
+
+```{r, eval=FALSE}
+library(tensorflow)
+
+sess <- tf$Session()
+
+tf$all_variables()
+
+tf$nn$sigmoid(x)
+```
+
+Note that within the TensorFlow documentation you'll see dot (`.`) used rather than dollar sign (`$`). For example, the equivalent code to the above example in Python would be:
+
+```python
+import tensorflow as tf
+
+sess = tf.Session()
+
+tf.all_variables()
+
+tf.nn.sigmoid(x)
+```
+
+Within R you use dollar sign (`$`) rather than dot (`.`).
+
+## Data Type Conversion
+
+R data types are automatically converted to Python data-types and vice-versa, making the use of the TensorFlow API fairly seamless from R. Core data types are mapped as follows:
+
+| R  | Python/TensorFlow  | Examples |
+|---|---|---|
+| Single-element vector  | Scalar  | `1`, `1L`, `TRUE`, `"foo"` |
+| Multi-element vector  | List  | `c(1, 2, 3)`, `c(1L, 2L, 3L)` |
+| List of multiple types  | Tuple  | `list(1, TRUE, "foo")`
+| Named list  | Dict  | `list(a = 1, b = 2)`
+| Matrix/Array  | NumPy ndarray  | `matrix(c(1,2,3,4), nrow = 2, ncol = 2)`
+| NULL  | None  | `NULL`
+
+A few additional things to keep in mind:
+
+- Python arrays are 0-based rather than one based so TensorFlow APIs that call for indexes into arrays reflect that (i.e. they are 0-based rather than 1-based as is customary in R).
+
+- Some TensorFlow APIs call for integers explicitly, in that case use e.g. `1L` (since R's default numeric type is real).
+
+- Some APIs call for shapes, which are lists of integers that can include `NULL` for dimensions that can have any number of elements. For this use e.g. `list(NULL, 10L)` (since `c(NULL, 10L)` would drop the `NULL`).
+
+- Dictionaries should be created using the `dict` function rather than by passing a named list (since `dict` enables you to create dictionaries keyed by tensor rather than just by string).
+
+
+
+
+
+

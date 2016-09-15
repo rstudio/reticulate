@@ -53,7 +53,7 @@ A few additional things to keep in mind:
 
 - Some TensorFlow APIs call for integers explicitly, in that case use e.g. `1L` (since R's default numeric type is real).
 
-- Some APIs call for shapes, which are lists of integers that can include `NULL` for dimensions that can have any number of elements. For this use the shape function (e.g. `shape(NULL, 10)`). The shape function handles `NULL`, ensures that single-element vectors are still passed as lists, and automatically converts it's arguments to integer.
+- Some APIs call for shapes, which are lists of integers that can include `NULL` for dimensions that can have any number of elements. For this use the shape function (e.g. `shape(NULL, 10L)`). The shape function handles `NULL`, ensures that single-element vectors are still passed as lists, and automatically converts it's arguments to integer.
 
 - Dictionaries should be created using the `dict` function rather than by passing a named list (since `dict` enables you to create dictionaries keyed by tensor rather than just by string).
 

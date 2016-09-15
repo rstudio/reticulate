@@ -42,9 +42,15 @@ help_completion_handler.tensorflow.python.object <- function(topic, source) {
   if (is.null(source))
     return(NULL)
 
-  # use the first paragraph of the docstring as the description
-  inspect <- import("inspect")
-  description <- inspect$getdoc(py_get_attr(source, topic))
+  # check for property help
+  help <- import("tftools.help")
+  description <- help$get_property_doc(source, topic)
+  # check for standard help
+  if (is.null(description)) {
+    inspect <- import("inspect")
+    description <- inspect$getdoc(py_get_attr(source, topic))
+  }
+  # default to no description
   if (is.null(description))
     description <- ""
   matches <- regexpr(pattern ='\n', description, fixed=TRUE)
@@ -260,4 +266,8 @@ class_help <- function(class, topic) {
 # Environments where we store help topics (mappings of module/class name to URL)
 .module_help_topics <- new.env(parent = emptyenv())
 .class_help_topics <- new.env(parent = emptyenv())
+
+
+
+
 

@@ -32,6 +32,13 @@ def get_doc(func):
 
     return inspect.getdoc(func)
 
+def get_property_doc(target, prop):
+  for name, obj in inspect.getmembers(type(target), inspect.isdatadescriptor):
+    if (isinstance(obj, property) and name == prop):
+      return inspect.getdoc(obj.fget)
+  return None
+
+
 def get_arguments(func):
     func = normalize_func(func)
     if func is None:
@@ -94,5 +101,4 @@ def generate_signature_for_function(func):
     if argspec.keywords:
       args_list.append("...")
     return "(" + ", ".join(args_list) + ")"
-
 

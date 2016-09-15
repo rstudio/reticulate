@@ -4,4 +4,6 @@
 ^src/Makevars$
 ^R/config.R$
 ^design$
+^docs$
+
 

@@ -1,0 +1,6 @@
+html_document:
+  theme: cosmo
+  highlight: textmate
+  css: styles.css
+  self_contained: true
+

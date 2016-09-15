@@ -130,7 +130,8 @@ TensorFlow also does its heavy lifting outside R, but it takes things a step fur
 We describe these interacting operations by manipulating symbolic variables. Let's create one (to access the TensorFlow API we reference the `tf` object that is exported by the `tensorflow` package):
 
 ```{r}
-x <- tf$placeholder(tf$float32, list(NULL, 784L))
+library(tensorflow)
+x <- tf$placeholder(tf$float32, shape(NULL, 784))
 ```
 
 `x` isn't a specific value. It's a `placeholder`, a value that we'll input when we ask TensorFlow to run a computation. We want to be able to input any number of MNIST images, each flattened into a 784-dimensional vector. We represent this as a 2-D tensor of floating-point numbers, with shape `(NULL, 784L)`. (Here `NULL` means that a dimension can be of any length.)
@@ -138,13 +139,13 @@ x <- tf$placeholder(tf$float32, list(NULL, 784L))
 We also need the weights and biases for our model. We could imagine treating these like additional inputs, but TensorFlow has an even better way to handle it: `Variable`. A `Variable` is a modifiable tensor that lives in TensorFlow's graph of interacting operations. It can be used and even modified by the computation. For machine learning applications, one generally has the model parameters be `Variable`s.
 
 ```{r}
-W <- tf$Variable(tf$zeros(list(784L, 10L)))
-b <- tf$Variable(tf$zeros(list(10L)))
+W <- tf$Variable(tf$zeros(shape(784, 10)))
+b <- tf$Variable(tf$zeros(shape(10)))
 ```
 
 We create these `Variable`s by giving `tf$Variable` the initial value of the `Variable`: in this case, we initialize both `W` and `b` as tensors full of zeros. Since we are going to learn `W` and `b`, it doesn't matter very much what they initially are.
 
-Notice that `W` has shape `(784L, 10L)` because we want to multiply the 784-dimensional image vectors by it to produce 10-dimensional vectors of evidence for the difference classes. `b` has shape `(10L)` so we can add it to the output.
+Notice that `W` has shape `(784, 10)` because we want to multiply the 784-dimensional image vectors by it to produce 10-dimensional vectors of evidence for the difference classes. `b` has shape `(10)` so we can add it to the output.
 
 We can now implement our model. It only takes one line to define it!
 
@@ -170,7 +171,7 @@ To implement cross-entropy we need to first add a new placeholder to input the
 correct answers:
 
 ```{r}
-y_ <- tf$placeholder(tf$float32, list(NULL, 10L))
+y_ <- tf$placeholder(tf$float32, shape(NULL, 10))
 ```
 
 Then we can implement the cross-entropy function, $-\sum y'\log(y)$:

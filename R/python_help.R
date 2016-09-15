@@ -1,5 +1,7 @@
 # RStudio IDE custom help handlers
 
+# Generic help_handler returned from .DollarNames -- dispatches to various
+# other help handler functions
 help_handler <- function(type = c("completion", "parameter", "url"), topic, source, ...) {
   type <- match.arg(type)
   if (type == "completion") {
@@ -11,6 +13,7 @@ help_handler <- function(type = c("completion", "parameter", "url"), topic, sour
   }
 }
 
+# Return help for display in the completion popup window
 help_completion_handler.tensorflow.python.object <- function(topic, source) {
 
   # convert source to object if necessary
@@ -39,11 +42,14 @@ help_completion_handler.tensorflow.python.object <- function(topic, source) {
     signature <- paste0(topic, signature)
   }
 
+  # return docs
   list(title = topic,
        signature = signature,
        description = description)
 }
 
+
+# Return parameter help for display in the completion popup window
 help_completion_parameter_handler.tensorflow.python.object <- function(source) {
 
   # split into topic and source
@@ -63,30 +69,8 @@ help_completion_parameter_handler.tensorflow.python.object <- function(source) {
       doc <- help$get_doc(target)
       if (is.null(doc))
         arg_descriptions <- args
-      else {
-        doc <- strsplit(doc, "\n", fixed = TRUE)[[1]]
-        arg_descriptions <- sapply(args, function(arg) {
-          prefix <- paste0("  ", arg, ": ")
-          arg_line <- which(grepl(paste0("^", prefix), doc))
-          if (length(arg_line) > 0) {
-            arg_description <- substring(doc[[arg_line]], nchar(prefix))
-            next_line <- arg_line + 1
-            while((arg_line + 1) <= length(doc)) {
-              line <- doc[[arg_line + 1]]
-              if (grepl("^    ", line)) {
-                arg_description <- paste(arg_description, line)
-                arg_line <- arg_line + 1
-              }
-              else
-                break
-            }
-            arg_description <- gsub("^\\s*", "", arg_description)
-            arg_description <- convert_description_types(arg_description)
-          } else {
-            arg
-          }
-        })
-      }
+      else
+        arg_descriptions <- arg_descriptions_from_doc(args, doc)
       return(list(
         args = args,
         arg_descriptions = arg_descriptions
@@ -94,11 +78,12 @@ help_completion_parameter_handler.tensorflow.python.object <- function(source) {
     }
   }
 
+  # no parameter help found
   NULL
 }
 
 
-
+# Handle requests for external (F1) help
 help_url_handler.tensorflow.python.object <- function(topic, source) {
 
   # normalize topic and source for various calling scenarios
@@ -137,6 +122,7 @@ help_url_handler.tensorflow.python.object <- function(topic, source) {
 }
 
 
+# Handle requests for the list of arguments for a function
 help_formals_handler.tensorflow.python.object <- function(topic, source) {
 
   if (py_has_attr(source, topic)) {
@@ -157,7 +143,34 @@ help_formals_handler.tensorflow.python.object <- function(topic, source) {
   NULL
 }
 
-# convert types in description
+# Extract argument descriptions from python docstring
+arg_descriptions_from_doc <- function(args, doc) {
+  doc <- strsplit(doc, "\n", fixed = TRUE)[[1]]
+  arg_descriptions <- sapply(args, function(arg) {
+    prefix <- paste0("  ", arg, ": ")
+    arg_line <- which(grepl(paste0("^", prefix), doc))
+    if (length(arg_line) > 0) {
+      arg_description <- substring(doc[[arg_line]], nchar(prefix))
+      next_line <- arg_line + 1
+      while((arg_line + 1) <= length(doc)) {
+        line <- doc[[arg_line + 1]]
+        if (grepl("^    ", line)) {
+          arg_description <- paste(arg_description, line)
+          arg_line <- arg_line + 1
+        }
+        else
+          break
+      }
+      arg_description <- gsub("^\\s*", "", arg_description)
+      arg_description <- convert_description_types(arg_description)
+    } else {
+      arg
+    }
+  })
+  arg_descriptions
+}
+
+# Convert types in description
 convert_description_types <- function(description) {
   description <- sub("`None`", "`NULL`", description)
   description <- sub("`True`", "`TRUE`", description)
@@ -165,7 +178,7 @@ convert_description_types <- function(description) {
   description
 }
 
-# convert source to object if necessary
+# Convert source to object if necessary
 source_as_object <- function(source) {
 
   if (is.character(source)) {
@@ -178,6 +191,7 @@ source_as_object <- function(source) {
   source
 }
 
+# Split source string into source and topic
 source_components <- function(source) {
   components <- strsplit(source, "\\$")[[1]]
   topic <- components[[length(components)]]

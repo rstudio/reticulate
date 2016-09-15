@@ -1,5 +1,5 @@
 
-# TODO: 'index' function for converting to 0-based indexes
+# TODO: helper function for reading mnist data into named list
 #
 # TODO: 'train_accuracy' in minst_tutorial_pros is a numpy scalar, this
 #       needs to become an R vector of the appropriate type (currently

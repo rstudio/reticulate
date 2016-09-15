@@ -143,7 +143,7 @@ int r_scalar_type(PyObject* x) {
     return REALSXP;
 
   // string
-  else if (PyString_Check(x))
+  else if (PyString_Check(x) || PyUnicode_Check(x))
     return STRSXP;
 
   // not a scalar
@@ -204,8 +204,14 @@ SEXP py_to_r(PyObject* x) {
       return wrap(PyFloat_AsDouble(x));
 
     // string
-    else if (scalarType == STRSXP)
-      return wrap(std::string(PyString_AsString(x)));
+    else if (scalarType == STRSXP) {
+      if (PyUnicode_Check(x)) {
+        PyObjectPtr utf8String(PyUnicode_AsUTF8String(x));
+        return wrap(std::string(PyString_AsString(utf8String)));
+      } else {
+        return wrap(std::string(PyString_AsString(x)));
+      }
+    }
 
     else
       return R_NilValue; // keep compiler happy
@@ -659,7 +665,8 @@ IntegerVector py_get_attribute_types(
              PyInt_Check(attr)    ||
              PyLong_Check(attr)   ||
              PyFloat_Check(attr)  ||
-             PyString_Check(attr))
+             PyString_Check(attr) ||
+             PyUnicode_Check(attr))
       types[i] = VECTOR;
     else if (PyObject_IsInstance(attr, (PyObject*)&PyModule_Type))
       types[i] = ENVIRONMENT;

@@ -58,227 +58,169 @@ To do efficient numerical computing in R we typically call base R functions that
 
 TensorFlow also does its heavy lifting outside R, but it takes things a step further to avoid this overhead.  Instead of running a single expensive operation independently from R, TensorFlow lets us describe a graph of interacting operations that run entirely outside R  This approach is similar to that used in Theano or Torch.
 
-The role of the R code is therefore to build this external computation graph, and to dictate which parts of the computation graph should be run. See the
-[Computation Graph](https://www.tensorflow.org/get_started/basic_usage.html#the-computation-graph) section of [Basic Usage](https://www.tensorflow.org/versions/r0.10/get_started/basic_usage.html) for more detail.
+The role of the R code is therefore to build this external computation graph, and to dictate which parts of the computation graph should be run. See the [Computation Graph](https://www.tensorflow.org/get_started/basic_usage.html#the-computation-graph) section of [Basic Usage](https://www.tensorflow.org/versions/r0.10/get_started/basic_usage.html) for more detail.
 
 ## Build a Softmax Regression Model
 
-In this section we will build a softmax regression model with a single linear
-layer. In the next section, we will extend this to the case of softmax
-regression with a multilayer convolutional network.
+In this section we will build a softmax regression model with a single linear layer. In the next section, we will extend this to the case of softmax regression with a multilayer convolutional network.
 
 ### Placeholders
 
-We start building the computation graph by creating nodes for the
-input images and target output classes.
+We start building the computation graph by creating nodes for the input images and target output classes.
 
-```python
-x = tf.placeholder(tf.float32, shape=[None, 784])
-y_ = tf.placeholder(tf.float32, shape=[None, 10])
+```{r}
+x <- tf$placeholder(tf$float32, shape=list(NULL, 784L))
+y_ <- tf$placeholder(tf$float32, shape=list(NULL, 10L))
 ```
 
-Here `x` and `y_` aren't specific values. Rather, they are each a `placeholder`
--- a value that we'll input when we ask TensorFlow to run a computation.
+Here `x` and `y_` aren't specific values. Rather, they are each a `placeholder` -- a value that we'll input when we ask TensorFlow to run a computation.
 
-The input images `x` will consist of a 2d tensor of floating point numbers.
-Here we assign it a `shape` of `[None, 784]`, where `784` is the dimensionality
-of a single flattened 28 by 28 pixel MNIST image, and `None` indicates that the
-first dimension, corresponding to the batch size, can be of any size.  The
-target output classes `y_` will also consist of a 2d tensor, where each row is a
-one-hot 10-dimensional vector indicating which digit class (zero through nine)
-the corresponding MNIST image belongs to.
+The input images `x` will consist of a 2d tensor of floating point numbers. Here we assign it a `shape` of `(NULL, 784L)`, where `784` is the dimensionality of a single flattened 28 by 28 pixel MNIST image, and `NULL` indicates that the first dimension, corresponding to the batch size, can be of any size.  The target output classes `y_` will also consist of a 2d tensor, where each row is a one-hot 10-dimensional vector indicating which digit class (zero through nine) the corresponding MNIST image belongs to.
 
-The `shape` argument to `placeholder` is optional, but it allows TensorFlow
-to automatically catch bugs stemming from inconsistent tensor shapes.
+The `shape` argument to `placeholder` is optional, but it allows TensorFlow to automatically catch bugs stemming from inconsistent tensor shapes.
 
 ### Variables
 
-We now define the weights `W` and biases `b` for our model. We could imagine
-treating these like additional inputs, but TensorFlow has an even better way to
-handle them: `Variable`.  A `Variable` is a value that lives in TensorFlow's
-computation graph.  It can be used and even modified by the computation. In
-machine learning applications, one generally has the model parameters be
-`Variable`s.
+We now define the weights `W` and biases `b` for our model. We could imagine treating these like additional inputs, but TensorFlow has an even better way to handle them: `Variable`.  A `Variable` is a value that lives in TensorFlow's computation graph.  It can be used and even modified by the computation. In machine learning applications, one generally has the model parameters be `Variable`s.
 
-```python
-W = tf.Variable(tf.zeros([784,10]))
-b = tf.Variable(tf.zeros([10]))
+```{r}
+W <- tf$Variable(tf$zeros(shape = list(784L, 10L)))
+b <- tf$Variable(tf$zeros(shape = list(10L)))
 ```
 
-We pass the initial value for each parameter in the call to `tf.Variable`.  In
-this case, we initialize both `W` and `b` as tensors full of zeros. `W` is a
-784x10 matrix (because we have 784 input features and 10 outputs) and `b` is a
-10-dimensional vector (because we have 10 classes).
+We pass the initial value for each parameter in the call to `tf$Variable`. In this case, we initialize both `W` and `b` as tensors full of zeros. `W` is a 784x10 matrix (because we have 784 input features and 10 outputs) and `b` is a 10-dimensional vector (because we have 10 classes).
 
-Before `Variable`s can be used within a session, they must be initialized using
-that session.  This step takes the initial values (in this case tensors full of
-zeros) that have already been specified, and assigns them to each
-`Variable`. This can be done for all `Variables` at once:
+Before `Variable`s can be used within a session, they must be initialized using that session. This step takes the initial values (in this case tensors full of zeros) that have already been specified, and assigns them to each `Variable`. This can be done for all `Variables` at once:
 
-```python
-sess.run(tf.initialize_all_variables())
+```{r}
+sess$run(tf$initialize_all_variables())
 ```
 
 ### Predicted Class and Loss Function
 
-We can now implement our regression model. It only takes one line!  We multiply
-the vectorized input images `x` by the weight matrix `W`, add the bias `b`, and
-compute the softmax probabilities that are assigned to each class.
+We can now implement our regression model. It only takes one line! We multiply the vectorized input images `x` by the weight matrix `W`, add the bias `b`, and compute the softmax probabilities that are assigned to each class.
 
-```python
-y = tf.nn.softmax(tf.matmul(x,W) + b)
+```{r}
+y <- tf$nn$softmax(tf$matmul(x,W) + b)
 ```
 
-We can specify a loss function just as easily. Loss indicates how bad the
-model's prediction was on a single example; we try to minimize that while
-training across all the examples. Here, our loss function is the cross-entropy
-between the target and the model's prediction:
+We can specify a loss function just as easily. Loss indicates how bad the model's prediction was on a single example; we try to minimize that while training across all the examples. Here, our loss function is the cross-entropy between the target and the model's prediction:
 
-```python
-cross_entropy = tf.reduce_mean(-tf.reduce_sum(y_ * tf.log(y), reduction_indices=[1]))
+```{r}
+cross_entropy <- tf$reduce_mean(-tf$reduce_sum(y_ * tf$log(y), reduction_indices=1L))
 ```
 
-Note that `tf.reduce_sum` sums across all classes and `tf.reduce_mean` takes 
-the average over these sums.
+Note that `tf.reduce_sum` sums across all classes and `tf.reduce_mean` takes the average over these sums.
+
+Note also that indices (like the one used for `reduction_indices`) are 0-based within the TensorFlow API rather than 1-based as is typical with R vectors. This is because TensorFlow is implemented in Python which uses 0-based arrays.
 
 ## Train the Model
 
-Now that we have defined our model and training loss function, it is
-straightforward to train using TensorFlow.  Because TensorFlow knows the entire
-computation graph, it can use automatic differentiation to find the gradients of
-the loss with respect to each of the variables.  TensorFlow has a variety of
-[built-in optimization algorithms]
-(../../../api_docs/python/train.md#optimizers).  For this example, we will use
-steepest gradient descent, with a step length of 0.5, to descend the cross
+Now that we have defined our model and training loss function, it is straightforward to train using TensorFlow. Because TensorFlow knows the entire computation graph, it can use automatic differentiation to find the gradients of the loss with respect to each of the variables. TensorFlow has a variety of [built-in optimization algorithms] (https://www.tensorflow.org/api_docs/python/train.html#optimizers). For this example, we will use steepest gradient descent, with a step length of 0.5, to descend the cross
 entropy.
 
-```python
-train_step = tf.train.GradientDescentOptimizer(0.5).minimize(cross_entropy)
+```{r}
+optimizer <- tf$train$GradientDescentOptimizer(0.5)
+train_step <- optimizer$minimize(cross_entropy)
 ```
 
-What TensorFlow actually did in that single line was to add new operations to
-the computation graph. These operations included ones to compute gradients,
-compute parameter update steps, and apply update steps to the parameters.
+What TensorFlow actually did in that single line was to add new operations to the computation graph. These operations included ones to compute gradients, compute parameter update steps, and apply update steps to the parameters.
 
-The returned operation `train_step`, when run, will apply the gradient descent
-updates to the parameters. Training the model can therefore be accomplished by
-repeatedly running `train_step`.
+The returned operation `train_step`, when run, will apply the gradient descent updates to the parameters. Training the model can therefore be accomplished by repeatedly running `train_step`.
 
-```python
-for i in range(1000):
-  batch = mnist.train.next_batch(100)
-  train_step.run(feed_dict={x: batch[0], y_: batch[1]})
+```{r}
+for (i in 1:1000) {
+  batches <- mnist$train$next_batch(100L)
+  batch_xs <- batches[[1]]
+  batch_ys <- batches[[2]]
+  sess$run(train_step,
+           feed_dict = dict(x = batch_xs, y_ = batch_ys))
+}
 ```
 
-We load 100 training examples in each training iteration. We then run the
-`train_step` operation, using `feed_dict` to replace the `placeholder` tensors
-`x` and `y_` with the training examples.  Note that you can replace any tensor
-in your computation graph using `feed_dict` -- it's not restricted to just
-`placeholder`s.
+We load 100 training examples in each training iteration. We then run the `train_step` operation, using `feed_dict` to replace the `placeholder` tensors `x` and `y_` with the training examples. Note that you can replace any tensor in your computation graph using `feed_dict` -- it's not restricted to just `placeholder`s.
 
 ### Evaluate the Model
 
 How well did our model do?
 
-First we'll figure out where we predicted the correct label. `tf.argmax` is an
-extremely useful function which gives you the index of the highest entry in a
-tensor along some axis. For example, `tf.argmax(y,1)` is the label our model
-thinks is most likely for each input, while `tf.argmax(y_,1)` is the true
-label. We can use `tf.equal` to check if our prediction matches the truth.
+First we'll figure out where we predicted the correct label. `tf$argmax` is an extremely useful function which gives you the index of the highest entry in a tensor along some axis. For example, `tf$argmax(y,1L)` is the label our model thinks is most likely for each input, while `tf$argmax(y_,1L)` is the true label. We can use `tf$equal` to check if our prediction matches the truth.
 
-```python
-correct_prediction = tf.equal(tf.argmax(y,1), tf.argmax(y_,1))
+```{r}
+correct_prediction <- tf$equal(tf$argmax(y,1L), tf$argmax(y_,1L))
 ```
 
-That gives us a list of booleans. To determine what fraction are correct, we
-cast to floating point numbers and then take the mean. For example,
-`[True, False, True, True]` would become `[1,0,1,1]` which would become `0.75`.
+That gives us a list of booleans. To determine what fraction are correct, we cast to floating point numbers and then take the mean. For example, `c(TRUE, FALSE, TRUE, TRUE` would become `c(1,0,1,1)` which would become `0.75`.
 
-```python
-accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+```{r}
+accuracy <- tf$reduce_mean(tf$cast(correct_prediction, tf$float32))
 ```
 
-Finally, we can evaluate our accuracy on the test data. This should be about
-92% correct.
+Finally, we can evaluate our accuracy on the test data. This should be about 92% correct.
 
-```python
-print(accuracy.eval(feed_dict={x: mnist.test.images, y_: mnist.test.labels}))
+```{r}
+accuracy$eval(feed_dict=dict(x = mnist$test$images, y_ = mnist$test$labels))
 ```
 
 ## Build a Multilayer Convolutional Network
 
-Getting 92% accuracy on MNIST is bad. It's almost embarrassingly bad. In this
-section, we'll fix that, jumping from a very simple model to something
-moderately sophisticated: a small convolutional neural network. This will get us
-to around 99.2% accuracy -- not state of the art, but respectable.
+Getting 92% accuracy on MNIST is bad. It's almost embarrassingly bad. In this section, we'll fix that, jumping from a very simple model to something moderately sophisticated: a small convolutional neural network. This will get us to around 99.2% accuracy -- not state of the art, but respectable.
 
 ### Weight Initialization
 
-To create this model, we're going to need to create a lot of weights and biases.
-One should generally initialize weights with a small amount of noise for
-symmetry breaking, and to prevent 0 gradients. Since we're using
-[ReLU](https://en.wikipedia.org/wiki/Rectifier_(neural_networks)) neurons, it is
-also good practice to initialize them with a slightly positive initial bias to
-avoid "dead neurons". Instead of doing this repeatedly while we build the model,
-let's create two handy functions to do it for us.
+To create this model, we're going to need to create a lot of weights and biases. One should generally initialize weights with a small amount of noise for symmetry breaking, and to prevent 0 gradients. Since we're using [ReLU](https://en.wikipedia.org/wiki/Rectifier_(neural_networks)) neurons, it is also good practice to initialize them with a slightly positive initial bias to avoid "dead neurons". Instead of doing this repeatedly while we build the model, let's create two handy functions to do it for us.
 
-```python
-def weight_variable(shape):
-  initial = tf.truncated_normal(shape, stddev=0.1)
-  return tf.Variable(initial)
+```{r}
+weight_variable <- function(shape) {
+  initial <- tf$truncated_normal(shape, stddev=0.1)
+  tf$Variable(initial)
+}
 
-def bias_variable(shape):
-  initial = tf.constant(0.1, shape=shape)
-  return tf.Variable(initial)
+bias_variable <- function(shape) {
+  initial <- tf$constant(0.1, shape=shape)
+  tf$Variable(initial)
+}
 ```
 
 ### Convolution and Pooling
 
-TensorFlow also gives us a lot of flexibility in convolution and pooling
-operations. How do we handle the boundaries? What is our stride size?
-In this example, we're always going to choose the vanilla version.
-Our convolutions uses a stride of one and are zero padded so that the
-output is the same size as the input. Our pooling is plain old max pooling
-over 2x2 blocks. To keep our code cleaner, let's also abstract those operations
+TensorFlow also gives us a lot of flexibility in convolution and pooling operations. How do we handle the boundaries? What is our stride size? In this example, we're always going to choose the vanilla version. Our convolutions uses a stride of one and are zero padded so that the output is the same size as the input. Our pooling is plain old max pooling over 2x2 blocks. To keep our code cleaner, let's also abstract those operations
 into functions.
 
-```python
-def conv2d(x, W):
-  return tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], padding='SAME')
+```{r}
+conv2d <- function(x, W) {
+  tf$nn$conv2d(x, W, strides=list(1L, 1L, 1L, 1L), padding='SAME')
+}
 
-def max_pool_2x2(x):
-  return tf.nn.max_pool(x, ksize=[1, 2, 2, 1],
-                        strides=[1, 2, 2, 1], padding='SAME')
+max_pool_2x2 <- function(x) {
+  tf$nn$max_pool(
+    x, 
+    ksize=list(1L, 2L, 2L, 1L),
+    strides=list(1L, 2L, 2L, 1L), 
+    padding='SAME')
+}
 ```
 
 ### First Convolutional Layer
 
-We can now implement our first layer. It will consist of convolution, followed
-by max pooling. The convolutional will compute 32 features for each 5x5 patch.
-Its weight tensor will have a shape of `[5, 5, 1, 32]`. The first two
-dimensions are the patch size, the next is the number of input channels, and
-the last is the number of output channels. We will also have a bias vector with
-a component for each output channel.
+We can now implement our first layer. It will consist of convolution, followed by max pooling. The convolutional will compute 32 features for each 5x5 patch. Its weight tensor will have a shape of `(5L, 5L, 1L, 32L)`. The first two dimensions are the patch size, the next is the number of input channels, and the last is the number of output channels. We will also have a bias vector with a component for each output channel.
 
-```python
-W_conv1 = weight_variable([5, 5, 1, 32])
-b_conv1 = bias_variable([32])
+```{r}
+W_conv1 <- weight_variable(shape = list(5L, 5L, 1L, 32L))
+b_conv1 <- bias_variable(shape = list(32L))
 ```
 
-To apply the layer, we first reshape `x` to a 4d tensor, with the second and
-third dimensions corresponding to image width and height, and the final
-dimension corresponding to the number of color channels.
+To apply the layer, we first reshape `x` to a 4d tensor, with the second and third dimensions corresponding to image width and height, and the final dimension corresponding to the number of color channels.
 
-```python
-x_image = tf.reshape(x, [-1,28,28,1])
+```{r}
+x_image <- tf$reshape(x, list(-1L, 28L, 28L, 1L))
 ```
 
-We then convolve `x_image` with the weight tensor, add the
-bias, apply the ReLU function, and finally max pool.
+We then convolve `x_image` with the weight tensor, add the bias, apply the ReLU function, and finally max pool.
 
-```python
-h_conv1 = tf.nn.relu(conv2d(x_image, W_conv1) + b_conv1)
-h_pool1 = max_pool_2x2(h_conv1)
+```{r}
+h_conv1 <- tf$nn$relu(conv2d(x_image, W_conv1) + b_conv1)
+h_pool1 <- max_pool_2x2(h_conv1)
 ```
 
 ### Second Convolutional Layer
@@ -286,9 +228,9 @@ h_pool1 = max_pool_2x2(h_conv1)
 In order to build a deep network, we stack several layers of this type. The
 second layer will have 64 features for each 5x5 patch.
 
-```python
-W_conv2 = weight_variable([5, 5, 32, 64])
-b_conv2 = bias_variable([64])
+```{r}
+W_conv2 <- weight_variable(shape = list(5L, 5L, 32L, 64L))
+b_conv2 <- bias_variable(shape = list(64))
 
 h_conv2 = tf.nn.relu(conv2d(h_pool1, W_conv2) + b_conv2)
 h_pool2 = max_pool_2x2(h_conv2)

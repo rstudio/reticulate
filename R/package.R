@@ -19,7 +19,7 @@ NULL
 
 
 .onAttach <- function(libname, pkgname) {
-  if (!is_installed()) {
+  if (is.null(tf)) {
     packageStartupMessage("TensorFlow not currently installed, please see ",
                           "https://www.tensorflow.org/get_started/")
   }

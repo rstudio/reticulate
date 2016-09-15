@@ -1,42 +1,4 @@
 
-
-#' Main TensorFlow module
-#'
-#' Interface to main TensorFlow  module. Provides access to top level classes
-#' and functions as well as sub-modules (e.g. \code{tf$nn},
-#' \code{tf$contrib$learn}, etc.).
-#'
-#' @format TensorFlow module
-#'
-#' @examples
-#' \dontrun{
-#' hello <- tf$constant('Hello, TensorFlow!')
-#' b <- tf$Variable(tf$zeros(shape(1)))
-#'
-#' sess <- tf$Session()
-#' sess$initialize_all_variables()
-#'
-#' learn <- tf$contrib$learn
-#' slim <- tf$contrib$slim
-#' }
-#' @export
-tf <- NULL
-
-#' Tensor shape
-#'
-#' @param ... Tensor dimensions
-#'
-#' @export
-shape <- function(...) {
-  dims <- list(...)
-  lapply(dims, function(dim) {
-    if (!is.null(dim))
-      as.integer(dim)
-    else
-      NULL
-  })
-}
-
 #' @export
 "print.tensorflow.python.framework.ops.Tensor" <- function(x, ...) {
   print.tensorflow.python.object(x, ...)
@@ -397,10 +359,3 @@ shape <- function(...) {
 "digamma.tensorflow.python.framework.ops.Variable" <- function(x) {
   tf$digamma(x)
 }
-
-# internal utility functions
-is_installed <-function() {
-  !is.null(tf)
-}
-
-

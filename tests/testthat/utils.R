@@ -1,5 +1,5 @@
 
 skip_if_no_tensorflow <- function() {
-  if (!tensorflow:::is_installed())
+  if (is.null(tensorflow::tf))
     skip("TensorFlow not available for test")
 }

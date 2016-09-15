@@ -15,6 +15,10 @@ NULL
 
   # attempt to load tensorflow
   tf <<- import("tensorflow", silent = TRUE)
+
+  # if we loaded tensorflow then register tf help topics
+  if (!is.null(tf))
+    register_tf_help_topics()
 }
 
 

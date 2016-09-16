@@ -125,7 +125,7 @@ cross_entropy <- tf$reduce_mean(-tf$reduce_sum(y_ * tf$log(y_conv), reduction_in
 correct_prediction <- tf$equal(tf$argmax(y_conv, idx(2)), tf$argmax(y_, idx(2)))
 ```
 
-Again, you can also choose to just remember that TensorFlow arrays are 0-based and pass a 0-based index directly. If however you are creating a higher-level R wrapper for a TensorFlow API you should always make use of the `idx` function so callers don't need to navigate this difference.
+You can also simply choose to remember that TensorFlow arrays are 0-based and pass a 0-based index directly. If however you are creating a higher-level R wrapper for a TensorFlow API you should always make use of the `idx` function so callers don't need to navigate this difference.
 
 ### Default Numeric Type
 
@@ -175,4 +175,4 @@ Inline help is also available for function parameters:
 
 <img src="images/completion-params.png" style="margin-bottom: 15px; border: solid 1px #cccccc;" width="804" height="177" />
 
-You can also press the F1 key while viewing inline help (or when your cursor is over a TensorFlow API symbol) and you will be navigated to the location of that symbol's help within the [TensorFlow API](https://www.tensorflow.org/api_docs/python/) documentation.
+You can press the F1 key while viewing inline help (or whenever your cursor is over a TensorFlow API symbol) and you will be navigated to the location of that symbol's help within the [TensorFlow API](https://www.tensorflow.org/api_docs/python/) documentation.

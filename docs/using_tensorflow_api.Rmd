@@ -1,6 +1,5 @@
 ---
 title: "Using the TensorFlow API from R"
-output: github_document
 ---
 
 ```{r setup, include=FALSE}
@@ -172,11 +171,11 @@ As you use TensorFlow from R you'll want to get help on the various functions an
 
 If you are running the vary latest [Preview Release](https://www.rstudio.com/products/rstudio/download/preview/) (v1.0.18 or later) of RStudio IDE you can also get code completion and inline help for the TensorFlow API within RStudio. For example:
 
-![](images/completion-functions.png){width=804 height=260 style="margin-bottom: 15px;"}
+![](images/completion-functions.png){width=804 height=260 style="margin-bottom: 15px; border: solid 1px #cccccc;"}
 
 Inline help is also available for function parameters:
 
-![](images/completion-params.png){width=804 height=177 style="margin-bottom: 15px;"}
+![](images/completion-params.png){width=804 height=177 style="margin-bottom: 15px; border: solid 1px #cccccc;"}
 
 You can also press the F1 key while viewing inline help (or when your cursor is over a TensorFlow API symbol) and you will be navigated to the location of that symbol's help within the [TensorFlow API](https://www.tensorflow.org/api_docs/python/) documentation.
 

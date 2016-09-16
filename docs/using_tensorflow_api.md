@@ -169,10 +169,10 @@ As you use TensorFlow from R you'll want to get help on the various functions an
 
 If you are running the vary latest [Preview Release](https://www.rstudio.com/products/rstudio/download/preview/) (v1.0.18 or later) of RStudio IDE you can also get code completion and inline help for the TensorFlow API within RStudio. For example:
 
-<img src="images/completion-functions.png" style="margin-bottom: 15px;" width="804" height="260" />
+<img src="images/completion-functions.png" style="margin-bottom: 15px; border: solid 1px #cccccc;" width="804" height="260" />
 
 Inline help is also available for function parameters:
 
-<img src="images/completion-params.png" style="margin-bottom: 15px;" width="804" height="177" />
+<img src="images/completion-params.png" style="margin-bottom: 15px; border: solid 1px #cccccc;" width="804" height="177" />
 
 You can also press the F1 key while viewing inline help (or when your cursor is over a TensorFlow API symbol) and you will be navigated to the location of that symbol's help within the [TensorFlow API](https://www.tensorflow.org/api_docs/python/) documentation.

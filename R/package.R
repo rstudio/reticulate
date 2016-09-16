@@ -1,6 +1,17 @@
 
 # TODO: function for reading MNIST data
 
+# TODO: Non-integer warning when reading MNIST data (try w/o flags):
+#   /usr/local/lib/python2.7/dist-packages/tensorflow/contrib/learn/python/learn/datasets/mnist.py:164:
+#   VisibleDeprecationWarning: using a non-integer number instead of an integer will result in an error
+#   in the future
+#    return self._images[start:end], self._labels[start:end]
+
+# TODO: there is some state for the summary early in the training
+#       which we can get into which causes a proto write error
+#       (just got it again at 13700 iterations, yikes!). Perhaps
+#       a NaN that gets marshalled from R in an unexpected fashion?
+
 #' @useDynLib tensorflow
 #' @importFrom Rcpp evalCpp
 NULL

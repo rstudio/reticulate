@@ -12,21 +12,22 @@ using namespace Rcpp;
 #include "tensorflow_types.hpp"
 
 // helper class for ensuring decref of PyObject in the current scope
-class PyObjectPtr {
+template<typename T>
+class PyPtr {
 public:
   // attach on creation, decref on destruction
-  explicit PyObjectPtr(PyObject* object) : object_(object) {}
-  virtual ~PyObjectPtr() {
+  explicit PyPtr(T* object) : object_(object) {}
+  virtual ~PyPtr() {
     if (object_ != NULL)
-      ::Py_DecRef(object_);
+      Py_DECREF(object_);
   }
 
-  operator PyObject*() const { return object_; }
+  operator T*() const { return object_; }
 
-  PyObject* get() const { return object_; }
+  T* get() const { return object_; }
 
-  PyObject* detach() {
-    PyObject* object = object_;
+  T* detach() {
+    T* object = object_;
     object_ = NULL;
     return object;
   }
@@ -35,13 +36,14 @@ public:
 
 private:
   // prevent copying
-  PyObjectPtr(const PyObjectPtr&);
-  PyObjectPtr& operator=(const PyObjectPtr&);
+  PyPtr(const PyPtr&);
+  PyPtr& operator=(const PyPtr&);
 
   // underlying object
-  PyObject* object_;
+  T* object_;
 };
 
+typedef PyPtr<PyObject> PyObjectPtr;
 // check whether a PyObject is None
 bool py_is_none(PyObject* object) {
   return object == &::_Py_NoneStruct;

@@ -131,7 +131,15 @@ You can also simply choose to remember that TensorFlow arrays are 0-based and pa
 
 In Python the default numeric type for a literal is an integer (you need to add a decimal point to get a floating point type). Whereas, in R, the default numeric type is floating point (you need to add the `L` suffix to force an integer).
 
-Therefore, if there are TensorFlow APIs which require integers you should always remember to use the `L` suffix. That said, the `shape`, `int`, and `idx` functions above handle most of the common cases of integer coercion automatically so the need to use `L` may not come up that often.
+Therefore, if there are TensorFlow APIs which require integers you should always remember to use the `L` suffix. For example, the following code defines a set of integer flags:
+
+``` r
+flags$DEFINE_integer('max_steps', 2000L, 'Number of steps to run trainer.')
+flags$DEFINE_integer('hidden1', 128L, 'Number of units in hidden layer 1.')
+flags$DEFINE_integer('hidden2', 32L, 'Number of units in hidden layer 2.')
+```
+
+Note that the `shape`, `int`, and `idx` functions described above also handle many common cases of integer coercion automatically.
 
 ### Dictionaries
 

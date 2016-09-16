@@ -1,4 +1,6 @@
 
+# TODO: function for reading MNIST data
+
 #' @useDynLib tensorflow
 #' @importFrom Rcpp evalCpp
 NULL

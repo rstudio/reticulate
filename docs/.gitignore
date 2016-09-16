@@ -1,2 +1,3 @@
 *.html
 MNIST_data
+.DS_Store

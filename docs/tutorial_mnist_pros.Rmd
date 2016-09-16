@@ -292,7 +292,7 @@ correct_prediction <- tf$equal(tf$argmax(y_conv,1L), tf$argmax(y_,1L))
 accuracy <- tf$reduce_mean(tf$cast(correct_prediction, tf$float32))
 sess$run(tf$initialize_all_variables())
 
-for (i in 1:2000) {
+for (i in 1:20000) {
   batch <- mnist$train$next_batch(50L)
   if (i %% 100 == 0) {
     train_accuracy <- accuracy$eval(feed_dict = dict(

@@ -297,7 +297,7 @@ for (i in 1:20000) {
   if (i %% 100 == 0) {
     train_accuracy <- accuracy$eval(feed_dict = dict(
         x = batch[[1]], y_ = batch[[2]], keep_prob = 1.0))
-    cat(sprintf("step %d, training accuracy %s\n", i, str(train_accuracy)))
+    cat(sprintf("step %d, training accuracy %g\n", i, train_accuracy))
   }
   train_step$run(feed_dict = dict(
     x = batch[[1]], y_ = batch[[2]], keep_prob = 0.5))
@@ -305,7 +305,7 @@ for (i in 1:20000) {
 
 train_accuracy <- accuracy$eval(feed_dict = dict(
      x = mnist$test$images, y_ = mnist$test$labels, keep_prob = 1.0))
-cat(sprintf("test accuracy %s", str(train_accuracy))) 
+cat(sprintf("test accuracy %g", train_accuracy))
 ```
 
 The final test set accuracy after running this code should be approximately 99.2%.

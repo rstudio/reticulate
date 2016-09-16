@@ -44,6 +44,9 @@ private:
 };
 
 typedef PyPtr<PyObject> PyObjectPtr;
+typedef PyPtr<PyArray_Descr> PyArray_DescrPtr;
+
+
 // check whether a PyObject is None
 bool py_is_none(PyObject* object) {
   return object == &::_Py_NoneStruct;
@@ -183,6 +186,48 @@ CharacterVector py_tuple_to_character(PyObject* tuple) {
   return vec;
 }
 
+// helpers to narrow python array type to something convertable from R,
+// guaranteed to return NPY_BOOL, NPY_LONG, or NPY_DOUBLE (throws an
+// exception if it's unable to return one of these types)
+int narrow_array_typenum(int typenum) {
+
+  switch(typenum) {
+  // logical
+  case NPY_BOOL:
+    typenum = NPY_BOOL;
+    break;
+    // integer
+  case NPY_BYTE:
+  case NPY_UBYTE:
+  case NPY_SHORT:
+  case NPY_USHORT:
+  case NPY_INT:
+  case NPY_LONG:
+    typenum = NPY_LONG;
+    break;
+    // double
+  case NPY_FLOAT:
+  case NPY_DOUBLE:
+    typenum = NPY_DOUBLE;
+    break;
+    // unsupported
+  default:
+    stop("Conversion from numpy array type %d is not supported", typenum);
+  break;
+  }
+
+  return typenum;
+}
+
+int narrow_array_typenum(PyArrayObject* array) {
+  return narrow_array_typenum(PyArray_TYPE(array));
+}
+
+int narrow_array_typenum(PyArray_Descr* descr) {
+  return narrow_array_typenum(descr->type_num);
+}
+
+
 // convert a python object to an R object
 SEXP py_to_r(PyObject* x) {
 
@@ -294,31 +339,7 @@ SEXP py_to_r(PyObject* x) {
       dimsVector[i] = dims[i];
 
     // determine the target type of the array
-    int typenum = PyArray_TYPE(array);
-    switch(typenum) {
-    // logical
-    case NPY_BOOL:
-      typenum = NPY_BOOL;
-      break;
-    // integer
-    case NPY_BYTE:
-    case NPY_UBYTE:
-    case NPY_SHORT:
-    case NPY_USHORT:
-    case NPY_INT:
-    case NPY_LONG:
-      typenum = NPY_LONG;
-      break;
-    // double
-    case NPY_FLOAT:
-    case NPY_DOUBLE:
-      typenum = NPY_DOUBLE;
-      break;
-    // unsupported
-    default:
-      stop("Conversion from numpy array type %d is not supported", typenum);
-      break;
-    }
+    int typenum = narrow_array_typenum(array);
 
     // cast it to a fortran array (PyArray_CastToType steals the descr)
     // (note that we will decref the copied array below)
@@ -360,6 +381,40 @@ SEXP py_to_r(PyObject* x) {
 
     // return the R Array
     return rArray;
+  }
+
+  // check for numpy scalar
+  else if (PyArray_CheckScalar(x)) {
+
+    // determine the type to convert to
+    PyArray_DescrPtr descr(PyArray_DescrFromScalar(x));
+    int typenum = narrow_array_typenum(descr);
+    PyArray_DescrPtr toDescr(PyArray_DescrFromType(typenum));
+
+    // convert to R type (guaranteed to by NPY_BOOL, NPY_LONG, or NPY_DOUBLE
+    // as per the contract of narrow_arrow_typenum)
+    switch(typenum) {
+    case NPY_BOOL:
+    {
+      npy_bool value;
+      PyArray_CastScalarToCtype(x, (void*)&value, toDescr);
+      return wrap(value);
+    }
+    case NPY_LONG:
+    {
+      npy_long value;
+      PyArray_CastScalarToCtype(x, (void*)&value, toDescr);
+      return wrap(value);
+    }
+    case NPY_DOUBLE:
+    {
+      npy_double value;
+      PyArray_CastScalarToCtype(x, (void*)&value, toDescr);
+      return wrap(value);
+    }
+    default:
+      stop("Unsupported array conversion from %d", typenum);
+    }
   }
 
   // default is to return opaque wrapper to python object
@@ -531,6 +586,7 @@ PyObject* r_to_py(RObject x) {
     stop("Unable to convert R object to python type");
   }
 }
+
 
 // import numpy array api
 bool py_import_numpy_array_api() {

@@ -1,10 +1,4 @@
 
-# TODO: helper function for reading mnist data into named list
-#
-# TODO: 'train_accuracy' in minst_tutorial_pros is a numpy scalar, this
-#       needs to become an R vector of the appropriate type (currently
-#       it remains unconverted)
-
 #' @useDynLib tensorflow
 #' @importFrom Rcpp evalCpp
 NULL

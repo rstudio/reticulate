@@ -131,7 +131,7 @@ We describe these interacting operations by manipulating symbolic variables. Let
 
 ```{r}
 library(tensorflow)
-x <- tf$placeholder(tf$float32, shape(NULL, 784L))
+x <- tf$placeholder(tf$float32, shape(NULL, 784))
 ```
 
 `x` isn't a specific value. It's a `placeholder`, a value that we'll input when we ask TensorFlow to run a computation. We want to be able to input any number of MNIST images, each flattened into a 784-dimensional vector. We represent this as a 2-D tensor of floating-point numbers, with shape `(NULL, 784L)`. (Here `NULL` means that a dimension can be of any length.)
@@ -139,8 +139,8 @@ x <- tf$placeholder(tf$float32, shape(NULL, 784L))
 We also need the weights and biases for our model. We could imagine treating these like additional inputs, but TensorFlow has an even better way to handle it: `Variable`. A `Variable` is a modifiable tensor that lives in TensorFlow's graph of interacting operations. It can be used and even modified by the computation. For machine learning applications, one generally has the model parameters be `Variable`s.
 
 ```{r}
-W <- tf$Variable(tf$zeros(shape(784L, 10L)))
-b <- tf$Variable(tf$zeros(shape(10L)))
+W <- tf$Variable(tf$zeros(shape(784, 10)))
+b <- tf$Variable(tf$zeros(shape(10)))
 ```
 
 We create these `Variable`s by giving `tf$Variable` the initial value of the `Variable`: in this case, we initialize both `W` and `b` as tensors full of zeros. Since we are going to learn `W` and `b`, it doesn't matter very much what they initially are.
@@ -171,13 +171,13 @@ To implement cross-entropy we need to first add a new placeholder to input the
 correct answers:
 
 ```{r}
-y_ <- tf$placeholder(tf$float32, shape(NULL, 10L))
+y_ <- tf$placeholder(tf$float32, shape(NULL, 10))
 ```
 
 Then we can implement the cross-entropy function, $-\sum y'\log(y)$:
 
 ```{r}
-cross_entropy <- tf$reduce_mean(-tf$reduce_sum(y_ * tf$log(y), reduction_indices=1L))
+cross_entropy <- tf$reduce_mean(-tf$reduce_sum(y_ * tf$log(y), reduction_indices=idx(2)))
 ```
 
 First, `tf$log` computes the logarithm of each element of `y`. Next, we multiply each element of `y_` with the corresponding element of `tf$log(y)`. Then `tf$reduce_sum` adds the elements in the second dimension of y, due to the `reduction_indices=1L` parameter. Finally, `tf$reduce_mean` computes the mean over all the examples in the batch. 
@@ -230,15 +230,15 @@ Using small batches of random data is called stochastic training -- in this case
 
 How well does our model do?
 
-Well, first let's figure out where we predicted the correct label. `tf$argmax` is an extremely useful function which gives you the index of the highest entry in a tensor along some axis. For example, `tf$argmax(y,1)` is the label our model thinks is most likely for each input, while `tf$argmax(y_,1)` is the correct label. We can use `tf$equal` to check if our prediction matches the truth.
+Well, first let's figure out where we predicted the correct label. `tf$argmax` is an extremely useful function which gives you the index of the highest entry in a tensor along some axis. For example, `tf$argmax(y, idx(2))` is the label our model thinks is most likely for each input, while `tf$argmax(y_, idx(2))` is the correct label. We can use `tf$equal` to check if our prediction matches the truth.
 
 ```{r}
-correct_prediction <- tf$equal(tf$argmax(y, 1L), tf$argmax(y_, 1L))
+correct_prediction <- tf$equal(tf$argmax(y, idx(2)), tf$argmax(y_, idx(2)))
 ```
 
-Note that since arrays in the TensorFlow API are 0-based, `1L` in the code above refers to the second dimension of the tensor.
+Note that since arrays in the TensorFlow API are 0-based we use the `idx` function to specify a more R friendly 1-based index that is automatially converted to 0-based.
 
-`correct_predication` is a vector of booleans. To determine what fraction are correct, we cast to floating point numbers and then take the mean. For example, `c(TRUE, FALSE, TRUE, TRUE)` would become `c(1,0,1,1)` which would become `0.75`.
+`correct_predication` is a vector of booleans. To determine what fraction are correct, we cast to floating point numbers and then take the mean. For example, `(TRUE, FALSE, TRUE, TRUE)` would become `(1.0, 0.0, 1.0, 1.0)` which would become `0.75`.
 
 ```{r}
 accuracy <- tf$reduce_mean(tf$cast(correct_prediction, tf$float32))

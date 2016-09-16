@@ -69,13 +69,13 @@ In this section we will build a softmax regression model with a single linear la
 We start building the computation graph by creating nodes for the input images and target output classes.
 
 ```{r}
-x <- tf$placeholder(tf$float32, shape(NULL, 784L))
-y_ <- tf$placeholder(tf$float32, shape(NULL, 10L))
+x <- tf$placeholder(tf$float32, shape(NULL, 784))
+y_ <- tf$placeholder(tf$float32, shape(NULL, 10))
 ```
 
 Here `x` and `y_` aren't specific values. Rather, they are each a `placeholder` -- a value that we'll input when we ask TensorFlow to run a computation.
 
-The input images `x` will consist of a 2d tensor of floating point numbers. Here we assign it a `shape` of `(NULL, 784L)`, where `784` is the dimensionality of a single flattened 28 by 28 pixel MNIST image, and `NULL` indicates that the first dimension, corresponding to the batch size, can be of any size.  The target output classes `y_` will also consist of a 2d tensor, where each row is a one-hot 10-dimensional vector indicating which digit class (zero through nine) the corresponding MNIST image belongs to.
+The input images `x` will consist of a 2d tensor of floating point numbers. Here we assign it a `shape` of `(NULL, 784)`, where `784` is the dimensionality of a single flattened 28 by 28 pixel MNIST image, and `NULL` indicates that the first dimension, corresponding to the batch size, can be of any size.  The target output classes `y_` will also consist of a 2d tensor, where each row is a one-hot 10-dimensional vector indicating which digit class (zero through nine) the corresponding MNIST image belongs to.
 
 The `shape` argument to `placeholder` is optional, but it allows TensorFlow to automatically catch bugs stemming from inconsistent tensor shapes.
 
@@ -84,8 +84,8 @@ The `shape` argument to `placeholder` is optional, but it allows TensorFlow to a
 We now define the weights `W` and biases `b` for our model. We could imagine treating these like additional inputs, but TensorFlow has an even better way to handle them: `Variable`.  A `Variable` is a value that lives in TensorFlow's computation graph.  It can be used and even modified by the computation. In machine learning applications, one generally has the model parameters be `Variable`s.
 
 ```{r}
-W <- tf$Variable(tf$zeros(shape(784L, 10L)))
-b <- tf$Variable(tf$zeros(shape(10L)))
+W <- tf$Variable(tf$zeros(shape(784, 10)))
+b <- tf$Variable(tf$zeros(shape(10)))
 ```
 
 We pass the initial value for each parameter in the call to `tf$Variable`. In this case, we initialize both `W` and `b` as tensors full of zeros. `W` is a 784x10 matrix (because we have 784 input features and 10 outputs) and `b` is a 10-dimensional vector (because we have 10 classes).
@@ -107,7 +107,7 @@ y <- tf$nn$softmax(tf$matmul(x,W) + b)
 We can specify a loss function just as easily. Loss indicates how bad the model's prediction was on a single example; we try to minimize that while training across all the examples. Here, our loss function is the cross-entropy between the target and the model's prediction:
 
 ```{r}
-cross_entropy <- tf$reduce_mean(-tf$reduce_sum(y_ * tf$log(y), reduction_indices=1L))
+cross_entropy <- tf$reduce_mean(-tf$reduce_sum(y_ * tf$log(y), reduction_indices=idx(2)))
 ```
 
 Note that `tf.reduce_sum` sums across all classes and `tf.reduce_mean` takes the average over these sums.
@@ -144,11 +144,13 @@ We load 100 training examples in each training iteration. We then run the `train
 
 How well did our model do?
 
-First we'll figure out where we predicted the correct label. `tf$argmax` is an extremely useful function which gives you the index of the highest entry in a tensor along some axis. For example, `tf$argmax(y,1L)` is the label our model thinks is most likely for each input, while `tf$argmax(y_,1L)` is the true label. We can use `tf$equal` to check if our prediction matches the truth.
+First we'll figure out where we predicted the correct label. `tf$argmax` is an extremely useful function which gives you the index of the highest entry in a tensor along some axis. For example, `tf$argmax(y, idx(2))` is the label our model thinks is most likely for each input, while `tf$argmax(y_, idx(2))` is the true label. We can use `tf$equal` to check if our prediction matches the truth.
 
 ```{r}
-correct_prediction <- tf$equal(tf$argmax(y,1L), tf$argmax(y_,1L))
+correct_prediction <- tf$equal(tf$argmax(y, idx(2)), tf$argmax(y_, idx(2)))
 ```
+
+Note that since arrays in the TensorFlow API are 0-based we use the `idx` function to specify a more R friendly 1-based index that is automatially converted to 0-based.
 
 That gives us a list of booleans. To determine what fraction are correct, we cast to floating point numbers and then take the mean. For example, `c(TRUE, FALSE, TRUE, TRUE` would become `c(1,0,1,1)` which would become `0.75`.
 
@@ -189,31 +191,31 @@ into functions.
 
 ```{r}
 conv2d <- function(x, W) {
-  tf$nn$conv2d(x, W, strides=c(1L, 1L, 1L, 1L), padding='SAME')
+  tf$nn$conv2d(x, W, strides=int(1, 1, 1, 1), padding='SAME')
 }
 
 max_pool_2x2 <- function(x) {
   tf$nn$max_pool(
     x, 
-    ksize=c(1L, 2L, 2L, 1L),
-    strides=c(1L, 2L, 2L, 1L), 
+    ksize=int(1, 2, 2, 1),
+    strides=int(1, 2, 2, 1), 
     padding='SAME')
 }
 ```
 
 ### First Convolutional Layer
 
-We can now implement our first layer. It will consist of convolution, followed by max pooling. The convolutional will compute 32 features for each 5x5 patch. Its weight tensor will have a shape of `(5L, 5L, 1L, 32L)`. The first two dimensions are the patch size, the next is the number of input channels, and the last is the number of output channels. We will also have a bias vector with a component for each output channel.
+We can now implement our first layer. It will consist of convolution, followed by max pooling. The convolutional will compute 32 features for each 5x5 patch. Its weight tensor will have a shape of `(5, 5, 1, 32)`. The first two dimensions are the patch size, the next is the number of input channels, and the last is the number of output channels. We will also have a bias vector with a component for each output channel.
 
 ```{r}
-W_conv1 <- weight_variable(shape(5L, 5L, 1L, 32L))
-b_conv1 <- bias_variable(shape(32L))
+W_conv1 <- weight_variable(shape(5, 5, 1, 32))
+b_conv1 <- bias_variable(shape(32))
 ```
 
 To apply the layer, we first reshape `x` to a 4d tensor, with the second and third dimensions corresponding to image width and height, and the final dimension corresponding to the number of color channels.
 
 ```{r}
-x_image <- tf$reshape(x, shape(-1L, 28L, 28L, 1L))
+x_image <- tf$reshape(x, shape(-1, 28, 28, 1))
 ```
 
 We then convolve `x_image` with the weight tensor, add the bias, apply the ReLU function, and finally max pool.
@@ -228,8 +230,8 @@ h_pool1 <- max_pool_2x2(h_conv1)
 In order to build a deep network, we stack several layers of this type. The second layer will have 64 features for each 5x5 patch.
 
 ```{r}
-W_conv2 <- weight_variable(shape = shape(5L, 5L, 32L, 64L))
-b_conv2 <- bias_variable(shape = shape(64L))
+W_conv2 <- weight_variable(shape = shape(5, 5, 32, 64))
+b_conv2 <- bias_variable(shape = shape(64))
 
 h_conv2 <- tf$nn$relu(conv2d(h_pool1, W_conv2) + b_conv2)
 h_pool2 <- max_pool_2x2(h_conv2)
@@ -240,10 +242,10 @@ h_pool2 <- max_pool_2x2(h_conv2)
 Now that the image size has been reduced to 7x7, we add a fully-connected layer with 1024 neurons to allow processing on the entire image. We reshape the tensor from the pooling layer into a batch of vectors, multiply by a weight matrix, add a bias, and apply a ReLU.
 
 ```{r}
-W_fc1 <- weight_variable(shape(7L * 7L * 64L, 1024L))
-b_fc1 <- bias_variable(shape(1024L))
+W_fc1 <- weight_variable(shape(7 * 7 * 64, 1024))
+b_fc1 <- bias_variable(shape(1024))
 
-h_pool2_flat <- tf$reshape(h_pool2, shape(-1L, 7L * 7L *64L))
+h_pool2_flat <- tf$reshape(h_pool2, shape(-1, 7 * 7 * 64))
 h_fc1 <- tf$nn$relu(tf$matmul(h_pool2_flat, W_fc1) + b_fc1)
 ```
 
@@ -264,8 +266,8 @@ Finally, we add a softmax layer, just like for the one layer softmax regression
 above.
 
 ```{r}
-W_fc2 <- weight_variable(shape(1024L, 10L))
-b_fc2 <- bias_variable(shape(10L))
+W_fc2 <- weight_variable(shape(1024, 10))
+b_fc2 <- bias_variable(shape(10))
 
 y_conv <- tf$nn$softmax(tf$matmul(h_fc1_drop, W_fc2) + b_fc2)
 ```
@@ -286,9 +288,9 @@ Feel free to go ahead and run this code, but it does 20,000 training iterations
 and may take a while (possibly up to half an hour), depending on your processor.
 
 ```{r, eval=FALSE}
-cross_entropy <- tf$reduce_mean(-tf$reduce_sum(y_ * tf$log(y_conv), reduction_indices=1L))
+cross_entropy <- tf$reduce_mean(-tf$reduce_sum(y_ * tf$log(y_conv), reduction_indices=idx(2)))
 train_step <- tf$train$AdamOptimizer(1e-4)$minimize(cross_entropy)
-correct_prediction <- tf$equal(tf$argmax(y_conv,1L), tf$argmax(y_,1L))
+correct_prediction <- tf$equal(tf$argmax(y_conv, idx(2)), tf$argmax(y_, idx(2)))
 accuracy <- tf$reduce_mean(tf$cast(correct_prediction, tf$float32))
 sess$run(tf$initialize_all_variables())
 

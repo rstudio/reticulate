@@ -10,7 +10,7 @@
 #' @examples
 #' \dontrun{
 #' hello <- tf$constant('Hello, TensorFlow!')
-#' b <- tf$Variable(tf$zeros(shape(1L)))
+#' b <- tf$Variable(tf$zeros(shape(1)))
 #'
 #' sess <- tf$Session()
 #' sess$initialize_all_variables()

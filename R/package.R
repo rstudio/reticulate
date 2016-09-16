@@ -11,6 +11,14 @@
 #       which we can get into which causes a proto write error
 #       (just got it again at 13700 iterations, yikes!). Perhaps
 #       a NaN that gets marshalled from R in an unexpected fashion?
+#
+#       Setting break on error in RStudio reveals that the summary string is:
+#
+#         - "\n\024\n\rxentropy_mean\025\xa7\xe6"
+#
+#       Perhaps a unicode string we aren't handling properly
+#
+
 
 #' @useDynLib tensorflow
 #' @importFrom Rcpp evalCpp

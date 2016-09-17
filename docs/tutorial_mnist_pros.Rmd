@@ -107,12 +107,12 @@ y <- tf$nn$softmax(tf$matmul(x,W) + b)
 We can specify a loss function just as easily. Loss indicates how bad the model's prediction was on a single example; we try to minimize that while training across all the examples. Here, our loss function is the cross-entropy between the target and the model's prediction:
 
 ```{r}
-cross_entropy <- tf$reduce_mean(-tf$reduce_sum(y_ * tf$log(y), reduction_indices=idx(2)))
+cross_entropy <- tf$reduce_mean(-tf$reduce_sum(y_ * tf$log(y), reduction_indices=1L))
 ```
 
-Note that `tf.reduce_sum` sums across all classes and `tf.reduce_mean` takes the average over these sums.
+Note that `tf$reduce_sum` sums across all classes and `tf$reduce_mean` takes the average over these sums.
 
-Note also that indices (like the one used for `reduction_indices`) are 0-based within the TensorFlow API rather than 1-based as is typical with R vectors. This is because TensorFlow is implemented in Python which uses 0-based arrays.
+Note also that tensor indexes within the TensorFlow API (like the one used for `reduction_indices`) are 0-based rather than 1-based as is typical with R vectors. 
 
 ## Train the Model
 
@@ -144,13 +144,13 @@ We load 100 training examples in each training iteration. We then run the `train
 
 How well did our model do?
 
-First we'll figure out where we predicted the correct label. `tf$argmax` is an extremely useful function which gives you the index of the highest entry in a tensor along some axis. For example, `tf$argmax(y, idx(2))` is the label our model thinks is most likely for each input, while `tf$argmax(y_, idx(2))` is the true label. We can use `tf$equal` to check if our prediction matches the truth.
+First we'll figure out where we predicted the correct label. `tf$argmax` is an extremely useful function which gives you the index of the highest entry in a tensor along some axis. For example, `tf$argmax(y, 1L)` is the label our model thinks is most likely for each input, while `tf$argmax(y_, 1L)` is the true label. We can use `tf$equal` to check if our prediction matches the truth.
 
 ```{r}
-correct_prediction <- tf$equal(tf$argmax(y, idx(2)), tf$argmax(y_, idx(2)))
+correct_prediction <- tf$equal(tf$argmax(y, 1L), tf$argmax(y_, 1L))
 ```
 
-Note that since arrays in the TensorFlow API are 0-based we use the `idx` function to specify a more R friendly 1-based index that is automatially converted to 0-based.
+Note that since tensors in the TensorFlow API are 0-based we pass `1L` to specify that `tf$argmax` should operate on the second dimension of the tensor.
 
 That gives us a list of booleans. To determine what fraction are correct, we cast to floating point numbers and then take the mean. For example, `c(TRUE, FALSE, TRUE, TRUE` would become `c(1,0,1,1)` which would become `0.75`.
 
@@ -288,9 +288,9 @@ Feel free to go ahead and run this code, but it does 20,000 training iterations
 and may take a while (possibly up to half an hour), depending on your processor.
 
 ```{r, eval=FALSE}
-cross_entropy <- tf$reduce_mean(-tf$reduce_sum(y_ * tf$log(y_conv), reduction_indices=idx(2)))
+cross_entropy <- tf$reduce_mean(-tf$reduce_sum(y_ * tf$log(y_conv), reduction_indices=1L))
 train_step <- tf$train$AdamOptimizer(1e-4)$minimize(cross_entropy)
-correct_prediction <- tf$equal(tf$argmax(y_conv, idx(2)), tf$argmax(y_, idx(2)))
+correct_prediction <- tf$equal(tf$argmax(y_conv, 1L), tf$argmax(y_, 1L))
 accuracy <- tf$reduce_mean(tf$cast(correct_prediction, tf$float32))
 sess$run(tf$initialize_all_variables())
 

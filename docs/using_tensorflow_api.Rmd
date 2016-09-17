@@ -116,19 +116,17 @@ tf$nn$conv2d(x, W, strides=int(1, 1, 1, 1), padding='SAME')
 
 The `shape` function is in fact merely a convenient alias for the `int` function which reads a bit more clearly than using `int` directly.
 
-### Zero Based Arrays
+### Tensor Indexes
 
-Python lists and NumPy arrays are 0-based rather than 1-based (as in R). You can simply remember this when interacting with TensorFlow APIs, however if you prefer to use 1-based addressing you can do so using the `idx` function. For example:
+Tensor indexes within the TensorFlow API are 0-based (rather than 1-based as R vectors are). This typically comes up when specifing the dimension of a tensor to operate on (e.g with a function like `tf$reduce_mean` or `tf$argmax`). The first dimenion is `0L`, the second `1L`, and so on. For example:
 
 ```{r eval=FALSE}
 # call tf$reduce_mean on the second dimension of the specified tensor
-cross_entropy <- tf$reduce_mean(-tf$reduce_sum(y_ * tf$log(y_conv), reduction_indices=idx(2)))
+cross_entropy <- tf$reduce_mean(-tf$reduce_sum(y_ * tf$log(y_conv), reduction_indices=1L))
 
 # call tf$argmax on the second dimension of the specified tensor
-correct_prediction <- tf$equal(tf$argmax(y_conv, idx(2)), tf$argmax(y_, idx(2)))
+correct_prediction <- tf$equal(tf$argmax(y_conv, 1L), tf$argmax(y_, 1L))
 ```
-
-You can also simply choose to remember that TensorFlow arrays are 0-based and pass a 0-based index directly. If however you are creating a higher-level R wrapper for a TensorFlow API you should always make use of the `idx` function so callers don't need to navigate this difference.
 
 ### Default Numeric Type
 

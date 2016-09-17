@@ -194,27 +194,6 @@ py_list <- function(converter, ...) {
   })
 }
 
-#' Convert 1-based to 0-based index
-#'
-#' Python arrays and lists are 0-based whereas R's are 1-based. When calling
-#' Python APIs from R it may be more natural to use 1-based indices wrapped
-#' in a call to \code{idx}.
-#'
-#' @param i 1-based array index
-#'
-#' @return  0-based array index (\code{i - 1})
-#'
-#' @details
-#' When programming directly against a Python API it's certainly reasonable
-#' to adopt the practice of zero-based indexes, however when providing an
-#' R wrapper for a Python API it's much better to allow users to pass 1-based
-#' indexes and wrap the passed value in \code{idx} before calling Python.
-#'
-#' @export
-idx <- function(i) {
-  as.integer(i) - 1L
-}
-
 
 #' Evaluate an expression within a context.
 #'

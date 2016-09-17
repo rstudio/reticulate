@@ -177,7 +177,7 @@ y_ <- tf$placeholder(tf$float32, shape(NULL, 10))
 Then we can implement the cross-entropy function, $-\sum y'\log(y)$:
 
 ```{r}
-cross_entropy <- tf$reduce_mean(-tf$reduce_sum(y_ * tf$log(y), reduction_indices=idx(2)))
+cross_entropy <- tf$reduce_mean(-tf$reduce_sum(y_ * tf$log(y), reduction_indices=1L))
 ```
 
 First, `tf$log` computes the logarithm of each element of `y`. Next, we multiply each element of `y_` with the corresponding element of `tf$log(y)`. Then `tf$reduce_sum` adds the elements in the second dimension of y, due to the `reduction_indices=1L` parameter. Finally, `tf$reduce_mean` computes the mean over all the examples in the batch. 
@@ -230,13 +230,13 @@ Using small batches of random data is called stochastic training -- in this case
 
 How well does our model do?
 
-Well, first let's figure out where we predicted the correct label. `tf$argmax` is an extremely useful function which gives you the index of the highest entry in a tensor along some axis. For example, `tf$argmax(y, idx(2))` is the label our model thinks is most likely for each input, while `tf$argmax(y_, idx(2))` is the correct label. We can use `tf$equal` to check if our prediction matches the truth.
+Well, first let's figure out where we predicted the correct label. `tf$argmax` is an extremely useful function which gives you the index of the highest entry in a tensor along some axis. For example, `tf$argmax(y, 1L)` is the label our model thinks is most likely for each input, while `tf$argmax(y_, 1L)` is the correct label. We can use `tf$equal` to check if our prediction matches the truth.
 
 ```{r}
-correct_prediction <- tf$equal(tf$argmax(y, idx(2)), tf$argmax(y_, idx(2)))
+correct_prediction <- tf$equal(tf$argmax(y, 1L), tf$argmax(y_, 1L))
 ```
 
-Note that since arrays in the TensorFlow API are 0-based we use the `idx` function to specify a more R friendly 1-based index that is automatially converted to 0-based.
+Note that since tensors in the TensorFlow API are 0-based we pass `1L` to specify that `tf$argmax` should operate on the second dimension of the tensor.
 
 `correct_predication` is a vector of booleans. To determine what fraction are correct, we cast to floating point numbers and then take the mean. For example, `(TRUE, FALSE, TRUE, TRUE)` would become `(1.0, 0.0, 1.0, 1.0)` which would become `0.75`.
 

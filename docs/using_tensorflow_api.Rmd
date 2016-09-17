@@ -177,12 +177,12 @@ The [TensorFlow API](https://www.tensorflow.org/api_docs/python/) reference docu
 
 Python data types in the TensorFlow API map to R as follows:
 
-| R  | Python/TensorFlow  | Examples |
+| Python  | R | Examples |
 |---|---|---|
 | Scalar | Single-element vector   | `1`, `1L`, `TRUE`, `"foo"` |
 | List  | Multi-element vector | `c(1.0, 2.0, 3.0)`, `c(1L, 2L, 3L)` |
-| Tuple  | | List of multiple types  | `list(1, TRUE, "foo")`
-| Dict  | Named list  or `dict` | `list(a = 1, b = 2)`, `dict(x = x_data)`
+| Tuple  | List of multiple types  | `list(1L, TRUE, "foo")`
+| Dict  | Named list  or `dict` | `list(a = 1L, b = 2.0)`, `dict(x = x_data)`
 | NumPy ndarray  | Matrix/Array | `matrix(c(1,2,3,4), nrow = 2, ncol = 2)`
 | None, True, False  | NULL, TRUE, FALSE  | `NULL`, `TRUE`, `FALSE`
 

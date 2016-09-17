@@ -66,8 +66,8 @@ y_data <- x_data * 0.1 + 0.3
 # Try to find values for W and b that compute y_data = W * x_data + b
 # (We know that W should be 0.1 and b 0.3, but TensorFlow will
 # figure that out for us.)
-W <- tf$Variable(tf$random_uniform(shape(1), -1.0, 1.0))
-b <- tf$Variable(tf$zeros(shape(1)))
+W <- tf$Variable(tf$random_uniform(shape(1L), -1.0, 1.0))
+b <- tf$Variable(tf$zeros(shape(1L)))
 y <- W * x_data + b
 
 # Minimize the mean squared errors.
@@ -91,45 +91,15 @@ You can see the equivalent Python code here: <https://www.tensorflow.org/get_sta
 
 There are however some important differences between how Python and R treat various data types. Navigating these differences generally requires the use of the helper functions described below.
 
-### Shapes
+### Numeric Types
 
-Many TensorFlow APIs take a `shape` as input to indicate the dimensions of a tensor. Shapes are lists of integers within the Python API so can naively be passed as integer vectors from R. However, shapes can include `NULL` within their dimensions (to indicate any number of elements) and can also consist of only a single dimension. The `c` function within R doesn't handle `NULL` and will yield a scalar for a single-dimension so has some problems when dealing with shapes.
-
-The solution is to use the `shape` function whenever you pass a shape to a TensorFlow API, for example:
+The TensorFlow API is more finicky about numeric types than is customary in R. Many TensorFlow function paramters require integers (e.g. for tensor dimensions) and in those cases it's important to use an R integer literal (e.g. `1L`). Here's an example of specifying the `strides` parameter for a 4-dimensional tensor using integer literals:
 
 ``` r
-x <- tf$placeholder(tf$float32, shape(NULL, 784))
-W <- tf$Variable(tf$zeros(shape(784, 10)))
-b <- tf$Variable(tf$zeros(shape(10)))
+tf$nn$conv2d(x, W, strides=c(1L, 1L, 1L, 1L), padding='SAME')
 ```
 
-### Typed Lists
-
-The issues with shape parameters discussed in the preceding section come up in other places within the TensorFlow API that require typed lists of values. The `int`, `float`, and `bool` functions can be used in place of the `c` function where a typed list is required. For example:
-
-``` r
-tf$nn$conv2d(x, W, strides=int(1, 1, 1, 1), padding='SAME')
-```
-
-The `shape` function is in fact merely a convenient alias for the `int` function which reads a bit more clearly than using `int` directly.
-
-### Tensor Indexes
-
-Tensor indexes within the TensorFlow API are 0-based (rather than 1-based as R vectors are). This typically comes up when specifing the dimension of a tensor to operate on (e.g with a function like `tf$reduce_mean` or `tf$argmax`). The first dimenion is `0L`, the second `1L`, and so on. For example:
-
-``` r
-# call tf$reduce_mean on the second dimension of the specified tensor
-cross_entropy <- tf$reduce_mean(-tf$reduce_sum(y_ * tf$log(y_conv), reduction_indices=1L))
-
-# call tf$argmax on the second dimension of the specified tensor
-correct_prediction <- tf$equal(tf$argmax(y_conv, 1L), tf$argmax(y_, 1L))
-```
-
-### Default Numeric Type
-
-In Python the default numeric type for a literal is an integer (you need to add a decimal point to get a floating point type). Whereas, in R, the default numeric type is floating point (you need to add the `L` suffix to force an integer).
-
-Therefore, if there are TensorFlow APIs which require integers you should always remember to use the `L` suffix. For example, the following code defines a set of integer flags:
+Here's another exmaple of using integer literals when defining a set of integer flags:
 
 ``` r
 flags$DEFINE_integer('max_steps', 2000L, 'Number of steps to run trainer.')
@@ -137,7 +107,39 @@ flags$DEFINE_integer('hidden1', 128L, 'Number of units in hidden layer 1.')
 flags$DEFINE_integer('hidden2', 32L, 'Number of units in hidden layer 2.')
 ```
 
-Note that the `shape`, `int`, and `idx` functions described above also handle many common cases of integer coercion automatically.
+### Lists
+
+Some TensorFlow APIs call for lists of a numeric type. Typically you can use the `c` function (as illustrated above) to create lists of numeric types. However, there are a couple of special cases (mostly involving specifying the shapes of tensors) where you may need to create a numeric list with an embedded `NULL` or a numeric list with only a single item. In those cases you'll want to use the `list` function rather than `c` in order to force the argument to be treated as a list rather than a scalar, and to ensure that `NULL` elements are preserved. For example:
+
+``` r
+x <- tf$placeholder(tf$float32, list(NULL, 784L))
+W <- tf$Variable(tf$zeros(list(784L, 10L)))
+b <- tf$Variable(tf$zeros(list(10L)))
+```
+
+### Tensor Shapes
+
+This need to use `list` rather than `c` is very common for shape arguments (since they are often of one dimension and in the case of placeholders often have a `NULL` dimension). For these cases there is a `shape` function which you can use to make the calling syntax a bit more more clear. For example, the above code could be re-written as:
+
+``` r
+x <- tf$placeholder(tf$float32, shape(NULL, 784L))
+W <- tf$Variable(tf$zeros(shape(784L, 10L)))
+b <- tf$Variable(tf$zeros(shape(10L)))
+```
+
+### Tensor Indexes
+
+Tensor indexes within the TensorFlow API are 0-based (rather than 1-based as R vectors are). This typically comes up when specifing the dimension of a tensor to operate on (e.g with a function like `tf$reduce_mean` or `tf$argmax`). The first dimenion is `0L`, the second `1L`, and so on. For example:
+
+``` r
+# call tf$reduce_mean on the second dimension of the specified tensor
+cross_entropy <- tf$reduce_mean(
+  -tf$reduce_sum(y_ * tf$log(y_conv), reduction_indices=1L)
+)
+
+# call tf$argmax on the second dimension of the specified tensor
+correct_prediction <- tf$equal(tf$argmax(y_conv, 1L), tf$argmax(y_, 1L))
+```
 
 ### Dictionaries
 
@@ -155,8 +157,8 @@ The TensorFlow API makes extensive use of the python `with` keyword for creating
 
 ``` r
 with(tf$name_scope('input'), {
-  x <- tf$placeholder(tf$float32, shape(NULL, 784), name='x-input')
-  y_ <- tf$placeholder(tf$float32, shape(NULL, 10), name='y-input')
+  x <- tf$placeholder(tf$float32, shape(NULL, 784L), name='x-input')
+  y_ <- tf$placeholder(tf$float32, shape(NULL, 10L), name='y-input')
 })
 ```
 

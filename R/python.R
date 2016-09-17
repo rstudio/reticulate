@@ -132,69 +132,6 @@ dict <- function(...) {
   py_dict(keys, values)
 }
 
-
-#' Combine values into a list containing a specified type
-#'
-#' Combine values into a list of a specified type. These functions are similar
-#' to the \code{c} function but are geared towards passing lists to
-#' Python functions.
-#'
-#' @param ... Objects to be combined
-#'
-#' @return A list containing values of the specified type
-#'
-#' @details
-#' When a python API accepts a list of a given type it's often desirable to
-#' specify the list as an R literal. Typically this would be done using the
-#' \code{c} function, however this approach doesn't deal with lists
-#' that contain \code{NULL} (since \code{c} will drop the \code{NULL}) nor
-#' with single-element lists (since the R to python conversion layer will
-#' treat these as scalars).
-#'
-#' R APIs also typically convert numeric types behind the scenes as necessary
-#' whereas python APIs will sometimes be more strict about types. These
-#' functions allow explicit casting to the underlying type required by a
-#' Python API (e.g. ensuring that \code{int(1, 2, 3)} is an integer even
-#' though R integer literal sytnax was not used).
-#'
-#' @examples
-#' int(1, 2, 3)
-#' int(NULL, 42)
-#' float(4)
-#' bool(NULL, TRUE, FALSE)
-#'
-#' @name python-list-combine
-#' @export
-int <- function(...) {
-  py_list(as.integer, ...)
-}
-
-#' @rdname python-list-combine
-#' @export
-float <- function(...) {
-  py_list(as.numeric, ...)
-}
-
-#' @rdname python-list-combine
-#' @export
-bool <- function(...) {
-  py_list(as.logical, ...)
-}
-
-# combine the values into an R object that will be marshalled to a python list,
-# preserving NULL values and converting them to an underlying type using the
-# sepcified converter function
-py_list <- function(converter, ...) {
-  values <- list(...)
-  lapply(values, function(value) {
-    if (!is.null(value))
-      converter(value)
-    else
-      NULL
-  })
-}
-
-
 #' Evaluate an expression within a context.
 #'
 #' The \code{with} method for objects of type \code{tensorflow.python.object}

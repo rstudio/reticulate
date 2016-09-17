@@ -16,7 +16,7 @@ and functions as well as sub-modules (e.g. \code{tf$nn},
 \examples{
 \dontrun{
 hello <- tf$constant('Hello, TensorFlow!')
-b <- tf$Variable(tf$zeros(shape(1)))
+b <- tf$Variable(tf$zeros(shape(1L)))
 
 sess <- tf$Session()
 sess$initialize_all_variables()

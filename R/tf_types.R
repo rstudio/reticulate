@@ -5,5 +5,11 @@
 #'
 #' @export
 shape <- function(...) {
-  int(...)
+  values <- list(...)
+  lapply(values, function(value) {
+    if (!is.null(value))
+      as.integer(value)
+    else
+      NULL
+  })
 }

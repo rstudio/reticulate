@@ -1,6 +1,10 @@
 
 # TODO: function for reading MNIST data
-
+#
+# TODO: handle complex numbers
+#
+# TODO: API doc section on matrixes & numpy
+#
 # TODO: Non-integer warning when reading MNIST data (try w/o flags):
 #   /usr/local/lib/python2.7/dist-packages/tensorflow/contrib/learn/python/learn/datasets/mnist.py:164:
 #   VisibleDeprecationWarning: using a non-integer number instead of an integer will result in an error

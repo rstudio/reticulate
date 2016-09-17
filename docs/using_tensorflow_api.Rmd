@@ -8,13 +8,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Introduction
 
-The **tensorflow** package provides access to the entire TensorFlow API from within R. The principle motivation for the package is to provide a foundation for higher-level R libraries that make building models with TensorFlow productive, straightforward, and well-integrated with the R ecosystem. 
-
-While the main motivation is the creation of higher-level R packages, it is also possible to use the lower-level TensorFlow API directly from R. The main technical consideration here is that substantial parts TensorFlow are implemented in Python, which requires bridging between the R and Python runtimes, data type conversion, etc. This document describes the R API to TensorFlow and the various idioms and techniques required to use it productively.
-
-### Hello, TensorFlow
-
-The R API to TensorFlow is based on direct invocation of TensorFlow's Python functions and objects. The two languages have many similarities so the R code will often look quite similar to the equivalent Python code. Here is the R version "Hello, World" for TensorFlow:
+The **tensorflow** package provides access to the entire TensorFlow API from within R. The top-level entry point to the API is the `tf` object which is exported from the **tensorflow** package. For example, here is a simple "Hello, World" script:
 
 ```{r, eval=FALSE}
 library(tensorflow)
@@ -29,35 +23,21 @@ b <- tf$constant(32L)
 sess$run(a + b)
 ```
 
-Here is the equivalent Python code:
+The `tf` object represents the main `tensorflow` module, and includes a wide variety of functions and classes which you can read more more about in the [TensorFlow API](https://www.tensorflow.org/api_docs/python/) documentation (see also the [Getting Help] section below which describes accessing help for the TensorFlow API directly within the RStudio IDE editor and console).
 
-```python
-import tensorflow as tf
+The TensorFlow API also includes many sub-modules, including the `tensorflow.nn` module which provides specialized functions for neural networks and the `tensorlow.contrib.learn` and `tensorflow.contrib.slim` modules which define higher-level APIs for TensorFlow. You can access these modules the same way that functions are accessed (via the `$` operator). For example:
 
-sess = tf.Session()
+```{r, eval=FALSE}
+# Call the conv2d function within the tensorflow.nn module
+tf$nn$conv2d(x, W, strides=c(1L, 1L, 1L, 1L), padding='SAME')
 
-hello = tf.constant('Hello, TensorFlow!')
-print(sess.run(hello))
-
-a = tf.constant(10)
-b = tf.constant(32)
-print(sess.run(a + b))
+# Access the tensorflow.contrib.learn module
+learn <- tf$contrib$learn
 ```
 
-## Data Types
+## Simple Example
 
-When interacting with the TensorFlow API R data types are automatically converted to Python data-types and vice-versa, making the use of the API fairly seamless from R. Core data types are mapped as follows:
-
-| R  | Python/TensorFlow  | Examples |
-|---|---|---|
-| Single-element vector  | Scalar  | `1`, `1L`, `TRUE`, `"foo"` |
-| Multi-element vector  | List  | `c(1, 2, 3)`, `c(1L, 2L, 3L)` |
-| List of multiple types  | Tuple  | `list(1, TRUE, "foo")`
-| Named list  | Dict  | `list(a = 1, b = 2)`
-| Matrix/Array  | NumPy ndarray  | `matrix(c(1,2,3,4), nrow = 2, ncol = 2)`
-| NULL, TRUE, FALSE  | None, True, False  | `NULL`, `TRUE`, `FALSE`
-
-The automatic conversion of data types makes for R code which looks very similar to equivalent Python code (save for the `$` used in R which is analogous to the `.` which is used in Python). Here's another simple example of TensorFlow code in R:
+Here's a simple example of using R to define a TensorFlow model:
 
 ```{r, eval = FALSE}
 library(tensorflow)
@@ -90,19 +70,19 @@ for (step in 1:201) {
 }
 ```
 
-You can see the equivalent Python code here: <https://www.tensorflow.org/get_started/>. Aside from the use of the `shape` function (discussed in more detail below) the R and Python code are nearly identical.
+If you've seen TensorFlow code written in Python you'll recognize this code as nearly identical save for some minor syntactic differences (e.g. the use of `$` rather than `.` as an object delimiter). You'll also note that R numeric vectors and random distribution functions are used, whereas Python code would typically use their NumPy equivalents.
 
-There are however some important differences between how Python and R treat various data types. Navigating these differences generally requires the use of the helper functions described below.
+The remainder of this article describes the core patterns used for interacting with the TensorFlow API from R, 
 
-### Numeric Types
+## Numeric Types
 
-The TensorFlow API is more finicky about numeric types than is customary in R. Many TensorFlow function paramters require integers (e.g. for tensor dimensions) and in those cases it's important to use an R integer literal (e.g. `1L`). Here's an example of specifying the `strides` parameter for a 4-dimensional tensor using integer literals:
+The TensorFlow API is more strict about numeric types than is customary in R (which often automatically casts from integer to float and vice-versa as necessary). Many TensorFlow function parameters require integers (e.g. for tensor dimensions) and in those cases it's important to use an R integer literal (e.g. `1L`). Here's an example of specifying the `strides` parameter for a 4-dimensional tensor using integer literals:
 
 ```{r, eval=FALSE}
 tf$nn$conv2d(x, W, strides=c(1L, 1L, 1L, 1L), padding='SAME')
 ```
 
-Here's another exmaple of using integer literals when defining a set of integer flags:
+Here's another example of using integer literals when defining a set of integer flags:
 
 ```{r, eval=FALSE}
 flags$DEFINE_integer('max_steps', 2000L, 'Number of steps to run trainer.')
@@ -110,7 +90,7 @@ flags$DEFINE_integer('hidden1', 128L, 'Number of units in hidden layer 1.')
 flags$DEFINE_integer('hidden2', 32L, 'Number of units in hidden layer 2.')
 ```
 
-### Lists 
+## Lists 
 
 Some TensorFlow APIs call for lists of a numeric type. Typically you can use the `c` function (as illustrated above) to create lists of numeric types. However, there are a couple of special cases (mostly involving specifying the shapes of tensors) where you may need to create a numeric list with an embedded `NULL` or a numeric list with only a single item. In those cases you'll want to use the `list` function rather than `c` in order to force the argument to be treated as a list rather than a scalar, and to ensure that `NULL` elements are preserved. For example:
 
@@ -120,7 +100,7 @@ W <- tf$Variable(tf$zeros(list(784L, 10L)))
 b <- tf$Variable(tf$zeros(list(10L)))
 ```
 
-### Tensor Shapes
+## Tensor Shapes
 
 This need to use `list` rather than `c` is very common for shape arguments (since they are often of one dimension and in the case of placeholders often have a `NULL` dimension). For these cases there is a `shape` function which you can use to make the calling syntax a bit more more clear. For example, the above code could be re-written as:
 
@@ -130,9 +110,9 @@ W <- tf$Variable(tf$zeros(shape(784L, 10L)))
 b <- tf$Variable(tf$zeros(shape(10L)))
 ```
 
-### Tensor Indexes
+## Tensor Indexes
 
-Tensor indexes within the TensorFlow API are 0-based (rather than 1-based as R vectors are). This typically comes up when specifing the dimension of a tensor to operate on (e.g with a function like `tf$reduce_mean` or `tf$argmax`). The first dimenion is `0L`, the second `1L`, and so on. For example:
+Tensor indexes within the TensorFlow API are 0-based (rather than 1-based as R vectors are). This typically comes up when specifying the dimension of a tensor to operate on (e.g with a function like `tf$reduce_mean` or `tf$argmax`). The first dimension of a tensor is specified as `0L`, the second `1L`, and so on. For example:
 
 ```{r eval=FALSE}
 # call tf$reduce_mean on the second dimension of the specified tensor
@@ -144,9 +124,9 @@ cross_entropy <- tf$reduce_mean(
 correct_prediction <- tf$equal(tf$argmax(y_conv, 1L), tf$argmax(y_, 1L))
 ```
 
-### Dictionaries
+## Dictionaries
 
-To pass a dictionary keyed by character string to Python you can simply create an R named list and it will be automatically converted to a Python dictionary. However, Python dictionaries can also be keyed by arbitrary object types, and in particular by tensors within the TensorFlow API. To create a Python dictionary keyed by tensor you can use the `dict` function. For example:
+Some TensorFlow APIs accept dictionaries as arguments, the most common of which is the `feed_dict` argument which feeds training and test data to various functions. If a dictionary is keyed by character string you can simply pass an R named list. However, if a dictionary is keyed by another object type like a tensor (as `feed_dict` is) then you should use the `dict` function rather than a named list. For example:
 
 ```{r, eval=FALSE}
 sess$run(train_step, feed_dict = dict(x = batch_xs, y_ = batch_ys))
@@ -154,9 +134,11 @@ sess$run(train_step, feed_dict = dict(x = batch_xs, y_ = batch_ys))
 
 The `x` and `y_` variables in the above example are tensor placeholders which are substituted for by the specified training data.
 
-### With Contexts
+## With Contexts
 
-The TensorFlow API makes extensive use of the python `with` keyword for creating scoped execution contexts. R has a `with` generic function which is overloaded for use with TensorFlow objects for the same purpose. For example:
+The TensorFlow API includes several functions that yield scoped execution contexts (i.e. blocks of code which execute code on enter and exit, for example to set a default or to open and close a resource). 
+
+The R `with` generic function can be used with TensorFlow objects that define a scoped execution context. For example:
 
 ```{r, eval=FALSE}
 with(tf$name_scope('input'), {
@@ -165,7 +147,9 @@ with(tf$name_scope('input'), {
 })
 ```
 
-There is also a custom `%as%` operator defined for creating a local alias to the object passed to the `with` function:
+In this case the `tf$name_scope` execution context will automatically pre-pend `"input/"` to the specified names, so they will become `"input/x-input"` and `"input/y-input"` respectively.
+
+It is sometimes convenient to gain access to the execution context via an R object. For this purpose there is also a custom `%as%` operator defined, for example:
 
 ```{r, eval=FALSE}
 with(tf$Session() %as% sess, {
@@ -173,11 +157,11 @@ with(tf$Session() %as% sess, {
 })
 ```
 
+The `sess` variable will be assigned from the execution context and be available only within the expression passed to `with`.
+
 ## Getting Help
 
-As you use TensorFlow from R you'll want to get help on the various functions and classes available within the API. You can find the full reference to the TensorFlow Python API here: <https://www.tensorflow.org/api_docs/python/>. It's generally very easy to map Python constructs used in the documentation to R, and most R code will look nearly identical to it's Python counterpart.
-
-If you are running the vary latest [Preview Release](https://www.rstudio.com/products/rstudio/download/preview/) (v1.0.18 or later) of RStudio IDE you can also get code completion and inline help for the TensorFlow API within RStudio. For example:
+As you use TensorFlow from R you'll want to get help on the various functions and classes available within the API. If you are running the vary latest [Preview Release](https://www.rstudio.com/products/rstudio/download/preview/) (v1.0.18 or later) of RStudio IDE you can get code completion and inline help for the TensorFlow API within RStudio. For example:
 
 ![](images/completion-functions.png){width=804 height=260 style="margin-bottom: 15px; border: solid 1px #cccccc;"}
 
@@ -187,7 +171,22 @@ Inline help is also available for function parameters:
 
 You can press the F1 key while viewing inline help (or whenever your cursor is over a TensorFlow API symbol) and you will be navigated to the location of that symbol's help within the [TensorFlow API](https://www.tensorflow.org/api_docs/python/) documentation.
 
+### API Documentation
 
+The [TensorFlow API](https://www.tensorflow.org/api_docs/python/) reference documents the Python API for TensorFlow. Since Python and R are so syntactically similar the documentation is also quite readable for users of R.
+
+Python data types in the TensorFlow API map to R as follows:
+
+| R  | Python/TensorFlow  | Examples |
+|---|---|---|
+| Scalar | Single-element vector   | `1`, `1L`, `TRUE`, `"foo"` |
+| List  | Multi-element vector | `c(1.0, 2.0, 3.0)`, `c(1L, 2L, 3L)` |
+| Tuple  | | List of multiple types  | `list(1, TRUE, "foo")`
+| Dict  | Named list  or `dict` | `list(a = 1, b = 2)`, `dict(x = x_data)`
+| NumPy ndarray  | Matrix/Array | `matrix(c(1,2,3,4), nrow = 2, ncol = 2)`
+| None, True, False  | NULL, TRUE, FALSE  | `NULL`, `TRUE`, `FALSE`
+
+If you keep these mappings along with the above guidelines on numeric types and tensor shapes/indexes in mind then TensorFlow documentation, tutorials, and examples that use Python will be very easy to apply to the use of the R API.
 
 
 

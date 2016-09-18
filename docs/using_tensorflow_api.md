@@ -88,8 +88,8 @@ flags$DEFINE_integer('hidden1', 128L, 'Number of units in hidden layer 1.')
 flags$DEFINE_integer('hidden2', 32L, 'Number of units in hidden layer 2.')
 ```
 
-Lists
------
+Numeric Lists
+-------------
 
 Some TensorFlow APIs call for lists of a numeric type. Typically you can use the `c` function (as illustrated above) to create lists of numeric types. However, there are a couple of special cases (mostly involving specifying the shapes of tensors) where you may need to create a numeric list with an embedded `NULL` or a numeric list with only a single item. In those cases you'll want to use the `list` function rather than `c` in order to force the argument to be treated as a list rather than a scalar, and to ensure that `NULL` elements are preserved. For example:
 
@@ -109,6 +109,19 @@ x <- tf$placeholder(tf$float32, shape(NULL, 784L))
 W <- tf$Variable(tf$zeros(shape(784L, 10L)))
 b <- tf$Variable(tf$zeros(shape(10L)))
 ```
+
+Tensor Values
+-------------
+
+A tensor is a typed multi-dimensional array. Tensors can take the form of a single value, a vector, a matrix, or an array in many dimensions. When you initialize the value of a tensor you can use the following R data types for various tensor shapes:
+
+| Dimensions | R Type | Example                                          |
+|------------|--------|--------------------------------------------------|
+| 1          | vector | `c(1.0, 2.0, 3.0, 4.0)`                          |
+| 2          | matrix | `matrix(c(1.0,2.0,3.0,4.0), nrow = 2, ncol = 2)` |
+| 3+         | array  | `array(rep(1, 365*5*4), dim=c(365, 5, 4))`       |
+
+Correspondingly, when a TensorFlow computation yields a value back to R the appropriate data type (vector, matrix, or array) will be returned. You may see references to NumPy arrays in TensorFlow documentation or examples written in Python. The TensorFlow R API doesn't make use of NumPy arrays but rather their R analogs as described above.
 
 Tensor Indexes
 --------------

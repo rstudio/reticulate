@@ -46,6 +46,16 @@ private:
 typedef PyPtr<PyObject> PyObjectPtr;
 typedef PyPtr<PyArray_Descr> PyArray_DescrPtr;
 
+std::string py_fetch_error();
+
+std::string as_std_string(PyObject* str) {
+  char* buffer;
+  Py_ssize_t length;
+  if (::PyString_AsStringAndSize(str, &buffer, &length) == -1)
+    stop(py_fetch_error());
+  return std::string(buffer, length);
+}
+
 
 // check whether a PyObject is None
 bool py_is_none(PyObject* object) {
@@ -56,11 +66,11 @@ std::string as_r_class(PyObject* classPtr) {
   PyObjectPtr modulePtr(::PyObject_GetAttrString(classPtr, "__module__"));
   PyObjectPtr namePtr(::PyObject_GetAttrString(classPtr, "__name__"));
   std::ostringstream ostr;
-  std::string module = ::PyString_AsString(modulePtr) + std::string(".");
+  std::string module = as_std_string(modulePtr) + ".";
   std::string builtin("__builtin__");
   if (module.find(builtin) == 0)
     module.replace(0, builtin.length(), "tensorflow.python");
-  ostr << module << ::PyString_AsString(namePtr);
+  ostr << module << as_std_string(namePtr);
   return ostr.str();
 }
 
@@ -118,11 +128,11 @@ std::string py_fetch_error() {
     std::ostringstream ostr;
     if (!pExcType.is_null()) {
       PyObjectPtr pStr(::PyObject_GetAttrString(pExcType, "__name__"));
-      ostr << ::PyString_AsString(pStr) << ": ";
+      ostr << as_std_string(pStr) << ": ";
     }
     if (!pExcValue.is_null()) {
       PyObjectPtr pStr(::PyObject_Str(pExcValue));
-      ostr << ::PyString_AsString(pStr);
+      ostr << as_std_string(pStr);
     }
     error = ostr.str();
   } else {
@@ -182,7 +192,7 @@ CharacterVector py_tuple_to_character(PyObject* tuple) {
   Py_ssize_t len = ::PyTuple_Size(tuple);
   CharacterVector vec(len);
   for (Py_ssize_t i = 0; i<len; i++)
-    vec[i] = PyString_AsString(PyTuple_GetItem(tuple, i));
+    vec[i] = as_std_string(PyTuple_GetItem(tuple, i));
   return vec;
 }
 
@@ -251,14 +261,8 @@ SEXP py_to_r(PyObject* x) {
       return NumericVector::create(PyFloat_AsDouble(x));
 
     // string
-    else if (scalarType == STRSXP) {
-      if (PyUnicode_Check(x)) {
-        PyObjectPtr utf8String(PyUnicode_AsUTF8String(x));
-        return CharacterVector::create(PyString_AsString(utf8String));
-      } else {
-        return CharacterVector::create(PyString_AsString(x));
-      }
-    }
+    else if (scalarType == STRSXP)
+      return CharacterVector::create(as_std_string(x));
 
     else
       return R_NilValue; // keep compiler happy
@@ -287,7 +291,7 @@ SEXP py_to_r(PyObject* x) {
     } else if (scalarType == STRSXP) {
       Rcpp::CharacterVector vec(len);
       for (Py_ssize_t i = 0; i<len; i++)
-        vec[i] = PyString_AsString(PyList_GetItem(x, i));
+        vec[i] = as_std_string(PyList_GetItem(x, i));
       return vec;
     } else { // not a homegenous list of scalars, return a list
       Rcpp::List list(len);
@@ -320,7 +324,7 @@ SEXP py_to_r(PyObject* x) {
     PyObject *key, *value;
     Py_ssize_t pos = 0;
     while (PyDict_Next(x, &pos, &key, &value))
-      list[PyString_AsString(key)] = py_to_r(value);
+      list[as_std_string(key)] = py_to_r(value);
     return list;
   }
 
@@ -541,12 +545,12 @@ PyObject* r_to_py(RObject x) {
   // character (pass length 1 vectors as scalars, otherwise pass list)
   } else if (type == STRSXP) {
     if (LENGTH(sexp) == 1) {
-      const char* value = CHAR(STRING_ELT(sexp, 0));
+      const char* value = Rf_translateChar(STRING_ELT(sexp, 0));
       return ::PyString_FromString(value);
     } else {
       PyObjectPtr list(::PyList_New(LENGTH(sexp)));
       for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
-        const char* value = CHAR(STRING_ELT(sexp, i));
+        const char* value = Rf_translateChar(STRING_ELT(sexp, i));
         // NOTE: reference to added value is "stolen" by the list
         int res = ::PyList_SetItem(list, i, ::PyString_FromString(value));
         if (res != 0)
@@ -561,8 +565,9 @@ PyObject* r_to_py(RObject x) {
     if (x.hasAttribute("names")) {
       PyObjectPtr dict(::PyDict_New());
       CharacterVector names = x.attr("names");
+      SEXP namesSEXP = names;
       for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
-        const char* name = names.at(i);
+        const char* name = Rf_translateChar(STRING_ELT(namesSEXP, i));
         PyObjectPtr item(r_to_py(RObject(VECTOR_ELT(sexp, i))));
         int res = ::PyDict_SetItemString(dict, name, item);
         if (res != 0)
@@ -642,7 +647,7 @@ CharacterVector py_str(PyObjectXPtr x) {
   PyObjectPtr str(PyObject_Str(x));
   if (str.is_null())
     stop(py_fetch_error());
-  return ::PyString_AsString(str);
+  return as_std_string(str);
 }
 
 // [[Rcpp::export]]
@@ -650,7 +655,7 @@ void py_print(PyObjectXPtr x) {
   PyObjectPtr str(PyObject_Str(x));
   if (str.is_null())
     stop(py_fetch_error());
-  Rcout << ::PyString_AsString(str) << std::endl;
+  Rcout << as_std_string(str) << std::endl;
 }
 
 // [[Rcpp::export]]
@@ -674,8 +679,7 @@ std::vector<std::string> py_list_attributes(PyObjectXPtr x) {
   Py_ssize_t len = ::PyList_Size(attrs);
   for (Py_ssize_t index = 0; index<len; index++) {
     PyObject* item = ::PyList_GetItem(attrs, index);
-    const char* value = ::PyString_AsString(item);
-    attributes.push_back(value);
+    attributes.push_back(as_std_string(item));
   }
 
   return attributes;
@@ -758,8 +762,9 @@ SEXP py_call(PyObjectXPtr x, List args, List keywords = R_NilValue) {
   PyObjectPtr pyKeywords(::PyDict_New());
   if (keywords.length() > 0) {
     CharacterVector names = keywords.names();
+    SEXP namesSEXP = names;
     for (R_xlen_t i = 0; i<keywords.length(); i++) {
-      const char* name = names.at(i);
+      const char* name = Rf_translateChar(STRING_ELT(namesSEXP, i));
       PyObjectPtr arg(r_to_py(keywords.at(i)));
       int res = ::PyDict_SetItemString(pyKeywords, name, arg);
       if (res != 0)

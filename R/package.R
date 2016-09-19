@@ -6,6 +6,11 @@
 #   VisibleDeprecationWarning: using a non-integer number instead of an integer will result in an error
 #   in the future
 #    return self._images[start:end], self._labels[start:end]
+#
+#   The problem is that flags$DEFINE_integer is round tripping back as
+#   a numeric even though it was inserted as an integer. So FLAGS$batch_size
+#   is getting passed in as a numeric rather than as an integer
+
 
 # TODO: there is some state for the summary early in the training
 #       which we can get into which causes a proto write error

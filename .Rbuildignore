@@ -5,6 +5,7 @@
 ^R/config.R$
 ^design$
 ^docs$
-^inst/examples/mnist/data$
+^inst/examples/mnist/MNIST-data$
+^tests/testthat/MNIST-data$
 
 

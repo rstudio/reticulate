@@ -240,23 +240,23 @@ SEXP py_to_r(PyObject* x) {
   if (scalarType != NILSXP) {
     // logical
     if (scalarType == LGLSXP)
-      return wrap(x == Py_True);
+      return LogicalVector::create(x == Py_True);
 
     // integer
     else if (scalarType == INTSXP)
-      return wrap(PyInt_AsLong(x));
+      return IntegerVector::create(PyInt_AsLong(x));
 
     // double
     else if (scalarType == REALSXP)
-      return wrap(PyFloat_AsDouble(x));
+      return NumericVector::create(PyFloat_AsDouble(x));
 
     // string
     else if (scalarType == STRSXP) {
       if (PyUnicode_Check(x)) {
         PyObjectPtr utf8String(PyUnicode_AsUTF8String(x));
-        return wrap(std::string(PyString_AsString(utf8String)));
+        return CharacterVector::create(PyString_AsString(utf8String));
       } else {
-        return wrap(std::string(PyString_AsString(x)));
+        return CharacterVector::create(PyString_AsString(x));
       }
     }
 
@@ -398,19 +398,19 @@ SEXP py_to_r(PyObject* x) {
     {
       npy_bool value;
       PyArray_CastScalarToCtype(x, (void*)&value, toDescr);
-      return wrap(value);
+      return LogicalVector::create(value);
     }
     case NPY_LONG:
     {
       npy_long value;
       PyArray_CastScalarToCtype(x, (void*)&value, toDescr);
-      return wrap(value);
+      return IntegerVector::create(value);
     }
     case NPY_DOUBLE:
     {
       npy_double value;
       PyArray_CastScalarToCtype(x, (void*)&value, toDescr);
-      return wrap(value);
+      return NumericVector::create(value);
     }
     default:
       stop("Unsupported array conversion from %d", typenum);

@@ -1,27 +1,25 @@
 context("vectors")
 
 # some helpers
-main <- import("__main__")
-tensorflow:::py_run_string("def isScalar(x): return not isinstance(x, (list, tuple))")
-tensorflow:::py_run_string("def isList(x): return isinstance(x, (list))")
+test <- import("tftools.test")
 
 test_that("Single element vectors are treated as scalars", {
-  expect_true(main$isScalar(5))
-  expect_true(main$isScalar(5L))
-  expect_true(main$isScalar("5"))
-  expect_true(main$isScalar(TRUE))
+  expect_true(test$isScalar(5))
+  expect_true(test$isScalar(5L))
+  expect_true(test$isScalar("5"))
+  expect_true(test$isScalar(TRUE))
 })
 
 test_that("Multi-element vectors are treated as lists", {
-  expect_true(main$isList(c(5,5)))
-  expect_true(main$isList(c(5L,5L)))
-  expect_true(main$isList(c("5", "5")))
-  expect_true(main$isList(c(TRUE, TRUE)))
+  expect_true(test$isList(c(5,5)))
+  expect_true(test$isList(c(5L,5L)))
+  expect_true(test$isList(c("5", "5")))
+  expect_true(test$isList(c(TRUE, TRUE)))
 })
 
 test_that("The list function forces single-element vectors to be lists", {
-  expect_false(main$isScalar(list(5)))
-  expect_false(main$isScalar(list(5L)))
-  expect_false(main$isScalar(list("5")))
-  expect_false(main$isScalar(list(TRUE)))
+  expect_false(test$isScalar(list(5)))
+  expect_false(test$isScalar(list(5L)))
+  expect_false(test$isScalar(list("5")))
+  expect_false(test$isScalar(list(TRUE)))
 })

@@ -1,15 +1,5 @@
 library(tensorflow)
 
-# import data
-input_data <- import("tensorflow.examples.tutorials.mnist.input_data")
-flags <- tf$app$flags
-FLAGS <- flags$FLAGS
-flags$DEFINE_string('data_dir', '/tmp/data/', 'Directory for storing data')
-mnist <- input_data$read_data_sets(FLAGS$data_dir, one_hot=TRUE)
-
-# initialize the session
-sess <- tf$Session()
-
 # Create the model
 x <- tf$placeholder(tf$float32, shape(NULL, 784L))
 W <- tf$Variable(tf$zeros(shape(784L, 10L)))
@@ -22,8 +12,15 @@ y_ <- tf$placeholder(tf$float32, shape(NULL, 10L))
 cross_entropy <- tf$reduce_mean(-tf$reduce_sum(y_ * log(y), reduction_indices=1L))
 train_step <- tf$train$GradientDescentOptimizer(0.5)$minimize(cross_entropy)
 
-# Train
+# Create session and initialize  variables
+sess <- tf$Session()
 sess$run(tf$initialize_all_variables())
+
+# Load mnist data    )
+datasets <- tf$contrib$learn$datasets
+mnist <- datasets$mnist$read_data_sets("MNIST-data", one_hot = TRUE)
+
+# Train
 for (i in 1:1000) {
   batches <- mnist$train$next_batch(100L)
   batch_xs <- batches[[1]]

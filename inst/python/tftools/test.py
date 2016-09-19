@@ -15,3 +15,6 @@ def makeDict():
 def makeTuple():
   return (1.0, 2.0, 3.0)
 
+def reflect(x):
+  return x
+

@@ -166,6 +166,10 @@ int r_scalar_type(PyObject* x) {
   else if (PyFloat_Check(x))
     return REALSXP;
 
+  // complex
+  else if (PyComplex_Check(x))
+    return CPLXSXP;
+
   // string (only convert if it doesn't have null bytes, otherwise it's
   // being abused as a "raw" so we leave it alone)
   else if ((PyString_Check(x) || PyUnicode_Check(x)) && !has_null_bytes(x))
@@ -270,6 +274,14 @@ SEXP py_to_r(PyObject* x) {
     else if (scalarType == REALSXP)
       return NumericVector::create(PyFloat_AsDouble(x));
 
+    // complex
+    else if (scalarType == CPLXSXP) {
+      Rcomplex cplx;
+      cplx.r = ::PyComplex_RealAsDouble(x);
+      cplx.i = ::PyComplex_ImagAsDouble(x);
+      return ComplexVector::create(cplx);
+    }
+
     // string
     else if (scalarType == STRSXP)
       return CharacterVector::create(as_std_string(x));
@@ -292,6 +304,16 @@ SEXP py_to_r(PyObject* x) {
       Rcpp::IntegerVector vec(len);
       for (Py_ssize_t i = 0; i<len; i++)
         vec[i] = PyInt_AsLong(PyList_GetItem(x, i));
+      return vec;
+    } else if (scalarType == CPLXSXP) {
+      Rcpp::ComplexVector vec(len);
+      for (Py_ssize_t i = 0; i<len; i++) {
+        PyObject* item = PyList_GetItem(x, i);
+        Rcomplex cplx;
+        cplx.r = ::PyComplex_RealAsDouble(item);
+        cplx.i = ::PyComplex_ImagAsDouble(item);
+        vec[i] = cplx;
+      }
       return vec;
     } else if (scalarType == LGLSXP) {
       Rcpp::LogicalVector vec(len);
@@ -529,6 +551,24 @@ PyObject* r_to_py(RObject x) {
         double value = REAL(sexp)[i];
         // NOTE: reference to added value is "stolen" by the list
         int res = ::PyList_SetItem(list, i, ::PyFloat_FromDouble(value));
+        if (res != 0)
+          stop(py_fetch_error());
+      }
+      return list.detach();
+    }
+
+  // complex (pass length 1 vectors as scalars, otherwise pass list)
+  } else if (type == CPLXSXP) {
+    if (LENGTH(sexp) == 1) {
+      Rcomplex cplx = COMPLEX(sexp)[0];
+      return ::PyComplex_FromDoubles(cplx.r, cplx.i);
+    } else {
+      PyObjectPtr list(PyList_New(LENGTH(sexp)));
+      for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
+        Rcomplex cplx = COMPLEX(sexp)[i];
+        // NOTE: reference to added value is "stolen" by the list
+        int res = ::PyList_SetItem(list, i, ::PyComplex_FromDoubles(cplx.r,
+                                                                    cplx.i));
         if (res != 0)
           stop(py_fetch_error());
       }

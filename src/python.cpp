@@ -56,6 +56,15 @@ std::string as_std_string(PyObject* str) {
   return std::string(buffer, length);
 }
 
+bool has_null_bytes(PyObject* str) {
+  char* buffer;
+  if (::PyString_AsStringAndSize(str, &buffer, NULL) == -1) {
+    py_fetch_error();
+    return true;
+  } else {
+    return false;
+  }
+}
 
 // check whether a PyObject is None
 bool py_is_none(PyObject* object) {
@@ -157,8 +166,9 @@ int r_scalar_type(PyObject* x) {
   else if (PyFloat_Check(x))
     return REALSXP;
 
-  // string
-  else if (PyString_Check(x) || PyUnicode_Check(x))
+  // string (only convert if it doesn't have null bytes, otherwise it's
+  // being abused as a "raw" so we leave it alone)
+  else if ((PyString_Check(x) || PyUnicode_Check(x)) && !has_null_bytes(x))
     return STRSXP;
 
   // not a scalar

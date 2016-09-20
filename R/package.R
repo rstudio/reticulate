@@ -1,7 +1,4 @@
 
-# TODO: handle complex numbers
-
-
 #' @useDynLib tensorflow
 #' @importFrom Rcpp evalCpp
 NULL

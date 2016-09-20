@@ -15,3 +15,7 @@ test_that("Complex vectors are converted correctly", {
 })
 
 
+test_that("Converstion from complex matrix to numpy works correctly", {
+  m <- matrix(1i^ (-6:5), nrow = 4)
+  expect_equal(m, test$reflect(m))
+})

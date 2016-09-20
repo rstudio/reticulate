@@ -31,7 +31,7 @@ IMAGE_PIXELS <- IMAGE_SIZE * IMAGE_SIZE
 # Returns:
 #   softmax_linear: Output tensor with the computed logits.
 #
-mnist_inference <- function(images, hidden1_units, hidden2_units) {
+inference <- function(images, hidden1_units, hidden2_units) {
 
   # Hidden 1
   with(tf$name_scope('hidden1'), {
@@ -80,7 +80,7 @@ mnist_inference <- function(images, hidden1_units, hidden2_units) {
 # Returns:
 #   loss: Loss tensor of type float.
 #
-mnist_loss <- function(logits, labels) {
+loss <- function(logits, labels) {
   labels <- tf$to_int64(labels)
   cross_entropy <- tf$nn$sparse_softmax_cross_entropy_with_logits(
     logits, labels, name = 'xentropy')
@@ -103,7 +103,7 @@ mnist_loss <- function(logits, labels) {
 # Returns:
 #   train_op: The Op for training.
 #
-mnist_training <- function(loss, learning_rate) {
+training <- function(loss, learning_rate) {
 
   # Add a scalar summary for the snapshot loss.
   tf$scalar_summary(loss$op$name, loss)
@@ -129,7 +129,7 @@ mnist_training <- function(loss, learning_rate) {
 # Returns:
 #   A scalar int32 tensor with the number of examples (out of batch_size)
 #   that were predicted correctly.
-mnist_evaluation <- function(logits, labels) {
+evaluation <- function(logits, labels) {
 
   # For a classifier model, we can use the in_top_k Op.
   # It returns a bool tensor with shape [batch_size] that is true for

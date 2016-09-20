@@ -116,16 +116,16 @@ with(tf$Graph()$as_default(), {
   placeholders <- placeholder_inputs(FLAGS$batch_size)
 
   # Build a Graph that computes predictions from the inference model.
-  logits <- mnist_inference(placeholders$images, FLAGS$hidden1, FLAGS$hidden2)
+  logits <- inference(placeholders$images, FLAGS$hidden1, FLAGS$hidden2)
 
   # Add to the Graph the Ops for loss calculation.
-  loss <- mnist_loss(logits, placeholders$labels)
+  loss <- loss(logits, placeholders$labels)
 
   # Add to the Graph the Ops that calculate and apply gradients.
-  train_op <- mnist_training(loss, FLAGS$learning_rate)
+  train_op <- training(loss, FLAGS$learning_rate)
 
   # Add the Op to compare the logits to the labels during evaluation.
-  eval_correct <- mnist_evaluation(logits, placeholders$labels)
+  eval_correct <- evaluation(logits, placeholders$labels)
 
   # Build the summary Tensor based on the TF collection of Summaries.
   summary <- tf$merge_all_summaries()

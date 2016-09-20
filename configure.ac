@@ -1,7 +1,4 @@
-# Process this file with autoconf to produce a configure script.
-# This file is based on the configure.ac distributed with the rPython package
-
-AC_INIT(tensorflow, 0.1, jj@rstudio.com)
+AC_INIT(tensorflow, 0.2, jj@rstudio.com)
 AC_CONFIG_SRCDIR([src])
 
 # find R home and set CC/CFLAGS

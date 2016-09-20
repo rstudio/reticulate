@@ -457,7 +457,7 @@ b &lt;- tf$Variable(tf$zeros(shape(10L)))</code></pre>
 <p>Then we can implement the cross-entropy function, <span class="math inline">\(-\sum y&#39;\log(y)\)</span>:</p>
 <pre class="r"><code>cross_entropy &lt;- tf$reduce_mean(-tf$reduce_sum(y_ * tf$log(y), reduction_indices=1L))</code></pre>
 <p>First, <code>tf$log</code> computes the logarithm of each element of <code>y</code>. Next, we multiply each element of <code>y_</code> with the corresponding element of <code>tf$log(y)</code>. Then <code>tf$reduce_sum</code> adds the elements in the second dimension of y, due to the <code>reduction_indices=1L</code> parameter. Finally, <code>tf$reduce_mean</code> computes the mean over all the examples in the batch.</p>
-<p>Note that indices (like the one used for <code>reduction_indices</code>) are 0-based within the TensorFlow API rather than 1-based as is typical with R vectors. This is because TensorFlow is implemented in Python which uses 0-based arrays.</p>
+<p>Note that tensor indices (like the one used for <code>reduction_indices</code>) are 0-based within the TensorFlow API (rather than 1-based as is typical with R vectors).</p>
 <p>Now that we know what we want our model to do, it’s very easy to have TensorFlow train it to do so. Because TensorFlow knows the entire graph of your computations, it can automatically use the <a href="http://colah.github.io/posts/2015-08-Backprop/">backpropagation algorithm</a> to efficiently determine how your variables affect the loss you ask it to minimize. Then it can apply your choice of optimization algorithm to modify the variables and reduce the loss.</p>
 <pre class="r"><code>optimizer &lt;- tf$train$GradientDescentOptimizer(0.5)
 train_step &lt;- optimizer$minimize(cross_entropy)</code></pre>
@@ -489,7 +489,7 @@ sess$run(init)</code></pre>
 <pre class="r"><code>accuracy &lt;- tf$reduce_mean(tf$cast(correct_prediction, tf$float32))</code></pre>
 <p>Finally, we ask for our accuracy on our test data.</p>
 <pre class="r"><code>sess$run(accuracy, feed_dict=dict(x = mnist$test$images, y_ = mnist$test$labels))</code></pre>
-<pre><code>## [1] 0.9211</code></pre>
+<pre><code>## [1] 0.9185</code></pre>
 <p>This should be about 92%.</p>
 <p>Is that good? Well, not really. In fact, it’s pretty bad. This is because we’re using a very simple model. With some small changes, we can get to 97%. The best models can get to over 99.7% accuracy! (For more information, have a look at this <a href="http://rodrigob.github.io/are_we_there_yet/build/classification_datasets_results.html">list of results</a>.)</p>
 <p>What matters is that we learned from this model. Still, if you’re feeling a bit down about these results, check out <a href="tutorial_mnist_pros.html">the next tutorial</a> where we do a lot better, and learn how to build more sophisticated models using TensorFlow!</p>

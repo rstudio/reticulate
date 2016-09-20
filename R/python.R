@@ -44,9 +44,9 @@ str.tensorflow.python.object <- function(object, ...) {
 
 #' @export
 `$.tensorflow.python.object` <- function(x, name) {
-  attr <- py_get_attr(x, name)
-  if (py_is_callable(attr)) {
-    function(...) {
+  attrib <- py_get_attr(x, name)
+  if (py_is_callable(attrib)) {
+    f <- function(...) {
       args <- list()
       keywords <- list()
       dots <- list(...)
@@ -62,14 +62,17 @@ str.tensorflow.python.object <- function(object, ...) {
       } else {
         args <- dots
       }
-      result = py_call(attr, args, keywords)
+      result = py_call(attrib, args, keywords)
       if (is.null(result))
         invisible(result)
       else
         result
     }
+    if (py_is_function(attrib))
+      attr(f, "py_function") <- attrib
+    f
   } else {
-    py_to_r(attr)
+    py_to_r(attrib)
   }
 }
 

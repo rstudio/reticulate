@@ -18,3 +18,5 @@ def makeTuple():
 def reflect(x):
   return x
 
+def callFunc(f, x):
+  return f(x)

@@ -1,10 +1,5 @@
 ---
 title: "Using the TensorFlow API from R"
-output:
-  html_document:
-    toc: true
-    toc_level: 2
-    toc_float: true
 ---
 
 ```{r setup, include=FALSE}

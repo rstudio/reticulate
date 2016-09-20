@@ -19,7 +19,7 @@ In this tutorial, we're going to train a model to look at images and predict wha
 
 The actual code for this tutorial is very short, and all the interesting stuff happens in just three lines. However, it is very important to understand the ideas behind it: both how TensorFlow works and the core machine learning concepts. Because of this, we are going to very carefully work through the code.
 
-## About this tutorial
+## Using this Tutorial
 
 This tutorial is an explanation, line by line, of what is happening in the [mnist_softmax.R](https://github.com/jjallaire/tensorflow/blob/master/inst/examples/mnist/mnist_softmax.R) code.
 
@@ -162,7 +162,7 @@ First, we multiply `x` by `W` with the expression `tf$matmul(x, W)`. This is fli
 
 That's it. It only took us one line to define our model, after a couple short lines of setup. That isn't because TensorFlow is designed to make a softmax regression particularly easy: it's just a very flexible way to describe many kinds of numerical computations, from machine learning models to physics simulations. And once defined, our model can be run on different devices: your computer's CPU, GPUs, and even phones!
 
-## Training
+## Training the Model
 
 In order to train our model, we need to define what it means for the model to be good. Well, actually, in machine learning we typically define what it means for a model to be bad. We call this the cost, or the loss, and it represents how far off our model is from our desired outcome. We try to minimize that error, and the smaller the error margin, the better our model is.
 

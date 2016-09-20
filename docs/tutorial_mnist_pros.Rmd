@@ -3,13 +3,16 @@ title: "Deep MNIST for Experts"
 output: 
   html_document:
     code_download: true
+    toc_depth: 3
+    toc_float:
+      collapsed: false
 ---
 
 TensorFlow is a powerful library for doing large-scale numerical computation. One of the tasks at which it excels is implementing and training deep neural networks.  In this tutorial we will learn the basic building blocks of a TensorFlow model while constructing a deep convolutional MNIST classifier.
 
 *This introduction assumes familiarity with neural networks and the MNIST dataset. If you don't have a background with them, check out the [introduction for beginners](tutorial_mnist_beginners.html). Be sure to [install TensorFlow](https://www.tensorflow.org/get_started/) before starting.*
 
-## About this tutorial
+## Using this Tutorial
 
 The first part of this tutorial explains what is happening in the
 [mnist_softmax.R](https://github.com/jjallaire/tensorflow/blob/master/inst/examples/mnist/mnist_softmax.R)  code, which is a basic implementation of a TensorFlow model.  The second part shows some ways to improve the accuracy.
@@ -42,7 +45,7 @@ mnist <- datasets$mnist$read_data_sets("MNIST-data", one_hot = TRUE)
 
 Here `mnist` is a lightweight class which stores the training, validation, and testing sets as R matrixes  It also provides a function for iterating through data minibatches, which we will use below.
 
-### Start TensorFlow InteractiveSession
+### Start InteractiveSession
 
 TensorFlow relies on a highly efficient C++ backend to do its computation. The connection to this backend is called a session.The common usage for TensorFlow programs is to first create a graph and then launch it in a session.
 
@@ -62,7 +65,7 @@ TensorFlow also does its heavy lifting outside R, but it takes things a step fur
 
 The role of the R code is therefore to build this external computation graph, and to dictate which parts of the computation graph should be run. See the [Computation Graph](https://www.tensorflow.org/get_started/basic_usage.html#the-computation-graph) section of [Basic Usage](https://www.tensorflow.org/versions/r0.10/get_started/basic_usage.html) for more detail.
 
-## Build a Softmax Regression Model
+## Softmax Regression
 
 In this section we will build a softmax regression model with a single linear layer. In the next section, we will extend this to the case of softmax regression with a multilayer convolutional network.
 
@@ -98,7 +101,7 @@ Before `Variable`s can be used within a session, they must be initialized using 
 sess$run(tf$initialize_all_variables())
 ```
 
-### Predicted Class and Loss Function
+### Prediction & Loss Function
 
 We can now implement our regression model. It only takes one line! We multiply the vectorized input images `x` by the weight matrix `W`, add the bias `b`, and compute the softmax probabilities that are assigned to each class.
 
@@ -166,7 +169,7 @@ Finally, we can evaluate our accuracy on the test data. This should be about 92%
 accuracy$eval(feed_dict=dict(x = mnist$test$images, y_ = mnist$test$labels))
 ```
 
-## Build a Multilayer Convolutional Network
+## Multilayer ConvNet
 
 Getting 92% accuracy on MNIST is bad. It's almost embarrassingly bad. In this section, we'll fix that, jumping from a very simple model to something moderately sophisticated: a small convolutional neural network. This will get us to around 99.2% accuracy -- not state of the art, but respectable.
 

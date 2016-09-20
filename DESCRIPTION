@@ -7,7 +7,11 @@ Authors@R: c(
      comment = "R interface", email = "jj@rstudio.com"),
   person(family = "RStudio", role = "cph"),
   person("Dirk", "Eddelbuettel", role = c("ctb", "cph"),
-         email = "edd@debian.org")
+         email = "edd@debian.org"),
+  person(family = "Google Inc.", role = c("ctb", "cph"),
+         comment = "Examples and Tutorials"),
+  person("Yuan", "Tang", role = c("ctb", "cph"),
+         comment = "Examples and Tutorials")
   )
 Description: TensorFlow is an open source software library for
   numerical computation using data flow graphs. Nodes in the
@@ -28,7 +32,7 @@ Encoding: UTF-8
 LazyData: true
 Depends: R (>= 3.0)
 Imports:
-    utils, Rcpp (>= 0.12.0)
+    utils, Rcpp (>= 0.12.7)
 LinkingTo: Rcpp
 RoxygenNote: 5.0.1
 Suggests: testthat

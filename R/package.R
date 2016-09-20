@@ -1,4 +1,15 @@
 
+
+# TODO: build against python v3
+# TODO: `func` for passing references to python functions (or, store
+#       a reference to the python function as attribute of the R
+#       function then pass that when marshalling back in)
+
+# TODO: revise modules section in api doc
+# TODO: port selected "how to" docs
+# TODO: port additional tutorials
+
+
 #' @useDynLib tensorflow
 #' @importFrom Rcpp evalCpp
 NULL

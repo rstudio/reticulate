@@ -2,7 +2,6 @@
 title: "Deep MNIST for Experts"
 output: 
   html_document:
-    code_download: true
     toc_depth: 3
     toc_float:
       collapsed: false
@@ -17,7 +16,7 @@ TensorFlow is a powerful library for doing large-scale numerical computation. On
 The first part of this tutorial explains what is happening in the
 [mnist_softmax.R](https://github.com/jjallaire/tensorflow/blob/master/inst/examples/mnist/mnist_softmax.R)  code, which is a basic implementation of a TensorFlow model.  The second part shows some ways to improve the accuracy.
 
-You can copy and paste each code snippet from this tutorial into an R environment, or you can choose to just read through the code. You can also download this tutorial as an R Markdown document using the **Code** menu at the top of the document.
+You can copy and paste each code snippet from this tutorial into an R environment, or you can choose to just read through the code.
 
 What we will accomplish in this tutorial:
 

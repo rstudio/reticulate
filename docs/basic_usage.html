@@ -178,7 +178,7 @@ $(document).ready(function ()  {
 
     // establish options
     var options = {
-      selectors: "h1,h2,h3",
+      selectors: "h1,h2",
       theme: "bootstrap3",
       context: '.toc-content',
       hashGenerator: function (text) {
@@ -338,7 +338,202 @@ div.tocify {
 </div>
 
 
+<p>To use TensorFlow you need to understand how TensorFlow:</p>
+<ul>
+<li>Represents computations as graphs.</li>
+<li>Executes graphs in the context of <code>Sessions</code>.</li>
+<li>Represents data as tensors.</li>
+<li>Maintains state with <code>Variables</code>.</li>
+<li>Uses feeds and fetches to get data into and out of arbitrary operations.</li>
+</ul>
+<div id="overview" class="section level2">
+<h2>Overview</h2>
+<p>TensorFlow is a programming system in which you represent computations as graphs. Nodes in the graph are called <em>ops</em> (short for operations). An op takes zero or more <code>Tensors</code>, performs some computation, and produces zero or more <code>Tensors</code>. A <code>Tensor</code> is a typed multi-dimensional array. For example, you can represent a mini-batch of images as a 4-D array of floating point numbers with dimensions <code>shape(batch, height, width, channels)</code>.</p>
+<p>A TensorFlow graph is a <em>description</em> of computations. To compute anything, a graph must be launched in a <code>Session</code>. A <code>Session</code> places the graph ops onto <code>Devices</code>, such as CPUs or GPUs, and provides methods to execute them. These methods return tensors produced by ops as R vectors, matrices, and multi-dimensional arrays.</p>
+</div>
+<div id="computation-graph" class="section level2">
+<h2>Computation Graph</h2>
+<p>TensorFlow programs are usually structured into a construction phase, that assembles a graph, and an execution phase that uses a session to execute ops in the graph.</p>
+<p>For example, it is common to create a graph to represent and train a neural network in the construction phase, and then repeatedly execute a set of training ops in the graph in the execution phase.</p>
+<div id="building-the-graph" class="section level3">
+<h3>Building the graph</h3>
+<p>To build a graph start with ops that do not need any input (source ops), such as <code>Constant</code>, and pass their output to other ops that do computation.</p>
+<p>The ops constructors in the R API return objects that stand for the output of the constructed ops. You can pass these to other ops constructors to use as inputs.</p>
+<p>TensorFlow has a <em>default graph</em> to which ops constructors add nodes. The default graph is sufficient for many applications. See the <a href="https://www.tensorflow.org/api_docs/python/framework.html#Graph">Graph class</a> documentation for how to explicitly manage multiple graphs.</p>
+<pre class="r"><code>library(tensorflow)
 
+# Create a Constant op that produces a 1x2 matrix.  The op is
+# added as a node to the default graph.
+#
+# The value returned by the constructor represents the output
+# of the Constant op.
+matrix1 &lt;- tf$constant(matrix(c(3.0, 3.0), nrow = 1, ncol = 2))
+
+# Create another Constant that produces a 2x1 matrix.
+matrix2 &lt;- tf$constant(matrix(c(3.0, 3.0), nrow = 2, ncol = 1))
+
+# Create a Matmul op that takes &#39;matrix1&#39; and &#39;matrix2&#39; as inputs.
+# The returned value, &#39;product&#39;, represents the result of the matrix
+# multiplication.
+product &lt;- tf$matmul(matrix1, matrix2)</code></pre>
+<p>The default graph now has three nodes: two <code>constant()</code> ops and one <code>matmul()</code> op. To actually multiply the matrices, and get the result of the multiplication, you must launch the graph in a session.</p>
+</div>
+<div id="launching-the-graph-in-a-session" class="section level3">
+<h3>Launching the graph in a session</h3>
+<p>Launching follows construction. To launch a graph, create a <code>Session</code> object. Without arguments the session constructor launches the default graph.</p>
+<p>See the <a href="https://www.tensorflow.org/api_docs/python/client.html#session-management">Session class</a> for the complete session API.</p>
+<pre class="r"><code># Launch the default graph.
+sess &lt;- tf$Session()
+
+# To run the matmul op we call the session &#39;run()&#39; method, passing &#39;product&#39;
+# which represents the output of the matmul op.  This indicates to the call
+# that we want to get the output of the matmul op back.
+#
+# All inputs needed by the op are run automatically by the session.  They
+# typically are run in parallel.
+#
+# The call &#39;run(product)&#39; thus causes the execution of three ops in the
+# graph: the two constants and matmul.
+#
+# The output of the op is returned in &#39;result&#39; as a 1x1 matrix.
+result &lt;- sess$run(product)
+print(result)</code></pre>
+<pre><code>##      [,1]
+## [1,]   18</code></pre>
+<pre class="r"><code># Close the Session when we&#39;re done.
+sess$close()</code></pre>
+<p>Sessions should be closed to release resources. You can also enter a <code>Session</code> with a “with” block. The <code>Session</code> closes automatically at the end of the <code>with</code> block.</p>
+<pre class="r"><code>with(tf$Session() %as% sess, {
+  result = sess$run(product)
+  print(result)
+})</code></pre>
+<pre><code>##      [,1]
+## [1,]   18</code></pre>
+<p>The TensorFlow implementation translates the graph definition into executable operations distributed across available compute resources, such as the CPU or one of your computer’s GPU cards. In general you do not have to specify CPUs or GPUs explicitly. TensorFlow uses your first GPU, if you have one, for as many operations as possible.</p>
+<p>If you have more than one GPU available on your machine, to use a GPU beyond the first you must assign ops to it explicitly. Use <code>with...Device</code> statements to specify which CPU or GPU to use for operations:</p>
+<pre class="r"><code>with(tf$Session() %as% sess, {
+  with(tf$device(&quot;/gpu:1&quot;), {
+    matrix1 &lt;- tf$constant(matrix(c(3.0, 3.0), nrow = 1, ncol = 2))
+    matrix2 &lt;- tf$constant(matrix(c(3.0, 3.0), nrow = 2, ncol = 1))
+    product &lt;- tf$matmul(matrix1, matrix2)
+  })
+})</code></pre>
+<p>Devices are specified with strings. The currently supported devices are:</p>
+<ul>
+<li><code>&quot;/cpu:0&quot;</code>: The CPU of your machine.</li>
+<li><code>&quot;/gpu:0&quot;</code>: The GPU of your machine, if you have one.</li>
+<li><code>&quot;/gpu:1&quot;</code>: The second GPU of your machine, etc.</li>
+</ul>
+<p>See <a href="https://www.tensorflow.org/how_tos/using_gpu/">Using GPUs</a> for more information about GPUs and TensorFlow.</p>
+</div>
+<div id="launching-the-graph-in-a-distributed-session" class="section level3">
+<h3>Launching the graph in a distributed session</h3>
+<p>To create a TensorFlow cluster, launch a TensorFlow server on each of the machines in the cluster. When you instantiate a Session in your client, you pass it the network location of one of the machines in the cluster:</p>
+<pre class="r"><code>with(tf$Session(&quot;grpc://example.org:2222&quot;) %as% sess, {
+   # Calls to sess.run(...) will be executed on the cluster.
+})</code></pre>
+<p>This machine becomes the master for the session. The master distributes the graph across other machines in the cluster (workers), much as the local implementation distributes the graph across available compute resources within a machine.</p>
+<p>You can use “with(tf$device())” statements to directly specify workers for particular parts of the graph:</p>
+<pre class="r"><code>with(tf$device(&quot;/job:ps/task:0&quot;), {
+  weights &lt;- tf$Variable(...)
+  biases &lt;- tf$Variable(...)
+})</code></pre>
+<p>See the <a href="https://www.tensorflow.org/how_tos/distributed/">Distributed TensorFlow How To</a> for more information about distributed sessions and clusters.</p>
+</div>
+</div>
+<div id="interactive-usage" class="section level2">
+<h2>Interactive Usage</h2>
+<p>The examples in the documentation launch the graph with a <a href="https://www.tensorflow.org/api_docs/python/client.html#Session"><code>Session</code></a> and use the <a href="https://www.tensorflow.org/api_docs/python/client.html#Session.run"><code>Session$run()</code></a> method to execute operations.</p>
+<p>For ease of use in interactive R shells, you can instead use the <a href="https://www.tensorflow.org/api_docs/python/client.html#InteractiveSession"><code>InteractiveSession</code></a> class, and the <a href="https://www.tensorflow.org/api_docs/python/framework.html#Tensor.eval"><code>Tensor$eval()</code></a> and <a href="https://www.tensorflow.org/api_docs/python/framework.html#Operation.run"><code>Operation$run()</code></a> methods. This avoids having to keep a variable holding the session.</p>
+<pre class="r"><code># Enter an interactive TensorFlow Session.
+library(tensorflow)
+sess &lt;- tf$InteractiveSession()
+
+x &lt;- tf$Variable(c(1.0, 2.0))
+a &lt;- tf$constant(c(3.0, 3.0))
+
+# Initialize &#39;x&#39; using the run() method of its initializer op.
+x$initializer$run()
+
+# Add an op to subtract &#39;a&#39; from &#39;x&#39;.  Run it and print the result
+sub &lt;- tf$sub(x, a)
+print(sub$eval())</code></pre>
+<pre><code>## [1] -2 -1</code></pre>
+<pre class="r"><code># Close the Session when we&#39;re done.
+sess$close()</code></pre>
+</div>
+<div id="tensors" class="section level2">
+<h2>Tensors</h2>
+<p>TensorFlow programs use a tensor data structure to represent all data – only tensors are passed between operations in the computation graph. You can think of a TensorFlow tensor as an n-dimensional array or list. A tensor has a static type, a rank, and a shape. To learn more about how TensorFlow handles these concepts, see the <a href="https://www.tensorflow.org/resources/dims_types.html">Rank, Shape, and Type</a> reference.</p>
+</div>
+<div id="variables" class="section level2">
+<h2>Variables</h2>
+<p>Variables maintain state across executions of the graph. The following example shows a variable serving as a simple counter. See <a href="https://www.tensorflow.org/how_tos/variables/index.html">Variables</a> for more details.</p>
+<pre class="r"><code># Create a Variable, that will be initialized to the scalar value 0.
+state &lt;- tf$Variable(0L, name=&quot;counter&quot;)
+
+# Create an Op to add one to `state`.
+one &lt;- tf$constant(1L)
+new_value &lt;- tf$add(state, one)
+update &lt;- tf$assign(state, new_value)
+
+# Variables must be initialized by running an `init` Op after having
+# launched the graph.  We first have to add the `init` Op to the graph.
+init_op &lt;- tf$initialize_all_variables()
+
+# Launch the graph and run the ops.
+with(tf$Session() %as% sess, {
+   # Run the &#39;init&#39; op
+  sess$run(init_op)
+  # Print the initial value of &#39;state&#39;
+  print(sess$run(state))
+  # Run the op that updates &#39;state&#39; and print &#39;state&#39;.
+  for (i in 1:3) {
+    sess$run(update)
+    print(sess$run(state))
+  }
+})</code></pre>
+<pre><code>## [1] 0
+## [1] 1
+## [1] 2
+## [1] 3</code></pre>
+<p>The <code>assign()</code> operation in this code is a part of the expression graph just like the <code>add()</code> operation, so it does not actually perform the assignment until <code>run()</code> executes the expression.</p>
+<p>You typically represent the parameters of a statistical model as a set of Variables. For example, you would store the weights for a neural network as a tensor in a Variable. During training you update this tensor by running a training graph repeatedly.</p>
+</div>
+<div id="fetches" class="section level2">
+<h2>Fetches</h2>
+<p>To fetch the outputs of operations, execute the graph with a <code>run()</code> call on the <code>Session</code> object and pass in the tensors to retrieve. In the previous example we fetched the single node <code>state</code>, but you can also fetch multiple tensors:</p>
+<pre class="r"><code>input1 &lt;- tf$constant(3.0)
+input2 &lt;- tf$constant(2.0)
+input3 &lt;- tf$constant(5.0)
+intermed &lt;- tf$add(input2, input3)
+mul &lt;- tf$mul(input1, intermed)
+
+with(tf$Session() %as% sess, {
+  result = sess$run(list(mul, intermed))
+  print(result)
+})</code></pre>
+<pre><code>## [[1]]
+## [1] 21
+## 
+## [[2]]
+## [1] 7</code></pre>
+<p>All the ops needed to produce the values of the requested tensors are run once (not once per requested tensor).</p>
+</div>
+<div id="feeds" class="section level2">
+<h2>Feeds</h2>
+<p>The examples above introduce tensors into the computation graph by storing them in <code>Constants</code> and <code>Variables</code>. TensorFlow also provides a feed mechanism for patching a tensor directly into any operation in the graph.</p>
+<p>A feed temporarily replaces the output of an operation with a tensor value. You supply feed data as an argument to a <code>run()</code> call. The feed is only used for the run call to which it is passed. The most common use case involves designating specific operations to be “feed” operations by using tf$placeholder() to create them:</p>
+<pre class="r"><code>input1 &lt;- tf$placeholder(tf$float32)
+input2 &lt;- tf$placeholder(tf$float32)
+output &lt;- tf$mul(input1, input2)
+
+with(tf$Session() %as% sess, {
+  print(sess$run(output, feed_dict=dict(input1 = 7.0, input2 = 2.0)))
+})</code></pre>
+<pre><code>## [1] 14</code></pre>
+<p>A <code>placeholder()</code> operation generates an error if you do not supply a feed for it. See the <a href="tutorial_tensorflow_mechanics.html">MNIST fully-connected feed tutorial</a> (<a href="https://github.com/jjallaire/tensorflow/blob/master/inst/examples/mnist/fully_connected_feed.R">source code</a>) for a larger-scale example of feeds.</p>
+</div>
 
 
 

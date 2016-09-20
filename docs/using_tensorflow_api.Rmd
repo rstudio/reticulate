@@ -31,7 +31,7 @@ sess$run(a + b)
 
 The `tensorflow` module (`tf`) includes a wide variety of functions and classes which you can read more more about in the [TensorFlow API](https://www.tensorflow.org/api_docs/python/) documentation (see also the [Getting Help] section below which describes accessing help for the TensorFlow API directly within the RStudio IDE editor and console).
 
-The TensorFlow API also includes many sub-modules, including the `tensorflow.nn` module which provides specialized functions for neural networks and the `tensorlow.contrib.learn` and `tensorflow.contrib.slim` modules which define higher-level APIs for TensorFlow. You can access these modules the same way that functions are accessed (via the `$` operator). For example:
+The TensorFlow API also includes many sub-modules, including the `tensorflow.nn` module which provides specialized functions for neural networks and the `tensorflow.contrib.learn` and `tensorflow.contrib.slim` modules which define higher-level APIs for TensorFlow. You can access these modules the same way that functions are accessed (via the `$` operator). For example:
 
 ```{r}
 # Call the conv2d function within the tensorflow.nn module

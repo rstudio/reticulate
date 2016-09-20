@@ -190,9 +190,6 @@ $(document).ready(function () {
       <a href="index.html">Introduction</a>
     </li>
     <li>
-      <a href="download_and_setup.html">Download and Setup</a>
-    </li>
-    <li>
       <a href="basic_usage.html">Basic Usage</a>
     </li>
   </ul>
@@ -286,6 +283,9 @@ for (step in 1:201) {
     cat(step, &quot;-&quot;, sess$run(W), sess$run(b), &quot;\n&quot;)
 }</code></pre>
 <p>The first part of this code builds the data flow graph. TensorFlow does not actually run any computation until the session is created and the <code>run</code> function is called.</p>
+</div>
+<div id="mnist-tutorials" class="section level2">
+<h2>MNIST Tutorials</h2>
 <p>To whet your appetite further, we suggest you check out what a classical machine learning problem looks like in TensorFlow. In the land of neural networks the most “classic” classical problem is the MNIST handwritten digit classification. We offer two introductions here, one for machine learning newbies, and one for pros. If you’ve already trained dozens of MNIST models in other software packages, please take the red pill. If you’ve never even heard of MNIST, definitely take the blue pill. If you’re somewhere in between, we suggest skimming blue, then red.</p>
 <div style="width:100%; margin:auto; margin-bottom:10px; margin-top:20px; display: flex; flex-direction: row">
 <p><a href="tutorial_mnist_beginners.html" title="MNIST for ML Beginners tutorial"> <img width=450 height=291 style="flex-grow:1; flex-shrink:1; border: 1px solid black;" src="images/blue_pill.png" alt="MNIST for machine learning beginners tutorial" /> </a> <a href="tutorial_mnist_pros.html" title="Deep MNIST for ML Experts tutorial"> <img width=450 height=291 style="flex-grow:1; flex-shrink:1; border: 1px solid black;" src="images/red_pill.png" alt="Deep MNIST for machine learning experts tutorial" /> </a></p>
@@ -295,14 +295,32 @@ Images licensed CC BY-SA 4.0; original by W. Carter
 </p>
 <p>If you’re already sure you want to learn and install TensorFlow you can skip these and charge ahead. Don’t worry, you’ll still get to see MNIST – we’ll also use MNIST as an example in our technical tutorial where we elaborate on TensorFlow features.</p>
 </div>
+<div id="download-and-setup" class="section level2">
+<h2>Download and Setup</h2>
+<p>You should start by installing the base TensorFlow system. You can do this by following the <a href="https://www.tensorflow.org/get_started/os_setup.html#download-and-setup">installation instructions</a> on the TensorFlow website.</p>
+<p>Once you’ve succesfully installed and TensorFlow and verified that it’s working correctly, you can install the <strong>tensorflow</strong> R package as follows:</p>
+<pre class="r"><code>devtools::install_packages(&quot;jjallaire/tensorflow&quot;)</code></pre>
+<p>You can verify that your installation is working correctly by running this simple script:</p>
+<pre class="r"><code>library(tensorflow)
+sess = tf$Session()
+hello &lt;- tf$constant(&#39;Hello, TensorFlow!&#39;)
+sess$run(hello)</code></pre>
+</div>
 <div id="recommended-next-steps" class="section level2">
 <h2>Recommended Next Steps</h2>
+<p>Once you’ve installed the base TensorFlow system and the <strong>tensorflow</strong> R package, you will likely want work though the series of tutorials that cover TensorFlow basics:</p>
 <ul>
-<li><a href="download_and_setup.html">Download and Setup</a></li>
-<li><a href="basic_usage.html">Basic Usage</a></li>
+<li><a href="tutorial_mnist_beginners.html">MNIST For ML Beginners</a></li>
+<li><a href="tutorial_mnist_pros.html">Deep MNIST for Experts</a></li>
 <li><a href="tutorial_tensorflow_mechanics.html">TensorFlow Mechanics 101</a></li>
-<li><a href="http://playground.tensorflow.org">Tinker with a neural network in your browser</a></li>
 </ul>
+<p>In addition, these articles cover the core concepts of TensorFlow in more depth as well describe some important practical details of using the TensorFlow API from R:</p>
+<ul>
+<li><a href="basic_usage.html">Basic Usage</a></li>
+<li><a href="using_tensorflow_api.html">Using the TensorFlow API from R</a></li>
+</ul>
+<p>You can also find additional tutorials and documentation on the main <a href="https://tensorflow.org">TensorFlow website</a>. This documentation uses the Python API, however since the R API is nearly identical to the Python API the content is easy to adapt for use with R.</p>
+<p>Finally, to learn more about neural networks you might enjoy the <a href="http://playground.tensorflow.org">TensorFlow playground</a>, which lets you tinker with a neural network in your browser.</p>
 </div>
 
 

@@ -59,6 +59,8 @@ for (step in 1:201) {
 
 The first part of this code builds the data flow graph.  TensorFlow does not actually run any computation until the session is created and the `run` function is called.
 
+## MNIST Tutorials
+
 To whet your appetite further, we suggest you check out what a classical machine learning problem looks like in TensorFlow.  In the land of neural networks the most "classic" classical problem is the MNIST handwritten digit classification.  We offer two introductions here, one for machine learning newbies, and one for pros. If you've already trained dozens of MNIST models in other software packages, please take the red pill.  If you've never even heard of MNIST, definitely take the blue pill.  If you're somewhere in between, we suggest skimming blue, then red.
 
 <div style="width:100%; margin:auto; margin-bottom:10px; margin-top:20px; display: flex; flex-direction: row">
@@ -73,9 +75,38 @@ To whet your appetite further, we suggest you check out what a classical machine
 
 If you're already sure you want to learn and install TensorFlow you can skip these and charge ahead.  Don't worry, you'll still get to see MNIST -- we'll also use MNIST as an example in our technical tutorial where we elaborate on TensorFlow features.
 
+## Download and Setup 
+
+You should start by installing the base TensorFlow system. You can do this by following the [installation instructions](https://www.tensorflow.org/get_started/os_setup.html#download-and-setup) on the TensorFlow website.
+
+Once you've succesfully installed and TensorFlow and verified that it's working correctly, you can install the **tensorflow** R package as follows:
+
+```{r, eval=FALSE}
+devtools::install_packages("jjallaire/tensorflow")
+```
+
+You can verify that your installation is working correctly by running this simple script:
+
+```{r, results="hide"}
+library(tensorflow)
+sess = tf$Session()
+hello <- tf$constant('Hello, TensorFlow!')
+sess$run(hello)
+```
+
 ## Recommended Next Steps
 
-* [Download and Setup](download_and_setup.html)
-* [Basic Usage](basic_usage.html)
+Once you've installed the base TensorFlow system and the **tensorflow** R package, you will likely want work though the series of tutorials that cover TensorFlow basics:
+
+* [MNIST For ML Beginners](tutorial_mnist_beginners.html)
+* [Deep MNIST for Experts](tutorial_mnist_pros.html)
 * [TensorFlow Mechanics 101](tutorial_tensorflow_mechanics.html)
-* [Tinker with a neural network in your browser](http://playground.tensorflow.org)
+
+In addition, these articles cover the core concepts of TensorFlow in more depth as well describe some important practical details of using the TensorFlow API from R:
+
+* [Basic Usage](basic_usage.html)
+* [Using the TensorFlow API from R](using_tensorflow_api.html)
+
+You can also find additional tutorials and documentation on the main [TensorFlow website](https://tensorflow.org). This documentation uses the Python API, however since the R API is nearly identical to the Python API the content is easy to adapt for use with R.
+
+Finally, to learn more about neural networks you might enjoy the [TensorFlow playground](http://playground.tensorflow.org), which lets you tinker with a neural network in your browser.

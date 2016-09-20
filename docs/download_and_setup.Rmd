@@ -1,4 +1,0 @@
----
-title: "Download and Setup"
-output: html_document
----

@@ -8,7 +8,13 @@ knitr::opts_chunk$set(eval = FALSE)
 
 ## Introduction
 
-The **tensorflow** package provides access to the entire TensorFlow API from within R. The top-level entry point to the API is the `tf` object which is exported from the **tensorflow** package. For example, here is a simple "Hello, World" script:
+The **tensorflow** package provides access to the entire TensorFlow API from within R. The R API for TensorFlow is based on the Python API, so most TensorFlow documentation, tutorials, and examples that use Python are easy to apply to R. 
+
+This article describes the basic mechanics of using the R API. For a detailed API reference, see the main [TensorFlow API](https://www.tensorflow.org/versions/r0.10/api_docs/python/index.html) documentation.
+
+## Modules
+
+The TensorFlow API is divided into modules. The top-level entry point to the API is the `tf` object, which provides access to the main `tensorflow` module. The `tf` object is exported from the **tensorflow** package. For example, here is a simple "Hello, World" script:
 
 ```{r}
 library(tensorflow)
@@ -23,7 +29,7 @@ b <- tf$constant(32L)
 sess$run(a + b)
 ```
 
-The `tf` object represents the main `tensorflow` module, and includes a wide variety of functions and classes which you can read more more about in the [TensorFlow API](https://www.tensorflow.org/api_docs/python/) documentation (see also the [Getting Help] section below which describes accessing help for the TensorFlow API directly within the RStudio IDE editor and console).
+The `tensorflow` module (`tf`) includes a wide variety of functions and classes which you can read more more about in the [TensorFlow API](https://www.tensorflow.org/api_docs/python/) documentation (see also the [Getting Help] section below which describes accessing help for the TensorFlow API directly within the RStudio IDE editor and console).
 
 The TensorFlow API also includes many sub-modules, including the `tensorflow.nn` module which provides specialized functions for neural networks and the `tensorlow.contrib.learn` and `tensorflow.contrib.slim` modules which define higher-level APIs for TensorFlow. You can access these modules the same way that functions are accessed (via the `$` operator). For example:
 

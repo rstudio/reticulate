@@ -7,8 +7,6 @@ navbar:
       menu: 
         - text: "Introduction"
           href: "index.html"
-        - text: "Download and Setup"
-          href: "download_and_setup.html"
         - text: "Basic Usage"
           href: "basic_usage.html"
     - text: "Tutorials"

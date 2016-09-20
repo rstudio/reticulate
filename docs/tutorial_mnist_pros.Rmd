@@ -1,5 +1,8 @@
 ---
 title: "Deep MNIST for Experts"
+output: 
+  html_document:
+    code_download: true
 ---
 
 TensorFlow is a powerful library for doing large-scale numerical computation. One of the tasks at which it excels is implementing and training deep neural networks.  In this tutorial we will learn the basic building blocks of a TensorFlow model while constructing a deep convolutional MNIST classifier.
@@ -11,7 +14,7 @@ TensorFlow is a powerful library for doing large-scale numerical computation. On
 The first part of this tutorial explains what is happening in the
 [mnist_softmax.R](https://github.com/jjallaire/tensorflow/blob/master/inst/examples/mnist/mnist_softmax.R)  code, which is a basic implementation of a TensorFlow model.  The second part shows some ways to improve the accuracy.
 
-You can copy and paste each code snippet from this tutorial into an R environment, or you can choose to just read through the code.
+You can copy and paste each code snippet from this tutorial into an R environment, or you can choose to just read through the code. You can also download this tutorial as an R Markdown document using the **Code** menu at the top of the document.
 
 What we will accomplish in this tutorial:
 
@@ -43,8 +46,7 @@ Here `mnist` is a lightweight class which stores the training, validation, and t
 
 TensorFlow relies on a highly efficient C++ backend to do its computation. The connection to this backend is called a session.The common usage for TensorFlow programs is to first create a graph and then launch it in a session.
 
-Here we instead use the convenient `InteractiveSession` class, which makes TensorFlow more flexible about how you structure your code.  It allows you to interleave operations which build a [computation graph](https://www.tensorflow.org/get_started/basic_usage.html#the-computation-graph) with ones that run the graph.  This is particularly convenient when working in
-interactively in the R console.  If you are not using an `InteractiveSession`, then you should build the entire computation graph before starting a session and
+Here we instead use the convenient `InteractiveSession` class, which makes TensorFlow more flexible about how you structure your code.  It allows you to interleave operations which build a [computation graph](https://www.tensorflow.org/get_started/basic_usage.html#the-computation-graph) with ones that run the graph.  This is particularly convenient when working interactively in the R console.  If you are not using an `InteractiveSession`, then you should build the entire computation graph before starting a session and
 [launching the graph](https://www.tensorflow.org/versions/r0.10/get_started/basic_usage.html#launching-the-graph-in-a-session).
 
 ```{r}

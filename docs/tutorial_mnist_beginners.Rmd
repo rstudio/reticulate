@@ -1,5 +1,8 @@
 ---
 title: "MNIST For ML Beginners"
+output:
+  html_document:
+    code_download: true
 ---
 
 *This tutorial is intended for readers who are new to both machine learning and TensorFlow. If you already know what MNIST is, and what softmax (multinomial logistic) regression is, you might prefer this [faster paced tutorial](tutorial_mnist_pros.html). Be sure to [install TensorFlow](https://www.tensorflow.org/get_started/) before starting either tutorial.*
@@ -24,7 +27,9 @@ You can use this tutorial in a few different ways, including:
 
 - Copy and paste each code snippet, line by line, into an R environment as you read through the explanations of each line.
 
-- Run the entire `mnist_softmax.R` R file either before or after reading through the explanations, and use this tutorial to understand the lines of code that aren't clear to you.
+- Download this tutorial as an R Markdown document using the **Code** menu at the top of the document and execute each of the chunks interactively.
+
+- Run the entire [mnist_softmax.R](https://github.com/jjallaire/tensorflow/blob/master/inst/examples/mnist/mnist_softmax.R) R file either before or after reading through the explanations, and use this tutorial to understand the lines of code that aren't clear to you.
 
 What we will accomplish in this tutorial:
 

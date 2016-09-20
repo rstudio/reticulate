@@ -8,14 +8,14 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(eval = FALSE)
 ```
 
 ## Introduction
 
 The **tensorflow** package provides access to the entire TensorFlow API from within R. The top-level entry point to the API is the `tf` object which is exported from the **tensorflow** package. For example, here is a simple "Hello, World" script:
 
-```{r, eval=FALSE}
+```{r}
 library(tensorflow)
 
 sess = tf$Session()
@@ -32,7 +32,7 @@ The `tf` object represents the main `tensorflow` module, and includes a wide var
 
 The TensorFlow API also includes many sub-modules, including the `tensorflow.nn` module which provides specialized functions for neural networks and the `tensorlow.contrib.learn` and `tensorflow.contrib.slim` modules which define higher-level APIs for TensorFlow. You can access these modules the same way that functions are accessed (via the `$` operator). For example:
 
-```{r, eval=FALSE}
+```{r}
 # Call the conv2d function within the tensorflow.nn module
 tf$nn$conv2d(x, W, strides=c(1L, 1L, 1L, 1L), padding='SAME')
 
@@ -44,7 +44,7 @@ learn <- tf$contrib$learn
 
 Here's a simple example of using R to define a TensorFlow model:
 
-```{r, eval = FALSE}
+```{r}
 library(tensorflow)
 
 # Create 100 phony x, y data points, y = x * 0.1 + 0.3
@@ -83,13 +83,13 @@ The remainder of this article describes the core patterns used for interacting w
 
 The TensorFlow API is more strict about numeric types than is customary in R (which often automatically casts from integer to float and vice-versa as necessary). Many TensorFlow function parameters require integers (e.g. for tensor dimensions) and in those cases it's important to use an R integer literal (e.g. `1L`). Here's an example of specifying the `strides` parameter for a 4-dimensional tensor using integer literals:
 
-```{r, eval=FALSE}
+```{r}
 tf$nn$conv2d(x, W, strides=c(1L, 1L, 1L, 1L), padding='SAME')
 ```
 
 Here's another example of using integer literals when defining a set of integer flags:
 
-```{r, eval=FALSE}
+```{r}
 flags$DEFINE_integer('max_steps', 2000L, 'Number of steps to run trainer.')
 flags$DEFINE_integer('hidden1', 128L, 'Number of units in hidden layer 1.')
 flags$DEFINE_integer('hidden2', 32L, 'Number of units in hidden layer 2.')
@@ -99,7 +99,7 @@ flags$DEFINE_integer('hidden2', 32L, 'Number of units in hidden layer 2.')
 
 Some TensorFlow APIs call for lists of a numeric type. Typically you can use the `c` function (as illustrated above) to create lists of numeric types. However, there are a couple of special cases (mostly involving specifying the shapes of tensors) where you may need to create a numeric list with an embedded `NULL` or a numeric list with only a single item. In those cases you'll want to use the `list` function rather than `c` in order to force the argument to be treated as a list rather than a scalar, and to ensure that `NULL` elements are preserved. For example:
 
-```{r, eval=FALSE}
+```{r}
 x <- tf$placeholder(tf$float32, list(NULL, 784L))
 W <- tf$Variable(tf$zeros(list(784L, 10L)))
 b <- tf$Variable(tf$zeros(list(10L)))
@@ -109,7 +109,7 @@ b <- tf$Variable(tf$zeros(list(10L)))
 
 This need to use `list` rather than `c` is very common for shape arguments (since they are often of one dimension and in the case of placeholders often have a `NULL` dimension). For these cases there is a `shape` function which you can use to make the calling syntax a bit more more clear. For example, the above code could be re-written as:
 
-```{r, eval=FALSE}
+```{r}
 x <- tf$placeholder(tf$float32, shape(NULL, 784L))
 W <- tf$Variable(tf$zeros(shape(784L, 10L)))
 b <- tf$Variable(tf$zeros(shape(10L)))
@@ -131,7 +131,7 @@ Correspondingly, when a TensorFlow computation yields a value back to R the appr
 
 Tensor indexes within the TensorFlow API are 0-based (rather than 1-based as R vectors are). This typically comes up when specifying the dimension of a tensor to operate on (e.g with a function like `tf$reduce_mean` or `tf$argmax`). The first dimension of a tensor is specified as `0L`, the second `1L`, and so on. For example:
 
-```{r eval=FALSE}
+```{r}
 # call tf$reduce_mean on the second dimension of the specified tensor
 cross_entropy <- tf$reduce_mean(
   -tf$reduce_sum(y_ * tf$log(y_conv), reduction_indices=1L)
@@ -145,7 +145,7 @@ correct_prediction <- tf$equal(tf$argmax(y_conv, 1L), tf$argmax(y_, 1L))
 
 Some TensorFlow APIs accept dictionaries as arguments, the most common of which is the `feed_dict` argument which feeds training and test data to various functions. If a dictionary is keyed by character string you can simply pass an R named list. However, if a dictionary is keyed by another object type like a tensor (as `feed_dict` is) then you should use the `dict` function rather than a named list. For example:
 
-```{r, eval=FALSE}
+```{r}
 sess$run(train_step, feed_dict = dict(x = batch_xs, y_ = batch_ys))
 ```
 
@@ -157,7 +157,7 @@ The TensorFlow API includes several functions that yield scoped execution contex
 
 The R `with` generic function can be used with TensorFlow objects that define a scoped execution context. For example:
 
-```{r, eval=FALSE}
+```{r}
 with(tf$name_scope('input'), {
   x <- tf$placeholder(tf$float32, shape(NULL, 784L), name='x-input')
   y_ <- tf$placeholder(tf$float32, shape(NULL, 10L), name='y-input')
@@ -168,7 +168,7 @@ In this case the `tf$name_scope` execution context will automatically pre-pend `
 
 It is sometimes convenient to gain access to the execution context via an R object. For this purpose there is also a custom `%as%` operator defined, for example:
 
-```{r, eval=FALSE}
+```{r}
 with(tf$Session() %as% sess, {
   sess$run(hello)
 })

@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+
+
+<title>MNIST For ML Beginners</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<link href="site_libs/font-awesome-4.5.0/css/font-awesome.min.css" rel="stylesheet" />
+
+<style type="text/css">code{white-space: pre;}</style>
+<link rel="stylesheet"
+      href="site_libs/highlight/textmate.css"
+      type="text/css" />
+<script src="site_libs/highlight/highlight.js"></script>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs && document.readyState && document.readyState === "complete") {
+   window.setTimeout(function() {
+      hljs.initHighlighting();
+   }, 0);
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+#rmd-source-code {
+  display: none;
+}
+</style>
+
+<link rel="stylesheet" href="styles.css" type="text/css" />
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+
+<div class="container-fluid main-container">
+
+<!-- tabsets -->
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+</script>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<script src="site_libs/navigation-1.1/FileSaver.min.js"></script>
+<script src="site_libs/navigation-1.1/sourceembed.js"></script>
+<script>
+$(document).ready(function () {
+  window.initializeSourceEmbed("tutorial_mnist_beginners.Rmd");
+});
+</script>
+
+
+
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.9em;
+  padding-left: 5px;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-inverse  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">TensorFlow&trade; for R</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Get Started
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="index.html">Introduction</a>
+    </li>
+    <li>
+      <a href="download_and_setup.html">Download and Setup</a>
+    </li>
+    <li>
+      <a href="basic_usage.html">Basic Usage</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    Tutorials
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li class="dropdown-header">MNIST</li>
+    <li>
+      <a href="tutorial_mnist_beginners.html">MNIST For ML Beginners</a>
+    </li>
+    <li>
+      <a href="tutorial_mnist_pros.html">Deep MNIST for Experts</a>
+    </li>
+    <li>
+      <a href="tutorial_tensorflow_mechanics.html">TensorFlow Mechanics 101</a>
+    </li>
+  </ul>
+</li>
+<li>
+  <a href="using_tensorflow_api.html">API</a>
+</li>
+<li>
+  <a></a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/jjallaire/tensorflow">
+    <span class="fa fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+<div class="btn-group pull-right">
+<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu" style="min-width: 50px;">
+<li><a id="rmd-download-source" href="#">Download Rmd</a></li>
+</ul>
+</div>
+
+
+
+<h1 class="title toc-ignore">MNIST For ML Beginners</h1>
+
+</div>
+
+
+<p><em>This tutorial is intended for readers who are new to both machine learning and TensorFlow. If you already know what MNIST is, and what softmax (multinomial logistic) regression is, you might prefer this <a href="tutorial_mnist_pros.html">faster paced tutorial</a>. Be sure to <a href="https://www.tensorflow.org/get_started/">install TensorFlow</a> before starting either tutorial.</em></p>
+<p>When one learns how to program, there’s a tradition that the first thing you do is print “Hello World.” Just like programming has Hello World, machine learning has MNIST.</p>
+<p>MNIST is a simple computer vision dataset. It consists of images of handwritten digits like these:</p>
+<div class="figure">
+<img src="images/MNIST.png" class="tutorial-illustration" />
+
+</div>
+<p>It also includes labels for each image, telling us which digit it is. For example, the labels for the above images are 5, 0, 4, and 1.</p>
+<p>In this tutorial, we’re going to train a model to look at images and predict what digits they are. Our goal isn’t to train a really elaborate model that achieves state-of-the-art performance – although we’ll give you code to do that later! – but rather to dip a toe into using TensorFlow. As such, we’re going to start with a very simple model, called a Softmax Regression.</p>
+<p>The actual code for this tutorial is very short, and all the interesting stuff happens in just three lines. However, it is very important to understand the ideas behind it: both how TensorFlow works and the core machine learning concepts. Because of this, we are going to very carefully work through the code.</p>
+<div id="using-this-tutorial" class="section level2">
+<h2>Using this Tutorial</h2>
+<p>This tutorial is an explanation, line by line, of what is happening in the <a href="https://github.com/jjallaire/tensorflow/blob/master/inst/examples/mnist/mnist_softmax.R">mnist_softmax.R</a> code.</p>
+<p>You can use this tutorial in a few different ways, including:</p>
+<ul>
+<li><p>Copy and paste each code snippet, line by line, into an R environment as you read through the explanations of each line.</p></li>
+<li><p>Download this tutorial as an R Markdown document using the <strong>Code</strong> menu at the top of the document and execute each of the chunks interactively.</p></li>
+<li><p>Run the entire <a href="https://github.com/jjallaire/tensorflow/blob/master/inst/examples/mnist/mnist_softmax.R">mnist_softmax.R</a> R file either before or after reading through the explanations, and use this tutorial to understand the lines of code that aren’t clear to you.</p></li>
+</ul>
+<p>What we will accomplish in this tutorial:</p>
+<ul>
+<li><p>Learn about the MNIST data and softmax regressions</p></li>
+<li><p>Create a function that is a model for recognizing digits, based on looking at every pixel in the image</p></li>
+<li><p>Use TensorFlow to train the model to recognize digits by having it “look” at thousands of examples (and run our first TensorFlow session to do so)</p></li>
+<li><p>Check the model’s accuracy with our test data</p></li>
+</ul>
+</div>
+<div id="the-mnist-data" class="section level2">
+<h2>The MNIST Data</h2>
+<p>The MNIST data is hosted on <a href="http://yann.lecun.com/exdb/mnist/">Yann LeCun’s website</a>. If you are copying and pasting in the code from this tutorial, start here with these three lines of code which will download and read in the data automatically:</p>
+<p>The MNIST data is split into three parts: 55,000 data points of training data (<code>mnist$train</code>), 10,000 points of test data (<code>mnist$test</code>), and 5,000 points of validation data (<code>mnist$validation</code>). This split is very important: it’s essential in machine learning that we have separate data which we don’t learn from so that we can make sure that what we’ve learned actually generalizes!</p>
+<p>As mentioned earlier, every MNIST data point has two parts: an image of a handwritten digit and a corresponding label. We’ll call the images “x” and the labels “y”. Both the training set and test set contain images and their corresponding labels; for example the training images are <code>mnist$train$images</code> and the training labels are <code>mnist$train$labels</code>.</p>
+<p>Each image is 28 pixels by 28 pixels. We can interpret this as a big array of numbers:</p>
+<div class="figure">
+<img src="images/MNIST-Matrix.png" class="tutorial-illustration" />
+
+</div>
+<p>We can flatten this array into a vector of 28x28 = 784 numbers. It doesn’t matter how we flatten the array, as long as we’re consistent between images. From this perspective, the MNIST images are just a bunch of points in a 784-dimensional vector space, with a <a href="http://colah.github.io/posts/2014-10-Visualizing-MNIST/">very rich structure</a> (warning: computationally intensive visualizations).</p>
+<p>Flattening the data throws away information about the 2D structure of the image. Isn’t that bad? Well, the best computer vision methods do exploit this structure, and we will in later tutorials. But the simple method we will be using here, a softmax regression (defined below), won’t.</p>
+<p>The result is that <code>mnist$train$images</code> is a tensor (an n-dimensional array) with shape <code>(55000L, 784L)</code>. The first dimension is an index into the list of images and the second dimension is the index for each pixel in each image. Each entry in the tensor is a pixel intensity between 0 and 1, for a particular pixel in a particular image.</p>
+<div class="figure">
+<img src="images/mnist-train-xs.png" class="tutorial-illustration" />
+
+</div>
+<p>Each image in MNIST has a corresponding label, a number between 0 and 9 representing the digit drawn in the image.</p>
+<p>For the purposes of this tutorial, we’re going to want our labels as “one-hot vectors”. A one-hot vector is a vector which is 0 in most dimensions, and 1 in a single dimension. In this case, the <span class="math inline">\(n\)</span>th digit will be represented as a vector which is 1 in the <span class="math inline">\(n\)</span> th dimension. For example, 3 would be <span class="math inline">\([0,0,0,1,0,0,0,0,0,0]\)</span>. Consequently, <code>mnist$train$labels</code> is a <code>(55000L, 10L)</code> array of floats.</p>
+<div class="figure">
+<img src="images/mnist-train-ys.png" class="tutorial-illustration" />
+
+</div>
+<p>We’re now ready to actually make our model!</p>
+</div>
+<div id="softmax-regressions" class="section level2">
+<h2>Softmax Regressions</h2>
+<p>We know that every image in MNIST is of a handwritten digit between zero and nine. So there are only ten possible things that a given image can be. We want to be able to look at an image and give the probabilities for it being each digit. For example, our model might look at a picture of a nine and be 80% sure it’s a nine, but give a 5% chance to it being an eight (because of the top loop) and a bit of probability to all the others because it isn’t 100% sure.</p>
+<p>This is a classic case where a softmax regression is a natural, simple model. If you want to assign probabilities to an object being one of several different things, softmax is the thing to do, because softmax gives us a list of values between 0 and 1 that add up to 1. Even later on, when we train more sophisticated models, the final step will be a layer of softmax.</p>
+<p>A softmax regression has two steps: first we add up the evidence of our input being in certain classes, and then we convert that evidence into probabilities.</p>
+<p>To tally up the evidence that a given image is in a particular class, we do a weighted sum of the pixel intensities. The weight is negative if that pixel having a high intensity is evidence against the image being in that class, and positive if it is evidence in favor.</p>
+<p>The following diagram shows the weights one model learned for each of these classes. Red represents negative weights, while blue represents positive weights.</p>
+<div class="figure">
+<img src="images/softmax-weights.png" class="tutorial-illustration" />
+
+</div>
+<p>We also add some extra evidence called a bias. Basically, we want to be able to say that some things are more likely independent of the input. The result is that the evidence for a class <span class="math inline">\(i\)</span> given an input <span class="math inline">\(x\)</span> is:</p>
+<p><span class="math display">\[\text{evidence}_i = \sum_j W_{i,~ j} x_j + b_i\]</span></p>
+<p>where <span class="math inline">\(W_i\)</span> is the weights and <span class="math inline">\(b_i\)</span> is the bias for class <span class="math inline">\(i\)</span>, and <span class="math inline">\(j\)</span> is an index for summing over the pixels in our input image <span class="math inline">\(x\)</span>. We then convert the evidence tallies into our predicted probabilities <span class="math inline">\(y\)</span> using the “softmax” function:</p>
+<p><span class="math display">\[y = \text{softmax}(\text{evidence})\]</span></p>
+<p>Here softmax is serving as an “activation” or “link” function, shaping the output of our linear function into the form we want – in this case, a probability distribution over 10 cases. You can think of it as converting tallies of evidence into probabilities of our input being in each class. It’s defined as:</p>
+<p><span class="math display">\[\text{softmax}(x) = \text{normalize}(\exp(x))\]</span></p>
+<p>If you expand that equation out, you get:</p>
+<p><span class="math display">\[\text{softmax}(x)_i = \frac{\exp(x_i)}{\sum_j \exp(x_j)}\]</span></p>
+<p>But it’s often more helpful to think of softmax the first way: exponentiating its inputs and then normalizing them. The exponentiation means that one more unit of evidence increases the weight given to any hypothesis multiplicatively. And conversely, having one less unit of evidence means that a hypothesis gets a fraction of its earlier weight. No hypothesis ever has zero or negative weight. Softmax then normalizes these weights, so that they add up to one, forming a valid probability distribution. (To get more intuition about the softmax function, check out the <a href="http://neuralnetworksanddeeplearning.com/chap3.html#softmax">section</a> on it in Michael Nielsen’s book, complete with an interactive visualization.)</p>
+<p>You can picture our softmax regression as looking something like the following, although with a lot more <span class="math inline">\(x\)</span>s. For each output, we compute a weighted sum of the <span class="math inline">\(x\)</span>s, add a bias, and then apply softmax.</p>
+<div class="figure">
+<img src="images/softmax-regression-scalargraph.png" class="tutorial-illustration" />
+
+</div>
+<p>If we write that out as equations, we get:</p>
+<div class="figure">
+<img src="images/softmax-regression-scalarequation.png" class="tutorial-illustration" />
+
+</div>
+<p>We can “vectorize” this procedure, turning it into a matrix multiplication and vector addition. This is helpful for computational efficiency. (It’s also a useful way to think.)</p>
+<div class="figure">
+<img src="images/softmax-regression-vectorequation.png" class="tutorial-illustration" />
+
+</div>
+<p>More compactly, we can just write:</p>
+<p><span class="math display">\[y = \text{softmax}(Wx + b)\]</span></p>
+<p>Now let’s turn that into something that TensorFlow can use.</p>
+</div>
+<div id="implementing-the-regression" class="section level2">
+<h2>Implementing the Regression</h2>
+<p>To do efficient numerical computing in R we typically call base R functions that do expensive operations such as matrix multiplication outside R, using highly efficient code implemented in another language. Unfortunately, there can still be a lot of overhead from switching back to R for every operation. This overhead is especially bad if you want to run computations on GPUs or in a distributed manner, where there can be a high cost to transferring data.</p>
+<p>TensorFlow also does its heavy lifting outside R, but it takes things a step further to avoid this overhead. Instead of running a single expensive operation independently from R, TensorFlow lets us describe a graph of interacting operations that run entirely outside R (Approaches like this can be seen in a few machine learning libraries.)</p>
+<p>We describe these interacting operations by manipulating symbolic variables. Let’s create one (to access the TensorFlow API we reference the <code>tf</code> object that is exported by the <code>tensorflow</code> package):</p>
+<pre class="r"><code>library(tensorflow)
+x &lt;- tf$placeholder(tf$float32, shape(NULL, 784L))</code></pre>
+<p><code>x</code> isn’t a specific value. It’s a <code>placeholder</code>, a value that we’ll input when we ask TensorFlow to run a computation. We want to be able to input any number of MNIST images, each flattened into a 784-dimensional vector. We represent this as a 2-D tensor of floating-point numbers, with shape <code>(NULL, 784L)</code>. (Here <code>NULL</code> means that a dimension can be of any length.)</p>
+<p>We also need the weights and biases for our model. We could imagine treating these like additional inputs, but TensorFlow has an even better way to handle it: <code>Variable</code>. A <code>Variable</code> is a modifiable tensor that lives in TensorFlow’s graph of interacting operations. It can be used and even modified by the computation. For machine learning applications, one generally has the model parameters be <code>Variable</code>s.</p>
+<pre class="r"><code>W &lt;- tf$Variable(tf$zeros(shape(784L, 10L)))
+b &lt;- tf$Variable(tf$zeros(shape(10L)))</code></pre>
+<p>We create these <code>Variable</code>s by giving <code>tf$Variable</code> the initial value of the <code>Variable</code>: in this case, we initialize both <code>W</code> and <code>b</code> as tensors full of zeros. Since we are going to learn <code>W</code> and <code>b</code>, it doesn’t matter very much what they initially are.</p>
+<p>Notice that <code>W</code> has shape <code>(784, 10)</code> because we want to multiply the 784-dimensional image vectors by it to produce 10-dimensional vectors of evidence for the difference classes. <code>b</code> has shape <code>(10)</code> so we can add it to the output.</p>
+<p>We can now implement our model. It only takes one line to define it!</p>
+<pre class="r"><code>y &lt;- tf$nn$softmax(tf$matmul(x, W) + b)</code></pre>
+<p>First, we multiply <code>x</code> by <code>W</code> with the expression <code>tf$matmul(x, W)</code>. This is flipped from when we multiplied them in our equation, where we had <span class="math inline">\(Wx\)</span>, as a small trick to deal with <code>x</code> being a 2D tensor with multiple inputs. We then add <code>b</code>, and finally apply <code>tf$nn$softmax</code>.</p>
+<p>That’s it. It only took us one line to define our model, after a couple short lines of setup. That isn’t because TensorFlow is designed to make a softmax regression particularly easy: it’s just a very flexible way to describe many kinds of numerical computations, from machine learning models to physics simulations. And once defined, our model can be run on different devices: your computer’s CPU, GPUs, and even phones!</p>
+</div>
+<div id="training-the-model" class="section level2">
+<h2>Training the Model</h2>
+<p>In order to train our model, we need to define what it means for the model to be good. Well, actually, in machine learning we typically define what it means for a model to be bad. We call this the cost, or the loss, and it represents how far off our model is from our desired outcome. We try to minimize that error, and the smaller the error margin, the better our model is.</p>
+<p>One very common, very nice function to determine the loss of a model is called “cross-entropy.” Cross-entropy arises from thinking about information compressing codes in information theory but it winds up being an important idea in lots of areas, from gambling to machine learning. It’s defined as:</p>
+<p><span class="math display">\[H_{y&#39;}(y) = -\sum_i y&#39;_i \log(y_i)\]</span></p>
+<p>Where <span class="math inline">\(y\)</span> is our predicted probability distribution, and <span class="math inline">\(y&#39;\)</span> is the true distribution (the one-hot vector with the digit labels). In some rough sense, the cross-entropy is measuring how inefficient our predictions are for describing the truth. Going into more detail about cross-entropy is beyond the scope of this tutorial, but it’s well worth <a href="http://colah.github.io/posts/2015-09-Visual-Information/">understanding</a>.</p>
+<p>To implement cross-entropy we need to first add a new placeholder to input the correct answers:</p>
+<pre class="r"><code>y_ &lt;- tf$placeholder(tf$float32, shape(NULL, 10L))</code></pre>
+<p>Then we can implement the cross-entropy function, <span class="math inline">\(-\sum y&#39;\log(y)\)</span>:</p>
+<pre class="r"><code>cross_entropy &lt;- tf$reduce_mean(-tf$reduce_sum(y_ * tf$log(y), reduction_indices=1L))</code></pre>
+<p>First, <code>tf$log</code> computes the logarithm of each element of <code>y</code>. Next, we multiply each element of <code>y_</code> with the corresponding element of <code>tf$log(y)</code>. Then <code>tf$reduce_sum</code> adds the elements in the second dimension of y, due to the <code>reduction_indices=1L</code> parameter. Finally, <code>tf$reduce_mean</code> computes the mean over all the examples in the batch.</p>
+<p>Note that indices (like the one used for <code>reduction_indices</code>) are 0-based within the TensorFlow API rather than 1-based as is typical with R vectors. This is because TensorFlow is implemented in Python which uses 0-based arrays.</p>
+<p>Now that we know what we want our model to do, it’s very easy to have TensorFlow train it to do so. Because TensorFlow knows the entire graph of your computations, it can automatically use the <a href="http://colah.github.io/posts/2015-08-Backprop/">backpropagation algorithm</a> to efficiently determine how your variables affect the loss you ask it to minimize. Then it can apply your choice of optimization algorithm to modify the variables and reduce the loss.</p>
+<pre class="r"><code>optimizer &lt;- tf$train$GradientDescentOptimizer(0.5)
+train_step &lt;- optimizer$minimize(cross_entropy)</code></pre>
+<p>In this case, we ask TensorFlow to minimize <code>cross_entropy</code> using the <a href="https://en.wikipedia.org/wiki/Gradient_descent">gradient descent algorithm</a> with a learning rate of 0.5. Gradient descent is a simple procedure, where TensorFlow simply shifts each variable a little bit in the direction that reduces the cost. But TensorFlow also provides [many other optimization algorithms] (<a href="https://www.tensorflow.org/api_docs/python/train.html#optimizers" class="uri">https://www.tensorflow.org/api_docs/python/train.html#optimizers</a>): using one is as simple as tweaking one line.</p>
+<p>What TensorFlow actually does here, behind the scenes, is to add new operations to your graph which implement backpropagation and gradient descent. Then it gives you back a single operation which, when run, does a step of gradient descent training, slightly tweaking your variables to reduce the loss.</p>
+<p>Now we have our model set up to train. One last thing before we launch it, we have to create an operation to initialize the variables we created. Note that this defines the operation but does not run it yet:</p>
+<pre class="r"><code>init &lt;- tf$initialize_all_variables()</code></pre>
+<p>We can now launch the model in a <code>Session</code>, and now we run the operation that initializes the variables:</p>
+<pre class="r"><code>sess &lt;- tf$Session()
+sess$run(init)</code></pre>
+<p>Let’s train – we’ll run the training step 1000 times!</p>
+<pre class="r"><code>for (i in 1:1000) {
+  batches &lt;- mnist$train$next_batch(100L)
+  batch_xs &lt;- batches[[1]]
+  batch_ys &lt;- batches[[2]]
+  sess$run(train_step,
+           feed_dict = dict(x = batch_xs, y_ = batch_ys))
+}</code></pre>
+<p>Each step of the loop, we get a “batch” of one hundred random data points from our training set. We run <code>train_step</code> feeding in the batches data to replace the <code>placeholder</code>s.</p>
+<p>Using small batches of random data is called stochastic training – in this case, stochastic gradient descent. Ideally, we’d like to use all our data for every step of training because that would give us a better sense of what we should be doing, but that’s expensive. So, instead, we use a different subset every time. Doing this is cheap and has much of the same benefit.</p>
+</div>
+<div id="evaluating-our-model" class="section level2">
+<h2>Evaluating Our Model</h2>
+<p>How well does our model do?</p>
+<p>Well, first let’s figure out where we predicted the correct label. <code>tf$argmax</code> is an extremely useful function which gives you the index of the highest entry in a tensor along some axis. For example, <code>tf$argmax(y, 1L)</code> is the label our model thinks is most likely for each input, while <code>tf$argmax(y_, 1L)</code> is the correct label. We can use <code>tf$equal</code> to check if our prediction matches the truth.</p>
+<pre class="r"><code>correct_prediction &lt;- tf$equal(tf$argmax(y, 1L), tf$argmax(y_, 1L))</code></pre>
+<p>Note that since tensors in the TensorFlow API are 0-based we pass <code>1L</code> to specify that <code>tf$argmax</code> should operate on the second dimension of the tensor.</p>
+<p><code>correct_predication</code> is a vector of booleans. To determine what fraction are correct, we cast to floating point numbers and then take the mean. For example, <code>(TRUE, FALSE, TRUE, TRUE)</code> would become <code>(1.0, 0.0, 1.0, 1.0)</code> which would become <code>0.75</code>.</p>
+<pre class="r"><code>accuracy &lt;- tf$reduce_mean(tf$cast(correct_prediction, tf$float32))</code></pre>
+<p>Finally, we ask for our accuracy on our test data.</p>
+<pre class="r"><code>sess$run(accuracy, feed_dict=dict(x = mnist$test$images, y_ = mnist$test$labels))</code></pre>
+<pre><code>## [1] 0.9172</code></pre>
+<p>This should be about 92%.</p>
+<p>Is that good? Well, not really. In fact, it’s pretty bad. This is because we’re using a very simple model. With some small changes, we can get to 97%. The best models can get to over 99.7% accuracy! (For more information, have a look at this <a href="http://rodrigob.github.io/are_we_there_yet/build/classification_datasets_results.html">list of results</a>.)</p>
+<p>What matters is that we learned from this model. Still, if you’re feeling a bit down about these results, check out <a href="tutorial_mnist_pros.html">the next tutorial</a> where we do a lot better, and learn how to build more sophisticated models using TensorFlow!</p>
+</div>
+
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiTU5JU1QgRm9yIE1MIEJlZ2lubmVycyIKb3V0cHV0OgogIGh0bWxfZG9jdW1lbnQ6CiAgICBjb2RlX2Rvd25sb2FkOiB0cnVlCi0tLQoKKlRoaXMgdHV0b3JpYWwgaXMgaW50ZW5kZWQgZm9yIHJlYWRlcnMgd2hvIGFyZSBuZXcgdG8gYm90aCBtYWNoaW5lIGxlYXJuaW5nIGFuZCBUZW5zb3JGbG93LiBJZiB5b3UgYWxyZWFkeSBrbm93IHdoYXQgTU5JU1QgaXMsIGFuZCB3aGF0IHNvZnRtYXggKG11bHRpbm9taWFsIGxvZ2lzdGljKSByZWdyZXNzaW9uIGlzLCB5b3UgbWlnaHQgcHJlZmVyIHRoaXMgW2Zhc3RlciBwYWNlZCB0dXRvcmlhbF0odHV0b3JpYWxfbW5pc3RfcHJvcy5odG1sKS4gQmUgc3VyZSB0byBbaW5zdGFsbCBUZW5zb3JGbG93XShodHRwczovL3d3dy50ZW5zb3JmbG93Lm9yZy9nZXRfc3RhcnRlZC8pIGJlZm9yZSBzdGFydGluZyBlaXRoZXIgdHV0b3JpYWwuKgoKV2hlbiBvbmUgbGVhcm5zIGhvdyB0byBwcm9ncmFtLCB0aGVyZSdzIGEgdHJhZGl0aW9uIHRoYXQgdGhlIGZpcnN0IHRoaW5nIHlvdSBkbyBpcyBwcmludCAiSGVsbG8gV29ybGQuIiBKdXN0IGxpa2UgcHJvZ3JhbW1pbmcgaGFzIEhlbGxvIFdvcmxkLCBtYWNoaW5lIGxlYXJuaW5nIGhhcyBNTklTVC4KCk1OSVNUIGlzIGEgc2ltcGxlIGNvbXB1dGVyIHZpc2lvbiBkYXRhc2V0LiBJdCBjb25zaXN0cyBvZiBpbWFnZXMgb2YgaGFuZHdyaXR0ZW4gZGlnaXRzIGxpa2UgdGhlc2U6CgohW10oaW1hZ2VzL01OSVNULnBuZyl7LnR1dG9yaWFsLWlsbHVzdHJhdGlvbn0KCkl0IGFsc28gaW5jbHVkZXMgbGFiZWxzIGZvciBlYWNoIGltYWdlLCB0ZWxsaW5nIHVzIHdoaWNoIGRpZ2l0IGl0IGlzLiBGb3IgZXhhbXBsZSwgdGhlIGxhYmVscyBmb3IgdGhlIGFib3ZlIGltYWdlcyBhcmUgNSwgMCwgNCwgYW5kIDEuCgpJbiB0aGlzIHR1dG9yaWFsLCB3ZSdyZSBnb2luZyB0byB0cmFpbiBhIG1vZGVsIHRvIGxvb2sgYXQgaW1hZ2VzIGFuZCBwcmVkaWN0IHdoYXQgZGlnaXRzIHRoZXkgYXJlLiBPdXIgZ29hbCBpc24ndCB0byB0cmFpbiBhIHJlYWxseSBlbGFib3JhdGUgbW9kZWwgdGhhdCBhY2hpZXZlcyBzdGF0ZS1vZi10aGUtYXJ0IHBlcmZvcm1hbmNlIC0tIGFsdGhvdWdoIHdlJ2xsIGdpdmUgeW91IGNvZGUgdG8gZG8gdGhhdCBsYXRlciEgLS0gYnV0IHJhdGhlciB0byBkaXAgYSB0b2UgaW50byB1c2luZyBUZW5zb3JGbG93LiBBcyBzdWNoLCB3ZSdyZSBnb2luZyB0byBzdGFydCB3aXRoIGEgdmVyeSBzaW1wbGUgbW9kZWwsIGNhbGxlZCBhIFNvZnRtYXggUmVncmVzc2lvbi4KClRoZSBhY3R1YWwgY29kZSBmb3IgdGhpcyB0dXRvcmlhbCBpcyB2ZXJ5IHNob3J0LCBhbmQgYWxsIHRoZSBpbnRlcmVzdGluZyBzdHVmZiBoYXBwZW5zIGluIGp1c3QgdGhyZWUgbGluZXMuIEhvd2V2ZXIsIGl0IGlzIHZlcnkgaW1wb3J0YW50IHRvIHVuZGVyc3RhbmQgdGhlIGlkZWFzIGJlaGluZCBpdDogYm90aCBob3cgVGVuc29yRmxvdyB3b3JrcyBhbmQgdGhlIGNvcmUgbWFjaGluZSBsZWFybmluZyBjb25jZXB0cy4gQmVjYXVzZSBvZiB0aGlzLCB3ZSBhcmUgZ29pbmcgdG8gdmVyeSBjYXJlZnVsbHkgd29yayB0aHJvdWdoIHRoZSBjb2RlLgoKIyMgVXNpbmcgdGhpcyBUdXRvcmlhbAoKVGhpcyB0dXRvcmlhbCBpcyBhbiBleHBsYW5hdGlvbiwgbGluZSBieSBsaW5lLCBvZiB3aGF0IGlzIGhhcHBlbmluZyBpbiB0aGUgW21uaXN0X3NvZnRtYXguUl0oaHR0cHM6Ly9naXRodWIuY29tL2pqYWxsYWlyZS90ZW5zb3JmbG93L2Jsb2IvbWFzdGVyL2luc3QvZXhhbXBsZXMvbW5pc3QvbW5pc3Rfc29mdG1heC5SKSBjb2RlLgoKWW91IGNhbiB1c2UgdGhpcyB0dXRvcmlhbCBpbiBhIGZldyBkaWZmZXJlbnQgd2F5cywgaW5jbHVkaW5nOgoKLSBDb3B5IGFuZCBwYXN0ZSBlYWNoIGNvZGUgc25pcHBldCwgbGluZSBieSBsaW5lLCBpbnRvIGFuIFIgZW52aXJvbm1lbnQgYXMgeW91IHJlYWQgdGhyb3VnaCB0aGUgZXhwbGFuYXRpb25zIG9mIGVhY2ggbGluZS4KCi0gRG93bmxvYWQgdGhpcyB0dXRvcmlhbCBhcyBhbiBSIE1hcmtkb3duIGRvY3VtZW50IHVzaW5nIHRoZSAqKkNvZGUqKiBtZW51IGF0IHRoZSB0b3Agb2YgdGhlIGRvY3VtZW50IGFuZCBleGVjdXRlIGVhY2ggb2YgdGhlIGNodW5rcyBpbnRlcmFjdGl2ZWx5LgoKLSBSdW4gdGhlIGVudGlyZSBbbW5pc3Rfc29mdG1heC5SXShodHRwczovL2dpdGh1Yi5jb20vamphbGxhaXJlL3RlbnNvcmZsb3cvYmxvYi9tYXN0ZXIvaW5zdC9leGFtcGxlcy9tbmlzdC9tbmlzdF9zb2Z0bWF4LlIpIFIgZmlsZSBlaXRoZXIgYmVmb3JlIG9yIGFmdGVyIHJlYWRpbmcgdGhyb3VnaCB0aGUgZXhwbGFuYXRpb25zLCBhbmQgdXNlIHRoaXMgdHV0b3JpYWwgdG8gdW5kZXJzdGFuZCB0aGUgbGluZXMgb2YgY29kZSB0aGF0IGFyZW4ndCBjbGVhciB0byB5b3UuCgpXaGF0IHdlIHdpbGwgYWNjb21wbGlzaCBpbiB0aGlzIHR1dG9yaWFsOgoKLSBMZWFybiBhYm91dCB0aGUgTU5JU1QgZGF0YSBhbmQgc29mdG1heCByZWdyZXNzaW9ucwoKLSBDcmVhdGUgYSBmdW5jdGlvbiB0aGF0IGlzIGEgbW9kZWwgZm9yIHJlY29nbml6aW5nIGRpZ2l0cywgYmFzZWQgb24gbG9va2luZyBhdCBldmVyeSBwaXhlbCBpbiB0aGUgaW1hZ2UKCi0gVXNlIFRlbnNvckZsb3cgdG8gdHJhaW4gdGhlIG1vZGVsIHRvIHJlY29nbml6ZSBkaWdpdHMgYnkgaGF2aW5nIGl0ICJsb29rIiBhdCB0aG91c2FuZHMgb2YgZXhhbXBsZXMgKGFuZCBydW4gb3VyIGZpcnN0IFRlbnNvckZsb3cgc2Vzc2lvbiB0byBkbyBzbykKCi0gQ2hlY2sgdGhlIG1vZGVsJ3MgYWNjdXJhY3kgd2l0aCBvdXIgdGVzdCBkYXRhCgojIyBUaGUgTU5JU1QgRGF0YQoKVGhlIE1OSVNUIGRhdGEgaXMgaG9zdGVkIG9uIFtZYW5uIExlQ3VuJ3Mgd2Vic2l0ZV0oaHR0cDovL3lhbm4ubGVjdW4uY29tL2V4ZGIvbW5pc3QvKS4gIElmIHlvdSBhcmUgY29weWluZyBhbmQgcGFzdGluZyBpbiB0aGUgY29kZSBmcm9tIHRoaXMgdHV0b3JpYWwsIHN0YXJ0IGhlcmUgd2l0aCB0aGVzZSB0aHJlZSBsaW5lcyBvZiBjb2RlIHdoaWNoIHdpbGwgZG93bmxvYWQgYW5kIHJlYWQgaW4gdGhlIGRhdGEgYXV0b21hdGljYWxseToKCmBgYHtyLCBpbmNsdWRlPUZBTFNFfQpsaWJyYXJ5KHRlbnNvcmZsb3cpCmRhdGFzZXRzIDwtIHRmJGNvbnRyaWIkbGVhcm4kZGF0YXNldHMKbW5pc3QgPC0gZGF0YXNldHMkbW5pc3QkcmVhZF9kYXRhX3NldHMoIk1OSVNULWRhdGEiLCBvbmVfaG90ID0gVFJVRSkKYGBgCgpUaGUgTU5JU1QgZGF0YSBpcyBzcGxpdCBpbnRvIHRocmVlIHBhcnRzOiA1NSwwMDAgZGF0YSBwb2ludHMgb2YgdHJhaW5pbmcgZGF0YSAoYG1uaXN0JHRyYWluYCksIDEwLDAwMCBwb2ludHMgb2YgdGVzdCBkYXRhIChgbW5pc3QkdGVzdGApLCBhbmQgNSwwMDAgcG9pbnRzIG9mIHZhbGlkYXRpb24gZGF0YSAoYG1uaXN0JHZhbGlkYXRpb25gKS4gVGhpcyBzcGxpdCBpcyB2ZXJ5IGltcG9ydGFudDogaXQncyBlc3NlbnRpYWwgaW4gbWFjaGluZSBsZWFybmluZyB0aGF0IHdlIGhhdmUgc2VwYXJhdGUgZGF0YSB3aGljaCB3ZSBkb24ndCBsZWFybiBmcm9tIHNvIHRoYXQgd2UgY2FuIG1ha2Ugc3VyZSB0aGF0IHdoYXQgd2UndmUgbGVhcm5lZCBhY3R1YWxseSBnZW5lcmFsaXplcyEKCkFzIG1lbnRpb25lZCBlYXJsaWVyLCBldmVyeSBNTklTVCBkYXRhIHBvaW50IGhhcyB0d28gcGFydHM6IGFuIGltYWdlIG9mIGEgaGFuZHdyaXR0ZW4gZGlnaXQgYW5kIGEgY29ycmVzcG9uZGluZyBsYWJlbC4gV2UnbGwgY2FsbCB0aGUgaW1hZ2VzICJ4IiBhbmQgdGhlIGxhYmVscyAieSIuIEJvdGggdGhlIHRyYWluaW5nIHNldCBhbmQgdGVzdCBzZXQgY29udGFpbiBpbWFnZXMgYW5kIHRoZWlyIGNvcnJlc3BvbmRpbmcgbGFiZWxzOyBmb3IgZXhhbXBsZSB0aGUgdHJhaW5pbmcgaW1hZ2VzIGFyZSBgbW5pc3QkdHJhaW4kaW1hZ2VzYCBhbmQgdGhlIHRyYWluaW5nIGxhYmVscyBhcmUgYG1uaXN0JHRyYWluJGxhYmVsc2AuCgpFYWNoIGltYWdlIGlzIDI4IHBpeGVscyBieSAyOCBwaXhlbHMuIFdlIGNhbiBpbnRlcnByZXQgdGhpcyBhcyBhIGJpZyBhcnJheSBvZiBudW1iZXJzOgoKIVtdKGltYWdlcy9NTklTVC1NYXRyaXgucG5nKXsudHV0b3JpYWwtaWxsdXN0cmF0aW9ufQoKV2UgY2FuIGZsYXR0ZW4gdGhpcyBhcnJheSBpbnRvIGEgdmVjdG9yIG9mIDI4eDI4ID0gNzg0IG51bWJlcnMuIEl0IGRvZXNuJ3QgbWF0dGVyIGhvdyB3ZSBmbGF0dGVuIHRoZSBhcnJheSwgYXMgbG9uZyBhcyB3ZSdyZSBjb25zaXN0ZW50IGJldHdlZW4gaW1hZ2VzLiBGcm9tIHRoaXMgcGVyc3BlY3RpdmUsIHRoZSBNTklTVCBpbWFnZXMgYXJlIGp1c3QgYSBidW5jaCBvZiBwb2ludHMgaW4gYSA3ODQtZGltZW5zaW9uYWwgdmVjdG9yIHNwYWNlLCB3aXRoIGEgW3ZlcnkgcmljaCBzdHJ1Y3R1cmVdKGh0dHA6Ly9jb2xhaC5naXRodWIuaW8vcG9zdHMvMjAxNC0xMC1WaXN1YWxpemluZy1NTklTVC8pICh3YXJuaW5nOiBjb21wdXRhdGlvbmFsbHkgaW50ZW5zaXZlIHZpc3VhbGl6YXRpb25zKS4KCkZsYXR0ZW5pbmcgdGhlIGRhdGEgdGhyb3dzIGF3YXkgaW5mb3JtYXRpb24gYWJvdXQgdGhlIDJEIHN0cnVjdHVyZSBvZiB0aGUgaW1hZ2UuIElzbid0IHRoYXQgYmFkPyBXZWxsLCB0aGUgYmVzdCBjb21wdXRlciB2aXNpb24gbWV0aG9kcyBkbyBleHBsb2l0IHRoaXMgc3RydWN0dXJlLCBhbmQgd2Ugd2lsbCBpbiBsYXRlciB0dXRvcmlhbHMuIEJ1dCB0aGUgc2ltcGxlIG1ldGhvZCB3ZSB3aWxsIGJlIHVzaW5nIGhlcmUsIGEgc29mdG1heCByZWdyZXNzaW9uIChkZWZpbmVkIGJlbG93KSwgd29uJ3QuCgpUaGUgcmVzdWx0IGlzIHRoYXQgYG1uaXN0JHRyYWluJGltYWdlc2AgaXMgYSB0ZW5zb3IgKGFuIG4tZGltZW5zaW9uYWwgYXJyYXkpIHdpdGggc2hhcGUgYCg1NTAwMEwsIDc4NEwpYC4gVGhlIGZpcnN0IGRpbWVuc2lvbiBpcyBhbiBpbmRleCBpbnRvIHRoZSBsaXN0IG9mIGltYWdlcyBhbmQgdGhlIHNlY29uZCBkaW1lbnNpb24gaXMgdGhlIGluZGV4IGZvciBlYWNoIHBpeGVsIGluIGVhY2ggaW1hZ2UuIEVhY2ggZW50cnkgaW4gdGhlIHRlbnNvciBpcyBhIHBpeGVsIGludGVuc2l0eSBiZXR3ZWVuIDAgYW5kIDEsIGZvciBhIHBhcnRpY3VsYXIgcGl4ZWwgaW4gYSBwYXJ0aWN1bGFyIGltYWdlLgoKIVtdKGltYWdlcy9tbmlzdC10cmFpbi14cy5wbmcpey50dXRvcmlhbC1pbGx1c3RyYXRpb259CgpFYWNoIGltYWdlIGluIE1OSVNUIGhhcyBhIGNvcnJlc3BvbmRpbmcgbGFiZWwsIGEgbnVtYmVyIGJldHdlZW4gMCBhbmQgOSByZXByZXNlbnRpbmcgdGhlIGRpZ2l0IGRyYXduIGluIHRoZSBpbWFnZS4KCkZvciB0aGUgcHVycG9zZXMgb2YgdGhpcyB0dXRvcmlhbCwgd2UncmUgZ29pbmcgdG8gd2FudCBvdXIgbGFiZWxzIGFzICJvbmUtaG90IHZlY3RvcnMiLiBBIG9uZS1ob3QgdmVjdG9yIGlzIGEgdmVjdG9yIHdoaWNoIGlzIDAgaW4gbW9zdCBkaW1lbnNpb25zLCBhbmQgMSBpbiBhIHNpbmdsZSBkaW1lbnNpb24uIEluIHRoaXMgY2FzZSwgdGhlICRuJHRoIGRpZ2l0IHdpbGwgYmUgcmVwcmVzZW50ZWQgYXMgYSB2ZWN0b3Igd2hpY2ggaXMgMSBpbiB0aGUgJG4kIHRoIGRpbWVuc2lvbi4gRm9yIGV4YW1wbGUsIDMgd291bGQgYmUgJFswLDAsMCwxLDAsMCwwLDAsMCwwXSQuIENvbnNlcXVlbnRseSwgYG1uaXN0JHRyYWluJGxhYmVsc2AgaXMgYSAgYCg1NTAwMEwsIDEwTClgIGFycmF5IG9mIGZsb2F0cy4KCiFbXShpbWFnZXMvbW5pc3QtdHJhaW4teXMucG5nKXsudHV0b3JpYWwtaWxsdXN0cmF0aW9ufQoKV2UncmUgbm93IHJlYWR5IHRvIGFjdHVhbGx5IG1ha2Ugb3VyIG1vZGVsISAKCiMjIFNvZnRtYXggUmVncmVzc2lvbnMKCldlIGtub3cgdGhhdCBldmVyeSBpbWFnZSBpbiBNTklTVCBpcyBvZiBhIGhhbmR3cml0dGVuIGRpZ2l0IGJldHdlZW4gemVybyBhbmQgbmluZS4gU28gdGhlcmUgYXJlIG9ubHkgdGVuIHBvc3NpYmxlIHRoaW5ncyB0aGF0IGEgZ2l2ZW4gaW1hZ2UgY2FuIGJlLiBXZSB3YW50IHRvIGJlIGFibGUgdG8gbG9vayBhdCBhbiBpbWFnZSBhbmQgZ2l2ZSB0aGUgcHJvYmFiaWxpdGllcyBmb3IgaXQgYmVpbmcgZWFjaCBkaWdpdC4gRm9yIGV4YW1wbGUsIG91ciBtb2RlbCBtaWdodCBsb29rIGF0IGEgcGljdHVyZSBvZiBhIG5pbmUgYW5kIGJlIDgwJSBzdXJlIGl0J3MgYSBuaW5lLCBidXQgZ2l2ZSBhIDUlIGNoYW5jZSB0byBpdCBiZWluZyBhbiBlaWdodCAoYmVjYXVzZSBvZiB0aGUgdG9wIGxvb3ApIGFuZCBhIGJpdCBvZiBwcm9iYWJpbGl0eSB0byBhbGwgdGhlIG90aGVycyBiZWNhdXNlIGl0IGlzbid0IDEwMCUgc3VyZS4KClRoaXMgaXMgYSBjbGFzc2ljIGNhc2Ugd2hlcmUgYSBzb2Z0bWF4IHJlZ3Jlc3Npb24gaXMgYSBuYXR1cmFsLCBzaW1wbGUgbW9kZWwuIElmIHlvdSB3YW50IHRvIGFzc2lnbiBwcm9iYWJpbGl0aWVzIHRvIGFuIG9iamVjdCBiZWluZyBvbmUgb2Ygc2V2ZXJhbCBkaWZmZXJlbnQgdGhpbmdzLCBzb2Z0bWF4IGlzIHRoZSB0aGluZyB0byBkbywgYmVjYXVzZSBzb2Z0bWF4IGdpdmVzIHVzIGEgbGlzdCBvZiB2YWx1ZXMgYmV0d2VlbiAwIGFuZCAxIHRoYXQgYWRkIHVwIHRvIDEuIEV2ZW4gbGF0ZXIgb24sIHdoZW4gd2UgdHJhaW4gbW9yZSBzb3BoaXN0aWNhdGVkIG1vZGVscywgdGhlIGZpbmFsIHN0ZXAgd2lsbCBiZSBhIGxheWVyIG9mIHNvZnRtYXguCgpBIHNvZnRtYXggcmVncmVzc2lvbiBoYXMgdHdvIHN0ZXBzOiBmaXJzdCB3ZSBhZGQgdXAgdGhlIGV2aWRlbmNlIG9mIG91ciBpbnB1dCBiZWluZyBpbiBjZXJ0YWluIGNsYXNzZXMsIGFuZCB0aGVuIHdlIGNvbnZlcnQgdGhhdCBldmlkZW5jZSBpbnRvIHByb2JhYmlsaXRpZXMuCgpUbyB0YWxseSB1cCB0aGUgZXZpZGVuY2UgdGhhdCBhIGdpdmVuIGltYWdlIGlzIGluIGEgcGFydGljdWxhciBjbGFzcywgd2UgZG8gYSB3ZWlnaHRlZCBzdW0gb2YgdGhlIHBpeGVsIGludGVuc2l0aWVzLiBUaGUgd2VpZ2h0IGlzIG5lZ2F0aXZlIGlmIHRoYXQgcGl4ZWwgaGF2aW5nIGEgaGlnaCBpbnRlbnNpdHkgaXMgZXZpZGVuY2UgYWdhaW5zdCB0aGUgaW1hZ2UgYmVpbmcgaW4gdGhhdCBjbGFzcywgYW5kIHBvc2l0aXZlIGlmIGl0IGlzIGV2aWRlbmNlIGluIGZhdm9yLgoKVGhlIGZvbGxvd2luZyBkaWFncmFtIHNob3dzIHRoZSB3ZWlnaHRzIG9uZSBtb2RlbCBsZWFybmVkIGZvciBlYWNoIG9mIHRoZXNlIGNsYXNzZXMuIFJlZCByZXByZXNlbnRzIG5lZ2F0aXZlIHdlaWdodHMsIHdoaWxlIGJsdWUgcmVwcmVzZW50cyBwb3NpdGl2ZSB3ZWlnaHRzLgoKIVtdKGltYWdlcy9zb2Z0bWF4LXdlaWdodHMucG5nKXsudHV0b3JpYWwtaWxsdXN0cmF0aW9ufQoKV2UgYWxzbyBhZGQgc29tZSBleHRyYSBldmlkZW5jZSBjYWxsZWQgYSBiaWFzLiBCYXNpY2FsbHksIHdlIHdhbnQgdG8gYmUgYWJsZSB0byBzYXkgdGhhdCBzb21lIHRoaW5ncyBhcmUgbW9yZSBsaWtlbHkgaW5kZXBlbmRlbnQgb2YgdGhlIGlucHV0LiBUaGUgcmVzdWx0IGlzIHRoYXQgdGhlIGV2aWRlbmNlIGZvciBhIGNsYXNzICRpJCBnaXZlbiBhbiBpbnB1dCAkeCQgaXM6CgokJFx0ZXh0e2V2aWRlbmNlfV9pID0gXHN1bV9qIFdfe2ksfiBqfSB4X2ogKyBiX2kkJAoKd2hlcmUgJFdfaSQgaXMgdGhlIHdlaWdodHMgYW5kICRiX2kkIGlzIHRoZSBiaWFzIGZvciBjbGFzcyAkaSQsIGFuZCAkaiQgaXMgYW4gaW5kZXggZm9yIHN1bW1pbmcgb3ZlciB0aGUgcGl4ZWxzIGluIG91ciBpbnB1dCBpbWFnZSAkeCQuIFdlIHRoZW4gY29udmVydCB0aGUgZXZpZGVuY2UgdGFsbGllcyBpbnRvIG91ciBwcmVkaWN0ZWQgcHJvYmFiaWxpdGllcyAkeSQgdXNpbmcgdGhlICJzb2Z0bWF4IiBmdW5jdGlvbjoKCiQkeSA9IFx0ZXh0e3NvZnRtYXh9KFx0ZXh0e2V2aWRlbmNlfSkkJAoKSGVyZSBzb2Z0bWF4IGlzIHNlcnZpbmcgYXMgYW4gImFjdGl2YXRpb24iIG9yICJsaW5rIiBmdW5jdGlvbiwgc2hhcGluZyB0aGUgb3V0cHV0IG9mIG91ciBsaW5lYXIgZnVuY3Rpb24gaW50byB0aGUgZm9ybSB3ZSB3YW50IC0tIGluIHRoaXMgY2FzZSwgYSBwcm9iYWJpbGl0eSBkaXN0cmlidXRpb24gb3ZlciAxMCBjYXNlcy4gWW91IGNhbiB0aGluayBvZiBpdCBhcyBjb252ZXJ0aW5nIHRhbGxpZXMgb2YgZXZpZGVuY2UgaW50byBwcm9iYWJpbGl0aWVzIG9mIG91ciBpbnB1dCBiZWluZyBpbiBlYWNoIGNsYXNzLiBJdCdzIGRlZmluZWQgYXM6CgokJFx0ZXh0e3NvZnRtYXh9KHgpID0gXHRleHR7bm9ybWFsaXplfShcZXhwKHgpKSQkCgpJZiB5b3UgZXhwYW5kIHRoYXQgZXF1YXRpb24gb3V0LCB5b3UgZ2V0OgoKJCRcdGV4dHtzb2Z0bWF4fSh4KV9pID0gXGZyYWN7XGV4cCh4X2kpfXtcc3VtX2ogXGV4cCh4X2opfSQkCgpCdXQgaXQncyBvZnRlbiBtb3JlIGhlbHBmdWwgdG8gdGhpbmsgb2Ygc29mdG1heCB0aGUgZmlyc3Qgd2F5OiBleHBvbmVudGlhdGluZyBpdHMgaW5wdXRzIGFuZCB0aGVuIG5vcm1hbGl6aW5nIHRoZW0uIFRoZSBleHBvbmVudGlhdGlvbiBtZWFucyB0aGF0IG9uZSBtb3JlIHVuaXQgb2YgZXZpZGVuY2UgaW5jcmVhc2VzIHRoZSB3ZWlnaHQgZ2l2ZW4gdG8gYW55IGh5cG90aGVzaXMgbXVsdGlwbGljYXRpdmVseS4gQW5kIGNvbnZlcnNlbHksIGhhdmluZyBvbmUgbGVzcyB1bml0IG9mIGV2aWRlbmNlIG1lYW5zIHRoYXQgYSBoeXBvdGhlc2lzIGdldHMgYSBmcmFjdGlvbiBvZiBpdHMgZWFybGllciB3ZWlnaHQuIE5vIGh5cG90aGVzaXMgZXZlciBoYXMgemVybyBvciBuZWdhdGl2ZSB3ZWlnaHQuIFNvZnRtYXggdGhlbiBub3JtYWxpemVzIHRoZXNlIHdlaWdodHMsIHNvIHRoYXQgdGhleSBhZGQgdXAgdG8gb25lLCBmb3JtaW5nIGEgdmFsaWQgcHJvYmFiaWxpdHkgZGlzdHJpYnV0aW9uLiAoVG8gZ2V0IG1vcmUgaW50dWl0aW9uIGFib3V0IHRoZSBzb2Z0bWF4IGZ1bmN0aW9uLCBjaGVjayBvdXQgdGhlIFtzZWN0aW9uXShodHRwOi8vbmV1cmFsbmV0d29ya3NhbmRkZWVwbGVhcm5pbmcuY29tL2NoYXAzLmh0bWwjc29mdG1heCkgb24gaXQgaW4KTWljaGFlbCBOaWVsc2VuJ3MgYm9vaywgY29tcGxldGUgd2l0aCBhbiBpbnRlcmFjdGl2ZSB2aXN1YWxpemF0aW9uLikKCllvdSBjYW4gcGljdHVyZSBvdXIgc29mdG1heCByZWdyZXNzaW9uIGFzIGxvb2tpbmcgc29tZXRoaW5nIGxpa2UgdGhlIGZvbGxvd2luZywgYWx0aG91Z2ggd2l0aCBhIGxvdCBtb3JlICR4JHMuIEZvciBlYWNoIG91dHB1dCwgd2UgY29tcHV0ZSBhIHdlaWdodGVkIHN1bSBvZiB0aGUgJHgkcywgYWRkIGEgYmlhcywgYW5kIHRoZW4gYXBwbHkgc29mdG1heC4KCiFbXShpbWFnZXMvc29mdG1heC1yZWdyZXNzaW9uLXNjYWxhcmdyYXBoLnBuZyl7LnR1dG9yaWFsLWlsbHVzdHJhdGlvbn0KCklmIHdlIHdyaXRlIHRoYXQgb3V0IGFzIGVxdWF0aW9ucywgd2UgZ2V0OgoKIVtdKGltYWdlcy9zb2Z0bWF4LXJlZ3Jlc3Npb24tc2NhbGFyZXF1YXRpb24ucG5nKXsudHV0b3JpYWwtaWxsdXN0cmF0aW9ufQoKV2UgY2FuICJ2ZWN0b3JpemUiIHRoaXMgcHJvY2VkdXJlLCB0dXJuaW5nIGl0IGludG8gYSBtYXRyaXggbXVsdGlwbGljYXRpb24gYW5kIHZlY3RvciBhZGRpdGlvbi4gVGhpcyBpcyBoZWxwZnVsIGZvciBjb21wdXRhdGlvbmFsIGVmZmljaWVuY3kuIChJdCdzIGFsc28gYSB1c2VmdWwgd2F5IHRvIHRoaW5rLikKCiFbXShpbWFnZXMvc29mdG1heC1yZWdyZXNzaW9uLXZlY3RvcmVxdWF0aW9uLnBuZyl7LnR1dG9yaWFsLWlsbHVzdHJhdGlvbn0KCk1vcmUgY29tcGFjdGx5LCB3ZSBjYW4ganVzdCB3cml0ZToKCiQkeSA9IFx0ZXh0e3NvZnRtYXh9KFd4ICsgYikkJAoKTm93IGxldCdzIHR1cm4gdGhhdCBpbnRvIHNvbWV0aGluZyB0aGF0IFRlbnNvckZsb3cgY2FuIHVzZS4KCiMjIEltcGxlbWVudGluZyB0aGUgUmVncmVzc2lvbgoKVG8gZG8gZWZmaWNpZW50IG51bWVyaWNhbCBjb21wdXRpbmcgaW4gUiB3ZSB0eXBpY2FsbHkgY2FsbCBiYXNlIFIgZnVuY3Rpb25zIHRoYXQgZG8gZXhwZW5zaXZlIG9wZXJhdGlvbnMgc3VjaCBhcyBtYXRyaXggbXVsdGlwbGljYXRpb24gb3V0c2lkZSBSLCB1c2luZyBoaWdobHkgZWZmaWNpZW50IGNvZGUgaW1wbGVtZW50ZWQgaW4gYW5vdGhlciBsYW5ndWFnZS4gVW5mb3J0dW5hdGVseSwgdGhlcmUgY2FuIHN0aWxsIGJlIGEgbG90IG9mIG92ZXJoZWFkIGZyb20gc3dpdGNoaW5nIGJhY2sgdG8gUiBmb3IgZXZlcnkgb3BlcmF0aW9uLiBUaGlzIG92ZXJoZWFkIGlzIGVzcGVjaWFsbHkgYmFkIGlmIHlvdSB3YW50IHRvIHJ1biBjb21wdXRhdGlvbnMgb24gR1BVcyBvciBpbiBhIGRpc3RyaWJ1dGVkIG1hbm5lciwgd2hlcmUgdGhlcmUgY2FuIGJlIGEgaGlnaCBjb3N0IHRvIHRyYW5zZmVycmluZyBkYXRhLgoKVGVuc29yRmxvdyBhbHNvIGRvZXMgaXRzIGhlYXZ5IGxpZnRpbmcgb3V0c2lkZSBSLCBidXQgaXQgdGFrZXMgdGhpbmdzIGEgc3RlcCBmdXJ0aGVyIHRvIGF2b2lkIHRoaXMgb3ZlcmhlYWQuIEluc3RlYWQgb2YgcnVubmluZyBhIHNpbmdsZSBleHBlbnNpdmUgb3BlcmF0aW9uIGluZGVwZW5kZW50bHkgZnJvbSBSLCBUZW5zb3JGbG93IGxldHMgdXMgZGVzY3JpYmUgYSBncmFwaCBvZiBpbnRlcmFjdGluZyBvcGVyYXRpb25zIHRoYXQgcnVuIGVudGlyZWx5IG91dHNpZGUgUiAoQXBwcm9hY2hlcyBsaWtlIHRoaXMgY2FuIGJlIHNlZW4gaW4gYSBmZXcgbWFjaGluZSBsZWFybmluZyBsaWJyYXJpZXMuKQoKV2UgZGVzY3JpYmUgdGhlc2UgaW50ZXJhY3Rpbmcgb3BlcmF0aW9ucyBieSBtYW5pcHVsYXRpbmcgc3ltYm9saWMgdmFyaWFibGVzLiBMZXQncyBjcmVhdGUgb25lICh0byBhY2Nlc3MgdGhlIFRlbnNvckZsb3cgQVBJIHdlIHJlZmVyZW5jZSB0aGUgYHRmYCBvYmplY3QgdGhhdCBpcyBleHBvcnRlZCBieSB0aGUgYHRlbnNvcmZsb3dgIHBhY2thZ2UpOgoKYGBge3J9CmxpYnJhcnkodGVuc29yZmxvdykKeCA8LSB0ZiRwbGFjZWhvbGRlcih0ZiRmbG9hdDMyLCBzaGFwZShOVUxMLCA3ODRMKSkKYGBgCgpgeGAgaXNuJ3QgYSBzcGVjaWZpYyB2YWx1ZS4gSXQncyBhIGBwbGFjZWhvbGRlcmAsIGEgdmFsdWUgdGhhdCB3ZSdsbCBpbnB1dCB3aGVuIHdlIGFzayBUZW5zb3JGbG93IHRvIHJ1biBhIGNvbXB1dGF0aW9uLiBXZSB3YW50IHRvIGJlIGFibGUgdG8gaW5wdXQgYW55IG51bWJlciBvZiBNTklTVCBpbWFnZXMsIGVhY2ggZmxhdHRlbmVkIGludG8gYSA3ODQtZGltZW5zaW9uYWwgdmVjdG9yLiBXZSByZXByZXNlbnQgdGhpcyBhcyBhIDItRCB0ZW5zb3Igb2YgZmxvYXRpbmctcG9pbnQgbnVtYmVycywgd2l0aCBzaGFwZSBgKE5VTEwsIDc4NEwpYC4gKEhlcmUgYE5VTExgIG1lYW5zIHRoYXQgYSBkaW1lbnNpb24gY2FuIGJlIG9mIGFueSBsZW5ndGguKQoKV2UgYWxzbyBuZWVkIHRoZSB3ZWlnaHRzIGFuZCBiaWFzZXMgZm9yIG91ciBtb2RlbC4gV2UgY291bGQgaW1hZ2luZSB0cmVhdGluZyB0aGVzZSBsaWtlIGFkZGl0aW9uYWwgaW5wdXRzLCBidXQgVGVuc29yRmxvdyBoYXMgYW4gZXZlbiBiZXR0ZXIgd2F5IHRvIGhhbmRsZSBpdDogYFZhcmlhYmxlYC4gQSBgVmFyaWFibGVgIGlzIGEgbW9kaWZpYWJsZSB0ZW5zb3IgdGhhdCBsaXZlcyBpbiBUZW5zb3JGbG93J3MgZ3JhcGggb2YgaW50ZXJhY3Rpbmcgb3BlcmF0aW9ucy4gSXQgY2FuIGJlIHVzZWQgYW5kIGV2ZW4gbW9kaWZpZWQgYnkgdGhlIGNvbXB1dGF0aW9uLiBGb3IgbWFjaGluZSBsZWFybmluZyBhcHBsaWNhdGlvbnMsIG9uZSBnZW5lcmFsbHkgaGFzIHRoZSBtb2RlbCBwYXJhbWV0ZXJzIGJlIGBWYXJpYWJsZWBzLgoKYGBge3J9ClcgPC0gdGYkVmFyaWFibGUodGYkemVyb3Moc2hhcGUoNzg0TCwgMTBMKSkpCmIgPC0gdGYkVmFyaWFibGUodGYkemVyb3Moc2hhcGUoMTBMKSkpCmBgYAoKV2UgY3JlYXRlIHRoZXNlIGBWYXJpYWJsZWBzIGJ5IGdpdmluZyBgdGYkVmFyaWFibGVgIHRoZSBpbml0aWFsIHZhbHVlIG9mIHRoZSBgVmFyaWFibGVgOiBpbiB0aGlzIGNhc2UsIHdlIGluaXRpYWxpemUgYm90aCBgV2AgYW5kIGBiYCBhcyB0ZW5zb3JzIGZ1bGwgb2YgemVyb3MuIFNpbmNlIHdlIGFyZSBnb2luZyB0byBsZWFybiBgV2AgYW5kIGBiYCwgaXQgZG9lc24ndCBtYXR0ZXIgdmVyeSBtdWNoIHdoYXQgdGhleSBpbml0aWFsbHkgYXJlLgoKTm90aWNlIHRoYXQgYFdgIGhhcyBzaGFwZSBgKDc4NCwgMTApYCBiZWNhdXNlIHdlIHdhbnQgdG8gbXVsdGlwbHkgdGhlIDc4NC1kaW1lbnNpb25hbCBpbWFnZSB2ZWN0b3JzIGJ5IGl0IHRvIHByb2R1Y2UgMTAtZGltZW5zaW9uYWwgdmVjdG9ycyBvZiBldmlkZW5jZSBmb3IgdGhlIGRpZmZlcmVuY2UgY2xhc3Nlcy4gYGJgIGhhcyBzaGFwZSBgKDEwKWAgc28gd2UgY2FuIGFkZCBpdCB0byB0aGUgb3V0cHV0LgoKV2UgY2FuIG5vdyBpbXBsZW1lbnQgb3VyIG1vZGVsLiBJdCBvbmx5IHRha2VzIG9uZSBsaW5lIHRvIGRlZmluZSBpdCEKCmBgYHtyfQp5IDwtIHRmJG5uJHNvZnRtYXgodGYkbWF0bXVsKHgsIFcpICsgYikKYGBgCgpGaXJzdCwgd2UgbXVsdGlwbHkgYHhgIGJ5IGBXYCB3aXRoIHRoZSBleHByZXNzaW9uIGB0ZiRtYXRtdWwoeCwgVylgLiBUaGlzIGlzIGZsaXBwZWQgZnJvbSB3aGVuIHdlIG11bHRpcGxpZWQgdGhlbSBpbiBvdXIgZXF1YXRpb24sIHdoZXJlIHdlIGhhZCAkV3gkLCBhcyBhIHNtYWxsIHRyaWNrIHRvIGRlYWwgd2l0aCBgeGAgYmVpbmcgYSAyRCB0ZW5zb3Igd2l0aCBtdWx0aXBsZSBpbnB1dHMuIFdlIHRoZW4gYWRkIGBiYCwgYW5kIGZpbmFsbHkgYXBwbHkgYHRmJG5uJHNvZnRtYXhgLgoKVGhhdCdzIGl0LiBJdCBvbmx5IHRvb2sgdXMgb25lIGxpbmUgdG8gZGVmaW5lIG91ciBtb2RlbCwgYWZ0ZXIgYSBjb3VwbGUgc2hvcnQgbGluZXMgb2Ygc2V0dXAuIFRoYXQgaXNuJ3QgYmVjYXVzZSBUZW5zb3JGbG93IGlzIGRlc2lnbmVkIHRvIG1ha2UgYSBzb2Z0bWF4IHJlZ3Jlc3Npb24gcGFydGljdWxhcmx5IGVhc3k6IGl0J3MganVzdCBhIHZlcnkgZmxleGlibGUgd2F5IHRvIGRlc2NyaWJlIG1hbnkga2luZHMgb2YgbnVtZXJpY2FsIGNvbXB1dGF0aW9ucywgZnJvbSBtYWNoaW5lIGxlYXJuaW5nIG1vZGVscyB0byBwaHlzaWNzIHNpbXVsYXRpb25zLiBBbmQgb25jZSBkZWZpbmVkLCBvdXIgbW9kZWwgY2FuIGJlIHJ1biBvbiBkaWZmZXJlbnQgZGV2aWNlczogeW91ciBjb21wdXRlcidzIENQVSwgR1BVcywgYW5kIGV2ZW4gcGhvbmVzIQoKIyMgVHJhaW5pbmcgdGhlIE1vZGVsCgpJbiBvcmRlciB0byB0cmFpbiBvdXIgbW9kZWwsIHdlIG5lZWQgdG8gZGVmaW5lIHdoYXQgaXQgbWVhbnMgZm9yIHRoZSBtb2RlbCB0byBiZSBnb29kLiBXZWxsLCBhY3R1YWxseSwgaW4gbWFjaGluZSBsZWFybmluZyB3ZSB0eXBpY2FsbHkgZGVmaW5lIHdoYXQgaXQgbWVhbnMgZm9yIGEgbW9kZWwgdG8gYmUgYmFkLiBXZSBjYWxsIHRoaXMgdGhlIGNvc3QsIG9yIHRoZSBsb3NzLCBhbmQgaXQgcmVwcmVzZW50cyBob3cgZmFyIG9mZiBvdXIgbW9kZWwgaXMgZnJvbSBvdXIgZGVzaXJlZCBvdXRjb21lLiBXZSB0cnkgdG8gbWluaW1pemUgdGhhdCBlcnJvciwgYW5kIHRoZSBzbWFsbGVyIHRoZSBlcnJvciBtYXJnaW4sIHRoZSBiZXR0ZXIgb3VyIG1vZGVsIGlzLgoKT25lIHZlcnkgY29tbW9uLCB2ZXJ5IG5pY2UgZnVuY3Rpb24gdG8gZGV0ZXJtaW5lIHRoZSBsb3NzIG9mIGEgbW9kZWwgaXMgY2FsbGVkICJjcm9zcy1lbnRyb3B5LiIgQ3Jvc3MtZW50cm9weSBhcmlzZXMgZnJvbSB0aGlua2luZyBhYm91dCBpbmZvcm1hdGlvbiBjb21wcmVzc2luZyBjb2RlcyBpbiBpbmZvcm1hdGlvbiB0aGVvcnkgYnV0IGl0IHdpbmRzIHVwIGJlaW5nIGFuIGltcG9ydGFudCBpZGVhIGluIGxvdHMgb2YgYXJlYXMsIGZyb20gZ2FtYmxpbmcgdG8gbWFjaGluZSBsZWFybmluZy4gSXQncyBkZWZpbmVkIGFzOgoKJCRIX3t5J30oeSkgPSAtXHN1bV9pIHknX2kgXGxvZyh5X2kpJCQKCldoZXJlICR5JCBpcyBvdXIgcHJlZGljdGVkIHByb2JhYmlsaXR5IGRpc3RyaWJ1dGlvbiwgYW5kICR5JyQgaXMgdGhlIHRydWUgZGlzdHJpYnV0aW9uICh0aGUgb25lLWhvdCB2ZWN0b3Igd2l0aCB0aGUgZGlnaXQgbGFiZWxzKS4gIEluIHNvbWUgcm91Z2ggc2Vuc2UsIHRoZSBjcm9zcy1lbnRyb3B5IGlzIG1lYXN1cmluZyBob3cgaW5lZmZpY2llbnQgb3VyIHByZWRpY3Rpb25zIGFyZSBmb3IgZGVzY3JpYmluZyB0aGUgdHJ1dGguIEdvaW5nIGludG8gbW9yZSBkZXRhaWwgYWJvdXQgY3Jvc3MtZW50cm9weSBpcyBiZXlvbmQgdGhlIHNjb3BlIG9mIHRoaXMgdHV0b3JpYWwsIGJ1dCBpdCdzIHdlbGwgd29ydGggW3VuZGVyc3RhbmRpbmddKGh0dHA6Ly9jb2xhaC5naXRodWIuaW8vcG9zdHMvMjAxNS0wOS1WaXN1YWwtSW5mb3JtYXRpb24vKS4KClRvIGltcGxlbWVudCBjcm9zcy1lbnRyb3B5IHdlIG5lZWQgdG8gZmlyc3QgYWRkIGEgbmV3IHBsYWNlaG9sZGVyIHRvIGlucHV0IHRoZQpjb3JyZWN0IGFuc3dlcnM6CgpgYGB7cn0KeV8gPC0gdGYkcGxhY2Vob2xkZXIodGYkZmxvYXQzMiwgc2hhcGUoTlVMTCwgMTBMKSkKYGBgCgpUaGVuIHdlIGNhbiBpbXBsZW1lbnQgdGhlIGNyb3NzLWVudHJvcHkgZnVuY3Rpb24sICQtXHN1bSB5J1xsb2coeSkkOgoKYGBge3J9CmNyb3NzX2VudHJvcHkgPC0gdGYkcmVkdWNlX21lYW4oLXRmJHJlZHVjZV9zdW0oeV8gKiB0ZiRsb2coeSksIHJlZHVjdGlvbl9pbmRpY2VzPTFMKSkKYGBgCgpGaXJzdCwgYHRmJGxvZ2AgY29tcHV0ZXMgdGhlIGxvZ2FyaXRobSBvZiBlYWNoIGVsZW1lbnQgb2YgYHlgLiBOZXh0LCB3ZSBtdWx0aXBseSBlYWNoIGVsZW1lbnQgb2YgYHlfYCB3aXRoIHRoZSBjb3JyZXNwb25kaW5nIGVsZW1lbnQgb2YgYHRmJGxvZyh5KWAuIFRoZW4gYHRmJHJlZHVjZV9zdW1gIGFkZHMgdGhlIGVsZW1lbnRzIGluIHRoZSBzZWNvbmQgZGltZW5zaW9uIG9mIHksIGR1ZSB0byB0aGUgYHJlZHVjdGlvbl9pbmRpY2VzPTFMYCBwYXJhbWV0ZXIuIEZpbmFsbHksIGB0ZiRyZWR1Y2VfbWVhbmAgY29tcHV0ZXMgdGhlIG1lYW4gb3ZlciBhbGwgdGhlIGV4YW1wbGVzIGluIHRoZSBiYXRjaC4gCgpOb3RlIHRoYXQgaW5kaWNlcyAobGlrZSB0aGUgb25lIHVzZWQgZm9yIGByZWR1Y3Rpb25faW5kaWNlc2ApIGFyZSAwLWJhc2VkIHdpdGhpbiB0aGUgVGVuc29yRmxvdyBBUEkgcmF0aGVyIHRoYW4gMS1iYXNlZCBhcyBpcyB0eXBpY2FsIHdpdGggUiB2ZWN0b3JzLiBUaGlzIGlzIGJlY2F1c2UgVGVuc29yRmxvdyBpcyBpbXBsZW1lbnRlZCBpbiBQeXRob24gd2hpY2ggdXNlcyAwLWJhc2VkIGFycmF5cy4KCgpOb3cgdGhhdCB3ZSBrbm93IHdoYXQgd2Ugd2FudCBvdXIgbW9kZWwgdG8gZG8sIGl0J3MgdmVyeSBlYXN5IHRvIGhhdmUgVGVuc29yRmxvdyB0cmFpbiBpdCB0byBkbyBzby4gIEJlY2F1c2UgVGVuc29yRmxvdyBrbm93cyB0aGUgZW50aXJlIGdyYXBoIG9mIHlvdXIgY29tcHV0YXRpb25zLCBpdCBjYW4gYXV0b21hdGljYWxseSB1c2UgdGhlIFtiYWNrcHJvcGFnYXRpb24gYWxnb3JpdGhtXShodHRwOi8vY29sYWguZ2l0aHViLmlvL3Bvc3RzLzIwMTUtMDgtQmFja3Byb3AvKSB0bwplZmZpY2llbnRseSBkZXRlcm1pbmUgaG93IHlvdXIgdmFyaWFibGVzIGFmZmVjdCB0aGUgbG9zcyB5b3UgYXNrIGl0IHRvIG1pbmltaXplLiBUaGVuIGl0IGNhbiBhcHBseSB5b3VyIGNob2ljZSBvZiBvcHRpbWl6YXRpb24gYWxnb3JpdGhtIHRvIG1vZGlmeSB0aGUgdmFyaWFibGVzIGFuZCByZWR1Y2UgdGhlIGxvc3MuCgpgYGB7cn0Kb3B0aW1pemVyIDwtIHRmJHRyYWluJEdyYWRpZW50RGVzY2VudE9wdGltaXplcigwLjUpCnRyYWluX3N0ZXAgPC0gb3B0aW1pemVyJG1pbmltaXplKGNyb3NzX2VudHJvcHkpCmBgYAoKSW4gdGhpcyBjYXNlLCB3ZSBhc2sgVGVuc29yRmxvdyB0byBtaW5pbWl6ZSBgY3Jvc3NfZW50cm9weWAgdXNpbmcgdGhlIFtncmFkaWVudCBkZXNjZW50IGFsZ29yaXRobV0oaHR0cHM6Ly9lbi53aWtpcGVkaWEub3JnL3dpa2kvR3JhZGllbnRfZGVzY2VudCkgd2l0aCBhIGxlYXJuaW5nIHJhdGUgb2YgMC41LiBHcmFkaWVudCBkZXNjZW50IGlzIGEgc2ltcGxlIHByb2NlZHVyZSwgd2hlcmUgVGVuc29yRmxvdyBzaW1wbHkgc2hpZnRzIGVhY2ggdmFyaWFibGUgYSBsaXR0bGUgYml0IGluIHRoZSBkaXJlY3Rpb24gdGhhdCByZWR1Y2VzIHRoZSBjb3N0LiBCdXQgVGVuc29yRmxvdyBhbHNvIHByb3ZpZGVzIFttYW55IG90aGVyIG9wdGltaXphdGlvbiBhbGdvcml0aG1zXSAoaHR0cHM6Ly93d3cudGVuc29yZmxvdy5vcmcvYXBpX2RvY3MvcHl0aG9uL3RyYWluLmh0bWwjb3B0aW1pemVycyk6IHVzaW5nIG9uZSBpcyBhcyBzaW1wbGUgYXMgdHdlYWtpbmcgb25lIGxpbmUuCgpXaGF0IFRlbnNvckZsb3cgYWN0dWFsbHkgZG9lcyBoZXJlLCBiZWhpbmQgdGhlIHNjZW5lcywgaXMgdG8gYWRkIG5ldyBvcGVyYXRpb25zIHRvIHlvdXIgZ3JhcGggd2hpY2ggaW1wbGVtZW50IGJhY2twcm9wYWdhdGlvbiBhbmQgZ3JhZGllbnQgZGVzY2VudC4gVGhlbiBpdCBnaXZlcyB5b3UgYmFjayBhIHNpbmdsZSBvcGVyYXRpb24gd2hpY2gsIHdoZW4gcnVuLCBkb2VzIGEgc3RlcCBvZiBncmFkaWVudCBkZXNjZW50IHRyYWluaW5nLCBzbGlnaHRseSB0d2Vha2luZyB5b3VyIHZhcmlhYmxlcyB0byByZWR1Y2UgdGhlIGxvc3MuCgpOb3cgd2UgaGF2ZSBvdXIgbW9kZWwgc2V0IHVwIHRvIHRyYWluLiBPbmUgbGFzdCB0aGluZyBiZWZvcmUgd2UgbGF1bmNoIGl0LCB3ZSBoYXZlIHRvIGNyZWF0ZSBhbiBvcGVyYXRpb24gdG8gaW5pdGlhbGl6ZSB0aGUgdmFyaWFibGVzIHdlIGNyZWF0ZWQuIE5vdGUgdGhhdCB0aGlzIGRlZmluZXMgdGhlIG9wZXJhdGlvbiBidXQgZG9lcyBub3QgcnVuIGl0IHlldDoKCmBgYHtyfQppbml0IDwtIHRmJGluaXRpYWxpemVfYWxsX3ZhcmlhYmxlcygpCmBgYAoKV2UgY2FuIG5vdyBsYXVuY2ggdGhlIG1vZGVsIGluIGEgYFNlc3Npb25gLCBhbmQgbm93IHdlIHJ1biB0aGUgb3BlcmF0aW9uIHRoYXQgaW5pdGlhbGl6ZXMgdGhlIHZhcmlhYmxlczoKCmBgYHtyfQpzZXNzIDwtIHRmJFNlc3Npb24oKQpzZXNzJHJ1bihpbml0KQpgYGAKCkxldCdzIHRyYWluIC0tIHdlJ2xsIHJ1biB0aGUgdHJhaW5pbmcgc3RlcCAxMDAwIHRpbWVzIQoKYGBge3J9CmZvciAoaSBpbiAxOjEwMDApIHsKICBiYXRjaGVzIDwtIG1uaXN0JHRyYWluJG5leHRfYmF0Y2goMTAwTCkKICBiYXRjaF94cyA8LSBiYXRjaGVzW1sxXV0KICBiYXRjaF95cyA8LSBiYXRjaGVzW1syXV0KICBzZXNzJHJ1bih0cmFpbl9zdGVwLAogICAgICAgICAgIGZlZWRfZGljdCA9IGRpY3QoeCA9IGJhdGNoX3hzLCB5XyA9IGJhdGNoX3lzKSkKfQpgYGAKCkVhY2ggc3RlcCBvZiB0aGUgbG9vcCwgd2UgZ2V0IGEgImJhdGNoIiBvZiBvbmUgaHVuZHJlZCByYW5kb20gZGF0YSBwb2ludHMgZnJvbSBvdXIgdHJhaW5pbmcgc2V0LiBXZSBydW4gYHRyYWluX3N0ZXBgIGZlZWRpbmcgaW4gdGhlIGJhdGNoZXMgZGF0YSB0byByZXBsYWNlIHRoZSBgcGxhY2Vob2xkZXJgcy4KClVzaW5nIHNtYWxsIGJhdGNoZXMgb2YgcmFuZG9tIGRhdGEgaXMgY2FsbGVkIHN0b2NoYXN0aWMgdHJhaW5pbmcgLS0gaW4gdGhpcyBjYXNlLCBzdG9jaGFzdGljIGdyYWRpZW50IGRlc2NlbnQuIElkZWFsbHksIHdlJ2QgbGlrZSB0byB1c2UgYWxsIG91ciBkYXRhIGZvciBldmVyeSBzdGVwIG9mIHRyYWluaW5nIGJlY2F1c2UgdGhhdCB3b3VsZCBnaXZlIHVzIGEgYmV0dGVyIHNlbnNlIG9mIHdoYXQgd2Ugc2hvdWxkIGJlIGRvaW5nLCBidXQgdGhhdCdzIGV4cGVuc2l2ZS4gU28sIGluc3RlYWQsIHdlIHVzZSBhIGRpZmZlcmVudCBzdWJzZXQgZXZlcnkgdGltZS4gRG9pbmcgdGhpcyBpcyBjaGVhcCBhbmQgaGFzIG11Y2ggb2YgdGhlIHNhbWUgYmVuZWZpdC4KCiMjIEV2YWx1YXRpbmcgT3VyIE1vZGVsCgpIb3cgd2VsbCBkb2VzIG91ciBtb2RlbCBkbz8KCldlbGwsIGZpcnN0IGxldCdzIGZpZ3VyZSBvdXQgd2hlcmUgd2UgcHJlZGljdGVkIHRoZSBjb3JyZWN0IGxhYmVsLiBgdGYkYXJnbWF4YCBpcyBhbiBleHRyZW1lbHkgdXNlZnVsIGZ1bmN0aW9uIHdoaWNoIGdpdmVzIHlvdSB0aGUgaW5kZXggb2YgdGhlIGhpZ2hlc3QgZW50cnkgaW4gYSB0ZW5zb3IgYWxvbmcgc29tZSBheGlzLiBGb3IgZXhhbXBsZSwgYHRmJGFyZ21heCh5LCAxTClgIGlzIHRoZSBsYWJlbCBvdXIgbW9kZWwgdGhpbmtzIGlzIG1vc3QgbGlrZWx5IGZvciBlYWNoIGlucHV0LCB3aGlsZSBgdGYkYXJnbWF4KHlfLCAxTClgIGlzIHRoZSBjb3JyZWN0IGxhYmVsLiBXZSBjYW4gdXNlIGB0ZiRlcXVhbGAgdG8gY2hlY2sgaWYgb3VyIHByZWRpY3Rpb24gbWF0Y2hlcyB0aGUgdHJ1dGguCgpgYGB7cn0KY29ycmVjdF9wcmVkaWN0aW9uIDwtIHRmJGVxdWFsKHRmJGFyZ21heCh5LCAxTCksIHRmJGFyZ21heCh5XywgMUwpKQpgYGAKCk5vdGUgdGhhdCBzaW5jZSB0ZW5zb3JzIGluIHRoZSBUZW5zb3JGbG93IEFQSSBhcmUgMC1iYXNlZCB3ZSBwYXNzIGAxTGAgdG8gc3BlY2lmeSB0aGF0IGB0ZiRhcmdtYXhgIHNob3VsZCBvcGVyYXRlIG9uIHRoZSBzZWNvbmQgZGltZW5zaW9uIG9mIHRoZSB0ZW5zb3IuCgpgY29ycmVjdF9wcmVkaWNhdGlvbmAgaXMgYSB2ZWN0b3Igb2YgYm9vbGVhbnMuIFRvIGRldGVybWluZSB3aGF0IGZyYWN0aW9uIGFyZSBjb3JyZWN0LCB3ZSBjYXN0IHRvIGZsb2F0aW5nIHBvaW50IG51bWJlcnMgYW5kIHRoZW4gdGFrZSB0aGUgbWVhbi4gRm9yIGV4YW1wbGUsIGAoVFJVRSwgRkFMU0UsIFRSVUUsIFRSVUUpYCB3b3VsZCBiZWNvbWUgYCgxLjAsIDAuMCwgMS4wLCAxLjApYCB3aGljaCB3b3VsZCBiZWNvbWUgYDAuNzVgLgoKYGBge3J9CmFjY3VyYWN5IDwtIHRmJHJlZHVjZV9tZWFuKHRmJGNhc3QoY29ycmVjdF9wcmVkaWN0aW9uLCB0ZiRmbG9hdDMyKSkKYGBgCgpGaW5hbGx5LCB3ZSBhc2sgZm9yIG91ciBhY2N1cmFjeSBvbiBvdXIgdGVzdCBkYXRhLgoKYGBge3J9CnNlc3MkcnVuKGFjY3VyYWN5LCBmZWVkX2RpY3Q9ZGljdCh4ID0gbW5pc3QkdGVzdCRpbWFnZXMsIHlfID0gbW5pc3QkdGVzdCRsYWJlbHMpKQpgYGAKClRoaXMgc2hvdWxkIGJlIGFib3V0IDkyJS4KCklzIHRoYXQgZ29vZD8gV2VsbCwgbm90IHJlYWxseS4gSW4gZmFjdCwgaXQncyBwcmV0dHkgYmFkLiBUaGlzIGlzIGJlY2F1c2Ugd2UncmUgdXNpbmcgYSB2ZXJ5IHNpbXBsZSBtb2RlbC4gV2l0aCBzb21lIHNtYWxsIGNoYW5nZXMsIHdlIGNhbiBnZXQgdG8gOTclLiBUaGUgYmVzdCBtb2RlbHMgY2FuIGdldCB0byBvdmVyIDk5LjclIGFjY3VyYWN5ISAoRm9yIG1vcmUgaW5mb3JtYXRpb24sIGhhdmUgYSBsb29rIGF0IHRoaXMgW2xpc3Qgb2YgcmVzdWx0c10oaHR0cDovL3JvZHJpZ29iLmdpdGh1Yi5pby9hcmVfd2VfdGhlcmVfeWV0L2J1aWxkL2NsYXNzaWZpY2F0aW9uX2RhdGFzZXRzX3Jlc3VsdHMuaHRtbCkuKQoKV2hhdCBtYXR0ZXJzIGlzIHRoYXQgd2UgbGVhcm5lZCBmcm9tIHRoaXMgbW9kZWwuIFN0aWxsLCBpZiB5b3UncmUgZmVlbGluZyBhIGJpdCBkb3duIGFib3V0IHRoZXNlIHJlc3VsdHMsIGNoZWNrIG91dCBbdGhlIG5leHQgdHV0b3JpYWxdKHR1dG9yaWFsX21uaXN0X3Byb3MuaHRtbCkgd2hlcmUgd2UgZG8gYSBsb3QKYmV0dGVyLCBhbmQgbGVhcm4gaG93IHRvIGJ1aWxkIG1vcmUgc29waGlzdGljYXRlZCBtb2RlbHMgdXNpbmcgVGVuc29yRmxvdyEK</div>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+$(document).ready(function () {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+});
+
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

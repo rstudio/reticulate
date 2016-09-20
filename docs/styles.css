@@ -12,3 +12,7 @@
 .tutorial-illustration-large {
   width: 100%;
 }
+
+#video {
+  border: solid 1px #cccccc;
+}

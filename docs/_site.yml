@@ -1,0 +1,40 @@
+name: "tensorflow"
+navbar:
+  title: "TensorFlow&trade; for R"
+  type: inverse
+  left:
+    - text: "Get Started"
+      menu: 
+        - text: "Introduction"
+          href: "index.html"
+        - text: "Download and Setup"
+          href: "download_and_setup.html"
+        - text: "Basic Usage"
+          href: "basic_usage.html"
+    - text: "Tutorials"
+      menu:
+        - text: "MNIST"
+        - text: "MNIST For ML Beginners"
+          href: "tutorial_mnist_beginners.html"
+        - text: "Deep MNIST for Experts"
+          href: "tutorial_mnist_pros.html"
+        - text: "TensorFlow Mechanics 101"
+          href: "tutorial_tensorflow_mechanics.html"
+    - text: "API"
+      href: "using_tensorflow_api.html"
+    - 
+  right:
+    - icon: fa-github fa-lg
+      href: https://github.com/jjallaire/tensorflow
+output_dir: "."
+output:
+  html_document:
+    theme: cosmo
+    highlight: textmate
+    css: styles.css
+    self_contained: true
+    toc: true
+    toc_level: 2
+    toc_float: true
+
+

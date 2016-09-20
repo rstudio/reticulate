@@ -1,0 +1,81 @@
+---
+title: "TensorFlow"
+output: 
+  html_document:
+    toc: false
+    toc_float: false
+---
+
+<div class="row">
+
+<div class="col-md-6">
+
+[TensorFlow™](https://tensorflow.org) is an open source software library for numerical computation using data flow graphs. Nodes in the graph represent mathematical operations, while the graph edges represent the multidimensional data arrays (tensors) communicated between them. The flexible architecture allows you to deploy computation to one or more CPUs or GPUs in a desktop, server, or mobile device with a single API. TensorFlow was originally developed by researchers and engineers working on the Google Brain Team within Google's Machine Intelligence research organization for the purposes of conducting machine learning and deep neural networks research, but the system is general enough to be applicable in a wide variety of other domains as well.
+
+</div>
+
+<div class="col-md-6">
+<iframe id="video" src="https://www.youtube.com/embed/oZikw5k_2FM" frameborder="0" allowfullscreen width="440" height="246"></iframe>
+</div>
+
+</div>
+
+## Using TensorFlow with R
+
+The [tensorflow](https://github.com/jjallaire/tensorflow) package provides access to the entire TensorFlow API from within R. This website describes the basic usage of TensorFlow within R. For additional documentation see the main [TensorFlow website](https://www.tensorflow.org). Note that the documentation on the main website is based on the Python API for TensorFlow, however since the R API is nearly identical to the Python API, documentation, tutorials, and examples that use Python are very easy to apply to the use of the R API.
+
+Here's an example of what TensorFlow code looks like in the R API (the code makes up some data in two dimensions, and then fits a line to it):
+
+```{r, results='hide'}
+library(tensorflow)
+
+# Create 100 phony x, y data points, y = x * 0.1 + 0.3
+x_data <- runif(100, min=0, max=1)
+y_data <- x_data * 0.1 + 0.3
+
+# Try to find values for W and b that compute y_data = W * x_data + b
+# (We know that W should be 0.1 and b 0.3, but TensorFlow will
+# figure that out for us.)
+W <- tf$Variable(tf$random_uniform(shape(1L), -1.0, 1.0))
+b <- tf$Variable(tf$zeros(shape(1L)))
+y <- W * x_data + b
+
+# Minimize the mean squared errors.
+loss <- tf$reduce_mean((y - y_data) ^ 2)
+optimizer <- tf$train$GradientDescentOptimizer(0.5)
+train <- optimizer$minimize(loss)
+
+# Launch the graph and initialize the variables.
+sess = tf$Session()
+sess$run(tf$initialize_all_variables())
+
+# Fit the line (Learns best fit is W: 0.1, b: 0.3)
+for (step in 1:201) {
+  sess$run(train)
+  if (step %% 20 == 0)
+    cat(step, "-", sess$run(W), sess$run(b), "\n")
+}
+```
+
+The first part of this code builds the data flow graph.  TensorFlow does not actually run any computation until the session is created and the `run` function is called.
+
+To whet your appetite further, we suggest you check out what a classical machine learning problem looks like in TensorFlow.  In the land of neural networks the most "classic" classical problem is the MNIST handwritten digit classification.  We offer two introductions here, one for machine learning newbies, and one for pros. If you've already trained dozens of MNIST models in other software packages, please take the red pill.  If you've never even heard of MNIST, definitely take the blue pill.  If you're somewhere in between, we suggest skimming blue, then red.
+
+<div style="width:100%; margin:auto; margin-bottom:10px; margin-top:20px; display: flex; flex-direction: row">
+ <a href="tutorial_mnist_beginners.html" title="MNIST for ML Beginners tutorial">
+   <img width=450 height=291 style="flex-grow:1; flex-shrink:1; border: 1px solid black;" src="images/blue_pill.png" alt="MNIST for machine learning beginners tutorial" />
+ </a>
+ <a href="tutorial_mnist_pros.html" title="Deep MNIST for ML Experts tutorial">
+   <img width=450 height=291 style="flex-grow:1; flex-shrink:1; border: 1px solid black;" src="images/red_pill.png" alt="Deep MNIST for machine learning experts tutorial" />
+ </a>
+</div>
+<p style="font-size:10px;">Images licensed CC BY-SA 4.0; original by W. Carter</p>
+
+If you're already sure you want to learn and install TensorFlow you can skip these and charge ahead.  Don't worry, you'll still get to see MNIST -- we'll also use MNIST as an example in our technical tutorial where we elaborate on TensorFlow features.
+
+## Recommended Next Steps
+
+* [Download and Setup](download_and_setup.html)
+* [Basic Usage](basic_usage.html)
+* [TensorFlow Mechanics 101](tutorial_tensorflow_mechanics.html)
+* [Tinker with a neural network in your browser](http://playground.tensorflow.org)

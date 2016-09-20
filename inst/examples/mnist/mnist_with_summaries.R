@@ -150,7 +150,7 @@ train <- function() {
       acc <- result[[2]]
       test_writer$add_summary(summary, i)
     } else {  # Record train set summaries, and train
-      if (i %% 101 == 100) { # Record execution stats
+      if (i %% 100 == 99) { # Record execution stats
         run_options <- tf$RunOptions(trace_level = tf$RunOptions()$FULL_TRACE)
         run_metadata <- tf$RunMetadata()
         result <- sess$run(list(merged, train_step),

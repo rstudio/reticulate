@@ -241,6 +241,11 @@ $(document).ready(function () {
 </div>
 
 
+<style type="text/css">
+pre:not([class]) {
+  background-color: #f5f5f5;
+}
+</style>
 <div class="row">
 <div class="col-md-6">
 <p><a href="https://tensorflow.org">TensorFlow™</a> is an open source software library for numerical computation using data flow graphs. Nodes in the graph represent mathematical operations, while the graph edges represent the multidimensional data arrays (tensors) communicated between them. The flexible architecture allows you to deploy computation to one or more CPUs or GPUs in a desktop, server, or mobile device with a single API. TensorFlow was originally developed by researchers and engineers working on the Google Brain Team within Google’s Machine Intelligence research organization for the purposes of conducting machine learning and deep neural networks research, but the system is general enough to be applicable in a wide variety of other domains as well.</p>
@@ -252,8 +257,7 @@ $(document).ready(function () {
 </div>
 <div id="using-tensorflow-with-r" class="section level2">
 <h2>Using TensorFlow with R</h2>
-<p>The <a href="https://github.com/jjallaire/tensorflow">tensorflow</a> package provides access to the entire TensorFlow API from within R. This website describes the basic usage of TensorFlow within R. For additional documentation see the main <a href="https://www.tensorflow.org">TensorFlow website</a>. Note that the documentation on the main website is based on the Python API for TensorFlow, however since the R API is nearly identical to the Python API, documentation, tutorials, and examples that use Python are very easy to apply to the use of the R API.</p>
-<p>Here’s an example of what TensorFlow code looks like in the R API (the code makes up some data in two dimensions, and then fits a line to it):</p>
+<p>The <a href="https://github.com/jjallaire/tensorflow">tensorflow</a> package provides access to the TensorFlow API from within R. Here’s a simple example of making up some data in two dimensions and then fitting a line to it:</p>
 <pre class="r"><code>library(tensorflow)
 
 # Create 100 phony x, y data points, y = x * 0.1 + 0.3
@@ -299,10 +303,11 @@ Images licensed CC BY-SA 4.0; original by W. Carter
 <h2>Download and Setup</h2>
 <p>You should start by installing the base TensorFlow system. You can do this by following the <a href="https://www.tensorflow.org/get_started/os_setup.html#download-and-setup">installation instructions</a> on the TensorFlow website.</p>
 <p>Once you’ve succesfully installed TensorFlow and verified that it’s working correctly, you can install the <strong>tensorflow</strong> R package as follows:</p>
-<pre class="r"><code>devtools::install_packages(&quot;jjallaire/tensorflow&quot;)</code></pre>
+<pre><code>git clone git@github.com:jjallaire/tensorflow.git || (cd tensorflow &amp;&amp; git pull)
+R CMD build tensorflow &amp;&amp; R CMD INSTALL tensorflow_0.2.0.tar.gz</code></pre>
 <p>The tensorflow package will be built against the default version of python found in the <code>PATH</code>. If you want to build against a specific version of python you can define the <code>TENSORFLOW_PYTHON_VERSION</code> environment variable before installing. For example:</p>
-<pre class="r"><code>Sys.setenv(TENSORFLOW_PYTHON_VERSION = 3)
-devtools::install_packages(&quot;jjallaire/tensorflow&quot;)</code></pre>
+<pre><code> export TENSORFLOW_PYTHON_VERSION=3
+ R CMD build tensorflow &amp;&amp; R CMD INSTALL tensorflow_0.2.0.tar.gz</code></pre>
 <p>You can verify that your installation is working correctly by running this simple script:</p>
 <pre class="r"><code>library(tensorflow)
 sess = tf$Session()
@@ -322,7 +327,6 @@ sess$run(hello)</code></pre>
 <li><a href="basic_usage.html">Basic Usage</a></li>
 <li><a href="using_tensorflow_api.html">Using the TensorFlow API from R</a></li>
 </ul>
-<p>You can also find additional tutorials and documentation on the main <a href="https://tensorflow.org">TensorFlow website</a>. This documentation uses the Python API, however since the R API is nearly identical to the Python API the content is easy to adapt for use with R.</p>
 <p>Finally, to learn more about neural networks you might enjoy the <a href="http://playground.tensorflow.org">TensorFlow playground</a>, which lets you tinker with a neural network in your browser.</p>
 </div>
 

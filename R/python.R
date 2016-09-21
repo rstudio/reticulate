@@ -68,8 +68,9 @@ str.tensorflow.builtin.object <- function(object, ...) {
       else
         result
     }
-    if (py_is_function(attrib))
-      attr(f, "py_function") <- attrib
+    # assign py_object attribute so it marshalls back to python
+    # as a native python object
+    attr(f, "py_object") <- attrib
     f
   } else {
     py_to_r(attrib)

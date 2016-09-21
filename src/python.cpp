@@ -576,11 +576,11 @@ PyObject* r_to_py(RObject x) {
     ::Py_IncRef(obj.get());
     return obj.get();
 
-  // use py_function attribute if we have it
-  } else if (x.hasAttribute("py_function")) {
-    PyObjectXPtr func = as<PyObjectXPtr>(x.attr("py_function"));
-    ::Py_IncRef(func.get());
-    return func.get();
+  // use py_object attribute if we have it
+  } else if (x.hasAttribute("py_object")) {
+    PyObjectXPtr obj = as<PyObjectXPtr>(x.attr("py_object"));
+    ::Py_IncRef(obj.get());
+    return obj.get();
 
   // convert arrays and matrixes to numpy
   } else if (x.hasAttribute("dim")) {

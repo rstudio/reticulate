@@ -7,11 +7,11 @@ The **tensorflow** R package provides access to the complete TensorFlow API from
 
 ## Installation
 
-1. Follow the instructions here to install the main TensorFlow distribution:
+1. Install the main TensorFlow distribution:
 
   https://www.tensorflow.org/get_started/os_setup.html#download-and-setup
 
-2. Clone and install the **tensorflow** R package:
+2. Install the **tensorflow** R package:
 
     ```bash
     git clone git@github.com:jjallaire/tensorflow.git

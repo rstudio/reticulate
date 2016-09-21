@@ -22,9 +22,7 @@ output:
 
 ## Using TensorFlow with R
 
-The [tensorflow](https://github.com/jjallaire/tensorflow) package provides access to the entire TensorFlow API from within R. This website describes the basic usage of TensorFlow within R. For additional documentation see the main [TensorFlow website](https://www.tensorflow.org). Note that the documentation on the main website is based on the Python API for TensorFlow, however since the R API is nearly identical to the Python API, documentation, tutorials, and examples that use Python are very easy to apply to the use of the R API.
-
-Here's an example of what TensorFlow code looks like in the R API (the code makes up some data in two dimensions, and then fits a line to it):
+The [tensorflow](https://github.com/jjallaire/tensorflow) package provides access to the TensorFlow API from within R. Here's a simple example of making up some data in two dimensions and then fitting a line to it:
 
 ```{r, results='hide'}
 library(tensorflow)
@@ -113,7 +111,5 @@ In addition, these articles cover the core concepts of TensorFlow in more depth 
 
 * [Basic Usage](basic_usage.html)
 * [Using the TensorFlow API from R](using_tensorflow_api.html)
-
-You can also find additional tutorials and documentation on the main [TensorFlow website](https://tensorflow.org). This documentation uses the Python API, however since the R API is nearly identical to the Python API the content is easy to adapt for use with R.
 
 Finally, to learn more about neural networks you might enjoy the [TensorFlow playground](http://playground.tensorflow.org), which lets you tinker with a neural network in your browser.

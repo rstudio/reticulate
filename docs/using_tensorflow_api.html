@@ -340,12 +340,11 @@ div.tocify {
 
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
-<p>The <strong>tensorflow</strong> package provides access to the entire TensorFlow API from within R. The R API for TensorFlow is based on the Python API, so most TensorFlow documentation, tutorials, and examples that use Python are easy to apply to R.</p>
-<p>This article describes the basic mechanics of using the R API. For a detailed API reference, see the main <a href="https://www.tensorflow.org/versions/r0.10/api_docs/python/index.html">TensorFlow API</a> documentation.</p>
+<p>The <strong>tensorflow</strong> package provides access to the entire TensorFlow API from within R. This article describes the basic mechanics of using the R API. For a detailed API reference, see the main <a href="https://www.tensorflow.org/versions/r0.10/api_docs/python/index.html">TensorFlow API</a> documentation. This documentation uses the Python API, however the R API is based on the Python API so documentation, tutorials, and examples that use Python are easily applied to R.</p>
 </div>
 <div id="modules" class="section level2">
 <h2>Modules</h2>
-<p>The TensorFlow API is divided into modules. The top-level entry point to the API is the <code>tf</code> object, which provides access to the main <code>tensorflow</code> module. The <code>tf</code> object is exported from the <strong>tensorflow</strong> package. For example, here is a simple “Hello, World” script:</p>
+<p>The TensorFlow API is divided into modules. The top-level entry point to the API is <code>tf</code>, which provides access to the main TensorFlow module (<code>tf</code> is exported from the <strong>tensorflow</strong> package). For example, here is a simple “Hello, World” script:</p>
 <pre class="r"><code>library(tensorflow)
 
 sess = tf$Session()
@@ -356,13 +355,20 @@ sess$run(hello)
 a &lt;- tf$constant(10L)
 b &lt;- tf$constant(32L)
 sess$run(a + b)</code></pre>
-<p>The <code>tensorflow</code> module (<code>tf</code>) includes a wide variety of functions and classes which you can read more more about in the <a href="https://www.tensorflow.org/api_docs/python/">TensorFlow API</a> documentation (see also the <a href="#getting-help">Getting Help</a> section below which describes accessing help for the TensorFlow API directly within the RStudio IDE editor and console).</p>
-<p>The TensorFlow API also includes many sub-modules, including the <code>tensorflow.nn</code> module which provides specialized functions for neural networks and the <code>tensorflow.contrib.learn</code> and <code>tensorflow.contrib.slim</code> modules which define higher-level APIs for TensorFlow. You can access these modules the same way that functions are accessed (via the <code>$</code> operator). For example:</p>
-<pre class="r"><code># Call the conv2d function within the tensorflow.nn module
+<div id="functions-classes" class="section level3">
+<h3>Functions &amp; Classes</h3>
+<p>Functions that begin with a lowercase letter (e.g. <code>tf$constant</code>) are normal R functions. Functions that begin within an uppercase letter (e.g. <code>tf$Session</code>) are functions that create new instances of TensorFlow classes.</p>
+<p>The main TensorFlow module (<code>tf</code>) includes a wide variety of functions and classes which you can read more more about in the <a href="https://www.tensorflow.org/api_docs/python/">TensorFlow API</a> documentation (see also the <a href="#getting-help">Getting Help</a> section below which describes accessing help for the TensorFlow API directly within the RStudio IDE editor and console).</p>
+</div>
+<div id="sub-modules" class="section level3">
+<h3>Sub-Modules</h3>
+<p>The TensorFlow API also includes many sub-modules, including the <code>tf$nn</code> module which provides specialized functions for neural networks and the <code>tf$train</code> module which provides a set of classes and functions that helps train models. You can access these modules the same way that functions are accessed (via the <code>$</code> operator). For example:</p>
+<pre class="r"><code># Call the conv2d function within the nn sub-module
 tf$nn$conv2d(x, W, strides=c(1L, 1L, 1L, 1L), padding=&#39;SAME&#39;)
 
-# Access the tensorflow.contrib.learn module
-learn &lt;- tf$contrib$learn</code></pre>
+# Create an optimizer from the train sub-module
+optimizer &lt;- tf$train$GradientDescentOptimizer(0.5)</code></pre>
+</div>
 </div>
 <div id="simple-example" class="section level2">
 <h2>Simple Example</h2>
@@ -497,8 +503,9 @@ correct_prediction &lt;- tf$equal(tf$argmax(y_conv, 1L), tf$argmax(y_, 1L))</cod
 
 </div>
 <p>You can press the F1 key while viewing inline help (or whenever your cursor is over a TensorFlow API symbol) and you will be navigated to the location of that symbol’s help within the <a href="https://www.tensorflow.org/api_docs/python/">TensorFlow API</a> documentation.</p>
-<div id="api-documentation" class="section level3">
-<h3>API Documentation</h3>
+</div>
+<div id="api-reference" class="section level2">
+<h2>API Reference</h2>
 <p>The <a href="https://www.tensorflow.org/api_docs/python/">TensorFlow API</a> reference documents the Python API for TensorFlow. Since Python and R are so syntactically similar the documentation is also quite readable for users of R.</p>
 <p>Python data types in the TensorFlow API map to R as follows:</p>
 <table>
@@ -543,7 +550,6 @@ correct_prediction &lt;- tf$equal(tf$argmax(y_conv, 1L), tf$argmax(y_, 1L))</cod
 </tbody>
 </table>
 <p>If you keep these mappings along with the above guidelines on numeric types and tensor shapes/indexes in mind then TensorFlow documentation, tutorials, and examples that use Python will be very easy to apply to the use of the R API.</p>
-</div>
 </div>
 
 

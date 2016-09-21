@@ -350,6 +350,7 @@ div.tocify {
 <h2>Overview</h2>
 <p>TensorFlow is a programming system in which you represent computations as graphs. Nodes in the graph are called <em>ops</em> (short for operations). An op takes zero or more <code>Tensors</code>, performs some computation, and produces zero or more <code>Tensors</code>. A <code>Tensor</code> is a typed multi-dimensional array. For example, you can represent a mini-batch of images as a 4-D array of floating point numbers with dimensions <code>shape(batch, height, width, channels)</code>.</p>
 <p>A TensorFlow graph is a <em>description</em> of computations. To compute anything, a graph must be launched in a <code>Session</code>. A <code>Session</code> places the graph ops onto <code>Devices</code>, such as CPUs or GPUs, and provides methods to execute them. These methods return tensors produced by ops as R vectors, matrices, and multi-dimensional arrays.</p>
+<p>This article includes further explanation and short examples for each of these concepts. The article on <a href="using_tensorflow_api.html">Using the TensorFlow API from R</a> provides additional details on the R API, including how to access help and additional documentation.</p>
 </div>
 <div id="computation-graph" class="section level2">
 <h2>Computation Graph</h2>

@@ -1,6 +1,5 @@
 
 
-# TODO: revise modules section in api doc
 # TODO: port selected "how to" docs
 # TODO: port additional tutorials
 

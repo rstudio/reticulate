@@ -8,13 +8,11 @@ knitr::opts_chunk$set(eval = FALSE)
 
 ## Introduction
 
-The **tensorflow** package provides access to the entire TensorFlow API from within R. The R API for TensorFlow is based on the Python API, so most TensorFlow documentation, tutorials, and examples that use Python are easy to apply to R. 
-
-This article describes the basic mechanics of using the R API. For a detailed API reference, see the main [TensorFlow API](https://www.tensorflow.org/versions/r0.10/api_docs/python/index.html) documentation.
+The **tensorflow** package provides access to the entire TensorFlow API from within R.  This article describes the basic mechanics of using the R API. For a detailed API reference, see the main [TensorFlow API](https://www.tensorflow.org/versions/r0.10/api_docs/python/index.html) documentation. This documentation uses the Python API, however the R API is based on the Python API so documentation, tutorials, and examples that use Python are easily applied to R. 
 
 ## Modules
 
-The TensorFlow API is divided into modules. The top-level entry point to the API is the `tf` object, which provides access to the main `tensorflow` module. The `tf` object is exported from the **tensorflow** package. For example, here is a simple "Hello, World" script:
+The TensorFlow API is divided into modules. The top-level entry point to the API is `tf`, which provides access to the main TensorFlow module (`tf` is exported from the **tensorflow** package). For example, here is a simple "Hello, World" script:
 
 ```{r}
 library(tensorflow)
@@ -29,16 +27,22 @@ b <- tf$constant(32L)
 sess$run(a + b)
 ```
 
-The `tensorflow` module (`tf`) includes a wide variety of functions and classes which you can read more more about in the [TensorFlow API](https://www.tensorflow.org/api_docs/python/) documentation (see also the [Getting Help] section below which describes accessing help for the TensorFlow API directly within the RStudio IDE editor and console).
+### Functions & Classes
 
-The TensorFlow API also includes many sub-modules, including the `tensorflow.nn` module which provides specialized functions for neural networks and the `tensorflow.contrib.learn` and `tensorflow.contrib.slim` modules which define higher-level APIs for TensorFlow. You can access these modules the same way that functions are accessed (via the `$` operator). For example:
+Functions that begin with a lowercase letter (e.g. `tf$constant`) are normal R functions. Functions that begin within an uppercase letter (e.g. `tf$Session`) are functions that create new instances of TensorFlow classes.
+
+The main TensorFlow module (`tf`) includes a wide variety of functions and classes which you can read more more about in the [TensorFlow API](https://www.tensorflow.org/api_docs/python/) documentation (see also the [Getting Help] section below which describes accessing help for the TensorFlow API directly within the RStudio IDE editor and console).
+
+### Sub-Modules
+
+The TensorFlow API also includes many sub-modules, including the `tf$nn` module which provides specialized functions for neural networks and the `tf$train` module which provides a set of classes and functions that helps train models. You can access these modules the same way that functions are accessed (via the `$` operator). For example:
 
 ```{r}
-# Call the conv2d function within the tensorflow.nn module
+# Call the conv2d function within the nn sub-module
 tf$nn$conv2d(x, W, strides=c(1L, 1L, 1L, 1L), padding='SAME')
 
-# Access the tensorflow.contrib.learn module
-learn <- tf$contrib$learn
+# Create an optimizer from the train sub-module
+optimizer <- tf$train$GradientDescentOptimizer(0.5)
 ```
 
 ## Simple Example
@@ -189,7 +193,7 @@ Inline help is also available for function parameters:
 
 You can press the F1 key while viewing inline help (or whenever your cursor is over a TensorFlow API symbol) and you will be navigated to the location of that symbol's help within the [TensorFlow API](https://www.tensorflow.org/api_docs/python/) documentation.
 
-### API Documentation
+## API Reference
 
 The [TensorFlow API](https://www.tensorflow.org/api_docs/python/) reference documents the Python API for TensorFlow. Since Python and R are so syntactically similar the documentation is also quite readable for users of R.
 

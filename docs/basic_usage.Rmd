@@ -19,6 +19,8 @@ TensorFlow is a programming system in which you represent computations as graphs
 
 A TensorFlow graph is a *description* of computations.  To compute anything, a graph must be launched in a `Session`.  A `Session` places the graph ops onto `Devices`, such as CPUs or GPUs, and provides methods to execute them.  These methods return tensors produced by ops as R vectors, matrices, and multi-dimensional arrays.
 
+This article includes further explanation and short examples for each of these concepts. The article on [Using the TensorFlow API from R](using_tensorflow_api.html) provides additional details on the R API, including how to access help and additional documentation.
+
 ## Computation Graph
 
 TensorFlow programs are usually structured into a construction phase, that assembles a graph, and an execution phase that uses a session to execute ops in the graph.
@@ -236,4 +238,6 @@ with(tf$Session() %as% sess, {
 ```
 
 A `placeholder()` operation generates an error if you do not supply a feed for it. See the [MNIST fully-connected feed tutorial](tutorial_tensorflow_mechanics.html) ([source code](https://github.com/jjallaire/tensorflow/blob/master/inst/examples/mnist/fully_connected_feed.R)) for a larger-scale example of feeds.
+
+
 

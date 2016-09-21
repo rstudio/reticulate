@@ -79,9 +79,16 @@ If you're already sure you want to learn and install TensorFlow you can skip the
 
 You should start by installing the base TensorFlow system. You can do this by following the [installation instructions](https://www.tensorflow.org/get_started/os_setup.html#download-and-setup) on the TensorFlow website.
 
-Once you've succesfully installed and TensorFlow and verified that it's working correctly, you can install the **tensorflow** R package as follows:
+Once you've succesfully installed TensorFlow and verified that it's working correctly, you can install the **tensorflow** R package as follows:
 
 ```{r, eval=FALSE}
+devtools::install_packages("jjallaire/tensorflow")
+```
+
+The tensorflow package will be built against the default version of python found in the `PATH`. If you want to build against a specific version of python you can define the `TENSORFLOW_PYTHON_VERSION` environment variable before installing. For example:
+
+```{r, eval=FALSE}
+Sys.setenv(TENSORFLOW_PYTHON_VERSION = 3)
 devtools::install_packages("jjallaire/tensorflow")
 ```
 

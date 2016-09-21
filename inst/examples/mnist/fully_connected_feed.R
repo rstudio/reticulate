@@ -4,8 +4,8 @@ library(tensorflow)
 # minst functions
 source("mnist.R")
 
-# input data
-input_data <- import("tensorflow.examples.tutorials.mnist.input_data")
+# input_data
+input_data <- tf$contrib$learn$datasets$mnist
 
 # Basic model parameters as external flags.
 flags <- tf$app$flags

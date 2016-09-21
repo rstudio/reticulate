@@ -1,8 +1,6 @@
 
 # TODO: add TENSORFLOW_PYTHON environment variable
 
-# TODO: don't use import in fully_connected_feed.R
-
 # TODO: ? operator for help
 
 # TODO: tensorflow.object or tensorflow.builtin.object rather than

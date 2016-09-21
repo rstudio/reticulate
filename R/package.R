@@ -1,24 +1,12 @@
 
-# TODO: think about implications of PyInt going away in py3 for R marshalling
-
-# TODO: NaN coming back for loss when running fully_connected_feed.R on py3
-
-# TODO: periodic error on Linux in fully_connected_feed.R (py2 and py3):
-# 1. Failure: mnist/fully_connected_feed.R example runs successfully (@test-examples.R#30)
-  # run_example(example) threw an error.
-  # InvalidArgumentError: targets[98] is out of range
-  # [[Node: InTopK = InTopK[T=DT_INT32, k=1, _device="/job:localhost/replica:0/task:0/cpu:0"](softmax_linear/Add, _recv_Placeholder_1_0)]]
-  # Caused by op u'InTopK', defined at:
-  #   File "/usr/local/lib/python2.7/dist-packages/tensorflow/python/ops/gen_nn_ops.py", line 973, in in_top_k
-  # targets=targets, k=k, name=name)
-  # File "/usr/local/lib/python2.7/dist-packages/tensorflow/python/framework/op_def_library.py", line 703, in apply_op
-  # op_def=op_def)
-  # File "/usr/local/lib/python2.7/dist-packages/tensorflow/python/framework/ops.py", line 2310, in create_op
-  # original_op=self._default_original_op, op_def=op_def)
-  # File "/usr/local/lib/python2.7/dist-packages/tensorflow/python/framework/ops.py", line 1232, in __init__
-  # self._traceback = _extract_stack()
-
 # TODO: add TENSORFLOW_PYTHON environment variable
+
+# TODO: don't use import in fully_connected_feed.R
+
+# TODO: ? operator for help
+
+# TODO: tensorflow.object or tensorflow.builtin.object rather than
+#       tensorflow.python.object
 
 # TODO: completion for np$absolute causes an error
 

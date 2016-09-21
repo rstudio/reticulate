@@ -11,7 +11,7 @@ First follow the instructions here to install the main TensorFlow distribution:
 
 https://www.tensorflow.org/get_started/os_setup.html#download-and-setup
 
-Then, clone the install the **tensorflow** R package as follows:
+Then, clone and install the **tensorflow** R package as follows:
 
 ```bash
 git clone git@github.com:jjallaire/tensorflow.git
@@ -20,7 +20,7 @@ R CMD build tensorflow && R CMD INSTALL tensorflow_0.2.0.tar.gz
 
 ## Documentation
 
-You can access documentation for the **tensorflow** package in the `docs` directory as follows:
+You can access documentation for the **tensorflow** package as follows:
 
 #### Ubuntu
 

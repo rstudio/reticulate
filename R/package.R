@@ -1,4 +1,5 @@
 
+# TODO: think about implications of PyInt going away in py3 for R marshalling
 
 # TODO: NaN coming back for loss when running fully_connected_feed.R on py3
 

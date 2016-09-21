@@ -148,6 +148,9 @@ std::string as_r_class(PyObject* classPtr) {
   std::string builtin("__builtin__");
   if (module.find(builtin) == 0)
     module.replace(0, builtin.length(), "tensorflow.builtin");
+  std::string builtins("builtins");
+  if (module.find(builtins) == 0)
+    module.replace(0, builtins.length(), "tensorflow.builtin");
   ostr << module << as_std_string(namePtr);
   return ostr.str();
 }

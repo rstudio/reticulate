@@ -147,7 +147,7 @@ std::string as_r_class(PyObject* classPtr) {
   std::string module = as_std_string(modulePtr) + ".";
   std::string builtin("__builtin__");
   if (module.find(builtin) == 0)
-    module.replace(0, builtin.length(), "tensorflow.python");
+    module.replace(0, builtin.length(), "tensorflow.builtin");
   ostr << module << as_std_string(namePtr);
   return ostr.str();
 }
@@ -178,10 +178,10 @@ PyObjectXPtr py_xptr(PyObject* object, bool decref = true) {
     }
   }
 
-  // add tensorflow.python.object if we don't already have it
-  if (std::find(attrClass.begin(), attrClass.end(), "tensorflow.python.object")
+  // add tensorflow.builtin.object if we don't already have it
+  if (std::find(attrClass.begin(), attrClass.end(), "tensorflow.builtin.object")
                                                       == attrClass.end()) {
-    attrClass.push_back("tensorflow.python.object");
+    attrClass.push_back("tensorflow.builtin.object");
   }
 
   // set classes
@@ -571,7 +571,7 @@ PyObject* r_to_py(RObject x) {
 
   // pass python objects straight through (Py_IncRef since returning this
   // creates a new reference from the caller)
-  } else if (x.inherits("tensorflow.python.object")) {
+  } else if (x.inherits("tensorflow.builtin.object")) {
     PyObjectXPtr obj = as<PyObjectXPtr>(sexp);
     ::Py_IncRef(obj.get());
     return obj.get();

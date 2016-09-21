@@ -1,7 +1,7 @@
 
 #' @export
 "print.tensorflow.python.framework.ops.Tensor" <- function(x, ...) {
-  print.tensorflow.python.object(x, ...)
+  print.tensorflow.builtin.object(x, ...)
   if (!is.null(tf$get_default_session())) {
     value <- tryCatch(x$eval(), error = function(e) NULL)
     if (!is.null(value))

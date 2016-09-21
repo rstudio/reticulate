@@ -26,7 +26,7 @@ import <- function(module, silent = FALSE) {
 
 
 #' @export
-print.tensorflow.python.object <- function(x, ...) {
+print.tensorflow.builtin.object <- function(x, ...) {
   if (py_is_null_xptr(x))
     print.default(x)
   else
@@ -35,7 +35,7 @@ print.tensorflow.python.object <- function(x, ...) {
 
 #' @importFrom utils str
 #' @export
-str.tensorflow.python.object <- function(object, ...) {
+str.tensorflow.builtin.object <- function(object, ...) {
   if (py_is_null_xptr(object))
     "<pointer: 0x0>"
   else
@@ -43,7 +43,7 @@ str.tensorflow.python.object <- function(object, ...) {
 }
 
 #' @export
-`$.tensorflow.python.object` <- function(x, name) {
+`$.tensorflow.builtin.object` <- function(x, name) {
   attrib <- py_get_attr(x, name)
   if (py_is_callable(attrib)) {
     f <- function(...) {
@@ -77,12 +77,12 @@ str.tensorflow.python.object <- function(object, ...) {
 }
 
 #' @export
-`[[.tensorflow.python.object` <- `$.tensorflow.python.object`
+`[[.tensorflow.builtin.object` <- `$.tensorflow.builtin.object`
 
 
 #' @importFrom utils .DollarNames
 #' @export
-.DollarNames.tensorflow.python.object <- function(x, pattern = "") {
+.DollarNames.tensorflow.builtin.object <- function(x, pattern = "") {
 
   # skip if this is a NULL xptr
   if (py_is_null_xptr(x))
@@ -137,7 +137,7 @@ dict <- function(...) {
 
 #' Evaluate an expression within a context.
 #'
-#' The \code{with} method for objects of type \code{tensorflow.python.object}
+#' The \code{with} method for objects of type \code{tensorflow.builtin.object}
 #' implements the context manager protocol used by the Python \code{with}
 #' statement. The passed object must implement the
 #' \href{https://docs.python.org/2/reference/datamodel.html#context-managers}{context
@@ -150,7 +150,7 @@ dict <- function(...) {
 #' @param ... Unused
 #'
 #' @export
-with.tensorflow.python.object <- function(data, expr, as = NULL, ...) {
+with.tensorflow.builtin.object <- function(data, expr, as = NULL, ...) {
 
   # enter the context
   context <- data$`__enter__`()

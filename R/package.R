@@ -1,14 +1,12 @@
 
-# TODO: add TENSORFLOW_PYTHON environment variable
 
 # TODO: ? operator for help
 
-# TODO: tensorflow.object or tensorflow.builtin.object rather than
-#       tensorflow.python.object
+# TODO: make py_function mechanism a bit more general
 
 # TODO: completion for np$absolute causes an error
 
-# TODO: add docs on TENSORFLOW_PYTHON_VERSION python3
+# TODO: add docs on TENSORFLOW_PYTHON_VERSION
 # TODO: revise modules section in api doc
 # TODO: port selected "how to" docs
 # TODO: port additional tutorials

@@ -1,18 +1,19 @@
 ---
 title: "Using the TensorFlow API from R"
+output: 
+  html_document:
+    toc_depth: 2
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(eval = FALSE)
 ```
 
-## Introduction
-
-The **tensorflow** package provides access to the entire TensorFlow API from within R.  This article describes the basic mechanics of using the R API. For a detailed API reference, see the main [TensorFlow API](https://www.tensorflow.org/versions/r0.10/api_docs/python/index.html) documentation. This documentation uses the Python API, however the R API is based on the Python API so documentation, tutorials, and examples that use Python are easily applied to R. 
+The tensorflow package provides access to the complete TensorFlow API from within R.  This article describes the basic mechanics of using the R API. For a detailed API reference, see the main [TensorFlow API](https://www.tensorflow.org/versions/r0.10/api_docs/python/index.html) documentation. 
 
 ## Modules
 
-The TensorFlow API is divided into modules. The top-level entry point to the API is `tf`, which provides access to the main TensorFlow module (`tf` is exported from the **tensorflow** package). For example, here is a simple "Hello, World" script:
+The TensorFlow API is divided into modules. The top-level entry point to the API is `tf`, which provides access to the main TensorFlow module (`tf` is exported from the tensorflow package). For example, here is a simple "Hello, World" script:
 
 ```{r}
 library(tensorflow)
@@ -195,7 +196,7 @@ You can press the F1 key while viewing inline help (or whenever your cursor is o
 
 ## API Reference
 
-The [TensorFlow API](https://www.tensorflow.org/api_docs/python/) reference documents the Python API for TensorFlow. Since Python and R are so syntactically similar the documentation is also quite readable for users of R.
+The main [TensorFlow API](https://www.tensorflow.org/api_docs/python/) reference documents all of the modules, classes, and functions within TensorFlow. This documentation is for the Python API, however since the R API is based on the Python API the documentation is also easily adapted for use with R.
 
 Python data types in the TensorFlow API map to R as follows:
 
@@ -208,7 +209,6 @@ Python data types in the TensorFlow API map to R as follows:
 | NumPy ndarray  | Matrix/Array | `matrix(c(1,2,3,4), nrow = 2, ncol = 2)`
 | None, True, False  | NULL, TRUE, FALSE  | `NULL`, `TRUE`, `FALSE`
 
-If you keep these mappings along with the above guidelines on numeric types and tensor shapes/indexes in mind then TensorFlow documentation, tutorials, and examples that use Python will be very easy to apply to the use of the R API.
 
 
 

@@ -84,7 +84,7 @@ If you're already sure you want to learn and install TensorFlow you can skip the
 
 You should start by installing the base TensorFlow system. You can do this by following the [installation instructions](https://www.tensorflow.org/get_started/os_setup.html#download-and-setup) on the TensorFlow website.
 
-Once you've succesfully installed TensorFlow and verified that it's working correctly, you can install the **tensorflow** R package as follows:
+Once you've succesfully installed TensorFlow and verified that it's working correctly, you can install the tensorflow R package as follows:
 
     git clone git@github.com:jjallaire/tensorflow.git || (cd tensorflow && git pull)
     R CMD build tensorflow && R CMD INSTALL tensorflow_0.2.0.tar.gz
@@ -107,7 +107,7 @@ sess$run(hello)
 
 ## Recommended Next Steps
 
-Once you've installed the base TensorFlow system and the **tensorflow** R package, you will likely want work though the series of tutorials that cover TensorFlow basics:
+Once you've installed the base TensorFlow system and the tensorflow R package, you will likely want work though the series of tutorials that cover TensorFlow basics:
 
 * [MNIST For ML Beginners](tutorial_mnist_beginners.html)
 * [Deep MNIST for Experts](tutorial_mnist_pros.html)

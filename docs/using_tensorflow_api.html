@@ -178,7 +178,7 @@ $(document).ready(function ()  {
 
     // establish options
     var options = {
-      selectors: "h1,h2,h3",
+      selectors: "h1,h2",
       theme: "bootstrap3",
       context: '.toc-content',
       hashGenerator: function (text) {
@@ -338,13 +338,10 @@ div.tocify {
 </div>
 
 
-<div id="introduction" class="section level2">
-<h2>Introduction</h2>
-<p>The <strong>tensorflow</strong> package provides access to the entire TensorFlow API from within R. This article describes the basic mechanics of using the R API. For a detailed API reference, see the main <a href="https://www.tensorflow.org/versions/r0.10/api_docs/python/index.html">TensorFlow API</a> documentation. This documentation uses the Python API, however the R API is based on the Python API so documentation, tutorials, and examples that use Python are easily applied to R.</p>
-</div>
+<p>The tensorflow package provides access to the complete TensorFlow API from within R. This article describes the basic mechanics of using the R API. For a detailed API reference, see the main <a href="https://www.tensorflow.org/versions/r0.10/api_docs/python/index.html">TensorFlow API</a> documentation.</p>
 <div id="modules" class="section level2">
 <h2>Modules</h2>
-<p>The TensorFlow API is divided into modules. The top-level entry point to the API is <code>tf</code>, which provides access to the main TensorFlow module (<code>tf</code> is exported from the <strong>tensorflow</strong> package). For example, here is a simple “Hello, World” script:</p>
+<p>The TensorFlow API is divided into modules. The top-level entry point to the API is <code>tf</code>, which provides access to the main TensorFlow module (<code>tf</code> is exported from the tensorflow package). For example, here is a simple “Hello, World” script:</p>
 <pre class="r"><code>library(tensorflow)
 
 sess = tf$Session()
@@ -506,7 +503,7 @@ correct_prediction &lt;- tf$equal(tf$argmax(y_conv, 1L), tf$argmax(y_, 1L))</cod
 </div>
 <div id="api-reference" class="section level2">
 <h2>API Reference</h2>
-<p>The <a href="https://www.tensorflow.org/api_docs/python/">TensorFlow API</a> reference documents the Python API for TensorFlow. Since Python and R are so syntactically similar the documentation is also quite readable for users of R.</p>
+<p>The main <a href="https://www.tensorflow.org/api_docs/python/">TensorFlow API</a> reference documents all of the modules, classes, and functions within TensorFlow. This documentation is for the Python API, however since the R API is based on the Python API the documentation is also easily adapted for use with R.</p>
 <p>Python data types in the TensorFlow API map to R as follows:</p>
 <table>
 <thead>
@@ -549,7 +546,6 @@ correct_prediction &lt;- tf$equal(tf$argmax(y_conv, 1L), tf$argmax(y_, 1L))</cod
 </tr>
 </tbody>
 </table>
-<p>If you keep these mappings along with the above guidelines on numeric types and tensor shapes/indexes in mind then TensorFlow documentation, tutorials, and examples that use Python will be very easy to apply to the use of the R API.</p>
 </div>
 
 

@@ -1,8 +1,5 @@
 
 
-
-# TODO: completion for np$absolute causes an error
-
 # TODO: add docs on TENSORFLOW_PYTHON_VERSION
 # TODO: revise modules section in api doc
 # TODO: port selected "how to" docs

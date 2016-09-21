@@ -38,13 +38,14 @@ def get_property_doc(target, prop):
       return inspect.getdoc(obj.fget)
   return None
 
-
 def get_arguments(func):
     func = normalize_func(func)
     if func is None:
       return None
-
-    argspec = inspect.getargspec(func)
+    try:
+      argspec = inspect.getargspec(func)
+    except TypeError:
+      return None
     args = argspec.args
     if 'self' in args:
       args.remove('self')
@@ -58,7 +59,10 @@ def generate_signature_for_function(func):
       return None
 
     args_list = []
-    argspec = inspect.getargspec(func)
+    try:
+      argspec = inspect.getargspec(func)
+    except TypeError:
+      return None
     first_arg_with_default = (
         len(argspec.args or []) - len(argspec.defaults or []))
     for arg in argspec.args[:first_arg_with_default]:

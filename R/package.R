@@ -1,8 +1,5 @@
 
 
-# TODO: ? operator for help
-
-# TODO: make py_function mechanism a bit more general
 
 # TODO: completion for np$absolute causes an error
 

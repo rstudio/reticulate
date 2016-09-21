@@ -5,7 +5,10 @@ test <- import("tftools.test")
 
 test_that("R named lists become Python dictionaries", {
   l <- list(a = 1, b = 2, c = 3)
-  expect_equal(test$asString(l), "{'a': 1.0, 'c': 3.0, 'b': 2.0}")
+  reflected <- test$reflect(l)
+  expect_equal(l$a, reflected$a)
+  expect_equal(l$b, reflected$b)
+  expect_equal(l$c, reflected$c)
 })
 
 test_that("R dictionaries become R named lists", {

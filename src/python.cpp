@@ -1,5 +1,19 @@
 #include <Python.h>
 
+#if PY_MAJOR_VERSION >= 3
+#define PYTHON_3
+// PyInt is gone in python3 so alias to PyLong
+#define PyInt_Check PyLong_Check
+#define PyInt_AsLong PyLong_AsLong
+#define PyInt_FromLong PyLong_FromLong
+// Python arguments array becomes whcar_t in python3
+#define PYTHON_ARGV L"python"
+typedef wchar_t argv_char_t;
+#else
+#define PYTHON_ARGV "python"
+typedef char argv_char_t;
+#endif
+
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 #include <numpy/arrayobject.h>
 #include <numpy/ndarraytypes.h>
@@ -49,21 +63,76 @@ typedef PyPtr<PyArray_Descr> PyArray_DescrPtr;
 std::string py_fetch_error();
 
 std::string as_std_string(PyObject* str) {
+#ifdef PYTHON_3
+  // python3 requires that we turn PyUnicode into PyBytes before
+  // we call PyBytes_AsStringAndSize (whereas python2 would
+  // automatically handle unicode in PyBytes_AsStringAndSize)
+  str = ::PyUnicode_EncodeLocale(str, "strict");
+  PyObjectPtr pStr(str);
+#endif
+
   char* buffer;
   Py_ssize_t length;
+#ifdef PYTHON_3
+  // python3 doesn't have PyString_* APIs, so we use the converted bytes
+  if (::PyBytes_AsStringAndSize(str, &buffer, &length) == -1)
+#else
   if (::PyString_AsStringAndSize(str, &buffer, &length) == -1)
+#endif
     stop(py_fetch_error());
   return std::string(buffer, length);
 }
 
+PyObject* as_python_str(SEXP strSEXP) {
+#ifdef PYTHON_3
+  // python3 doesn't have PyString and all strings are unicode so
+  // make sure we get a unicode representation from R
+  const char * value = Rf_translateCharUTF8(strSEXP);
+  return PyUnicode_FromString(value);
+#else
+  const char * value = Rf_translateChar(strSEXP);
+  return PyString_FromString(value);
+#endif
+}
+
 bool has_null_bytes(PyObject* str) {
+#ifdef PYTHON_3
+  // python3 requires that we turn PyUnicode into PyBytes before
+  // we call PyBytes_AsStringAndSize (whereas python2 would
+  // automatically handle unicode in PyBytes_AsStringAndSize)
+  str = ::PyUnicode_EncodeLocale(str, "strict");
+  PyObjectPtr pStr(str);
+#endif
+
   char* buffer;
+#ifdef PYTHON_3
+  // python3 doesn't have PyString_* APIs, so we use the converted bytes
+  if (::PyBytes_AsStringAndSize(str, &buffer, NULL) == -1) {
+#else
   if (::PyString_AsStringAndSize(str, &buffer, NULL) == -1) {
+#endif
     py_fetch_error();
     return true;
   } else {
     return false;
   }
+}
+
+bool is_python_str(PyObject* x) {
+
+  if (PyUnicode_Check(x) && !has_null_bytes(x))
+    return true;
+
+#ifndef PYTHON_3
+  // python3 doesn't have PyString_* so mask it out (all strings in
+  // python3 will get caught by PyUnicode_Check, we'll ignore
+  // PyBytes entirely and let it remain a python object)
+  else if (PyString_Check(x) && !has_null_bytes(x))
+    return true;
+#endif
+
+  else
+    return false;
 }
 
 // check whether a PyObject is None
@@ -170,9 +239,7 @@ int r_scalar_type(PyObject* x) {
   else if (PyComplex_Check(x))
     return CPLXSXP;
 
-  // string (only convert if it doesn't have null bytes, otherwise it's
-  // being abused as a "raw" so we leave it alone)
-  else if ((PyString_Check(x) || PyUnicode_Check(x)) && !has_null_bytes(x))
+  else if (is_python_str(x))
     return STRSXP;
 
   // not a scalar
@@ -632,14 +699,12 @@ PyObject* r_to_py(RObject x) {
   // character (pass length 1 vectors as scalars, otherwise pass list)
   } else if (type == STRSXP) {
     if (LENGTH(sexp) == 1) {
-      const char* value = Rf_translateChar(STRING_ELT(sexp, 0));
-      return ::PyString_FromString(value);
+      return as_python_str(STRING_ELT(sexp, 0));
     } else {
       PyObjectPtr list(::PyList_New(LENGTH(sexp)));
       for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
-        const char* value = Rf_translateChar(STRING_ELT(sexp, i));
         // NOTE: reference to added value is "stolen" by the list
-        int res = ::PyList_SetItem(list, i, ::PyString_FromString(value));
+        int res = ::PyList_SetItem(list, i, as_python_str(STRING_ELT(sexp, i)));
         if (res != 0)
           stop(py_fetch_error());
       }
@@ -706,8 +771,8 @@ void py_initialize(const std::string& pythonSharedLibrary) {
   ::Py_Initialize();
 
   // required to populate sys.
-  const char *argv[1] = {"python"};
-  PySys_SetArgv(1, const_cast<char**>(argv));
+  const argv_char_t *argv[1] = {PYTHON_ARGV};
+  PySys_SetArgv(1, const_cast<argv_char_t**>(argv));
 
   // import numpy array api
   if (!py_import_numpy_array_api())
@@ -819,8 +884,7 @@ IntegerVector py_get_attribute_types(
              PyInt_Check(attr)    ||
              PyLong_Check(attr)   ||
              PyFloat_Check(attr)  ||
-             PyString_Check(attr) ||
-             PyUnicode_Check(attr))
+             is_python_str(attr))
       types[i] = VECTOR;
     else if (PyObject_IsInstance(attr, (PyObject*)&PyModule_Type))
       types[i] = ENVIRONMENT;

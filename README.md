@@ -20,15 +20,13 @@ The **tensorflow** R package provides access to the complete TensorFlow API from
 
 ## Documentation
 
-You can access documentation for the **tensorflow** package as follows:
-
 #### Ubuntu
 
 ```bash
 xdg-open tensorflow/docs/index.html
 ```
 
-#### Mac OS X
+#### OS X
 
 ```bash
 open tensorflow/docs/index.html

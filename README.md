@@ -3,7 +3,7 @@
 
 [TensorFlow™](https://tensorflow.org) is an open source software library for numerical computation using data flow graphs. Nodes in the graph represent mathematical operations, while the graph edges represent the multidimensional data arrays (tensors) communicated between them. The flexible architecture allows you to deploy computation to one or more CPUs or GPUs in a desktop, server, or mobile device with a single API. 
 
-The tensorflow R package provides access to the complete TensorFlow API from within R.
+TensorFlow is written in C++ and Python, and is most typically used via it's [Python API](https://www.tensorflow.org/api_docs/python/index.html). The tensorflow R package provides access to the complete TensorFlow Python API from within R.
 
 ## Installation
 
@@ -17,6 +17,15 @@ The tensorflow R package provides access to the complete TensorFlow API from wit
     library(devtools)
     install_github("rstudio/tensorflow", auth_token = "b3ed53b2a3f239d1a994ee7193139b4a79daaf8c")
     ```
+
+You can verify that your installation is working correctly by running this simple script:
+
+```r
+library(tensorflow)
+sess = tf$Session()
+hello <- tf$constant('Hello, TensorFlow!')
+sess$run(hello)
+```
 
 ## Documentation
 

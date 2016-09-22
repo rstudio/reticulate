@@ -6,13 +6,6 @@ output:
     toc_float: false
 ---
 
-```{css}
-pre:not([class]) {
-  background-color: #f5f5f5;
-}
-```
-
-
 <div class="row">
 
 <div class="col-md-6">
@@ -29,7 +22,7 @@ pre:not([class]) {
 
 ## Using TensorFlow with R
 
-The [tensorflow](https://github.com/jjallaire/tensorflow) package provides access to the TensorFlow API from within R. Here's a simple example of making up some data in two dimensions and then fitting a line to it:
+TensorFlow is written in C++ and Python, and is most typically used via it's [Python API](https://www.tensorflow.org/api_docs/python/index.html). The tensorflow R package provides access to the complete TensorFlow Python API from within R. Here's a simple example of making up some data in two dimensions and then fitting a line to it:
 
 ```{r, results='hide'}
 library(tensorflow)
@@ -82,9 +75,11 @@ If you're already sure you want to learn and install TensorFlow you can skip the
 
 ## Download and Setup 
 
-You should start by installing the base TensorFlow system. You can do this by following the [installation instructions](https://www.tensorflow.org/get_started/os_setup.html#download-and-setup) on the TensorFlow website.
+First, install the main TensorFlow distribution:
 
-Once you've succesfully installed TensorFlow and verified that it's working correctly, you can install the tensorflow R package as follows:
+  https://www.tensorflow.org/get_started/os_setup.html#download-and-setup
+
+Next, install the tensorflow R package:
 
 ```{r, eval=FALSE}
 library(devtools)

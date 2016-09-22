@@ -370,14 +370,14 @@ div.tocify {
 <div id="start-interactivesession" class="section level3">
 <h3>Start InteractiveSession</h3>
 <p>TensorFlow relies on a highly efficient C++ backend to do its computation. The connection to this backend is called a session.The common usage for TensorFlow programs is to first create a graph and then launch it in a session.</p>
-<p>Here we instead use the convenient <code>InteractiveSession</code> class, which makes TensorFlow more flexible about how you structure your code. It allows you to interleave operations which build a <a href="https://www.tensorflow.org/get_started/basic_usage.html#the-computation-graph">computation graph</a> with ones that run the graph. This is particularly convenient when working interactively in the R console. If you are not using an <code>InteractiveSession</code>, then you should build the entire computation graph before starting a session and <a href="https://www.tensorflow.org/versions/r0.10/get_started/basic_usage.html#launching-the-graph-in-a-session">launching the graph</a>.</p>
+<p>Here we instead use the convenient <code>InteractiveSession</code> class, which makes TensorFlow more flexible about how you structure your code. It allows you to interleave operations which build a <a href="https://www.tensorflow.org/get_started/basic_usage.html#the-computation-graph">computation graph</a> with ones that run the graph. This is particularly convenient when working interactively in the R console. If you are not using an <code>InteractiveSession</code>, then you should build the entire computation graph before starting a session and <a href="https://www.tensorflow.org/get_started/basic_usage.html#launching-the-graph-in-a-session">launching the graph</a>.</p>
 <pre class="r"><code>library(tensorflow)
 sess &lt;- tf$InteractiveSession()</code></pre>
 <div id="computation-graph" class="section level4">
 <h4>Computation Graph</h4>
 <p>To do efficient numerical computing in R we typically call base R functions that do expensive operations such as matrix multiplication outside R, using highly efficient code implemented in another language. Unfortunately, there can still be a lot of overhead from switching back to R for every operation. This overhead is especially bad if you want to run computations on GPUs or in a distributed manner, where there can be a high cost to transferring data.</p>
 <p>TensorFlow also does its heavy lifting outside R, but it takes things a step further to avoid this overhead. Instead of running a single expensive operation independently from R, TensorFlow lets us describe a graph of interacting operations that run entirely outside R This approach is similar to that used in Theano or Torch.</p>
-<p>The role of the R code is therefore to build this external computation graph, and to dictate which parts of the computation graph should be run. See the <a href="https://www.tensorflow.org/get_started/basic_usage.html#the-computation-graph">Computation Graph</a> section of <a href="https://www.tensorflow.org/versions/r0.10/get_started/basic_usage.html">Basic Usage</a> for more detail.</p>
+<p>The role of the R code is therefore to build this external computation graph, and to dictate which parts of the computation graph should be run. See the <a href="https://www.tensorflow.org/get_started/basic_usage.html#the-computation-graph">Computation Graph</a> section of <a href="https://www.tensorflow.org/get_started/basic_usage.html">Basic Usage</a> for more detail.</p>
 </div>
 </div>
 </div>
@@ -437,7 +437,7 @@ train_step &lt;- optimizer$minimize(cross_entropy)</code></pre>
 <pre class="r"><code>accuracy &lt;- tf$reduce_mean(tf$cast(correct_prediction, tf$float32))</code></pre>
 <p>Finally, we can evaluate our accuracy on the test data. This should be about 92% correct.</p>
 <pre class="r"><code>accuracy$eval(feed_dict=dict(x = mnist$test$images, y_ = mnist$test$labels))</code></pre>
-<pre><code>## [1] 0.9177</code></pre>
+<pre><code>## [1] 0.9165</code></pre>
 </div>
 </div>
 <div id="multilayer-convnet" class="section level2">

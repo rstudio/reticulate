@@ -6,7 +6,7 @@ Introduction
 
 The **tensorflow** package provides access to the entire TensorFlow API from within R. The R API for TensorFlow is based on the Python API, so most TensorFlow documentation, tutorials, and examples that use Python are easy to apply to R.
 
-This article describes the basic mechanics of using the R API. For a detailed API reference, see the main [TensorFlow API](https://www.tensorflow.org/versions/r0.10/api_docs/python/index.html) documentation.
+This article describes the basic mechanics of using the R API. For a detailed API reference, see the main [TensorFlow API](https://www.tensorflow.org/api_docs/python/index.html) documentation.
 
 Modules
 -------

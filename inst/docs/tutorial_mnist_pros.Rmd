@@ -49,7 +49,7 @@ Here `mnist` is a lightweight class which stores the training, validation, and t
 TensorFlow relies on a highly efficient C++ backend to do its computation. The connection to this backend is called a session.The common usage for TensorFlow programs is to first create a graph and then launch it in a session.
 
 Here we instead use the convenient `InteractiveSession` class, which makes TensorFlow more flexible about how you structure your code.  It allows you to interleave operations which build a [computation graph](https://www.tensorflow.org/get_started/basic_usage.html#the-computation-graph) with ones that run the graph.  This is particularly convenient when working interactively in the R console.  If you are not using an `InteractiveSession`, then you should build the entire computation graph before starting a session and
-[launching the graph](https://www.tensorflow.org/versions/r0.10/get_started/basic_usage.html#launching-the-graph-in-a-session).
+[launching the graph](https://www.tensorflow.org/get_started/basic_usage.html#launching-the-graph-in-a-session).
 
 ```{r}
 library(tensorflow)
@@ -62,7 +62,7 @@ To do efficient numerical computing in R we typically call base R functions that
 
 TensorFlow also does its heavy lifting outside R, but it takes things a step further to avoid this overhead.  Instead of running a single expensive operation independently from R, TensorFlow lets us describe a graph of interacting operations that run entirely outside R  This approach is similar to that used in Theano or Torch.
 
-The role of the R code is therefore to build this external computation graph, and to dictate which parts of the computation graph should be run. See the [Computation Graph](https://www.tensorflow.org/get_started/basic_usage.html#the-computation-graph) section of [Basic Usage](https://www.tensorflow.org/versions/r0.10/get_started/basic_usage.html) for more detail.
+The role of the R code is therefore to build this external computation graph, and to dictate which parts of the computation graph should be run. See the [Computation Graph](https://www.tensorflow.org/get_started/basic_usage.html#the-computation-graph) section of [Basic Usage](https://www.tensorflow.org/get_started/basic_usage.html) for more detail.
 
 ## Softmax Regression
 

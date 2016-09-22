@@ -20,16 +20,10 @@ The tensorflow R package provides access to the complete TensorFlow API from wit
 
 ## Documentation
 
-#### Ubuntu
+The documentation for the tensorflow package will be published using gh-pages once this repository is public. For the time being you can access a copy of the documentation installed along with the package by calling the `view_docs` function: 
 
-```bash
-xdg-open tensorflow/docs/index.html
-```
-
-#### OS X
-
-```bash
-open tensorflow/docs/index.html
+```r
+tensorflow:::view_docs()
 ```
 
 

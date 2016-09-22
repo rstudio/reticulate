@@ -14,7 +14,8 @@ The tensorflow R package provides access to the complete TensorFlow API from wit
 2. Install the tensorflow R package:
 
     ```r
-    devtools::install_github("rstudio/tensorflow", auth_token = "b3ed53b2a3f239d1a994ee7193139b4a79daaf8c")
+    library(devtools)
+    install_github("rstudio/tensorflow", auth_token = "b3ed53b2a3f239d1a994ee7193139b4a79daaf8c")
     ```
 
 ## Documentation

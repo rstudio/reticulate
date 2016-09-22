@@ -34,5 +34,7 @@ output:
     toc: true
     toc_level: 2
     toc_float: true
+    includes:
+      after_body: footer.html
 
 

@@ -306,7 +306,16 @@ div.tocify {
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="howto_variables.html">Using Varibles</a>
+      <a href="howto_variables.html">Using TensorFlow Variables</a>
+    </li>
+    <li>
+      <a href="tutorial_tensorflow_mechanics.html">TensorFlow Mechanics 101</a>
+    </li>
+    <li>
+      <a href="howto_summaries_and_tensorboard.html">TensorBoard: Visualizing Learning</a>
+    </li>
+    <li>
+      <a href="howto_graph_viz.html">TensorBoard: Graph Visualization</a>
     </li>
   </ul>
 </li>
@@ -449,7 +458,7 @@ train_step &lt;- optimizer$minimize(cross_entropy)</code></pre>
 <pre class="r"><code>accuracy &lt;- tf$reduce_mean(tf$cast(correct_prediction, tf$float32))</code></pre>
 <p>Finally, we can evaluate our accuracy on the test data. This should be about 92% correct.</p>
 <pre class="r"><code>accuracy$eval(feed_dict=dict(x = mnist$test$images, y_ = mnist$test$labels))</code></pre>
-<pre><code>## [1] 0.9184</code></pre>
+<pre><code>## [1] 0.9173</code></pre>
 </div>
 </div>
 <div id="multilayer-convnet" class="section level2">

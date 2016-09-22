@@ -1,4 +1,12 @@
 
+.illustration {
+  border: solid 1px #cccccc;
+}
+
+td.illustration {
+  padding: 12px
+}
+
 .tutorial-illustration {
   width: 60%;
   display: block;

@@ -118,5 +118,8 @@ These articles cover the core concepts of TensorFlow in more depth as well descr
 These articles provide more in depth treatments of various topics:
 
 * [Variables: Creation, Initialization, Saving, and Loading](howto_variables.html)
+* [TensorFlow Mechanics 101](tutorial_tensorflow_mechanics.html)
+* [TensorBoard: Visualizing Learning](howto_summaries_and_tensorboard.html)
+* [TensorBoard: Graph Visualization](howto_graph_viz.html)
 
 Finally, to learn more about neural networks you might enjoy the [TensorFlow playground](http://playground.tensorflow.org), which lets you tinker with a neural network in your browser.

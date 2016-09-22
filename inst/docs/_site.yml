@@ -11,8 +11,14 @@ navbar:
           href: "basic_usage.html"
     - text: "How To"
       menu:
-        - text: "Using Varibles"
+        - text: "Using TensorFlow Variables"
           href: "howto_variables.html"
+        - text: "TensorFlow Mechanics 101"
+          href: "tutorial_tensorflow_mechanics.html"
+        - text: "TensorBoard: Visualizing Learning"
+          href: "howto_summaries_and_tensorboard.html"
+        - text: "TensorBoard: Graph Visualization"
+          href: "howto_graph_viz.html"
     - text: "Tutorials"
       menu:
         - text: "MNIST"

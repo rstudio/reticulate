@@ -25,14 +25,14 @@ TensorFlow is written in C++ and Python, and is most typically used via it's [Py
     install_github("rstudio/tensorflow", auth_token = "b3ed53b2a3f239d1a994ee7193139b4a79daaf8c")
     ```
 
-You can verify that your installation is working correctly by running this script:
+3. Verify that your installation is working correctly by running this script:
 
-```r
-library(tensorflow)
-sess = tf$Session()
-hello <- tf$constant('Hello, TensorFlow!')
-sess$run(hello)
-```
+    ```r
+    library(tensorflow)
+    sess = tf$Session()
+    hello <- tf$constant('Hello, TensorFlow!')
+    sess$run(hello)
+    ```
 
 ## Documentation
 
@@ -42,9 +42,9 @@ The documentation for the tensorflow package will be published using gh-pages on
 tensorflow:::view_docs()
 ```
 
-### RStudio IDE
+### RStudio Integration
 
-The current [Preview Release](https://www.rstudio.com/products/rstudio/download/preview/) of RStudio includes enhancements that the tensorflow package makes use of to provide improved completion and inline help for the TensorFlow API. If you are using RStudio it's therefore highly recommended that you install the preview release.
+The tensorflow package provides code completion and inline help for the TensorFlow API when running within the RStudio IDE. In order to take advantage of these features you should also install the current [Preview Release](https://www.rstudio.com/products/rstudio/download/preview/) of RStudio.
 
 
 

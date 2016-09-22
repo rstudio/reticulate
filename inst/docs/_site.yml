@@ -9,6 +9,10 @@ navbar:
           href: "index.html"
         - text: "Basic Usage"
           href: "basic_usage.html"
+    - text: "How To"
+      menu:
+        - text: "Using Varibles"
+          href: "howto_variables.html"
     - text: "Tutorials"
       menu:
         - text: "MNIST"

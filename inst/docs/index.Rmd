@@ -110,9 +110,13 @@ Once you've installed the base TensorFlow system and the tensorflow R package, y
 * [Deep MNIST for Experts](tutorial_mnist_pros.html)
 * [TensorFlow Mechanics 101](tutorial_tensorflow_mechanics.html)
 
-In addition, these articles cover the core concepts of TensorFlow in more depth as well describe some important practical details of using the TensorFlow API from R:
+These articles cover the core concepts of TensorFlow in more depth as well describe the details of using the TensorFlow API from R:
 
-* [Basic Usage](basic_usage.html)
+* [TensorFlow API Basic Usage](basic_usage.html)
 * [Using the TensorFlow API from R](using_tensorflow_api.html)
+
+These articles provide more in depth treatments of various topics:
+
+* [Variables: Creation, Initialization, Saving, and Loading](howto_variables.html)
 
 Finally, to learn more about neural networks you might enjoy the [TensorFlow playground](http://playground.tensorflow.org), which lets you tinker with a neural network in your browser.

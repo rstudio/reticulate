@@ -18,7 +18,7 @@ TensorFlow is written in C++ and Python, and is most typically used via it's [Py
     install_github("rstudio/tensorflow", auth_token = "b3ed53b2a3f239d1a994ee7193139b4a79daaf8c")
     ```
 
-You can verify that your installation is working correctly by running this simple script:
+You can verify that your installation is working correctly by running this script:
 
 ```r
 library(tensorflow)

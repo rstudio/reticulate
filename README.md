@@ -42,7 +42,7 @@ The documentation for the tensorflow package will be published using gh-pages on
 tensorflow:::view_docs()
 ```
 
-### RStudio Integration
+### RStudio IDE
 
 The tensorflow package provides code completion and inline help for the TensorFlow API when running within the RStudio IDE. In order to take advantage of these features you should also install the current [Preview Release](https://www.rstudio.com/products/rstudio/download/preview/) of RStudio.
 

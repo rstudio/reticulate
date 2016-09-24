@@ -9,9 +9,7 @@ output:
 knitr::opts_chunk$set(eval = FALSE)
 ```
 
-TensorFlow is written in C++ and Python, and is most typically used via it's [Python API](https://www.tensorflow.org/api_docs/python/index.html). The tensorflow R package provides access to the complete TensorFlow Python API from within R.
-
-This article describes the basic mechanics of using the R API. For a detailed API reference, see the main [TensorFlow API](https://www.tensorflow.org/api_docs/python/index.html) documentation. 
+The tensorflow R package provides access to the complete [TensorFlow API](https://www.tensorflow.org/api_docs/python/index.html) from within R. This article describes the basic syntax and mechanics of using TensorFlow from R.
 
 ## Modules
 

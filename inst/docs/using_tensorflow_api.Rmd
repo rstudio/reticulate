@@ -9,7 +9,7 @@ output:
 knitr::opts_chunk$set(eval = FALSE)
 ```
 
-The tensorflow R package provides access to the complete [TensorFlow API](https://www.tensorflow.org/api_docs/python/index.html) from within R. This article describes the basic syntax and mechanics of using TensorFlow from R.
+The [TensorFlow API](https://www.tensorflow.org/api_docs/python/index.html) is composed of a set of Python modules that enable constructing and executing TensorFlow graphs. The tensorflow package provides access to the complete TensorFlow API from within R. This article describes the basic syntax and mechanics of using TensorFlow from R.
 
 ## Modules
 

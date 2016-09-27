@@ -83,6 +83,14 @@ std::string as_std_string(PyObject* str) {
   return std::string(buffer, length);
 }
 
+PyObject* as_python_bytes(Rbyte* bytes, size_t len) {
+#ifdef PYTHON_3
+  return PyBytes_FromStringAndSize(const char*)bytes, len);
+#else
+  return PyString_FromStringAndSize((const char*)bytes, len);
+#endif
+}
+
 PyObject* as_python_str(SEXP strSEXP) {
 #ifdef PYTHON_3
   // python3 doesn't have PyString and all strings are unicode so
@@ -713,6 +721,11 @@ PyObject* r_to_py(RObject x) {
       }
       return list.detach();
     }
+
+  // bytes
+  } else if (type == RAWSXP) {
+
+    return as_python_bytes(RAW(sexp), Rf_length(sexp));
 
   // list
   } else if (type == VECSXP) {

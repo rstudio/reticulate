@@ -1,10 +1,5 @@
 
-# TODO: use github personal access token for installation instructions
 
-# TODO: docs: additional clarity on R API vs. Python API, etc.
-
-# TODO: port selected "how to" docs
-# TODO: port additional tutorials
 
 
 #' @useDynLib tensorflow

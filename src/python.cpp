@@ -85,7 +85,7 @@ std::string as_std_string(PyObject* str) {
 
 PyObject* as_python_bytes(Rbyte* bytes, size_t len) {
 #ifdef PYTHON_3
-  return PyBytes_FromStringAndSize(const char*)bytes, len);
+  return PyBytes_FromStringAndSize((const char*)bytes, len);
 #else
   return PyString_FromStringAndSize((const char*)bytes, len);
 #endif

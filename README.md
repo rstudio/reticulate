@@ -15,14 +15,14 @@ The [TensorFlow API](https://www.tensorflow.org/api_docs/python/index.html) is c
 
     ```r
     library(devtools)
-    install_github("rstudio/tensorflow", auth_token = "b3ed53b2a3f239d1a994ee7193139b4a79daaf8c")
+    install_github("rstudio/tensorflow")
     ```
 
     The tensorflow package will be built against the default version of python found in the `PATH`. If you want to build against a specific version of python you can define the `TENSORFLOW_PYTHON_VERSION` environment variable before installing. For example:
 
     ```r
     Sys.setenv(TENSORFLOW_PYTHON_VERSION = 3)
-    install_github("rstudio/tensorflow", auth_token = "b3ed53b2a3f239d1a994ee7193139b4a79daaf8c")
+    install_github("rstudio/tensorflow")
     ```
 
 3. Verify that your installation is working correctly by running this script:

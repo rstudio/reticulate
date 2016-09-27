@@ -34,17 +34,15 @@ The [TensorFlow API](https://www.tensorflow.org/api_docs/python/index.html) is c
     sess$run(hello)
     ```
 
+The tensorflow package provides code completion and inline help for the TensorFlow API when running within the RStudio IDE. In order to take advantage of these features you should also install the current [Preview Release](https://www.rstudio.com/products/rstudio/download/preview/) of RStudio.
+
+
 ## Documentation
 
-The documentation for the tensorflow package will be published using gh-pages once this repository is public. For the time being you can access a copy of the documentation installed along with the package by calling the `view_docs` function: 
+See the package website for additional details on using the TensorFlow API from R: <https://rstudio.github.io/tensorflow>
 
-```r
-tensorflow:::view_docs()
-```
+See the TensorFlow API reference for details on all of the modules, classes, and functions within the API: <https://www.tensorflow.org/api_docs/python/index.html>
 
-### RStudio IDE
-
-The tensorflow package provides code completion and inline help for the TensorFlow API when running within the RStudio IDE. In order to take advantage of these features you should also install the current [Preview Release](https://www.rstudio.com/products/rstudio/download/preview/) of RStudio.
 
 
 

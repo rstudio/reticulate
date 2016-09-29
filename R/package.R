@@ -4,6 +4,7 @@
 # TODO: Persistence for module objects
 # TODO: Handling of FLAGS / command line parameters in R
 # TODO: Allow TENSORFLOW_PYTHON in configuration
+# TODO: Try out some different anaconda and homebrew configurations
 
 #' TensorFlow for R
 #'

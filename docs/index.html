@@ -321,16 +321,14 @@ Images licensed CC BY-SA 4.0; original by W. Carter
 <h3>Installing TensorFlow</h3>
 <p>You can install the main TensorFlow distribution from here:</p>
 <p><a href="https://www.tensorflow.org/get_started/os_setup.html#download-and-setup" class="uri">https://www.tensorflow.org/get_started/os_setup.html#download-and-setup</a></p>
-<p>Note that if you install TensorFlow within a Virtualenv or Conda environment you’ll need to be sure to use that same environment when installing the tensorflow R package (see below for details).</p>
+<p><strong>OS X</strong>: You should NOT install TensorFlow with Anaconda on OS X as there <a href="https://github.com/ContinuumIO/anaconda-issues/issues/498">are issues with</a> the way Anaconda builds the python shared library on OS X that prevent dynamic linking from R.</p>
+<p>If you install TensorFlow within a Virtualenv or Conda environment you’ll need to be sure to use that same environment when installing the tensorflow R package (see below for details).</p>
 </div>
 <div id="installing-the-r-package" class="section level3">
 <h3>Installing the R Package</h3>
 <p>If you installed TensorFlow via pip with your system default version of python then you can install the tensorflow R package as follows:</p>
 <pre class="r"><code>devtools::install_github(&quot;rstudio/tensorflow&quot;)</code></pre>
 <p>If you are using a different version of python for TensorFlow, you should set the <code>TENSORFLOW_PYTHON</code> environment variable to the full path of the python binary before installing, for example:</p>
-<pre class="r"><code>Sys.setenv(TENSORFLOW_PYTHON=&quot;~/anaconda/envs/tensorflow/bin/python&quot;)
-devtools::install_github(&quot;rstudio/tensorflow&quot;)</code></pre>
-<p>Or:</p>
 <pre class="r"><code>Sys.setenv(TENSORFLOW_PYTHON=&quot;/usr/local/bin/python&quot;)
 devtools::install_github(&quot;rstudio/tensorflow&quot;)</code></pre>
 <p>If you only need to customize the version of python used (for example specifing python 3 on an Ubuntu system), you can set the <code>TENSORFLOW_PYTHON_VERSION</code> environment variable before installation:</p>

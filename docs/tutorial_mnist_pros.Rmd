@@ -36,7 +36,7 @@ Before we create our model, we will first load the MNIST dataset, and start a Te
 
 If you are copying and pasting in the code from this tutorial, start here with these two lines of code which will download and read in the data automatically:
 
-```{r, include=FALSE}
+```{r, results='hide'}
 library(tensorflow)
 datasets <- tf$contrib$learn$datasets
 mnist <- datasets$mnist$read_data_sets("MNIST-data", one_hot = TRUE)

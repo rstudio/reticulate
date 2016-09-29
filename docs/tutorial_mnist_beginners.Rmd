@@ -40,7 +40,7 @@ What we will accomplish in this tutorial:
 
 The MNIST data is hosted on [Yann LeCun's website](http://yann.lecun.com/exdb/mnist/).  If you are copying and pasting in the code from this tutorial, start here with these three lines of code which will download and read in the data automatically:
 
-```{r, include=FALSE}
+```{r, results='hide'}
 library(tensorflow)
 datasets <- tf$contrib$learn$datasets
 mnist <- datasets$mnist$read_data_sets("MNIST-data", one_hot = TRUE)

@@ -9,6 +9,7 @@
 ^tests/testthat/MNIST-data$
 README.md
 .Renviron
+LICENSE
 
 
 

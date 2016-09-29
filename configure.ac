@@ -30,6 +30,11 @@ fi
 
 # find tensorflow target python version
 if ! test -z "${TENSORFLOW_PYTHON_VERSION}"
+  # use 3 if the default python binary aliases python3
+  PYTHON_VERSION=`${USE_PYTHON} --version`
+  if [[ $PYTHON_VERSION == "Python 3"* ]]; then
+    USE_PYTHON="${USE_PYTHON}3"
+  fi
 then
   echo "Using python version ${TENSORFLOW_PYTHON_VERSION}"
   USE_PYTHON=${USE_PYTHON}${TENSORFLOW_PYTHON_VERSION}

@@ -1761,19 +1761,25 @@ if test -n "$RLD"; then
    has_R_shlib=yes
 fi
 
-USE_PYTHON_CONFIG=python-config
-USE_PYTHON=python
 
-# find tensorflow target python version
-if test -z "${TENSORFLOW_PYTHON_VERSION}"
+# find tensorflow target python binary
+if test -z "${TENSORFLOW_PYTHON}"
 then
-  echo "Using system version of python"
+  USE_PYTHON=python
 else
-  USE_PYTHON=python${TENSORFLOW_PYTHON_VERSION}
-  USE_PYTHON_CONFIG=python${TENSORFLOW_PYTHON_VERSION}-config
-  echo "Using python version ${TENSORFLOW_PYTHON_VERSION}"
+  echo "Using python binary at ${TENSORFLOW_PYTHON}"
+  USE_PYTHON=${TENSORFLOW_PYTHON}
 fi
 
+# find tensorflow target python version
+if ! test -z "${TENSORFLOW_PYTHON_VERSION}"
+then
+  echo "Using python version ${TENSORFLOW_PYTHON_VERSION}"
+  USE_PYTHON=${USE_PYTHON}${TENSORFLOW_PYTHON_VERSION}
+fi
+
+# determine path to python-config
+USE_PYTHON_CONFIG=${USE_PYTHON}-config
 
 # Extract the linker and include flags for python
 : ${PYTHONCONFIG=`which ${USE_PYTHON_CONFIG}`}

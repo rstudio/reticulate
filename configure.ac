@@ -23,6 +23,7 @@ if test -z "${TENSORFLOW_PYTHON}"
 then
   USE_PYTHON=python
 else
+  TENSORFLOW_PYTHON="${TENSORFLOW_PYTHON/#\~/$HOME}"
   echo "Using python binary at ${TENSORFLOW_PYTHON}"
   USE_PYTHON=${TENSORFLOW_PYTHON}
 fi
@@ -53,6 +54,15 @@ PYTHON_BIN=`which ${USE_PYTHON}`
 if test -z "${PYTHON}"; then
   echo "Could not locate ${PYTHON}"
   exit 1
+fi
+
+# anaconda doesn't provide a -L in ldflags so let's look for one if we need to
+# (see https://github.com/JuliaPy/PyCall.jl/issues/37)
+if [[ "$PKG_LIBS" != *"-L"* ]]; then
+  PYTHON_BIN_DIR=`dirname ${PYTHON_BIN}`
+  PYTHON_ROOT_DIR=`dirname ${PYTHON_BIN_DIR}`
+  PYTHON_LIB_DIR=${PYTHON_ROOT_DIR}/lib
+  PKG_LIBS="${PKG_LIBS} -L${PYTHON_LIB_DIR}"
 fi
 
 # find the numpy includes

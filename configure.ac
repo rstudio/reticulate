@@ -29,7 +29,7 @@ else
 fi
 
 # find tensorflow target python version
-if ! test -z "${TENSORFLOW_PYTHON_VERSION}"; then
+if test -z "${TENSORFLOW_PYTHON_VERSION}"; then
   # use 3 if the default python binary aliases python3
   PYTHON_VERSION=`${USE_PYTHON} -c 'import sys; import platform; major, minor, patch = platform.python_version_tuple(); sys.stdout.write(major);'`
   if [[ $PYTHON_VERSION == "3" ]]; then

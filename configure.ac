@@ -70,6 +70,16 @@ if [[ "$PKG_LIBS" != *"-L"* ]]; then
   PKG_LIBS="${PKG_LIBS} -L${PYTHON_LIB_DIR}"
 fi
 
+# anaconda adds a -stacksize argument for python3, this isn't allowed
+# for building shared libraries
+if [[ "$PKG_LIBS" == *"-stack_size,"* ]]; then
+  PKG_LIBS=`echo "${PKG_LIBS}"|sed 's/-stack_size,[0-9]*//g'`
+fi
+
+# For rpath related reasons anaconda actually can't be linked to in this
+# fashion, see discussion here:
+#   https://github.com/ContinuumIO/anaconda-issues/issues/498
+
 # find the numpy includes
 NUMPY_INCLUDE_DIR=`$PYTHON -c "import numpy; print(numpy.get_include())"`
 if test -z "${NUMPY_INCLUDE_DIR}"; then

@@ -317,19 +317,34 @@ Images licensed CC BY-SA 4.0; original by W. Carter
 </div>
 <div id="download-and-setup" class="section level2">
 <h2>Download and Setup</h2>
-<p>First, install the main TensorFlow distribution:</p>
+<div id="installing-tensorflow" class="section level3">
+<h3>Installing TensorFlow</h3>
+<p>You can install the main TensorFlow distribution from here:</p>
 <p><a href="https://www.tensorflow.org/get_started/os_setup.html#download-and-setup" class="uri">https://www.tensorflow.org/get_started/os_setup.html#download-and-setup</a></p>
-<p>Next, install the tensorflow R package:</p>
-<pre class="r"><code>library(devtools)
-install_github(&quot;rstudio/tensorflow&quot;)</code></pre>
-<p>The tensorflow package will be built against the default version of python found in the <code>PATH</code>. If you want to build against a specific version of python you can define the <code>TENSORFLOW_PYTHON_VERSION</code> environment variable before installing. For example:</p>
+<p>Note that if you install TensorFlow within a Virtualenv or Conda environment you’ll need to be sure to use that same environment when installing the tensorflow R package (see below for details).</p>
+</div>
+<div id="installing-the-r-package" class="section level3">
+<h3>Installing the R Package</h3>
+<p>If you installed TensorFlow via pip with your system default version of python then you can install the tensorflow R package as follows:</p>
+<pre class="r"><code>devtools::install_github(&quot;rstudio/tensorflow&quot;)</code></pre>
+<p>If you are using a different version of python for TensorFlow, you should set the <code>TENSORFLOW_PYTHON</code> environment variable to the full path of the python binary before installing, for example:</p>
+<pre class="r"><code>Sys.setenv(TENSORFLOW_PYTHON=&quot;~/anaconda/envs/tensorflow/bin/python&quot;)
+devtools::install_github(&quot;rstudio/tensorflow&quot;)</code></pre>
+<p>Or:</p>
+<pre class="r"><code>Sys.setenv(TENSORFLOW_PYTHON=&quot;/usr/local/bin/python&quot;)
+devtools::install_github(&quot;rstudio/tensorflow&quot;)</code></pre>
+<p>If you only need to customize the version of python used (for example specifing python 3 on an Ubuntu system), you can set the <code>TENSORFLOW_PYTHON_VERSION</code> environment variable before installation:</p>
 <pre class="r"><code>Sys.setenv(TENSORFLOW_PYTHON_VERSION = 3)
-install_github(&quot;rstudio/tensorflow&quot;)</code></pre>
+devtools::install_github(&quot;rstudio/tensorflow&quot;)</code></pre>
+</div>
+<div id="verifying-installation" class="section level3">
+<h3>Verifying Installation</h3>
 <p>You can verify that your installation is working correctly by running this script:</p>
 <pre class="r"><code>library(tensorflow)
 sess = tf$Session()
 hello &lt;- tf$constant(&#39;Hello, TensorFlow!&#39;)
 sess$run(hello)</code></pre>
+</div>
 <div id="rstudio-ide" class="section level3">
 <h3>RStudio IDE</h3>
 <p>The tensorflow package provides code completion and inline help for the TensorFlow API when running within the RStudio IDE. In order to take advantage of these features you should also install the current <a href="https://www.rstudio.com/products/rstudio/download/preview/">Preview Release</a> of RStudio.</p>

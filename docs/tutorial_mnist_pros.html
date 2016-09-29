@@ -461,7 +461,7 @@ train_step &lt;- optimizer$minimize(cross_entropy)</code></pre>
 <pre class="r"><code>accuracy &lt;- tf$reduce_mean(tf$cast(correct_prediction, tf$float32))</code></pre>
 <p>Finally, we can evaluate our accuracy on the test data. This should be about 92% correct.</p>
 <pre class="r"><code>accuracy$eval(feed_dict=dict(x = mnist$test$images, y_ = mnist$test$labels))</code></pre>
-<pre><code>## [1] 0.9205</code></pre>
+<pre><code>## [1] 0.9149</code></pre>
 </div>
 </div>
 <div id="multilayer-convnet" class="section level2">

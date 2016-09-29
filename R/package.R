@@ -1,4 +1,9 @@
 
+# TODO: Shadow attribute for numpy ndarray
+# TODO: Display in RStudio environment pane
+# TODO: Persistence for module objects
+# TODO: Handling of FLAGS / command line parameters in R
+# TODO: Allow TENSORFLOW_PYTHON in configuration
 
 #' TensorFlow for R
 #'

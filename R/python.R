@@ -27,10 +27,7 @@ import <- function(module, silent = FALSE) {
 
 #' @export
 print.tensorflow.builtin.object <- function(x, ...) {
-  if (py_is_null_xptr(x))
-    print.default(x)
-  else
-    py_print(x)
+  str(x, ...)
 }
 
 py_xptr_str <- function(object, expr) {
@@ -44,27 +41,6 @@ py_xptr_str <- function(object, expr) {
 #' @export
 str.tensorflow.builtin.object <- function(object, ...) {
   py_xptr_str(object, cat(py_str(object), "\n"))
-}
-
-#' @export
-str.tensorflow.builtin.module <- function(object, ...) {
-  py_xptr_str(object,
-    cat("Module(", py_str(py_get_attr(object, "__name__")),
-        ")\n", sep="")
-  )
-}
-
-#' @export
-str.tensorflow.python.ops.variables.Variable <- function(object, ...) {
-  py_xptr_str(object,
-    cat("Variable(shape=", py_str(object$get_shape()), ", ",
-        "dtype=", object$dtype$name, ")\n", sep = "")
-  )
-}
-
-#' @export
-str.tensorflow.python.client.session.BaseSession <- function(object, ...) {
-  py_xptr_str(object, cat("Session\n"))
 }
 
 #' @export

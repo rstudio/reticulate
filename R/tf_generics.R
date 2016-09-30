@@ -1,13 +1,39 @@
 
 #' @export
+str.tensorflow.builtin.module <- function(object, ...) {
+  py_xptr_str(object,
+              cat("Module(", py_str(py_get_attr(object, "__name__")),
+                  ")\n", sep="")
+  )
+}
+
+#' @export
+str.tensorflow.python.ops.variables.Variable <- function(object, ...) {
+  py_xptr_str(object,
+              cat("Variable(shape=", py_str(object$get_shape()), ", ",
+                  "dtype=", object$dtype$name, ")\n", sep = "")
+  )
+}
+
+#' @export
+str.tensorflow.python.client.session.BaseSession <- function(object, ...) {
+  py_xptr_str(object, cat("Session\n"))
+}
+
+
+#' @export
 "print.tensorflow.python.framework.ops.Tensor" <- function(x, ...) {
-  print.tensorflow.builtin.object(x, ...)
+  str(x, ...)
   if (!is.null(tf$get_default_session())) {
     value <- tryCatch(x$eval(), error = function(e) NULL)
     if (!is.null(value))
       cat(" ", str(value), "\n", sep = "")
   }
 }
+
+#' @export
+print.tensorflow.python.ops.variables.Variable <- print.tensorflow.python.framework.ops.Tensor
+
 
 # https://stat.ethz.ch/R-manual/R-devel/library/base/html/groupGeneric.html
 

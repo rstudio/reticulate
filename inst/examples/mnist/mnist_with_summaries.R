@@ -1,3 +1,5 @@
+#!/usr/bin/env Rscript
+
 # Copyright 2015 The TensorFlow Authors. All Rights Reserved.
 # Copyright 2016 RStudio, Inc. All Rights Reserved.
 #
@@ -23,6 +25,7 @@ flags$DEFINE_integer('max_steps', 1000L, 'Number of steps to run trainer.')
 flags$DEFINE_float('learning_rate', 0.001, 'Initial learning rate.')
 flags$DEFINE_float('dropout', 0.9, 'Keep probability for training dropout.')
 flags$DEFINE_string('summaries_dir', '/tmp/mnist_logs', 'Summaries directory')
+parse_flags() # parse FLAGS from Rscript command line
 
 train <- function() {
   # Import data

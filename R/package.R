@@ -1,7 +1,4 @@
 
-# TODO: Shadow attribute for numpy ndarray
-# TODO: Handling of FLAGS / command line parameters in R
-
 #' TensorFlow for R
 #'
 #' \href{https://tensorflow.org}{TensorFlow} is an open source software library

@@ -1,3 +1,5 @@
+#!/usr/bin/env Rscript
+
 # Copyright 2015 The TensorFlow Authors. All Rights Reserved.
 # Copyright 2016 RStudio, Inc. All Rights Reserved.
 #
@@ -32,7 +34,7 @@ flags$DEFINE_integer('hidden2', 32L, 'Number of units in hidden layer 2.')
 flags$DEFINE_integer('batch_size', 100L, 'Batch size. Must divide evenly into the dataset sizes.')
 flags$DEFINE_string('train_dir', 'MNIST-data', 'Directory to put the training data.')
 flags$DEFINE_boolean('fake_data', FALSE, 'If true, uses fake data for unit testing.')
-
+parse_flags() # parse FLAGS from Rscript command line
 
 # Generate placeholder variables to represent the input tensors.
 #

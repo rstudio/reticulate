@@ -1,11 +1,9 @@
 
 # TODO: Shadow attribute for numpy ndarray
-# TODO: Display in RStudio environment pane
 # TODO: Handling of FLAGS / command line parameters in R
 # TODO: persistent modules
 
 # TODO: check for revisions to mnist and other examples
-# TODO: calling eval() in interactive session for printing
 
 #' TensorFlow for R
 #'

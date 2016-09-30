@@ -4,6 +4,9 @@
 # TODO: Handling of FLAGS / command line parameters in R
 # TODO: persistent modules
 
+# TODO: check for revisions to mnist and other examples
+# TODO: calling eval() in interactive session for printing
+
 #' TensorFlow for R
 #'
 #' \href{https://tensorflow.org}{TensorFlow} is an open source software library

@@ -2,9 +2,14 @@
 #' @export
 str.tensorflow.builtin.module <- function(object, ...) {
   py_xptr_str(object,
-              cat("Module(", py_str(py_get_attr(object, "__name__")),
-                  ")\n", sep="")
+              cat("Module: ", py_str(py_get_attr(object, "__name__")),
+                  "\n", sep="")
   )
+}
+
+#' @export
+str.tensorflow.python.framework.ops.Tensor <- function(object, ...) {
+  py_xptr_str(object, cat(py_str(object), "\n", sep=""))
 }
 
 #' @export

@@ -40,7 +40,17 @@ py_xptr_str <- function(object, expr) {
 #' @importFrom utils str
 #' @export
 str.tensorflow.builtin.object <- function(object, ...) {
-  py_xptr_str(object, cat(py_str(object), "\n"))
+  py_xptr_str(object, {
+    name <- NULL
+    if (py_has_attr(object, "name"))
+      name <- object$name
+    else if (py_has_attr(object, "get_name"))
+      name <- object$get_name()
+    if (!is.null(name))
+      cat(name, "\n", sep="")
+    else
+      cat(py_str(object), "\n", sep="")
+    })
 }
 
 #' @export

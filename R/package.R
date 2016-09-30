@@ -1,21 +1,6 @@
 
 # TODO: completion for Namespace objects (FLAGS)
 
-# TODO: FLAGS <- parse_arguments(
-#   argument("--foo", ...),
-#   argument("--bar", ...),
-#   foo = c(type = "character", ...),
-#   bar = c(type = "integer", ...)
-# )
-# Implementation:
-#   - Create argument parser and call add_argument
-#   - Execute equivalent of tf.app.run()
-#   - Could the function just be named "flags"? May be better
-#     since the tf.app.run side effect will also occur and
-#     that's not an intuitive outcome from "parse_arguments"
-#
-#
-
 #' TensorFlow for R
 #'
 #' \href{https://tensorflow.org}{TensorFlow} is an open source software library

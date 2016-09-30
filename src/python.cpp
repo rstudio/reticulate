@@ -195,9 +195,6 @@ PyObjectXPtr py_xptr(PyObject* object, bool decref = true) {
     attrClass.push_back("tensorflow.builtin.object");
   }
 
-  // reverse order of classes
-  std::reverse(attrClass.begin(), attrClass.end());
-
   // set classes
   ptr.attr("class") = attrClass;
 

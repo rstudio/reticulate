@@ -1,9 +1,6 @@
 
 # TODO: Shadow attribute for numpy ndarray
 # TODO: Handling of FLAGS / command line parameters in R
-# TODO: persistent modules
-
-# TODO: check for revisions to mnist and other examples
 
 #' TensorFlow for R
 #'

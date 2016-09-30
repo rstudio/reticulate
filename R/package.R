@@ -1,6 +1,4 @@
 
-# TODO: completion for Namespace objects (FLAGS)
-
 #' TensorFlow for R
 #'
 #' \href{https://tensorflow.org}{TensorFlow} is an open source software library

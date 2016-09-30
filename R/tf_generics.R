@@ -39,6 +39,18 @@ str.tensorflow.python.client.session.BaseSession <- function(object, ...) {
 #' @export
 print.tensorflow.python.ops.variables.Variable <- print.tensorflow.python.framework.ops.Tensor
 
+#' @export
+.DollarNames.tensorflow.python.platform.flags._FlagValues <- function(x, pattern = "") {
+
+  # skip if this is a NULL xptr
+  if (py_is_null_xptr(x))
+    return(character())
+
+  # get the underlying flags and return the names
+  flags <- x$`__flags`
+  names(flags)
+}
+
 
 # https://stat.ethz.ch/R-manual/R-devel/library/base/html/groupGeneric.html
 

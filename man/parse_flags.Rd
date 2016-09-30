@@ -6,6 +6,9 @@
 \usage{
 parse_flags()
 }
+\value{
+FLAGS object suitable for reading values from
+}
 \description{
 Parse command line arguments to the Rscript and use them to
 populate the values of TensorFlow FLAGS

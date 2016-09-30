@@ -4,6 +4,8 @@
 #' Parse command line arguments to the Rscript and use them to
 #' populate the values of TensorFlow FLAGS
 #'
+#' @return FLAGS object suitable for reading values from
+#'
 #' @export
 parse_flags <- function() {
 
@@ -11,7 +13,7 @@ parse_flags <- function() {
   args <- commandArgs(trailingOnly = TRUE)
 
   # parse known arguments using the global parser
-  parser <- tf$python$platform$flags$`_global_parser`
+  parser <- tf$app$flags$`_global_parser`
   result <- tryCatch(parser$parse_known_args(list(args)),
                      error = function(e) NULL)
 
@@ -25,5 +27,6 @@ parse_flags <- function() {
   for (name in names(result))
     FLAGS$`__setattr__`(name, result[[name]])
 
-  invisible(NULL)
+  # return the FLAGS
+  invisible(FLAGS)
 }

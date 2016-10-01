@@ -421,18 +421,12 @@ SEXP py_to_r(PyObject* x) {
     }
   }
 
-  // tuple
-  else if (PyTuple_Check(x)) {
+  // tuple (but don't convert namedtuple as it's often a custom class)
+  else if (PyTuple_Check(x) && !::PyObject_HasAttrString(x, "_fields")) {
     Py_ssize_t len = ::PyTuple_Size(x);
     Rcpp::List list(len);
     for (Py_ssize_t i = 0; i<len; i++)
       list[i] = py_to_r(PyTuple_GetItem(x, i));
-    // check for namedtuple
-    if (::PyObject_HasAttrString(x, "_fields") == 1) {
-      PyObjectPtr fieldsAttrPtr(::PyObject_GetAttrString(x, "_fields"));
-      if (PyTuple_Check(fieldsAttrPtr) && PyTuple_Size(fieldsAttrPtr) == len)
-        list.names() = py_tuple_to_character(fieldsAttrPtr);
-    }
     return list;
   }
 

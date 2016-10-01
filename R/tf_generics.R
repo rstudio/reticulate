@@ -51,6 +51,14 @@ print.tensorflow.python.ops.variables.Variable <- print.tensorflow.python.framew
   names(flags)
 }
 
+# https://stat.ethz.ch/R-manual/R-devel/library/base/html/InternalMethods.html
+
+
+#' @export
+"[.tensorflow.python.framework.ops.Tensor" <- function(x, i, j, ..., drop = TRUE) {
+  stop("[ not yet implemented for Tensor")
+}
+
 
 # https://stat.ethz.ch/R-manual/R-devel/library/base/html/groupGeneric.html
 

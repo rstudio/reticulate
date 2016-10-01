@@ -11,7 +11,8 @@ Authors@R: c(
   person(family = "Google Inc.", role = c("ctb", "cph"),
          comment = "Examples and Tutorials"),
   person("Yuan", "Tang", role = c("ctb", "cph"),
-         comment = "Examples and Tutorials")
+         comment = "Examples and Tutorials",
+         email = "terrytangyuan@gmail.com")
   )
 Description: TensorFlow is an open source software library for
   numerical computation using data flow graphs. Nodes in the

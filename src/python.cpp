@@ -195,6 +195,9 @@ PyObjectXPtr py_xptr(PyObject* object, bool decref = true) {
     attrClass.push_back("tensorflow.builtin.object");
   }
 
+  // add externalptr
+  attrClass.push_back("externalptr");
+
   // set classes
   ptr.attr("class") = attrClass;
 

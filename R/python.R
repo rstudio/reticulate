@@ -40,7 +40,20 @@ py_xptr_str <- function(object, expr) {
 #' @importFrom utils str
 #' @export
 str.tensorflow.builtin.object <- function(object, ...) {
-  py_xptr_str(object, cat(py_str(object), "\n", sep=""))
+  if (py_is_null_xptr(object))
+    cat("<pointer: 0x0>\n")
+  else {
+    # call python str method
+    str <- py_str(object)
+
+    # pick out class name for case when there is no str method
+    match <- regexpr("[A-Z]\\w+ object at ", str)
+    if (match != -1)
+      str <- gsub(" object at ", "", regmatches(str, match))
+
+    # print str
+    cat(str, "\n", sep="")
+  }
 }
 
 #' @export

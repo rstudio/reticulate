@@ -21,12 +21,6 @@ str.tensorflow.python.ops.variables.Variable <- function(object, ...) {
 }
 
 #' @export
-str.tensorflow.python.client.session.BaseSession <- function(object, ...) {
-  py_xptr_str(object, cat("Session\n"))
-}
-
-
-#' @export
 "print.tensorflow.python.framework.ops.Tensor" <- function(x, ...) {
   str(x, ...)
   if (!is.null(tf$get_default_session())) {

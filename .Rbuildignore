@@ -10,6 +10,10 @@
 README.md
 .Renviron
 LICENSE
+.travis.yml
+travis_install.sh
+run_tests.sh
+
 
 
 

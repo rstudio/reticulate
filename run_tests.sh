@@ -1,3 +1,3 @@
 #!/bin/bash
 
-Rscript -e 'Sys.setenv(TENSORFLOW_PYTHON=system("which python", intern = T));library(tensorflow)'
+Rscript -e 'Sys.setenv(TENSORFLOW_TEST_EXAMPLES="1");devtools::check("tensorflow")'

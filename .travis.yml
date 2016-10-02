@@ -1,0 +1,32 @@
+sudo: true
+
+language: cpp
+
+os:
+  - linux
+  - osx
+
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - wget
+      - libatlas3gf-base
+      - libatlas-dev
+      - python-joblib
+
+install:
+  - source travis_install.sh
+
+script:
+  - source run_tests.sh
+
+cache:
+  directories:
+    - ${HOME}/.cache/usr
+
+notifications:
+  email:
+    on_success: change
+    on_failure: always

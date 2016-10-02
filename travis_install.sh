@@ -23,5 +23,4 @@ chmod 755 ./travis-tool.sh
 ./travis-tool.sh install_aptget r-cran-testthat r-cran-devtools r-cran-rcpp
 ./travis-tool.sh install_deps
 
-# package
-git clone git@github.com:rstudio/tensorflow.git
+

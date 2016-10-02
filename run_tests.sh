@@ -1,3 +1,3 @@
 #!/bin/bash
 
-echo "SUCCESS"
+Rscript -e "library(tensorflow)"

@@ -15,6 +15,7 @@ addons:
       - libatlas3gf-base
       - libatlas-dev
       - python-joblib
+      - libpython-dev
 
 install:
   - source travis_install.sh

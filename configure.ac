@@ -41,24 +41,10 @@ else
   USE_PYTHON=${USE_PYTHON}${TENSORFLOW_PYTHON_VERSION}
 fi
 
-# determine path to python-config
-USE_PYTHON_CONFIG=${USE_PYTHON}-config
-
-# Extract the linker and include flags for python
-: ${PYTHONCONFIG=`which ${USE_PYTHON_CONFIG}`}
-if test -z "${PYTHONCONFIG}"; then
-  echo "Could not locate ${USE_PYTHON_CONFIG}"
-  exit 1
-fi
-
-PKG_LIBS=`$PYTHONCONFIG --ldflags`
-PKG_CPPFLAGS=`$PYTHONCONFIG --includes`
-
 # find python
-: ${PYTHON=`which ${USE_PYTHON}`}
 PYTHON_BIN=`which ${USE_PYTHON}`
-if test -z "${PYTHON}"; then
-  echo "Could not locate ${PYTHON}"
+if test -z "${PYTHON_BIN}"; then
+  echo "Could not locate ${PYTHON_BIN}"
   exit 1
 fi
 
@@ -82,8 +68,22 @@ then
   exit 1
 fi
 
+
+# determine path to python-config
+USE_PYTHON_CONFIG=${USE_PYTHON}-config
+
+# Extract the linker and include flags for python
+: ${PYTHONCONFIG=`which ${USE_PYTHON_CONFIG}`}
+if test -z "${PYTHONCONFIG}"; then
+  echo "Could not locate ${USE_PYTHON_CONFIG}"
+  exit 1
+fi
+
+PKG_LIBS=`$PYTHONCONFIG --ldflags`
+PKG_CPPFLAGS=`$PYTHONCONFIG --includes`
+
 # find the numpy includes
-NUMPY_INCLUDE_DIR=`$PYTHON -c "import numpy; print(numpy.get_include())"`
+NUMPY_INCLUDE_DIR=`$PYTHON_BIN -c "import numpy; print(numpy.get_include())"`
 if test -z "${NUMPY_INCLUDE_DIR}"; then
   echo "Could not locate numpy include directory"
   exit 1
@@ -91,7 +91,7 @@ fi
 PKG_CPPFLAGS="$PKG_CPPFLAGS -I$NUMPY_INCLUDE_DIR"
 
 # Find the .so library for python
-PYTHONLIBFILE=libpython`$PYTHON -c "import sys; print(sys.version[[:3]])"`.so
+PYTHONLIBFILE=libpython`$PYTHON_BIN -c "import sys; print(sys.version[[:3]])"`.so
 PKG_CPPFLAGS="$PKG_CPPFLAGS -D PYTHONLIBFILE=$PYTHONLIBFILE"
 
 AC_SUBST(PYTHON_BIN)

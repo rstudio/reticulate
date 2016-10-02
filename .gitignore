@@ -11,3 +11,4 @@ config.status
 autom4te.cache
 README.html
 .Renviron
+MNIST-data

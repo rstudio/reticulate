@@ -1,3 +1,3 @@
 #!/bin/bash
 
-Rscript -e "library(tensorflow)"
+Rscript -e 'Sys.setenv(TENSORFLOW_PYTHON=system("which python", intern = T));library(tensorflow)'

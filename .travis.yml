@@ -8,6 +8,9 @@ os:
 
 dist: trusty
 
+before_install:
+  - export PATH=$(echo $PATH | tr ':' "\n" | sed '/\/opt\/python/d' | tr "\n" ":" | sed "s|::|:|g")
+
 addons:
   apt:
     sources:

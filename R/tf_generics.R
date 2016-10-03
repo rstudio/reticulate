@@ -75,8 +75,13 @@ print.tensorflow.python.ops.variables.Variable <- print.tensorflow.python.framew
                         TRUE)
 
   if (any(bad_indices)) {
-    msg <- sprintf('indices %s were not numeric',
-                   paste(which(bad_indices), collapse = ', '))
+    if (sum(bad_indices) == 1) {
+      msg <- sprintf('index %i is not numeric',
+                     which(bad_indices))
+    } else {
+      msg <- sprintf('indices %s are not numeric',
+                     paste(which(bad_indices), collapse = ', '))
+    }
     stop (msg)
   }
 
@@ -127,13 +132,13 @@ print.tensorflow.python.ops.variables.Variable <- print.tensorflow.python.framew
   # add stride length (always 1) so that the output is consistent with python API
   stride_shape <- as.list(rep(1L, n_indices))
 
-  # get shrink mask as an integer represent a bytestring
+  # get shrink mask as an integer representing a bitstring
   # if drop=TRUE, drop all *indices* specified as integers,
   # i.e. for a 2x3 Tensor x:
-  #   x[1:1, ] => shape 1x3
-  #   x[1, ] => shape 3
+  #   x[1:1, ,drop=TRUE] => shape 1x3
+  #   x[1, ,drop=TRUE] => shape 3
   if (drop) {
-    # create bit mask as a vector, then collapse to an integer
+    # create bit mask as a logical vector, then collapse to an integer
     shrink <- vapply(indices,
                      function (x) {
                        length(x) == 1 && !is.na(x)

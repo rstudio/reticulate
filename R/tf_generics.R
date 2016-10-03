@@ -50,9 +50,96 @@ print.tensorflow.python.ops.variables.Variable <- print.tensorflow.python.framew
 
 #' @export
 "[.tensorflow.python.framework.ops.Tensor" <- function(x, i, j, ..., drop = TRUE) {
-  stop("[ not yet implemented for Tensor")
-}
 
+  # tensor shape as a vector
+  x_size <- x$get_shape()$as_list()
+  n_indices <- length(x_size)
+
+  # create a list of the indices provided
+  if (missing(i)) i <- NA
+  if (missing(j)) j <- NA
+  indices <- c(list(i, j), list(...))
+
+  n_indices_specified <- length(indices)
+
+  # error if too many indices
+  if (n_indices_specified > n_indices) {
+    msg <- sprintf('object has %i dimensions but %i indices were specified',
+                   n_indices,
+                   n_indices_specified)
+    stop (msg)
+  }
+
+  # pad out if too few indices
+  if (n_indices_specified < n_indices) {
+    missing <- seq_len(n_indices - n_indices_specified) + n_indices_specified
+    indices[missing] <- NA
+  }
+
+  # find index starting element on each dimension
+  begin <- sapply(indices,
+                  function (x) {
+                    if (is.na(x[1])) {
+                      0L
+                    } else {
+                      x[1]
+                    }
+                  })
+
+  # find slice size in each dimension (accounting for numpy/tensorflow not
+  # including the last element)
+  slice_end <- sapply(indices,
+                      function (x) {
+                        if (is.na(x[1])) {
+                          Inf
+                        } else {
+                          pmax(x[1], x[length(x)])
+                        }
+                      })
+
+  # crop to Tensor size
+  x_end <- pmax(0, x_size)
+  end <- pmin(x_end, slice_end)
+
+  # convert to shapes
+  begin_shape <- do.call('shape', as.list(begin))
+  end_shape <- do.call('shape', as.list(end))
+
+  # add stride length (always 1) so that the output is consistent with python API
+  stride_shape <- as.list(rep(1L, n_indices))
+
+  # get shrink mask as an integer represent a bytestring
+
+  # if drop=TRUE, drop all *indices* specified as integers,
+  # i.e. for a 2x3 Tensor x:
+  #   x[1:1, ] => shape 1x3
+  #   x[1, ] => shape 3
+  if (drop) {
+    # all
+    shrink_vec <- sapply(indices,
+                         function (x) {
+                           if (!is.na(x[1]) & length(x) == 1) {
+                             1L
+                           } else {
+                             0L
+                           }
+                         })
+  } else {
+    shrink_vec <- rep(0, 4)
+  }
+
+  # convert the (reverse) shrinking bytestring to integer
+  shrink_string <- paste(rev(shrink_vec),
+                         collapse = '')
+  shrink_integer <- strtoi(shrink_string, 2)
+
+  # return the slice
+  tf$strided_slice(input_ = x,
+                   begin = begin_shape,
+                   end = end_shape,
+                   strides = stride_shape,
+                   shrink_axis_mask = shrink_integer)
+}
 
 # https://stat.ethz.ch/R-manual/R-devel/library/base/html/groupGeneric.html
 

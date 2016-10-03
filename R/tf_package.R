@@ -18,7 +18,7 @@ tf_on_load <- function(libname, pkgname) {
 
 tf_on_attach <- function(libname, pkgname) {
   if (is.null(tf)) {
-    packageStartupMessage("Error loading TensorFlow: ", .load_error_message)
+    packageStartupMessage(.load_error_message)
     packageStartupMessage("If you have not yet installed TensorFlow, see ",
                           "https://www.tensorflow.org/get_started/")
     packageStartupMessage("Configuration:")

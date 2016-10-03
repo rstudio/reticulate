@@ -55,7 +55,8 @@ print.tensorflow.python.ops.variables.Variable <- print.tensorflow.python.framew
   x_size <- x$get_shape()$as_list()
   n_indices <- length(x_size)
 
-  # capture all indices (skip function, x & drop from arguments)
+  # capture all indices (skip function, `x`, & `drop` from the arguments)
+  # this enables users to skip indices to get their default
   cl <- match.call()
   args <- as.list(cl)[-(1:2)]
   indices <- args[names(args) != 'drop']
@@ -69,8 +70,9 @@ print.tensorflow.python.ops.variables.Variable <- print.tensorflow.python.framew
                     })
 
   # check all the indices are numeric or NA
-  bad_indices <- sapply(indices,
-                        function (x) !is.numeric(x) & !is.na(x[1]))
+  bad_indices <- vapply(indices,
+                        function (x) !is.numeric(x) & !is.na(x[1]),
+                        TRUE)
 
   if (any(bad_indices)) {
     msg <- sprintf('indices %s were not numeric',
@@ -98,25 +100,21 @@ print.tensorflow.python.ops.variables.Variable <- print.tensorflow.python.framew
   names(indices) = NULL
 
   # find index starting element on each dimension
-  begin <- sapply(indices,
+  begin <- vapply(indices,
                   function (x) {
-                    if (is.na(x[1])) {
-                      0L
-                    } else {
-                      x[1]
-                    }
-                  })
+                    if (length(x) == 1 && is.na(x)) 0
+                    else x[1]
+                  },
+                  0)
 
   # find slice size in each dimension (accounting for numpy/tensorflow not
   # including the last element)
-  slice_end <- sapply(indices,
+  slice_end <- vapply(indices,
                       function (x) {
-                        if (is.na(x[1])) {
-                          Inf
-                        } else {
-                          pmax(x[1], x[length(x)])
-                        }
-                      })
+                        if (length(x) == 1 && is.na(x)) Inf
+                        else pmax(x[1], x[length(x)])
+                      },
+                      0)
 
   # crop to Tensor size
   x_end <- pmax(0, x_size)
@@ -130,29 +128,21 @@ print.tensorflow.python.ops.variables.Variable <- print.tensorflow.python.framew
   stride_shape <- as.list(rep(1L, n_indices))
 
   # get shrink mask as an integer represent a bytestring
-
   # if drop=TRUE, drop all *indices* specified as integers,
   # i.e. for a 2x3 Tensor x:
   #   x[1:1, ] => shape 1x3
   #   x[1, ] => shape 3
   if (drop) {
-    # all
-    shrink_vec <- sapply(indices,
-                         function (x) {
-                           if (!is.na(x[1]) & length(x) == 1) {
-                             1L
-                           } else {
-                             0L
-                           }
-                         })
+    # create bit mask as a vector, then collapse to an integer
+    shrink <- vapply(indices,
+                     function (x) {
+                       length(x) == 1 && !is.na(x)
+                     },
+                     FALSE)
+    shrink_integer <- sum(2 ^ (seq_along(shrink) - 1)[shrink])
   } else {
-    shrink_vec <- rep(0, 4)
+    shrink_integer <- 0
   }
-
-  # convert the (reverse) shrinking bytestring to integer
-  shrink_string <- paste(rev(shrink_vec),
-                         collapse = '')
-  shrink_integer <- strtoi(shrink_string, 2)
 
   # return the slice
   tf$strided_slice(input_ = x,

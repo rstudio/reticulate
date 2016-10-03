@@ -55,10 +55,28 @@ print.tensorflow.python.ops.variables.Variable <- print.tensorflow.python.framew
   x_size <- x$get_shape()$as_list()
   n_indices <- length(x_size)
 
-  # create a list of the indices provided
-  if (missing(i)) i <- NA
-  if (missing(j)) j <- NA
-  indices <- c(list(i, j), list(...))
+  # capture all indices (skip function, x & drop from arguments)
+  cl <- match.call()
+  args <- as.list(cl)[-(1:2)]
+  indices <- args[names(args) != 'drop']
+
+  # evaluate any calls and replace any skipped indices (names) with NAs
+  indices <- lapply(indices,
+                    function (x) {
+                      if(is.name(x)) NA
+                      else if (is.call(x)) eval(x)
+                      else x
+                    })
+
+  # check all the indices are numeric or NA
+  bad_indices <- sapply(indices,
+                        function (x) !is.numeric(x) & !is.na(x[1]))
+
+  if (any(bad_indices)) {
+    msg <- sprintf('indices %s were not numeric',
+                   paste(which(bad_indices), collapse = ', '))
+    stop (msg)
+  }
 
   n_indices_specified <- length(indices)
 
@@ -75,6 +93,9 @@ print.tensorflow.python.ops.variables.Variable <- print.tensorflow.python.framew
     missing <- seq_len(n_indices - n_indices_specified) + n_indices_specified
     indices[missing] <- NA
   }
+
+  # strip out any names
+  names(indices) = NULL
 
   # find index starting element on each dimension
   begin <- sapply(indices,

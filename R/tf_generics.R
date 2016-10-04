@@ -55,11 +55,27 @@ print.tensorflow.python.ops.variables.Variable <- print.tensorflow.python.framew
   x_size <- x$get_shape()$as_list()
   n_indices <- length(x_size)
 
-  # capture all indices (skip function, `x`, & `drop` from the arguments)
-  # this enables users to skip indices to get their default
+  # Capture all indices beyond i and j (skip function, `x`, `drop`, `i` & `j`
+  # from the arguments). This enables users to skip indices to get their defaults
   cl <- match.call()
-  args <- as.list(cl)[-(1:2)]
-  indices <- args[names(args) != 'drop']
+  args <- as.list(cl)[-1]
+  extra_indices <- args[!names(args) %in% c('x', 'i', 'j', 'drop')]
+
+  # if i wasn't specified, make it NA (keep all values)
+  if (missing(i)) i <- list(NA)
+  else i <- list(i)
+
+  # if j wasn't specified, but is required, keep all elements
+  # if it isn't required, skip it
+  if (missing(j)) {
+    if (n_indices > 1) j <- list(NA)
+    else j <- list()
+  } else {
+    j <- list(j)
+  }
+
+  # add these to i
+  indices <- c(i, j, extra_indices)
 
   # evaluate any calls and replace any skipped indices (names) with NAs
   indices <- lapply(indices,

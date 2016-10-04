@@ -126,8 +126,7 @@ print.tensorflow.python.ops.variables.Variable <- print.tensorflow.python.framew
                   },
                   0)
 
-  # find slice size in each dimension (accounting for numpy/tensorflow not
-  # including the last element)
+  # find slice end in each dimension
   end <- vapply(indices,
                 function (x) {
                   if (length(x) == 1 && is.na(x)) Inf
@@ -135,13 +134,22 @@ print.tensorflow.python.ops.variables.Variable <- print.tensorflow.python.framew
                 },
                 0)
 
-  # ensure the index is positive
-  negative_indices <- end < begin
+  # truncate missing indices to be finite
+  end <- pmin(end, x_size)
+
+  # ensure the index is positive and increasing
+  negative_indices <- end < 0 | begin < 0 #| end < begin
+  decreasing_indices <- end < begin
+
   if (any(negative_indices)) {
     stop ('negative indexing of Tensors is not curently supported')
   }
 
-  # add one to the ends to account for Python's exlcusive upper bound
+  if (any(decreasing_indices)) {
+    stop ('decreasing indexing of Tensors is not curently supported')
+  }
+
+  # add one to the ends to account for Python's exclusive upper bound
   end <- end + 1
 
   # convert to shapes

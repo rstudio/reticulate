@@ -85,14 +85,27 @@ print.tensorflow.python.ops.variables.Variable <- print.tensorflow.python.framew
                       else x
                     })
 
-  # check all the indices are numeric or NA
+  # pad out if too few indices
+  n_indices_specified <- length(indices)
+  if (n_indices_specified < n_indices) {
+    missing <- seq_len(n_indices - n_indices_specified) + n_indices_specified
+    indices[missing] <- NA
+  }
+
+  # error if wrong number of indices
+  if (n_indices_specified !=  n_indices) {
+    stop ('incorrect number of dimensions')
+  }
+
+  # check all the indices are numeric and finite (or NA)
   bad_indices <- vapply(indices,
-                        function (x) !is.numeric(x) & !is.na(x[1]),
+                        function (x) !((is.numeric(x) && is.finite(x)) |
+                                         (length(x) == 1 && is.na(x))),
                         TRUE)
 
   if (any(bad_indices)) {
     if (sum(bad_indices) == 1) {
-      msg <- sprintf('index %i is not numeric',
+      msg <- sprintf('index %i is not numeric and finite',
                      which(bad_indices))
     } else {
       msg <- sprintf('indices %s are not numeric',
@@ -101,24 +114,9 @@ print.tensorflow.python.ops.variables.Variable <- print.tensorflow.python.framew
     stop (msg)
   }
 
-  n_indices_specified <- length(indices)
-
-  # error if too many indices
-  if (n_indices_specified > n_indices) {
-    msg <- sprintf('object has %i dimensions but %i indices were specified',
-                   n_indices,
-                   n_indices_specified)
-    stop (msg)
-  }
-
-  # pad out if too few indices
-  if (n_indices_specified < n_indices) {
-    missing <- seq_len(n_indices - n_indices_specified) + n_indices_specified
-    indices[missing] <- NA
-  }
-
   # strip out any names
   names(indices) = NULL
+
 
   # find index starting element on each dimension
   begin <- vapply(indices,

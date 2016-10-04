@@ -148,8 +148,8 @@ print.tensorflow.python.ops.variables.Variable <- print.tensorflow.python.framew
 }
 
 #' @export
-"!.tensorflow.python.framework.ops.Variable" <- function(x) {
-  tf$logical_not(x)
+"|.tensorflow.python.framework.ops.Variable" <- function(a, b) {
+  tf$logical_or(a, b)
 }
 
 #' @export
@@ -158,23 +158,8 @@ print.tensorflow.python.ops.variables.Variable <- print.tensorflow.python.framew
 }
 
 #' @export
-"|.tensorflow.python.framework.ops.Variable" <- function(a, b) {
-  tf$logical_or(a, b)
-}
-
-#' @export
-"|.tensorflow.python.framework.ops.Variable" <- function(a, b) {
-  tf$logical_or(a, b)
-}
-
-#' @export
-"|.tensorflow.python.framework.ops.Tensor" <- function(a, b) {
-  tf$logical_or(a, b)
-}
-
-#' @export
-"|.tensorflow.python.framework.ops.Variable" <- function(a, b) {
-  tf$logical_or(a, b)
+"!.tensorflow.python.framework.ops.Variable" <- function(x) {
+  tf$logical_not(x)
 }
 
 #' @export

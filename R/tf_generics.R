@@ -114,16 +114,18 @@ print.tensorflow.python.ops.variables.Variable <- print.tensorflow.python.framew
 
   # find slice size in each dimension (accounting for numpy/tensorflow not
   # including the last element)
-  slice_end <- vapply(indices,
-                      function (x) {
-                        if (length(x) == 1 && is.na(x)) Inf
-                        else pmax(x[1], x[length(x)])
-                      },
-                      0)
+  end <- vapply(indices,
+                function (x) {
+                  if (length(x) == 1 && is.na(x)) Inf
+                  else x[length(x)]
+                },
+                0)
 
-  # crop to Tensor size
-  x_end <- pmax(0, x_size)
-  end <- pmin(x_end, slice_end)
+  # ensure the index is positive
+  negative_indices <- end < begin
+  if (any(negative_indices)) {
+    stop ('negative indexing of Tensors is not curently supported')
+  }
 
   # convert to shapes
   begin_shape <- do.call('shape', as.list(begin))

@@ -131,7 +131,7 @@ test_that("negative and decreasing indexing errors", {
 
 })
 
-test_that("too many indices error", {
+test_that("incorrect number of indices errors", {
   skip_if_no_tensorflow()
 
   # set up Tensor
@@ -162,13 +162,13 @@ test_that("silly indices error", {
 
   # these should all error and notify the user of the failing index
   expect_error(x[1:2, NULL, 2],
-               'index 2 is not numeric and finite')
-  # expect_error(x[1:2, NA, 2],
-  #              'index 2 is not numeric and finite')  #
+               'invalid index - must be numeric and finite')
+  expect_error(x[1:2, NA, 2],
+               'invalid index - must be numeric and finite')
   expect_error(x[1:2, Inf, 2],
-               'index 2 is not numeric and finite')
+               'invalid index - must be numeric and finite')
   expect_error(x[1:2, 'apple', 2],
-               'index 2 is not numeric and finite')
-  # expect_error(x[1:2, mean, 2],
-  #              'index 2 is not numeric and finite')  #
+               'invalid index - must be numeric and finite')
+  expect_error(x[1:2, mean, 2],
+               'invalid index - must be numeric and finite')
 })

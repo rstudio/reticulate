@@ -51,6 +51,23 @@ print.tensorflow.python.ops.variables.Variable <- print.tensorflow.python.framew
 #' @export
 "[.tensorflow.python.framework.ops.Tensor" <- function(x, i, j, ..., drop = TRUE) {
 
+  # check for blank spaces in the call
+  is.blank <- function (x) is.name(x) && as.character(x) == ''
+
+  # check the user-specified index is valid
+  validate_index <- function (x) {
+    if (!(is.numeric(x) && is.finite(x))) {
+      stop ('invalid index - must be numeric and finite')
+    }
+    if (any(x < 0)) {
+      stop ('negative indexing of Tensors is not curently supported')
+    }
+    if (x[length(x)] < x[1]) {
+      stop ('decreasing indexing of Tensors is not curently supported')
+    }
+    x
+  }
+
   # tensor shape as a vector
   x_size <- x$get_shape()$as_list()
   n_indices <- length(x_size)
@@ -63,7 +80,7 @@ print.tensorflow.python.ops.variables.Variable <- print.tensorflow.python.framew
 
   # if i wasn't specified, make it NA (keep all values)
   if (missing(i)) i <- list(NA)
-  else i <- list(i)
+  else i <- list(validate_index(i))
 
   # if j wasn't specified, but is required, keep all elements
   # if it isn't required, skip it
@@ -71,52 +88,25 @@ print.tensorflow.python.ops.variables.Variable <- print.tensorflow.python.framew
     if (n_indices > 1) j <- list(NA)
     else j <- list()
   } else {
-    j <- list(j)
+    j <- list(validate_index(j))
   }
 
-  # add these to i
+  # evaluate any calls and replace any skipped indices (blank names) with NAs
+  extra_indices <- lapply(extra_indices,
+                          function (x) {
+                            if (is.blank(x)) NA
+                            else if (is.call(x)) validate_index(eval(x))
+                            else validate_index(x)
+                          })
+
+  # combine the indices & strip out any names
   indices <- c(i, j, extra_indices)
-
-  # evaluate any calls and replace any skipped indices (names) with NAs
-  indices <- lapply(indices,
-                    function (x) {
-                      if (is.name(x)) NA
-                      else if (is.call(x)) eval(x)
-                      else x
-                    })
-
-  # pad out if too few indices
-  n_indices_specified <- length(indices)
-  if (n_indices_specified < n_indices) {
-    missing <- seq_len(n_indices - n_indices_specified) + n_indices_specified
-    indices[missing] <- NA
-  }
-
-  # error if wrong number of indices
-  if (n_indices_specified !=  n_indices) {
-    stop ('incorrect number of dimensions')
-  }
-
-  # check all the indices are numeric and finite (or NA)
-  bad_indices <- vapply(indices,
-                        function (x) !((is.numeric(x) && is.finite(x)) |
-                                         (length(x) == 1 && is.na(x))),
-                        TRUE)
-
-  if (any(bad_indices)) {
-    if (sum(bad_indices) == 1) {
-      msg <- sprintf('index %i is not numeric and finite',
-                     which(bad_indices))
-    } else {
-      msg <- sprintf('indices %s are not numeric',
-                     paste(which(bad_indices), collapse = ', '))
-    }
-    stop (msg)
-  }
-
-  # strip out any names
   names(indices) = NULL
 
+  # error if wrong number of indices
+  if (length(indices) !=  n_indices) {
+    stop ('incorrect number of dimensions')
+  }
 
   # find index starting element on each dimension
   begin <- vapply(indices,
@@ -134,23 +124,9 @@ print.tensorflow.python.ops.variables.Variable <- print.tensorflow.python.framew
                 },
                 0)
 
-  # truncate missing indices to be finite
-  end <- pmin(end, x_size)
-
-  # ensure the index is positive and increasing
-  negative_indices <- end < 0 | begin < 0 #| end < begin
-  decreasing_indices <- end < begin
-
-  if (any(negative_indices)) {
-    stop ('negative indexing of Tensors is not curently supported')
-  }
-
-  if (any(decreasing_indices)) {
-    stop ('decreasing indexing of Tensors is not curently supported')
-  }
-
-  # add one to the ends to account for Python's exclusive upper bound
-  end <- end + 1
+  # truncate missing indices to be finite & add one to the ends to account for
+  # Python's exclusive upper bound
+  end <- pmin(end, x_size) + 1
 
   # convert to shapes
   begin_shape <- do.call('shape', as.list(begin))

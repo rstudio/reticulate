@@ -127,6 +127,9 @@ print.tensorflow.python.ops.variables.Variable <- print.tensorflow.python.framew
     stop ('negative indexing of Tensors is not curently supported')
   }
 
+  # add one to the ends to account for Python's exlcusive upper bound
+  end <- end + 1
+
   # convert to shapes
   begin_shape <- do.call('shape', as.list(begin))
   end_shape <- do.call('shape', as.list(end))

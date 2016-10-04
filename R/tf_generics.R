@@ -80,7 +80,7 @@ print.tensorflow.python.ops.variables.Variable <- print.tensorflow.python.framew
   # evaluate any calls and replace any skipped indices (names) with NAs
   indices <- lapply(indices,
                     function (x) {
-                      if(is.name(x)) NA
+                      if (is.name(x)) NA
                       else if (is.call(x)) eval(x)
                       else x
                     })

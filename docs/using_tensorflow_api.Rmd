@@ -147,6 +147,46 @@ cross_entropy <- tf$reduce_mean(
 correct_prediction <- tf$equal(tf$argmax(y_conv, 1L), tf$argmax(y_, 1L))
 ```
 
+## Generics
+
+The tensorflow package provides Tensor implementations for a number of R generic operators and functions. You can use these in place of the equivalent `tf` function to make your code more readable and compact. The following generics are implemented:
+
+| Generic  | TensorFlow  | 
+|-------|------------------------------------------------------|
+| -  |  tf\$neg, tf\$sub |
+| +  |  tf$add |
+| *  |  tf$mul |
+| /  |  tf$truediv |
+| %/%  |  tf$floordiv |
+| %%  |  tf$mod |
+| ^  |  tf$pow |
+| %%  |  tf$mod |
+| &  |  tf$logical_and |
+| \|  |  tf$logical_or |
+| !  |  tf$logical_not |
+| ==  |  tf$equal |
+| !=  |  tf$not_equal |
+| <  |  tf$less |
+| <=  |  tf$less_equal |
+| >  |  tf$greater |
+| >=  |  tf$greater_equal |
+| abs  |  tf$abs |
+| sign  |  tf$sign |
+| sqrt  |  tf$sqrt |
+| floor  |  tf$floor |
+| ceiling  |  tf$ceiling |
+| round  |  tf$round |
+| exp  |  tf$exp |
+| log  |  tf$log |
+| cos  |  tf$cos |
+| sin  |  tf$sin |
+| tan  |  tf$tan |
+| acos  |  tf$acos |
+| asin  |  tf$asin |
+| atan  |  tf$atan |
+| lgamma  |  tf$lgamma |
+| digamma  |  tf$digamma |
+
 ## Dictionaries
 
 Some TensorFlow APIs accept dictionaries as arguments, the most common of which is the `feed_dict` argument which feeds training and test data to various functions. If a dictionary is keyed by character string you can simply pass an R named list. However, if a dictionary is keyed by another object type like a tensor (as `feed_dict` is) then you should use the `dict` function rather than a named list. For example:

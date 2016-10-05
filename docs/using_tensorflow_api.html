@@ -487,6 +487,152 @@ cross_entropy &lt;- tf$reduce_mean(
 # call tf$argmax on the second dimension of the specified tensor
 correct_prediction &lt;- tf$equal(tf$argmax(y_conv, 1L), tf$argmax(y_, 1L))</code></pre>
 </div>
+<div id="generics" class="section level2">
+<h2>Generics</h2>
+<p>The tensorflow package provides Tensor implementations for a number of R generic operators and functions. You can use these in place of the equivalent <code>tf</code> function to make your code more readable and compact. The following generics are implemented:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Generic</th>
+<th>TensorFlow</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>-</td>
+<td>tf$neg, tf$sub</td>
+</tr>
+<tr class="even">
+<td>+</td>
+<td>tf$add</td>
+</tr>
+<tr class="odd">
+<td>*</td>
+<td>tf$mul</td>
+</tr>
+<tr class="even">
+<td>/</td>
+<td>tf$truediv</td>
+</tr>
+<tr class="odd">
+<td>%/%</td>
+<td>tf$floordiv</td>
+</tr>
+<tr class="even">
+<td>%%</td>
+<td>tf$mod</td>
+</tr>
+<tr class="odd">
+<td>^</td>
+<td>tf$pow</td>
+</tr>
+<tr class="even">
+<td>%%</td>
+<td>tf$mod</td>
+</tr>
+<tr class="odd">
+<td>&amp;</td>
+<td>tf$logical_and</td>
+</tr>
+<tr class="even">
+<td>|</td>
+<td>tf$logical_or</td>
+</tr>
+<tr class="odd">
+<td>!</td>
+<td>tf$logical_not</td>
+</tr>
+<tr class="even">
+<td>==</td>
+<td>tf$equal</td>
+</tr>
+<tr class="odd">
+<td>!=</td>
+<td>tf$not_equal</td>
+</tr>
+<tr class="even">
+<td>&lt;</td>
+<td>tf$less</td>
+</tr>
+<tr class="odd">
+<td>&lt;=</td>
+<td>tf$less_equal</td>
+</tr>
+<tr class="even">
+<td>&gt;</td>
+<td>tf$greater</td>
+</tr>
+<tr class="odd">
+<td>&gt;=</td>
+<td>tf$greater_equal</td>
+</tr>
+<tr class="even">
+<td>abs</td>
+<td>tf$abs</td>
+</tr>
+<tr class="odd">
+<td>sign</td>
+<td>tf$sign</td>
+</tr>
+<tr class="even">
+<td>sqrt</td>
+<td>tf$sqrt</td>
+</tr>
+<tr class="odd">
+<td>floor</td>
+<td>tf$floor</td>
+</tr>
+<tr class="even">
+<td>ceiling</td>
+<td>tf$ceiling</td>
+</tr>
+<tr class="odd">
+<td>round</td>
+<td>tf$round</td>
+</tr>
+<tr class="even">
+<td>exp</td>
+<td>tf$exp</td>
+</tr>
+<tr class="odd">
+<td>log</td>
+<td>tf$log</td>
+</tr>
+<tr class="even">
+<td>cos</td>
+<td>tf$cos</td>
+</tr>
+<tr class="odd">
+<td>sin</td>
+<td>tf$sin</td>
+</tr>
+<tr class="even">
+<td>tan</td>
+<td>tf$tan</td>
+</tr>
+<tr class="odd">
+<td>acos</td>
+<td>tf$acos</td>
+</tr>
+<tr class="even">
+<td>asin</td>
+<td>tf$asin</td>
+</tr>
+<tr class="odd">
+<td>atan</td>
+<td>tf$atan</td>
+</tr>
+<tr class="even">
+<td>lgamma</td>
+<td>tf$lgamma</td>
+</tr>
+<tr class="odd">
+<td>digamma</td>
+<td>tf$digamma</td>
+</tr>
+</tbody>
+</table>
+</div>
 <div id="dictionaries" class="section level2">
 <h2>Dictionaries</h2>
 <p>Some TensorFlow APIs accept dictionaries as arguments, the most common of which is the <code>feed_dict</code> argument which feeds training and test data to various functions. If a dictionary is keyed by character string you can simply pass an R named list. However, if a dictionary is keyed by another object type like a tensor (as <code>feed_dict</code> is) then you should use the <code>dict</code> function rather than a named list. For example:</p>

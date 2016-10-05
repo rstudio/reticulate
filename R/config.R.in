@@ -14,10 +14,12 @@ py_config <- function() {
 
   # extract full path to libpython from PKG_LIBS
   match <- regexpr("-L[^ ]+", PKG_LIBS)
-  if (match == -1)
-    stop("Unable to parse -L from ", PKG_LIBS)
-  libpython_dir <- regmatches(PKG_LIBS, match)
-  libpython_dir <- substring(libpython_dir, 3)
+  if (match != -1) {
+    libpython_dir <- regmatches(PKG_LIBS, match)
+    libpython_dir <- substring(libpython_dir, 3)
+  } else {
+    libpython_dir <- NULL
+  }
 
   # extract python library from PKG_LIBS
   match <- regexpr("-lpython\\d+\\.\\d+", PKG_LIBS)
@@ -28,8 +30,15 @@ py_config <- function() {
   ext <- ifelse(Sys.info()[["sysname"]] == "Darwin", ".dylib", ".so")
   libpython_lib <- paste0("lib", libpython_lib, ext)
 
+  # provide full path to libpython if we have a dir
+  if (!is.null(libpython_dir)) {
+    libpython <- file.path(libpython_dir, libpython_lib)
+  } else {
+    libpython <- libpython_lib
+  }
+
   # return configuration
   list(python = PYTHON_BIN,
-       libpython = file.path(libpython_dir, libpython_lib),
+       libpython = libpython,
        numpy = NUMPY_INCLUDE_DIR)
 }

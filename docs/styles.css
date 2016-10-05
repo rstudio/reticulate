@@ -30,3 +30,7 @@ footer {
   font-size: 0.9em;
   margin-bottom: 100px;
 }
+
+#generics table>tbody {
+  font-family: monospace;
+}

@@ -60,10 +60,10 @@ print.tensorflow.python.ops.variables.Variable <- print.tensorflow.python.framew
       stop ('invalid index - must be numeric and finite')
     }
     if (any(x < 0)) {
-      stop ('negative indexing of Tensors is not curently supported')
+      stop ('negative indexing of Tensors is not currently supported')
     }
     if (x[length(x)] < x[1]) {
-      stop ('decreasing indexing of Tensors is not curently supported')
+      stop ('decreasing indexing of Tensors is not currently supported')
     }
     x
   }

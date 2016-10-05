@@ -120,14 +120,14 @@ test_that("negative and decreasing indexing errors", {
 
   # extract with negative indices
   expect_error(x1[-1],
-               'negative indexing of Tensors is not curently supported')
+               'negative indexing of Tensors is not currently supported')
   expect_error(x2[1:-2, ],
-               'negative indexing of Tensors is not curently supported')
+               'negative indexing of Tensors is not currently supported')
   # extract with decreasing indices
   expect_error(x1[3:2],
-               'decreasing indexing of Tensors is not curently supported')
+               'decreasing indexing of Tensors is not currently supported')
   expect_error(x2[2:1, ],
-               'decreasing indexing of Tensors is not curently supported')
+               'decreasing indexing of Tensors is not currently supported')
 
 })
 

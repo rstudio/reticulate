@@ -489,7 +489,7 @@ correct_prediction &lt;- tf$equal(tf$argmax(y_conv, 1L), tf$argmax(y_, 1L))</cod
 </div>
 <div id="tensor-extraction" class="section level2">
 <h2>Tensor Extraction</h2>
-<p>Tensors can created by extracting elements from other tensors, either using functions like <code>tf$gather</code> and <code>tf$slice</code>, or by using <code>[</code> syntax. Extraction using <code>[</code> also expects 0-based indexes, but otherwise follows R conventions: the index range is inclusive (whereas python omits the last element of an indexing vector) and blank indices indicate that all elements in that dimension should be retained. For example:</p>
+<p>Tensors can created by extracting elements from other tensors, either using functions like <code>tf$gather</code> and <code>tf$slice</code>, or by using <code>[</code> syntax. Extraction using <code>[</code> also expects 0-based indexes, but otherwise follows R conventions: the index range is inclusive (whereas Python omits the last element of an indexing vector) and blank indices indicate that all elements in that dimension should be retained. For example:</p>
 <pre class="r"><code># take the elements in the first 100 rows and first 5 columns of W
 W_small &lt;- W[0:99, 0:4]
 

@@ -149,7 +149,7 @@ correct_prediction <- tf$equal(tf$argmax(y_conv, 1L), tf$argmax(y_, 1L))
 
 ## Tensor Extraction
 
-Tensors can created by extracting elements from other tensors, either using functions like `tf$gather` and `tf$slice`, or by using `[` syntax. Extraction using `[` also expects 0-based indexes, but otherwise follows R conventions: the index range is inclusive (whereas python omits the last element of an indexing vector) and blank indices indicate that all elements in that dimension should be retained. For example:
+Tensors can created by extracting elements from other tensors, either using functions like `tf$gather` and `tf$slice`, or by using `[` syntax. Extraction using `[` also expects 0-based indexes, but otherwise follows R conventions: the index range is inclusive (whereas Python omits the last element of an indexing vector) and blank indices indicate that all elements in that dimension should be retained. For example:
 
 ```{r}
 # take the elements in the first 100 rows and first 5 columns of W

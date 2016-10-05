@@ -172,3 +172,22 @@ test_that("silly indices error", {
   expect_error(x[1:2, mean, 2],
                'invalid index - must be numeric and finite')
 })
+
+test_that("passing non-vector indices errors", {
+  skip_if_no_tensorflow()
+
+  # set up Tensor
+  x1 <- tf$constant(arr(3, 3))
+  x2 <- tf$constant(arr(3, 3, 3))
+
+  # block indices
+  block_idx_1 <- rbind(c(1, 2), c(0, 1))
+  block_idx_2 <- rbind(c(1, 2, 1), c(0, 1, 2))
+
+  # indexing with matrices should fail
+  expect_error(x1[block_idx_1],
+               'only vector indexing of Tensors is currently supported')
+  expect_error(x2[block_idx_2],
+               'only vector indexing of Tensors is currently supported')
+
+})

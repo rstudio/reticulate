@@ -59,6 +59,9 @@ print.tensorflow.python.ops.variables.Variable <- print.tensorflow.python.framew
     if (!(is.numeric(x) && is.finite(x))) {
       stop ('invalid index - must be numeric and finite')
     }
+    if (!(is.vector(x))) {
+      stop ('only vector indexing of Tensors is currently supported')
+    }
     if (any(x < 0)) {
       stop ('negative indexing of Tensors is not currently supported')
     }

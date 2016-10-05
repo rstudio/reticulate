@@ -147,6 +147,18 @@ cross_entropy <- tf$reduce_mean(
 correct_prediction <- tf$equal(tf$argmax(y_conv, 1L), tf$argmax(y_, 1L))
 ```
 
+## Tensor Extraction
+
+Tensors can created by extracting elements from other tensors, either using functions like `tf$gather` and `tf$slice`, or by using `[` syntax. Extraction using `[` also expects 0-based indexes, but otherwise follows R conventions: the index range is inclusive (whereas python omits the last element of an indexing vector) and blank indices indicate that all elements in that dimension should be retained. For example:
+
+```{r}
+# take the elements in the first 100 rows and first 5 columns of W
+W_small <- W[0:99, 0:4]
+
+# take the last 3 columns, but all rows, of W
+W_smallish <- W[, 7:9]
+```
+
 ## Generics
 
 The tensorflow package provides Tensor implementations for a number of R generic operators and functions. You can use these in place of the equivalent `tf` function to make your code more readable and compact. The following generics are implemented:
@@ -170,6 +182,7 @@ The tensorflow package provides Tensor implementations for a number of R generic
 | <=  |  tf$less_equal |
 | >  |  tf$greater |
 | >=  |  tf$greater_equal |
+| [  |  tf$strided_slice |
 | abs  |  tf$abs |
 | sign  |  tf$sign |
 | sqrt  |  tf$sqrt |

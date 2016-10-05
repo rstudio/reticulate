@@ -487,6 +487,15 @@ cross_entropy &lt;- tf$reduce_mean(
 # call tf$argmax on the second dimension of the specified tensor
 correct_prediction &lt;- tf$equal(tf$argmax(y_conv, 1L), tf$argmax(y_, 1L))</code></pre>
 </div>
+<div id="tensor-extraction" class="section level2">
+<h2>Tensor Extraction</h2>
+<p>Tensors can created by extracting elements from other tensors, either using functions like <code>tf$gather</code> and <code>tf$slice</code>, or by using <code>[</code> syntax. Extraction using <code>[</code> also expects 0-based indexes, but otherwise follows R conventions: the index range is inclusive (whereas python omits the last element of an indexing vector) and blank indices indicate that all elements in that dimension should be retained. For example:</p>
+<pre class="r"><code># take the elements in the first 100 rows and first 5 columns of W
+W_small &lt;- W[0:99, 0:4]
+
+# take the last 3 columns, but all rows, of W
+W_smallish &lt;- W[, 7:9]</code></pre>
+</div>
 <div id="generics" class="section level2">
 <h2>Generics</h2>
 <p>The tensorflow package provides Tensor implementations for a number of R generic operators and functions. You can use these in place of the equivalent <code>tf</code> function to make your code more readable and compact. The following generics are implemented:</p>
@@ -567,66 +576,70 @@ correct_prediction &lt;- tf$equal(tf$argmax(y_conv, 1L), tf$argmax(y_, 1L))</cod
 <td>tf$greater_equal</td>
 </tr>
 <tr class="even">
+<td>[</td>
+<td>tf$strided_slice</td>
+</tr>
+<tr class="odd">
 <td>abs</td>
 <td>tf$abs</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>sign</td>
 <td>tf$sign</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>sqrt</td>
 <td>tf$sqrt</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>floor</td>
 <td>tf$floor</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>ceiling</td>
 <td>tf$ceiling</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>round</td>
 <td>tf$round</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>exp</td>
 <td>tf$exp</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>log</td>
 <td>tf$log</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>cos</td>
 <td>tf$cos</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>sin</td>
 <td>tf$sin</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>tan</td>
 <td>tf$tan</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>acos</td>
 <td>tf$acos</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>asin</td>
 <td>tf$asin</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>atan</td>
 <td>tf$atan</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>lgamma</td>
 <td>tf$lgamma</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>digamma</td>
 <td>tf$digamma</td>
 </tr>

@@ -2,6 +2,7 @@
 PYTHON_BIN <- "@PYTHON_BIN@"
 PKG_LIBS <- "@PKG_LIBS@"
 NUMPY_INCLUDE_DIR <- "@NUMPY_INCLUDE_DIR@"
+PYTHON_PREFIX <- "@PYTHON_PREFIX@"
 
 
 # Python configuration
@@ -12,15 +13,6 @@ NUMPY_INCLUDE_DIR <- "@NUMPY_INCLUDE_DIR@"
 # against.
 py_config <- function() {
 
-  # extract full path to libpython from PKG_LIBS
-  match <- regexpr("-L[^ ]+", PKG_LIBS)
-  if (match != -1) {
-    libpython_dir <- regmatches(PKG_LIBS, match)
-    libpython_dir <- substring(libpython_dir, 3)
-  } else {
-    libpython_dir <- NULL
-  }
-
   # extract python library from PKG_LIBS
   match <- regexpr("-lpython\\d+\\.\\d+", PKG_LIBS)
   if (match == -1)
@@ -30,15 +22,26 @@ py_config <- function() {
   ext <- ifelse(Sys.info()[["sysname"]] == "Darwin", ".dylib", ".so")
   libpython_lib <- paste0("lib", libpython_lib, ext)
 
-  # provide full path to libpython if we have a dir
-  if (!is.null(libpython_dir)) {
-    libpython <- file.path(libpython_dir, libpython_lib)
+  # extract full path to libpython from PKG_LIBS
+  match <- regexpr("-L[^ ]+", PKG_LIBS)
+  if (match != -1) {
+    libpython_dir <- regmatches(PKG_LIBS, match)
+    libpython_dir <- substring(libpython_dir, 3)
   } else {
-    libpython <- libpython_lib
+    # try to use the PYTHON_PREFIX
+    libpython_dir <- NULL
+    for(path in c("lib", "lib64", "x86_64-linux-gnu")) {
+      if (file.exists(file.path(PYTHON_PREFIX, path, libpython_lib))) {
+        libpython_dir <- file.path(PYTHON_PREFIX, path)
+        break
+      }
+    }
+    if (is.null(libpython_dir))
+      stop("Unable to determine libpython path using --ldflags and --prefix")
   }
 
   # return configuration
   list(python = PYTHON_BIN,
-       libpython = libpython,
+       libpython = file.path(libpython_dir, libpython_lib),
        numpy = NUMPY_INCLUDE_DIR)
 }

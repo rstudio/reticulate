@@ -594,6 +594,7 @@ CPPFLAGS
 LDFLAGS
 CFLAGS
 CC
+PYTHON_PREFIX
 NUMPY_INCLUDE_DIR
 PKG_CPPFLAGS
 PKG_LIBS
@@ -1825,6 +1826,7 @@ fi
 
 PKG_LIBS=`$PYTHONCONFIG --ldflags`
 PKG_CPPFLAGS=`$PYTHONCONFIG --includes`
+PYTHON_PREFIX=`$PYTHONCONFIG --prefix`
 
 # find the numpy includes
 NUMPY_INCLUDE_DIR=`$PYTHON_BIN -c "import numpy; print(numpy.get_include())"`
@@ -1837,6 +1839,7 @@ PKG_CPPFLAGS="$PKG_CPPFLAGS -I$NUMPY_INCLUDE_DIR"
 # Find the .so library for python
 PYTHONLIBFILE=libpython`$PYTHON_BIN -c "import sys; print(sys.version[:3])"`.so
 PKG_CPPFLAGS="$PKG_CPPFLAGS -D PYTHONLIBFILE=$PYTHONLIBFILE"
+
 
 
 

@@ -8,6 +8,7 @@ Authors@R: c(
   person(family = "RStudio", role = "cph"),
   person("Dirk", "Eddelbuettel", role = c("ctb", "cph"),
          email = "edd@debian.org"),
+  person("Nick", "Golding", role = c("ctb", "cph")),
   person(family = "Google Inc.", role = c("ctb", "cph"),
          comment = "Examples and Tutorials"),
   person("Yuan", "Tang", role = c("ctb", "cph"),

@@ -1,6 +1,6 @@
-sudo: true
+sudo: required
 
-language: cpp
+language: r
 
 os:
   - linux
@@ -8,31 +8,28 @@ os:
 
 dist: trusty
 
+cache: packages
+
 before_install:
   - export PATH=$(echo $PATH | tr ':' "\n" | sed '/\/opt\/python/d' | tr "\n" ":" | sed "s|::|:|g")
-
-addons:
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      - wget
-      - libatlas3gf-base
-      - libatlas-dev
-      - python-joblib
-      - libpython-dev
-
-install:
   - source travis_install.sh
 
-script:
-  - source run_tests.sh
+apt_packages:
+  - libmagick++-dev
+  - wget
+  - libatlas3gf-base
+  - libatlas-dev
+  - python-joblib
+  - libpython-dev
 
-cache:
-  directories:
-    - ${HOME}/.cache/usr
+r_packages:
+  - testthat
 
 notifications:
   email:
     on_success: change
-    on_failure: always
+    on_failure: always 
+
+env:
+  - TENSORFLOW_TEST_EXAMPLES="1"
+    R_GCTORTURE="25"  

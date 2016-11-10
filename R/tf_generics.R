@@ -163,6 +163,9 @@ print.tensorflow.python.ops.variables.Variable <- print.tensorflow.python.framew
                    shrink_axis_mask = shrink_integer)
 }
 
+#' @export
+`[.tensorflow.python.ops.variables.Variable` <- `[.tensorflow.python.framework.ops.Tensor`
+
 # https://stat.ethz.ch/R-manual/R-devel/library/base/html/groupGeneric.html
 
 #' @export

@@ -1,6 +1,7 @@
 sudo: required
 
 language: r
+warnings_are_errors: false
 
 os:
   - linux
@@ -32,4 +33,4 @@ notifications:
 
 env:
   - TENSORFLOW_TEST_EXAMPLES="1"
-    R_GCTORTURE="25"  
+    R_GCTORTURE="25"

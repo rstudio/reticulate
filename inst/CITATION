@@ -1,0 +1,9 @@
+citHeader("To cite tensorflow in publications, please use:")
+
+citEntry(entry = "manual",
+  author = "JJ Allaire, Dirk Eddelbuettel, Nick Golding, and Yuan Tang",
+  title = "tensorflow: R Interface to TensorFlow",
+  year = "2016",
+  url = "https://github.com/rstudio/tensorflow",
+  textVersion = "JJ Allaire, Dirk Eddelbuettel, Nick Golding, and Yuan Tang (2016). tensorflow: R Interface to TensorFlow. https://github.com/rstudio/tensorflow"
+)

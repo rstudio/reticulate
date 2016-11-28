@@ -34,6 +34,7 @@ str.tensorflow.python.ops.variables.Variable <- function(object, ...) {
 print.tensorflow.python.ops.variables.Variable <- print.tensorflow.python.framework.ops.Tensor
 
 #' @export
+#' @method .DollarNames tensorflow.python.platform.flags._FlagValues
 .DollarNames.tensorflow.python.platform.flags._FlagValues <- function(x, pattern = "") {
 
   # skip if this is a NULL xptr

@@ -97,7 +97,6 @@ str.tensorflow.builtin.object <- function(object, ...) {
 
 #' @importFrom utils .DollarNames
 #' @export
-#' @method .DollarNames tensorflow.builtin.object
 .DollarNames.tensorflow.builtin.object <- function(x, pattern = "") {
 
   # skip if this is a NULL xptr

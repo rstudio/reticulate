@@ -1,9 +1,12 @@
 library(tensorflow)
 
-train_inds <- 1:100
-test_inds <- 100:150
+# Here we just use all data as both training and testing (cheating) but
+# in practice you should do your own sampling, such as stratified sampling
+train_inds <- 1:150
+test_inds <- 1:150
 
-temp_model_dir <- tempdir()
+temp_model_dir <- tempfile()
+dir.create(temp_model_dir)
 
 datasets <- tf$contrib$learn$datasets$load_dataset("iris")
 

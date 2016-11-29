@@ -18,7 +18,7 @@ classifier <- tf$contrib$learn$DNNClassifier(
   model_dir = temp_model_dir)
 
 # Train a DNN Classifier
-classifier$fit(datasets$data[train_inds, ], datasets$target[train_inds], steps = 200)
+classifier$fit(datasets$data[train_inds, ], datasets$target[train_inds], steps = 100)
 
 # Generate predictiosn on new data
 predictions <- classifier$predict(datasets$data[test_inds, ])

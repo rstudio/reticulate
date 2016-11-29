@@ -19,7 +19,8 @@ if (nzchar(Sys.getenv("TENSORFLOW_TEST_EXAMPLES"))) {
   examples <- c("hello.R",
                 "introduction.R",
                 "mnist/mnist_softmax.R",
-                "mnist/fully_connected_feed.R")
+                "mnist/fully_connected_feed.R",
+                "tflearn/iris_dnn.R")
 } else {
   examples <- c()
 }

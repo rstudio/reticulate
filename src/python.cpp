@@ -226,6 +226,10 @@ std::string py_fetch_error() {
       PyObjectPtr pStr(::PyObject_Str(pExcValue));
       ostr << as_std_string(pStr);
     }
+    if (!pExcTraceback.is_null()) {
+      PyObjectPtr pStr(::PyObject_Str(pExcTraceback));
+      ostr << "Detailed trackback: " << as_std_string(pStr);
+    }
     error = ostr.str();
   } else {
     error = "<unknown error>";

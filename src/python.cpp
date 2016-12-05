@@ -1,4 +1,5 @@
 #include <Python.h>
+#include <frameobject.h>
 
 #if PY_MAJOR_VERSION >= 3
 #define PYTHON_3
@@ -212,6 +213,7 @@ std::string py_fetch_error() {
   std::string error;
   PyObject *excType , *excValue , *excTraceback;
   ::PyErr_Fetch(&excType , &excValue , &excTraceback);
+  ::PyErr_NormalizeException(&excType, &excValue, &excTraceback);
   PyObjectPtr pExcType(excType);
   PyObjectPtr pExcValue(excValue);
   PyObjectPtr pExcTraceback(excTraceback);
@@ -227,8 +229,16 @@ std::string py_fetch_error() {
       ostr << as_std_string(pStr);
     }
     if (!pExcTraceback.is_null()) {
-      PyObjectPtr pStr(::PyObject_Str(pExcTraceback));
-      ostr << "Detailed trackback: " << as_std_string(pStr);
+      PyTracebackObject* traceback = (PyTracebackObject*)excTraceback;
+      ostr << "\nDetailed trackback: \n";
+      while (traceback->tb_next != NULL) {
+        traceback = traceback->tb_next;
+        PyFrameObject *frame = traceback->tb_frame;
+        int line = PyCode_Addr2Line(frame->f_code, frame->f_lasti);
+        std::string filename = as_std_string(frame->f_code->co_filename);
+        std::string funcname = as_std_string(frame->f_code->co_name);
+        ostr << "    " << filename << " (line" << line << "): " << funcname << "\n";
+      }
     }
     error = ostr.str();
   } else {

@@ -15,8 +15,18 @@ def makeDict():
 def makeTuple():
   return (1.0, 2.0, 3.0)
 
+def makeIterator(x):
+  return iter(x)
+
+def makeGenerator(n):
+  i = 0
+  while i < n:
+    yield i
+    i += 1
+
 def reflect(x):
   return x
 
 def callFunc(f, x):
   return f(x)
+

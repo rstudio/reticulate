@@ -1,5 +1,6 @@
 library(tensorflow)
 
+# Define the exponential learning rate decay function dependent on the current step
 optimizer_exp_decay <- function() {
   global_step <- tf$contrib$framework$get_or_create_global_step()
   learning_rate <- tf$train$exponential_decay(
@@ -7,7 +8,7 @@ optimizer_exp_decay <- function() {
     global_step = global_step,
     decay_steps = 100,
     decay_rate = 0.001)
-  return(tf$train$AdagradOptimizer(learning_rate=learning_rate)) # print should contain more info
+  return(tf$train$AdagradOptimizer(learning_rate=learning_rate))
 }
 
 # Here we just use all data as both training and testing (cheating) but

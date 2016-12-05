@@ -235,6 +235,24 @@ with(tf$Session() %as% sess, {
 
 The `sess` variable will be assigned from the execution context and be available only within the expression passed to `with`.
 
+## Iterators
+
+The TensorFlow API includes several functions that return Python [iterators or generators](http://anandology.com/python-practice-book/iterators.html) (these are typically used for streaming back results from training or evaluation). You can use the `iterate` function to apply an R function to each item returned from an interator or generator. For example:
+
+```{r, eval=FALSE}
+iterate(tf$python_io$tf_record_iterator(filename), function(record) {
+  # Process the record
+})
+```
+
+If you just want to collect all of the items into an R list, you can call the `iterate` function with just the iterator and no function to apply:
+
+```{r, eval=FALSE}
+records <- iterate(tf$python_io$tf_record_iterator(filename))
+```
+
+Note that Python iterators and generators are stateful objects. This means that after making a single pass through an iterator it will be empty (i.e. you can't execute another iteration against the same underlying iterator).
+
 ## Getting Help
 
 As you use TensorFlow from R you'll want to get help on the various functions and classes available within the API. If you are running the vary latest [Preview Release](https://www.rstudio.com/products/rstudio/download/preview/) (v1.0.18 or later) of RStudio IDE you can get code completion and inline help for the TensorFlow API within RStudio. For example:

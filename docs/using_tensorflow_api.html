@@ -22,13 +22,12 @@
 <script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
 <link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
 <script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-1.1/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-1.1/highlight.js"></script>
 <link href="site_libs/font-awesome-4.5.0/css/font-awesome.min.css" rel="stylesheet" />
 
 <style type="text/css">code{white-space: pre;}</style>
-<link rel="stylesheet"
-      href="site_libs/highlight/textmate.css"
-      type="text/css" />
-<script src="site_libs/highlight/highlight.js"></script>
 <style type="text/css">
   pre:not([class]) {
     background-color: white;
@@ -156,7 +155,6 @@ $(document).ready(function () {
 <div class="container-fluid main-container">
 
 <!-- tabsets -->
-<script src="site_libs/navigation-1.1/tabsets.js"></script>
 <script>
 $(document).ready(function () {
   window.buildTabsets("TOC");
@@ -182,7 +180,7 @@ $(document).ready(function ()  {
       theme: "bootstrap3",
       context: '.toc-content',
       hashGenerator: function (text) {
-        return text.replace(/[.\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
       },
       ignoreSelector: ".toc-ignore",
       scrollTo: 0
@@ -241,8 +239,9 @@ div.tocify {
 }
 
 .tocify-subheader .tocify-item {
-  font-size: 0.9em;
-  padding-left: 5px;
+  font-size: 0.90em;
+  padding-left: 25px;
+  text-indent: 0;
 }
 
 .tocify .list-group-item {
@@ -667,6 +666,16 @@ W_smallish &lt;- W[, 7:9]</code></pre>
 })</code></pre>
 <p>The <code>sess</code> variable will be assigned from the execution context and be available only within the expression passed to <code>with</code>.</p>
 </div>
+<div id="iterators" class="section level2">
+<h2>Iterators</h2>
+<p>The TensorFlow API includes several functions that return Python <a href="http://anandology.com/python-practice-book/iterators.html">iterators or generators</a> (these are typically used for streaming back results from training or evaluation). You can use the <code>iterate</code> function to apply an R function to each item returned from an interator or generator. For example:</p>
+<pre class="r"><code>iterate(tf$python_io$tf_record_iterator(filename), function(record) {
+  # Process the record
+})</code></pre>
+<p>If you just want to collect all of the items into an R list, you can call the <code>iterate</code> function with just the iterator and no function to apply:</p>
+<pre class="r"><code>records &lt;- iterate(tf$python_io$tf_record_iterator(filename))</code></pre>
+<p>Note that Python iterators and generators are stateful objects. This means that after making a single pass through an iterator it will be empty (i.e. you can’t execute another iteration against the same underlying iterator).</p>
+</div>
 <div id="getting-help" class="section level2">
 <h2>Getting Help</h2>
 <p>As you use TensorFlow from R you’ll want to get help on the various functions and classes available within the API. If you are running the vary latest <a href="https://www.rstudio.com/products/rstudio/download/preview/">Preview Release</a> (v1.0.18 or later) of RStudio IDE you can get code completion and inline help for the TensorFlow API within RStudio. For example:</p>
@@ -747,8 +756,11 @@ W_smallish &lt;- W[, 7:9]</code></pre>
 <script>
 
 // add bootstrap table styles to pandoc tables
-$(document).ready(function () {
+function bootstrapStylePandocTables() {
   $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
 });
 
 

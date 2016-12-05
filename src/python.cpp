@@ -230,7 +230,7 @@ std::string py_fetch_error() {
     }
     if (!pExcTraceback.is_null()) {
       PyTracebackObject* traceback = (PyTracebackObject*)excTraceback;
-      ostr << "\nDetailed trackback: \n";
+      ostr << "\nDetailed traceback: \n";
       while (traceback->tb_next != NULL) {
         traceback = traceback->tb_next;
         PyFrameObject *frame = traceback->tb_frame;

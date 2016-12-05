@@ -442,6 +442,40 @@ SEXP py_to_r(PyObject* x) {
     return list;
   }
 
+  // iterator
+  else if (PyIter_Check(x)) {
+
+    // get the iterator
+    PyObjectPtr iterator(::PyObject_GetIter(x));
+    if (iterator.is_null())
+      stop(py_fetch_error());
+
+    // create a python list -- we'll pass this back into
+    // py_to_r so we can get automatic converstion to typed
+    // vectors if the list is uniform
+    PyObjectPtr list(::PyList_New(0));
+    while (true) {
+      // check next item
+      PyObjectPtr item(::PyIter_Next(iterator));
+      if (item.is_null()) {
+        // null return means either iteration is done or
+        // that there is an error
+        if (::PyErr_Occurred())
+          stop(py_fetch_error());
+        else
+          break;
+      }
+
+      // append it to the python list
+      int res = ::PyList_Append(list, item);
+      if (res != 0)
+        stop(py_fetch_error());
+    }
+
+    // call ourselves back with the python list
+    return py_to_r(list);
+  }
+
   // numpy array
   else if (PyArray_Check(x)) {
 

@@ -26,6 +26,28 @@ using namespace Rcpp;
 
 #include "tensorflow_types.hpp"
 
+// forward declare error handling utility
+std::string py_fetch_error();
+
+// wrap an R object in a longer-lived python object "capsule"
+
+SEXP r_object_from_capsule(PyObject* capsule) {
+  SEXP object = (SEXP)::PyCapsule_GetPointer(capsule, NULL);
+  if (object == NULL)
+    stop(py_fetch_error());
+  return object;
+}
+
+void free_r_object_capsule(PyObject* capsule) {
+  ::R_ReleaseObject(r_object_from_capsule(capsule));
+}
+
+PyObject* r_object_capsule(SEXP object) {
+  ::R_PreserveObject(object);
+  return ::PyCapsule_New((void*)object, NULL, free_r_object_capsule);
+}
+
+
 // helper class for ensuring decref of PyObject in the current scope
 template<typename T>
 class PyPtr {
@@ -60,8 +82,6 @@ private:
 
 typedef PyPtr<PyObject> PyObjectPtr;
 typedef PyPtr<PyArray_Descr> PyArray_DescrPtr;
-
-std::string py_fetch_error();
 
 std::string as_std_string(PyObject* str) {
 #ifdef PYTHON_3
@@ -781,8 +801,24 @@ PyObject* r_to_py(RObject x) {
       return tuple.detach();
     }
   } else if (type == CLOSXP) {
-    Rcpp::print(sexp);
-    stop("Conversion from closure R object to Python is not implemented yet");
+
+    // create an R object capsule for the R function
+    PyObjectPtr capsule(r_object_capsule(sexp));
+
+    // create the python wrapper function
+    PyObjectPtr module(::PyImport_ImportModule("tftools.call"));
+    if (module == NULL)
+      stop(py_fetch_error());
+    PyObjectPtr func(::PyObject_GetAttrString(module, "make_python_function"));
+    if (func == NULL)
+      stop(py_fetch_error());
+    PyObjectPtr wrapper(::PyObject_CallFunctionObjArgs(func, capsule.get(), NULL));
+    if (wrapper == NULL)
+      stop(py_fetch_error());
+
+    // return the wrapper
+    return wrapper.detach();
+
   } else {
     Rcpp::print(sexp);
     stop("Unable to convert R object to Python type");
@@ -795,6 +831,35 @@ bool py_import_numpy_array_api() {
   import_array1(false);
   return true;
 }
+
+// custom module used for calling R functions from python wrappers
+
+// TODO: Multiple arguments
+// TODO: Named arguments?
+// TODO: Write tests
+
+PyObject* call_r_function(PyObject *self, PyObject* args)
+{
+  // the first argument is the capsule containing the R function to call
+  SEXP rFunction = r_object_from_capsule(PyTuple_GET_ITEM(args, 0));
+
+  // convert remainder of arguments to R list
+  PyObjectPtr funcArgs(::PyTuple_GetSlice(args, 1, ::PyTuple_Size(args)));
+  List rArgs = ::py_to_r(funcArgs);
+
+  // call the R function
+  Function doCall("do.call");
+  RObject result = doCall(rFunction, rArgs);
+
+  // return it's result
+  return r_to_py(result);
+}
+
+
+PyMethodDef TFCallMethods[] = {
+  { "call_r_function", call_r_function, METH_VARARGS, "Call an R function" },
+  { NULL, NULL, 0, NULL }
+};
 
 // [[Rcpp::export]]
 void py_initialize(const std::string& pythonSharedLibrary) {
@@ -822,6 +887,9 @@ void py_initialize(const std::string& pythonSharedLibrary) {
   // import numpy array api
   if (!py_import_numpy_array_api())
     stop(py_fetch_error());
+
+  // initialize tfcall module
+  Py_InitModule("tfcall", TFCallMethods);
 }
 
 // [[Rcpp::export]]

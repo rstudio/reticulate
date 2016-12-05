@@ -165,13 +165,20 @@ std::string as_r_class(PyObject* classPtr) {
 }
 
 // wrap a PyObject in an XPtr
-PyObjectXPtr py_xptr(PyObject* object, bool decref = true) {
+PyObjectXPtr py_xptr(PyObject* object, bool decref = true, const std::string& extraClass = "") {
 
   // wrap in XPtr
   PyObjectXPtr ptr(object, decref);
 
   // class attribute
   std::vector<std::string> attrClass;
+
+  // add extra class if requested
+  if (!extraClass.empty() && std::find(attrClass.begin(),
+                        attrClass.end(),
+                        extraClass) == attrClass.end()) {
+    attrClass.push_back(extraClass);
+  }
 
   // register R classes
   if (::PyObject_HasAttrString(object, "__class__")) {
@@ -456,38 +463,12 @@ SEXP py_to_r(PyObject* x) {
     return list;
   }
 
-  // iterator
+  // iterator/generator
   else if (PyIter_Check(x)) {
 
-    // get the iterator
-    PyObjectPtr iterator(::PyObject_GetIter(x));
-    if (iterator.is_null())
-      stop(py_fetch_error());
-
-    // create a python list -- we'll pass this back into
-    // py_to_r so we can get automatic converstion to typed
-    // vectors if the list is uniform
-    PyObjectPtr list(::PyList_New(0));
-    while (true) {
-      // check next item
-      PyObjectPtr item(::PyIter_Next(iterator));
-      if (item.is_null()) {
-        // null return means either iteration is done or
-        // that there is an error
-        if (::PyErr_Occurred())
-          stop(py_fetch_error());
-        else
-          break;
-      }
-
-      // append it to the python list
-      int res = ::PyList_Append(list, item);
-      if (res != 0)
-        stop(py_fetch_error());
-    }
-
-    // call ourselves back with the python list
-    return py_to_r(list);
+    // return it raw but add a class so we can create S3 methods for it
+    ::Py_IncRef(x);
+    return py_xptr(x, true, "tensorflow.builtin.iterator");
   }
 
   // numpy array
@@ -1018,6 +999,42 @@ PyObjectXPtr py_module_impl(const std::string& module) {
   if (pModule == NULL)
     stop(py_fetch_error());
   return py_xptr(pModule);
+}
+
+
+// Traverse a Python iterator or generator
+
+// [[Rcpp::export]]
+List py_iterate(PyObjectXPtr x, Function f) {
+
+  // List to return
+  List list;
+
+  // get the iterator
+  PyObjectPtr iterator(::PyObject_GetIter(x));
+  if (iterator.is_null())
+    stop(py_fetch_error());
+
+  // loop over it
+  while (true) {
+
+    // check next item
+    PyObjectPtr item(::PyIter_Next(iterator));
+    if (item.is_null()) {
+      // null return means either iteration is done or
+      // that there is an error
+      if (::PyErr_Occurred())
+        stop(py_fetch_error());
+      else
+        break;
+    }
+
+    // call the function and add it's result to the list
+    list.push_back(f(py_to_r(item)));
+  }
+
+  // return the list
+  return list;
 }
 
 

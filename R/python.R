@@ -220,5 +220,28 @@ with.tensorflow.builtin.object <- function(data, expr, as = NULL, ...) {
 }
 
 
+#' Traverse a Python iterator or generator
+#'
+#' @param x Python iterator or generator
+#' @param f Function to apply to each item. By default applies
+#'   the \code{identity} function which just reflects back the
+#'   value of the item.
+#'
+#' @return List containing the results of calling \code{f} on each
+#'  item in \code{x} (invisibly).
+#'
+#' @export
+iterate <- function(x, f = base::identity) {
+  if (!inherits(x, "tensorflow.builtin.iterator"))
+    stop("iterate function called with non-iterator argument")
+  invisible(py_iterate(x, f))
+}
+
+#' @export
+print.tensorflow.builtin.iterator <- function(x, ...) {
+  str(x, ...)
+  cat("Python iterator/generator (use tensorflow::iterate to traverse)\n")
+}
+
 
 

@@ -184,6 +184,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// py_iterate
+List py_iterate(PyObjectXPtr x, Function f);
+RcppExport SEXP tensorflow_py_iterate(SEXP xSEXP, SEXP fSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< PyObjectXPtr >::type x(xSEXP);
+    Rcpp::traits::input_parameter< Function >::type f(fSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_iterate(x, f));
+    return rcpp_result_gen;
+END_RCPP
+}
 // py_run_string
 void py_run_string(const std::string& code);
 RcppExport SEXP tensorflow_py_run_string(SEXP codeSEXP) {

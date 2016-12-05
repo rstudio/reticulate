@@ -780,9 +780,12 @@ PyObject* r_to_py(RObject x) {
       }
       return tuple.detach();
     }
+  } else if (type == CLOSXP) {
+    Rcpp::print(sexp);
+    stop("Conversion from closure R object to Python is not implemented yet");
   } else {
     Rcpp::print(sexp);
-    stop("Unable to convert R object to python type");
+    stop("Unable to convert R object to Python type");
   }
 }
 

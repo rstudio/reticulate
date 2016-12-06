@@ -27,6 +27,6 @@ def makeGenerator(n):
 def reflect(x):
   return x
 
-def callFunc(f, x):
-  return f(x)
+def callFunc(f, *args, **kwargs):
+  return f(*args, **kwargs)
 

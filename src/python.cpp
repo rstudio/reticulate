@@ -834,18 +834,21 @@ bool py_import_numpy_array_api() {
 
 // custom module used for calling R functions from python wrappers
 
-// TODO: Multiple arguments
-// TODO: Named arguments?
-// TODO: Write tests
-
-PyObject* call_r_function(PyObject *self, PyObject* args)
+PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* keywords)
 {
-  // the first argument is the capsule containing the R function to call
+  // the first argument is always the capsule containing the R function to call
   SEXP rFunction = r_object_from_capsule(PyTuple_GET_ITEM(args, 0));
 
-  // convert remainder of arguments to R list
+  // convert remainder of positional arguments to R list
   PyObjectPtr funcArgs(::PyTuple_GetSlice(args, 1, ::PyTuple_Size(args)));
   List rArgs = ::py_to_r(funcArgs);
+
+  // get keyword arguments
+  List rKeywords = ::py_to_r(keywords);
+
+  // combine positional and keyword arguments
+  Function append("append");
+  rArgs = append(rArgs, rKeywords);
 
   // call the R function
   Function doCall("do.call");
@@ -857,7 +860,8 @@ PyObject* call_r_function(PyObject *self, PyObject* args)
 
 
 PyMethodDef TFCallMethods[] = {
-  { "call_r_function", call_r_function, METH_VARARGS, "Call an R function" },
+  { "call_r_function", (PyCFunction)call_r_function,
+    METH_VARARGS | METH_KEYWORDS, "Call an R function" },
   { NULL, NULL, 0, NULL }
 };
 

@@ -11,7 +11,7 @@ test_that("R named lists become Python dictionaries", {
   expect_equal(l$c, reflected$c)
 })
 
-test_that("R dictionaries become R named lists", {
+test_that("Python dictionaries become R named lists", {
   l <- list(a = 1, b = 2, c = 3)
   dict <- test$makeDict()
   expect_equal(length(dict), length(l))
@@ -20,12 +20,12 @@ test_that("R dictionaries become R named lists", {
   expect_equal(dict$c, l$c)
 })
 
-test_that("R unnamed lists become Python tuples", {
+test_that("R unnamed lists become Python lists", {
   l <- list(1L, 2L, 3L)
-  expect_equal(test$asString(l), "(1, 2, 3)")
+  expect_equal(test$asString(l), "[1, 2, 3]")
 })
 
-test_that("R tuples become R unnamed lists", {
+test_that("Python unnamed tuples become R unnamed lists", {
   tuple <- test$makeTuple()
   expect_equal(tuple, list(1, 2, 3))
 })

@@ -788,17 +788,17 @@ PyObject* r_to_py(RObject x) {
           stop(py_fetch_error());
       }
       return dict.detach();
-    // create a tuple if there are no names
+    // create a list if there are no names
     } else {
-      PyObjectPtr tuple(::PyTuple_New(LENGTH(sexp)));
+      PyObjectPtr list(::PyList_New(LENGTH(sexp)));
       for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
         PyObject* item = r_to_py(RObject(VECTOR_ELT(sexp, i)));
-        // NOTE: reference to added item is "stolen" by tuple
-        int res = ::PyTuple_SetItem(tuple, i, item);
+        // NOTE: reference to added value is "stolen" by the list
+        int res = ::PyList_SetItem(list, i, item);
         if (res != 0)
           stop(py_fetch_error());
       }
-      return tuple.detach();
+      return list.detach();
     }
   } else if (type == CLOSXP) {
 

@@ -865,6 +865,33 @@ PyMethodDef TFCallMethods[] = {
   { NULL, NULL, 0, NULL }
 };
 
+#ifdef PYTHON_3
+
+static struct PyModuleDef TFCallModuleDef = {
+  PyModuleDef_HEAD_INIT,
+  "tfcall",
+  NULL,
+  -1,
+  TFCallMethods,
+  NULL,
+  NULL,
+  NULL,
+  NULL
+};
+
+void initializeModules() {
+  PyModule_Create(&TFCallModuleDef);
+}
+
+#else
+
+void initializeModules() {
+  Py_InitModule("tfcall", TFCallMethods);
+}
+
+#endif
+
+
 // [[Rcpp::export]]
 void py_initialize(const std::string& pythonSharedLibrary) {
 
@@ -892,8 +919,8 @@ void py_initialize(const std::string& pythonSharedLibrary) {
   if (!py_import_numpy_array_api())
     stop(py_fetch_error());
 
-  // initialize tfcall module
-  Py_InitModule("tfcall", TFCallMethods);
+  // initialize modules
+  initializeModules();
 }
 
 // [[Rcpp::export]]

@@ -1,4 +1,4 @@
-sudo: required
+sudo: false
 
 language: r
 warnings_are_errors: false
@@ -7,29 +7,33 @@ os:
   - linux
   - osx
 
-dist: trusty
-
-cache: packages
+cache:
+  packages: true
+  directories:
+    - $HOME/.cache/pip
 
 before_install:
-  - export PATH=$(echo $PATH | tr ':' "\n" | sed '/\/opt\/python/d' | tr "\n" ":" | sed "s|::|:|g")
+  - export PATH=$(perl -e 'print join(":", grep { !m{/opt/python/} } split /:/, $ENV{PATH})')
   - source travis_install.sh
 
-apt_packages:
-  - libmagick++-dev
-  - wget
-  - libatlas3gf-base
-  - libatlas-dev
-  - python-joblib
-  - libpython-dev
+addons:
+  apt:
+    sources:
+      ubuntu-toolchain-r-test
+    packages:
+      - libmagick++-dev
+      - wget
+      - libatlas3gf-base
+      - libatlas-dev
+      - python-joblib
+      - python-dev
 
-r_packages:
-  - testthat
+script: -|
+  R CMD build .
+  travis_wait 30 R CMD check tenserflow*tar.gz
 
-notifications:
-  email:
-    on_success: change
-    on_failure: always 
+after_failure:
+  find *Rcheck -name '*.fail' -print -exec cat '{}' \;
 
 env:
   - TENSORFLOW_TEST_EXAMPLES="1"

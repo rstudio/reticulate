@@ -28,7 +28,7 @@ addons:
       - python-joblib
       - python-dev
 
-script: -|
+script: |-
   R CMD build .
   travis_wait 30 R CMD check tenserflow*tar.gz
 

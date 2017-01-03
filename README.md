@@ -12,7 +12,12 @@ You can install the main TensorFlow distribution from here:
 
 <https://www.tensorflow.org/get_started/os_setup.html#download-and-setup>
 
-**NOTE**: You should NOT install TensorFlow with Anaconda as there [are issues with](https://github.com/ContinuumIO/anaconda-issues/issues/498) the way Anaconda builds the python shared library that prevent dynamic linking from R.
+Some important notes on compatibility:
+
+* TensorFlow for R is currently only compatible with OS X and Linux (support for Windows will likely be added over the next few months).
+
+* You should NOT install TensorFlow with Anaconda as there [are issues with](https://github.com/ContinuumIO/anaconda-issues/issues/498) the way Anaconda builds the python shared library that prevent dynamic linking from R.
+
 
 If you install TensorFlow within a Virtualenv environment you'll need to be sure to use that same environment when installing the tensorflow R package (see below for details).
 

@@ -319,7 +319,11 @@ Images licensed CC BY-SA 4.0; original by W. Carter
 <h3>Installing TensorFlow</h3>
 <p>You can install the main TensorFlow distribution from here:</p>
 <p><a href="https://www.tensorflow.org/get_started/os_setup.html#download-and-setup" class="uri">https://www.tensorflow.org/get_started/os_setup.html#download-and-setup</a></p>
-<p><strong>NOTE</strong>: You should NOT install TensorFlow with Anaconda as there <a href="https://github.com/ContinuumIO/anaconda-issues/issues/498">are issues with</a> the way Anaconda builds the python shared library that prevent dynamic linking from R.</p>
+<p>Some important notes on compatibility:</p>
+<ul>
+<li><p>TensorFlow for R is currently only compatible with OS X and Linux (support for Windows will likely be added over the next few months).</p></li>
+<li><p>You should NOT install TensorFlow with Anaconda as there <a href="https://github.com/ContinuumIO/anaconda-issues/issues/498">are issues with</a> the way Anaconda builds the python shared library that prevent dynamic linking from R.</p></li>
+</ul>
 <p>If you install TensorFlow within a Virtualenv environment you’ll need to be sure to use that same environment when installing the tensorflow R package (see below for details).</p>
 </div>
 <div id="installing-the-r-package" class="section level3">
@@ -343,7 +347,7 @@ sess$run(hello)</code></pre>
 </div>
 <div id="rstudio-ide" class="section level3">
 <h3>RStudio IDE</h3>
-<p>The tensorflow package provides code completion and inline help for the TensorFlow API when running within the RStudio IDE. In order to take advantage of these features you should also install the current <a href="https://www.rstudio.com/products/rstudio/download/preview/">Preview Release</a> of RStudio.</p>
+<p>The tensorflow package provides code completion and inline help for the TensorFlow API when running within the RStudio IDE. In order to take advantage of these features you should also install the <a href="https://www.rstudio.com/products/rstudio/download/preview/">latest release</a> of RStudio (v 1.0 or higher).</p>
 </div>
 </div>
 <div id="recommended-next-steps" class="section level2">

@@ -56,6 +56,8 @@ sess$run(hello)
 
 ## Documentation
 
+We recommend that users try out TensorFlow's high-level [TF.Learn module](https://arxiv.org/abs/1612.04251) which requires  less use of lower-level TensorFlow APIs. Some basic examples can be found [here](https://github.com/rstudio/tensorflow/tree/master/inst/examples/tflearn).
+
 See the package website for additional details on using the TensorFlow API from R: <https://rstudio.github.io/tensorflow>
 
 See the TensorFlow API reference for details on all of the modules, classes, and functions within the API: <https://www.tensorflow.org/api_docs/python/index.html>

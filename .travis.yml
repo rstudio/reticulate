@@ -2,11 +2,6 @@ sudo: false
 
 language: r
 
-r:
-  - oldrel
-  - release
-  - devel
-
 warnings_are_errors: false
 
 os: linux

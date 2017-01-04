@@ -32,13 +32,6 @@ addons:
       - python-joblib
       - python-dev
 
-script: |-
-  R CMD build .
-  travis_wait 60 R CMD check tensorflow*tar.gz
-
-after_failure:
-  find *Rcheck -name '*.fail' -print -exec cat '{}' \;
-
 env:
   - TENSORFLOW_TEST_EXAMPLES="1"
     R_GCTORTURE="25"

@@ -69,9 +69,15 @@ str.tensorflow.builtin.object <- function(object, ...) {
         for (i in 1:length(dots)) {
           name <- names[[i]]
           if (nzchar(name))
-            keywords[[name]] <- dots[[i]]
+            if (is.null(dots[[i]]))
+              keywords[name] <- list(NULL)
+            else
+              keywords[[name]] <- dots[[i]]
           else
-            args[[length(args) + 1]] <- dots[[i]]
+            if (is.null(dots[[i]]))
+              args[length(args) + 1] <- list(NULL)
+            else
+              args[[length(args) + 1]] <- dots[[i]]
         }
       } else {
         args <- dots

@@ -25,5 +25,7 @@ classifier$fit(datasets$data[train_inds, ], datasets$target[train_inds], steps =
 
 # Generate predictiosn on new data
 predictions <- classifier$predict(datasets$data[test_inds, ])
+# The predictions are iterators by default in Python API so we call iterate() to collect them
+predictions <- unlist(iterate(predictions))
 accuracy <- sum(predictions == datasets$target[test_inds]) / length(predictions)
 print(paste0("The accuracy is ", accuracy))

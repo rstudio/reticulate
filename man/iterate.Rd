@@ -4,20 +4,26 @@
 \alias{iterate}
 \title{Traverse a Python iterator or generator}
 \usage{
-iterate(x, f = base::identity)
+iterate(x, f = base::identity, simplify = TRUE)
 }
 \arguments{
 \item{x}{Python iterator or generator}
 
-\item{f}{Function to apply to each item. By default applies
-the \code{identity} function which just reflects back the
-value of the item.}
+\item{f}{Function to apply to each item. By default applies the
+\code{identity} function which just reflects back the value of the item.}
+
+\item{simplify}{Should the result be simplified to a vector if possible?}
 }
 \value{
-List containing the results of calling \code{f} on each
- item in \code{x} (invisibly).
+List or vector containing the results of calling \code{f} on each
+  item in \code{x} (invisibly).
 }
 \description{
 Traverse a Python iterator or generator
+}
+\details{
+Simplification is only attempted all elements are length 1
+ vectors of type "character", "complex", "double", "integer", or
+ "logical".
 }
 

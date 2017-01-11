@@ -229,18 +229,48 @@ with.tensorflow.builtin.object <- function(data, expr, as = NULL, ...) {
 #' Traverse a Python iterator or generator
 #'
 #' @param x Python iterator or generator
-#' @param f Function to apply to each item. By default applies
-#'   the \code{identity} function which just reflects back the
-#'   value of the item.
+#' @param f Function to apply to each item. By default applies the
+#'   \code{identity} function which just reflects back the value of the item.
+#' @param simplify Should the result be simplified to a vector if possible?
 #'
-#' @return List containing the results of calling \code{f} on each
-#'  item in \code{x} (invisibly).
+#' @return List or vector containing the results of calling \code{f} on each
+#'   item in \code{x} (invisibly).
+#'
+#' @details Simplification is only attempted all elements are length 1
+#'  vectors of type "character", "complex", "double", "integer", or
+#'  "logical".
 #'
 #' @export
-iterate <- function(x, f = base::identity) {
+iterate <- function(x, f = base::identity, simplify = TRUE) {
+
+  # validate
   if (!inherits(x, "tensorflow.builtin.iterator"))
     stop("iterate function called with non-iterator argument")
-  invisible(py_iterate(x, f))
+
+  # perform iteration
+  result <- py_iterate(x, f)
+
+  # simplify if requested and appropriate
+  if (simplify) {
+
+    # attempt to simplify if all elements are length 1
+    lengths <- sapply(result, length)
+    unique_length <- unique(lengths)
+    if (length(unique_length) == 1 && unique_length == 1) {
+
+      # then only simplify if we have a common primitive type
+      classes <- sapply(result, class)
+      unique_class <- unique(classes)
+      if (length(unique_class) == 1 &&
+          unique_class %in% c("character", "complex", "double", "integer", "logical")) {
+        result <- unlist(result)
+      }
+
+    }
+  }
+
+  # return invisibly
+  invisible(result)
 }
 
 #' @export

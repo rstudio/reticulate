@@ -245,11 +245,13 @@ iterate(tf$python_io$tf_record_iterator(filename), function(record) {
 })
 ```
 
-If you just want to collect all of the items into an R list, you can call the `iterate` function with just the iterator and no function to apply:
+If you just want to collect all of the items into an R list or vector, you can call the `iterate` function with just the iterator and no function to apply:
 
 ```{r, eval=FALSE}
 records <- iterate(tf$python_io$tf_record_iterator(filename))
 ```
+
+The result will be automatically simplified to an R vector if all values returned from the iteration are length 1 vectors of single primitive type "character", "complex", "double", "integer", or "logical" (otherwise the result will be an R list).
 
 Note that Python iterators and generators are stateful objects. This means that after making a single pass through an iterator it will be empty (i.e. you can't execute another iteration against the same underlying iterator).
 

@@ -147,7 +147,7 @@ with(tf$Graph()$as_default(), {
   summary <- tf$merge_all_summaries()
 
   # Add the variable initializer Op.
-  init <- tf$initialize_all_variables()
+  init <- tf$global_variables_initializer()
 
   # Create a saver for writing training checkpoints.
   saver <- tf$train$Saver()

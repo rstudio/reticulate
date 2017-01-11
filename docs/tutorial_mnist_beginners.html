@@ -487,7 +487,7 @@ train_step &lt;- optimizer$minimize(cross_entropy)</code></pre>
 <p>In this case, we ask TensorFlow to minimize <code>cross_entropy</code> using the <a href="https://en.wikipedia.org/wiki/Gradient_descent">gradient descent algorithm</a> with a learning rate of 0.5. Gradient descent is a simple procedure, where TensorFlow simply shifts each variable a little bit in the direction that reduces the cost. But TensorFlow also provides [many other optimization algorithms] (<a href="https://www.tensorflow.org/api_docs/python/train.html#optimizers" class="uri">https://www.tensorflow.org/api_docs/python/train.html#optimizers</a>): using one is as simple as tweaking one line.</p>
 <p>What TensorFlow actually does here, behind the scenes, is to add new operations to your graph which implement backpropagation and gradient descent. Then it gives you back a single operation which, when run, does a step of gradient descent training, slightly tweaking your variables to reduce the loss.</p>
 <p>Now we have our model set up to train. One last thing before we launch it, we have to create an operation to initialize the variables we created. Note that this defines the operation but does not run it yet:</p>
-<pre class="r"><code>init &lt;- tf$initialize_all_variables()</code></pre>
+<pre class="r"><code>init &lt;- tf$global_variables_initializer()</code></pre>
 <p>We can now launch the model in a <code>Session</code>, and now we run the operation that initializes the variables:</p>
 <pre class="r"><code>sess &lt;- tf$Session()
 sess$run(init)</code></pre>
@@ -512,7 +512,7 @@ sess$run(init)</code></pre>
 <pre class="r"><code>accuracy &lt;- tf$reduce_mean(tf$cast(correct_prediction, tf$float32))</code></pre>
 <p>Finally, we ask for our accuracy on our test data.</p>
 <pre class="r"><code>sess$run(accuracy, feed_dict=dict(x = mnist$test$images, y_ = mnist$test$labels))</code></pre>
-<pre><code>## [1] 0.9164</code></pre>
+<pre><code>## [1] 0.9186</code></pre>
 <p>This should be about 92%.</p>
 <p>Is that good? Well, not really. In fact, it’s pretty bad. This is because we’re using a very simple model. With some small changes, we can get to 97%. The best models can get to over 99.7% accuracy! (For more information, have a look at this <a href="http://rodrigob.github.io/are_we_there_yet/build/classification_datasets_results.html">list of results</a>.)</p>
 <p>What matters is that we learned from this model. Still, if you’re feeling a bit down about these results, check out <a href="tutorial_mnist_pros.html">the next tutorial</a> where we do a lot better, and learn how to build more sophisticated models using TensorFlow!</p>

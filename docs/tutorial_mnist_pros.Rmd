@@ -97,7 +97,7 @@ We pass the initial value for each parameter in the call to `tf$Variable`. In th
 Before `Variable`s can be used within a session, they must be initialized using that session. This step takes the initial values (in this case tensors full of zeros) that have already been specified, and assigns them to each `Variable`. This can be done for all `Variables` at once:
 
 ```{r}
-sess$run(tf$initialize_all_variables())
+sess$run(tf$global_variables_initializer())
 ```
 
 ### Prediction & Loss Function
@@ -296,7 +296,7 @@ cross_entropy <- tf$reduce_mean(-tf$reduce_sum(y_ * tf$log(y_conv), reduction_in
 train_step <- tf$train$AdamOptimizer(1e-4)$minimize(cross_entropy)
 correct_prediction <- tf$equal(tf$argmax(y_conv, 1L), tf$argmax(y_, 1L))
 accuracy <- tf$reduce_mean(tf$cast(correct_prediction, tf$float32))
-sess$run(tf$initialize_all_variables())
+sess$run(tf$global_variables_initializer())
 
 for (i in 1:20000) {
   batch <- mnist$train$next_batch(50L)

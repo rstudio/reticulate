@@ -422,7 +422,7 @@ y_ &lt;- tf$placeholder(tf$float32, shape(NULL, 10L))</code></pre>
 b &lt;- tf$Variable(tf$zeros(shape(10L)))</code></pre>
 <p>We pass the initial value for each parameter in the call to <code>tf$Variable</code>. In this case, we initialize both <code>W</code> and <code>b</code> as tensors full of zeros. <code>W</code> is a 784x10 matrix (because we have 784 input features and 10 outputs) and <code>b</code> is a 10-dimensional vector (because we have 10 classes).</p>
 <p>Before <code>Variable</code>s can be used within a session, they must be initialized using that session. This step takes the initial values (in this case tensors full of zeros) that have already been specified, and assigns them to each <code>Variable</code>. This can be done for all <code>Variables</code> at once:</p>
-<pre class="r"><code>sess$run(tf$initialize_all_variables())</code></pre>
+<pre class="r"><code>sess$run(tf$global_variables_initializer())</code></pre>
 </div>
 <div id="prediction-loss-function" class="section level3">
 <h3>Prediction &amp; Loss Function</h3>
@@ -459,7 +459,7 @@ train_step &lt;- optimizer$minimize(cross_entropy)</code></pre>
 <pre class="r"><code>accuracy &lt;- tf$reduce_mean(tf$cast(correct_prediction, tf$float32))</code></pre>
 <p>Finally, we can evaluate our accuracy on the test data. This should be about 92% correct.</p>
 <pre class="r"><code>accuracy$eval(feed_dict=dict(x = mnist$test$images, y_ = mnist$test$labels))</code></pre>
-<pre><code>## [1] 0.9191</code></pre>
+<pre><code>## [1] 0.9196</code></pre>
 </div>
 </div>
 <div id="multilayer-convnet" class="section level2">
@@ -550,7 +550,7 @@ y_conv &lt;- tf$nn$softmax(tf$matmul(h_fc1_drop, W_fc2) + b_fc2)</code></pre>
 train_step &lt;- tf$train$AdamOptimizer(1e-4)$minimize(cross_entropy)
 correct_prediction &lt;- tf$equal(tf$argmax(y_conv, 1L), tf$argmax(y_, 1L))
 accuracy &lt;- tf$reduce_mean(tf$cast(correct_prediction, tf$float32))
-sess$run(tf$initialize_all_variables())
+sess$run(tf$global_variables_initializer())
 
 for (i in 1:20000) {
   batch &lt;- mnist$train$next_batch(50L)

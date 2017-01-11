@@ -199,7 +199,7 @@ What TensorFlow actually does here, behind the scenes, is to add new operations 
 Now we have our model set up to train. One last thing before we launch it, we have to create an operation to initialize the variables we created. Note that this defines the operation but does not run it yet:
 
 ```{r}
-init <- tf$initialize_all_variables()
+init <- tf$global_variables_initializer()
 ```
 
 We can now launch the model in a `Session`, and now we run the operation that initializes the variables:

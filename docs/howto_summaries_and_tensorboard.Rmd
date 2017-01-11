@@ -166,7 +166,7 @@ merged <- tf$merge_all_summaries()
 train_writer <- tf$train$SummaryWriter(file.path(FLAGS$summaries_dir, "train"),
                                        sess$graph)
 test_writer <- tf$train$SummaryWriter(file.path(FLAGS$summaries_dir, "test"))
-tf$initialize_all_variables()$run()
+sess$run(tf$global_variables_initializer())
 ```
 
 After we've initialized the `SummaryWriters`, we have to add summaries to the

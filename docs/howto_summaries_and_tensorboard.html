@@ -359,7 +359,7 @@ merged &lt;- tf$merge_all_summaries()
 train_writer &lt;- tf$train$SummaryWriter(file.path(FLAGS$summaries_dir, &quot;train&quot;),
                                        sess$graph)
 test_writer &lt;- tf$train$SummaryWriter(file.path(FLAGS$summaries_dir, &quot;test&quot;))
-tf$initialize_all_variables()$run()</code></pre>
+sess$run(tf$global_variables_initializer())</code></pre>
 <p>After we’ve initialized the <code>SummaryWriters</code>, we have to add summaries to the <code>SummaryWriters</code> as we train and test the model.</p>
 <pre class="r"><code># Train the model, and also write summaries.
 # Every 10th step, measure test-set accuracy, and write test summaries

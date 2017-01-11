@@ -13,7 +13,7 @@
 #' b <- tf$Variable(tf$zeros(shape(1L)))
 #'
 #' sess <- tf$Session()
-#' sess$initialize_all_variables()
+#' sess$run(tf$global_variables_initializer())
 #'
 #' learn <- tf$contrib$learn
 #' slim <- tf$contrib$slim

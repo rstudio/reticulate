@@ -532,7 +532,7 @@ optimizer$minimize(loss, global_step = global_step)</code></pre>
 })</code></pre>
 <p>The empty parameter to session indicates that this code will attach to (or create if not yet created) the default local session.</p>
 <p>Immediately after creating the session, all of the <code>tf$Variable</code> instances are initialized by calling <a href="https://www.tensorflow.org/api_docs/python/client.html#Session.run"><code>sess$run()</code></a> on their initialization op.</p>
-<pre class="r"><code>init &lt;- tf$initialize_all_variables()
+<pre class="r"><code>init &lt;- tf$global_variables_initializer()
 sess$run(init)</code></pre>
 <p>The <a href="https://www.tensorflow.org/api_docs/python/client.html#Session.run"><code>sess.run()</code></a> method will run the complete subset of the graph that corresponds to the op(s) passed as parameters. In this first call, the <code>init</code> op is a <a href="https://www.tensorflow.org/api_docs/python/control_flow_ops.html#group"><code>tf$group</code></a> that contains only the initializers for the variables. None of the rest of the graph is run here; that happens in the training loop below.</p>
 </div>

@@ -30,7 +30,7 @@ train_step <- tf$train$GradientDescentOptimizer(0.5)$minimize(cross_entropy)
 
 # Create session and initialize  variables
 sess <- tf$Session()
-sess$run(tf$initialize_all_variables())
+sess$run(tf$global_variables_initializer())
 
 # Load mnist data    )
 datasets <- tf$contrib$learn$datasets

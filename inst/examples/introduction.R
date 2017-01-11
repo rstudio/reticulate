@@ -18,7 +18,7 @@ train <- optimizer$minimize(loss)
 
 # Launch the graph and initialize the variables.
 sess = tf$Session()
-sess$run(tf$initialize_all_variables())
+sess$run(tf$global_variables_initializer())
 
 # Fit the line (Learns best fit is W: 0.1, b: 0.3)
 for (step in 1:201) {

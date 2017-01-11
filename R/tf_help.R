@@ -74,6 +74,7 @@ register_tf_help_topics <- function() {
     "moving_average_variables",
     "initialize_all_variables",
     "initialize_local_variables",
+    "global_variables_initializer",
     "is_variable_initialized",
     "report_uninitialized_variables",
     "assert_variables_initialized",

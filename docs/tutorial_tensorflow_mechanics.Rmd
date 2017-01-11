@@ -218,7 +218,7 @@ The empty parameter to session indicates that this code will attach to (or creat
 Immediately after creating the session, all of the `tf$Variable` instances are initialized by calling [`sess$run()`](https://www.tensorflow.org/api_docs/python/client.html#Session.run) on their initialization op.
 
 ```{r}
-init <- tf$initialize_all_variables()
+init <- tf$global_variables_initializer()
 sess$run(init)
 ```
 

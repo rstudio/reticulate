@@ -1,0 +1,37 @@
+#!/bin/sh
+
+
+# find tensorflow target python binary
+if test -z "${TENSORFLOW_PYTHON}"
+then
+  echo "Using python binary from PATH"
+  USE_PYTHON=python
+else
+  if test -d "${TENSORFLOW_PYTHON}"
+  then
+    TENSORFLOW_PYTHON="${TENSORFLOW_PYTHON}/python.exe"
+  fi
+  echo "Using python binary at ${TENSORFLOW_PYTHON}"
+  USE_PYTHON=$TENSORFLOW_PYTHON
+fi
+
+# find paths
+PYTHON_BIN=`$USE_PYTHON -c "import sys; sys.stdout.write(sys.executable.replace(\"\\\\\\\\\", \"/\"))"`
+PYTHON_DIR=`$USE_PYTHON -c "import sys; sys.stdout.write(sys.exec_prefix.replace(\"\\\\\\\\\", \"/\"))"`
+NUMPY_INCLUDE_DIR=`$USE_PYTHON -c "import sys; import numpy; sys.stdout.write(numpy.get_include().replace(\"\\\\\\\\\", \"/\"))"`
+PYTHON_VERSION=`$USE_PYTHON -c 'import sys; import platform; major, minor, patch = platform.python_version_tuple(); sys.stdout.write(major + "" + minor);'`
+
+# write makevars.win
+PKG_LIBS="-L$PYTHON_DIR -lpython$PYTHON_VERSION"
+PKG_CPPFLAGS="-DMS_WIN64 -I$PYTHON_DIR/include -I$NUMPY_INCLUDE_DIR"
+echo "PKG_LIBS=$PKG_LIBS"           > src/makevars.win
+echo "PKG_CPPFLAGS=$PKG_CPPFLAGS"  >> src/makevars.win
+
+# write config.R
+echo "PYTHON_BIN <- \"$PYTHON_BIN\""                 > R/config.R
+echo "PKG_LIBS <- \"$PKG_LIBS\""                    >> R/config.R
+echo "NUMPY_INCLUDE_DIR <- \"$NUMPY_INCLUDE_DIR\""  >> R/config.R
+
+
+
+

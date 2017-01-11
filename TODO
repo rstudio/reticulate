@@ -1,0 +1,55 @@
+
+
+tfcall module not successfully made available to python code
+======================================================================================
+
+
+1. Error: R functions are converted to Python closures (@test-python-closures.R#8)
+ImportNo module named 'tfcall'
+Detailed traceback:
+1: test$reflect(func) at testthat/test-python-closures.R:8
+2: py_call(attrib, args, keywords) at C:/Users/jjallaire/Documents/packages/tensorflow/R/python.R:85
+
+2. Error: R functions can accept named arguments from Python (@test-python-closures.R#14)
+ImportNo module named 'tfcall'
+Detailed traceback:
+1: test$reflect(func) at testthat/test-python-closures.R:14
+2: py_call(attrib, args, keywords) at C:/Users/jjallaire/Documents/packages/tensorflow/R/python.R:85
+
+iris.csv not found in tflearn examples
+======================================================================================
+
+ Error in py_call(attrib, args, keywords) :
+  NotFoundError: NewRandomAccessFile failed to Create/Open: C:\Users\jjallaire\AppData\Local\Programs\Python\Python35\lib\site-packages\tensorflow\contrib\learn\python\learn\datasets\data\iris.csv : The system cannot find the file specified.
+
+Detailed traceback:
+    C:\Users\jjallaire\AppData\Local\Programs\Python\Python35\lib\site-packages\tensorflow\contrib\learn\python\learn\datasets\base.py (line105): load_iris
+    C:\Users\jjallaire\AppData\Local\Programs\Python\Python35\lib\site-packages\tensorflow\contrib\learn\python\learn\datasets\base.py (line54): load_csv_with_header
+    C:\Users\jjallaire\AppData\Local\Programs\Python\Python35\lib\site-packages\tensorflow\python\lib\io\file_io.py (line162): __next__
+    C:\Users\jjallaire\AppData\Local\Programs\Python\Python35\lib\site-packages\tensorflow\python\lib\io\file_io.py (line156): next
+    C:\Users\jjallaire\AppData\Local\Programs\Python\Python35\lib\site-packages\tensorflow\python\lib\io\file_io.py (line123): readline
+
+
+sporatic crash on package rebuild
+======================================================================================
+
+Probably a result of unloading / reloading library -- see about finalizing python
+
+
+fully connected feed fails with "Unsupported feed type"
+======================================================================================
+
+Error in py_call(attrib, args, keywords) :
+  InternalError: Unsupported feed type
+Detailed traceback:
+    C:\Users\jjallaire\AppData\Local\Programs\Python\Python35\lib\site-packages\tensorflow\python\client\session.py (line964): _run
+    C:\Users\jjallaire\AppData\Local\Programs\Python\Python35\lib\site-packages\tensorflow\python\client\session.py (line1014): _do_run
+    C:\Users\jjallaire\AppData\Local\Programs\Python\Python35\lib\site-packages\tensorflow\python\client\session.py (line1034): _do_call
+
+
+test with anaconda for windows
+======================================================================================
+
+
+
+

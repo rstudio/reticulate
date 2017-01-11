@@ -19,7 +19,9 @@ typedef char argv_char_t;
 #include <numpy/arrayobject.h>
 #include <numpy/ndarraytypes.h>
 
+#ifndef _WIN32
 #include <dlfcn.h>
+#endif
 
 #include <Rcpp.h>
 using namespace Rcpp;
@@ -895,7 +897,7 @@ void initializeModules() {
 // [[Rcpp::export]]
 void py_initialize(const std::string& pythonSharedLibrary) {
 
-#ifndef __APPLE__
+#if !defined(__APPLE__) && !defined(_WIN32)
   // force RTLD_GLOBAL of libpython symbols for numpy on Linux, see:
   //
   //   https://bugs.kde.org/show_bug.cgi?id=330032)

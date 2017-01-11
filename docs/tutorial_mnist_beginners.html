@@ -512,7 +512,7 @@ sess$run(init)</code></pre>
 <pre class="r"><code>accuracy &lt;- tf$reduce_mean(tf$cast(correct_prediction, tf$float32))</code></pre>
 <p>Finally, we ask for our accuracy on our test data.</p>
 <pre class="r"><code>sess$run(accuracy, feed_dict=dict(x = mnist$test$images, y_ = mnist$test$labels))</code></pre>
-<pre><code>## [1] 0.9186</code></pre>
+<pre><code>## [1] 0.9167</code></pre>
 <p>This should be about 92%.</p>
 <p>Is that good? Well, not really. In fact, it’s pretty bad. This is because we’re using a very simple model. With some small changes, we can get to 97%. The best models can get to over 99.7% accuracy! (For more information, have a look at this <a href="http://rodrigob.github.io/are_we_there_yet/build/classification_datasets_results.html">list of results</a>.)</p>
 <p>What matters is that we learned from this model. Still, if you’re feeling a bit down about these results, check out <a href="tutorial_mnist_pros.html">the next tutorial</a> where we do a lot better, and learn how to build more sophisticated models using TensorFlow!</p>

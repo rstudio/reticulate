@@ -43,7 +43,7 @@ train <- function() {
 
   with(tf$name_scope("input_reshape"), {
     image_shaped_input <- tf$reshape(x, c(-1L, 28L, 28L, 1L))
-    tf$image_summary("input", image_shaped_input, 10L)
+    tf$summary$image("input", image_shaped_input, 10L)
   })
 
   # We can't initialize these variables to 0 - the network will get stuck.
@@ -61,14 +61,14 @@ train <- function() {
   variable_summaries <- function(var, name) {
     with(tf$name_scope("summaries"), {
       mean <- tf$reduce_mean(var)
-      tf$scalar_summary(paste0("mean/", name), mean)
+      tf$summary$scalar(paste0("mean/", name), mean)
       with(tf$name_scope("stddev"), {
         stddev <- tf$sqrt(tf$reduce_mean(tf$square(var - mean)))
       })
-      tf$scalar_summary(paste0("stddev/", name), stddev)
-      tf$scalar_summary(paste0("max/", name), tf$reduce_max(var))
-      tf$scalar_summary(paste0("min/", name), tf$reduce_min(var))
-      tf$histogram_summary(name, var)
+      tf$summary$scalar(paste0("stddev/", name), stddev)
+      tf$summary$scalar(paste0("max/", name), tf$reduce_max(var))
+      tf$summary$scalar(paste0("min/", name), tf$reduce_min(var))
+      tf$summary$histogram(name, var)
     })
   }
 
@@ -92,10 +92,10 @@ train <- function() {
       })
       with (tf$name_scope("Wx_plus_b"), {
         preactivate <- tf$matmul(input_tensor, weights) + biases
-        tf$histogram_summary(paste0(layer_name, "/pre_activations"), preactivate)
+        tf$summary$histogram(paste0(layer_name, "/pre_activations"), preactivate)
       })
       activations <- act(preactivate, name = "activation")
-      tf$histogram_summary(paste0(layer_name, "/activations"), activations)
+      tf$summary$histogram(paste0(layer_name, "/activations"), activations)
     })
     activations
   }
@@ -104,7 +104,7 @@ train <- function() {
 
   with(tf$name_scope("dropout"), {
     keep_prob <- tf$placeholder(tf$float32)
-    tf$scalar_summary("dropout_keep_probability", keep_prob)
+    tf$summary$scalar("dropout_keep_probability", keep_prob)
     dropped <- tf$nn$dropout(hidden1, keep_prob)
   })
 
@@ -115,7 +115,7 @@ train <- function() {
     with(tf$name_scope("total"), {
       cross_entropy <- -tf$reduce_mean(diff)
     })
-    tf$scalar_summary("cross entropy", cross_entropy)
+    tf$summary$scalar("cross entropy", cross_entropy)
   })
 
   with(tf$name_scope("train"), {
@@ -130,14 +130,14 @@ train <- function() {
     with(tf$name_scope("accuracy"), {
       accuracy <- tf$reduce_mean(tf$cast(correct_prediction, tf$float32))
     })
-    tf$scalar_summary("accuracy", accuracy)
+    tf$summary$scalar("accuracy", accuracy)
   })
 
   # Merge all the summaries and write them out to /tmp/mnist_logs (by default)
-  merged <- tf$merge_all_summaries()
-  train_writer <- tf$train$SummaryWriter(file.path(FLAGS$summaries_dir, "train"),
-                                         sess$graph)
-  test_writer <- tf$train$SummaryWriter(file.path(FLAGS$summaries_dir, "test"))
+  merged <- tf$summary$merge_all()
+  train_writer <- tf$summary$FileWriter(file.path(FLAGS$summaries_dir, "train"),
+                                        sess$graph)
+  test_writer <- tf$summary$FileWriter(file.path(FLAGS$summaries_dir, "test"))
   sess$run(tf$global_variables_initializer())
 
   # Train the model, and also write summaries.

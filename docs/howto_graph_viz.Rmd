@@ -37,7 +37,7 @@ hierarchy is shown. Here is an example that defines three operations under the
 with(tf$name_scope("hidden") %as% scope, {
   a <- tf$constant(5L, name="alpha")
   W <- tf$Variable(tf$random_uniform(shape(1L, 2L), -1.0, 1.0), name="weights")
-  b <- tf$Variable(tf.zeros(shape(1L), name="biases")) 
+  b <- tf$Variable(tf$zeros(shape(1L), name="biases")) 
 })
 ```
 
@@ -262,7 +262,7 @@ The images below give an illustration for a piece of a real-life graph.
 When the serialized `GraphDef` includes tensor shapes, the graph visualizer
 labels edges with tensor dimensions, and edge thickness reflects total tensor
 size. To include tensor shapes in the `GraphDef` pass the actual graph object
-(as in `sess.graph`) to the `SummaryWriter` when serializing the graph.
+(as in `sess.graph`) to the `tf$summary$FileWriter` when serializing the graph.
 The images below show the CIFAR-10 model with tensor shape information:
 
 <!--html_preserve-->

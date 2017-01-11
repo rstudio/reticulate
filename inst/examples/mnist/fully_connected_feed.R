@@ -144,7 +144,7 @@ with(tf$Graph()$as_default(), {
   eval_correct <- evaluation(logits, placeholders$labels)
 
   # Build the summary Tensor based on the TF collection of Summaries.
-  summary <- tf$merge_all_summaries()
+  summary <- tf$summary$merge_all()
 
   # Add the variable initializer Op.
   init <- tf$global_variables_initializer()
@@ -156,7 +156,7 @@ with(tf$Graph()$as_default(), {
   sess <- tf$Session()
 
   # Instantiate a SummaryWriter to output summaries and the Graph.
-  summary_writer <- tf$train$SummaryWriter(FLAGS$train_dir, sess$graph)
+  summary_writer <- tf$summary$FileWriter(FLAGS$train_dir, sess$graph)
 
   # And then after everything is built:
 

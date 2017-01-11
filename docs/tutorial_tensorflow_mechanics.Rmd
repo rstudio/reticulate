@@ -160,10 +160,10 @@ And the tensor that will then contain the loss value is returned.
 
 The `training()` function adds the operations needed to minimize the loss via [Gradient Descent](https://en.wikipedia.org/wiki/Gradient_descent).
 
-Firstly, it takes the loss tensor from the `loss()` function and hands it to a [`tf$scalar_summary`](https://www.tensorflow.org/api_docs/python/train.html#scalar_summary), an op for generating summary values into the events file when used with a `SummaryWriter` (see below).  In this case, it will emit the snapshot value of the loss every time the summaries are written out.
+Firstly, it takes the loss tensor from the `loss()` function and hands it to a [`tf$summary$scalar`](https://www.tensorflow.org/api_docs/python/summary/generation_of_summaries_#scalar), an op for generating summary values into the events file when used with a `tf$summary$FileWriter` (see below).  In this case, it will emit the snapshot value of the loss every time the summaries are written out.
 
 ```{r}
-tf$scalar_summary(loss$op$name, loss)
+tf$summary$scalar(loss$op$name, loss)
 ```
 
 Next, we instantiate a [`tf$train$GradientDescentOptimizer`](https://www.tensorflow.org/api_docs/python/train.html#GradientDescentOptimizer) responsible for applying gradients with the requested learning rate.
@@ -293,13 +293,13 @@ if (step %% 100 == 0) {
 In order to emit the events files used by [TensorBoard](https://www.tensorflow.org/how_tos/summaries_and_tensorboard/index.html), all of the summaries (in this case, only one) are collected into a single Tensor during the graph building phase.
 
 ```{r}
-summary < tf$merge_all_summaries()
+summary < tf$summary$merge_all()
 ```
 
-And then after the session is created, a [`tf$train$SummaryWriter`](https://www.tensorflow.org/api_docs/python/train.html#SummaryWriter) may be instantiated to write the events files, which contain both the graph itself and the values of the summaries.
+And then after the session is created, a `tf$summary$FileWriter` may be instantiated to write the events files, which contain both the graph itself and the values of the summaries.
 
 ```{r}
-summary_writer <- tf$train$SummaryWriter(FLAGS$train_dir, sess$graph)
+summary_writer <- tf$summary$FileWriter(FLAGS$train_dir, sess$graph)
 ```
 
 Lastly, the events file will be updated with new summary values every time the `summary` is evaluated and the output passed to the writer's `add_summary()` function.

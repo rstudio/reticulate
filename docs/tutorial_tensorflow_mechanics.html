@@ -501,8 +501,8 @@ cross_entropy &lt;- tf$nn$sparse_softmax_cross_entropy_with_logits(
 <div id="training" class="section level3">
 <h3>Training</h3>
 <p>The <code>training()</code> function adds the operations needed to minimize the loss via <a href="https://en.wikipedia.org/wiki/Gradient_descent">Gradient Descent</a>.</p>
-<p>Firstly, it takes the loss tensor from the <code>loss()</code> function and hands it to a <a href="https://www.tensorflow.org/api_docs/python/train.html#scalar_summary"><code>tf$scalar_summary</code></a>, an op for generating summary values into the events file when used with a <code>SummaryWriter</code> (see below). In this case, it will emit the snapshot value of the loss every time the summaries are written out.</p>
-<pre class="r"><code>tf$scalar_summary(loss$op$name, loss)</code></pre>
+<p>Firstly, it takes the loss tensor from the <code>loss()</code> function and hands it to a <a href="https://www.tensorflow.org/api_docs/python/summary/generation_of_summaries_#scalar"><code>tf$summary$scalar</code></a>, an op for generating summary values into the events file when used with a <code>tf$summary$FileWriter</code> (see below). In this case, it will emit the snapshot value of the loss every time the summaries are written out.</p>
+<pre class="r"><code>tf$summary$scalar(loss$op$name, loss)</code></pre>
 <p>Next, we instantiate a <a href="https://www.tensorflow.org/api_docs/python/train.html#GradientDescentOptimizer"><code>tf$train$GradientDescentOptimizer</code></a> responsible for applying gradients with the requested learning rate.</p>
 <pre class="r"><code>optimizer &lt;- tf$train$GradientDescentOptimizer(learning_rate)</code></pre>
 <p>We then generate a single variable to contain a counter for the global training step and the <a href="https://www.tensorflow.org/api_docs/python/train.html#Optimizer.minimize"><code>minimize()</code></a> op is used to both update the trainable weights in the system and increment the global step. This op is, by convention, known as the <code>train_op</code> and is what must be run by a TensorFlow session in order to induce one full step of training (see below).</p>
@@ -580,9 +580,9 @@ labels_feed &lt;- batch[[2]]</code></pre>
 <div id="visualize-the-status" class="section level4">
 <h4>Visualize the Status</h4>
 <p>In order to emit the events files used by <a href="https://www.tensorflow.org/how_tos/summaries_and_tensorboard/index.html">TensorBoard</a>, all of the summaries (in this case, only one) are collected into a single Tensor during the graph building phase.</p>
-<pre class="r"><code>summary &lt; tf$merge_all_summaries()</code></pre>
-<p>And then after the session is created, a <a href="https://www.tensorflow.org/api_docs/python/train.html#SummaryWriter"><code>tf$train$SummaryWriter</code></a> may be instantiated to write the events files, which contain both the graph itself and the values of the summaries.</p>
-<pre class="r"><code>summary_writer &lt;- tf$train$SummaryWriter(FLAGS$train_dir, sess$graph)</code></pre>
+<pre class="r"><code>summary &lt; tf$summary$merge_all()</code></pre>
+<p>And then after the session is created, a <code>tf$summary$FileWriter</code> may be instantiated to write the events files, which contain both the graph itself and the values of the summaries.</p>
+<pre class="r"><code>summary_writer &lt;- tf$summary$FileWriter(FLAGS$train_dir, sess$graph)</code></pre>
 <p>Lastly, the events file will be updated with new summary values every time the <code>summary</code> is evaluated and the output passed to the writer’s <code>add_summary()</code> function.</p>
 <pre class="r"><code>summary_str &lt;- sess$run(summary, feed_dict=feed_dict)
 summary_writer$add_summary(summary_str, step)</code></pre>

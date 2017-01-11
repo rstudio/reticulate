@@ -122,7 +122,7 @@ loss <- function(logits, labels) {
 training <- function(loss, learning_rate) {
 
   # Add a scalar summary for the snapshot loss.
-  tf$scalar_summary(loss$op$name, loss)
+  tf$summary$scalar(loss$op$name, loss)
 
   # Create the gradient descent optimizer with the given learning rate.
   optimizer <- tf$train$GradientDescentOptimizer(learning_rate)

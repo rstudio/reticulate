@@ -11,6 +11,14 @@ tf_on_load <- function(libname, pkgname) {
     tf <<- NULL
   }
 
+  # verify minimum required TF version
+  if (!is.null(tf) && (is.null(tf$VERSION) || package_version(tf$VERSION) < "0.12")) {
+    .load_error_message <<- paste("The tensorflow package requires version 0.12",
+                                  "or later of TensorFlow")
+    tf <<- NULL
+  }
+
+
   # if we loaded tensorflow then register tf help topics
   if (!is.null(tf))
     register_tf_help_topics()

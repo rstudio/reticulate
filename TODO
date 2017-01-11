@@ -47,6 +47,10 @@ Detailed traceback:
     C:\Users\jjallaire\AppData\Local\Programs\Python\Python35\lib\site-packages\tensorflow\python\client\session.py (line1034): _do_call
 
 
+correct name for libpython in py_config
+======================================================================================
+
+
 test with anaconda for windows
 ======================================================================================
 

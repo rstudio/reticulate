@@ -836,7 +836,9 @@ bool py_import_numpy_array_api() {
 
 // custom module used for calling R functions from python wrappers
 
-PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* keywords)
+
+
+extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* keywords)
 {
   // the first argument is always the capsule containing the R function to call
   SEXP rFunction = r_object_from_capsule(PyTuple_GET_ITEM(args, 0));
@@ -881,14 +883,8 @@ static struct PyModuleDef TFCallModuleDef = {
   NULL
 };
 
-void initializeModules() {
-  PyModule_Create(&TFCallModuleDef);
-}
-
-#else
-
-void initializeModules() {
-  Py_InitModule("tfcall", TFCallMethods);
+extern "C" PyObject* initializeTFCall(void) {
+  return ::PyModule_Create(&TFCallModuleDef);
 }
 
 #endif
@@ -910,8 +906,23 @@ void py_initialize(const std::string& pythonSharedLibrary) {
   }
 #endif
 
+#ifdef PYTHON_3
+
+  // add tfcall module
+  ::PyImport_AppendInittab("tfcall", &initializeTFCall);
+
   // initialize python
   ::Py_Initialize();
+
+#else
+
+  // initialize python
+  ::Py_Initialize();
+
+  // add tfcall module
+  ::Py_InitModule("tfcall", TFCallMethods);
+
+#endif
 
   // required to populate sys.
   const argv_char_t *argv[1] = {PYTHON_ARGV};
@@ -920,9 +931,6 @@ void py_initialize(const std::string& pythonSharedLibrary) {
   // import numpy array api
   if (!py_import_numpy_array_api())
     stop(py_fetch_error());
-
-  // initialize modules
-  initializeModules();
 }
 
 // [[Rcpp::export]]

@@ -26,7 +26,7 @@ NULL
 .onLoad <- function(libname, pkgname) {
 
   # initialize python
-  config <- py_config()
+  config <- tf_config()
   py_initialize(config$libpython);
 
   # add our python scripts to the search path

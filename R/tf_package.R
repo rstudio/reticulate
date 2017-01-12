@@ -30,7 +30,7 @@ tf_on_attach <- function(libname, pkgname) {
     packageStartupMessage("If you have not yet installed TensorFlow, see ",
                           "https://www.tensorflow.org/get_started/")
     packageStartupMessage("Configuration:")
-    config <- py_config()
+    config <- tf_config()
     packageStartupMessage(" python:    ", config$python)
     packageStartupMessage(" libpython: ", config$libpython)
     packageStartupMessage(" numpy:     ", config$numpy)

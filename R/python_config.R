@@ -22,8 +22,14 @@ py_config <- function() {
     stop("Unable to parse -lpython from ", PKG_LIBS)
   libpython_lib <- regmatches(PKG_LIBS, match)
   libpython_lib <- substring(libpython_lib, 3)
-  ext <- ifelse(Sys.info()[["sysname"]] == "Darwin", ".dylib", ".so")
-  libpython_lib <- paste0("lib", libpython_lib, ext)
+  ext <- switch(Sys.info()[["sysname"]],
+    Darwin = ".dylib",
+    Windows = ".dll",
+    ".so"
+  )
+  libpython_lib <- paste0(ifelse(ext != ".dll","lib", ""),
+                          libpython_lib,
+                          ext)
 
   # provide full path to libpython if we have a dir
   if (!is.null(libpython_dir)) {

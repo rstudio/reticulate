@@ -16,8 +16,6 @@ Some important notes on compatibility:
 
 * TensorFlow for R requires version 0.12 or greater of TensorFlow.
 
-* TensorFlow for R is currently only compatible with OS X and Linux (support for Windows will likely be added over the next few months).
-
 * You should NOT install TensorFlow with Anaconda as there [are issues with](https://github.com/ContinuumIO/anaconda-issues/issues/498) the way Anaconda builds the python shared library that prevent dynamic linking from R.
 
 

@@ -351,6 +351,7 @@ int narrow_array_typenum(int typenum) {
   case NPY_USHORT:
   case NPY_INT:
   case NPY_LONG:
+  case NPY_LONGLONG:
     typenum = NPY_LONG;
     break;
     // double

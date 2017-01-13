@@ -670,7 +670,7 @@ PyObject* r_to_py(RObject x) {
     }
 
     // create the matrix
-    PyObject* matrix = PyArray_New(&PyArray_Type,
+    PyObject* array = PyArray_New(&PyArray_Type,
                                    nd,
                                    &(dims[0]),
                                    typenum,
@@ -681,7 +681,7 @@ PyObject* r_to_py(RObject x) {
                                    NULL);
 
     // check for error
-    if (matrix == NULL)
+    if (array == NULL)
       stop(py_fetch_error());
 
     // wrap the R object in a capsule that's tied to the lifetime of the matrix
@@ -690,12 +690,12 @@ PyObject* r_to_py(RObject x) {
 
     // set the array's base object to the capsule (detach since PyArray_SetBaseObject
     // steals a reference to the provided base object)
-    int res = PyArray_SetBaseObject((PyArrayObject *)matrix, capsule.detach());
+    int res = PyArray_SetBaseObject((PyArrayObject *)array, capsule.detach());
     if (res != 0)
       stop(py_fetch_error());
 
     // return it
-    return matrix;
+    return array;
 
   // integer (pass length 1 vectors as scalars, otherwise pass list)
   } else if (type == INTSXP) {

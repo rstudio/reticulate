@@ -652,7 +652,7 @@ PyObject* r_to_py(RObject x) {
     int typenum;
     void* data;
     if (type == INTSXP) {
-      typenum = NPY_INT;
+      typenum = NPY_INT32;
       data = &(INTEGER(sexp)[0]);
     } else if (type == REALSXP) {
       typenum = NPY_DOUBLE;
@@ -681,6 +681,16 @@ PyObject* r_to_py(RObject x) {
 
     // check for error
     if (matrix == NULL)
+      stop(py_fetch_error());
+
+    // wrap the R object in a capsule that's tied to the lifetime of the matrix
+    // (so the R doesn't deallocate the memory while python is still pointing to it)
+    PyObjectPtr capsule(r_object_capsule(x));
+
+    // set the array's base object to the capsule (detach since PyArray_SetBaseObject
+    // steals a reference to the provided base object)
+    int res = PyArray_SetBaseObject((PyArrayObject *)matrix, capsule.detach());
+    if (res != 0)
       stop(py_fetch_error());
 
     // return it

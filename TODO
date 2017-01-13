@@ -2,17 +2,8 @@
 
 
 
-fully connected feed fails with "Unsupported feed type"
+update docs
 ======================================================================================
-
-https://github.com/tensorflow/tensorflow/blob/master/tensorflow/python/client/tf_session_helper.cc
-
-Error in py_call(attrib, args, keywords) :
-  InternalError: Unsupported feed type
-Detailed traceback:
-    C:\Users\jjallaire\AppData\Local\Programs\Python\Python35\lib\site-packages\tensorflow\python\client\session.py (line964): _run
-    C:\Users\jjallaire\AppData\Local\Programs\Python\Python35\lib\site-packages\tensorflow\python\client\session.py (line1014): _do_run
-    C:\Users\jjallaire\AppData\Local\Programs\Python\Python35\lib\site-packages\tensorflow\python\client\session.py (line1034): _do_call
 
 
 

@@ -1,6 +1,10 @@
 #include <Python.h>
 #include <frameobject.h>
 
+#include "libpython.hpp"
+
+static LibPython Py;
+
 #if PY_MAJOR_VERSION >= 3
 #define PYTHON_3
 // PyInt is gone in python3 so alias to PyLong
@@ -904,18 +908,9 @@ extern "C" PyObject* initializeTFCall(void) {
 // [[Rcpp::export]]
 void py_initialize(const std::string& pythonSharedLibrary) {
 
-#if !defined(__APPLE__) && !defined(_WIN32)
-  // force RTLD_GLOBAL of libpython symbols for numpy on Linux, see:
-  //
-  //   https://bugs.kde.org/show_bug.cgi?id=330032)
-  //   http://stackoverflow.com/questions/29880931/
-  //
-  void * lib = ::dlopen(pythonSharedLibrary.c_str(), RTLD_NOW|RTLD_GLOBAL);
-  if (lib == NULL) {
-    const char* err = ::dlerror();
+  std::string err;
+  if (!Py.load(pythonSharedLibrary, false, &err))
     stop(err);
-  }
-#endif
 
 #ifdef PYTHON_3
 
@@ -923,12 +918,12 @@ void py_initialize(const std::string& pythonSharedLibrary) {
   ::PyImport_AppendInittab("tfcall", &initializeTFCall);
 
   // initialize python
-  ::Py_Initialize();
+  Py.Initialize();
 
 #else
 
   // initialize python
-  ::Py_Initialize();
+  Py.Initialize();
 
   // add tfcall module
   ::Py_InitModule("tfcall", TFCallMethods);

@@ -105,17 +105,16 @@ bool closeLibrary(void* pLib, std::string* pError)
 } // anonymous namespace
 
 
-#define LOAD_PYTHON_SYMBOL(name, method)                 \
-if (!loadSymbol(pLib_, #name, (void**)&method, pError)) \
+#define LOAD_PYTHON_SYMBOL(name)                                \
+if (!loadSymbol(pLib_, #name, (void**)&_##name, pError)) \
   return false;
-
 
 bool LibPython::load(const std::string& libPath, bool python3, std::string* pError)
 {
   if (!loadLibrary(libPath, &pLib_, pError))
     return false;
 
-  LOAD_PYTHON_SYMBOL(Py_Initialize, Initialize)
+  LOAD_PYTHON_SYMBOL(Py_Initialize)
 
 
   return true;
@@ -129,7 +128,7 @@ bool LibPython::unload(std::string* pError)
     return true;
 }
 
-
+void (*_Py_Initialize)();
 
 
 

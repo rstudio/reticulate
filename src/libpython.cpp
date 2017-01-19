@@ -115,6 +115,7 @@ bool LibPython::load(const std::string& libPath, bool python3, std::string* pErr
     return false;
 
   LOAD_PYTHON_SYMBOL(Py_Initialize)
+  LOAD_PYTHON_SYMBOL(PyObject_GetAttrString)
 
 
   return true;
@@ -129,7 +130,7 @@ bool LibPython::unload(std::string* pError)
 }
 
 void (*_Py_Initialize)();
-
+PyObject* (*_PyObject_GetAttrString)(PyObject *, const char *);
 
 
 

@@ -177,8 +177,8 @@ bool py_is_none(PyObject* object) {
 }
 
 std::string as_r_class(PyObject* classPtr) {
-  PyObjectPtr modulePtr(::PyObject_GetAttrString(classPtr, "__module__"));
-  PyObjectPtr namePtr(::PyObject_GetAttrString(classPtr, "__name__"));
+  PyObjectPtr modulePtr(::_PyObject_GetAttrString(classPtr, "__module__"));
+  PyObjectPtr namePtr(::_PyObject_GetAttrString(classPtr, "__name__"));
   std::ostringstream ostr;
   std::string module = as_std_string(modulePtr) + ".";
   std::string builtin("__builtin__");
@@ -210,12 +210,12 @@ PyObjectXPtr py_xptr(PyObject* object, bool decref = true, const std::string& ex
   // register R classes
   if (::PyObject_HasAttrString(object, "__class__")) {
     // class
-    PyObjectPtr classPtr(::PyObject_GetAttrString(object, "__class__"));
+    PyObjectPtr classPtr(::_PyObject_GetAttrString(object, "__class__"));
     attrClass.push_back(as_r_class(classPtr));
 
     // base classes
     if (::PyObject_HasAttrString(classPtr, "__bases__")) {
-      PyObjectPtr basesPtr(::PyObject_GetAttrString(classPtr, "__bases__"));
+      PyObjectPtr basesPtr(::_PyObject_GetAttrString(classPtr, "__bases__"));
       Py_ssize_t len = ::PyTuple_Size(basesPtr);
       for (Py_ssize_t i = 0; i<len; i++) {
         PyObject* base = ::PyTuple_GetItem(basesPtr, i); // borrowed
@@ -255,7 +255,7 @@ std::string py_fetch_error() {
   if (!pExcType.is_null() || !pExcValue.is_null()) {
     std::ostringstream ostr;
     if (!pExcType.is_null()) {
-      PyObjectPtr pStr(::PyObject_GetAttrString(pExcType, "__name__"));
+      PyObjectPtr pStr(::_PyObject_GetAttrString(pExcType, "__name__"));
       ostr << as_std_string(pStr) << ": ";
     }
     if (!pExcValue.is_null()) {
@@ -827,7 +827,7 @@ PyObject* r_to_py(RObject x) {
     PyObjectPtr module(::PyImport_ImportModule("tftools.call"));
     if (module == NULL)
       stop(py_fetch_error());
-    PyObjectPtr func(::PyObject_GetAttrString(module, "make_python_function"));
+    PyObjectPtr func(::_PyObject_GetAttrString(module, "make_python_function"));
     if (func == NULL)
       stop(py_fetch_error());
     PyObjectPtr wrapper(::PyObject_CallFunctionObjArgs(func, capsule.get(), NULL));
@@ -1012,7 +1012,7 @@ bool py_has_attr(PyObjectXPtr x, const std::string& name) {
 
 // [[Rcpp::export]]
 PyObjectXPtr py_get_attr(PyObjectXPtr x, const std::string& name) {
-  PyObject* attr = ::PyObject_GetAttrString(x, name.c_str());
+  PyObject* attr = ::_PyObject_GetAttrString(x, name.c_str());
   if (attr == NULL)
     stop(py_fetch_error());
   return py_xptr(attr);

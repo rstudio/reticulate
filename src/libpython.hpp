@@ -4,7 +4,11 @@
 
 #include <string>
 
+typedef struct _object PyObject;
+
 extern void (*_Py_Initialize)();
+extern PyObject* (*_PyObject_GetAttrString)(PyObject*, const char *);
+
 
 class LibPython {
 

@@ -246,8 +246,8 @@ std::string py_fetch_error() {
   // determine error
   std::string error;
   PyObject *excType , *excValue , *excTraceback;
-  ::PyErr_Fetch(&excType , &excValue , &excTraceback);
-  ::PyErr_NormalizeException(&excType, &excValue, &excTraceback);
+  ::_PyErr_Fetch(&excType , &excValue , &excTraceback);
+  ::_PyErr_NormalizeException(&excType, &excValue, &excTraceback);
   PyObjectPtr pExcType(excType);
   PyObjectPtr pExcValue(excValue);
   PyObjectPtr pExcTraceback(excTraceback);
@@ -259,7 +259,7 @@ std::string py_fetch_error() {
       ostr << as_std_string(pStr) << ": ";
     }
     if (!pExcValue.is_null()) {
-      PyObjectPtr pStr(::PyObject_Str(pExcValue));
+      PyObjectPtr pStr(::__PyObject_Str(pExcValue));
       ostr << as_std_string(pStr);
     }
     if (!pExcTraceback.is_null()) {
@@ -957,7 +957,7 @@ bool py_is_none(PyObjectXPtr x) {
 
 // [[Rcpp::export]]
 CharacterVector py_str(PyObjectXPtr x) {
-  PyObjectPtr str(PyObject_Str(x));
+  PyObjectPtr str(__PyObject_Str(x));
   if (str.is_null())
     stop(py_fetch_error());
   return as_std_string(str);
@@ -965,7 +965,7 @@ CharacterVector py_str(PyObjectXPtr x) {
 
 // [[Rcpp::export]]
 void py_print(PyObjectXPtr x) {
-  PyObjectPtr str(PyObject_Str(x));
+  PyObjectPtr str(__PyObject_Str(x));
   if (str.is_null())
     stop(py_fetch_error());
   Rcout << as_std_string(str) << std::endl;
@@ -973,7 +973,7 @@ void py_print(PyObjectXPtr x) {
 
 // [[Rcpp::export]]
 bool py_is_callable(PyObjectXPtr x) {
-  return ::PyCallable_Check(x) == 1;
+  return ::_PyCallable_Check(x) == 1;
 }
 
 // [[Rcpp::export]]
@@ -1033,7 +1033,7 @@ IntegerVector py_get_attribute_types(
   IntegerVector types(attributes.size());
   for (size_t i = 0; i<attributes.size(); i++) {
     PyObjectXPtr attr = py_get_attr(x, attributes[i]);
-    if (::PyCallable_Check(attr))
+    if (::_PyCallable_Check(attr))
       types[i] = FUNCTION;
     else if (PyList_Check(attr)  ||
              PyTuple_Check(attr) ||

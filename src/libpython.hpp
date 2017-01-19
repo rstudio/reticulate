@@ -13,11 +13,18 @@ extern void (*_Py_Initialize)();
 extern void (*_Py_IncRef)(PyObject *);
 extern void (*_Py_DecRef)(PyObject *);
 
+extern PyObject* (*__PyObject_Str)(PyObject *);
+
 extern PyObject* (*_PyObject_GetAttrString)(PyObject*, const char *);
 extern int (*_PyObject_HasAttrString)(PyObject*, const char *);
 
 extern Py_ssize_t (*_PyTuple_Size)(PyObject *);
 extern PyObject* (*_PyTuple_GetItem)(PyObject *, Py_ssize_t);
+
+extern void (*_PyErr_Fetch)(PyObject **, PyObject **, PyObject **);
+extern void (*_PyErr_NormalizeException)(PyObject**, PyObject**, PyObject**);
+
+extern int (*_PyCallable_Check)(PyObject *);
 
 class LibPython {
 

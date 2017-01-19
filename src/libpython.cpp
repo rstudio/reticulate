@@ -109,11 +109,23 @@ void (*_Py_Initialize)();
 void (*_Py_IncRef)(PyObject *);
 void (*_Py_DecRef)(PyObject *);
 
+PyObject* (*__PyObject_Str)(PyObject *);
+
 PyObject* (*_PyObject_GetAttrString)(PyObject *, const char *);
 int (*_PyObject_HasAttrString)(PyObject*, const char *);
 
 Py_ssize_t (*_PyTuple_Size)(PyObject *);
 PyObject* (*_PyTuple_GetItem)(PyObject *, Py_ssize_t);
+
+void (*_PyErr_Fetch)(PyObject **, PyObject **, PyObject **);
+void (*_PyErr_NormalizeException)(PyObject**, PyObject**, PyObject**);
+
+int (*_PyCallable_Check)(PyObject*);
+
+
+#define LOAD_PYTHON_SYMBOL_AS(name, as)             \
+if (!loadSymbol(pLib_, #name, (void**)&as, pError)) \
+  return false;
 
 #define LOAD_PYTHON_SYMBOL(name)                                \
 if (!loadSymbol(pLib_, #name, (void**)&_##name, pError)) \
@@ -131,7 +143,10 @@ bool LibPython::load(const std::string& libPath, bool python3, std::string* pErr
   LOAD_PYTHON_SYMBOL(PyObject_HasAttrString)
   LOAD_PYTHON_SYMBOL(PyTuple_Size)
   LOAD_PYTHON_SYMBOL(PyTuple_GetItem)
-
+  LOAD_PYTHON_SYMBOL(PyErr_Fetch)
+  LOAD_PYTHON_SYMBOL(PyErr_NormalizeException)
+  LOAD_PYTHON_SYMBOL_AS(PyObject_Str, __PyObject_Str)
+  LOAD_PYTHON_SYMBOL(PyCallable_Check)
 
   return true;
 }

@@ -129,6 +129,9 @@ void (*_PyErr_NormalizeException)(PyObject**, PyObject**, PyObject**);
 
 int (*_PyCallable_Check)(PyObject*);
 
+PyObject* (*_PyRun_StringFlags)(const char *, int, PyObject*, PyObject*, void*);
+int (*_PyRun_SimpleFileExFlags)(FILE *, const char *, int, void *);
+
 
 #define LOAD_PYTHON_SYMBOL_AS(name, as)             \
 if (!loadSymbol(pLib_, #name, (void**)&as, pError)) \
@@ -159,6 +162,7 @@ bool LibPython::load(const std::string& libPath, bool python3, std::string* pErr
   LOAD_PYTHON_SYMBOL_AS(PyObject_Str, __PyObject_Str)
   LOAD_PYTHON_SYMBOL(PyObject_Dir)
   LOAD_PYTHON_SYMBOL(PyCallable_Check)
+  LOAD_PYTHON_SYMBOL(PyRun_StringFlags)
 
   return true;
 }

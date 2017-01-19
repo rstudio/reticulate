@@ -33,6 +33,9 @@ extern void (*_PyErr_NormalizeException)(PyObject**, PyObject**, PyObject**);
 
 extern int (*_PyCallable_Check)(PyObject *);
 
+extern PyObject* (*_PyRun_StringFlags)(const char *, int, PyObject*, PyObject*, void*);
+extern int (*_PyRun_SimpleFileExFlags)(FILE *, const char *, int, void *);
+
 class LibPython {
 
 public:

@@ -1170,7 +1170,7 @@ List py_iterate(PyObjectXPtr x, Function f) {
 void py_run_string(const std::string& code)
 {
   PyObject* dict = ::PyModule_GetDict(::PyImport_AddModule("__main__"));
-  PyObjectPtr res(::PyRun_StringFlags(code.c_str(), Py_file_input, dict, dict, NULL));
+  PyObjectPtr res(::_PyRun_StringFlags(code.c_str(), Py_file_input, dict, dict, NULL));
   if (res.is_null())
     stop(py_fetch_error());
 }
@@ -1187,7 +1187,7 @@ void py_run_file(const std::string& file)
   // open and run
   FILE* fp = ::fopen(expanded.c_str(), "r");
   if (fp) {
-    int res = ::PyRun_SimpleFile(fp, expanded.c_str());
+    int res = ::_PyRun_SimpleFileExFlags(fp, expanded.c_str(), 0, NULL);
     if (res != 0)
       stop(py_fetch_error());
   }

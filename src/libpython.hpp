@@ -10,6 +10,9 @@ typedef long Py_ssize_t;
 
 extern void (*_Py_Initialize)();
 
+extern void (*_Py_IncRef)(PyObject *);
+extern void (*_Py_DecRef)(PyObject *);
+
 extern PyObject* (*_PyObject_GetAttrString)(PyObject*, const char *);
 extern int (*_PyObject_HasAttrString)(PyObject*, const char *);
 

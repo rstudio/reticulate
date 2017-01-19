@@ -63,7 +63,7 @@ public:
   explicit PyPtr(T* object) : object_(object) {}
   virtual ~PyPtr() {
     if (object_ != NULL)
-      Py_DECREF(object_);
+      _Py_DecRef((PyObject*)object_);
   }
 
   operator T*() const { return object_; }
@@ -495,7 +495,7 @@ SEXP py_to_r(PyObject* x) {
   else if (PyIter_Check(x)) {
 
     // return it raw but add a class so we can create S3 methods for it
-    ::Py_IncRef(x);
+    ::_Py_IncRef(x);
     return py_xptr(x, true, "tensorflow.builtin.iterator");
   }
 
@@ -615,7 +615,7 @@ SEXP py_to_r(PyObject* x) {
 
   // default is to return opaque wrapper to python object
   else {
-    ::Py_IncRef(x);
+    ::_Py_IncRef(x);
     return py_xptr(x);
   }
 }
@@ -631,20 +631,20 @@ PyObject* r_to_py(RObject x) {
   // NULL becomes python None (Py_IncRef since PyTuple_SetItem
   // will steal the passed reference)
   if (x.isNULL()) {
-    ::Py_IncRef(&::_Py_NoneStruct);
+    ::_Py_IncRef(&::_Py_NoneStruct);
     return &::_Py_NoneStruct;
 
   // pass python objects straight through (Py_IncRef since returning this
   // creates a new reference from the caller)
   } else if (x.inherits("tensorflow.builtin.object")) {
     PyObjectXPtr obj = as<PyObjectXPtr>(sexp);
-    ::Py_IncRef(obj.get());
+    ::_Py_IncRef(obj.get());
     return obj.get();
 
   // use py_object attribute if we have it
   } else if (x.hasAttribute("py_object")) {
     PyObjectXPtr obj = as<PyObjectXPtr>(x.attr("py_object"));
-    ::Py_IncRef(obj.get());
+    ::_Py_IncRef(obj.get());
     return obj.get();
 
   // convert arrays and matrixes to numpy

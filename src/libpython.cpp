@@ -106,6 +106,9 @@ bool closeLibrary(void* pLib, std::string* pError)
 
 void (*_Py_Initialize)();
 
+void (*_Py_IncRef)(PyObject *);
+void (*_Py_DecRef)(PyObject *);
+
 PyObject* (*_PyObject_GetAttrString)(PyObject *, const char *);
 int (*_PyObject_HasAttrString)(PyObject*, const char *);
 
@@ -122,6 +125,8 @@ bool LibPython::load(const std::string& libPath, bool python3, std::string* pErr
     return false;
 
   LOAD_PYTHON_SYMBOL(Py_Initialize)
+  LOAD_PYTHON_SYMBOL(Py_IncRef)
+  LOAD_PYTHON_SYMBOL(Py_DecRef)
   LOAD_PYTHON_SYMBOL(PyObject_GetAttrString)
   LOAD_PYTHON_SYMBOL(PyObject_HasAttrString)
   LOAD_PYTHON_SYMBOL(PyTuple_Size)

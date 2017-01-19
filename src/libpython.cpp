@@ -131,6 +131,17 @@ Py_ssize_t (*_PyList_Size)(PyObject *);
 PyObject* (*_PyList_GetItem)(PyObject *, Py_ssize_t);
 int (*_PyList_SetItem)(PyObject *, Py_ssize_t, PyObject *);
 
+int (*_PyString_AsStringAndSize)(
+    register PyObject *obj,	/* string or Unicode object */
+    register char **s,		/* pointer to buffer variable */
+    register Py_ssize_t *len	/* pointer to length variable or NULL
+  (only possible for 0-terminated
+  strings) */
+);
+
+PyObject* (*_PyString_FromString)(const char *);
+PyObject* (*_PyString_FromStringAndSize)(const char *, Py_ssize_t);
+
 void (*_PyErr_Fetch)(PyObject **, PyObject **, PyObject **);
 PyObject* (*_PyErr_Occurred)(void);
 void (*_PyErr_NormalizeException)(PyObject**, PyObject**, PyObject**);
@@ -147,6 +158,9 @@ PyObject* (*_PyObject_GetIter)(PyObject *);
 PyObject* (*_PyIter_Next)(PyObject *);
 
 void (*_PySys_SetArgv)(int, char **);
+
+PyObject* (*_PyCapsule_New)(void *pointer, const char *name, _PyCapsule_Destructor destructor);
+void* (*_PyCapsule_GetPointer)(PyObject *capsule, const char *name);
 
 #define LOAD_PYTHON_SYMBOL_AS(name, as)             \
 if (!loadSymbol(pLib_, #name, (void**)&as, pError)) \
@@ -194,7 +208,13 @@ bool LibPython::load(const std::string& libPath, bool python3, std::string* pErr
     } else {
       LOAD_PYTHON_SYMBOL(Py_InitModule4)
     }
+    LOAD_PYTHON_SYMBOL(PyString_AsStringAndSize)
+    LOAD_PYTHON_SYMBOL(PyString_FromStringAndSize)
+    LOAD_PYTHON_SYMBOL(PyString_FromString)
   }
+  LOAD_PYTHON_SYMBOL(PyCapsule_New)
+  LOAD_PYTHON_SYMBOL(PyCapsule_GetPointer)
+
 
   return true;
 }

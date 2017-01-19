@@ -34,7 +34,7 @@ std::string py_fetch_error();
 // wrap an R object in a longer-lived python object "capsule"
 
 SEXP r_object_from_capsule(PyObject* capsule) {
-  SEXP object = (SEXP)::PyCapsule_GetPointer(capsule, NULL);
+  SEXP object = (SEXP)::_PyCapsule_GetPointer(capsule, NULL);
   if (object == NULL)
     stop(py_fetch_error());
   return object;
@@ -46,7 +46,7 @@ void free_r_object_capsule(PyObject* capsule) {
 
 PyObject* r_object_capsule(SEXP object) {
   ::R_PreserveObject(object);
-  return ::PyCapsule_New((void*)object, NULL, free_r_object_capsule);
+  return ::_PyCapsule_New((void*)object, NULL, free_r_object_capsule);
 }
 
 
@@ -100,7 +100,7 @@ std::string as_std_string(PyObject* str) {
   // python3 doesn't have PyString_* APIs, so we use the converted bytes
   if (::PyBytes_AsStringAndSize(str, &buffer, &length) == -1)
 #else
-  if (::PyString_AsStringAndSize(str, &buffer, &length) == -1)
+  if (::_PyString_AsStringAndSize(str, &buffer, &length) == -1)
 #endif
     stop(py_fetch_error());
   return std::string(buffer, length);
@@ -110,7 +110,7 @@ PyObject* as_python_bytes(Rbyte* bytes, size_t len) {
 #ifdef PYTHON_3
   return PyBytes_FromStringAndSize((const char*)bytes, len);
 #else
-  return PyString_FromStringAndSize((const char*)bytes, len);
+  return _PyString_FromStringAndSize((const char*)bytes, len);
 #endif
 }
 
@@ -122,7 +122,7 @@ PyObject* as_python_str(SEXP strSEXP) {
   return PyUnicode_FromString(value);
 #else
   const char * value = Rf_translateChar(strSEXP);
-  return PyString_FromString(value);
+  return _PyString_FromString(value);
 #endif
 }
 
@@ -140,7 +140,7 @@ bool has_null_bytes(PyObject* str) {
   // python3 doesn't have PyString_* APIs, so we use the converted bytes
   if (::PyBytes_AsStringAndSize(str, &buffer, NULL) == -1) {
 #else
-  if (::PyString_AsStringAndSize(str, &buffer, NULL) == -1) {
+  if (::_PyString_AsStringAndSize(str, &buffer, NULL) == -1) {
 #endif
     py_fetch_error();
     return true;

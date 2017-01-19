@@ -56,6 +56,18 @@ extern Py_ssize_t (*_PyList_Size)(PyObject *);
 extern PyObject* (*_PyList_GetItem)(PyObject *, Py_ssize_t);
 extern int (*_PyList_SetItem)(PyObject *, Py_ssize_t, PyObject *);
 
+extern int (*_PyString_AsStringAndSize)(
+    register PyObject *obj,	/* string or Unicode object */
+    register char **s,		/* pointer to buffer variable */
+    register Py_ssize_t *len	/* pointer to length variable or NULL
+  (only possible for 0-terminated
+  strings) */
+);
+
+extern PyObject* (*_PyString_FromString)(const char *);
+extern PyObject* (*_PyString_FromStringAndSize)(const char *, Py_ssize_t);
+
+
 extern void (*_PyErr_Fetch)(PyObject **, PyObject **, PyObject **);
 extern PyObject* (*_PyErr_Occurred)(void);
 extern void (*_PyErr_NormalizeException)(PyObject**, PyObject**, PyObject**);
@@ -72,6 +84,10 @@ extern PyObject* (*_PyObject_GetIter)(PyObject *);
 extern PyObject* (*_PyIter_Next)(PyObject *);
 
 extern void (*_PySys_SetArgv)(int, char **);
+
+typedef void (*_PyCapsule_Destructor)(PyObject *);
+extern PyObject* (*_PyCapsule_New)(void *pointer, const char *name, _PyCapsule_Destructor destructor);
+extern void* (*_PyCapsule_GetPointer)(PyObject *capsule, const char *name);
 
 class LibPython {
 

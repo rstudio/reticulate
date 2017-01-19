@@ -109,6 +109,10 @@ bool closeLibrary(void* pLib, std::string* pError)
 
 void (*_Py_Initialize)();
 
+PyObject* (*_Py_InitModule4)(const char *name, _PyMethodDef *methods,
+                  const char *doc, PyObject *self,
+                  int apiver);
+
 void (*_Py_IncRef)(PyObject *);
 void (*_Py_DecRef)(PyObject *);
 
@@ -142,6 +146,8 @@ int (*_PyRun_SimpleFileExFlags)(FILE *, const char *, int, void *);
 PyObject* (*_PyObject_GetIter)(PyObject *);
 PyObject* (*_PyIter_Next)(PyObject *);
 
+void (*_PySys_SetArgv)(int, char **);
+
 #define LOAD_PYTHON_SYMBOL_AS(name, as)             \
 if (!loadSymbol(pLib_, #name, (void**)&as, pError)) \
   return false;
@@ -154,6 +160,8 @@ bool LibPython::load(const std::string& libPath, bool python3, std::string* pErr
 {
   if (!loadLibrary(libPath, &pLib_, pError))
     return false;
+
+  bool is64bit = sizeof(size_t) >= 8;
 
   LOAD_PYTHON_SYMBOL(Py_Initialize)
   LOAD_PYTHON_SYMBOL(Py_IncRef)
@@ -177,6 +185,16 @@ bool LibPython::load(const std::string& libPath, bool python3, std::string* pErr
   LOAD_PYTHON_SYMBOL(PyImport_AddModule)
   LOAD_PYTHON_SYMBOL(PyObject_GetIter)
   LOAD_PYTHON_SYMBOL(PyIter_Next)
+  LOAD_PYTHON_SYMBOL(PySys_SetArgv)
+  if (python3) {
+
+  } else {
+    if (is64bit) {
+      LOAD_PYTHON_SYMBOL_AS(Py_InitModule4_64, _Py_InitModule4)
+    } else {
+      LOAD_PYTHON_SYMBOL(Py_InitModule4)
+    }
+  }
 
   return true;
 }

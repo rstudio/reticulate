@@ -4,6 +4,8 @@
 
 #include <string>
 
+#define _PYTHON_API_VERSION 1013
+
 #if _WIN32 || _WIN64
 #if _WIN64
 typedef __int64 Py_ssize_t;
@@ -14,10 +16,27 @@ typedef int Py_ssize_t;
 typedef long Py_ssize_t;
 #endif
 
-
 typedef struct _object PyObject;
 
+#define METH_VARARGS  0x0001
+#define METH_KEYWORDS 0x0002
+
+typedef PyObject *(*_PyCFunction)(PyObject *, PyObject *);
+struct _PyMethodDef {
+  const char	*ml_name;	/* The name of the built-in function/method */
+  _PyCFunction  ml_meth;	/* The C function that implements it */
+  int		 ml_flags;	/* Combination of METH_xxx flags, which mostly
+ describe the args expected by the C func */
+  const char	*ml_doc;	/* The __doc__ attribute, or NULL */
+};
+typedef struct _PyMethodDef _PyMethodDef;
+
+
 extern void (*_Py_Initialize)();
+
+extern PyObject* (*_Py_InitModule4)(const char *name, _PyMethodDef *methods,
+           const char *doc, PyObject *self,
+           int apiver);
 
 extern void (*_Py_IncRef)(PyObject *);
 extern void (*_Py_DecRef)(PyObject *);
@@ -51,6 +70,8 @@ extern int (*_PyRun_SimpleFileExFlags)(FILE *, const char *, int, void *);
 
 extern PyObject* (*_PyObject_GetIter)(PyObject *);
 extern PyObject* (*_PyIter_Next)(PyObject *);
+
+extern void (*_PySys_SetArgv)(int, char **);
 
 class LibPython {
 

@@ -11,11 +11,6 @@
 #define PyInt_AsLong PyLong_AsLong
 #define PyInt_FromLong PyLong_FromLong
 // Python arguments array becomes whcar_t in python3
-#define PYTHON_ARGV L"python"
-typedef wchar_t argv_char_t;
-#else
-#define PYTHON_ARGV "python"
-typedef char argv_char_t;
 #endif
 
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
@@ -879,8 +874,8 @@ extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* k
 }
 
 
-PyMethodDef TFCallMethods[] = {
-  { "call_r_function", (PyCFunction)call_r_function,
+_PyMethodDef TFCallMethods[] = {
+  { "call_r_function", (_PyCFunction)call_r_function,
     METH_VARARGS | METH_KEYWORDS, "Call an R function" },
   { NULL, NULL, 0, NULL }
 };
@@ -906,6 +901,8 @@ extern "C" PyObject* initializeTFCall(void) {
 #endif
 
 
+
+
 // [[Rcpp::export]]
 void py_initialize(const std::string& pythonSharedLibrary) {
 
@@ -921,19 +918,22 @@ void py_initialize(const std::string& pythonSharedLibrary) {
   // initialize python
   _Py_Initialize();
 
+  const wchar_t *argv[1] = {L"python"};
+  _PySys_SetArgv(1, const_cast<wchar_t**>(argv));
+
 #else
 
   // initialize python
   _Py_Initialize();
 
   // add tfcall module
-  ::Py_InitModule("tfcall", TFCallMethods);
+  ::_Py_InitModule4("tfcall", TFCallMethods, (char *)NULL, (PyObject *)NULL,
+                    _PYTHON_API_VERSION);
+
+  const char *argv[1] = {"python"};
+  _PySys_SetArgv(1, const_cast<char**>(argv));
 
 #endif
-
-  // required to populate sys.
-  const argv_char_t *argv[1] = {PYTHON_ARGV};
-  PySys_SetArgv(1, const_cast<argv_char_t**>(argv));
 
   // import numpy array api
   if (!py_import_numpy_array_api())

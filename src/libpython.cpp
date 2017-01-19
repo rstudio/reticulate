@@ -125,13 +125,19 @@ PyObject* (*_PyList_GetItem)(PyObject *, Py_ssize_t);
 int (*_PyList_SetItem)(PyObject *, Py_ssize_t, PyObject *);
 
 void (*_PyErr_Fetch)(PyObject **, PyObject **, PyObject **);
+PyObject* (*_PyErr_Occurred)(void);
 void (*_PyErr_NormalizeException)(PyObject**, PyObject**, PyObject**);
 
 int (*_PyCallable_Check)(PyObject*);
 
+PyObject* (*_PyModule_GetDict)(PyObject *);
+PyObject* (*_PyImport_AddModule)(const char *);
+
 PyObject* (*_PyRun_StringFlags)(const char *, int, PyObject*, PyObject*, void*);
 int (*_PyRun_SimpleFileExFlags)(FILE *, const char *, int, void *);
 
+PyObject* (*_PyObject_GetIter)(PyObject *);
+PyObject* (*_PyIter_Next)(PyObject *);
 
 #define LOAD_PYTHON_SYMBOL_AS(name, as)             \
 if (!loadSymbol(pLib_, #name, (void**)&as, pError)) \
@@ -158,11 +164,16 @@ bool LibPython::load(const std::string& libPath, bool python3, std::string* pErr
   LOAD_PYTHON_SYMBOL(PyList_GetItem)
   LOAD_PYTHON_SYMBOL(PyList_SetItem)
   LOAD_PYTHON_SYMBOL(PyErr_Fetch)
+  LOAD_PYTHON_SYMBOL(PyErr_Occurred)
   LOAD_PYTHON_SYMBOL(PyErr_NormalizeException)
   LOAD_PYTHON_SYMBOL_AS(PyObject_Str, __PyObject_Str)
   LOAD_PYTHON_SYMBOL(PyObject_Dir)
   LOAD_PYTHON_SYMBOL(PyCallable_Check)
   LOAD_PYTHON_SYMBOL(PyRun_StringFlags)
+  LOAD_PYTHON_SYMBOL(PyModule_GetDict)
+  LOAD_PYTHON_SYMBOL(PyImport_AddModule)
+  LOAD_PYTHON_SYMBOL(PyObject_GetIter)
+  LOAD_PYTHON_SYMBOL(PyIter_Next)
 
   return true;
 }

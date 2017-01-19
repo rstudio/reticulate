@@ -1130,7 +1130,7 @@ List py_iterate(PyObjectXPtr x, Function f) {
   List list;
 
   // get the iterator
-  PyObjectPtr iterator(::PyObject_GetIter(x));
+  PyObjectPtr iterator(::_PyObject_GetIter(x));
   if (iterator.is_null())
     stop(py_fetch_error());
 
@@ -1138,11 +1138,11 @@ List py_iterate(PyObjectXPtr x, Function f) {
   while (true) {
 
     // check next item
-    PyObjectPtr item(::PyIter_Next(iterator));
+    PyObjectPtr item(::_PyIter_Next(iterator));
     if (item.is_null()) {
       // null return means either iteration is done or
       // that there is an error
-      if (::PyErr_Occurred())
+      if (::_PyErr_Occurred())
         stop(py_fetch_error());
       else
         break;
@@ -1169,7 +1169,7 @@ List py_iterate(PyObjectXPtr x, Function f) {
 // [[Rcpp::export]]
 void py_run_string(const std::string& code)
 {
-  PyObject* dict = ::PyModule_GetDict(::PyImport_AddModule("__main__"));
+  PyObject* dict = ::_PyModule_GetDict(::_PyImport_AddModule("__main__"));
   PyObjectPtr res(::_PyRun_StringFlags(code.c_str(), Py_file_input, dict, dict, NULL));
   if (res.is_null())
     stop(py_fetch_error());

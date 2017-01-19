@@ -29,12 +29,19 @@ extern PyObject* (*_PyList_GetItem)(PyObject *, Py_ssize_t);
 extern int (*_PyList_SetItem)(PyObject *, Py_ssize_t, PyObject *);
 
 extern void (*_PyErr_Fetch)(PyObject **, PyObject **, PyObject **);
+extern PyObject* (*_PyErr_Occurred)(void);
 extern void (*_PyErr_NormalizeException)(PyObject**, PyObject**, PyObject**);
 
 extern int (*_PyCallable_Check)(PyObject *);
 
+extern PyObject* (*_PyModule_GetDict)(PyObject *);
+extern PyObject* (*_PyImport_AddModule)(const char *);
+
 extern PyObject* (*_PyRun_StringFlags)(const char *, int, PyObject*, PyObject*, void*);
 extern int (*_PyRun_SimpleFileExFlags)(FILE *, const char *, int, void *);
+
+extern PyObject* (*_PyObject_GetIter)(PyObject *);
+extern PyObject* (*_PyIter_Next)(PyObject *);
 
 class LibPython {
 

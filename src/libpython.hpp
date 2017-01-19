@@ -16,12 +16,12 @@ typedef int Py_ssize_t;
 typedef long Py_ssize_t;
 #endif
 
-typedef struct _object PyObject;
+typedef struct _object _PyObject;
 
 #define METH_VARARGS  0x0001
 #define METH_KEYWORDS 0x0002
 
-typedef PyObject *(*_PyCFunction)(PyObject *, PyObject *);
+typedef _PyObject *(*_PyCFunction)(_PyObject *, _PyObject *);
 struct _PyMethodDef {
   const char	*ml_name;	/* The name of the built-in function/method */
   _PyCFunction  ml_meth;	/* The C function that implements it */
@@ -34,60 +34,60 @@ typedef struct _PyMethodDef _PyMethodDef;
 
 extern void (*_Py_Initialize)();
 
-extern PyObject* (*_Py_InitModule4)(const char *name, _PyMethodDef *methods,
-           const char *doc, PyObject *self,
+extern _PyObject* (*_Py_InitModule4)(const char *name, _PyMethodDef *methods,
+           const char *doc, _PyObject *self,
            int apiver);
 
-extern void (*_Py_IncRef)(PyObject *);
-extern void (*_Py_DecRef)(PyObject *);
+extern void (*_Py_IncRef)(_PyObject *);
+extern void (*_Py_DecRef)(_PyObject *);
 
-extern PyObject* (*__PyObject_Str)(PyObject *);
+extern _PyObject* (*__PyObject_Str)(_PyObject *);
 
-extern PyObject* (*_PyObject_Dir)(PyObject *);
+extern _PyObject* (*_PyObject_Dir)(_PyObject *);
 
-extern PyObject* (*_PyObject_GetAttrString)(PyObject*, const char *);
-extern int (*_PyObject_HasAttrString)(PyObject*, const char *);
+extern _PyObject* (*_PyObject_GetAttrString)(_PyObject*, const char *);
+extern int (*_PyObject_HasAttrString)(_PyObject*, const char *);
 
-extern Py_ssize_t (*_PyTuple_Size)(PyObject *);
-extern PyObject* (*_PyTuple_GetItem)(PyObject *, Py_ssize_t);
+extern Py_ssize_t (*_PyTuple_Size)(_PyObject *);
+extern _PyObject* (*_PyTuple_GetItem)(_PyObject *, Py_ssize_t);
 
-extern PyObject* (*_PyList_New)(Py_ssize_t size);
-extern Py_ssize_t (*_PyList_Size)(PyObject *);
-extern PyObject* (*_PyList_GetItem)(PyObject *, Py_ssize_t);
-extern int (*_PyList_SetItem)(PyObject *, Py_ssize_t, PyObject *);
+extern _PyObject* (*_PyList_New)(Py_ssize_t size);
+extern Py_ssize_t (*_PyList_Size)(_PyObject *);
+extern _PyObject* (*_PyList_GetItem)(_PyObject *, Py_ssize_t);
+extern int (*_PyList_SetItem)(_PyObject *, Py_ssize_t, _PyObject *);
 
 extern int (*_PyString_AsStringAndSize)(
-    register PyObject *obj,	/* string or Unicode object */
+    register _PyObject *obj,	/* string or Unicode object */
     register char **s,		/* pointer to buffer variable */
     register Py_ssize_t *len	/* pointer to length variable or NULL
   (only possible for 0-terminated
   strings) */
 );
 
-extern PyObject* (*_PyString_FromString)(const char *);
-extern PyObject* (*_PyString_FromStringAndSize)(const char *, Py_ssize_t);
+extern _PyObject* (*_PyString_FromString)(const char *);
+extern _PyObject* (*_PyString_FromStringAndSize)(const char *, Py_ssize_t);
 
 
-extern void (*_PyErr_Fetch)(PyObject **, PyObject **, PyObject **);
-extern PyObject* (*_PyErr_Occurred)(void);
-extern void (*_PyErr_NormalizeException)(PyObject**, PyObject**, PyObject**);
+extern void (*_PyErr_Fetch)(_PyObject **, _PyObject **, _PyObject **);
+extern _PyObject* (*_PyErr_Occurred)(void);
+extern void (*_PyErr_NormalizeException)(_PyObject**, _PyObject**, _PyObject**);
 
-extern int (*_PyCallable_Check)(PyObject *);
+extern int (*_PyCallable_Check)(_PyObject *);
 
-extern PyObject* (*_PyModule_GetDict)(PyObject *);
-extern PyObject* (*_PyImport_AddModule)(const char *);
+extern _PyObject* (*_PyModule_GetDict)(_PyObject *);
+extern _PyObject* (*_PyImport_AddModule)(const char *);
 
-extern PyObject* (*_PyRun_StringFlags)(const char *, int, PyObject*, PyObject*, void*);
+extern _PyObject* (*_PyRun_StringFlags)(const char *, int, _PyObject*, _PyObject*, void*);
 extern int (*_PyRun_SimpleFileExFlags)(FILE *, const char *, int, void *);
 
-extern PyObject* (*_PyObject_GetIter)(PyObject *);
-extern PyObject* (*_PyIter_Next)(PyObject *);
+extern _PyObject* (*_PyObject_GetIter)(_PyObject *);
+extern _PyObject* (*_PyIter_Next)(_PyObject *);
 
 extern void (*_PySys_SetArgv)(int, char **);
 
-typedef void (*_PyCapsule_Destructor)(PyObject *);
-extern PyObject* (*_PyCapsule_New)(void *pointer, const char *name, _PyCapsule_Destructor destructor);
-extern void* (*_PyCapsule_GetPointer)(PyObject *capsule, const char *name);
+typedef void (*_PyCapsule_Destructor)(_PyObject *);
+extern _PyObject* (*_PyCapsule_New)(void *pointer, const char *name, _PyCapsule_Destructor destructor);
+extern void* (*_PyCapsule_GetPointer)(_PyObject *capsule, const char *name);
 
 class LibPython {
 

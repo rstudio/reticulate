@@ -109,58 +109,58 @@ bool closeLibrary(void* pLib, std::string* pError)
 
 void (*_Py_Initialize)();
 
-PyObject* (*_Py_InitModule4)(const char *name, _PyMethodDef *methods,
-                  const char *doc, PyObject *self,
+_PyObject* (*_Py_InitModule4)(const char *name, _PyMethodDef *methods,
+                  const char *doc, _PyObject *self,
                   int apiver);
 
-void (*_Py_IncRef)(PyObject *);
-void (*_Py_DecRef)(PyObject *);
+void (*_Py_IncRef)(_PyObject *);
+void (*_Py_DecRef)(_PyObject *);
 
-PyObject* (*__PyObject_Str)(PyObject *);
+_PyObject* (*__PyObject_Str)(_PyObject *);
 
-PyObject* (*_PyObject_Dir)(PyObject *);
+_PyObject* (*_PyObject_Dir)(_PyObject *);
 
-PyObject* (*_PyObject_GetAttrString)(PyObject *, const char *);
-int (*_PyObject_HasAttrString)(PyObject*, const char *);
+_PyObject* (*_PyObject_GetAttrString)(_PyObject *, const char *);
+int (*_PyObject_HasAttrString)(_PyObject*, const char *);
 
-Py_ssize_t (*_PyTuple_Size)(PyObject *);
-PyObject* (*_PyTuple_GetItem)(PyObject *, Py_ssize_t);
+Py_ssize_t (*_PyTuple_Size)(_PyObject *);
+_PyObject* (*_PyTuple_GetItem)(_PyObject *, Py_ssize_t);
 
-PyObject* (*_PyList_New)(Py_ssize_t size);
-Py_ssize_t (*_PyList_Size)(PyObject *);
-PyObject* (*_PyList_GetItem)(PyObject *, Py_ssize_t);
-int (*_PyList_SetItem)(PyObject *, Py_ssize_t, PyObject *);
+_PyObject* (*_PyList_New)(Py_ssize_t size);
+Py_ssize_t (*_PyList_Size)(_PyObject *);
+_PyObject* (*_PyList_GetItem)(_PyObject *, Py_ssize_t);
+int (*_PyList_SetItem)(_PyObject *, Py_ssize_t, _PyObject *);
 
 int (*_PyString_AsStringAndSize)(
-    register PyObject *obj,	/* string or Unicode object */
+    register _PyObject *obj,	/* string or Unicode object */
     register char **s,		/* pointer to buffer variable */
     register Py_ssize_t *len	/* pointer to length variable or NULL
   (only possible for 0-terminated
   strings) */
 );
 
-PyObject* (*_PyString_FromString)(const char *);
-PyObject* (*_PyString_FromStringAndSize)(const char *, Py_ssize_t);
+_PyObject* (*_PyString_FromString)(const char *);
+_PyObject* (*_PyString_FromStringAndSize)(const char *, Py_ssize_t);
 
-void (*_PyErr_Fetch)(PyObject **, PyObject **, PyObject **);
-PyObject* (*_PyErr_Occurred)(void);
-void (*_PyErr_NormalizeException)(PyObject**, PyObject**, PyObject**);
+void (*_PyErr_Fetch)(_PyObject **, _PyObject **, _PyObject **);
+_PyObject* (*_PyErr_Occurred)(void);
+void (*_PyErr_NormalizeException)(_PyObject**, _PyObject**, _PyObject**);
 
-int (*_PyCallable_Check)(PyObject*);
+int (*_PyCallable_Check)(_PyObject*);
 
-PyObject* (*_PyModule_GetDict)(PyObject *);
-PyObject* (*_PyImport_AddModule)(const char *);
+_PyObject* (*_PyModule_GetDict)(_PyObject *);
+_PyObject* (*_PyImport_AddModule)(const char *);
 
-PyObject* (*_PyRun_StringFlags)(const char *, int, PyObject*, PyObject*, void*);
+_PyObject* (*_PyRun_StringFlags)(const char *, int, _PyObject*, _PyObject*, void*);
 int (*_PyRun_SimpleFileExFlags)(FILE *, const char *, int, void *);
 
-PyObject* (*_PyObject_GetIter)(PyObject *);
-PyObject* (*_PyIter_Next)(PyObject *);
+_PyObject* (*_PyObject_GetIter)(_PyObject *);
+_PyObject* (*_PyIter_Next)(_PyObject *);
 
 void (*_PySys_SetArgv)(int, char **);
 
-PyObject* (*_PyCapsule_New)(void *pointer, const char *name, _PyCapsule_Destructor destructor);
-void* (*_PyCapsule_GetPointer)(PyObject *capsule, const char *name);
+_PyObject* (*_PyCapsule_New)(void *pointer, const char *name, _PyCapsule_Destructor destructor);
+void* (*_PyCapsule_GetPointer)(_PyObject *capsule, const char *name);
 
 #define LOAD_PYTHON_SYMBOL_AS(name, as)             \
 if (!loadSymbol(pLib_, #name, (void**)&as, pError)) \

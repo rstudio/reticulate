@@ -104,6 +104,13 @@ bool closeLibrary(void* pLib, std::string* pError)
 
 } // anonymous namespace
 
+void (*_Py_Initialize)();
+
+PyObject* (*_PyObject_GetAttrString)(PyObject *, const char *);
+int (*_PyObject_HasAttrString)(PyObject*, const char *);
+
+Py_ssize_t (*_PyTuple_Size)(PyObject *);
+PyObject* (*_PyTuple_GetItem)(PyObject *, Py_ssize_t);
 
 #define LOAD_PYTHON_SYMBOL(name)                                \
 if (!loadSymbol(pLib_, #name, (void**)&_##name, pError)) \
@@ -116,6 +123,9 @@ bool LibPython::load(const std::string& libPath, bool python3, std::string* pErr
 
   LOAD_PYTHON_SYMBOL(Py_Initialize)
   LOAD_PYTHON_SYMBOL(PyObject_GetAttrString)
+  LOAD_PYTHON_SYMBOL(PyObject_HasAttrString)
+  LOAD_PYTHON_SYMBOL(PyTuple_Size)
+  LOAD_PYTHON_SYMBOL(PyTuple_GetItem)
 
 
   return true;
@@ -128,13 +138,6 @@ bool LibPython::unload(std::string* pError)
   else
     return true;
 }
-
-void (*_Py_Initialize)();
-PyObject* (*_PyObject_GetAttrString)(PyObject *, const char *);
-
-
-
-
 
 
 

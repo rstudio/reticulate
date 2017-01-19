@@ -208,17 +208,17 @@ PyObjectXPtr py_xptr(PyObject* object, bool decref = true, const std::string& ex
   }
 
   // register R classes
-  if (::PyObject_HasAttrString(object, "__class__")) {
+  if (::_PyObject_HasAttrString(object, "__class__")) {
     // class
     PyObjectPtr classPtr(::_PyObject_GetAttrString(object, "__class__"));
     attrClass.push_back(as_r_class(classPtr));
 
     // base classes
-    if (::PyObject_HasAttrString(classPtr, "__bases__")) {
+    if (::_PyObject_HasAttrString(classPtr, "__bases__")) {
       PyObjectPtr basesPtr(::_PyObject_GetAttrString(classPtr, "__bases__"));
-      Py_ssize_t len = ::PyTuple_Size(basesPtr);
+      Py_ssize_t len = ::_PyTuple_Size(basesPtr);
       for (Py_ssize_t i = 0; i<len; i++) {
-        PyObject* base = ::PyTuple_GetItem(basesPtr, i); // borrowed
+        PyObject* base = ::_PyTuple_GetItem(basesPtr, i); // borrowed
         attrClass.push_back(as_r_class(base));
       }
     }
@@ -332,10 +332,10 @@ int scalar_list_type(PyObject* x) {
 
 // convert a tuple to a character vector
 CharacterVector py_tuple_to_character(PyObject* tuple) {
-  Py_ssize_t len = ::PyTuple_Size(tuple);
+  Py_ssize_t len = ::_PyTuple_Size(tuple);
   CharacterVector vec(len);
   for (Py_ssize_t i = 0; i<len; i++)
-    vec[i] = as_std_string(PyTuple_GetItem(tuple, i));
+    vec[i] = as_std_string(_PyTuple_GetItem(tuple, i));
   return vec;
 }
 
@@ -471,11 +471,11 @@ SEXP py_to_r(PyObject* x) {
   }
 
   // tuple (but don't convert namedtuple as it's often a custom class)
-  else if (PyTuple_Check(x) && !::PyObject_HasAttrString(x, "_fields")) {
-    Py_ssize_t len = ::PyTuple_Size(x);
+  else if (PyTuple_Check(x) && !::_PyObject_HasAttrString(x, "_fields")) {
+    Py_ssize_t len = ::_PyTuple_Size(x);
     Rcpp::List list(len);
     for (Py_ssize_t i = 0; i<len; i++)
-      list[i] = py_to_r(PyTuple_GetItem(x, i));
+      list[i] = py_to_r(_PyTuple_GetItem(x, i));
     return list;
   }
 
@@ -860,7 +860,7 @@ extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* k
   SEXP rFunction = r_object_from_capsule(PyTuple_GET_ITEM(args, 0));
 
   // convert remainder of positional arguments to R list
-  PyObjectPtr funcArgs(::PyTuple_GetSlice(args, 1, ::PyTuple_Size(args)));
+  PyObjectPtr funcArgs(::PyTuple_GetSlice(args, 1, ::_PyTuple_Size(args)));
   List rArgs = ::py_to_r(funcArgs);
 
   // get keyword arguments
@@ -1006,7 +1006,7 @@ std::vector<std::string> py_list_attributes(PyObjectXPtr x) {
 
 // [[Rcpp::export]]
 bool py_has_attr(PyObjectXPtr x, const std::string& name) {
-  return ::PyObject_HasAttrString(x, name.c_str());
+  return ::_PyObject_HasAttrString(x, name.c_str());
 }
 
 

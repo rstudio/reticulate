@@ -312,17 +312,17 @@ int r_scalar_type(PyObject* x) {
 // check whether the PyObject is a list of a single R scalar type
 int scalar_list_type(PyObject* x) {
 
-  Py_ssize_t len = PyList_Size(x);
+  Py_ssize_t len = _PyList_Size(x);
   if (len == 0)
     return NILSXP;
 
-  PyObject* first = PyList_GetItem(x, 0);
+  PyObject* first = _PyList_GetItem(x, 0);
   int scalarType = r_scalar_type(first);
   if (scalarType == NILSXP)
     return NILSXP;
 
   for (Py_ssize_t i = 1; i<len; i++) {
-    PyObject* next = PyList_GetItem(x, i);
+    PyObject* next = _PyList_GetItem(x, i);
     if (r_scalar_type(next) != scalarType)
       return NILSXP;
   }
@@ -430,22 +430,22 @@ SEXP py_to_r(PyObject* x) {
   // list
   else if (PyList_Check(x)) {
 
-    Py_ssize_t len = PyList_Size(x);
+    Py_ssize_t len = _PyList_Size(x);
     int scalarType = scalar_list_type(x);
     if (scalarType == REALSXP) {
       Rcpp::NumericVector vec(len);
       for (Py_ssize_t i = 0; i<len; i++)
-        vec[i] = PyFloat_AsDouble(PyList_GetItem(x, i));
+        vec[i] = PyFloat_AsDouble(_PyList_GetItem(x, i));
       return vec;
     } else if (scalarType == INTSXP) {
       Rcpp::IntegerVector vec(len);
       for (Py_ssize_t i = 0; i<len; i++)
-        vec[i] = PyInt_AsLong(PyList_GetItem(x, i));
+        vec[i] = PyInt_AsLong(_PyList_GetItem(x, i));
       return vec;
     } else if (scalarType == CPLXSXP) {
       Rcpp::ComplexVector vec(len);
       for (Py_ssize_t i = 0; i<len; i++) {
-        PyObject* item = PyList_GetItem(x, i);
+        PyObject* item = _PyList_GetItem(x, i);
         Rcomplex cplx;
         cplx.r = ::PyComplex_RealAsDouble(item);
         cplx.i = ::PyComplex_ImagAsDouble(item);
@@ -455,17 +455,17 @@ SEXP py_to_r(PyObject* x) {
     } else if (scalarType == LGLSXP) {
       Rcpp::LogicalVector vec(len);
       for (Py_ssize_t i = 0; i<len; i++)
-        vec[i] = PyList_GetItem(x, i) == Py_True;
+        vec[i] = _PyList_GetItem(x, i) == Py_True;
       return vec;
     } else if (scalarType == STRSXP) {
       Rcpp::CharacterVector vec(len);
       for (Py_ssize_t i = 0; i<len; i++)
-        vec[i] = as_std_string(PyList_GetItem(x, i));
+        vec[i] = as_std_string(_PyList_GetItem(x, i));
       return vec;
     } else { // not a homegenous list of scalars, return a list
       Rcpp::List list(len);
       for (Py_ssize_t i = 0; i<len; i++)
-        list[i] = py_to_r(PyList_GetItem(x, i));
+        list[i] = py_to_r(_PyList_GetItem(x, i));
       return list;
     }
   }
@@ -708,11 +708,11 @@ PyObject* r_to_py(RObject x) {
       int value = INTEGER(sexp)[0];
       return ::PyInt_FromLong(value);
     } else {
-      PyObjectPtr list(::PyList_New(LENGTH(sexp)));
+      PyObjectPtr list(::_PyList_New(LENGTH(sexp)));
       for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
         int value = INTEGER(sexp)[i];
         // NOTE: reference to added value is "stolen" by the list
-        int res = ::PyList_SetItem(list, i, ::PyInt_FromLong(value));
+        int res = ::_PyList_SetItem(list, i, ::PyInt_FromLong(value));
         if (res != 0)
           stop(py_fetch_error());
       }
@@ -725,11 +725,11 @@ PyObject* r_to_py(RObject x) {
       double value = REAL(sexp)[0];
       return ::PyFloat_FromDouble(value);
     } else {
-      PyObjectPtr list(PyList_New(LENGTH(sexp)));
+      PyObjectPtr list(_PyList_New(LENGTH(sexp)));
       for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
         double value = REAL(sexp)[i];
         // NOTE: reference to added value is "stolen" by the list
-        int res = ::PyList_SetItem(list, i, ::PyFloat_FromDouble(value));
+        int res = ::_PyList_SetItem(list, i, ::PyFloat_FromDouble(value));
         if (res != 0)
           stop(py_fetch_error());
       }
@@ -742,11 +742,11 @@ PyObject* r_to_py(RObject x) {
       Rcomplex cplx = COMPLEX(sexp)[0];
       return ::PyComplex_FromDoubles(cplx.r, cplx.i);
     } else {
-      PyObjectPtr list(PyList_New(LENGTH(sexp)));
+      PyObjectPtr list(_PyList_New(LENGTH(sexp)));
       for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
         Rcomplex cplx = COMPLEX(sexp)[i];
         // NOTE: reference to added value is "stolen" by the list
-        int res = ::PyList_SetItem(list, i, ::PyComplex_FromDoubles(cplx.r,
+        int res = ::_PyList_SetItem(list, i, ::PyComplex_FromDoubles(cplx.r,
                                                                     cplx.i));
         if (res != 0)
           stop(py_fetch_error());
@@ -760,11 +760,11 @@ PyObject* r_to_py(RObject x) {
       int value = LOGICAL(sexp)[0];
       return ::PyBool_FromLong(value);
     } else {
-      PyObjectPtr list(PyList_New(LENGTH(sexp)));
+      PyObjectPtr list(_PyList_New(LENGTH(sexp)));
       for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
         int value = LOGICAL(sexp)[i];
         // NOTE: reference to added value is "stolen" by the list
-        int res = ::PyList_SetItem(list, i, ::PyBool_FromLong(value));
+        int res = ::_PyList_SetItem(list, i, ::PyBool_FromLong(value));
         if (res != 0)
           stop(py_fetch_error());
       }
@@ -776,10 +776,10 @@ PyObject* r_to_py(RObject x) {
     if (LENGTH(sexp) == 1) {
       return as_python_str(STRING_ELT(sexp, 0));
     } else {
-      PyObjectPtr list(::PyList_New(LENGTH(sexp)));
+      PyObjectPtr list(::_PyList_New(LENGTH(sexp)));
       for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
         // NOTE: reference to added value is "stolen" by the list
-        int res = ::PyList_SetItem(list, i, as_python_str(STRING_ELT(sexp, i)));
+        int res = ::_PyList_SetItem(list, i, as_python_str(STRING_ELT(sexp, i)));
         if (res != 0)
           stop(py_fetch_error());
       }
@@ -808,11 +808,11 @@ PyObject* r_to_py(RObject x) {
       return dict.detach();
     // create a list if there are no names
     } else {
-      PyObjectPtr list(::PyList_New(LENGTH(sexp)));
+      PyObjectPtr list(::_PyList_New(LENGTH(sexp)));
       for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
         PyObject* item = r_to_py(RObject(VECTOR_ELT(sexp, i)));
         // NOTE: reference to added value is "stolen" by the list
-        int res = ::PyList_SetItem(list, i, item);
+        int res = ::_PyList_SetItem(list, i, item);
         if (res != 0)
           stop(py_fetch_error());
       }
@@ -990,13 +990,13 @@ bool py_is_null_xptr(PyObjectXPtr x) {
 // [[Rcpp::export]]
 std::vector<std::string> py_list_attributes(PyObjectXPtr x) {
   std::vector<std::string> attributes;
-  PyObjectPtr attrs(::PyObject_Dir(x));
+  PyObjectPtr attrs(::_PyObject_Dir(x));
   if (attrs.is_null())
     stop(py_fetch_error());
 
-  Py_ssize_t len = ::PyList_Size(attrs);
+  Py_ssize_t len = ::_PyList_Size(attrs);
   for (Py_ssize_t index = 0; index<len; index++) {
-    PyObject* item = ::PyList_GetItem(attrs, index);
+    PyObject* item = ::_PyList_GetItem(attrs, index);
     attributes.push_back(as_std_string(item));
   }
 

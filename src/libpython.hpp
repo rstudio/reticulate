@@ -15,11 +15,18 @@ extern void (*_Py_DecRef)(PyObject *);
 
 extern PyObject* (*__PyObject_Str)(PyObject *);
 
+extern PyObject* (*_PyObject_Dir)(PyObject *);
+
 extern PyObject* (*_PyObject_GetAttrString)(PyObject*, const char *);
 extern int (*_PyObject_HasAttrString)(PyObject*, const char *);
 
 extern Py_ssize_t (*_PyTuple_Size)(PyObject *);
 extern PyObject* (*_PyTuple_GetItem)(PyObject *, Py_ssize_t);
+
+extern PyObject* (*_PyList_New)(Py_ssize_t size);
+extern Py_ssize_t (*_PyList_Size)(PyObject *);
+extern PyObject* (*_PyList_GetItem)(PyObject *, Py_ssize_t);
+extern int (*_PyList_SetItem)(PyObject *, Py_ssize_t, PyObject *);
 
 extern void (*_PyErr_Fetch)(PyObject **, PyObject **, PyObject **);
 extern void (*_PyErr_NormalizeException)(PyObject**, PyObject**, PyObject**);

@@ -4,9 +4,18 @@
 
 #include <string>
 
-// TODO: make sure these are correct!
-typedef struct _object PyObject;
+#if _WIN32 || _WIN64
+#if _WIN64
+typedef __int64 Py_ssize_t;
+#else
+typedef int Py_ssize_t;
+#endif
+#else
 typedef long Py_ssize_t;
+#endif
+
+
+typedef struct _object PyObject;
 
 extern void (*_Py_Initialize)();
 

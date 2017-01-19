@@ -3,6 +3,9 @@
 
 #ifndef _WIN32
 #include <dlfcn.h>
+#else
+#define WIN32_LEAN_AND_MEAN 1
+#include <windows.h>
 #endif
 
 #include <string>

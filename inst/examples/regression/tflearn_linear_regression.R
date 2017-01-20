@@ -20,9 +20,9 @@ input <- tflearn$input_data(shape = shape(NULL))
 linear <- tflearn$single_unit(input)
 regression <- tflearn$regression(
   linear,
-  optimizer = "adam",
+  optimizer = "SGD",
   loss = "mean_square",
-  metric = "R2",
+  metric = "default",
   learning_rate = 0.01
 )
 

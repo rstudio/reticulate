@@ -205,6 +205,8 @@ PyObject* _Py_True;
 PyObject* _Py_False;
 PyObject* _Py_Dict;
 PyObject* _Py_Float;
+PyObject* _Py_List;
+PyObject* _Py_Tuple;
 
 _PyTypeObject* _PyFunction_Type;
 
@@ -299,6 +301,8 @@ bool LibPython::load(const std::string& libPath, bool python3, std::string* pErr
   _Py_False = ::_PyBool_FromLong(0L);
   _Py_Dict = ::_Py_BuildValue("{s:i}", "a", 1024);
   _Py_Float = ::_PyFloat_FromDouble(0.0);
+  _Py_Tuple = ::_Py_BuildValue("(i)", 1024);
+  _Py_List = ::_Py_BuildValue("[i]", 1024);
 
   return true;
 }

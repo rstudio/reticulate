@@ -420,7 +420,7 @@ SEXP py_to_r(PyObject* x) {
   }
 
   // list
-  else if (PyList_Check(x)) {
+  else if (_PyList_Check(x)) {
 
     Py_ssize_t len = _PyList_Size(x);
     int scalarType = scalar_list_type(x);
@@ -463,7 +463,7 @@ SEXP py_to_r(PyObject* x) {
   }
 
   // tuple (but don't convert namedtuple as it's often a custom class)
-  else if (PyTuple_Check(x) && !::_PyObject_HasAttrString(x, "_fields")) {
+  else if (_PyTuple_Check(x) && !::_PyObject_HasAttrString(x, "_fields")) {
     Py_ssize_t len = ::_PyTuple_Size(x);
     Rcpp::List list(len);
     for (Py_ssize_t i = 0; i<len; i++)
@@ -1025,8 +1025,8 @@ IntegerVector py_get_attribute_types(
     PyObjectXPtr attr = py_get_attr(x, attributes[i]);
     if (::_PyCallable_Check(attr))
       types[i] = FUNCTION;
-    else if (PyList_Check(attr)  ||
-             PyTuple_Check(attr) ||
+    else if (_PyList_Check(attr)  ||
+             _PyTuple_Check(attr) ||
              _PyDict_Check(attr))
       types[i] = LIST;
     else if (PyArray_Check(attr))

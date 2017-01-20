@@ -108,6 +108,8 @@ extern PyObject* _Py_True;
 extern PyObject* _Py_False;
 extern PyObject* _Py_Dict;
 extern PyObject* _Py_Float;
+extern PyObject* _Py_List;
+extern PyObject* _Py_Tuple;
 
 #define _Py_TYPE(ob) (((PyObject*)(ob))->ob_type)
 
@@ -119,6 +121,8 @@ extern PyObject* _Py_Float;
 #define _PyDict_Check(o) (_Py_TYPE(o) == _Py_TYPE(_Py_Dict))
 #define _PyFloat_Check(o) (_Py_TYPE(o) == _Py_TYPE(_Py_Float))
 #define _PyFunction_Check(op) ((_PyTypeObject*)(_Py_TYPE(op)) == _PyFunction_Type)
+#define _PyTuple_Check(o) (_Py_TYPE(o) == _Py_TYPE(_Py_Tuple))
+#define _PyList_Check(o) (_Py_TYPE(o) == _Py_TYPE(_Py_List))
 
 extern void (*_Py_Initialize)();
 

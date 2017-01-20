@@ -816,7 +816,7 @@ PyObject* r_to_py(RObject x) {
     PyObjectPtr capsule(r_object_capsule(sexp));
 
     // create the python wrapper function
-    PyObjectPtr module(::PyImport_ImportModule("tftools.call"));
+    PyObjectPtr module(::_PyImport_ImportModule("tftools.call"));
     if (module == NULL)
       stop(py_fetch_error());
     PyObjectPtr func(::_PyObject_GetAttrString(module, "make_python_function"));
@@ -1104,7 +1104,7 @@ PyObjectXPtr py_dict(const List& keys, const List& items) {
 
 // [[Rcpp::export]]
 PyObjectXPtr py_module_impl(const std::string& module) {
-  PyObject* pModule = ::PyImport_ImportModule(module.c_str());
+  PyObject* pModule = ::_PyImport_ImportModule(module.c_str());
   if (pModule == NULL)
     stop(py_fetch_error());
   return py_xptr(pModule);

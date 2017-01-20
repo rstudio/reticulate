@@ -133,6 +133,8 @@ extern PyObject* (*_Py_InitModule4)(const char *name, _PyMethodDef *methods,
            const char *doc, PyObject *self,
            int apiver);
 
+extern PyObject* (*_PyImport_ImportModule)(const char *name);
+
 extern PyObject* (*_PyModule_Create2)(_PyModuleDef *def, int);
 extern int (*_PyImport_AppendInittab)(const char *name, PyObject* (*initfunc)());
 

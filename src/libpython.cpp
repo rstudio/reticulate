@@ -113,6 +113,8 @@ PyObject* (*_Py_InitModule4)(const char *name, _PyMethodDef *methods,
                   const char *doc, PyObject *self,
                   int apiver);
 
+PyObject* (*_PyImport_ImportModule)(const char *name);
+
 PyObject* (*_PyModule_Create2)(_PyModuleDef *def, int);
 int (*_PyImport_AppendInittab)(const char *name, PyObject* (*initfunc)());
 
@@ -264,6 +266,7 @@ bool LibPython::load(const std::string& libPath, bool python3, std::string* pErr
   LOAD_PYTHON_SYMBOL(PyRun_StringFlags)
   LOAD_PYTHON_SYMBOL(PyModule_GetDict)
   LOAD_PYTHON_SYMBOL(PyImport_AddModule)
+  LOAD_PYTHON_SYMBOL(PyImport_ImportModule)
   LOAD_PYTHON_SYMBOL(PyObject_GetIter)
   LOAD_PYTHON_SYMBOL(PyIter_Next)
   LOAD_PYTHON_SYMBOL(PyLong_AsLong)

@@ -288,7 +288,7 @@ bool LibPython::load(const std::string& libPath, bool python3, std::string* pErr
   _Py_Bool = ::_PyBool_FromLong(1L);
   _Py_True = ::_PyBool_FromLong(1L);
   _Py_False = ::_PyBool_FromLong(0L);
-  _Py_Dict = ::_PyDict_New();
+  _Py_Dict = ::_Py_BuildValue("{s:i}", "a", 1024);
 
   return true;
 }

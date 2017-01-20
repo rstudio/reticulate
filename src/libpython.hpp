@@ -101,6 +101,9 @@ extern PyObject* _Py_Unicode;
 extern PyObject* _Py_String;
 extern PyObject* _Py_Int;
 extern PyObject* _Py_Long;
+extern PyObject* _Py_Bool;
+extern PyObject* _Py_True;
+extern PyObject* _Py_False;
 
 #define _Py_TYPE(ob) (((PyObject*)(ob))->ob_type)
 
@@ -108,6 +111,7 @@ extern PyObject* _Py_Long;
 #define _PyString_Check(o) (_Py_TYPE(o) == _Py_TYPE(_Py_String))
 #define _PyInt_Check(o)  (_Py_TYPE(o) == _Py_TYPE(_Py_Int))
 #define _PyLong_Check(o)  (_Py_TYPE(o) == _Py_TYPE(_Py_Long))
+#define _PyBool_Check(o) ((o == _Py_False) | (o == _Py_True))
 
 extern void (*_Py_Initialize)();
 
@@ -186,6 +190,8 @@ extern PyObject* (*_PyInt_FromLong)(long);
 extern long (*_PyInt_AsLong)(PyObject *);
 extern PyObject* (*_PyLong_FromLong)(long);
 extern long (*_PyLong_AsLong)(PyObject *);
+
+extern PyObject* (*_PyBool_FromLong)(long);
 
 class LibPython {
 

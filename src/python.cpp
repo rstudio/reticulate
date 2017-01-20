@@ -278,7 +278,7 @@ std::string py_fetch_error() {
 // check whether the PyObject can be mapped to an R scalar type
 int r_scalar_type(PyObject* x) {
 
-  if (PyBool_Check(x))
+  if (_PyBool_Check(x))
     return LGLSXP;
 
   // integer
@@ -393,7 +393,7 @@ SEXP py_to_r(PyObject* x) {
   if (scalarType != NILSXP) {
     // logical
     if (scalarType == LGLSXP)
-      return LogicalVector::create(x == Py_True);
+      return LogicalVector::create(x == _Py_True);
 
     // integer
     else if (scalarType == INTSXP)
@@ -447,7 +447,7 @@ SEXP py_to_r(PyObject* x) {
     } else if (scalarType == LGLSXP) {
       Rcpp::LogicalVector vec(len);
       for (Py_ssize_t i = 0; i<len; i++)
-        vec[i] = _PyList_GetItem(x, i) == Py_True;
+        vec[i] = _PyList_GetItem(x, i) == _Py_True;
       return vec;
     } else if (scalarType == STRSXP) {
       Rcpp::CharacterVector vec(len);
@@ -750,13 +750,13 @@ PyObject* r_to_py(RObject x) {
   } else if (type == LGLSXP) {
     if (LENGTH(sexp) == 1) {
       int value = LOGICAL(sexp)[0];
-      return ::PyBool_FromLong(value);
+      return ::_PyBool_FromLong(value);
     } else {
       PyObjectPtr list(_PyList_New(LENGTH(sexp)));
       for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
         int value = LOGICAL(sexp)[i];
         // NOTE: reference to added value is "stolen" by the list
-        int res = ::_PyList_SetItem(list, i, ::PyBool_FromLong(value));
+        int res = ::_PyList_SetItem(list, i, ::_PyBool_FromLong(value));
         if (res != 0)
           stop(py_fetch_error());
       }
@@ -1031,7 +1031,7 @@ IntegerVector py_get_attribute_types(
       types[i] = LIST;
     else if (PyArray_Check(attr))
       types[i] = ARRAY;
-    else if (PyBool_Check(attr)   ||
+    else if (_PyBool_Check(attr)   ||
              _PyInt_Check(attr)    ||
              _PyLong_Check(attr)   ||
              PyFloat_Check(attr)  ||

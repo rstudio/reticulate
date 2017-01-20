@@ -184,11 +184,17 @@ long (*_PyInt_AsLong)(PyObject *);
 PyObject* (*_PyLong_FromLong)(long);
 long (*_PyLong_AsLong)(PyObject *);
 
+PyObject* (*_PyBool_FromLong)(long);
+
 PyObject* _Py_None;
 PyObject* _Py_Unicode;
 PyObject* _Py_String;
 PyObject* _Py_Int;
 PyObject* _Py_Long;
+PyObject* _Py_Bool;
+PyObject* _Py_True;
+PyObject* _Py_False;
+
 
 #define LOAD_PYTHON_SYMBOL_AS(name, as)             \
 if (!loadSymbol(pLib_, #name, (void**)&as, pError)) \
@@ -229,6 +235,7 @@ bool LibPython::load(const std::string& libPath, bool python3, std::string* pErr
   LOAD_PYTHON_SYMBOL(PyIter_Next)
   LOAD_PYTHON_SYMBOL(PyLong_AsLong)
   LOAD_PYTHON_SYMBOL(PyLong_FromLong)
+  LOAD_PYTHON_SYMBOL(PyBool_FromLong)
 
   if (python3) {
     LOAD_PYTHON_SYMBOL(PyModule_Create2)
@@ -267,6 +274,9 @@ bool LibPython::load(const std::string& libPath, bool python3, std::string* pErr
 
   _Py_Int = ::_PyInt_FromLong(1024L);
   _Py_Long = ::_PyLong_FromLong(1024L);
+  _Py_Bool = ::_PyBool_FromLong(1L);
+  _Py_True = ::_PyBool_FromLong(1L);
+  _Py_False = ::_PyBool_FromLong(0L);
 
   return true;
 }

@@ -166,7 +166,7 @@ bool is_python_str(PyObject* x) {
 
 // check whether a PyObject is None
 bool py_is_none(PyObject* object) {
-  return object == &::_Py_NoneStruct;
+  return object == _Py_None;
 }
 
 std::string as_r_class(PyObject* classPtr) {

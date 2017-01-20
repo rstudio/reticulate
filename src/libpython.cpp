@@ -116,6 +116,8 @@ PyObject* (*_Py_InitModule4)(const char *name, _PyMethodDef *methods,
 void (*_Py_IncRef)(PyObject *);
 void (*_Py_DecRef)(PyObject *);
 
+PyObject* (*_Py_BuildValue)(const char *format, ...);
+
 PyObject* (*__PyObject_Str)(PyObject *);
 
 PyObject* (*_PyObject_Dir)(PyObject *);
@@ -161,6 +163,9 @@ void (*_PySys_SetArgv)(int, char **);
 
 PyObject* (*_PyCapsule_New)(void *pointer, const char *name, _PyCapsule_Destructor destructor);
 void* (*_PyCapsule_GetPointer)(PyObject *capsule, const char *name);
+
+PyObject* _Py_None;
+
 
 #define LOAD_PYTHON_SYMBOL_AS(name, as)             \
 if (!loadSymbol(pLib_, #name, (void**)&as, pError)) \
@@ -214,7 +219,10 @@ bool LibPython::load(const std::string& libPath, bool python3, std::string* pErr
   }
   LOAD_PYTHON_SYMBOL(PyCapsule_New)
   LOAD_PYTHON_SYMBOL(PyCapsule_GetPointer)
+  LOAD_PYTHON_SYMBOL(Py_BuildValue)
 
+
+  _Py_None = _Py_BuildValue("z", NULL);
 
   return true;
 }

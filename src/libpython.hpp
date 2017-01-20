@@ -100,11 +100,16 @@ typedef struct _PyModuleDef{
 
 
 
+extern PyObject* _Py_None;
+
+
 extern void (*_Py_Initialize)();
 
 extern PyObject* (*_Py_InitModule4)(const char *name, _PyMethodDef *methods,
            const char *doc, PyObject *self,
            int apiver);
+
+extern PyObject* (*_Py_BuildValue)(const char *format, ...);
 
 extern void (*_Py_IncRef)(PyObject *);
 extern void (*_Py_DecRef)(PyObject *);

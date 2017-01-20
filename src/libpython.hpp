@@ -140,6 +140,16 @@ extern int (*_PyString_AsStringAndSize)(
 extern PyObject* (*_PyString_FromString)(const char *);
 extern PyObject* (*_PyString_FromStringAndSize)(const char *, Py_ssize_t);
 
+extern PyObject* (*_PyUnicode_EncodeLocale)(PyObject *unicode, const char *errors);
+extern int (*_PyBytes_AsStringAndSize)(
+    PyObject *obj,      /* string or Unicode object */
+    char **s,           /* pointer to buffer variable */
+    Py_ssize_t *len     /* pointer to length variable or NULL
+  (only possible for 0-terminated
+  strings) */
+);
+extern PyObject* (*_PyBytes_FromStringAndSize)(const char *, Py_ssize_t);
+extern PyObject* (*_PyUnicode_FromString)(const char *u);
 
 extern void (*_PyErr_Fetch)(PyObject **, PyObject **, PyObject **);
 extern PyObject* (*_PyErr_Occurred)(void);

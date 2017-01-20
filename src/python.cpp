@@ -61,6 +61,7 @@ template<typename T>
 class PyPtr {
 public:
   // attach on creation, decref on destruction
+  PyPtr() : object_(NULL) {}
   explicit PyPtr(T* object) : object_(object) {}
   virtual ~PyPtr() {
     if (object_ != NULL)
@@ -70,6 +71,8 @@ public:
   operator T*() const { return object_; }
 
   T* get() const { return object_; }
+
+  void assign(T* object) { object_ = object; }
 
   T* detach() {
     T* object = object_;
@@ -92,62 +95,62 @@ typedef PyPtr<PyObject> PyObjectPtr;
 typedef PyPtr<PyArray_Descr> PyArray_DescrPtr;
 
 std::string as_std_string(PyObject* str) {
-#ifdef PYTHON_3
-  // python3 requires that we turn PyUnicode into PyBytes before
-  // we call PyBytes_AsStringAndSize (whereas python2 would
-  // automatically handle unicode in PyBytes_AsStringAndSize)
-  str = ::PyUnicode_EncodeLocale(str, "strict");
-  PyObjectPtr pStr(str);
-#endif
+
+  PyObjectPtr pStr;
+  if (isPython3()) {
+    // python3 requires that we turn PyUnicode into PyBytes before
+    // we call PyBytes_AsStringAndSize (whereas python2 would
+    // automatically handle unicode in PyBytes_AsStringAndSize)
+    str = ::_PyUnicode_EncodeLocale(str, "strict");
+    pStr.assign(str);
+  }
 
   char* buffer;
   Py_ssize_t length;
-#ifdef PYTHON_3
-  // python3 doesn't have PyString_* APIs, so we use the converted bytes
-  if (::PyBytes_AsStringAndSize(str, &buffer, &length) == -1)
-#else
-  if (::_PyString_AsStringAndSize(str, &buffer, &length) == -1)
-#endif
+  int res = isPython3() ?
+    ::_PyBytes_AsStringAndSize(str, &buffer, &length) :
+    ::_PyString_AsStringAndSize(str, &buffer, &length);
+  if (res == -1)
     stop(py_fetch_error());
+
   return std::string(buffer, length);
 }
 
 PyObject* as_python_bytes(Rbyte* bytes, size_t len) {
-#ifdef PYTHON_3
-  return PyBytes_FromStringAndSize((const char*)bytes, len);
-#else
-  return _PyString_FromStringAndSize((const char*)bytes, len);
-#endif
+  if (isPython3())
+    return ::_PyBytes_FromStringAndSize((const char*)bytes, len);
+  else
+    return ::_PyString_FromStringAndSize((const char*)bytes, len);
 }
 
 PyObject* as_python_str(SEXP strSEXP) {
-#ifdef PYTHON_3
-  // python3 doesn't have PyString and all strings are unicode so
-  // make sure we get a unicode representation from R
-  const char * value = Rf_translateCharUTF8(strSEXP);
-  return PyUnicode_FromString(value);
-#else
-  const char * value = Rf_translateChar(strSEXP);
-  return _PyString_FromString(value);
-#endif
+  if (isPython3()) {
+    // python3 doesn't have PyString and all strings are unicode so
+    // make sure we get a unicode representation from R
+    const char * value = Rf_translateCharUTF8(strSEXP);
+    return ::_PyUnicode_FromString(value);
+  } else {
+    const char * value = Rf_translateChar(strSEXP);
+    return ::_PyString_FromString(value);
+  }
 }
 
 bool has_null_bytes(PyObject* str) {
-#ifdef PYTHON_3
-  // python3 requires that we turn PyUnicode into PyBytes before
-  // we call PyBytes_AsStringAndSize (whereas python2 would
-  // automatically handle unicode in PyBytes_AsStringAndSize)
-  str = ::PyUnicode_EncodeLocale(str, "strict");
-  PyObjectPtr pStr(str);
-#endif
+
+  PyObjectPtr pStr;
+  if (isPython3()) {
+    // python3 requires that we turn PyUnicode into PyBytes before
+    // we call PyBytes_AsStringAndSize (whereas python2 would
+    // automatically handle unicode in PyBytes_AsStringAndSize)
+    str = ::_PyUnicode_EncodeLocale(str, "strict");
+    pStr.assign(str);
+  }
 
   char* buffer;
-#ifdef PYTHON_3
-  // python3 doesn't have PyString_* APIs, so we use the converted bytes
-  if (::PyBytes_AsStringAndSize(str, &buffer, NULL) == -1) {
-#else
-  if (::_PyString_AsStringAndSize(str, &buffer, NULL) == -1) {
-#endif
+  int res = isPython3() ?
+    ::_PyBytes_AsStringAndSize(str, &buffer, NULL) :
+    ::_PyString_AsStringAndSize(str, &buffer, NULL);
+  if (res == -1) {
     py_fetch_error();
     return true;
   } else {
@@ -886,8 +889,6 @@ _PyMethodDef TFCallMethods[] = {
   { NULL, NULL, 0, NULL }
 };
 
-#ifdef PYTHON_3
-
 static struct _PyModuleDef TFCallModuleDef = {
   _PyModuleDef_HEAD_INIT,
   "tfcall",
@@ -903,11 +904,6 @@ static struct _PyModuleDef TFCallModuleDef = {
 extern "C" PyObject* initializeTFCall(void) {
   return ::_PyModule_Create2(&TFCallModuleDef, _PYTHON3_ABI_VERSION);
 }
-
-#endif
-
-
-
 
 // [[Rcpp::export]]
 void py_initialize(const std::string& pythonSharedLibrary) {

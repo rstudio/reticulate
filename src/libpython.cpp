@@ -147,6 +147,17 @@ int (*_PyString_AsStringAndSize)(
 PyObject* (*_PyString_FromString)(const char *);
 PyObject* (*_PyString_FromStringAndSize)(const char *, Py_ssize_t);
 
+PyObject* (*_PyUnicode_EncodeLocale)(PyObject *unicode, const char *errors);
+int (*_PyBytes_AsStringAndSize)(
+    PyObject *obj,      /* string or Unicode object */
+    char **s,           /* pointer to buffer variable */
+    Py_ssize_t *len     /* pointer to length variable or NULL
+ (only possible for 0-terminated
+ strings) */
+);
+PyObject* (*_PyBytes_FromStringAndSize)(const char *, Py_ssize_t);
+PyObject* (*_PyUnicode_FromString)(const char *u);
+
 void (*_PyErr_Fetch)(PyObject **, PyObject **, PyObject **);
 PyObject* (*_PyErr_Occurred)(void);
 void (*_PyErr_NormalizeException)(PyObject**, PyObject**, PyObject**);
@@ -213,6 +224,10 @@ bool LibPython::load(const std::string& libPath, bool python3, std::string* pErr
     LOAD_PYTHON_SYMBOL(PyModule_Create2)
     LOAD_PYTHON_SYMBOL(PyImport_AppendInittab)
     LOAD_PYTHON_SYMBOL_AS(PySys_SetArgv, _PySys_SetArgv_v3)
+    LOAD_PYTHON_SYMBOL(PyUnicode_EncodeLocale)
+    LOAD_PYTHON_SYMBOL(PyBytes_AsStringAndSize)
+    LOAD_PYTHON_SYMBOL(PyBytes_FromStringAndSize)
+    LOAD_PYTHON_SYMBOL(PyUnicode_FromString)
   } else {
     if (is64bit) {
       LOAD_PYTHON_SYMBOL_AS(Py_InitModule4_64, _Py_InitModule4)

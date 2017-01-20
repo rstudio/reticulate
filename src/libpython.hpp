@@ -24,54 +24,50 @@ typedef struct _object PyObject;
 #define __PyObject_HEAD_EXTRA
 #define __PyObject_EXTRA_INIT
 
-/* PyObject_HEAD defines the initial segment of every PyObject. */
-#define _PyObject_HEAD                   \
-__PyObject_HEAD_EXTRA                    \
-  Py_ssize_t ob_refcnt;                 \
+#define _PyObject_HEAD  \
+__PyObject_HEAD_EXTRA   \
+  Py_ssize_t ob_refcnt; \
 struct __typeobject *ob_type;
 
 #define _PyObject_VAR_HEAD               \
 _PyObject_HEAD                           \
-  Py_ssize_t ob_size; /* Number of items in variable part */
+  Py_ssize_t ob_size;
 
 typedef struct __typeobject {
-  _PyObject_VAR_HEAD
-  const char *tp_name; /* For printing, in format "<module>.<name>" */
-Py_ssize_t tp_basicsize, tp_itemsize; /* For allocation */
-
+_PyObject_VAR_HEAD
+  const char *tp_name;
+  Py_ssize_t tp_basicsize, tp_itemsize;
 } _PyTypeObject;
 
 typedef struct __object {
-  _PyObject_HEAD
+_PyObject_HEAD
 } _PyObject;
 
 typedef struct {
-  _PyObject_VAR_HEAD
+_PyObject_VAR_HEAD
 } _PyVarObject;
 
 typedef _PyObject *(*_PyCFunction)(PyObject *, PyObject *);
 
-struct _PyMethodDef { // Is the same for Python 3.4 and 2.7
-  const char	*ml_name;	/* The name of the built-in function/method */
-_PyCFunction  ml_meth;	/* The C function that implements it */
-int		 ml_flags;	/* Combination of METH_xxx flags, which mostly
-describe the args expected by the C func */
-const char	*ml_doc;	/* The __doc__ attribute, or NULL */
+struct _PyMethodDef {
+  const char	*ml_name;
+  _PyCFunction  ml_meth;
+  int		 ml_flags;
+  const char	*ml_doc;
 };
 typedef struct _PyMethodDef _PyMethodDef;
 
-// For Python 3 we need different initialization macros
-#define _PyObject_HEAD3                   _PyObject ob_base;
+#define _PyObject_HEAD3 _PyObject ob_base;
 
-#define _PyObject_HEAD_INIT(type)        \
-{ __PyObject_EXTRA_INIT                  \
+#define _PyObject_HEAD_INIT(type) \
+{ __PyObject_EXTRA_INIT           \
   1, type },
 
 #define _PyModuleDef_HEAD_INIT { \
-_PyObject_HEAD_INIT(NULL)        \
-  NULL, /* m_init */            \
-0,    /* m_index */             \
-NULL, /* m_copy */              \
+_PyObject_HEAD_INIT(NULL) \
+  NULL, \
+  0, \
+  NULL, \
 }
 
 typedef int (*_inquiry)(PyObject *);

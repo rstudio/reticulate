@@ -96,15 +96,18 @@ typedef struct _PyModuleDef{
 } _PyModuleDef;
 
 
-
 extern PyObject* _Py_None;
 extern PyObject* _Py_Unicode;
 extern PyObject* _Py_String;
+extern PyObject* _Py_Int;
+extern PyObject* _Py_Long;
 
 #define _Py_TYPE(ob) (((PyObject*)(ob))->ob_type)
 
 #define _PyUnicode_Check(o) (_Py_TYPE(o) == _Py_TYPE(_Py_Unicode))
 #define _PyString_Check(o) (_Py_TYPE(o) == _Py_TYPE(_Py_String))
+#define _PyInt_Check(o)  (_Py_TYPE(o) == _Py_TYPE(_Py_Int))
+#define _PyLong_Check(o)  (_Py_TYPE(o) == _Py_TYPE(_Py_Long))
 
 extern void (*_Py_Initialize)();
 

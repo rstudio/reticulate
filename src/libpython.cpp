@@ -187,6 +187,8 @@ long (*_PyLong_AsLong)(PyObject *);
 PyObject* _Py_None;
 PyObject* _Py_Unicode;
 PyObject* _Py_String;
+PyObject* _Py_Int;
+PyObject* _Py_Long;
 
 #define LOAD_PYTHON_SYMBOL_AS(name, as)             \
 if (!loadSymbol(pLib_, #name, (void**)&as, pError)) \
@@ -262,6 +264,9 @@ bool LibPython::load(const std::string& libPath, bool python3, std::string* pErr
     _Py_String = _Py_BuildValue("y", "a");
   else
     _Py_String = _Py_BuildValue("s", "a");
+
+  _Py_Int = ::_PyInt_FromLong(1024L);
+  _Py_Long = ::_PyLong_FromLong(1024L);
 
   return true;
 }

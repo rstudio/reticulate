@@ -3,12 +3,6 @@
 
 #include "libpython.hpp"
 
-
-#if PY_MAJOR_VERSION >= 3
-// PyInt is gone in python3 so alias to PyLong
-#define PyInt_Check PyLong_Check
-#endif
-
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 #include <numpy/arrayobject.h>
 #include <numpy/ndarraytypes.h>
@@ -288,7 +282,7 @@ int r_scalar_type(PyObject* x) {
     return LGLSXP;
 
   // integer
-  else if (PyInt_Check(x) || PyLong_Check(x))
+  else if (_PyInt_Check(x) || _PyLong_Check(x))
     return INTSXP;
 
   // double
@@ -1038,8 +1032,8 @@ IntegerVector py_get_attribute_types(
     else if (PyArray_Check(attr))
       types[i] = ARRAY;
     else if (PyBool_Check(attr)   ||
-             PyInt_Check(attr)    ||
-             PyLong_Check(attr)   ||
+             _PyInt_Check(attr)    ||
+             _PyLong_Check(attr)   ||
              PyFloat_Check(attr)  ||
              is_python_str(attr))
       types[i] = VECTOR;

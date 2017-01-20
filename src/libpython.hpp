@@ -21,15 +21,83 @@ typedef struct _object PyObject;
 #define METH_VARARGS  0x0001
 #define METH_KEYWORDS 0x0002
 
-typedef PyObject *(*_PyCFunction)(PyObject *, PyObject *);
-struct _PyMethodDef {
+#define __PyObject_HEAD_EXTRA
+#define __PyObject_EXTRA_INIT
+
+/* PyObject_HEAD defines the initial segment of every PyObject. */
+#define _PyObject_HEAD                   \
+__PyObject_HEAD_EXTRA                    \
+  Py_ssize_t ob_refcnt;                 \
+struct __typeobject *ob_type;
+
+#define _PyObject_VAR_HEAD               \
+_PyObject_HEAD                           \
+  Py_ssize_t ob_size; /* Number of items in variable part */
+
+typedef struct __typeobject {
+  _PyObject_VAR_HEAD
+  const char *tp_name; /* For printing, in format "<module>.<name>" */
+Py_ssize_t tp_basicsize, tp_itemsize; /* For allocation */
+
+} _PyTypeObject;
+
+typedef struct __object {
+  _PyObject_HEAD
+} _PyObject;
+
+typedef struct {
+  _PyObject_VAR_HEAD
+} _PyVarObject;
+
+typedef _PyObject *(*_PyCFunction)(PyObject *, PyObject *);
+
+struct _PyMethodDef { // Is the same for Python 3.4 and 2.7
   const char	*ml_name;	/* The name of the built-in function/method */
-  _PyCFunction  ml_meth;	/* The C function that implements it */
-  int		 ml_flags;	/* Combination of METH_xxx flags, which mostly
- describe the args expected by the C func */
-  const char	*ml_doc;	/* The __doc__ attribute, or NULL */
+_PyCFunction  ml_meth;	/* The C function that implements it */
+int		 ml_flags;	/* Combination of METH_xxx flags, which mostly
+describe the args expected by the C func */
+const char	*ml_doc;	/* The __doc__ attribute, or NULL */
 };
 typedef struct _PyMethodDef _PyMethodDef;
+
+// For Python 3 we need different initialization macros
+#define _PyObject_HEAD3                   _PyObject ob_base;
+
+#define _PyObject_HEAD_INIT(type)        \
+{ __PyObject_EXTRA_INIT                  \
+  1, type },
+
+#define _PyModuleDef_HEAD_INIT { \
+_PyObject_HEAD_INIT(NULL)        \
+  NULL, /* m_init */            \
+0,    /* m_index */             \
+NULL, /* m_copy */              \
+}
+
+typedef int (*_inquiry)(PyObject *);
+typedef int (*_visitproc)(PyObject *, void *);
+typedef int (*_traverseproc)(PyObject *, _visitproc, void *);
+typedef void (*_freefunc)(void *);
+
+typedef struct _PyModuleDef_Base {
+  _PyObject_HEAD3
+  _PyObject* (*m_init)(void);
+  Py_ssize_t m_index;
+  _PyObject* m_copy;
+} _PyModuleDef_Base;
+
+typedef struct _PyModuleDef{
+  _PyModuleDef_Base m_base;
+  const char* m_name;
+  const char* m_doc;
+  Py_ssize_t m_size;
+  _PyMethodDef *m_methods;
+  _inquiry m_reload;
+  _traverseproc m_traverse;
+  _inquiry m_clear;
+  _freefunc m_free;
+} _PyModuleDef;
+
 
 
 extern void (*_Py_Initialize)();

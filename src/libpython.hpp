@@ -105,6 +105,7 @@ extern PyObject* _Py_Bool;
 extern PyObject* _Py_True;
 extern PyObject* _Py_False;
 extern PyObject* _Py_Dict;
+extern PyObject* _Py_Float;
 
 #define _Py_TYPE(ob) (((PyObject*)(ob))->ob_type)
 
@@ -114,6 +115,7 @@ extern PyObject* _Py_Dict;
 #define _PyLong_Check(o)  (_Py_TYPE(o) == _Py_TYPE(_Py_Long))
 #define _PyBool_Check(o) ((o == _Py_False) | (o == _Py_True))
 #define _PyDict_Check(o) (_Py_TYPE(o) == _Py_TYPE(_Py_Dict))
+#define _PyFloat_Check(o) (_Py_TYPE(o) == _Py_TYPE(_Py_Float))
 
 extern void (*_Py_Initialize)();
 
@@ -200,6 +202,9 @@ extern PyObject* (*_PyLong_FromLong)(long);
 extern long (*_PyLong_AsLong)(PyObject *);
 
 extern PyObject* (*_PyBool_FromLong)(long);
+
+extern PyObject* (*_PyFloat_FromDouble)(double);
+extern double (*_PyFloat_AsDouble)(PyObject *);
 
 class LibPython {
 

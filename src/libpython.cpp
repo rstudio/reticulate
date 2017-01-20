@@ -192,6 +192,9 @@ long (*_PyLong_AsLong)(PyObject *);
 
 PyObject* (*_PyBool_FromLong)(long);
 
+PyObject* (*_PyFloat_FromDouble)(double);
+double (*_PyFloat_AsDouble)(PyObject *);
+
 PyObject* _Py_None;
 PyObject* _Py_Unicode;
 PyObject* _Py_String;
@@ -201,6 +204,7 @@ PyObject* _Py_Bool;
 PyObject* _Py_True;
 PyObject* _Py_False;
 PyObject* _Py_Dict;
+PyObject* _Py_Float;
 
 
 #define LOAD_PYTHON_SYMBOL_AS(name, as)             \
@@ -247,6 +251,8 @@ bool LibPython::load(const std::string& libPath, bool python3, std::string* pErr
   LOAD_PYTHON_SYMBOL(PyDict_SetItem)
   LOAD_PYTHON_SYMBOL(PyDict_SetItemString)
   LOAD_PYTHON_SYMBOL_AS(PyDict_Next, __PyDict_Next)
+  LOAD_PYTHON_SYMBOL(PyFloat_AsDouble)
+  LOAD_PYTHON_SYMBOL(PyFloat_FromDouble)
 
   if (python3) {
     LOAD_PYTHON_SYMBOL(PyModule_Create2)
@@ -289,6 +295,7 @@ bool LibPython::load(const std::string& libPath, bool python3, std::string* pErr
   _Py_True = ::_PyBool_FromLong(1L);
   _Py_False = ::_PyBool_FromLong(0L);
   _Py_Dict = ::_PyDict_New();
+  _Py_Float = ::_PyFloat_FromDouble(0.0);
 
   return true;
 }

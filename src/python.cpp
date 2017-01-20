@@ -286,7 +286,7 @@ int r_scalar_type(PyObject* x) {
     return INTSXP;
 
   // double
-  else if (PyFloat_Check(x))
+  else if (_PyFloat_Check(x))
     return REALSXP;
 
   // complex
@@ -401,7 +401,7 @@ SEXP py_to_r(PyObject* x) {
 
     // double
     else if (scalarType == REALSXP)
-      return NumericVector::create(PyFloat_AsDouble(x));
+      return NumericVector::create(_PyFloat_AsDouble(x));
 
     // complex
     else if (scalarType == CPLXSXP) {
@@ -427,7 +427,7 @@ SEXP py_to_r(PyObject* x) {
     if (scalarType == REALSXP) {
       Rcpp::NumericVector vec(len);
       for (Py_ssize_t i = 0; i<len; i++)
-        vec[i] = PyFloat_AsDouble(_PyList_GetItem(x, i));
+        vec[i] = _PyFloat_AsDouble(_PyList_GetItem(x, i));
       return vec;
     } else if (scalarType == INTSXP) {
       Rcpp::IntegerVector vec(len);
@@ -715,13 +715,13 @@ PyObject* r_to_py(RObject x) {
   } else if (type == REALSXP) {
     if (LENGTH(sexp) == 1) {
       double value = REAL(sexp)[0];
-      return ::PyFloat_FromDouble(value);
+      return ::_PyFloat_FromDouble(value);
     } else {
       PyObjectPtr list(_PyList_New(LENGTH(sexp)));
       for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
         double value = REAL(sexp)[i];
         // NOTE: reference to added value is "stolen" by the list
-        int res = ::_PyList_SetItem(list, i, ::PyFloat_FromDouble(value));
+        int res = ::_PyList_SetItem(list, i, ::_PyFloat_FromDouble(value));
         if (res != 0)
           stop(py_fetch_error());
       }
@@ -1034,7 +1034,7 @@ IntegerVector py_get_attribute_types(
     else if (_PyBool_Check(attr)   ||
              _PyInt_Check(attr)    ||
              _PyLong_Check(attr)   ||
-             PyFloat_Check(attr)  ||
+             _PyFloat_Check(attr)  ||
              is_python_str(attr))
       types[i] = VECTOR;
     else if (PyObject_IsInstance(attr, (PyObject*)&PyModule_Type))

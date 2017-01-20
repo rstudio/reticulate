@@ -968,7 +968,7 @@ bool py_is_callable(PyObjectXPtr x) {
 
 // [[Rcpp::export]]
 bool py_is_function(PyObjectXPtr x) {
-  return PyFunction_Check(x) == 1;
+  return _PyFunction_Check(x) == 1;
 }
 
 // [[Rcpp::export]]

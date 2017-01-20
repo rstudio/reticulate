@@ -96,6 +96,8 @@ typedef struct _PyModuleDef{
 } _PyModuleDef;
 
 
+extern _PyTypeObject* _PyFunction_Type;
+
 extern PyObject* _Py_None;
 extern PyObject* _Py_Unicode;
 extern PyObject* _Py_String;
@@ -116,6 +118,7 @@ extern PyObject* _Py_Float;
 #define _PyBool_Check(o) ((o == _Py_False) | (o == _Py_True))
 #define _PyDict_Check(o) (_Py_TYPE(o) == _Py_TYPE(_Py_Dict))
 #define _PyFloat_Check(o) (_Py_TYPE(o) == _Py_TYPE(_Py_Float))
+#define _PyFunction_Check(op) ((_PyTypeObject*)(_Py_TYPE(op)) == _PyFunction_Type)
 
 extern void (*_Py_Initialize)();
 

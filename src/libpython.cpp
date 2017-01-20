@@ -206,6 +206,8 @@ PyObject* _Py_False;
 PyObject* _Py_Dict;
 PyObject* _Py_Float;
 
+_PyTypeObject* _PyFunction_Type;
+
 
 #define LOAD_PYTHON_SYMBOL_AS(name, as)             \
 if (!loadSymbol(pLib_, #name, (void**)&as, pError)) \
@@ -253,6 +255,7 @@ bool LibPython::load(const std::string& libPath, bool python3, std::string* pErr
   LOAD_PYTHON_SYMBOL_AS(PyDict_Next, __PyDict_Next)
   LOAD_PYTHON_SYMBOL(PyFloat_AsDouble)
   LOAD_PYTHON_SYMBOL(PyFloat_FromDouble)
+  LOAD_PYTHON_SYMBOL_AS(PyFunction_Type, _PyFunction_Type)
 
   if (python3) {
     LOAD_PYTHON_SYMBOL(PyModule_Create2)

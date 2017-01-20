@@ -180,7 +180,8 @@ PyObject* (*_PyCapsule_New)(void *pointer, const char *name, _PyCapsule_Destruct
 void* (*_PyCapsule_GetPointer)(PyObject *capsule, const char *name);
 
 PyObject* _Py_None;
-
+PyObject* _Py_Unicode;
+PyObject* _Py_String;
 
 #define LOAD_PYTHON_SYMBOL_AS(name, as)             \
 if (!loadSymbol(pLib_, #name, (void**)&as, pError)) \
@@ -245,6 +246,11 @@ bool LibPython::load(const std::string& libPath, bool python3, std::string* pErr
 
 
   _Py_None = _Py_BuildValue("z", NULL);
+  _Py_Unicode = _Py_BuildValue("u", "a");
+  if (python3)
+    _Py_String = _Py_BuildValue("y", "a");
+  else
+    _Py_String = _Py_BuildValue("s", "a");
 
   return true;
 }

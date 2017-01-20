@@ -5,12 +5,10 @@
 
 
 #if PY_MAJOR_VERSION >= 3
-#define PYTHON_3
 // PyInt is gone in python3 so alias to PyLong
 #define PyInt_Check PyLong_Check
 #define PyInt_AsLong PyLong_AsLong
 #define PyInt_FromLong PyLong_FromLong
-// Python arguments array becomes whcar_t in python3
 #endif
 
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
@@ -27,10 +25,10 @@ using namespace Rcpp;
 #include "tensorflow_types.hpp"
 
 bool isPython3() {
-#ifdef PYTHON_3
+#if PY_MAJOR_VERSION >= 3
   return true;
 #else
-  return false
+  return false;
 #endif
 }
 
@@ -160,16 +158,14 @@ bool has_null_bytes(PyObject* str) {
 
 bool is_python_str(PyObject* x) {
 
-  if (PyUnicode_Check(x) && !has_null_bytes(x))
+  if (_PyUnicode_Check(x) && !has_null_bytes(x))
     return true;
 
-#ifndef PYTHON_3
   // python3 doesn't have PyString_* so mask it out (all strings in
   // python3 will get caught by PyUnicode_Check, we'll ignore
   // PyBytes entirely and let it remain a python object)
-  else if (PyString_Check(x) && !has_null_bytes(x))
+  else if (!isPython3() && _PyString_Check(x) && !has_null_bytes(x))
     return true;
-#endif
 
   else
     return false;

@@ -26,8 +26,6 @@ using namespace Rcpp;
 
 #include "tensorflow_types.hpp"
 
-LibPython s_libPython;
-
 // forward declare error handling utility
 std::string py_fetch_error();
 
@@ -907,7 +905,7 @@ extern "C" PyObject* initializeTFCall(void) {
 void py_initialize(const std::string& pythonSharedLibrary) {
 
   std::string err;
-  if (!s_libPython.load(pythonSharedLibrary, false, &err))
+  if (!libPython().load(pythonSharedLibrary, false, &err))
     stop(err);
 
 #ifdef PYTHON_3

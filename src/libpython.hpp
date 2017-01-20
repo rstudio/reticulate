@@ -160,14 +160,21 @@ extern void* (*_PyCapsule_GetPointer)(PyObject *capsule, const char *name);
 class LibPython {
 
 public:
-  LibPython() : pLib_(NULL) {}
   bool load(const std::string& libPath, bool python3, std::string* pError);
   bool unload(std::string* pError);
 
 private:
+  friend LibPython& libPython();
+  LibPython() : pLib_(NULL) {}
   LibPython(const LibPython&);
   void* pLib_;
 };
+
+inline LibPython& libPython() {
+  static LibPython instance;
+  return instance;
+}
+
 
 #endif
 

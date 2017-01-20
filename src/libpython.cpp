@@ -130,6 +130,9 @@ int (*_PyObject_HasAttrString)(PyObject*, const char *);
 
 Py_ssize_t (*_PyTuple_Size)(PyObject *);
 PyObject* (*_PyTuple_GetItem)(PyObject *, Py_ssize_t);
+PyObject* (*_PyTuple_New)(Py_ssize_t size);
+int (*_PyTuple_SetItem)(PyObject *, Py_ssize_t, PyObject *);
+PyObject* (*_PyTuple_GetSlice)(PyObject *, Py_ssize_t, Py_ssize_t);
 
 PyObject* (*_PyList_New)(Py_ssize_t size);
 Py_ssize_t (*_PyList_Size)(PyObject *);
@@ -239,6 +242,9 @@ bool LibPython::load(const std::string& libPath, bool python3, std::string* pErr
   LOAD_PYTHON_SYMBOL(PyObject_HasAttrString)
   LOAD_PYTHON_SYMBOL(PyTuple_Size)
   LOAD_PYTHON_SYMBOL(PyTuple_GetItem)
+  LOAD_PYTHON_SYMBOL(PyTuple_New)
+  LOAD_PYTHON_SYMBOL(PyTuple_SetItem)
+  LOAD_PYTHON_SYMBOL(PyTuple_GetSlice)
   LOAD_PYTHON_SYMBOL(PyList_New)
   LOAD_PYTHON_SYMBOL(PyList_Size)
   LOAD_PYTHON_SYMBOL(PyList_GetItem)

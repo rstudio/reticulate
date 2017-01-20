@@ -149,6 +149,9 @@ extern int (*_PyObject_HasAttrString)(PyObject*, const char *);
 
 extern Py_ssize_t (*_PyTuple_Size)(PyObject *);
 extern PyObject* (*_PyTuple_GetItem)(PyObject *, Py_ssize_t);
+extern PyObject* (*_PyTuple_New)(Py_ssize_t size);
+extern int (*_PyTuple_SetItem)(PyObject *, Py_ssize_t, PyObject *);
+extern PyObject* (*_PyTuple_GetSlice)(PyObject *, Py_ssize_t, Py_ssize_t);
 
 extern PyObject* (*_PyList_New)(Py_ssize_t size);
 extern Py_ssize_t (*_PyList_Size)(PyObject *);

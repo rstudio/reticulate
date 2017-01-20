@@ -287,7 +287,7 @@ int r_scalar_type(PyObject* x) {
 
   // double
   else if (_PyFloat_Check(x))
-    return REALSXP;
+    return REALSXP;// [[Rcpp::export]]
 
   // complex
   else if (_PyComplex_Check(x))
@@ -849,10 +849,10 @@ bool py_import_numpy_array_api() {
 extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* keywords)
 {
   // the first argument is always the capsule containing the R function to call
-  SEXP rFunction = r_object_from_capsule(PyTuple_GET_ITEM(args, 0));
+  SEXP rFunction = r_object_from_capsule(::_PyTuple_GetItem(args, 0));
 
   // convert remainder of positional arguments to R list
-  PyObjectPtr funcArgs(::PyTuple_GetSlice(args, 1, ::_PyTuple_Size(args)));
+  PyObjectPtr funcArgs(::_PyTuple_GetSlice(args, 1, ::_PyTuple_Size(args)));
   List rArgs = ::py_to_r(funcArgs);
 
   // get keyword arguments
@@ -1056,11 +1056,11 @@ SEXP py_to_r(PyObjectXPtr x) {
 SEXP py_call(PyObjectXPtr x, List args, List keywords = R_NilValue) {
 
   // unnamed arguments
-  PyObjectPtr pyArgs(::PyTuple_New(args.length()));
+  PyObjectPtr pyArgs(::_PyTuple_New(args.length()));
   for (R_xlen_t i = 0; i<args.size(); i++) {
     PyObject* arg = r_to_py(args.at(i));
     // NOTE: reference to arg is "stolen" by the tuple
-    int res = ::PyTuple_SetItem(pyArgs, i, arg);
+    int res = ::_PyTuple_SetItem(pyArgs, i, arg);
     if (res != 0)
       stop(py_fetch_error());
   }

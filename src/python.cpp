@@ -1037,7 +1037,7 @@ IntegerVector py_get_attribute_types(
              _PyFloat_Check(attr)  ||
              is_python_str(attr))
       types[i] = VECTOR;
-    else if (PyObject_IsInstance(attr, (PyObject*)&PyModule_Type))
+    else if (_PyObject_IsInstance(attr, (PyObject*)_PyModule_Type))
       types[i] = ENVIRONMENT;
     else
       // presume that other types are objects

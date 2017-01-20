@@ -97,6 +97,7 @@ typedef struct _PyModuleDef{
 
 
 extern _PyTypeObject* _PyFunction_Type;
+extern _PyTypeObject* _PyModule_Type;
 
 extern PyObject* _Py_None;
 extern PyObject* _Py_Unicode;
@@ -141,6 +142,8 @@ extern void (*_Py_IncRef)(PyObject *);
 extern void (*_Py_DecRef)(PyObject *);
 
 extern PyObject* (*__PyObject_Str)(PyObject *);
+
+extern int (*_PyObject_IsInstance)(PyObject *object, PyObject *typeorclass);
 
 extern PyObject* (*_PyObject_Dir)(PyObject *);
 

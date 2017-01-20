@@ -122,7 +122,7 @@ void (*_Py_DecRef)(PyObject *);
 PyObject* (*_Py_BuildValue)(const char *format, ...);
 
 PyObject* (*__PyObject_Str)(PyObject *);
-
+int (*_PyObject_IsInstance)(PyObject *object, PyObject *typeorclass);
 PyObject* (*_PyObject_Dir)(PyObject *);
 
 PyObject* (*_PyObject_GetAttrString)(PyObject *, const char *);
@@ -218,6 +218,7 @@ PyObject* _Py_Tuple;
 PyObject* _Py_Complex;
 
 _PyTypeObject* _PyFunction_Type;
+_PyTypeObject* _PyModule_Type;
 
 
 #define LOAD_PYTHON_SYMBOL_AS(name, as)             \
@@ -270,9 +271,11 @@ bool LibPython::load(const std::string& libPath, bool python3, std::string* pErr
   LOAD_PYTHON_SYMBOL(PyFloat_AsDouble)
   LOAD_PYTHON_SYMBOL(PyFloat_FromDouble)
   LOAD_PYTHON_SYMBOL_AS(PyFunction_Type, _PyFunction_Type)
+  LOAD_PYTHON_SYMBOL_AS(PyModule_Type, _PyModule_Type)
   LOAD_PYTHON_SYMBOL(PyComplex_FromDoubles)
   LOAD_PYTHON_SYMBOL(PyComplex_RealAsDouble)
   LOAD_PYTHON_SYMBOL(PyComplex_ImagAsDouble)
+  LOAD_PYTHON_SYMBOL(PyObject_IsInstance)
 
   if (python3) {
     LOAD_PYTHON_SYMBOL(PyModule_Create2)

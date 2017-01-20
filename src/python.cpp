@@ -7,8 +7,6 @@
 #if PY_MAJOR_VERSION >= 3
 // PyInt is gone in python3 so alias to PyLong
 #define PyInt_Check PyLong_Check
-#define PyInt_AsLong PyLong_AsLong
-#define PyInt_FromLong PyLong_FromLong
 #endif
 
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
@@ -405,7 +403,7 @@ SEXP py_to_r(PyObject* x) {
 
     // integer
     else if (scalarType == INTSXP)
-      return IntegerVector::create(PyInt_AsLong(x));
+      return IntegerVector::create(_PyInt_AsLong(x));
 
     // double
     else if (scalarType == REALSXP)
@@ -440,7 +438,7 @@ SEXP py_to_r(PyObject* x) {
     } else if (scalarType == INTSXP) {
       Rcpp::IntegerVector vec(len);
       for (Py_ssize_t i = 0; i<len; i++)
-        vec[i] = PyInt_AsLong(_PyList_GetItem(x, i));
+        vec[i] = ::_PyInt_AsLong(_PyList_GetItem(x, i));
       return vec;
     } else if (scalarType == CPLXSXP) {
       Rcpp::ComplexVector vec(len);
@@ -706,13 +704,13 @@ PyObject* r_to_py(RObject x) {
   } else if (type == INTSXP) {
     if (LENGTH(sexp) == 1) {
       int value = INTEGER(sexp)[0];
-      return ::PyInt_FromLong(value);
+      return ::_PyInt_FromLong(value);
     } else {
       PyObjectPtr list(::_PyList_New(LENGTH(sexp)));
       for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
         int value = INTEGER(sexp)[i];
         // NOTE: reference to added value is "stolen" by the list
-        int res = ::_PyList_SetItem(list, i, ::PyInt_FromLong(value));
+        int res = ::_PyList_SetItem(list, i, ::_PyInt_FromLong(value));
         if (res != 0)
           stop(py_fetch_error());
       }

@@ -179,6 +179,11 @@ void (*_PySys_SetArgv_v3)(int, wchar_t **);
 PyObject* (*_PyCapsule_New)(void *pointer, const char *name, _PyCapsule_Destructor destructor);
 void* (*_PyCapsule_GetPointer)(PyObject *capsule, const char *name);
 
+PyObject* (*_PyInt_FromLong)(long);
+long (*_PyInt_AsLong)(PyObject *);
+PyObject* (*_PyLong_FromLong)(long);
+long (*_PyLong_AsLong)(PyObject *);
+
 PyObject* _Py_None;
 PyObject* _Py_Unicode;
 PyObject* _Py_String;
@@ -220,6 +225,8 @@ bool LibPython::load(const std::string& libPath, bool python3, std::string* pErr
   LOAD_PYTHON_SYMBOL(PyImport_AddModule)
   LOAD_PYTHON_SYMBOL(PyObject_GetIter)
   LOAD_PYTHON_SYMBOL(PyIter_Next)
+  LOAD_PYTHON_SYMBOL(PyLong_AsLong)
+  LOAD_PYTHON_SYMBOL(PyLong_FromLong)
 
   if (python3) {
     LOAD_PYTHON_SYMBOL(PyModule_Create2)
@@ -229,6 +236,8 @@ bool LibPython::load(const std::string& libPath, bool python3, std::string* pErr
     LOAD_PYTHON_SYMBOL(PyBytes_AsStringAndSize)
     LOAD_PYTHON_SYMBOL(PyBytes_FromStringAndSize)
     LOAD_PYTHON_SYMBOL(PyUnicode_FromString)
+    LOAD_PYTHON_SYMBOL_AS(PyLong_AsLong, _PyInt_AsLong)
+    LOAD_PYTHON_SYMBOL_AS(PyLong_FromLong, _PyInt_FromLong)
   } else {
     if (is64bit) {
       LOAD_PYTHON_SYMBOL_AS(Py_InitModule4_64, _Py_InitModule4)
@@ -239,6 +248,8 @@ bool LibPython::load(const std::string& libPath, bool python3, std::string* pErr
     LOAD_PYTHON_SYMBOL(PyString_FromStringAndSize)
     LOAD_PYTHON_SYMBOL(PyString_FromString)
     LOAD_PYTHON_SYMBOL(PySys_SetArgv)
+    LOAD_PYTHON_SYMBOL(PyInt_AsLong)
+    LOAD_PYTHON_SYMBOL(PyInt_FromLong)
   }
   LOAD_PYTHON_SYMBOL(PyCapsule_New)
   LOAD_PYTHON_SYMBOL(PyCapsule_GetPointer)

@@ -179,6 +179,11 @@ typedef void (*_PyCapsule_Destructor)(PyObject *);
 extern PyObject* (*_PyCapsule_New)(void *pointer, const char *name, _PyCapsule_Destructor destructor);
 extern void* (*_PyCapsule_GetPointer)(PyObject *capsule, const char *name);
 
+extern PyObject* (*_PyInt_FromLong)(long);
+extern long (*_PyInt_AsLong)(PyObject *);
+extern PyObject* (*_PyLong_FromLong)(long);
+extern long (*_PyLong_AsLong)(PyObject *);
+
 class LibPython {
 
 public:

@@ -136,6 +136,12 @@ Py_ssize_t (*_PyList_Size)(PyObject *);
 PyObject* (*_PyList_GetItem)(PyObject *, Py_ssize_t);
 int (*_PyList_SetItem)(PyObject *, Py_ssize_t, PyObject *);
 
+PyObject* (*_PyDict_New)(void);
+int (*_PyDict_SetItem)(PyObject *mp, PyObject *key, PyObject *item);
+int (*_PyDict_SetItemString)(PyObject *dp, const char *key, PyObject *item);
+int (*__PyDict_Next)(
+    PyObject *mp, Py_ssize_t *pos, PyObject **key, PyObject **value);
+
 int (*_PyString_AsStringAndSize)(
     register PyObject *obj,	/* string or Unicode object */
     register char **s,		/* pointer to buffer variable */
@@ -194,6 +200,7 @@ PyObject* _Py_Long;
 PyObject* _Py_Bool;
 PyObject* _Py_True;
 PyObject* _Py_False;
+PyObject* _Py_Dict;
 
 
 #define LOAD_PYTHON_SYMBOL_AS(name, as)             \
@@ -236,6 +243,10 @@ bool LibPython::load(const std::string& libPath, bool python3, std::string* pErr
   LOAD_PYTHON_SYMBOL(PyLong_AsLong)
   LOAD_PYTHON_SYMBOL(PyLong_FromLong)
   LOAD_PYTHON_SYMBOL(PyBool_FromLong)
+  LOAD_PYTHON_SYMBOL(PyDict_New)
+  LOAD_PYTHON_SYMBOL(PyDict_SetItem)
+  LOAD_PYTHON_SYMBOL(PyDict_SetItemString)
+  LOAD_PYTHON_SYMBOL_AS(PyDict_Next, __PyDict_Next)
 
   if (python3) {
     LOAD_PYTHON_SYMBOL(PyModule_Create2)
@@ -277,6 +288,7 @@ bool LibPython::load(const std::string& libPath, bool python3, std::string* pErr
   _Py_Bool = ::_PyBool_FromLong(1L);
   _Py_True = ::_PyBool_FromLong(1L);
   _Py_False = ::_PyBool_FromLong(0L);
+  _Py_Dict = ::_PyDict_New();
 
   return true;
 }

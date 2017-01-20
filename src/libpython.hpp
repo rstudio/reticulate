@@ -104,6 +104,7 @@ extern PyObject* _Py_Long;
 extern PyObject* _Py_Bool;
 extern PyObject* _Py_True;
 extern PyObject* _Py_False;
+extern PyObject* _Py_Dict;
 
 #define _Py_TYPE(ob) (((PyObject*)(ob))->ob_type)
 
@@ -112,6 +113,7 @@ extern PyObject* _Py_False;
 #define _PyInt_Check(o)  (_Py_TYPE(o) == _Py_TYPE(_Py_Int))
 #define _PyLong_Check(o)  (_Py_TYPE(o) == _Py_TYPE(_Py_Long))
 #define _PyBool_Check(o) ((o == _Py_False) | (o == _Py_True))
+#define _PyDict_Check(o) (_Py_TYPE(o) == _Py_TYPE(_Py_Dict))
 
 extern void (*_Py_Initialize)();
 
@@ -185,6 +187,12 @@ extern void (*_PySys_SetArgv_v3)(int, wchar_t **);
 typedef void (*_PyCapsule_Destructor)(PyObject *);
 extern PyObject* (*_PyCapsule_New)(void *pointer, const char *name, _PyCapsule_Destructor destructor);
 extern void* (*_PyCapsule_GetPointer)(PyObject *capsule, const char *name);
+
+extern PyObject* (*_PyDict_New)(void);
+extern int (*_PyDict_SetItem)(PyObject *mp, PyObject *key, PyObject *item);
+extern int (*_PyDict_SetItemString)(PyObject *dp, const char *key, PyObject *item);
+extern int (*__PyDict_Next)(
+    PyObject *mp, Py_ssize_t *pos, PyObject **key, PyObject **value);
 
 extern PyObject* (*_PyInt_FromLong)(long);
 extern long (*_PyInt_AsLong)(PyObject *);

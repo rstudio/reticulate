@@ -472,13 +472,13 @@ SEXP py_to_r(PyObject* x) {
   }
 
   // dict
-  else if (PyDict_Check(x)) {
+  else if (_PyDict_Check(x)) {
     // allocate R list
     Rcpp::List list;
     // iterate over dict
     PyObject *key, *value;
     Py_ssize_t pos = 0;
-    while (PyDict_Next(x, &pos, &key, &value))
+    while (__PyDict_Next(x, &pos, &key, &value))
       list[as_std_string(key)] = py_to_r(value);
     return list;
   }
@@ -787,13 +787,13 @@ PyObject* r_to_py(RObject x) {
   } else if (type == VECSXP) {
     // create a dict for names
     if (x.hasAttribute("names")) {
-      PyObjectPtr dict(::PyDict_New());
+      PyObjectPtr dict(::_PyDict_New());
       CharacterVector names = x.attr("names");
       SEXP namesSEXP = names;
       for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
         const char* name = Rf_translateChar(STRING_ELT(namesSEXP, i));
         PyObjectPtr item(r_to_py(RObject(VECTOR_ELT(sexp, i))));
-        int res = ::PyDict_SetItemString(dict, name, item);
+        int res = ::_PyDict_SetItemString(dict, name, item);
         if (res != 0)
           stop(py_fetch_error());
       }
@@ -1027,7 +1027,7 @@ IntegerVector py_get_attribute_types(
       types[i] = FUNCTION;
     else if (PyList_Check(attr)  ||
              PyTuple_Check(attr) ||
-             PyDict_Check(attr))
+             _PyDict_Check(attr))
       types[i] = LIST;
     else if (PyArray_Check(attr))
       types[i] = ARRAY;
@@ -1066,14 +1066,14 @@ SEXP py_call(PyObjectXPtr x, List args, List keywords = R_NilValue) {
   }
 
   // named arguments
-  PyObjectPtr pyKeywords(::PyDict_New());
+  PyObjectPtr pyKeywords(::_PyDict_New());
   if (keywords.length() > 0) {
     CharacterVector names = keywords.names();
     SEXP namesSEXP = names;
     for (R_xlen_t i = 0; i<keywords.length(); i++) {
       const char* name = Rf_translateChar(STRING_ELT(namesSEXP, i));
       PyObjectPtr arg(r_to_py(keywords.at(i)));
-      int res = ::PyDict_SetItemString(pyKeywords, name, arg);
+      int res = ::_PyDict_SetItemString(pyKeywords, name, arg);
       if (res != 0)
         stop(py_fetch_error());
     }
@@ -1093,11 +1093,11 @@ SEXP py_call(PyObjectXPtr x, List args, List keywords = R_NilValue) {
 
 // [[Rcpp::export]]
 PyObjectXPtr py_dict(const List& keys, const List& items) {
-  PyObject* dict = ::PyDict_New();
+  PyObject* dict = ::_PyDict_New();
   for (R_xlen_t i = 0; i<keys.length(); i++) {
     PyObjectPtr key(r_to_py(keys.at(i)));
     PyObjectPtr item(r_to_py(items.at(i)));
-    ::PyDict_SetItem(dict, key, item);
+    ::_PyDict_SetItem(dict, key, item);
   }
   return py_xptr(dict);
 }

@@ -290,7 +290,7 @@ int r_scalar_type(PyObject* x) {
     return REALSXP;
 
   // complex
-  else if (PyComplex_Check(x))
+  else if (_PyComplex_Check(x))
     return CPLXSXP;
 
   else if (is_python_str(x))
@@ -406,8 +406,8 @@ SEXP py_to_r(PyObject* x) {
     // complex
     else if (scalarType == CPLXSXP) {
       Rcomplex cplx;
-      cplx.r = ::PyComplex_RealAsDouble(x);
-      cplx.i = ::PyComplex_ImagAsDouble(x);
+      cplx.r = ::_PyComplex_RealAsDouble(x);
+      cplx.i = ::_PyComplex_ImagAsDouble(x);
       return ComplexVector::create(cplx);
     }
 
@@ -439,8 +439,8 @@ SEXP py_to_r(PyObject* x) {
       for (Py_ssize_t i = 0; i<len; i++) {
         PyObject* item = _PyList_GetItem(x, i);
         Rcomplex cplx;
-        cplx.r = ::PyComplex_RealAsDouble(item);
-        cplx.i = ::PyComplex_ImagAsDouble(item);
+        cplx.r = ::_PyComplex_RealAsDouble(item);
+        cplx.i = ::_PyComplex_ImagAsDouble(item);
         vec[i] = cplx;
       }
       return vec;
@@ -732,14 +732,14 @@ PyObject* r_to_py(RObject x) {
   } else if (type == CPLXSXP) {
     if (LENGTH(sexp) == 1) {
       Rcomplex cplx = COMPLEX(sexp)[0];
-      return ::PyComplex_FromDoubles(cplx.r, cplx.i);
+      return ::_PyComplex_FromDoubles(cplx.r, cplx.i);
     } else {
       PyObjectPtr list(_PyList_New(LENGTH(sexp)));
       for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
         Rcomplex cplx = COMPLEX(sexp)[i];
         // NOTE: reference to added value is "stolen" by the list
-        int res = ::_PyList_SetItem(list, i, ::PyComplex_FromDoubles(cplx.r,
-                                                                    cplx.i));
+        int res = ::_PyList_SetItem(list, i, ::_PyComplex_FromDoubles(cplx.r,
+                                                                      cplx.i));
         if (res != 0)
           stop(py_fetch_error());
       }

@@ -110,6 +110,7 @@ extern PyObject* _Py_Dict;
 extern PyObject* _Py_Float;
 extern PyObject* _Py_List;
 extern PyObject* _Py_Tuple;
+extern PyObject* _Py_Complex;
 
 #define _Py_TYPE(ob) (((PyObject*)(ob))->ob_type)
 
@@ -123,6 +124,7 @@ extern PyObject* _Py_Tuple;
 #define _PyFunction_Check(op) ((_PyTypeObject*)(_Py_TYPE(op)) == _PyFunction_Type)
 #define _PyTuple_Check(o) (_Py_TYPE(o) == _Py_TYPE(_Py_Tuple))
 #define _PyList_Check(o) (_Py_TYPE(o) == _Py_TYPE(_Py_List))
+#define _PyComplex_Check(o) (_Py_TYPE(o) == _Py_TYPE(_Py_Complex))
 
 extern void (*_Py_Initialize)();
 
@@ -212,6 +214,10 @@ extern PyObject* (*_PyBool_FromLong)(long);
 
 extern PyObject* (*_PyFloat_FromDouble)(double);
 extern double (*_PyFloat_AsDouble)(PyObject *);
+
+extern PyObject* (*_PyComplex_FromDoubles)(double real, double imag);
+extern double (*_PyComplex_RealAsDouble)(PyObject *op);
+extern double (*_PyComplex_ImagAsDouble)(PyObject *op);
 
 class LibPython {
 

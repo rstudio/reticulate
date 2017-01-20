@@ -195,6 +195,11 @@ PyObject* (*_PyBool_FromLong)(long);
 PyObject* (*_PyFloat_FromDouble)(double);
 double (*_PyFloat_AsDouble)(PyObject *);
 
+PyObject* (*_PyComplex_FromDoubles)(double real, double imag);
+double (*_PyComplex_RealAsDouble)(PyObject *op);
+double (*_PyComplex_ImagAsDouble)(PyObject *op);
+
+
 PyObject* _Py_None;
 PyObject* _Py_Unicode;
 PyObject* _Py_String;
@@ -207,6 +212,7 @@ PyObject* _Py_Dict;
 PyObject* _Py_Float;
 PyObject* _Py_List;
 PyObject* _Py_Tuple;
+PyObject* _Py_Complex;
 
 _PyTypeObject* _PyFunction_Type;
 
@@ -258,6 +264,9 @@ bool LibPython::load(const std::string& libPath, bool python3, std::string* pErr
   LOAD_PYTHON_SYMBOL(PyFloat_AsDouble)
   LOAD_PYTHON_SYMBOL(PyFloat_FromDouble)
   LOAD_PYTHON_SYMBOL_AS(PyFunction_Type, _PyFunction_Type)
+  LOAD_PYTHON_SYMBOL(PyComplex_FromDoubles)
+  LOAD_PYTHON_SYMBOL(PyComplex_RealAsDouble)
+  LOAD_PYTHON_SYMBOL(PyComplex_ImagAsDouble)
 
   if (python3) {
     LOAD_PYTHON_SYMBOL(PyModule_Create2)
@@ -303,6 +312,7 @@ bool LibPython::load(const std::string& libPath, bool python3, std::string* pErr
   _Py_Float = ::_PyFloat_FromDouble(0.0);
   _Py_Tuple = ::_Py_BuildValue("(i)", 1024);
   _Py_List = ::_Py_BuildValue("[i]", 1024);
+  _Py_Complex = ::_PyComplex_FromDoubles(0.0, 0.0);
 
   return true;
 }

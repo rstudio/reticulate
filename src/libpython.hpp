@@ -147,6 +147,11 @@ extern int (*_PyObject_IsInstance)(PyObject *object, PyObject *typeorclass);
 
 extern PyObject* (*_PyObject_Dir)(PyObject *);
 
+extern PyObject* (*_PyObject_Call)(PyObject *callable_object,
+           PyObject *args, PyObject *kw);
+extern PyObject* (*_PyObject_CallFunctionObjArgs)(PyObject *callable,
+           ...);
+
 extern PyObject* (*_PyObject_GetAttrString)(PyObject*, const char *);
 extern int (*_PyObject_HasAttrString)(PyObject*, const char *);
 

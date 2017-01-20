@@ -125,6 +125,11 @@ PyObject* (*__PyObject_Str)(PyObject *);
 int (*_PyObject_IsInstance)(PyObject *object, PyObject *typeorclass);
 PyObject* (*_PyObject_Dir)(PyObject *);
 
+PyObject* (*_PyObject_Call)(PyObject *callable_object,
+                  PyObject *args, PyObject *kw);
+PyObject* (*_PyObject_CallFunctionObjArgs)(PyObject *callable,
+                  ...);
+
 PyObject* (*_PyObject_GetAttrString)(PyObject *, const char *);
 int (*_PyObject_HasAttrString)(PyObject*, const char *);
 
@@ -276,6 +281,8 @@ bool LibPython::load(const std::string& libPath, bool python3, std::string* pErr
   LOAD_PYTHON_SYMBOL(PyComplex_RealAsDouble)
   LOAD_PYTHON_SYMBOL(PyComplex_ImagAsDouble)
   LOAD_PYTHON_SYMBOL(PyObject_IsInstance)
+  LOAD_PYTHON_SYMBOL(PyObject_Call)
+  LOAD_PYTHON_SYMBOL(PyObject_CallFunctionObjArgs)
 
   if (python3) {
     LOAD_PYTHON_SYMBOL(PyModule_Create2)

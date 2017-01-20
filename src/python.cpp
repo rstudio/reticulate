@@ -822,7 +822,7 @@ PyObject* r_to_py(RObject x) {
     PyObjectPtr func(::_PyObject_GetAttrString(module, "make_python_function"));
     if (func == NULL)
       stop(py_fetch_error());
-    PyObjectPtr wrapper(::PyObject_CallFunctionObjArgs(func, capsule.get(), NULL));
+    PyObjectPtr wrapper(::_PyObject_CallFunctionObjArgs(func, capsule.get(), NULL));
     if (wrapper == NULL)
       stop(py_fetch_error());
 
@@ -1080,7 +1080,7 @@ SEXP py_call(PyObjectXPtr x, List args, List keywords = R_NilValue) {
   }
 
   // call the function
-  PyObjectPtr res(::PyObject_Call(x, pyArgs, pyKeywords));
+  PyObjectPtr res(::_PyObject_Call(x, pyArgs, pyKeywords));
 
   // check for error
   if (res.is_null())

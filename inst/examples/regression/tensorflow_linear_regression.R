@@ -11,7 +11,7 @@ library(tensorflow)
 # We'll fit a regression model using 3 predictors, so our
 # input matrix 'X' will have three columns.
 p <- 3L
-X <- tf$placeholder("float", shape = list(NULL, p), name = "x-data")
+X <- tf$placeholder("float", shape = shape(NULL, p), name = "x-data")
 Y <- tf$placeholder("float", name = "y-data")
 
 # Define the weights for each column in X. Since we will

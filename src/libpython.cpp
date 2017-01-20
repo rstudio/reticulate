@@ -113,6 +113,9 @@ PyObject* (*_Py_InitModule4)(const char *name, _PyMethodDef *methods,
                   const char *doc, PyObject *self,
                   int apiver);
 
+PyObject* (*_PyModule_Create2)(_PyModuleDef *def, int);
+int (*_PyImport_AppendInittab)(const char *name, PyObject* (*initfunc)());
+
 void (*_Py_IncRef)(PyObject *);
 void (*_Py_DecRef)(PyObject *);
 
@@ -160,6 +163,7 @@ PyObject* (*_PyObject_GetIter)(PyObject *);
 PyObject* (*_PyIter_Next)(PyObject *);
 
 void (*_PySys_SetArgv)(int, char **);
+void (*_PySys_SetArgv_v3)(int, wchar_t **);
 
 PyObject* (*_PyCapsule_New)(void *pointer, const char *name, _PyCapsule_Destructor destructor);
 void* (*_PyCapsule_GetPointer)(PyObject *capsule, const char *name);
@@ -204,9 +208,11 @@ bool LibPython::load(const std::string& libPath, bool python3, std::string* pErr
   LOAD_PYTHON_SYMBOL(PyImport_AddModule)
   LOAD_PYTHON_SYMBOL(PyObject_GetIter)
   LOAD_PYTHON_SYMBOL(PyIter_Next)
-  LOAD_PYTHON_SYMBOL(PySys_SetArgv)
-  if (python3) {
 
+  if (python3) {
+    LOAD_PYTHON_SYMBOL(PyModule_Create2)
+    LOAD_PYTHON_SYMBOL(PyImport_AppendInittab)
+    LOAD_PYTHON_SYMBOL_AS(PySys_SetArgv, _PySys_SetArgv_v3)
   } else {
     if (is64bit) {
       LOAD_PYTHON_SYMBOL_AS(Py_InitModule4_64, _Py_InitModule4)
@@ -216,6 +222,7 @@ bool LibPython::load(const std::string& libPath, bool python3, std::string* pErr
     LOAD_PYTHON_SYMBOL(PyString_AsStringAndSize)
     LOAD_PYTHON_SYMBOL(PyString_FromStringAndSize)
     LOAD_PYTHON_SYMBOL(PyString_FromString)
+    LOAD_PYTHON_SYMBOL(PySys_SetArgv)
   }
   LOAD_PYTHON_SYMBOL(PyCapsule_New)
   LOAD_PYTHON_SYMBOL(PyCapsule_GetPointer)

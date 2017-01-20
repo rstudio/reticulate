@@ -26,6 +26,14 @@ using namespace Rcpp;
 
 #include "tensorflow_types.hpp"
 
+bool isPython3() {
+#ifdef PYTHON_3
+  return true;
+#else
+  return false
+#endif
+}
+
 // forward declare error handling utility
 std::string py_fetch_error();
 
@@ -880,8 +888,8 @@ _PyMethodDef TFCallMethods[] = {
 
 #ifdef PYTHON_3
 
-static struct PyModuleDef TFCallModuleDef = {
-  PyModuleDef_HEAD_INIT,
+static struct _PyModuleDef TFCallModuleDef = {
+  _PyModuleDef_HEAD_INIT,
   "tfcall",
   NULL,
   -1,
@@ -893,7 +901,7 @@ static struct PyModuleDef TFCallModuleDef = {
 };
 
 extern "C" PyObject* initializeTFCall(void) {
-  return ::PyModule_Create(&TFCallModuleDef);
+  return ::_PyModule_Create2(&TFCallModuleDef, _PYTHON3_ABI_VERSION);
 }
 
 #endif
@@ -905,33 +913,33 @@ extern "C" PyObject* initializeTFCall(void) {
 void py_initialize(const std::string& pythonSharedLibrary) {
 
   std::string err;
-  if (!libPython().load(pythonSharedLibrary, false, &err))
+  if (!libPython().load(pythonSharedLibrary, isPython3(), &err))
     stop(err);
 
-#ifdef PYTHON_3
+  if (isPython3()) {
 
-  // add tfcall module
-  ::PyImport_AppendInittab("tfcall", &initializeTFCall);
+    // add tfcall module
+    ::_PyImport_AppendInittab("tfcall", &initializeTFCall);
 
-  // initialize python
-  _Py_Initialize();
+    // initialize python
+    _Py_Initialize();
 
-  const wchar_t *argv[1] = {L"python"};
-  _PySys_SetArgv(1, const_cast<wchar_t**>(argv));
+    const wchar_t *argv[1] = {L"python"};
+    _PySys_SetArgv_v3(1, const_cast<wchar_t**>(argv));
 
-#else
+  } else {
 
-  // initialize python
-  _Py_Initialize();
+    // initialize python
+    _Py_Initialize();
 
-  // add tfcall module
-  ::_Py_InitModule4("tfcall", TFCallMethods, (char *)NULL, (PyObject *)NULL,
-                    _PYTHON_API_VERSION);
+    // add tfcall module
+    ::_Py_InitModule4("tfcall", TFCallMethods, (char *)NULL, (PyObject *)NULL,
+                      _PYTHON_API_VERSION);
 
-  const char *argv[1] = {"python"};
-  _PySys_SetArgv(1, const_cast<char**>(argv));
+    const char *argv[1] = {"python"};
+    _PySys_SetArgv(1, const_cast<char**>(argv));
 
-#endif
+  }
 
   // import numpy array api
   if (!py_import_numpy_array_api())

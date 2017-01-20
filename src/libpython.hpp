@@ -5,6 +5,7 @@
 #include <string>
 
 #define _PYTHON_API_VERSION 1013
+#define _PYTHON3_ABI_VERSION 3
 
 #if _WIN32 || _WIN64
 #if _WIN64
@@ -105,6 +106,9 @@ extern PyObject* (*_Py_InitModule4)(const char *name, _PyMethodDef *methods,
            const char *doc, PyObject *self,
            int apiver);
 
+extern PyObject* (*_PyModule_Create2)(_PyModuleDef *def, int);
+extern int (*_PyImport_AppendInittab)(const char *name, PyObject* (*initfunc)());
+
 extern PyObject* (*_Py_BuildValue)(const char *format, ...);
 
 extern void (*_Py_IncRef)(PyObject *);
@@ -153,6 +157,7 @@ extern PyObject* (*_PyObject_GetIter)(PyObject *);
 extern PyObject* (*_PyIter_Next)(PyObject *);
 
 extern void (*_PySys_SetArgv)(int, char **);
+extern void (*_PySys_SetArgv_v3)(int, wchar_t **);
 
 typedef void (*_PyCapsule_Destructor)(PyObject *);
 extern PyObject* (*_PyCapsule_New)(void *pointer, const char *name, _PyCapsule_Destructor destructor);

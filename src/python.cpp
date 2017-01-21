@@ -1,5 +1,4 @@
 #include <Python.h>
-#include <frameobject.h>
 
 #if PY_MAJOR_VERSION >= 3
 #define PYTHON_3
@@ -257,16 +256,21 @@ std::string py_fetch_error() {
       PyObjectPtr pStr(::PyObject_Str(pExcValue));
       ostr << as_std_string(pStr);
     }
+
     if (!pExcTraceback.is_null()) {
-      PyTracebackObject* traceback = (PyTracebackObject*)excTraceback;
-      ostr << "\nDetailed traceback: \n";
-      while (traceback->tb_next != NULL) {
-        traceback = traceback->tb_next;
-        PyFrameObject *frame = traceback->tb_frame;
-        int line = PyCode_Addr2Line(frame->f_code, frame->f_lasti);
-        std::string filename = as_std_string(frame->f_code->co_filename);
-        std::string funcname = as_std_string(frame->f_code->co_name);
-        ostr << "    " << filename << " (line" << line << "): " << funcname << "\n";
+      // call into python for traceback printing
+      PyObjectPtr module(::PyImport_ImportModule("traceback"));
+      if (!module.is_null()) {
+        PyObjectPtr func(::PyObject_GetAttrString(module, "format_tb"));
+        if (!func.is_null()) {
+          PyObjectPtr tb(::PyObject_CallFunctionObjArgs(func, excTraceback, NULL));
+          if (!tb.is_null()) {
+            ostr << std::endl << std::endl << "Detailed traceback: " << std::endl;
+            Py_ssize_t len = PyList_Size(tb);
+            for (Py_ssize_t i = 0; i<len; i++)
+              ostr << as_std_string(PyList_GetItem(tb, i));
+          }
+        }
       }
     }
     error = ostr.str();

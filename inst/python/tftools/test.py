@@ -30,3 +30,10 @@ def reflect(x):
 def callFunc(f, *args, **kwargs):
   return f(*args, **kwargs)
 
+def testThrowError():
+  throwError()
+
+def throwError():
+  raise ValueError('A very specific bad thing happened')
+
+

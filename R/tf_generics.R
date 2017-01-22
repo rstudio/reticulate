@@ -180,28 +180,46 @@ print.tensorflow.python.ops.variables.Variable <- print.tensorflow.python.framew
 
 #' @export
 "-.tensorflow.python.framework.ops.Tensor" <- function(a, b) {
-  if (missing(b))
-    tf$neg(a)
-  else
-    tf$sub(a, b)
+  if (missing(b)) {
+    if (py_has_attr(tf, "negative"))
+      tf$negative(a)
+    else
+      tf$neg(a)
+  } else {
+    if (py_has_attr(tf, "subtract"))
+      tf$subtract(a, b)
+    else
+      tf$sub(a, b)
+  }
 }
 
 #' @export
 "-.tensorflow.python.framework.ops.Variable" <- function(a, b) {
-  if (missing(b))
-    tf$neg(a)
-  else
-    tf$sub(a, b)
+  if (missing(b)) {
+    if (py_has_attr(tf, "negative"))
+      tf$negative(a)
+    else
+      tf$neg(a)
+  } else {
+    if (py_has_attr(tf, "subtract"))
+      tf$subtract(a, b)
+    else
+      tf$sub(a, b)
+  }
 }
+
 
 #' @export
 "*.tensorflow.python.framework.ops.Tensor" <- function(a, b) {
-  tf$mul(a, b)
+  if (py_has_attr(tf, "multiply"))
+    tf$multiply(a, b)
+  else
+    tf$mul(a, b)
 }
 
 #' @export
 "*.tensorflow.python.ops.variables.Variable" <- function(a, b) {
-  tf$mul(a, b)
+  `*.tensorflow.python.framework.ops.Tensor`(a, b)
 }
 
 #' @export

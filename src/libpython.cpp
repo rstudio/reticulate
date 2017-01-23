@@ -198,6 +198,7 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
     LOAD_PYTHON_SYMBOL(PySys_SetArgv)
     LOAD_PYTHON_SYMBOL(PyInt_AsLong)
     LOAD_PYTHON_SYMBOL(PyInt_FromLong)
+    LOAD_PYTHON_SYMBOL(PyCObject_AsVoidPtr)
   }
   LOAD_PYTHON_SYMBOL(PyCapsule_New)
   LOAD_PYTHON_SYMBOL(PyCapsule_GetPointer)

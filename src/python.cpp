@@ -376,8 +376,8 @@ int narrow_array_typenum(int typenum) {
   return typenum;
 }
 
-int narrow_array_typenum(PyArrayObject* array) {
-  return narrow_array_typenum(PyArray_TYPE(array));
+int narrow_array_typenum(_PyArrayObject* array) {
+  return narrow_array_typenum(_PyArray_TYPE(array));
 }
 
 int narrow_array_typenum(__PyArray_Descr* descr) {
@@ -499,12 +499,12 @@ SEXP py_to_r(PyObject* x) {
   else if (PyArray_Check(x)) {
 
     // get the array
-    PyArrayObject* array = (PyArrayObject*)x;
+    _PyArrayObject* array = (_PyArrayObject*)x;
 
     // get the dimensions
-    npy_intp len = PyArray_SIZE(array);
-    int nd = PyArray_NDIM(array);
-    npy_intp *dims = PyArray_DIMS(array);
+    _npy_intp len = _PyArray_SIZE(array);
+    int nd = _PyArray_NDIM(array);
+    _npy_intp *dims = _PyArray_DIMS(array);
     IntegerVector dimsVector(nd);
     for (int i = 0; i<nd; i++)
       dimsVector[i] = dims[i];
@@ -515,7 +515,7 @@ SEXP py_to_r(PyObject* x) {
     // cast it to a fortran array (PyArray_CastToType steals the descr)
     // (note that we will decref the copied array below)
     ___PyArray_Descr* descr = (___PyArray_Descr*)PyArray_DescrFromType(typenum);
-    array = (PyArrayObject*)PyArray_CastToType(array, (PyArray_Descr*)descr, NPY_ARRAY_FARRAY);
+    array = (_PyArrayObject*)_PyArray_CastToType(array, descr, NPY_ARRAY_FARRAY);
     if (array == NULL)
       stop(py_fetch_error());
 
@@ -528,28 +528,28 @@ SEXP py_to_r(PyObject* x) {
     // copy the data as required per-type
     switch(typenum) {
       case _NPY_BOOL: {
-        npy_bool* pData = (npy_bool*)PyArray_DATA(array);
+        npy_bool* pData = (npy_bool*)_PyArray_DATA(array);
         rArray = Rf_allocArray(LGLSXP, dimsVector);
         for (int i=0; i<len; i++)
           LOGICAL(rArray)[i] = pData[i];
         break;
       }
       case _NPY_LONG: {
-        npy_long* pData = (npy_long*)PyArray_DATA(array);
+        npy_long* pData = (npy_long*)_PyArray_DATA(array);
         rArray = Rf_allocArray(INTSXP, dimsVector);
         for (int i=0; i<len; i++)
           INTEGER(rArray)[i] = pData[i];
         break;
       }
       case _NPY_DOUBLE: {
-        npy_double* pData = (npy_double*)PyArray_DATA(array);
+        npy_double* pData = (npy_double*)_PyArray_DATA(array);
         rArray = Rf_allocArray(REALSXP, dimsVector);
         for (int i=0; i<len; i++)
           REAL(rArray)[i] = pData[i];
         break;
       }
     case _NPY_CDOUBLE: {
-        npy_complex128* pData = (npy_complex128*)PyArray_DATA(array);
+        npy_complex128* pData = (npy_complex128*)_PyArray_DATA(array);
         rArray = Rf_allocArray(CPLXSXP, dimsVector);
         for (int i=0; i<len; i++) {
           npy_complex128 data = pData[i];
@@ -692,7 +692,7 @@ PyObject* r_to_py(RObject x) {
 
     // set the array's base object to the capsule (detach since PyArray_SetBaseObject
     // steals a reference to the provided base object)
-    int res = PyArray_SetBaseObject((PyArrayObject *)array, capsule.detach());
+    int res = _PyArray_SetBaseObject((_PyArrayObject *)array, (_PyObject*)capsule.detach());
     if (res != 0)
       stop(py_fetch_error());
 
@@ -929,6 +929,9 @@ void py_initialize(const std::string& pythonSharedLibrary) {
     _PySys_SetArgv(1, const_cast<char**>(argv));
 
   }
+
+  if (!import_numpy_api(isPython3(), &err))
+    stop(err);
 
   // import numpy array api
   if (!py_import_numpy_array_api())

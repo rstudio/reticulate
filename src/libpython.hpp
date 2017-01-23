@@ -239,6 +239,8 @@ LIBPYTHON_EXTERN PyObject* (*_PyComplex_FromDoubles)(double real, double imag);
 LIBPYTHON_EXTERN double (*_PyComplex_RealAsDouble)(PyObject *op);
 LIBPYTHON_EXTERN double (*_PyComplex_ImagAsDouble)(PyObject *op);
 
+LIBPYTHON_EXTERN void* (*_PyCObject_AsVoidPtr)(PyObject *);
+
 
 enum _NPY_TYPES {
   _NPY_BOOL=0,
@@ -281,6 +283,118 @@ typedef struct ___PyArray_Descr {
 
 } __PyArray_Descr;
 
+typedef struct _tagPyArrayObject {
+  _PyObject_HEAD
+} _PyArrayObject;
+
+typedef intptr_t _npy_intp;
+
+
+typedef struct _tagPyArrayObject_fields {
+  _PyObject_HEAD
+  /* Pointer to the raw data buffer */
+  char *data;
+  /* The number of dimensions, also called 'ndim' */
+  int nd;
+  /* The size in each dimension, also called 'shape' */
+  _npy_intp *dimensions;
+  /*
+  * Number of bytes to jump to get to the
+  * next element in each dimension
+  */
+  _npy_intp *strides;
+  /*
+  * This object is decref'd upon
+  * deletion of array. Except in the
+  * case of UPDATEIFCOPY which has
+  * special handling.
+  *
+  * For views it points to the original
+  * array, collapsed so no chains of
+  * views occur.
+  *
+  * For creation from buffer object it
+  * points to an object that should be
+  * decref'd on deletion
+  *
+  * For UPDATEIFCOPY flag this is an
+  * array to-be-updated upon deletion
+  * of this one
+  */
+  _PyObject *base;
+  /* Pointer to type structure */
+  ___PyArray_Descr *descr;
+  /* Flags describing array -- see below */
+  int flags;
+  /* For weak references */
+  _PyObject *weakreflist;
+} _PyArrayObject_fields;
+
+
+LIBPYTHON_EXTERN void **_PyArray_API;
+
+#define _PyArray_CastToType                                \
+(*(_PyObject * (*)(_PyArrayObject *, __PyArray_Descr *, int)) \
+   _PyArray_API[49])
+
+#define _PyArray_SetBaseObject             \
+ (*(int (*)(_PyArrayObject *, _PyObject *)) \
+    _PyArray_API[282])
+
+#define _PyArray_MultiplyList        \
+  (*(_npy_intp (*)(_npy_intp *, int)) \
+     _PyArray_API[158])
+
+inline void* _PyArray_DATA(_PyArrayObject *arr) {
+  return ((_PyArrayObject_fields *)arr)->data;
+}
+
+inline _npy_intp* _PyArray_DIMS(_PyArrayObject *arr) {
+  return ((_PyArrayObject_fields *)arr)->dimensions;
+}
+
+inline int _PyArray_TYPE(const _PyArrayObject *arr) {
+  return ((_PyArrayObject_fields *)arr)->descr->type_num;
+}
+
+inline int _PyArray_NDIM(const _PyArrayObject *arr) {
+  return ((_PyArrayObject_fields *)arr)->nd;
+}
+
+#define _PyArray_SIZE(m) _PyArray_MultiplyList(_PyArray_DIMS(m), _PyArray_NDIM(m))
+
+
+inline bool import_numpy_api(bool python3, std::string* pError) {
+
+  PyObject* numpy = _PyImport_ImportModule("numpy.core.multiarray");
+  if (numpy == NULL) {
+    *pError = "numpy.core.multiarray failed to import";
+    return false;
+  }
+
+  PyObject* c_api = _PyObject_GetAttrString(numpy, "_ARRAY_API");
+  _Py_DecRef(numpy);
+  if (c_api == NULL) {
+    *pError = "_ARRAY_API not found";
+    return false;
+  }
+
+  if (python3) {
+
+  } else {
+    _PyArray_API = (void **)_PyCObject_AsVoidPtr(c_api);
+    _Py_DecRef(c_api);
+    if (_PyArray_API == NULL) {
+      *pError = "_ARRAY_API is NULL pointer";
+      return false;
+    }
+  }
+
+
+  return true;
+
+}
+
 
 
 class SharedLibrary {
@@ -311,18 +425,6 @@ private:
 
 inline SharedLibrary& libPython() {
   static LibPython instance;
-  return instance;
-}
-
-class LibNumPy : public SharedLibrary {
-private:
-  LibNumPy() : SharedLibrary() {}
-  friend SharedLibrary& libNumPy();
-  virtual bool loadSymbols(bool python3, std::string* pError);
-};
-
-inline SharedLibrary& libNumPy() {
-  static LibNumPy instance;
   return instance;
 }
 

@@ -1,22 +1,18 @@
-#include <Python.h>
-
-#include "libpython.hpp"
-
-#ifndef _WIN32
-#include <dlfcn.h>
-#endif
 
 #include <Rcpp.h>
 using namespace Rcpp;
 
+#include "libpython.hpp"
+
 #include "tensorflow_types.hpp"
 
 bool isPython3() {
-#if PY_MAJOR_VERSION >= 3
-  return true;
-#else
   return false;
-#endif
+// #if PY_MAJOR_VERSION >= 3
+//   return true;
+// #else
+//   return false;
+// #endif
 }
 
 // forward declare error handling utility

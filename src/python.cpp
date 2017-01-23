@@ -482,14 +482,6 @@ SEXP py_to_r(PyObject* x) {
     return list;
   }
 
-  // iterator/generator
-  else if (PyIter_Check(x)) {
-
-    // return it raw but add a class so we can create S3 methods for it
-    ::_Py_IncRef(x);
-    return py_xptr(x, true, "tensorflow.builtin.iterator");
-  }
-
   // numpy array
   else if (_PyArray_Check(x)) {
 
@@ -602,6 +594,14 @@ SEXP py_to_r(PyObject* x) {
     default:
       stop("Unsupported array conversion from %d", typenum);
     }
+  }
+
+  // iterator/generator
+  else if (_PyObject_HasAttrString(x, "__iter__")) {
+
+    // return it raw but add a class so we can create S3 methods for it
+    ::_Py_IncRef(x);
+    return py_xptr(x, true, "tensorflow.builtin.iterator");
   }
 
   // default is to return opaque wrapper to python object

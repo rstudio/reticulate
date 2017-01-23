@@ -401,14 +401,14 @@ inline int _PyArray_NDIM(const _PyArrayObject *arr) {
 
 #define _PyArray_Check(o) _PyObject_TypeCheck(o, &_PyArray_Type)
 
-#define _PyArray_IsZeroDim(op) (_PyArray_Check(op) && \
+#define _PyArray_IsZeroDim(op) ((_PyArray_Check(op)) && \
              (_PyArray_NDIM((_PyArrayObject *)op) == 0))
 
 #define _PyArray_IsScalar(obj, cls)                                            \
            (_PyObject_TypeCheck(obj, &_Py##cls##ArrType_Type))
 
 #define _PyArray_CheckScalar(m) (_PyArray_IsScalar(m, Generic) ||               \
-         _PyArray_IsZeroDim(m))                                 \
+         (_PyArray_IsZeroDim(m)))                                 \
 
 
 inline bool import_numpy_api(bool python3, std::string* pError) {

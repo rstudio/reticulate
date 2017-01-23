@@ -342,29 +342,29 @@ int narrow_array_typenum(int typenum) {
 
   switch(typenum) {
   // logical
-  case NPY_BOOL:
-    typenum = NPY_BOOL;
+  case _NPY_BOOL:
+    typenum = _NPY_BOOL;
     break;
     // integer
-  case NPY_BYTE:
-  case NPY_UBYTE:
-  case NPY_SHORT:
-  case NPY_USHORT:
-  case NPY_INT:
-  case NPY_LONG:
-  case NPY_LONGLONG:
-    typenum = NPY_LONG;
+  case _NPY_BYTE:
+  case _NPY_UBYTE:
+  case _NPY_SHORT:
+  case _NPY_USHORT:
+  case _NPY_INT:
+  case _NPY_LONG:
+  case _NPY_LONGLONG:
+    typenum = _NPY_LONG;
     break;
     // double
-  case NPY_FLOAT:
-  case NPY_DOUBLE:
-    typenum = NPY_DOUBLE;
+  case _NPY_FLOAT:
+  case _NPY_DOUBLE:
+    typenum = _NPY_DOUBLE;
     break;
 
     // complex
-  case NPY_CFLOAT:
-  case NPY_CDOUBLE:
-    typenum = NPY_CDOUBLE;
+  case _NPY_CFLOAT:
+  case _NPY_CDOUBLE:
+    typenum = _NPY_CDOUBLE;
     break;
 
     // unsupported
@@ -527,28 +527,28 @@ SEXP py_to_r(PyObject* x) {
 
     // copy the data as required per-type
     switch(typenum) {
-      case NPY_BOOL: {
+      case _NPY_BOOL: {
         npy_bool* pData = (npy_bool*)PyArray_DATA(array);
         rArray = Rf_allocArray(LGLSXP, dimsVector);
         for (int i=0; i<len; i++)
           LOGICAL(rArray)[i] = pData[i];
         break;
       }
-      case NPY_LONG: {
+      case _NPY_LONG: {
         npy_long* pData = (npy_long*)PyArray_DATA(array);
         rArray = Rf_allocArray(INTSXP, dimsVector);
         for (int i=0; i<len; i++)
           INTEGER(rArray)[i] = pData[i];
         break;
       }
-      case NPY_DOUBLE: {
+      case _NPY_DOUBLE: {
         npy_double* pData = (npy_double*)PyArray_DATA(array);
         rArray = Rf_allocArray(REALSXP, dimsVector);
         for (int i=0; i<len; i++)
           REAL(rArray)[i] = pData[i];
         break;
       }
-    case NPY_CDOUBLE: {
+    case _NPY_CDOUBLE: {
         npy_complex128* pData = (npy_complex128*)PyArray_DATA(array);
         rArray = Rf_allocArray(CPLXSXP, dimsVector);
         for (int i=0; i<len; i++) {
@@ -577,25 +577,25 @@ SEXP py_to_r(PyObject* x) {
     // convert to R type (guaranteed to by NPY_BOOL, NPY_LONG, or NPY_DOUBLE
     // as per the contract of narrow_arrow_typenum)
     switch(typenum) {
-    case NPY_BOOL:
+    case _NPY_BOOL:
     {
       npy_bool value;
       PyArray_CastScalarToCtype(x, (void*)&value, toDescr);
       return LogicalVector::create(value);
     }
-    case NPY_LONG:
+    case _NPY_LONG:
     {
       npy_long value;
       PyArray_CastScalarToCtype(x, (void*)&value, toDescr);
       return IntegerVector::create(value);
     }
-    case NPY_DOUBLE:
+    case _NPY_DOUBLE:
     {
       npy_double value;
       PyArray_CastScalarToCtype(x, (void*)&value, toDescr);
       return NumericVector::create(value);
     }
-    case NPY_CDOUBLE:
+    case _NPY_CDOUBLE:
     {
       npy_complex128 value;
       PyArray_CastScalarToCtype(x, (void*)&value, toDescr);
@@ -657,13 +657,13 @@ PyObject* r_to_py(RObject x) {
       typenum = NPY_INT32;
       data = &(INTEGER(sexp)[0]);
     } else if (type == REALSXP) {
-      typenum = NPY_DOUBLE;
+      typenum = _NPY_DOUBLE;
       data = &(REAL(sexp)[0]);
     } else if (type == LGLSXP) {
-      typenum = NPY_BOOL;
+      typenum = _NPY_BOOL;
       data = &(LOGICAL(sexp)[0]);
     } else if (type == CPLXSXP) {
-      typenum = NPY_CDOUBLE;
+      typenum = _NPY_CDOUBLE;
       data = &(COMPLEX(sexp)[0]);
     } else {
       stop("Matrix type cannot be converted to python (only integer, "

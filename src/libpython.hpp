@@ -3,6 +3,7 @@
 #define __LIBPYTHON_HPP__
 
 #include <string>
+#include <cstdint>
 
 #ifndef LIBPYTHON_CPP
 #define LIBPYTHON_EXTERN extern
@@ -13,8 +14,18 @@
 #define _PYTHON_API_VERSION 1013
 #define _PYTHON3_ABI_VERSION 3
 
+// bitness detection
+#if INTPTR_MAX == INT64_MAX
+#define LIBPYTHON_64_BIT 1
+#elif INTPTR_MAX == INT32_MAX
+#define LIBPYTHON_32_BIT 1
+#else
+#error Unknown pointer size or missing size macros!
+#endif
+
+
 #if _WIN32 || _WIN64
-#if _WIN64
+#if LIBPYTHON_64_BIT
 typedef __int64 Py_ssize_t;
 #else
 typedef int Py_ssize_t;
@@ -237,6 +248,30 @@ LIBPYTHON_EXTERN double (*_PyFloat_AsDouble)(PyObject *);
 LIBPYTHON_EXTERN PyObject* (*_PyComplex_FromDoubles)(double real, double imag);
 LIBPYTHON_EXTERN double (*_PyComplex_RealAsDouble)(PyObject *op);
 LIBPYTHON_EXTERN double (*_PyComplex_ImagAsDouble)(PyObject *op);
+
+
+enum _NPY_TYPES {
+  _NPY_BOOL=0,
+  _NPY_BYTE, _NPY_UBYTE,
+  _NPY_SHORT, _NPY_USHORT,
+  _NPY_INT, _NPY_UINT,
+  _NPY_LONG, _NPY_ULONG,
+  _NPY_LONGLONG, _NPY_ULONGLONG,
+  _NPY_FLOAT, _NPY_DOUBLE, _NPY_LONGDOUBLE,
+  _NPY_CFLOAT, _NPY_CDOUBLE, _NPY_CLONGDOUBLE,
+  _NPY_OBJECT=17,
+  _NPY_STRING, _NPY_UNICODE,
+  _NPY_VOID,
+  _NPY_DATETIME, _NPY_TIMEDELTA, _NPY_HALF,
+  _NPY_NTYPES,
+  _NPY_NOTYPE,
+  _NPY_CHAR,
+  _NPY_USERDEF=256,
+  _NPY_NTYPES_ABI_COMPATIBLE=21
+};
+
+// int is still 32 bits on all relevant 64-bit platforms
+#define _NPY_INT32 _NPY_INT
 
 
 class SharedLibrary {

@@ -20,8 +20,6 @@ examples <- if (nzchar(Sys.getenv("TENSORFLOW_TEST_EXAMPLES"))) {
     "introduction.R",
     "mnist/mnist_softmax.R",
     "mnist/fully_connected_feed.R",
-    "tflearn/iris_dnn.R",
-    "tflearn/iris_custom_decay_dnn.R",
     "regression/tensorflow_linear_regression.R")
 }
 

@@ -232,24 +232,49 @@ extern PyObject* (*_PyComplex_FromDoubles)(double real, double imag);
 extern double (*_PyComplex_RealAsDouble)(PyObject *op);
 extern double (*_PyComplex_ImagAsDouble)(PyObject *op);
 
-class LibPython {
+
+class SharedLibrary {
 
 public:
   bool load(const std::string& libPath, bool python3, std::string* pError);
   bool unload(std::string* pError);
+  virtual ~SharedLibrary() {}
 
 private:
-  friend LibPython& libPython();
-  LibPython() : pLib_(NULL) {}
-  LibPython(const LibPython&);
+  virtual bool loadSymbols(bool python3, std::string* pError) = 0;
+
+protected:
+  SharedLibrary() : pLib_(NULL) {}
+private:
+  SharedLibrary(const SharedLibrary&);
+
+protected:
   void* pLib_;
 };
 
-inline LibPython& libPython() {
+class LibPython : public SharedLibrary {
+private:
+  LibPython() : SharedLibrary() {}
+  friend SharedLibrary& libPython();
+  virtual bool loadSymbols(bool python3, std::string* pError);
+};
+
+inline SharedLibrary& libPython() {
   static LibPython instance;
   return instance;
 }
 
+class LibNumPy : public SharedLibrary {
+private:
+  LibNumPy() : SharedLibrary() {}
+  friend SharedLibrary& libNumPy();
+  virtual bool loadSymbols(bool python3, std::string* pError);
+};
+
+inline SharedLibrary& libNumPy() {
+  static LibNumPy instance;
+  return instance;
+}
 
 #endif
 

@@ -236,11 +236,17 @@ if (!loadSymbol(pLib_, #name, (void**)&as, pError)) \
 if (!loadSymbol(pLib_, #name, (void**)&_##name, pError)) \
   return false;
 
-bool LibPython::load(const std::string& libPath, bool python3, std::string* pError)
+bool SharedLibrary::load(const std::string& libPath, bool python3, std::string* pError)
 {
   if (!loadLibrary(libPath, &pLib_, pError))
     return false;
 
+  return loadSymbols(python3, pError);
+}
+
+
+bool LibPython::loadSymbols(bool python3, std::string* pError)
+{
   bool is64bit = sizeof(size_t) >= 8;
 
   LOAD_PYTHON_SYMBOL(Py_Initialize)
@@ -336,7 +342,7 @@ bool LibPython::load(const std::string& libPath, bool python3, std::string* pErr
   return true;
 }
 
-bool LibPython::unload(std::string* pError)
+bool SharedLibrary::unload(std::string* pError)
 {
   if (pLib_ != NULL)
     return closeLibrary(pLib_, pError);

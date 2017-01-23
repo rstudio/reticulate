@@ -2,10 +2,6 @@
 
 #include "libpython.hpp"
 
-#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
-#include <numpy/arrayobject.h>
-#include <numpy/ndarraytypes.h>
-
 #ifndef _WIN32
 #include <dlfcn.h>
 #endif
@@ -514,7 +510,7 @@ SEXP py_to_r(PyObject* x) {
     // cast it to a fortran array (PyArray_CastToType steals the descr)
     // (note that we will decref the copied array below)
     ___PyArray_Descr* descr = _PyArray_DescrFromType(typenum);
-    array = (_PyArrayObject*)_PyArray_CastToType(array, descr, NPY_ARRAY_FARRAY);
+    array = (_PyArrayObject*)_PyArray_CastToType(array, descr, _NPY_ARRAY_FARRAY);
     if (array == NULL)
       stop(py_fetch_error());
 
@@ -527,31 +523,31 @@ SEXP py_to_r(PyObject* x) {
     // copy the data as required per-type
     switch(typenum) {
       case _NPY_BOOL: {
-        npy_bool* pData = (npy_bool*)_PyArray_DATA(array);
+        _npy_bool* pData = (_npy_bool*)_PyArray_DATA(array);
         rArray = Rf_allocArray(LGLSXP, dimsVector);
         for (int i=0; i<len; i++)
           LOGICAL(rArray)[i] = pData[i];
         break;
       }
       case _NPY_LONG: {
-        npy_long* pData = (npy_long*)_PyArray_DATA(array);
+        _npy_long* pData = (_npy_long*)_PyArray_DATA(array);
         rArray = Rf_allocArray(INTSXP, dimsVector);
         for (int i=0; i<len; i++)
           INTEGER(rArray)[i] = pData[i];
         break;
       }
       case _NPY_DOUBLE: {
-        npy_double* pData = (npy_double*)_PyArray_DATA(array);
+        _npy_double* pData = (_npy_double*)_PyArray_DATA(array);
         rArray = Rf_allocArray(REALSXP, dimsVector);
         for (int i=0; i<len; i++)
           REAL(rArray)[i] = pData[i];
         break;
       }
     case _NPY_CDOUBLE: {
-        npy_complex128* pData = (npy_complex128*)_PyArray_DATA(array);
+        _npy_complex128* pData = (_npy_complex128*)_PyArray_DATA(array);
         rArray = Rf_allocArray(CPLXSXP, dimsVector);
         for (int i=0; i<len; i++) {
-          npy_complex128 data = pData[i];
+          _npy_complex128 data = pData[i];
           Rcomplex cpx;
           cpx.r = data.real;
           cpx.i = data.imag;
@@ -647,13 +643,13 @@ PyObject* r_to_py(RObject x) {
 
     IntegerVector dimAttrib = x.attr("dim");
     int nd = dimAttrib.length();
-    std::vector<npy_intp> dims(nd);
+    std::vector<_npy_intp> dims(nd);
     for (int i = 0; i<nd; i++)
       dims[i] = dimAttrib[i];
     int typenum;
     void* data;
     if (type == INTSXP) {
-      typenum = NPY_INT32;
+      typenum = _NPY_INT32;
       data = &(INTEGER(sexp)[0]);
     } else if (type == REALSXP) {
       typenum = _NPY_DOUBLE;
@@ -839,12 +835,6 @@ PyObject* r_to_py(RObject x) {
 }
 
 
-// import numpy array api
-bool py_import_numpy_array_api() {
-  import_array1(false);
-  return true;
-}
-
 // custom module used for calling R functions from python wrappers
 
 
@@ -931,9 +921,6 @@ void py_initialize(const std::string& pythonSharedLibrary) {
   if (!import_numpy_api(isPython3(), &err))
     stop(err);
 
-  // import numpy array api
-  if (!py_import_numpy_array_api())
-    stop(py_fetch_error());
 }
 
 // [[Rcpp::export]]

@@ -422,32 +422,32 @@ inline bool import_numpy_api(bool python3, std::string* pError) {
   PyObject* c_api = _PyObject_GetAttrString(numpy, "_ARRAY_API");
   _Py_DecRef(numpy);
   if (c_api == NULL) {
-    *pError = "_ARRAY_API not found";
+    *pError = "numpy.core.multiarray _ARRAY_API not found";
     return false;
   }
 
-  // TODO: python3 loading and checking for both
-
-  if (python3) {
-
-  } else {
+  // get api pointer
+  if (python3)
+    _PyArray_API = (void **)_PyCapsule_GetPointer(c_api, NULL);
+  else
     _PyArray_API = (void **)_PyCObject_AsVoidPtr(c_api);
-    _Py_DecRef(c_api);
-    if (_PyArray_API == NULL) {
-      *pError = "_ARRAY_API is NULL pointer";
-      return false;
-    }
+
+  _Py_DecRef(c_api);
+  if (_PyArray_API == NULL) {
+    *pError = "_ARRAY_API is NULL pointer";
+    return false;
   }
 
-
   return true;
-
 }
 
 #define _NPY_ARRAY_F_CONTIGUOUS    0x0002
 #define _NPY_ARRAY_ALIGNED         0x0100
 #define _NPY_ARRAY_FARRAY_RO    (_NPY_ARRAY_F_CONTIGUOUS | _NPY_ARRAY_ALIGNED)
 
+#define _NPY_ARRAY_WRITEABLE       0x0400
+#define _NPY_ARRAY_BEHAVED      (_NPY_ARRAY_ALIGNED | _NPY_ARRAY_WRITEABLE)
+#define _NPY_ARRAY_FARRAY       (_NPY_ARRAY_F_CONTIGUOUS | _NPY_ARRAY_BEHAVED)
 
 class SharedLibrary {
 

@@ -143,7 +143,7 @@ First, the values from the `labels_placeholder` are converted to 64-bit integers
 ```{r}
 labels <- tf$to_int64(labels)
 cross_entropy <- tf$nn$sparse_softmax_cross_entropy_with_logits(
-  logits, labels, name = 'xentropy')
+  logits = logits, labels = labels, name = 'xentropy')
 ```
 
 It then uses [`tf.reduce_mean`](https://www.tensorflow.org/api_docs/python/math_ops.html#reduce_mean) to average the cross entropy values across the batch dimension (the first dimension) as the total loss.

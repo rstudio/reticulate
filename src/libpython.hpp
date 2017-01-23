@@ -25,10 +25,10 @@ typedef int Py_ssize_t;
 typedef long Py_ssize_t;
 #endif
 
-typedef struct _object PyObject;
-
 #define METH_VARARGS  0x0001
 #define METH_KEYWORDS 0x0002
+
+#define _Py_file_input 257
 
 #define __PyObject_HEAD_EXTRA
 #define __PyObject_EXTRA_INIT
@@ -56,7 +56,7 @@ typedef struct {
 _PyObject_VAR_HEAD
 } _PyVarObject;
 
-typedef _PyObject *(*_PyCFunction)(PyObject *, PyObject *);
+typedef _PyObject *(*_PyCFunction)(_PyObject *, _PyObject *);
 
 struct _PyMethodDef {
   const char	*ml_name;
@@ -79,9 +79,9 @@ _PyObject_HEAD_INIT(NULL) \
   NULL, \
 }
 
-typedef int (*_inquiry)(PyObject *);
-typedef int (*_visitproc)(PyObject *, void *);
-typedef int (*_traverseproc)(PyObject *, _visitproc, void *);
+typedef int (*_inquiry)(_PyObject *);
+typedef int (*_visitproc)(_PyObject *, void *);
+typedef int (*_traverseproc)(_PyObject *, _visitproc, void *);
 typedef void (*_freefunc)(void *);
 
 typedef struct _PyModuleDef_Base {
@@ -107,21 +107,21 @@ typedef struct _PyModuleDef{
 LIBPYTHON_EXTERN _PyTypeObject* _PyFunction_Type;
 LIBPYTHON_EXTERN _PyTypeObject* _PyModule_Type;
 
-LIBPYTHON_EXTERN PyObject* _Py_None;
-LIBPYTHON_EXTERN PyObject* _Py_Unicode;
-LIBPYTHON_EXTERN PyObject* _Py_String;
-LIBPYTHON_EXTERN PyObject* _Py_Int;
-LIBPYTHON_EXTERN PyObject* _Py_Long;
-LIBPYTHON_EXTERN PyObject* _Py_Bool;
-LIBPYTHON_EXTERN PyObject* _Py_True;
-LIBPYTHON_EXTERN PyObject* _Py_False;
-LIBPYTHON_EXTERN PyObject* _Py_Dict;
-LIBPYTHON_EXTERN PyObject* _Py_Float;
-LIBPYTHON_EXTERN PyObject* _Py_List;
-LIBPYTHON_EXTERN PyObject* _Py_Tuple;
-LIBPYTHON_EXTERN PyObject* _Py_Complex;
+LIBPYTHON_EXTERN _PyObject* _Py_None;
+LIBPYTHON_EXTERN _PyObject* _Py_Unicode;
+LIBPYTHON_EXTERN _PyObject* _Py_String;
+LIBPYTHON_EXTERN _PyObject* _Py_Int;
+LIBPYTHON_EXTERN _PyObject* _Py_Long;
+LIBPYTHON_EXTERN _PyObject* _Py_Bool;
+LIBPYTHON_EXTERN _PyObject* _Py_True;
+LIBPYTHON_EXTERN _PyObject* _Py_False;
+LIBPYTHON_EXTERN _PyObject* _Py_Dict;
+LIBPYTHON_EXTERN _PyObject* _Py_Float;
+LIBPYTHON_EXTERN _PyObject* _Py_List;
+LIBPYTHON_EXTERN _PyObject* _Py_Tuple;
+LIBPYTHON_EXTERN _PyObject* _Py_Complex;
 
-#define _Py_TYPE(ob) (((PyObject*)(ob))->ob_type)
+#define _Py_TYPE(ob) (((_PyObject*)(ob))->ob_type)
 
 #define _PyUnicode_Check(o) (_Py_TYPE(o) == _Py_TYPE(_Py_Unicode))
 #define _PyString_Check(o) (_Py_TYPE(o) == _Py_TYPE(_Py_String))
@@ -137,110 +137,110 @@ LIBPYTHON_EXTERN PyObject* _Py_Complex;
 
 LIBPYTHON_EXTERN void (*_Py_Initialize)();
 
-LIBPYTHON_EXTERN PyObject* (*_Py_InitModule4)(const char *name, _PyMethodDef *methods,
-           const char *doc, PyObject *self,
+LIBPYTHON_EXTERN _PyObject* (*_Py_InitModule4)(const char *name, _PyMethodDef *methods,
+           const char *doc, _PyObject *self,
            int apiver);
 
-LIBPYTHON_EXTERN PyObject* (*_PyImport_ImportModule)(const char *name);
+LIBPYTHON_EXTERN _PyObject* (*_PyImport_ImportModule)(const char *name);
 
-LIBPYTHON_EXTERN PyObject* (*_PyModule_Create2)(_PyModuleDef *def, int);
-LIBPYTHON_EXTERN int (*_PyImport_AppendInittab)(const char *name, PyObject* (*initfunc)());
+LIBPYTHON_EXTERN _PyObject* (*_PyModule_Create2)(_PyModuleDef *def, int);
+LIBPYTHON_EXTERN int (*_PyImport_AppendInittab)(const char *name, _PyObject* (*initfunc)());
 
-LIBPYTHON_EXTERN PyObject* (*_Py_BuildValue)(const char *format, ...);
+LIBPYTHON_EXTERN _PyObject* (*_Py_BuildValue)(const char *format, ...);
 
-LIBPYTHON_EXTERN void (*_Py_IncRef)(PyObject *);
-LIBPYTHON_EXTERN void (*_Py_DecRef)(PyObject *);
+LIBPYTHON_EXTERN void (*_Py_IncRef)(_PyObject *);
+LIBPYTHON_EXTERN void (*_Py_DecRef)(_PyObject *);
 
-LIBPYTHON_EXTERN PyObject* (*__PyObject_Str)(PyObject *);
+LIBPYTHON_EXTERN _PyObject* (*__PyObject_Str)(_PyObject *);
 
-LIBPYTHON_EXTERN int (*_PyObject_IsInstance)(PyObject *object, PyObject *typeorclass);
+LIBPYTHON_EXTERN int (*_PyObject_IsInstance)(_PyObject *object, _PyObject *typeorclass);
 
-LIBPYTHON_EXTERN PyObject* (*_PyObject_Dir)(PyObject *);
+LIBPYTHON_EXTERN _PyObject* (*_PyObject_Dir)(_PyObject *);
 
-LIBPYTHON_EXTERN PyObject* (*_PyObject_Call)(PyObject *callable_object,
-           PyObject *args, PyObject *kw);
-LIBPYTHON_EXTERN PyObject* (*_PyObject_CallFunctionObjArgs)(PyObject *callable,
+LIBPYTHON_EXTERN _PyObject* (*_PyObject_Call)(_PyObject *callable_object,
+           _PyObject *args, _PyObject *kw);
+LIBPYTHON_EXTERN _PyObject* (*_PyObject_CallFunctionObjArgs)(_PyObject *callable,
            ...);
 
-LIBPYTHON_EXTERN PyObject* (*_PyObject_GetAttrString)(PyObject*, const char *);
-LIBPYTHON_EXTERN int (*_PyObject_HasAttrString)(PyObject*, const char *);
+LIBPYTHON_EXTERN _PyObject* (*_PyObject_GetAttrString)(_PyObject*, const char *);
+LIBPYTHON_EXTERN int (*_PyObject_HasAttrString)(_PyObject*, const char *);
 
-LIBPYTHON_EXTERN Py_ssize_t (*_PyTuple_Size)(PyObject *);
-LIBPYTHON_EXTERN PyObject* (*_PyTuple_GetItem)(PyObject *, Py_ssize_t);
-LIBPYTHON_EXTERN PyObject* (*_PyTuple_New)(Py_ssize_t size);
-LIBPYTHON_EXTERN int (*_PyTuple_SetItem)(PyObject *, Py_ssize_t, PyObject *);
-LIBPYTHON_EXTERN PyObject* (*_PyTuple_GetSlice)(PyObject *, Py_ssize_t, Py_ssize_t);
+LIBPYTHON_EXTERN Py_ssize_t (*_PyTuple_Size)(_PyObject *);
+LIBPYTHON_EXTERN _PyObject* (*_PyTuple_GetItem)(_PyObject *, Py_ssize_t);
+LIBPYTHON_EXTERN _PyObject* (*_PyTuple_New)(Py_ssize_t size);
+LIBPYTHON_EXTERN int (*_PyTuple_SetItem)(_PyObject *, Py_ssize_t, _PyObject *);
+LIBPYTHON_EXTERN _PyObject* (*_PyTuple_GetSlice)(_PyObject *, Py_ssize_t, Py_ssize_t);
 
-LIBPYTHON_EXTERN PyObject* (*_PyList_New)(Py_ssize_t size);
-LIBPYTHON_EXTERN Py_ssize_t (*_PyList_Size)(PyObject *);
-LIBPYTHON_EXTERN PyObject* (*_PyList_GetItem)(PyObject *, Py_ssize_t);
-LIBPYTHON_EXTERN int (*_PyList_SetItem)(PyObject *, Py_ssize_t, PyObject *);
+LIBPYTHON_EXTERN _PyObject* (*_PyList_New)(Py_ssize_t size);
+LIBPYTHON_EXTERN Py_ssize_t (*_PyList_Size)(_PyObject *);
+LIBPYTHON_EXTERN _PyObject* (*_PyList_GetItem)(_PyObject *, Py_ssize_t);
+LIBPYTHON_EXTERN int (*_PyList_SetItem)(_PyObject *, Py_ssize_t, _PyObject *);
 
 LIBPYTHON_EXTERN int (*_PyString_AsStringAndSize)(
-    register PyObject *obj,	/* string or Unicode object */
+    register _PyObject *obj,	/* string or Unicode object */
     register char **s,		/* pointer to buffer variable */
     register Py_ssize_t *len	/* pointer to length variable or NULL
   (only possible for 0-terminated
   strings) */
 );
 
-LIBPYTHON_EXTERN PyObject* (*_PyString_FromString)(const char *);
-LIBPYTHON_EXTERN PyObject* (*_PyString_FromStringAndSize)(const char *, Py_ssize_t);
+LIBPYTHON_EXTERN _PyObject* (*_PyString_FromString)(const char *);
+LIBPYTHON_EXTERN _PyObject* (*_PyString_FromStringAndSize)(const char *, Py_ssize_t);
 
-LIBPYTHON_EXTERN PyObject* (*_PyUnicode_EncodeLocale)(PyObject *unicode, const char *errors);
+LIBPYTHON_EXTERN _PyObject* (*_PyUnicode_EncodeLocale)(_PyObject *unicode, const char *errors);
 LIBPYTHON_EXTERN int (*_PyBytes_AsStringAndSize)(
-    PyObject *obj,      /* string or Unicode object */
+    _PyObject *obj,      /* string or Unicode object */
     char **s,           /* pointer to buffer variable */
     Py_ssize_t *len     /* pointer to length variable or NULL
   (only possible for 0-terminated
   strings) */
 );
-LIBPYTHON_EXTERN PyObject* (*_PyBytes_FromStringAndSize)(const char *, Py_ssize_t);
-LIBPYTHON_EXTERN PyObject* (*_PyUnicode_FromString)(const char *u);
+LIBPYTHON_EXTERN _PyObject* (*_PyBytes_FromStringAndSize)(const char *, Py_ssize_t);
+LIBPYTHON_EXTERN _PyObject* (*_PyUnicode_FromString)(const char *u);
 
-LIBPYTHON_EXTERN void (*_PyErr_Fetch)(PyObject **, PyObject **, PyObject **);
-LIBPYTHON_EXTERN PyObject* (*_PyErr_Occurred)(void);
-LIBPYTHON_EXTERN void (*_PyErr_NormalizeException)(PyObject**, PyObject**, PyObject**);
+LIBPYTHON_EXTERN void (*_PyErr_Fetch)(_PyObject **, _PyObject **, _PyObject **);
+LIBPYTHON_EXTERN _PyObject* (*_PyErr_Occurred)(void);
+LIBPYTHON_EXTERN void (*_PyErr_NormalizeException)(_PyObject**, _PyObject**, _PyObject**);
 
-LIBPYTHON_EXTERN int (*_PyCallable_Check)(PyObject *);
+LIBPYTHON_EXTERN int (*_PyCallable_Check)(_PyObject *);
 
-LIBPYTHON_EXTERN PyObject* (*_PyModule_GetDict)(PyObject *);
-LIBPYTHON_EXTERN PyObject* (*_PyImport_AddModule)(const char *);
+LIBPYTHON_EXTERN _PyObject* (*_PyModule_GetDict)(_PyObject *);
+LIBPYTHON_EXTERN _PyObject* (*_PyImport_AddModule)(const char *);
 
-LIBPYTHON_EXTERN PyObject* (*_PyRun_StringFlags)(const char *, int, PyObject*, PyObject*, void*);
+LIBPYTHON_EXTERN _PyObject* (*_PyRun_StringFlags)(const char *, int, _PyObject*, _PyObject*, void*);
 LIBPYTHON_EXTERN int (*_PyRun_SimpleFileExFlags)(FILE *, const char *, int, void *);
 
-LIBPYTHON_EXTERN PyObject* (*_PyObject_GetIter)(PyObject *);
-LIBPYTHON_EXTERN PyObject* (*_PyIter_Next)(PyObject *);
+LIBPYTHON_EXTERN _PyObject* (*_PyObject_GetIter)(_PyObject *);
+LIBPYTHON_EXTERN _PyObject* (*_PyIter_Next)(_PyObject *);
 
 LIBPYTHON_EXTERN void (*_PySys_SetArgv)(int, char **);
 LIBPYTHON_EXTERN void (*_PySys_SetArgv_v3)(int, wchar_t **);
 
-typedef void (*_PyCapsule_Destructor)(PyObject *);
-LIBPYTHON_EXTERN PyObject* (*_PyCapsule_New)(void *pointer, const char *name, _PyCapsule_Destructor destructor);
-LIBPYTHON_EXTERN void* (*_PyCapsule_GetPointer)(PyObject *capsule, const char *name);
+typedef void (*_PyCapsule_Destructor)(_PyObject *);
+LIBPYTHON_EXTERN _PyObject* (*_PyCapsule_New)(void *pointer, const char *name, _PyCapsule_Destructor destructor);
+LIBPYTHON_EXTERN void* (*_PyCapsule_GetPointer)(_PyObject *capsule, const char *name);
 
-LIBPYTHON_EXTERN PyObject* (*_PyDict_New)(void);
-LIBPYTHON_EXTERN int (*_PyDict_SetItem)(PyObject *mp, PyObject *key, PyObject *item);
-LIBPYTHON_EXTERN int (*_PyDict_SetItemString)(PyObject *dp, const char *key, PyObject *item);
+LIBPYTHON_EXTERN _PyObject* (*_PyDict_New)(void);
+LIBPYTHON_EXTERN int (*_PyDict_SetItem)(_PyObject *mp, _PyObject *key, _PyObject *item);
+LIBPYTHON_EXTERN int (*_PyDict_SetItemString)(_PyObject *dp, const char *key, _PyObject *item);
 LIBPYTHON_EXTERN int (*__PyDict_Next)(
-    PyObject *mp, Py_ssize_t *pos, PyObject **key, PyObject **value);
+    _PyObject *mp, Py_ssize_t *pos, _PyObject **key, _PyObject **value);
 
-LIBPYTHON_EXTERN PyObject* (*_PyInt_FromLong)(long);
-LIBPYTHON_EXTERN long (*_PyInt_AsLong)(PyObject *);
-LIBPYTHON_EXTERN PyObject* (*_PyLong_FromLong)(long);
-LIBPYTHON_EXTERN long (*_PyLong_AsLong)(PyObject *);
+LIBPYTHON_EXTERN _PyObject* (*_PyInt_FromLong)(long);
+LIBPYTHON_EXTERN long (*_PyInt_AsLong)(_PyObject *);
+LIBPYTHON_EXTERN _PyObject* (*_PyLong_FromLong)(long);
+LIBPYTHON_EXTERN long (*_PyLong_AsLong)(_PyObject *);
 
-LIBPYTHON_EXTERN PyObject* (*_PyBool_FromLong)(long);
+LIBPYTHON_EXTERN _PyObject* (*_PyBool_FromLong)(long);
 
-LIBPYTHON_EXTERN PyObject* (*_PyFloat_FromDouble)(double);
-LIBPYTHON_EXTERN double (*_PyFloat_AsDouble)(PyObject *);
+LIBPYTHON_EXTERN _PyObject* (*_PyFloat_FromDouble)(double);
+LIBPYTHON_EXTERN double (*_PyFloat_AsDouble)(_PyObject *);
 
-LIBPYTHON_EXTERN PyObject* (*_PyComplex_FromDoubles)(double real, double imag);
-LIBPYTHON_EXTERN double (*_PyComplex_RealAsDouble)(PyObject *op);
-LIBPYTHON_EXTERN double (*_PyComplex_ImagAsDouble)(PyObject *op);
+LIBPYTHON_EXTERN _PyObject* (*_PyComplex_FromDoubles)(double real, double imag);
+LIBPYTHON_EXTERN double (*_PyComplex_RealAsDouble)(_PyObject *op);
+LIBPYTHON_EXTERN double (*_PyComplex_ImagAsDouble)(_PyObject *op);
 
-LIBPYTHON_EXTERN void* (*_PyCObject_AsVoidPtr)(PyObject *);
+LIBPYTHON_EXTERN void* (*_PyCObject_AsVoidPtr)(_PyObject *);
 
 LIBPYTHON_EXTERN int (*_PyType_IsSubtype)(_PyTypeObject *, _PyTypeObject *);
 
@@ -362,7 +362,7 @@ LIBPYTHON_EXTERN void **_PyArray_API;
    _PyArray_API[49])
 
 #define _PyArray_SetBaseObject             \
- (*(int (*)(_PyArrayObject *, PyObject *)) \
+ (*(int (*)(_PyArrayObject *, _PyObject *)) \
     _PyArray_API[282])
 
 #define _PyArray_MultiplyList        \
@@ -374,15 +374,15 @@ LIBPYTHON_EXTERN void **_PyArray_API;
         _PyArray_API[45])
 
 #define _PyArray_DescrFromScalar           \
-      (*(__PyArray_Descr * (*)(PyObject *)) \
+      (*(__PyArray_Descr * (*)(_PyObject *)) \
          _PyArray_API[57])                                     \
 
 #define _PyArray_CastScalarToCtype                         \
-         (*(int (*)(PyObject *, void *, __PyArray_Descr *)) \
+         (*(int (*)(_PyObject *, void *, __PyArray_Descr *)) \
             _PyArray_API[63])
 
 #define _PyArray_New                                                                                          \
-          (*(PyObject * (*)(_PyTypeObject *, int, _npy_intp *, int, _npy_intp *, void *, int, int, PyObject *)) \
+          (*(_PyObject * (*)(_PyTypeObject *, int, _npy_intp *, int, _npy_intp *, void *, int, int, _PyObject *)) \
              _PyArray_API[93])
 
 inline void* _PyArray_DATA(_PyArrayObject *arr) {
@@ -417,13 +417,13 @@ inline int _PyArray_NDIM(const _PyArrayObject *arr) {
 
 inline bool import_numpy_api(bool python3, std::string* pError) {
 
-  PyObject* numpy = _PyImport_ImportModule("numpy.core.multiarray");
+  _PyObject* numpy = _PyImport_ImportModule("numpy.core.multiarray");
   if (numpy == NULL) {
     *pError = "numpy.core.multiarray failed to import";
     return false;
   }
 
-  PyObject* c_api = _PyObject_GetAttrString(numpy, "_ARRAY_API");
+  _PyObject* c_api = _PyObject_GetAttrString(numpy, "_ARRAY_API");
   _Py_DecRef(numpy);
   if (c_api == NULL) {
     *pError = "numpy.core.multiarray _ARRAY_API not found";

@@ -384,7 +384,6 @@ int narrow_array_typenum(__PyArray_Descr* descr) {
   return narrow_array_typenum(descr->type_num);
 }
 
-
 // convert a python object to an R object
 SEXP py_to_r(PyObject* x) {
 
@@ -496,7 +495,7 @@ SEXP py_to_r(PyObject* x) {
   }
 
   // numpy array
-  else if (PyArray_Check(x)) {
+  else if (_PyArray_Check(x)) {
 
     // get the array
     _PyArrayObject* array = (_PyArrayObject*)x;
@@ -514,7 +513,7 @@ SEXP py_to_r(PyObject* x) {
 
     // cast it to a fortran array (PyArray_CastToType steals the descr)
     // (note that we will decref the copied array below)
-    ___PyArray_Descr* descr = (___PyArray_Descr*)PyArray_DescrFromType(typenum);
+    ___PyArray_Descr* descr = _PyArray_DescrFromType(typenum);
     array = (_PyArrayObject*)_PyArray_CastToType(array, descr, NPY_ARRAY_FARRAY);
     if (array == NULL)
       stop(py_fetch_error());
@@ -567,39 +566,38 @@ SEXP py_to_r(PyObject* x) {
   }
 
   // check for numpy scalar
-  else if (PyArray_CheckScalar(x)) {
+  else if (_PyArray_CheckScalar(x)) {
 
     // determine the type to convert to
-    PyArray_DescrPtr descrPtr((___PyArray_Descr*)PyArray_DescrFromScalar(x));
+    PyArray_DescrPtr descrPtr(_PyArray_DescrFromScalar(x));
     int typenum = narrow_array_typenum(descrPtr);
-    PyArray_DescrPtr toDescrPtr((___PyArray_Descr*)PyArray_DescrFromType(typenum));
-    PyArray_Descr* toDescr = (PyArray_Descr*)toDescrPtr.get();
+    PyArray_DescrPtr toDescr(_PyArray_DescrFromType(typenum));
 
     // convert to R type (guaranteed to by NPY_BOOL, NPY_LONG, or NPY_DOUBLE
     // as per the contract of narrow_arrow_typenum)
     switch(typenum) {
     case _NPY_BOOL:
     {
-      npy_bool value;
-      PyArray_CastScalarToCtype(x, (void*)&value, toDescr);
+      _npy_bool value;
+      _PyArray_CastScalarToCtype(x, (void*)&value, toDescr);
       return LogicalVector::create(value);
     }
     case _NPY_LONG:
     {
-      npy_long value;
-      PyArray_CastScalarToCtype(x, (void*)&value, toDescr);
+      _npy_long value;
+      _PyArray_CastScalarToCtype(x, (void*)&value, toDescr);
       return IntegerVector::create(value);
     }
     case _NPY_DOUBLE:
     {
-      npy_double value;
-      PyArray_CastScalarToCtype(x, (void*)&value, toDescr);
+      _npy_double value;
+      _PyArray_CastScalarToCtype(x, (void*)&value, toDescr);
       return NumericVector::create(value);
     }
     case _NPY_CDOUBLE:
     {
-      npy_complex128 value;
-      PyArray_CastScalarToCtype(x, (void*)&value, toDescr);
+      _npy_complex128 value;
+      _PyArray_CastScalarToCtype(x, (void*)&value, toDescr);
       Rcomplex cpx;
       cpx.r = value.real;
       cpx.i = value.imag;
@@ -672,14 +670,14 @@ PyObject* r_to_py(RObject x) {
     }
 
     // create the matrix
-    PyObject* array = PyArray_New(&PyArray_Type,
+    PyObject* array = _PyArray_New(&_PyArray_Type,
                                    nd,
                                    &(dims[0]),
                                    typenum,
                                    NULL,
                                    data,
                                    0,
-                                   NPY_ARRAY_FARRAY_RO,
+                                   _NPY_ARRAY_FARRAY_RO,
                                    NULL);
 
     // check for error
@@ -692,7 +690,7 @@ PyObject* r_to_py(RObject x) {
 
     // set the array's base object to the capsule (detach since PyArray_SetBaseObject
     // steals a reference to the provided base object)
-    int res = _PyArray_SetBaseObject((_PyArrayObject *)array, (_PyObject*)capsule.detach());
+    int res = _PyArray_SetBaseObject((_PyArrayObject *)array, capsule.detach());
     if (res != 0)
       stop(py_fetch_error());
 
@@ -1037,7 +1035,7 @@ IntegerVector py_get_attribute_types(
              _PyTuple_Check(attr) ||
              _PyDict_Check(attr))
       types[i] = LIST;
-    else if (PyArray_Check(attr))
+    else if (_PyArray_Check(attr))
       types[i] = ARRAY;
     else if (_PyBool_Check(attr)   ||
              _PyInt_Check(attr)    ||

@@ -175,6 +175,7 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
   LOAD_PYTHON_SYMBOL(PyObject_IsInstance)
   LOAD_PYTHON_SYMBOL(PyObject_Call)
   LOAD_PYTHON_SYMBOL(PyObject_CallFunctionObjArgs)
+  LOAD_PYTHON_SYMBOL(PyType_IsSubtype)
 
   if (python3) {
     LOAD_PYTHON_SYMBOL(PyModule_Create2)
@@ -203,6 +204,7 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
   LOAD_PYTHON_SYMBOL(PyCapsule_New)
   LOAD_PYTHON_SYMBOL(PyCapsule_GetPointer)
   LOAD_PYTHON_SYMBOL(Py_BuildValue)
+
 
 
   _Py_None = _Py_BuildValue("z", NULL);

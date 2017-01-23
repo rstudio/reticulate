@@ -241,6 +241,10 @@ LIBPYTHON_EXTERN double (*_PyComplex_ImagAsDouble)(PyObject *op);
 
 LIBPYTHON_EXTERN void* (*_PyCObject_AsVoidPtr)(PyObject *);
 
+LIBPYTHON_EXTERN int (*_PyType_IsSubtype)(_PyTypeObject *, _PyTypeObject *);
+
+
+#define _PyObject_TypeCheck(o, tp) ((_PyTypeObject*)_Py_TYPE(o) == (tp)) || _PyType_IsSubtype((_PyTypeObject*)_Py_TYPE(o), (tp))
 
 enum _NPY_TYPES {
   _NPY_BOOL=0,
@@ -287,6 +291,13 @@ typedef struct _tagPyArrayObject {
   _PyObject_HEAD
 } _PyArrayObject;
 
+
+typedef unsigned char _npy_bool;
+typedef long _npy_long;
+typedef double _npy_double;
+typedef struct { double real, imag; } _npy_cdouble;
+typedef _npy_cdouble _npy_complex128;
+
 typedef intptr_t _npy_intp;
 
 
@@ -331,19 +342,44 @@ typedef struct _tagPyArrayObject_fields {
 } _PyArrayObject_fields;
 
 
+// https://github.com/explosion/thinc/blob/master/include/numpy/__multiarray_api.h
+
 LIBPYTHON_EXTERN void **_PyArray_API;
+
+
+
+#define _PyArray_Type (*(_PyTypeObject *)_PyArray_API[2])
+
+
+#define _PyGenericArrType_Type (*(_PyTypeObject *)_PyArray_API[10])
 
 #define _PyArray_CastToType                                \
 (*(_PyObject * (*)(_PyArrayObject *, __PyArray_Descr *, int)) \
    _PyArray_API[49])
 
 #define _PyArray_SetBaseObject             \
- (*(int (*)(_PyArrayObject *, _PyObject *)) \
+ (*(int (*)(_PyArrayObject *, PyObject *)) \
     _PyArray_API[282])
 
 #define _PyArray_MultiplyList        \
   (*(_npy_intp (*)(_npy_intp *, int)) \
-     _PyArray_API[158])
+     _PyArray_API[158])                                        \
+
+#define _PyArray_DescrFromType     \
+     (*(__PyArray_Descr * (*)(int)) \
+        _PyArray_API[45])
+
+#define _PyArray_DescrFromScalar           \
+      (*(__PyArray_Descr * (*)(PyObject *)) \
+         _PyArray_API[57])                                     \
+
+#define _PyArray_CastScalarToCtype                         \
+         (*(int (*)(PyObject *, void *, __PyArray_Descr *)) \
+            _PyArray_API[63])
+
+#define _PyArray_New                                                                                          \
+          (*(PyObject * (*)(_PyTypeObject *, int, _npy_intp *, int, _npy_intp *, void *, int, int, PyObject *)) \
+             _PyArray_API[93])
 
 inline void* _PyArray_DATA(_PyArrayObject *arr) {
   return ((_PyArrayObject_fields *)arr)->data;
@@ -363,6 +399,17 @@ inline int _PyArray_NDIM(const _PyArrayObject *arr) {
 
 #define _PyArray_SIZE(m) _PyArray_MultiplyList(_PyArray_DIMS(m), _PyArray_NDIM(m))
 
+#define _PyArray_Check(o) _PyObject_TypeCheck(o, &_PyArray_Type)
+
+#define _PyArray_IsZeroDim(op) (_PyArray_Check(op) && \
+             (_PyArray_NDIM((_PyArrayObject *)op) == 0))
+
+#define _PyArray_IsScalar(obj, cls)                                            \
+           (_PyObject_TypeCheck(obj, &_Py##cls##ArrType_Type))
+
+#define _PyArray_CheckScalar(m) (_PyArray_IsScalar(m, Generic) ||               \
+         _PyArray_IsZeroDim(m))                                 \
+
 
 inline bool import_numpy_api(bool python3, std::string* pError) {
 
@@ -378,6 +425,8 @@ inline bool import_numpy_api(bool python3, std::string* pError) {
     *pError = "_ARRAY_API not found";
     return false;
   }
+
+  // TODO: python3 loading and checking for both
 
   if (python3) {
 
@@ -395,6 +444,9 @@ inline bool import_numpy_api(bool python3, std::string* pError) {
 
 }
 
+#define _NPY_ARRAY_F_CONTIGUOUS    0x0002
+#define _NPY_ARRAY_ALIGNED         0x0100
+#define _NPY_ARRAY_FARRAY_RO    (_NPY_ARRAY_F_CONTIGUOUS | _NPY_ARRAY_ALIGNED)
 
 
 class SharedLibrary {

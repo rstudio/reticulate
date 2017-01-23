@@ -264,6 +264,25 @@ enum _NPY_TYPES {
 #define _NPY_INT32 _NPY_INT
 
 
+// PyArray_Descr is opaque to our code so we just get the header
+
+typedef struct ___PyArray_Descr {
+  _PyObject_HEAD
+  _PyTypeObject *typeobj;
+  char kind;
+  char type;
+  char byteorder;
+  char flags;
+  int type_num;
+  int elsize;
+  int alignment;
+
+  // ...more fields here we don't capture...
+
+} __PyArray_Descr;
+
+
+
 class SharedLibrary {
 
 public:

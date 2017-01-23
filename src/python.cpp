@@ -81,7 +81,7 @@ private:
 };
 
 typedef PyPtr<PyObject> PyObjectPtr;
-typedef PyPtr<PyArray_Descr> PyArray_DescrPtr;
+typedef PyPtr<__PyArray_Descr> PyArray_DescrPtr;
 
 std::string as_std_string(PyObject* str) {
 
@@ -380,7 +380,7 @@ int narrow_array_typenum(PyArrayObject* array) {
   return narrow_array_typenum(PyArray_TYPE(array));
 }
 
-int narrow_array_typenum(PyArray_Descr* descr) {
+int narrow_array_typenum(__PyArray_Descr* descr) {
   return narrow_array_typenum(descr->type_num);
 }
 
@@ -514,8 +514,8 @@ SEXP py_to_r(PyObject* x) {
 
     // cast it to a fortran array (PyArray_CastToType steals the descr)
     // (note that we will decref the copied array below)
-    PyArray_Descr* descr = PyArray_DescrFromType(typenum);
-    array = (PyArrayObject*)PyArray_CastToType(array, descr, NPY_ARRAY_FARRAY);
+    ___PyArray_Descr* descr = (___PyArray_Descr*)PyArray_DescrFromType(typenum);
+    array = (PyArrayObject*)PyArray_CastToType(array, (PyArray_Descr*)descr, NPY_ARRAY_FARRAY);
     if (array == NULL)
       stop(py_fetch_error());
 
@@ -570,9 +570,10 @@ SEXP py_to_r(PyObject* x) {
   else if (PyArray_CheckScalar(x)) {
 
     // determine the type to convert to
-    PyArray_DescrPtr descr(PyArray_DescrFromScalar(x));
-    int typenum = narrow_array_typenum(descr);
-    PyArray_DescrPtr toDescr(PyArray_DescrFromType(typenum));
+    PyArray_DescrPtr descrPtr((___PyArray_Descr*)PyArray_DescrFromScalar(x));
+    int typenum = narrow_array_typenum(descrPtr);
+    PyArray_DescrPtr toDescrPtr((___PyArray_Descr*)PyArray_DescrFromType(typenum));
+    PyArray_Descr* toDescr = (PyArray_Descr*)toDescrPtr.get();
 
     // convert to R type (guaranteed to by NPY_BOOL, NPY_LONG, or NPY_DOUBLE
     // as per the contract of narrow_arrow_typenum)

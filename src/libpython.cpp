@@ -1,4 +1,5 @@
 
+#define LIBPYTHON_CPP
 #include "libpython.hpp"
 
 #ifndef _WIN32
@@ -107,125 +108,7 @@ bool closeLibrary(void* pLib, std::string* pError)
 
 } // anonymous namespace
 
-void (*_Py_Initialize)();
 
-PyObject* (*_Py_InitModule4)(const char *name, _PyMethodDef *methods,
-                  const char *doc, PyObject *self,
-                  int apiver);
-
-PyObject* (*_PyImport_ImportModule)(const char *name);
-
-PyObject* (*_PyModule_Create2)(_PyModuleDef *def, int);
-int (*_PyImport_AppendInittab)(const char *name, PyObject* (*initfunc)());
-
-void (*_Py_IncRef)(PyObject *);
-void (*_Py_DecRef)(PyObject *);
-
-PyObject* (*_Py_BuildValue)(const char *format, ...);
-
-PyObject* (*__PyObject_Str)(PyObject *);
-int (*_PyObject_IsInstance)(PyObject *object, PyObject *typeorclass);
-PyObject* (*_PyObject_Dir)(PyObject *);
-
-PyObject* (*_PyObject_Call)(PyObject *callable_object,
-                  PyObject *args, PyObject *kw);
-PyObject* (*_PyObject_CallFunctionObjArgs)(PyObject *callable,
-                  ...);
-
-PyObject* (*_PyObject_GetAttrString)(PyObject *, const char *);
-int (*_PyObject_HasAttrString)(PyObject*, const char *);
-
-Py_ssize_t (*_PyTuple_Size)(PyObject *);
-PyObject* (*_PyTuple_GetItem)(PyObject *, Py_ssize_t);
-PyObject* (*_PyTuple_New)(Py_ssize_t size);
-int (*_PyTuple_SetItem)(PyObject *, Py_ssize_t, PyObject *);
-PyObject* (*_PyTuple_GetSlice)(PyObject *, Py_ssize_t, Py_ssize_t);
-
-PyObject* (*_PyList_New)(Py_ssize_t size);
-Py_ssize_t (*_PyList_Size)(PyObject *);
-PyObject* (*_PyList_GetItem)(PyObject *, Py_ssize_t);
-int (*_PyList_SetItem)(PyObject *, Py_ssize_t, PyObject *);
-
-PyObject* (*_PyDict_New)(void);
-int (*_PyDict_SetItem)(PyObject *mp, PyObject *key, PyObject *item);
-int (*_PyDict_SetItemString)(PyObject *dp, const char *key, PyObject *item);
-int (*__PyDict_Next)(
-    PyObject *mp, Py_ssize_t *pos, PyObject **key, PyObject **value);
-
-int (*_PyString_AsStringAndSize)(
-    register PyObject *obj,	/* string or Unicode object */
-    register char **s,		/* pointer to buffer variable */
-    register Py_ssize_t *len	/* pointer to length variable or NULL
-  (only possible for 0-terminated
-  strings) */
-);
-
-PyObject* (*_PyString_FromString)(const char *);
-PyObject* (*_PyString_FromStringAndSize)(const char *, Py_ssize_t);
-
-PyObject* (*_PyUnicode_EncodeLocale)(PyObject *unicode, const char *errors);
-int (*_PyBytes_AsStringAndSize)(
-    PyObject *obj,      /* string or Unicode object */
-    char **s,           /* pointer to buffer variable */
-    Py_ssize_t *len     /* pointer to length variable or NULL
- (only possible for 0-terminated
- strings) */
-);
-PyObject* (*_PyBytes_FromStringAndSize)(const char *, Py_ssize_t);
-PyObject* (*_PyUnicode_FromString)(const char *u);
-
-void (*_PyErr_Fetch)(PyObject **, PyObject **, PyObject **);
-PyObject* (*_PyErr_Occurred)(void);
-void (*_PyErr_NormalizeException)(PyObject**, PyObject**, PyObject**);
-
-int (*_PyCallable_Check)(PyObject*);
-
-PyObject* (*_PyModule_GetDict)(PyObject *);
-PyObject* (*_PyImport_AddModule)(const char *);
-
-PyObject* (*_PyRun_StringFlags)(const char *, int, PyObject*, PyObject*, void*);
-int (*_PyRun_SimpleFileExFlags)(FILE *, const char *, int, void *);
-
-PyObject* (*_PyObject_GetIter)(PyObject *);
-PyObject* (*_PyIter_Next)(PyObject *);
-
-void (*_PySys_SetArgv)(int, char **);
-void (*_PySys_SetArgv_v3)(int, wchar_t **);
-
-PyObject* (*_PyCapsule_New)(void *pointer, const char *name, _PyCapsule_Destructor destructor);
-void* (*_PyCapsule_GetPointer)(PyObject *capsule, const char *name);
-
-PyObject* (*_PyInt_FromLong)(long);
-long (*_PyInt_AsLong)(PyObject *);
-PyObject* (*_PyLong_FromLong)(long);
-long (*_PyLong_AsLong)(PyObject *);
-
-PyObject* (*_PyBool_FromLong)(long);
-
-PyObject* (*_PyFloat_FromDouble)(double);
-double (*_PyFloat_AsDouble)(PyObject *);
-
-PyObject* (*_PyComplex_FromDoubles)(double real, double imag);
-double (*_PyComplex_RealAsDouble)(PyObject *op);
-double (*_PyComplex_ImagAsDouble)(PyObject *op);
-
-
-PyObject* _Py_None;
-PyObject* _Py_Unicode;
-PyObject* _Py_String;
-PyObject* _Py_Int;
-PyObject* _Py_Long;
-PyObject* _Py_Bool;
-PyObject* _Py_True;
-PyObject* _Py_False;
-PyObject* _Py_Dict;
-PyObject* _Py_Float;
-PyObject* _Py_List;
-PyObject* _Py_Tuple;
-PyObject* _Py_Complex;
-
-_PyTypeObject* _PyFunction_Type;
-_PyTypeObject* _PyModule_Type;
 
 
 #define LOAD_PYTHON_SYMBOL_AS(name, as)             \

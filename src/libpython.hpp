@@ -3,7 +3,6 @@
 #define __LIBPYTHON_HPP__
 
 #include <string>
-#include <stdint.h>
 
 #ifndef LIBPYTHON_CPP
 #define LIBPYTHON_EXTERN extern
@@ -266,12 +265,6 @@ enum _NPY_TYPES {
   _NPY_USERDEF=256,
   _NPY_NTYPES_ABI_COMPATIBLE=21
 };
-
-#if SIZEOF_LONG == 4
-#define _NPY_INT32 _NPY_LONG
-#else
-#define _NPY_INT32 _NPY_INT
-#endif
 
 
 // PyArray_Descr is opaque to our code so we just get the header

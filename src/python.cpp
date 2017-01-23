@@ -645,7 +645,10 @@ _PyObject* r_to_py(RObject x) {
     int typenum;
     void* data;
     if (type == INTSXP) {
-      typenum = _NPY_INT32;
+      if (sizeof(long) == 4)
+        typenum = _NPY_LONG;
+      else
+        typenum = _NPY_INT;
       data = &(INTEGER(sexp)[0]);
     } else if (type == REALSXP) {
       typenum = _NPY_DOUBLE;

@@ -3,7 +3,6 @@
 #define __LIBPYTHON_HPP__
 
 #include <string>
-#include <cstdint>
 
 #ifndef LIBPYTHON_CPP
 #define LIBPYTHON_EXTERN extern
@@ -14,18 +13,9 @@
 #define _PYTHON_API_VERSION 1013
 #define _PYTHON3_ABI_VERSION 3
 
-// bitness detection
-#if INTPTR_MAX == INT64_MAX
-#define LIBPYTHON_64_BIT 1
-#elif INTPTR_MAX == INT32_MAX
-#define LIBPYTHON_32_BIT 1
-#else
-#error Unknown pointer size or missing size macros!
-#endif
-
 
 #if _WIN32 || _WIN64
-#if LIBPYTHON_64_BIT
+#if _WIN64
 typedef __int64 Py_ssize_t;
 #else
 typedef int Py_ssize_t;

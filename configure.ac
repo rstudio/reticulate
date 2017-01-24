@@ -82,14 +82,6 @@ fi
 PKG_LIBS=`$PYTHONCONFIG --ldflags`
 PKG_CPPFLAGS=`$PYTHONCONFIG --includes`
 
-# find the numpy includes
-NUMPY_INCLUDE_DIR=`$PYTHON_BIN -c "import numpy; print(numpy.get_include())"`
-if test -z "${NUMPY_INCLUDE_DIR}"; then
-  echo "Could not locate numpy include directory"
-  exit 1
-fi
-PKG_CPPFLAGS="$PKG_CPPFLAGS -I$NUMPY_INCLUDE_DIR"
-
 # Find the .so library for python
 PYTHONLIBFILE=libpython`$PYTHON_BIN -c "import sys; print(sys.version[[:3]])"`.so
 PKG_CPPFLAGS="$PKG_CPPFLAGS -D PYTHONLIBFILE=$PYTHONLIBFILE"
@@ -97,7 +89,6 @@ PKG_CPPFLAGS="$PKG_CPPFLAGS -D PYTHONLIBFILE=$PYTHONLIBFILE"
 AC_SUBST(PYTHON_BIN)
 AC_SUBST(PKG_LIBS)
 AC_SUBST(PKG_CPPFLAGS)
-AC_SUBST(NUMPY_INCLUDE_DIR)
 
 AC_PREREQ
 

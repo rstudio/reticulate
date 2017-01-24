@@ -118,7 +118,7 @@ if (!loadSymbol(pLib_, #name, (void**)&as, pError)) \
   return false;
 
 #define LOAD_PYTHON_SYMBOL(name)                                \
-if (!loadSymbol(pLib_, #name, (void**)&_##name, pError)) \
+if (!loadSymbol(pLib_, #name, (void**) &libpython::name, pError)) \
   return false;
 
 bool SharedLibrary::load(const std::string& libPath, bool python3, std::string* pError)
@@ -151,7 +151,7 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
   LOAD_PYTHON_SYMBOL(PyErr_Fetch)
   LOAD_PYTHON_SYMBOL(PyErr_Occurred)
   LOAD_PYTHON_SYMBOL(PyErr_NormalizeException)
-  LOAD_PYTHON_SYMBOL_AS(PyObject_Str, __PyObject_Str)
+  LOAD_PYTHON_SYMBOL(PyObject_Str)
   LOAD_PYTHON_SYMBOL(PyObject_Dir)
   LOAD_PYTHON_SYMBOL(PyCallable_Check)
   LOAD_PYTHON_SYMBOL(PyRun_StringFlags)
@@ -166,11 +166,11 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
   LOAD_PYTHON_SYMBOL(PyDict_New)
   LOAD_PYTHON_SYMBOL(PyDict_SetItem)
   LOAD_PYTHON_SYMBOL(PyDict_SetItemString)
-  LOAD_PYTHON_SYMBOL_AS(PyDict_Next, __PyDict_Next)
+  LOAD_PYTHON_SYMBOL(PyDict_Next)
   LOAD_PYTHON_SYMBOL(PyFloat_AsDouble)
   LOAD_PYTHON_SYMBOL(PyFloat_FromDouble)
-  LOAD_PYTHON_SYMBOL_AS(PyFunction_Type, _PyFunction_Type)
-  LOAD_PYTHON_SYMBOL_AS(PyModule_Type, _PyModule_Type)
+  LOAD_PYTHON_SYMBOL(PyFunction_Type)
+  LOAD_PYTHON_SYMBOL(PyModule_Type)
   LOAD_PYTHON_SYMBOL(PyComplex_FromDoubles)
   LOAD_PYTHON_SYMBOL(PyComplex_RealAsDouble)
   LOAD_PYTHON_SYMBOL(PyComplex_ImagAsDouble)
@@ -182,16 +182,16 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
   if (python3) {
     LOAD_PYTHON_SYMBOL(PyModule_Create2)
     LOAD_PYTHON_SYMBOL(PyImport_AppendInittab)
-    LOAD_PYTHON_SYMBOL_AS(PySys_SetArgv, _PySys_SetArgv_v3)
+    LOAD_PYTHON_SYMBOL_AS(PySys_SetArgv, PySys_SetArgv_v3)
     LOAD_PYTHON_SYMBOL(PyUnicode_EncodeLocale)
     LOAD_PYTHON_SYMBOL(PyBytes_AsStringAndSize)
     LOAD_PYTHON_SYMBOL(PyBytes_FromStringAndSize)
     LOAD_PYTHON_SYMBOL(PyUnicode_FromString)
-    LOAD_PYTHON_SYMBOL_AS(PyLong_AsLong, _PyInt_AsLong)
-    LOAD_PYTHON_SYMBOL_AS(PyLong_FromLong, _PyInt_FromLong)
+    LOAD_PYTHON_SYMBOL_AS(PyLong_AsLong, PyInt_AsLong)
+    LOAD_PYTHON_SYMBOL_AS(PyLong_FromLong, PyInt_FromLong)
   } else {
     if (is64bit) {
-      LOAD_PYTHON_SYMBOL_AS(Py_InitModule4_64, _Py_InitModule4)
+      LOAD_PYTHON_SYMBOL_AS(Py_InitModule4_64, Py_InitModule4)
     } else {
       LOAD_PYTHON_SYMBOL(Py_InitModule4)
     }
@@ -209,23 +209,23 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
 
 
 
-  _Py_None = _Py_BuildValue("z", NULL);
-  _Py_Unicode = _Py_BuildValue("u", "a");
+  Py_None = Py_BuildValue("z", NULL);
+  Py_Unicode = Py_BuildValue("u", "a");
   if (python3)
-    _Py_String = _Py_BuildValue("y", "a");
+    Py_String = Py_BuildValue("y", "a");
   else
-    _Py_String = _Py_BuildValue("s", "a");
+    Py_String = Py_BuildValue("s", "a");
 
-  _Py_Int = _PyInt_FromLong(1024L);
-  _Py_Long = _PyLong_FromLong(1024L);
-  _Py_Bool = _PyBool_FromLong(1L);
-  _Py_True = _PyBool_FromLong(1L);
-  _Py_False = _PyBool_FromLong(0L);
-  _Py_Dict = _Py_BuildValue("{s:i}", "a", 1024);
-  _Py_Float = _PyFloat_FromDouble(0.0);
-  _Py_Tuple = _Py_BuildValue("(i)", 1024);
-  _Py_List = _Py_BuildValue("[i]", 1024);
-  _Py_Complex = _PyComplex_FromDoubles(0.0, 0.0);
+  Py_Int = PyInt_FromLong(1024L);
+  Py_Long = PyLong_FromLong(1024L);
+  Py_Bool = PyBool_FromLong(1L);
+  Py_True = PyBool_FromLong(1L);
+  Py_False = PyBool_FromLong(0L);
+  Py_Dict = Py_BuildValue("{s:i}", "a", 1024);
+  Py_Float = PyFloat_FromDouble(0.0);
+  Py_Tuple = Py_BuildValue("(i)", 1024);
+  Py_List = Py_BuildValue("[i]", 1024);
+  Py_Complex = PyComplex_FromDoubles(0.0, 0.0);
 
   return true;
 }

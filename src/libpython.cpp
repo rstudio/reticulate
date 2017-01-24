@@ -214,16 +214,16 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
   else
     _Py_String = _Py_BuildValue("s", "a");
 
-  _Py_Int = ::_PyInt_FromLong(1024L);
-  _Py_Long = ::_PyLong_FromLong(1024L);
-  _Py_Bool = ::_PyBool_FromLong(1L);
-  _Py_True = ::_PyBool_FromLong(1L);
-  _Py_False = ::_PyBool_FromLong(0L);
-  _Py_Dict = ::_Py_BuildValue("{s:i}", "a", 1024);
-  _Py_Float = ::_PyFloat_FromDouble(0.0);
-  _Py_Tuple = ::_Py_BuildValue("(i)", 1024);
-  _Py_List = ::_Py_BuildValue("[i]", 1024);
-  _Py_Complex = ::_PyComplex_FromDoubles(0.0, 0.0);
+  _Py_Int = _PyInt_FromLong(1024L);
+  _Py_Long = _PyLong_FromLong(1024L);
+  _Py_Bool = _PyBool_FromLong(1L);
+  _Py_True = _PyBool_FromLong(1L);
+  _Py_False = _PyBool_FromLong(0L);
+  _Py_Dict = _Py_BuildValue("{s:i}", "a", 1024);
+  _Py_Float = _PyFloat_FromDouble(0.0);
+  _Py_Tuple = _Py_BuildValue("(i)", 1024);
+  _Py_List = _Py_BuildValue("[i]", 1024);
+  _Py_Complex = _PyComplex_FromDoubles(0.0, 0.0);
 
   return true;
 }

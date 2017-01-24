@@ -6,7 +6,7 @@
 
 inline void python_object_finalize(_PyObject* object) {
   if (object != NULL)
-    ::_Py_DecRef(object);
+    _Py_DecRef(object);
 }
 
 typedef Rcpp::XPtr<_PyObject, Rcpp::PreserveStorage, python_object_finalize>

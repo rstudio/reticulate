@@ -110,11 +110,11 @@ str.tensorflow.builtin.object <- function(object, ...) {
     return(character())
 
   # get the names and filter out internal attributes (_*)
-  names <- py_list_attributes(x)
+  names <- py_suppress_warnings(py_list_attributes(x))
   names <- names[substr(names, 1, 1) != '_']
 
   # get the types
-  attr(names, "types") <- py_get_attribute_types(x, names)
+  attr(names, "types") <- py_suppress_warnings(py_get_attribute_types(x, names))
 
   # specify a help_handler
   attr(names, "helpHandler") <- "tensorflow:::help_handler"
@@ -279,5 +279,28 @@ print.tensorflow.builtin.iterator <- function(x, ...) {
   cat("Python iterator/generator (use tensorflow::iterate to traverse)\n")
 }
 
+# utility function to suppress all python and tf warnings for an expression
+py_suppress_warnings <- function(expr) {
 
+  # ignore python warnings
+  warnings <- import("warnings")
+  warnings$simplefilter("ignore")
+  on.exit(warnings$resetwarnings(), add = TRUE)
+
+  # ignore tensorflow warnings
+  if (!is.null(tf)) {
+    logging <- tf$python$platform$tf_logging
+    old_verbosity <- logging$get_verbosity()
+    logging$set_verbosity(40L) # error (warning is 30L)
+    on.exit(logging$set_verbosity(old_verbosity))
+  }
+
+  # evaluate the expression
+  force(expr)
+}
+
+# get an attribute w/ no warnings (e.g. deprecation warnings)
+py_get_attr_silent <- function(x, name) {
+  py_suppress_warnings(py_get_attr(x, name))
+}
 

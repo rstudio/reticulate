@@ -26,9 +26,14 @@ python_config <- function() {
   version <- exec_python("import sys; sys.stdout.write(str(sys.version_info.major) + '.' + str(sys.version_info.minor));")
 
   # determine the location of libpython
-  python_libdir <- exec_python("import sys; import sysconfig; sys.stdout.write(sysconfig.get_config_vars('LIBDIR')[0]);")
-  ext <- switch(Sys.info()[["sysname"]], Darwin = ".dylib", Windows = ".dll", ".so")
-  libpython <- file.path(python_libdir, paste0("libpython", version, ext))
+  if (is_windows()) {
+    python_libdir <- dirname(python)
+    libpython <- file.path(python_libdir, paste0("python", gsub(".", "", version, fixed = TRUE), ".dll"))
+  } else {
+    python_libdir <- exec_python("import sys; import sysconfig; sys.stdout.write(sysconfig.get_config_vars('LIBDIR')[0]);")
+    ext <- switch(Sys.info()[["sysname"]], Darwin = ".dylib", Windows = ".dll", ".so")
+    libpython <- file.path(python_libdir, paste0("libpython", version, ext))
+  }
 
   # return config info
   structure(class = "python_config", list(

@@ -1,5 +1,0 @@
-
-PYTHON_BIN <- "@PYTHON_BIN@"
-PKG_LIBS <- "@PKG_LIBS@"
-
-

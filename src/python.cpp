@@ -8,13 +8,10 @@ using namespace Rcpp;
 
 using namespace libpython;
 
+// track whether we are using python 3 (set during py_initialize)
+bool s_isPython3 = false;
 bool isPython3() {
-  return false;
-// #if PY_MAJOR_VERSION >= 3
-//   return true;
-// #else
-//   return false;
-// #endif
+  return s_isPython3;
 }
 
 // forward declare error handling utility
@@ -888,10 +885,13 @@ extern "C" PyObject* initializeTFCall(void) {
 }
 
 // [[Rcpp::export]]
-void py_initialize(const std::string& pythonSharedLibrary) {
+void py_initialize(const std::string& libpython, bool python3) {
+
+  // set python3 flag
+  s_isPython3 = python3;
 
   std::string err;
-  if (!libPython().load(pythonSharedLibrary, isPython3(), &err))
+  if (!libPython().load(libpython, isPython3(), &err))
     stop(err);
 
   if (isPython3()) {

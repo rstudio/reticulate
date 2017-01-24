@@ -27,7 +27,7 @@ NULL
 
   # initialize python
   config <- tf_config()
-  py_initialize(config$libpython);
+  py_initialize(config$libpython, config$version >= "3.0");
 
   # add our python scripts to the search path
   py_run_string(paste0("import sys; sys.path.append('",

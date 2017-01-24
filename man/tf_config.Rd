@@ -9,7 +9,6 @@ tf_config()
 \description{
 Retreive a list containing configuration information including the
 \code{python} binary and \code{libpython} the package was built against,
-the location of the \code{numpy} include directory, and the version and
-location of the TensorFlow python module.
+, and the version and location of the TensorFlow python module.
 }
 

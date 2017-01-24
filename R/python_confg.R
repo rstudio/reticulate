@@ -25,8 +25,9 @@ python_config <- function() {
   # determine the version
   version <- exec_python("import sys; sys.stdout.write(str(sys.version_info.major) + '.' + str(sys.version_info.minor));")
 
-  # determine the location of libpython
-  python_libdir <- exec_python("import sys; import sysconfig; sys.stdout.write(sysconfig.get_config_vars('LIBDIR')[0]);")
+  # determine the location of libpython (note that the LIBRARY variable has the name of the static library)
+  python_libdir <- exec_python("import sys; import sysconfig; sys.stdout.write(sysconfig.get_config_vars('LIBPL')[0]);")
+
   ext <- switch(Sys.info()[["sysname"]], Darwin = ".dylib", Windows = ".dll", ".so")
   libpython <- file.path(python_libdir, paste0("libpython", version, ext))
 

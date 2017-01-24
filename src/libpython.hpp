@@ -335,44 +335,40 @@ typedef struct tagPyArrayObject_fields {
 } PyArrayObject_fields;
 
 
-// https://github.com/explosion/thinc/blob/master/include/numpy/__multiarray_api.h
 
-LIBPYTHON_EXTERN void **_PyArray_API;
+LIBPYTHON_EXTERN void **PyArray_API;
 
+#define PyArray_Type (*(PyTypeObject *)PyArray_API[2])
 
-
-#define PyArray_Type (*(PyTypeObject *)_PyArray_API[2])
-
-
-#define PyGenericArrType_Type (*(PyTypeObject *)_PyArray_API[10])
+#define PyGenericArrType_Type (*(PyTypeObject *)PyArray_API[10])
 
 #define PyArray_CastToType                                \
 (*(PyObject * (*)(PyArrayObject *, PyArray_Descr *, int)) \
-   _PyArray_API[49])
+   PyArray_API[49])
 
 #define PyArray_SetBaseObject             \
  (*(int (*)(PyArrayObject *, PyObject *)) \
-    _PyArray_API[282])
+    PyArray_API[282])
 
 #define PyArray_MultiplyList        \
   (*(npy_intp (*)(npy_intp *, int)) \
-     _PyArray_API[158])                                        \
+     PyArray_API[158])                                        \
 
 #define PyArray_DescrFromType     \
      (*(PyArray_Descr * (*)(int)) \
-        _PyArray_API[45])
+        PyArray_API[45])
 
 #define PyArray_DescrFromScalar           \
       (*(PyArray_Descr * (*)(PyObject *)) \
-         _PyArray_API[57])                                     \
+         PyArray_API[57])                                     \
 
 #define PyArray_CastScalarToCtype                         \
          (*(int (*)(PyObject *, void *, PyArray_Descr *)) \
-            _PyArray_API[63])
+            PyArray_API[63])
 
 #define PyArray_New                                                                                          \
           (*(PyObject * (*)(PyTypeObject *, int, npy_intp *, int, npy_intp *, void *, int, int, PyObject *)) \
-             _PyArray_API[93])
+             PyArray_API[93])
 
 inline void* PyArray_DATA(PyArrayObject *arr) {
   return ((PyArrayObject_fields *)arr)->data;
@@ -421,12 +417,12 @@ inline bool import_numpy_api(bool python3, std::string* pError) {
 
   // get api pointer
   if (python3)
-    _PyArray_API = (void **)_PyCapsule_GetPointer(c_api, NULL);
+    PyArray_API = (void **)_PyCapsule_GetPointer(c_api, NULL);
   else
-    _PyArray_API = (void **)_PyCObject_AsVoidPtr(c_api);
+    PyArray_API = (void **)_PyCObject_AsVoidPtr(c_api);
 
   _Py_DecRef(c_api);
-  if (_PyArray_API == NULL) {
+  if (PyArray_API == NULL) {
     *pError = "_ARRAY_API is NULL pointer";
     return false;
   }

@@ -27,6 +27,7 @@ python_config <- function() {
 
   # determine the location of libpython
   if (is_windows()) {
+    # note that 'prefix' has the binary location and 'py_version_nodot` has the suffix`
     python_libdir <- dirname(python)
     libpython <- file.path(python_libdir, paste0("python", gsub(".", "", version, fixed = TRUE), ".dll"))
   } else {

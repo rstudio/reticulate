@@ -2,6 +2,8 @@
 #define __TENSORFLOW_TYPES__
 
 #include "libpython.hpp"
+using namespace libpython;
+
 #include <Rcpp.h>
 
 inline void python_object_finalize(PyObject* object) {

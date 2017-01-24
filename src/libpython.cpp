@@ -12,6 +12,8 @@
 #include <string>
 #include <iostream>
 
+namespace libpython {
+
 namespace {
 
 void lastDLErrorMessage(std::string* pError)
@@ -236,7 +238,7 @@ bool SharedLibrary::unload(std::string* pError)
     return true;
 }
 
-
+} // namespace libpython
 
 
 

@@ -6,6 +6,8 @@ using namespace Rcpp;
 
 #include "tensorflow_types.hpp"
 
+using namespace libpython;
+
 bool isPython3() {
   return false;
 // #if PY_MAJOR_VERSION >= 3

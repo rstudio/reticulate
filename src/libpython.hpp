@@ -13,6 +13,7 @@
 #define _PYTHON_API_VERSION 1013
 #define _PYTHON3_ABI_VERSION 3
 
+namespace libpython {
 
 #if _WIN32 || _WIN64
 #if _WIN64
@@ -468,6 +469,8 @@ inline SharedLibrary& libPython() {
   static LibPython instance;
   return instance;
 }
+
+} // namespace libpython
 
 #endif
 

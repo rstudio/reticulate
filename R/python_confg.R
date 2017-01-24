@@ -1,4 +1,6 @@
 
+# TODO: test w/ various versions of python
+# TODO: scanning for versions not explicitly known
 
 python_config <- function() {
 

@@ -113,5 +113,5 @@ AC_PROG_CC
 # Checks for typedefs, structures, and compiler characteristics.
 # (None)
 
-AC_CONFIG_FILES([src/Makevars R/config.R])
+AC_CONFIG_FILES([R/config.R])
 AC_OUTPUT

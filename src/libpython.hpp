@@ -3,6 +3,7 @@
 #define __LIBPYTHON_HPP__
 
 #include <string>
+#include <stdint.h>
 
 #ifndef LIBPYTHON_CPP
 #define LIBPYTHON_EXTERN extern

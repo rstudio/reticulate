@@ -3,8 +3,7 @@
 #'
 #' Retreive a list containing configuration information including the
 #' \code{python} binary and \code{libpython} the package was built against,
-#' the location of the \code{numpy} include directory, and the version and
-#' location of the TensorFlow python module.
+#' , and the version and location of the TensorFlow python module.
 #'
 #' @export
 tf_config <- function() {
@@ -43,8 +42,7 @@ tf_config <- function() {
   # build configuration
   config <- structure(class = "tf_config", list(
     python = PYTHON_BIN,
-    libpython = libpython,
-    numpy = NUMPY_INCLUDE_DIR)
+    libpython = libpython)
   )
 
   # add TF config info
@@ -61,7 +59,6 @@ tf_config <- function() {
 print.tf_config <- function(x, ...) {
   cat("python:     ", x$python, "\n")
   cat("libpython:  ", x$libpython, "\n")
-  cat("numpy:      ", x$numpy, "\n")
   if (!is.null(x$tf)) {
     cat("tf:         ", x$tf, "\n")
     cat("tf_version: ", x$tf_version, "\n")

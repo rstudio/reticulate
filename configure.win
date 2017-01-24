@@ -18,15 +18,12 @@ fi
 # find paths
 PYTHON_BIN=`$USE_PYTHON -c "import sys; sys.stdout.write(sys.executable.replace(\"\\\\\\\\\", \"/\"))"`
 PYTHON_DIR=`$USE_PYTHON -c "import sys; sys.stdout.write(sys.exec_prefix.replace(\"\\\\\\\\\", \"/\"))"`
-NUMPY_INCLUDE_DIR=`$USE_PYTHON -c "import sys; import numpy; sys.stdout.write(numpy.get_include().replace(\"\\\\\\\\\", \"/\"))"`
 PYTHON_VERSION=`$USE_PYTHON -c 'import sys; import platform; major, minor, patch = platform.python_version_tuple(); sys.stdout.write(major + "" + minor);'`
 
 # write config.R
 PKG_LIBS="-L$PYTHON_DIR -lpython$PYTHON_VERSION"
 echo "PYTHON_BIN <- \"$PYTHON_BIN\""                 > R/config.R
 echo "PKG_LIBS <- \"$PKG_LIBS\""                    >> R/config.R
-echo "NUMPY_INCLUDE_DIR <- \"$NUMPY_INCLUDE_DIR\""  >> R/config.R
-
 
 
 

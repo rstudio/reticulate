@@ -210,9 +210,6 @@ LIBPYTHON_EXTERN int (*PyRun_SimpleFileExFlags)(FILE *, const char *, int, void 
 LIBPYTHON_EXTERN PyObject* (*PyObject_GetIter)(PyObject *);
 LIBPYTHON_EXTERN PyObject* (*PyIter_Next)(PyObject *);
 
-LIBPYTHON_EXTERN void (*PySys_SetArgv)(int, char **);
-LIBPYTHON_EXTERN void (*PySys_SetArgv_v3)(int, wchar_t **);
-
 typedef void (*PyCapsule_Destructor)(PyObject *);
 LIBPYTHON_EXTERN PyObject* (*PyCapsule_New)(void *pointer, const char *name, PyCapsule_Destructor destructor);
 LIBPYTHON_EXTERN void* (*PyCapsule_GetPointer)(PyObject *capsule, const char *name);
@@ -241,6 +238,14 @@ LIBPYTHON_EXTERN void* (*PyCObject_AsVoidPtr)(PyObject *);
 
 LIBPYTHON_EXTERN int (*PyType_IsSubtype)(PyTypeObject *, PyTypeObject *);
 
+LIBPYTHON_EXTERN void (*Py_SetProgramName)(char *);
+LIBPYTHON_EXTERN void (*Py_SetProgramName_v3)(wchar_t *);
+
+LIBPYTHON_EXTERN void (*Py_SetPythonHome)(char *);
+LIBPYTHON_EXTERN void (*Py_SetPythonHome_v3)(wchar_t *);
+
+LIBPYTHON_EXTERN void (*PySys_SetArgv)(int, char **);
+LIBPYTHON_EXTERN void (*PySys_SetArgv_v3)(int, wchar_t **);
 
 #define PyObject_TypeCheck(o, tp) ((PyTypeObject*)Py_TYPE(o) == (tp)) || PyType_IsSubtype((PyTypeObject*)Py_TYPE(o), (tp))
 

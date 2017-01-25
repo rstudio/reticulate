@@ -11,7 +11,7 @@ tf_config <- function() {
   # build configuration
   config <- python_config()
   if (!is.null(tf)) {
-    config$tf <- normalizePath(tf$`__path__`, winslash = "/")
+    config$tf <- normalizePath(tf$`__path__`)
     config$tf_version <- tf$`__version__`
   }
   class(config) <- c("tf_config", "python_config")

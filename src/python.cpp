@@ -13,6 +13,18 @@ bool s_isPython3 = false;
 bool isPython3() {
   return s_isPython3;
 }
+// static buffers for Py_SetProgramName / Py_SetPythonHome
+std::string s_python;
+std::wstring s_python_v3;
+std::string s_pythonhome;
+std::wstring s_pythonhome_v3;
+
+// helper to convert std::string to std::wstring
+std::wstring to_wstring(const std::string& str) {
+  std::wstring ws = std::wstring(str.size(), L' ');
+  ws.resize(std::mbstowcs(&ws[0], str.c_str(), str.size()));
+  return ws;
+}
 
 // forward declare error handling utility
 std::string py_fetch_error();
@@ -885,16 +897,28 @@ extern "C" PyObject* initializeTFCall(void) {
 }
 
 // [[Rcpp::export]]
-void py_initialize(const std::string& libpython, bool python3) {
+void py_initialize(const std::string& python,
+                   const std::string& libpython,
+                   const std::string& pythonhome,
+                   bool python3) {
 
   // set python3 flag
   s_isPython3 = python3;
 
+  // load the library
   std::string err;
   if (!libPython().load(libpython, isPython3(), &err))
     stop(err);
 
   if (isPython3()) {
+
+    // set program name
+    s_python_v3 = to_wstring(python);
+    Py_SetProgramName_v3(const_cast<wchar_t*>(s_python_v3.c_str()));
+
+    // set program home
+    s_pythonhome_v3 = to_wstring(pythonhome);
+    Py_SetPythonHome_v3(const_cast<wchar_t*>(s_pythonhome_v3.c_str()));
 
     // add tfcall module
     PyImport_AppendInittab("tfcall", &initializeTFCall);
@@ -902,10 +926,18 @@ void py_initialize(const std::string& libpython, bool python3) {
     // initialize python
     Py_Initialize();
 
-    const wchar_t *argv[1] = {L"python"};
+    const wchar_t *argv[1] = {L""};
     PySys_SetArgv_v3(1, const_cast<wchar_t**>(argv));
 
   } else {
+
+    // set program name
+    s_python = python;
+    Py_SetProgramName(const_cast<char*>(s_python.c_str()));
+
+    // set program home
+    s_pythonhome = pythonhome;
+    Py_SetPythonHome(const_cast<char*>(s_pythonhome.c_str()));
 
     // initialize python
     Py_Initialize();
@@ -914,9 +946,8 @@ void py_initialize(const std::string& libpython, bool python3) {
     Py_InitModule4("tfcall", TFCallMethods, (char *)NULL, (PyObject *)NULL,
                       _PYTHON_API_VERSION);
 
-    const char *argv[1] = {"python"};
+    const char *argv[1] = {""};
     PySys_SetArgv(1, const_cast<char**>(argv));
-
   }
 
   if (!import_numpy_api(isPython3(), &err))

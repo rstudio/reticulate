@@ -1,4 +1,6 @@
 
+# TODO: test w/ various versions of python
+# TODO: scanning for versions not explicitly known
 
 # https://github.com/JuliaPy/PyCall.jl/blob/master/deps/build.jl
 # https://docs.python.org/3/c-api/init.html#c.Py_SetProgramName

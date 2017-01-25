@@ -1,6 +1,7 @@
 
 # TODO: test w/ various versions of python
 # TODO: scanning for versions not explicitly known
+# TODO: PyIter_Check not working (tf$constant is an iterator!)
 
 # https://github.com/JuliaPy/PyCall.jl/blob/master/deps/build.jl
 # https://docs.python.org/3/c-api/init.html#c.Py_SetProgramName

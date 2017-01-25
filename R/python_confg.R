@@ -1,7 +1,13 @@
 
 
 # TODO: test w/ various versions of python
+#
 # TODO: scanning for versions not explicitly known
+#  - /usr/local/bin, /opt/local/bin, etc.
+#  - virtualenv in ~/tensorflow
+#  - ~/anaconda/envs/tensorflow
+#  - etc.
+#
 # TODO: PyIter_Check not working (tf$constant is an iterator!)
 
 # https://github.com/JuliaPy/PyCall.jl/blob/master/deps/build.jl
@@ -56,6 +62,20 @@ python_config <- function() {
     exec_python(sprintf("import sys; sys.stdout.write(sys.%s);", var))
   }
 
+  # verify we aren't running anaconda on osx
+  if (is_osx()) {
+    version <- tolower(py_sys_var("version"))
+    if (grepl("continuum", version) || grepl("anaconda", version)) {
+      stop("\n\nPython Version: ", python, "\n\n",
+           "The tensorflow R package is not compatible with ",
+           "Conda/Anaconda distributions of Python on OS X. Please ",
+           "use another version of Python (you can select a ",
+           "version by defining the ",
+           "TENSORFLOW_PYTHON environment variable).\n", call. = FALSE)
+    }
+  }
+
+
   # determine the version
   version <- exec_python("import sys; sys.stdout.write(str(sys.version_info.major) + '.' + str(sys.version_info.minor));")
 
@@ -66,9 +86,14 @@ python_config <- function() {
     libpython <- file.path(python_libdir, paste0("python", gsub(".", "", version, fixed = TRUE), ".dll"))
   } else {
     # (note that the LIBRARY variable has the name of the static library)
-    python_libdir <- py_config_var('LIBPL')
-    ext <- switch(Sys.info()[["sysname"]], Darwin = ".dylib", Windows = ".dll", ".so")
-    libpython <- file.path(python_libdir, paste0("libpython", version, ext))
+    python_libdir_config <- function(var) {
+      python_libdir <- py_config_var(var)
+      ext <- switch(Sys.info()[["sysname"]], Darwin = ".dylib", Windows = ".dll", ".so")
+      libpython <- file.path(python_libdir, paste0("libpython", version, ext))
+    }
+    libpython <- python_libdir_config("LIBPL")
+    if (!file.exists(libpython))
+      libpython <- python_libdir_config("LIBDIR")
   }
   if (!file.exists(libpython))
     stop("Python shared library '", libpython, "' not found.")
@@ -101,6 +126,10 @@ print.python_config <- function(x, ...) {
 
 is_windows <- function() {
   identical(.Platform$OS.type, "windows")
+}
+
+is_osx <- function() {
+  Sys.info()["sysname"] == "Darwin"
 }
 
 

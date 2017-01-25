@@ -14,8 +14,9 @@ python_config <- function() {
   tensorflow_python <- Sys.getenv("TENSORFLOW_PYTHON", unset = NA)
   if (!is.na(tensorflow_python)) {
 
-    # normalize trailing slash
+    # normalize trailing slash and expand
     tensorflow_python <- gsub("[\\/]+$", "", tensorflow_python)
+    tensorflow_python <- path.expand(tensorflow_python)
 
     # check for existence
     if (!file_test("-d", tensorflow_python) && !file_test("-f", tensorflow_python))

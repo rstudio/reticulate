@@ -1,4 +1,5 @@
 
+
 # TODO: test w/ various versions of python
 # TODO: scanning for versions not explicitly known
 # TODO: PyIter_Check not working (tf$constant is an iterator!)
@@ -50,6 +51,10 @@ python_config <- function() {
                         var))
   }
 
+  py_sys_var <- function(var) {
+    exec_python(sprintf("import sys; sys.stdout.write(sys.%s);", var))
+  }
+
   # determine the version
   version <- exec_python("import sys; sys.stdout.write(str(sys.version_info.major) + '.' + str(sys.version_info.minor));")
 
@@ -68,10 +73,10 @@ python_config <- function() {
     stop("Python shared library '", libpython, "' not found.")
 
   # determine PYTHONHOME
-  pythonhome <- normalizePath(py_config_var("prefix"), mustWork = FALSE)
+  pythonhome <- normalizePath(py_sys_var("prefix"), mustWork = FALSE)
   if (!is_windows())
     pythonhome <- paste(pythonhome,
-                        normalizePath(py_config_var("exec_prefix"), mustWork = FALSE),
+                        normalizePath(py_sys_var("exec_prefix"), mustWork = FALSE),
                         sep = ":")
 
   # return config info

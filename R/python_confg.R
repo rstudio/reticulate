@@ -2,7 +2,11 @@
 
 # TODO: test w/ various versions of python
 #
+# TODO: load even if we can't load python?
+# TODO: 'm' suffix for anaconda?
+#
 # TODO: scanning for versions not explicitly known
+#  - windows registry
 #  - /usr/local/bin, /opt/local/bin, etc.
 #  - virtualenv in ~/tensorflow
 #  - ~/anaconda/envs/tensorflow
@@ -63,7 +67,7 @@ python_config <- function() {
   }
 
   # verify we aren't running anaconda on osx
-  if (is_osx()) {
+  if (!is_windows()) {
     version <- tolower(py_sys_var("version"))
     if (grepl("continuum", version) || grepl("anaconda", version)) {
       stop("\n\nPython Version: ", python, "\n\n",
@@ -89,7 +93,7 @@ python_config <- function() {
     python_libdir_config <- function(var) {
       python_libdir <- py_config_var(var)
       ext <- switch(Sys.info()[["sysname"]], Darwin = ".dylib", Windows = ".dll", ".so")
-      libpython <- file.path(python_libdir, paste0("libpython", version, ext))
+      libpython <- file.path(python_libdir, paste0("libpython", version, "m", ext))
     }
     libpython <- python_libdir_config("LIBPL")
     if (!file.exists(libpython))

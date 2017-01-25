@@ -291,7 +291,7 @@ py_suppress_warnings <- function(expr) {
   if (!is.null(tf)) {
     logging <- tf$python$platform$tf_logging
     old_verbosity <- logging$get_verbosity()
-    logging$set_verbosity(40L) # error (warning is 30L)
+    logging$set_verbosity(logging$ERROR)
     on.exit(logging$set_verbosity(old_verbosity))
   }
 

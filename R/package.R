@@ -23,10 +23,33 @@
 #' @importFrom Rcpp evalCpp
 NULL
 
+# record of tf config and load error message
+.tf_config <- NULL
+.load_error_message <- NULL
+
 .onLoad <- function(libname, pkgname) {
 
-  # initialize python
+  # find configuration
   config <- tf_config()
+  .tf_config <<- config
+
+  # check for basic python prerequsities
+  if (is.null(config)) {
+    .load_error_message <<- "Installation of Python not found, Python bindings not loaded."
+    return()
+  } else if (!file.exists(config$libpython)) {
+    .load_error_message <<- paste0("Python shared library '", config$libpython, "' not found, Python bindings not loaded.")
+    return()
+  } else if (is.null(config$numpy) || config$numpy$version < "1.11") {
+    .load_error_message <<- "Installation of Numpy >= 1.11 not found, Python bindings not loaded."
+    return()
+  } else if (config$anaconda) {
+    .load_error_message <<- paste0("The tensorflow package does not support Anaconda distributions of Python.\n",
+                                   "Please install tensorflow within another version of Python.")
+    return()
+  }
+
+  # initialize python
   py_initialize(config$python,
                 config$libpython,
                 config$pythonhome,
@@ -37,14 +60,42 @@ NULL
                        system.file("python", package = "tensorflow") ,
                        "')"))
 
-  # call tf onLoad handler
-  tf_on_load(libname, pkgname)
+  # attempt to load tensorflow
+  tf <<- tryCatch(import("tensorflow"), error = function(e) e)
+  if (inherits(tf, "error")) {
+    .load_error_message <<- tf$message
+    tf <<- NULL
+  }
+
+  # verify minimum required TF version
+  if (!is.null(tf)) {
+    tf_version <- tryCatch(tf$VERSION, error = function(e) NULL)
+    tf_version <- gsub("\\.$", "", gsub("[A-Za-z_]+", "", tf_version))
+    if (is.null(tf_version) || package_version(tf_version) < "0.12") {
+      .load_error_message <<- paste("The tensorflow package requires version 0.12",
+                                    "or later of TensorFlow")
+      tf <<- NULL
+    }
+  }
+
+  # if we loaded tensorflow then register tf help topics
+  if (!is.null(tf))
+    register_tf_help_topics()
 }
 
 
 .onAttach <- function(libname, pkgname) {
-  # call tf onAttach handler
-  tf_on_attach(libname, pkgname)
+
+  if (is.null(tf)) {
+    packageStartupMessage("\n", .load_error_message)
+    packageStartupMessage("\nIf you have not yet installed TensorFlow, see ",
+                          "https://www.tensorflow.org/get_started/\n")
+    if (!is.null(.tf_config)) {
+      packageStartupMessage("Detected Python configuration:\n")
+      packageStartupMessage(paste(capture.output(print(.tf_config)), collapse  = "\n"))
+    }
+  }
+
 }
 
 .onUnload <- function(libpath) {

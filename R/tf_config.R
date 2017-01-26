@@ -4,9 +4,6 @@
 # TODO: PyIter_Check not working (tf$constant is an iterator!)
 #
 # TODO: performance of tf_config scanning
-#
-# TODO: list versions scanned for failure
-
 
 tf_config <- function() {
   .tf_config
@@ -54,20 +51,20 @@ tf_discover_config <- function() {
 
   # scan until we find a version of tensorflow
   for (python_version in python_versions) {
-    config <- tf_python_config(python_version)
+    config <- tf_python_config(python_version, python_versions)
     if (!is.null(config$tensorflow) && !config$anaconda)
       return(config)
   }
 
   # no version of tf found, return first if we have it or NULL
   if (length(python_versions) >= 1)
-    return(tf_python_config(python_versions[[1]]))
+    return(tf_python_config(python_versions[[1]], python_versions))
   else
     return(NULL)
 }
 
 
-tf_python_config <- function(python) {
+tf_python_config <- function(python, python_versions) {
 
   # helper to execute python code and return stdout
   exec_python <- function(command) {
@@ -138,7 +135,8 @@ tf_python_config <- function(python) {
     version = version,
     anaconda = anaconda,
     numpy = numpy,
-    tensorflow = tensorflow
+    tensorflow = tensorflow,
+    python_versions = normalizePath(python_versions)
   ))
 
 }
@@ -160,6 +158,11 @@ print.tf_config <- function(x, ...) {
     cat("tf_version:    ", as.character(x$tensorflow$version), "\n")
   } else {
     cat("tf:             [NOT FOUND]\n")
+  }
+  if (length(x$python_versions) > 0) {
+    cat("\npython versions found: \n")
+    python_versions <- paste0(" ", x$python_versions)
+    cat(python_versions, sep = "\n")
   }
 }
 

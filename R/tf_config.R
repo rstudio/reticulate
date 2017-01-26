@@ -1,12 +1,8 @@
 
 
-
-# TODO: performance of tf_config scanning
-
 tf_config <- function() {
   .tf_config
 }
-
 
 tf_discover_config <- function() {
 
@@ -66,23 +62,15 @@ tf_discover_config <- function() {
 
 tf_python_config <- function(python, python_versions) {
 
-  # helper to execute python code and return stdout
-  exec_python <- function(command) {
-    system(command = paste(shQuote(python), "-c", shQuote(command)), intern = TRUE)
-  }
-
-  py_config_var <- function(var) {
-    exec_python(sprintf("import sys; import sysconfig; sys.stdout.write(sysconfig.get_config_vars('%s')[0]);",
-                        var))
-  }
-
-  py_sys_var <- function(var) {
-    exec_python(sprintf("import sys; sys.stdout.write(sys.%s);", var))
-  }
+  # collect configuration information
+  config <- system(paste(shQuote(python),
+                         shQuote(system.file("config/config.py", package = "tensorflow"))),
+                   intern = TRUE)
+  config <- read.dcf(textConnection(config), all = TRUE)
 
   # get the full textual version and the numeric version, check for anaconda
-  version_string <- py_sys_var("version")
-  version <- exec_python("import sys; sys.stdout.write(str(sys.version_info.major) + '.' + str(sys.version_info.minor));")
+  version_string <- config$Version
+  version <- config$VersionNumber
   anaconda <- grepl("continuum", tolower(version_string)) || grepl("anaconda", tolower(version_string))
 
   # determine the location of libpython (see also # https://github.com/JuliaPy/PyCall.jl/blob/master/deps/build.jl)
@@ -93,7 +81,7 @@ tf_python_config <- function(python, python_versions) {
   } else {
     # (note that the LIBRARY variable has the name of the static library)
     python_libdir_config <- function(var) {
-      python_libdir <- py_config_var(var)
+      python_libdir <- config[[var]]
       ext <- switch(Sys.info()[["sysname"]], Darwin = ".dylib", Windows = ".dll", ".so")
       libpython <- file.path(python_libdir, paste0("libpython" , version, ext))
     }
@@ -103,28 +91,24 @@ tf_python_config <- function(python, python_versions) {
   }
 
   # determine PYTHONHOME
-  pythonhome <- normalizePath(py_sys_var("prefix"), mustWork = FALSE)
+  pythonhome <- normalizePath(config$PREFIX, mustWork = FALSE)
   if (!is_windows())
     pythonhome <- paste(pythonhome,
-                        normalizePath(py_sys_var("exec_prefix"), mustWork = FALSE),
+                        normalizePath(config$EXEC_PREFIX, mustWork = FALSE),
                         sep = ":")
 
-  # function to check for a python module and it's version
-  find_python_module <- function(module) {
-    found <- !identical(exec_python(sprintf("import sys; import pkgutil; sys.stdout.write(str(pkgutil.find_loader('%s')));", module)), "None")
-    if (found) {
-      list(
-        path = normalizePath(exec_python(sprintf("import sys; import %s; sys.stdout.write(%s.__path__[0]);", module, module))),
-        version = numeric_version(clean_tf_version(exec_python(sprintf("import sys; import %s; sys.stdout.write(%s.__version__);", module, module))))
-      )
-    } else {
-      NULL
-    }
-  }
 
   # check for numpy and tensorflow
-  numpy <- find_python_module("numpy")
-  tensorflow <- find_python_module("tensorflow")
+  if (!is.null(config$NumpyPath))
+    numpy <- list(path = config$NumpyPath,
+                  version = numeric_version(config$NumpyVersion))
+  else
+    numpy <- NULL
+  if (!is.null(config$TensorflowPath))
+    tensorflow <- list(path = config$TensorflowPath,
+                       version = numeric_version(config$TensorflowVersion))
+  else
+    tensorflow <- NULL
 
   # return config info
   structure(class = "tf_config", list(

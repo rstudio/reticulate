@@ -16,12 +16,12 @@ try:
   import numpy
   sys.stdout.write('\nNumpyPath: ' + str(numpy.__path__[0]))
   sys.stdout.write('\nNumpyVersion: ' + str(numpy.__version__))
-except Exception, e:
+except Exception:
   pass
 
 try:
   import tensorflow
   sys.stdout.write('\nTensorflowPath: ' + str(tensorflow.__path__[0]))
   sys.stdout.write('\nTensorflowVersion: ' + str(tensorflow.__version__))
-except Exception, e:
+except Exception:
   pass

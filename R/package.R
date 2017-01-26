@@ -74,7 +74,7 @@ NULL
   # verify minimum required TF version
   if (!is.null(tf)) {
     tf_version <- tryCatch(tf$VERSION, error = function(e) NULL)
-    tf_version <- gsub("\\.$", "", gsub("[A-Za-z_]+", "", tf_version))
+    tf_version <- clean_tf_version(tf_version)
     if (is.null(tf_version) || package_version(tf_version) < "0.12") {
       .load_error_message <<- paste("The tensorflow package requires version 0.12",
                                     "or later of TensorFlow")

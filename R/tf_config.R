@@ -113,7 +113,7 @@ tf_python_config <- function(python) {
     if (found) {
       list(
         path = normalizePath(exec_python(sprintf("import sys; import %s; sys.stdout.write(%s.__path__[0]);", module, module))),
-        version = numeric_version(exec_python(sprintf("import sys; import %s; sys.stdout.write(%s.__version__);", module, module)))
+        version = numeric_version(clean_tf_version(exec_python(sprintf("import sys; import %s; sys.stdout.write(%s.__version__);", module, module))))
       )
     } else {
       NULL
@@ -165,6 +165,10 @@ is_windows <- function() {
 
 is_osx <- function() {
   Sys.info()["sysname"] == "Darwin"
+}
+
+clean_tf_version <- function(tf_version) {
+  gsub("\\.$", "", gsub("[A-Za-z_]+", "", tf_version))
 }
 
 tensorflow_python <- function() {

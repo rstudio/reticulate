@@ -16,6 +16,7 @@ arr <- function (...) {
 }
 
 test_that("scalar indexing works", {
+
   skip_if_no_tensorflow()
 
   # set up arrays

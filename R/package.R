@@ -25,6 +25,7 @@ NULL
 
 # record of tf config and load error message
 .tf_config <- NULL
+.py_bindings <- FALSE
 .load_error_message <- NULL
 
 .onLoad <- function(libname, pkgname) {
@@ -54,6 +55,9 @@ NULL
                 config$libpython,
                 config$pythonhome,
                 config$version >= "3.0");
+
+  # set internal flag indicating we have py bindings
+  .py_bindings <<- TRUE
 
   # add our python scripts to the search path
   py_run_string(paste0("import sys; sys.path.append('",

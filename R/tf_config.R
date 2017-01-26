@@ -98,15 +98,20 @@ tf_python_config <- function(python, python_versions) {
                         sep = ":")
 
 
+  as_numeric_version <- function(version) {
+    version <- clean_tf_version(version)
+    numeric_version(version)
+  }
+
   # check for numpy and tensorflow
   if (!is.null(config$NumpyPath))
     numpy <- list(path = config$NumpyPath,
-                  version = numeric_version(config$NumpyVersion))
+                  version = as_numeric_version(config$NumpyVersion))
   else
     numpy <- NULL
   if (!is.null(config$TensorflowPath))
     tensorflow <- list(path = config$TensorflowPath,
-                       version = numeric_version(config$TensorflowVersion))
+                       version = as_numeric_version(config$TensorflowVersion))
   else
     tensorflow <- NULL
 

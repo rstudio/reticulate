@@ -31,7 +31,7 @@ NULL
 .onLoad <- function(libname, pkgname) {
 
   # find configuration
-  config <- tf_config()
+  config <- tf_discover_config()
   .tf_config <<- config
 
   # check for basic python prerequsities

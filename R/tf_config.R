@@ -7,57 +7,62 @@
 # TODO: PyIter_Check not working (tf$constant is an iterator!)
 
 
-tf_config <- function(python = NULL) {
 
-  # determine the location of python
-  if (is.null(python)) {
+tf_config <- function() {
+  .tf_config
+}
 
-    # create a list of possible python versions to bind to
-    python_versions <- character()
 
-    # look for environment variable
-    tensorflow_python <- tensorflow_python()
-    if (!is.null(tensorflow_python())) {
-      if (tensorflow_python$exists)
-        python_versions <- c(python_versions, tensorflow_python$python)
-      else
-        warning("Specified TENSORFLOW_PYTHON '", tensorflow_python$python, "' does not exist.")
-    }
+tf_discover_config <- function() {
 
-    # look on system path
-    python <- Sys.which("python")
-    if (nzchar(python))
-      python_versions <- c(python_versions, python)
+  # create a list of possible python versions to bind to
+  python_versions <- character()
 
-    # provide other common locations
-    python_versions <- unique(c(python_versions,
-      path.expand("~/tensorflow/bin/python"),
-      "/usr/local/bin/python",
-      "/usr/bin/python3",
-      "/usr/local/bin/python3",
-      "/opt/python/bin/python",
-      "/opt/local/python/bin/python",
-      "/opt/python/bin/python3",
-      "/opt/local/python/bin/python3"
-    ))
-
-    # filter locations by existence
-    python_versions <- python_versions[file.exists(python_versions)]
-
-    # scan until we find a version of tensorflow
-    for (python_version in python_versions) {
-      config <- tf_config(python_version)
-      if (!is.null(config$tensorflow) && !config$anaconda)
-        return(config)
-    }
-
-    # no version of tf found, return first if we have it or NULL
-    if (length(python_versions) >= 1)
-      return(tf_config(python_versions[[1]]))
+  # look for environment variable
+  tensorflow_python <- tensorflow_python()
+  if (!is.null(tensorflow_python())) {
+    if (tensorflow_python$exists)
+      python_versions <- c(python_versions, tensorflow_python$python)
     else
-      return(NULL)
+      warning("Specified TENSORFLOW_PYTHON '", tensorflow_python$python, "' does not exist.")
   }
 
+  # look on system path
+  python <- Sys.which("python")
+  if (nzchar(python))
+    python_versions <- c(python_versions, python)
+
+  # provide other common locations
+  python_versions <- unique(c(python_versions,
+    path.expand("~/tensorflow/bin/python"),
+    "/usr/local/bin/python",
+    "/usr/bin/python3",
+    "/usr/local/bin/python3",
+    "/opt/python/bin/python",
+    "/opt/local/python/bin/python",
+    "/opt/python/bin/python3",
+    "/opt/local/python/bin/python3"
+  ))
+
+  # filter locations by existence
+  python_versions <- python_versions[file.exists(python_versions)]
+
+  # scan until we find a version of tensorflow
+  for (python_version in python_versions) {
+    config <- tf_python_config(python_version)
+    if (!is.null(config$tensorflow) && !config$anaconda)
+      return(config)
+  }
+
+  # no version of tf found, return first if we have it or NULL
+  if (length(python_versions) >= 1)
+    return(tf_python_config(python_versions[[1]]))
+  else
+    return(NULL)
+}
+
+
+tf_python_config <- function(python) {
 
   # helper to execute python code and return stdout
   exec_python <- function(command) {

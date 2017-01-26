@@ -159,7 +159,7 @@ print.tf_config <- function(x, ...) {
   } else {
     cat("tf:             [NOT FOUND]\n")
   }
-  if (length(x$python_versions) > 0) {
+  if (length(x$python_versions) > 1) {
     cat("\npython versions found: \n")
     python_versions <- paste0(" ", x$python_versions)
     cat(python_versions, sep = "\n")

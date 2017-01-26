@@ -94,6 +94,10 @@ NULL
     packageStartupMessage("\n", .load_error_message)
     packageStartupMessage("\nIf you have not yet installed TensorFlow, see ",
                           "https://www.tensorflow.org/get_started/\n")
+    packageStartupMessage("You should ensure that the version of python where ",
+                          "tensorflow is installed is either the default python ",
+                          "on the system PATH or is specified explicitly via the ",
+                          "TENSORFLOW_PYTHON environment variable.\n")
     if (!is.null(.tf_config)) {
       packageStartupMessage("Detected Python configuration:\n")
       packageStartupMessage(paste(capture.output(print(.tf_config)), collapse  = "\n"))

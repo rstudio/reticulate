@@ -604,7 +604,9 @@ SEXP py_to_r(PyObject* x) {
   }
 
   // iterator/generator
-  else if (PyObject_HasAttrString(x, "__iter__")) {
+  else if (PyObject_HasAttrString(x, "__iter__") &&
+           (PyObject_HasAttrString(x, "next") ||
+            PyObject_HasAttrString(x, "__next__"))) {
 
     // return it raw but add a class so we can create S3 methods for it
     Py_IncRef(x);

@@ -1,8 +1,6 @@
 
 
-#
-# TODO: PyIter_Check not working (tf$constant is an iterator!)
-#
+
 # TODO: performance of tf_config scanning
 
 tf_config <- function() {

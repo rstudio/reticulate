@@ -926,7 +926,7 @@ void py_initialize(const std::string& python,
     // initialize python
     Py_Initialize();
 
-    const wchar_t *argv[1] = {L"python"};
+    const wchar_t *argv[1] = {s_python_v3.c_str()};
     PySys_SetArgv_v3(1, const_cast<wchar_t**>(argv));
 
   } else {
@@ -946,7 +946,7 @@ void py_initialize(const std::string& python,
     Py_InitModule4("tfcall", TFCallMethods, (char *)NULL, (PyObject *)NULL,
                       _PYTHON_API_VERSION);
 
-    const char *argv[1] = {"python"};
+    const char *argv[1] = {s_python.c_str()};
     PySys_SetArgv(1, const_cast<char**>(argv));
   }
 

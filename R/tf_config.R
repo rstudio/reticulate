@@ -44,7 +44,9 @@ tf_discover_config <- function() {
       "/opt/local/python/bin/python3"
     )
   }
-  python_versions <- unique(c(python_versions, extra_versions))
+  python_versions <- c(python_versions, extra_versions)
+  python_versions <- normalizePath(python_versions, mustWork = FALSE)
+  python_versions <- unique(python_versions)
 
   # filter locations by existence
   python_versions <- python_versions[file.exists(python_versions)]

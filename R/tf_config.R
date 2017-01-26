@@ -1,11 +1,11 @@
 
 
-
-# TODO: scanning for versions not explicitly known
-#  - windows registry
 #
 # TODO: PyIter_Check not working (tf$constant is an iterator!)
-
+#
+# TODO: performance of tf_config scanning
+#
+# TODO: list versions scanned for failure
 
 
 tf_config <- function() {
@@ -33,16 +33,21 @@ tf_discover_config <- function() {
     python_versions <- c(python_versions, python)
 
   # provide other common locations
-  python_versions <- unique(c(python_versions,
-    path.expand("~/tensorflow/bin/python"),
-    "/usr/local/bin/python",
-    "/usr/bin/python3",
-    "/usr/local/bin/python3",
-    "/opt/python/bin/python",
-    "/opt/local/python/bin/python",
-    "/opt/python/bin/python3",
-    "/opt/local/python/bin/python3"
-  ))
+  if (is_windows()) {
+    extra_versions <- windows_registry_python_versions()
+  } else {
+    extra_versions <- c(
+      path.expand("~/tensorflow/bin/python"),
+      "/usr/local/bin/python",
+      "/usr/bin/python3",
+      "/usr/local/bin/python3",
+      "/opt/python/bin/python",
+      "/opt/local/python/bin/python",
+      "/opt/python/bin/python3",
+      "/opt/local/python/bin/python3"
+    )
+  }
+  python_versions <- unique(c(python_versions, extra_versions))
 
   # filter locations by existence
   python_versions <- python_versions[file.exists(python_versions)]
@@ -208,5 +213,31 @@ tensorflow_python <- function() {
   } else {
     NULL
   }
+}
+
+windows_registry_python_versions <- function() {
+
+  read_python_versions <- function(hive) {
+    versions <- c()
+    python_core_key <- tryCatch(utils::readRegistry(
+      key = "SOFTWARE\\Python\\PythonCore", hive = hive, maxdepth = 3),
+      error = function(e) NULL)
+
+    if (length(python_core_key) > 0) {
+      for (version in names(python_core_key)) {
+        version_key <- python_core_key[[version]]
+        if (!is.null(version_key$InstallPath)) {
+          version_dir <- version_key$InstallPath$`(Default)`
+          version_dir <- gsub("[\\/]+$", "", version_dir)
+          version_exe <- paste0(version_dir, "\\python.exe")
+          versions <- c(versions, version_exe)
+        }
+      }
+    }
+
+    versions
+  }
+
+  c(read_python_versions("HCU"), read_python_versions("HLM"))
 }
 

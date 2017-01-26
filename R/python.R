@@ -289,10 +289,9 @@ py_suppress_warnings <- function(expr) {
 
   # ignore tensorflow warnings
   if (!is.null(tf)) {
-    logging <- tf$python$platform$tf_logging
-    old_verbosity <- logging$get_verbosity()
-    logging$set_verbosity(logging$ERROR)
-    on.exit(logging$set_verbosity(old_verbosity))
+    old_verbosity <- tf$logging$get_verbosity()
+    tf$logging$set_verbosity(tf$logging$ERROR)
+    on.exit(tf$logging$set_verbosity(old_verbosity))
   }
 
   # evaluate the expression

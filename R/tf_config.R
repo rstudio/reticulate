@@ -131,28 +131,35 @@ tf_python_config <- function(python, python_versions) {
 }
 
 #' @export
-print.tf_config <- function(x, ...) {
-  cat("python:        ", x$python, "\n")
-  cat("libpython:     ", x$libpython, ifelse(file.exists(x$libpython), "", "[NOT FOUND]"), "\n")
-  cat("pythonhome:    ", x$pythonhome, "\n")
-  cat("version:       ", x$version_string, "\n")
+str.tf_config <- function(object, ...) {
+  x <- object
+  out <- ""
+  out <- paste0(out, "python:         ", x$python, "\n")
+  out <- paste0(out, "libpython:      ", x$libpython, ifelse(file.exists(x$libpython), "", "[NOT FOUND]"), "\n")
+  out <- paste0(out, "version:        ", x$version_string, "\n")
   if (!is.null(x$numpy)) {
-    cat("numpy:         ", x$numpy$path, "\n")
-    cat("numpy_version: ", as.character(x$numpy$version), "\n")
+    out <- paste0(out, "numpy:          ", x$numpy$path, "\n")
+    out <- paste0(out, "numpy_version:  ", as.character(x$numpy$version), "\n")
   } else {
-    cat("numpy:          [NOT FOUND]\n")
+    out <- paste0(out, "numpy:           [NOT FOUND]\n")
   }
   if (!is.null(x$tensorflow)) {
-    cat("tf:            ", x$tensorflow$path, "\n")
-    cat("tf_version:    ", as.character(x$tensorflow$version), "\n")
+    out <- paste0(out, "tf:             ", x$tensorflow$path, "\n")
+    out <- paste0(out, "tf_version:     ", as.character(x$tensorflow$version), "\n")
   } else {
-    cat("tf:             [NOT FOUND]\n")
+    out <- paste0(out, "tf:              [NOT FOUND]\n")
   }
   if (length(x$python_versions) > 1) {
-    cat("\npython versions found: \n")
-    python_versions <- paste0(" ", x$python_versions)
-    cat(python_versions, sep = "\n")
+    out <- paste0(out, "\npython versions found: \n")
+    python_versions <- paste0(" ", x$python_versions, collapse = "\n")
+    out <- paste0(out, python_versions, sep = "\n")
   }
+  out
+}
+
+#' @export
+print.tf_config <- function(x, ...) {
+ cat(str(x))
 }
 
 
@@ -179,7 +186,8 @@ tensorflow_python <- function() {
     tensorflow_python <- path.expand(tensorflow_python)
 
     # check for existence
-    if (!file_test("-d", tensorflow_python) && !file_test("-f", tensorflow_python)) {
+    if (!utils::file_test("-d", tensorflow_python) &&
+        !utils::file_test("-f", tensorflow_python)) {
       list(
         python = tensorflow_python,
         exists = FALSE
@@ -187,7 +195,7 @@ tensorflow_python <- function() {
     } else {
 
       # append binary if it's a directory
-      if (file_test("-d", tensorflow_python))
+      if (utils::file_test("-d", tensorflow_python))
         tensorflow_python <- file.path(tensorflow_python, "python")
 
       # append .exe if necessary on windows

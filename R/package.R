@@ -100,10 +100,9 @@ NULL
                           "TENSORFLOW_PYTHON environment variable.\n")
     if (!is.null(.tf_config)) {
       packageStartupMessage("Detected Python configuration:\n")
-      packageStartupMessage(paste(capture.output(print(.tf_config)), collapse  = "\n"))
+      packageStartupMessage(str(.tf_config))
     }
   }
-
 }
 
 .onUnload <- function(libpath) {

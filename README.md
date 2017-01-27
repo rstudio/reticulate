@@ -18,30 +18,30 @@ Some important notes on compatibility:
 
 * You should NOT install TensorFlow with Anaconda as there [are issues with](https://github.com/ContinuumIO/anaconda-issues/issues/498) the way Anaconda builds the python shared library that prevent dynamic linking from R.
 
-
-If you install TensorFlow within a Virtualenv environment you'll need to be sure to use that same environment when installing the tensorflow R package (see below for details).
+If you install TensorFlow within a Virtualenv environment you'll need to be sure to use that same environment when loading the tensorflow R package (see below for details).
 
 ## Installing the R Package
 
-If you installed TensorFlow via pip with your system default version of python then you can install the tensorflow R package as follows:
+You can install the tensorflow R package from GitHub as follows:
 
 ```r
 devtools::install_github("rstudio/tensorflow")
 ```
 
-If you are using a different version of python for TensorFlow, you should set the `TENSORFLOW_PYTHON` environment variable to the full path of the python binary before installing, for example:
+Note that the tensorflow package includes native C/C++ code so it's installation requires [R Tools](https://cran.r-project.org/bin/windows/Rtools/) on Windows and [Command Line Tools](http://osxdaily.com/2014/02/12/install-command-line-tools-mac-os-x/) on OS X. If the package installation fails because of inability to compile then install the appropriate tools for your platform based on the links above and try again.
 
-```r
-Sys.setenv(TENSORFLOW_PYTHON="/usr/local/bin/python")
-devtools::install_github("rstudio/tensorflow")
-```
+## Binding to Tensorflow
 
-If you only need to customize the version of python used (for example specifing python 3 on an Ubuntu system), you can set the `TENSORFLOW_PYTHON_VERSION` environment variable before installation:
+When it is loaded the tensorflow R package will scan your system for various versions of Python and attempt to identify one which includes a compatible version of tensorflow to bind to. If tensorflow is not automatically located in this fashion you should do one of the following:
 
-```r
-Sys.setenv(TENSORFLOW_PYTHON_VERSION = 3)
-devtools::install_github("rstudio/tensorflow")
-```
+* Ensure that the version of python where you installed tensorflow is the default python on the `PATH` within your R session.
+
+* Set the `TENSORFLOW_PYTHON` environment variable to the full path of the python binary before loading the package, for example:
+
+    ```r
+    Sys.setenv(TENSORFLOW_PYTHON="/usr/local/bin/python")
+    library(tensorflow)
+    ```
 
 ## Verifying Installation
 

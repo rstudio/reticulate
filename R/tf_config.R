@@ -45,11 +45,15 @@ tf_discover_config <- function() {
   # filter locations by existence
   python_versions <- python_versions[file.exists(python_versions)]
 
-  # scan until we find a version of tensorflow
+  # scan until we find a version of tensorflow that meets
+  # qualifying conditions
   for (python_version in python_versions) {
     config <- tf_python_config(python_version, python_versions)
-    if (!is.null(config$tensorflow) && !config$anaconda)
+    if (!is.null(config$tensorflow) &&
+        !config$anaconda &&
+        has_compatible_arch(config$architecture)) {
       return(config)
+    }
   }
 
   # no version of tf found, return first if we have it or NULL
@@ -72,6 +76,7 @@ tf_python_config <- function(python, python_versions) {
   version_string <- config$Version
   version <- config$VersionNumber
   anaconda <- grepl("continuum", tolower(version_string)) || grepl("anaconda", tolower(version_string))
+  architecture <- config$Architecture
 
   # determine the location of libpython (see also # https://github.com/JuliaPy/PyCall.jl/blob/master/deps/build.jl)
   if (is_windows()) {
@@ -122,6 +127,7 @@ tf_python_config <- function(python, python_versions) {
     pythonhome = pythonhome,
     version_string = version_string,
     version = version,
+    architecture = architecture,
     anaconda = anaconda,
     numpy = numpy,
     tensorflow = tensorflow,
@@ -137,6 +143,8 @@ str.tf_config <- function(object, ...) {
   out <- paste0(out, "python:         ", x$python, "\n")
   out <- paste0(out, "libpython:      ", x$libpython, ifelse(file.exists(x$libpython), "", "[NOT FOUND]"), "\n")
   out <- paste0(out, "version:        ", x$version_string, "\n")
+  if (is_windows())
+    out <- paste0(out, "Architecture:   ", x$architecture, "\n")
   if (!is.null(x$numpy)) {
     out <- paste0(out, "numpy:          ", x$numpy$path, "\n")
     out <- paste0(out, "numpy_version:  ", as.character(x$numpy$version), "\n")
@@ -170,6 +178,7 @@ is_windows <- function() {
 is_osx <- function() {
   Sys.info()["sysname"] == "Darwin"
 }
+
 
 clean_tf_version <- function(tf_version) {
   gsub("\\.$", "", gsub("[A-Za-z_]+", "", tf_version))
@@ -239,5 +248,27 @@ windows_registry_python_versions <- function() {
   }
 
   c(read_python_versions("HCU"), read_python_versions("HLM"))
+}
+
+# convert R arch to python arch
+python_arch <- function() {
+  if (.Platform$r_arch == "i386")
+    "32bit"
+  else if (.Platform$r_arch == "x64")
+    "64bit"
+  else
+    "Unknown"
+}
+
+
+# check for compatible architecture
+has_compatible_arch <- function(config) {
+  if (is_windows()) {
+    arch <- python_arch()
+    (arch == "i386" && config$architecture == "32bit") ||
+    (arch == "x64" && config$architecture == "64bit")
+  } else {
+    TRUE
+  }
 }
 

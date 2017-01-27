@@ -48,6 +48,10 @@ NULL
     .load_error_message <<- paste0("The tensorflow package does not support Anaconda distributions of Python.\n",
                                    "Please install tensorflow within another version of Python.")
     return()
+  } else if (!has_compatible_arch(config)) {
+    .load_error_message <<- paste0("Your current architecture is ", python_arch(), " however this version of ",
+                                   "Python is compiled for ", config$architecture, ".")
+    return()
   }
 
   # initialize python

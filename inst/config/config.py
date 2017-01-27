@@ -11,6 +11,7 @@ if not platform.system() == 'Windows':
   sys.stdout.write('\nLIBDIR: ' + sysconfig.get_config_vars('LIBDIR')[0])
 sys.stdout.write('\nPREFIX: ' + sysconfig.get_config_vars('prefix')[0])
 sys.stdout.write('\nEXEC_PREFIX: ' + sysconfig.get_config_vars('exec_prefix')[0])
+sys.stdout.write("\nArchitecture: "  + platform.architecture()[0])
 
 try:
   import numpy

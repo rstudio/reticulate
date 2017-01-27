@@ -58,6 +58,17 @@ str.tensorflow.builtin.object <- function(object, ...) {
 
 #' @export
 `$.tensorflow.builtin.object` <- function(x, name) {
+
+  # special handling for embedded modules (which don't always show
+  # up as "attributes")
+  if (inherits(x, "tensorflow.builtin.module") && !py_has_attr(x, name)) {
+    module_name <- paste(py_str(py_get_attr(x, "__name__")), name, sep=".")
+    module <- import(module_name, silent = TRUE)
+    if (!is.null(module))
+      return(module)
+  }
+
+  # default handling
   attrib <- py_get_attr(x, name)
   if (py_is_callable(attrib)) {
     f <- function(...) {

@@ -4,6 +4,7 @@ context("lists")
 test <- import("tftools.test")
 
 test_that("R named lists become Python dictionaries", {
+  skip_if_no_python()
   l <- list(a = 1, b = 2, c = 3)
   reflected <- test$reflect(l)
   expect_equal(l$a, reflected$a)
@@ -12,6 +13,7 @@ test_that("R named lists become Python dictionaries", {
 })
 
 test_that("Python dictionaries become R named lists", {
+  skip_if_no_python()
   l <- list(a = 1, b = 2, c = 3)
   dict <- test$makeDict()
   expect_equal(length(dict), length(l))
@@ -21,11 +23,13 @@ test_that("Python dictionaries become R named lists", {
 })
 
 test_that("R unnamed lists become Python lists", {
+  skip_if_no_python()
   l <- list(1L, 2L, 3L)
   expect_equal(test$asString(l), "[1, 2, 3]")
 })
 
 test_that("Python unnamed tuples become R unnamed lists", {
+  skip_if_no_python()
   tuple <- test$makeTuple()
   expect_equal(tuple, list(1, 2, 3))
 })

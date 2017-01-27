@@ -18,6 +18,10 @@
 #'
 #' @export
 import <- function(module, silent = FALSE) {
+
+  if (!py_have_bindings())
+    return(NULL)
+
   if (silent)
     tryCatch(py_module_impl(module), error = function(e) NULL)
   else
@@ -313,4 +317,10 @@ py_suppress_warnings <- function(expr) {
 py_get_attr_silent <- function(x, name) {
   py_suppress_warnings(py_get_attr(x, name))
 }
+
+# check if we have python bindings
+py_have_bindings <- function() {
+  .py_bindings
+}
+
 

@@ -6,9 +6,6 @@
 src/*.o
 src/*.so
 src/*.dll
-config.log
-config.status
-autom4te.cache
 README.html
 .Renviron
 MNIST-data

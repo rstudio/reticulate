@@ -1,10 +1,10 @@
 
-#include "libpython.hpp"
+#include "libpython.h"
 
 #include <Rcpp.h>
 using namespace Rcpp;
 
-#include "tensorflow_types.hpp"
+#include "tensorflow_types.h"
 
 using namespace libpython;
 

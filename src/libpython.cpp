@@ -1,6 +1,6 @@
 
 #define LIBPYTHON_CPP
-#include "libpython.hpp"
+#include "libpython.h"
 
 #ifndef _WIN32
 #include <dlfcn.h>

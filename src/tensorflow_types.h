@@ -1,7 +1,7 @@
 #ifndef __TENSORFLOW_TYPES__
 #define __TENSORFLOW_TYPES__
 
-#include "libpython.hpp"
+#include "libpython.h"
 using namespace libpython;
 
 #include <Rcpp.h>

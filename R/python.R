@@ -65,9 +65,8 @@ str.tensorflow.builtin.object <- function(object, ...) {
 
   # special handling for embedded modules (which don't always show
   # up as "attributes")
-  if (inherits(x, "tensorflow.builtin.module") && !py_has_attr(x, name)) {
-    module_name <- paste(py_str(py_get_attr(x, "__name__")), name, sep=".")
-    module <- import(module_name, silent = TRUE)
+  if (py_is_module(x) && !py_has_attr(x, name)) {
+    module <- py_get_submodule(x, name)
     if (!is.null(module))
       return(module)
   }
@@ -129,7 +128,25 @@ str.tensorflow.builtin.object <- function(object, ...) {
   names <- names[substr(names, 1, 1) != '_']
 
   # get the types
-  attr(names, "types") <- py_suppress_warnings(py_get_attribute_types(x, names))
+  types <- py_suppress_warnings(py_get_attribute_types(x, names))
+
+  # filter out modules
+  is_module <- types == 5
+  names <- names[!is_module]
+  types <- types[!is_module]
+
+  # if this is a module then add submodules
+  if (inherits(x, "tensorflow.builtin.module")) {
+    name <- x$`__name__`
+    if (!is.null(name)) {
+      submodules <- py_list_submodules(name)
+      names <- c(names, submodules)
+      types <- c(types, rep_len(5L, length(submodules)))
+    }
+  }
+
+  # set types
+  attr(names, "types") <- types
 
   # specify a help_handler
   attr(names, "helpHandler") <- "tensorflow:::help_handler"
@@ -311,6 +328,15 @@ py_suppress_warnings <- function(expr) {
 
   # evaluate the expression
   force(expr)
+}
+
+py_is_module <- function(x) {
+  inherits(x, "tensorflow.builtin.module")
+}
+
+py_get_submodule <- function(x, name) {
+  module_name <- paste(py_str(py_get_attr(x, "__name__")), name, sep=".")
+  import(module_name, silent = TRUE)
 }
 
 # get an attribute w/ no warnings (e.g. deprecation warnings)

@@ -65,6 +65,10 @@ py_module_impl <- function(module) {
     .Call('tensorflow_py_module_impl', PACKAGE = 'tensorflow', module)
 }
 
+py_list_submodules <- function(module) {
+    .Call('tensorflow_py_list_submodules', PACKAGE = 'tensorflow', module)
+}
+
 py_iterate <- function(x, f) {
     .Call('tensorflow_py_iterate', PACKAGE = 'tensorflow', x, f)
 }

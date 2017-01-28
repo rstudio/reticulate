@@ -1137,6 +1137,28 @@ PyObjectXPtr py_module_impl(const std::string& module) {
   return py_xptr(pModule);
 }
 
+// [[Rcpp::export]]
+CharacterVector py_list_submodules(const std::string& module) {
+
+  std::vector<std::string> modules;
+
+  PyObject* modulesDict = PyImport_GetModuleDict();
+  PyObject *key, *value;
+  Py_ssize_t pos = 0;
+  std::string prefix = module + ".";
+  while (PyDict_Next(modulesDict, &pos, &key, &value)) {
+    if (PyString_Check(key) && !py_is_none(value)) {
+      std::string name = as_std_string(key);
+      if (name.find(prefix) == 0) {
+        std::string submodule = name.substr(prefix.length());
+        if (submodule.find('.') == std::string::npos)
+          modules.push_back(submodule);
+      }
+    }
+  }
+
+  return wrap(modules);
+}
 
 // Traverse a Python iterator or generator
 

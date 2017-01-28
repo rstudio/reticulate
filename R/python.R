@@ -131,11 +131,6 @@ str.tensorflow.builtin.object <- function(object, ...) {
   # get the types
   types <- py_suppress_warnings(py_get_attribute_types(x, names))
 
-  # filter out modules
-  is_module <- types == 5
-  names <- names[!is_module]
-  types <- types[!is_module]
-
   # if this is a module then add submodules
   if (inherits(x, "tensorflow.builtin.module")) {
     name <- x$`__name__`

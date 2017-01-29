@@ -51,7 +51,7 @@ tf_discover_config <- function() {
     config <- tf_python_config(python_version, python_versions)
     if (!is.null(config$tensorflow) &&
         !config$anaconda &&
-        has_compatible_arch(config$architecture)) {
+        has_compatible_arch(config)) {
       return(config)
     }
   }
@@ -270,9 +270,7 @@ python_arch <- function() {
 # check for compatible architecture
 has_compatible_arch <- function(config) {
   if (is_windows()) {
-    arch <- python_arch()
-    (arch == "i386" && config$architecture == "32bit") ||
-    (arch == "x64" && config$architecture == "64bit")
+    identical(python_arch(),config$architecture)
   } else {
     TRUE
   }

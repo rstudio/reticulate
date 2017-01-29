@@ -67,9 +67,15 @@ tf_discover_config <- function() {
 tf_python_config <- function(python, python_versions) {
 
   # collect configuration information
-  config <- system(paste(shQuote(python),
-                         shQuote(system.file("config/config.py", package = "tensorflow"))),
-                   intern = TRUE)
+  config <- system2(command = python,
+                    args = system.file("config/config.py", package = "tensorflow"),
+                    stdout = TRUE)
+  status <- attr(config, "status")
+  if (!is.null(status)) {
+    errmsg <- attr(config, "errmsg")
+    stop("Error ", status, " occurred running ", python, " ", errmsg)
+  }
+
   config <- read.dcf(textConnection(config), all = TRUE)
 
   # get the full textual version and the numeric version, check for anaconda

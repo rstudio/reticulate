@@ -252,10 +252,17 @@ windows_registry_python_versions <- function() {
     versions
   }
 
-  c(read_python_versions("HCU", key = "PythonCore"),
-    read_python_versions("HLM", key = "PythonCore"),
-    read_python_versions("HCU", key = "ContinuumAnalytics"),
-    read_python_versions("HLM", key = "ContinuumAnalytics"))
+  python_core_versions <- c(read_python_versions("HCU", key = "PythonCore"),
+                            read_python_versions("HLM", key = "PythonCore"))
+
+  anaconda_versions <- c(read_python_versions("HCU", key = "ContinuumAnalytics"),
+                         read_python_versions("HLM", key = "ContinuumAnalytics"))
+
+  anaconda_envs <- utils::shortPathName(
+    file.path(dirname(anaconda_versions), "envs", "tensorflow", "python.exe")
+  )
+
+  c(python_core_versions, anaconda_envs, anaconda_versions)
 }
 
 # convert R arch to python arch

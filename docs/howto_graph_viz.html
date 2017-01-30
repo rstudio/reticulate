@@ -270,7 +270,7 @@ $(document).ready(function () {
 <pre class="r"><code>with(tf$name_scope(&quot;hidden&quot;) %as% scope, {
   a &lt;- tf$constant(5L, name=&quot;alpha&quot;)
   W &lt;- tf$Variable(tf$random_uniform(shape(1L, 2L), -1.0, 1.0), name=&quot;weights&quot;)
-  b &lt;- tf$Variable(tf.zeros(shape(1L), name=&quot;biases&quot;)) 
+  b &lt;- tf$Variable(tf$zeros(shape(1L), name=&quot;biases&quot;)) 
 })</code></pre>
 <p>This results in the following three op names:</p>
 <ul>

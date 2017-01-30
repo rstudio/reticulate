@@ -490,7 +490,7 @@ biases &lt;- tf$Variable(tf$zeros(shape(hidden1_units), name = &#39;biases&#39;)
 <p>First, the values from the <code>labels_placeholder</code> are converted to 64-bit integers. Then, a <a href="https://www.tensorflow.org/api_docs/python/nn.html#sparse_softmax_cross_entropy_with_logits"><code>tf$nn$sparse_softmax_cross_entropy_with_logits</code></a> op is added to automatically produce 1-hot labels from the <code>labels_placeholder</code> and compare the output logits from the <code>inference()</code> function with those 1-hot labels.</p>
 <pre class="r"><code>labels &lt;- tf$to_int64(labels)
 cross_entropy &lt;- tf$nn$sparse_softmax_cross_entropy_with_logits(
-  logits, labels, name = &#39;xentropy&#39;)</code></pre>
+  logits = logits, labels = labels, name = &#39;xentropy&#39;)</code></pre>
 <p>It then uses <a href="https://www.tensorflow.org/api_docs/python/math_ops.html#reduce_mean"><code>tf.reduce_mean</code></a> to average the cross entropy values across the batch dimension (the first dimension) as the total loss.</p>
 <pre class="r"><code>tf$reduce_mean(cross_entropy, name = &#39;xentropy_mean&#39;)</code></pre>
 <p>And the tensor that will then contain the loss value is returned.</p>

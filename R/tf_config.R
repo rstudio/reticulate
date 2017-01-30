@@ -28,15 +28,23 @@ tf_discover_config <- function() {
     extra_versions <- windows_registry_python_versions()
   } else {
     extra_versions <- c(
-      path.expand("~/tensorflow/bin/python"),
+      path.expand("~/tensorflow/bin/python"), # virtualenv
       "/usr/local/bin/python",
       "/opt/python/bin/python",
-      "/opt/local/python/bin/python"
+      "/opt/local/python/bin/python",
+      "/usr/bin/python3",
+      "/usr/local/bin/python3",
+      "/opt/python/bin/python3",
+      "/opt/local/python/bin/python3",
+      path.expand("~/anaconda/envs/tensorflow/bin/python"),
+      path.expand("~/anaconda/bin/python"),
+      path.expand("~/anaconda3/envs/tensorflow/bin/python"),
+      path.expand("~/anaconda3/bin/python")
     )
   }
-  python_versions <- unique(c(python_versions, extra_versions))
 
   # filter locations by existence
+  python_versions <- unique(c(python_versions, extra_versions))
   python_versions <- python_versions[file.exists(python_versions)]
 
   # scan until we find a version of tensorflow that meets

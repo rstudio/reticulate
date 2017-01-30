@@ -124,7 +124,10 @@ tf_python_config <- function(python, python_versions) {
                   version = as_numeric_version(config$NumpyVersion))
   else
     numpy <- NULL
-  tensorflow <- normalizePath(config$TensorflowPath)
+  if (!is.null(config$TensorflowPath))
+    tensorflow <- normalizePath(config$TensorflowPath)
+  else
+    tensorflow <- NULL
 
   # return config info
   structure(class = "tf_config", list(

@@ -34,7 +34,7 @@ tf_discover_config <- function() {
       "/opt/local/python/bin/python"
     )
   }
-  python_versions <- c(python_versions, extra_versions)
+  python_versions <- unique(c(python_versions, extra_versions))
 
   # filter locations by existence
   python_versions <- python_versions[file.exists(python_versions)]
@@ -44,8 +44,8 @@ tf_discover_config <- function() {
   for (python_version in python_versions) {
     config <- tf_python_config(python_version, python_versions)
     if (!is.null(config$tensorflow) &&
-        !config$anaconda &&
-        has_compatible_arch(config)) {
+        !is_incompatible_anaconda(config) &&
+        !is_incompatible_arch(config)) {
       return(config)
     }
   }
@@ -260,12 +260,17 @@ python_arch <- function() {
 }
 
 
+# check for compatible python flavor
+is_incompatible_anaconda <- function(config) {
+  config$anaconda && is_osx()
+}
+
 # check for compatible architecture
-has_compatible_arch <- function(config) {
+is_incompatible_arch <- function(config) {
   if (is_windows()) {
-    identical(python_arch(),config$architecture)
+    !identical(python_arch(),config$architecture)
   } else {
-    TRUE
+    FALSE
   }
 }
 

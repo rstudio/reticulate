@@ -44,11 +44,11 @@ NULL
   } else if (is.null(config$numpy) || config$numpy$version < "1.11") {
     .load_error_message <<- "Installation of Numpy >= 1.11 not found, Python bindings not loaded."
     return()
-  } else if (config$anaconda) {
-    .load_error_message <<- paste0("The tensorflow package does not support Anaconda distributions of Python.\n",
-                                   "Please install tensorflow within another version of Python.")
+  } else if (is_incompatible_anaconda(config)) {
+    .load_error_message <<- paste0("The tensorflow package does not support Anaconda distributions of Python on OS X.\n",
+                                   "Please install tensorflow within another version of Python (e.g. Homebrew).")
     return()
-  } else if (!has_compatible_arch(config)) {
+  } else if (is_incompatible_arch(config)) {
     .load_error_message <<- paste0("Your current architecture is ", python_arch(), " however this version of ",
                                    "Python is compiled for ", config$architecture, ".")
     return()

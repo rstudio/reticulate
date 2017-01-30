@@ -262,7 +262,8 @@ python_arch <- function() {
 
 # check for compatible python flavor
 is_incompatible_anaconda <- function(config) {
-  config$anaconda && is_osx()
+  FALSE
+  #config$anaconda && is_osx()
 }
 
 # check for compatible architecture

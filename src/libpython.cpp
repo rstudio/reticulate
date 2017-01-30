@@ -112,6 +112,24 @@ bool closeLibrary(void* pLib, std::string* pError)
 
 
 
+void initialize_type_objects(bool python3) {
+  Py_None = Py_BuildValue("z", NULL);
+  Py_Unicode = Py_BuildValue("u", L"a");
+  if (python3)
+    Py_String = Py_BuildValue("y", "a");
+  else
+    Py_String = Py_BuildValue("s", "a");
+  Py_Int = PyInt_FromLong(1024L);
+  Py_Long = PyLong_FromLong(1024L);
+  Py_Bool = PyBool_FromLong(1L);
+  Py_True = PyBool_FromLong(1L);
+  Py_False = PyBool_FromLong(0L);
+  Py_Dict = Py_BuildValue("{s:i}", "a", 1024);
+  Py_Float = PyFloat_FromDouble(0.0);
+  Py_Tuple = Py_BuildValue("(i)", 1024);
+  Py_List = Py_BuildValue("[i]", 1024);
+  Py_Complex = PyComplex_FromDoubles(0.0, 0.0);
+}
 
 #define LOAD_PYTHON_SYMBOL_AS(name, as)             \
 if (!loadSymbol(pLib_, #name, (void**)&as, pError)) \
@@ -211,26 +229,6 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
   LOAD_PYTHON_SYMBOL(PyCapsule_New)
   LOAD_PYTHON_SYMBOL(PyCapsule_GetPointer)
   LOAD_PYTHON_SYMBOL(Py_BuildValue)
-
-
-
-  Py_None = Py_BuildValue("z", NULL);
-  Py_Unicode = Py_BuildValue("u", L"a");
-  if (python3)
-    Py_String = Py_BuildValue("y", "a");
-  else
-    Py_String = Py_BuildValue("s", "a");
-
-  Py_Int = PyInt_FromLong(1024L);
-  Py_Long = PyLong_FromLong(1024L);
-  Py_Bool = PyBool_FromLong(1L);
-  Py_True = PyBool_FromLong(1L);
-  Py_False = PyBool_FromLong(0L);
-  Py_Dict = Py_BuildValue("{s:i}", "a", 1024);
-  Py_Float = PyFloat_FromDouble(0.0);
-  Py_Tuple = Py_BuildValue("(i)", 1024);
-  Py_List = Py_BuildValue("[i]", 1024);
-  Py_Complex = PyComplex_FromDoubles(0.0, 0.0);
 
   return true;
 }

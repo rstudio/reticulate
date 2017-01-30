@@ -952,6 +952,9 @@ void py_initialize(const std::string& python,
     PySys_SetArgv(1, const_cast<char**>(argv));
   }
 
+  // initialize type objects
+  initialize_type_objects(isPython3());
+
   if (!import_numpy_api(isPython3(), &err))
     stop(err);
 

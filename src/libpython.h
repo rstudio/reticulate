@@ -118,6 +118,8 @@ LIBPYTHON_EXTERN PyObject* Py_List;
 LIBPYTHON_EXTERN PyObject* Py_Tuple;
 LIBPYTHON_EXTERN PyObject* Py_Complex;
 
+void initialize_type_objects(bool python3);
+
 #define Py_TYPE(ob) (((PyObject*)(ob))->ob_type)
 
 #define PyUnicode_Check(o) (Py_TYPE(o) == Py_TYPE(Py_Unicode))

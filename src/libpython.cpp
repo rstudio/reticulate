@@ -215,7 +215,7 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
 
 
   Py_None = Py_BuildValue("z", NULL);
-  Py_Unicode = Py_BuildValue("u", "a");
+  Py_Unicode = Py_BuildValue("u", L"a");
   if (python3)
     Py_String = Py_BuildValue("y", "a");
   else

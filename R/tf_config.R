@@ -113,11 +113,7 @@ tf_python_config <- function(python, python_versions) {
                   version = as_numeric_version(config$NumpyVersion))
   else
     numpy <- NULL
-  if (!is.null(config$TensorflowPath))
-    tensorflow <- list(path = config$TensorflowPath,
-                       version = as_numeric_version(config$TensorflowVersion))
-  else
-    tensorflow <- NULL
+  tensorflow <- config$TensorflowPath
 
   # return config info
   structure(class = "tf_config", list(
@@ -151,8 +147,7 @@ str.tf_config <- function(object, ...) {
     out <- paste0(out, "numpy:           [NOT FOUND]\n")
   }
   if (!is.null(x$tensorflow)) {
-    out <- paste0(out, "tf:             ", x$tensorflow$path, "\n")
-    out <- paste0(out, "tf_version:     ", as.character(x$tensorflow$version), "\n")
+    out <- paste0(out, "tf:             ", x$tensorflow, "\n")
   } else {
     out <- paste0(out, "tf:              [NOT FOUND]\n")
   }

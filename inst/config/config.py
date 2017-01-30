@@ -2,7 +2,7 @@
 import sys
 import sysconfig
 import platform
-import pkgutil
+import imp
 
 sys.stdout.write('Version: ' + str(sys.version).replace('\n', ' '))
 sys.stdout.write('\nVersionNumber: ' + str(sys.version_info.major) + '.' + str(sys.version_info.minor))
@@ -21,8 +21,8 @@ except Exception:
   pass
 
 try:
-  import tensorflow
-  sys.stdout.write('\nTensorflowPath: ' + str(tensorflow.__path__[0]))
-  sys.stdout.write('\nTensorflowVersion: ' + str(tensorflow.__version__))
+  sys.stdout.write('\nTensorflowPath: ' + str(imp.find_module('tensorflow')[1]))
 except Exception:
   pass
+
+

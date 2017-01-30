@@ -120,11 +120,11 @@ tf_python_config <- function(python, python_versions) {
 
   # check for numpy and tensorflow
   if (!is.null(config$NumpyPath))
-    numpy <- list(path = config$NumpyPath,
+    numpy <- list(path = normalizePath(config$NumpyPath),
                   version = as_numeric_version(config$NumpyVersion))
   else
     numpy <- NULL
-  tensorflow <- config$TensorflowPath
+  tensorflow <- normalizePath(config$TensorflowPath)
 
   # return config info
   structure(class = "tf_config", list(
@@ -231,20 +231,20 @@ tensorflow_python <- function() {
 
 windows_registry_python_versions <- function() {
 
-  read_python_versions <- function(hive) {
+  read_python_versions <- function(hive,key) {
     versions <- c()
     python_core_key <- tryCatch(utils::readRegistry(
-      key = "SOFTWARE\\Python\\PythonCore", hive = hive, maxdepth = 3),
+      key = paste0("SOFTWARE\\Python\\", key), hive = hive, maxdepth = 3),
       error = function(e) NULL)
 
     if (length(python_core_key) > 0) {
       for (version in names(python_core_key)) {
         version_key <- python_core_key[[version]]
-        if (!is.null(version_key$InstallPath)) {
+        if (is.list(version_key) && !is.null(version_key$InstallPath)) {
           version_dir <- version_key$InstallPath$`(Default)`
           version_dir <- gsub("[\\/]+$", "", version_dir)
           version_exe <- paste0(version_dir, "\\python.exe")
-          versions <- c(versions, version_exe)
+          versions <- c(versions, utils::shortPathName(version_exe))
         }
       }
     }
@@ -252,7 +252,10 @@ windows_registry_python_versions <- function() {
     versions
   }
 
-  c(read_python_versions("HCU"), read_python_versions("HLM"))
+  c(read_python_versions("HCU", key = "PythonCore"),
+    read_python_versions("HLM", key = "PythonCore"),
+    read_python_versions("HCU", key = "ContinuumAnalytics"),
+    read_python_versions("HLM", key = "ContinuumAnalytics"))
 }
 
 # convert R arch to python arch

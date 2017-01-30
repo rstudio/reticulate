@@ -43,9 +43,7 @@ tf_discover_config <- function() {
   # qualifying conditions
   for (python_version in python_versions) {
     config <- tf_python_config(python_version, python_versions)
-    if (!is.null(config$tensorflow) &&
-        !is_incompatible_anaconda(config) &&
-        !is_incompatible_arch(config)) {
+    if (!is.null(config$tensorflow) && !is_incompatible_arch(config)) {
       return(config)
     }
   }
@@ -259,12 +257,6 @@ python_arch <- function() {
     "Unknown"
 }
 
-
-# check for compatible python flavor
-is_incompatible_anaconda <- function(config) {
-  FALSE
-  #config$anaconda && is_osx()
-}
 
 # check for compatible architecture
 is_incompatible_arch <- function(config) {

@@ -30,17 +30,11 @@ tf_discover_config <- function() {
     extra_versions <- c(
       path.expand("~/tensorflow/bin/python"),
       "/usr/local/bin/python",
-      "/usr/bin/python3",
-      "/usr/local/bin/python3",
       "/opt/python/bin/python",
-      "/opt/local/python/bin/python",
-      "/opt/python/bin/python3",
-      "/opt/local/python/bin/python3"
+      "/opt/local/python/bin/python"
     )
   }
   python_versions <- c(python_versions, extra_versions)
-  python_versions <- normalizePath(python_versions, mustWork = FALSE)
-  python_versions <- unique(python_versions)
 
   # filter locations by existence
   python_versions <- python_versions[file.exists(python_versions)]

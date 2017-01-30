@@ -321,7 +321,7 @@ Images licensed CC BY-SA 4.0; original by W. Carter
 <p><a href="https://www.tensorflow.org/get_started/os_setup.html#download-and-setup" class="uri">https://www.tensorflow.org/get_started/os_setup.html#download-and-setup</a></p>
 <p>Some important notes on compatibility:</p>
 <ul>
-<li><p>You should NOT install TensorFlow with Anaconda as there <a href="https://github.com/ContinuumIO/anaconda-issues/issues/498">are issues with</a> the way Anaconda builds the python shared library that prevent dynamic linking from R.</p></li>
+<li><p>On Mac OS X you should NOT install TensorFlow with Anaconda as there <a href="https://github.com/ContinuumIO/anaconda-issues/issues/498">are issues with</a> the way Anaconda builds the python shared library that prevent dynamic linking from R. We recommend using <a href="http://docs.python-guide.org/en/latest/starting/install/osx/">Homebrew Python</a> instead.</p></li>
 <li><p>If you install TensorFlow within a Virtualenv environment you’ll need to be sure to use that same environment when loading the tensorflow R package (see below for details).</p></li>
 </ul>
 </div>

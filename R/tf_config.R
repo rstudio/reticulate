@@ -128,7 +128,7 @@ tf_python_config <- function(python, python_versions) {
     version_string = version_string,
     version = version,
     architecture = architecture,
-    anaconda = anaconda,
+    anaconda = anaconda || (!is_windows() && !is_osx()),
     numpy = numpy,
     tensorflow = tensorflow,
     python_versions = normalizePath(python_versions)

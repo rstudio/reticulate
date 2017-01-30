@@ -315,31 +315,21 @@ Images licensed CC BY-SA 4.0; original by W. Carter
 </div>
 <div id="download-and-setup" class="section level2">
 <h2>Download and Setup</h2>
-<div id="installing-tensorflow" class="section level3">
-<h3>Installing TensorFlow</h3>
-<p>You can install the main TensorFlow distribution from here:</p>
-<p><a href="https://www.tensorflow.org/get_started/os_setup.html#download-and-setup" class="uri">https://www.tensorflow.org/get_started/os_setup.html#download-and-setup</a></p>
-<p>Some important notes on compatibility:</p>
-<ul>
-<li><p>On Mac OS X you should NOT install TensorFlow with Anaconda as there <a href="https://github.com/ContinuumIO/anaconda-issues/issues/498">are issues with</a> the way Anaconda builds the python shared library that prevent dynamic linking from R. We recommend using <a href="http://docs.python-guide.org/en/latest/starting/install/osx/">Homebrew Python</a> instead.</p></li>
-<li><p>If you install TensorFlow within a Virtualenv environment you’ll need to be sure to use that same environment when loading the tensorflow R package (see below for details).</p></li>
-</ul>
 </div>
-<div id="installing-the-r-package" class="section level3">
-<h3>Installing the R Package</h3>
-<p>You can install the tensorflow R package from GitHub as follows:</p>
+<div id="installation" class="section level2">
+<h2>Installation</h2>
+<p>First, install the main TensorFlow distribution from here:</p>
+<p><a href="https://www.tensorflow.org/get_started/os_setup.html#download-and-setup" class="uri">https://www.tensorflow.org/get_started/os_setup.html#download-and-setup</a></p>
+<p>If you install TensorFlow within a virtualenv environment you’ll need to be sure to use that same environment when loading the tensorflow R package (see below for details on how to do this).</p>
+<p>Next, install the tensorflow R package from GitHub as follows:</p>
 <pre class="r"><code>devtools::install_github(&quot;rstudio/tensorflow&quot;)</code></pre>
 <p>Note that the tensorflow package includes native C/C++ code so it’s installation requires <a href="https://cran.r-project.org/bin/windows/Rtools/">R Tools</a> on Windows and <a href="http://osxdaily.com/2014/02/12/install-command-line-tools-mac-os-x/">Command Line Tools</a> on OS X. If the package installation fails because of inability to compile then install the appropriate tools for your platform based on the links above and try again.</p>
-</div>
-<div id="binding-to-tensorflow" class="section level3">
-<h3>Binding to Tensorflow</h3>
-<p>When it is loaded the tensorflow R package will scan your system for various versions of Python and attempt to identify one which includes a compatible version of tensorflow to bind to. If tensorflow is not automatically located in this fashion you should do one of the following:</p>
-<ul>
-<li><p>Ensure that the version of python where you installed tensorflow is the default python on the <code>PATH</code> within your R session.</p></li>
-<li><p>Set the <code>TENSORFLOW_PYTHON</code> environment variable to the full path of the python binary before loading the package, for example:</p>
+<div id="locating-tensorflow" class="section level4">
+<h4>Locating TensorFlow</h4>
+<p>When it is loaded the tensorflow R package scans the system for the version of python where TensorFlow is installed. If automatic detection doesn’t work or if you want to exercise more control over which version(s) of python and TensorFlow are used you can specify an explicit <code>TENSORFLOW_PYTHON</code> environment variable to force probing for TensorFlow within a specific version of python, for example:</p>
 <pre class="r"><code>Sys.setenv(TENSORFLOW_PYTHON=&quot;/usr/local/bin/python&quot;)
-library(tensorflow)</code></pre></li>
-</ul>
+library(tensorflow)</code></pre>
+<p>The tensorflow package will look in this location first, then look for python on the system <code>PATH</code>, then scan additional locations where python is conventionally installed (e.g. <code>/usr/local/bin</code>, <code>/opt/python/bin</code>, etc.).</p>
 </div>
 <div id="verifying-installation" class="section level3">
 <h3>Verifying Installation</h3>

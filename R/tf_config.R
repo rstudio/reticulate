@@ -68,10 +68,7 @@ tf_python_config <- function(python, python_versions) {
 
   # collect configuration information
   config_script <- system.file("config/config.py", package = "tensorflow")
-  cat(python, shQuote(config_script))
-  config <- system2(command = python,
-                    args = config_script,
-                    stdout = TRUE)
+  config <- system2(command = python, args = config_script, stdout = TRUE)
   status <- attr(config, "status")
   if (!is.null(status)) {
     errmsg <- attr(config, "errmsg")

@@ -41,8 +41,8 @@ NULL
   } else if (!file.exists(config$libpython)) {
     .load_error_message <<- paste0("Python shared library '", config$libpython, "' not found, Python bindings not loaded.")
     return()
-  } else if (is.null(config$numpy) || config$numpy$version < "1.11") {
-    .load_error_message <<- "Installation of Numpy >= 1.11 not found, Python bindings not loaded."
+  } else if (is.null(config$numpy)) {
+    .load_error_message <<- "Installation of Numpy not found, Python bindings not loaded."
     return()
   } else if (is_incompatible_arch(config)) {
     .load_error_message <<- paste0("Your current architecture is ", python_arch(), " however this version of ",

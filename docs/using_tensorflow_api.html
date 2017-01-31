@@ -692,7 +692,7 @@ flags$DEFINE_float(&#39;learning_rate&#39;, 0.01, &#39;Initial learning rate.&#3
 flags$DEFINE_integer(&#39;max_steps&#39;, 5000L, &#39;Number of steps to run trainer.&#39;)
 flags$DEFINE_integer(&#39;hidden1&#39;, 128L, &#39;Number of units in hidden layer 1.&#39;)
 flags$DEFINE_integer(&#39;hidden2&#39;, 32L, &#39;Number of units in hidden layer 2.&#39;)
-flags$DEFINE_integer(&#39;batch_size&#39;, 100L, &#39;Batch size. Must divide evenly into the dataset sizes.&#39;)
+flags$DEFINE_integer(&#39;batch_size&#39;, 100L, &#39;Batch size.&#39;)
 flags$DEFINE_string(&#39;train_dir&#39;, &#39;MNIST-data&#39;, &#39;Directory to put the training data.&#39;)
 flags$DEFINE_boolean(&#39;fake_data&#39;, FALSE, &#39;If true, uses fake data for unit testing.&#39;)
 FLAGS &lt;- parse_flags()</code></pre>

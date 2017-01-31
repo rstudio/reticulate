@@ -126,7 +126,7 @@ str.tensorflow.builtin.object <- function(object, ...) {
   # get the names and filter out internal attributes (_*)
   names <- py_suppress_warnings(py_list_attributes(x))
   names <- names[substr(names, 1, 1) != '_']
-  names <- sort(names, decreasing = TRUE)
+  names <- sort(names, decreasing = FALSE)
 
   # get the types
   types <- py_suppress_warnings(py_get_attribute_types(x, names))
@@ -135,7 +135,7 @@ str.tensorflow.builtin.object <- function(object, ...) {
   if (inherits(x, "tensorflow.builtin.module")) {
     name <- x$`__name__`
     if (!is.null(name)) {
-      submodules <- sort(py_list_submodules(name), decreasing = TRUE)
+      submodules <- sort(py_list_submodules(name), decreasing = FALSE)
       names <- c(names, submodules)
       types <- c(types, rep_len(5L, length(submodules)))
     }

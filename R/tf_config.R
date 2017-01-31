@@ -258,12 +258,16 @@ windows_registry_python_versions <- function() {
   python_core_versions <- c(read_python_versions("HCU", key = "PythonCore"),
                             read_python_versions("HLM", key = "PythonCore"))
 
+
   anaconda_versions <- c(read_python_versions("HCU", key = "ContinuumAnalytics"),
                          read_python_versions("HLM", key = "ContinuumAnalytics"))
-
-  anaconda_envs <- utils::shortPathName(
-    file.path(dirname(anaconda_versions), "envs", "tensorflow", "python.exe")
-  )
+  if (length(anaconda_versions) > 0) {
+    anaconda_envs <- utils::shortPathName(
+      file.path(dirname(anaconda_versions), "envs", "tensorflow", "python.exe")
+    )
+  } else {
+    anaconda_envs <- NULL
+  }
 
   c(python_core_versions, anaconda_envs, anaconda_versions)
 }

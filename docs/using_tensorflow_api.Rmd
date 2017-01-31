@@ -255,6 +255,31 @@ The result will be automatically simplified to an R vector if all values returne
 
 Note that Python iterators and generators are stateful objects. This means that after making a single pass through an iterator it will be empty (i.e. you can't execute another iteration against the same underlying iterator).
 
+## Training Flags
+
+TensorFlow includes a facility for driving training hyperparmaeters using command-line flags. You can use this facility by:
+
+1. Obtaining a reference to the global `tf$app$flags` object.
+
+2. Defining whatever flags are appropriate using the various `DEFINE` functions provided by the object.
+
+3. Populating a `FLAGS` object which will carry the specified values by calling the `parse_flags` function. 
+
+Here's a complete example: 
+
+```{r eval=FALSE}
+# Basic model parameters as external flags.
+flags <- tf$app$flags
+flags$DEFINE_float('learning_rate', 0.01, 'Initial learning rate.')
+flags$DEFINE_integer('max_steps', 5000L, 'Number of steps to run trainer.')
+flags$DEFINE_integer('hidden1', 128L, 'Number of units in hidden layer 1.')
+flags$DEFINE_integer('hidden2', 32L, 'Number of units in hidden layer 2.')
+flags$DEFINE_integer('batch_size', 100L, 'Batch size. Must divide evenly into the dataset sizes.')
+flags$DEFINE_string('train_dir', 'MNIST-data', 'Directory to put the training data.')
+flags$DEFINE_boolean('fake_data', FALSE, 'If true, uses fake data for unit testing.')
+FLAGS <- parse_flags()
+```
+
 ## Getting Help
 
 As you use TensorFlow from R you'll want to get help on the various functions and classes available within the API. If you are running the vary latest [Preview Release](https://www.rstudio.com/products/rstudio/download/preview/) (v1.0.18 or later) of RStudio IDE you can get code completion and inline help for the TensorFlow API within RStudio. For example:

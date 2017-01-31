@@ -677,6 +677,26 @@ W_smallish &lt;- W[, 7:9]</code></pre>
 <p>The result will be automatically simplified to an R vector if all values returned from the iteration are length 1 vectors of single primitive type “character”, “complex”, “double”, “integer”, or “logical” (otherwise the result will be an R list).</p>
 <p>Note that Python iterators and generators are stateful objects. This means that after making a single pass through an iterator it will be empty (i.e. you can’t execute another iteration against the same underlying iterator).</p>
 </div>
+<div id="training-flags" class="section level2">
+<h2>Training Flags</h2>
+<p>TensorFlow includes a facility for driving training hyperparmaeters using command-line flags. You can use this facility by:</p>
+<ol style="list-style-type: decimal">
+<li><p>Obtaining a reference to the global <code>tf$app$flags</code> object.</p></li>
+<li><p>Defining whatever flags are appropriate using the various <code>DEFINE</code> functions provided by the object.</p></li>
+<li><p>Populating a <code>FLAGS</code> object which will carry the specified values by calling the <code>parse_flags</code> function.</p></li>
+</ol>
+<p>Here’s a complete example:</p>
+<pre class="r"><code># Basic model parameters as external flags.
+flags &lt;- tf$app$flags
+flags$DEFINE_float(&#39;learning_rate&#39;, 0.01, &#39;Initial learning rate.&#39;)
+flags$DEFINE_integer(&#39;max_steps&#39;, 5000L, &#39;Number of steps to run trainer.&#39;)
+flags$DEFINE_integer(&#39;hidden1&#39;, 128L, &#39;Number of units in hidden layer 1.&#39;)
+flags$DEFINE_integer(&#39;hidden2&#39;, 32L, &#39;Number of units in hidden layer 2.&#39;)
+flags$DEFINE_integer(&#39;batch_size&#39;, 100L, &#39;Batch size. Must divide evenly into the dataset sizes.&#39;)
+flags$DEFINE_string(&#39;train_dir&#39;, &#39;MNIST-data&#39;, &#39;Directory to put the training data.&#39;)
+flags$DEFINE_boolean(&#39;fake_data&#39;, FALSE, &#39;If true, uses fake data for unit testing.&#39;)
+FLAGS &lt;- parse_flags()</code></pre>
+</div>
 <div id="getting-help" class="section level2">
 <h2>Getting Help</h2>
 <p>As you use TensorFlow from R you’ll want to get help on the various functions and classes available within the API. If you are running the vary latest <a href="https://www.rstudio.com/products/rstudio/download/preview/">Preview Release</a> (v1.0.18 or later) of RStudio IDE you can get code completion and inline help for the TensorFlow API within RStudio. For example:</p>

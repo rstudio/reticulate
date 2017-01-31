@@ -31,7 +31,7 @@ Description: TensorFlow is an open source software library for
 License: Apache License 2.0
 URL: https://github.com/rstudio/tensorflow
 BugReports: https://github.com/rstudio/tensorflow/issues
-SystemRequirements: Python (>= 2.7.0); NumPy (>= 1.11);
+SystemRequirements: Python (>= 2.7.0); NumPy (http://www.numpy.org/);
   TensorFlow (https://www.tensorflow.org/)
 Encoding: UTF-8
 LazyData: true

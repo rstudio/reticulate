@@ -153,9 +153,6 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
   bool is64bit = sizeof(size_t) >= 8;
 
   LOAD_PYTHON_SYMBOL(Py_Initialize)
-  LOAD_PYTHON_SYMBOL(Py_InitializeEx)
-  LOAD_PYTHON_SYMBOL(Py_IsInitialized);
-  LOAD_PYTHON_SYMBOL(Py_Finalize);
   LOAD_PYTHON_SYMBOL(Py_IncRef)
   LOAD_PYTHON_SYMBOL(Py_DecRef)
   LOAD_PYTHON_SYMBOL(PyObject_GetAttrString)

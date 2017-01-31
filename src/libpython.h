@@ -135,10 +135,6 @@ void initialize_type_objects(bool python3);
 #define PyComplex_Check(o) (Py_TYPE(o) == Py_TYPE(Py_Complex))
 
 LIBPYTHON_EXTERN void (*Py_Initialize)();
-LIBPYTHON_EXTERN void (*Py_InitializeEx)(int);
-LIBPYTHON_EXTERN int (*Py_IsInitialized)();
-LIBPYTHON_EXTERN void (*Py_Finalize)();
-
 
 LIBPYTHON_EXTERN PyObject* (*Py_InitModule4)(const char *name, PyMethodDef *methods,
            const char *doc, PyObject *self,

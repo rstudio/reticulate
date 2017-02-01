@@ -106,11 +106,9 @@ tf_python_config <- function(python, python_versions) {
   }
 
   # determine PYTHONHOME
-  pythonhome <- normalizePath(config$PREFIX, mustWork = FALSE)
+  pythonhome <- config$PREFIX
   if (!is_windows())
-    pythonhome <- paste(pythonhome,
-                        normalizePath(config$EXEC_PREFIX, mustWork = FALSE),
-                        sep = ":")
+    pythonhome <- paste(pythonhome, config$EXEC_PREFIX, sep = ":")
 
 
   as_numeric_version <- function(version) {
@@ -120,12 +118,12 @@ tf_python_config <- function(python, python_versions) {
 
   # check for numpy and tensorflow
   if (!is.null(config$NumpyPath))
-    numpy <- list(path = normalizePath(config$NumpyPath),
+    numpy <- list(path = config$NumpyPath,
                   version = as_numeric_version(config$NumpyVersion))
   else
     numpy <- NULL
   if (!is.null(config$TensorflowPath))
-    tensorflow <- normalizePath(config$TensorflowPath)
+    tensorflow <- config$TensorflowPath
   else
     tensorflow <- NULL
 
@@ -138,8 +136,8 @@ tf_python_config <- function(python, python_versions) {
 
   # return config info
   structure(class = "tf_config", list(
-    python = normalizePath(python),
-    libpython = normalizePath(libpython, mustWork = FALSE),
+    python = python,
+    libpython = libpython,
     pythonhome = pythonhome,
     virtualenv_activate = virtualenv_activate,
     version_string = version_string,
@@ -148,7 +146,7 @@ tf_python_config <- function(python, python_versions) {
     anaconda = anaconda,
     numpy = numpy,
     tensorflow = tensorflow,
-    python_versions = normalizePath(python_versions)
+    python_versions = python_versions
   ))
 
 }

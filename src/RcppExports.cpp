@@ -7,15 +7,16 @@
 using namespace Rcpp;
 
 // py_initialize
-void py_initialize(const std::string& python, const std::string& libpython, const std::string& pythonhome, bool python3);
-RcppExport SEXP tensorflow_py_initialize(SEXP pythonSEXP, SEXP libpythonSEXP, SEXP pythonhomeSEXP, SEXP python3SEXP) {
+void py_initialize(const std::string& python, const std::string& libpython, const std::string& pythonhome, const std::string& virtualenv_activate, bool python3);
+RcppExport SEXP tensorflow_py_initialize(SEXP pythonSEXP, SEXP libpythonSEXP, SEXP pythonhomeSEXP, SEXP virtualenv_activateSEXP, SEXP python3SEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const std::string& >::type python(pythonSEXP);
     Rcpp::traits::input_parameter< const std::string& >::type libpython(libpythonSEXP);
     Rcpp::traits::input_parameter< const std::string& >::type pythonhome(pythonhomeSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type virtualenv_activate(virtualenv_activateSEXP);
     Rcpp::traits::input_parameter< bool >::type python3(python3SEXP);
-    py_initialize(python, libpython, pythonhome, python3);
+    py_initialize(python, libpython, pythonhome, virtualenv_activate, python3);
     return R_NilValue;
 END_RCPP
 }

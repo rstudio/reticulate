@@ -54,6 +54,7 @@ NULL
   py_initialize(config$python,
                 config$libpython,
                 config$pythonhome,
+                config$virtualenv_activate,
                 config$version >= "3.0");
 
   # set internal flag indicating we have py bindings

@@ -129,11 +129,19 @@ tf_python_config <- function(python, python_versions) {
   else
     tensorflow <- NULL
 
+  # check for virtualenv activate script
+  activate_this <- file.path(dirname(python), "activate_this.py")
+  if (file.exists(activate_this))
+    virtualenv_activate <- activate_this
+  else
+    virtualenv_activate <- ""
+
   # return config info
   structure(class = "tf_config", list(
     python = normalizePath(python),
     libpython = normalizePath(libpython, mustWork = FALSE),
     pythonhome = pythonhome,
+    virtualenv_activate = virtualenv_activate,
     version_string = version_string,
     version = version,
     architecture = architecture,
@@ -151,6 +159,9 @@ str.tf_config <- function(object, ...) {
   out <- ""
   out <- paste0(out, "python:         ", x$python, "\n")
   out <- paste0(out, "libpython:      ", x$libpython, ifelse(file.exists(x$libpython), "", "[NOT FOUND]"), "\n")
+  out <- paste0(out, "pythonhome:     ", x$pythonhome, "\n")
+  if (nzchar(x$virtualenv_activate))
+    out <- paste0(out, "virtualenv:     ", x$virtualenv_activate, "\n")
   out <- paste0(out, "version:        ", x$version_string, "\n")
   if (is_windows())
     out <- paste0(out, "Architecture:   ", x$architecture, "\n")

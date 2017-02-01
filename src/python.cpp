@@ -898,10 +898,14 @@ extern "C" PyObject* initializeTFCall(void) {
   return PyModule_Create2(&TFCallModuleDef, _PYTHON3_ABI_VERSION);
 }
 
+// forward declare py_run_file
+void py_run_file(const std::string& file);
+
 // [[Rcpp::export]]
 void py_initialize(const std::string& python,
                    const std::string& libpython,
                    const std::string& pythonhome,
+                   const std::string& virtualenv_activate,
                    bool python3) {
 
   // set python3 flag
@@ -954,6 +958,10 @@ void py_initialize(const std::string& python,
 
   // initialize type objects
   initialize_type_objects(isPython3());
+
+  // execute activate_this.py script for virtualenv if necessary
+  if (!virtualenv_activate.empty())
+    py_run_file(virtualenv_activate);
 
   if (!import_numpy_api(isPython3(), &err))
     stop(err);

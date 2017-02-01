@@ -103,6 +103,7 @@ typedef struct PyModuleDef{
 
 LIBPYTHON_EXTERN PyTypeObject* PyFunction_Type;
 LIBPYTHON_EXTERN PyTypeObject* PyModule_Type;
+LIBPYTHON_EXTERN PyTypeObject* PyType_Type;
 
 LIBPYTHON_EXTERN PyObject* Py_None;
 LIBPYTHON_EXTERN PyObject* Py_Unicode;
@@ -252,6 +253,8 @@ LIBPYTHON_EXTERN void (*PySys_SetArgv)(int, char **);
 LIBPYTHON_EXTERN void (*PySys_SetArgv_v3)(int, wchar_t **);
 
 #define PyObject_TypeCheck(o, tp) ((PyTypeObject*)Py_TYPE(o) == (tp)) || PyType_IsSubtype((PyTypeObject*)Py_TYPE(o), (tp))
+
+#define PyType_Check(o) PyObject_TypeCheck(o, PyType_Type)
 
 enum NPY_TYPES {
   NPY_BOOL=0,

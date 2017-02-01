@@ -1043,7 +1043,7 @@ IntegerVector py_get_attribute_types(
     PyObjectXPtr x,
     const std::vector<std::string>& attributes) {
 
-  //const int UNKNOWN     =  0;
+  const int UNKNOWN     =  0;
   const int VECTOR      =  1;
   const int ARRAY       =  2;
   const int LIST        =  4;
@@ -1053,7 +1053,9 @@ IntegerVector py_get_attribute_types(
   IntegerVector types(attributes.size());
   for (size_t i = 0; i<attributes.size(); i++) {
     PyObjectXPtr attr = py_get_attr(x, attributes[i]);
-    if (PyCallable_Check(attr))
+    if (PyType_Check(attr))
+      types[i] = UNKNOWN;
+    else if (PyCallable_Check(attr))
       types[i] = FUNCTION;
     else if (PyList_Check(attr)  ||
              PyTuple_Check(attr) ||

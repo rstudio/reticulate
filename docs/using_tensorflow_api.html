@@ -677,6 +677,19 @@ W_smallish &lt;- W[, 7:9]</code></pre>
 <p>The result will be automatically simplified to an R vector if all values returned from the iteration are length 1 vectors of single primitive type “character”, “complex”, “double”, “integer”, or “logical” (otherwise the result will be an R list).</p>
 <p>Note that Python iterators and generators are stateful objects. This means that after making a single pass through an iterator it will be empty (i.e. you can’t execute another iteration against the same underlying iterator).</p>
 </div>
+<div id="numpy-types" class="section level2">
+<h2>NumPy Types</h2>
+<p>When you use a TensorFlow API that expects NumPy arrays you can simply use the equivalent R matrix or multi-dimensional array and it will be automatically converted to the required NumPy array type.</p>
+<p>There are however some parts of the TensorFlow API which require direct specification of NumPy data types (e.g. the CSV loading functions in tflearn). For these contexts you can import the NumPy module explicitly and refer to it’s types as needed.</p>
+<p>For example, here’s a call to tflearn’s <code>load_csv_with_header</code> function that specifies data types using the NumPy module:</p>
+<pre class="r"><code>np &lt;- import(&quot;numpy&quot;)
+training_set &lt;- tf$contrib$learn$datasets$base$load_csv_with_header(
+  filename = &quot;iris_training.csv&quot;,
+  target_dtype = np$int,
+  features_dtype = np$float32
+)</code></pre>
+<p>Note that we explicitly import NumPy via <code>np &lt;- import(&quot;numpy&quot;)</code> prior to accessing the <code>np$int</code> and <code>np$float32</code> types.</p>
+</div>
 <div id="training-flags" class="section level2">
 <h2>Training Flags</h2>
 <p>TensorFlow includes a facility for driving training hyperparmaeters using command-line flags. You can use this facility by:</p>

@@ -255,6 +255,25 @@ The result will be automatically simplified to an R vector if all values returne
 
 Note that Python iterators and generators are stateful objects. This means that after making a single pass through an iterator it will be empty (i.e. you can't execute another iteration against the same underlying iterator).
 
+## NumPy Types
+
+When you use a TensorFlow API that expects NumPy arrays you can simply use the equivalent R matrix or multi-dimensional array and it will be automatically converted to the required NumPy array type. 
+
+There are however some parts of the TensorFlow API which require direct specification of NumPy data types (e.g. the CSV loading functions in tflearn). For these contexts you can import the NumPy module explicitly and refer to it's types as needed.
+
+For example, here's a call to tflearn's `load_csv_with_header` function that specifies data types using the NumPy module:
+
+```{r eval=FALSE}
+np <- import("numpy")
+training_set <- tf$contrib$learn$datasets$base$load_csv_with_header(
+  filename = "iris_training.csv",
+  target_dtype = np$int,
+  features_dtype = np$float32
+)
+```
+
+Note that we explicitly import NumPy via `np <- import("numpy")` prior to accessing the `np$int` and `np$float32` types.
+
 ## Training Flags
 
 TensorFlow includes a facility for driving training hyperparmaeters using command-line flags. You can use this facility by:

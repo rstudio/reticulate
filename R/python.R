@@ -335,10 +335,6 @@ py_get_submodule <- function(x, name) {
   import(module_name, silent = TRUE)
 }
 
-# get an attribute w/ no warnings (e.g. deprecation warnings)
-py_get_attr_silent <- function(x, name) {
-  py_suppress_warnings(py_get_attr(x, name))
-}
 
 # check if we have python bindings
 py_have_bindings <- function() {

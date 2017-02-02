@@ -620,7 +620,6 @@ SEXP py_to_r(PyObject* x) {
   }
 }
 
-
 // convert an R object to a python object (the returned object
 // will have an active reference count on it)
 PyObject* r_to_py(RObject x) {
@@ -1039,10 +1038,22 @@ bool py_has_attr(PyObjectXPtr x, const std::string& name) {
 
 
 // [[Rcpp::export]]
-PyObjectXPtr py_get_attr(PyObjectXPtr x, const std::string& name) {
+PyObjectXPtr py_get_attr(PyObjectXPtr x, const std::string& name, bool silent = false) {
+
   PyObject* attr = PyObject_GetAttrString(x, name.c_str());
-  if (attr == NULL)
-    stop(py_fetch_error());
+
+  if (attr == NULL) {
+
+    if (!silent) {
+      // error if we aren't silent
+      stop(py_fetch_error());
+    } else {
+      // otherwise set it to PyNone
+      attr = Py_None;
+      Py_IncRef(attr);
+    }
+  }
+
   return py_xptr(attr);
 }
 
@@ -1060,8 +1071,10 @@ IntegerVector py_get_attribute_types(
 
   IntegerVector types(attributes.size());
   for (size_t i = 0; i<attributes.size(); i++) {
-    PyObjectXPtr attr = py_get_attr(x, attributes[i]);
-    if (PyType_Check(attr))
+    PyObjectXPtr attr = py_get_attr(x, attributes[i], true);
+    if (attr.get() == Py_None)
+      types[i] = UNKNOWN;
+    else if (PyType_Check(attr))
       types[i] = UNKNOWN;
     else if (PyCallable_Check(attr))
       types[i] = FUNCTION;

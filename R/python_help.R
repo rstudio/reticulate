@@ -61,7 +61,7 @@ help_completion_handler.tensorflow.builtin.object <- function(topic, source) {
   # try to generate a signature
   signature <- NULL
   target <- help_get_attribute(source, topic)
-  if (py_is_callable(target)) {
+  if (!is.null(target) && py_is_callable(target)) {
     help <- import("tftools.help")
     signature <- help$generate_signature_for_function(target)
     if (is.null(signature))
@@ -88,7 +88,7 @@ help_completion_parameter_handler.tensorflow.builtin.object <- function(source) 
 
   # get the function
   target <- help_get_attribute(source, topic)
-  if (py_is_callable(target)) {
+  if (!is.null(target) & py_is_callable(target)) {
     help <- import("tftools.help")
     args <- help$get_arguments(target)
     if (!is.null(args)) {
@@ -146,7 +146,7 @@ help_formals_handler.tensorflow.builtin.object <- function(topic, source) {
 
   if (py_has_attr(source, topic)) {
     target <- help_get_attribute(source, topic)
-    if (py_is_callable(target)) {
+    if (!is.null(target) && py_is_callable(target)) {
       help <- import("tftools.help")
       args <- help$get_arguments(target)
       if (!is.null(args)) {
@@ -272,8 +272,8 @@ help_get_attribute <- function(source, topic) {
       return(module)
   }
 
-  # get_attr_silient
-  py_get_attr_silent(source, topic)
+  # get attribute w/ no warnings or errors
+  tryCatch(py_suppress_warnings(py_get_attr(x, name)), error = function(e) NULL)
 }
 
 # Environments where we store help topics (mappings of module/class name to URL)

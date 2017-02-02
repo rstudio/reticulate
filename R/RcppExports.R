@@ -41,8 +41,8 @@ py_has_attr <- function(x, name) {
     .Call('tensorflow_py_has_attr', PACKAGE = 'tensorflow', x, name)
 }
 
-py_get_attr <- function(x, name) {
-    .Call('tensorflow_py_get_attr', PACKAGE = 'tensorflow', x, name)
+py_get_attr <- function(x, name, silent = FALSE) {
+    .Call('tensorflow_py_get_attr', PACKAGE = 'tensorflow', x, name, silent)
 }
 
 py_get_attribute_types <- function(x, attributes) {

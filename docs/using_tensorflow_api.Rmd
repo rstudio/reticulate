@@ -210,6 +210,15 @@ sess$run(train_step, feed_dict = dict(x = batch_xs, y_ = batch_ys))
 
 The `x` and `y_` variables in the above example are tensor placeholders which are substituted for by the specified training data.
 
+## Tuples
+
+Some TensorFlow APIs accept tuples as arguments. In many cases if you pass a list the API will automatically convert it to a tuple, however there may be instances where you need to explicitly pass a tuple. For these cases you can use the `tuple` function, for example:
+
+```{r}
+tuple(1L, 2L, 3L)
+```
+
+
 ## With Contexts
 
 The TensorFlow API includes several functions that yield scoped execution contexts (i.e. blocks of code which execute code on enter and exit, for example to set a default or to open and close a resource). 

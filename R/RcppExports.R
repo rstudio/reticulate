@@ -61,6 +61,10 @@ py_dict <- function(keys, items) {
     .Call('tensorflow_py_dict', PACKAGE = 'tensorflow', keys, items)
 }
 
+py_tuple <- function(items) {
+    .Call('tensorflow_py_tuple', PACKAGE = 'tensorflow', items)
+}
+
 py_module_impl <- function(module) {
     .Call('tensorflow_py_module_impl', PACKAGE = 'tensorflow', module)
 }

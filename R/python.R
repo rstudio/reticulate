@@ -184,6 +184,31 @@ dict <- function(...) {
   py_dict(keys, values)
 }
 
+#' Create Python tuple
+#'
+#' Create a Python tuple object
+#'
+#' @param ... Values for tuple
+#'
+#' @return A Python tuple
+#'
+#'
+#' @export
+tuple <- function(...) {
+
+  # get the args
+  values <- list(...)
+
+  # if it's a single value that's a list then resolve to that
+  if (length(values) == 1 && is.list(values[[1]]))
+    values <- values[[1]]
+
+  # construct tuple
+  py_tuple(values)
+}
+
+
+
 #' Evaluate an expression within a context.
 #'
 #' The \code{with} method for objects of type \code{tensorflow.builtin.object}

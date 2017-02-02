@@ -651,6 +651,11 @@ W_smallish &lt;- W[, 7:9]</code></pre>
 <pre class="r"><code>sess$run(train_step, feed_dict = dict(x = batch_xs, y_ = batch_ys))</code></pre>
 <p>The <code>x</code> and <code>y_</code> variables in the above example are tensor placeholders which are substituted for by the specified training data.</p>
 </div>
+<div id="tuples" class="section level2">
+<h2>Tuples</h2>
+<p>Some TensorFlow APIs accept tuples as arguments. In many cases if you pass a list the API will automatically convert it to a tuple, however there may be instances where you need to explicitly pass a tuple. For these cases you can use the <code>tuple</code> function, for example:</p>
+<pre class="r"><code>tuple(1L, 2L, 3L)</code></pre>
+</div>
 <div id="with-contexts" class="section level2">
 <h2>With Contexts</h2>
 <p>The TensorFlow API includes several functions that yield scoped execution contexts (i.e. blocks of code which execute code on enter and exit, for example to set a default or to open and close a resource).</p>

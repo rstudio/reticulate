@@ -178,6 +178,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// py_tuple
+PyObjectXPtr py_tuple(const List& items);
+RcppExport SEXP tensorflow_py_tuple(SEXP itemsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const List& >::type items(itemsSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_tuple(items));
+    return rcpp_result_gen;
+END_RCPP
+}
 // py_module_impl
 PyObjectXPtr py_module_impl(const std::string& module);
 RcppExport SEXP tensorflow_py_module_impl(SEXP moduleSEXP) {

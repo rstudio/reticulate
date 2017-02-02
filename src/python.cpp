@@ -1156,6 +1156,19 @@ PyObjectXPtr py_dict(const List& keys, const List& items) {
 }
 
 // [[Rcpp::export]]
+PyObjectXPtr py_tuple(const List& items) {
+  PyObject* tuple = PyTuple_New(items.length());
+  for (R_xlen_t i = 0; i<items.length(); i++) {
+    PyObject* item = r_to_py(items.at(i));
+    // NOTE: reference to arg is "stolen" by the tuple
+    int res = PyTuple_SetItem(tuple, i, item);
+    if (res != 0)
+      stop(py_fetch_error());
+  }
+  return py_xptr(tuple);
+}
+
+// [[Rcpp::export]]
 PyObjectXPtr py_module_impl(const std::string& module) {
   PyObject* pModule = PyImport_ImportModule(module.c_str());
   if (pModule == NULL)

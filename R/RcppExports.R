@@ -53,6 +53,16 @@ py_to_r <- function(x) {
     .Call('tensorflow_py_to_r', PACKAGE = 'tensorflow', x)
 }
 
+#' Call a Python callable object
+#'
+#' @param args List of unnamed arguments
+#' @param keywords List of named arguments
+#'
+#' @return Return value of call
+#'
+#' @keywords internal
+#'
+#' @export
 py_call <- function(x, args, keywords = NULL) {
     .Call('tensorflow_py_call', PACKAGE = 'tensorflow', x, args, keywords)
 }
@@ -77,10 +87,22 @@ py_iterate <- function(x, f) {
     .Call('tensorflow_py_iterate', PACKAGE = 'tensorflow', x, f)
 }
 
+#' Run Python code
+#'
+#' Execute code within the the \code{__main__} Python module.
+#'
+#' @param code Code to execute
+#' @param file File to execute
+#'
+#' @name py_run
+#'
+#' @export
 py_run_string <- function(code) {
     invisible(.Call('tensorflow_py_run_string', PACKAGE = 'tensorflow', code))
 }
 
+#' @rdname py_run
+#' @export
 py_run_file <- function(file) {
     invisible(.Call('tensorflow_py_run_file', PACKAGE = 'tensorflow', file))
 }

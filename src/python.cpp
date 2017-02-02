@@ -1105,6 +1105,17 @@ SEXP py_to_r(PyObjectXPtr x) {
   return py_to_r(x.get());
 }
 
+
+//' Call a Python callable object
+//'
+//' @param args List of unnamed arguments
+//' @param keywords List of named arguments
+//'
+//' @return Return value of call
+//'
+//' @keywords internal
+//'
+//' @export
 // [[Rcpp::export]]
 SEXP py_call(PyObjectXPtr x, List args, List keywords = R_NilValue) {
 
@@ -1235,15 +1246,16 @@ List py_iterate(PyObjectXPtr x, Function f) {
 }
 
 
-// Run Python code
-//
-// Execute code within the the \code{__main__} Python module.
-//
-// @param code Code to execute
-// @param file File to execute
-//
-// @name py_run
-//
+//' Run Python code
+//'
+//' Execute code within the the \code{__main__} Python module.
+//'
+//' @param code Code to execute
+//' @param file File to execute
+//'
+//' @name py_run
+//'
+//' @export
 // [[Rcpp::export]]
 void py_run_string(const std::string& code)
 {
@@ -1254,7 +1266,8 @@ void py_run_string(const std::string& code)
 }
 
 
-// @rdname py_run
+//' @rdname py_run
+//' @export
 // [[Rcpp::export]]
 void py_run_file(const std::string& file)
 {

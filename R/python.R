@@ -199,9 +199,20 @@ tuple <- function(...) {
   # get the args
   values <- list(...)
 
-  # if it's a single value that's a list then resolve to that
-  if (length(values) == 1 && is.list(values[[1]]))
-    values <- values[[1]]
+  # if it's a single value then maybe do some special resolution
+  if (length(values) == 1) {
+
+    # alias value
+    value <- values[[1]]
+
+    # reflect tuples back
+    if (inherits(value, "tensorflow.builtin.tuple"))
+      return(value)
+
+    # if it's a list then use the list as the values
+    if (is.list(value))
+      values <- value
+  }
 
   # construct tuple
   py_tuple(values)

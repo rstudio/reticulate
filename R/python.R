@@ -362,6 +362,32 @@ py_suppress_warnings <- function(expr) {
   force(expr)
 }
 
+
+#' Capture and return Python stdout
+#'
+#' @param expr Expression to capture stdout for
+#'
+#' @return Character vector with output
+#'
+#' @export
+py_capture_stdout <- function(expr) {
+
+  output_tools <- import("tftools.output")
+
+  restore <- output_tools$start_stdout_capture()
+
+  on.exit({
+    if (!is.null(restore))
+      output_tools$end_stdout_capture(restore)
+  }, add = TRUE)
+
+  force(expr)
+
+  output <- output_tools$end_stdout_capture(restore)
+  restore <- NULL
+  output
+}
+
 py_is_module <- function(x) {
   inherits(x, "tensorflow.builtin.module")
 }

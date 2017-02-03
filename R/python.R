@@ -96,7 +96,7 @@ str.tensorflow.builtin.object <- function(object, ...) {
       } else {
         args <- dots
       }
-      result = call_object(attrib, args, keywords)
+      result = py_call_object(attrib, args, keywords)
       if (is.null(result))
         invisible(result)
       else
@@ -124,12 +124,12 @@ str.tensorflow.builtin.object <- function(object, ...) {
     return(character())
 
   # get the names and filter out internal attributes (_*)
-  names <- suppress_warnings(py_list_attributes(x))
+  names <- py_suppress_warnings(py_list_attributes(x))
   names <- names[substr(names, 1, 1) != '_']
   names <- sort(names, decreasing = FALSE)
 
   # get the types
-  types <- suppress_warnings(py_get_attribute_types(x, names))
+  types <- py_suppress_warnings(py_get_attribute_types(x, names))
 
   # if this is a module then add submodules
   if (inherits(x, "tensorflow.builtin.module")) {
@@ -350,7 +350,7 @@ print.tensorflow.builtin.iterator <- function(x, ...) {
 #' @return Result of evaluating expression
 #'
 #' @export
-suppress_warnings <- function(expr) {
+py_suppress_warnings <- function(expr) {
 
   # ignore python warnings
   warnings <- import("warnings")
@@ -376,7 +376,7 @@ suppress_warnings <- function(expr) {
 #' @return Character vector with output
 #'
 #' @export
-capture_stdout <- function(expr) {
+py_capture_stdout <- function(expr) {
 
   output_tools <- import("tftools.output")
 

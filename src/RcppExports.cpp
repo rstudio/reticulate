@@ -153,16 +153,16 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// call_object
-SEXP call_object(PyObjectXPtr x, List args, List keywords);
-RcppExport SEXP tensorflow_call_object(SEXP xSEXP, SEXP argsSEXP, SEXP keywordsSEXP) {
+// py_call_object
+SEXP py_call_object(PyObjectXPtr x, List args, List keywords);
+RcppExport SEXP tensorflow_py_call_object(SEXP xSEXP, SEXP argsSEXP, SEXP keywordsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< PyObjectXPtr >::type x(xSEXP);
     Rcpp::traits::input_parameter< List >::type args(argsSEXP);
     Rcpp::traits::input_parameter< List >::type keywords(keywordsSEXP);
-    rcpp_result_gen = Rcpp::wrap(call_object(x, args, keywords));
+    rcpp_result_gen = Rcpp::wrap(py_call_object(x, args, keywords));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -223,25 +223,25 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// run_string
-PyObjectXPtr run_string(const std::string& code);
-RcppExport SEXP tensorflow_run_string(SEXP codeSEXP) {
+// py_run_string
+PyObjectXPtr py_run_string(const std::string& code);
+RcppExport SEXP tensorflow_py_run_string(SEXP codeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const std::string& >::type code(codeSEXP);
-    rcpp_result_gen = Rcpp::wrap(run_string(code));
+    rcpp_result_gen = Rcpp::wrap(py_run_string(code));
     return rcpp_result_gen;
 END_RCPP
 }
-// run_file
-PyObjectXPtr run_file(const std::string& file);
-RcppExport SEXP tensorflow_run_file(SEXP fileSEXP) {
+// py_run_file
+PyObjectXPtr py_run_file(const std::string& file);
+RcppExport SEXP tensorflow_py_run_file(SEXP fileSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const std::string& >::type file(fileSEXP);
-    rcpp_result_gen = Rcpp::wrap(run_file(file));
+    rcpp_result_gen = Rcpp::wrap(py_run_file(file));
     return rcpp_result_gen;
 END_RCPP
 }

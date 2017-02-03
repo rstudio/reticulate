@@ -61,7 +61,7 @@ NULL
   .py_bindings <<- TRUE
 
   # add our python scripts to the search path
-  run_string(paste0("import sys; sys.path.append('",
+  py_run_string(paste0("import sys; sys.path.append('",
                     system.file("python", package = "tensorflow") ,
                      "')"))
 

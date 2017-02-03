@@ -2,13 +2,13 @@
 % Please edit documentation in R/RcppExports.R
 \name{py_run}
 \alias{py_run}
-\alias{py_run_file}
-\alias{py_run_string}
+\alias{run_file}
+\alias{run_string}
 \title{Run Python code}
 \usage{
-py_run_string(code)
+run_string(code)
 
-py_run_file(file)
+run_file(file)
 }
 \arguments{
 \item{code}{Code to execute}

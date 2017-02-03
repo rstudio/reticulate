@@ -61,9 +61,9 @@ NULL
   .py_bindings <<- TRUE
 
   # add our python scripts to the search path
-  py_run_string(paste0("import sys; sys.path.append('",
-                       system.file("python", package = "tensorflow") ,
-                       "')"))
+  run_string(paste0("import sys; sys.path.append('",
+                    system.file("python", package = "tensorflow") ,
+                     "')"))
 
   # attempt to load tensorflow
   tf <<- tryCatch(import("tensorflow"), error = function(e) e)

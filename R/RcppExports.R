@@ -63,8 +63,8 @@ py_to_r <- function(x) {
 #' @keywords internal
 #'
 #' @export
-py_call <- function(x, args, keywords = NULL) {
-    .Call('tensorflow_py_call', PACKAGE = 'tensorflow', x, args, keywords)
+call_object <- function(x, args, keywords = NULL) {
+    .Call('tensorflow_call_object', PACKAGE = 'tensorflow', x, args, keywords)
 }
 
 py_dict <- function(keys, items) {
@@ -97,13 +97,13 @@ py_iterate <- function(x, f) {
 #' @name py_run
 #'
 #' @export
-py_run_string <- function(code) {
-    invisible(.Call('tensorflow_py_run_string', PACKAGE = 'tensorflow', code))
+run_string <- function(code) {
+    invisible(.Call('tensorflow_run_string', PACKAGE = 'tensorflow', code))
 }
 
 #' @rdname py_run
 #' @export
-py_run_file <- function(file) {
-    invisible(.Call('tensorflow_py_run_file', PACKAGE = 'tensorflow', file))
+run_file <- function(file) {
+    invisible(.Call('tensorflow_run_file', PACKAGE = 'tensorflow', file))
 }
 

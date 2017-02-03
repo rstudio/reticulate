@@ -898,7 +898,7 @@ extern "C" PyObject* initializeTFCall(void) {
 }
 
 // forward declare py_run_file
-void py_run_file(const std::string& file);
+void run_file(const std::string& file);
 
 // [[Rcpp::export]]
 void py_initialize(const std::string& python,
@@ -960,7 +960,7 @@ void py_initialize(const std::string& python,
 
   // execute activate_this.py script for virtualenv if necessary
   if (!virtualenv_activate.empty())
-    py_run_file(virtualenv_activate);
+    run_file(virtualenv_activate);
 
   if (!import_numpy_api(isPython3(), &err))
     stop(err);
@@ -1117,7 +1117,7 @@ SEXP py_to_r(PyObjectXPtr x) {
 //'
 //' @export
 // [[Rcpp::export]]
-SEXP py_call(PyObjectXPtr x, List args, List keywords = R_NilValue) {
+SEXP call_object(PyObjectXPtr x, List args, List keywords = R_NilValue) {
 
   // unnamed arguments
   PyObjectPtr pyArgs(PyTuple_New(args.length()));
@@ -1257,7 +1257,7 @@ List py_iterate(PyObjectXPtr x, Function f) {
 //'
 //' @export
 // [[Rcpp::export]]
-void py_run_string(const std::string& code)
+void run_string(const std::string& code)
 {
   PyObject* dict = PyModule_GetDict(PyImport_AddModule("__main__"));
   PyObjectPtr res(PyRun_StringFlags(code.c_str(), Py_file_input, dict, dict, NULL));
@@ -1269,7 +1269,7 @@ void py_run_string(const std::string& code)
 //' @rdname py_run
 //' @export
 // [[Rcpp::export]]
-void py_run_file(const std::string& file)
+void run_file(const std::string& file)
 {
   // expand path
   Function pathExpand("path.expand");

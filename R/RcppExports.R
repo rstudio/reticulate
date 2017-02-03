@@ -41,6 +41,15 @@ py_has_attr <- function(x, name) {
     .Call('tensorflow_py_has_attr', PACKAGE = 'tensorflow', x, name)
 }
 
+#' Get an attribute of a Python object
+#'
+#' @param x Python object
+#' @param name Attribute name
+#' @param silent \code{TRUE} to return \code{NULL} if the attribute
+#'  doesn't exist (default is \code{FALSE} which will raise an error)
+#'
+#' @return Attribute of Python object
+#' @export
 py_get_attr <- function(x, name, silent = FALSE) {
     .Call('tensorflow_py_get_attr', PACKAGE = 'tensorflow', x, name, silent)
 }

@@ -224,22 +224,24 @@ BEGIN_RCPP
 END_RCPP
 }
 // run_string
-void run_string(const std::string& code);
+PyObjectXPtr run_string(const std::string& code);
 RcppExport SEXP tensorflow_run_string(SEXP codeSEXP) {
 BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const std::string& >::type code(codeSEXP);
-    run_string(code);
-    return R_NilValue;
+    rcpp_result_gen = Rcpp::wrap(run_string(code));
+    return rcpp_result_gen;
 END_RCPP
 }
 // run_file
-void run_file(const std::string& file);
+PyObjectXPtr run_file(const std::string& file);
 RcppExport SEXP tensorflow_run_file(SEXP fileSEXP) {
 BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const std::string& >::type file(fileSEXP);
-    run_file(file);
-    return R_NilValue;
+    rcpp_result_gen = Rcpp::wrap(run_file(file));
+    return rcpp_result_gen;
 END_RCPP
 }

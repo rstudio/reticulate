@@ -15,6 +15,9 @@ run_file(file)
 
 \item{file}{File to execute}
 }
+\value{
+Reference to \code{__main__} Python module.
+}
 \description{
 Execute code within the the \code{__main__} Python module.
 }

@@ -94,16 +94,18 @@ py_iterate <- function(x, f) {
 #' @param code Code to execute
 #' @param file File to execute
 #'
+#' @return Reference to \code{__main__} Python module.
+#'
 #' @name py_run
 #'
 #' @export
 run_string <- function(code) {
-    invisible(.Call('tensorflow_run_string', PACKAGE = 'tensorflow', code))
+    .Call('tensorflow_run_string', PACKAGE = 'tensorflow', code)
 }
 
 #' @rdname py_run
 #' @export
 run_file <- function(file) {
-    invisible(.Call('tensorflow_run_file', PACKAGE = 'tensorflow', file))
+    .Call('tensorflow_run_file', PACKAGE = 'tensorflow', file)
 }
 

@@ -26,4 +26,3 @@ Simplification is only attempted all elements are length 1
  vectors of type "character", "complex", "double", "integer", or
  "logical".
 }
-

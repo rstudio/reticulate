@@ -15,4 +15,3 @@ Character vector with output
 \description{
 Capture and return Python stdout
 }
-

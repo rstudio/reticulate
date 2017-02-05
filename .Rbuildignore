@@ -16,9 +16,3 @@ travis_install.sh
 run_tests.sh
 testenv
 MNIST-data
-
-
-
-
-
-

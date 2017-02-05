@@ -13,4 +13,3 @@ FLAGS object suitable for reading values from
 Parse command line arguments to the Rscript and use them to
 populate the values of TensorFlow FLAGS
 }
-

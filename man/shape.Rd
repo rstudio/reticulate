@@ -12,4 +12,3 @@ shape(...)
 \description{
 Tensor shape
 }
-

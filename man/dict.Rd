@@ -20,4 +20,3 @@ are other Python objects rather than character vectors.
 This is useful for creating dictionaries keyed by Tensor (required
 for `\code{feed_dict}` parameters).
 }
-

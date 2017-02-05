@@ -15,4 +15,3 @@ A Python tuple
 \description{
 Create a Python tuple object
 }
-

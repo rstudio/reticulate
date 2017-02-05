@@ -39,5 +39,5 @@ Depends: R (>= 3.0)
 Imports:
     utils, Rcpp (>= 0.12.7)
 LinkingTo: Rcpp
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.0
 Suggests: testthat

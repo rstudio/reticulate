@@ -18,4 +18,3 @@ Return value of call
 Call a Python callable object
 }
 \keyword{internal}
-

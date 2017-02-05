@@ -20,4 +20,3 @@ Attribute of Python object
 \description{
 Get an attribute of a Python object
 }
-

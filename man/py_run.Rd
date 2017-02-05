@@ -2,8 +2,8 @@
 % Please edit documentation in R/RcppExports.R
 \name{py_run}
 \alias{py_run}
-\alias{py_run_file}
 \alias{py_run_string}
+\alias{py_run_file}
 \title{Run Python code}
 \usage{
 py_run_string(code)
@@ -21,4 +21,3 @@ Reference to \code{__main__} Python module.
 \description{
 Execute code within the the \code{__main__} Python module.
 }
-

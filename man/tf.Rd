@@ -26,4 +26,3 @@ slim <- tf$contrib$slim
 }
 }
 \keyword{datasets}
-

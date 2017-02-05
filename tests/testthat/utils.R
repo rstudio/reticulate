@@ -1,6 +1,6 @@
 
 skip_if_no_python <- function() {
-  if (!tensorflow:::py_loaded())
+  if (!tensorflow::py_available())
     skip("Python bindings not available for testing")
 }
 

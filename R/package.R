@@ -55,8 +55,8 @@ NULL
                 config$virtualenv_activate,
                 config$version >= "3.0");
 
-  # set internal flag indicating we have py bindings
-  .py_config$loaded <<- TRUE
+  # set available flag indicating we have py bindings
+  .py_config$available <<- TRUE
 
   # add our python scripts to the search path
   py_run_string(paste0("import sys; sys.path.append('",

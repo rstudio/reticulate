@@ -1,13 +1,29 @@
 
 
-.py_config <- NULL
-
-
+#' Python configuration
+#'
+#' Information on Python and Numpy versions detected
+#'
+#' @return Python configuration object; Logical indicating whether Python
+#'   bindings are available
+#'
+#' @export
 py_config <- function() {
   .py_config
 }
 
 
+#' @rdname py_config
+#' @export
+py_available <- function() {
+  if (!is.null(.py_config))
+    .py_config$available
+  else
+    FALSE
+}
+
+
+.py_config <- NULL
 
 py_discover_config <- function() {
 
@@ -151,7 +167,7 @@ python_config <- function(python, python_versions) {
     anaconda = anaconda,
     numpy = numpy,
     tensorflow = tensorflow,
-    loaded = FALSE,
+    available = FALSE,
     python_versions = python_versions
   ))
 
@@ -180,7 +196,7 @@ str.py_config <- function(object, ...) {
   } else {
     out <- paste0(out, "tensorflow:      [NOT FOUND]\n")
   }
-  out <- paste0(out, "loaded:         ", as.character(x$loaded), "\n")
+  out <- paste0(out, "available:         ", as.character(x$available), "\n")
   if (length(x$python_versions) > 1) {
     out <- paste0(out, "\npython versions found: \n")
     python_versions <- paste0(" ", x$python_versions, collapse = "\n")

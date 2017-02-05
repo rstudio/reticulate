@@ -19,7 +19,7 @@
 #' @export
 import <- function(module, silent = FALSE) {
 
-  if (!py_have_bindings())
+  if (!py_loaded())
     return(NULL)
 
   if (silent)
@@ -405,8 +405,8 @@ py_get_submodule <- function(x, name) {
 
 
 # check if we have python bindings
-py_have_bindings <- function() {
-  .py_bindings
+py_loaded <- function() {
+  .py_config$loaded
 }
 
 

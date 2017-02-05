@@ -23,16 +23,14 @@
 #' @importFrom Rcpp evalCpp
 NULL
 
-# record of tf config and load error message
-.tf_config <- NULL
-.py_bindings <- FALSE
+# load error message
 .load_error_message <- NULL
 
 .onLoad <- function(libname, pkgname) {
 
   # find configuration
-  config <- tf_discover_config()
-  .tf_config <<- config
+  config <- py_discover_config()
+  .py_config <<- config
 
   # check for basic python prerequsities
   if (is.null(config)) {
@@ -58,7 +56,7 @@ NULL
                 config$version >= "3.0");
 
   # set internal flag indicating we have py bindings
-  .py_bindings <<- TRUE
+  .py_config$loaded <<- TRUE
 
   # add our python scripts to the search path
   py_run_string(paste0("import sys; sys.path.append('",
@@ -88,9 +86,9 @@ NULL
                           "tensorflow is installed is either the default python ",
                           "on the system PATH or is specified explicitly via the ",
                           "TENSORFLOW_PYTHON environment variable.\n")
-    if (!is.null(.tf_config)) {
+    if (!is.null(.py_config)) {
       packageStartupMessage("Detected Python configuration:\n")
-      packageStartupMessage(str(.tf_config))
+      packageStartupMessage(str(.py_config))
     }
   }
 }

@@ -1,10 +1,15 @@
 
 
-tf_config <- function() {
-  .tf_config
+.py_config <- NULL
+
+
+py_config <- function() {
+  .py_config
 }
 
-tf_discover_config <- function() {
+
+
+py_discover_config <- function() {
 
   # create a list of possible python versions to bind to
   python_versions <- character()
@@ -50,7 +55,7 @@ tf_discover_config <- function() {
   # scan until we find a version of tensorflow that meets
   # qualifying conditions
   for (python_version in python_versions) {
-    config <- tf_python_config(python_version, python_versions)
+    config <- python_config(python_version, python_versions)
     if (!is.null(config$tensorflow) && !is_incompatible_arch(config)) {
       return(config)
     }
@@ -58,13 +63,13 @@ tf_discover_config <- function() {
 
   # no version of tf found, return first if we have it or NULL
   if (length(python_versions) >= 1)
-    return(tf_python_config(python_versions[[1]], python_versions))
+    return(python_config(python_versions[[1]], python_versions))
   else
     return(NULL)
 }
 
 
-tf_python_config <- function(python, python_versions) {
+python_config <- function(python, python_versions) {
 
   # collect configuration information
   config_script <- system.file("config/config.py", package = "tensorflow")
@@ -135,7 +140,7 @@ tf_python_config <- function(python, python_versions) {
     virtualenv_activate <- ""
 
   # return config info
-  structure(class = "tf_config", list(
+  structure(class = "py_config", list(
     python = python,
     libpython = libpython,
     pythonhome = pythonhome,
@@ -146,13 +151,14 @@ tf_python_config <- function(python, python_versions) {
     anaconda = anaconda,
     numpy = numpy,
     tensorflow = tensorflow,
+    loaded = FALSE,
     python_versions = python_versions
   ))
 
 }
 
 #' @export
-str.tf_config <- function(object, ...) {
+str.py_config <- function(object, ...) {
   x <- object
   out <- ""
   out <- paste0(out, "python:         ", x$python, "\n")
@@ -170,10 +176,11 @@ str.tf_config <- function(object, ...) {
     out <- paste0(out, "numpy:           [NOT FOUND]\n")
   }
   if (!is.null(x$tensorflow)) {
-    out <- paste0(out, "tf:             ", x$tensorflow, "\n")
+    out <- paste0(out, "tensorflow:     ", x$tensorflow, "\n")
   } else {
-    out <- paste0(out, "tf:              [NOT FOUND]\n")
+    out <- paste0(out, "tensorflow:      [NOT FOUND]\n")
   }
+  out <- paste0(out, "loaded:         ", as.character(x$loaded), "\n")
   if (length(x$python_versions) > 1) {
     out <- paste0(out, "\npython versions found: \n")
     python_versions <- paste0(" ", x$python_versions, collapse = "\n")
@@ -183,7 +190,7 @@ str.tf_config <- function(object, ...) {
 }
 
 #' @export
-print.tf_config <- function(x, ...) {
+print.py_config <- function(x, ...) {
  cat(str(x))
 }
 

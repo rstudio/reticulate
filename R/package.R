@@ -66,15 +66,15 @@ NULL
 
 
 
-ensure_python_initialized <- function() {
+ensure_python_initialized <- function(required_module = NULL) {
   if (is.null(.globals$py_config))
-    .globals$py_config <- initialize_python()
+    .globals$py_config <- initialize_python(required_module)
 }
 
-initialize_python <- function() {
+initialize_python <- function(required_module = NULL) {
 
   # find configuration
-  config <- py_discover_config()
+  config <- py_discover_config(required_module)
 
   # check for basic python prerequsities
   if (is.null(config)) {

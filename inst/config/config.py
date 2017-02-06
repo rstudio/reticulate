@@ -1,5 +1,6 @@
 
 import sys
+import os
 import sysconfig
 import platform
 import imp
@@ -20,9 +21,13 @@ try:
 except Exception:
   pass
 
-try:
-  sys.stdout.write('\nTensorflowPath: ' + str(imp.find_module('tensorflow')[1]))
-except Exception:
-  pass
+
+if "RPY_REQUIRED_MODULE" in os.environ:
+  required_module = os.environ.get("RPY_REQUIRED_MODULE")
+  try:
+    sys.stdout.write('\nRequiredModule: ' + required_module)
+    sys.stdout.write('\nRequiredModulePath: ' + str(imp.find_module(required_module)[1]))
+  except Exception:
+    pass
 
 

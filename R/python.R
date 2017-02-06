@@ -17,8 +17,10 @@
 #' @export
 import <- function(module) {
 
-  # ensure that python is initialized
-  ensure_python_initialized()
+  # ensure that python is initialized (pass top level module as
+  # a hint as to which version of python to choose)
+  top_level_module <- strsplit(module, ".", fixed = TRUE)[[1]][[1]]
+  ensure_python_initialized(required_module = top_level_module)
 
   # import the module
   py_module_impl(module)

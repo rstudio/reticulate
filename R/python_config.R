@@ -22,7 +22,7 @@ py_available <- function() {
     FALSE
 }
 
-py_discover_config <- function() {
+py_discover_config <- function(required_module) {
 
   # create a list of possible python versions to bind to
   python_versions <- character()
@@ -68,23 +68,33 @@ py_discover_config <- function() {
   # scan until we find a version of tensorflow that meets
   # qualifying conditions
   for (python_version in python_versions) {
-    config <- python_config(python_version, python_versions)
-    if (!is.null(config$tensorflow) && !is_incompatible_arch(config)) {
+
+    # get the config
+    config <- python_config(python_version, required_module, python_versions)
+
+    # if we have a required module ensure it's satsified.
+    # also check architecture (can be an issue on windows)
+    if ((is.null(config$required_module) || !is.null(config$required_module_path)) &&
+        !is_incompatible_arch(config)) {
       return(config)
     }
   }
 
   # no version of tf found, return first if we have it or NULL
   if (length(python_versions) >= 1)
-    return(python_config(python_versions[[1]], python_versions))
+    return(python_config(python_versions[[1]], required_module, python_versions))
   else
     return(NULL)
 }
 
 
-python_config <- function(python, python_versions) {
+python_config <- function(python, required_module, python_versions) {
 
   # collect configuration information
+  if (!is.null(required_module)) {
+    Sys.setenv(RPY_REQUIRED_MODULE = required_module)
+    on.exit(Sys.unsetenv("RPY_REQUIRED_MODULE"), add = TRUE)
+  }
   config_script <- system.file("config/config.py", package = "tensorflow")
   config <- system2(command = python, args = paste0('"', config_script, '"'), stdout = TRUE)
   status <- attr(config, "status")
@@ -134,16 +144,12 @@ python_config <- function(python, python_versions) {
     numeric_version(version)
   }
 
-  # check for numpy and tensorflow
+  # check for numpy
   if (!is.null(config$NumpyPath))
     numpy <- list(path = config$NumpyPath,
                   version = as_numeric_version(config$NumpyVersion))
   else
     numpy <- NULL
-  if (!is.null(config$TensorflowPath))
-    tensorflow <- config$TensorflowPath
-  else
-    tensorflow <- NULL
 
   # check for virtualenv activate script
   activate_this <- file.path(dirname(python), "activate_this.py")
@@ -151,6 +157,9 @@ python_config <- function(python, python_versions) {
     virtualenv_activate <- activate_this
   else
     virtualenv_activate <- ""
+
+  # check for required module
+  required_module_path <- config$RequiredModulePath
 
   # return config info
   structure(class = "py_config", list(
@@ -163,7 +172,8 @@ python_config <- function(python, python_versions) {
     architecture = architecture,
     anaconda = anaconda,
     numpy = numpy,
-    tensorflow = tensorflow,
+    required_module = required_module,
+    required_module_path = required_module_path,
     available = FALSE,
     python_versions = python_versions
   ))
@@ -188,10 +198,12 @@ str.py_config <- function(object, ...) {
   } else {
     out <- paste0(out, "numpy:           [NOT FOUND]\n")
   }
-  if (!is.null(x$tensorflow)) {
-    out <- paste0(out, "tensorflow:     ", x$tensorflow, "\n")
-  } else {
-    out <- paste0(out, "tensorflow:      [NOT FOUND]\n")
+  if (!is.null(x$required_module)) {
+    out <- paste0(out, sprintf("%-16s", paste0(x$required_module, ":")))
+    if (!is.null(x$required_module_path))
+      out <- paste0(out, x$required_module_path, "\n")
+    else
+      out <- paste0(out, "[NOT FOUND]\n")
   }
   out <- paste0(out, "available:      ", as.character(x$available), "\n")
   if (length(x$python_versions) > 1) {

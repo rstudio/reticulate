@@ -1,4 +1,13 @@
-# Register a set of help topics for dispatching from F1 help
+
+#' Register help topics
+#'
+#' Register a set of help topics for dispatching from F1 help
+#'
+#' @param type Type (module or class)
+#' @param topics Named list of topics
+#'
+#' @keywords internal
+#' @export
 register_help_topics <- function(type = c("module", "class"), topics) {
 
   # pick the right environment for this type
@@ -13,29 +22,21 @@ register_help_topics <- function(type = c("module", "class"), topics) {
     assign(name, topics[[name]], envir = envir)
 }
 
-# Helper function to define topics given a page URL and list of symbols
-help_topics <- function(page, prefix, symbols) {
-  names <- paste(prefix, symbols, sep = ".")
-  topics <- rep_len(page, length(names))
-  names(topics) <- names
-  topics
-}
-
 # Generic help_handler returned from .DollarNames -- dispatches to various
 # other help handler functions
 help_handler <- function(type = c("completion", "parameter", "url"), topic, source, ...) {
   type <- match.arg(type)
   if (type == "completion") {
-    help_completion_handler.tensorflow.builtin.object(topic, source)
+    help_completion_handler.python.builtin.object(topic, source)
   } else if (type == "parameter") {
-    help_completion_parameter_handler.tensorflow.builtin.object(source)
+    help_completion_parameter_handler.python.builtin.object(source)
   } else if (type == "url") {
-    help_url_handler.tensorflow.builtin.object(topic, source)
+    help_url_handler.python.builtin.object(topic, source)
   }
 }
 
 # Return help for display in the completion popup window
-help_completion_handler.tensorflow.builtin.object <- function(topic, source) {
+help_completion_handler.python.builtin.object <- function(topic, source) {
 
   if (!py_available())
     return(NULL)
@@ -80,7 +81,7 @@ help_completion_handler.tensorflow.builtin.object <- function(topic, source) {
 
 
 # Return parameter help for display in the completion popup window
-help_completion_parameter_handler.tensorflow.builtin.object <- function(source) {
+help_completion_parameter_handler.python.builtin.object <- function(source) {
 
   if (!py_available())
     return(NULL)
@@ -117,7 +118,7 @@ help_completion_parameter_handler.tensorflow.builtin.object <- function(source) 
 
 
 # Handle requests for external (F1) help
-help_url_handler.tensorflow.builtin.object <- function(topic, source) {
+help_url_handler.python.builtin.object <- function(topic, source) {
 
   if (!py_available())
     return(NULL)
@@ -151,7 +152,7 @@ help_url_handler.tensorflow.builtin.object <- function(topic, source) {
 
 
 # Handle requests for the list of arguments for a function
-help_formals_handler.tensorflow.builtin.object <- function(topic, source) {
+help_formals_handler.python.builtin.object <- function(topic, source) {
 
   if (!py_available())
     return(NULL)

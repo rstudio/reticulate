@@ -177,10 +177,10 @@ std::string as_r_class(PyObject* classPtr) {
   std::string module = as_std_string(modulePtr) + ".";
   std::string builtin("__builtin__");
   if (module.find(builtin) == 0)
-    module.replace(0, builtin.length(), "tensorflow.builtin");
+    module.replace(0, builtin.length(), "python.builtin");
   std::string builtins("builtins");
   if (module.find(builtins) == 0)
-    module.replace(0, builtins.length(), "tensorflow.builtin");
+    module.replace(0, builtins.length(), "python.builtin");
   ostr << module << as_std_string(namePtr);
   return ostr.str();
 }
@@ -218,10 +218,10 @@ PyObjectXPtr py_xptr(PyObject* object, bool decref = true, const std::string& ex
     }
   }
 
-  // add tensorflow.builtin.object if we don't already have it
-  if (std::find(attrClass.begin(), attrClass.end(), "tensorflow.builtin.object")
+  // add python.builtin.object if we don't already have it
+  if (std::find(attrClass.begin(), attrClass.end(), "python.builtin.object")
                                                       == attrClass.end()) {
-    attrClass.push_back("tensorflow.builtin.object");
+    attrClass.push_back("python.builtin.object");
   }
 
   // add externalptr
@@ -610,7 +610,7 @@ SEXP py_to_r(PyObject* x) {
 
     // return it raw but add a class so we can create S3 methods for it
     Py_IncRef(x);
-    return py_xptr(x, true, "tensorflow.builtin.iterator");
+    return py_xptr(x, true, "python.builtin.iterator");
   }
 
   // default is to return opaque wrapper to python object
@@ -635,7 +635,7 @@ PyObject* r_to_py(RObject x) {
 
   // pass python objects straight through (Py_IncRef since returning this
   // creates a new reference from the caller)
-  } else if (x.inherits("tensorflow.builtin.object")) {
+  } else if (x.inherits("python.builtin.object")) {
     PyObjectXPtr obj = as<PyObjectXPtr>(sexp);
     Py_IncRef(obj.get());
     return obj.get();

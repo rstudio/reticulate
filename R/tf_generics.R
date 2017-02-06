@@ -1,32 +1,35 @@
 
-#' @export
-str.tensorflow.builtin.module <- function(object, ...) {
-  py_xptr_str(object,
-              cat("Module(", py_str(py_get_attr(object, "__name__")),
-                  ")\n", sep="")
-  )
-}
 
 #' @export
 str.tensorflow.python.framework.ops.Tensor <- function(object, ...) {
-  py_xptr_str(object, cat(py_str(object), "\n", sep=""))
+  if (py_is_null_xptr(object) || is.null(tf))
+    cat("<pointer: 0x0>\n")
+  else
+    py_xptr_str(object, cat(py_str(object), "\n", sep=""))
 }
 
 #' @export
 str.tensorflow.python.ops.variables.Variable <- function(object, ...) {
-  py_xptr_str(object,
-              cat("Variable(shape=", py_str(object$get_shape()), ", ",
-                  "dtype=", object$dtype$name, ")\n", sep = "")
+  if (py_is_null_xptr(object) || is.null(tf))
+    cat("<pointer: 0x0>\n")
+  else
+    py_xptr_str(object,
+                cat("Variable(shape=", py_str(object$get_shape()), ", ",
+                    "dtype=", object$dtype$name, ")\n", sep = "")
   )
 }
 
 #' @export
 "print.tensorflow.python.framework.ops.Tensor" <- function(x, ...) {
-  str(x, ...)
-  if (!is.null(tf$get_default_session())) {
-    value <- tryCatch(x$eval(), error = function(e) NULL)
-    if (!is.null(value))
-      cat(" ", str(value), "\n", sep = "")
+  if (py_is_null_xptr(x) || is.null(tf))
+    cat("<pointer: 0x0>\n")
+  else {
+    str(x, ...)
+    if (!is.null(tf$get_default_session())) {
+      value <- tryCatch(x$eval(), error = function(e) NULL)
+      if (!is.null(value))
+        cat(" ", str(value), "\n", sep = "")
+    }
   }
 }
 

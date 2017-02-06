@@ -29,12 +29,12 @@ import <- function(module) {
 
 
 #' @export
-print.tensorflow.builtin.object <- function(x, ...) {
+print.python.builtin.object <- function(x, ...) {
   str(x, ...)
 }
 
 py_xptr_str <- function(object, expr) {
-  if (py_is_null_xptr(object))
+  if (py_is_null_xptr(object) || !py_available())
     cat("<pointer: 0x0>\n")
   else
     force(expr)
@@ -42,7 +42,7 @@ py_xptr_str <- function(object, expr) {
 
 #' @importFrom utils str
 #' @export
-str.tensorflow.builtin.object <- function(object, ...) {
+str.python.builtin.object <- function(object, ...) {
 
   if (py_is_null_xptr(object) || !py_available()) {
 
@@ -64,7 +64,24 @@ str.tensorflow.builtin.object <- function(object, ...) {
 }
 
 #' @export
-`$.tensorflow.builtin.object` <- function(x, name) {
+str.python.builtin.module <- function(object, ...) {
+
+  if (py_is_null_xptr(object) || !py_available()) {
+
+    cat("<pointer: 0x0>\n")
+
+  } else {
+
+    py_xptr_str(object,
+                cat("Module(", py_str(py_get_attr(object, "__name__")),
+                    ")\n", sep="")
+    )
+  }
+}
+
+
+#' @export
+`$.python.builtin.object` <- function(x, name) {
 
   if (!py_available())
     return(NULL)
@@ -118,12 +135,12 @@ str.tensorflow.builtin.object <- function(object, ...) {
 }
 
 #' @export
-`[[.tensorflow.builtin.object` <- `$.tensorflow.builtin.object`
+`[[.python.builtin.object` <- `$.python.builtin.object`
 
 
 #' @importFrom utils .DollarNames
 #' @export
-.DollarNames.tensorflow.builtin.object <- function(x, pattern = "") {
+.DollarNames.python.builtin.object <- function(x, pattern = "") {
 
   # skip if this is a NULL xptr
   if (py_is_null_xptr(x) || !py_available())
@@ -139,7 +156,7 @@ str.tensorflow.builtin.object <- function(object, ...) {
   types <- py_suppress_warnings(py_get_attribute_types(x, names))
 
   # if this is a module then add submodules
-  if (inherits(x, "tensorflow.builtin.module")) {
+  if (inherits(x, "python.builtin.module")) {
     name <- x$`__name__`
     if (!is.null(name)) {
       submodules <- sort(py_list_submodules(name), decreasing = FALSE)
@@ -217,7 +234,7 @@ tuple <- function(...) {
     value <- values[[1]]
 
     # reflect tuples back
-    if (inherits(value, "tensorflow.builtin.tuple"))
+    if (inherits(value, "python.builtin.tuple"))
       return(value)
 
     # if it's a list then use the list as the values
@@ -233,7 +250,7 @@ tuple <- function(...) {
 
 #' Evaluate an expression within a context.
 #'
-#' The \code{with} method for objects of type \code{tensorflow.builtin.object}
+#' The \code{with} method for objects of type \code{python.builtin.object}
 #' implements the context manager protocol used by the Python \code{with}
 #' statement. The passed object must implement the
 #' \href{https://docs.python.org/2/reference/datamodel.html#context-managers}{context
@@ -246,7 +263,7 @@ tuple <- function(...) {
 #' @param ... Unused
 #'
 #' @export
-with.tensorflow.builtin.object <- function(data, expr, as = NULL, ...) {
+with.python.builtin.object <- function(data, expr, as = NULL, ...) {
 
   ensure_python_initialized()
 
@@ -323,7 +340,7 @@ iterate <- function(x, f = base::identity, simplify = TRUE) {
   ensure_python_initialized()
 
   # validate
-  if (!inherits(x, "tensorflow.builtin.iterator"))
+  if (!inherits(x, "python.builtin.iterator"))
     stop("iterate function called with non-iterator argument")
 
   # perform iteration
@@ -353,9 +370,9 @@ iterate <- function(x, f = base::identity, simplify = TRUE) {
 }
 
 #' @export
-print.tensorflow.builtin.iterator <- function(x, ...) {
+print.python.builtin.iterator <- function(x, ...) {
   str(x, ...)
-  cat("Python iterator/generator (use tensorflow::iterate to traverse)\n")
+  cat("Python iterator/generator (use iterate function to traverse)\n")
 }
 
 #' Suppress Python and TensorFlow warnings for an expression
@@ -414,7 +431,7 @@ py_capture_stdout <- function(expr) {
 }
 
 py_is_module <- function(x) {
-  inherits(x, "tensorflow.builtin.module")
+  inherits(x, "python.builtin.module")
 }
 
 py_get_submodule <- function(x, name) {

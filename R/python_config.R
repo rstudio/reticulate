@@ -33,12 +33,12 @@ py_discover_config <- function(required_module) {
   python_versions <- character()
 
   # look for environment variable
-  tensorflow_python <- tensorflow_python()
-  if (!is.null(tensorflow_python())) {
-    if (tensorflow_python$exists)
-      python_versions <- c(python_versions, tensorflow_python$python)
+  rpy_python <- rpy_python()
+  if (!is.null(rpy_python())) {
+    if (rpy_python$exists)
+      python_versions <- c(python_versions, rpy_python$python)
     else
-      warning("Specified TENSORFLOW_PYTHON '", tensorflow_python$python, "' does not exist.")
+      warning("Specified RPY_PYTHON '", rpy_python$python, "' does not exist.")
   }
 
   # look on system path
@@ -48,10 +48,9 @@ py_discover_config <- function(required_module) {
 
   # provide other common locations
   if (is_windows()) {
-    extra_versions <- windows_registry_python_versions()
+    extra_versions <- windows_registry_python_versions(required_module)
   } else {
     extra_versions <- c(
-      path.expand("~/tensorflow/bin/python"), # virtualenv
       "/usr/bin/python",
       "/usr/local/bin/python",
       "/opt/python/bin/python",
@@ -60,19 +59,27 @@ py_discover_config <- function(required_module) {
       "/usr/local/bin/python3",
       "/opt/python/bin/python3",
       "/opt/local/python/bin/python3",
-      path.expand("~/anaconda/envs/tensorflow/bin/python"),
       path.expand("~/anaconda/bin/python"),
-      path.expand("~/anaconda3/envs/tensorflow/bin/python"),
       path.expand("~/anaconda3/bin/python")
     )
+
+    # if we have a required module then hunt for virtualenvs or condaenvs that
+    # share it's name as well
+    if (!is.null(required_module)) {
+      extra_versions <- c(
+        path.expand(sprintf("~/%s/bin/python", required_module)),
+        extra_versions,
+        path.expand(sprintf("~/anaconda/envs/%s/bin/python", required_module)),
+        path.expand(sprintf("~/anaconda3/envs/%s/bin/python", required_module))
+      )
+    }
   }
 
   # filter locations by existence
   python_versions <- unique(c(python_versions, extra_versions))
   python_versions <- python_versions[file.exists(python_versions)]
 
-  # scan until we find a version of tensorflow that meets
-  # qualifying conditions
+  # scan until we find a version of python that meets our qualifying conditions
   for (python_version in python_versions) {
 
     # get the config
@@ -146,7 +153,7 @@ python_config <- function(python, required_module, python_versions) {
 
 
   as_numeric_version <- function(version) {
-    version <- clean_tf_version(version)
+    version <- clean_version(version)
     numeric_version(version)
   }
 
@@ -235,40 +242,40 @@ is_osx <- function() {
 }
 
 
-clean_tf_version <- function(tf_version) {
-  gsub("\\.$", "", gsub("[A-Za-z_]+", "", tf_version))
+clean_version <- function(version) {
+  gsub("\\.$", "", gsub("[A-Za-z_]+", "", version))
 }
 
-tensorflow_python <- function() {
+rpy_python <- function() {
 
   # determine the location of python
-  tensorflow_python <- Sys.getenv("TENSORFLOW_PYTHON", unset = NA)
-  if (!is.na(tensorflow_python)) {
+  rpy_python <- Sys.getenv("RPY_PYTHON", unset = NA)
+  if (!is.na(rpy_python)) {
 
     # normalize trailing slash and expand
-    tensorflow_python <- gsub("[\\/]+$", "", tensorflow_python)
-    tensorflow_python <- path.expand(tensorflow_python)
+    rpy_python <- gsub("[\\/]+$", "", rpy_python)
+    rpy_python <- path.expand(rpy_python)
 
     # check for existence
-    if (!utils::file_test("-d", tensorflow_python) &&
-        !utils::file_test("-f", tensorflow_python)) {
+    if (!utils::file_test("-d", rpy_python) &&
+        !utils::file_test("-f", rpy_python)) {
       list(
-        python = tensorflow_python,
+        python = rpy_python,
         exists = FALSE
       )
     } else {
 
       # append binary if it's a directory
-      if (utils::file_test("-d", tensorflow_python))
-        tensorflow_python <- file.path(tensorflow_python, "python")
+      if (utils::file_test("-d", rpy_python))
+        rpy_python <- file.path(rpy_python, "python")
 
       # append .exe if necessary on windows
-      if (is_windows() && (!endsWith(tolower(tensorflow_python), ".exe")))
-        tensorflow_python <- paste0(tensorflow_python, ".exe")
+      if (is_windows() && (!endsWith(tolower(rpy_python), ".exe")))
+        rpy_python <- paste0(rpy_python, ".exe")
 
       # return
       list(
-        python = tensorflow_python,
+        python = rpy_python,
         exists = TRUE
       )
     }
@@ -279,7 +286,7 @@ tensorflow_python <- function() {
   }
 }
 
-windows_registry_python_versions <- function() {
+windows_registry_python_versions <- function(required_module) {
 
   read_python_versions <- function(hive,key) {
     versions <- c()
@@ -308,9 +315,9 @@ windows_registry_python_versions <- function() {
 
   anaconda_versions <- c(read_python_versions("HCU", key = "ContinuumAnalytics"),
                          read_python_versions("HLM", key = "ContinuumAnalytics"))
-  if (length(anaconda_versions) > 0) {
+  if (!is.null(required_module) && length(anaconda_versions) > 0) {
     anaconda_envs <- utils::shortPathName(
-      file.path(dirname(anaconda_versions), "envs", "tensorflow", "python.exe")
+      file.path(dirname(anaconda_versions), "envs", required_module, "python.exe")
     )
   } else {
     anaconda_envs <- NULL

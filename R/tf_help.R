@@ -775,3 +775,12 @@ register_tf_help_topics <- function() {
     "run_config.RunConfig"
   )))
 }
+
+# Helper function to define topics given a page URL and list of symbols
+help_topics <- function(page, prefix, symbols) {
+  names <- paste(prefix, symbols, sep = ".")
+  topics <- rep_len(page, length(names))
+  names(topics) <- names
+  topics
+}
+

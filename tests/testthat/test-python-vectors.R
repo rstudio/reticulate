@@ -1,7 +1,7 @@
 context("vectors")
 
 # some helpers
-test <- import("tftools.test")
+test <- import("rpytools.test")
 
 test_that("Single element vectors are treated as scalars", {
   skip_if_no_python()

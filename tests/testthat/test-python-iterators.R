@@ -1,7 +1,7 @@
 context("iterators")
 
 # some helpers
-test <- import("tftools.test")
+test <- import("rpytools.test")
 
 test_that("Iterators reflect values back", {
   skip_if_no_python()

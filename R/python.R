@@ -435,7 +435,7 @@ py_capture_stdout <- function(expr) {
 
   ensure_python_initialized()
 
-  output_tools <- import("tftools.output")
+  output_tools <- import("rpytools.output")
 
   restore <- output_tools$start_stdout_capture()
 

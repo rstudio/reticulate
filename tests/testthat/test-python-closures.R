@@ -1,7 +1,7 @@
 context("closures")
 
 # some helpers
-test <- import("tftools.test")
+test <- import("rpytools.test")
 
 test_that("R functions are converted to Python closures", {
   skip_if_no_python()

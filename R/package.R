@@ -43,6 +43,8 @@ initialize_python <- function(required_module = NULL) {
     stop("Python shared library '", config$libpython, "' not found, Python bindings not loaded.")
   } else if (is.null(config$numpy)) {
     stop("Installation of Numpy not found, Python bindings not loaded.")
+  } else if (config$numpy$version < "1.11") {
+    stop("Installation of Numpy >= 1.11 not found, Python bindings not loaded.")
   } else if (is_incompatible_arch(config)) {
     stop("Your current architecture is ", python_arch(), " however this version of ",
          "Python is compiled for ", config$architecture, ".")

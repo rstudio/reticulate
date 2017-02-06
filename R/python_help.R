@@ -47,7 +47,7 @@ help_completion_handler.python.builtin.object <- function(topic, source) {
     return(NULL)
 
   # check for property help
-  help <- import("tftools.help")
+  help <- import("rpytools.help")
   description <- help$get_property_doc(source, topic)
   # check for standard help
   if (is.null(description)) {
@@ -66,7 +66,7 @@ help_completion_handler.python.builtin.object <- function(topic, source) {
   signature <- NULL
   target <- help_get_attribute(source, topic)
   if (!is.null(target) && py_is_callable(target)) {
-    help <- import("tftools.help")
+    help <- import("rpytools.help")
     signature <- help$generate_signature_for_function(target)
     if (is.null(signature))
       signature <- "()"
@@ -96,7 +96,7 @@ help_completion_parameter_handler.python.builtin.object <- function(source) {
   # get the function
   target <- help_get_attribute(source, topic)
   if (!is.null(target) & py_is_callable(target)) {
-    help <- import("tftools.help")
+    help <- import("rpytools.help")
     args <- help$get_arguments(target)
     if (!is.null(args)) {
       # get the descriptions
@@ -160,7 +160,7 @@ help_formals_handler.python.builtin.object <- function(topic, source) {
   if (py_has_attr(source, topic)) {
     target <- help_get_attribute(source, topic)
     if (!is.null(target) && py_is_callable(target)) {
-      help <- import("tftools.help")
+      help <- import("rpytools.help")
       args <- help$get_arguments(target)
       if (!is.null(args)) {
         return(list(

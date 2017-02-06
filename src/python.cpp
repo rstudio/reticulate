@@ -826,7 +826,7 @@ PyObject* r_to_py(RObject x) {
     PyObjectPtr capsule(r_object_capsule(sexp));
 
     // create the python wrapper function
-    PyObjectPtr module(PyImport_ImportModule("tftools.call"));
+    PyObjectPtr module(PyImport_ImportModule("rpytools.call"));
     if (module == NULL)
       stop(py_fetch_error());
     PyObjectPtr func(PyObject_GetAttrString(module, "make_python_function"));
@@ -875,26 +875,26 @@ extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* k
 }
 
 
-PyMethodDef TFCallMethods[] = {
+PyMethodDef RPYCallMethods[] = {
   { "call_r_function", (PyCFunction)call_r_function,
     METH_VARARGS | METH_KEYWORDS, "Call an R function" },
   { NULL, NULL, 0, NULL }
 };
 
-static struct PyModuleDef TFCallModuleDef = {
+static struct PyModuleDef RPYCallModuleDef = {
   PyModuleDef_HEAD_INIT,
-  "tfcall",
+  "rpycall",
   NULL,
   -1,
-  TFCallMethods,
+  RPYCallMethods,
   NULL,
   NULL,
   NULL,
   NULL
 };
 
-extern "C" PyObject* initializeTFCall(void) {
-  return PyModule_Create2(&TFCallModuleDef, _PYTHON3_ABI_VERSION);
+extern "C" PyObject* initializeRPYCall(void) {
+  return PyModule_Create2(&RPYCallModuleDef, _PYTHON3_ABI_VERSION);
 }
 
 // forward declare py_run_file
@@ -925,8 +925,8 @@ void py_initialize(const std::string& python,
     s_pythonhome_v3 = to_wstring(pythonhome);
     Py_SetPythonHome_v3(const_cast<wchar_t*>(s_pythonhome_v3.c_str()));
 
-    // add tfcall module
-    PyImport_AppendInittab("tfcall", &initializeTFCall);
+    // add rpycall module
+    PyImport_AppendInittab("rpycall", &initializeRPYCall);
 
     // initialize python
     Py_Initialize();
@@ -947,8 +947,8 @@ void py_initialize(const std::string& python,
     // initialize python
     Py_Initialize();
 
-    // add tfcall module
-    Py_InitModule4("tfcall", TFCallMethods, (char *)NULL, (PyObject *)NULL,
+    // add rpycall module
+    Py_InitModule4("rpycall", RPYCallMethods, (char *)NULL, (PyObject *)NULL,
                       _PYTHON_API_VERSION);
 
     const char *argv[1] = {s_python.c_str()};

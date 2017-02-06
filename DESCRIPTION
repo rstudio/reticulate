@@ -16,7 +16,7 @@ Description: An R interface to Python.
 License: Apache License 2.0
 URL: https://github.com/rstudio/rpy
 BugReports: https://github.com/rstudio/rpy/issues
-SystemRequirements: Python (>= 2.7.0); NumPy (http://www.numpy.org/)
+SystemRequirements: Python (>= 2.7.0); NumPy (>= 1.11) (http://www.numpy.org/)
 Encoding: UTF-8
 LazyData: true
 Depends: R (>= 3.0)

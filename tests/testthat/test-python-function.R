@@ -2,7 +2,7 @@ context("functions")
 
 # some helpers
 inspect <- import("inspect")
-test <- import("tftools.test")
+test <- import("rpytools.test")
 
 test_that("Python functions are marshalled as function objects", {
   skip_if_no_python()

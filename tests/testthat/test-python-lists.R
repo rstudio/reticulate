@@ -1,7 +1,7 @@
 context("lists")
 
 # some helpers
-test <- import("tftools.test")
+test <- import("rpytools.test")
 
 test_that("R named lists become Python dictionaries", {
   skip_if_no_python()

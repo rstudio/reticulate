@@ -4,13 +4,10 @@
 \alias{import}
 \title{Import a Python module}
 \usage{
-import(module, silent = FALSE)
+import(module)
 }
 \arguments{
-\item{module}{Module name}
-
-\item{silent}{Return \code{NULL} rather than throwing an error
-if the specified module cannot be loaded.}
+\item{module}{Module namex}
 }
 \value{
 A Python module

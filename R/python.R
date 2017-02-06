@@ -4,9 +4,7 @@
 #' Import the specified Python module for calling from R. Use \code{"__main__"}
 #' to import the main module.
 #'
-#' @param module Module name
-#' @param silent Return \code{NULL} rather than throwing an error
-#'  if the specified module cannot be loaded.
+#' @param module Module namex
 #'
 #' @return A Python module
 #'
@@ -17,15 +15,14 @@
 #' }
 #'
 #' @export
-import <- function(module, silent = FALSE) {
+import <- function(module) {
 
-  if (!py_available())
-    return(NULL)
+  # ensure that python is initialized
+  ensure_python_initialized()
 
-  if (silent)
-    tryCatch(py_module_impl(module), error = function(e) NULL)
-  else
-    py_module_impl(module)
+  # import the module
+  py_module_impl(module)
+
 }
 
 
@@ -400,7 +397,11 @@ py_is_module <- function(x) {
 
 py_get_submodule <- function(x, name) {
   module_name <- paste(py_str(py_get_attr(x, "__name__")), name, sep=".")
-  import(module_name, silent = TRUE)
+  result <- tryCatch(import(module_name), error = function(e) e)
+  if (inherits(result, "error"))
+    NULL
+  else
+    result
 }
 
 

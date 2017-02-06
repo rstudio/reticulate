@@ -9,21 +9,18 @@
 #'
 #' @export
 py_config <- function() {
-  .py_config
+  .globals$py_config
 }
 
 
 #' @rdname py_config
 #' @export
 py_available <- function() {
-  if (!is.null(.py_config))
-    .py_config$available
+  if (!is.null(.globals$py_config))
+    .globals$py_config$available
   else
     FALSE
 }
-
-
-.py_config <- NULL
 
 py_discover_config <- function() {
 
@@ -196,7 +193,7 @@ str.py_config <- function(object, ...) {
   } else {
     out <- paste0(out, "tensorflow:      [NOT FOUND]\n")
   }
-  out <- paste0(out, "available:         ", as.character(x$available), "\n")
+  out <- paste0(out, "available:      ", as.character(x$available), "\n")
   if (length(x$python_versions) > 1) {
     out <- paste0(out, "\npython versions found: \n")
     python_versions <- paste0(" ", x$python_versions, collapse = "\n")

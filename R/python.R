@@ -396,11 +396,14 @@ py_suppress_warnings <- function(expr) {
     handler$suppress()
   })
   on.exit({
-    for (i in 1:length(contexts)) {
-      handler <- .globals$suppress_warnings_handlers[[i]]
-      handler$restore(contexts[[i]])
+    if (length(contexts) > 0) {
+      for (i in 1:length(contexts)) {
+        handler <- .globals$suppress_warnings_handlers[[i]]
+        handler$restore(contexts[[i]])
+      }
     }
   }, add = TRUE)
+  
 
   # evaluate the expression
   force(expr)

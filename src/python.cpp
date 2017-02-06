@@ -4,7 +4,7 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 
-#include "tensorflow_types.h"
+#include "rpy_types.h"
 
 using namespace libpython;
 

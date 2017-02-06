@@ -8,4 +8,4 @@ src/*.so
 src/*.dll
 README.html
 .Renviron
-MNIST-data
+

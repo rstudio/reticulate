@@ -1,5 +1,5 @@
-#ifndef __TENSORFLOW_TYPES__
-#define __TENSORFLOW_TYPES__
+#ifndef __RPY_TYPES__
+#define __RPY_TYPES__
 
 #include "libpython.h"
 using namespace libpython;
@@ -15,4 +15,4 @@ typedef Rcpp::XPtr<PyObject, Rcpp::PreserveStorage, python_object_finalize>
                                                                   PyObjectXPtr;
 
 
-#endif // __TENSORFLOW_TYPES__
+#endif // __RPY_TYPES__

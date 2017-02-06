@@ -6,7 +6,7 @@ source("utils.R")
 run_example <- function(example) {
   env <- new.env()
   capture.output({
-    example_path <- system.file("examples", example, package = "tensorflow")
+    example_path <- system.file("examples", example, package = "rpy")
     old_wd <- setwd(dirname(example_path))
     on.exit(setwd(old_wd), add = TRUE)
     source(basename(example_path), local = env)
@@ -15,17 +15,11 @@ run_example <- function(example) {
   gc()
 }
 
-examples <- if (nzchar(Sys.getenv("TENSORFLOW_TEST_EXAMPLES"))) {
-  c("hello.R",
-    "introduction.R",
-    "mnist/mnist_softmax.R",
-    "mnist/fully_connected_feed.R",
-    "regression/tensorflow_linear_regression.R")
-}
+examples <- c()
 
 for (example in examples) {
   test_that(paste(example, "example runs successfully"), {
-    skip_if_no_tensorflow()
+    skip_if_no_python()
     expect_error(run_example(example), NA)
   })
 }

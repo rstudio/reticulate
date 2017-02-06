@@ -2,7 +2,7 @@
 % Please edit documentation in R/python.R
 \name{py_suppress_warnings}
 \alias{py_suppress_warnings}
-\title{Suppress Python and TensorFlow warnings for an expression}
+\title{Suppress Python warnings for an expression}
 \usage{
 py_suppress_warnings(expr)
 }
@@ -13,5 +13,5 @@ py_suppress_warnings(expr)
 Result of evaluating expression
 }
 \description{
-Suppress Python and TensorFlow warnings for an expression
+Suppress Python warnings for an expression
 }

@@ -165,7 +165,7 @@ help_formals_handler.python.builtin.object <- function(topic, source) {
       if (!is.null(args)) {
         return(list(
           formals = args,
-          helpHandler = "tensorflow:::help_handler"
+          helpHandler = "rpy:::help_handler"
         ))
       }
     }

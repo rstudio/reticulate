@@ -1,4 +1,4 @@
 library(testthat)
-library(tensorflow)
+library(rpy)
 
-test_check("tensorflow")
+test_check("rpy")

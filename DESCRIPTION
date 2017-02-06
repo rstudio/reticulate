@@ -1,38 +1,22 @@
-Package: tensorflow
+Package: rpy
 Type: Package
-Title: R Interface to TensorFlow
-Version: 0.5.0
-Date: 2017-02-03
+Title: R Interface to Python
+Version: 0.6.0
+Date: 2017-02-06
 Authors@R: c(
   person("JJ", "Allaire", role = c("aut", "cre"),
      comment = "R interface", email = "jj@rstudio.com"),
+  person("Kevin", "Ushey", role = c("ctb"),
+         email = "kevin@rstudio.com"),
   person(family = "RStudio", role = "cph"),
   person("Dirk", "Eddelbuettel", role = c("ctb", "cph"),
-         email = "edd@debian.org"),
-  person("Nick", "Golding", role = c("ctb", "cph"),
-         email = "nick.golding.research@gmail.com"),
-  person("Yuan", "Tang", role = c("ctb", "cph"),
-         email = "terrytangyuan@gmail.com"),
-  person(family = "Google Inc.", role = c("ctb", "cph"),
-         comment = "Examples and Tutorials")
+         email = "edd@debian.org")
   )
-Description: An open source software library for
-  numerical computation using data flow graphs. Nodes in the
-  graph represent mathematical operations, while the graph edges
-  represent the multidimensional data arrays (tensors) communicated
-  between them. The flexible architecture allows you to deploy
-  computation to one or more 'CPUs' or 'GPUs' in a desktop, server, or
-  mobile device with a single 'API'. 'TensorFlow' was originally developed
-  by researchers and engineers working on the Google Brain Team within
-  Google's Machine Intelligence research organization for the purposes
-  of conducting machine learning and deep neural networks research,
-  but the system is general enough to be applicable in a wide variety
-  of other domains as well.
+Description: An R interface to Python.
 License: Apache License 2.0
-URL: https://github.com/rstudio/tensorflow
-BugReports: https://github.com/rstudio/tensorflow/issues
-SystemRequirements: Python (>= 2.7.0); NumPy (http://www.numpy.org/);
-  TensorFlow (https://www.tensorflow.org/)
+URL: https://github.com/rstudio/rpy
+BugReports: https://github.com/rstudio/rpy/issues
+SystemRequirements: Python (>= 2.7.0); NumPy (http://www.numpy.org/)
 Encoding: UTF-8
 LazyData: true
 Depends: R (>= 3.0)

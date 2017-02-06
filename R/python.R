@@ -169,7 +169,7 @@ str.python.builtin.module <- function(object, ...) {
   attr(names, "types") <- types
 
   # specify a help_handler
-  attr(names, "helpHandler") <- "tensorflow:::help_handler"
+  attr(names, "helpHandler") <- "rpy:::help_handler"
 
   # return
   names
@@ -375,7 +375,7 @@ print.python.builtin.iterator <- function(x, ...) {
   cat("Python iterator/generator (use iterate function to traverse)\n")
 }
 
-#' Suppress Python and TensorFlow warnings for an expression
+#' Suppress Python warnings for an expression
 #'
 #' @param expr Expression to suppress warnings for
 #'

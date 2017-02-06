@@ -7,7 +7,7 @@
 py_suppress_warnings(expr)
 }
 \arguments{
-\item{expr}{Expression to suppress warnigns for}
+\item{expr}{Expression to suppress warnings for}
 }
 \value{
 Result of evaluating expression

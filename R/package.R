@@ -27,6 +27,7 @@ NULL
 .globals <- new.env(parent = emptyenv())
 .globals$py_config <- NULL
 .globals$load_error_message <- NULL
+.globals$suppress_warnings_handlers <- list()
 
 .onLoad <- function(libname, pkgname) {
 
@@ -37,6 +38,18 @@ NULL
     tf <<- NULL
     return()
   }
+
+  # register warning suppression handler
+  register_suppress_warnings_handler(list(
+    suppress = function() {
+      old_verbosity <- tf$logging$get_verbosity()
+      tf$logging$set_verbosity(tf$logging$ERROR)
+      old_verbosity
+    },
+    restore = function(context) {
+      tf$logging$set_verbosity(context)
+    }
+  ))
 
   # if we loaded tensorflow then register tf help topics
   register_tf_help_topics()

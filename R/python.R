@@ -377,7 +377,7 @@ print.python.builtin.iterator <- function(x, ...) {
 
 #' Suppress Python and TensorFlow warnings for an expression
 #'
-#' @param expr Expression to suppress warnigns for
+#' @param expr Expression to suppress warnings for
 #'
 #' @return Result of evaluating expression
 #'
@@ -391,15 +391,33 @@ py_suppress_warnings <- function(expr) {
   warnings$simplefilter("ignore")
   on.exit(warnings$resetwarnings(), add = TRUE)
 
-  # ignore tensorflow warnings
-  if (!is.null(tf)) {
-    old_verbosity <- tf$logging$get_verbosity()
-    tf$logging$set_verbosity(tf$logging$ERROR)
-    on.exit(tf$logging$set_verbosity(old_verbosity))
-  }
+  # ignore other warnings
+  contexts <- lapply(.globals$suppress_warnings_handlers, function(handler) {
+    handler$suppress()
+  })
+  on.exit({
+    for (i in 1:length(contexts)) {
+      handler <- .globals$suppress_warnings_handlers[[i]]
+      handler$restore(contexts[[i]])
+    }
+  }, add = TRUE)
 
   # evaluate the expression
   force(expr)
+}
+
+
+#' Register a handler for calls to py_suppress_warnings
+#'
+#' @param handler Handler
+#'
+#' @details Enables packages to register a pair of functions
+#'  to be called to suppress and then re-enable warnings
+#'
+#' @keywords internal
+#' @export
+register_suppress_warnings_handler <- function(handler) {
+  .globals$suppress_warnings_handlers[[length(.globals$suppress_warnings_handlers) + 1]] <- handler
 }
 
 

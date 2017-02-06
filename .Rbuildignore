@@ -1,7 +1,7 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^docs$
-README.md
+README.[R]?md
 README.html
 .Renviron
 LICENSE

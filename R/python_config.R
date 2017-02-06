@@ -38,7 +38,7 @@ py_discover_config <- function(required_module) {
     if (rpy_python$exists)
       python_versions <- c(python_versions, rpy_python$python)
     else
-      warning("Specified RPY_PYTHON '", rpy_python$python, "' does not exist.")
+      warning("Specified TENSORFLOW_PYTHON '", rpy_python$python, "' does not exist.")
   }
 
   # look on system path
@@ -249,7 +249,7 @@ clean_version <- function(version) {
 rpy_python <- function() {
 
   # determine the location of python
-  rpy_python <- Sys.getenv("RPY_PYTHON", unset = NA)
+  rpy_python <- Sys.getenv("TENSORFLOW_PYTHON", unset = NA)
   if (!is.na(rpy_python)) {
 
     # normalize trailing slash and expand

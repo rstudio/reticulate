@@ -52,6 +52,7 @@ py_discover_config <- function(required_module) {
   } else {
     extra_versions <- c(
       path.expand("~/tensorflow/bin/python"), # virtualenv
+      "/usr/bin/python",
       "/usr/local/bin/python",
       "/opt/python/bin/python",
       "/opt/local/python/bin/python",

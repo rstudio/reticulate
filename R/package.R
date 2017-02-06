@@ -65,9 +65,13 @@ NULL
 }
 
 
+is_python_initialized <- function() {
+  !is.null(.globals$py_config)
+}
+
 
 ensure_python_initialized <- function(required_module = NULL) {
-  if (is.null(.globals$py_config))
+  if (!is_python_initialized())
     .globals$py_config <- initialize_python(required_module)
 }
 

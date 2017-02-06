@@ -37,6 +37,9 @@ help_handler <- function(type = c("completion", "parameter", "url"), topic, sour
 # Return help for display in the completion popup window
 help_completion_handler.tensorflow.builtin.object <- function(topic, source) {
 
+  if (!py_available())
+    return(NULL)
+
   # convert source to object if necessary
   source <- source_as_object(source)
   if (is.null(source))
@@ -79,6 +82,9 @@ help_completion_handler.tensorflow.builtin.object <- function(topic, source) {
 # Return parameter help for display in the completion popup window
 help_completion_parameter_handler.tensorflow.builtin.object <- function(source) {
 
+  if (!py_available())
+    return(NULL)
+
   # split into topic and source
   components <- source_components(source)
   if (is.null(components))
@@ -113,6 +119,9 @@ help_completion_parameter_handler.tensorflow.builtin.object <- function(source) 
 # Handle requests for external (F1) help
 help_url_handler.tensorflow.builtin.object <- function(topic, source) {
 
+  if (!py_available())
+    return(NULL)
+
   # normalize topic and source for various calling scenarios
   if (grepl(" = $", topic)) {
     components <- source_components(source)
@@ -143,6 +152,9 @@ help_url_handler.tensorflow.builtin.object <- function(topic, source) {
 
 # Handle requests for the list of arguments for a function
 help_formals_handler.tensorflow.builtin.object <- function(topic, source) {
+
+  if (!py_available())
+    return(NULL)
 
   if (py_has_attr(source, topic)) {
     target <- help_get_attribute(source, topic)

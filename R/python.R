@@ -43,9 +43,13 @@ py_xptr_str <- function(object, expr) {
 #' @importFrom utils str
 #' @export
 str.tensorflow.builtin.object <- function(object, ...) {
-  if (py_is_null_xptr(object))
+
+  if (py_is_null_xptr(object) || !py_available()) {
+
     cat("<pointer: 0x0>\n")
-  else {
+
+  } else {
+
     # call python str method
     str <- py_str(object)
 
@@ -61,6 +65,9 @@ str.tensorflow.builtin.object <- function(object, ...) {
 
 #' @export
 `$.tensorflow.builtin.object` <- function(x, name) {
+
+  if (!py_available())
+    return(NULL)
 
   # special handling for embedded modules (which don't always show
   # up as "attributes")
@@ -119,8 +126,9 @@ str.tensorflow.builtin.object <- function(object, ...) {
 .DollarNames.tensorflow.builtin.object <- function(x, pattern = "") {
 
   # skip if this is a NULL xptr
-  if (py_is_null_xptr(x))
+  if (py_is_null_xptr(x) || !py_available())
     return(character())
+
 
   # get the names and filter out internal attributes (_*)
   names <- py_suppress_warnings(py_list_attributes(x))
@@ -166,6 +174,8 @@ str.tensorflow.builtin.object <- function(object, ...) {
 #' @export
 dict <- function(...) {
 
+  ensure_python_initialized()
+
   # get the args and their names
   values <- list(...)
   names <- names(values)
@@ -194,6 +204,8 @@ dict <- function(...) {
 #'
 #' @export
 tuple <- function(...) {
+
+  ensure_python_initialized()
 
   # get the args
   values <- list(...)
@@ -235,6 +247,8 @@ tuple <- function(...) {
 #'
 #' @export
 with.tensorflow.builtin.object <- function(data, expr, as = NULL, ...) {
+
+  ensure_python_initialized()
 
   # enter the context
   context <- data$`__enter__`()
@@ -306,6 +320,8 @@ with.tensorflow.builtin.object <- function(data, expr, as = NULL, ...) {
 #' @export
 iterate <- function(x, f = base::identity, simplify = TRUE) {
 
+  ensure_python_initialized()
+
   # validate
   if (!inherits(x, "tensorflow.builtin.iterator"))
     stop("iterate function called with non-iterator argument")
@@ -351,6 +367,8 @@ print.tensorflow.builtin.iterator <- function(x, ...) {
 #' @export
 py_suppress_warnings <- function(expr) {
 
+  ensure_python_initialized()
+
   # ignore python warnings
   warnings <- import("warnings")
   warnings$simplefilter("ignore")
@@ -376,6 +394,8 @@ py_suppress_warnings <- function(expr) {
 #'
 #' @export
 py_capture_stdout <- function(expr) {
+
+  ensure_python_initialized()
 
   output_tools <- import("tftools.output")
 

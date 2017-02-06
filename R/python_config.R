@@ -9,6 +9,7 @@
 #'
 #' @export
 py_config <- function() {
+  ensure_python_initialized()
   .globals$py_config
 }
 
@@ -16,10 +17,14 @@ py_config <- function() {
 #' @rdname py_config
 #' @export
 py_available <- function() {
-  if (!is.null(.globals$py_config))
+  if (is_python_initialized())
     .globals$py_config$available
-  else
-    FALSE
+  else {
+    tryCatch({
+      ensure_python_initialized()
+      .globals$py_config$available
+    }, error = function(e) FALSE)
+  }
 }
 
 py_discover_config <- function(required_module) {

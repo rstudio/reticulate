@@ -27,26 +27,27 @@ When calling into Python R data types are automatically converted to their equiv
 
 If a Python object of a custom class is returned then an R reference to that object is returned. You can call methods and access properites of the object just as if it was an instance of an R reference class.
 
+The **rpy** package is compatible with all versions of Python >= 2.7 and in addition requires NumPy >= 1.11.
+
 ## Installation
 
-You can install the **rpy** package from GitHub as follows:
+You can install from GitHub as follows:
 
 ```r
 devtools::install_github("rstudio/rpy")
 ```
 
-Note that the **rpy** package includes native C/C++ code so it's installation requires [R Tools](https://cran.r-project.org/bin/windows/Rtools/) on Windows and [Command Line Tools](http://osxdaily.com/2014/02/12/install-command-line-tools-mac-os-x/) on OS X. If the package installation fails because of inability to compile then install the appropriate tools for your platform based on the links above and try again.
+Note that the includes native C/C++ code so it's installation requires [R Tools](https://cran.r-project.org/bin/windows/Rtools/) on Windows and [Command Line Tools](http://osxdaily.com/2014/02/12/install-command-line-tools-mac-os-x/) on OS X. If the package installation fails because of inability to compile then install the appropriate tools for your platform based on the links above and try again.
 
 ### Locating Python
 
-When it is loaded the **rpy** package scans the system for a compatible version of Python. If automatic detection doesn't work or if you want to exercise more control over which version of python is used you can specify an explicit `RPY_PYTHON` environment variable, for example:
+When it is loaded the **rpy** package scans the system for a compatible version of Python in the following order:
 
-```r
-Sys.setenv(RPY_PYTHON="/usr/local/bin/python")
-library(rpy)
-```
+1. If specified, at the Python binary referenced by the `RPY_PYTHON` environment variable.
 
-The **rpy** package will look in this location first, then look for python on the system `PATH`, then scan additional locations where python is conventionally installed (e.g. `/usr/local/bin`, `/opt/python/bin`, etc.).
+2. The Python binary discoverd on the system PATH via the `Sys.which` function.
+
+3. At other customary locations for Python including `/usr/local/bin/python`, `/opt/local/bin/python`, etc.
 
 You can use the `py_config` function to query for information about the specific version of Python in use as well as a list of other Python versions discovered on the system:
 
@@ -54,6 +55,14 @@ You can use the `py_config` function to query for information about the specific
 library(rpy)
 py_config()
 ```
+
+If the desired version isn't discovered automatically you should set the `RPY_PYTHON` variable explicitly:
+
+```r
+Sys.setenv(RPY_PYTHON="/usr/local/bin/python")
+library(rpy)
+```
+
 
 ## Lists, Tuples, and Dictionaries
 
@@ -86,10 +95,27 @@ This might be useful if you need to pass a dictionary that uses a more complex o
 ## Iterators
 
 
-## Running Code
+
+## Running Python Code
+
+
+
+## Importing Modules
+
 
 
 ## Advanced Functions
+
+`py_capture_stdout`
+`py_suppress_warnings`
+`py_get_attr`
+`py_call_object`
+
+## Getting Help
+
+
+
+
 
 
 

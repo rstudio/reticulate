@@ -1,4 +1,4 @@
-R interface to Python
+R Interface to Python
 ================
 
 Installation

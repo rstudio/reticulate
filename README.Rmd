@@ -1,5 +1,5 @@
 ---
-title: "R interface to Python"
+title: "R Interface to Python"
 output: github_document
 ---
 

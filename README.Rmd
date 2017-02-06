@@ -12,8 +12,9 @@ os$chdir("tests")
 os$getcwd()
 ```
 
-When calling into Python R data types are automatically converted to their equivalent Python types. When values are returned from Python to R they are converted back to R types. 
+Functions and other data within Python modules and classes can be accessed via the `$` operator (analagous to the way you would interact with an R list, environment, or reference class).
 
+When calling into Python R data types are automatically converted to their equivalent Python types. When values are returned from Python to R they are converted back to R types. Types are converted as follows:
 
 | R  | Python | Examples |
 |---|---|---|

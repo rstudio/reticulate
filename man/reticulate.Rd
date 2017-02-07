@@ -12,7 +12,3 @@ types. When values are returned from Python to R they are converted back to R
 types. The reticulate package is compatible with all versions of Python >= 2.7 and 
 in addition requires NumPy >= 1.11.
 }
-\details{
-Additional documentation can be found at
-\href{https://github.com/rstudio/reticulate}{https://github.com/rstudio/reticulate}.
-}

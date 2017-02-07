@@ -7,9 +7,6 @@
 #' types. The reticulate package is compatible with all versions of Python >= 2.7 and 
 #' in addition requires NumPy >= 1.11.
 #' 
-#' Additional documentation can be found at
-#' \href{https://github.com/rstudio/reticulate}{https://github.com/rstudio/reticulate}.
-#' 
 #' @docType package
 #' @name reticulate
 #' @useDynLib reticulate

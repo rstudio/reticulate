@@ -33,8 +33,21 @@ print.python.builtin.object <- function(x, ...) {
   str(x, ...)
 }
 
-py_xptr_str <- function(object, expr) {
-  if (py_is_null_xptr(object) || !py_available())
+
+#' Evaluate an expression that prints a string with 
+#' a check for a null externalptr
+#' 
+#' @param x Python object
+#' @param expr R expression that uses the object
+#'   to print a string.
+#'   
+#' @details If the object is a null externalptr
+#'   then \code{<pointer: 0x0>} will be printed. 
+#'   Otherwise the expression will be evaluated.
+#' 
+#' @export
+py_xptr_str <- function(x, expr) {
+  if (py_is_null_xptr(x) || !py_available())
     cat("<pointer: 0x0>\n")
   else
     force(expr)

@@ -190,16 +190,20 @@ There are several more advanced functions available that are useful principally 
 <td>Call a Python callable object with the specified arguments.</td>
 </tr>
 <tr class="even">
+<td>py_capture_stdout</td>
+<td>Capture all standard output for the specified expression and return it as an R character vector.</td>
+</tr>
+<tr class="odd">
+<td>py_suppress_warnings</td>
+<td>Execute the specified expression, suppressing the display Python warnings.</td>
+</tr>
+<tr class="even">
 <td>py_is_null_xptr</td>
 <td>Check whether a Python object is a null externalptr.</td>
 </tr>
 <tr class="odd">
-<td>py_capture_stdout</td>
-<td>Capture all standard output for the specified expression and return it as an R character vector.</td>
-</tr>
-<tr class="even">
-<td>py_suppress_warnings</td>
-<td>Execute the specified expression, suppressing the display Python warnings.</td>
+<td>py_xptr_str</td>
+<td>Evaluate an expression that prints a string with a check for a null externalptr.</td>
 </tr>
 </tbody>
 </table>

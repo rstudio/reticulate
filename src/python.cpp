@@ -1008,6 +1008,20 @@ bool py_is_function(PyObjectXPtr x) {
   return PyFunction_Check(x) == 1;
 }
 
+
+//' Check if a Python object is a null externalptr
+//'
+//' @param x Python object
+//'
+//' @return Logical indicating whether the object is a null externalptr
+//' 
+//' @details When Python objects are serialized within a persisted R 
+//'  environment (e.g. .RData file) they are deserialized into null
+//'  externalptr objects (since the Python session they were originally
+//'  connected to no longer exists). This function allows you to safely
+//'  check whether whether a Python object is a null externalptr. 
+//' 
+//' @export
 // [[Rcpp::export]]
 bool py_is_null_xptr(PyObjectXPtr x) {
   return !x;

@@ -177,8 +177,10 @@ There are several more advanced functions available that are useful principally 
 
 | Function  | Description | 
 |----------------|------------------------------------------------------------------|
+| py_config | Get information on the location and version of Python in use.  | 
+| py_available | Check whether a Python interface is available on this system. | 
 | py_has_attr | Check if an object has a specified attribute.  | 
-| py_get_attr | Get an attribute of a specified object.  | 
+| py_get_attr | Get an attribute of a Python object.  | 
 | py_call | Call a Python callable object with the specified arguments.  | 
 | py_capture_stdout | Capture all standard output for the specified expression and return it as an R character vector. | 
 | py_suppress_warnings | Execute the specified expression, suppressing the display Python warnings.   | 

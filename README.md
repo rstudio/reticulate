@@ -176,12 +176,20 @@ There are several more advanced functions available that are useful principally 
 </thead>
 <tbody>
 <tr class="odd">
+<td>py_config</td>
+<td>Get information on the location and version of Python in use.</td>
+</tr>
+<tr class="even">
+<td>py_available</td>
+<td>Check whether a Python interface is available on this system.</td>
+</tr>
+<tr class="odd">
 <td>py_has_attr</td>
 <td>Check if an object has a specified attribute.</td>
 </tr>
 <tr class="even">
 <td>py_get_attr</td>
-<td>Get an attribute of a specified object.</td>
+<td>Get an attribute of a Python object.</td>
 </tr>
 <tr class="odd">
 <td>py_call</td>

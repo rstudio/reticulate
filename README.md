@@ -17,7 +17,7 @@ os$getcwd()
 
 Functions and other data within Python modules and classes can be accessed via the `$` operator (analogous to the way you would interact with an R list, environment, or reference class).
 
-When calling into Python R data types are automatically converted to their equivalent Python types. When values are returned from Python to R they are converted back to R types. Types are converted as follows:
+When calling into Python, R data types are automatically converted to their equivalent Python types. When values are returned from Python to R they are converted back to R types. Types are converted as follows:
 
 | R                      | Python            | Examples                                    |
 |------------------------|-------------------|---------------------------------------------|
@@ -46,9 +46,9 @@ Note that the package includes native C/C++ code so it's installation requires [
 
 ### Locating Python
 
-When it is loaded the **reticulate** package scans the system for a compatible version of Python in the following order:
+When it is loaded the **reticulate** package scans the system for a Python binary in the following order:
 
-1.  If specified, at the Python binary referenced by the `RETICULATE_PYTHON` environment variable.
+1.  If specified, at the location referenced by the `RETICULATE_PYTHON` environment variable.
 
 2.  The Python binary discovered on the system PATH via the `Sys.which` function.
 
@@ -61,9 +61,7 @@ library(reticulate)
 py_config()
 ```
 
-\`\`\`
-
-If the desired version isn't discovered automatically you should set the `RETICULATE_PYTHON` variable explicitly:
+If the desired version isn't discovered automatically you should set the `RETICULATE_PYTHON` environment variable explicitly:
 
 ``` r
 Sys.setenv(RETICULATE_PYTHON="/usr/local/bin/python")
@@ -83,7 +81,7 @@ filecmp <- import("filecmp")
 filecmp$cmp(dir1, dir2)
 ```
 
-There are some special module names you should be aware of: `"__main__"` gives you access to the main module where code is executed by default; `"__builtin__"` gives you access to various built in Python functions (e.g. )
+There are some special module names you should be aware of: `"__main__"` gives you access to the main module where code is executed by default; and `"__builtin__"` gives you access to various built in Python functions. For example:
 
 ``` r
 main <- import("__main__")
@@ -92,12 +90,12 @@ py <- import("__builtin__")
 py$print('foo')
 ```
 
-The `"__main__"` module is generally useful if you have executed Python code from a file or a string and want to get access to it's results (see the section below for more details).
+The `"__main__"` module is generally useful if you have executed Python code from a file or string and want to get access to it's results (see the section below for more details).
 
 Executing Code
 --------------
 
-You can execute Python code within the main module using the `py_run_file` and `py_run_string` functions. These functions both return a reference to the main Python module to access the results of the computations. For example:
+You can execute Python code within the main module using the `py_run_file` and `py_run_string` functions. These functions both return a reference to the main Python module so you can access the results of their execution. For example:
 
 ``` r
 py_run_file("script.py")
@@ -109,9 +107,9 @@ main$x
 Lists, Tuples, and Dictionaries
 -------------------------------
 
-The automatic conversion of R types to Python types works well in most cases, but occasionally you will need to be more explicit on the R side to provide Python the type(s) it expects.
+The automatic conversion of R types to Python types works well in most cases, but occasionally you will need to be more explicit on the R side to provide Python the type it expects.
 
-For example, if a Python API requires a list and you pass a single element vector it will be converted to a Python scalar. To overcome this simply use the R `list` function explicitly:
+For example, if a Python API requires a list and you pass a single element R vector it will be converted to a Python scalar. To overcome this simply use the R `list` function explicitly:
 
 ``` r
 foo$bar(indexes = list(42L))
@@ -143,7 +141,7 @@ with(py$open("output.txt", "w") %as% file, {
 })
 ```
 
-This example opens a file and ensures that it is automatically closed at the end of the execution context. Note the use of the `%as%` operator to alias the object created by the context manager.
+This example opens a file and ensures that it is automatically closed at the end of the with block. Note the use of the `%as%` operator to alias the object created by the context manager.
 
 Iterators
 ---------

@@ -1,6 +1,7 @@
 context("numpy")
 
-np <- import("numpy")
+if (py_available())
+  np <- import("numpy")
 
 test_that("R matrixes are converted to numpy ndarray", {
   skip_if_no_python()

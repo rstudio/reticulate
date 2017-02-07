@@ -1,6 +1,11 @@
 R Interface to Python
 ================
 
+J.J. Allaire — 2017-02-07
+
+Overview
+--------
+
 The **reticulate** package provides an R interface to Python modules, classes, and functions. For example, this code imports the Python `os` module and calls some functions within it:
 
 ``` r

@@ -4,7 +4,15 @@
 \name{rpy}
 \alias{rpy}
 \alias{rpy-package}
-\title{R interface to Python}
+\title{R Interface to Python}
 \description{
-R interface to Python
+R interface to Python modules, classes, and functions. When calling into 
+Python R data types are automatically converted to their equivalent Python 
+types. When values are returned from Python to R they are converted back to R
+types. The rpy package is compatible with all versions of Python >= 2.7 and 
+in addition requires NumPy >= 1.11.
+}
+\details{
+Additional documentation can be found at
+\href{https://github.com/rstudio/rpy}{https://github.com/rstudio/rpy}.
 }

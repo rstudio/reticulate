@@ -3,6 +3,7 @@
 ^docs$
 README.[R]?md
 README.html
+images
 .Renviron
 LICENSE
 .travis.yml

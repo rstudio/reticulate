@@ -26,6 +26,8 @@ LazyData: true
 Depends: R (>= 3.0)
 Imports:
     utils, Rcpp (>= 0.12.7)
+Suggests: testthat, knitr
 LinkingTo: Rcpp
 RoxygenNote: 6.0.0
-Suggests: testthat
+VignetteBuilder: knitr
+

@@ -1,7 +1,14 @@
 ---
 title: "R Interface to Python"
-output: github_document
+output: 
+  rmarkdown::html_vignette:
+    readme: true
+vignette: >
+  %\VignetteIndexEntry{R interface to Python}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(eval = FALSE)
@@ -171,11 +178,11 @@ There are several more advanced functions available that are useful principally 
 
 As you use Python modules from within R you'll likely want to get help on the various available functions and classes. If you are running the [latest release](https://www.rstudio.com/products/rstudio/download/) of RStudio (v1.0.136 or later) you can get code completion and inline help for Python modules within RStudio. For example:
 
-![](images/completion-functions.png){width=804 height=260 style="margin-bottom: 15px; border: solid 1px #cccccc;"}
+![](images/completion-functions.png){width=690 height=223 style="margin-bottom: 15px; border: solid 1px #cccccc;"}
 
 Inline help is also available for function parameters:
 
-![](images/completion-params.png){width=804 height=177 style="margin-bottom: 15px; border: solid 1px #cccccc;"}
+![](images/completion-params.png){width=690 height=152 style="margin-bottom: 15px; border: solid 1px #cccccc;"}
 
 
 

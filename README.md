@@ -1,10 +1,6 @@
 R Interface to Python
 ================
 
-``` r
-knitr::opts_chunk$set(eval = FALSE)
-```
-
 The **rpy** package provides an R interface to Python modules, classes, and functions. For example, this code imports the Python `os` module and calls some functions within it:
 
 ``` r
@@ -198,8 +194,8 @@ Getting Help
 
 As you use Python modules from within R you'll likely want to get help on the various available functions and classes. If you are running the [latest release](https://www.rstudio.com/products/rstudio/download/) of RStudio (v1.0.136 or later) you can get code completion and inline help for Python modules within RStudio. For example:
 
-<img src="images/completion-functions.png" style="margin-bottom: 15px; border: solid 1px #cccccc;" width="804" height="260" />
+<img src="images/completion-functions.png" style="margin-bottom: 15px; border: solid 1px #cccccc;" width="690" height="223" />
 
 Inline help is also available for function parameters:
 
-<img src="images/completion-params.png" style="margin-bottom: 15px; border: solid 1px #cccccc;" width="804" height="177" />
+<img src="images/completion-params.png" style="margin-bottom: 15px; border: solid 1px #cccccc;" width="690" height="152" />

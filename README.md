@@ -178,18 +178,22 @@ There are several more advanced functions available that are useful principally 
 </thead>
 <tbody>
 <tr class="odd">
+<td>py_has_attr</td>
+<td>Check if an object has a specified attribute.</td>
+</tr>
+<tr class="even">
 <td>py_get_attr</td>
 <td>Get an attribute of a specified object.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>py_call</td>
 <td>Call a Python callable object with the specified arguments.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>py_capture_stdout</td>
 <td>Capture all standard output for the specified expression and return it as an R character vector.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>py_suppress_warnings</td>
 <td>Execute the specified expression, suppressing the display Python warnings.</td>
 </tr>

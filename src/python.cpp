@@ -1030,7 +1030,13 @@ std::vector<std::string> py_list_attributes(PyObjectXPtr x) {
   return attributes;
 }
 
-
+//' Check if a Python object has an attribute
+//'
+//' @param x Python object
+//' @param name Attribute name
+//'
+//' @return Logical indicating whether it has the specified attribute
+//' @export
 // [[Rcpp::export]]
 bool py_has_attr(PyObjectXPtr x, const std::string& name) {
   return PyObject_HasAttrString(x, name.c_str());

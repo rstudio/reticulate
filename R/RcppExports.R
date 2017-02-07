@@ -37,6 +37,13 @@ py_list_attributes <- function(x) {
     .Call('reticulate_py_list_attributes', PACKAGE = 'reticulate', x)
 }
 
+#' Check if a Python object has an attribute
+#'
+#' @param x Python object
+#' @param name Attribute name
+#'
+#' @return Logical indicating whether it has the specified attribute
+#' @export
 py_has_attr <- function(x, name) {
     .Call('reticulate_py_has_attr', PACKAGE = 'reticulate', x, name)
 }

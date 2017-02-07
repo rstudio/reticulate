@@ -72,8 +72,8 @@ py_to_r <- function(x) {
 #' @keywords internal
 #'
 #' @export
-py_call_object <- function(x, args, keywords = NULL) {
-    .Call('rpy_py_call_object', PACKAGE = 'rpy', x, args, keywords)
+py_call <- function(x, args, keywords = NULL) {
+    .Call('rpy_py_call', PACKAGE = 'rpy', x, args, keywords)
 }
 
 py_dict <- function(keys, items) {

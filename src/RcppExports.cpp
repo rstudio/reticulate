@@ -153,16 +153,16 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// py_call_object
-SEXP py_call_object(PyObjectXPtr x, List args, List keywords);
-RcppExport SEXP rpy_py_call_object(SEXP xSEXP, SEXP argsSEXP, SEXP keywordsSEXP) {
+// py_call
+SEXP py_call(PyObjectXPtr x, List args, List keywords);
+RcppExport SEXP rpy_py_call(SEXP xSEXP, SEXP argsSEXP, SEXP keywordsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< PyObjectXPtr >::type x(xSEXP);
     Rcpp::traits::input_parameter< List >::type args(argsSEXP);
     Rcpp::traits::input_parameter< List >::type keywords(keywordsSEXP);
-    rcpp_result_gen = Rcpp::wrap(py_call_object(x, args, keywords));
+    rcpp_result_gen = Rcpp::wrap(py_call(x, args, keywords));
     return rcpp_result_gen;
 END_RCPP
 }

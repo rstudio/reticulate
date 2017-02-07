@@ -119,7 +119,7 @@ str.python.builtin.module <- function(object, ...) {
       } else {
         args <- dots
       }
-      result = py_call_object(attrib, args, keywords)
+      result = py_call(attrib, args, keywords)
       if (is.null(result))
         invisible(result)
       else

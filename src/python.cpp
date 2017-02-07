@@ -1126,7 +1126,7 @@ SEXP py_to_r(PyObjectXPtr x) {
 //'
 //' @export
 // [[Rcpp::export]]
-SEXP py_call_object(PyObjectXPtr x, List args, List keywords = R_NilValue) {
+SEXP py_call(PyObjectXPtr x, List args, List keywords = R_NilValue) {
 
   // unnamed arguments
   PyObjectPtr pyArgs(PyTuple_New(args.length()));

@@ -14,7 +14,7 @@ os$chdir("tests")
 os$getcwd()
 ```
 
-Functions and other data within Python modules and classes can be accessed via the `$` operator (analagous to the way you would interact with an R list, environment, or reference class).
+Functions and other data within Python modules and classes can be accessed via the `$` operator (analogous to the way you would interact with an R list, environment, or reference class).
 
 When calling into Python R data types are automatically converted to their equivalent Python types. When values are returned from Python to R they are converted back to R types. Types are converted as follows:
 
@@ -25,10 +25,10 @@ When calling into Python R data types are automatically converted to their equiv
 | List of multiple types | Tuple             | `list(1L, TRUE, "foo")`                     |
 | Named list             | Dict              | `list(a = 1L, b = 2.0)`, `dict(x = x_data)` |
 | Matrix/Array           | NumPy ndarray     | `matrix(c(1,2,3,4), nrow = 2, ncol = 2)`    |
-| Dunction               | Python function   | `function(x) x + 1`                         |
+| Function               | Python function   | `function(x) x + 1`                         |
 | NULL, TRUE, FALSE      | None, True, False | `NULL`, `TRUE`, `FALSE`                     |
 
-If a Python object of a custom class is returned then an R reference to that object is returned. You can call methods and access properites of the object just as if it was an instance of an R reference class.
+If a Python object of a custom class is returned then an R reference to that object is returned. You can call methods and access properties of the object just as if it was an instance of an R reference class.
 
 The **rpy** package is compatible with all versions of Python &gt;= 2.7 and in addition requires NumPy &gt;= 1.11.
 
@@ -49,7 +49,7 @@ When it is loaded the **rpy** package scans the system for a compatible version 
 
 1.  If specified, at the Python binary referenced by the `RPY_PYTHON` environment variable.
 
-2.  The Python binary discoverd on the system PATH via the `Sys.which` function.
+2.  The Python binary discovered on the system PATH via the `Sys.which` function.
 
 3.  At other customary locations for Python including `/usr/local/bin/python`, `/opt/local/bin/python`, etc.
 
@@ -80,7 +80,7 @@ filecmp <- import("filecmp")
 filecmp$cmp(dir1, dir2)
 ```
 
-There are some special module names you should be aware of: `"__main__"` gives you access to the main module where code is executed by default; `"__builtin__"` gives you access to various builtin Python functions (e.g. )
+There are some special module names you should be aware of: `"__main__"` gives you access to the main module where code is executed by default; `"__builtin__"` gives you access to various built in Python functions (e.g. )
 
 ``` r
 main <- import("__main__")
@@ -106,7 +106,7 @@ main$x
 Lists, Tuples, and Dictionaries
 -------------------------------
 
-The automatic conversion of R types to Python types works well in most cases, but occationally you will need to be more explicit on the R side to provide Python the type(s) it expects.
+The automatic conversion of R types to Python types works well in most cases, but occasionally you will need to be more explicit on the R side to provide Python the type(s) it expects.
 
 For example, if a Python API requires a list and you pass a single element vector it will be converted to a Python scalar. To overcome this simply use the R `list` function explicitly:
 
@@ -160,7 +160,7 @@ results <- iterate(iter)
 Advanced Functions
 ------------------
 
-There are several more advanced functions available that are useful principally when creating high level R interfaces for Python librarires:
+There are several more advanced functions available that are useful principally when creating high level R interfaces for Python libraries:
 
 <table style="width:100%;">
 <colgroup>

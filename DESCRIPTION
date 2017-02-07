@@ -9,6 +9,8 @@ Authors@R: c(
   person("Kevin", "Ushey", role = c("ctb"),
          email = "kevin@rstudio.com"),
   person(family = "RStudio", role = "cph"),
+  person("Yuan", "Tang", role = c("ctb", "cph"),
+         email = "terrytangyuan@gmail.com"),
   person("Dirk", "Eddelbuettel", role = c("ctb", "cph"),
          email = "edd@debian.org")
   )

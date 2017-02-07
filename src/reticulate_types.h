@@ -1,5 +1,5 @@
-#ifndef __RPY_TYPES__
-#define __RPY_TYPES__
+#ifndef __RETICULATE_TYPES__
+#define __RETICULATE_TYPES__
 
 #include "libpython.h"
 using namespace libpython;
@@ -15,4 +15,4 @@ typedef Rcpp::XPtr<PyObject, Rcpp::PreserveStorage, python_object_finalize>
                                                                   PyObjectXPtr;
 
 
-#endif // __RPY_TYPES__
+#endif // __RETICULATE_TYPES__

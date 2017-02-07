@@ -165,7 +165,7 @@ help_formals_handler.python.builtin.object <- function(topic, source) {
       if (!is.null(args)) {
         return(list(
           formals = args,
-          helpHandler = "rpy:::help_handler"
+          helpHandler = "reticulate:::help_handler"
         ))
       }
     }

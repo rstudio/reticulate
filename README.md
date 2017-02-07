@@ -1,10 +1,10 @@
 R Interface to Python
 ================
 
-The **rpy** package provides an R interface to Python modules, classes, and functions. For example, this code imports the Python `os` module and calls some functions within it:
+The **reticulate** package provides an R interface to Python modules, classes, and functions. For example, this code imports the Python `os` module and calls some functions within it:
 
 ``` r
-library(rpy)
+library(reticulate)
 os <- import("os")
 os$chdir("tests")
 os$getcwd()
@@ -26,7 +26,7 @@ When calling into Python R data types are automatically converted to their equiv
 
 If a Python object of a custom class is returned then an R reference to that object is returned. You can call methods and access properties of the object just as if it was an instance of an R reference class.
 
-The **rpy** package is compatible with all versions of Python &gt;= 2.7 and in addition requires NumPy &gt;= 1.11.
+The **reticulate** package is compatible with all versions of Python &gt;= 2.7 and in addition requires NumPy &gt;= 1.11.
 
 Installation
 ------------
@@ -34,16 +34,16 @@ Installation
 You can install from GitHub as follows:
 
 ``` r
-devtools::install_github("rstudio/rpy")
+devtools::install_github("rstudio/reticulate")
 ```
 
 Note that the includes native C/C++ code so it's installation requires [R Tools](https://cran.r-project.org/bin/windows/Rtools/) on Windows and [Command Line Tools](http://osxdaily.com/2014/02/12/install-command-line-tools-mac-os-x/) on OS X. If the package installation fails because of inability to compile then install the appropriate tools for your platform based on the links above and try again.
 
 ### Locating Python
 
-When it is loaded the **rpy** package scans the system for a compatible version of Python in the following order:
+When it is loaded the **reticulate** package scans the system for a compatible version of Python in the following order:
 
-1.  If specified, at the Python binary referenced by the `RPY_PYTHON` environment variable.
+1.  If specified, at the Python binary referenced by the `RETICULATE_PYTHON` environment variable.
 
 2.  The Python binary discovered on the system PATH via the `Sys.which` function.
 
@@ -52,15 +52,17 @@ When it is loaded the **rpy** package scans the system for a compatible version 
 You can use the `py_config` function to query for information about the specific version of Python in use as well as a list of other Python versions discovered on the system:
 
 ``` r
-library(rpy)
+library(reticulate)
 py_config()
 ```
 
-If the desired version isn't discovered automatically you should set the `RPY_PYTHON` variable explicitly:
+\`\`\`
+
+If the desired version isn't discovered automatically you should set the `RETICULATE_PYTHON` variable explicitly:
 
 ``` r
-Sys.setenv(RPY_PYTHON="/usr/local/bin/python")
-library(rpy)
+Sys.setenv(RETICULATE_PYTHON="/usr/local/bin/python")
+library(reticulate)
 ```
 
 Importing Modules
@@ -188,14 +190,3 @@ There are several more advanced functions available that are useful principally 
 </tr>
 </tbody>
 </table>
-
-Getting Help
-------------
-
-As you use Python modules from within R you'll likely want to get help on the various available functions and classes. If you are running the [latest release](https://www.rstudio.com/products/rstudio/download/) of RStudio (v1.0.136 or later) you can get code completion and inline help for Python modules within RStudio. For example:
-
-<img src="images/completion-functions.png" style="margin-bottom: 15px; border: solid 1px #cccccc;" width="690" height="223" />
-
-Inline help is also available for function parameters:
-
-<img src="images/completion-params.png" style="margin-bottom: 15px; border: solid 1px #cccccc;" width="690" height="152" />

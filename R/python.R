@@ -169,7 +169,7 @@ str.python.builtin.module <- function(object, ...) {
   attr(names, "types") <- types
 
   # specify a help_handler
-  attr(names, "helpHandler") <- "rpy:::help_handler"
+  attr(names, "helpHandler") <- "reticulate:::help_handler"
 
   # return
   names

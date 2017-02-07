@@ -4,15 +4,15 @@
 #' R interface to Python modules, classes, and functions. When calling into 
 #' Python R data types are automatically converted to their equivalent Python 
 #' types. When values are returned from Python to R they are converted back to R
-#' types. The rpy package is compatible with all versions of Python >= 2.7 and 
+#' types. The reticulate package is compatible with all versions of Python >= 2.7 and 
 #' in addition requires NumPy >= 1.11.
 #' 
 #' Additional documentation can be found at
-#' \href{https://github.com/rstudio/rpy}{https://github.com/rstudio/rpy}.
+#' \href{https://github.com/rstudio/reticulate}{https://github.com/rstudio/reticulate}.
 #' 
 #' @docType package
-#' @name rpy
-#' @useDynLib rpy
+#' @name reticulate
+#' @useDynLib reticulate
 #' @importFrom Rcpp evalCpp
 NULL
 
@@ -71,7 +71,7 @@ initialize_python <- function(required_module = NULL) {
 
   # add our python scripts to the search path
   py_run_string(paste0("import sys; sys.path.append('",
-                       system.file("python", package = "rpy") ,
+                       system.file("python", package = "reticulate") ,
                        "')"))
 
   # return config

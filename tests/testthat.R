@@ -1,4 +1,4 @@
 library(testthat)
-library(rpy)
+library(reticulate)
 
-test_check("rpy")
+test_check("reticulate")

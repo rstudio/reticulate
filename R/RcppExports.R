@@ -2,43 +2,43 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 py_initialize <- function(python, libpython, pythonhome, virtualenv_activate, python3) {
-    invisible(.Call('rpy_py_initialize', PACKAGE = 'rpy', python, libpython, pythonhome, virtualenv_activate, python3))
+    invisible(.Call('reticulate_py_initialize', PACKAGE = 'reticulate', python, libpython, pythonhome, virtualenv_activate, python3))
 }
 
 py_finalize <- function() {
-    invisible(.Call('rpy_py_finalize', PACKAGE = 'rpy'))
+    invisible(.Call('reticulate_py_finalize', PACKAGE = 'reticulate'))
 }
 
 py_is_none <- function(x) {
-    .Call('rpy_py_is_none', PACKAGE = 'rpy', x)
+    .Call('reticulate_py_is_none', PACKAGE = 'reticulate', x)
 }
 
 py_str <- function(x) {
-    .Call('rpy_py_str', PACKAGE = 'rpy', x)
+    .Call('reticulate_py_str', PACKAGE = 'reticulate', x)
 }
 
 py_print <- function(x) {
-    invisible(.Call('rpy_py_print', PACKAGE = 'rpy', x))
+    invisible(.Call('reticulate_py_print', PACKAGE = 'reticulate', x))
 }
 
 py_is_callable <- function(x) {
-    .Call('rpy_py_is_callable', PACKAGE = 'rpy', x)
+    .Call('reticulate_py_is_callable', PACKAGE = 'reticulate', x)
 }
 
 py_is_function <- function(x) {
-    .Call('rpy_py_is_function', PACKAGE = 'rpy', x)
+    .Call('reticulate_py_is_function', PACKAGE = 'reticulate', x)
 }
 
 py_is_null_xptr <- function(x) {
-    .Call('rpy_py_is_null_xptr', PACKAGE = 'rpy', x)
+    .Call('reticulate_py_is_null_xptr', PACKAGE = 'reticulate', x)
 }
 
 py_list_attributes <- function(x) {
-    .Call('rpy_py_list_attributes', PACKAGE = 'rpy', x)
+    .Call('reticulate_py_list_attributes', PACKAGE = 'reticulate', x)
 }
 
 py_has_attr <- function(x, name) {
-    .Call('rpy_py_has_attr', PACKAGE = 'rpy', x, name)
+    .Call('reticulate_py_has_attr', PACKAGE = 'reticulate', x, name)
 }
 
 #' Get an attribute of a Python object
@@ -51,15 +51,15 @@ py_has_attr <- function(x, name) {
 #' @return Attribute of Python object
 #' @export
 py_get_attr <- function(x, name, silent = FALSE) {
-    .Call('rpy_py_get_attr', PACKAGE = 'rpy', x, name, silent)
+    .Call('reticulate_py_get_attr', PACKAGE = 'reticulate', x, name, silent)
 }
 
 py_get_attribute_types <- function(x, attributes) {
-    .Call('rpy_py_get_attribute_types', PACKAGE = 'rpy', x, attributes)
+    .Call('reticulate_py_get_attribute_types', PACKAGE = 'reticulate', x, attributes)
 }
 
 py_to_r <- function(x) {
-    .Call('rpy_py_to_r', PACKAGE = 'rpy', x)
+    .Call('reticulate_py_to_r', PACKAGE = 'reticulate', x)
 }
 
 #' Call a Python callable object
@@ -73,27 +73,27 @@ py_to_r <- function(x) {
 #'
 #' @export
 py_call <- function(x, args, keywords = NULL) {
-    .Call('rpy_py_call', PACKAGE = 'rpy', x, args, keywords)
+    .Call('reticulate_py_call', PACKAGE = 'reticulate', x, args, keywords)
 }
 
 py_dict <- function(keys, items) {
-    .Call('rpy_py_dict', PACKAGE = 'rpy', keys, items)
+    .Call('reticulate_py_dict', PACKAGE = 'reticulate', keys, items)
 }
 
 py_tuple <- function(items) {
-    .Call('rpy_py_tuple', PACKAGE = 'rpy', items)
+    .Call('reticulate_py_tuple', PACKAGE = 'reticulate', items)
 }
 
 py_module_impl <- function(module) {
-    .Call('rpy_py_module_impl', PACKAGE = 'rpy', module)
+    .Call('reticulate_py_module_impl', PACKAGE = 'reticulate', module)
 }
 
 py_list_submodules <- function(module) {
-    .Call('rpy_py_list_submodules', PACKAGE = 'rpy', module)
+    .Call('reticulate_py_list_submodules', PACKAGE = 'reticulate', module)
 }
 
 py_iterate <- function(x, f) {
-    .Call('rpy_py_iterate', PACKAGE = 'rpy', x, f)
+    .Call('reticulate_py_iterate', PACKAGE = 'reticulate', x, f)
 }
 
 #' Run Python code
@@ -109,12 +109,12 @@ py_iterate <- function(x, f) {
 #'
 #' @export
 py_run_string <- function(code) {
-    .Call('rpy_py_run_string', PACKAGE = 'rpy', code)
+    .Call('reticulate_py_run_string', PACKAGE = 'reticulate', code)
 }
 
 #' @rdname py_run
 #' @export
 py_run_file <- function(file) {
-    .Call('rpy_py_run_file', PACKAGE = 'rpy', file)
+    .Call('reticulate_py_run_file', PACKAGE = 'reticulate', file)
 }
 

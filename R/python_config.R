@@ -33,12 +33,12 @@ py_discover_config <- function(required_module) {
   python_versions <- character()
 
   # look for environment variable
-  rpy_python <- rpy_python()
-  if (!is.null(rpy_python())) {
-    if (rpy_python$exists)
-      python_versions <- c(python_versions, rpy_python$python)
+  reticulate_python <- reticulate_python()
+  if (!is.null(reticulate_python)) {
+    if (reticulate_python$exists)
+      python_versions <- c(python_versions, reticulate_python$python)
     else
-      warning("Specified RPY_PYTHON '", rpy_python$python, "' does not exist.")
+      warning("Specified RETICULATE_PYTHON '", reticulate_python$python, "' does not exist.")
   }
 
   # look on system path
@@ -111,10 +111,10 @@ python_config <- function(python, required_module, python_versions) {
 
   # collect configuration information
   if (!is.null(required_module)) {
-    Sys.setenv(RPY_REQUIRED_MODULE = required_module)
-    on.exit(Sys.unsetenv("RPY_REQUIRED_MODULE"), add = TRUE)
+    Sys.setenv(RETICULATE_REQUIRED_MODULE = required_module)
+    on.exit(Sys.unsetenv("RETICULATE_REQUIRED_MODULE"), add = TRUE)
   }
-  config_script <- system.file("config/config.py", package = "rpy")
+  config_script <- system.file("config/config.py", package = "reticulate")
   config <- system2(command = python, args = paste0('"', config_script, '"'), stdout = TRUE)
   status <- attr(config, "status")
   if (!is.null(status)) {
@@ -252,36 +252,36 @@ clean_version <- function(version) {
   gsub("\\.$", "", gsub("[A-Za-z_]+", "", version))
 }
 
-rpy_python <- function() {
+reticulate_python <- function() {
 
   # determine the location of python
-  rpy_python <- Sys.getenv("RPY_PYTHON", unset = NA)
-  if (!is.na(rpy_python)) {
+  reticulate_python <- Sys.getenv("RETICULATE_PYTHON", unset = NA)
+  if (!is.na(reticulate_python)) {
 
     # normalize trailing slash and expand
-    rpy_python <- gsub("[\\/]+$", "", rpy_python)
-    rpy_python <- path.expand(rpy_python)
+    reticulate_python <- gsub("[\\/]+$", "", reticulate_python)
+    reticulate_python <- path.expand(reticulate_python)
 
     # check for existence
-    if (!utils::file_test("-d", rpy_python) &&
-        !utils::file_test("-f", rpy_python)) {
+    if (!utils::file_test("-d", reticulate_python) &&
+        !utils::file_test("-f", reticulate_python)) {
       list(
-        python = rpy_python,
+        python = reticulate_python,
         exists = FALSE
       )
     } else {
 
       # append binary if it's a directory
-      if (utils::file_test("-d", rpy_python))
-        rpy_python <- file.path(rpy_python, "python")
+      if (utils::file_test("-d", reticulate_python))
+        reticulate_python <- file.path(reticulate_python, "python")
 
       # append .exe if necessary on windows
-      if (is_windows() && (!endsWith(tolower(rpy_python), ".exe")))
-        rpy_python <- paste0(rpy_python, ".exe")
+      if (is_windows() && (!endsWith(tolower(reticulate_python), ".exe")))
+        reticulate_python <- paste0(reticulate_python, ".exe")
 
       # return
       list(
-        python = rpy_python,
+        python = reticulate_python,
         exists = TRUE
       )
     }

@@ -4,7 +4,7 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 
-#include "rpy_types.h"
+#include "reticulate_types.h"
 
 using namespace libpython;
 

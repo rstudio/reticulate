@@ -1,4 +1,4 @@
-Package: rpy
+Package: reticulate
 Type: Package
 Title: R Interface to Python
 Version: 0.6.0
@@ -15,11 +15,11 @@ Authors@R: c(
 Description: R interface to Python modules, classes, and functions. When calling into
   Python R data types are automatically converted to their equivalent Python types. 
   When values are returned from Python to R they are converted back to R types. The
-  rpy package is compatible with all versions of Python >= 2.7 and in addition 
+  reticulate package is compatible with all versions of Python >= 2.7 and in addition 
   requires NumPy >= 1.11.
 License: Apache License 2.0
-URL: https://github.com/rstudio/rpy
-BugReports: https://github.com/rstudio/rpy/issues
+URL: https://github.com/rstudio/reticulate
+BugReports: https://github.com/rstudio/reticulate
 SystemRequirements: Python (>= 2.7.0); NumPy (>= 1.11) (http://www.numpy.org/)
 Encoding: UTF-8
 LazyData: true

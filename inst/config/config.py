@@ -22,8 +22,8 @@ except Exception:
   pass
 
 
-if "RPY_REQUIRED_MODULE" in os.environ:
-  required_module = os.environ.get("RPY_REQUIRED_MODULE")
+if "RETICULATE_REQUIRED_MODULE" in os.environ:
+  required_module = os.environ.get("RETICULATE_REQUIRED_MODULE")
   try:
     sys.stdout.write('\nRequiredModule: ' + required_module)
     sys.stdout.write('\nRequiredModulePath: ' + str(imp.find_module(required_module)[1]))

@@ -198,12 +198,16 @@ There are several more advanced functions available that are useful principally 
 <td>Execute the specified expression, suppressing the display Python warnings.</td>
 </tr>
 <tr class="even">
-<td>py_is_null_xptr</td>
-<td>Check whether a Python object is a null externalptr.</td>
+<td>py_str</td>
+<td>Get the string representation of Python object.</td>
 </tr>
 <tr class="odd">
 <td>py_xptr_str</td>
 <td>Evaluate an expression that prints a string with a check for a null externalptr.</td>
+</tr>
+<tr class="even">
+<td>py_is_null_xptr</td>
+<td>Check whether a Python object is a null externalptr.</td>
 </tr>
 </tbody>
 </table>

@@ -13,6 +13,13 @@ py_is_none <- function(x) {
     .Call('reticulate_py_is_none', PACKAGE = 'reticulate', x)
 }
 
+#' String representation of a Python object
+#' 
+#' @param x Python object
+#' 
+#' @return Character vector with result of calling `PyObject_Str` on the object.
+#' 
+#' @export
 py_str <- function(x) {
     .Call('reticulate_py_str', PACKAGE = 'reticulate', x)
 }

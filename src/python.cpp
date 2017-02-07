@@ -982,6 +982,13 @@ bool py_is_none(PyObjectXPtr x) {
   return py_is_none(x.get());
 }
 
+//' String representation of a Python object
+//' 
+//' @param x Python object
+//' 
+//' @return Character vector with result of calling `PyObject_Str` on the object.
+//' 
+//' @export
 // [[Rcpp::export]]
 CharacterVector py_str(PyObjectXPtr x) {
   PyObjectPtr str(PyObject_Str(x));

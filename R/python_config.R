@@ -232,7 +232,6 @@ str.py_config <- function(object, ...) {
     else
       out <- paste0(out, "[NOT FOUND]\n")
   }
-  out <- paste0(out, "available:      ", as.character(x$available), "\n")
   if (length(x$python_versions) > 1) {
     out <- paste0(out, "\npython versions found: \n")
     python_versions <- paste0(" ", x$python_versions, collapse = "\n")

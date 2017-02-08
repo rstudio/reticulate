@@ -61,14 +61,14 @@ use_condaenv <- function(condaenv, conda = "auto", required = FALSE) {
           conda_locations <- c(conda_locations, conda_scripts)
         }
       }
+      conda_locations <- conda_locations[file.exists(conda_locations)]
+      if (length(conda_locations) > 0)
+        conda <- conda_locations[[1]]
+      else if (required)
+        stop("Unable to locate conda binary, please specify 'conda' argument explicitly.")
+      else
+        return(invisible(NULL))
     }
-    conda_locations <- conda_locations[file.exists(conda_locations)]
-    if (length(conda_locations) > 0)
-      conda <- conda_locations[[1]]
-    else if (required)
-      stop("Unable to locate conda binary, please specify 'conda' argument explicitly.")
-    else
-      return(invisible(NULL))
   } else if (!file.exists(conda)) {
       stop("Specified conda binary '", conda, "' does not exist.")
   }

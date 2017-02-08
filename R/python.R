@@ -527,9 +527,23 @@ py_is_module_proxy <- function(x) {
 
 py_resolve_module_proxy <- function(proxy) {
   
-  # import module
+  # name of module to import
   module <- get("module", envir = proxy)
-  import(module)
+  
+  # perform the import -- capture error and ammend it with
+  # python configuration information if we have it
+  result <- tryCatch(import(module), error = function(e) e)
+  if (inherits(result, "error")) {
+    message <- paste("Python module", module, "was not found.")
+    config <- py_config()
+    if (!is.null(config)) {
+      message <- paste0(message, "\n\nDetected Python configuration:\n\n",
+                        str(config), "\n")
+      stop(message, call. = FALSE)
+    }
+  }
+  
+  # fixup the proxy 
   py_module_proxy_import(proxy)
   
   # call then clear onload if specifed

@@ -256,6 +256,10 @@ LIBPYTHON_EXTERN void (*PySys_SetArgv_v3)(int, wchar_t **);
 
 #define PyType_Check(o) PyObject_TypeCheck(o, PyType_Type)
 
+#define PyModule_Check(op) PyObject_TypeCheck(op, PyModule_Type)
+#define PyModule_CheckExact(op) (Py_TYPE(op) == PyModule_Type)
+
+
 enum NPY_TYPES {
   NPY_BOOL=0,
   NPY_BYTE, NPY_UBYTE,

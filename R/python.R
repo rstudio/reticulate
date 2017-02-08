@@ -4,7 +4,9 @@
 #' Import the specified Python module for calling from R. Use \code{"__main__"}
 #' to import the main module.
 #'
-#' @param module Module namex
+#' @param module Module name
+#' @param delay_load `TRUE` to delay loading the module until
+#'  it is first used.
 #'
 #' @return A Python module
 #'
@@ -15,18 +17,28 @@
 #' }
 #'
 #' @export
-import <- function(module) {
-
-  # ensure that python is initialized (pass top level module as
-  # a hint as to which version of python to choose)
-  top_level_module <- strsplit(module, ".", fixed = TRUE)[[1]][[1]]
-  ensure_python_initialized(required_module = top_level_module)
-
-  # import the module
-  py_module_import(module)
-
+import <- function(module, delay_load = FALSE) {
+  
+  # normal case (load immediately)
+  if (!delay_load) {
+    # ensure that python is initialized (pass top level module as
+    # a hint as to which version of python to choose)
+    top_level_module <- strsplit(module, ".", fixed = TRUE)[[1]][[1]]
+    ensure_python_initialized(required_module = top_level_module)
+  
+    # import the module
+    py_module_import(module)
+  }
+  
+  # delay load case (wait until first access)
+  else {
+    module_proxy <- new.env(parent = emptyenv())
+    module_proxy$module <- module
+    attr(module_proxy, "class") <- c("python.builtin.module", 
+                                     "python.builtin.object")
+    module_proxy
+  }
 }
-
 
 #' @export
 print.python.builtin.object <- function(x, ...) {
@@ -79,7 +91,11 @@ str.python.builtin.object <- function(object, ...) {
 #' @export
 str.python.builtin.module <- function(object, ...) {
 
-  if (py_is_null_xptr(object) || !py_available()) {
+  if (py_is_module_proxy(object)) {
+    
+    cat("Module(", get("module", envir = object), ")\n", sep = "")
+    
+  } else if (py_is_null_xptr(object) || !py_available()) {
 
     cat("<pointer: 0x0>\n")
 
@@ -94,8 +110,20 @@ str.python.builtin.module <- function(object, ...) {
 
 
 #' @export
+`$.python.builtin.module` <- function(x, name) {
+ 
+  # resolve module proxies
+  if (py_is_module_proxy(x)) 
+    py_resolve_module_proxy(x)
+  
+  `$.python.builtin.object`(x, name)
+}
+
+
+#' @export
 `$.python.builtin.object` <- function(x, name) {
 
+  # check if python is available  
   if (!py_available())
     return(NULL)
 
@@ -150,6 +178,22 @@ str.python.builtin.module <- function(object, ...) {
 #' @export
 `[[.python.builtin.object` <- `$.python.builtin.object`
 
+
+#' @export
+.DollarNames.python.builtin.module <- function(x, pattern = "") {
+  
+  # resolve module proxies (ignore errors since this is occurring during completion)
+  result <- tryCatch({
+    if (py_is_module_proxy(x)) 
+      py_resolve_module_proxy(x)
+    TRUE
+  }, error = function(e) FALSE)
+  if (!result)
+    return(character())
+
+  # delegate
+  .DollarNames.python.builtin.object(x, pattern)
+}
 
 #' @importFrom utils .DollarNames
 #' @export
@@ -466,6 +510,16 @@ py_capture_stdout <- function(expr) {
 
 py_is_module <- function(x) {
   inherits(x, "python.builtin.module")
+}
+
+py_is_module_proxy <- function(x) {
+  inherits(x, "python.builtin.module") && exists("module", envir = x)
+}
+
+py_resolve_module_proxy <- function(proxy) {
+  module <- get("module", envir = proxy)
+  import(module)
+  py_module_proxy_import(proxy)
 }
 
 py_get_submodule <- function(x, name) {

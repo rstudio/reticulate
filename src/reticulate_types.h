@@ -20,14 +20,11 @@ public:
   
   explicit PyObjectRef(PyObject* object, bool decref = true) : 
       Rcpp::Environment(Rcpp::Environment::empty_env().new_child(false)) {
-    SEXP xptr = R_MakeExternalPtr((void*) object, R_NilValue, R_NilValue);
-    if (decref)
-      R_RegisterCFinalizer(xptr, python_object_finalize);
-    assign("pyobj", xptr);
+    set(object, decref);
   }
   
   PyObject* get() const {
-    SEXP pyObject = Rcpp::Environment::get("pyobj");
+    SEXP pyObject = getFromEnvironment("pyobj");
     if (pyObject != R_NilValue)
       return (PyObject*)R_ExternalPtrAddr(pyObject);
     else
@@ -36,6 +33,17 @@ public:
   
   operator PyObject*() const {
     return get();
+  }
+  
+  void set(PyObject* object, bool decref = true) {
+    SEXP xptr = R_MakeExternalPtr((void*) object, R_NilValue, R_NilValue);
+    if (decref)
+      R_RegisterCFinalizer(xptr, python_object_finalize);
+    assign("pyobj", xptr);
+  }
+  
+  SEXP getFromEnvironment(const std::string& name) const {
+    return Rcpp::Environment::get(name);
   }
     
 };

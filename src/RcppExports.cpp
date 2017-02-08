@@ -200,6 +200,16 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// py_module_proxy_import
+void py_module_proxy_import(PyObjectRef proxy);
+RcppExport SEXP reticulate_py_module_proxy_import(SEXP proxySEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< PyObjectRef >::type proxy(proxySEXP);
+    py_module_proxy_import(proxy);
+    return R_NilValue;
+END_RCPP
+}
 // py_list_submodules
 CharacterVector py_list_submodules(const std::string& module);
 RcppExport SEXP reticulate_py_list_submodules(SEXP moduleSEXP) {

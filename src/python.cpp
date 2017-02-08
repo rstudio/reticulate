@@ -1221,6 +1221,20 @@ PyObjectRef py_module_import(const std::string& module) {
 }
 
 // [[Rcpp::export]]
+void py_module_proxy_import(PyObjectRef proxy) {
+  if (proxy.exists("module")) {
+    std::string module = as<std::string>(proxy.getFromEnvironment("module"));
+    PyObject* pModule = PyImport_ImportModule(module.c_str());
+    if (pModule == NULL)
+      stop(py_fetch_error());
+    proxy.set(pModule);
+    proxy.remove("module");
+  } else {
+    stop("Module proxy does not contain module name");
+  }
+}
+
+// [[Rcpp::export]]
 CharacterVector py_list_submodules(const std::string& module) {
 
   std::vector<std::string> modules;

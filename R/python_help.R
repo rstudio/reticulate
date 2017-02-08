@@ -278,6 +278,10 @@ class_help <- function(class, topic) {
 
 help_get_attribute <- function(source, topic) {
 
+  # check for module proxy
+  if (py_is_module_proxy(source))
+    return(NULL)
+  
   # check for sub-module
   if (py_is_module(source) && !py_has_attr(source, topic)) {
     module <- py_get_submodule(source, topic)

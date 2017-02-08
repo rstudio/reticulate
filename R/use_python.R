@@ -18,7 +18,7 @@ use_python <- function(python, required = FALSE) {
   if (required && !file_test("-f", python) && !file_test("-d", python))
     stop("Specified version of python '", python, "' does not exist.")
 
-  options(reticulate.python = c(getOption("reticulate.python"), python))
+  options(reticulate.python = unique(c(getOption("reticulate.python"), python)))
 }
 
 
@@ -83,8 +83,11 @@ use_condaenv <- function(condaenv, conda = "auto", required = FALSE) {
       if (!is_windows())
         conda_env_dir <- file.path(conda_env_dir, "bin")
       conda_env_python <- file.path(conda_env_dir, "python")
+      if (is_windows())
+        conda_env_python <- paste0(conda_env_python, ".exe")
+      conda_env_python <- normalizePath(conda_env_python)
       use_python(conda_env_python)
-      break
+      return(invisible(NULL))
     }
   }
 

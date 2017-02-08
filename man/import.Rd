@@ -9,8 +9,9 @@ import(module, delay_load = FALSE)
 \arguments{
 \item{module}{Module name}
 
-\item{delay_load}{\code{TRUE} to delay loading the module until
-it is first used.}
+\item{delay_load}{\code{TRUE} or a function to delay loading the module until
+it is first used (if a function is provided then it will be called
+once the module is loaded). \code{FALSE} to load the module immediately.}
 }
 \value{
 A Python module

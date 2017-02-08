@@ -5,8 +5,9 @@
 #' to import the main module.
 #'
 #' @param module Module name
-#' @param delay_load `TRUE` to delay loading the module until
-#'  it is first used.
+#' @param delay_load `TRUE` or a function to delay loading the module until
+#'  it is first used (if a function is provided then it will be called 
+#'  once the module is loaded). `FALSE` to load the module immediately.
 #'
 #' @return A Python module
 #'

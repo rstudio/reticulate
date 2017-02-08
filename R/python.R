@@ -199,7 +199,7 @@ str.python.builtin.module <- function(object, ...) {
 #'
 #' @note
 #' This is useful for creating dictionaries keyed by Tensor (required
-#' for `\code{feed_dict}` parameters).
+#' for `feed_dict` parameters).
 #'
 #' @export
 dict <- function(...) {

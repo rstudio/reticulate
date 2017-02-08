@@ -14,6 +14,6 @@ Register a handler for calls to py_suppress_warnings
 }
 \details{
 Enables packages to register a pair of functions
- to be called to suppress and then re-enable warnings
+to be called to suppress and then re-enable warnings
 }
 \keyword{internal}

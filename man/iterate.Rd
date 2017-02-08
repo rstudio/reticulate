@@ -16,13 +16,13 @@ iterate(x, f = base::identity, simplify = TRUE)
 }
 \value{
 List or vector containing the results of calling \code{f} on each
-  item in \code{x} (invisibly).
+item in \code{x} (invisibly).
 }
 \description{
 Traverse a Python iterator or generator
 }
 \details{
 Simplification is only attempted all elements are length 1
- vectors of type "character", "complex", "double", "integer", or
- "logical".
+vectors of type "character", "complex", "double", "integer", or
+"logical".
 }

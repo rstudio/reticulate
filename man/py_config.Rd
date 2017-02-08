@@ -8,7 +8,7 @@ py_config()
 }
 \value{
 Python configuration object; Logical indicating whether Python
-  bindings are available
+bindings are available
 }
 \description{
 Information on Python and Numpy versions detected

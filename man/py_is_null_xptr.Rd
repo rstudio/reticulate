@@ -16,9 +16,9 @@ Logical indicating whether the object is a null externalptr
 Check if a Python object is a null externalptr
 }
 \details{
-When Python objects are serialized within a persisted R 
- environment (e.g. .RData file) they are deserialized into null
- externalptr objects (since the Python session they were originally
- connected to no longer exists). This function allows you to safely
- check whether whether a Python object is a null externalptr.
+When Python objects are serialized within a persisted R
+environment (e.g. .RData file) they are deserialized into null
+externalptr objects (since the Python session they were originally
+connected to no longer exists). This function allows you to safely
+check whether whether a Python object is a null externalptr.
 }

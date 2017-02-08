@@ -7,7 +7,7 @@
 py_available(initialize = TRUE)
 }
 \arguments{
-\item{initialize}{`TRUE` to attempt to initialize Python bindings if they
+\item{initialize}{\code{TRUE} to attempt to initialize Python bindings if they
 aren't yet available.}
 }
 \value{

@@ -4,10 +4,13 @@
 \alias{import}
 \title{Import a Python module}
 \usage{
-import(module)
+import(module, delay_load = FALSE)
 }
 \arguments{
-\item{module}{Module namex}
+\item{module}{Module name}
+
+\item{delay_load}{\code{TRUE} to delay loading the module until
+it is first used.}
 }
 \value{
 A Python module

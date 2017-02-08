@@ -31,5 +31,6 @@ Imports:
 Suggests: testthat, knitr
 LinkingTo: Rcpp
 RoxygenNote: 6.0.0
+Roxygen: list(markdown = TRUE)
 VignetteBuilder: knitr
 

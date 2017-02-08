@@ -10,7 +10,7 @@ py_str(x)
 \item{x}{Python object}
 }
 \value{
-Character vector with result of calling `PyObject_Str` on the object.
+Character vector with result of calling \code{PyObject_Str} on the object.
 }
 \description{
 String representation of a Python object

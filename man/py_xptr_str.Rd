@@ -2,7 +2,7 @@
 % Please edit documentation in R/python.R
 \name{py_xptr_str}
 \alias{py_xptr_str}
-\title{Evaluate an expression that prints a string with 
+\title{Evaluate an expression that prints a string with
 a check for a null externalptr}
 \usage{
 py_xptr_str(x, expr)
@@ -14,11 +14,11 @@ py_xptr_str(x, expr)
 to print a string.}
 }
 \description{
-Evaluate an expression that prints a string with 
+Evaluate an expression that prints a string with
 a check for a null externalptr
 }
 \details{
 If the object is a null externalptr
-  then \code{<pointer: 0x0>} will be printed. 
-  Otherwise the expression will be evaluated.
+then \code{<pointer: 0x0>} will be printed.
+Otherwise the expression will be evaluated.
 }

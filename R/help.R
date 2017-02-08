@@ -157,6 +157,10 @@ help_formals_handler.python.builtin.object <- function(topic, source) {
   if (!py_available(initialize = FALSE))
     return(NULL)
 
+  # check for module proxy
+  if (py_is_module_proxy(source))
+    return(NULL)
+  
   if (py_has_attr(source, topic)) {
     target <- help_get_attribute(source, topic)
     if (!is.null(target) && py_is_callable(target)) {

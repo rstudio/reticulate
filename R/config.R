@@ -38,16 +38,7 @@ py_available <- function(initialize = TRUE) {
 py_discover_config <- function(required_module) {
 
   # create a list of possible python versions to bind to
-  python_versions <- character()
-
-  # look for environment variable
-  reticulate_python <- reticulate_python()
-  if (!is.null(reticulate_python)) {
-    if (reticulate_python$exists)
-      python_versions <- c(python_versions, reticulate_python$python)
-    else
-      warning("Specified RETICULATE_PYTHON '", reticulate_python$python, "' does not exist.")
-  }
+  python_versions <- reticulate_python_versions()
 
   # look on system path
   python <- Sys.which("python")
@@ -259,75 +250,74 @@ clean_version <- function(version) {
   gsub("\\.$", "", gsub("[A-Za-z_]+", "", version))
 }
 
-reticulate_python <- function() {
+reticulate_python_versions <- function() {
 
-  # determine the location of python
-  reticulate_python <- Sys.getenv("RETICULATE_PYTHON", unset = NA)
-  if (!is.na(reticulate_python)) {
-
-    # normalize trailing slash and expand
-    reticulate_python <- gsub("[\\/]+$", "", reticulate_python)
-    reticulate_python <- path.expand(reticulate_python)
-
-    # check for existence
-    if (!utils::file_test("-d", reticulate_python) &&
-        !utils::file_test("-f", reticulate_python)) {
-      list(
-        python = reticulate_python,
-        exists = FALSE
-      )
-    } else {
-
-      # append binary if it's a directory
-      if (utils::file_test("-d", reticulate_python))
-        reticulate_python <- file.path(reticulate_python, "python")
-
-      # append .exe if necessary on windows
-      if (is_windows() && (!endsWith(tolower(reticulate_python), ".exe")))
-        reticulate_python <- paste0(reticulate_python, ".exe")
-
-      # return
-      list(
-        python = reticulate_python,
-        exists = TRUE
-      )
+  # python versions to return
+  python_versions <- c()
+  
+  # combine the reticulate.python option with the RETICULATE_PYTHON environment variable
+  reticulate_python_options <- getOption("reticulate.python")
+  reticulate_python_env <- Sys.getenv("RETICULATE_PYTHON", unset = NA)
+  if (!is.na(reticulate_python_env))
+    reticulate_python_options <- c(reticulate_python_options, reticulate_python_env)
+                                 
+  
+  # determine python versions to return
+  if (length(reticulate_python_options) > 0) {
+    for (i in 1:length(reticulate_python_options)) {
+      python <- normalize_python_path(reticulate_python_options[[i]])
+      if (python$exists)
+        python_versions <- c(python_versions, python$path)
     }
-
-
-  } else {
-    NULL
   }
+  
+  # return them
+  python_versions
 }
+
+
+normalize_python_path <- function(python) {
+  
+  # normalize trailing slash and expand
+  python <- gsub("[\\/]+$", "", python)
+  python <- path.expand(python)
+  
+  # check for existence
+  if (!utils::file_test("-d", python) &&
+      !utils::file_test("-f", python)) {
+    list(
+      path = python,
+      exists = FALSE
+    )
+  } else {
+    
+    # append binary if it's a directory
+    if (utils::file_test("-d", python))
+      python <- file.path(python, "python")
+    
+    # append .exe if necessary on windows
+    if (is_windows() && (!endsWith(tolower(python), ".exe")))
+      python <- paste0(python, ".exe")
+    
+    # return
+    list(
+      path = python,
+      exists = TRUE
+    )
+  }
+  
+}
+
 
 windows_registry_python_versions <- function(required_module) {
 
-  read_python_versions <- function(hive,key) {
-    versions <- c()
-    python_core_key <- tryCatch(utils::readRegistry(
-      key = paste0("SOFTWARE\\Python\\", key), hive = hive, maxdepth = 3),
-      error = function(e) NULL)
+  
 
-    if (length(python_core_key) > 0) {
-      for (version in names(python_core_key)) {
-        version_key <- python_core_key[[version]]
-        if (is.list(version_key) && !is.null(version_key$InstallPath)) {
-          version_dir <- version_key$InstallPath$`(Default)`
-          version_dir <- gsub("[\\/]+$", "", version_dir)
-          version_exe <- paste0(version_dir, "\\python.exe")
-          versions <- c(versions, utils::shortPathName(version_exe))
-        }
-      }
-    }
-
-    versions
-  }
-
-  python_core_versions <- c(read_python_versions("HCU", key = "PythonCore"),
-                            read_python_versions("HLM", key = "PythonCore"))
+  python_core_versions <- c(read_python_versions_from_registry("HCU", key = "PythonCore"),
+                            read_python_versions_from_registry("HLM", key = "PythonCore"))
 
 
-  anaconda_versions <- c(read_python_versions("HCU", key = "ContinuumAnalytics"),
-                         read_python_versions("HLM", key = "ContinuumAnalytics"))
+  anaconda_versions <- read_anaconda_versions_from_registry()
   if (!is.null(required_module) && length(anaconda_versions) > 0) {
     anaconda_envs <- utils::shortPathName(
       file.path(dirname(anaconda_versions), "envs", required_module, "python.exe")
@@ -337,6 +327,32 @@ windows_registry_python_versions <- function(required_module) {
   }
 
   c(python_core_versions, anaconda_envs, anaconda_versions)
+}
+
+read_anaconda_versions_from_registry <- function() {
+  c(read_python_versions_from_registry("HCU", key = "ContinuumAnalytics"),
+    read_python_versions_from_registry("HLM", key = "ContinuumAnalytics"))
+}
+
+read_python_versions_from_registry <- function(hive,key) {
+  versions <- c()
+  python_core_key <- tryCatch(utils::readRegistry(
+    key = paste0("SOFTWARE\\Python\\", key), hive = hive, maxdepth = 3),
+    error = function(e) NULL)
+  
+  if (length(python_core_key) > 0) {
+    for (version in names(python_core_key)) {
+      version_key <- python_core_key[[version]]
+      if (is.list(version_key) && !is.null(version_key$InstallPath)) {
+        version_dir <- version_key$InstallPath$`(Default)`
+        version_dir <- gsub("[\\/]+$", "", version_dir)
+        version_exe <- paste0(version_dir, "\\python.exe")
+        versions <- c(versions, utils::shortPathName(version_exe))
+      }
+    }
+  }
+  
+  versions
 }
 
 # convert R arch to python arch

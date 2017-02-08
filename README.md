@@ -1,7 +1,7 @@
 R Interface to Python
 ================
 
-J.J. Allaire — 2017-02-07
+J.J. Allaire — 2017-02-08
 
 Overview
 --------
@@ -46,26 +46,47 @@ Note that the package includes native C/C++ code so it's installation requires [
 
 ### Locating Python
 
-When it is loaded the **reticulate** package scans the system for a Python binary in the following order:
+If the version of Python you want to use is located on the system `PATH` then it will be automatically discovered (via `Sys.which`) and used by **reticulate**.
 
-1.  If specified, at the location referenced by the `RETICULATE_PYTHON` environment variable.
+Alternatively, you can use one of the following functions to specify alternate versions of Python:
 
-2.  The Python binary discovered on the system PATH via the `Sys.which` function.
+| Function        | Description                                           |
+|-----------------|-------------------------------------------------------|
+| use\_python     | Specify the path a specific Python binary.            |
+| use\_virtualenv | Specify the directory containing a Python virtualenv. |
+| use\_condaenv   | Specify the name of a Conda environment.              |
 
-3.  At other customary locations for Python including `/usr/local/bin/python`, `/opt/local/bin/python`, etc.
+For example:
+
+``` r
+library(reticulate)
+use_python("/usr/local/bin/python")
+use_virtualenv("~/myenv")
+use_condaenv("myenv")
+```
+
+Note that the `use` functions are by default considered only hints as to where to find Python (i.e. they don't produce errors if the specified version doesn't exist). You can add the `required` parameter to ensure that the specified version of Python actually exists:
+
+``` r
+use_virtualenv("~/myenv", required = TRUE)
+```
+
+The order in which versions of Python will be discovered and used is as follows:
+
+1.  If specified, at the locations referenced by calls to `use_python`, `use_virtualenv`, and `use_condaenv`.
+
+2.  If specified, at the location referenced by the `RETICULATE_PYTHON` environment variable.
+
+3.  At the location of the Python binary discovered on the system `PATH` (via the `Sys.which` function).
+
+4.  At other customary locations for Python including `/usr/local/bin/python`, `/opt/local/bin/python`, etc.
+
+The scanning for and binding to a version of Python typically occurs at the time of the first call to `import` within an R session. As a result, priority will be given to versions of Python that include the module specified within the call to `import` (i.e. versions that don't include it will be skipped).
 
 You can use the `py_config` function to query for information about the specific version of Python in use as well as a list of other Python versions discovered on the system:
 
 ``` r
-library(reticulate)
 py_config()
-```
-
-If the desired version isn't discovered automatically you should set the `RETICULATE_PYTHON` environment variable explicitly:
-
-``` r
-Sys.setenv(RETICULATE_PYTHON="/usr/local/bin/python")
-library(reticulate)
 ```
 
 Importing Modules

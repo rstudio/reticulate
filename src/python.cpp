@@ -185,11 +185,11 @@ std::string as_r_class(PyObject* classPtr) {
   return ostr.str();
 }
 
-// wrap a PyObject in an XPtr
-PyObjectXPtr py_xptr(PyObject* object, bool decref = true, const std::string& extraClass = "") {
+// wrap a PyObject
+PyObjectRef py_ref(PyObject* object, bool decref = true, const std::string& extraClass = "") {
 
-  // wrap in XPtr
-  PyObjectXPtr ptr(object, decref);
+  // wrap 
+  PyObjectRef ref(object, decref);
 
   // class attribute
   std::vector<std::string> attrClass;
@@ -224,17 +224,11 @@ PyObjectXPtr py_xptr(PyObject* object, bool decref = true, const std::string& ex
     attrClass.push_back("python.builtin.object");
   }
 
-  // add externalptr
-  attrClass.push_back("externalptr");
-
   // set classes
-  ptr.attr("class") = attrClass;
+  ref.attr("class") = attrClass;
   
-  // modules get an extra attribute
-  
-
-  // return XPtr
-  return ptr;
+  // return ref
+  return ref;
 }
 
 // get a string representing the last python error
@@ -613,13 +607,13 @@ SEXP py_to_r(PyObject* x) {
 
     // return it raw but add a class so we can create S3 methods for it
     Py_IncRef(x);
-    return py_xptr(x, true, "python.builtin.iterator");
+    return py_ref(x, true, "python.builtin.iterator");
   }
 
   // default is to return opaque wrapper to python object
   else {
     Py_IncRef(x);
-    return py_xptr(x);
+    return py_ref(x);
   }
 }
 
@@ -639,13 +633,13 @@ PyObject* r_to_py(RObject x) {
   // pass python objects straight through (Py_IncRef since returning this
   // creates a new reference from the caller)
   } else if (x.inherits("python.builtin.object")) {
-    PyObjectXPtr obj = as<PyObjectXPtr>(sexp);
+    PyObjectRef obj = as<PyObjectRef>(sexp);
     Py_IncRef(obj.get());
     return obj.get();
 
   // use py_object attribute if we have it
   } else if (x.hasAttribute("py_object")) {
-    PyObjectXPtr obj = as<PyObjectXPtr>(x.attr("py_object"));
+    PyObjectRef obj = as<PyObjectRef>(x.attr("py_object"));
     Py_IncRef(obj.get());
     return obj.get();
 
@@ -901,7 +895,7 @@ extern "C" PyObject* initializeRPYCall(void) {
 }
 
 // forward declare py_run_file
-PyObjectXPtr py_run_file(const std::string& file);
+PyObjectRef py_run_file(const std::string& file);
 
 // [[Rcpp::export]]
 void py_initialize(const std::string& python,
@@ -981,7 +975,7 @@ void py_finalize() {
 }
 
 // [[Rcpp::export]]
-bool py_is_none(PyObjectXPtr x) {
+bool py_is_none(PyObjectRef x) {
   return py_is_none(x.get());
 }
 
@@ -993,7 +987,7 @@ bool py_is_none(PyObjectXPtr x) {
 //' 
 //' @export
 // [[Rcpp::export]]
-CharacterVector py_str(PyObjectXPtr x) {
+CharacterVector py_str(PyObjectRef x) {
   PyObjectPtr str(PyObject_Str(x));
   if (str.is_null())
     stop(py_fetch_error());
@@ -1001,7 +995,7 @@ CharacterVector py_str(PyObjectXPtr x) {
 }
 
 // [[Rcpp::export]]
-void py_print(PyObjectXPtr x) {
+void py_print(PyObjectRef x) {
   PyObjectPtr str(PyObject_Str(x));
   if (str.is_null())
     stop(py_fetch_error());
@@ -1009,12 +1003,12 @@ void py_print(PyObjectXPtr x) {
 }
 
 // [[Rcpp::export]]
-bool py_is_callable(PyObjectXPtr x) {
+bool py_is_callable(PyObjectRef x) {
   return PyCallable_Check(x) == 1;
 }
 
 // [[Rcpp::export]]
-bool py_is_function(PyObjectXPtr x) {
+bool py_is_function(PyObjectRef x) {
   return PyFunction_Check(x) == 1;
 }
 
@@ -1033,13 +1027,13 @@ bool py_is_function(PyObjectXPtr x) {
 //' 
 //' @export
 // [[Rcpp::export]]
-bool py_is_null_xptr(PyObjectXPtr x) {
-  return !x;
+bool py_is_null_xptr(PyObjectRef x) {
+  return x.get() == NULL;
 }
 
 
 // [[Rcpp::export]]
-std::vector<std::string> py_list_attributes(PyObjectXPtr x) {
+std::vector<std::string> py_list_attributes(PyObjectRef x) {
   std::vector<std::string> attributes;
   PyObjectPtr attrs(PyObject_Dir(x));
   if (attrs.is_null())
@@ -1062,7 +1056,7 @@ std::vector<std::string> py_list_attributes(PyObjectXPtr x) {
 //' @return Logical indicating whether it has the specified attribute
 //' @export
 // [[Rcpp::export]]
-bool py_has_attr(PyObjectXPtr x, const std::string& name) {
+bool py_has_attr(PyObjectRef x, const std::string& name) {
   return PyObject_HasAttrString(x, name.c_str());
 }
 
@@ -1077,7 +1071,7 @@ bool py_has_attr(PyObjectXPtr x, const std::string& name) {
 //' @return Attribute of Python object
 //' @export
 // [[Rcpp::export]]
-PyObjectXPtr py_get_attr(PyObjectXPtr x, const std::string& name, bool silent = false) {
+PyObjectRef py_get_attr(PyObjectRef x, const std::string& name, bool silent = false) {
 
   PyObject* attr = PyObject_GetAttrString(x, name.c_str());
 
@@ -1093,12 +1087,12 @@ PyObjectXPtr py_get_attr(PyObjectXPtr x, const std::string& name, bool silent = 
     }
   }
 
-  return py_xptr(attr);
+  return py_ref(attr);
 }
 
 // [[Rcpp::export]]
 IntegerVector py_get_attribute_types(
-    PyObjectXPtr x,
+    PyObjectRef x,
     const std::vector<std::string>& attributes) {
 
   const int UNKNOWN     =  0;
@@ -1110,7 +1104,7 @@ IntegerVector py_get_attribute_types(
 
   IntegerVector types(attributes.size());
   for (size_t i = 0; i<attributes.size(); i++) {
-    PyObjectXPtr attr = py_get_attr(x, attributes[i], true);
+    PyObjectRef attr = py_get_attr(x, attributes[i], true);
     if (attr.get() == Py_None)
       types[i] = UNKNOWN;
     else if (PyType_Check(attr))
@@ -1140,7 +1134,7 @@ IntegerVector py_get_attribute_types(
 }
 
 // [[Rcpp::export]]
-SEXP py_to_r(PyObjectXPtr x) {
+SEXP py_to_r(PyObjectRef x) {
   return py_to_r(x.get());
 }
 
@@ -1156,7 +1150,7 @@ SEXP py_to_r(PyObjectXPtr x) {
 //'
 //' @export
 // [[Rcpp::export]]
-SEXP py_call(PyObjectXPtr x, List args, List keywords = R_NilValue) {
+SEXP py_call(PyObjectRef x, List args, List keywords = R_NilValue) {
 
   // unnamed arguments
   PyObjectPtr pyArgs(PyTuple_New(args.length()));
@@ -1195,18 +1189,18 @@ SEXP py_call(PyObjectXPtr x, List args, List keywords = R_NilValue) {
 
 
 // [[Rcpp::export]]
-PyObjectXPtr py_dict(const List& keys, const List& items) {
+PyObjectRef py_dict(const List& keys, const List& items) {
   PyObject* dict = PyDict_New();
   for (R_xlen_t i = 0; i<keys.length(); i++) {
     PyObjectPtr key(r_to_py(keys.at(i)));
     PyObjectPtr item(r_to_py(items.at(i)));
     PyDict_SetItem(dict, key, item);
   }
-  return py_xptr(dict);
+  return py_ref(dict);
 }
 
 // [[Rcpp::export]]
-PyObjectXPtr py_tuple(const List& items) {
+PyObjectRef py_tuple(const List& items) {
   PyObject* tuple = PyTuple_New(items.length());
   for (R_xlen_t i = 0; i<items.length(); i++) {
     PyObject* item = r_to_py(items.at(i));
@@ -1215,15 +1209,15 @@ PyObjectXPtr py_tuple(const List& items) {
     if (res != 0)
       stop(py_fetch_error());
   }
-  return py_xptr(tuple);
+  return py_ref(tuple);
 }
 
 // [[Rcpp::export]]
-PyObjectXPtr py_module_import(const std::string& module) {
+PyObjectRef py_module_import(const std::string& module) {
   PyObject* pModule = PyImport_ImportModule(module.c_str());
   if (pModule == NULL)
     stop(py_fetch_error());
-  return py_xptr(pModule);
+  return py_ref(pModule);
 }
 
 // [[Rcpp::export]]
@@ -1252,7 +1246,7 @@ CharacterVector py_list_submodules(const std::string& module) {
 // Traverse a Python iterator or generator
 
 // [[Rcpp::export]]
-List py_iterate(PyObjectXPtr x, Function f) {
+List py_iterate(PyObjectRef x, Function f) {
 
   // List to return
   List list;
@@ -1298,7 +1292,7 @@ List py_iterate(PyObjectXPtr x, Function f) {
 //'
 //' @export
 // [[Rcpp::export]]
-PyObjectXPtr py_run_string(const std::string& code)
+PyObjectRef py_run_string(const std::string& code)
 {
   // run string
   PyObject* main = PyImport_AddModule("__main__");
@@ -1309,14 +1303,14 @@ PyObjectXPtr py_run_string(const std::string& code)
 
   // return reference to main module
   Py_IncRef(main);
-  return py_xptr(main);
+  return py_ref(main);
 }
 
 
 //' @rdname py_run
 //' @export
 // [[Rcpp::export]]
-PyObjectXPtr py_run_file(const std::string& file)
+PyObjectRef py_run_file(const std::string& file)
 {
   // expand path
   Function pathExpand("path.expand");
@@ -1332,7 +1326,7 @@ PyObjectXPtr py_run_file(const std::string& file)
     // return reference to main module
     PyObject* main = PyImport_AddModule("__main__");
     Py_IncRef(main);
-    return py_xptr(main);
+    return py_ref(main);
   }
   else
     stop("Unable to read script file '%s' (does the file exist?)", file);

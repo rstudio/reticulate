@@ -137,6 +137,10 @@ str.python.builtin.module <- function(object, ...) {
   if (!py_available())
     return(NULL)
 
+  # resolve module proxies
+  if (py_is_module_proxy(x)) 
+    py_resolve_module_proxy(x)
+  
   # special handling for embedded modules (which don't always show
   # up as "attributes")
   if (py_is_module(x) && !py_has_attr(x, name)) {

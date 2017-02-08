@@ -46,7 +46,7 @@ Note that the package includes native C/C++ code so it's installation requires [
 
 ### Locating Python
 
-If the version of Python you want to use is located on the system `PATH` then it will be automatically discovered (via `Sys.which`) and used by **reticulate**.
+If the version of Python you want to use is located on the system `PATH` then it will be automatically discovered (via `Sys.which`) and used.
 
 Alternatively, you can use one of the following functions to specify alternate versions of Python:
 
@@ -65,7 +65,9 @@ use_virtualenv("~/myenv")
 use_condaenv("myenv")
 ```
 
-Note that the `use` functions are by default considered only hints as to where to find Python (i.e. they don't produce errors if the specified version doesn't exist). You can add the `required` parameter to ensure that the specified version of Python actually exists:
+Note that **reticulate** requires NumPy &gt;= 1.11 so versions of Python that don't satisfy this requirement will not be used.
+
+Also note that the `use` functions are by default considered only hints as to where to find Python (i.e. they don't produce errors if the specified version doesn't exist). You can add the `required` parameter to ensure that the specified version of Python actually exists:
 
 ``` r
 use_virtualenv("~/myenv", required = TRUE)

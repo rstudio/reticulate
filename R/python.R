@@ -19,6 +19,13 @@
 #' @export
 import <- function(module, delay_load = FALSE) {
   
+  # resolve delay load
+  delay_load_function <- NULL
+  if (is.function(delay_load)) {
+    delay_load_function <- delay_load
+    delay_load <- TRUE
+  }
+  
   # normal case (load immediately)
   if (!delay_load) {
     # ensure that python is initialized (pass top level module as
@@ -34,6 +41,8 @@ import <- function(module, delay_load = FALSE) {
   else {
     module_proxy <- new.env(parent = emptyenv())
     module_proxy$module <- module
+    if (!is.null(delay_load_function))
+      module_proxy$onload <- delay_load_function
     attr(module_proxy, "class") <- c("python.builtin.module", 
                                      "python.builtin.object")
     module_proxy
@@ -517,9 +526,19 @@ py_is_module_proxy <- function(x) {
 }
 
 py_resolve_module_proxy <- function(proxy) {
+  
+  # import module
   module <- get("module", envir = proxy)
   import(module)
   py_module_proxy_import(proxy)
+  
+  # call then clear onload if specifed
+  if (exists("onload", envir = proxy)) {
+    onload <- get("onload", envir = proxy)
+    remove("onload", envir = proxy)
+    onload()
+  }
+  
 }
 
 py_get_submodule <- function(x, name) {

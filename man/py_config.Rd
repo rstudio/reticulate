@@ -2,12 +2,9 @@
 % Please edit documentation in R/python_config.R
 \name{py_config}
 \alias{py_config}
-\alias{py_available}
 \title{Python configuration}
 \usage{
 py_config()
-
-py_available()
 }
 \value{
 Python configuration object; Logical indicating whether Python

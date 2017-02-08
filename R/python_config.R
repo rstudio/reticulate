@@ -14,16 +14,24 @@ py_config <- function() {
 }
 
 
-#' @rdname py_config
+#' Check if Python is available on this system
+#' 
+#' @param initialize `TRUE` to attempt to initialize Python bindings if they
+#'   aren't yet available.
+#'   
+#' @return Logical indicating whether Python is initialized.
+#'   
 #' @export
-py_available <- function() {
+py_available <- function(initialize = TRUE) {
   if (is_python_initialized())
     .globals$py_config$available
-  else {
+  else if (initialize) {
     tryCatch({
       ensure_python_initialized()
       .globals$py_config$available
     }, error = function(e) FALSE)
+  } else {
+    FALSE
   }
 }
 

@@ -23,7 +23,7 @@ import <- function(module) {
   ensure_python_initialized(required_module = top_level_module)
 
   # import the module
-  py_module_impl(module)
+  py_module_import(module)
 
 }
 

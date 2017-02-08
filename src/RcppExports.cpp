@@ -189,14 +189,14 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// py_module_impl
-PyObjectXPtr py_module_impl(const std::string& module);
-RcppExport SEXP reticulate_py_module_impl(SEXP moduleSEXP) {
+// py_module_import
+PyObjectXPtr py_module_import(const std::string& module);
+RcppExport SEXP reticulate_py_module_import(SEXP moduleSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const std::string& >::type module(moduleSEXP);
-    rcpp_result_gen = Rcpp::wrap(py_module_impl(module));
+    rcpp_result_gen = Rcpp::wrap(py_module_import(module));
     return rcpp_result_gen;
 END_RCPP
 }

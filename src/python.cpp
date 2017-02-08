@@ -229,6 +229,9 @@ PyObjectXPtr py_xptr(PyObject* object, bool decref = true, const std::string& ex
 
   // set classes
   ptr.attr("class") = attrClass;
+  
+  // modules get an extra attribute
+  
 
   // return XPtr
   return ptr;
@@ -1216,7 +1219,7 @@ PyObjectXPtr py_tuple(const List& items) {
 }
 
 // [[Rcpp::export]]
-PyObjectXPtr py_module_impl(const std::string& module) {
+PyObjectXPtr py_module_import(const std::string& module) {
   PyObject* pModule = PyImport_ImportModule(module.c_str());
   if (pModule == NULL)
     stop(py_fetch_error());

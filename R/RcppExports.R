@@ -111,8 +111,8 @@ py_tuple <- function(items) {
     .Call('reticulate_py_tuple', PACKAGE = 'reticulate', items)
 }
 
-py_module_impl <- function(module) {
-    .Call('reticulate_py_module_impl', PACKAGE = 'reticulate', module)
+py_module_import <- function(module) {
+    .Call('reticulate_py_module_import', PACKAGE = 'reticulate', module)
 }
 
 py_list_submodules <- function(module) {

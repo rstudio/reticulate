@@ -1057,7 +1057,10 @@ std::vector<std::string> py_list_attributes(PyObjectRef x) {
 //' @export
 // [[Rcpp::export]]
 bool py_has_attr(PyObjectRef x, const std::string& name) {
-  return PyObject_HasAttrString(x, name.c_str());
+  if (py_is_null_xptr(x))
+    return false;
+  else
+    return PyObject_HasAttrString(x, name.c_str());
 }
 
 

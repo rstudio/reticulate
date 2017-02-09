@@ -1,7 +1,7 @@
 context("vectors")
 
 # some helpers
-if (py_available())
+if (py_available(initialize = TRUE))
   test <- import("rpytools.test")
 
 test_that("Single element vectors are treated as scalars", {

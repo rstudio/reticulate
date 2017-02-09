@@ -38,7 +38,7 @@ help_handler <- function(type = c("completion", "parameter", "url"), topic, sour
 # Return help for display in the completion popup window
 help_completion_handler.python.builtin.object <- function(topic, source) {
 
-  if (!py_available(initialize = FALSE))
+  if (!py_available())
     return(NULL)
 
   # convert source to object if necessary
@@ -83,7 +83,7 @@ help_completion_handler.python.builtin.object <- function(topic, source) {
 # Return parameter help for display in the completion popup window
 help_completion_parameter_handler.python.builtin.object <- function(source) {
 
-  if (!py_available(initialize = FALSE))
+  if (!py_available())
     return(NULL)
 
   # split into topic and source
@@ -120,7 +120,7 @@ help_completion_parameter_handler.python.builtin.object <- function(source) {
 # Handle requests for external (F1) help
 help_url_handler.python.builtin.object <- function(topic, source) {
 
-  if (!py_available(initialize = FALSE))
+  if (!py_available())
     return(NULL)
 
   # normalize topic and source for various calling scenarios
@@ -154,7 +154,7 @@ help_url_handler.python.builtin.object <- function(topic, source) {
 # Handle requests for the list of arguments for a function
 help_formals_handler.python.builtin.object <- function(topic, source) {
 
-  if (!py_available(initialize = FALSE))
+  if (!py_available())
     return(NULL)
 
   # check for module proxy

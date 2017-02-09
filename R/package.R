@@ -16,7 +16,7 @@ NULL
 # package level mutable global state
 .globals <- new.env(parent = emptyenv())
 .globals$py_config <- NULL
-.globals$load_error_message <- NULL
+.globals$delay_load_module <- NULL
 .globals$suppress_warnings_handlers <- list()
 
 
@@ -33,8 +33,11 @@ is_python_initialized <- function() {
 
 
 ensure_python_initialized <- function(required_module = NULL) {
-  if (!is_python_initialized())
+  if (!is_python_initialized()) {
+    if (is.null(required_module))
+      required_module <- .globals$delay_load_module
     .globals$py_config <- initialize_python(required_module)
+  }
 }
 
 initialize_python <- function(required_module = NULL) {
@@ -67,7 +70,7 @@ initialize_python <- function(required_module = NULL) {
   config$available <- TRUE
 
   # add our python scripts to the search path
-  py_run_string(paste0("import sys; sys.path.append('",
+  py_run_string_impl(paste0("import sys; sys.path.append('",
                        system.file("python", package = "reticulate") ,
                        "')"))
 

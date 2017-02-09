@@ -13,15 +13,8 @@ py_is_none <- function(x) {
     .Call('reticulate_py_is_none', PACKAGE = 'reticulate', x)
 }
 
-#' String representation of a Python object
-#' 
-#' @param x Python object
-#' 
-#' @return Character vector with result of calling `PyObject_Str` on the object.
-#' 
-#' @export
-py_str <- function(x) {
-    .Call('reticulate_py_str', PACKAGE = 'reticulate', x)
+py_str_impl <- function(x) {
+    .Call('reticulate_py_str_impl', PACKAGE = 'reticulate', x)
 }
 
 py_print <- function(x) {
@@ -68,17 +61,8 @@ py_has_attr <- function(x, name) {
     .Call('reticulate_py_has_attr', PACKAGE = 'reticulate', x, name)
 }
 
-#' Get an attribute of a Python object
-#'
-#' @param x Python object
-#' @param name Attribute name
-#' @param silent \code{TRUE} to return \code{NULL} if the attribute
-#'  doesn't exist (default is \code{FALSE} which will raise an error)
-#'
-#' @return Attribute of Python object
-#' @export
-py_get_attr <- function(x, name, silent = FALSE) {
-    .Call('reticulate_py_get_attr', PACKAGE = 'reticulate', x, name, silent)
+py_get_attr_impl <- function(x, name, silent = FALSE) {
+    .Call('reticulate_py_get_attr_impl', PACKAGE = 'reticulate', x, name, silent)
 }
 
 py_get_attribute_types <- function(x, attributes) {
@@ -89,18 +73,8 @@ py_to_r <- function(x) {
     .Call('reticulate_py_to_r', PACKAGE = 'reticulate', x)
 }
 
-#' Call a Python callable object
-#'
-#' @param args List of unnamed arguments
-#' @param keywords List of named arguments
-#'
-#' @return Return value of call
-#'
-#' @keywords internal
-#'
-#' @export
-py_call <- function(x, args, keywords = NULL) {
-    .Call('reticulate_py_call', PACKAGE = 'reticulate', x, args, keywords)
+py_call_impl <- function(x, args, keywords = NULL) {
+    .Call('reticulate_py_call_impl', PACKAGE = 'reticulate', x, args, keywords)
 }
 
 py_dict <- function(keys, items) {
@@ -127,25 +101,11 @@ py_iterate <- function(x, f) {
     .Call('reticulate_py_iterate', PACKAGE = 'reticulate', x, f)
 }
 
-#' Run Python code
-#'
-#' Execute code within the the \code{__main__} Python module.
-#'
-#' @param code Code to execute
-#' @param file File to execute
-#'
-#' @return Reference to \code{__main__} Python module.
-#'
-#' @name py_run
-#'
-#' @export
-py_run_string <- function(code) {
-    .Call('reticulate_py_run_string', PACKAGE = 'reticulate', code)
+py_run_string_impl <- function(code) {
+    .Call('reticulate_py_run_string_impl', PACKAGE = 'reticulate', code)
 }
 
-#' @rdname py_run
-#' @export
-py_run_file <- function(file) {
-    .Call('reticulate_py_run_file', PACKAGE = 'reticulate', file)
+py_run_file_impl <- function(file) {
+    .Call('reticulate_py_run_file_impl', PACKAGE = 'reticulate', file)
 }
 

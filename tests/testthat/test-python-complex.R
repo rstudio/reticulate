@@ -1,7 +1,7 @@
 context("complex numbers")
 
 # some helpers
-if (py_available())
+if (py_available(initialize = TRUE))
   test <- import("rpytools.test")
 
 

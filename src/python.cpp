@@ -895,7 +895,7 @@ extern "C" PyObject* initializeRPYCall(void) {
 }
 
 // forward declare py_run_file
-PyObjectRef py_run_file(const std::string& file);
+PyObjectRef py_run_file_impl(const std::string& file);
 
 // [[Rcpp::export]]
 void py_initialize(const std::string& python,
@@ -957,7 +957,7 @@ void py_initialize(const std::string& python,
 
   // execute activate_this.py script for virtualenv if necessary
   if (!virtualenv_activate.empty())
-    py_run_file(virtualenv_activate);
+    py_run_file_impl(virtualenv_activate);
 
   if (!import_numpy_api(isPython3(), &err))
     stop(err);
@@ -979,15 +979,9 @@ bool py_is_none(PyObjectRef x) {
   return py_is_none(x.get());
 }
 
-//' String representation of a Python object
-//' 
-//' @param x Python object
-//' 
-//' @return Character vector with result of calling `PyObject_Str` on the object.
-//' 
-//' @export
+
 // [[Rcpp::export]]
-CharacterVector py_str(PyObjectRef x) {
+CharacterVector py_str_impl(PyObjectRef x) {
   PyObjectPtr str(PyObject_Str(x));
   if (str.is_null())
     stop(py_fetch_error());
@@ -1064,17 +1058,8 @@ bool py_has_attr(PyObjectRef x, const std::string& name) {
 }
 
 
-//' Get an attribute of a Python object
-//'
-//' @param x Python object
-//' @param name Attribute name
-//' @param silent \code{TRUE} to return \code{NULL} if the attribute
-//'  doesn't exist (default is \code{FALSE} which will raise an error)
-//'
-//' @return Attribute of Python object
-//' @export
 // [[Rcpp::export]]
-PyObjectRef py_get_attr(PyObjectRef x, const std::string& name, bool silent = false) {
+PyObjectRef py_get_attr_impl(PyObjectRef x, const std::string& name, bool silent = false) {
 
   PyObject* attr = PyObject_GetAttrString(x, name.c_str());
 
@@ -1107,7 +1092,7 @@ IntegerVector py_get_attribute_types(
 
   IntegerVector types(attributes.size());
   for (size_t i = 0; i<attributes.size(); i++) {
-    PyObjectRef attr = py_get_attr(x, attributes[i], true);
+    PyObjectRef attr = py_get_attr_impl(x, attributes[i], true);
     if (attr.get() == Py_None)
       types[i] = UNKNOWN;
     else if (PyType_Check(attr))
@@ -1142,18 +1127,9 @@ SEXP py_to_r(PyObjectRef x) {
 }
 
 
-//' Call a Python callable object
-//'
-//' @param args List of unnamed arguments
-//' @param keywords List of named arguments
-//'
-//' @return Return value of call
-//'
-//' @keywords internal
-//'
-//' @export
+
 // [[Rcpp::export]]
-SEXP py_call(PyObjectRef x, List args, List keywords = R_NilValue) {
+SEXP py_call_impl(PyObjectRef x, List args, List keywords = R_NilValue) {
 
   // unnamed arguments
   PyObjectPtr pyArgs(PyTuple_New(args.length()));
@@ -1296,20 +1272,8 @@ List py_iterate(PyObjectRef x, Function f) {
 }
 
 
-//' Run Python code
-//'
-//' Execute code within the the \code{__main__} Python module.
-//'
-//' @param code Code to execute
-//' @param file File to execute
-//'
-//' @return Reference to \code{__main__} Python module.
-//'
-//' @name py_run
-//'
-//' @export
 // [[Rcpp::export]]
-PyObjectRef py_run_string(const std::string& code)
+PyObjectRef py_run_string_impl(const std::string& code)
 {
   // run string
   PyObject* main = PyImport_AddModule("__main__");
@@ -1324,10 +1288,8 @@ PyObjectRef py_run_string(const std::string& code)
 }
 
 
-//' @rdname py_run
-//' @export
 // [[Rcpp::export]]
-PyObjectRef py_run_file(const std::string& file)
+PyObjectRef py_run_file_impl(const std::string& file)
 {
   // expand path
   Function pathExpand("path.expand");

@@ -28,7 +28,7 @@ import <- function(module, delay_load = FALSE) {
   }
   
   # normal case (load immediately)
-  if (!delay_load) {
+  if (!delay_load || is_python_initialized()) {
     # ensure that python is initialized (pass top level module as
     # a hint as to which version of python to choose)
     top_level_module <- strsplit(module, ".", fixed = TRUE)[[1]][[1]]
@@ -40,6 +40,7 @@ import <- function(module, delay_load = FALSE) {
   
   # delay load case (wait until first access)
   else {
+    .globals$delay_load_module <- module
     module_proxy <- new.env(parent = emptyenv())
     module_proxy$module <- module
     if (!is.null(delay_load_function))
@@ -133,14 +134,14 @@ str.python.builtin.module <- function(object, ...) {
 #' @export
 `$.python.builtin.object` <- function(x, name) {
 
-  # check if python is available  
-  if (!py_available())
-    return(NULL)
-
   # resolve module proxies
   if (py_is_module_proxy(x)) 
     py_resolve_module_proxy(x)
   
+  # check if python is available  
+  if (!py_available())
+    return(NULL)
+
   # special handling for embedded modules (which don't always show
   # up as "attributes")
   if (py_is_module(x) && !py_has_attr(x, name)) {
@@ -446,6 +447,50 @@ print.python.builtin.iterator <- function(x, ...) {
   cat("Python iterator/generator (use iterate function to traverse)\n")
 }
 
+#' Call a Python callable object
+#'
+#' @param args List of unnamed arguments
+#' @param keywords List of named arguments
+#'
+#' @return Return value of call
+#'
+#' @keywords internal
+#'
+#' @export
+py_call <- function(x, args, keywords = NULL) {
+  ensure_python_initialized()
+  py_call_impl(x, args, keywords)
+}
+
+
+#' Get an attribute of a Python object
+#'
+#' @param x Python object
+#' @param name Attribute name
+#' @param silent \code{TRUE} to return \code{NULL} if the attribute
+#'  doesn't exist (default is \code{FALSE} which will raise an error)
+#'
+#' @return Attribute of Python object
+#' @export
+py_get_attr <- function(x, name, silent = FALSE) {
+  ensure_python_initialized()
+  py_get_attr_impl(x, name, silent)
+}
+
+
+#' String representation of a Python object
+#' 
+#' @param x Python object
+#' 
+#' @return Character vector with result of calling `PyObject_Str` on the object.
+#' 
+#' @export
+py_str <- function(x) {
+  ensure_python_initialized()
+  py_str_impl(x)
+}
+
+
 #' Suppress Python warnings for an expression
 #'
 #' @param expr Expression to suppress warnings for
@@ -522,6 +567,31 @@ py_capture_stdout <- function(expr) {
   output
 }
 
+#' Run Python code
+#'
+#' Execute code within the the \code{__main__} Python module.
+#'
+#' @param code Code to execute
+#' @param file File to execute
+#'
+#' @return Reference to \code{__main__} Python module.
+#'
+#' @name py_run
+#'
+#' @export
+py_run_string <- function(code) {
+  ensure_python_initialized()
+  py_run_string_impl(code)
+}
+
+#' @rdname py_run
+#' @export
+py_run_file <- function(file) {
+  ensure_python_initialized()
+  py_run_file_impl(code)
+}
+
+
 py_is_module <- function(x) {
   inherits(x, "python.builtin.module")
 }
@@ -544,12 +614,15 @@ py_resolve_module_proxy <- function(proxy) {
     if (!is.null(config)) {
       message <- paste0(message, "\n\nDetected Python configuration:\n\n",
                         str(config), "\n")
-      stop(message, call. = FALSE)
     }
+    stop(message, call. = FALSE)
   }
   
   # fixup the proxy 
   py_module_proxy_import(proxy)
+  
+  # clear the global tracking of delay load modules
+  .globals$delay_load_module <- NULL
   
   # call then clear onload if specifed
   if (exists("onload", envir = proxy)) {

@@ -1,7 +1,7 @@
 context("closures")
 
 # some helpers
-if (py_available())
+if (py_available(initialize = TRUE))
   test <- import("rpytools.test")
 
 test_that("R functions are converted to Python closures", {

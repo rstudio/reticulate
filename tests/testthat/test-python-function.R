@@ -1,7 +1,7 @@
 context("functions")
 
 # some helpers
-if (py_available()) {
+if (py_available(initialize = TRUE)) {
   inspect <- import("inspect")
   test <- import("rpytools.test")
 }

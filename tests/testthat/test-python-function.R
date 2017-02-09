@@ -1,10 +1,6 @@
 context("functions")
 
-# some helpers
-if (py_available(initialize = TRUE)) {
-  inspect <- import("inspect")
-  test <- import("rpytools.test")
-}
+source("utils.R")
 
 test_that("Python functions are marshalled as function objects", {
   skip_if_no_python()

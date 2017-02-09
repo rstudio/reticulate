@@ -1,8 +1,6 @@
 context("iterators")
 
-# some helpers
-if (py_available(initialize = TRUE))
-  test <- import("rpytools.test")
+source("utils.R")
 
 test_that("Iterators reflect values back", {
   skip_if_no_python()

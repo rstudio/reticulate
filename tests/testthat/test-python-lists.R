@@ -1,8 +1,6 @@
 context("lists")
 
-# some helpers
-if (py_available(initialize = TRUE))
-  test <- import("rpytools.test")
+source("utils.R")
 
 test_that("R named lists become Python dictionaries", {
   skip_if_no_python()

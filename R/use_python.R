@@ -18,7 +18,7 @@ use_python <- function(python, required = FALSE) {
   if (required && !file_test("-f", python) && !file_test("-d", python))
     stop("Specified version of python '", python, "' does not exist.")
 
-  options(reticulate.python = unique(c(getOption("reticulate.python"), python)))
+  .globals$use_python_versions <- unique(.globals$use_python_versions, python)
 }
 
 

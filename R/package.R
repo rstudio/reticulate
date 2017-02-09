@@ -15,6 +15,7 @@ NULL
 
 # package level mutable global state
 .globals <- new.env(parent = emptyenv())
+.globals$use_python_versions <- c()
 .globals$py_config <- NULL
 .globals$delay_load_module <- NULL
 .globals$suppress_warnings_handlers <- list()

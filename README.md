@@ -182,10 +182,9 @@ results <- iterate(iter)
 Note that the `Iterators` will be drained of their values by `iterate()`:
 
 ``` r
-a <- iterate(iter) # this is not empty
-b <- iterate(iter) # this is empty since items are drained
+a <- iterate(iter) # results are not empty
+b <- iterate(iter) # results are empty since items have already been drained
 ```
-
 
 Advanced Functions
 ------------------

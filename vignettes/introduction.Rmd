@@ -195,6 +195,14 @@ If you don't pass a function to `iterate` the results will be collected into an 
 results <- iterate(iter)
 ```
 
+Note that the `Iterators` will be drained of their values by `iterate()`:
+
+```{r}
+a <- iterate(iter) # results are not empty
+b <- iterate(iter) # results are empty since items have already been drained
+```
+
+
 ## Advanced Functions
 
 There are several more advanced functions available that are useful principally when creating high level R interfaces for Python libraries: 

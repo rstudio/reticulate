@@ -588,7 +588,7 @@ py_run_string <- function(code) {
 #' @export
 py_run_file <- function(file) {
   ensure_python_initialized()
-  py_run_file_impl(code)
+  py_run_file_impl(file)
 }
 
 

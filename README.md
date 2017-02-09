@@ -1,8 +1,6 @@
 R Interface to Python
 ================
 
-J.J. Allaire — 2017-02-08
-
 Overview
 --------
 
@@ -180,6 +178,14 @@ If you don't pass a function to `iterate` the results will be collected into an 
 ``` r
 results <- iterate(iter)
 ```
+
+Note that the `Iterators` will be drained of their values by `iterate()`:
+
+``` r
+a <- iterate(iter) # this is not empty
+b <- iterate(iter) # this is empty since items are drained
+```
+
 
 Advanced Functions
 ------------------

@@ -911,7 +911,7 @@ void py_initialize(const std::string& python,
   std::string err;
   if (!libPython().load(libpython, isPython3(), &err))
     stop(err);
-
+  
   if (isPython3()) {
 
     // set program name
@@ -927,7 +927,7 @@ void py_initialize(const std::string& python,
 
     // initialize python
     Py_Initialize();
-
+    
     const wchar_t *argv[1] = {s_python_v3.c_str()};
     PySys_SetArgv_v3(1, const_cast<wchar_t**>(argv));
 
@@ -954,11 +954,15 @@ void py_initialize(const std::string& python,
 
   // initialize type objects
   initialize_type_objects(isPython3());
-
+  
   // execute activate_this.py script for virtualenv if necessary
+  // but don't do it on windows as it appears to already get the 
+  // correct sys paths and calling this function here crashes!
+#ifndef _WIN32
   if (!virtualenv_activate.empty())
     py_run_file_impl(virtualenv_activate);
-
+#endif  
+  
   if (!import_numpy_api(isPython3(), &err))
     stop(err);
 
@@ -1294,13 +1298,15 @@ PyObjectRef py_run_file_impl(const std::string& file)
   // expand path
   Function pathExpand("path.expand");
   std::string expanded = as<std::string>(pathExpand(file));
-
+  
+  std::cerr << expanded << std::endl;
+  
   // open and run
   FILE* fp = ::fopen(expanded.c_str(), "r");
   if (fp) {
-    int res = PyRun_SimpleFileExFlags(fp, expanded.c_str(), 0, NULL);
-    if (res != 0)
-      stop(py_fetch_error());
+  //int res = PyRun_SimpleFileExFlags(fp, expanded.c_str(), 0, NULL);
+    //if (res != 0)
+      //stop(py_fetch_error());
 
     // return reference to main module
     PyObject* main = PyImport_AddModule("__main__");

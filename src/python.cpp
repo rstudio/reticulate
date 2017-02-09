@@ -1313,14 +1313,12 @@ PyObjectRef py_run_file_impl(const std::string& file)
   Function pathExpand("path.expand");
   std::string expanded = as<std::string>(pathExpand(file));
   
-  std::cerr << expanded << std::endl;
-  
   // open and run
   FILE* fp = ::fopen(expanded.c_str(), "r");
   if (fp) {
-  //int res = PyRun_SimpleFileExFlags(fp, expanded.c_str(), 0, NULL);
-    //if (res != 0)
-      //stop(py_fetch_error());
+  int res = PyRun_SimpleFileExFlags(fp, expanded.c_str(), 0, NULL);
+  if (res != 0)
+    stop(py_fetch_error());
 
     // return reference to main module
     PyObject* main = PyImport_AddModule("__main__");

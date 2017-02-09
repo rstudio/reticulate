@@ -4,11 +4,11 @@
 \alias{py_available}
 \title{Check if Python is available on this system}
 \usage{
-py_available(initialize = TRUE)
+py_available(initialize = FALSE)
 }
 \arguments{
 \item{initialize}{\code{TRUE} to attempt to initialize Python bindings if they
-aren't yet available.}
+aren't yet available (defaults to \code{FALSE}).}
 }
 \value{
 Logical indicating whether Python is initialized.

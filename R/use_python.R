@@ -27,8 +27,11 @@ use_python <- function(python, required = FALSE) {
 use_virtualenv <- function(virtualenv, required = FALSE) {
 
   # compute the bin dir
-  if (!is_windows())
+  if (is_windows())
+    python_dir <- file.path(virtualenv, "Scripts")
+  else
     python_dir <- file.path(virtualenv, "bin")
+  
 
   # validate it if required
   if (required) {
@@ -39,7 +42,10 @@ use_virtualenv <- function(virtualenv, required = FALSE) {
   }
 
   # set the option
-  use_python(file.path(python_dir, "python"))
+  python <- file.path(python_dir, "python")
+  if (is_windows())
+    python <- paste0(python, ".exe")
+  use_python(python)
 }
 
 #' @rdname use_python

@@ -14,14 +14,6 @@ vignette: >
 knitr::opts_chunk$set(eval = FALSE)
 ```
 
-<div id="author-region" style="display:none; margin-bottom: 15px;">
-J.J. Allaire &mdash; `r Sys.Date()`
-</div>
-
-```{js, eval=TRUE}
-document.getElementById("author-region").style.display = 'inherit';
-```
-
 ## Overview
 
 The **reticulate** package provides an R interface to Python modules, classes, and functions. For example, this code imports the Python `os` module and calls some functions within it:

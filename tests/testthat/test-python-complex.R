@@ -1,9 +1,6 @@
 context("complex numbers")
 
-# some helpers
-if (py_available(initialize = TRUE))
-  test <- import("rpytools.test")
-
+source("utils.R")
 
 test_that("Complex scalars are converted correctly", {
   skip_if_no_python()

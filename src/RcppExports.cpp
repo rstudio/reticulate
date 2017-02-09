@@ -40,6 +40,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// py_unicode_impl
+PyObjectRef py_unicode_impl(CharacterVector str);
+RcppExport SEXP reticulate_py_unicode_impl(SEXP strSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< CharacterVector >::type str(strSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_unicode_impl(str));
+    return rcpp_result_gen;
+END_RCPP
+}
 // py_str_impl
 CharacterVector py_str_impl(PyObjectRef x);
 RcppExport SEXP reticulate_py_str_impl(SEXP xSEXP) {

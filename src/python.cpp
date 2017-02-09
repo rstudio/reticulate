@@ -979,6 +979,20 @@ bool py_is_none(PyObjectRef x) {
   return py_is_none(x.get());
 }
 
+// [[Rcpp::export]]
+PyObjectRef py_unicode_impl(CharacterVector str) {
+  
+  // validate argument
+  if (str.length() != 1)
+    stop("unicode function requires a single element character vector");
+    
+  // do the conversion
+  SEXP charSEXP = str.at(0);
+  const char* value = Rf_translateCharUTF8(charSEXP);
+  PyObject* unicode = PyUnicode_FromString(value);
+  return py_ref(unicode);
+  
+}
 
 // [[Rcpp::export]]
 CharacterVector py_str_impl(PyObjectRef x) {

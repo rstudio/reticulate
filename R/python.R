@@ -319,6 +319,23 @@ tuple <- function(...) {
 }
 
 
+#' Convert to Python Unicode Object
+#' 
+#' @param str Single element character vector to convert
+#' 
+#' @details By default R character vectors are converted to Python strings.
+#'   In Python 3 these values are unicode objects however in Python 2 
+#'   they are 8-bit string objects. This function enables you to 
+#'   obtain a Python unicode object from an R character vector 
+#'   when running under Python 2.
+#' 
+#' @export
+py_unicode <- function(str) {
+  ensure_python_initialized()
+  py_unicode_impl(str)
+}
+
+
 
 #' Evaluate an expression within a context.
 #'

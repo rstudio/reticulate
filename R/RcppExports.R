@@ -13,6 +13,10 @@ py_is_none <- function(x) {
     .Call('reticulate_py_is_none', PACKAGE = 'reticulate', x)
 }
 
+py_unicode_impl <- function(str) {
+    .Call('reticulate_py_unicode_impl', PACKAGE = 'reticulate', str)
+}
+
 py_str_impl <- function(x) {
     .Call('reticulate_py_str_impl', PACKAGE = 'reticulate', x)
 }

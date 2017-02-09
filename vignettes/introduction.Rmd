@@ -208,6 +208,7 @@ There are several more advanced functions available that are useful principally 
 | py_call | Call a Python callable object with the specified arguments.  | 
 | py_capture_stdout | Capture all standard output for the specified expression and return it as an R character vector. | 
 | py_suppress_warnings | Execute the specified expression, suppressing the display Python warnings.   | 
+| py_unicode | Convert a string to a Python unicode object. |
 | py_str | Get the string representation of Python object. |
 | py_xptr_str | Evaluate an expression that prints a string with a check for a null externalptr. |
 | py_is_null_xptr | Check whether a Python object is a null externalptr. |

@@ -4,9 +4,13 @@
 \alias{py_available}
 \title{Check if Python is available on this system}
 \usage{
-py_available(initialize = TRUE)
+py_available(required_module = NULL, initialize = TRUE)
 }
 \arguments{
+\item{required_module}{Name of Python module the calling code is attempting
+to use (it will be given preference in the search for Python installations
+if initialization is requested and required).}
+
 \item{initialize}{\code{TRUE} to attempt to initialize Python bindings if they
 aren't yet available.}
 }

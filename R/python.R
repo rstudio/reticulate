@@ -138,8 +138,8 @@ str.python.builtin.module <- function(object, ...) {
   if (py_is_module_proxy(x)) 
     py_resolve_module_proxy(x)
   
-  # check if python is available  
-  if (!py_available())
+  # skip if this is a NULL xptr
+  if (py_is_null_xptr(x) || !py_available())
     return(NULL)
 
   # special handling for embedded modules (which don't always show

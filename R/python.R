@@ -153,37 +153,15 @@ str.python.builtin.module <- function(object, ...) {
   # default handling
   attrib <- py_get_attr(x, name)
   if (py_is_callable(attrib)) {
-    f <- function(...) {
-      args <- list()
-      keywords <- list()
-      dots <- list(...)
-      names <- names(dots)
-      if (!is.null(names)) {
-        for (i in 1:length(dots)) {
-          name <- names[[i]]
-          if (nzchar(name))
-            if (is.null(dots[[i]]))
-              keywords[name] <- list(NULL)
-            else
-              keywords[[name]] <- dots[[i]]
-          else
-            if (is.null(dots[[i]]))
-              args[length(args) + 1] <- list(NULL)
-            else
-              args[[length(args) + 1]] <- dots[[i]]
-        }
-      } else {
-        args <- dots
-      }
-      result = py_call(attrib, args, keywords)
-      if (is.null(result))
-        invisible(result)
-      else
-        result
-    }
+    
+    # make an R function
+    f <- py_callable_as_function(attrib)
+    
     # assign py_object attribute so it marshalls back to python
     # as a native python object
     attr(f, "py_object") <- attrib
+    
+    # return the function
     f
   } else {
     py_to_r(attrib)
@@ -389,6 +367,19 @@ with.python.builtin.object <- function(data, expr, as = NULL, ...) {
              }
            }
           )
+}
+
+#' @export
+as.function.python.builtin.object <- function(x, ...) {
+  
+  ensure_python_initialized()
+  
+  if (py_is_null_xptr(x))
+    stop("Python object is NULL so cannot be convereted to a function")
+  else if (py_is_callable(x))
+    py_callable_as_function(x)
+  else
+    stop("Python object is not callable so cannot be converted to a function.")
 }
 
 #' Create local alias for objects in \code{with} statements.
@@ -606,6 +597,38 @@ py_run_string <- function(code) {
 py_run_file <- function(file) {
   ensure_python_initialized()
   py_run_file_impl(file)
+}
+
+
+py_callable_as_function <- function(callable) {
+  function(...) {
+    args <- list()
+    keywords <- list()
+    dots <- list(...)
+    names <- names(dots)
+    if (!is.null(names)) {
+      for (i in 1:length(dots)) {
+        name <- names[[i]]
+        if (nzchar(name))
+          if (is.null(dots[[i]]))
+            keywords[name] <- list(NULL)
+          else
+            keywords[[name]] <- dots[[i]]
+          else
+            if (is.null(dots[[i]]))
+              args[length(args) + 1] <- list(NULL)
+            else
+              args[[length(args) + 1]] <- dots[[i]]
+      }
+    } else {
+      args <- dots
+    }
+    result = py_call(callable, args, keywords)
+    if (is.null(result))
+      invisible(result)
+    else
+      result
+  }
 }
 
 

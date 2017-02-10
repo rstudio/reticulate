@@ -984,21 +984,6 @@ bool py_is_none(PyObjectRef x) {
 }
 
 // [[Rcpp::export]]
-PyObjectRef py_unicode_impl(CharacterVector str) {
-  
-  // validate argument
-  if (str.length() != 1)
-    stop("unicode function requires a single element character vector");
-    
-  // do the conversion
-  SEXP charSEXP = str.at(0);
-  const char* value = Rf_translateCharUTF8(charSEXP);
-  PyObject* unicode = PyUnicode_FromString(value);
-  return py_ref(unicode);
-  
-}
-
-// [[Rcpp::export]]
 CharacterVector py_str_impl(PyObjectRef x) {
   PyObjectPtr str(PyObject_Str(x));
   if (str.is_null())
@@ -1139,6 +1124,7 @@ IntegerVector py_get_attribute_types(
   return types;
 }
 
+
 // [[Rcpp::export]]
 SEXP py_to_r(PyObjectRef x) {
   return py_to_r(x.get());
@@ -1147,16 +1133,18 @@ SEXP py_to_r(PyObjectRef x) {
 
 
 // [[Rcpp::export]]
-SEXP py_call_impl(PyObjectRef x, List args, List keywords = R_NilValue) {
+SEXP py_call_impl(PyObjectRef x, List args = R_NilValue, List keywords = R_NilValue, bool convert = true) {
 
   // unnamed arguments
   PyObjectPtr pyArgs(PyTuple_New(args.length()));
-  for (R_xlen_t i = 0; i<args.size(); i++) {
-    PyObject* arg = r_to_py(args.at(i));
-    // NOTE: reference to arg is "stolen" by the tuple
-    int res = PyTuple_SetItem(pyArgs, i, arg);
-    if (res != 0)
-      stop(py_fetch_error());
+  if (args.length() > 0) {
+    for (R_xlen_t i = 0; i<args.size(); i++) {
+      PyObject* arg = r_to_py(args.at(i));
+      // NOTE: reference to arg is "stolen" by the tuple
+      int res = PyTuple_SetItem(pyArgs, i, arg);
+      if (res != 0)
+        stop(py_fetch_error());
+    }
   }
 
   // named arguments
@@ -1181,7 +1169,13 @@ SEXP py_call_impl(PyObjectRef x, List args, List keywords = R_NilValue) {
     stop(py_fetch_error());
 
   // return as r object
-  return py_to_r(res);
+  if (convert)
+    return py_to_r(res);
+  else {
+    Py_IncRef(res);
+    return py_ref(res);
+  }
+    
 }
 
 

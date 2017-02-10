@@ -40,17 +40,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// py_unicode_impl
-PyObjectRef py_unicode_impl(CharacterVector str);
-RcppExport SEXP reticulate_py_unicode_impl(SEXP strSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< CharacterVector >::type str(strSEXP);
-    rcpp_result_gen = Rcpp::wrap(py_unicode_impl(str));
-    return rcpp_result_gen;
-END_RCPP
-}
 // py_str_impl
 CharacterVector py_str_impl(PyObjectRef x);
 RcppExport SEXP reticulate_py_str_impl(SEXP xSEXP) {
@@ -165,15 +154,16 @@ BEGIN_RCPP
 END_RCPP
 }
 // py_call_impl
-SEXP py_call_impl(PyObjectRef x, List args, List keywords);
-RcppExport SEXP reticulate_py_call_impl(SEXP xSEXP, SEXP argsSEXP, SEXP keywordsSEXP) {
+SEXP py_call_impl(PyObjectRef x, List args, List keywords, bool convert);
+RcppExport SEXP reticulate_py_call_impl(SEXP xSEXP, SEXP argsSEXP, SEXP keywordsSEXP, SEXP convertSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< PyObjectRef >::type x(xSEXP);
     Rcpp::traits::input_parameter< List >::type args(argsSEXP);
     Rcpp::traits::input_parameter< List >::type keywords(keywordsSEXP);
-    rcpp_result_gen = Rcpp::wrap(py_call_impl(x, args, keywords));
+    Rcpp::traits::input_parameter< bool >::type convert(convertSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_call_impl(x, args, keywords, convert));
     return rcpp_result_gen;
 END_RCPP
 }

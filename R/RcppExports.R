@@ -13,10 +13,6 @@ py_is_none <- function(x) {
     .Call('reticulate_py_is_none', PACKAGE = 'reticulate', x)
 }
 
-py_unicode_impl <- function(str) {
-    .Call('reticulate_py_unicode_impl', PACKAGE = 'reticulate', str)
-}
-
 py_str_impl <- function(x) {
     .Call('reticulate_py_str_impl', PACKAGE = 'reticulate', x)
 }
@@ -77,8 +73,8 @@ py_to_r <- function(x) {
     .Call('reticulate_py_to_r', PACKAGE = 'reticulate', x)
 }
 
-py_call_impl <- function(x, args, keywords = NULL) {
-    .Call('reticulate_py_call_impl', PACKAGE = 'reticulate', x, args, keywords)
+py_call_impl <- function(x, args = NULL, keywords = NULL, convert = TRUE) {
+    .Call('reticulate_py_call_impl', PACKAGE = 'reticulate', x, args, keywords, convert)
 }
 
 py_dict <- function(keys, items) {

@@ -316,7 +316,8 @@ tuple <- function(...) {
 #' @export
 py_unicode <- function(str) {
   ensure_python_initialized()
-  py_unicode_impl(str)
+  py <- import("__builtin__")
+  py_call(py_get_attr(py, "unicode"), args = list(str), convert = FALSE)
 }
 
 
@@ -462,18 +463,20 @@ print.python.builtin.iterator <- function(x, ...) {
 }
 
 #' Call a Python callable object
-#'
+#' 
 #' @param args List of unnamed arguments
 #' @param keywords List of named arguments
-#'
+#' @param convert `TRUE` to convert the return value to R (otherwise keep it as
+#'   a Python object).
+#'   
 #' @return Return value of call
-#'
+#'   
 #' @keywords internal
-#'
+#'   
 #' @export
-py_call <- function(x, args, keywords = NULL) {
+py_call <- function(x, args = NULL, keywords = NULL, convert = TRUE) {
   ensure_python_initialized()
-  py_call_impl(x, args, keywords)
+  py_call_impl(x, args, keywords, convert)
 }
 
 

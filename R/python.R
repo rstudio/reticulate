@@ -149,6 +149,12 @@ str.python.builtin.module <- function(object, ...) {
     if (!is.null(module))
       return(module)
   }
+  
+  # convert 'call' to '__call__' if we aren't masking an underlying 'call'
+  if (identical(name, "call") &&  
+      !py_has_attr(x, "call") && py_has_attr(x, "__call__")) {
+    name <- "__call__"
+  }
 
   # default handling
   attrib <- py_get_attr(x, name)

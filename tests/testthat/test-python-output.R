@@ -4,7 +4,9 @@ source("utils.R")
 
 capture_test_output <- function(type) {
   py_capture_output(type = type, { 
-    sys$stdout$write("out"); 
+    if ("stdout" %in% type)
+      sys$stdout$write("out"); 
+    if ("stderr" %in% type)
     sys$stderr$write("err"); 
   })
 }

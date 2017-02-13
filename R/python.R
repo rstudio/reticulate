@@ -60,42 +60,16 @@ print.python.builtin.object <- function(x, ...) {
 #' @importFrom utils str
 #' @export
 str.python.builtin.object <- function(object, ...) {
-
-  if (py_is_null_xptr(object) || !py_available()) {
-
-    cat("<pointer: 0x0>\n")
-
-  } else {
-
-    # call python str method
-    str <- py_str(object)
-
-    # pick out class name for case when there is no str method
-    match <- regexpr("[A-Z]\\w+ object at ", str)
-    if (match != -1)
-      str <- gsub(" object at ", "", regmatches(str, match))
-
-    # print str
-    cat(str, "\n", sep="")
-  }
+  cat(py_str(object), "\n", sep="")
 }
 
 #' @export
 str.python.builtin.module <- function(object, ...) {
-
   if (py_is_module_proxy(object)) {
-    
     cat("Module(", get("module", envir = object), ")\n", sep = "")
-    
-  } else if (py_is_null_xptr(object) || !py_available()) {
-
-    cat("<pointer: 0x0>\n")
-
   } else {
-
-    cat("Module(", py_str(py_get_attr(object, "__name__")), ")", sep = "")
-
-  }
+    cat(py_str(object), "\n", sep = "")
+  } 
 }
 
 
@@ -502,18 +476,50 @@ py_list_attributes <- function(x) {
 }
 
 
-#' String representation of a Python object
+#' An S3 method for getting the string representation of a Python object
 #' 
 #' @param x Python object
+#' @param ... Unused
 #' 
-#' @return Character vector with result of calling `PyObject_Str` on the object.
+#' @return Character vector 
+#' 
+#' @details The default implementation will call `PyObject_Str` on the object.
+#' 
 #' 
 #' @export
-py_str <- function(x) {
-  ensure_python_initialized()
-  py_str_impl(x)
+py_str <- function(x, ...) {
+  if (!inherits(x, "python.builtin.object"))
+    py_str.default(x)
+  else if (py_is_null_xptr(x) || !py_available())
+    "<pointer: 0x0>"
+  else
+    UseMethod("py_str")
 }
 
+#' @export
+py_str.default <- function(x, ...) {
+  "<not a python object>"
+}
+
+#' @export
+py_str.python.builtin.object <- function(x, ...) {
+  
+  # get default rep
+  str <- py_str_impl(x)
+  
+  # pick out class name for cases where there is python str method
+  match <- regexpr("[A-Z]\\w+ object at ", str)
+  if (match != -1)
+    str <- gsub(" object at ", "", regmatches(str, match))
+  
+  # return
+  str
+}
+
+#' @export
+py_str.python.builtin.module <- function(x, ...) {
+  paste0("Module(", x$`__name__`, ")")
+}
 
 #' Suppress Python warnings for an expression
 #'

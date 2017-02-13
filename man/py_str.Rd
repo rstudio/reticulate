@@ -2,16 +2,21 @@
 % Please edit documentation in R/python.R
 \name{py_str}
 \alias{py_str}
-\title{String representation of a Python object}
+\title{An S3 method for getting the string representation of a Python object}
 \usage{
-py_str(x)
+py_str(x, ...)
 }
 \arguments{
 \item{x}{Python object}
+
+\item{...}{Unused}
 }
 \value{
-Character vector with result of calling \code{PyObject_Str} on the object.
+Character vector
 }
 \description{
-String representation of a Python object
+An S3 method for getting the string representation of a Python object
+}
+\details{
+The default implementation will call \code{PyObject_Str} on the object.
 }

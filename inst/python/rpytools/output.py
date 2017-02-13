@@ -12,3 +12,16 @@ def end_stdout_capture(restore):
   sys.stdout.close()
   sys.stdout = restore
   return output
+
+def start_stderr_capture():
+  restore = sys.stderr
+  sys.stderr = StringIO()
+  return restore
+
+def end_stderr_capture(restore):
+  output = sys.stderr.getvalue()
+  sys.stderr.close()
+  sys.stderr = restore
+  return output
+
+  

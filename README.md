@@ -237,8 +237,8 @@ There are several more advanced functions available that are useful principally 
 <td>Call a Python callable object with the specified arguments.</td>
 </tr>
 <tr class="even">
-<td>py_capture_stdout</td>
-<td>Capture all standard output for the specified expression and return it as an R character vector.</td>
+<td>py_capture_output</td>
+<td>Capture Python output for the specified expression and return it as an R character vector.</td>
 </tr>
 <tr class="odd">
 <td>py_suppress_warnings</td>

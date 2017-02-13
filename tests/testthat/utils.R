@@ -3,6 +3,7 @@
 if (py_available(initialize = TRUE)) {
   test <- import("rpytools.test")
   inspect <- import("inspect") 
+  sys <- import("sys")
   np <- import("numpy")
 }
 

@@ -557,32 +557,65 @@ register_suppress_warnings_handler <- function(handler) {
 }
 
 
-#' Capture and return Python stdout
+#' Capture and return Python output
 #'
 #' @param expr Expression to capture stdout for
+#' @param type Streams to capture (defaults to both stdout and stderr)
 #'
 #' @return Character vector with output
 #'
 #' @export
-py_capture_stdout <- function(expr) {
+py_capture_output <- function(expr, type = c("stdout", "stderr")) {
 
+  # initialize python if necessary
   ensure_python_initialized()
-
+  
+  # resolve type argument
+  type <- match.arg(type, several.ok = TRUE)
+ 
+  # get output tools helper functions
   output_tools <- import("rpytools.output")
 
-  restore <- output_tools$start_stdout_capture()
+  # handle stdout
+  restore_stdout <- NULL
+  if ("stdout" %in% type) {
+    restore_stdout <- output_tools$start_stdout_capture()
+    on.exit({
+      if (!is.null(restore_stdout))
+        output_tools$end_stdout_capture(restore_stdout)
+    }, add = TRUE)
+  }
 
-  on.exit({
-    if (!is.null(restore))
-      output_tools$end_stdout_capture(restore)
-  }, add = TRUE)
-
+  # handle stderr
+  restore_stderr <- NULL
+  if ("stderr" %in% type) {
+    restore_stderr <- output_tools$start_stderr_capture()
+    on.exit({
+      if (!is.null(restore_stderr))
+        output_tools$end_stderr_capture(restore_stderr)
+    }, add = TRUE)
+  }
+  
+  # evaluate the expression
   force(expr)
 
-  output <- output_tools$end_stdout_capture(restore)
-  restore <- NULL
+  # collect the output
+  output <- ""
+  if (!is.null(restore_stdout)) {
+    output <- paste0(output_tools$end_stdout_capture(restore_stdout), "\n")
+    restore_stdout <- NULL
+  }
+  if (!is.null(restore_stderr)) {
+    output <- paste0(output, output_tools$end_stderr_capture(restore_stderr), "\n")
+    restore_stderr <- NULL
+  }
+ 
+  # return the output
   output
 }
+
+
+
 
 #' Run Python code
 #'

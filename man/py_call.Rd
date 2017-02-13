@@ -4,12 +4,15 @@
 \alias{py_call}
 \title{Call a Python callable object}
 \usage{
-py_call(x, args, keywords = NULL)
+py_call(x, args = NULL, keywords = NULL, convert = TRUE)
 }
 \arguments{
 \item{args}{List of unnamed arguments}
 
 \item{keywords}{List of named arguments}
+
+\item{convert}{\code{TRUE} to convert the return value to R (otherwise keep it as
+a Python object).}
 }
 \value{
 Return value of call

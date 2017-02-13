@@ -225,38 +225,42 @@ There are several more advanced functions available that are useful principally 
 <td>Check whether a Python interface is available on this system.</td>
 </tr>
 <tr class="odd">
+<td>py_module_available</td>
+<td>Check whether a Python module is available on this system.</td>
+</tr>
+<tr class="even">
 <td>py_has_attr</td>
 <td>Check if an object has a specified attribute.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>py_get_attr</td>
 <td>Get an attribute of a Python object.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>py_call</td>
 <td>Call a Python callable object with the specified arguments.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>py_capture_output</td>
 <td>Capture Python output for the specified expression and return it as an R character vector.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>py_suppress_warnings</td>
 <td>Execute the specified expression, suppressing the display Python warnings.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>py_unicode</td>
 <td>Convert a string to a Python unicode object.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>py_str</td>
 <td>Get the string representation of Python object.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>py_xptr_str</td>
 <td>Evaluate an expression that prints a string with a check for a null externalptr.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>py_is_null_xptr</td>
 <td>Check whether a Python object is a null externalptr.</td>
 </tr>

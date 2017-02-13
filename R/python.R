@@ -57,25 +57,6 @@ print.python.builtin.object <- function(x, ...) {
 }
 
 
-#' Evaluate an expression that prints a string with 
-#' a check for a null externalptr
-#' 
-#' @param x Python object
-#' @param expr R expression that uses the object
-#'   to print a string.
-#'   
-#' @details If the object is a null externalptr
-#'   then \code{<pointer: 0x0>} will be printed. 
-#'   Otherwise the expression will be evaluated.
-#' 
-#' @export
-py_xptr_str <- function(x, expr) {
-  if (py_is_null_xptr(x) || !py_available())
-    cat("<pointer: 0x0>\n")
-  else
-    force(expr)
-}
-
 #' @importFrom utils str
 #' @export
 str.python.builtin.object <- function(object, ...) {
@@ -112,10 +93,8 @@ str.python.builtin.module <- function(object, ...) {
 
   } else {
 
-    py_xptr_str(object,
-                cat("Module(", py_str(py_get_attr(object, "__name__")),
-                    ")\n", sep="")
-    )
+    cat("Module(", py_str(py_get_attr(object, "__name__")), ")", sep = "")
+
   }
 }
 

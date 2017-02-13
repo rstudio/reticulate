@@ -278,36 +278,11 @@ These functions enable you to capture or suppress output from Python:
 
 The functions provide miscellaneous other lower-level capabilities:
 
-<table style="width:100%;">
-<colgroup>
-<col width="20%" />
-<col width="79%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th>Function</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>py_unicode</td>
-<td>Convert a string to a Python unicode object.</td>
-</tr>
-<tr class="even">
-<td>py_str</td>
-<td>Get the string representation of Python object.</td>
-</tr>
-<tr class="odd">
-<td>py_xptr_str</td>
-<td>Evaluate an expression that prints a string with a check for a null externalptr.</td>
-</tr>
-<tr class="even">
-<td>py_is_null_xptr</td>
-<td>Check whether a Python object is a null externalptr.</td>
-</tr>
-</tbody>
-</table>
+| Function           | Description                                          |
+|--------------------|------------------------------------------------------|
+| py\_unicode        | Convert a string to a Python unicode object.         |
+| py\_str            | Get the string representation of Python object.      |
+| py\_is\_null\_xptr | Check whether a Python object is a null externalptr. |
 
 Using in a Package
 ------------------

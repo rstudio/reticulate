@@ -470,7 +470,7 @@ print.python.builtin.iterator <- function(x, ...) {
 #' @export
 py_call <- function(x, ...) {
   ensure_python_initialized()
-  dots <- py_resolve_dots(...)
+  dots <- py_resolve_dots(list(...))
   py_call_impl(x, dots$args, dots$keywords)
 }
 

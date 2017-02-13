@@ -189,7 +189,7 @@ b <- iterate(iter) # results are empty since items have already been drained
 Callable Objects
 ----------------
 
-In addition to acessing their methods and properites, some Python objects are also callable (meaning they can be invoked with parameters just like an ordinary function). Callable Python objects are returned to R as objects rather than functions, however, you can still execute the callable function via the `$call()` method, for example:
+In addition to accessing their methods and properties, some Python objects are also callable (meaning they can be invoked with parameters just like an ordinary function). Callable Python objects are returned to R as objects rather than functions, however, you can still execute the callable function via the `$call()` method, for example:
 
 ``` r
 # get a callable object
@@ -262,3 +262,39 @@ There are several more advanced functions available that are useful principally 
 </tr>
 </tbody>
 </table>
+
+Using in a Package
+------------------
+
+If you use **reticulate** in another R package you need to account for the fact that when your package is submitted to CRAN, the CRAN test servers may not have Python, NumPy, or whatever other Python modules you are wrapping in your package. If you don't do this then your package may fail to load and/or pass it's tests when run on CRAN.
+
+There are two things you should do to ensure your package is well behaved on CRAN:
+
+1.  When importing Python modules for use inside your package you should use the `delay_load` option to ensure that the module (and Python) is loaded only on it's first use. For example:
+
+    ``` r
+    # python 'foo' module I want to use in my package
+    foo <- NULL
+
+    .onLoad <- function(libname, pkgname) {
+      # delay load foo module (will only be loaded when accessed via $)
+      foo <<- import("foo", delay_load = TRUE)
+    }
+    ```
+
+2.  When writing tests, check to see if your module is available and if it isn't then skip the test. For example, if you are using the **testthat** package, you might do this:
+
+    ``` r
+    # helper function to skip tests if we don't have the 'foo' module
+    skip_if_no_foo <- function() {
+      have_foo <- py_module_available("foo")
+      if (!have_foo)
+        skip("foo not available for testing")
+    }
+
+    # then call this function from all of your tests
+    test_that("Things work as expected", {
+      skip_if_no_foo()
+      # test code here...
+    })
+    ```

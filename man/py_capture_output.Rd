@@ -4,12 +4,12 @@
 \alias{py_capture_output}
 \title{Capture and return Python output}
 \usage{
-py_capture_output(expr, capture = c("all", "stdout", "stderr"))
+py_capture_output(expr, type = c("stdout", "stderr"))
 }
 \arguments{
 \item{expr}{Expression to capture stdout for}
 
-\item{capture}{Streams to capture}
+\item{type}{Streams to capture (defaults to both stdout and stderr)}
 }
 \value{
 Character vector with output

@@ -35,6 +35,18 @@ py_available <- function(initialize = FALSE) {
   }
 }
 
+#' Check if a Python module is available on this system.
+#' 
+#' @param module Name of module
+#'   
+#' @return Logical indicating whether module is available
+#'   
+#' @export
+py_module_available <- function(module) {
+  tryCatch({ import(module); TRUE }, error = function(e) FALSE)
+}
+
+
 py_discover_config <- function(required_module) {
 
   # create a list of possible python versions to bind to

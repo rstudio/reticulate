@@ -95,6 +95,16 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// py_validate_xptr
+void py_validate_xptr(PyObjectRef x);
+RcppExport SEXP reticulate_py_validate_xptr(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< PyObjectRef >::type x(xSEXP);
+    py_validate_xptr(x);
+    return R_NilValue;
+END_RCPP
+}
 // py_have_numpy
 bool py_have_numpy();
 RcppExport SEXP reticulate_py_have_numpy() {

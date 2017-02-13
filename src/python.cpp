@@ -1054,11 +1054,25 @@ bool py_is_function(PyObjectRef x) {
 //'  externalptr objects (since the Python session they were originally
 //'  connected to no longer exists). This function allows you to safely
 //'  check whether whether a Python object is a null externalptr. 
+//'  
+//'  The `py_validate` function is a convenience function which calls
+//'  `py_is_null_xptr` and throws an error in the case that the xptr
+//'  is `NULL`.
 //' 
 //' @export
 // [[Rcpp::export]]
 bool py_is_null_xptr(PyObjectRef x) {
   return x.get() == NULL;
+}
+
+//' @rdname py_is_null_xptr
+//' @export
+// [[Rcpp::export]]
+void py_validate_xptr(PyObjectRef x) {
+  if (py_is_null_xptr(x)) {
+    stop("Object is a null externalptr (it may have been disconnected from "
+         " the session where it was created)");
+  }
 }
 
 

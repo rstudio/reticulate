@@ -2,9 +2,12 @@
 % Please edit documentation in R/RcppExports.R
 \name{py_is_null_xptr}
 \alias{py_is_null_xptr}
+\alias{py_validate_xptr}
 \title{Check if a Python object is a null externalptr}
 \usage{
 py_is_null_xptr(x)
+
+py_validate_xptr(x)
 }
 \arguments{
 \item{x}{Python object}
@@ -21,4 +24,8 @@ environment (e.g. .RData file) they are deserialized into null
 externalptr objects (since the Python session they were originally
 connected to no longer exists). This function allows you to safely
 check whether whether a Python object is a null externalptr.
+
+The \code{py_validate} function is a convenience function which calls
+\code{py_is_null_xptr} and throws an error in the case that the xptr
+is \code{NULL}.
 }

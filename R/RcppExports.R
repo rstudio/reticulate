@@ -40,10 +40,20 @@ py_is_function <- function(x) {
 #'  externalptr objects (since the Python session they were originally
 #'  connected to no longer exists). This function allows you to safely
 #'  check whether whether a Python object is a null externalptr. 
+#'  
+#'  The `py_validate` function is a convenience function which calls
+#'  `py_is_null_xptr` and throws an error in the case that the xptr
+#'  is `NULL`.
 #' 
 #' @export
 py_is_null_xptr <- function(x) {
     .Call('reticulate_py_is_null_xptr', PACKAGE = 'reticulate', x)
+}
+
+#' @rdname py_is_null_xptr
+#' @export
+py_validate_xptr <- function(x) {
+    invisible(.Call('reticulate_py_validate_xptr', PACKAGE = 'reticulate', x))
 }
 
 #' Check whether a NumPy interface is available

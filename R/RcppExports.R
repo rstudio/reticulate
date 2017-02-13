@@ -56,11 +56,8 @@ py_validate_xptr <- function(x) {
     invisible(.Call('reticulate_py_validate_xptr', PACKAGE = 'reticulate', x))
 }
 
-#' Check whether a NumPy interface is available
-#' 
-#' @export
-py_have_numpy <- function() {
-    .Call('reticulate_py_have_numpy', PACKAGE = 'reticulate')
+py_numpy_available_impl <- function() {
+    .Call('reticulate_py_numpy_available_impl', PACKAGE = 'reticulate')
 }
 
 py_list_attributes_impl <- function(x) {

@@ -1076,11 +1076,8 @@ void py_validate_xptr(PyObjectRef x) {
 }
 
 
-//' Check whether a NumPy interface is available
-//' 
-//' @export
 // [[Rcpp::export]]
-bool py_have_numpy() {
+bool py_numpy_available_impl() {
   return haveNumPy();
 }
 

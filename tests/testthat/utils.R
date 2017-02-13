@@ -15,7 +15,7 @@ skip_if_no_python <- function() {
 
 skip_if_no_numpy <- function() {
   skip_if_no_python()
-  if (!py_have_numpy())
+  if (!py_numpy_available())
     skip("NumPy not available for testing.")
 }
 

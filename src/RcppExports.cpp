@@ -105,13 +105,13 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
-// py_have_numpy
-bool py_have_numpy();
-RcppExport SEXP reticulate_py_have_numpy() {
+// py_numpy_available_impl
+bool py_numpy_available_impl();
+RcppExport SEXP reticulate_py_numpy_available_impl() {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    rcpp_result_gen = Rcpp::wrap(py_have_numpy());
+    rcpp_result_gen = Rcpp::wrap(py_numpy_available_impl());
     return rcpp_result_gen;
 END_RCPP
 }

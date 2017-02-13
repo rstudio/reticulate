@@ -231,8 +231,9 @@ The following functions enable you to query for information about the Python con
 | Function  | Description | 
 |----------------|------------------------------------------------------------------|
 | py_available | Check whether a Python interface is available on this system. |
-| py_config | Get information on the location and version of Python in use.  | 
+| py_numpy_available | Check whether the R interface to NumPy is available (requires NumPy >= 1.6) |
 | py_module_available | Check whether a Python module is available on this system. |
+| py_config | Get information on the location and version of Python in use.  | 
 
 
 ### Output Control

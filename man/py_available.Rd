@@ -2,9 +2,12 @@
 % Please edit documentation in R/config.R
 \name{py_available}
 \alias{py_available}
+\alias{py_numpy_available}
 \title{Check if Python is available on this system}
 \usage{
 py_available(initialize = FALSE)
+
+py_numpy_available(initialize = FALSE)
 }
 \arguments{
 \item{initialize}{\code{TRUE} to attempt to initialize Python bindings if they
@@ -15,4 +18,9 @@ Logical indicating whether Python is initialized.
 }
 \description{
 Check if Python is available on this system
+}
+\note{
+The \code{py_numpy_available} function is a superset of the
+\code{py_available} function (it calls \code{py_available} first before
+checking for NumPy).
 }

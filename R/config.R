@@ -21,6 +21,10 @@ py_config <- function() {
 #'   
 #' @return Logical indicating whether Python is initialized.
 #'   
+#' @note The `py_numpy_available` function is a superset of the
+#'  `py_available` function (it calls `py_available` first before
+#'  checking for NumPy).   
+#'   
 #' @export
 py_available <- function(initialize = FALSE) {
   if (is_python_initialized())
@@ -34,6 +38,17 @@ py_available <- function(initialize = FALSE) {
     FALSE
   }
 }
+
+
+#' @rdname py_available
+#' @export
+py_numpy_available <- function(initialize = FALSE) {
+  if (!py_available(initialize = initialize))
+    FALSE
+  else
+    py_numpy_available_impl()
+}
+
 
 #' Check if a Python module is available on this system.
 #' 

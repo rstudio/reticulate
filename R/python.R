@@ -478,34 +478,33 @@ py_list_attributes <- function(x) {
 
 #' An S3 method for getting the string representation of a Python object
 #' 
-#' @param x Python object
+#' @param object Python object
 #' @param ... Unused
 #' 
 #' @return Character vector 
 #' 
 #' @details The default implementation will call `PyObject_Str` on the object.
 #' 
-#' 
 #' @export
-py_str <- function(x, ...) {
-  if (!inherits(x, "python.builtin.object"))
-    py_str.default(x)
-  else if (py_is_null_xptr(x) || !py_available())
+py_str <- function(object, ...) {
+  if (!inherits(object, "python.builtin.object"))
+    py_str.default(object)
+  else if (py_is_null_xptr(object) || !py_available())
     "<pointer: 0x0>"
   else
     UseMethod("py_str")
 }
 
 #' @export
-py_str.default <- function(x, ...) {
+py_str.default <- function(object, ...) {
   "<not a python object>"
 }
 
 #' @export
-py_str.python.builtin.object <- function(x, ...) {
+py_str.python.builtin.object <- function(object, ...) {
   
   # get default rep
-  str <- py_str_impl(x)
+  str <- py_str_impl(object)
   
   # pick out class name for cases where there is python str method
   match <- regexpr("[A-Z]\\w+ object at ", str)
@@ -517,8 +516,8 @@ py_str.python.builtin.object <- function(x, ...) {
 }
 
 #' @export
-py_str.python.builtin.module <- function(x, ...) {
-  paste0("Module(", x$`__name__`, ")")
+py_str.python.builtin.module <- function(object, ...) {
+  paste0("Module(", object$`__name__`, ")")
 }
 
 #' Suppress Python warnings for an expression

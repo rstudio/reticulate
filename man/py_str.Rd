@@ -4,10 +4,10 @@
 \alias{py_str}
 \title{An S3 method for getting the string representation of a Python object}
 \usage{
-py_str(x, ...)
+py_str(object, ...)
 }
 \arguments{
-\item{x}{Python object}
+\item{object}{Python object}
 
 \item{...}{Unused}
 }

@@ -4,8 +4,8 @@
 #' R interface to Python modules, classes, and functions. When calling into 
 #' Python R data types are automatically converted to their equivalent Python 
 #' types. When values are returned from Python to R they are converted back to R
-#' types. The reticulate package is compatible with all versions of Python >= 2.7 and 
-#' in addition requires NumPy >= 1.11.
+#' types. The reticulate package is compatible with all versions of Python >= 2.7.
+#' Integrate with NumPy requires NumPy version 1.6 or higher.
 #' 
 #' @docType package
 #' @name reticulate
@@ -51,21 +51,24 @@ initialize_python <- function(required_module = NULL) {
     stop("Installation of Python not found, Python bindings not loaded.")
   } else if (!file.exists(config$libpython)) {
     stop("Python shared library '", config$libpython, "' not found, Python bindings not loaded.")
-  } else if (is.null(config$numpy)) {
-    stop("Installation of Numpy not found, Python bindings not loaded.")
-  } else if (config$numpy$version < "1.11") {
-    stop("Installation of Numpy >= 1.11 not found, Python bindings not loaded.")
   } else if (is_incompatible_arch(config)) {
     stop("Your current architecture is ", python_arch(), " however this version of ",
          "Python is compiled for ", config$architecture, ".")
   }
 
+  # check numpy version and provide a load error message if we don't satisfy it
+  if (is.null(config$numpy) || config$numpy$version < "1.6") 
+    numpy_load_error <- "installation of Numpy >= 1.6 not found"
+  else
+    numpy_load_error <- ""
+  
   # initialize python
   py_initialize(config$python,
                 config$libpython,
                 config$pythonhome,
                 config$virtualenv_activate,
-                config$version >= "3.0");
+                config$version >= "3.0",
+                numpy_load_error)
 
   # set available flag indicating we have py bindings
   config$available <- TRUE

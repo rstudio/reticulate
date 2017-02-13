@@ -3,6 +3,7 @@
 #define __LIBPYTHON_HPP__
 
 #include <string>
+#include <ostream>
 #include <stdint.h>
 
 #ifndef LIBPYTHON_CPP
@@ -356,6 +357,21 @@ typedef struct tagPyArrayObject_fields {
 
 LIBPYTHON_EXTERN void **PyArray_API;
 
+
+// has not changed in 6 years, if it changes then it implies that our PyArray_API
+// indexes may be off
+// see: https://github.com/numpy/numpy/blame/master/numpy/core/setup_common.py#L26
+#define NPY_VERSION 0x01000009
+
+// checks for numpy 1.6 / 1.7
+// see: https://github.com/numpy/numpy/blob/master/numpy/core/code_generators/cversions.txt
+#define NPY_1_6_API_VERSION 0x00000006
+#define NPY_1_7_API_VERSION 0x00000007
+
+#define PyArray_GetNDArrayCVersion (*(unsigned int (*)(void)) PyArray_API[0])
+
+#define PyArray_GetNDArrayCFeatureVersion (*(unsigned int (*)(void)) PyArray_API[211])
+
 #define PyArray_Type (*(PyTypeObject *)PyArray_API[2])
 
 #define PyGenericArrType_Type (*(PyTypeObject *)PyArray_API[10])
@@ -392,6 +408,8 @@ inline void* PyArray_DATA(PyArrayObject *arr) {
   return ((PyArrayObject_fields *)arr)->data;
 }
 
+#define PyArray_BASE(arr) (((PyArrayObject_fields *)(arr))->base)
+
 inline npy_intp* PyArray_DIMS(PyArrayObject *arr) {
   return ((PyArrayObject_fields *)arr)->dimensions;
 }
@@ -418,35 +436,7 @@ inline int PyArray_NDIM(const PyArrayObject *arr) {
          (PyArray_IsZeroDim(m)))                                 \
 
 
-inline bool import_numpy_api(bool python3, std::string* pError) {
-
-  PyObject* numpy = PyImport_ImportModule("numpy.core.multiarray");
-  if (numpy == NULL) {
-    *pError = "numpy.core.multiarray failed to import";
-    return false;
-  }
-
-  PyObject* c_api = PyObject_GetAttrString(numpy, "_ARRAY_API");
-  Py_DecRef(numpy);
-  if (c_api == NULL) {
-    *pError = "numpy.core.multiarray _ARRAY_API not found";
-    return false;
-  }
-
-  // get api pointer
-  if (python3)
-    PyArray_API = (void **)PyCapsule_GetPointer(c_api, NULL);
-  else
-    PyArray_API = (void **)PyCObject_AsVoidPtr(c_api);
-
-  Py_DecRef(c_api);
-  if (PyArray_API == NULL) {
-    *pError = "_ARRAY_API is NULL pointer";
-    return false;
-  }
-
-  return true;
-}
+bool import_numpy_api(bool python3, std::string* pError);
 
 #define NPY_ARRAY_F_CONTIGUOUS    0x0002
 #define NPY_ARRAY_ALIGNED         0x0100

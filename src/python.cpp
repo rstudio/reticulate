@@ -13,11 +13,37 @@ bool s_isPython3 = false;
 bool isPython3() {
   return s_isPython3;
 }
+
+// track whether we have required numpy
+std::string s_numpy_load_error;
+bool haveNumPy() {
+  return s_numpy_load_error.empty();
+}
+bool requireNumPy() {
+  if (!haveNumPy())
+    stop("Required version of NumPy not available: " + s_numpy_load_error);
+  return true;
+}
+bool isPyArray(PyObject* object) {
+  if (!haveNumPy())
+    return false;
+  else 
+    return PyArray_Check(object);
+}
+bool isPyArrayScalar(PyObject* object) {
+  if (!haveNumPy())
+    return false;
+  else
+    return PyArray_CheckScalar(object);
+}
+
 // static buffers for Py_SetProgramName / Py_SetPythonHome
 std::string s_python;
 std::wstring s_python_v3;
 std::string s_pythonhome;
 std::wstring s_pythonhome_v3;
+
+
 
 // helper to convert std::string to std::wstring
 std::wstring to_wstring(const std::string& str) {
@@ -487,7 +513,7 @@ SEXP py_to_r(PyObject* x) {
   }
 
   // numpy array
-  else if (PyArray_Check(x)) {
+  else if (isPyArray(x)) {
 
     // get the array
     PyArrayObject* array = (PyArrayObject*)x;
@@ -558,7 +584,7 @@ SEXP py_to_r(PyObject* x) {
   }
 
   // check for numpy scalar
-  else if (PyArray_CheckScalar(x)) {
+  else if (isPyArrayScalar(x)) {
 
     // determine the type to convert to
     PyArray_DescrPtr descrPtr(PyArray_DescrFromScalar(x));
@@ -643,8 +669,8 @@ PyObject* r_to_py(RObject x) {
     Py_IncRef(obj.get());
     return obj.get();
 
-  // convert arrays and matrixes to numpy
-  } else if (x.hasAttribute("dim")) {
+  // convert arrays and matrixes to numpy (throw error if numpy not available)
+  } else if (x.hasAttribute("dim") && requireNumPy()) {
 
     IntegerVector dimAttrib = x.attr("dim");
     int nd = dimAttrib.length();
@@ -692,11 +718,15 @@ PyObject* r_to_py(RObject x) {
     // (so the R doesn't deallocate the memory while python is still pointing to it)
     PyObjectPtr capsule(r_object_capsule(x));
 
-    // set the array's base object to the capsule (detach since PyArray_SetBaseObject
-    // steals a reference to the provided base object)
-    int res = PyArray_SetBaseObject((PyArrayObject *)array, capsule.detach());
-    if (res != 0)
-      stop(py_fetch_error());
+    // set base object using correct version of the API (detach since this
+    // effectively steals a reference to the provided base object)
+    if (PyArray_GetNDArrayCFeatureVersion() >= NPY_1_7_API_VERSION) {
+      int res = PyArray_SetBaseObject((PyArrayObject *)array, capsule.detach());
+      if (res != 0)
+        stop(py_fetch_error());
+    } else {
+      PyArray_BASE(array) = capsule.detach();
+    }
 
     // return it
     return array;
@@ -902,7 +932,8 @@ void py_initialize(const std::string& python,
                    const std::string& libpython,
                    const std::string& pythonhome,
                    const std::string& virtualenv_activate,
-                   bool python3) {
+                   bool python3,
+                   const std::string& numpy_load_error) {
 
   // set python3 flag
   s_isPython3 = python3;
@@ -963,9 +994,11 @@ void py_initialize(const std::string& python,
     py_run_file_impl(virtualenv_activate);
 #endif  
   
-  if (!import_numpy_api(isPython3(), &err))
-    stop(err);
-
+  // resovlve numpy
+  if (numpy_load_error.empty())
+    import_numpy_api(isPython3(), &s_numpy_load_error);
+  else
+    s_numpy_load_error = numpy_load_error;
 }
 
 // [[Rcpp::export]]
@@ -1026,6 +1059,15 @@ bool py_is_function(PyObjectRef x) {
 // [[Rcpp::export]]
 bool py_is_null_xptr(PyObjectRef x) {
   return x.get() == NULL;
+}
+
+
+//' Check whether a NumPy interface is available
+//' 
+//' @export
+// [[Rcpp::export]]
+bool py_have_numpy() {
+  return haveNumPy();
 }
 
 
@@ -1106,7 +1148,7 @@ IntegerVector py_get_attribute_types(
              PyTuple_Check(attr) ||
              PyDict_Check(attr))
       types[i] = LIST;
-    else if (PyArray_Check(attr))
+    else if (haveNumPy() && PyArray_Check(attr))
       types[i] = ARRAY;
     else if (PyBool_Check(attr)   ||
              PyInt_Check(attr)    ||

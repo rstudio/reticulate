@@ -7,8 +7,8 @@
 using namespace Rcpp;
 
 // py_initialize
-void py_initialize(const std::string& python, const std::string& libpython, const std::string& pythonhome, const std::string& virtualenv_activate, bool python3);
-RcppExport SEXP reticulate_py_initialize(SEXP pythonSEXP, SEXP libpythonSEXP, SEXP pythonhomeSEXP, SEXP virtualenv_activateSEXP, SEXP python3SEXP) {
+void py_initialize(const std::string& python, const std::string& libpython, const std::string& pythonhome, const std::string& virtualenv_activate, bool python3, const std::string& numpy_load_error);
+RcppExport SEXP reticulate_py_initialize(SEXP pythonSEXP, SEXP libpythonSEXP, SEXP pythonhomeSEXP, SEXP virtualenv_activateSEXP, SEXP python3SEXP, SEXP numpy_load_errorSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const std::string& >::type python(pythonSEXP);
@@ -16,7 +16,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const std::string& >::type pythonhome(pythonhomeSEXP);
     Rcpp::traits::input_parameter< const std::string& >::type virtualenv_activate(virtualenv_activateSEXP);
     Rcpp::traits::input_parameter< bool >::type python3(python3SEXP);
-    py_initialize(python, libpython, pythonhome, virtualenv_activate, python3);
+    Rcpp::traits::input_parameter< const std::string& >::type numpy_load_error(numpy_load_errorSEXP);
+    py_initialize(python, libpython, pythonhome, virtualenv_activate, python3, numpy_load_error);
     return R_NilValue;
 END_RCPP
 }
@@ -91,6 +92,16 @@ BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< PyObjectRef >::type x(xSEXP);
     rcpp_result_gen = Rcpp::wrap(py_is_null_xptr(x));
+    return rcpp_result_gen;
+END_RCPP
+}
+// py_have_numpy
+bool py_have_numpy();
+RcppExport SEXP reticulate_py_have_numpy() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(py_have_numpy());
     return rcpp_result_gen;
 END_RCPP
 }

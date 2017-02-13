@@ -100,15 +100,15 @@ py_discover_config <- function(required_module) {
     # if we have a required module ensure it's satsified.
     # also check architecture (can be an issue on windows)
     has_compatible_arch = !is_incompatible_arch(config)
-    has_required_numpy <- !is.null(config$numpy) && config$numpy$version >= "1.11"
-    if (has_compatible_arch && has_required_numpy)
+    has_preferred_numpy <- !is.null(config$numpy) && config$numpy$version >= "1.6"
+    if (has_compatible_arch && has_preferred_numpy)
       valid_python_versions <- c(valid_python_versions, python_version)
     has_required_module <- is.null(config$required_module) || !is.null(config$required_module_path)
-    if (has_compatible_arch && has_required_numpy && has_required_module) 
+    if (has_compatible_arch && has_preferred_numpy && has_required_module) 
       return(config)
   }
 
-  # no version of tf found, return first with valid config if we have it or NULL
+  # no preferred found, return first with valid config if we have it or NULL
   if (length(valid_python_versions) > 0)
     return(python_config(valid_python_versions[[1]], required_module, python_versions))
   else if (length(python_versions) > 0)

@@ -41,7 +41,7 @@ When calling into Python, R data types are automatically converted to their equi
 
 If a Python object of a custom class is returned then an R reference to that object is returned. You can call methods and access properties of the object just as if it was an instance of an R reference class.
 
-The **reticulate** package is compatible with all versions of Python >= 2.7 and in addition requires NumPy >= 1.11.
+The **reticulate** package is compatible with all versions of Python >= 2.7. Integreation with NumPy is optional and requires NumPy >= 1.6.
 
 ## Installation
 
@@ -74,7 +74,7 @@ use_virtualenv("~/myenv")
 use_condaenv("myenv")
 ```
 
-Note that **reticulate** requires NumPy >= 1.11 so versions of Python that don't satisfy this requirement will not be used.
+Note that the NumPy features of **reticulate** require NumPy &gt;= 1.6 so versions of Python that satisfy this requirement will be preferred over ones that don't.
 
 Also note that the `use` functions are by default considered only hints as to where to find Python (i.e. they don't produce errors if the specified version doesn't exist). You can add the `required` parameter to ensure that the specified version of Python actually exists:
 

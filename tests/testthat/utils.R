@@ -13,6 +13,11 @@ skip_if_no_python <- function() {
     skip("Python bindings not available for testing")
 }
 
+skip_if_no_numpy <- function() {
+  skip_if_no_python()
+  if (!py_have_numpy())
+    skip("NumPy not available for testing.")
+}
 
 
 

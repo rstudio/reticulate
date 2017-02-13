@@ -11,6 +11,7 @@
 
 #include <string>
 #include <iostream>
+#include <sstream>
 
 namespace libpython {
 
@@ -242,6 +243,55 @@ bool SharedLibrary::unload(std::string* pError)
   else
     return true;
 }
+
+bool import_numpy_api(bool python3, std::string* pError) {
+  
+  PyObject* numpy = PyImport_ImportModule("numpy.core.multiarray");
+  if (numpy == NULL) {
+    *pError = "numpy.core.multiarray failed to import";
+    return false;
+  }
+  
+  PyObject* c_api = PyObject_GetAttrString(numpy, "_ARRAY_API");
+  Py_DecRef(numpy);
+  if (c_api == NULL) {
+    *pError = "numpy.core.multiarray _ARRAY_API not found";
+    return false;
+  }
+  
+  // get api pointer
+  if (python3)
+    PyArray_API = (void **)PyCapsule_GetPointer(c_api, NULL);
+  else
+    PyArray_API = (void **)PyCObject_AsVoidPtr(c_api);
+  
+  Py_DecRef(c_api);
+  if (PyArray_API == NULL) {
+    *pError = "_ARRAY_API is NULL pointer";
+    return false;
+  }
+  
+  // check C API version
+  if (NPY_VERSION != PyArray_GetNDArrayCVersion()) {
+    std::ostringstream ostr;
+    ostr << "incompatible NumPy binary version " << (int) PyArray_GetNDArrayCVersion() << " "
+    "(expecting version " << (int) NPY_VERSION << ")";
+    *pError = ostr.str();
+    return false;
+  }
+  
+  // check feature version 
+  if (NPY_1_6_API_VERSION > PyArray_GetNDArrayCFeatureVersion()) {
+    std::ostringstream ostr;
+    ostr << "incompatible NumPy feature version " << (int) PyArray_GetNDArrayCFeatureVersion() << " "
+    "(expecting version " << (int) NPY_1_6_API_VERSION << " or greater)";
+    *pError = ostr.str();
+    return false;
+  }
+  
+  return true;
+}
+
 
 } // namespace libpython
 

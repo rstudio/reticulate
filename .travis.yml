@@ -4,11 +4,13 @@ language: r
 sudo: false
 cache: packages
 
+
 addons:
   apt:
     packages:
       - python2.7
       - python-numpy
 
+os: osx
 disable_homebrew: true
 

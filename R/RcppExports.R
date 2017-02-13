@@ -53,8 +53,8 @@ py_have_numpy <- function() {
     .Call('reticulate_py_have_numpy', PACKAGE = 'reticulate')
 }
 
-py_list_attributes <- function(x) {
-    .Call('reticulate_py_list_attributes', PACKAGE = 'reticulate', x)
+py_list_attributes_impl <- function(x) {
+    .Call('reticulate_py_list_attributes_impl', PACKAGE = 'reticulate', x)
 }
 
 #' Check if a Python object has an attribute
@@ -76,12 +76,12 @@ py_get_attribute_types <- function(x, attributes) {
     .Call('reticulate_py_get_attribute_types', PACKAGE = 'reticulate', x, attributes)
 }
 
-py_to_r <- function(x) {
-    .Call('reticulate_py_to_r', PACKAGE = 'reticulate', x)
+py_ref_to_r <- function(x) {
+    .Call('reticulate_py_ref_to_r', PACKAGE = 'reticulate', x)
 }
 
-py_call_impl <- function(x, args = NULL, keywords = NULL, convert = TRUE) {
-    .Call('reticulate_py_call_impl', PACKAGE = 'reticulate', x, args, keywords, convert)
+py_call_impl <- function(x, args = NULL, keywords = NULL) {
+    .Call('reticulate_py_call_impl', PACKAGE = 'reticulate', x, args, keywords)
 }
 
 py_dict <- function(keys, items) {

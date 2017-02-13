@@ -105,14 +105,14 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// py_list_attributes
-std::vector<std::string> py_list_attributes(PyObjectRef x);
-RcppExport SEXP reticulate_py_list_attributes(SEXP xSEXP) {
+// py_list_attributes_impl
+std::vector<std::string> py_list_attributes_impl(PyObjectRef x);
+RcppExport SEXP reticulate_py_list_attributes_impl(SEXP xSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< PyObjectRef >::type x(xSEXP);
-    rcpp_result_gen = Rcpp::wrap(py_list_attributes(x));
+    rcpp_result_gen = Rcpp::wrap(py_list_attributes_impl(x));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -153,28 +153,27 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// py_to_r
-SEXP py_to_r(PyObjectRef x);
-RcppExport SEXP reticulate_py_to_r(SEXP xSEXP) {
+// py_ref_to_r
+SEXP py_ref_to_r(PyObjectRef x);
+RcppExport SEXP reticulate_py_ref_to_r(SEXP xSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< PyObjectRef >::type x(xSEXP);
-    rcpp_result_gen = Rcpp::wrap(py_to_r(x));
+    rcpp_result_gen = Rcpp::wrap(py_ref_to_r(x));
     return rcpp_result_gen;
 END_RCPP
 }
 // py_call_impl
-SEXP py_call_impl(PyObjectRef x, List args, List keywords, bool convert);
-RcppExport SEXP reticulate_py_call_impl(SEXP xSEXP, SEXP argsSEXP, SEXP keywordsSEXP, SEXP convertSEXP) {
+SEXP py_call_impl(PyObjectRef x, List args, List keywords);
+RcppExport SEXP reticulate_py_call_impl(SEXP xSEXP, SEXP argsSEXP, SEXP keywordsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< PyObjectRef >::type x(xSEXP);
     Rcpp::traits::input_parameter< List >::type args(argsSEXP);
     Rcpp::traits::input_parameter< List >::type keywords(keywordsSEXP);
-    Rcpp::traits::input_parameter< bool >::type convert(convertSEXP);
-    rcpp_result_gen = Rcpp::wrap(py_call_impl(x, args, keywords, convert));
+    rcpp_result_gen = Rcpp::wrap(py_call_impl(x, args, keywords));
     return rcpp_result_gen;
 END_RCPP
 }

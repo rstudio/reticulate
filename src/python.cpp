@@ -1072,7 +1072,7 @@ bool py_have_numpy() {
 
 
 // [[Rcpp::export]]
-std::vector<std::string> py_list_attributes(PyObjectRef x) {
+std::vector<std::string> py_list_attributes_impl(PyObjectRef x) {
   std::vector<std::string> attributes;
   PyObjectPtr attrs(PyObject_Dir(x));
   if (attrs.is_null())
@@ -1168,14 +1168,14 @@ IntegerVector py_get_attribute_types(
 
 
 // [[Rcpp::export]]
-SEXP py_to_r(PyObjectRef x) {
+SEXP py_ref_to_r(PyObjectRef x) {
   return py_to_r(x.get());
 }
 
 
 
 // [[Rcpp::export]]
-SEXP py_call_impl(PyObjectRef x, List args = R_NilValue, List keywords = R_NilValue, bool convert = true) {
+SEXP py_call_impl(PyObjectRef x, List args = R_NilValue, List keywords = R_NilValue) {
 
   // unnamed arguments
   PyObjectPtr pyArgs(PyTuple_New(args.length()));
@@ -1210,14 +1210,9 @@ SEXP py_call_impl(PyObjectRef x, List args = R_NilValue, List keywords = R_NilVa
   if (res.is_null())
     stop(py_fetch_error());
 
-  // return as r object
-  if (convert)
-    return py_to_r(res);
-  else {
-    Py_IncRef(res);
-    return py_ref(res);
-  }
-    
+  // return 
+  Py_IncRef(res);
+  return py_ref(res);
 }
 
 

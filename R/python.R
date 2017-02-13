@@ -120,6 +120,24 @@ str.python.builtin.module <- function(object, ...) {
 }
 
 
+#' Convert a Python object to an R object
+#' 
+#' @param x Python object to convert
+#' 
+#' @return R object
+#' 
+#' @export
+py_to_r <- function(x) {
+  
+  ensure_python_initialized()
+  
+  if (!inherits(x, "python.builtin.object"))
+    stop("Object to convert is not a Python object")
+  
+  py_ref_to_r(x)
+}
+
+
 #' @export
 `$.python.builtin.module` <- function(x, name) {
  
@@ -170,7 +188,7 @@ str.python.builtin.module <- function(object, ...) {
     # return the function
     f
   } else {
-    py_to_r(attrib)
+    py_ref_to_r(attrib)
   }
 }
 
@@ -317,7 +335,7 @@ tuple <- function(...) {
 py_unicode <- function(str) {
   ensure_python_initialized()
   py <- import("__builtin__")
-  py_call(py_get_attr(py, "unicode"), args = list(str), convert = FALSE)
+  py_call(py_get_attr(py, "unicode"), str)
 }
 
 
@@ -464,19 +482,17 @@ print.python.builtin.iterator <- function(x, ...) {
 
 #' Call a Python callable object
 #' 
-#' @param args List of unnamed arguments
-#' @param keywords List of named arguments
-#' @param convert `TRUE` to convert the return value to R (otherwise keep it as
-#'   a Python object).
+#' @param ... Arguments to function (named and/or unnamed)
 #'   
-#' @return Return value of call
-#'   
+#' @return Return value of call as a Python object.
+#' 
 #' @keywords internal
 #'   
 #' @export
-py_call <- function(x, args = NULL, keywords = NULL, convert = TRUE) {
+py_call <- function(x, ...) {
   ensure_python_initialized()
-  py_call_impl(x, args, keywords, convert)
+  dots <- py_resolve_dots(...)
+  py_call_impl(x, dots$args, dots$keywords)
 }
 
 
@@ -492,6 +508,18 @@ py_call <- function(x, args = NULL, keywords = NULL, convert = TRUE) {
 py_get_attr <- function(x, name, silent = FALSE) {
   ensure_python_initialized()
   py_get_attr_impl(x, name, silent)
+}
+
+#' List all attributes of a Python object
+#' 
+#' 
+#' @param x Python object
+#' 
+#' @return Character vector of attributes
+#' @export
+py_list_attributes <- function(x) {
+  ensure_python_initialized()
+  py_list_attributes_impl(x)
 }
 
 
@@ -644,34 +672,43 @@ py_run_file <- function(file) {
 
 py_callable_as_function <- function(callable) {
   function(...) {
-    args <- list()
-    keywords <- list()
-    dots <- list(...)
-    names <- names(dots)
-    if (!is.null(names)) {
-      for (i in 1:length(dots)) {
-        name <- names[[i]]
-        if (nzchar(name))
-          if (is.null(dots[[i]]))
-            keywords[name] <- list(NULL)
-          else
-            keywords[[name]] <- dots[[i]]
-          else
-            if (is.null(dots[[i]]))
-              args[length(args) + 1] <- list(NULL)
-            else
-              args[[length(args) + 1]] <- dots[[i]]
-      }
-    } else {
-      args <- dots
-    }
-    result = py_call(callable, args, keywords)
+    dots <- py_resolve_dots(list(...))
+    result <- py_call_impl(callable, dots$args, dots$keywords)
+    result <- py_to_r(result)
     if (is.null(result))
       invisible(result)
     else
       result
   }
 }
+
+py_resolve_dots <- function(dots) {
+  args <- list()
+  keywords <- list()
+  names <- names(dots)
+  if (!is.null(names)) {
+    for (i in 1:length(dots)) {
+      name <- names[[i]]
+      if (nzchar(name))
+        if (is.null(dots[[i]]))
+          keywords[name] <- list(NULL)
+        else
+          keywords[[name]] <- dots[[i]]
+        else
+          if (is.null(dots[[i]]))
+            args[length(args) + 1] <- list(NULL)
+          else
+            args[[length(args) + 1]] <- dots[[i]]
+    }
+  } else {
+    args <- dots
+  }
+  list(
+    args = args,
+    keywords = keywords
+  )
+}
+
 
 
 py_is_module <- function(x) {

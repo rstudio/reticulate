@@ -237,8 +237,16 @@ There are several more advanced functions available that are useful principally 
 <td>Get an attribute of a Python object.</td>
 </tr>
 <tr class="even">
+<td>py_list_attributes</td>
+<td>List all attributes of a Python object.</td>
+</tr>
+<tr class="odd">
 <td>py_call</td>
 <td>Call a Python callable object with the specified arguments.</td>
+</tr>
+<tr class="even">
+<td>py_to_r</td>
+<td>Convert a Python object to it's R equivalent</td>
 </tr>
 <tr class="odd">
 <td>py_capture_output</td>

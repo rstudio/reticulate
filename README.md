@@ -316,6 +316,8 @@ The functions provide miscellaneous other lower-level capabilities:
 Using in a Package
 ------------------
 
+### Checking and Testing on CRAN
+
 If you use **reticulate** in another R package you need to account for the fact that when your package is submitted to CRAN, the CRAN test servers may not have Python, NumPy, or whatever other Python modules you are wrapping in your package. If you don't do this then your package may fail to load and/or pass it's tests when run on CRAN.
 
 There are two things you should do to ensure your package is well behaved on CRAN:
@@ -348,3 +350,43 @@ There are two things you should do to ensure your package is well behaved on CRA
       # test code here...
     })
     ```
+
+### S3 Methods
+
+Python objects exposed by **reticulate** carry their Python classes into R, so it's possible to write S3 methods to customize e.g. the `str` or `print` behavior for a given class (note that it's not typically necessary that you do this since the default `str` and `print` methods call `PyObject_Str`, which typically provides an acceptable default behavior).
+
+If you do decide to implement custom S3 methods for a Python class it's important to keep in mind that when an R session ends the connection to Python objects is lost, so when the .RData saved from one R session is restored in a subsequent R session the Python objects are effectively lost (technically they become `NULL` R `externalptr` objects).
+
+This means that you should always use the `py_is_null_xptr` function on objects before interacting with them in an S3 method. For example:
+
+``` r
+#' @export
+summary.MyPythonClass <- function(object, ...) {
+  if (py_is_null_xptr(object))
+    stop("Object is NULL")
+  else
+    # interact with the object to generate the summary
+}
+```
+
+There are a couple of shortcut methods you can use to make this more straightforward. The `py_validate_xptr` function will do the check and automatically throw an error if it fails. So the example above could be re-written as:
+
+``` r
+#' @export
+summary.MyPythonClass <- function(object, ...) {
+  py_validate_xptr(object)
+  # interact with the object to generate the summary
+}
+```
+
+Finally, the **reticulate** package exports a `py_str` generic method which is called from the `str` method only after doing appropriate validation (if the object is NULL then `<pointer: 0x0>` is returned). You can implement the `py_str` method as follows:
+
+``` r
+#' @importFrom reticulate py_str
+#' @export 
+py_str.MyPythonClass <- function(object, ...) {
+  # interact with the object to generate the string
+}
+```
+
+So in short, to provide custom `str` and `print` methods, just implement `py_str`. For other S3 methods be sure to call either `py_validate_xptr` or `py_is_null_xptr` before interacting with the object.

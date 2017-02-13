@@ -29,7 +29,7 @@ When calling into Python, R data types are automatically converted to their equi
 
 If a Python object of a custom class is returned then an R reference to that object is returned. You can call methods and access properties of the object just as if it was an instance of an R reference class.
 
-The **reticulate** package is compatible with all versions of Python &gt;= 2.7. Integreation with NumPy is optional and requires NumPy &gt;= 1.6.
+The **reticulate** package is compatible with all versions of Python &gt;= 2.7. Integration with NumPy is optional and requires NumPy &gt;= 1.6.
 
 Installation
 ------------
@@ -202,7 +202,23 @@ parser$call(spacy)
 Advanced Functions
 ------------------
 
-There are several more advanced functions available that are useful principally when creating high level R interfaces for Python libraries:
+There are several more advanced functions available that are useful principally when creating high level R interfaces for Python libraries.
+
+### Python Objects
+
+Typically interacting with Python objects from R involves using the `$` operator to access whatever properties for functions of the object you need. When using the `$`, Python objects are automatically converted to their R equivalents when possible. The following functions enable you to interact with Python objects at a lower level (e.g. no conversion to R is done unless you explicitly call the `py_to_r` function):
+
+| Function             | Description                                                 |
+|----------------------|-------------------------------------------------------------|
+| py\_has\_attr        | Check if an object has a specified attribute.               |
+| py\_get\_attr        | Get an attribute of a Python object.                        |
+| py\_list\_attributes | List all attributes of a Python object.                     |
+| py\_call             | Call a Python callable object with the specified arguments. |
+| py\_to\_r            | Convert a Python object to it's R equivalent                |
+
+### Configuration
+
+The following functions enable you to query for information about the Python configuration available on the current system.
 
 <table style="width:100%;">
 <colgroup>
@@ -217,37 +233,36 @@ There are several more advanced functions available that are useful principally 
 </thead>
 <tbody>
 <tr class="odd">
-<td>py_config</td>
-<td>Get information on the location and version of Python in use.</td>
-</tr>
-<tr class="even">
 <td>py_available</td>
 <td>Check whether a Python interface is available on this system.</td>
+</tr>
+<tr class="even">
+<td>py_config</td>
+<td>Get information on the location and version of Python in use.</td>
 </tr>
 <tr class="odd">
 <td>py_module_available</td>
 <td>Check whether a Python module is available on this system.</td>
 </tr>
-<tr class="even">
-<td>py_has_attr</td>
-<td>Check if an object has a specified attribute.</td>
+</tbody>
+</table>
+
+### Output Control
+
+These functions enable you to capture or suppress output from Python:
+
+<table style="width:100%;">
+<colgroup>
+<col width="20%" />
+<col width="79%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Function</th>
+<th>Description</th>
 </tr>
-<tr class="odd">
-<td>py_get_attr</td>
-<td>Get an attribute of a Python object.</td>
-</tr>
-<tr class="even">
-<td>py_list_attributes</td>
-<td>List all attributes of a Python object.</td>
-</tr>
-<tr class="odd">
-<td>py_call</td>
-<td>Call a Python callable object with the specified arguments.</td>
-</tr>
-<tr class="even">
-<td>py_to_r</td>
-<td>Convert a Python object to it's R equivalent</td>
-</tr>
+</thead>
+<tbody>
 <tr class="odd">
 <td>py_capture_output</td>
 <td>Capture Python output for the specified expression and return it as an R character vector.</td>
@@ -256,6 +271,25 @@ There are several more advanced functions available that are useful principally 
 <td>py_suppress_warnings</td>
 <td>Execute the specified expression, suppressing the display Python warnings.</td>
 </tr>
+</tbody>
+</table>
+
+### Miscellaneous
+
+The functions provide miscellaneous other lower-level capabilities:
+
+<table style="width:100%;">
+<colgroup>
+<col width="20%" />
+<col width="79%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Function</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
 <tr class="odd">
 <td>py_unicode</td>
 <td>Convert a string to a Python unicode object.</td>

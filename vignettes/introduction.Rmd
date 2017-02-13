@@ -41,7 +41,7 @@ When calling into Python, R data types are automatically converted to their equi
 
 If a Python object of a custom class is returned then an R reference to that object is returned. You can call methods and access properties of the object just as if it was an instance of an R reference class.
 
-The **reticulate** package is compatible with all versions of Python >= 2.7. Integreation with NumPy is optional and requires NumPy >= 1.6.
+The **reticulate** package is compatible with all versions of Python >= 2.7. Integration with NumPy is optional and requires NumPy >= 1.6.
 
 ## Installation
 
@@ -207,26 +207,55 @@ parser <- spacy$English()
 parser$call(spacy)
 ```
 
+
 ## Advanced Functions
 
-There are several more advanced functions available that are useful principally when creating high level R interfaces for Python libraries: 
+There are several more advanced functions available that are useful principally when creating high level R interfaces for Python libraries.
+
+### Python Objects
+
+Typically interacting with Python objects from R involves using the `$` operator to access whatever properties for functions of the object you need. When using the `$`, Python objects are automatically converted to their R equivalents when possible. The following functions enable you to interact with Python objects at a lower level (e.g. no conversion to R is done unless you explicitly call the `py_to_r` function):
 
 | Function  | Description | 
 |----------------|------------------------------------------------------------------|
-| py_config | Get information on the location and version of Python in use.  | 
-| py_available | Check whether a Python interface is available on this system. |
-| py_module_available | Check whether a Python module is available on this system. |
 | py_has_attr | Check if an object has a specified attribute.  | 
 | py_get_attr | Get an attribute of a Python object.  | 
 | py_list_attributes | List all attributes of a Python object. |
 | py_call | Call a Python callable object with the specified arguments.  | 
 | py_to_r | Convert a Python object to it's R equivalent
+
+### Configuration
+
+The following functions enable you to query for information about the Python configuration available on the current system.
+
+| Function  | Description | 
+|----------------|------------------------------------------------------------------|
+| py_available | Check whether a Python interface is available on this system. |
+| py_config | Get information on the location and version of Python in use.  | 
+| py_module_available | Check whether a Python module is available on this system. |
+
+
+### Output Control
+
+These functions enable you to capture or suppress output from Python:
+
+| Function  | Description | 
+|----------------|------------------------------------------------------------------|
 | py_capture_output | Capture Python output for the specified expression and return it as an R character vector. | 
 | py_suppress_warnings | Execute the specified expression, suppressing the display Python warnings.   | 
+
+
+### Miscellaneous
+
+The functions provide miscellaneous other lower-level capabilities:
+
+| Function  | Description | 
+|----------------|------------------------------------------------------------------|
 | py_unicode | Convert a string to a Python unicode object. |
 | py_str | Get the string representation of Python object. |
 | py_xptr_str | Evaluate an expression that prints a string with a check for a null externalptr. |
 | py_is_null_xptr | Check whether a Python object is a null externalptr. |
+
 
 ## Using in a Package
 

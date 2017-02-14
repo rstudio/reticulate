@@ -1,6 +1,9 @@
 
 import sys
-from cStringIO import StringIO
+try:
+  from StringIO import StringIO
+except ImportError:
+  from io import StringIO
 
 def start_stdout_capture():
   restore = sys.stdout

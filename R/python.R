@@ -651,11 +651,17 @@ py_capture_output <- function(expr, type = c("stdout", "stderr")) {
   # collect the output
   output <- ""
   if (!is.null(restore_stdout)) {
-    output <- paste0(output_tools$end_stdout_capture(restore_stdout), "\n")
+    std_out <- output_tools$end_stdout_capture(restore_stdout)
+    output <- paste0(output, std_out)
+    if (nzchar(std_out))
+      output <- paste0(output, "\n")
     restore_stdout <- NULL
   }
   if (!is.null(restore_stderr)) {
-    output <- paste0(output, output_tools$end_stderr_capture(restore_stderr), "\n")
+    std_err <- output_tools$end_stderr_capture(restore_stderr)
+    output <- paste0(output, std_err)
+    if (nzchar(std_err))
+      output <- paste0(output, "\n")
     restore_stderr <- NULL
   }
  

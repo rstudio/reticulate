@@ -260,10 +260,16 @@ dict <- function(...) {
   frame <- parent.frame()
   keys <- lapply(names, function(name) {
     if (exists(name, envir = frame, inherits = TRUE))
-      get(name, envir = frame, inherits = TRUE)
-    else
-      name
+      key <- get(name, envir = frame, inherits = TRUE)
+    else {
+      if (grepl("[0-9]+", name))
+        name <- as.integer(name)
+      else
+        name
+    }
   })
+  
+
 
   # construct dict
   py_dict(keys, values)

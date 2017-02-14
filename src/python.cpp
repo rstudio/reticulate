@@ -519,8 +519,10 @@ SEXP py_to_r(PyObject* x) {
     // iterate over dict
     PyObject *key, *value;
     Py_ssize_t pos = 0;
-    while (PyDict_Next(x, &pos, &key, &value))
-      list[as_std_string(key)] = py_to_r(value);
+    while (PyDict_Next(x, &pos, &key, &value)) {
+      PyObjectPtr str(PyObject_Str(key));
+      list[as_std_string(str)] = py_to_r(value);
+    }
     return list;
   }
 

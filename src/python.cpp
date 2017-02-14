@@ -1031,12 +1031,8 @@ void py_initialize(const std::string& python,
   initialize_type_objects(is_python3());
   
   // execute activate_this.py script for virtualenv if necessary
-  // but don't do it on windows as it appears to already get the 
-  // correct sys paths and calling this function here crashes!
-#ifndef _WIN32
   if (!virtualenv_activate.empty())
     py_activate_virtualenv(virtualenv_activate);
-#endif  
   
   // resovlve numpy
   if (numpy_load_error.empty())

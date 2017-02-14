@@ -1399,19 +1399,16 @@ PyObjectRef py_run_file_impl(const std::string& file)
   Function pathExpand("path.expand");
   std::string expanded = as<std::string>(pathExpand(file));
   
-  // open and run
-  FILE* fp = ::fopen(expanded.c_str(), "r");
-  if (fp) {
-  int res = PyRun_SimpleFileExFlags(fp, expanded.c_str(), 0, NULL);
-  if (res != 0)
-    stop(py_fetch_error());
-
-    // return reference to main module
-    PyObject* main = PyImport_AddModule("__main__");
-    Py_IncRef(main);
-    return py_ref(main);
-  }
-  else
-    stop("Unable to read script file '%s' (does the file exist?)", file);
+  // read file
+  std::ifstream ifs(expanded.c_str());
+  if (!ifs)
+    stop("Unable to open file '%s' (does it exist?)", file);
+  std::string code((std::istreambuf_iterator<char>(ifs)),
+                   (std::istreambuf_iterator<char>()));
+  if (ifs.fail())
+    stop("Error occurred while reading file '%s'", file);
+  
+  // execute
+  return py_run_string_impl(code);
 }
 

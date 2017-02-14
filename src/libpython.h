@@ -211,7 +211,6 @@ LIBPYTHON_EXTERN PyObject* (*PyModule_GetDict)(PyObject *);
 LIBPYTHON_EXTERN PyObject* (*PyImport_AddModule)(const char *);
 
 LIBPYTHON_EXTERN PyObject* (*PyRun_StringFlags)(const char *, int, PyObject*, PyObject*, void*);
-LIBPYTHON_EXTERN int (*PyRun_SimpleFileExFlags)(FILE *, const char *, int, void *);
 
 LIBPYTHON_EXTERN PyObject* (*PyObject_GetIter)(PyObject *);
 LIBPYTHON_EXTERN PyObject* (*PyIter_Next)(PyObject *);

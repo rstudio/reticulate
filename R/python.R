@@ -314,13 +314,18 @@ tuple <- function(...) {
 #'   In Python 3 these values are unicode objects however in Python 2 
 #'   they are 8-bit string objects. This function enables you to 
 #'   obtain a Python unicode object from an R character vector 
-#'   when running under Python 2.
+#'   when running under Python 2 (under Python 3 a standard Python 
+#'   string object is returend).
 #' 
 #' @export
 py_unicode <- function(str) {
   ensure_python_initialized()
-  py <- import_builtins()
-  py_call(py_get_attr(py, "unicode"), str)
+  if (is_python3()) {
+    r_to_py(str)
+  } else {
+    py <- import_builtins()
+    py_call(py_get_attr(py, "unicode"), str)
+  }
 }
 
 

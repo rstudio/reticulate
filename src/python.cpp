@@ -10,6 +10,7 @@ using namespace libpython;
 
 // track whether we are using python 3 (set during py_initialize)
 bool s_isPython3 = false;
+
 // [[Rcpp::export]]
 bool is_python3() {
   return s_isPython3;

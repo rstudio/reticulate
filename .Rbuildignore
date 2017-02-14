@@ -1,6 +1,7 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^docs$
+^issues$
 README.[R]?md
 README.html
 images

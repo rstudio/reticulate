@@ -215,6 +215,7 @@ Typically interacting with Python objects from R involves using the `$` operator
 | py\_list\_attributes | List all attributes of a Python object.                     |
 | py\_call             | Call a Python callable object with the specified arguments. |
 | py\_to\_r            | Convert a Python object to it's R equivalent                |
+| r\_to\_py            | Convert an R object to it's Python equivalent               |
 
 ### Configuration
 

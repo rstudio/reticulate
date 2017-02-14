@@ -6,6 +6,17 @@
 
 using namespace Rcpp;
 
+// r_to_py_impl
+PyObjectRef r_to_py_impl(RObject object);
+RcppExport SEXP reticulate_r_to_py_impl(SEXP objectSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< RObject >::type object(objectSEXP);
+    rcpp_result_gen = Rcpp::wrap(r_to_py_impl(object));
+    return rcpp_result_gen;
+END_RCPP
+}
 // py_initialize
 void py_initialize(const std::string& python, const std::string& libpython, const std::string& pythonhome, const std::string& virtualenv_activate, bool python3, const std::string& numpy_load_error);
 RcppExport SEXP reticulate_py_initialize(SEXP pythonSEXP, SEXP libpythonSEXP, SEXP pythonhomeSEXP, SEXP virtualenv_activateSEXP, SEXP python3SEXP, SEXP numpy_load_errorSEXP) {

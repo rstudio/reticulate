@@ -73,12 +73,13 @@ str.python.builtin.module <- function(object, ...) {
 }
 
 
-#' Convert a Python object to an R object
+#' Convert between Pyton and R objects
 #' 
-#' @param x Python object to convert
+#' @param x Object to convert
 #' 
-#' @return R object
+#' @return Converted object
 #' 
+#' @name r-py-conversion
 #' @export
 py_to_r <- function(x) {
   
@@ -88,6 +89,16 @@ py_to_r <- function(x) {
     stop("Object to convert is not a Python object")
   
   py_ref_to_r(x)
+}
+
+
+#' @rdname r-py-conversion
+#' @export
+r_to_py <- function(x) {
+  
+  ensure_python_initialized()
+  
+  r_to_py_impl(x)
 }
 
 

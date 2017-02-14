@@ -872,6 +872,10 @@ PyObject* r_to_py(RObject x) {
   }
 }
 
+// [[Rcpp::export]]
+PyObjectRef r_to_py_impl(RObject object) {
+  return py_ref(r_to_py(object));  
+}
 
 // custom module used for calling R functions from python wrappers
 

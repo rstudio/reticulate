@@ -680,14 +680,14 @@ py_capture_output <- function(expr, type = c("stdout", "stderr")) {
 #' @export
 py_run_string <- function(code) {
   ensure_python_initialized()
-  py_run_string_impl(code)
+  invisible(py_run_string_impl(code))
 }
 
 #' @rdname py_run
 #' @export
 py_run_file <- function(file) {
   ensure_python_initialized()
-  py_run_file_impl(file)
+  invisible(py_run_file_impl(file))
 }
 
 

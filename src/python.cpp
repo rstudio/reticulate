@@ -1163,7 +1163,7 @@ IntegerVector py_get_attribute_types(
              PyTuple_Check(attr) ||
              PyDict_Check(attr))
       types[i] = LIST;
-    else if (haveNumPy() && PyArray_Check(attr))
+    else if (isPyArray(attr))
       types[i] = ARRAY;
     else if (PyBool_Check(attr)   ||
              PyInt_Check(attr)    ||

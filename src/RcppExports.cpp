@@ -6,6 +6,16 @@
 
 using namespace Rcpp;
 
+// is_python3
+bool is_python3();
+RcppExport SEXP reticulate_is_python3() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(is_python3());
+    return rcpp_result_gen;
+END_RCPP
+}
 // r_to_py_impl
 PyObjectRef r_to_py_impl(RObject object);
 RcppExport SEXP reticulate_r_to_py_impl(SEXP objectSEXP) {

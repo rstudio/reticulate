@@ -2,9 +2,15 @@
 % Please edit documentation in R/python.R
 \name{import}
 \alias{import}
+\alias{import_main}
+\alias{import_builtins}
 \title{Import a Python module}
 \usage{
 import(module, delay_load = FALSE)
+
+import_main()
+
+import_builtins()
 }
 \arguments{
 \item{module}{Module name}

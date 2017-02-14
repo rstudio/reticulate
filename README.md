@@ -102,16 +102,16 @@ filecmp <- import("filecmp")
 filecmp$cmp(dir1, dir2)
 ```
 
-There are some special module names you should be aware of: `"__main__"` gives you access to the main module where code is executed by default; and `"__builtin__"` gives you access to various built in Python functions. For example:
+The `import_main` and `import_builtins` functions give you access to the main module where code is executed by default and the collection of built in Python functions. For example:
 
 ``` r
-main <- import("__main__")
+main <- import_main()
 
-py <- import("__builtin__")
+py <- import_builtins()
 py$print('foo')
 ```
 
-The `"__main__"` module is generally useful if you have executed Python code from a file or string and want to get access to it's results (see the section below for more details).
+The main module is generally useful if you have executed Python code from a file or string and want to get access to it's results (see the section below for more details).
 
 Executing Code
 --------------
@@ -156,7 +156,7 @@ With Contexts
 The R `with` generic function can be used to interact with Python context manager objects (in Python you use the `with` keyword to do the same). For example:
 
 ``` r
-py <- import("__builtin__")
+py <- import_builtins()
 with(py$open("output.txt", "w") %as% file, {
   file$write("Hello, there!")
 })

@@ -51,6 +51,27 @@ import <- function(module, delay_load = FALSE) {
   }
 }
 
+
+#' @rdname import
+#' @export
+import_main <- function() {
+  ensure_python_initialized()
+  import("__main__")
+}
+
+#' @rdname import
+#' @export
+import_builtins <- function() {
+  ensure_python_initialized()
+  if (is_python3())
+    import("builtins")
+  else
+    import("__builtin__")
+}
+
+
+
+
 #' @export
 print.python.builtin.object <- function(x, ...) {
   str(x, ...)
@@ -298,7 +319,7 @@ tuple <- function(...) {
 #' @export
 py_unicode <- function(str) {
   ensure_python_initialized()
-  py <- import("__builtin__")
+  py <- import_builtins()
   py_call(py_get_attr(py, "unicode"), str)
 }
 

@@ -10,7 +10,8 @@ using namespace libpython;
 
 // track whether we are using python 3 (set during py_initialize)
 bool s_isPython3 = false;
-bool isPython3() {
+// [[Rcpp::export]]
+bool is_python3() {
   return s_isPython3;
 }
 
@@ -115,7 +116,7 @@ typedef PyPtr<PyArray_Descr> PyArray_DescrPtr;
 std::string as_std_string(PyObject* str) {
 
   PyObjectPtr pStr;
-  if (isPython3()) {
+  if (is_python3()) {
     // python3 requires that we turn PyUnicode into PyBytes before
     // we call PyBytes_AsStringAndSize (whereas python2 would
     // automatically handle unicode in PyBytes_AsStringAndSize)
@@ -125,7 +126,7 @@ std::string as_std_string(PyObject* str) {
 
   char* buffer;
   Py_ssize_t length;
-  int res = isPython3() ?
+  int res = is_python3() ?
     PyBytes_AsStringAndSize(str, &buffer, &length) :
     PyString_AsStringAndSize(str, &buffer, &length);
   if (res == -1)
@@ -135,14 +136,14 @@ std::string as_std_string(PyObject* str) {
 }
 
 PyObject* as_python_bytes(Rbyte* bytes, size_t len) {
-  if (isPython3())
+  if (is_python3())
     return PyBytes_FromStringAndSize((const char*)bytes, len);
   else
     return PyString_FromStringAndSize((const char*)bytes, len);
 }
 
 PyObject* as_python_str(SEXP strSEXP) {
-  if (isPython3()) {
+  if (is_python3()) {
     // python3 doesn't have PyString and all strings are unicode so
     // make sure we get a unicode representation from R
     const char * value = Rf_translateCharUTF8(strSEXP);
@@ -156,7 +157,7 @@ PyObject* as_python_str(SEXP strSEXP) {
 bool has_null_bytes(PyObject* str) {
 
   PyObjectPtr pStr;
-  if (isPython3()) {
+  if (is_python3()) {
     // python3 requires that we turn PyUnicode into PyBytes before
     // we call PyBytes_AsStringAndSize (whereas python2 would
     // automatically handle unicode in PyBytes_AsStringAndSize)
@@ -165,7 +166,7 @@ bool has_null_bytes(PyObject* str) {
   }
 
   char* buffer;
-  int res = isPython3() ?
+  int res = is_python3() ?
     PyBytes_AsStringAndSize(str, &buffer, NULL) :
     PyString_AsStringAndSize(str, &buffer, NULL);
   if (res == -1) {
@@ -184,7 +185,7 @@ bool is_python_str(PyObject* x) {
   // python3 doesn't have PyString_* so mask it out (all strings in
   // python3 will get caught by PyUnicode_Check, we'll ignore
   // PyBytes entirely and let it remain a python object)
-  else if (!isPython3() && PyString_Check(x) && !has_null_bytes(x))
+  else if (!is_python3() && PyString_Check(x) && !has_null_bytes(x))
     return true;
 
   else
@@ -944,10 +945,10 @@ void py_initialize(const std::string& python,
 
   // load the library
   std::string err;
-  if (!libPython().load(libpython, isPython3(), &err))
+  if (!libPython().load(libpython, is_python3(), &err))
     stop(err);
   
-  if (isPython3()) {
+  if (is_python3()) {
 
     // set program name
     s_python_v3 = to_wstring(python);
@@ -988,7 +989,7 @@ void py_initialize(const std::string& python,
   }
 
   // initialize type objects
-  initialize_type_objects(isPython3());
+  initialize_type_objects(is_python3());
   
   // execute activate_this.py script for virtualenv if necessary
   // but don't do it on windows as it appears to already get the 
@@ -1000,7 +1001,7 @@ void py_initialize(const std::string& python,
   
   // resovlve numpy
   if (numpy_load_error.empty())
-    import_numpy_api(isPython3(), &s_numpy_load_error);
+    import_numpy_api(is_python3(), &s_numpy_load_error);
   else
     s_numpy_load_error = numpy_load_error;
 }

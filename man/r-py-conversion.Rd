@@ -3,9 +3,12 @@
 \name{r-py-conversion}
 \alias{r-py-conversion}
 \alias{py_to_r}
+\alias{r_to_py}
 \title{Convert between Pyton and R objects}
 \usage{
 py_to_r(x)
+
+r_to_py(x)
 }
 \arguments{
 \item{x}{Object to convert}

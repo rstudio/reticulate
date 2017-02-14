@@ -9,6 +9,10 @@ r_to_py_impl <- function(object) {
     .Call('reticulate_r_to_py_impl', PACKAGE = 'reticulate', object)
 }
 
+py_activate_virtualenv <- function(script) {
+    invisible(.Call('reticulate_py_activate_virtualenv', PACKAGE = 'reticulate', script))
+}
+
 py_initialize <- function(python, libpython, pythonhome, virtualenv_activate, python3, numpy_load_error) {
     invisible(.Call('reticulate_py_initialize', PACKAGE = 'reticulate', python, libpython, pythonhome, virtualenv_activate, python3, numpy_load_error))
 }

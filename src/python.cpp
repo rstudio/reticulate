@@ -6,6 +6,8 @@ using namespace Rcpp;
 
 #include "reticulate_types.h"
 
+#include <fstream>
+
 using namespace libpython;
 
 // track whether we are using python 3 (set during py_initialize)
@@ -151,6 +153,14 @@ PyObject* as_python_str(SEXP strSEXP) {
   } else {
     const char * value = Rf_translateChar(strSEXP);
     return PyString_FromString(value);
+  }
+}
+
+PyObject* as_python_str(const std::string& str) {
+  if (is_python3()) {
+    return PyUnicode_FromString(str.c_str());
+  } else {
+    return PyString_FromString(str.c_str());
   }
 }
 
@@ -933,6 +943,34 @@ extern "C" PyObject* initializeRPYCall(void) {
 PyObjectRef py_run_file_impl(const std::string& file);
 
 // [[Rcpp::export]]
+void py_activate_virtualenv(const std::string& script)
+{
+  // get main dict
+  PyObject* main = PyImport_AddModule("__main__");
+  PyObject* mainDict = PyModule_GetDict(main);
+  
+  // create local dict with __file__
+  PyObjectPtr localDict(PyDict_New());
+  PyObjectPtr file(as_python_str(script));
+  int res = PyDict_SetItemString(localDict, "__file__", file);
+  if (res != 0)
+    stop(py_fetch_error());
+  
+  // read the code in the script
+  std::ifstream ifs(script.c_str());
+  if (!ifs)
+    stop("Unable to open file '%s' (does it exist?)", script);
+  std::string code((std::istreambuf_iterator<char>(ifs)),
+                   (std::istreambuf_iterator<char>()));
+  
+  // run string
+  PyObjectPtr runRes(PyRun_StringFlags(code.c_str(), Py_file_input, mainDict, localDict, NULL));
+  if (runRes.is_null())
+    stop(py_fetch_error());
+}
+
+
+// [[Rcpp::export]]
 void py_initialize(const std::string& python,
                    const std::string& libpython,
                    const std::string& pythonhome,
@@ -996,7 +1034,7 @@ void py_initialize(const std::string& python,
   // correct sys paths and calling this function here crashes!
 #ifndef _WIN32
   if (!virtualenv_activate.empty())
-    py_run_file_impl(virtualenv_activate);
+    py_activate_virtualenv(virtualenv_activate);
 #endif  
   
   // resovlve numpy

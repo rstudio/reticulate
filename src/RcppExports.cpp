@@ -27,6 +27,16 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// py_activate_virtualenv
+void py_activate_virtualenv(const std::string& script);
+RcppExport SEXP reticulate_py_activate_virtualenv(SEXP scriptSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const std::string& >::type script(scriptSEXP);
+    py_activate_virtualenv(script);
+    return R_NilValue;
+END_RCPP
+}
 // py_initialize
 void py_initialize(const std::string& python, const std::string& libpython, const std::string& pythonhome, const std::string& virtualenv_activate, bool python3, const std::string& numpy_load_error);
 RcppExport SEXP reticulate_py_initialize(SEXP pythonSEXP, SEXP libpythonSEXP, SEXP pythonhomeSEXP, SEXP virtualenv_activateSEXP, SEXP python3SEXP, SEXP numpy_load_errorSEXP) {

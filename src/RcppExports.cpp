@@ -17,13 +17,14 @@ BEGIN_RCPP
 END_RCPP
 }
 // r_to_py_impl
-PyObjectRef r_to_py_impl(RObject object);
-RcppExport SEXP reticulate_r_to_py_impl(SEXP objectSEXP) {
+PyObjectRef r_to_py_impl(RObject object, bool convert);
+RcppExport SEXP reticulate_r_to_py_impl(SEXP objectSEXP, SEXP convertSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< RObject >::type object(objectSEXP);
-    rcpp_result_gen = Rcpp::wrap(r_to_py_impl(object));
+    Rcpp::traits::input_parameter< bool >::type convert(convertSEXP);
+    rcpp_result_gen = Rcpp::wrap(r_to_py_impl(object, convert));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -219,36 +220,39 @@ BEGIN_RCPP
 END_RCPP
 }
 // py_dict
-PyObjectRef py_dict(const List& keys, const List& items);
-RcppExport SEXP reticulate_py_dict(SEXP keysSEXP, SEXP itemsSEXP) {
+PyObjectRef py_dict(const List& keys, const List& items, bool convert);
+RcppExport SEXP reticulate_py_dict(SEXP keysSEXP, SEXP itemsSEXP, SEXP convertSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const List& >::type keys(keysSEXP);
     Rcpp::traits::input_parameter< const List& >::type items(itemsSEXP);
-    rcpp_result_gen = Rcpp::wrap(py_dict(keys, items));
+    Rcpp::traits::input_parameter< bool >::type convert(convertSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_dict(keys, items, convert));
     return rcpp_result_gen;
 END_RCPP
 }
 // py_tuple
-PyObjectRef py_tuple(const List& items);
-RcppExport SEXP reticulate_py_tuple(SEXP itemsSEXP) {
+PyObjectRef py_tuple(const List& items, bool convert);
+RcppExport SEXP reticulate_py_tuple(SEXP itemsSEXP, SEXP convertSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const List& >::type items(itemsSEXP);
-    rcpp_result_gen = Rcpp::wrap(py_tuple(items));
+    Rcpp::traits::input_parameter< bool >::type convert(convertSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_tuple(items, convert));
     return rcpp_result_gen;
 END_RCPP
 }
 // py_module_import
-PyObjectRef py_module_import(const std::string& module);
-RcppExport SEXP reticulate_py_module_import(SEXP moduleSEXP) {
+PyObjectRef py_module_import(const std::string& module, bool convert);
+RcppExport SEXP reticulate_py_module_import(SEXP moduleSEXP, SEXP convertSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const std::string& >::type module(moduleSEXP);
-    rcpp_result_gen = Rcpp::wrap(py_module_import(module));
+    Rcpp::traits::input_parameter< bool >::type convert(convertSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_module_import(module, convert));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -286,24 +290,26 @@ BEGIN_RCPP
 END_RCPP
 }
 // py_run_string_impl
-PyObjectRef py_run_string_impl(const std::string& code);
-RcppExport SEXP reticulate_py_run_string_impl(SEXP codeSEXP) {
+PyObjectRef py_run_string_impl(const std::string& code, bool convert);
+RcppExport SEXP reticulate_py_run_string_impl(SEXP codeSEXP, SEXP convertSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const std::string& >::type code(codeSEXP);
-    rcpp_result_gen = Rcpp::wrap(py_run_string_impl(code));
+    Rcpp::traits::input_parameter< bool >::type convert(convertSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_run_string_impl(code, convert));
     return rcpp_result_gen;
 END_RCPP
 }
 // py_run_file_impl
-PyObjectRef py_run_file_impl(const std::string& file);
-RcppExport SEXP reticulate_py_run_file_impl(SEXP fileSEXP) {
+PyObjectRef py_run_file_impl(const std::string& file, bool convert);
+RcppExport SEXP reticulate_py_run_file_impl(SEXP fileSEXP, SEXP convertSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const std::string& >::type file(fileSEXP);
-    rcpp_result_gen = Rcpp::wrap(py_run_file_impl(file));
+    Rcpp::traits::input_parameter< bool >::type convert(convertSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_run_file_impl(file, convert));
     return rcpp_result_gen;
 END_RCPP
 }

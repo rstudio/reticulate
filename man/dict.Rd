@@ -4,19 +4,23 @@
 \alias{dict}
 \title{Create Python dictionary}
 \usage{
-dict(...)
+dict(..., .convert = TRUE)
 }
 \arguments{
 \item{...}{Name/value pairs for dictionary}
+
+\item{.convert}{\code{TRUE} to automatically convert Python objects to their R
+equivalent. If you pass \code{FALSE} you can do manual conversion using the
+\code{\link[=py_to_r]{py_to_r()}} function.}
 }
 \value{
 A Python dictionary
 }
 \description{
-Create a Python dictionary object, including a dictionary whose keys
-are other Python objects rather than character vectors.
+Create a Python dictionary object, including a dictionary whose keys are
+other Python objects rather than character vectors.
 }
 \note{
-This is useful for creating dictionaries keyed by Tensor (required
-for \code{feed_dict} parameters).
+This is useful for creating dictionaries keyed by Tensor (required for
+\code{feed_dict} parameters).
 }

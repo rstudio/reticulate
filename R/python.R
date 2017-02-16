@@ -5,6 +5,9 @@
 #' to import the main module.
 #'
 #' @param module Module name
+#' @param convert `TRUE` to automatically convert Python objects to their
+#'   R equivalent. If you pass `FALSE` you can do manual conversion using the
+#'   [py_to_r()] function.
 #' @param delay_load `TRUE` or a function to delay loading the module until
 #'  it is first used (if a function is provided then it will be called 
 #'  once the module is loaded). `FALSE` to load the module immediately.
@@ -18,7 +21,7 @@
 #' }
 #'
 #' @export
-import <- function(module, delay_load = FALSE) {
+import <- function(module, convert = TRUE, delay_load = FALSE) {
   
   # resolve delay load
   delay_load_function <- NULL
@@ -35,7 +38,7 @@ import <- function(module, delay_load = FALSE) {
     ensure_python_initialized(required_module = top_level_module)
   
     # import the module
-    py_module_import(module)
+    py_module_import(module, convert = convert)
   }
   
   # delay load case (wait until first access)
@@ -96,6 +99,7 @@ str.python.builtin.module <- function(object, ...) {
 
 #' Convert between Pyton and R objects
 #' 
+#' @inheritParams import
 #' @param x Object to convert
 #' 
 #' @return Converted object
@@ -115,11 +119,11 @@ py_to_r <- function(x) {
 
 #' @rdname r-py-conversion
 #' @export
-r_to_py <- function(x) {
+r_to_py <- function(x, convert = FALSE) {
   
   ensure_python_initialized()
   
-  r_to_py_impl(x)
+  r_to_py_impl(x, convert = convert)
 }
 
 
@@ -134,6 +138,13 @@ r_to_py <- function(x) {
 }
 
 
+py_has_convert <- function(x) {
+  if (exists("convert", x, inherits = FALSE))
+    get("convert", x, inherits = FALSE)
+  else
+    TRUE
+}
+
 #' @export
 `$.python.builtin.object` <- function(x, name) {
 
@@ -145,10 +156,13 @@ r_to_py <- function(x) {
   if (py_is_null_xptr(x) || !py_available())
     return(NULL)
 
+  # deterimine whether this object converts to python
+  convert <- py_has_convert(x)
+  
   # special handling for embedded modules (which don't always show
   # up as "attributes")
   if (py_is_module(x) && !py_has_attr(x, name)) {
-    module <- py_get_submodule(x, name)
+    module <- py_get_submodule(x, name, convert)
     if (!is.null(module))
       return(module)
   }
@@ -164,7 +178,7 @@ r_to_py <- function(x) {
   if (py_is_callable(attrib)) {
     
     # make an R function
-    f <- py_callable_as_function(attrib)
+    f <- py_callable_as_function(attrib, convert)
     
     # assign py_object attribute so it marshalls back to python
     # as a native python object
@@ -173,7 +187,10 @@ r_to_py <- function(x) {
     # return the function
     f
   } else {
-    py_ref_to_r(attrib)
+    if (convert)
+      py_ref_to_r(attrib)
+    else
+      attrib
   }
 }
 
@@ -216,7 +233,7 @@ r_to_py <- function(x) {
 
   # if this is a module then add submodules
   if (inherits(x, "python.builtin.module")) {
-    name <- x$`__name__`
+    name <- py_get_name(x)
     if (!is.null(name)) {
       submodules <- sort(py_list_submodules(name), decreasing = FALSE)
       names <- c(names, submodules)
@@ -235,20 +252,22 @@ r_to_py <- function(x) {
 }
 
 #' Create Python dictionary
-#'
-#' Create a Python dictionary object, including a dictionary whose keys
-#' are other Python objects rather than character vectors.
-#'
+#' 
+#' Create a Python dictionary object, including a dictionary whose keys are
+#' other Python objects rather than character vectors.
+#' 
+#' @param .convert `TRUE` to automatically convert Python objects to their R
+#'   equivalent. If you pass `FALSE` you can do manual conversion using the 
+#'   [py_to_r()] function.
 #' @param ... Name/value pairs for dictionary
-#'
+#'   
 #' @return A Python dictionary
-#'
-#' @note
-#' This is useful for creating dictionaries keyed by Tensor (required
-#' for `feed_dict` parameters).
-#'
+#'   
+#' @note This is useful for creating dictionaries keyed by Tensor (required for
+#' `feed_dict` parameters).
+#' 
 #' @export
-dict <- function(...) {
+dict <- function(..., .convert = TRUE) {
 
   ensure_python_initialized()
 
@@ -272,20 +291,21 @@ dict <- function(...) {
 
 
   # construct dict
-  py_dict(keys, values)
+  py_dict(keys, values, convert = .convert)
 }
 
 #' Create Python tuple
 #'
 #' Create a Python tuple object
 #'
+#' @inheritParams dict
 #' @param ... Values for tuple
 #'
 #' @return A Python tuple
 #'
 #'
 #' @export
-tuple <- function(...) {
+tuple <- function(..., .convert = TRUE) {
 
   ensure_python_initialized()
 
@@ -308,7 +328,7 @@ tuple <- function(...) {
   }
 
   # construct tuple
-  py_tuple(values)
+  py_tuple(values, convert = .convert)
 }
 
 
@@ -398,7 +418,7 @@ as.function.python.builtin.object <- function(x, ...) {
   if (py_is_null_xptr(x))
     stop("Python object is NULL so cannot be convereted to a function")
   else if (py_is_callable(x))
-    py_callable_as_function(x)
+    py_callable_as_function(x, py_has_convert(x))
   else
     stop("Python object is not callable so cannot be converted to a function.")
 }
@@ -560,7 +580,7 @@ py_str.python.builtin.object <- function(object, ...) {
 
 #' @export
 py_str.python.builtin.module <- function(object, ...) {
-  paste0("Module(", object$`__name__`, ")")
+  paste0("Module(", py_get_name(object), ")")
 }
 
 #' Suppress Python warnings for an expression
@@ -682,6 +702,7 @@ py_capture_output <- function(expr, type = c("stdout", "stderr")) {
 #'
 #' Execute code within the the \code{__main__} Python module.
 #'
+#' @inheritParams import
 #' @param code Code to execute
 #' @param file File to execute
 #'
@@ -690,28 +711,33 @@ py_capture_output <- function(expr, type = c("stdout", "stderr")) {
 #' @name py_run
 #'
 #' @export
-py_run_string <- function(code) {
+py_run_string <- function(code, convert = TRUE) {
   ensure_python_initialized()
-  invisible(py_run_string_impl(code))
+  invisible(py_run_string_impl(code, convert))
 }
 
 #' @rdname py_run
 #' @export
-py_run_file <- function(file) {
+py_run_file <- function(file, convert = TRUE) {
   ensure_python_initialized()
-  invisible(py_run_file_impl(file))
+  invisible(py_run_file_impl(file, convert))
 }
 
 
-py_callable_as_function <- function(callable) {
+py_callable_as_function <- function(callable, convert) {
   function(...) {
     dots <- py_resolve_dots(list(...))
     result <- py_call_impl(callable, dots$args, dots$keywords)
-    result <- py_to_r(result)
-    if (is.null(result))
-      invisible(result)
-    else
+    if (convert) {
+      result <- py_to_r(result)
+      if (is.null(result))
+        invisible(result)
+      else
+        result
+    }
+    else {
       result
+    }
   }
 }
 
@@ -785,9 +811,13 @@ py_resolve_module_proxy <- function(proxy) {
   
 }
 
-py_get_submodule <- function(x, name) {
-  module_name <- paste(py_str(py_get_attr(x, "__name__")), name, sep=".")
-  result <- tryCatch(import(module_name), error = function(e) e)
+py_get_name <- function(x) {
+  py_to_r(py_get_attr(x, "__name__"))
+}
+
+py_get_submodule <- function(x, name, convert = TRUE) {
+  module_name <- paste(py_get_name(x), name, sep=".")
+  result <- tryCatch(import(module_name, convert = convert), error = function(e) e)
   if (inherits(result, "error"))
     NULL
   else

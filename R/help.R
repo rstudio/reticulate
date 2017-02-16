@@ -140,7 +140,7 @@ help_url_handler.python.builtin.object <- function(topic, source) {
   page <- NULL
   inspect <- import("inspect")
   if (inspect$ismodule(source)) {
-    module <- paste(source$`__name__`)
+    module <- py_get_name(source)
     help <- module_help(module, topic)
   } else {
     help <- class_help(class(source), topic)

@@ -6,7 +6,7 @@
 \alias{import_builtins}
 \title{Import a Python module}
 \usage{
-import(module, delay_load = FALSE)
+import(module, convert = TRUE, delay_load = FALSE)
 
 import_main()
 
@@ -14,6 +14,10 @@ import_builtins()
 }
 \arguments{
 \item{module}{Module name}
+
+\item{convert}{\code{TRUE} to automatically convert Python objects to their
+R equivalent. If you pass \code{FALSE} you can do manual conversion using the
+\code{\link[=py_to_r]{py_to_r()}} function.}
 
 \item{delay_load}{\code{TRUE} or a function to delay loading the module until
 it is first used (if a function is provided then it will be called

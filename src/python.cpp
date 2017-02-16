@@ -224,10 +224,10 @@ std::string as_r_class(PyObject* classPtr) {
 }
 
 // wrap a PyObject
-PyObjectRef py_ref(PyObject* object, const std::string& extraClass = "") {
+PyObjectRef py_ref(PyObject* object, bool convert, const std::string& extraClass = "") {
 
   // wrap 
-  PyObjectRef ref(object);
+  PyObjectRef ref(object, convert);
 
   // class attribute
   std::vector<std::string> attrClass;
@@ -647,13 +647,15 @@ SEXP py_to_r(PyObject* x) {
 
     // return it raw but add a class so we can create S3 methods for it
     Py_IncRef(x);
-    return py_ref(x, "python.builtin.iterator");
+    return py_ref(x, true, std::string("python.builtin.iterator"));
   }
 
-  // default is to return opaque wrapper to python object
+  // default is to return opaque wrapper to python object. we pass convert = true 
+  // because if we hit this code then converstion has been either implicitly
+  // or explicitly requested.
   else {
     Py_IncRef(x);
-    return py_ref(x);
+    return py_ref(x, true);
   }
 }
 
@@ -887,8 +889,8 @@ PyObject* r_to_py(RObject x) {
 }
 
 // [[Rcpp::export]]
-PyObjectRef r_to_py_impl(RObject object) {
-  return py_ref(r_to_py(object));  
+PyObjectRef r_to_py_impl(RObject object, bool convert) {
+  return py_ref(r_to_py(object), convert);  
 }
 
 // custom module used for calling R functions from python wrappers
@@ -1173,7 +1175,7 @@ PyObjectRef py_get_attr_impl(PyObjectRef x, const std::string& name, bool silent
     }
   }
 
-  return py_ref(attr);
+  return py_ref(attr, x.convert());
 }
 
 // [[Rcpp::export]]
@@ -1265,23 +1267,23 @@ SEXP py_call_impl(PyObjectRef x, List args = R_NilValue, List keywords = R_NilVa
 
   // return 
   Py_IncRef(res);
-  return py_ref(res);
+  return py_ref(res, x.convert());
 }
 
 
 // [[Rcpp::export]]
-PyObjectRef py_dict(const List& keys, const List& items) {
+PyObjectRef py_dict(const List& keys, const List& items, bool convert) {
   PyObject* dict = PyDict_New();
   for (R_xlen_t i = 0; i<keys.length(); i++) {
     PyObjectPtr key(r_to_py(keys.at(i)));
     PyObjectPtr item(r_to_py(items.at(i)));
     PyDict_SetItem(dict, key, item);
   }
-  return py_ref(dict);
+  return py_ref(dict, convert);
 }
 
 // [[Rcpp::export]]
-PyObjectRef py_tuple(const List& items) {
+PyObjectRef py_tuple(const List& items, bool convert) {
   PyObject* tuple = PyTuple_New(items.length());
   for (R_xlen_t i = 0; i<items.length(); i++) {
     PyObject* item = r_to_py(items.at(i));
@@ -1290,15 +1292,15 @@ PyObjectRef py_tuple(const List& items) {
     if (res != 0)
       stop(py_fetch_error());
   }
-  return py_ref(tuple);
+  return py_ref(tuple, convert);
 }
 
 // [[Rcpp::export]]
-PyObjectRef py_module_import(const std::string& module) {
+PyObjectRef py_module_import(const std::string& module, bool convert) {
   PyObject* pModule = PyImport_ImportModule(module.c_str());
   if (pModule == NULL)
     stop(py_fetch_error());
-  return py_ref(pModule);
+  return py_ref(pModule, convert);
 }
 
 // [[Rcpp::export]]
@@ -1365,8 +1367,9 @@ List py_iterate(PyObjectRef x, Function f) {
         break;
     }
 
-    // call the function and add it's result to the list
-    list.push_back(f(py_to_r(item)));
+    // call the function 
+    SEXP param = x.convert() ? py_to_r(item) : py_ref(item, false);
+    list.push_back(f(param));
   }
 
   // return the list
@@ -1375,7 +1378,7 @@ List py_iterate(PyObjectRef x, Function f) {
 
 
 // [[Rcpp::export]]
-PyObjectRef py_run_string_impl(const std::string& code)
+PyObjectRef py_run_string_impl(const std::string& code, bool convert = true)
 {
   // run string
   PyObject* main = PyImport_AddModule("__main__");
@@ -1386,12 +1389,12 @@ PyObjectRef py_run_string_impl(const std::string& code)
 
   // return reference to main module
   Py_IncRef(main);
-  return py_ref(main);
+  return py_ref(main, convert);
 }
 
 
 // [[Rcpp::export]]
-PyObjectRef py_run_file_impl(const std::string& file)
+PyObjectRef py_run_file_impl(const std::string& file, bool convert = true)
 {
   // expand path
   Function pathExpand("path.expand");
@@ -1407,6 +1410,6 @@ PyObjectRef py_run_file_impl(const std::string& file)
     stop("Error occurred while reading file '%s'", file);
   
   // execute
-  return py_run_string_impl(code);
+  return py_run_string_impl(code, convert);
 }
 

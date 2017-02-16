@@ -4,10 +4,14 @@
 \alias{tuple}
 \title{Create Python tuple}
 \usage{
-tuple(...)
+tuple(..., .convert = TRUE)
 }
 \arguments{
 \item{...}{Values for tuple}
+
+\item{.convert}{\code{TRUE} to automatically convert Python objects to their R
+equivalent. If you pass \code{FALSE} you can do manual conversion using the
+\code{\link[=py_to_r]{py_to_r()}} function.}
 }
 \value{
 A Python tuple

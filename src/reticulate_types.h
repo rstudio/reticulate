@@ -18,9 +18,10 @@ public:
   
   explicit PyObjectRef(SEXP object) : Rcpp::Environment(object) {}
   
-  explicit PyObjectRef(PyObject* object) : 
+  explicit PyObjectRef(PyObject* object, bool convert) : 
       Rcpp::Environment(Rcpp::Environment::empty_env().new_child(false)) {
     set(object);
+    assign("convert", convert);
   }
   
   PyObject* get() const {
@@ -40,6 +41,15 @@ public:
     R_RegisterCFinalizer(xptr, python_object_finalize);
     assign("pyobj", xptr);
   }
+  
+  bool convert() const {
+    SEXP pyObject = getFromEnvironment("convert");
+    if (pyObject == R_NilValue)
+      return true;
+    else 
+      return Rcpp::as<bool>(pyObject);
+  }
+  
   
   SEXP getFromEnvironment(const std::string& name) const {
     return Rcpp::Environment::get(name);

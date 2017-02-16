@@ -124,6 +124,25 @@ py$print('foo')
 
 The main module is generally useful if you have executed Python code from a file or string and want to get access to it's results (see the section below for more details).
 
+### Object Conversion
+
+By default when Python objects are returned to R they are converted to their equivalent R types. However, if you'd rather make conversion from Python to R explicit and deal in native Python objects by default you can pass `convert = FALSE` to the `import` function. In this case Python to R conversion will be disabled for the module returned from `import`. For example:
+
+```{r}
+# import numpy and speicfy no automatic Python to R conversion
+np <- import("numpy", convert = FALSE)
+
+# do some array manipulations with NumPy
+a <- np$array(c(1:4))
+sum <- a$cumsum()
+
+# convert to R explicitly at the end
+py_to_r(sum)
+```
+
+As illustrated above, if you need access to an R object at end of your computations you can call the `py_to_r` function explicitly.
+
+
 ## Executing Code
 
 You can execute Python code within the main module using the `py_run_file` and `py_run_string` functions. These functions both return a reference to the main Python module so you can access the results of their execution. For example:

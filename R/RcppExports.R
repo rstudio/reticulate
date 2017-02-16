@@ -5,8 +5,8 @@ is_python3 <- function() {
     .Call('reticulate_is_python3', PACKAGE = 'reticulate')
 }
 
-r_to_py_impl <- function(object) {
-    .Call('reticulate_r_to_py_impl', PACKAGE = 'reticulate', object)
+r_to_py_impl <- function(object, convert) {
+    .Call('reticulate_r_to_py_impl', PACKAGE = 'reticulate', object, convert)
 }
 
 py_activate_virtualenv <- function(script) {
@@ -103,16 +103,16 @@ py_call_impl <- function(x, args = NULL, keywords = NULL) {
     .Call('reticulate_py_call_impl', PACKAGE = 'reticulate', x, args, keywords)
 }
 
-py_dict <- function(keys, items) {
-    .Call('reticulate_py_dict', PACKAGE = 'reticulate', keys, items)
+py_dict <- function(keys, items, convert) {
+    .Call('reticulate_py_dict', PACKAGE = 'reticulate', keys, items, convert)
 }
 
-py_tuple <- function(items) {
-    .Call('reticulate_py_tuple', PACKAGE = 'reticulate', items)
+py_tuple <- function(items, convert) {
+    .Call('reticulate_py_tuple', PACKAGE = 'reticulate', items, convert)
 }
 
-py_module_import <- function(module) {
-    .Call('reticulate_py_module_import', PACKAGE = 'reticulate', module)
+py_module_import <- function(module, convert) {
+    .Call('reticulate_py_module_import', PACKAGE = 'reticulate', module, convert)
 }
 
 py_module_proxy_import <- function(proxy) {
@@ -127,11 +127,11 @@ py_iterate <- function(x, f) {
     .Call('reticulate_py_iterate', PACKAGE = 'reticulate', x, f)
 }
 
-py_run_string_impl <- function(code) {
-    .Call('reticulate_py_run_string_impl', PACKAGE = 'reticulate', code)
+py_run_string_impl <- function(code, convert = TRUE) {
+    .Call('reticulate_py_run_string_impl', PACKAGE = 'reticulate', code, convert)
 }
 
-py_run_file_impl <- function(file) {
-    .Call('reticulate_py_run_file_impl', PACKAGE = 'reticulate', file)
+py_run_file_impl <- function(file, convert = TRUE) {
+    .Call('reticulate_py_run_file_impl', PACKAGE = 'reticulate', file, convert)
 }
 

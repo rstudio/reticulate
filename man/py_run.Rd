@@ -6,12 +6,16 @@
 \alias{py_run_file}
 \title{Run Python code}
 \usage{
-py_run_string(code)
+py_run_string(code, convert = TRUE)
 
-py_run_file(file)
+py_run_file(file, convert = TRUE)
 }
 \arguments{
 \item{code}{Code to execute}
+
+\item{convert}{\code{TRUE} to automatically convert Python objects to their
+R equivalent. If you pass \code{FALSE} you can do manual conversion using the
+\code{\link[=py_to_r]{py_to_r()}} function.}
 
 \item{file}{File to execute}
 }

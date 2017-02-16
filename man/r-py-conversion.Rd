@@ -8,10 +8,14 @@
 \usage{
 py_to_r(x)
 
-r_to_py(x)
+r_to_py(x, convert = FALSE)
 }
 \arguments{
 \item{x}{Object to convert}
+
+\item{convert}{\code{TRUE} to automatically convert Python objects to their
+R equivalent. If you pass \code{FALSE} you can do manual conversion using the
+\code{\link[=py_to_r]{py_to_r()}} function.}
 }
 \value{
 Converted object

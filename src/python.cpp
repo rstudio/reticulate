@@ -661,7 +661,7 @@ SEXP py_to_r(PyObject* x) {
 
 // convert an R object to a python object (the returned object
 // will have an active reference count on it)
-PyObject* r_to_py(RObject x) {
+PyObject* r_to_py(RObject x, bool convert) {
 
   int type = x.sexp_type();
   SEXP sexp = x.get__();
@@ -845,7 +845,7 @@ PyObject* r_to_py(RObject x) {
       SEXP namesSEXP = names;
       for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
         const char* name = Rf_translateChar(STRING_ELT(namesSEXP, i));
-        PyObjectPtr item(r_to_py(RObject(VECTOR_ELT(sexp, i))));
+        PyObjectPtr item(r_to_py(RObject(VECTOR_ELT(sexp, i)), convert));
         int res = PyDict_SetItemString(dict, name, item);
         if (res != 0)
           stop(py_fetch_error());
@@ -855,7 +855,7 @@ PyObject* r_to_py(RObject x) {
     } else {
       PyObjectPtr list(PyList_New(LENGTH(sexp)));
       for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
-        PyObject* item = r_to_py(RObject(VECTOR_ELT(sexp, i)));
+        PyObject* item = r_to_py(RObject(VECTOR_ELT(sexp, i)), convert);
         // NOTE: reference to added value is "stolen" by the list
         int res = PyList_SetItem(list, i, item);
         if (res != 0)
@@ -866,7 +866,8 @@ PyObject* r_to_py(RObject x) {
   } else if (type == CLOSXP) {
 
     // create an R object capsule for the R function
-    PyObjectPtr capsule(r_object_capsule(sexp));
+    PyObjectPtr capsule(r_object_capsule(x));
+    PyCapsule_SetContext(capsule, (void*)convert);
 
     // create the python wrapper function
     PyObjectPtr module(PyImport_ImportModule("rpytools.call"));
@@ -890,7 +891,7 @@ PyObject* r_to_py(RObject x) {
 
 // [[Rcpp::export]]
 PyObjectRef r_to_py_impl(RObject object, bool convert) {
-  return py_ref(r_to_py(object), convert);  
+  return py_ref(r_to_py(object, convert), convert);  
 }
 
 // custom module used for calling R functions from python wrappers
@@ -900,14 +901,37 @@ PyObjectRef r_to_py_impl(RObject object, bool convert) {
 extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* keywords)
 {
   // the first argument is always the capsule containing the R function to call
-  SEXP rFunction = r_object_from_capsule(PyTuple_GetItem(args, 0));
+  PyObject* capsule = PyTuple_GetItem(args, 0);
+  RObject rFunction = r_object_from_capsule(capsule);
+  bool convert = (bool)PyCapsule_GetContext(capsule);
 
   // convert remainder of positional arguments to R list
   PyObjectPtr funcArgs(PyTuple_GetSlice(args, 1, PyTuple_Size(args)));
-  List rArgs = ::py_to_r(funcArgs);
-
+  List rArgs;
+  if (convert) {
+    rArgs = ::py_to_r(funcArgs);
+  } else {
+    Py_ssize_t len = PyTuple_Size(funcArgs);
+    for (Py_ssize_t index = 0; index<len; index++) {
+      PyObject* item = PyTuple_GetItem(funcArgs, index);
+      Py_IncRef(item);
+      rArgs.push_back(py_ref(item, convert));
+    }
+  }
+ 
   // get keyword arguments
-  List rKeywords = ::py_to_r(keywords);
+  List rKeywords;
+  if (convert) {
+    rKeywords = ::py_to_r(keywords);
+  } else {
+    PyObject *key, *value;
+    Py_ssize_t pos = 0;
+    while (PyDict_Next(keywords, &pos, &key, &value)) {
+      PyObjectPtr str(PyObject_Str(key));
+      Py_IncRef(value);
+      rKeywords[as_std_string(str)] = py_ref(value, convert);
+    }
+  }
 
   // combine positional and keyword arguments
   Function append("append");
@@ -918,7 +942,7 @@ extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* k
   RObject result = doCall(rFunction, rArgs);
 
   // return it's result
-  return r_to_py(result);
+  return r_to_py(result, convert);
 }
 
 
@@ -1236,7 +1260,7 @@ SEXP py_call_impl(PyObjectRef x, List args = R_NilValue, List keywords = R_NilVa
   PyObjectPtr pyArgs(PyTuple_New(args.length()));
   if (args.length() > 0) {
     for (R_xlen_t i = 0; i<args.size(); i++) {
-      PyObject* arg = r_to_py(args.at(i));
+      PyObject* arg = r_to_py(args.at(i), x.convert());
       // NOTE: reference to arg is "stolen" by the tuple
       int res = PyTuple_SetItem(pyArgs, i, arg);
       if (res != 0)
@@ -1251,7 +1275,7 @@ SEXP py_call_impl(PyObjectRef x, List args = R_NilValue, List keywords = R_NilVa
     SEXP namesSEXP = names;
     for (R_xlen_t i = 0; i<keywords.length(); i++) {
       const char* name = Rf_translateChar(STRING_ELT(namesSEXP, i));
-      PyObjectPtr arg(r_to_py(keywords.at(i)));
+      PyObjectPtr arg(r_to_py(keywords.at(i), x.convert()));
       int res = PyDict_SetItemString(pyKeywords, name, arg);
       if (res != 0)
         stop(py_fetch_error());
@@ -1275,8 +1299,8 @@ SEXP py_call_impl(PyObjectRef x, List args = R_NilValue, List keywords = R_NilVa
 PyObjectRef py_dict(const List& keys, const List& items, bool convert) {
   PyObject* dict = PyDict_New();
   for (R_xlen_t i = 0; i<keys.length(); i++) {
-    PyObjectPtr key(r_to_py(keys.at(i)));
-    PyObjectPtr item(r_to_py(items.at(i)));
+    PyObjectPtr key(r_to_py(keys.at(i), convert));
+    PyObjectPtr item(r_to_py(items.at(i), convert));
     PyDict_SetItem(dict, key, item);
   }
   return py_ref(dict, convert);
@@ -1286,7 +1310,7 @@ PyObjectRef py_dict(const List& keys, const List& items, bool convert) {
 PyObjectRef py_tuple(const List& items, bool convert) {
   PyObject* tuple = PyTuple_New(items.length());
   for (R_xlen_t i = 0; i<items.length(); i++) {
-    PyObject* item = r_to_py(items.at(i));
+    PyObject* item = r_to_py(items.at(i), convert);
     // NOTE: reference to arg is "stolen" by the tuple
     int res = PyTuple_SetItem(tuple, i, item);
     if (res != 0)

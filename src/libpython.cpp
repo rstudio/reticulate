@@ -230,6 +230,8 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
   }
   LOAD_PYTHON_SYMBOL(PyCapsule_New)
   LOAD_PYTHON_SYMBOL(PyCapsule_GetPointer)
+  LOAD_PYTHON_SYMBOL(PyCapsule_SetContext)
+  LOAD_PYTHON_SYMBOL(PyCapsule_GetContext)
   LOAD_PYTHON_SYMBOL(Py_BuildValue)
 
   return true;

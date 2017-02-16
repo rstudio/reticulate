@@ -218,6 +218,9 @@ LIBPYTHON_EXTERN PyObject* (*PyIter_Next)(PyObject *);
 typedef void (*PyCapsule_Destructor)(PyObject *);
 LIBPYTHON_EXTERN PyObject* (*PyCapsule_New)(void *pointer, const char *name, PyCapsule_Destructor destructor);
 LIBPYTHON_EXTERN void* (*PyCapsule_GetPointer)(PyObject *capsule, const char *name);
+LIBPYTHON_EXTERN void* (*PyCapsule_GetContext)(PyObject *capsule);
+LIBPYTHON_EXTERN int (*PyCapsule_SetContext)(PyObject *capsule, void *context);
+
 
 LIBPYTHON_EXTERN PyObject* (*PyDict_New)(void);
 LIBPYTHON_EXTERN int (*PyDict_SetItem)(PyObject *mp, PyObject *key, PyObject *item);

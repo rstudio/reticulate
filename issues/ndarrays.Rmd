@@ -1,11 +1,12 @@
 ---
 title: "Array Conversion"
-output: html_notebook
+output: html_document
 ---
 
 ```{r setup, include = FALSE}
 library(reticulate)
 np <- import("numpy", convert = FALSE)
+knitr::opts_chunk$set(comment = NA)
 ```
 
 

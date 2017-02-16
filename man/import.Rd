@@ -8,9 +8,9 @@
 \usage{
 import(module, convert = TRUE, delay_load = FALSE)
 
-import_main()
+import_main(convert = TRUE)
 
-import_builtins()
+import_builtins(convert = TRUE)
 }
 \arguments{
 \item{module}{Module name}

@@ -57,19 +57,19 @@ import <- function(module, convert = TRUE, delay_load = FALSE) {
 
 #' @rdname import
 #' @export
-import_main <- function() {
+import_main <- function(convert = TRUE) {
   ensure_python_initialized()
-  import("__main__")
+  import("__main__", convert = convert)
 }
 
 #' @rdname import
 #' @export
-import_builtins <- function() {
+import_builtins <- function(convert = TRUE) {
   ensure_python_initialized()
   if (is_python3())
-    import("builtins")
+    import("builtins", convert = convert)
   else
-    import("__builtin__")
+    import("__builtin__", convert = convert)
 }
 
 

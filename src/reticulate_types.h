@@ -18,9 +18,9 @@ public:
   
   explicit PyObjectRef(SEXP object) : Rcpp::Environment(object) {}
   
-  explicit PyObjectRef(PyObject* object, bool decref = true) : 
+  explicit PyObjectRef(PyObject* object) : 
       Rcpp::Environment(Rcpp::Environment::empty_env().new_child(false)) {
-    set(object, decref);
+    set(object);
   }
   
   PyObject* get() const {
@@ -35,10 +35,9 @@ public:
     return get();
   }
   
-  void set(PyObject* object, bool decref = true) {
+  void set(PyObject* object) {
     SEXP xptr = R_MakeExternalPtr((void*) object, R_NilValue, R_NilValue);
-    if (decref)
-      R_RegisterCFinalizer(xptr, python_object_finalize);
+    R_RegisterCFinalizer(xptr, python_object_finalize);
     assign("pyobj", xptr);
   }
   

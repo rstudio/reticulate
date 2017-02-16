@@ -224,10 +224,10 @@ std::string as_r_class(PyObject* classPtr) {
 }
 
 // wrap a PyObject
-PyObjectRef py_ref(PyObject* object, bool decref = true, const std::string& extraClass = "") {
+PyObjectRef py_ref(PyObject* object, const std::string& extraClass = "") {
 
   // wrap 
-  PyObjectRef ref(object, decref);
+  PyObjectRef ref(object);
 
   // class attribute
   std::vector<std::string> attrClass;
@@ -647,7 +647,7 @@ SEXP py_to_r(PyObject* x) {
 
     // return it raw but add a class so we can create S3 methods for it
     Py_IncRef(x);
-    return py_ref(x, true, "python.builtin.iterator");
+    return py_ref(x, "python.builtin.iterator");
   }
 
   // default is to return opaque wrapper to python object

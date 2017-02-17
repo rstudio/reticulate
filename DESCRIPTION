@@ -28,6 +28,7 @@ Depends:
     R (>= 3.0)
 Imports:
     utils,
+    graphics,
     Rcpp (>= 0.12.7)
 Suggests:
     testthat,

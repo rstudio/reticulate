@@ -96,6 +96,17 @@ str.python.builtin.module <- function(object, ...) {
   } 
 }
 
+#' @export
+as.character.python.builtin.object <- function(x, ...) {
+  py_str(x)
+}
+
+
+#' @export
+summary.python.builtin.object <- function(object, ...) {
+  str(object)
+}
+
 
 #' Convert between Pyton and R objects
 #' 
@@ -277,6 +288,36 @@ py_has_convert <- function(x) {
   # return
   names
 }
+
+#' @export
+as.array.numpy.ndarray <- function(x, ...) {
+  py_to_r(x)
+}
+
+#' @export
+as.matrix.numpy.ndarray <- function(x, ...) {
+  py_to_r(x)
+}
+
+#' @export
+as.vector.numpy.ndarray <- function(x, mode = "any") {
+  a <- as.array(x)
+  as.vector(a, mode = mode)
+}
+
+#' @export
+as.double.numpy.ndarray <- function(x, ...) {
+  a <- as.array(x)
+  as.double(a)
+}
+
+#' @importFrom graphics plot
+#' @export
+plot.numpy.ndarray <- function(x, y, ...) {
+  plot(as.array(x))
+}
+
+
 
 #' Create Python dictionary
 #' 

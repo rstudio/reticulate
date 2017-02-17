@@ -184,8 +184,13 @@ py_has_convert <- function(x) {
     name <- "__call__"
   }
 
+  # get the attrib
+  if (inherits(x, "python.builtin.dict"))
+    attrib <- py_dict_get_item(x, name)
+  else
+    attrib <- py_get_attr(x, name)
+  
   # default handling
-  attrib <- py_get_attr(x, name)
   if (py_is_callable(attrib)) {
     
     # make an R function
@@ -209,13 +214,12 @@ py_has_convert <- function(x) {
 `[[.python.builtin.object` <- `$.python.builtin.object`
 
 
-
-
-
 #' @export
 `$<-.python.builtin.object` <- function(x, name, value) {
-  ensure_python_initialized()
-  py_set_attr(x, name, value)
+  if (!py_is_null_xptr(x) && py_available())
+    py_set_attr(x, name, value)
+  else
+    stop("Unable to assign value (object reference is NULL)")
   x
 }
 
@@ -225,14 +229,23 @@ py_has_convert <- function(x) {
 
 #' @export
 `$<-.python.builtin.dict` <- function(x, name, value) {
-  ensure_python_initialized()
-  py_dict_set_item(x, name, value)
+  if (!py_is_null_xptr(x) && py_available())
+    py_dict_set_item(x, name, value)
+  else
+    stop("Unable to assign value (dict reference is NULL)")
   x
 }
 
 #' @export
 `[[<-.python.builtin.dict` <- `$<-.python.builtin.dict`
 
+#' @export
+length.python.builtin.dict <- function(x) {
+  if (py_is_null_xptr(x) || !py_available())
+    0L
+  else
+    py_dict_length(x)
+}
 
 
 
@@ -260,15 +273,23 @@ py_has_convert <- function(x) {
   if (py_is_null_xptr(x) || !py_available())
     return(character())
 
+  # check for dictionary
+  if (inherits(x, "python.builtin.dict")) {
+    
+    names <- py_dict_get_keys_as_str(x)
+    types <- rep_len(0L, length(names))
+    
+  } else {
+    # get the names and filter out internal attributes (_*)
+    names <- py_suppress_warnings(py_list_attributes(x))
+    names <- names[substr(names, 1, 1) != '_']
+    names <- sort(names, decreasing = FALSE)
+    
+    # get the types
+    types <- py_suppress_warnings(py_get_attribute_types(x, names))
+  }
 
-  # get the names and filter out internal attributes (_*)
-  names <- py_suppress_warnings(py_list_attributes(x))
-  names <- names[substr(names, 1, 1) != '_']
-  names <- sort(names, decreasing = FALSE)
-
-  # get the types
-  types <- py_suppress_warnings(py_get_attribute_types(x, names))
-
+ 
   # if this is a module then add submodules
   if (inherits(x, "python.builtin.module")) {
     name <- py_get_name(x)
@@ -279,12 +300,14 @@ py_has_convert <- function(x) {
     }
   }
 
-  # set types
-  attr(names, "types") <- types
-
-  # specify a help_handler
-  attr(names, "helpHandler") <- "reticulate:::help_handler"
-
+  if (length(names) > 0) {
+    # set types
+    attr(names, "types") <- types
+  
+    # specify a help_handler
+    attr(names, "helpHandler") <- "reticulate:::help_handler"
+  }
+  
   # return
   names
 }

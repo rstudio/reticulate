@@ -111,8 +111,20 @@ py_dict <- function(keys, items, convert) {
     .Call('reticulate_py_dict', PACKAGE = 'reticulate', keys, items, convert)
 }
 
+py_dict_get_item <- function(dict, key) {
+    .Call('reticulate_py_dict_get_item', PACKAGE = 'reticulate', dict, key)
+}
+
 py_dict_set_item <- function(dict, item, value) {
     invisible(.Call('reticulate_py_dict_set_item', PACKAGE = 'reticulate', dict, item, value))
+}
+
+py_dict_length <- function(dict) {
+    .Call('reticulate_py_dict_length', PACKAGE = 'reticulate', dict)
+}
+
+py_dict_get_keys_as_str <- function(dict) {
+    .Call('reticulate_py_dict_get_keys_as_str', PACKAGE = 'reticulate', dict)
 }
 
 py_tuple <- function(items, convert) {

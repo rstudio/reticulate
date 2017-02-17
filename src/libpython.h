@@ -224,10 +224,15 @@ LIBPYTHON_EXTERN int (*PyCapsule_SetContext)(PyObject *capsule, void *context);
 
 
 LIBPYTHON_EXTERN PyObject* (*PyDict_New)(void);
+LIBPYTHON_EXTERN int (*PyDict_Contains)(PyObject *mp, PyObject *key);
+LIBPYTHON_EXTERN PyObject* (*PyDict_GetItem)(PyObject *mp, PyObject *key);
 LIBPYTHON_EXTERN int (*PyDict_SetItem)(PyObject *mp, PyObject *key, PyObject *item);
 LIBPYTHON_EXTERN int (*PyDict_SetItemString)(PyObject *dp, const char *key, PyObject *item);
 LIBPYTHON_EXTERN int (*PyDict_Next)(
     PyObject *mp, Py_ssize_t *pos, PyObject **key, PyObject **value);
+LIBPYTHON_EXTERN PyObject* (*PyDict_Keys)(PyObject *mp);
+LIBPYTHON_EXTERN PyObject* (*PyDict_Values)(PyObject *mp);
+LIBPYTHON_EXTERN Py_ssize_t (*PyDict_Size)(PyObject *mp);
 
 LIBPYTHON_EXTERN PyObject* (*PyInt_FromLong)(long);
 LIBPYTHON_EXTERN long (*PyInt_AsLong)(PyObject *);

@@ -1317,10 +1317,45 @@ PyObjectRef py_dict(const List& keys, const List& items, bool convert) {
 
 
 // [[Rcpp::export]]
+PyObjectRef py_dict_get_item(PyObjectRef dict, RObject key) {
+  PyObjectPtr pyKey(r_to_py(key, dict.convert()));
+  PyObject* item = PyDict_GetItem(dict, pyKey);
+  Py_IncRef(item);
+  return py_ref(item, dict.convert());
+}
+
+// [[Rcpp::export]]
 void py_dict_set_item(PyObjectRef dict, RObject item, RObject value) {
   PyObjectPtr pyItem(r_to_py(item, dict.convert()));
   PyObjectPtr pyValue(r_to_py(value, dict.convert()));
   PyDict_SetItem(dict, pyItem, pyValue);
+}
+
+// [[Rcpp::export]]
+int py_dict_length(PyObjectRef dict) {
+  return PyDict_Size(dict);
+}
+
+// [[Rcpp::export]]
+CharacterVector py_dict_get_keys_as_str(PyObjectRef dict) {
+    
+  // get the keys and check their length
+  PyObjectPtr pyKeys(PyDict_Keys(dict));
+  Py_ssize_t len = PyList_Size(pyKeys);
+  
+  // allocate keys to return
+  CharacterVector keys(len);
+
+  // get the keys as strings
+  for (Py_ssize_t i = 0; i<len; i++) {
+    PyObjectPtr str(PyObject_Str(PyList_GetItem(pyKeys, i)));
+    if (str.is_null())
+      stop(py_fetch_error());
+    keys[i] = as_std_string(str);
+  }
+  
+  // return
+  return keys;
 }
 
 

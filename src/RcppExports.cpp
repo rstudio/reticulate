@@ -244,6 +244,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// py_dict_get_item
+PyObjectRef py_dict_get_item(PyObjectRef dict, RObject key);
+RcppExport SEXP reticulate_py_dict_get_item(SEXP dictSEXP, SEXP keySEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< PyObjectRef >::type dict(dictSEXP);
+    Rcpp::traits::input_parameter< RObject >::type key(keySEXP);
+    rcpp_result_gen = Rcpp::wrap(py_dict_get_item(dict, key));
+    return rcpp_result_gen;
+END_RCPP
+}
 // py_dict_set_item
 void py_dict_set_item(PyObjectRef dict, RObject item, RObject value);
 RcppExport SEXP reticulate_py_dict_set_item(SEXP dictSEXP, SEXP itemSEXP, SEXP valueSEXP) {
@@ -254,6 +266,28 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< RObject >::type value(valueSEXP);
     py_dict_set_item(dict, item, value);
     return R_NilValue;
+END_RCPP
+}
+// py_dict_length
+int py_dict_length(PyObjectRef dict);
+RcppExport SEXP reticulate_py_dict_length(SEXP dictSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< PyObjectRef >::type dict(dictSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_dict_length(dict));
+    return rcpp_result_gen;
+END_RCPP
+}
+// py_dict_get_keys_as_str
+CharacterVector py_dict_get_keys_as_str(PyObjectRef dict);
+RcppExport SEXP reticulate_py_dict_get_keys_as_str(SEXP dictSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< PyObjectRef >::type dict(dictSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_dict_get_keys_as_str(dict));
+    return rcpp_result_gen;
 END_RCPP
 }
 // py_tuple

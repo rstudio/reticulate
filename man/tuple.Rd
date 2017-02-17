@@ -4,7 +4,7 @@
 \alias{tuple}
 \title{Create Python tuple}
 \usage{
-tuple(..., .convert = TRUE)
+tuple(..., .convert = FALSE)
 }
 \arguments{
 \item{...}{Values for tuple}
@@ -18,4 +18,9 @@ A Python tuple
 }
 \description{
 Create a Python tuple object
+}
+\note{
+The returned tuple will not automatically convert it's elements
+from Python to R. You can do manual converstion with the \code{\link[=py_to_r]{py_to_r()}}
+function or pass \code{convert = TRUE} to request automatic conversion.
 }

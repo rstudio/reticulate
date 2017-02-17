@@ -4,7 +4,7 @@
 \alias{dict}
 \title{Create Python dictionary}
 \usage{
-dict(..., .convert = TRUE)
+dict(..., .convert = FALSE)
 }
 \arguments{
 \item{...}{Name/value pairs for dictionary}
@@ -21,6 +21,7 @@ Create a Python dictionary object, including a dictionary whose keys are
 other Python objects rather than character vectors.
 }
 \note{
-This is useful for creating dictionaries keyed by Tensor (required for
-\code{feed_dict} parameters).
+The returned dictionary will not automatically convert it's elements
+from Python to R. You can do manual converstion with the \code{\link[=py_to_r]{py_to_r()}}
+function or pass \code{convert = TRUE} to request automatic conversion.
 }

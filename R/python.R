@@ -262,12 +262,13 @@ py_has_convert <- function(x) {
 #' @param ... Name/value pairs for dictionary
 #'   
 #' @return A Python dictionary
-#'   
-#' @note This is useful for creating dictionaries keyed by Tensor (required for
-#' `feed_dict` parameters).
+#' 
+#' @note The returned dictionary will not automatically convert it's elements 
+#'   from Python to R. You can do manual converstion with the [py_to_r()]
+#'   function or pass `convert = TRUE` to request automatic conversion.
 #' 
 #' @export
-dict <- function(..., .convert = TRUE) {
+dict <- function(..., .convert = FALSE) {
 
   ensure_python_initialized()
 
@@ -302,10 +303,12 @@ dict <- function(..., .convert = TRUE) {
 #' @param ... Values for tuple
 #'
 #' @return A Python tuple
-#'
+#' @note The returned tuple will not automatically convert it's elements 
+#'   from Python to R. You can do manual converstion with the [py_to_r()]
+#'   function or pass `convert = TRUE` to request automatic conversion.
 #'
 #' @export
-tuple <- function(..., .convert = TRUE) {
+tuple <- function(..., .convert = FALSE) {
 
   ensure_python_initialized()
 

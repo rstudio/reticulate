@@ -82,7 +82,7 @@ def generate_signature_for_function(func):
     if argspec.defaults:
       for arg, default in zip(
           argspec.args[first_arg_with_default:], argspec.defaults):
-        if callable(default):
+        if callable(default) and hasattr(default, '__name__'):
           args_list.append("%s = %s" % (arg, default.__name__))
         else:
           if default is None:

@@ -245,7 +245,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // py_dict_get_item
-PyObjectRef py_dict_get_item(PyObjectRef dict, RObject key);
+SEXP py_dict_get_item(PyObjectRef dict, RObject key);
 RcppExport SEXP reticulate_py_dict_get_item(SEXP dictSEXP, SEXP keySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;

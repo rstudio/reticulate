@@ -1317,11 +1317,16 @@ PyObjectRef py_dict(const List& keys, const List& items, bool convert) {
 
 
 // [[Rcpp::export]]
-PyObjectRef py_dict_get_item(PyObjectRef dict, RObject key) {
+SEXP py_dict_get_item(PyObjectRef dict, RObject key) {
   PyObjectPtr pyKey(r_to_py(key, dict.convert()));
   PyObject* item = PyDict_GetItem(dict, pyKey);
-  Py_IncRef(item);
-  return py_ref(item, dict.convert());
+  if (item != NULL) {
+    Py_IncRef(item);
+    return py_ref(item, dict.convert());
+  } else {
+    Py_IncRef(Py_None);
+    return py_ref(Py_None, false);
+  }
 }
 
 // [[Rcpp::export]]

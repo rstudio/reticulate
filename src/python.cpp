@@ -1203,6 +1203,15 @@ PyObjectRef py_get_attr_impl(PyObjectRef x, const std::string& name, bool silent
 }
 
 // [[Rcpp::export]]
+void py_set_attr_impl(PyObjectRef x, const std::string& name, RObject value) {
+  int res = PyObject_SetAttrString(x, name.c_str(), r_to_py(value, x.convert()));
+  if (res != 0)
+    stop(py_fetch_error());
+}
+  
+
+
+// [[Rcpp::export]]
 IntegerVector py_get_attribute_types(
     PyObjectRef x,
     const std::vector<std::string>& attributes) {
@@ -1305,6 +1314,15 @@ PyObjectRef py_dict(const List& keys, const List& items, bool convert) {
   }
   return py_ref(dict, convert);
 }
+
+
+// [[Rcpp::export]]
+void py_dict_set_item(PyObjectRef dict, RObject item, RObject value) {
+  PyObjectPtr pyItem(r_to_py(item, dict.convert()));
+  PyObjectPtr pyValue(r_to_py(value, dict.convert()));
+  PyDict_SetItem(dict, pyItem, pyValue);
+}
+
 
 // [[Rcpp::export]]
 PyObjectRef py_tuple(const List& items, bool convert) {

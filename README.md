@@ -230,6 +230,7 @@ Typically interacting with Python objects from R involves using the `$` operator
 |----------------------|-------------------------------------------------------------|
 | py\_has\_attr        | Check if an object has a specified attribute.               |
 | py\_get\_attr        | Get an attribute of a Python object.                        |
+| py\_set\_attr        | Set an attribute of a Python object.                        |
 | py\_list\_attributes | List all attributes of a Python object.                     |
 | py\_call             | Call a Python callable object with the specified arguments. |
 | py\_to\_r            | Convert a Python object to it's R equivalent                |

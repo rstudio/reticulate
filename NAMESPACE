@@ -2,7 +2,11 @@
 
 S3method("$",python.builtin.module)
 S3method("$",python.builtin.object)
+S3method("$<-",python.builtin.dict)
+S3method("$<-",python.builtin.object)
 S3method("[[",python.builtin.object)
+S3method("[[<-",python.builtin.dict)
+S3method("[[<-",python.builtin.object)
 S3method(.DollarNames,python.builtin.module)
 S3method(.DollarNames,python.builtin.object)
 S3method(as.function,python.builtin.object)

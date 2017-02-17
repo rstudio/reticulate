@@ -183,6 +183,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// py_set_attr_impl
+void py_set_attr_impl(PyObjectRef x, const std::string& name, RObject value);
+RcppExport SEXP reticulate_py_set_attr_impl(SEXP xSEXP, SEXP nameSEXP, SEXP valueSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< PyObjectRef >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type name(nameSEXP);
+    Rcpp::traits::input_parameter< RObject >::type value(valueSEXP);
+    py_set_attr_impl(x, name, value);
+    return R_NilValue;
+END_RCPP
+}
 // py_get_attribute_types
 IntegerVector py_get_attribute_types(PyObjectRef x, const std::vector<std::string>& attributes);
 RcppExport SEXP reticulate_py_get_attribute_types(SEXP xSEXP, SEXP attributesSEXP) {
@@ -230,6 +242,18 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< bool >::type convert(convertSEXP);
     rcpp_result_gen = Rcpp::wrap(py_dict(keys, items, convert));
     return rcpp_result_gen;
+END_RCPP
+}
+// py_dict_set_item
+void py_dict_set_item(PyObjectRef dict, RObject item, RObject value);
+RcppExport SEXP reticulate_py_dict_set_item(SEXP dictSEXP, SEXP itemSEXP, SEXP valueSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< PyObjectRef >::type dict(dictSEXP);
+    Rcpp::traits::input_parameter< RObject >::type item(itemSEXP);
+    Rcpp::traits::input_parameter< RObject >::type value(valueSEXP);
+    py_dict_set_item(dict, item, value);
+    return R_NilValue;
 END_RCPP
 }
 // py_tuple

@@ -198,6 +198,33 @@ py_has_convert <- function(x) {
 `[[.python.builtin.object` <- `$.python.builtin.object`
 
 
+
+
+
+#' @export
+`$<-.python.builtin.object` <- function(x, name, value) {
+  ensure_python_initialized()
+  py_set_attr(x, name, value)
+  x
+}
+
+#' @export
+`[[<-.python.builtin.object` <- `$<-.python.builtin.object`
+
+
+#' @export
+`$<-.python.builtin.dict` <- function(x, name, value) {
+  ensure_python_initialized()
+  py_dict_set_item(x, name, value)
+  x
+}
+
+#' @export
+`[[<-.python.builtin.dict` <- `$<-.python.builtin.dict`
+
+
+
+
 #' @export
 .DollarNames.python.builtin.module <- function(x, pattern = "") {
   
@@ -527,6 +554,18 @@ py_call <- function(x, ...) {
 py_get_attr <- function(x, name, silent = FALSE) {
   ensure_python_initialized()
   py_get_attr_impl(x, name, silent)
+}
+
+#' Set an attribute of a Python object
+#'
+#' @param x Python object
+#' @param name Attribute name
+#' @param value Attribute value
+#'
+#' @export
+py_set_attr <- function(x, name, value) {
+  ensure_python_initialized()
+  py_set_attr_impl(x, name, value)
 }
 
 #' List all attributes of a Python object

@@ -91,6 +91,10 @@ py_get_attr_impl <- function(x, name, silent = FALSE) {
     .Call('reticulate_py_get_attr_impl', PACKAGE = 'reticulate', x, name, silent)
 }
 
+py_set_attr_impl <- function(x, name, value) {
+    invisible(.Call('reticulate_py_set_attr_impl', PACKAGE = 'reticulate', x, name, value))
+}
+
 py_get_attribute_types <- function(x, attributes) {
     .Call('reticulate_py_get_attribute_types', PACKAGE = 'reticulate', x, attributes)
 }
@@ -105,6 +109,10 @@ py_call_impl <- function(x, args = NULL, keywords = NULL) {
 
 py_dict <- function(keys, items, convert) {
     .Call('reticulate_py_dict', PACKAGE = 'reticulate', keys, items, convert)
+}
+
+py_dict_set_item <- function(dict, item, value) {
+    invisible(.Call('reticulate_py_dict_set_item', PACKAGE = 'reticulate', dict, item, value))
 }
 
 py_tuple <- function(items, convert) {

@@ -474,11 +474,12 @@ flexible than Python and we can't explicitly change R's memory order
 representation.  When the array is a matrix when we can simply use
 `byrow=TRUE`. In the n-d array case, a portion of the problem can be reduced to
 using `byrow=TRUE` followed by judicious index permutation with `aperm()`.
-Here is one ugly and inefficient example:
+Here is one somewhat inefficient example:
 ```{r}
 y <- aperm(array(matrix(1:24, c(3 * 4, 2), byrow=TRUE),
            c(3, 4, 2)), c(2, 1, 3))
 ```
+See the last section below for a different example.
 
 We can verify that the above ugly expression exactly reproduces a NumPy
 row-major array by subtracting our R array from a native Python one:

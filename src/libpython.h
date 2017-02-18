@@ -430,6 +430,10 @@ inline int PyArray_NDIM(const PyArrayObject *arr) {
   return ((PyArrayObject_fields *)arr)->nd;
 }
 
+inline int PyArray_FLAGS(PyArrayObject *arr) {
+  return ((PyArrayObject_fields *)arr)->flags;
+}
+
 #define PyArray_SIZE(m) PyArray_MultiplyList(PyArray_DIMS(m), PyArray_NDIM(m))
 
 #define PyArray_Check(o) PyObject_TypeCheck(o, &PyArray_Type)

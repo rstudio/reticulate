@@ -1,0 +1,649 @@
+---
+title: "Arrays in R and Python"
+output:
+  rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Arrays in R and Python}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(eval = FALSE)
+```
+
+Dense data are stored contiguously in memory, addressed by a single index (the
+memory address). Array memory ordering schemes translate that single index into
+multiple indices corresponding to the array coordinates. For example, matrices
+have two indices: rows and columns. Three-d arrays have three, and so on.
+
+## Column-major order
+
+*Column-major* order is used by Fortran, Matlab, R, and most underlying core
+linear algebra libraries (BLAS). Sequential address locations are translated
+into array coordinates *i, j, k, ...* so that the first array coordinates vary
+most rapidly with address, the next array coordinates less rapidly, and so on.
+For instance, four address locations 1, 2, 3, 4 are translated into a two by
+two matrix coordinate system *(i, j)* as:
+```
+address   i  j
+  1       1  1
+  2       2  1
+  3       1  2
+  4       2  2
+```
+The phrase *column-major* comes from the matrix example, where sequentially
+addressed data are laid out sequentially along columns of the matrix.
+
+The concept of "row" and "column" don't directly apply to n-d arrays, but the
+same idea holds. For instance the R language lays out sequential addresses from
+1, 2, ..., 8, into a 2x2x2 3-d array as:
+```
+address   i  j  k
+  1       1  1  1
+  2       2  1  1
+  3       1  2  1
+  4       2  2  1
+  5       1  1  2
+  6       2  1  2
+  7       1  2  2
+  8       2  2  2
+```
+Consider the 3-d case shown above. Given array dimensions *d<sub>1</sub>=2, d<sub>2</sub>=2, d<sub>3</sub>=2*,
+a formula that takes 1-based coordinates *i, j, k* and returns address location
+*a* is
+<br/>
+*a = i + (j - 1) &#42; d<sub>1</sub> + (k - 1) &#42; d<sub>2</sub> &#42; d<sub>1</sub>*.
+
+
+## Row-major order
+
+Row-major ordering is a different translation between sequential address
+indices and array coordinates, instead laying sequential data in memory across
+rows in matrices. Row-major ordering is sometimes called "C" style ordering
+and column-major ordering "Fortran" style. Python/NumPy refers to the orderings
+in array flags as C_CONTIGUOUS and F_CONTIGUOUS, respectively.
+For instance
+address locations 1, 2, 3, 4 are translated into a 2x2 matrix coordinate
+system *(i, j)* as:
+```
+address   i  j
+  1       1  1
+  2       1  2
+  3       2  1
+  4       2  2
+```
+Efficient wrappers to BLAS routines exist for row-major ordered arrays.
+For completeness, here is a 2x2x2 3-d example layout:
+```
+address   i  j  k
+  1       1  1  1
+  2       1  1  2
+  3       1  2  1
+  4       1  2  2
+  5       2  1  1
+  6       2  1  2
+  7       2  2  1
+  8       2  2  2
+```
+And similarly to above a formula for this example that converts these 1-based
+array coordinates to address indices is:
+<br/>
+*a = k + (j - 1) &#42; d<sub>3</sub> + (i - 1) &#42; d<sub>3</sub> &#42; d<sub>2</sub>*.
+
+See the following notes for a general formula for row- and column-order
+coordinate to address mapping, but note the use of zero-based indexing.
+
+- https://en.wikipedia.org/wiki/Row-_and_column-major_order#Address_calculation_in_general
+- https://docs.scipy.org/doc/numpy/reference/arrays.ndarray.html
+
+
+## Python
+
+The Python NumPy library is very general. It can use *either* row-major or
+column-major ordered arrays, but it defaults to row-major ordering.
+NumPy also supports sophisticated *views* of data with custom strides across
+non-contiguous regions of memory.
+
+
+## Displaying arrays
+
+R displays array data with unambiguously-labeled coordinate indices. Python
+doesn't show this and displays n-d array data in different order than R (making
+matters somewhat confusing for R users).  Consider the following example that
+creates and displays identical 4x3x2 arrays in R and Python:
+
+```{r}
+array(1:24, c(4,3,2))
+
+## , , 1
+##      [,1] [,2] [,3]
+## [1,]    1    5    9
+## [2,]    2    6   10
+## [3,]    3    7   11
+## [4,]    4    8   12
+## 
+## , , 2
+##      [,1] [,2] [,3]
+## [1,]   13   17   21
+## [2,]   14   18   22
+## [3,]   15   19   23
+## [4,]   16   20   24
+```
+```{python, eval=FALSE}
+import numpy as np
+np.reshape(np.arange(1,25), (4,3,2), "F")
+
+## array([[[ 1, 13],
+##         [ 5, 17],
+##         [ 9, 21]],
+##
+##        [[ 2, 14],
+##         [ 6, 18],
+##         [10, 22]],
+##
+##        [[ 3, 15],
+##         [ 7, 19],
+##         [11, 23]],
+##
+##        [[ 4, 16],
+##         [ 8, 20],
+##         [12, 24]]])
+```
+
+It's easier to know which coordinates go where in R because they are labeled.
+Python, using column-major ordering, displays the same thing but in a different
+order where the first indices are grouped together in order. To see that these
+arrays are, in fact, **the same**, let's pick out values along just the first
+"row", that is values with a first index of 1 (R) or 0 (Python):
+```{r}
+array(1:24, c(4, 3, 2))[1,, ,drop=FALSE]
+
+## , , 1
+##      [,1] [,2] [,3]
+## [1,]    1    5    9
+## 
+## , , 2
+##      [,1] [,2] [,3]
+## [1,]   13   17   21
+```
+```{python, eval=FALSE}
+np.reshape(np.arange(1,25), (4,3,2), "F")[0]
+
+## array([[ 1, 13],
+##        [ 5, 17],
+##        [ 9, 21]])
+```
+I specified R's `drop=FALSE` argument to preserve array dimensionality above.
+If we use `drop=TRUE` (the default) then R returns a 3x2 array in column-major
+order--exactly the same result as Python above.
+```{r}
+array(1:24, c(4, 3, 2))[1,, ,drop=TRUE]
+
+##      [,1] [,2]
+## [1,]    1   13
+## [2,]    5   17
+## [3,]    9   21
+```
+
+Note that the Python result is a special view of the original array data, not
+a copy. In this case it's not stored in contiguous memory addresses and is
+neither really row- nor column-major. This is shown in the array flags:
+```{python, eval=FALSE}
+np.reshape(np.arange(1,25), (4,3,2), "F")[0].flags
+
+##  C_CONTIGUOUS : False
+##  F_CONTIGUOUS : False
+##  OWNDATA : False
+##  WRITEABLE : True
+##  ALIGNED : True
+##  UPDATEIFCOPY : False
+```
+
+
+## Reticulate with care
+
+The reticulate package lets us easily mix R and Python code and data. Recall
+that R represents all dense arrays in column-major order but Python/NumPy can
+represent dense arrays much more generally. That difference warrants attention
+and can easily lead to confusion!
+
+Remember the following things when working with R and Python arrays, especially
+*n*-d arrays with *n &gt; 2*.
+
+1. Dense R arrays are presented to Python/NumPy as column-major NumPy arrays.
+2. *All* NumPy arrays (column-major, row-major, otherwise) are presented to R as column-major arrays, because that is the only kind of dense array that R understands.
+3. R and Python print arrays differently.
+
+Also worth knowing:
+
+- Python array indices are zero-based, R indices are 1-based.
+- R arrays are only copied to Python when they need to be, otherwise data are shared.
+- Python arrays are *always* copied when moved into R arrays. This can sometimes lead to three copies of any one array in memory at any one time (at the moment this was written). Future versions will reduce that copy overhead to two.
+
+Point number 3. introduces the most potential confusion. Let's look at some examples
+to explore these points.
+
+The following example creates a 2x2x2 array in Python using native NumPy
+row-major ordering and imports it into R. Despite the fact that they print out
+differently, they are in fact the same.
+```{r, eval=TRUE}
+library(reticulate)
+np <- import("numpy", convert=FALSE)
+(x <- np$arange(1, 9)$reshape(2L, 2L, 2L))
+
+## [[[ 1.  2.]
+##   [ 3.  4.]]
+## 
+##  [[ 5.  6.]
+##   [ 7.  8.]]]
+
+(y <- py_to_r(x))
+
+## , , 1
+##      [,1] [,2]
+## [1,]    1    3
+## [2,]    5    7
+## 
+## , , 2
+##      [,1] [,2]
+## [1,]    2    4
+## [2,]    6    8
+```
+Wait a minute! They look different! But remember Python's print order is different.
+The first "rows" (first index values) are grouped together. Let's pull out elements
+with first index of 1 in the R result, with and without dropping the unused dimension
+to show precisely what we're indexing here:
+```{r}
+y[1,,, drop=FALSE]
+
+## , , 1
+##      [,1] [,2]
+## [1,]    1    3
+## 
+## , , 2
+##      [,1] [,2]
+## [1,]    2    4
+
+y[1,,, drop=TRUE]
+
+##      [,1] [,2]
+## [1,]    1    2
+## [2,]    3    4
+```
+Note that this is the same as the first block printed in the Python output above!
+These arrays really are the same in Python and R, respectively. Their apparent
+differences are merely a result of printing.
+
+
+### Another example
+
+Let's look at this again with another example, this time with an array with
+different lengths along each dimension to make things even more clear
+(hopefully). Consider the following 4x3x2 array constructed in Python in
+row-major order:
+```{r}
+np <- import("numpy", convert=FALSE)
+(x <- np$reshape(np$arange(1, 25), c(4L, 3L, 2L)))
+
+## [[[  1.   2.]
+##   [  3.   4.]
+##   [  5.   6.]]
+## 
+##  [[  7.   8.]
+##   [  9.  10.]
+##   [ 11.  12.]]
+## 
+##  [[ 13.  14.]
+##   [ 15.  16.]
+##   [ 17.  18.]]
+## 
+##  [[ 19.  20.]
+##   [ 21.  22.]
+##   [ 23.  24.]]]
+
+(y <- py_to_r(x))
+
+## , , 1
+##      [,1] [,2] [,3]
+## [1,]    1    3    5
+## [2,]    7    9   11
+## [3,]   13   15   17
+## [4,]   19   21   23
+## 
+## , , 2
+##      [,1] [,2] [,3]
+## [1,]    2    4    6
+## [2,]    8   10   12
+## [3,]   14   16   18
+## [4,]   20   22   24
+```
+Again, they look quite different but the R and Python arrays are really the
+same. Let's pick out the sub-array with third index = 0 (Python), equivalently
+the third index = 1 in R.
+```{r}
+np$take(x, 0L, 2L)
+
+## [[  1.   3.   5.]
+##  [  7.   9.  11.]
+##  [ 13.  15.  17.]
+##  [ 19.  21.  23.]]
+
+y[, , 1]
+
+##      [,1] [,2] [,3]
+## [1,]    1    3    5
+## [2,]    7    9   11
+## [3,]   13   15   17
+## [4,]   19   21   23
+```
+The NumPy `take()` function is equivalent in this example to the Python
+notation  `x[:, :, 0]`; that is, entries with third dimension index = 0.  (See
+https://docs.scipy.org/doc/numpy/reference/generated/numpy.take.html.)
+
+The corresponding R notation, `y[, , 1]`, returns the same thing in this
+example: a 4x3 matrix.
+
+Despite different internal memory ordering, and particularly despite awkward
+differences in printing arrays, the arrays are the same and are indexed the
+same way in each language respectively.
+
+
+## What about going from R column-major arrays to Python?
+
+The previous examples focused on row-major arrays natively constructed in
+Python. Let's see what happens when we start with column-major arrays from R
+and work with them in Python.
+
+```{r}
+(y <- array(1:24, c(4, 3, 2)))  # In R
+
+## , , 1
+##      [,1] [,2] [,3]
+## [1,]    1    5    9
+## [2,]    2    6   10
+## [3,]    3    7   11
+## [4,]    4    8   12
+## 
+## , , 2
+##      [,1] [,2] [,3]
+## [1,]   13   17   21
+## [2,]   14   18   22
+## [3,]   15   19   23
+## [4,]   16   20   24
+
+(x <- np$array(y))              # and now in Python
+
+## [[[ 1 13]
+##   [ 5 17]
+##   [ 9 21]]
+## 
+##  [[ 2 14]
+##   [ 6 18]
+##   [10 22]]
+## 
+##  [[ 3 15]
+##   [ 7 19]
+##   [11 23]]
+## 
+##  [[ 4 16]
+##   [ 8 20]
+##   [12 24]]]
+```
+Note that the Python version takes advantage of NumPy's extraordinary
+flexibility and preserves R's column-major ordering:
+```{r}
+x$flags
+
+##   C_CONTIGUOUS : False
+##   F_CONTIGUOUS : True
+##   OWNDATA : True
+##   WRITEABLE : True
+##   ALIGNED : True
+##   UPDATEIFCOPY : False
+```
+
+You can probably tell already from the previous sections that these arrays
+are the same, and obey the same indexing conventions. The next example
+selects a subarray such that the third index of each array is 0 (Python)
+or 1 (R):
+
+```{r}
+y[, , 1]
+
+##      [,1] [,2] [,3]
+## [1,]    1    5    9
+## [2,]    2    6   10
+## [3,]    3    7   11
+## [4,]    4    8   12
+
+np$take(x, 0L, 2L)
+
+## [[ 1  5  9]
+##  [ 2  6 10]
+##  [ 3  7 11]
+##  [ 4  8 12]]
+```
+
+It's important to remember that the order is preserved from Python when
+copying an array result back into R:
+```{r}
+py_to_r(np$take(x, 0L, 2L))
+
+##      [,1] [,2] [,3]
+## [1,]    1    5    9
+## [2,]    2    6   10
+## [3,]    3    7   11
+## [4,]    4    8   12
+```
+
+_**The upshot is that arrays created by either R or Python are indexed exactly the
+same in either language.**_
+
+
+### But the array I created in natively R is transposed from the one I create natively in Python?
+
+Right. That's just a simple consequence of the default column-major and
+row-major formats used in R and NumPy respectively. You are always free to use
+R's column-major format directly in Python, for example using the "F" flag
+below (for Fortran):
+
+```{r}
+np$reshape(np$arange(1, 25), c(4L, 3L, 2L), "F")
+
+## [[[  1.  13.]
+##   [  5.  17.]
+##   [  9.  21.]]
+## 
+##  [[  2.  14.]
+##   [  6.  18.]
+##   [ 10.  22.]]
+## 
+##  [[  3.  15.]
+##   [  7.  19.]
+##   [ 11.  23.]]
+## 
+##  [[  4.  16.]
+##   [  8.  20.]
+##   [ 12.  24.]]]
+```
+Note that the result is just like the one we got starting from R above.
+
+Re-arranging R arrays into row-major order requires more work.  R is less
+flexible than Python and we can't explicitly change R's memory order
+representation.  When the array is a matrix when we can simply use
+`byrow=TRUE`. In the n-d array case, a portion of the problem can be reduced to
+using `byrow=TRUE` followed by judicious index permutation with `aperm()`.
+Here is one ugly and inefficient example:
+```{r}
+y <- aperm(array(matrix(1:24, c(3 * 4, 2), byrow=TRUE),
+           c(3, 4, 2)), c(2, 1, 3))
+```
+
+We can verify that the above ugly expression exactly reproduces a NumPy
+row-major array by subtracting our R array from a native Python one:
+```{r}
+np <- import("numpy", convert=FALSE)
+o  <- import("operator", convert=FALSE)
+
+o$sub(np$arange(1, 25)$reshape(4L, 3L, 2L), np$array(y))
+
+## [[[ 0.  0.]
+##   [ 0.  0.]
+##   [ 0.  0.]]
+## 
+##  [[ 0.  0.]
+##   [ 0.  0.]
+##   [ 0.  0.]]
+## 
+##  [[ 0.  0.]
+##   [ 0.  0.]
+##   [ 0.  0.]]
+## 
+##  [[ 0.  0.]
+##   [ 0.  0.]
+##   [ 0.  0.]]]
+```
+The above NumPy arrays are the same, their element-wise difference is zero.
+
+
+## Other differences warranting caution
+
+It's worth noting that analogs of R's `apply()` function in Python behave
+differently. The following excellent Mathesaurus reference
+http://mathesaurus.sourceforge.net/r-numpy.html applies well to matrices and
+vectors, but is misleading for *n*-d arrays with *n &gt; 2*.
+
+In particular, Mathesaurus says that if *a* is a _matrix_, then the sum of each
+column in Python may be computed by  `a.sum(0)`, and in R (among other possible
+ways) by `apply(a, 2, sum)`. Although correct for matrices, this is in general
+not quite right. A more precise R analog of NumPy's `a.sum(0)` is
+`apply(a, dim(y)[-1], sum)`.
+In other words, `a.sum(0)` means sum over the first dimension, returning
+an array of the same dimensions as *a* but with the first dimension removed.
+
+It's easy to be confused by this, so let's see an example using a 4x3x2
+array, first in Python:
+```{r}
+library(reticulate)
+np <- import("numpy", convert=FALSE)
+x  <- np$arange(1, 25)$reshape(c(4L, 3L, 2L))
+x$sum(0)   # N. B. a 3x2 matrix!
+
+## [[ 40.  44.]
+##  [ 48.  52.]
+##  [ 56.  60.]]
+
+# N. B. A tuple() object is required here (NumPy vectors won't work)
+x$sum(tuple(1L, 2L))
+
+## [  21.   57.   93.  129.]
+```
+And now the corresponding sums in R:
+```{r}
+y <- py_to_r(x)
+apply(y, dim(y)[-1], sum)
+
+##      [,1] [,2] [,3]
+## [1,]   40   48   56
+## [2,]   44   52   60
+
+apply(y, 1, sum)
+
+## [1]  21  57  93 129
+```
+
+
+# Addressing an issue that came up
+
+These notes were prepared in response to a tensorflow issue now in the
+reticulate package https://github.com/rstudio/reticulate/issues/9.
+The issue directly gets to a common source of confusion with n-d
+arrays in R and Python and how they are printed and stored.
+A lightly-edited reproduction of the reference Python code in the issue
+appears below.
+```{r}
+library(tensorflow)
+np   <- import("numpy", convert=FALSE)
+a    <- np$arange(1, 9)$reshape(c(2L, 2L, 2L))
+b    <- np$arange(1, 5)$reshape(c(2L, 2L, 1L))
+c    <- tf$matmul(tf$constant(a), tf$constant(b))
+tf$Session()$run(c)
+
+## , , 1
+##      [,1] [,2]
+## [1,]    5   11
+## [2,]   39   53
+```
+
+The issue goes on to reproduce the example using R-generated arrays
+as follows:
+```{r}
+A <- list(matrix(1:4, nrow=2, byrow=T), matrix(5:8, nrow=2, byrow=T))
+A <- array(unlist(A), dim=c(2,2,2))
+```
+However, already at this point we see that the R-generated array *A* is
+not the same as the above array *a* by comparing *a* with
+`np$array(A)` below.
+
+However, we can see how it can be easy to make the mistake that they are the
+same simply because of the way the arrays are printed! The R array looks
+superficially the same as the printed Python array.
+```{r}
+print(a)
+
+## [[[ 1.  2.]
+##   [ 3.  4.]]
+## 
+##  [[ 5.  6.]
+##   [ 7.  8.]]]
+
+
+print(np$array(A))
+
+## [[[1 5]
+##   [2 6]]
+## 
+##  [[3 7]
+##   [4 8]]]
+
+
+print(A)
+
+## , , 1
+##      [,1] [,2]
+## [1,]    1    2
+## [2,]    3    4
+## 
+## , , 2
+##      [,1] [,2]
+## [1,]    5    6
+## [2,]    7    8
+```
+
+Instead, we need to construct the R array *A* differently to match the
+row-major order of Python, discussed in the previous sections. We can
+use many approaches including:
+```{r}
+(A <- np$array(aperm(array(1:8, c(2,2,2)), c(3,2,1))))
+
+## [[[1 2]
+##   [3 4]]
+## 
+##  [[5 6]
+##   [7 8]]]
+```
+With similar care ordering the values in the *b* array
+we can finish replicating the example in R (with the same
+result as the reference Python example above).
+```{r}
+A <- np$array(aperm(array(1:8, c(2,2,2)), c(3,2,1)))
+B <- np$array(aperm(array(1:4, c(2,2,1)), c(2,1,3)))
+C <- tf$matmul(tf$constant(A), tf$constant(B))
+tf$Session()$run(C)
+
+## , , 1
+##      [,1] [,2]
+## [1,]    5   11
+## [2,]   39   53
+```

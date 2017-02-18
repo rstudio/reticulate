@@ -412,10 +412,6 @@ tuple <- function(..., convert = FALSE) {
   # get the args
   values <- list(...)
   
-  # if there is a single value and it's a list then use that
-  if (length(values) == 1 && is.list(values[[1]]))
-    values <- values[[1]]
-
   # if it's a single value then maybe do some special resolution
   if (length(values) == 1) {
 

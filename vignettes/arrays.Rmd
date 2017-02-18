@@ -227,7 +227,7 @@ to explore these points.
 The following example creates a 2x2x2 array in Python using native NumPy
 row-major ordering and imports it into R. Despite the fact that they print out
 differently, they are in fact the same.
-```{r, eval=TRUE}
+```{r}
 library(reticulate)
 np <- import("numpy", convert=FALSE)
 (x <- np$arange(1, 9)$reshape(2L, 2L, 2L))

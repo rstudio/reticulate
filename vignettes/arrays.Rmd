@@ -441,7 +441,7 @@ _**The upshot is that arrays created by either R or Python are indexed exactly t
 same in either language.**_
 
 
-### But the array I created in natively R is transposed from the one I create natively in Python?
+### But the array I created in R ends up transposed compared to ones I create in Python?
 
 Right. That's just a simple consequence of the default column-major and
 row-major formats used in R and NumPy respectively. You are always free to use

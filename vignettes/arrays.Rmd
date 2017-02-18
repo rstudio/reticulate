@@ -519,7 +519,7 @@ In particular, Mathesaurus says that if *a* is a _matrix_, then the sum of each
 column in Python may be computed by  `a.sum(0)`, and in R (among other possible
 ways) by `apply(a, 2, sum)`. Although correct for matrices, this is in general
 not quite right. A more precise R analog of NumPy's `a.sum(0)` is
-`apply(a, dim(y)[-1], sum)`.
+`apply(a, dim(a)[-1], sum)`.
 In other words, `a.sum(0)` means sum over the first dimension, returning
 an array of the same dimensions as *a* but with the first dimension removed.
 

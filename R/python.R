@@ -343,27 +343,34 @@ plot.numpy.ndarray <- function(x, y, ...) {
 
 #' Create Python dictionary
 #' 
-#' Create a Python dictionary object, including a dictionary whose keys are
+#' Create a Python dictionary object, including a dictionary whose keys are 
 #' other Python objects rather than character vectors.
 #' 
-#' @param .convert `TRUE` to automatically convert Python objects to their R
+#' @param ... Name/value pairs for dictionary (or a single named list to be 
+#'   converted to a dictionary).
+#' @param convert `TRUE` to automatically convert Python objects to their R 
 #'   equivalent. If you pass `FALSE` you can do manual conversion using the 
 #'   [py_to_r()] function.
-#' @param ... Name/value pairs for dictionary
 #'   
 #' @return A Python dictionary
-#' 
+#'   
 #' @note The returned dictionary will not automatically convert it's elements 
-#'   from Python to R. You can do manual converstion with the [py_to_r()]
+#'   from Python to R. You can do manual converstion with the [py_to_r()] 
 #'   function or pass `convert = TRUE` to request automatic conversion.
-#' 
+#'   
 #' @export
-dict <- function(..., .convert = FALSE) {
+dict <- function(..., convert = FALSE) {
 
   ensure_python_initialized()
 
-  # get the args and their names
+  # get the args 
   values <- list(...)
+  
+  # if there is a single element and it's a list then use that
+  if (length(values) == 1 && is.list(values[[1]]))
+    values <- values[[1]]
+  
+  # get names
   names <- names(values)
 
   # evaluate names in parent env to get keys
@@ -382,28 +389,32 @@ dict <- function(..., .convert = FALSE) {
 
 
   # construct dict
-  py_dict(keys, values, convert = .convert)
+  py_dict(keys, values, convert = convert)
 }
 
 #' Create Python tuple
-#'
+#' 
 #' Create a Python tuple object
-#'
+#' 
 #' @inheritParams dict
-#' @param ... Values for tuple
-#'
+#' @param ... Values for tuple (or a single list to be converted to a tuple).
+#'   
 #' @return A Python tuple
-#' @note The returned tuple will not automatically convert it's elements 
-#'   from Python to R. You can do manual converstion with the [py_to_r()]
-#'   function or pass `convert = TRUE` to request automatic conversion.
-#'
+#' @note The returned tuple will not automatically convert it's elements from
+#'   Python to R. You can do manual converstion with the [py_to_r()] function or
+#'   pass `convert = TRUE` to request automatic conversion.
+#'   
 #' @export
-tuple <- function(..., .convert = FALSE) {
+tuple <- function(..., convert = FALSE) {
 
   ensure_python_initialized()
 
   # get the args
   values <- list(...)
+  
+  # if there is a single value and it's a list then use that
+  if (length(values) == 1 && is.list(values[[1]]))
+    values <- values[[1]]
 
   # if it's a single value then maybe do some special resolution
   if (length(values) == 1) {
@@ -421,7 +432,7 @@ tuple <- function(..., .convert = FALSE) {
   }
 
   # construct tuple
-  py_tuple(values, convert = .convert)
+  py_tuple(values, convert = convert)
 }
 
 

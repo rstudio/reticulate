@@ -1,8 +1,7 @@
 
 #' Import a Python module
 #'
-#' Import the specified Python module for calling from R. Use \code{"__main__"}
-#' to import the main module.
+#' Import the specified Python module for calling from R. 
 #'
 #' @param module Module name
 #' @param convert `TRUE` to automatically convert Python objects to their

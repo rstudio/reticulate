@@ -27,8 +27,7 @@ once the module is loaded). \code{FALSE} to load the module immediately.}
 A Python module
 }
 \description{
-Import the specified Python module for calling from R. Use \code{"__main__"}
-to import the main module.
+Import the specified Python module for calling from R.
 }
 \examples{
 \dontrun{

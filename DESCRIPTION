@@ -12,7 +12,9 @@ Authors@R: c(
   person("Yuan", "Tang", role = c("ctb", "cph"),
          email = "terrytangyuan@gmail.com"),
   person("Dirk", "Eddelbuettel", role = c("ctb", "cph"),
-         email = "edd@debian.org")
+         email = "edd@debian.org"),
+  person("Bryan", "Lewis", role = c("ctb", "cph"),
+         email = "blewis@illposed.net")
   )
 Description: R interface to Python modules, classes, and functions. When calling
     into Python R data types are automatically converted to their equivalent Python

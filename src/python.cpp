@@ -1189,9 +1189,11 @@ PyObjectRef py_get_attr_impl(PyObjectRef x, const std::string& name, bool silent
 
   if (attr == NULL) {
 
+    std::string err = py_fetch_error();
+    
     if (!silent) {
       // error if we aren't silent
-      stop(py_fetch_error());
+      stop(err);
     } else {
       // otherwise set it to PyNone
       attr = Py_None;

@@ -581,7 +581,7 @@ SEXP py_to_r(PyObject* x) {
           REAL(rArray)[i] = pData[i];
         break;
       }
-    case NPY_CDOUBLE: {
+      case NPY_CDOUBLE: {
         npy_complex128* pData = (npy_complex128*)PyArray_DATA(array);
         rArray = Rf_allocArray(CPLXSXP, dimsVector);
         for (int i=0; i<len; i++) {

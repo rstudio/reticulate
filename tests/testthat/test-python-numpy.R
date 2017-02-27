@@ -20,3 +20,9 @@ test_that("Multi-dimensional arrays are handled correctly", {
   a1 <- array(c(1:8), dim = c(2,2,2))
   expect_equal(-a1, np$negative(a1))
 })
+
+test_that("Character arrays are handled correctly", {
+  skip_if_no_numpy()
+  a1 <- array(as.character(c(1:8)), dim = c(2,2,2))
+  expect_equal(a1, py_to_r(r_to_py(a1)))
+})

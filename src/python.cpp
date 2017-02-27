@@ -407,10 +407,17 @@ int narrow_array_typenum(int typenum) {
     typenum = NPY_CDOUBLE;
     break;
 
+    
+    // string/object (leave these alone)
+  case NPY_STRING:
+  case NPY_UNICODE:
+  case NPY_OBJECT:
+    break;
+  
     // unsupported
   default:
     stop("Conversion from numpy array type %d is not supported", typenum);
-  break;
+    break;
   }
 
   return typenum;
@@ -423,6 +430,15 @@ int narrow_array_typenum(PyArrayObject* array) {
 int narrow_array_typenum(PyArray_Descr* descr) {
   return narrow_array_typenum(descr->type_num);
 }
+
+
+void set_string_element(SEXP rArray, int i, PyObject* pyStr) {
+  std::string str = as_std_string(pyStr);
+  cetype_t ce = PyUnicode_Check(pyStr) ? CE_UTF8 : CE_NATIVE;
+  SEXP strSEXP = Rf_mkCharCE(str.c_str(), ce);
+  SET_STRING_ELT(rArray, i, strSEXP);
+}
+ 
 
 // convert a python object to an R object
 SEXP py_to_r(PyObject* x) {
@@ -593,6 +609,57 @@ SEXP py_to_r(PyObject* x) {
         }
         break;
       }
+      case NPY_STRING:
+      case NPY_UNICODE: {
+        PyObjectPtr itemFunc(PyObject_GetAttrString(ptrArray, "item"));
+        if (itemFunc.is_null())
+          stop(py_fetch_error());
+        PROTECT(rArray = Rf_allocArray(STRSXP, dimsVector)); 
+        for (int i=0; i<len; i++) {
+          PyObjectPtr pyArgs(PyTuple_New(1));
+          // PyTuple_SetItem steals reference to object created by PyInt_FromLong
+          PyTuple_SetItem(pyArgs, 0, PyInt_FromLong(i));
+          PyObjectPtr pyStr(PyObject_Call(itemFunc, pyArgs, NULL));
+          if (pyStr.is_null()) {
+            UNPROTECT(1);
+            stop(py_fetch_error());
+          }
+          set_string_element(rArray, i, pyStr);
+        }
+        UNPROTECT(1);
+        break;
+      }
+      case NPY_OBJECT: {
+        
+        // get python objects
+        PyObject** pData = (PyObject**)PyArray_DATA(array);
+        
+        // check for all strings
+        bool allStrings = true;
+        for (npy_intp i=0; i<len; i++) {
+          if (!is_python_str(pData[i])) {
+            allStrings = false;
+            break;
+          }
+        }
+        
+        // return a character vector if it's all strings
+        if (allStrings) {
+          PROTECT(rArray = Rf_allocArray(STRSXP, dimsVector)); 
+          for (npy_intp i=0; i<len; i++)
+            set_string_element(rArray, i, pData[i]);
+          UNPROTECT(1);
+          
+        // otherwise return a list of objects
+        } else {
+          rArray = Rf_allocArray(VECSXP, dimsVector);
+          for (npy_intp i=0; i<len; i++) {
+            SEXP data = py_to_r(pData[i]);
+            SET_VECTOR_ELT(rArray, i, data);
+          }
+        }
+        break;
+      }
     }
 
     // return the R Array
@@ -712,6 +779,9 @@ PyObject* r_to_py(RObject x, bool convert) {
     } else if (type == CPLXSXP) {
       typenum = NPY_CDOUBLE;
       data = &(COMPLEX(sexp)[0]);
+    } else if (type == STRSXP) {
+      typenum = NPY_OBJECT;
+      data = NULL;
     } else {
       stop("Matrix type cannot be converted to python (only integer, "
            "numeric, complex, and logical matrixes can be converted");
@@ -732,20 +802,32 @@ PyObject* r_to_py(RObject x, bool convert) {
     if (array == NULL)
       stop(py_fetch_error());
 
-    // wrap the R object in a capsule that's tied to the lifetime of the matrix
-    // (so the R doesn't deallocate the memory while python is still pointing to it)
-    PyObjectPtr capsule(r_object_capsule(x));
-
-    // set base object using correct version of the API (detach since this
-    // effectively steals a reference to the provided base object)
-    if (PyArray_GetNDArrayCFeatureVersion() >= NPY_1_7_API_VERSION) {
-      int res = PyArray_SetBaseObject((PyArrayObject *)array, capsule.detach());
-      if (res != 0)
-        stop(py_fetch_error());
+    // if this is a character vector we need to convert and set the elements,
+    // otherwise the memory is shared with the underlying R vector
+    if (type == STRSXP) {
+      void** pData = (void**)PyArray_DATA((PyArrayObject*)array);
+      R_xlen_t len = Rf_xlength(x);
+      for (R_xlen_t i = 0; i<len; i++) {
+        PyObject* pyStr = as_python_str(STRING_ELT(x, i));
+        pData[i] = pyStr;
+      }
+      
     } else {
-      PyArray_BASE(array) = capsule.detach();
+      // wrap the R object in a capsule that's tied to the lifetime of the matrix
+      // (so the R doesn't deallocate the memory while python is still pointing to it)
+      PyObjectPtr capsule(r_object_capsule(x));
+      
+      // set base object using correct version of the API (detach since this
+      // effectively steals a reference to the provided base object)
+      if (PyArray_GetNDArrayCFeatureVersion() >= NPY_1_7_API_VERSION) {
+        int res = PyArray_SetBaseObject((PyArrayObject *)array, capsule.detach());
+        if (res != 0)
+          stop(py_fetch_error());
+      } else {
+        PyArray_BASE(array) = capsule.detach();
+      }
     }
-
+    
     // return it
     return array;
 

@@ -784,7 +784,8 @@ PyObject* r_to_py(RObject x, bool convert) {
       data = NULL;
     } else {
       stop("Matrix type cannot be converted to python (only integer, "
-           "numeric, complex, and logical matrixes can be converted");
+           "numeric, complex, logical, and character matrixes can be "
+           "converted");
     }
 
     // create the matrix

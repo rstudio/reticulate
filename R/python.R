@@ -15,7 +15,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' main <- import("__main__")
+#' main <- import_main()
 #' sys <- import("sys")
 #' }
 #'

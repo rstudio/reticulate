@@ -31,7 +31,7 @@ Import the specified Python module for calling from R.
 }
 \examples{
 \dontrun{
-main <- import("__main__")
+main <- import_main()
 sys <- import("sys")
 }
 

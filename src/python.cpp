@@ -394,6 +394,7 @@ int narrow_array_typenum(int typenum) {
     // double
   case NPY_UINT:
   case NPY_ULONG:
+  case NPY_ULONGLONG:
   case NPY_LONG:
   case NPY_LONGLONG:
   case NPY_FLOAT:

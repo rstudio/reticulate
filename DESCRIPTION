@@ -19,7 +19,7 @@ Authors@R: c(
 Description: R interface to Python modules, classes, and functions. When calling
     into Python R data types are automatically converted to their equivalent Python
     types. When values are returned from Python to R they are converted back to R
-    types. The reticulate package is compatible with all versions of Python >= 2.7.
+    types. Compatible with all versions of Python >= 2.7.
 License: Apache License 2.0
 URL: https://github.com/rstudio/reticulate
 BugReports: https://github.com/rstudio/reticulate/issues

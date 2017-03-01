@@ -4,7 +4,6 @@ if (py_available(initialize = TRUE)) {
   test <- import("rpytools.test")
   inspect <- import("inspect") 
   sys <- import("sys")
-  np <- import("numpy")
 }
 
 # helper to skip tests if python is not avaialable
@@ -14,6 +13,7 @@ skip_if_no_python <- function() {
 }
 
 skip_if_no_numpy <- function() {
+  skip_on_cran()
   skip_if_no_python()
   if (!py_numpy_available())
     skip("NumPy not available for testing.")

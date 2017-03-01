@@ -30,3 +30,14 @@ test_that("Character arrays are handled correctly", {
   a1 <- array(as.character(c(1:8)), dim = c(2,2,2))
   expect_equal(a1, py_to_r(r_to_py(a1)))
 })
+
+test_that("Long integer types are converted to R numeric", {
+  skip_if_no_numpy()
+  np <- import("numpy", convert = FALSE)
+  dtypes <- c(np$int64, np$uint32, np$uint64, np$long, np$longlong)
+  lapply(dtypes, function(dtype) {
+    a1 <- np$array(c(1L:30L), dtype = dtype)
+    expect_equal(class(as.vector(py_to_r(a1))), "numeric")
+  })
+})
+

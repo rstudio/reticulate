@@ -138,6 +138,9 @@ void initialize_type_objects(bool python3);
 
 LIBPYTHON_EXTERN void (*Py_Initialize)();
 
+LIBPYTHON_EXTERN int (*Py_AddPendingCall)(int (*func)(void *), void *arg);
+LIBPYTHON_EXTERN void (*PyErr_SetInterrupt)();
+
 LIBPYTHON_EXTERN PyObject* (*Py_InitModule4)(const char *name, PyMethodDef *methods,
            const char *doc, PyObject *self,
            int apiver);

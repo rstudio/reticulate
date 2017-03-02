@@ -388,14 +388,15 @@ int narrow_array_typenum(int typenum) {
   case NPY_UBYTE:
   case NPY_SHORT:
   case NPY_USHORT:
-  case NPY_UINT:
-  case NPY_ULONG:
   case NPY_INT:
-  case NPY_LONG:
-  case NPY_LONGLONG:
     typenum = NPY_LONG;
     break;
     // double
+  case NPY_UINT:
+  case NPY_ULONG:
+  case NPY_ULONGLONG:
+  case NPY_LONG:
+  case NPY_LONGLONG:
   case NPY_FLOAT:
   case NPY_DOUBLE:
     typenum = NPY_DOUBLE;

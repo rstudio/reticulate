@@ -69,6 +69,10 @@ initialize_python <- function(required_module = NULL) {
                 config$virtualenv_activate,
                 config$version >= "3.0",
                 numpy_load_error)
+  
+  # if we have a virtualenv then set the VIRTUAL_ENV environment variable
+  if (nzchar(config$virtualenv_activate))
+    Sys.setenv(VIRTUAL_ENV = path.expand(dirname(dirname(config$virtualenv_activate))))
 
   # set available flag indicating we have py bindings
   config$available <- TRUE

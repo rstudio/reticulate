@@ -6,6 +6,8 @@ using namespace Rcpp;
 
 #include "reticulate_types.h"
 
+#include "interrupt.h"
+
 #include <fstream>
 
 using namespace libpython;
@@ -1153,6 +1155,9 @@ void py_initialize(const std::string& python,
     import_numpy_api(is_python3(), &s_numpy_load_error);
   else
     s_numpy_load_error = numpy_load_error;
+  
+  // poll for interrupts
+  initialize_interrupt_polling();
 }
 
 // [[Rcpp::export]]

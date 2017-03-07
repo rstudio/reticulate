@@ -119,6 +119,7 @@ LIBPYTHON_EXTERN PyObject* Py_Float;
 LIBPYTHON_EXTERN PyObject* Py_List;
 LIBPYTHON_EXTERN PyObject* Py_Tuple;
 LIBPYTHON_EXTERN PyObject* Py_Complex;
+LIBPYTHON_EXTERN PyObject* PyExc_KeyboardInterrupt;
 
 void initialize_type_objects(bool python3);
 
@@ -208,6 +209,7 @@ LIBPYTHON_EXTERN PyObject* (*PyUnicode_FromString)(const char *u);
 LIBPYTHON_EXTERN void (*PyErr_Fetch)(PyObject **, PyObject **, PyObject **);
 LIBPYTHON_EXTERN PyObject* (*PyErr_Occurred)(void);
 LIBPYTHON_EXTERN void (*PyErr_NormalizeException)(PyObject**, PyObject**, PyObject**);
+LIBPYTHON_EXTERN int (*PyErr_GivenExceptionMatches)(PyObject *given, PyObject *exc);
 
 LIBPYTHON_EXTERN int (*PyCallable_Check)(PyObject *);
 

@@ -281,6 +281,17 @@ std::string py_fetch_error() {
   PyObjectPtr pExcValue(excValue);
   PyObjectPtr pExcTraceback(excTraceback);
 
+  // check for KeyboardInterrupt (this was likely in turn set by our python
+  // interpeter callback which checks for R interrupts). by intercepting this 
+  // error here we can call Rcpp::checkUserInterrupt which will in turn
+  // do a graceful (and silent) jump to top if an R user interrupt is pending
+  // (otherwise a nasty looking KeyboardInterrupt with a stack trace
+  // is generated)
+  if (!pExcType.is_null() && 
+      PyErr_GivenExceptionMatches(pExcType, PyExc_KeyboardInterrupt)) {
+    Rcpp::checkUserInterrupt();
+  }
+    
   if (!pExcType.is_null() || !pExcValue.is_null()) {
     std::ostringstream ostr;
     if (!pExcType.is_null()) {

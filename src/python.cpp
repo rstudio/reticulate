@@ -121,7 +121,7 @@ typedef PyPtr<PyArray_Descr> PyArray_DescrPtr;
 std::string as_std_string(PyObject* str) {
 
   PyObjectPtr pStr;
-  if (is_python3()) {
+  if (is_python3() && PyUnicode_Check(str)) {
     // python3 requires that we turn PyUnicode into PyBytes before
     // we call PyBytes_AsStringAndSize (whereas python2 would
     // automatically handle unicode in PyBytes_AsStringAndSize)

@@ -1,7 +1,7 @@
 Package: reticulate
 Type: Package
 Title: R Interface to Python
-Version: 0.6.1
+Version: 0.7
 Date: 2017-02-06
 Authors@R: c(
   person("JJ", "Allaire", role = c("aut", "cre"),

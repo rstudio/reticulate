@@ -629,7 +629,7 @@ class thread::id {
 
 
 // Related to <ratio> - minimal to be able to support chrono.
-typedef long long __intmax_t;
+typedef long __intmax_t;
 
 /// Minimal implementation of the @c ratio class. This class provides enough
 /// functionality to implement some basic @c chrono classes.
@@ -662,7 +662,6 @@ namespace chrono {
   };
 
   // Standard duration types.
-  typedef duration<__intmax_t, ratio<1, 1000000000> > nanoseconds; ///< Duration with the unit nanoseconds.
   typedef duration<__intmax_t, ratio<1, 1000000> > microseconds;   ///< Duration with the unit microseconds.
   typedef duration<__intmax_t, ratio<1, 1000> > milliseconds;      ///< Duration with the unit milliseconds.
   typedef duration<__intmax_t> seconds;                            ///< Duration with the unit seconds.

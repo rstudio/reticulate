@@ -40,7 +40,7 @@ You can install from GitHub as follows:
 devtools::install_github("rstudio/reticulate")
 ```
 
-Note that the package includes native C/C++ code so it's installation requires [R Tools](https://cran.r-project.org/bin/windows/Rtools/) on Windows and [Command Line Tools](http://osxdaily.com/2014/02/12/install-command-line-tools-mac-os-x/) on OS X. If the package installation fails because of inability to compile then install the appropriate tools for your platform based on the links above and try again.
+Note that the package includes native C/C++ code so its installation requires [R Tools](https://cran.r-project.org/bin/windows/Rtools/) on Windows and [Command Line Tools](http://osxdaily.com/2014/02/12/install-command-line-tools-mac-os-x/) on OS X. If the package installation fails because of inability to compile then install the appropriate tools for your platform based on the links above and try again.
 
 ### Locating Python
 
@@ -111,7 +111,7 @@ py <- import_builtins()
 py$print('foo')
 ```
 
-The main module is generally useful if you have executed Python code from a file or string and want to get access to it's results (see the section below for more details).
+The main module is generally useful if you have executed Python code from a file or string and want to get access to its results (see the section below for more details).
 
 ### Object Conversion
 
@@ -166,7 +166,7 @@ R named lists are converted to Python dictionaries however you can also explicit
 dict(foo = "bar", index = 42L)
 ```
 
-This might be useful if you need to pass a dictionary that uses a more complex object (as opposed to a string) as it's key.
+This might be useful if you need to pass a dictionary that uses a more complex object (as opposed to a string) as its key.
 
 With Contexts
 -------------
@@ -233,8 +233,8 @@ Typically interacting with Python objects from R involves using the `$` operator
 | py\_set\_attr        | Set an attribute of a Python object.                        |
 | py\_list\_attributes | List all attributes of a Python object.                     |
 | py\_call             | Call a Python callable object with the specified arguments. |
-| py\_to\_r            | Convert a Python object to it's R equivalent                |
-| r\_to\_py            | Convert an R object to it's Python equivalent               |
+| py\_to\_r            | Convert a Python object to its R equivalent                |
+| r\_to\_py            | Convert an R object to its Python equivalent               |
 
 ### Configuration
 
@@ -338,11 +338,11 @@ Using in a Package
 
 ### Checking and Testing on CRAN
 
-If you use **reticulate** in another R package you need to account for the fact that when your package is submitted to CRAN, the CRAN test servers may not have Python, NumPy, or whatever other Python modules you are wrapping in your package. If you don't do this then your package may fail to load and/or pass it's tests when run on CRAN.
+If you use **reticulate** in another R package you need to account for the fact that when your package is submitted to CRAN, the CRAN test servers may not have Python, NumPy, or whatever other Python modules you are wrapping in your package. If you don't do this then your package may fail to load and/or pass its tests when run on CRAN.
 
 There are two things you should do to ensure your package is well behaved on CRAN:
 
-1.  When importing Python modules for use inside your package you should use the `delay_load` option to ensure that the module (and Python) is loaded only on it's first use. For example:
+1.  When importing Python modules for use inside your package you should use the `delay_load` option to ensure that the module (and Python) is loaded only on its first use. For example:
 
     ``` r
     # python 'foo' module I want to use in my package

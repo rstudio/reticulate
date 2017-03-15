@@ -16,3 +16,11 @@ test_that("R functions can accept named arguments from Python", {
   expect_equal(func(x = 15, y = 10), test$callFunc(pyfunc, y = 10, x = 15))
 })
 
+test_that("Python function signatures are converted correctly", {
+  skip_if_no_python()
+  help <- import("rpytools.help")
+  func <- function(features, labels) features - labels
+  pyfunc <- test$reflect(func)
+  expect_equal(help$generate_signature_for_function(func), "(features, labels)")
+})
+

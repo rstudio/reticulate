@@ -1,4 +1,3 @@
-
 import sys
 import types
 import inspect
@@ -105,4 +104,3 @@ def generate_signature_for_function(func):
     if argspec.keywords:
       args_list.append("...")
     return "(" + ", ".join(args_list) + ")"
-

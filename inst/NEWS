@@ -1,0 +1,11 @@
+reticulate 0.8 (unreleased)
+--------------------------------------------------------------------------------
+
+- Use grepl rather than endsWith for compatibility with R <= 3.2
+
+
+reticulate 0.7
+--------------------------------------------------------------------------------
+
+Initial release to CRAN
+

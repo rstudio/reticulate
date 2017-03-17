@@ -3,7 +3,10 @@ reticulate 0.8 (unreleased)
 
 - Use grepl rather than endsWith for compatibility with R <= 3.2
 
+- Add `import_from_package` function for importing Python modules located
+  within R packages.
 
+  
 reticulate 0.7
 --------------------------------------------------------------------------------
 

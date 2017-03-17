@@ -11,6 +11,10 @@
 #'  it is first used (if a function is provided then it will be called 
 #'  once the module is loaded). `FALSE` to load the module immediately.
 #'
+#' @details The `import_from_package` function imports a Python module 
+#'  defined within an R package (the module must be located within the
+#'  `inst/python` directory of the R package).
+#'
 #' @return A Python module
 #'
 #' @examples
@@ -69,6 +73,23 @@ import_builtins <- function(convert = TRUE) {
     import("builtins", convert = convert)
   else
     import("__builtin__", convert = convert)
+}
+
+
+#' @rdname import
+#' @export
+import_from_package <- function(module, package, convert = TRUE, delay_load = FALSE) {
+  
+  # path to package provided python modules
+  python_path <- system.file("python", package = package)
+  
+  # add the packages python dir to sys.path if it isn't already there
+  sys <- import("sys", convert = FALSE)
+  if (!python_path %in% py_to_r(sys$path))
+    sys$path$append(python_path)
+  
+  # import
+  import(module, convert = convert, delay_load = delay_load)
 }
 
 

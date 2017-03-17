@@ -4,6 +4,7 @@
 \alias{import}
 \alias{import_main}
 \alias{import_builtins}
+\alias{import_from_package}
 \title{Import a Python module}
 \usage{
 import(module, convert = TRUE, delay_load = FALSE)
@@ -11,6 +12,8 @@ import(module, convert = TRUE, delay_load = FALSE)
 import_main(convert = TRUE)
 
 import_builtins(convert = TRUE)
+
+import_from_package(module, package, convert = TRUE, delay_load = FALSE)
 }
 \arguments{
 \item{module}{Module name}
@@ -28,6 +31,11 @@ A Python module
 }
 \description{
 Import the specified Python module for calling from R.
+}
+\details{
+The \code{import_from_package} function imports a Python module
+defined within an R package (the module must be located within the
+\code{inst/python} directory of the R package).
 }
 \examples{
 \dontrun{

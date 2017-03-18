@@ -1,7 +1,8 @@
 ---
 title: "R Interface to Python"
 output: 
-  rmarkdown::html_vignette: default
+  rmarkdown::html_vignette: 
+    readme: true
 vignette: >
   %\VignetteIndexEntry{R interface to Python}
   %\VignetteEngine{knitr::rmarkdown}

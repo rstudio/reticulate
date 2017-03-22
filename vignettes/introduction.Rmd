@@ -127,7 +127,7 @@ The main module is generally useful if you have executed Python code from a file
 By default when Python objects are returned to R they are converted to their equivalent R types. However, if you'd rather make conversion from Python to R explicit and deal in native Python objects by default you can pass `convert = FALSE` to the `import` function. In this case Python to R conversion will be disabled for the module returned from `import`. For example:
 
 ```{r}
-# import numpy and speicfy no automatic Python to R conversion
+# import numpy and specify no automatic Python to R conversion
 np <- import("numpy", convert = FALSE)
 
 # do some array manipulations with NumPy

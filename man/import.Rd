@@ -25,6 +25,8 @@ R equivalent. If you pass \code{FALSE} you can do manual conversion using the
 \item{delay_load}{\code{TRUE} or a function to delay loading the module until
 it is first used (if a function is provided then it will be called
 once the module is loaded). \code{FALSE} to load the module immediately.}
+
+\item{package}{Package name}
 }
 \value{
 A Python module

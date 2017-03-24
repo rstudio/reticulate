@@ -6,6 +6,9 @@ reticulate 0.8 (unreleased)
 - Add `import_from_package` function for importing Python modules located
   within R packages.
 
+- Add `py_discover_config` function to determine which versions of Python 
+  will be discovered and which one will be used by reticuilate.
+
   
 reticulate 0.7
 --------------------------------------------------------------------------------

@@ -62,7 +62,19 @@ py_module_available <- function(module) {
 }
 
 
-py_discover_config <- function(required_module) {
+#' Discover the version of Python to use with reticulate.
+#' 
+#' This function enables callers to check which versions of Python will
+#' be discovered on a system as well as which one will be chosen for 
+#' use with reticulate.
+#' 
+#' @param required_module A optional module name that must be available
+#'   in order for a version of Python to be used. 
+#' 
+#' @return Python configuration object.
+#' 
+#' @export
+py_discover_config <- function(required_module = NULL) {
 
   # create a list of possible python versions to bind to
   python_versions <- reticulate_python_versions()

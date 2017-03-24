@@ -9,6 +9,9 @@ reticulate 0.8 (unreleased)
 - Add `py_discover_config` function to determine which versions of Python 
   will be discovered and which one will be used by reticulate.
 
+- Use inspect.getmro rather than __bases__ for enumerating the base classes
+  of Python objects.
+  
   
 reticulate 0.7
 --------------------------------------------------------------------------------

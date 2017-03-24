@@ -559,14 +559,20 @@ SEXP py_to_r(PyObject* x) {
     // get the array
     PyArrayObject* array = (PyArrayObject*)x;
 
-    // get the dimensions
+    // get the dimensions -- treat 0-dim array (numpy scalar) as 
+    // a 1-dim for converstion to R (will end up with a single 
+    // element R vector)
     npy_intp len = PyArray_SIZE(array);
     int nd = PyArray_NDIM(array);
-    npy_intp *dims = PyArray_DIMS(array);
     IntegerVector dimsVector(nd);
-    for (int i = 0; i<nd; i++)
-      dimsVector[i] = dims[i];
-
+    if (nd > 0) {
+      npy_intp *dims = PyArray_DIMS(array);
+      for (int i = 0; i<nd; i++)
+        dimsVector[i] = dims[i];
+    } else {
+      dimsVector.push_back(1);
+    }
+    
     // determine the target type of the array
     int typenum = narrow_array_typenum(array);
 

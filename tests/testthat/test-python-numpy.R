@@ -41,3 +41,10 @@ test_that("Long integer types are converted to R numeric", {
   })
 })
 
+test_that("Numpy scalars are converted to R vectors", {
+  skip_if_no_numpy()
+  np <- import("numpy")
+  scalar <- c(1.1)
+  expect_equal(as.numeric(np$array(scalar)), scalar)
+})
+

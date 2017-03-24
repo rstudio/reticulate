@@ -7,7 +7,7 @@ reticulate 0.8 (unreleased)
   within R packages.
 
 - Add `py_discover_config` function to determine which versions of Python 
-  will be discovered and which one will be used by reticuilate.
+  will be discovered and which one will be used by reticulate.
 
   
 reticulate 0.7

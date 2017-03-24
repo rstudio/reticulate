@@ -245,16 +245,24 @@ PyObjectRef py_ref(PyObject* object, bool convert, const std::string& extraClass
   if (PyObject_HasAttrString(object, "__class__")) {
     // class
     PyObjectPtr classPtr(PyObject_GetAttrString(object, "__class__"));
-    attrClass.push_back(as_r_class(classPtr));
-
-    // base classes
-    if (PyObject_HasAttrString(classPtr, "__bases__")) {
-      PyObjectPtr basesPtr(PyObject_GetAttrString(classPtr, "__bases__"));
-      Py_ssize_t len = PyTuple_Size(basesPtr);
-      for (Py_ssize_t i = 0; i<len; i++) {
-        PyObject* base = PyTuple_GetItem(basesPtr, i); // borrowed
-        attrClass.push_back(as_r_class(base));
-      }
+    
+    // call inspect.getmro to get the class and it's bases in 
+    // method resolution order
+    PyObjectPtr inspect(PyImport_ImportModule("inspect"));
+    if (inspect.is_null())
+      stop(py_fetch_error());
+    PyObjectPtr getmro(PyObject_GetAttrString(inspect, "getmro"));
+    if (getmro.is_null())
+      stop(py_fetch_error());
+    PyObjectPtr classes(PyObject_CallFunctionObjArgs(getmro, classPtr.get(), NULL));
+    if (classes.is_null())
+      stop(py_fetch_error());
+    
+    // add the bases to the R class attribute
+    Py_ssize_t len = PyTuple_Size(classes);
+    for (Py_ssize_t i = 0; i<len; i++) {
+      PyObject* base = PyTuple_GetItem(classes, i); // borrowed
+      attrClass.push_back(as_r_class(base));
     }
   }
 

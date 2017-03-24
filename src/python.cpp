@@ -563,9 +563,20 @@ SEXP py_to_r(PyObject* x) {
     npy_intp len = PyArray_SIZE(array);
     int nd = PyArray_NDIM(array);
     npy_intp *dims = PyArray_DIMS(array);
+
+    // treat np scalar as dim 1
+    if(nd == 0) nd = 1;
     IntegerVector dimsVector(nd);
-    for (int i = 0; i<nd; i++)
-      dimsVector[i] = dims[i];
+    
+    // can only access dims if we don't have a scalar
+    // if we do have a scalar set dimsVector to 1
+    if(PyArray_NDIM(array) > 0) {
+      for (int i = 0; i<nd; i++)
+        dimsVector[i] = dims[i];
+    }
+    else {
+      dimsVector[0] = 1;
+    }
 
     // determine the target type of the array
     int typenum = narrow_array_typenum(array);

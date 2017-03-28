@@ -12,6 +12,9 @@ reticulate 0.8 (unreleased)
 - Use inspect.getmro rather than __bases__ for enumerating the base classes
   of Python objects.
   
+- Add `py_function_wrapper` and `py_function_docs` utility functions for 
+  scaffolding R wrappers for Python functions.
+  
   
 reticulate 0.7
 --------------------------------------------------------------------------------

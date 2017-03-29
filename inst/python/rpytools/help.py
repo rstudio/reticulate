@@ -70,16 +70,16 @@ def get_r_representation(default):
       arg_value = "%r" % default
     elif isinstance(default, list):
       arg_value = "c("
-      for item in default:
-        if item is default[-1]:
+      for i, item in enumerate(default):
+        if i is (len(default) - 1):
           arg_value += "%s)" % get_r_representation(item)
         else:
           arg_value += "%s, " % get_r_representation(item)
     elif isinstance(default, tuple):
       # TODO: Support named list
       arg_value = "list("
-      for item in default:
-        if item is default[-1]:
+      for i, item in enumerate(default):
+        if i is (len(default) - 1):
           arg_value += "%s)" % get_r_representation(item)
         else:
           arg_value += "%s, " % get_r_representation(item)

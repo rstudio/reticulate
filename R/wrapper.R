@@ -23,11 +23,26 @@ py_function_wrapper <- function(python_function, r_prefix = NULL, r_function = N
   con <- textConnection("wrapper", "w")
   
   # title/description
-  write(sprintf("#' %s#' ", docs$description), file = con)
+  write(sprintf("#' %s\n#' ", docs$description), file = con)
+  details <- gsub("\n", "\n#' ", docs$details, fixed = TRUE)
+  write(sprintf("#' %s\n#' ", details), file = con)
   
   # parameters
   for (param in names(docs$parameters))
     write(sprintf("#' @param %s %s", param, docs$parameters[[param]]), file = con)
+  
+  # returns
+  if (isTRUE(nzchar(docs$returns))) {
+    write("#' ", file = con)
+    write(sprintf("#' @return %s", docs$returns), file = con)
+  }
+  
+  # references
+  if (isTRUE(nzchar(docs$references))) {
+    write("#' ", file = con)
+    references <- gsub("\n", "\n#' ", docs$references, fixed = TRUE)
+    write(sprintf("#' @section References:\n#' %s", references), file = con)
+  }
   
   # export
   write("#' ", file = con)
@@ -90,8 +105,11 @@ py_function_docs <- function(python_function) {
   list(name = function_docs$title,
        qualified_name = python_function,
        description = function_docs$description,
+       details = function_docs$details,
        signature = function_docs$signature,
-       parameters = parameters)
+       parameters = parameters,
+       returns = function_docs$returns,
+       references = function_docs$references)
 }
 
 

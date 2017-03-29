@@ -48,19 +48,33 @@ help_completion_handler.python.builtin.object <- function(topic, source) {
 
   # check for property help
   help <- import("rpytools.help")
-  description <- help$get_property_doc(source, topic)
+  doc <- help$get_property_doc(source, topic)
   # check for standard help
-  if (is.null(description)) {
+  if (is.null(doc)) {
     inspect <- import("inspect")
-    description <- inspect$getdoc(help_get_attribute(source, topic))
+    doc <- inspect$getdoc(help_get_attribute(source, topic))
   }
-  # default to no description
-  if (is.null(description))
+  # default to no doc
+  if (is.null(doc))
+    doc <- ""
+  
+  # extract preamble
+  arguments_matches <- regexpr(pattern ='\nArg(s|uments):', doc)
+  if (arguments_matches[[1]] != -1)
+    description <- substring(doc, 1, arguments_matches[[1]])
+  else
     description <- ""
+  
+  # extract description and details
   matches <- regexpr(pattern ='\n', description, fixed=TRUE)
-  if (matches[[1]] != -1)
-    description <- substring(description, 1, matches[[1]])
-  description <- convert_description_types(description)
+  if (matches[[1]] != -1) {
+    details <- substring(description, matches[[1]] + 1)
+    description <- substring(description, 1, matches[[1]] - 1)
+  } else {
+    details <- "" 
+  }
+  details <- cleanup_description(details)
+  description <- cleanup_description(description)
 
   # try to generate a signature
   signature <- NULL
@@ -72,11 +86,20 @@ help_completion_handler.python.builtin.object <- function(topic, source) {
       signature <- "()"
     signature <- paste0(topic, signature)
   }
+  
+  # try to get return info
+  returns <- section_from_doc("Returns", doc)
 
+  # try to get references
+  references <- section_from_doc("References", doc)
+  
   # return docs
   list(title = topic,
        signature = signature,
-       description = description)
+       returns = returns,
+       description = description,
+       details = details,
+       references = references)
 }
 
 
@@ -197,8 +220,7 @@ arg_descriptions_from_doc <- function(args, doc) {
         else
           break
       }
-      arg_description <- gsub("^\\s*", "", arg_description)
-      arg_description <- convert_description_types(arg_description)
+      arg_description <- cleanup_description(arg_description)
     } else {
       arg
     }
@@ -206,12 +228,40 @@ arg_descriptions_from_doc <- function(args, doc) {
   arg_descriptions
 }
 
+# Extract section from doc
+section_from_doc <- function(section, doc) {
+  returns <- ""
+  doc <- strsplit(doc, "\n", fixed = TRUE)[[1]]
+  line_index <- which(grepl(paste0("^", section, ":"), doc))
+  if (length(line_index) > 0) {
+    while((line_index + 1) <= length(doc)) {
+      line <- doc[[line_index + 1]]
+      if (grepl("\\w+", line)) {
+        returns <- paste(returns, line)
+        line_index <- line_index + 1
+      }
+      else
+        break
+    }
+  } 
+  cleanup_description(returns)
+}
+
 # Convert types in description
-convert_description_types <- function(description) {
-  description <- sub("`None`", "`NULL`", description)
-  description <- sub("`True`", "`TRUE`", description)
-  description <- sub("`False`", "`FALSE`", description)
-  description
+cleanup_description <- function(description) {
+  if (is.null(description)) {
+    NULL
+  } else {
+    
+    # remove leading and trailing whitespace
+    description <- gsub("^\\s+|\\s+$", "", description)
+    
+    # convert literals
+    description <- sub("`None`", "`NULL`", description)
+    description <- sub("`True`", "`TRUE`", description)
+    description <- sub("`False`", "`FALSE`", description)
+    description
+  }
 }
 
 # Convert source to object if necessary
@@ -300,7 +350,6 @@ help_get_attribute <- function(source, topic) {
 # Environments where we store help topics (mappings of module/class name to URL)
 .module_help_topics <- new.env(parent = emptyenv())
 .class_help_topics <- new.env(parent = emptyenv())
-
 
 
 

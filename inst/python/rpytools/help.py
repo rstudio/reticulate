@@ -51,7 +51,7 @@ def get_arguments(func):
       args.remove('self')
     return args
 
-def get_r_representation(arg, default):
+def get_r_representation(default):
   if callable(default) and hasattr(default, '__name__'):
     arg_value = default.__name__
   else:
@@ -68,6 +68,21 @@ def get_r_representation(arg, default):
       arg_value = "%rL" % default
     elif isinstance(default, float):
       arg_value = "%r" % default
+    elif isinstance(default, list):
+      arg_value = "c("
+      for item in default:
+        if item is default[-1]:
+          arg_value += "%s)" % get_r_representation(item)
+        else:
+          arg_value += "%s, " % get_r_representation(item)
+    elif isinstance(default, tuple):
+      # TODO: Support named list
+      arg_value = "list("
+      for item in default:
+        if item is default[-1]:
+          arg_value += "%s)" % get_r_representation(item)
+        else:
+          arg_value += "%s, " % get_r_representation(item)
     else:
       arg_value = "%r" % default
   return(arg_value)
@@ -103,7 +118,7 @@ def generate_signature_for_function(func):
     if argspec.defaults:
       for arg, default in zip(
           argspec.args[first_arg_with_default:], argspec.defaults):
-        arg_value = get_r_representation(arg, default)
+        arg_value = get_r_representation(default)
         args_list.append("%s = %s" % (arg, arg_value))
     if argspec.varargs:
       args_list.append("...")

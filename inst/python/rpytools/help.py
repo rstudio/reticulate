@@ -51,6 +51,42 @@ def get_arguments(func):
       args.remove('self')
     return args
 
+def get_r_representation(default):
+  if callable(default) and hasattr(default, '__name__'):
+    arg_value = default.__name__
+  else:
+    if default is None:
+      arg_value = "NULL"
+    elif type(default) == type(True):
+      if default == True:
+        arg_value = "TRUE"
+      else:
+        arg_value = "FALSE"
+    elif isstring(default):
+      arg_value = "\"%s\"" % default
+    elif isinstance(default, int):
+      arg_value = "%rL" % default
+    elif isinstance(default, float):
+      arg_value = "%r" % default
+    elif isinstance(default, list):
+      arg_value = "c("
+      for item in default:
+        if item is default[-1]:
+          arg_value += "%s)" % get_r_representation(item)
+        else:
+          arg_value += "%s, " % get_r_representation(item)
+    elif isinstance(default, tuple):
+      # TODO: Support named list
+      arg_value = "list("
+      for item in default:
+        if item is default[-1]:
+          arg_value += "%s)" % get_r_representation(item)
+        else:
+          arg_value += "%s, " % get_r_representation(item)
+    else:
+      arg_value = "%r" % default
+  return(arg_value)
+
 def generate_signature_for_function(func):
     """Given a function, returns a string representing its args."""
 
@@ -82,24 +118,8 @@ def generate_signature_for_function(func):
     if argspec.defaults:
       for arg, default in zip(
           argspec.args[first_arg_with_default:], argspec.defaults):
-        if callable(default) and hasattr(default, '__name__'):
-          args_list.append("%s = %s" % (arg, default.__name__))
-        else:
-          if default is None:
-            args_list.append("%s = NULL" % (arg))
-          elif type(default) == type(True):
-            if default == True:
-              args_list.append("%s = TRUE" % (arg))
-            else:
-              args_list.append("%s = FALSE" % (arg))
-          elif isstring(default):
-            args_list.append("%s = \"%s\"" % (arg, default))
-          elif isinstance(default, int):
-            args_list.append("%s = %rL" % (arg, default))
-          elif isinstance(default, float):
-            args_list.append("%s = %r" % (arg, default))
-          else:
-            args_list.append("%s = %r" % (arg, default))
+        arg_value = get_r_representation(default)
+        args_list.append("%s = %s" % (arg, arg_value))
     if argspec.varargs:
       args_list.append("...")
     if argspec.keywords:

@@ -3,6 +3,7 @@
 #' 
 #' @param python_function Fully qualfied name of Python function or class 
 #'   constructor (e.g. `tf$layers$average_pooling1d`)
+#' @param r_prefix Prefix to add to generated R function name
 #' @param r_function Name of R function to generate (defaults to name of Python 
 #'   function if not specified)
 #'   
@@ -13,7 +14,7 @@
 #'   that can be used without modification.
 #'   
 #' @export
-py_function_wrapper <- function(python_function, r_function = NULL) {
+py_function_wrapper <- function(python_function, r_prefix = NULL, r_function = NULL) {
   
   # get the docs
   docs <- py_function_docs(python_function)
@@ -33,8 +34,11 @@ py_function_wrapper <- function(python_function, r_function = NULL) {
   write("#' @export", file = con)
   
   # signature
-  if (is.null(r_function))
+  if (is.null(r_function)) {
     r_function <- docs$name
+    if (!is.null(r_prefix))
+      r_function <- paste(r_prefix, r_function, sep = "_")
+  }
   signature <- sub("^.*\\(", paste(r_function, "<- function("), docs$signature)
   write(paste(signature, "{"), file = con)
   

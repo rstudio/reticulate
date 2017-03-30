@@ -313,6 +313,7 @@ cleanup_description <- function(description) {
     
     # convert tuple to list
     description <- gsub("tuple", "list", description)
+    description <- gsub("list/list", "list", description)
     
     description
   }

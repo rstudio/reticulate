@@ -86,7 +86,7 @@ help_completion_handler.python.builtin.object <- function(topic, source) {
       signature <- "()"
     signature <- paste0(topic, signature)
   }
-  
+
   # collect other sections
   sections <- sections_from_doc(doc)
   

@@ -260,10 +260,17 @@ cleanup_description <- function(description) {
     # remove leading and trailing whitespace
     description <- gsub("^\\s+|\\s+$", "", description)
     
+    # convert 2+ whitespace to 1 ws
+    description <- gsub("(\\s\\s+)", " ", description)
+    
     # convert literals
-    description <- sub("`None`", "`NULL`", description)
-    description <- sub("`True`", "`TRUE`", description)
-    description <- sub("`False`", "`FALSE`", description)
+    description <- gsub("None", "NULL", description)
+    description <- gsub("True", "TRUE", description)
+    description <- gsub("False", "FALSE", description)
+    
+    # convert tuple to list
+    description <- gsub("tuple", "list", description)
+    
     description
   }
 }

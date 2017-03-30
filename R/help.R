@@ -87,19 +87,24 @@ help_completion_handler.python.builtin.object <- function(topic, source) {
     signature <- paste0(topic, signature)
   }
   
-  # try to get return info
-  returns <- section_from_doc("Returns", doc)
-
-  # try to get references
-  references <- section_from_doc("References", doc)
+  # collect other sections
+  sections <- sections_from_doc(doc)
   
+  # try to get return info
+  returns <- sections$Returns
+  
+  # remove arguments and returns
+  sections$Args <- NULL
+  sections$Arguments <- NULL
+  sections$Returns <- NULL
+
   # return docs
   list(title = topic,
        signature = signature,
        returns = returns,
        description = description,
        details = details,
-       references = references)
+       sections = sections)
 }
 
 
@@ -232,23 +237,61 @@ arg_descriptions_from_doc <- function(args, doc) {
   arg_descriptions
 }
 
+# Extract all sections from the doc
+sections_from_doc <- function(doc) {
+  
+  # sections to return
+  sections <- list()
+  
+  # grab section headers
+  doc <- strsplit(doc, "\n", fixed = TRUE)[[1]]
+  section_lines <- which(grepl("^\\w(\\w|\\s)+:", doc))
+  
+  # for each section
+  for (i in section_lines) {
+    
+    # get the section line and name
+    section_line <- i
+    section_name <- gsub(":\\s*$", "", doc[[i]])
+    
+    # collect the sections text
+    section_text <- c()
+    while((section_line + 1) <= length(doc)) {
+      line <- doc[[section_line + 1]]
+      if (grepl("\\w+", line)) {
+        section_text <- paste(section_text, line)
+        section_line <- section_line + 1
+      }
+      else
+        break
+    }
+    
+    # add to our list
+    sections[[section_name]] <- cleanup_description(section_text)
+  }
+  
+  # return the sections
+  sections
+}
+
+
 # Extract section from doc
 section_from_doc <- function(section, doc) {
-  returns <- ""
+  section <- ""
   doc <- strsplit(doc, "\n", fixed = TRUE)[[1]]
   line_index <- which(grepl(paste0("^", section, ":"), doc))
   if (length(line_index) > 0) {
     while((line_index + 1) <= length(doc)) {
       line <- doc[[line_index + 1]]
       if (grepl("\\w+", line)) {
-        returns <- paste(returns, line)
+        section <- paste(section, line)
         line_index <- line_index + 1
       }
       else
         break
     }
   } 
-  cleanup_description(returns)
+  cleanup_description(section)
 }
 
 # Convert types in description

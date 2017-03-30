@@ -37,11 +37,12 @@ py_function_wrapper <- function(python_function, r_prefix = NULL, r_function = N
     write(sprintf("#' @return %s", docs$returns), file = con)
   }
   
-  # references
-  if (isTRUE(nzchar(docs$references))) {
+  # sections
+  for (section in names(docs$sections)) {
+    section_text <- docs$sections[[section]]
+    section_text <- gsub("\n", "\n#' ", section_text, fixed = TRUE)
     write("#' ", file = con)
-    references <- gsub("\n", "\n#' ", docs$references, fixed = TRUE)
-    write(sprintf("#' @section References:\n#' %s", references), file = con)
+    write(sprintf("#' @section %s:\n#' %s", section, section_text), file = con)
   }
   
   # export
@@ -108,8 +109,8 @@ py_function_docs <- function(python_function) {
        details = function_docs$details,
        signature = function_docs$signature,
        parameters = parameters,
-       returns = function_docs$returns,
-       references = function_docs$references)
+       sections = function_docs$sections,
+       returns = function_docs$returns)
 }
 
 

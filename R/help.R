@@ -204,16 +204,20 @@ help_formals_handler.python.builtin.object <- function(topic, source) {
 
 # Extract argument descriptions from python docstring
 arg_descriptions_from_doc <- function(args, doc) {
+  
+  # extract arguments section of the doc and break into lines
+  arguments <- section_from_doc('Arg(s|uments)', doc)
   doc <- strsplit(doc, "\n", fixed = TRUE)[[1]]
+  
   arg_descriptions <- sapply(args, function(arg) {
-    prefix <- paste0("  ", arg, ": ")
-    arg_line <- which(grepl(paste0("^", prefix), doc))
+    arg_line <- which(grepl(paste0("^\\s+", arg, ":"), doc))
     if (length(arg_line) > 0) {
-      arg_description <- substring(doc[[arg_line]], nchar(prefix))
+      line <- doc[[arg_line]]
+      arg_description <- substring(line, regexpr(':', line)[[1]])
       next_line <- arg_line + 1
       while((arg_line + 1) <= length(doc)) {
         line <- doc[[arg_line + 1]]
-        if (grepl("^    ", line)) {
+        if (!grepl("^\\s+\\w+: ", line)) {
           arg_description <- paste(arg_description, line)
           arg_line <- arg_line + 1
         }

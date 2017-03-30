@@ -26,11 +26,15 @@ def normalize_func(func):
     return func
 
 def get_doc(func):
+  doc = inspect.getdoc(func)
+  if doc is None:
     func = normalize_func(func)
     if func is None:
       return None
-
-    return inspect.getdoc(func)
+    else:
+      return inspect.getdoc(func)
+  else:
+    return doc
 
 def get_property_doc(target, prop):
   for name, obj in inspect.getmembers(type(target), inspect.isdatadescriptor):

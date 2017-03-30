@@ -218,11 +218,11 @@ arg_descriptions_from_doc <- function(args, doc) {
     arg_line <- which(grepl(paste0("^\\s+", arg, ":"), doc))
     if (length(arg_line) > 0) {
       line <- doc[[arg_line]]
-      arg_description <- substring(line, regexpr(':', line)[[1]])
+      arg_description <- substring(line, regexpr(':', line)[[1]] + 1)
       next_line <- arg_line + 1
       while((arg_line + 1) <= length(doc)) {
         line <- doc[[arg_line + 1]]
-        if (!grepl("^\\s+\\w+: ", line)) {
+        if (!grepl("^\\s*$", line) && !grepl("^\\s+\\w+: ", line)) {
           arg_description <- paste(arg_description, line)
           arg_line <- arg_line + 1
         }

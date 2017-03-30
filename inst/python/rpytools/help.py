@@ -85,6 +85,11 @@ def get_r_representation(default):
           arg_value += "%s, " % get_r_representation(item)
     else:
       arg_value = "%r" % default
+  
+  # if the value starts with "tf." then convert to $ usage
+  if (arg_value.startswith("tf.")):
+    arg_value = arg_value.replace(".", "$")
+      
   return(arg_value)
 
 def generate_signature_for_function(func):

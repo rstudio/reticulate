@@ -61,12 +61,16 @@ py_function_wrapper <- function(python_function, r_prefix = NULL, r_function = N
   # delegation
   write(paste0("  ", python_function, "("), file = con)
   params <- names(docs$parameters)
-  for (i in 1:length(params)) {
-    suffix <- if (i < length(params))
-      ","
-    else
-      "\n  )"
-    write(paste0("    ", params[[i]], " = ", params[[i]], suffix), file = con)
+  if (length(params) > 0) {
+    for (i in 1:length(params)) {
+      suffix <- if (i < length(params))
+        ","
+      else
+        "\n  )"
+      write(paste0("    ", params[[i]], " = ", params[[i]], suffix), file = con)
+    }
+  } else {
+    write(")", file = con)
   }
   
   # end function

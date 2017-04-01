@@ -63,7 +63,7 @@ help_completion_handler.python.builtin.object <- function(topic, source) {
   if (arguments_matches[[1]] != -1)
     description <- substring(doc, 1, arguments_matches[[1]])
   else
-    description <- ""
+    description <- doc
   
   # extract description and details
   matches <- regexpr(pattern ='\n', description, fixed=TRUE)

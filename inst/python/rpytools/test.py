@@ -51,3 +51,17 @@ def test_py_function_wrapper(arg1, arg2=2, arg3=[1,2], arg4=(1,2)):
   a = 1
   return a
 
+class TestPyFunctionWrapperClass(object):
+  """Description for this class.
+  More detailed descriptions.
+  """
+
+  def __init__(self, arg1):
+    """Create a TestPyFunctionWrapperClass.
+    Args:
+      arg1: First argument.
+    """
+    pass
+
+  def class_method(self):
+    pass

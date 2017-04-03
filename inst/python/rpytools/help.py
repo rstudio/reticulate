@@ -83,13 +83,20 @@ def get_r_representation(default):
         else:
           arg_value += "%s, " % get_r_representation(item)
     elif isinstance(default, tuple):
-      # TODO: Support named list
       arg_value = "list("
       for i, item in enumerate(default):
         if i is (len(default) - 1):
           arg_value += "%s)" % get_r_representation(item)
         else:
           arg_value += "%s, " % get_r_representation(item)
+    elif isinstance(default, dict):
+      arg_value = "list("
+      for i in range(len(default)):
+        i_arg_value = "%s = %s" % (default.keys()[i], get_r_representation(default.values()[i]))
+        if i is (len(default) - 1):
+          arg_value += "%s)" % i_arg_value
+        else:
+          arg_value += "%s, " % i_arg_value
     else:
       arg_value = "%r" % default
   

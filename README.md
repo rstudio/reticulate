@@ -141,6 +141,23 @@ main <- py_run_string("x = 10")
 main$x
 ```
 
+Error Handling
+--------------
+
+When an error occurs within Python code it is converted to an R error message of the form `<ErrorType>: <ErrorMessage>` (e.g. "ValueError: The `kernel_size` argument must be a tuple of 2 integers. Received: (2,)"). The error is signaled using the standard R error handling mechanism.
+
+Python stack traces for errors are captured but not printed by default. To turn on printing of stack traces you can use the `reticulate.traceback` option. For example:
+
+``` r
+options(reticulate.traceback = TRUE)
+```
+
+You can also call the `py_last_error()` function to retreive detailed information on the last Python error encountered:
+
+``` r
+reticulate::py_last_error()
+```
+
 Lists, Tuples, and Dictionaries
 -------------------------------
 

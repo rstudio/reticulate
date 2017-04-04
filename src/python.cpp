@@ -20,6 +20,12 @@ bool is_python3() {
   return s_isPython3;
 }
 
+// track whether this is an interactive session
+bool s_isInteractive = false;
+bool is_interactive() {
+  return s_isInteractive;
+}
+
 // track whether we have required numpy
 std::string s_numpy_load_error;
 bool haveNumPy() {
@@ -279,9 +285,80 @@ PyObjectRef py_ref(PyObject* object, bool convert, const std::string& extraClass
   return ref;
 }
 
+bool option_is_true(const std::string& name) {
+  SEXP valueSEXP = Rf_GetOption(Rf_install(name.c_str()), R_BaseEnv);
+  return Rf_isLogical(valueSEXP) && (as<bool>(valueSEXP) == true);
+}
+
+bool traceback_enabled() {
+  return !is_interactive() || 
+         option_is_true("reticulate.traceback");
+}
+
+
+class LastError {
+  
+public:
+  
+  bool empty() const { return type_.empty(); }
+  
+  std::string type() const { return type_; }
+  void setType(const std::string& type) { type_ = type; }
+  
+  std::string value() const { return value_; }
+  void setValue(const std::string& value) { value_ = value; }
+  
+  std::string message() const { return message_; }
+  void setMessage(const std::string& message) { message_ = message; }
+    
+  std::vector<std::string> traceback() const { return traceback_; };
+  void setTraceback(const std::vector<std::string>& traceback) {
+    traceback_ = traceback;
+  }
+  
+  void clear() {
+    type_.clear();
+    value_.clear();
+    traceback_.clear();
+    message_.clear();
+  }
+  
+private:
+  std::string type_;
+  std::string value_;
+  std::vector<std::string> traceback_;
+  std::string message_;
+};
+
+LastError s_lastError;
+
+//' Get the last Python error encountered
+//' 
+//' Return a list with the type, value, and traceback for the last
+//' Python error encountered (can be `NULL` if no error has yet been
+//' encountered).
+//' 
+//' @export
+// [[Rcpp::export]]
+List py_last_error() {
+  if (s_lastError.empty()) {
+    return R_NilValue;
+  } else {
+    List lastError;
+    lastError["type"] = s_lastError.type();
+    lastError["value"] = s_lastError.value();
+    lastError["traceback"] = s_lastError.traceback();
+    lastError["message"] = s_lastError.message();
+    return lastError;
+  }
+}
+
 // get a string representing the last python error
 std::string py_fetch_error() {
 
+  // clear last error
+  s_lastError.clear();
+  
   // determine error
   std::string error;
   PyObject *excType , *excValue , *excTraceback;
@@ -301,30 +378,59 @@ std::string py_fetch_error() {
       if (type == "KeyboardInterrupt")
         throw Rcpp::internal::InterruptedException();
       
+      // store in last error
+      s_lastError.setType(type);
+      
+      // print
       ostr << type << ": ";
     }
     if (!pExcValue.is_null()) {
       PyObjectPtr pStr(PyObject_Str(pExcValue));
-      ostr << as_std_string(pStr);
+      std::string value = as_std_string(pStr);
+      
+      // store in last error
+      s_lastError.setValue(value);
+      
+      // print
+      ostr << value;
     }
 
+    // check for traceback      
     if (!pExcTraceback.is_null()) {
-      // call into python for traceback printing
+      // call into python for traceback 
       PyObjectPtr module(PyImport_ImportModule("traceback"));
       if (!module.is_null()) {
         PyObjectPtr func(PyObject_GetAttrString(module, "format_tb"));
         if (!func.is_null()) {
           PyObjectPtr tb(PyObject_CallFunctionObjArgs(func, excTraceback, NULL));
           if (!tb.is_null()) {
-            ostr << std::endl << std::endl << "Detailed traceback: " << std::endl;
+            
+            // get the traceback
+            std::vector<std::string> traceback;
             Py_ssize_t len = PyList_Size(tb);
             for (Py_ssize_t i = 0; i<len; i++)
-              ostr << as_std_string(PyList_GetItem(tb, i));
+              traceback.push_back(as_std_string(PyList_GetItem(tb, i)));
+            
+            // store in last error
+            s_lastError.setTraceback(traceback);
+            
+            // print if enabled
+            if (traceback_enabled()) {
+              ostr << std::endl << std::endl << "Detailed traceback: " << std::endl;
+              size_t len = traceback.size();
+              for (size_t i = 0; i<len; i++)
+                ostr << traceback[i];
+            }
           }
         }
       }
     }
+    
     error = ostr.str();
+    
+    // set error message
+    s_lastError.setMessage(error);
+    
   } else {
     error = "<unknown error>";
   }
@@ -1113,10 +1219,12 @@ void py_initialize(const std::string& python,
                    const std::string& pythonhome,
                    const std::string& virtualenv_activate,
                    bool python3,
+                   bool interactive,
                    const std::string& numpy_load_error) {
 
-  // set python3 flag
+  // set python3 and interactive flags
   s_isPython3 = python3;
+  s_isInteractive = interactive;
 
   // load the library
   std::string err;

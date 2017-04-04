@@ -5,6 +5,17 @@ is_python3 <- function() {
     .Call('reticulate_is_python3', PACKAGE = 'reticulate')
 }
 
+#' Get the last Python error encountered
+#' 
+#' Return a list with the type, value, and traceback for the last
+#' Python error encountered (can be `NULL` if no error has yet been
+#' encountered).
+#' 
+#' @export
+py_last_error <- function() {
+    .Call('reticulate_py_last_error', PACKAGE = 'reticulate')
+}
+
 r_to_py_impl <- function(object, convert) {
     .Call('reticulate_r_to_py_impl', PACKAGE = 'reticulate', object, convert)
 }
@@ -13,8 +24,8 @@ py_activate_virtualenv <- function(script) {
     invisible(.Call('reticulate_py_activate_virtualenv', PACKAGE = 'reticulate', script))
 }
 
-py_initialize <- function(python, libpython, pythonhome, virtualenv_activate, python3, numpy_load_error) {
-    invisible(.Call('reticulate_py_initialize', PACKAGE = 'reticulate', python, libpython, pythonhome, virtualenv_activate, python3, numpy_load_error))
+py_initialize <- function(python, libpython, pythonhome, virtualenv_activate, python3, interactive, numpy_load_error) {
+    invisible(.Call('reticulate_py_initialize', PACKAGE = 'reticulate', python, libpython, pythonhome, virtualenv_activate, python3, interactive, numpy_load_error))
 }
 
 py_finalize <- function() {

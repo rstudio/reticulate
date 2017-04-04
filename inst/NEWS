@@ -15,6 +15,11 @@ reticulate 0.8 (unreleased)
 - Add `py_function_wrapper` and `py_function_docs` utility functions for 
   scaffolding R wrappers for Python functions.
   
+- Don't print error tracebacks by default (you can override this via the 
+  'reticulate.traceback' option). 
+  
+- Add `py_last_error` function for retreiving last Python error.
+  
   
 reticulate 0.7
 --------------------------------------------------------------------------------

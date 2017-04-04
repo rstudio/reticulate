@@ -77,6 +77,7 @@ initialize_python <- function(required_module = NULL) {
                 config$pythonhome,
                 config$virtualenv_activate,
                 config$version >= "3.0",
+                interactive(),
                 numpy_load_error)
   
   # if we have a virtualenv then set the VIRTUAL_ENV environment variable

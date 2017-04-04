@@ -16,6 +16,16 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// py_last_error
+List py_last_error();
+RcppExport SEXP reticulate_py_last_error() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(py_last_error());
+    return rcpp_result_gen;
+END_RCPP
+}
 // r_to_py_impl
 PyObjectRef r_to_py_impl(RObject object, bool convert);
 RcppExport SEXP reticulate_r_to_py_impl(SEXP objectSEXP, SEXP convertSEXP) {
@@ -39,8 +49,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // py_initialize
-void py_initialize(const std::string& python, const std::string& libpython, const std::string& pythonhome, const std::string& virtualenv_activate, bool python3, const std::string& numpy_load_error);
-RcppExport SEXP reticulate_py_initialize(SEXP pythonSEXP, SEXP libpythonSEXP, SEXP pythonhomeSEXP, SEXP virtualenv_activateSEXP, SEXP python3SEXP, SEXP numpy_load_errorSEXP) {
+void py_initialize(const std::string& python, const std::string& libpython, const std::string& pythonhome, const std::string& virtualenv_activate, bool python3, bool interactive, const std::string& numpy_load_error);
+RcppExport SEXP reticulate_py_initialize(SEXP pythonSEXP, SEXP libpythonSEXP, SEXP pythonhomeSEXP, SEXP virtualenv_activateSEXP, SEXP python3SEXP, SEXP interactiveSEXP, SEXP numpy_load_errorSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const std::string& >::type python(pythonSEXP);
@@ -48,8 +58,9 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const std::string& >::type pythonhome(pythonhomeSEXP);
     Rcpp::traits::input_parameter< const std::string& >::type virtualenv_activate(virtualenv_activateSEXP);
     Rcpp::traits::input_parameter< bool >::type python3(python3SEXP);
+    Rcpp::traits::input_parameter< bool >::type interactive(interactiveSEXP);
     Rcpp::traits::input_parameter< const std::string& >::type numpy_load_error(numpy_load_errorSEXP);
-    py_initialize(python, libpython, pythonhome, virtualenv_activate, python3, numpy_load_error);
+    py_initialize(python, libpython, pythonhome, virtualenv_activate, python3, interactive, numpy_load_error);
     return R_NilValue;
 END_RCPP
 }

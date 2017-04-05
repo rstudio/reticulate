@@ -637,19 +637,18 @@ SEXP py_to_r(PyObject* x) {
         PyObjectPtr itemFunc(PyObject_GetAttrString(ptrArray, "item"));
         if (itemFunc.is_null())
           stop(py_fetch_error());
-        PROTECT(rArray = Rf_allocArray(STRSXP, dimsVector)); 
+        rArray = Rf_allocArray(STRSXP, dimsVector);
+        RObject protectArray(rArray);
         for (int i=0; i<len; i++) {
           PyObjectPtr pyArgs(PyTuple_New(1));
           // PyTuple_SetItem steals reference to object created by PyInt_FromLong
           PyTuple_SetItem(pyArgs, 0, PyInt_FromLong(i));
           PyObjectPtr pyStr(PyObject_Call(itemFunc, pyArgs, NULL));
           if (pyStr.is_null()) {
-            UNPROTECT(1);
             stop(py_fetch_error());
           }
           set_string_element(rArray, i, pyStr);
         }
-        UNPROTECT(1);
         break;
       }
       case NPY_OBJECT: {
@@ -668,14 +667,15 @@ SEXP py_to_r(PyObject* x) {
         
         // return a character vector if it's all strings
         if (allStrings) {
-          PROTECT(rArray = Rf_allocArray(STRSXP, dimsVector)); 
+          rArray = Rf_allocArray(STRSXP, dimsVector);
+          RObject protectArray(rArray);
           for (npy_intp i=0; i<len; i++)
             set_string_element(rArray, i, pData[i]);
-          UNPROTECT(1);
           
         // otherwise return a list of objects
         } else {
           rArray = Rf_allocArray(VECSXP, dimsVector);
+          RObject protectArray(rArray);
           for (npy_intp i=0; i<len; i++) {
             SEXP data = py_to_r(pData[i]);
             SET_VECTOR_ELT(rArray, i, data);

@@ -6,11 +6,8 @@
 \usage{
 py_last_error()
 }
-\value{
-A list with the type, value, and traceback for the last
+\description{
+Return a list with the type, value, and traceback for the last
 Python error encountered (can be \code{NULL} if no error has yet been
 encountered).
-}
-\description{
-Get the last Python error encountered
 }

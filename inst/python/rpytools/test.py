@@ -65,3 +65,15 @@ class TestPyFunctionWrapperClass(object):
 
   def class_method(self):
     pass
+
+
+class PythonClass(object):
+  
+  FOO = 1
+  BAR = 2
+  
+  @classmethod
+  def class_method(cls):
+    return cls.FOO
+  
+

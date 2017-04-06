@@ -169,7 +169,6 @@ r_to_py <- function(x, convert = FALSE) {
   `$.python.builtin.object`(x, name)
 }
 
-
 py_has_convert <- function(x) {
   if (exists("convert", x, inherits = FALSE))
     get("convert", x, inherits = FALSE)
@@ -217,6 +216,9 @@ py_has_convert <- function(x) {
     # make an R function
     f <- py_callable_as_function(attrib, convert)
     
+    # add a class so we can treat it specially
+    class(f) <- c("function", "py_callable")
+    
     # assign py_object attribute so it marshalls back to python
     # as a native python object
     attr(f, "py_object") <- attrib
@@ -230,6 +232,18 @@ py_has_convert <- function(x) {
       attrib
   }
 }
+
+
+#' @export
+`$.py_callable` <- function(x, name) {
+ 
+  # get the underlying python object
+  py_obj <- attr(x, "py_object")
+  
+  # invoke on it
+  `$.python.builtin.object`(py_obj, name)
+}
+
 
 #' @export
 `[[.python.builtin.object` <- `$.python.builtin.object`

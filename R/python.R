@@ -216,7 +216,7 @@ py_has_convert <- function(x) {
     # make an R function
     f <- py_callable_as_function(attrib, convert)
     
-    # add a class so we can treat it specially
+    # add classes so we can treat it specially
     class(f) <- c("function", "py_callable")
     
     # assign py_object attribute so it marshalls back to python
@@ -546,19 +546,6 @@ with.python.builtin.object <- function(data, expr, as = NULL, ...) {
           )
 }
 
-#' @export
-as.function.python.builtin.object <- function(x, ...) {
-  
-  ensure_python_initialized()
-  
-  if (py_is_null_xptr(x))
-    stop("Python object is NULL so cannot be convereted to a function")
-  else if (py_is_callable(x))
-    py_callable_as_function(x, py_has_convert(x))
-  else
-    stop("Python object is not callable so cannot be converted to a function.")
-}
-
 #' Create local alias for objects in \code{with} statements.
 #'
 #' @param object Object to alias
@@ -710,6 +697,7 @@ py_str <- function(object, ...) {
 py_str.default <- function(object, ...) {
   "<not a python object>"
 }
+
 
 #' @export
 py_str.python.builtin.object <- function(object, ...) {

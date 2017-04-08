@@ -848,8 +848,33 @@ SEXP py_to_r(PyObject* x) {
     return py_ref(x, true, std::string("python.builtin.iterator"));
   }
 
+  // callable
+  else if ((PyCallable_Check(x) == 1) || 
+           PyObject_HasAttrString(x, "__call__")) {
+    
+    // reference to underlying python object
+    Py_IncRef(x);
+    PyObjectRef pyFunc = py_ref(x,true);
+    
+    // create an R function wrapper
+    Rcpp::Environment pkgEnv = Rcpp::Environment::namespace_env("reticulate");
+    Rcpp::Function py_callable_as_function = pkgEnv["py_callable_as_function"];
+    Rcpp::Function f = py_callable_as_function(pyFunc, true);
+    
+    // forward classes + py_callable to signal delegation
+    Rcpp::CharacterVector classes = pyFunc.attr("class");
+    classes.push_front("py_callable");
+    f.attr("class") = classes;
+    
+    // save reference to underlying py_object
+    f.attr("py_object") = pyFunc;
+    
+    // return the R function
+    return f;
+  }
+  
   // default is to return opaque wrapper to python object. we pass convert = true 
-  // because if we hit this code then converstion has been either implicitly
+  // because if we hit this code then conversion has been either implicitly
   // or explicitly requested.
   else {
     Py_IncRef(x);
@@ -870,16 +895,16 @@ PyObject* r_to_py(RObject x, bool convert) {
     Py_IncRef(Py_None);
     return Py_None;
 
+  // use py_object attribute if we have it
+  } else if (x.hasAttribute("py_object")) {
+    PyObjectRef obj = as<PyObjectRef>(x.attr("py_object"));
+    Py_IncRef(obj.get());
+    return obj.get();    
+    
   // pass python objects straight through (Py_IncRef since returning this
   // creates a new reference from the caller)
   } else if (x.inherits("python.builtin.object")) {
     PyObjectRef obj = as<PyObjectRef>(sexp);
-    Py_IncRef(obj.get());
-    return obj.get();
-
-  // use py_object attribute if we have it
-  } else if (x.hasAttribute("py_object")) {
-    PyObjectRef obj = as<PyObjectRef>(x.attr("py_object"));
     Py_IncRef(obj.get());
     return obj.get();
 

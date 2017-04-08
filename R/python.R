@@ -210,28 +210,42 @@ py_has_convert <- function(x) {
   else
     attrib <- py_get_attr(x, name)
   
-  # default handling
-  if (py_is_callable(attrib)) {
-    
-    # make an R function
-    f <- py_callable_as_function(attrib, convert)
-    
-    # add classes so we can treat it specially
-    class(f) <- c("function", "py_callable")
-    
-    # assign py_object attribute so it marshalls back to python
-    # as a native python object
-    attr(f, "py_object") <- attrib
-    
-    # return the function
-    f
-  } else {
-    if (convert)
-      py_ref_to_r(attrib)
-    else
-      attrib
-  }
+  # convert
+  if (convert)
+    py_ref_to_r(attrib)
+  else
+    attrib
 }
+
+
+# TODO: do we need an as_py_object method that all functions expecting a Python object should call?
+#        - if we always used as_py_object in S3 methods then we could get rid of py_callable
+#        - perhaps we could combine this logic with null checks?
+
+# TODO: implications for normalize_function call in help module
+
+# TODO: what about S3 methods in other packages?
+
+# TODO: could we actually just handle this in the same place as we currently handle
+#       the environment wrapper? (i.e. Ref inherit from RObject). 
+
+# TODO: account for convert flag (although it seems like it should always be TRUE)
+
+# TODO: RStudio workspace needs to look for py_callable
+
+# TODO: RStudio completion needs to look for py_callable
+
+# TODO: as_layer can be a function that just takes an 'x' param (remove parens idiom)
+
+# TODO: revisit time distribued after we get this worked out
+
+# TODO: time_distributed could _also_ check for a missing layer argument and in that case
+#       just use 'x' as the layer
+
+# TODO: once we have this in we should be able to get rid of the special call -> __call__ wrapper
+
+# TODO: could we introduce per-type function wrappers (so that e.g. layer and model behave like
+#       proper layer_ functions)
 
 
 #' @export
@@ -241,12 +255,15 @@ py_has_convert <- function(x) {
   py_obj <- attr(x, "py_object")
   
   # invoke on it
-  `$.python.builtin.object`(py_obj, name)
+  `$`(py_obj, name)
 }
 
 
 #' @export
 `[[.python.builtin.object` <- `$.python.builtin.object`
+
+#' @export
+`[[.py_callable` <- `$.py_callable`
 
 
 #' @export
@@ -260,6 +277,18 @@ py_has_convert <- function(x) {
 
 #' @export
 `[[<-.python.builtin.object` <- `$<-.python.builtin.object`
+
+
+#' @export
+`$<-.py_callable` <- function(x, name, value) {
+  py_obj <- attr(x, "py_object")
+  `$<-`(py_obj, name, value)
+}
+
+
+
+#' @export
+`[[<-.py_callable` <- `$<-.py_callable`
 
 
 #' @export
@@ -345,6 +374,12 @@ length.python.builtin.dict <- function(x) {
   
   # return
   names
+}
+
+#' @export
+.DollarNames.py_callable <- function(x, pattern = "") {
+  py_obj <- attr(x, "py_object")
+  .DollarNames(py_obj, pattern)
 }
 
 #' @export
@@ -546,6 +581,13 @@ with.python.builtin.object <- function(data, expr, as = NULL, ...) {
           )
 }
 
+
+#' @export
+with.py_callable <- function(data, expr, as = NULL, ...) {
+  py_obj <- attr(data, "py_object")
+  with(py_obj, expr = expr, as = as, ...)
+}
+
 #' Create local alias for objects in \code{with} statements.
 #'
 #' @param object Object to alias
@@ -696,6 +738,11 @@ py_str <- function(object, ...) {
 #' @export
 py_str.default <- function(object, ...) {
   "<not a python object>"
+}
+
+#' @export
+py_str.py_callable <- function(object, ...) {
+  py_str(attr(object, "py_object"))
 }
 
 

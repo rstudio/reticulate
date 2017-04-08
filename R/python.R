@@ -247,6 +247,8 @@ py_has_convert <- function(x) {
 # TODO: could we introduce per-type function wrappers (so that e.g. layer and model behave like
 #       proper layer_ functions)
 
+# TODO: make metrics functions optionally callable directly
+
 
 #' @export
 `$.py_callable` <- function(x, name) {

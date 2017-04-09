@@ -26,6 +26,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// py_is_callable
+bool py_is_callable(PyObjectRef x);
+RcppExport SEXP reticulate_py_is_callable(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< PyObjectRef >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_is_callable(x));
+    return rcpp_result_gen;
+END_RCPP
+}
 // r_to_py_impl
 PyObjectRef r_to_py_impl(RObject object, bool convert);
 RcppExport SEXP reticulate_r_to_py_impl(SEXP objectSEXP, SEXP convertSEXP) {
@@ -103,17 +114,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< PyObjectRef >::type x(xSEXP);
     py_print(x);
     return R_NilValue;
-END_RCPP
-}
-// py_is_callable
-bool py_is_callable(PyObjectRef x);
-RcppExport SEXP reticulate_py_is_callable(SEXP xSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< PyObjectRef >::type x(xSEXP);
-    rcpp_result_gen = Rcpp::wrap(py_is_callable(x));
-    return rcpp_result_gen;
 END_RCPP
 }
 // py_is_function
@@ -215,6 +215,18 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< PyObjectRef >::type x(xSEXP);
     Rcpp::traits::input_parameter< const std::vector<std::string>& >::type attributes(attributesSEXP);
     rcpp_result_gen = Rcpp::wrap(py_get_attribute_types(x, attributes));
+    return rcpp_result_gen;
+END_RCPP
+}
+// py_ref_to_r_with_convert
+SEXP py_ref_to_r_with_convert(PyObjectRef x, bool convert);
+RcppExport SEXP reticulate_py_ref_to_r_with_convert(SEXP xSEXP, SEXP convertSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< PyObjectRef >::type x(xSEXP);
+    Rcpp::traits::input_parameter< bool >::type convert(convertSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_ref_to_r_with_convert(x, convert));
     return rcpp_result_gen;
 END_RCPP
 }

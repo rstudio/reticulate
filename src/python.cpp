@@ -562,9 +562,19 @@ void set_string_element(SEXP rArray, int i, PyObject* pyStr) {
   SET_STRING_ELT(rArray, i, strSEXP);
 }
  
+ 
+bool py_is_callable(PyObject* x) {
+  return PyCallable_Check(x) == 1 || PyObject_HasAttrString(x, "__call__");
+}
+ 
+// [[Rcpp::export]]
+bool py_is_callable(PyObjectRef x) {
+  return py_is_callable(x.get());
+}
+
 
 // convert a python object to an R object
-SEXP py_to_r(PyObject* x) {
+SEXP py_to_r(PyObject* x, bool convert) {
 
   // NULL for Python None
   if (py_is_none(x))
@@ -639,7 +649,7 @@ SEXP py_to_r(PyObject* x) {
     } else { // not a homegenous list of scalars, return a list
       Rcpp::List list(len);
       for (Py_ssize_t i = 0; i<len; i++)
-        list[i] = py_to_r(PyList_GetItem(x, i));
+        list[i] = py_to_r(PyList_GetItem(x, i), convert);
       return list;
     }
   }
@@ -649,7 +659,7 @@ SEXP py_to_r(PyObject* x) {
     Py_ssize_t len = PyTuple_Size(x);
     Rcpp::List list(len);
     for (Py_ssize_t i = 0; i<len; i++)
-      list[i] = py_to_r(PyTuple_GetItem(x, i));
+      list[i] = py_to_r(PyTuple_GetItem(x, i), convert);
     return list;
   }
 
@@ -662,7 +672,7 @@ SEXP py_to_r(PyObject* x) {
     Py_ssize_t pos = 0;
     while (PyDict_Next(x, &pos, &key, &value)) {
       PyObjectPtr str(PyObject_Str(key));
-      list[as_std_string(str)] = py_to_r(value);
+      list[as_std_string(str)] = py_to_r(value, convert);
     }
     return list;
   }
@@ -783,7 +793,7 @@ SEXP py_to_r(PyObject* x) {
           rArray = Rf_allocArray(VECSXP, dimsVector);
           RObject protectArray(rArray);
           for (npy_intp i=0; i<len; i++) {
-            SEXP data = py_to_r(pData[i]);
+            SEXP data = py_to_r(pData[i], convert);
             SET_VECTOR_ELT(rArray, i, data);
           }
         }
@@ -849,17 +859,16 @@ SEXP py_to_r(PyObject* x) {
   }
 
   // callable
-  else if ((PyCallable_Check(x) == 1) || 
-           PyObject_HasAttrString(x, "__call__")) {
+  else if (py_is_callable(x)) {
     
     // reference to underlying python object
     Py_IncRef(x);
-    PyObjectRef pyFunc = py_ref(x,true);
+    PyObjectRef pyFunc = py_ref(x, convert);
     
     // create an R function wrapper
     Rcpp::Environment pkgEnv = Rcpp::Environment::namespace_env("reticulate");
     Rcpp::Function py_callable_as_function = pkgEnv["py_callable_as_function"];
-    Rcpp::Function f = py_callable_as_function(pyFunc, true);
+    Rcpp::Function f = py_callable_as_function(pyFunc, convert);
     
     // forward classes + py_callable to signal delegation
     Rcpp::CharacterVector classes = pyFunc.attr("class");
@@ -1148,7 +1157,7 @@ extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* k
   PyObjectPtr funcArgs(PyTuple_GetSlice(args, 1, PyTuple_Size(args)));
   List rArgs;
   if (convert) {
-    rArgs = ::py_to_r(funcArgs);
+    rArgs = ::py_to_r(funcArgs, convert);
   } else {
     Py_ssize_t len = PyTuple_Size(funcArgs);
     for (Py_ssize_t index = 0; index<len; index++) {
@@ -1161,7 +1170,7 @@ extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* k
   // get keyword arguments
   List rKeywords;
   if (convert) {
-    rKeywords = ::py_to_r(keywords);
+    rKeywords = ::py_to_r(keywords, convert);
   } else {
     PyObject *key, *value;
     Py_ssize_t pos = 0;
@@ -1345,11 +1354,6 @@ void py_print(PyObjectRef x) {
 }
 
 // [[Rcpp::export]]
-bool py_is_callable(PyObjectRef x) {
-  return PyCallable_Check(x) == 1;
-}
-
-// [[Rcpp::export]]
 bool py_is_function(PyObjectRef x) {
   return PyFunction_Check(x) == 1;
 }
@@ -1502,9 +1506,15 @@ IntegerVector py_get_attribute_types(
 
 
 // [[Rcpp::export]]
-SEXP py_ref_to_r(PyObjectRef x) {
-  return py_to_r(x.get());
+SEXP py_ref_to_r_with_convert(PyObjectRef x, bool convert) {
+  return py_to_r(x, convert);
 }
+
+// [[Rcpp::export]]
+SEXP py_ref_to_r(PyObjectRef x) {
+  return py_ref_to_r_with_convert(x, x.convert());
+}
+
 
 
 
@@ -1696,7 +1706,7 @@ List py_iterate(PyObjectRef x, Function f) {
     }
 
     // call the function 
-    SEXP param = x.convert() ? py_to_r(item) : py_ref(item, false);
+    SEXP param = x.convert() ? py_to_r(item, x.convert()) : py_ref(item, false);
     list.push_back(f(param));
   }
 

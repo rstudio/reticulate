@@ -170,6 +170,12 @@ r_to_py <- function(x, convert = FALSE) {
 }
 
 py_has_convert <- function(x) {
+  
+  # resolve wrapped object for py_callable
+  if (inherits(x, "py_callable"))
+    x <- attr(x, "py_object")
+ 
+  # get convert flag 
   if (exists("convert", x, inherits = FALSE))
     get("convert", x, inherits = FALSE)
   else
@@ -198,12 +204,6 @@ py_has_convert <- function(x) {
       return(module)
   }
   
-  # convert 'call' to '__call__' if we aren't masking an underlying 'call'
-  if (identical(name, "call") &&  
-      !py_has_attr(x, "call") && py_has_attr(x, "__call__")) {
-    name <- "__call__"
-  }
-
   # get the attrib
   if (inherits(x, "python.builtin.dict"))
     attrib <- py_dict_get_item(x, name)
@@ -211,26 +211,13 @@ py_has_convert <- function(x) {
     attrib <- py_get_attr(x, name)
   
   # convert
-  if (convert)
-    py_ref_to_r(attrib)
+  if (convert || py_is_callable(attrib)) {
+    py_ref_to_r_with_convert(attrib, convert)
+  }
   else
     attrib
 }
 
-
-# TODO: do we need an as_py_object method that all functions expecting a Python object should call?
-#        - if we always used as_py_object in S3 methods then we could get rid of py_callable
-#        - perhaps we could combine this logic with null checks?
-
-# TODO: implications for normalize_function call in help module
-
-# TODO: what about S3 methods in other packages?
-
-# TODO: could we actually just handle this in the same place as we currently handle
-#       the environment wrapper? (i.e. Ref inherit from RObject). 
-
-# TODO: account for convert flag (since we are _always_ converting to an R function we can't
-#       assume convert = TRUE)
 
 # TODO: layers could automatically "move" a non-layer 'x' parameter to the first argument
 #       (only if it's missing)
@@ -239,22 +226,14 @@ py_has_convert <- function(x) {
 # TODO: RStudio completion needs to look for py_callable
 # TODO: traceback capture for RStudio
 
-# TODO: as_layer can be a function that just takes an 'x' param (remove parens idiom)
-
 # TODO: revisit time distribued after we get this worked out
 
 # TODO: time_distributed could _also_ check for a missing layer argument and in that case
 #       just use 'x' as the layer. Or time_distributed should just take an "x" rather than both
 #       (perhaps should use layer_ prefix)
 
-# TODO: once we have this in we should be able to get rid of the special call -> __call__ wrapper
-
-# TODO: could we introduce per-type function wrappers (so that e.g. layer and model behave like
-#       proper layer_ functions)
-
 # TODO: make metrics functions optionally callable directly
 
-# TODO: selection [] operator for layers
 
 #' @export
 as.environment.py_callable <- function(x) {

@@ -15,9 +15,13 @@ def normalize_func(func):
     # convert class to __init__ method if we can
     if inspect.isclass(func):
       if (inspect.ismethod(func.__init__)):
-        func = func.__init__
+        return func.__init__
       else:
         return None
+
+    # convert func to __call__
+    if not inspect.isfunction(func) and hasattr(func, '__call__'):
+      return func.__call__
 
     # return None for builtins
     if (inspect.isbuiltin(func)):

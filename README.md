@@ -116,7 +116,7 @@ The main module is generally useful if you have executed Python code from a file
 By default when Python objects are returned to R they are converted to their equivalent R types. However, if you'd rather make conversion from Python to R explicit and deal in native Python objects by default you can pass `convert = FALSE` to the `import` function. In this case Python to R conversion will be disabled for the module returned from `import`. For example:
 
 ``` r
-# import numpy and speicfy no automatic Python to R conversion
+# import numpy and specify no automatic Python to R conversion
 np <- import("numpy", convert = FALSE)
 
 # do some array manipulations with NumPy
@@ -144,7 +144,7 @@ main$x
 Error Handling
 --------------
 
-When an error occurs within Python code it is converted to an R error message of the form `<ErrorType>: <ErrorMessage>` (e.g. "ValueError: The `kernel_size` argument must be a tuple of 2 integers. Received: (2,)"). The error is signaled using the standard R error handling mechanism.
+When an error occurs within Python code it is converted to an R error message of the form `<ErrorType>: <ErrorMessage>` (e.g. "ValueError: The kernel\_size argument must be a tuple of 2 integers. Received: (2,)"). The error is signaled using the standard R error handling mechanism.
 
 Python stack traces for errors are captured but not printed by default. To turn on printing of stack traces you can use the `reticulate.traceback` option. For example:
 
@@ -217,19 +217,6 @@ Note that the `Iterators` will be drained of their values by `iterate()`:
 ``` r
 a <- iterate(iter) # results are not empty
 b <- iterate(iter) # results are empty since items have already been drained
-```
-
-Callable Objects
-----------------
-
-In addition to accessing their methods and properties, some Python objects are also callable (meaning they can be invoked with parameters just like an ordinary function). Callable Python objects are returned to R as objects rather than functions, however, you can still execute the callable function via the `$call()` method, for example:
-
-``` r
-# get a callable object
-parser <- spacy$English()
-
-# call the object as a function
-parser$call(spacy)
 ```
 
 Advanced Functions

@@ -364,7 +364,6 @@ length.python.builtin.dict <- function(x) {
   names
 }
 
-
 #' @export
 as.array.numpy.ndarray <- function(x, ...) {
   py_to_r(x)
@@ -563,7 +562,6 @@ with.python.builtin.object <- function(data, expr, as = NULL, ...) {
            }
           )
 }
-
 
 #' Create local alias for objects in \code{with} statements.
 #'

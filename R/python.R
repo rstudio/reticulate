@@ -257,21 +257,13 @@ py_has_convert <- function(x) {
 # TODO: selection [] operator for layers
 
 #' @export
-`$.py_callable` <- function(x, name) {
- 
-  # get the underlying python object
-  py_obj <- attr(x, "py_object")
-  
-  # invoke on it
-  `$`(py_obj, name)
+as.environment.py_callable <- function(x) {
+  attr(x, "py_object")
 }
 
 
 #' @export
 `[[.python.builtin.object` <- `$.python.builtin.object`
-
-#' @export
-`[[.py_callable` <- `$.py_callable`
 
 
 #' @export
@@ -285,18 +277,6 @@ py_has_convert <- function(x) {
 
 #' @export
 `[[<-.python.builtin.object` <- `$<-.python.builtin.object`
-
-
-#' @export
-`$<-.py_callable` <- function(x, name, value) {
-  py_obj <- attr(x, "py_object")
-  `$<-`(py_obj, name, value)
-}
-
-
-
-#' @export
-`[[<-.py_callable` <- `$<-.py_callable`
 
 
 #' @export
@@ -384,11 +364,6 @@ length.python.builtin.dict <- function(x) {
   names
 }
 
-#' @export
-.DollarNames.py_callable <- function(x, pattern = "") {
-  py_obj <- attr(x, "py_object")
-  .DollarNames(py_obj, pattern)
-}
 
 #' @export
 as.array.numpy.ndarray <- function(x, ...) {
@@ -590,12 +565,6 @@ with.python.builtin.object <- function(data, expr, as = NULL, ...) {
 }
 
 
-#' @export
-with.py_callable <- function(data, expr, as = NULL, ...) {
-  py_obj <- attr(data, "py_object")
-  with(py_obj, expr = expr, as = as, ...)
-}
-
 #' Create local alias for objects in \code{with} statements.
 #'
 #' @param object Object to alias
@@ -746,11 +715,6 @@ py_str <- function(object, ...) {
 #' @export
 py_str.default <- function(object, ...) {
   "<not a python object>"
-}
-
-#' @export
-py_str.py_callable <- function(object, ...) {
-  py_str(attr(object, "py_object"))
 }
 
 

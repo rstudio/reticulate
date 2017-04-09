@@ -229,18 +229,23 @@ py_has_convert <- function(x) {
 # TODO: could we actually just handle this in the same place as we currently handle
 #       the environment wrapper? (i.e. Ref inherit from RObject). 
 
-# TODO: account for convert flag (although it seems like it should always be TRUE)
+# TODO: account for convert flag (since we are _always_ converting to an R function we can't
+#       assume convert = TRUE)
+
+# TODO: layers could automatically "move" a non-layer 'x' parameter to the first argument
+#       (only if it's missing)
 
 # TODO: RStudio workspace needs to look for py_callable
-
 # TODO: RStudio completion needs to look for py_callable
+# TODO: traceback capture for RStudio
 
 # TODO: as_layer can be a function that just takes an 'x' param (remove parens idiom)
 
 # TODO: revisit time distribued after we get this worked out
 
 # TODO: time_distributed could _also_ check for a missing layer argument and in that case
-#       just use 'x' as the layer
+#       just use 'x' as the layer. Or time_distributed should just take an "x" rather than both
+#       (perhaps should use layer_ prefix)
 
 # TODO: once we have this in we should be able to get rid of the special call -> __call__ wrapper
 
@@ -249,6 +254,7 @@ py_has_convert <- function(x) {
 
 # TODO: make metrics functions optionally callable directly
 
+# TODO: selection [] operator for layers
 
 #' @export
 `$.py_callable` <- function(x, name) {

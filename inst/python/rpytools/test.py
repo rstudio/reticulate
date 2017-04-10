@@ -76,4 +76,20 @@ class PythonClass(object):
   def class_method(cls):
     return cls.FOO
   
+class PythonCallable(object):
+  
+  FOO = 1
+  BAR = 2
+  
+  """ Call a callable
+    Args:
+      arg1: First argument.
+  """
+  def __call__(self, arg1):
+    return arg1
+  
+def create_callable():
+  return PythonCallable()
+
+dict_with_callable = dict(callable = create_callable())
 

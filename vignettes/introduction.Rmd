@@ -227,20 +227,6 @@ a <- iterate(iter) # results are not empty
 b <- iterate(iter) # results are empty since items have already been drained
 ```
 
-
-## Callable Objects
-
-In addition to accessing their methods and properties, some Python objects are also callable (meaning they can be invoked with parameters just like an ordinary function). Callable Python objects are returned to R as objects rather than functions, however, you can still execute the callable function via the `$call()` method, for example:
-
-```{r}
-# get a callable object
-parser <- spacy$English()
-
-# call the object as a function
-parser$call(spacy)
-```
-
-
 ## Advanced Functions
 
 There are several more advanced functions available that are useful principally when creating high level R interfaces for Python libraries.

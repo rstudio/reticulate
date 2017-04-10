@@ -16,6 +16,10 @@ py_last_error <- function() {
     .Call('reticulate_py_last_error', PACKAGE = 'reticulate')
 }
 
+py_is_callable <- function(x) {
+    .Call('reticulate_py_is_callable', PACKAGE = 'reticulate', x)
+}
+
 r_to_py_impl <- function(object, convert) {
     .Call('reticulate_r_to_py_impl', PACKAGE = 'reticulate', object, convert)
 }
@@ -42,10 +46,6 @@ py_str_impl <- function(x) {
 
 py_print <- function(x) {
     invisible(.Call('reticulate_py_print', PACKAGE = 'reticulate', x))
-}
-
-py_is_callable <- function(x) {
-    .Call('reticulate_py_is_callable', PACKAGE = 'reticulate', x)
 }
 
 py_is_function <- function(x) {
@@ -108,6 +108,10 @@ py_set_attr_impl <- function(x, name, value) {
 
 py_get_attribute_types <- function(x, attributes) {
     .Call('reticulate_py_get_attribute_types', PACKAGE = 'reticulate', x, attributes)
+}
+
+py_ref_to_r_with_convert <- function(x, convert) {
+    .Call('reticulate_py_ref_to_r_with_convert', PACKAGE = 'reticulate', x, convert)
 }
 
 py_ref_to_r <- function(x) {

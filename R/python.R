@@ -170,6 +170,12 @@ r_to_py <- function(x, convert = FALSE) {
 }
 
 py_has_convert <- function(x) {
+  
+  # resolve wrapped object for py_callable
+  if (inherits(x, "py_callable"))
+    x <- attr(x, "py_object")
+ 
+  # get convert flag 
   if (exists("convert", x, inherits = FALSE))
     get("convert", x, inherits = FALSE)
   else
@@ -198,50 +204,30 @@ py_has_convert <- function(x) {
       return(module)
   }
   
-  # convert 'call' to '__call__' if we aren't masking an underlying 'call'
-  if (identical(name, "call") &&  
-      !py_has_attr(x, "call") && py_has_attr(x, "__call__")) {
-    name <- "__call__"
-  }
-
   # get the attrib
   if (inherits(x, "python.builtin.dict"))
     attrib <- py_dict_get_item(x, name)
   else
     attrib <- py_get_attr(x, name)
   
-  # default handling
-  if (py_is_callable(attrib)) {
-    
-    # make an R function
-    f <- py_callable_as_function(attrib, convert)
-    
-    # add classes so we can treat it specially
-    class(f) <- c("function", "py_callable")
-    
-    # assign py_object attribute so it marshalls back to python
-    # as a native python object
-    attr(f, "py_object") <- attrib
-    
-    # return the function
-    f
-  } else {
-    if (convert)
-      py_ref_to_r(attrib)
-    else
-      attrib
+  # convert
+  if (convert || py_is_callable(attrib)) {
+    py_ref_to_r_with_convert(attrib, convert)
   }
+  else
+    attrib
 }
 
 
+
+# the as.environmetn generic enables py_callable objects to be 
+# automatically converted to enviroments during the construction
+# of PyObjectRef -- this makes them a seamless drop-in for 
+# standard python objects represented as environments
+
 #' @export
-`$.py_callable` <- function(x, name) {
- 
-  # get the underlying python object
-  py_obj <- attr(x, "py_object")
-  
-  # invoke on it
-  `$.python.builtin.object`(py_obj, name)
+as.environment.py_callable <- function(x) {
+  attr(x, "py_object")
 }
 
 

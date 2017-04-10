@@ -870,10 +870,8 @@ SEXP py_to_r(PyObject* x, bool convert) {
     Rcpp::Function py_callable_as_function = pkgEnv["py_callable_as_function"];
     Rcpp::Function f = py_callable_as_function(pyFunc, convert);
     
-    // forward classes + py_callable to signal delegation
-    Rcpp::CharacterVector classes = pyFunc.attr("class");
-    classes.push_front("py_callable");
-    f.attr("class") = classes;
+    // forward classes
+    f.attr("class") = pyFunc.attr("class");
     
     // save reference to underlying py_object
     f.attr("py_object") = pyFunc;

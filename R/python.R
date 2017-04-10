@@ -171,10 +171,9 @@ r_to_py <- function(x, convert = FALSE) {
 
 py_has_convert <- function(x) {
   
-  # resolve wrapped object for py_callable
-  if (inherits(x, "py_callable"))
-    x <- attr(x, "py_object")
- 
+  # resolve wrapped environment
+  x <- as.environment(x)
+  
   # get convert flag 
   if (exists("convert", x, inherits = FALSE))
     get("convert", x, inherits = FALSE)
@@ -220,14 +219,18 @@ py_has_convert <- function(x) {
 
 
 
-# the as.environmetn generic enables py_callable objects to be 
-# automatically converted to enviroments during the construction
-# of PyObjectRef -- this makes them a seamless drop-in for 
-# standard python objects represented as environments
+# the as.environment generic enables pytyhon objects that manifest
+# as R functions (e.g. for functions, classes, callables, etc.) to 
+# be automatically converted to enviroments during the construction
+# of PyObjectRef. This makes them a seamless drop-in for standard 
+# python objects represented as environments
 
 #' @export
-as.environment.py_callable <- function(x) {
-  attr(x, "py_object")
+as.environment.python.builtin.object <- function(x) {
+  if (is.function(x))
+    attr(x, "py_object")
+  else
+    x
 }
 
 

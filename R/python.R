@@ -219,21 +219,11 @@ py_has_convert <- function(x) {
 }
 
 
-# TODO: layers could automatically "move" a non-layer 'x' parameter to the first argument
-#       (only if it's missing)
 
-# TODO: RStudio workspace needs to look for py_callable
-# TODO: RStudio completion needs to look for py_callable
-# TODO: traceback capture for RStudio
-
-# TODO: revisit time distribued after we get this worked out
-
-# TODO: time_distributed could _also_ check for a missing layer argument and in that case
-#       just use 'x' as the layer. Or time_distributed should just take an "x" rather than both
-#       (perhaps should use layer_ prefix)
-
-# TODO: make metrics functions optionally callable directly
-
+# the as.environmetn generic enables py_callable objects to be 
+# automatically converted to enviroments during the construction
+# of PyObjectRef -- this makes them a seamless drop-in for 
+# standard python objects represented as environments
 
 #' @export
 as.environment.py_callable <- function(x) {

@@ -144,7 +144,7 @@ def generate_signature_for_function(func):
     # TODO(mrry): This is a workaround for documenting signature of
     # functions that have the @contextlib.contextmanager decorator.
     # We should do something better.
-    if argspec.varargs == "args" and argspec.keywords == "kwds":
+    if argspec.varargs == "args" and hasattr(argspec, 'keywords') and argspec.keywords == "kwds":
       original_func = func.__closure__[0].cell_contents
       return generate_signature_for_function(original_func)
 
@@ -155,7 +155,7 @@ def generate_signature_for_function(func):
         args_list.append("%s = %s" % (arg, arg_value))
     if argspec.varargs:
       args_list.append("...")
-    if argspec.keywords:
+    if hasattr(argspec, 'keywords') and argspec.keywords:
       args_list.append("...")
     return "(" + ", ".join(args_list) + ")"
 

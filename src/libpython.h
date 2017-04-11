@@ -196,6 +196,7 @@ LIBPYTHON_EXTERN PyObject* (*PyString_FromString)(const char *);
 LIBPYTHON_EXTERN PyObject* (*PyString_FromStringAndSize)(const char *, Py_ssize_t);
 
 LIBPYTHON_EXTERN PyObject* (*PyUnicode_EncodeLocale)(PyObject *unicode, const char *errors);
+LIBPYTHON_EXTERN PyObject* (*PyUnicode_AsEncodedString)(PyObject *unicode, const char *encoding, const char *errors);
 LIBPYTHON_EXTERN int (*PyBytes_AsStringAndSize)(
     PyObject *obj,      /* string or Unicode object */
     char **s,           /* pointer to buffer variable */
@@ -203,6 +204,10 @@ LIBPYTHON_EXTERN int (*PyBytes_AsStringAndSize)(
   (only possible for 0-terminated
   strings) */
 );
+#ifdef _WIN32
+LIBPYTHON_EXTERN PyObject* (*PyUnicode_AsMBCSString)(PyObject *unicode);
+#endif
+
 LIBPYTHON_EXTERN PyObject* (*PyBytes_FromStringAndSize)(const char *, Py_ssize_t);
 LIBPYTHON_EXTERN PyObject* (*PyUnicode_FromString)(const char *u);
 

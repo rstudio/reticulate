@@ -218,6 +218,10 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
     LOAD_PYTHON_SYMBOL_AS(Py_SetPythonHome, Py_SetPythonHome_v3)
     LOAD_PYTHON_SYMBOL_AS(PySys_SetArgv, PySys_SetArgv_v3)
     LOAD_PYTHON_SYMBOL(PyUnicode_EncodeLocale)
+    LOAD_PYTHON_SYMBOL(PyUnicode_AsEncodedString)
+#ifdef _WIN32
+    LOAD_PYTHON_SYMBOL(PyUnicode_AsMBCSString)
+#endif
     LOAD_PYTHON_SYMBOL(PyBytes_AsStringAndSize)
     LOAD_PYTHON_SYMBOL(PyBytes_FromStringAndSize)
     LOAD_PYTHON_SYMBOL(PyUnicode_FromString)

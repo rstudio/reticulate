@@ -124,6 +124,14 @@ private:
 typedef PyPtr<PyObject> PyObjectPtr;
 typedef PyPtr<PyArray_Descr> PyArray_DescrPtr;
 
+PyObject* PyUnicode_AsBytes(PyObject* str) {
+#ifdef _WIN32
+  return PyUnicode_AsMBCSString(str);
+#else
+  return PyUnicode_AsEncodedString(str, "utf-8", "ignore");
+#endif
+}
+
 std::string as_std_string(PyObject* str) {
 
   PyObjectPtr pStr;
@@ -131,7 +139,7 @@ std::string as_std_string(PyObject* str) {
     // python3 requires that we turn PyUnicode into PyBytes before
     // we call PyBytes_AsStringAndSize (whereas python2 would
     // automatically handle unicode in PyBytes_AsStringAndSize)
-    str = PyUnicode_EncodeLocale(str, "strict");
+    str = PyUnicode_AsBytes(str);
     pStr.assign(str);
   }
 
@@ -180,7 +188,7 @@ bool has_null_bytes(PyObject* str) {
     // python3 requires that we turn PyUnicode into PyBytes before
     // we call PyBytes_AsStringAndSize (whereas python2 would
     // automatically handle unicode in PyBytes_AsStringAndSize)
-    str = PyUnicode_EncodeLocale(str, "strict");
+    str = PyUnicode_AsBytes(str);
     pStr.assign(str);
   }
 

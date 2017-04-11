@@ -52,9 +52,9 @@ def get_property_doc(target, prop):
 def get_argspec(func):
   try:
     if sys.version_info[0] >= 3:
-      argspec = inspect.getfullargspec(func)
+      return inspect.getfullargspec(func)
     else:
-      argspec = inspect.getargspec(func)
+      return inspect.getargspec(func)
   except TypeError:
     return None
 

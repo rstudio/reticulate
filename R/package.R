@@ -63,13 +63,13 @@ initialize_python <- function(required_module = NULL) {
     numpy_load_error <- ""
   
   
-  # add the python bin dir to the PATH for anaconda on windows
-  # (see https://github.com/rstudio/reticulate/issues/20)
-  if (isTRUE(config$anaconda) && is_windows()) {
-    Sys.setenv(PATH = paste(normalizePath(dirname(config$python)), 
-                            Sys.getenv("PATH"),
-                            sep = .Platform$path.sep))  
-  }
+  # add the python bin dir to the PATH (so that any execution of python from 
+  # within the interpreter, from a system call, or from within a terminal 
+  # hosted within the front end will use the same version of python
+  Sys.setenv(PATH = paste(normalizePath(dirname(config$python)), 
+                          Sys.getenv("PATH"),
+                          sep = .Platform$path.sep))  
+  
   
   # initialize python
   py_initialize(config$python,

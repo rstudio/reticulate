@@ -172,7 +172,10 @@ python_config <- function(python, required_module, python_versions) {
   if (is_windows()) {
     # note that 'prefix' has the binary location and 'py_version_nodot` has the suffix`
     python_libdir <- dirname(python)
-    libpython <- file.path(python_libdir, paste0("python", gsub(".", "", version, fixed = TRUE), ".dll"))
+    python_dll <- paste0("python", gsub(".", "", version, fixed = TRUE), ".dll")
+    libpython <- file.path(python_libdir, python_dll)
+    if (!file.exists(libpython))
+      libpython <- python_dll
   } else {
     # (note that the LIBRARY variable has the name of the static library)
     python_libdir_config <- function(var) {
@@ -242,7 +245,7 @@ str.py_config <- function(object, ...) {
   x <- object
   out <- ""
   out <- paste0(out, "python:         ", x$python, "\n")
-  out <- paste0(out, "libpython:      ", x$libpython, ifelse(file.exists(x$libpython), "", "[NOT FOUND]"), "\n")
+  out <- paste0(out, "libpython:      ", x$libpython, ifelse(is_windows() || file.exists(x$libpython), "", "[NOT FOUND]"), "\n")
   out <- paste0(out, "pythonhome:     ", x$pythonhome, "\n")
   if (nzchar(x$virtualenv_activate))
     out <- paste0(out, "virtualenv:     ", x$virtualenv_activate, "\n")

@@ -4,7 +4,7 @@
 \alias{import}
 \alias{import_main}
 \alias{import_builtins}
-\alias{import_from_package}
+\alias{import_from_path}
 \title{Import a Python module}
 \usage{
 import(module, convert = TRUE, delay_load = FALSE)
@@ -13,7 +13,7 @@ import_main(convert = TRUE)
 
 import_builtins(convert = TRUE)
 
-import_from_package(module, package, convert = TRUE, delay_load = FALSE)
+import_from_path(module, path, convert = TRUE, delay_load = FALSE)
 }
 \arguments{
 \item{module}{Module name}

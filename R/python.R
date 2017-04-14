@@ -79,19 +79,18 @@ import_builtins <- function(convert = TRUE) {
 
 #' @rdname import
 #' @export
-import_from_package <- function(module, package, convert = TRUE, delay_load = FALSE) {
+import_from_path <- function(module, path, convert = TRUE, delay_load = FALSE) {
   
-  # path to package provided python modules
-  python_path <- system.file("python", package = package)
-  
-  # add the packages python dir to sys.path if it isn't already there
+  # add the path to sys.path if it isn't already there
   sys <- import("sys", convert = FALSE)
-  if (!python_path %in% py_to_r(sys$path))
-    sys$path$append(python_path)
+  if (!path %in% py_to_r(sys$path))
+    sys$path$append(path)
   
   # import
   import(module, convert = convert, delay_load = delay_load)
 }
+
+
 
 
 

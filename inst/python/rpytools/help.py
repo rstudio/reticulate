@@ -30,9 +30,6 @@ def normalize_func(func):
     return func
 
 def get_doc(func):
-  # if this func is actually a class, grab the doc from its __init__ method
-  if isinstance(func, type):
-    func = func.__init__
   doc = inspect.getdoc(func)
   if doc is None:
     func = normalize_func(func)

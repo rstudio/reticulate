@@ -326,13 +326,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // py_tuple_length
-int py_tuple_length(PyObjectRef dict);
-RcppExport SEXP reticulate_py_tuple_length(SEXP dictSEXP) {
+int py_tuple_length(PyObjectRef tuple);
+RcppExport SEXP reticulate_py_tuple_length(SEXP tupleSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< PyObjectRef >::type dict(dictSEXP);
-    rcpp_result_gen = Rcpp::wrap(py_tuple_length(dict));
+    Rcpp::traits::input_parameter< PyObjectRef >::type tuple(tupleSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_tuple_length(tuple));
     return rcpp_result_gen;
 END_RCPP
 }

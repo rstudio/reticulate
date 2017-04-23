@@ -1640,8 +1640,8 @@ PyObjectRef py_tuple(const List& items, bool convert) {
 }
 
 // [[Rcpp::export]]
-int py_tuple_length(PyObjectRef dict) {
-  return PyTuple_Size(dict);
+int py_tuple_length(PyObjectRef tuple) {
+  return PyTuple_Size(tuple);
 }
 
 // [[Rcpp::export]]

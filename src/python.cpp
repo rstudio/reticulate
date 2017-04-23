@@ -1640,6 +1640,11 @@ PyObjectRef py_tuple(const List& items, bool convert) {
 }
 
 // [[Rcpp::export]]
+int py_tuple_length(PyObjectRef dict) {
+  return PyTuple_Size(dict);
+}
+
+// [[Rcpp::export]]
 PyObjectRef py_module_import(const std::string& module, bool convert) {
   PyObject* pModule = PyImport_ImportModule(module.c_str());
   if (pModule == NULL)

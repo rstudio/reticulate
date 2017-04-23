@@ -455,6 +455,14 @@ tuple <- function(..., convert = FALSE) {
   py_tuple(values, convert = convert)
 }
 
+#' @export
+length.python.builtin.tuple <- function(x) {
+  if (py_is_null_xptr(x) || !py_available())
+    0L
+  else
+    py_tuple_length(x)
+}
+
 
 #' Convert to Python Unicode Object
 #' 

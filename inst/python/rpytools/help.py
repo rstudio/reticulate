@@ -36,9 +36,17 @@ def get_doc(func):
     if func is None:
       return None
     else:
-      return inspect.getdoc(func)
-  else:
-    return doc
+      doc = inspect.getdoc(func)
+  
+  # if this func is actually a class, grab the args from its __init__ method
+  if isinstance(func, type) and hasattr(func, '__init__'):
+    args_doc = inspect.getdoc(func.__init__)
+    if not args_doc is None:
+      doc += '\n'
+      doc += args_doc
+
+  return doc
+  
 
 def get_property_doc(target, prop):
   for name, obj in inspect.getmembers(type(target), inspect.isdatadescriptor):

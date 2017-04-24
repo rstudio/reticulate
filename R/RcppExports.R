@@ -146,6 +146,10 @@ py_tuple <- function(items, convert) {
     .Call('reticulate_py_tuple', PACKAGE = 'reticulate', items, convert)
 }
 
+py_tuple_length <- function(tuple) {
+    .Call('reticulate_py_tuple_length', PACKAGE = 'reticulate', tuple)
+}
+
 py_module_import <- function(module, convert) {
     .Call('reticulate_py_module_import', PACKAGE = 'reticulate', module, convert)
 }

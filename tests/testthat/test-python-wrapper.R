@@ -10,7 +10,7 @@ test_that("test_py_function_wrapper() generates wrapper correctly for functions"
   expect_equal(generated_output, expected_output)
 })
 
-test_that("test_py_function_wrapper() generates wrapper correctly for clases", {
+test_that("test_py_function_wrapper() generates wrapper correctly for classes", {
   skip_if_no_python()
   generated_wrapper <- py_function_wrapper("test$TestPyFunctionWrapperClass")
   generated_output <- capture.output(generated_wrapper)

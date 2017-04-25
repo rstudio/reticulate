@@ -20,7 +20,7 @@ def normalize_func(func):
         return None
 
     # convert func to __call__
-    if not inspect.isfunction(func) and hasattr(func, '__call__'):
+    if not inspect.isfunction(func) and not inspect.ismethod(func) and hasattr(func, '__call__'):
       return func.__call__
 
     # return None for builtins

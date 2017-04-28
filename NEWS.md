@@ -49,5 +49,5 @@
   
 # reticulate 0.7
 
-(Initial CRAN release)
+- Initial CRAN release
 

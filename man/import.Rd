@@ -26,7 +26,7 @@ R equivalent. If you pass \code{FALSE} you can do manual conversion using the
 it is first used (if a function is provided then it will be called
 once the module is loaded). \code{FALSE} to load the module immediately.}
 
-\item{package}{Package name}
+\item{path}{Path to import from}
 }
 \value{
 A Python module

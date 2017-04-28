@@ -4,7 +4,7 @@
 #' Import the specified Python module for calling from R. 
 #'
 #' @param module Module name
-#' @param package Package name
+#' @param path Path to import from
 #' @param convert `TRUE` to automatically convert Python objects to their
 #'   R equivalent. If you pass `FALSE` you can do manual conversion using the
 #'   [py_to_r()] function.

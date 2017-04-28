@@ -1,21 +1,21 @@
 
 # reticulate 0.8 (unreleased)
 
-## New Features
+## Features
 
-- Add `import_from_path` function for importing Python modules from 
+- Add `import_from_path()` function for importing Python modules from 
   the filesystem.
 
-- Add `py_discover_config` function to determine which versions of Python 
+- Add `py_discover_config()` function to determine which versions of Python 
   will be discovered and which one will be used by reticulate.
 
-- Add `py_function_wrapper` and `py_function_docs` utility functions for 
+- Add `py_function_docs()` amd `py_function_wrapper()` utility functions for 
   scaffolding R wrappers for Python functions.
   
 - Don't print error tracebacks by default (you can override this via the 
   'reticulate.traceback' option). 
   
-- Add `py_last_error` function for retreiving last Python error.
+- Add `py_last_error()` function for retreiving last Python error.
 
 - Convert 0-dimension NumPy arrays (scalars) to single element R vectors 
 
@@ -31,7 +31,7 @@
 
 ## Bug Fixes
 
-- Use `grepl` rather than `endsWith` for compatibility with R <= 3.2
+- Use `grepl()` rather than `endsWith()` for compatibility with R <= 3.2
 
 - Use `inspect.getmro` rather than `__bases__` for enumerating the base classes
   of Python objects.

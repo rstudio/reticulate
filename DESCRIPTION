@@ -3,11 +3,10 @@ Type: Package
 Title: R Interface to Python
 Version: 0.7.0.9005
 Authors@R: c(
-  person("JJ", "Allaire", role = c("aut", "cre"),
-     comment = "R interface", email = "jj@rstudio.com"),
+  person("JJ", "Allaire", role = c("aut", "cre"), email = "jj@rstudio.com"),
   person("Kevin", "Ushey", role = c("ctb"),
          email = "kevin@rstudio.com"),
-  person(family = "RStudio", role = "cph"),
+  person("RStudio", role = c("cph", "fnd")),
   person("Yuan", "Tang", role = c("ctb", "cph"),
          email = "terrytangyuan@gmail.com"),
   person("Dirk", "Eddelbuettel", role = c("ctb", "cph"),

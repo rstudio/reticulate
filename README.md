@@ -46,11 +46,11 @@ If the version of Python you want to use is located on the system `PATH` then it
 
 Alternatively, you can use one of the following functions to specify alternate versions of Python:
 
-| Function        | Description                                           |
-|-----------------|-------------------------------------------------------|
-| use\_python     | Specify the path a specific Python binary.            |
-| use\_virtualenv | Specify the directory containing a Python virtualenv. |
-| use\_condaenv   | Specify the name of a Conda environment.              |
+| Function           | Description                                           |
+|--------------------|-------------------------------------------------------|
+| `use_python()`     | Specify the path a specific Python binary.            |
+| `use_virtualenv()` | Specify the directory containing a Python virtualenv. |
+| `use_condaenv()`   | Specify the name of a Conda environment.              |
 
 For example:
 
@@ -71,7 +71,7 @@ use_virtualenv("~/myenv", required = TRUE)
 
 The order in which versions of Python will be discovered and used is as follows:
 
-1.  If specified, at the locations referenced by calls to `use_python`, `use_virtualenv`, and `use_condaenv`.
+1.  If specified, at the locations referenced by calls to `use_python()`, `use_virtualenv()`, and `use_condaenv()`.
 
 2.  If specified, at the location referenced by the `RETICULATE_PYTHON` environment variable.
 
@@ -79,9 +79,9 @@ The order in which versions of Python will be discovered and used is as follows:
 
 4.  At other customary locations for Python including `/usr/local/bin/python`, `/opt/local/bin/python`, etc.
 
-The scanning for and binding to a version of Python typically occurs at the time of the first call to `import` within an R session. As a result, priority will be given to versions of Python that include the module specified within the call to `import` (i.e. versions that don't include it will be skipped).
+The scanning for and binding to a version of Python typically occurs at the time of the first call to `import()` within an R session. As a result, priority will be given to versions of Python that include the module specified within the call to `import()` (i.e. versions that don't include it will be skipped).
 
-You can use the `py_config` function to query for information about the specific version of Python in use as well as a list of other Python versions discovered on the system:
+You can use the `py_config()` function to query for information about the specific version of Python in use as well as a list of other Python versions discovered on the system:
 
 ``` r
 py_config()
@@ -100,7 +100,7 @@ filecmp <- import("filecmp")
 filecmp$cmp(dir1, dir2)
 ```
 
-The `import_main` and `import_builtins` functions give you access to the main module where code is executed by default and the collection of built in Python functions. For example:
+The `import_main()` and `import_builtins()` functions give you access to the main module where code is executed by default and the collection of built in Python functions. For example:
 
 ``` r
 main <- import_main()
@@ -127,7 +127,7 @@ sum <- a$cumsum()
 py_to_r(sum)
 ```
 
-As illustrated above, if you need access to an R object at end of your computations you can call the `py_to_r` function explicitly.
+As illustrated above, if you need access to an R object at end of your computations you can call the `py_to_r()` function explicitly.
 
 Executing Code
 --------------
@@ -169,13 +169,13 @@ For example, if a Python API requires a list and you pass a single element R vec
 foo$bar(indexes = list(42L))
 ```
 
-Similarly, a Python API might require a `tuple` rather than a list. In that case you can use the `tuple` function:
+Similarly, a Python API might require a `tuple` rather than a list. In that case you can use the `tuple()` function:
 
 ``` r
 tuple("a", "b", "c")
 ```
 
-R named lists are converted to Python dictionaries however you can also explicitly create a Python dictionary using the `dict` function:
+R named lists are converted to Python dictionaries however you can also explicitly create a Python dictionary using the `dict()` function:
 
 ``` r
 dict(foo = "bar", index = 42L)
@@ -200,7 +200,7 @@ This example opens a file and ensures that it is automatically closed at the end
 Iterators
 ---------
 
-If a Python API returns an [iterator or generator](http://anandology.com/python-practice-book/iterators.html) you can interact with it using the `iterate` function. The `iterate` function can be used to apply an R function to each item yielded by the iterator:
+If a Python API returns an [iterator or generator](http://anandology.com/python-practice-book/iterators.html) you can interact with it using the `iterate()` function. The `iterate()` function can be used to apply an R function to each item yielded by the iterator:
 
 ``` r
 iterate(iter, print)
@@ -228,15 +228,15 @@ There are several more advanced functions available that are useful principally 
 
 Typically interacting with Python objects from R involves using the `$` operator to access whatever properties for functions of the object you need. When using the `$`, Python objects are automatically converted to their R equivalents when possible. The following functions enable you to interact with Python objects at a lower level (e.g. no conversion to R is done unless you explicitly call the `py_to_r` function):
 
-| Function             | Description                                                 |
-|----------------------|-------------------------------------------------------------|
-| py\_has\_attr        | Check if an object has a specified attribute.               |
-| py\_get\_attr        | Get an attribute of a Python object.                        |
-| py\_set\_attr        | Set an attribute of a Python object.                        |
-| py\_list\_attributes | List all attributes of a Python object.                     |
-| py\_call             | Call a Python callable object with the specified arguments. |
-| py\_to\_r            | Convert a Python object to it's R equivalent                |
-| r\_to\_py            | Convert an R object to it's Python equivalent               |
+| Function               | Description                                                 |
+|------------------------|-------------------------------------------------------------|
+| `py_has_attr()`        | Check if an object has a specified attribute.               |
+| `py_get_attr()`        | Get an attribute of a Python object.                        |
+| `py_set_attr()`        | Set an attribute of a Python object.                        |
+| `py_list_attributes()` | List all attributes of a Python object.                     |
+| `py_call()`            | Call a Python callable object with the specified arguments. |
+| `py_to_r()`            | Convert a Python object to it's R equivalent                |
+| `r_to_py()`            | Convert an R object to it's Python equivalent               |
 
 ### Configuration
 
@@ -255,19 +255,19 @@ The following functions enable you to query for information about the Python con
 </thead>
 <tbody>
 <tr class="odd">
-<td>py_available</td>
+<td><code>py_available()</code></td>
 <td>Check whether a Python interface is available on this system.</td>
 </tr>
 <tr class="even">
-<td>py_numpy_available</td>
+<td><code>py_numpy_available()</code></td>
 <td>Check whether the R interface to NumPy is available (requires NumPy &gt;= 1.6)</td>
 </tr>
 <tr class="odd">
-<td>py_module_available</td>
+<td><code>py_module_available()</code></td>
 <td>Check whether a Python module is available on this system.</td>
 </tr>
 <tr class="even">
-<td>py_config</td>
+<td><code>py_config()</code></td>
 <td>Get information on the location and version of Python in use.</td>
 </tr>
 </tbody>
@@ -290,11 +290,11 @@ These functions enable you to capture or suppress output from Python:
 </thead>
 <tbody>
 <tr class="odd">
-<td>py_capture_output</td>
+<td><code>py_capture_output()</code></td>
 <td>Capture Python output for the specified expression and return it as an R character vector.</td>
 </tr>
 <tr class="even">
-<td>py_suppress_warnings</td>
+<td><code>py_suppress_warnings()</code></td>
 <td>Execute the specified expression, suppressing the display Python warnings.</td>
 </tr>
 </tbody>
@@ -317,98 +317,20 @@ The functions provide miscellaneous other lower-level capabilities:
 </thead>
 <tbody>
 <tr class="odd">
-<td>py_unicode</td>
+<td><code>py_unicode()</code></td>
 <td>Convert a string to a Python unicode object.</td>
 </tr>
 <tr class="even">
-<td>py_str</td>
+<td><code>py_str()</code></td>
 <td>Get the string representation of Python object.</td>
 </tr>
 <tr class="odd">
-<td>py_is_null_xptr</td>
+<td><code>py_is_null_xptr()</code></td>
 <td>Check whether a Python object is a null externalptr.</td>
 </tr>
 <tr class="even">
-<td>py_validate_xptr</td>
+<td><code>py_validate_xptr()</code></td>
 <td>Check whether a Python object is a null externalptr and throw an error if it is.</td>
 </tr>
 </tbody>
 </table>
-
-Using in a Package
-------------------
-
-### Checking and Testing on CRAN
-
-If you use **reticulate** in another R package you need to account for the fact that when your package is submitted to CRAN, the CRAN test servers may not have Python, NumPy, or whatever other Python modules you are wrapping in your package. If you don't do this then your package may fail to load and/or pass it's tests when run on CRAN.
-
-There are two things you should do to ensure your package is well behaved on CRAN:
-
-1.  When importing Python modules for use inside your package you should use the `delay_load` option to ensure that the module (and Python) is loaded only on it's first use. For example:
-
-    ``` r
-    # python 'foo' module I want to use in my package
-    foo <- NULL
-
-    .onLoad <- function(libname, pkgname) {
-      # delay load foo module (will only be loaded when accessed via $)
-      foo <<- import("foo", delay_load = TRUE)
-    }
-    ```
-
-2.  When writing tests, check to see if your module is available and if it isn't then skip the test. For example, if you are using the **testthat** package, you might do this:
-
-    ``` r
-    # helper function to skip tests if we don't have the 'foo' module
-    skip_if_no_foo <- function() {
-      have_foo <- py_module_available("foo")
-      if (!have_foo)
-        skip("foo not available for testing")
-    }
-
-    # then call this function from all of your tests
-    test_that("Things work as expected", {
-      skip_if_no_foo()
-      # test code here...
-    })
-    ```
-
-### S3 Methods
-
-Python objects exposed by **reticulate** carry their Python classes into R, so it's possible to write S3 methods to customize e.g. the `str` or `print` behavior for a given class (note that it's not typically necessary that you do this since the default `str` and `print` methods call `PyObject_Str`, which typically provides an acceptable default behavior).
-
-If you do decide to implement custom S3 methods for a Python class it's important to keep in mind that when an R session ends the connection to Python objects is lost, so when the .RData saved from one R session is restored in a subsequent R session the Python objects are effectively lost (technically they become `NULL` R `externalptr` objects).
-
-This means that you should always use the `py_is_null_xptr` function on objects before interacting with them in an S3 method. For example:
-
-``` r
-#' @export
-summary.MyPythonClass <- function(object, ...) {
-  if (py_is_null_xptr(object))
-    stop("Object is NULL")
-  else
-    # interact with the object to generate the summary
-}
-```
-
-There are a couple of shortcut methods you can use to make this more straightforward. The `py_validate_xptr` function will do the check and automatically throw an error if it fails. So the example above could be re-written as:
-
-``` r
-#' @export
-summary.MyPythonClass <- function(object, ...) {
-  py_validate_xptr(object)
-  # interact with the object to generate the summary
-}
-```
-
-Finally, the **reticulate** package exports a `py_str` generic method which is called from the `str` method only after doing appropriate validation (if the object is NULL then `<pointer: 0x0>` is returned). You can implement the `py_str` method as follows:
-
-``` r
-#' @importFrom reticulate py_str
-#' @export 
-py_str.MyPythonClass <- function(object, ...) {
-  # interact with the object to generate the string
-}
-```
-
-So in short, to provide custom `str` and `print` methods, just implement `py_str`. For other S3 methods be sure to call either `py_validate_xptr` or `py_is_null_xptr` before interacting with the object.

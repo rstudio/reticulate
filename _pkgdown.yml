@@ -1,0 +1,67 @@
+template:
+  params:
+    bootswatch: cosmo
+
+navbar:
+  title: "reticulate"
+  type: inverse
+  left:
+    - text: "Home"
+      href: index.html
+    - text: "Articles"
+      menu:
+        - text: "Using reticulate in an R Package"
+          href: articles/package.html
+        - text: "Arrays in R and Python"
+          href: articles/arrays.html
+    - text: "Reference"
+      href: reference/index.html
+    - text: "News"
+      href: news/index.html
+  right:
+   - icon: fa-github
+     href: https://github.com/rstudio/reticulate
+
+reference:
+
+  - title: "Python Execution"
+    contents:
+      - import
+      - py_run
+      
+  - title: "Python Types"
+    contents:
+      - dict
+      - tuple
+      - iterate
+      - with.python.builtin.object
+    
+  - title: "Python Configuration"
+    contents:
+      - py_config
+      - py_discover_config
+      - py_available
+      - py_module_available
+      - use_python
+      
+  - title: "Python Output"  
+    contents:
+      - py_capture_output
+      - py_suppress_warnings
+      
+  - title: "Low-Level Interface"
+    contents:
+      - py_has_attr
+      - py_get_attr
+      - py_set_attr
+      - py_list_attributes
+      - py_call
+      - py_to_r
+      - r_to_py
+      - py_is_null_xptr
+      - py_str
+      - py_unicode
+      - py_last_error
+ 
+ 
+ 

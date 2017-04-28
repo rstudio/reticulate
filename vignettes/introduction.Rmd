@@ -1,8 +1,7 @@
 ---
-title: "R Interface to Python"
+title: "Introduction to reticulate"
 output: 
-  rmarkdown::html_vignette: 
-    readme: true
+  rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{R interface to Python}
   %\VignetteEngine{knitr::rmarkdown}
@@ -13,9 +12,6 @@ vignette: >
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(eval = FALSE)
 ```
-
-[![Travis-CI Build Status](https://travis-ci.org/rstudio/reticulate.svg?branch=master)](https://travis-ci.org/rstudio/reticulate)
-[![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/reticulate)](https://cran.r-project.org/package=reticulate)
 
 ## Overview
 

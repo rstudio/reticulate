@@ -10,7 +10,7 @@ navbar:
       href: index.html
     - text: "Articles"
       menu:
-        - text: "Introduction and Overview"
+        - text: "Introduction to reticulate"
           href: articles/introduction.html
         - text: "Using reticulate in an R Package"
           href: articles/package.html

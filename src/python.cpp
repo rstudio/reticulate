@@ -1123,6 +1123,10 @@ PyObject* r_to_py(RObject x, bool convert) {
     PyObjectPtr capsule(r_object_capsule(x));
     PyCapsule_SetContext(capsule, (void*)convert);
 
+    // check for a py_function_name attribute
+    PyObjectPtr pyFunctionName(r_to_py(x.attr("py_function_name"), 
+                                       convert));
+   
     // create the python wrapper function
     PyObjectPtr module(PyImport_ImportModule("rpytools.call"));
     if (module == NULL)
@@ -1130,7 +1134,10 @@ PyObject* r_to_py(RObject x, bool convert) {
     PyObjectPtr func(PyObject_GetAttrString(module, "make_python_function"));
     if (func == NULL)
       stop(py_fetch_error());
-    PyObjectPtr wrapper(PyObject_CallFunctionObjArgs(func, capsule.get(), NULL));
+    PyObjectPtr wrapper(PyObject_CallFunctionObjArgs(func, 
+                                                     capsule.get(), 
+                                                     pyFunctionName.get(), 
+                                                     NULL));
     if (wrapper == NULL)
       stop(py_fetch_error());
 

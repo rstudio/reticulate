@@ -14,6 +14,9 @@ vignette: >
 knitr::opts_chunk$set(eval = FALSE)
 ```
 
+[![Travis-CI Build Status](https://travis-ci.org/rstudio/reticulate.svg?branch=master)](https://travis-ci.org/rstudio/reticulate)
+[![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/reticulate)](https://cran.r-project.org/package=reticulate)
+
 ## Overview
 
 The **reticulate** package provides an R interface to Python modules, classes, and functions. For example, this code imports the Python `os` module and calls some functions within it:

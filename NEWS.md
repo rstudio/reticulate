@@ -11,10 +11,7 @@
 
 - Add `py_function_docs()` amd `py_function_wrapper()` utility functions for 
   scaffolding R wrappers for Python functions.
-  
-- Don't print error tracebacks by default (you can override this via the 
-  'reticulate.traceback' option). 
-  
+
 - Add `py_last_error()` function for retreiving last Python error.
 
 - Convert 0-dimension NumPy arrays (scalars) to single element R vectors 

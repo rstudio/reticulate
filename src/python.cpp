@@ -299,8 +299,9 @@ bool option_is_true(const std::string& name) {
 }
 
 bool traceback_enabled() {
-  return !is_interactive() || 
-         option_is_true("reticulate.traceback");
+  Environment pkgEnv = Environment::namespace_env("reticulate");
+  Function func = pkgEnv["traceback_enabled"];
+  return as<bool>(func());
 }
 
 

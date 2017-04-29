@@ -28,6 +28,9 @@
 
 - Enable specification of `__name__` for R functions converted to
   Python functions.
+  
+- Give priority to the first registered delay load module (previously 
+  the last registered module was given priority)
 
 ## Bug Fixes
 

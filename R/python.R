@@ -47,7 +47,8 @@ import <- function(module, convert = TRUE, delay_load = FALSE) {
   
   # delay load case (wait until first access)
   else {
-    .globals$delay_load_module <- module
+    if (is.null(.globals$delay_load_module))
+      .globals$delay_load_module <- module
     module_proxy <- new.env(parent = emptyenv())
     module_proxy$module <- module
     if (!is.null(delay_load_function))

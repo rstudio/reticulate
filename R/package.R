@@ -35,8 +35,11 @@ is_python_initialized <- function() {
 
 ensure_python_initialized <- function(required_module = NULL) {
   if (!is_python_initialized()) {
-    if (is.null(required_module))
-      required_module <- .globals$delay_load_module
+     # give delay load modules priority
+     if (!is.null(.globals$delay_load_module)) {
+        required_module <- .globals$delay_load_module
+        .globals$delay_load_module <- NULL # one shot
+     }
     .globals$py_config <- initialize_python(required_module)
   }
 }

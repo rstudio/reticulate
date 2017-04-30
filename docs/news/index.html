@@ -112,13 +112,13 @@
 <li><p>Add <code><a href="../reference/import.html">import_from_path()</a></code> function for importing Python modules from the filesystem.</p></li>
 <li><p>Add <code><a href="../reference/py_discover_config.html">py_discover_config()</a></code> function to determine which versions of Python will be discovered and which one will be used by reticulate.</p></li>
 <li><p>Add <code><a href="../reference/py_function_wrapper.html">py_function_docs()</a></code> amd <code><a href="../reference/py_function_wrapper.html">py_function_wrapper()</a></code> utility functions for scaffolding R wrappers for Python functions.</p></li>
-<li><p>Don’t print error tracebacks by default (you can override this via the ‘reticulate.traceback’ option).</p></li>
 <li><p>Add <code><a href="../reference/py_last_error.html">py_last_error()</a></code> function for retreiving last Python error.</p></li>
 <li><p>Convert 0-dimension NumPy arrays (scalars) to single element R vectors</p></li>
 <li><p>Convert “callable” Python objects to R functions</p></li>
 <li><p>Automatically add Python bin directory to system PATH for consistent version usage in reticulate and calls to system</p></li>
 <li><p>Added <code>length()</code> method for tuple objects</p></li>
 <li><p>Enable specification of <code>__name__</code> for R functions converted to Python functions.</p></li>
+<li><p>Give priority to the first registered delay load module (previously the last registered module was given priority)</p></li>
 </ul>
 </div>
 <div id="bug-fixes" class="section level2">

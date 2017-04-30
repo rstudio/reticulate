@@ -35,9 +35,9 @@ A Python module
 Import the specified Python module for calling from R.
 }
 \details{
-The \code{import_from_package} function imports a Python module
-defined within an R package (the module must be located within the
-\code{inst/python} directory of the R package).
+The \code{import_from_path} function imports a Python module
+from an arbitrary filesystem path (the directory of the specified
+python script is automatically added to the \code{sys.path}).
 }
 \examples{
 \dontrun{

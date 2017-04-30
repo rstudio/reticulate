@@ -12,9 +12,9 @@
 #'  it is first used (if a function is provided then it will be called 
 #'  once the module is loaded). `FALSE` to load the module immediately.
 #'
-#' @details The `import_from_package` function imports a Python module 
-#'  defined within an R package (the module must be located within the
-#'  `inst/python` directory of the R package).
+#' @details The `import_from_path` function imports a Python module 
+#'  from an arbitrary filesystem path (the directory of the specified
+#'  python script is automatically added to the `sys.path`).
 #'
 #' @return A Python module
 #'

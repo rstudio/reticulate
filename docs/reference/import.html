@@ -143,9 +143,9 @@ once the module is loaded). <code>FALSE</code> to load the module immediately.</
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>The <code>import_from_package</code> function imports a Python module
-defined within an R package (the module must be located within the
-<code>inst/python</code> directory of the R package).</p>
+    <p>The <code>import_from_path</code> function imports a Python module
+from an arbitrary filesystem path (the directory of the specified
+python script is automatically added to the <code>sys.path</code>).</p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>

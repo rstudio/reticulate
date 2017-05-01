@@ -36,12 +36,25 @@ The **reticulate** package is compatible with all versions of Python &gt;= 2.7. 
 Getting Started
 ------------
 
-You can install reticulate from CRAN as follows:
+First, install reticulate from CRAN as follows:
 
 ``` r
 install.packages("reticulate")
 ```
 
-Then check out the [Introduction to reticulate](https://rstudio.github.io/reticulate/articles/introduction.html) article to learn more about using the package.
+Then, learn the basics by reading the [Introduction to reticulate](https://rstudio.github.io/reticulate/articles/introduction.html).
+
+Learning More
+-----------
+
+The following articles cover the various aspects of using **reticulate**:
+
+- [Introduction to reticulate](https://rstudio.github.io/reticulate/articles/introduction.html)
+
+- [Python Version Configuration](https://rstudio.github.io/reticulate/articles/versions.html)
+
+- [Using reticulate in an R Package](https://rstudio.github.io/reticulate/articles/package.html)
+
+- [Arrays in R and Python](https://rstudio.github.io/reticulate/articles/arrays.html)
 
 

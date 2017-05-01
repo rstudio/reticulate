@@ -301,7 +301,7 @@ reticulate_python_versions <- function() {
   reticulate_python_options <- .globals$use_python_versions
   reticulate_python_env <- Sys.getenv("RETICULATE_PYTHON", unset = NA)
   if (!is.na(reticulate_python_env))
-    reticulate_python_options <- c(reticulate_python_options, reticulate_python_env)
+    reticulate_python_options <- c(reticulate_python_env, reticulate_python_options)
                                  
   
   # determine python versions to return

@@ -12,6 +12,8 @@ navbar:
       menu:
         - text: "Introduction to reticulate"
           href: articles/introduction.html
+        - text: "Python Version Configuration"
+          href: articles/versions.html
         - text: "Using reticulate in an R Package"
           href: articles/package.html
         - text: "Arrays in R and Python"

@@ -42,6 +42,9 @@
       <a href="../articles/introduction.html">Introduction to reticulate</a>
     </li>
     <li>
+      <a href="../articles/versions.html">Python Version Configuration</a>
+    </li>
+    <li>
       <a href="../articles/package.html">Using reticulate in an R Package</a>
     </li>
     <li>
@@ -91,6 +94,11 @@ os &lt;-<span class="st"> </span><span class="kw"><a href="../reference/import.h
 os$<span class="kw">chdir</span>(<span class="st">"tests"</span>)
 os$<span class="kw">getcwd</span>()</code></pre></div>
 <p>Functions and other data within Python modules and classes can be accessed via the <code>$</code> operator (analogous to the way you would interact with an R list, environment, or reference class).</p>
+<p>The <strong>reticulate</strong> package is compatible with all versions of Python &gt;= 2.7. Integration with NumPy is optional and requires NumPy &gt;= 1.6.</p>
+</div>
+<div id="type-conversions" class="section level2">
+<h2 class="hasAnchor">
+<a href="#type-conversions" class="anchor"></a>Type Conversions</h2>
 <p>When calling into Python, R data types are automatically converted to their equivalent Python types. When values are returned from Python to R they are converted back to R types. Types are converted as follows:</p>
 <table class="table">
 <thead><tr class="header">
@@ -145,57 +153,6 @@ os$<span class="kw">getcwd</span>()</code></pre></div>
 </tbody>
 </table>
 <p>If a Python object of a custom class is returned then an R reference to that object is returned. You can call methods and access properties of the object just as if it was an instance of an R reference class.</p>
-<p>The <strong>reticulate</strong> package is compatible with all versions of Python &gt;= 2.7. Integration with NumPy is optional and requires NumPy &gt;= 1.6.</p>
-</div>
-<div id="installation" class="section level2">
-<h2 class="hasAnchor">
-<a href="#installation" class="anchor"></a>Installation</h2>
-<p>You can install reticulate from CRAN as follows:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">install.packages</span>(<span class="st">"reticulate"</span>)</code></pre></div>
-<div id="locating-python" class="section level3">
-<h3 class="hasAnchor">
-<a href="#locating-python" class="anchor"></a>Locating Python</h3>
-<p>If the version of Python you want to use is located on the system <code>PATH</code> then it will be automatically discovered (via <code>Sys.which</code>) and used.</p>
-<p>Alternatively, you can use one of the following functions to specify alternate versions of Python:</p>
-<table class="table">
-<thead><tr class="header">
-<th>Function</th>
-<th>Description</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td><code><a href="../reference/use_python.html">use_python()</a></code></td>
-<td>Specify the path a specific Python binary.</td>
-</tr>
-<tr class="even">
-<td><code><a href="../reference/use_python.html">use_virtualenv()</a></code></td>
-<td>Specify the directory containing a Python virtualenv.</td>
-</tr>
-<tr class="odd">
-<td><code><a href="../reference/use_python.html">use_condaenv()</a></code></td>
-<td>Specify the name of a Conda environment.</td>
-</tr>
-</tbody>
-</table>
-<p>For example:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(reticulate)
-<span class="kw"><a href="../reference/use_python.html">use_python</a></span>(<span class="st">"/usr/local/bin/python"</span>)
-<span class="kw"><a href="../reference/use_python.html">use_virtualenv</a></span>(<span class="st">"~/myenv"</span>)
-<span class="kw"><a href="../reference/use_python.html">use_condaenv</a></span>(<span class="st">"myenv"</span>)</code></pre></div>
-<p>Note that the NumPy features of <strong>reticulate</strong> require NumPy &gt;= 1.6 so versions of Python that satisfy this requirement will be preferred over ones that don’t.</p>
-<p>Also note that the <code>use</code> functions are by default considered only hints as to where to find Python (i.e. they don’t produce errors if the specified version doesn’t exist). You can add the <code>required</code> parameter to ensure that the specified version of Python actually exists:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/use_python.html">use_virtualenv</a></span>(<span class="st">"~/myenv"</span>, <span class="dt">required =</span> <span class="ot">TRUE</span>)</code></pre></div>
-<p>The order in which versions of Python will be discovered and used is as follows:</p>
-<ol style="list-style-type: decimal">
-<li><p>If specified, at the locations referenced by calls to <code><a href="../reference/use_python.html">use_python()</a></code>, <code><a href="../reference/use_python.html">use_virtualenv()</a></code>, and <code><a href="../reference/use_python.html">use_condaenv()</a></code>.</p></li>
-<li><p>If specified, at the location referenced by the <code>RETICULATE_PYTHON</code> environment variable.</p></li>
-<li><p>At the location of the Python binary discovered on the system <code>PATH</code> (via the <code>Sys.which</code> function).</p></li>
-<li><p>At other customary locations for Python including <code>/usr/local/bin/python</code>, <code>/opt/local/bin/python</code>, etc.</p></li>
-</ol>
-<p>The scanning for and binding to a version of Python typically occurs at the time of the first call to <code><a href="../reference/import.html">import()</a></code> within an R session. As a result, priority will be given to versions of Python that include the module specified within the call to <code><a href="../reference/import.html">import()</a></code> (i.e. versions that don’t include it will be skipped).</p>
-<p>You can use the <code><a href="../reference/py_config.html">py_config()</a></code> function to query for information about the specific version of Python in use as well as a list of other Python versions discovered on the system:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/py_config.html">py_config</a></span>()</code></pre></div>
-</div>
 </div>
 <div id="importing-modules" class="section level2">
 <h2 class="hasAnchor">
@@ -236,15 +193,6 @@ sum &lt;-<span class="st"> </span>a$<span class="kw">cumsum</span>()
 
 main &lt;-<span class="st"> </span><span class="kw"><a href="../reference/py_run.html">py_run_string</a></span>(<span class="st">"x = 10"</span>)
 main$x</code></pre></div>
-</div>
-<div id="error-handling" class="section level2">
-<h2 class="hasAnchor">
-<a href="#error-handling" class="anchor"></a>Error Handling</h2>
-<p>When an error occurs within Python code it is converted to an R error message of the form <code>&lt;ErrorType&gt;: &lt;ErrorMessage&gt;</code> (e.g. “ValueError: The kernel_size argument must be a tuple of 2 integers. Received: (2,)”). The error is signaled using the standard R error handling mechanism.</p>
-<p>Python stack traces for errors are captured but not printed by default. To turn on printing of stack traces you can use the <code>reticulate.traceback</code> option. For example:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">options</span>(<span class="dt">reticulate.traceback =</span> <span class="ot">TRUE</span>)</code></pre></div>
-<p>You can also call the <code><a href="../reference/py_last_error.html">py_last_error()</a></code> function to retreive detailed information on the last Python error encountered:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">reticulate::<span class="kw"><a href="../reference/py_last_error.html">py_last_error</a></span>()</code></pre></div>
 </div>
 <div id="lists-tuples-and-dictionaries" class="section level2">
 <h2 class="hasAnchor">
@@ -416,6 +364,16 @@ b &lt;-<span class="st"> </span><span class="kw"><a href="../reference/iterate.h
 </table>
 </div>
 </div>
+<div id="learning-more" class="section level2">
+<h2 class="hasAnchor">
+<a href="#learning-more" class="anchor"></a>Learning More</h2>
+<p>The following articles cover additional aspects of using <strong>reticulate</strong>:</p>
+<ul>
+<li><p><a href="versions.html">Python Version Configuration</a></p></li>
+<li><p><a href="pacakge.html">Using reticulate in an R Package</a></p></li>
+<li><p><a href="arrays.html">Arrays in R and Python</a></p></li>
+</ul>
+</div>
 </div>
   </div>
 
@@ -424,14 +382,14 @@ b &lt;-<span class="st"> </span><span class="kw"><a href="../reference/iterate.h
       <h2>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
 <li><a href="#overview">Overview</a></li>
-      <li><a href="#installation">Installation</a></li>
+      <li><a href="#type-conversions">Type Conversions</a></li>
       <li><a href="#importing-modules">Importing Modules</a></li>
       <li><a href="#executing-code">Executing Code</a></li>
-      <li><a href="#error-handling">Error Handling</a></li>
       <li><a href="#lists-tuples-and-dictionaries">Lists, Tuples, and Dictionaries</a></li>
       <li><a href="#with-contexts">With Contexts</a></li>
       <li><a href="#iterators">Iterators</a></li>
       <li><a href="#advanced-functions">Advanced Functions</a></li>
+      <li><a href="#learning-more">Learning More</a></li>
       </ul>
 </div>
       </div>

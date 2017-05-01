@@ -26,6 +26,10 @@ os$getcwd()
 
 Functions and other data within Python modules and classes can be accessed via the `$` operator (analogous to the way you would interact with an R list, environment, or reference class).
 
+The **reticulate** package is compatible with all versions of Python >= 2.7. Integration with NumPy is optional and requires NumPy >= 1.6.
+
+## Type Conversions
+
 When calling into Python, R data types are automatically converted to their equivalent Python types. When values are returned from Python to R they are converted back to R types. Types are converted as follows:
 
 | R  | Python | Examples |
@@ -39,64 +43,6 @@ When calling into Python, R data types are automatically converted to their equi
 | NULL, TRUE, FALSE  | None, True, False  |  `NULL`, `TRUE`, `FALSE`
 
 If a Python object of a custom class is returned then an R reference to that object is returned. You can call methods and access properties of the object just as if it was an instance of an R reference class.
-
-The **reticulate** package is compatible with all versions of Python >= 2.7. Integration with NumPy is optional and requires NumPy >= 1.6.
-
-## Installation
-
-You can install reticulate from CRAN as follows:
-
-```{r}
-install.packages("reticulate")
-```
-
-### Locating Python
-
-If the version of Python you want to use is located on the system `PATH` then it will be automatically discovered (via `Sys.which`) and used. 
-
-Alternatively, you can use one of the following functions to specify alternate versions of Python:
-
-| Function  | Description | 
-|----------------|------------------------------------------------------------------|
-| `use_python()` | Specify the path a specific Python binary. | 
-| `use_virtualenv()` | Specify the directory containing a Python virtualenv. | 
-| `use_condaenv()` | Specify the name of a Conda environment. | 
-
-For example:
-
-```{r}
-library(reticulate)
-use_python("/usr/local/bin/python")
-use_virtualenv("~/myenv")
-use_condaenv("myenv")
-```
-
-Note that the NumPy features of **reticulate** require NumPy &gt;= 1.6 so versions of Python that satisfy this requirement will be preferred over ones that don't.
-
-Also note that the `use` functions are by default considered only hints as to where to find Python (i.e. they don't produce errors if the specified version doesn't exist). You can add the `required` parameter to ensure that the specified version of Python actually exists:
-
-```{r}
-use_virtualenv("~/myenv", required = TRUE)
-```
-
-The order in which versions of Python will be discovered and used is as follows:
-
-1.  If specified, at the locations referenced by calls to `use_python()`, `use_virtualenv()`, and `use_condaenv()`.
-
-2.  If specified, at the location referenced by the `RETICULATE_PYTHON` environment variable.
-
-3.  At the location of the Python binary discovered on the system `PATH` (via the `Sys.which` function).
-
-4.  At other customary locations for Python including `/usr/local/bin/python`, `/opt/local/bin/python`, etc.
-
-The scanning for and binding to a version of Python typically occurs at the time of the first call to `import()` within an R session. As a result, priority will be given to versions of Python that include the module specified within the call to `import()` (i.e. versions that don't include it will be skipped).
-
-You can use the `py_config()` function to query for information about the specific version of Python in use as well as a list of other Python versions discovered on the system:
-
-```{r}
-py_config()
-```
-
 
 ## Importing Modules
 
@@ -148,22 +94,6 @@ py_run_file("script.py")
 
 main <- py_run_string("x = 10")
 main$x
-```
-
-## Error Handling
-
-When an error occurs within Python code it is converted to an R error message of the form `<ErrorType>: <ErrorMessage>` (e.g. "ValueError: The kernel_size argument must be a tuple of 2 integers. Received: (2,)"). The error is signaled using the standard R error handling mechanism.
-
-Python stack traces for errors are captured but not printed by default. To turn on printing of stack traces you can use the `reticulate.traceback` option. For example:
-
-```r
-options(reticulate.traceback = TRUE)
-```
-
-You can also call the `py_last_error()` function to retreive detailed information on the last Python error encountered:
-
-```r
-reticulate::py_last_error()
 ```
 
 ## Lists, Tuples, and Dictionaries
@@ -277,5 +207,14 @@ The functions provide miscellaneous other lower-level capabilities:
 | `py_validate_xptr()` | Check whether a Python object is a null externalptr and throw an error if it is. |
 
 
+## Learning More
+
+The following articles cover additional aspects of using **reticulate**:
+
+- [Python Version Configuration](versions.html)
+
+- [Using reticulate in an R Package](pacakge.html)
+
+- [Arrays in R and Python](arrays.html)
 
 

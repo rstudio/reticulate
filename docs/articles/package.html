@@ -136,6 +136,14 @@ skip_if_no_foo &lt;-<span class="st"> </span>function() {
 <a href="#implementing-s3-methods" class="anchor"></a>Implementing S3 Methods</h2>
 <p>Python objects exposed by <strong>reticulate</strong> carry their Python classes into R, so it’s possible to write S3 methods to customize e.g. the <code>str</code> or <code>print</code> behavior for a given class (note that it’s not typically necessary that you do this since the default <code>str</code> and <code>print</code> methods call <code>PyObject_Str</code>, which typically provides an acceptable default behavior).</p>
 <p>If you do decide to implement custom S3 methods for a Python class it’s important to keep in mind that when an R session ends the connection to Python objects is lost, so when the .RData saved from one R session is restored in a subsequent R session the Python objects are effectively lost (technically they become <code>NULL</code> R <code>externalptr</code> objects).</p>
+<p>By default when you attempt to interact with a Python object from a previous session (a <code>NULL</code> R <code>externalptr</code>) an error is thrown. If you want to do something more customized in your S3 method you can use the <code><a href="../reference/py_is_null_xptr.html">py_is_null_xptr()</a></code> function. For example:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">method.MyModule.MyPythonClass &lt;-<span class="st"> </span>function(x, y, ...) {
+  if (<span class="kw"><a href="../reference/py_is_null_xptr.html">py_is_null_xptr</a></span>(x))
+    <span class="co"># whatever is appropriate</span>
+  else 
+    <span class="co"># interact with the object</span>
+}</code></pre></div>
+<p>Note that this check isn’t required, as by default an R error will occur. If it’s desirable to avoid this error for any reason then you can use <code><a href="../reference/py_is_null_xptr.html">py_is_null_xptr()</a></code> to do so.</p>
 <p>The <strong>reticulate</strong> package exports a <code>py_str</code> generic method which is called from the <code>str</code> method only after doing appropriate validation (if the object is NULL then <code>&lt;pointer: 0x0&gt;</code> is returned). You can implement the <code>py_str</code> method as follows:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#' @importFrom reticulate py_str</span>
 <span class="co">#' @export </span>

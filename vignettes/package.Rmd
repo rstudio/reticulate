@@ -73,6 +73,19 @@ Python objects exposed by **reticulate** carry their Python classes into R, so i
 
 If you do decide to implement custom S3 methods for a Python class it's important to keep in mind that when an R session ends the connection to Python objects is lost, so when the .RData saved from one R session is restored in a subsequent R session the Python objects are effectively lost (technically they become `NULL` R `externalptr` objects).
 
+By default when you attempt to interact with a Python object from a previous session (a `NULL` R `externalptr`) an error is thrown. If you want to do something more customized in your S3 method you can use the `py_is_null_xptr()` function. For example:
+
+```{r}
+method.MyModule.MyPythonClass <- function(x, y, ...) {
+  if (py_is_null_xptr(x))
+    # whatever is appropriate
+  else 
+    # interact with the object
+}
+```
+
+Note that this check isn't required, as by default an R error will occur. If it's desirable to avoid this error for any reason then you can use `py_is_null_xptr()` to do so.
+
 The **reticulate** package exports a `py_str` generic method which is called from the `str` method only after doing appropriate validation (if the object is NULL then `<pointer: 0x0>` is returned). You can implement the `py_str` method as follows:
 
 ```{r}
@@ -84,6 +97,9 @@ py_str.MyModule.MyPythonClass <- function(object, ...) {
 ```
 
 The `print` and `summary` methods for Python objects both call the `str` method by default, so if you implement `py_str()` you will automatically inherit implementations for those methods.
+
+
+
 
 
 

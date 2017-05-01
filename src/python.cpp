@@ -578,7 +578,10 @@ bool py_is_callable(PyObject* x) {
  
 // [[Rcpp::export]]
 bool py_is_callable(PyObjectRef x) {
-  return py_is_callable(x.get());
+  if (x.is_null_xptr())
+    return false;
+  else
+    return py_is_callable(x.get());
 }
 
 
@@ -1392,7 +1395,7 @@ bool py_is_function(PyObjectRef x) {
 //' @export
 // [[Rcpp::export]]
 bool py_is_null_xptr(PyObjectRef x) {
-  return x.get() == NULL;
+  return x.is_null_xptr();
 }
 
 //' @rdname py_is_null_xptr

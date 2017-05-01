@@ -105,7 +105,10 @@ print.python.builtin.object <- function(x, ...) {
 #' @importFrom utils str
 #' @export
 str.python.builtin.object <- function(object, ...) {
-  cat(py_str(object), "\n", sep="")
+  if (!py_available() || py_is_null_xptr(object))
+    cat("<pointer: 0x0>\n")
+  else
+    cat(py_str(object), "\n", sep="")
 }
 
 #' @export

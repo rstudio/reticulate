@@ -28,6 +28,11 @@
   
 - Give priority to the first registered delay load module (previously 
   the last registered module was given priority)
+  
+- Add additional safety checks to detect use of NULL xptr objects 
+  (i.e. objects from a previous session). This should mean that S3
+  methods no longer need to check whether they are handling an xptr.
+  
 
 ## Bug Fixes
 

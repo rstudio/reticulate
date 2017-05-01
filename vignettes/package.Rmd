@@ -1,8 +1,7 @@
 ---
 title: "Using reticulate in an R Package"
 output: 
-  rmarkdown::html_vignette: 
-    readme: true
+  rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Using reticulate in an R Package}
   %\VignetteEngine{knitr::rmarkdown}
@@ -14,13 +13,32 @@ vignette: >
 knitr::opts_chunk$set(eval = FALSE)
 ```
 
+## Delay Loading Python Modules
+
+If you write an R package that wraps one or more Py thon packages, it's likely that you'll be importing Python modules within the `.onLoad` method of your package so that you can have convenient access to them within the rest of the package source code.
+
+When you do this, you should use the `delay_load` flag to the `import()` function. This has two benifits:
+
+1. It allows you to successfully load your package even when Python / Python packages are not installed on the target system (this is particularly important when testing on CRAN build machines).
+
+2. It allows users to specify a desired location for Python before interacting with your package. For example:
+
+    ```r
+    library(mypackage)
+    reticulate::use_virtualenv("~/pythonenvs/userenv")
+    # call functions from mypackage
+    ```
+
+Without the `delay_load`, Python would be loaded immediately and the user's call to `use_virtualenv` would have no effect.
+
+
 ## Checking and Testing on CRAN
 
 If you use **reticulate** in another R package you need to account for the fact that when your package is submitted to CRAN, the CRAN test servers may not have Python, NumPy, or whatever other Python modules you are wrapping in your package. If you don't do this then your package may fail to load and/or pass it's tests when run on CRAN.
 
 There are two things you should do to ensure your package is well behaved on CRAN:
 
-1. When importing Python modules for use inside your package you should use the `delay_load` option to ensure that the module (and Python) is loaded only on it's first use. For example:
+1. Use the `delay_load` option (as described aboe) to ensure that the module (and Python) is loaded only on it's first use. For example:
 
     ```{r}
     # python 'foo' module I want to use in my package
@@ -49,45 +67,23 @@ There are two things you should do to ensure your package is well behaved on CRA
     })
     ```
 
-## S3 Methods
+## Implementing S3 Methods
 
 Python objects exposed by **reticulate** carry their Python classes into R, so it's possible to write S3 methods to customize e.g. the `str` or `print` behavior for a given class (note that it's not typically necessary that you do this since the default `str` and `print` methods call `PyObject_Str`, which typically provides an acceptable default behavior).
 
 If you do decide to implement custom S3 methods for a Python class it's important to keep in mind that when an R session ends the connection to Python objects is lost, so when the .RData saved from one R session is restored in a subsequent R session the Python objects are effectively lost (technically they become `NULL` R `externalptr` objects).
 
-This means that you should always use the `py_is_null_xptr` function on objects before interacting with them in an S3 method. For example:
-
-```{r}
-#' @export
-summary.MyPythonClass <- function(object, ...) {
-  if (py_is_null_xptr(object))
-    stop("Object is NULL")
-  else
-    # interact with the object to generate the summary
-}
-```
-
-There are a couple of shortcut methods you can use to make this more straightforward. The `py_validate_xptr` function will do the check and automatically throw an error if it fails. So the example above could be re-written as:
-
-```{r}
-#' @export
-summary.MyPythonClass <- function(object, ...) {
-  py_validate_xptr(object)
-  # interact with the object to generate the summary
-}
-```
-
-Finally, the **reticulate** package exports a `py_str` generic method which is called from the `str` method only after doing appropriate validation (if the object is NULL then `<pointer: 0x0>` is returned). You can implement the `py_str` method as follows:
+The **reticulate** package exports a `py_str` generic method which is called from the `str` method only after doing appropriate validation (if the object is NULL then `<pointer: 0x0>` is returned). You can implement the `py_str` method as follows:
 
 ```{r}
 #' @importFrom reticulate py_str
 #' @export 
-py_str.MyPythonClass <- function(object, ...) {
+py_str.MyModule.MyPythonClass <- function(object, ...) {
   # interact with the object to generate the string
 }
 ```
 
-So in short, to provide custom `str` and `print` methods, just implement `py_str`. For other S3 methods be sure to call either `py_validate_xptr` or `py_is_null_xptr` before interacting with the object.
+The `print` and `summary` methods for Python objects both call the `str` method by default, so if you implement `py_str()` you will automatically inherit implementations for those methods.
 
 
 

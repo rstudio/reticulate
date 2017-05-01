@@ -82,6 +82,22 @@
     
     
 <div class="contents">
+<div id="delay-loading-python-modules" class="section level2">
+<h2 class="hasAnchor">
+<a href="#delay-loading-python-modules" class="anchor"></a>Delay Loading Python Modules</h2>
+<p>If you write an R package that wraps one or more Py thon packages, it’s likely that you’ll be importing Python modules within the <code>.onLoad</code> method of your package so that you can have convenient access to them within the rest of the package source code.</p>
+<p>When you do this, you should use the <code>delay_load</code> flag to the <code><a href="../reference/import.html">import()</a></code> function. This has two benifits:</p>
+<ol style="list-style-type: decimal">
+<li><p>It allows you to successfully load your package even when Python / Python packages are not installed on the target system (this is particularly important when testing on CRAN build machines).</p></li>
+<li>
+<p>It allows users to specify a desired location for Python before interacting with your package. For example:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(mypackage)
+reticulate::<span class="kw"><a href="../reference/use_python.html">use_virtualenv</a></span>(<span class="st">"~/pythonenvs/userenv"</span>)
+<span class="co"># call functions from mypackage</span></code></pre></div>
+</li>
+</ol>
+<p>Without the <code>delay_load</code>, Python would be loaded immediately and the user’s call to <code>use_virtualenv</code> would have no effect.</p>
+</div>
 <div id="checking-and-testing-on-cran" class="section level2">
 <h2 class="hasAnchor">
 <a href="#checking-and-testing-on-cran" class="anchor"></a>Checking and Testing on CRAN</h2>
@@ -89,7 +105,7 @@
 <p>There are two things you should do to ensure your package is well behaved on CRAN:</p>
 <ol style="list-style-type: decimal">
 <li>
-<p>When importing Python modules for use inside your package you should use the <code>delay_load</code> option to ensure that the module (and Python) is loaded only on it’s first use. For example:</p>
+<p>Use the <code>delay_load</code> option (as described aboe) to ensure that the module (and Python) is loaded only on it’s first use. For example:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># python 'foo' module I want to use in my package</span>
 foo &lt;-<span class="st"> </span><span class="ot">NULL</span>
 
@@ -115,32 +131,18 @@ skip_if_no_foo &lt;-<span class="st"> </span>function() {
 </li>
 </ol>
 </div>
-<div id="s3-methods" class="section level2">
+<div id="implementing-s3-methods" class="section level2">
 <h2 class="hasAnchor">
-<a href="#s3-methods" class="anchor"></a>S3 Methods</h2>
+<a href="#implementing-s3-methods" class="anchor"></a>Implementing S3 Methods</h2>
 <p>Python objects exposed by <strong>reticulate</strong> carry their Python classes into R, so it’s possible to write S3 methods to customize e.g. the <code>str</code> or <code>print</code> behavior for a given class (note that it’s not typically necessary that you do this since the default <code>str</code> and <code>print</code> methods call <code>PyObject_Str</code>, which typically provides an acceptable default behavior).</p>
 <p>If you do decide to implement custom S3 methods for a Python class it’s important to keep in mind that when an R session ends the connection to Python objects is lost, so when the .RData saved from one R session is restored in a subsequent R session the Python objects are effectively lost (technically they become <code>NULL</code> R <code>externalptr</code> objects).</p>
-<p>This means that you should always use the <code>py_is_null_xptr</code> function on objects before interacting with them in an S3 method. For example:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#' @export</span>
-summary.MyPythonClass &lt;-<span class="st"> </span>function(object, ...) {
-  if (<span class="kw"><a href="../reference/py_is_null_xptr.html">py_is_null_xptr</a></span>(object))
-    <span class="kw">stop</span>(<span class="st">"Object is NULL"</span>)
-  else
-    <span class="co"># interact with the object to generate the summary</span>
-}</code></pre></div>
-<p>There are a couple of shortcut methods you can use to make this more straightforward. The <code>py_validate_xptr</code> function will do the check and automatically throw an error if it fails. So the example above could be re-written as:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#' @export</span>
-summary.MyPythonClass &lt;-<span class="st"> </span>function(object, ...) {
-  <span class="kw"><a href="../reference/py_is_null_xptr.html">py_validate_xptr</a></span>(object)
-  <span class="co"># interact with the object to generate the summary</span>
-}</code></pre></div>
-<p>Finally, the <strong>reticulate</strong> package exports a <code>py_str</code> generic method which is called from the <code>str</code> method only after doing appropriate validation (if the object is NULL then <code>&lt;pointer: 0x0&gt;</code> is returned). You can implement the <code>py_str</code> method as follows:</p>
+<p>The <strong>reticulate</strong> package exports a <code>py_str</code> generic method which is called from the <code>str</code> method only after doing appropriate validation (if the object is NULL then <code>&lt;pointer: 0x0&gt;</code> is returned). You can implement the <code>py_str</code> method as follows:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#' @importFrom reticulate py_str</span>
 <span class="co">#' @export </span>
-py_str.MyPythonClass &lt;-<span class="st"> </span>function(object, ...) {
+py_str.MyModule.MyPythonClass &lt;-<span class="st"> </span>function(object, ...) {
   <span class="co"># interact with the object to generate the string</span>
 }</code></pre></div>
-<p>So in short, to provide custom <code>str</code> and <code>print</code> methods, just implement <code>py_str</code>. For other S3 methods be sure to call either <code>py_validate_xptr</code> or <code>py_is_null_xptr</code> before interacting with the object.</p>
+<p>The <code>print</code> and <code>summary</code> methods for Python objects both call the <code>str</code> method by default, so if you implement <code><a href="../reference/py_str.html">py_str()</a></code> you will automatically inherit implementations for those methods.</p>
 </div>
 </div>
   </div>
@@ -149,8 +151,9 @@ py_str.MyPythonClass &lt;-<span class="st"> </span>function(object, ...) {
         <div id="tocnav">
       <h2>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
-<li><a href="#checking-and-testing-on-cran">Checking and Testing on CRAN</a></li>
-      <li><a href="#s3-methods">S3 Methods</a></li>
+<li><a href="#delay-loading-python-modules">Delay Loading Python Modules</a></li>
+      <li><a href="#checking-and-testing-on-cran">Checking and Testing on CRAN</a></li>
+      <li><a href="#implementing-s3-methods">Implementing S3 Methods</a></li>
       </ul>
 </div>
       </div>

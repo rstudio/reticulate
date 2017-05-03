@@ -1745,11 +1745,14 @@ SEXP py_run_string_impl(const std::string& code,
   // run string
   PyObject* main = PyImport_AddModule("__main__");
   PyObject* main_dict = PyModule_GetDict(main);
-  PyObjectPtr local_dict;
-  if (local)
-    local_dict.assign(PyDict_New());
-  else
-    local_dict.assign(main_dict);
+  PyObject* local_dict = NULL;
+  PyObjectPtr local_dict_ptr;
+  if (local) {
+    local_dict_ptr.assign(PyDict_New());
+    local_dict = local_dict_ptr.get();
+  } else {
+    local_dict = main_dict;
+  }
   PyObjectPtr res(PyRun_StringFlags(code.c_str(), Py_file_input, 
                                     main_dict, local_dict, NULL));
   if (res.is_null())
@@ -1757,10 +1760,7 @@ SEXP py_run_string_impl(const std::string& code,
 
   // return dictionary with objects defined during the execution
   Py_IncRef(local_dict);
-  if (convert)
-    return py_to_r(local_dict, convert);
-  else
-    return py_ref(local_dict, convert);
+  return py_ref(local_dict, convert);
 }
 
 

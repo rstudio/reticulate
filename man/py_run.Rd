@@ -27,8 +27,8 @@ R equivalent. If you pass \code{FALSE} you can do manual conversion using the
 }
 \value{
 For \code{py_eval()}, the result of evaluating the expression; For
-\code{py_run_string()} and \code{py_run_file()}, a named list / dictionary with the
-objects defined in the execution namespace.
+\code{py_run_string()} and \code{py_run_file()}, the dictionary associated with
+the code execution.
 }
 \description{
 Execute code within the the \code{__main__} Python module.

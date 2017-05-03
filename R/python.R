@@ -844,8 +844,8 @@ py_capture_output <- function(expr, type = c("stdout", "stderr")) {
 #'   `FALSE`, objects are created within the main module).
 #'   
 #' @return For `py_eval()`, the result of evaluating the expression; For 
-#'   `py_run_string()` and `py_run_file()`, a named list / dictionary with the 
-#'   objects defined in the execution namespace.
+#'   `py_run_string()` and `py_run_file()`, the dictionary associated with 
+#'   the code execution.
 #'   
 #' @name py_run
 #'   

@@ -36,8 +36,8 @@
 - Added `py_eval()` function for evaluating simple Python statements.
 
 - Add `local` option to `py_run_string()` and `py_run_file()`. Modify
-  behavior to return named list of objects within execution environment
-  (rather than a reference to the main module).
+  behavior to return local execution dictionary (rather than a reference
+  to the main module).
   
 
 ## Bug Fixes

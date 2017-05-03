@@ -38,8 +38,7 @@ import <- function(module, convert = TRUE, delay_load = FALSE) {
   if (!delay_load || is_python_initialized()) {
     # ensure that python is initialized (pass top level module as
     # a hint as to which version of python to choose)
-    top_level_module <- strsplit(module, ".", fixed = TRUE)[[1]][[1]]
-    ensure_python_initialized(required_module = top_level_module)
+    ensure_python_initialized(required_module = module)
   
     # import the module
     py_module_import(module, convert = convert)

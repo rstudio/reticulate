@@ -46,6 +46,10 @@ ensure_python_initialized <- function(required_module = NULL) {
 
 initialize_python <- function(required_module = NULL) {
 
+  # resolve top level module for search
+  if (!is.null(required_module))
+    required_module <- strsplit(required_module, ".", fixed = TRUE)[[1]][[1]]
+  
   # find configuration
   config <- py_discover_config(required_module)
 

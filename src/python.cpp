@@ -1738,23 +1738,36 @@ List py_iterate(PyObjectRef x, Function f) {
 
 
 // [[Rcpp::export]]
-PyObjectRef py_run_string_impl(const std::string& code, bool convert = true)
+SEXP py_run_string_impl(const std::string& code, 
+                        bool local = false,
+                        bool convert = true)
 {
   // run string
   PyObject* main = PyImport_AddModule("__main__");
-  PyObject* dict = PyModule_GetDict(main);
-  PyObjectPtr res(PyRun_StringFlags(code.c_str(), Py_file_input, dict, dict, NULL));
+  PyObject* main_dict = PyModule_GetDict(main);
+  PyObjectPtr local_dict;
+  if (local)
+    local_dict.assign(PyDict_New());
+  else
+    local_dict.assign(main_dict);
+  PyObjectPtr res(PyRun_StringFlags(code.c_str(), Py_file_input, 
+                                    main_dict, local_dict, NULL));
   if (res.is_null())
     stop(py_fetch_error());
 
-  // return reference to main module
-  Py_IncRef(main);
-  return py_ref(main, convert);
+  // return dictionary with objects defined during the execution
+  Py_IncRef(local_dict);
+  if (convert)
+    return py_to_r(local_dict, convert);
+  else
+    return py_ref(local_dict, convert);
 }
 
 
 // [[Rcpp::export]]
-PyObjectRef py_run_file_impl(const std::string& file, bool convert = true)
+SEXP py_run_file_impl(const std::string& file, 
+                      bool local = false,
+                      bool convert = true)
 {
   // expand path
   Function pathExpand("path.expand");
@@ -1770,6 +1783,32 @@ PyObjectRef py_run_file_impl(const std::string& file, bool convert = true)
     stop("Error occurred while reading file '%s'", file);
   
   // execute
-  return py_run_string_impl(code, convert);
+  return py_run_string_impl(code, local, convert);
 }
+
+// [[Rcpp::export]]
+SEXP py_eval_impl(const std::string& code, bool convert = true) {
+  
+  // compile the code
+  PyObjectPtr compiledCode(Py_CompileString(code.c_str(), "reticulate_eval", Py_eval_input));
+  if (compiledCode.is_null())
+    stop(py_fetch_error());
+ 
+ // execute the code
+ PyObject* main = PyImport_AddModule("__main__");
+ PyObject* dict = PyModule_GetDict(main);
+ PyObjectPtr local_dict(PyDict_New());
+ PyObjectPtr res(PyEval_EvalCode(compiledCode, dict, local_dict));
+ if (res.is_null())
+   stop(py_fetch_error());
+ 
+ // return (convert to R if requested)
+ Py_IncRef(res);
+ if (convert)
+   return py_to_r(res, convert);
+ else
+   return py_ref(res, convert);
+}
+
+
 

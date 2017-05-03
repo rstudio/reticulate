@@ -382,26 +382,40 @@ BEGIN_RCPP
 END_RCPP
 }
 // py_run_string_impl
-PyObjectRef py_run_string_impl(const std::string& code, bool convert);
-RcppExport SEXP reticulate_py_run_string_impl(SEXP codeSEXP, SEXP convertSEXP) {
+SEXP py_run_string_impl(const std::string& code, bool local, bool convert);
+RcppExport SEXP reticulate_py_run_string_impl(SEXP codeSEXP, SEXP localSEXP, SEXP convertSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const std::string& >::type code(codeSEXP);
+    Rcpp::traits::input_parameter< bool >::type local(localSEXP);
+    Rcpp::traits::input_parameter< bool >::type convert(convertSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_run_string_impl(code, local, convert));
+    return rcpp_result_gen;
+END_RCPP
+}
+// py_run_file_impl
+SEXP py_run_file_impl(const std::string& file, bool local, bool convert);
+RcppExport SEXP reticulate_py_run_file_impl(SEXP fileSEXP, SEXP localSEXP, SEXP convertSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const std::string& >::type file(fileSEXP);
+    Rcpp::traits::input_parameter< bool >::type local(localSEXP);
+    Rcpp::traits::input_parameter< bool >::type convert(convertSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_run_file_impl(file, local, convert));
+    return rcpp_result_gen;
+END_RCPP
+}
+// py_eval_impl
+SEXP py_eval_impl(const std::string& code, bool convert);
+RcppExport SEXP reticulate_py_eval_impl(SEXP codeSEXP, SEXP convertSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const std::string& >::type code(codeSEXP);
     Rcpp::traits::input_parameter< bool >::type convert(convertSEXP);
-    rcpp_result_gen = Rcpp::wrap(py_run_string_impl(code, convert));
-    return rcpp_result_gen;
-END_RCPP
-}
-// py_run_file_impl
-PyObjectRef py_run_file_impl(const std::string& file, bool convert);
-RcppExport SEXP reticulate_py_run_file_impl(SEXP fileSEXP, SEXP convertSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const std::string& >::type file(fileSEXP);
-    Rcpp::traits::input_parameter< bool >::type convert(convertSEXP);
-    rcpp_result_gen = Rcpp::wrap(py_run_file_impl(file, convert));
+    rcpp_result_gen = Rcpp::wrap(py_eval_impl(code, convert));
     return rcpp_result_gen;
 END_RCPP
 }

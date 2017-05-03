@@ -31,6 +31,7 @@ typedef long Py_ssize_t;
 #define METH_KEYWORDS 0x0002
 
 #define Py_file_input 257
+#define Py_eval_input 258
 
 #define _PyObject_HEAD_EXTRA
 #define _PyObject_EXTRA_INIT
@@ -223,6 +224,8 @@ LIBPYTHON_EXTERN PyObject* (*PyModule_GetDict)(PyObject *);
 LIBPYTHON_EXTERN PyObject* (*PyImport_AddModule)(const char *);
 
 LIBPYTHON_EXTERN PyObject* (*PyRun_StringFlags)(const char *, int, PyObject*, PyObject*, void*);
+LIBPYTHON_EXTERN PyObject* (*Py_CompileString)(const char *str, const char *filename, int start);
+LIBPYTHON_EXTERN PyObject* (*PyEval_EvalCode)(PyObject *co, PyObject *globals, PyObject *locals);
 
 LIBPYTHON_EXTERN PyObject* (*PyObject_GetIter)(PyObject *);
 LIBPYTHON_EXTERN PyObject* (*PyIter_Next)(PyObject *);

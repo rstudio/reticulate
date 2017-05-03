@@ -33,6 +33,12 @@
   (i.e. objects from a previous session). This should mean that S3
   methods no longer need to check whether they are handling an xptr.
   
+- Added `py_eval()` function for evaluating simple Python statements.
+
+- Add `local` option to `py_run_string()` and `py_run_file()`. Modify
+  behavior to return named list of objects within execution environment
+  (rather than a reference to the main module).
+  
 
 ## Bug Fixes
 

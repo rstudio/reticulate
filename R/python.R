@@ -834,30 +834,40 @@ py_capture_output <- function(expr, type = c("stdout", "stderr")) {
 
 
 #' Run Python code
-#'
+#' 
 #' Execute code within the the \code{__main__} Python module.
-#'
+#' 
 #' @inheritParams import
 #' @param code Code to execute
 #' @param file File to execute
-#'
-#' @return Reference to \code{__main__} Python module.
-#'
+#' @param local Whether to create objects in a local/private namespace (if
+#'   `FALSE`, objects are created within the main module).
+#'   
+#' @return For `py_eval()`, the result of evaluating the expression; For 
+#'   `py_run_string()` and `py_run_file()`, a named list / dictionary with the 
+#'   objects defined in the execution namespace.
+#'   
 #' @name py_run
-#'
+#'   
 #' @export
-py_run_string <- function(code, convert = TRUE) {
+py_run_string <- function(code, local = FALSE, convert = TRUE) {
   ensure_python_initialized()
-  invisible(py_run_string_impl(code, convert))
+  invisible(py_run_string_impl(code, local, convert))
 }
 
 #' @rdname py_run
 #' @export
-py_run_file <- function(file, convert = TRUE) {
+py_run_file <- function(file, local = FALSE, convert = TRUE) {
   ensure_python_initialized()
-  invisible(py_run_file_impl(file, convert))
+  invisible(py_run_file_impl(file, local, convert))
 }
 
+#' @rdname py_run
+#' @export
+py_eval <- function(code, convert = TRUE) {
+  ensure_python_initialized()
+  py_eval_impl(code, convert)
+}
 
 py_callable_as_function <- function(callable, convert) {
   function(...) {

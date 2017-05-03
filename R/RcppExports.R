@@ -166,11 +166,15 @@ py_iterate <- function(x, f) {
     .Call('reticulate_py_iterate', PACKAGE = 'reticulate', x, f)
 }
 
-py_run_string_impl <- function(code, convert = TRUE) {
-    .Call('reticulate_py_run_string_impl', PACKAGE = 'reticulate', code, convert)
+py_run_string_impl <- function(code, local = FALSE, convert = TRUE) {
+    .Call('reticulate_py_run_string_impl', PACKAGE = 'reticulate', code, local, convert)
 }
 
-py_run_file_impl <- function(file, convert = TRUE) {
-    .Call('reticulate_py_run_file_impl', PACKAGE = 'reticulate', file, convert)
+py_run_file_impl <- function(file, local = FALSE, convert = TRUE) {
+    .Call('reticulate_py_run_file_impl', PACKAGE = 'reticulate', file, local, convert)
+}
+
+py_eval_impl <- function(code, convert = TRUE) {
+    .Call('reticulate_py_eval_impl', PACKAGE = 'reticulate', code, convert)
 }
 

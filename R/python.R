@@ -4,6 +4,7 @@
 #' Import the specified Python module for calling from R. 
 #'
 #' @param module Module name
+#' @param as Module alias
 #' @param path Path to import from
 #' @param convert `TRUE` to automatically convert Python objects to their
 #'   R equivalent. If you pass `FALSE` you can do manual conversion using the
@@ -25,7 +26,7 @@
 #' }
 #'
 #' @export
-import <- function(module, convert = TRUE, delay_load = FALSE) {
+import <- function(module, as = NULL, convert = TRUE, delay_load = FALSE) {
   
   # resolve delay load
   delay_load_function <- NULL
@@ -40,8 +41,14 @@ import <- function(module, convert = TRUE, delay_load = FALSE) {
     # a hint as to which version of python to choose)
     ensure_python_initialized(required_module = module)
   
-    # import the module
-    py_module_import(module, convert = convert)
+    # when 'as' is provided we import via executing python code
+    if (!is.null(as)) {
+      py_run_string(paste("import", module, "as", as), 
+                    local = TRUE, 
+                    convert = convert)[[as]]
+    } else {
+      py_module_import(module, convert = convert)
+    }
   }
   
   # delay load case (wait until first access)
@@ -79,7 +86,7 @@ import_builtins <- function(convert = TRUE) {
 
 #' @rdname import
 #' @export
-import_from_path <- function(module, path, convert = TRUE, delay_load = FALSE) {
+import_from_path <- function(module, path, as = NULL, convert = TRUE, delay_load = FALSE) {
   
   # add the path to sys.path if it isn't already there
   sys <- import("sys", convert = FALSE)
@@ -87,11 +94,8 @@ import_from_path <- function(module, path, convert = TRUE, delay_load = FALSE) {
     sys$path$append(path)
   
   # import
-  import(module, convert = convert, delay_load = delay_load)
+  import(module, as = as, convert = convert, delay_load = delay_load)
 }
-
-
-
 
 
 

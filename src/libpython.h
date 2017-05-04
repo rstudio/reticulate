@@ -148,6 +148,7 @@ LIBPYTHON_EXTERN PyObject* (*Py_InitModule4)(const char *name, PyMethodDef *meth
            int apiver);
 
 LIBPYTHON_EXTERN PyObject* (*PyImport_ImportModule)(const char *name);
+LIBPYTHON_EXTERN PyObject* (*PyImport_Import)(PyObject * name);
 LIBPYTHON_EXTERN PyObject* (*PyImport_GetModuleDict)();
 
 

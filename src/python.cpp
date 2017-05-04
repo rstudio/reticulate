@@ -224,6 +224,12 @@ bool py_is_none(PyObject* object) {
   return object == Py_None;
 }
 
+// convenience wrapper for PyImport_Import 
+PyObject* py_import(const std::string& module) {
+  PyObjectPtr module_str(as_python_str(module));
+  return PyImport_Import(module_str);
+}
+
 std::string as_r_class(PyObject* classPtr) {
   PyObjectPtr modulePtr(PyObject_GetAttrString(classPtr, "__module__"));
   PyObjectPtr namePtr(PyObject_GetAttrString(classPtr, "__name__"));
@@ -262,7 +268,7 @@ PyObjectRef py_ref(PyObject* object, bool convert, const std::string& extraClass
     
     // call inspect.getmro to get the class and it's bases in 
     // method resolution order
-    PyObjectPtr inspect(PyImport_ImportModule("inspect"));
+    PyObjectPtr inspect(py_import("inspect"));
     if (inspect.is_null())
       stop(py_fetch_error());
     PyObjectPtr getmro(PyObject_GetAttrString(inspect, "getmro"));
@@ -407,7 +413,7 @@ std::string py_fetch_error() {
     // check for traceback      
     if (!pExcTraceback.is_null()) {
       // call into python for traceback 
-      PyObjectPtr module(PyImport_ImportModule("traceback"));
+      PyObjectPtr module(py_import("traceback"));
       if (!module.is_null()) {
         PyObjectPtr func(PyObject_GetAttrString(module, "format_tb"));
         if (!func.is_null()) {
@@ -1132,7 +1138,7 @@ PyObject* r_to_py(RObject x, bool convert) {
                                        convert));
    
     // create the python wrapper function
-    PyObjectPtr module(PyImport_ImportModule("rpytools.call"));
+    PyObjectPtr module(py_import("rpytools.call"));
     if (module == NULL)
       stop(py_fetch_error());
     PyObjectPtr func(PyObject_GetAttrString(module, "make_python_function"));
@@ -1655,9 +1661,10 @@ int py_tuple_length(PyObjectRef tuple) {
   return PyTuple_Size(tuple);
 }
 
+
 // [[Rcpp::export]]
 PyObjectRef py_module_import(const std::string& module, bool convert) {
-  PyObject* pModule = PyImport_ImportModule(module.c_str());
+  PyObject* pModule = py_import(module);
   if (pModule == NULL)
     stop(py_fetch_error());
   return py_ref(pModule, convert);
@@ -1667,7 +1674,7 @@ PyObjectRef py_module_import(const std::string& module, bool convert) {
 void py_module_proxy_import(PyObjectRef proxy) {
   if (proxy.exists("module")) {
     std::string module = as<std::string>(proxy.getFromEnvironment("module"));
-    PyObject* pModule = PyImport_ImportModule(module.c_str());
+    PyObject* pModule = py_import(module);
     if (pModule == NULL)
       stop(py_fetch_error());
     proxy.set(pModule);
@@ -1676,6 +1683,8 @@ void py_module_proxy_import(PyObjectRef proxy) {
     stop("Module proxy does not contain module name");
   }
 }
+
+
 
 // [[Rcpp::export]]
 CharacterVector py_list_submodules(const std::string& module) {

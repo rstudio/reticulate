@@ -39,6 +39,8 @@
   behavior to return local execution dictionary (rather than a reference
   to the main module).
   
+- Use `PyImport_Import` rather than `PyImport_ImportModule` for `import()`
+  
 
 ## Bug Fixes
 

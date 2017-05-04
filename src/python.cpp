@@ -1664,13 +1664,9 @@ PyObjectRef py_module_import(const std::string& module, bool convert) {
 }
 
 // [[Rcpp::export]]
-void py_module_proxy_import(PyObjectRef proxy) {
+void py_module_proxy_import(PyObjectRef proxy, PyObjectRef module) {
   if (proxy.exists("module")) {
-    std::string module = as<std::string>(proxy.getFromEnvironment("module"));
-    PyObject* pModule = PyImport_ImportModule(module.c_str());
-    if (pModule == NULL)
-      stop(py_fetch_error());
-    proxy.set(pModule);
+    proxy.set(module);
     proxy.remove("module");
   } else {
     stop("Module proxy does not contain module name");

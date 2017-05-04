@@ -154,8 +154,8 @@ py_module_import <- function(module, convert) {
     .Call('reticulate_py_module_import', PACKAGE = 'reticulate', module, convert)
 }
 
-py_module_proxy_import <- function(proxy) {
-    invisible(.Call('reticulate_py_module_proxy_import', PACKAGE = 'reticulate', proxy))
+py_module_proxy_import <- function(proxy, module) {
+    invisible(.Call('reticulate_py_module_proxy_import', PACKAGE = 'reticulate', proxy, module))
 }
 
 py_list_submodules <- function(module) {

@@ -39,6 +39,9 @@
   behavior to return local execution dictionary (rather than a reference
   to the main module).
   
+- Add `as` option to `import()` function for controlling the root 
+  module/class name of imported modules
+  
 
 ## Bug Fixes
 

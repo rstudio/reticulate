@@ -349,12 +349,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // py_module_proxy_import
-void py_module_proxy_import(PyObjectRef proxy);
-RcppExport SEXP reticulate_py_module_proxy_import(SEXP proxySEXP) {
+void py_module_proxy_import(PyObjectRef proxy, PyObjectRef module);
+RcppExport SEXP reticulate_py_module_proxy_import(SEXP proxySEXP, SEXP moduleSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< PyObjectRef >::type proxy(proxySEXP);
-    py_module_proxy_import(proxy);
+    Rcpp::traits::input_parameter< PyObjectRef >::type module(moduleSEXP);
+    py_module_proxy_import(proxy, module);
     return R_NilValue;
 END_RCPP
 }

@@ -123,6 +123,10 @@
 <li><p>Enable specification of <code>__name__</code> for R functions converted to Python functions.</p></li>
 <li><p>Give priority to the first registered delay load module (previously the last registered module was given priority)</p></li>
 <li><p>Add additional safety checks to detect use of NULL xptr objects (i.e. objects from a previous session). This should mean that S3 methods no longer need to check whether they are handling an xptr.</p></li>
+<li><p>Added <code><a href="../reference/py_run.html">py_eval()</a></code> function for evaluating simple Python statements.</p></li>
+<li><p>Add <code>local</code> option to <code><a href="../reference/py_run.html">py_run_string()</a></code> and <code><a href="../reference/py_run.html">py_run_file()</a></code>. Modify behavior to return local execution dictionary (rather than a reference to the main module).</p></li>
+<li><p>Use <code>PyImport_Import</code> rather than <code>PyImport_ImportModule</code> for <code><a href="../reference/import.html">import()</a></code></p></li>
+<li><p>Added ability to customize mapping of Python classes to R classes via the <code>as</code> argument to <code><a href="../reference/import.html">import()</a></code> and the <code><a href="../reference/register_class_filter.html">register_class_filter()</a></code> function</p></li>
 </ul>
 </div>
 <div id="bug-fixes" class="section level2">

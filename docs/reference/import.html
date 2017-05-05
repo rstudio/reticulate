@@ -107,7 +107,7 @@
     <p>Import the specified Python module for calling from R.</p>
     
 
-    <pre class="usage"><span class='fu'>import</span>(<span class='no'>module</span>, <span class='kw'>convert</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>delay_load</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+    <pre class="usage"><span class='fu'>import</span>(<span class='no'>module</span>, <span class='kw'>as</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>convert</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>delay_load</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
 
 <span class='fu'>import_main</span>(<span class='kw'>convert</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
 
@@ -121,6 +121,10 @@
     <tr>
       <th>module</th>
       <td><p>Module name</p></td>
+    </tr>
+    <tr>
+      <th>as</th>
+      <td><p>Alias for module name (affects names of R classes)</p></td>
     </tr>
     <tr>
       <th>convert</th>

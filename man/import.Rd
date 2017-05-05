@@ -7,7 +7,7 @@
 \alias{import_from_path}
 \title{Import a Python module}
 \usage{
-import(module, convert = TRUE, delay_load = FALSE)
+import(module, as = NULL, convert = TRUE, delay_load = FALSE)
 
 import_main(convert = TRUE)
 
@@ -17,6 +17,8 @@ import_from_path(module, path, convert = TRUE, delay_load = FALSE)
 }
 \arguments{
 \item{module}{Module name}
+
+\item{as}{Alias for module name (affects names of R classes)}
 
 \item{convert}{\code{TRUE} to automatically convert Python objects to their
 R equivalent. If you pass \code{FALSE} you can do manual conversion using the

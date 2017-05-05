@@ -4,6 +4,7 @@
 #' Import the specified Python module for calling from R. 
 #'
 #' @param module Module name
+#' @param as Alias for module name (affects names of R classes)
 #' @param path Path to import from
 #' @param convert `TRUE` to automatically convert Python objects to their
 #'   R equivalent. If you pass `FALSE` you can do manual conversion using the
@@ -25,7 +26,14 @@
 #' }
 #'
 #' @export
-import <- function(module, convert = TRUE, delay_load = FALSE) {
+import <- function(module, as = NULL, convert = TRUE, delay_load = FALSE) {
+  
+  # if there is an as argument then register a filter for it
+  if (!is.null(as)) {
+    register_class_filter(function(classes) {
+      sub(paste0("^", module), as, classes)
+    })
+  }
   
   # resolve delay load
   delay_load_function <- NULL
@@ -766,6 +774,16 @@ register_suppress_warnings_handler <- function(handler) {
   .globals$suppress_warnings_handlers[[length(.globals$suppress_warnings_handlers) + 1]] <- handler
 }
 
+#' Register a filter for class names
+#' 
+#' @param filter Function which takes a class name and maps it to an alternate
+#'   name
+#'   
+#' @keywords internal
+#' @export
+register_class_filter <- function(filter) {
+  .globals$class_filters[[length(.globals$class_filters) + 1]] <- filter
+}
 
 #' Capture and return Python output
 #'
@@ -969,6 +987,11 @@ py_get_submodule <- function(x, name, convert = TRUE) {
     result
 }
 
+py_filter_classes <- function(classes) {
+  for (filter in .globals$class_filters)
+    classes <- filter(classes)
+  classes
+}
 
 
 

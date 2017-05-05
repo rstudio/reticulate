@@ -40,6 +40,9 @@
   to the main module).
   
 - Use `PyImport_Import` rather than `PyImport_ImportModule` for `import()`
+
+- Added ability to customize mapping of Python classes to R classes via
+  the `as` argument to `import()` and the `register_class_filter()` function
   
 
 ## Bug Fixes

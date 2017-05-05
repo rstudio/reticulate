@@ -107,9 +107,11 @@
     <p>Execute code within the the <code>__main__</code> Python module.</p>
     
 
-    <pre class="usage"><span class='fu'>py_run_string</span>(<span class='no'>code</span>, <span class='kw'>convert</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
+    <pre class="usage"><span class='fu'>py_run_string</span>(<span class='no'>code</span>, <span class='kw'>local</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>convert</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
 
-<span class='fu'>py_run_file</span>(<span class='no'>file</span>, <span class='kw'>convert</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
+<span class='fu'>py_run_file</span>(<span class='no'>file</span>, <span class='kw'>local</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>convert</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
+
+<span class='fu'>py_eval</span>(<span class='no'>code</span>, <span class='kw'>convert</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
@@ -117,6 +119,11 @@
     <tr>
       <th>code</th>
       <td><p>Code to execute</p></td>
+    </tr>
+    <tr>
+      <th>local</th>
+      <td><p>Whether to create objects in a local/private namespace (if
+<code>FALSE</code>, objects are created within the main module).</p></td>
     </tr>
     <tr>
       <th>convert</th>
@@ -132,7 +139,9 @@ R equivalent. If you pass <code>FALSE</code> you can do manual conversion using 
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>Reference to <code>__main__</code> Python module.</p>
+    <p>For <code>py_eval()</code>, the result of evaluating the expression; For
+<code>py_run_string()</code> and <code>py_run_file()</code>, the dictionary associated with
+the code execution.</p>
     
 
   </div>

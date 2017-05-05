@@ -291,7 +291,12 @@ PyObjectRef py_ref(PyObject* object, bool convert, const std::string& extraClass
                                                       == attrClass.end()) {
     attrClass.push_back("python.builtin.object");
   }
-
+  
+  // apply class filter
+  Rcpp::Environment pkgEnv = Rcpp::Environment::namespace_env("reticulate");
+  Rcpp::Function py_filter_classes = pkgEnv["py_filter_classes"];
+  attrClass = as<std::vector<std::string> >(py_filter_classes(attrClass));
+  
   // set classes
   ref.attr("class") = attrClass;
   

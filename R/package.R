@@ -19,6 +19,7 @@ NULL
 .globals$py_config <- NULL
 .globals$delay_load_module <- NULL
 .globals$suppress_warnings_handlers <- list()
+.globals$class_filters <- list()
 
 
 

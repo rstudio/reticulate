@@ -1,13 +1,14 @@
 Package: reticulate
 Type: Package
 Title: R Interface to Python
+Date: 2017-05-06
 Version: 0.7.0.9008
 Authors@R: c(
   person("JJ", "Allaire", role = c("aut", "cre"), email = "jj@rstudio.com"),
   person("Kevin", "Ushey", role = c("ctb"),
          email = "kevin@rstudio.com"),
   person("RStudio", role = c("cph", "fnd")),
-  person("Yuan", "Tang", role = c("ctb", "cph"),
+  person("Yuan", "Tang", role = c("aut", "cph"),
          email = "terrytangyuan@gmail.com"),
   person("Dirk", "Eddelbuettel", role = c("ctb", "cph"),
          email = "edd@debian.org"),

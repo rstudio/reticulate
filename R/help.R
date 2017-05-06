@@ -246,7 +246,7 @@ sections_from_doc <- function(doc) {
   # grab section headers
   doc <- strsplit(doc, "\n", fixed = TRUE)[[1]]
   section_lines <- which(grepl("^\\w(\\w|\\s)+:", doc))
-  
+
   # for each section
   for (i in section_lines) {
     
@@ -276,10 +276,10 @@ sections_from_doc <- function(doc) {
 
 
 # Extract section from doc
-section_from_doc <- function(section, doc) {
+section_from_doc <- function(name, doc) {
   section <- ""
   doc <- strsplit(doc, "\n", fixed = TRUE)[[1]]
-  line_index <- which(grepl(paste0("^", section, ":"), doc))
+  line_index <- which(grepl(paste0("^", name, ":"), doc))
   if (length(line_index) > 0) {
     while((line_index + 1) <= length(doc)) {
       line <- doc[[line_index + 1]]

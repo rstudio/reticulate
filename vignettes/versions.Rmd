@@ -65,9 +65,15 @@ The order in which versions of Python will be discovered and used is as follows:
 
 2.  If specified, at the locations referenced by calls to `use_python()`, `use_virtualenv()`, and `use_condaenv()`.
 
-3.  At the location of the Python binary discovered on the system `PATH` (via the `Sys.which` function).
+3. Within virtualenvs and conda envs that carry the same name as the first module imported. For example, if you execute `import("nltk")` then the following locations (among other similar ones) would be scanned for a version of Python with the **nltk** module installed:
 
-4.  At other customary locations for Python including `/usr/local/bin/python`, `/opt/local/bin/python`, etc.
+    - ~/nltk
+    - ~/.virtualenvs/nltk
+    - ~/anaconda/envs/nltk
+
+4.  At the location of the Python binary discovered on the system `PATH` (via the `Sys.which` function).
+
+5.  At other customary locations for Python including `/usr/local/bin/python`, `/opt/local/bin/python`, etc.
 
 The scanning for and binding to a version of Python typically occurs at the time of the first call to `import()` within an R session. As a result, priority will be given to versions of Python that include the module specified within the call to `import()` (i.e. versions that don't include it will be skipped).
 

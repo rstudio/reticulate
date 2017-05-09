@@ -138,6 +138,14 @@ scipy$<span class="kw">amin</span>(<span class="kw">c</span>(<span class="dv">1<
 <ol style="list-style-type: decimal">
 <li><p>If specified, at the location referenced by the <code>RETICULATE_PYTHON</code> environment variable.</p></li>
 <li><p>If specified, at the locations referenced by calls to <code><a href="../reference/use_python.html">use_python()</a></code>, <code><a href="../reference/use_python.html">use_virtualenv()</a></code>, and <code><a href="../reference/use_python.html">use_condaenv()</a></code>.</p></li>
+<li>
+<p>Within virtualenvs and conda envs that carry the same name as the first module imported. For example, if you execute <code><a href="../reference/import.html">import("nltk")</a></code> then the following locations (among other similar ones) would be scanned for a version of Python with the <strong>nltk</strong> module installed:</p>
+<ul>
+<li>~/nltk</li>
+<li>~/.virtualenvs/nltk</li>
+<li>~/anaconda/envs/nltk</li>
+</ul>
+</li>
 <li><p>At the location of the Python binary discovered on the system <code>PATH</code> (via the <code>Sys.which</code> function).</p></li>
 <li><p>At other customary locations for Python including <code>/usr/local/bin/python</code>, <code>/opt/local/bin/python</code>, etc.</p></li>
 </ol>

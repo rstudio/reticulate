@@ -127,6 +127,7 @@
 <li><p>Add <code>local</code> option to <code><a href="../reference/py_run.html">py_run_string()</a></code> and <code><a href="../reference/py_run.html">py_run_file()</a></code>. Modify behavior to return local execution dictionary (rather than a reference to the main module).</p></li>
 <li><p>Use <code>PyImport_Import</code> rather than <code>PyImport_ImportModule</code> for <code><a href="../reference/import.html">import()</a></code></p></li>
 <li><p>Added ability to customize mapping of Python classes to R classes via the <code>as</code> argument to <code><a href="../reference/import.html">import()</a></code> and the <code><a href="../reference/register_class_filter.html">register_class_filter()</a></code> function</p></li>
+<li><p>Added separate <code>on_load</code> and <code>on_error</code> functions for <code>delay_load</code></p></li>
 </ul>
 </div>
 <div id="bug-fixes" class="section level2">
@@ -140,6 +141,7 @@
 <li><p>Fix incompatibility with system-wide Python installations on Windows</p></li>
 <li><p>Fix issue with Python dictionary keys that shared names with<br>
 primitive R functions (don’t check environment inheritance chain when looking for dictionary key objects by name).</p></li>
+<li><p>Propagate <code>convert</code> parameter for modules with <code>delay_load</code></p></li>
 </ul>
 </div>
 </div>

@@ -128,15 +128,17 @@
     </tr>
     <tr>
       <th>convert</th>
-      <td><p><code>TRUE</code> to automatically convert Python objects to their
-R equivalent. If you pass <code>FALSE</code> you can do manual conversion using the
+      <td><p><code>TRUE</code> to automatically convert Python objects to their R
+equivalent. If you pass <code>FALSE</code> you can do manual conversion using the
 <code><a href='r-py-conversion.html'>py_to_r()</a></code> function.</p></td>
     </tr>
     <tr>
       <th>delay_load</th>
-      <td><p><code>TRUE</code> or a function to delay loading the module until
-it is first used (if a function is provided then it will be called
-once the module is loaded). <code>FALSE</code> to load the module immediately.</p></td>
+      <td><p><code>TRUE</code> to delay loading the module until it is first used.
+<code>FALSE</code> to load the module immediately. If a function is provided then it
+will be called once the module is loaded. If a list containing <code>on_load()</code>
+and <code>on_error(e)</code> elements is provided then <code>on_load()</code> will be called on
+successful load and <code>on_error(e)</code> if an error occurs.</p></td>
     </tr>
     <tr>
       <th>path</th>
@@ -150,9 +152,9 @@ once the module is loaded). <code>FALSE</code> to load the module immediately.</
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>The <code>import_from_path</code> function imports a Python module
-from an arbitrary filesystem path (the directory of the specified
-python script is automatically added to the <code>sys.path</code>).</p>
+    <p>The <code>import_from_path</code> function imports a Python module from an
+arbitrary filesystem path (the directory of the specified python script is
+automatically added to the <code>sys.path</code>).</p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>

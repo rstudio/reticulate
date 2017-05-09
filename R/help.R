@@ -399,7 +399,8 @@ help_get_attribute <- function(source, topic) {
   }
 
   # get attribute w/ no warnings or errors
-  tryCatch(py_suppress_warnings(py_get_attr(source, topic)), error = function(e) NULL)
+  tryCatch(py_suppress_warnings(py_get_attr(source, topic)), 
+           error = clear_error_handler(NULL))
 }
 
 # Environments where we store help topics (mappings of module/class name to URL)

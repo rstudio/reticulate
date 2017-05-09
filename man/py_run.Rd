@@ -19,8 +19,8 @@ py_eval(code, convert = TRUE)
 \item{local}{Whether to create objects in a local/private namespace (if
 \code{FALSE}, objects are created within the main module).}
 
-\item{convert}{\code{TRUE} to automatically convert Python objects to their
-R equivalent. If you pass \code{FALSE} you can do manual conversion using the
+\item{convert}{\code{TRUE} to automatically convert Python objects to their R
+equivalent. If you pass \code{FALSE} you can do manual conversion using the
 \code{\link[=py_to_r]{py_to_r()}} function.}
 
 \item{file}{File to execute}

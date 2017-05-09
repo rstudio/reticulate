@@ -2,12 +2,18 @@
 % Please edit documentation in R/RcppExports.R
 \name{py_last_error}
 \alias{py_last_error}
-\title{Get the last Python error encountered}
+\alias{py_clear_last_error}
+\title{Get or clear the last Python error encountered}
 \usage{
 py_last_error()
+
+py_clear_last_error()
+}
+\value{
+For \code{py_last_error()}, a list with the type, value,
+and traceback for the last Python error encountered (can be
+\code{NULL} if no error has yet been encountered).
 }
 \description{
-Return a list with the type, value, and traceback for the last
-Python error encountered (can be \code{NULL} if no error has yet been
-encountered).
+Get or clear the last Python error encountered
 }

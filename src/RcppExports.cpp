@@ -17,13 +17,22 @@ BEGIN_RCPP
 END_RCPP
 }
 // py_last_error
-List py_last_error();
+SEXP py_last_error();
 RcppExport SEXP reticulate_py_last_error() {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     rcpp_result_gen = Rcpp::wrap(py_last_error());
     return rcpp_result_gen;
+END_RCPP
+}
+// py_clear_last_error
+void py_clear_last_error();
+RcppExport SEXP reticulate_py_clear_last_error() {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    py_clear_last_error();
+    return R_NilValue;
 END_RCPP
 }
 // py_is_callable

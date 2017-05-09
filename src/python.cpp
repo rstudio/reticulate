@@ -352,15 +352,15 @@ private:
 
 LastError s_lastError;
 
-//' Get the last Python error encountered
+//' Get or clear the last Python error encountered
 //' 
-//' Return a list with the type, value, and traceback for the last
-//' Python error encountered (can be `NULL` if no error has yet been
-//' encountered).
+//' @return For `py_last_error()`, a list with the type, value, 
+//' and traceback for the last Python error encountered (can be 
+//' `NULL` if no error has yet been encountered).
 //' 
 //' @export
 // [[Rcpp::export]]
-List py_last_error() {
+SEXP py_last_error() {
   if (s_lastError.empty()) {
     return R_NilValue;
   } else {
@@ -372,6 +372,15 @@ List py_last_error() {
     return lastError;
   }
 }
+
+//' @rdname py_last_error
+//' @export
+// [[Rcpp::export]]
+void py_clear_last_error() {
+  s_lastError.clear();
+}
+
+
 
 // get a string representing the last python error
 std::string py_fetch_error() {

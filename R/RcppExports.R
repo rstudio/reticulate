@@ -5,15 +5,21 @@ is_python3 <- function() {
     .Call('reticulate_is_python3', PACKAGE = 'reticulate')
 }
 
-#' Get the last Python error encountered
+#' Get or clear the last Python error encountered
 #' 
-#' Return a list with the type, value, and traceback for the last
-#' Python error encountered (can be `NULL` if no error has yet been
-#' encountered).
+#' @return For `py_last_error()`, a list with the type, value, 
+#' and traceback for the last Python error encountered (can be 
+#' `NULL` if no error has yet been encountered).
 #' 
 #' @export
 py_last_error <- function() {
     .Call('reticulate_py_last_error', PACKAGE = 'reticulate')
+}
+
+#' @rdname py_last_error
+#' @export
+py_clear_last_error <- function() {
+    invisible(.Call('reticulate_py_clear_last_error', PACKAGE = 'reticulate'))
 }
 
 py_is_callable <- function(x) {

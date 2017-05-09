@@ -1,30 +1,32 @@
 
 #' Import a Python module
-#'
-#' Import the specified Python module for calling from R. 
-#'
+#' 
+#' Import the specified Python module for calling from R.
+#' 
 #' @param module Module name
 #' @param as Alias for module name (affects names of R classes)
 #' @param path Path to import from
-#' @param convert `TRUE` to automatically convert Python objects to their
-#'   R equivalent. If you pass `FALSE` you can do manual conversion using the
+#' @param convert `TRUE` to automatically convert Python objects to their R
+#'   equivalent. If you pass `FALSE` you can do manual conversion using the 
 #'   [py_to_r()] function.
-#' @param delay_load `TRUE` or a function to delay loading the module until
-#'  it is first used (if a function is provided then it will be called 
-#'  once the module is loaded). `FALSE` to load the module immediately.
-#'
-#' @details The `import_from_path` function imports a Python module 
-#'  from an arbitrary filesystem path (the directory of the specified
-#'  python script is automatically added to the `sys.path`).
-#'
+#' @param delay_load `TRUE` to delay loading the module until it is first used.
+#'   `FALSE` to load the module immediately. If a function is provided then it
+#'   will be called once the module is loaded. If a list containing `on_load()`
+#'   and `on_error(e)` elements is provided then `on_load()` will be called on
+#'   successful load and `on_error(e)` if an error occurs.
+#'   
+#' @details The `import_from_path` function imports a Python module from an
+#'   arbitrary filesystem path (the directory of the specified python script is
+#'   automatically added to the `sys.path`).
+#'   
 #' @return A Python module
-#'
+#'   
 #' @examples
 #' \dontrun{
 #' main <- import_main()
 #' sys <- import("sys")
 #' }
-#'
+#' 
 #' @export
 import <- function(module, as = NULL, convert = TRUE, delay_load = FALSE) {
   
@@ -36,9 +38,12 @@ import <- function(module, as = NULL, convert = TRUE, delay_load = FALSE) {
   }
   
   # resolve delay load
-  delay_load_function <- NULL
+  delay_load_functions <- NULL
   if (is.function(delay_load)) {
-    delay_load_function <- delay_load
+    delay_load_functions <- list(on_load = delay_load)
+    delay_load <- TRUE
+  } else if (is.list(delay_load)) {
+    delay_load_functions <- delay_load
     delay_load <- TRUE
   }
   
@@ -59,8 +64,10 @@ import <- function(module, as = NULL, convert = TRUE, delay_load = FALSE) {
     module_proxy <- new.env(parent = emptyenv())
     module_proxy$module <- module
     module_proxy$convert <- convert
-    if (!is.null(delay_load_function))
-      module_proxy$onload <- delay_load_function
+    if (!is.null(delay_load_functions)) {
+      module_proxy$on_load <- delay_load_functions$on_load
+      module_proxy$on_error <- delay_load_functions$on_error
+    }
     attr(module_proxy, "class") <- c("python.builtin.module", 
                                      "python.builtin.object")
     module_proxy
@@ -292,7 +299,7 @@ length.python.builtin.dict <- function(x) {
     if (py_is_module_proxy(x)) 
       py_resolve_module_proxy(x)
     TRUE
-  }, error = function(e) FALSE)
+  }, error = clear_error_handler(FALSE))
   if (!result)
     return(character())
 
@@ -947,17 +954,37 @@ py_resolve_module_proxy <- function(proxy) {
   # name of module to import
   module <- get("module", envir = proxy)
   
+  # collect on_load and on_error
+  collect_value <- function(name) {
+    if (exists(name, envir = proxy, inherits = FALSE)) {
+      value <- get(name, envir = proxy, inherits = FALSE)
+      remove(list = name, envir = proxy)
+      value
+    } else {
+      NULL
+    }
+  }
+  on_load <- collect_value("on_load")
+  on_error <- collect_value("on_error")
+  
   # perform the import -- capture error and ammend it with
   # python configuration information if we have it
-  result <- tryCatch(import(module), error = function(e) e)
+  result <- tryCatch(import(module), error = clear_error_handler())
   if (inherits(result, "error")) {
-    message <- paste("Python module", module, "was not found.")
-    config <- py_config()
-    if (!is.null(config)) {
-      message <- paste0(message, "\n\nDetected Python configuration:\n\n",
-                        str(config), "\n")
+    if (!is.null(on_error)) {
+      
+      # call custom error handler
+      on_error(result)
+      
+      # error handler can and should call `stop`, this is just a failsafe
+      stop("Error loading Python module ", module, call. = FALSE)
+      
+    } else {
+      
+      # default error message/handler
+      message <- py_config_error_message(paste("Python module", module, "was not found."))
+      stop(message, call. = FALSE)
     }
-    stop(message, call. = FALSE)
   }
   
   # fixup the proxy 
@@ -966,13 +993,9 @@ py_resolve_module_proxy <- function(proxy) {
   # clear the global tracking of delay load modules
   .globals$delay_load_module <- NULL
   
-  # call then clear onload if specifed
-  if (exists("onload", envir = proxy)) {
-    onload <- get("onload", envir = proxy)
-    remove("onload", envir = proxy)
-    onload()
-  }
-  
+  # call on_load if specifed
+  if (!is.null(on_load))
+    on_load()
 }
 
 py_get_name <- function(x) {
@@ -981,7 +1004,8 @@ py_get_name <- function(x) {
 
 py_get_submodule <- function(x, name, convert = TRUE) {
   module_name <- paste(py_get_name(x), name, sep=".")
-  result <- tryCatch(import(module_name, convert = convert), error = function(e) e)
+  result <- tryCatch(import(module_name, convert = convert), 
+                     error = clear_error_handler())
   if (inherits(result, "error"))
     NULL
   else

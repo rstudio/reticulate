@@ -14,6 +14,22 @@ py_config <- function() {
 }
 
 
+#' Build Python configuration error message
+#'
+#' @param prefix Error message prefix
+#'
+#' @keywords internal
+#' @export
+py_config_error_message <- function(prefix) {
+  message <- prefix
+  config <- py_config()
+  if (!is.null(config)) {
+    message <- paste0(message, "\n\nDetected Python configuration:\n\n",
+                      str(config), "\n")
+  }
+  message
+}
+
 #' Check if Python is available on this system
 #' 
 #' @param initialize `TRUE` to attempt to initialize Python bindings if they
@@ -58,7 +74,7 @@ py_numpy_available <- function(initialize = FALSE) {
 #'   
 #' @export
 py_module_available <- function(module) {
-  tryCatch({ import(module); TRUE }, error = function(e) FALSE)
+  tryCatch({ import(module); TRUE }, error = clear_error_handler(FALSE))
 }
 
 

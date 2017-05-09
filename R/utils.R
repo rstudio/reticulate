@@ -28,4 +28,13 @@ traceback_enabled <- function() {
   TRUE
 }
 
+clear_error_handler <- function(retvalue = NA) {
+  function(e) {
+    py_clear_last_error()
+    if (!is.na(retvalue))
+      retvalue
+    else
+      e
+  }
+}
 

@@ -44,6 +44,8 @@
 - Added ability to customize mapping of Python classes to R classes via
   the `as` argument to `import()` and the `register_class_filter()` function
   
+- Added separate `on_load` and `on_error` functions for `delay_load`
+  
 
 ## Bug Fixes
 

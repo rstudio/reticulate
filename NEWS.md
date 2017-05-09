@@ -45,6 +45,8 @@
   the `as` argument to `import()` and the `register_class_filter()` function
   
 - Added separate `on_load` and `on_error` functions for `delay_load`
+
+- Scan customary root directories for virtualenv installations
   
 
 ## Bug Fixes

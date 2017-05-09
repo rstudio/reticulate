@@ -122,6 +122,9 @@ py_discover_config <- function(required_module = NULL) {
     if (!is.null(required_module)) {
       extra_versions <- c(
         path.expand(sprintf("~/%s/bin/python", required_module)),
+        path.expand(sprintf("~/%s/%s/bin/python", 
+                            c(".virtualenvs", "virtualenvs", ".pyenv", "Envs"), 
+                            required_module)),
         extra_versions,
         path.expand(sprintf("~/anaconda/envs/%s/bin/python", required_module)),
         path.expand(sprintf("~/anaconda3/envs/%s/bin/python", required_module))

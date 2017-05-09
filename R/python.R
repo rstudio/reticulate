@@ -222,7 +222,9 @@ py_has_convert <- function(x) {
   }
   
   # get the attrib
-  if (inherits(x, "python.builtin.dict"))
+  if (is.numeric(name) && (length(name) == 1) && py_has_attr(x, "__getitem__"))
+    attrib <- x$`__getitem__`(as.integer(name))
+  else if (inherits(x, "python.builtin.dict"))
     attrib <- py_dict_get_item(x, name)
   else
     attrib <- py_get_attr(x, name)

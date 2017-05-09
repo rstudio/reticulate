@@ -47,6 +47,9 @@
 - Added separate `on_load` and `on_error` functions for `delay_load`
 
 - Scan customary root directories for virtualenv installations
+
+- Allow calling `__getitem__` via `[[` operator (zero-based to match 
+  Python style indexing)
   
 
 ## Bug Fixes

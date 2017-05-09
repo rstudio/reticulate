@@ -58,6 +58,7 @@ import <- function(module, as = NULL, convert = TRUE, delay_load = FALSE) {
       .globals$delay_load_module <- module
     module_proxy <- new.env(parent = emptyenv())
     module_proxy$module <- module
+    module_proxy$convert <- convert
     if (!is.null(delay_load_function))
       module_proxy$onload <- delay_load_function
     attr(module_proxy, "class") <- c("python.builtin.module", 

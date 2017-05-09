@@ -62,6 +62,8 @@
   primitive R functions (don't check environment inheritance chain
   when looking for dictionary key objects by name).
   
+- Propagate `convert` parameter for modules with `delay_load`
+
   
 # reticulate 0.7
 

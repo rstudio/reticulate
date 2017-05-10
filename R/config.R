@@ -97,16 +97,17 @@ py_discover_config <- function(required_module = NULL) {
   python_versions <- reticulate_python_versions()
 
   # if we have a required module then hunt for virtualenvs or condaenvs that
-  # share it's name as well
+  # share it's name (or r-<name>) as well
   if (!is.null(required_module)) {
+    module_envs <- c(paste0("r-", required_module), required_module)
     python_versions <- c(python_versions,
-      path.expand(sprintf("~/.virtualenvs/r-%s/bin/python", required_module)),
-      path.expand(sprintf("~/%s/%s/bin/python", 
-                          c(".virtualenvs", "virtualenvs", ".pyenv", "Envs"), 
-                          required_module)),
-      path.expand(sprintf("~/%s/bin/python", required_module)),
-      path.expand(sprintf("~/anaconda/envs/%s/bin/python", required_module)),
-      path.expand(sprintf("~/anaconda3/envs/%s/bin/python", required_module))
+      path.expand(sprintf("~/.virtualenvs/%s/bin/python", module_envs)),
+      path.expand(sprintf("~/virtualenvs/%s/bin/python", module_envs)),
+      path.expand(sprintf("~/.pyenv/%s/bin/python", module_envs)),    
+      path.expand(sprintf("~/Envs/%s/bin/python", module_envs)),     
+      path.expand(sprintf("~/%s/bin/python", module_envs)),
+      path.expand(sprintf("~/anaconda/envs/%s/bin/python", module_envs)),
+      path.expand(sprintf("~/anaconda3/envs/%s/bin/python", module_envs))
     )
   }
   

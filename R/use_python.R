@@ -56,7 +56,7 @@ use_condaenv <- function(condaenv, conda = "auto", required = FALSE) {
   conda_envs <- conda_list(conda)
   
   # look for one with that name
-  conda_env_python <- subset(conda_envs, name == condaenv)$python
+  conda_env_python <- subset(conda_envs, conda_envs$name == condaenv)$python
   if (is.null(conda_env_python) && required)
     stop("Unable to locate conda environment '", condaenv, "'.")
   
@@ -132,7 +132,7 @@ conda_create <- function(envname, conda = "auto") {
   
   # return the path to the python binary
   conda_envs <- conda_list(conda)
-  invisible(subset(conda_envs, name == envname)$python)
+  invisible(subset(conda_envs, conda_envs$name == envname)$python)
 }
 
 #' @rdname conda-tools

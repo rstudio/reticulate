@@ -52,39 +52,40 @@ use_virtualenv <- function(virtualenv, required = FALSE) {
 #' @export
 use_condaenv <- function(condaenv, conda = "auto", required = FALSE) {
 
-  # list all conda environments
-  conda_envs <- conda_list(conda)
-  
-  # look for one with that name
-  conda_env_python <- subset(conda_envs, conda_envs$name == condaenv)$python
-  if (is.null(conda_env_python) && required)
-    stop("Unable to locate conda environment '", condaenv, "'.")
-  
-  if (!is.null(condaenv))
-    use_python(conda_env_python)
-  
-  invisible(NULL)
-}
-
-
-
-conda_list <- function(conda = "auto") {
-  
   # resolve conda binary
-  conda <- resolve_conda(conda)
-  
-  # list envs
+  if (identical(conda, "auto")) {
+    conda <- Sys.which("conda")
+    if (!nzchar(conda)) {
+      conda_locations <- c(
+        path.expand("~/anaconda/bin/conda"),
+        path.expand("~/anaconda3/bin/conda")
+      )
+      if (is_windows()) {
+        anaconda_versions <- read_anaconda_versions_from_registry()
+        if (length(anaconda_versions) > 0) {
+          conda_scripts <- file.path(dirname(anaconda_versions), "Scripts", "conda.exe")
+          conda_locations <- c(conda_locations, conda_scripts)
+        }
+      }
+      conda_locations <- conda_locations[file.exists(conda_locations)]
+      if (length(conda_locations) > 0)
+        conda <- conda_locations[[1]]
+      else if (required)
+        stop("Unable to locate conda binary, please specify 'conda' argument explicitly.")
+      else
+        return(invisible(NULL))
+    }
+  } else if (!file.exists(conda)) {
+      stop("Specified conda binary '", conda, "' does not exist.")
+  }
+
+  # use conda to probe for environments
   conda_envs <- system2(conda, args = c("info", "--envs"), stdout = TRUE)
-  matches <- regexec(paste0("^([^#][^ ]+)[ \\*]+(.*)$"), conda_envs)
+  matches <- regexec(paste0("^",condaenv,"[ \\*]+(.*)$"), conda_envs)
   matches <- regmatches(conda_envs, matches)
-  
-  # build data frame
-  name <- character()
-  python <- character()
   for (match in matches) {
-    if (length(match) == 3) {
-      name <- c(name, match[[2]])
-      conda_env_dir <- match[[3]]
+    if (length(match) == 2) {
+      conda_env_dir <- match[[2]]
       if (!is_windows())
         conda_env_dir <- file.path(conda_env_dir, "bin")
       conda_env_python <- file.path(conda_env_dir, "python")
@@ -92,108 +93,15 @@ conda_list <- function(conda = "auto") {
         conda_env_python <- paste0(conda_env_python, ".exe")
         conda_env_python <- normalizePath(conda_env_python)
       }
-      python <- c(python, conda_env_python)
+      use_python(conda_env_python)
+      return(invisible(NULL))
     }
   }
-  data.frame(name = name, python = python, stringsAsFactors = FALSE)
-}
 
+  if (required)
+    stop("Unable to locate conda environment '", condaenv, "'.")
 
-
-conda_create <- function(envname, conda = "auto") {
-
-  # resolve conda binary
-  conda <- resolve_conda(conda)
-  
-  # create the environment if needed
-  conda_envs <- conda_list(conda = conda)
-  if (nrow(subset(conda_envs, conda_envs$name == envname)) == 0) {
-    result <- system2(conda, shQuote(c("create", "--yes", "--name", envname)))
-    if (result != 0L) {
-      stop("Error ", result, " occurred creating conda environment ", envname,
-           call. = FALSE)
-    }
-  }
-  
-  # return the path to the python binary
-  conda_envs <- conda_list(conda)
-  invisible(subset(conda_envs, conda_envs$name == envname)$python)
-}
-
-conda_install <- function(envname, pkgs, pip = FALSE, conda = "auto") {
- 
-  # resolve conda binary
-  conda <- resolve_conda(conda)
-  
-  if (pip) {
-    # use pip package manager
-    condaenv_bin <- function(bin) path.expand(file.path(dirname(conda), bin))
-    cmd <- sprintf("%s%s && %s install --upgrade --ignore-installed %s",
-                   ifelse(is_windows(), "", "source "),
-                   shQuote(path.expand(condaenv_bin("activate"))),
-                   shQuote(path.expand(condaenv_bin("pip"))),
-                   paste(shQuote(pkgs), collapse = " "))
-    result <- system(cmd)
-    
-  } else {
-    # use native conda package manager
-    result <- system2(conda, shQuote(c("install", "--yes", "--name", envname, pkgs)))
-  }
-  
-  # check for errors
-  if (result != 0L) {
-    stop("Error ", result, " occurred installing packages into conda environment ", 
-         envname, call. = FALSE)
-  }
-  
   invisible(NULL)
 }
-
-
-
-
-resolve_conda <- function(conda) {
-  
-  # automatic lookup if requested
-  if (identical(conda, "auto")) {
-    conda = find_conda()
-    if (is.null("conda"))
-      stop("Unable to find conda binary. Is Anaconda installed?", call. = FALSE)
-    conda <- conda[[1]]
-  }
-  
-  # validate existence
-  if (!file.exists(conda))
-    stop("Specified conda binary '", conda, "' does not exist.", call. = FALSE)
-  
-  # return conda
-  conda
-}
-
-find_conda <- function() {
-  conda <- Sys.which("conda")
-  if (!nzchar(conda)) {
-    conda_locations <- c(
-      path.expand("~/anaconda/bin/conda"),
-      path.expand("~/anaconda3/bin/conda")
-    )
-    if (is_windows()) {
-      anaconda_versions <- read_anaconda_versions_from_registry()
-      if (length(anaconda_versions) > 0) {
-        conda_scripts <- file.path(dirname(anaconda_versions), "Scripts", "conda.exe")
-        conda_locations <- c(conda_locations, conda_scripts)
-      }
-    }
-    conda_locations <- conda_locations[file.exists(conda_locations)]
-    if (length(conda_locations) > 0)
-      conda_locations
-    else
-      NULL
-  } else {
-    NULL
-  }
-}
-
-
 
 

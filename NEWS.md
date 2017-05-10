@@ -50,6 +50,7 @@
 
 - Allow calling `__getitem__` via `[[` operator (zero-based to match 
   Python style indexing)
+  
 
 ## Bug Fixes
 

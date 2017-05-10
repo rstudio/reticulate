@@ -4,14 +4,17 @@
 \alias{conda-tools}
 \alias{conda_list}
 \alias{conda_create}
+\alias{conda_remove}
 \alias{conda_install}
 \title{Interface to conda utility commands}
 \usage{
 conda_list(conda = "auto")
 
-conda_create(envname, conda = "auto")
+conda_create(envname, packages = NULL, conda = "auto")
 
-conda_install(envname, pkgs, pip = FALSE, conda = "auto")
+conda_remove(envname, packages = NULL, conda = "auto")
+
+conda_install(envname, packages, pip = FALSE, conda = "auto")
 }
 \arguments{
 \item{conda}{Path to conda executable (or "auto" to find conda using the PATH
@@ -19,9 +22,9 @@ and other conventional install locations).}
 
 \item{envname}{Name of conda environment}
 
-\item{pkgs}{Character vector with package names to install.}
-
 \item{pip}{\code{TRUE} to use pip (defaults to \code{FALSE})}
+
+\item{pkgs}{Character vector with package names to install.}
 }
 \value{
 \code{conda_list()} returns a data frame with the names and paths to the

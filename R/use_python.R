@@ -122,19 +122,16 @@ conda_list <- function(conda = "auto") {
 
 #' @rdname conda-tools
 #' @export
-conda_create <- function(envname, conda = "auto") {
+conda_create <- function(envname, packages = NULL, conda = "auto") {
 
   # resolve conda binary
   conda <- resolve_conda(conda)
   
-  # create the environment if needed
-  conda_envs <- conda_list(conda = conda)
-  if (nrow(subset(conda_envs, conda_envs$name == envname)) == 0) {
-    result <- system2(conda, shQuote(c("create", "--yes", "--name", envname)))
-    if (result != 0L) {
-      stop("Error ", result, " occurred creating conda environment ", envname,
-           call. = FALSE)
-    }
+  # create the environment 
+  result <- system2(conda, shQuote(c("create", "--yes", "--name", envname, packages)))
+  if (result != 0L) {
+    stop("Error ", result, " occurred creating conda environment ", envname,
+         call. = FALSE)
   }
   
   # return the path to the python binary
@@ -144,7 +141,27 @@ conda_create <- function(envname, conda = "auto") {
 
 #' @rdname conda-tools
 #' @export
-conda_install <- function(envname, pkgs, pip = FALSE, conda = "auto") {
+conda_remove <- function(envname, packages = NULL, conda = "auto") {
+  
+  # resolve conda binary
+  conda <- resolve_conda(conda)
+  
+  # no packages means everything
+  if (is.null(packages))
+    packages <- "--all"
+  
+  # remove packges (or the entire environment)
+  result <- system2(conda, shQuote(c("remove", "--yes", "--name", envname, packages)))
+  if (result != 0L) {
+    stop("Error ", result, " occurred removing conda environment ", envname,
+         call. = FALSE)
+  }
+}
+
+
+#' @rdname conda-tools
+#' @export
+conda_install <- function(envname, packages, pip = FALSE, conda = "auto") {
  
   # resolve conda binary
   conda <- resolve_conda(conda)
@@ -156,12 +173,12 @@ conda_install <- function(envname, pkgs, pip = FALSE, conda = "auto") {
                    ifelse(is_windows(), "", "source "),
                    shQuote(path.expand(condaenv_bin("activate"))),
                    shQuote(path.expand(condaenv_bin("pip"))),
-                   paste(shQuote(pkgs), collapse = " "))
+                   paste(shQuote(packages), collapse = " "))
     result <- system(cmd)
     
   } else {
     # use native conda package manager
-    result <- system2(conda, shQuote(c("install", "--yes", "--name", envname, pkgs)))
+    result <- system2(conda, shQuote(c("install", "--yes", "--name", envname, packages)))
   }
   
   # check for errors

@@ -4,11 +4,14 @@
 \alias{py_discover_config}
 \title{Discover the version of Python to use with reticulate.}
 \usage{
-py_discover_config(required_module = NULL)
+py_discover_config(required_module = NULL, python = NULL)
 }
 \arguments{
 \item{required_module}{A optional module name that must be available
 in order for a version of Python to be used.}
+
+\item{python}{Python binary to discover configuration information
+for (defaults to scanning the system for all available versions)}
 }
 \value{
 Python configuration object.

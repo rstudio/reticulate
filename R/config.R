@@ -85,60 +85,72 @@ py_module_available <- function(module) {
 #' use with reticulate.
 #' 
 #' @param required_module A optional module name that must be available
-#'   in order for a version of Python to be used. 
+#'   in order for a version of Python to be used.
+#' @param python Python binary to discover configuration information
+#'  for (defaults to scanning the system for all available versions)
 #' 
 #' @return Python configuration object.
 #' 
 #' @export
-py_discover_config <- function(required_module = NULL) {
+py_discover_config <- function(required_module = NULL, python = NULL) {
 
-  # create a list of possible python versions to bind to
-  # (start with versions specified via environment variable or use_* function)
-  python_versions <- reticulate_python_versions()
-
-  # if we have a required module then hunt for virtualenvs or condaenvs that
-  # share it's name as well
-  if (!is.null(required_module)) {
-    python_versions <- c(python_versions,
-      path.expand(sprintf("~/%s/%s/bin/python", 
-                          c(".virtualenvs", "virtualenvs", ".pyenv", "Envs"), 
-                          required_module)),
-      path.expand(sprintf("~/anaconda/envs/%s/bin/python", required_module)),
-      path.expand(sprintf("~/anaconda3/envs/%s/bin/python", required_module)),
-      path.expand(sprintf("~/%s/bin/python", required_module))
-    )
-  }
-  
-  # look on system path
-  python <- Sys.which("python")
-  if (nzchar(python))
-    python_versions <- c(python_versions, python)
-
-  # provide other common locations
-  if (is_windows()) {
-    python_versions <- c(python_versions, 
-                         windows_registry_python_versions(required_module))
+  if (!is.null(python)) {
+    
+    python_versions <- python
+    if (!file.exists(python)) {
+      stop("Unable to find specified version of Python: ", python, call. = FALSE)
+    }
+    
   } else {
-    python_versions <- c(python_versions,
-      "/usr/bin/python",
-      "/usr/local/bin/python",
-      "/opt/python/bin/python",
-      "/opt/local/python/bin/python",
-      "/usr/bin/python3",
-      "/usr/local/bin/python3",
-      "/opt/python/bin/python3",
-      "/opt/local/python/bin/python3",
-      path.expand("~/anaconda/bin/python"),
-      path.expand("~/anaconda3/bin/python")
-    )
+    
+    # create a list of possible python versions to bind to
+    # (start with versions specified via environment variable or use_* function)
+    python_versions <- reticulate_python_versions()
+    
+    # if we have a required module then hunt for virtualenvs or condaenvs that
+    # share it's name as well
+    if (!is.null(required_module)) {
+      python_versions <- c(python_versions,
+                           path.expand(sprintf("~/%s/%s/bin/python", 
+                                               c(".virtualenvs", "virtualenvs", ".pyenv", "Envs"), 
+                                               required_module)),
+                           path.expand(sprintf("~/anaconda/envs/%s/bin/python", required_module)),
+                           path.expand(sprintf("~/anaconda3/envs/%s/bin/python", required_module)),
+                           path.expand(sprintf("~/%s/bin/python", required_module))
+      )
+    }
+    
+    # look on system path
+    python <- Sys.which("python")
+    if (nzchar(python))
+      python_versions <- c(python_versions, python)
+    
+    # provide other common locations
+    if (is_windows()) {
+      python_versions <- c(python_versions, 
+                           windows_registry_python_versions(required_module))
+    } else {
+      python_versions <- c(python_versions,
+                           "/usr/bin/python",
+                           "/usr/local/bin/python",
+                           "/opt/python/bin/python",
+                           "/opt/local/python/bin/python",
+                           "/usr/bin/python3",
+                           "/usr/local/bin/python3",
+                           "/opt/python/bin/python3",
+                           "/opt/local/python/bin/python3",
+                           path.expand("~/anaconda/bin/python"),
+                           path.expand("~/anaconda3/bin/python")
+      )
+    }
+    
+    # de-duplicate
+    python_versions <- unique(python_versions)
+    
+    # filter locations by existence
+    python_versions <- python_versions[file.exists(python_versions)]
   }
-
-  # de-duplicate
-  python_versions <- unique(python_versions)
   
-  # filter locations by existence
-  python_versions <- python_versions[file.exists(python_versions)]
-
   # scan until we find a version of python that meets our qualifying conditions
   valid_python_versions <- c()
   for (python_version in python_versions) {
@@ -165,6 +177,7 @@ py_discover_config <- function(required_module = NULL) {
   else
     return(NULL)
 }
+
 
 
 python_config <- function(python, required_module, python_versions) {

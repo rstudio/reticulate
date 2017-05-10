@@ -80,6 +80,10 @@ use_condaenv <- function(condaenv, conda = "auto", required = FALSE) {
 #'   respective python binaries of available environments. `conda_create()`
 #'   returns the Path to the python binary of the created environment.
 #'   
+#' @return `conda_create()` can be called with the name of an existing
+#'   environment (in that case it simply returns the path to the python
+#'   binary within that environment).   
+#'   
 #' @keywords intername
 #' @name conda-tools
 #'   
@@ -123,11 +127,14 @@ conda_create <- function(envname, conda = "auto") {
   # resolve conda binary
   conda <- resolve_conda(conda)
   
-  # create the environment
-  result <- system2(conda, shQuote(c("create", "--yes", "--name", envname)))
-  if (result != 0L) {
-    stop("Error ", result, " occurred creating conda environment ", envname,
-         call. = FALSE)
+  # create the environment if needed
+  conda_envs <- conda_list(conda = conda)
+  if (nrow(subset(conda_envs, conda_envs$name == envname)) == 0) {
+    result <- system2(conda, shQuote(c("create", "--yes", "--name", envname)))
+    if (result != 0L) {
+      stop("Error ", result, " occurred creating conda environment ", envname,
+           call. = FALSE)
+    }
   }
   
   # return the path to the python binary
@@ -145,7 +152,7 @@ conda_install <- function(envname, pkgs, pip = FALSE, conda = "auto") {
   if (pip) {
     # use pip package manager
     condaenv_bin <- function(bin) path.expand(file.path(dirname(conda), bin))
-    cmd <- sprintf("%s%s && %s install --upgrade %s",
+    cmd <- sprintf("%s%s && %s install --upgrade --ignore-installed %s",
                    ifelse(is_windows(), "", "source "),
                    shQuote(path.expand(condaenv_bin("activate"))),
                    shQuote(path.expand(condaenv_bin("pip"))),

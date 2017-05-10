@@ -50,10 +50,6 @@
 
 - Allow calling `__getitem__` via `[[` operator (zero-based to match 
   Python style indexing)
-  
-- Added `conda_*` family of functions for using conda utilities from
-  within R.
-  
 
 ## Bug Fixes
 

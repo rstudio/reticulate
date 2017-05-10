@@ -68,26 +68,6 @@ use_condaenv <- function(condaenv, conda = "auto", required = FALSE) {
 
 
 
-#' Interface to conda utility commands
-#' 
-#' @param envname Name of conda environment
-#' @param conda Path to conda executable (or "auto" to find conda using the PATH
-#'   and other conventional install locations).
-#' @param pkgs Character vector with package names to install.
-#' @param pip `TRUE` to use pip (defaults to `FALSE`)
-#'   
-#' @return `conda_list()` returns a data frame with the names and paths to the
-#'   respective python binaries of available environments. `conda_create()`
-#'   returns the Path to the python binary of the created environment.
-#'   
-#' @return `conda_create()` can be called with the name of an existing
-#'   environment (in that case it simply returns the path to the python
-#'   binary within that environment).   
-#'   
-#' @keywords intername
-#' @name conda-tools
-#'   
-#' @export
 conda_list <- function(conda = "auto") {
   
   # resolve conda binary
@@ -120,8 +100,6 @@ conda_list <- function(conda = "auto") {
 
 
 
-#' @rdname conda-tools
-#' @export
 conda_create <- function(envname, conda = "auto") {
 
   # resolve conda binary
@@ -142,8 +120,6 @@ conda_create <- function(envname, conda = "auto") {
   invisible(subset(conda_envs, conda_envs$name == envname)$python)
 }
 
-#' @rdname conda-tools
-#' @export
 conda_install <- function(envname, pkgs, pip = FALSE, conda = "auto") {
  
   # resolve conda binary

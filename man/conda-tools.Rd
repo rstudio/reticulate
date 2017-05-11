@@ -6,6 +6,7 @@
 \alias{conda_create}
 \alias{conda_remove}
 \alias{conda_install}
+\alias{conda_binary}
 \title{Interface to conda utility commands}
 \usage{
 conda_list(conda = "auto")
@@ -15,6 +16,8 @@ conda_create(envname, packages = NULL, conda = "auto")
 conda_remove(envname, packages = NULL, conda = "auto")
 
 conda_install(envname, packages, pip = FALSE, conda = "auto")
+
+conda_binary(conda = "auto")
 }
 \arguments{
 \item{conda}{Path to conda executable (or "auto" to find conda using the PATH
@@ -30,6 +33,8 @@ and other conventional install locations).}
 \code{conda_list()} returns a data frame with the names and paths to the
 respective python binaries of available environments. \code{conda_create()}
 returns the Path to the python binary of the created environment.
+\code{conda_binary()} returns the location of the conda binary or \code{NULL}
+if none can be found.
 
 \code{conda_create()} can be called with the name of an existing
 environment (in that case it simply returns the path to the python

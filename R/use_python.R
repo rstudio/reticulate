@@ -79,6 +79,8 @@ use_condaenv <- function(condaenv, conda = "auto", required = FALSE) {
 #' @return `conda_list()` returns a data frame with the names and paths to the
 #'   respective python binaries of available environments. `conda_create()`
 #'   returns the Path to the python binary of the created environment.
+#'   `conda_binary()` returns the location of the conda binary or `NULL`
+#'   if none can be found.
 #'   
 #' @return `conda_create()` can be called with the name of an existing
 #'   environment (in that case it simply returns the path to the python
@@ -91,7 +93,7 @@ use_condaenv <- function(condaenv, conda = "auto", required = FALSE) {
 conda_list <- function(conda = "auto") {
   
   # resolve conda binary
-  conda <- resolve_conda(conda)
+  conda <- conda_binary(conda)
   
   # list envs
   conda_envs <- system2(conda, args = c("info", "--envs"), stdout = TRUE)
@@ -125,7 +127,7 @@ conda_list <- function(conda = "auto") {
 conda_create <- function(envname, packages = NULL, conda = "auto") {
 
   # resolve conda binary
-  conda <- resolve_conda(conda)
+  conda <- conda_binary(conda)
   
   # create the environment 
   result <- system2(conda, shQuote(c("create", "--yes", "--name", envname, packages)))
@@ -144,7 +146,7 @@ conda_create <- function(envname, packages = NULL, conda = "auto") {
 conda_remove <- function(envname, packages = NULL, conda = "auto") {
   
   # resolve conda binary
-  conda <- resolve_conda(conda)
+  conda <- conda_binary(conda)
   
   # no packages means everything
   if (is.null(packages))
@@ -164,7 +166,7 @@ conda_remove <- function(envname, packages = NULL, conda = "auto") {
 conda_install <- function(envname, packages, pip = FALSE, conda = "auto") {
  
   # resolve conda binary
-  conda <- resolve_conda(conda)
+  conda <- conda_binary(conda)
   
   if (pip) {
     # use pip package manager
@@ -191,9 +193,9 @@ conda_install <- function(envname, packages, pip = FALSE, conda = "auto") {
 }
 
 
-
-
-resolve_conda <- function(conda) {
+#' @rdname conda-tools
+#' @export
+conda_binary <- function(conda = "auto") {
   
   # automatic lookup if requested
   if (identical(conda, "auto")) {
@@ -210,6 +212,8 @@ resolve_conda <- function(conda) {
   # return conda
   conda
 }
+
+
 
 find_conda <- function() {
   conda <- Sys.which("conda")

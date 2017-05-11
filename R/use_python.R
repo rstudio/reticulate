@@ -199,8 +199,8 @@ conda_binary <- function(conda = "auto") {
   
   # automatic lookup if requested
   if (identical(conda, "auto")) {
-    conda = find_conda()
-    if (is.null("conda"))
+    conda <- find_conda()
+    if (is.null(conda))
       stop("Unable to find conda binary. Is Anaconda installed?", call. = FALSE)
     conda <- conda[[1]]
   }

@@ -124,7 +124,7 @@ conda_list <- function(conda = "auto") {
 
 #' @rdname conda-tools
 #' @export
-conda_create <- function(envname, packages = NULL, conda = "auto") {
+conda_create <- function(envname, packages = "python", conda = "auto") {
 
   # resolve conda binary
   conda <- conda_binary(conda)

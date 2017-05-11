@@ -11,7 +11,7 @@
 \usage{
 conda_list(conda = "auto")
 
-conda_create(envname, packages = NULL, conda = "auto")
+conda_create(envname, packages = "python", conda = "auto")
 
 conda_remove(envname, packages = NULL, conda = "auto")
 

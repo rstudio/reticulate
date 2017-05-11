@@ -115,8 +115,30 @@ py_discover_config <- function(required_module = NULL) {
 
   # provide other common locations
   if (is_windows()) {
-    python_versions <- c(python_versions, 
-                         windows_registry_python_versions(required_module))
+    
+    # get all versions of python referenced in the registry
+    registry_versions <- windows_registry_python_versions()
+    
+    # first add conda environments derivative of the required module
+    windows_versions <- c()
+    if (!is.null(required_module)) {
+      for (i in 1:nrow(registry_versions)) {
+        if (registry_versions$type[[i]] == "Anaconda") {
+          module_envs <- c(paste0("r-", required_module), required_module)
+          windows_versions <- c(windows_versions, utils::shortPathName(
+            file.path(registry_versions$install_path[[i]], 
+                      "envs", module_envs, "python.exe")
+          ))
+        }
+      }  
+    }
+    
+    # then add the core executables
+    windows_versions <- c(windows_versions, registry_versions$executable_path)
+    
+    # append to python versions
+    python_versions <- c(python_versions, windows_versions)
+                    
   } else {
     python_versions <- c(python_versions,
       "/usr/bin/python",
@@ -372,50 +394,56 @@ normalize_python_path <- function(python) {
 }
 
 
-windows_registry_python_versions <- function(required_module) {
-
-  
-
-  python_core_versions <- c(read_python_versions_from_registry("HCU", key = "PythonCore"),
-                            read_python_versions_from_registry("HLM", key = "PythonCore"))
-
-
-  anaconda_versions <- read_anaconda_versions_from_registry()
-  if (!is.null(required_module) && length(anaconda_versions) > 0) {
-    anaconda_envs <- utils::shortPathName(
-      file.path(dirname(anaconda_versions), "envs", required_module, "python.exe")
-    )
-  } else {
-    anaconda_envs <- NULL
-  }
-
-  c(python_core_versions, anaconda_envs, anaconda_versions)
+windows_registry_python_versions <- function() {
+  rbind(
+    read_python_versions_from_registry("HCU", key = "PythonCore"),
+    read_python_versions_from_registry("HLM", key = "PythonCore"),
+    windows_registry_anaconda_versions()
+  )
 }
 
-read_anaconda_versions_from_registry <- function() {
-  c(read_python_versions_from_registry("HCU", key = "ContinuumAnalytics"),
-    read_python_versions_from_registry("HLM", key = "ContinuumAnalytics"))
+windows_registry_anaconda_versions <- function() {
+  rbind(read_python_versions_from_registry("HCU", key = "ContinuumAnalytics", type = "Anaconda"),
+        read_python_versions_from_registry("HLM", key = "ContinuumAnalytics", type = "Anaconda"))
 }
 
-read_python_versions_from_registry <- function(hive,key) {
+read_python_versions_from_registry <- function(hive, key,type=key) {
   versions <- c()
   python_core_key <- tryCatch(utils::readRegistry(
     key = paste0("SOFTWARE\\Python\\", key), hive = hive, maxdepth = 3),
     error = function(e) NULL)
+  
+  
+  types <- c()
+  install_paths <- c()
+  executable_paths <- c()
+  versions <- c()
+  
   
   if (length(python_core_key) > 0) {
     for (version in names(python_core_key)) {
       version_key <- python_core_key[[version]]
       if (is.list(version_key) && !is.null(version_key$InstallPath)) {
         version_dir <- version_key$InstallPath$`(Default)`
-        version_dir <- gsub("[\\/]+$", "", version_dir)
-        version_exe <- paste0(version_dir, "\\python.exe")
-        versions <- c(versions, utils::shortPathName(version_exe))
+        if (!is.null(version_dir) && file.exists(version_dir)) {
+          types <- c(types, type)
+          install_path <- version_dir
+          install_paths <- c(install_paths, utils::shortPathName(install_path))
+          executable_path <- file.path(install_path, "python.exe")
+          executable_paths <- c(executable_paths, utils::shortPathName(executable_path))
+          versions <- c(versions, version)
+        }
       }
     }
   }
   
-  versions
+  data.frame(
+    type = types,
+    install_path = install_paths,
+    executable_path = executable_paths,
+    version = versions,
+    stringsAsFactors = FALSE
+  )
 }
 
 # convert R arch to python arch

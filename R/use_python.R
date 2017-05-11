@@ -224,9 +224,11 @@ find_conda <- function() {
       path.expand("~/anaconda3/bin/conda")
     )
     if (is_windows()) {
-      anaconda_versions <- read_anaconda_versions_from_registry()
-      if (length(anaconda_versions) > 0) {
-        conda_scripts <- file.path(dirname(anaconda_versions), "Scripts", "conda.exe")
+      anaconda_versions <- windows_registry_anaconda_versions()
+      if (nrow(anaconda_versions) > 0) {
+        conda_scripts <- utils::shortPathName(
+          file.path(anaconda_versions$install_path, "Scripts", "conda.exe")
+        )
         conda_locations <- c(conda_locations, conda_scripts)
       }
     }
@@ -236,7 +238,7 @@ find_conda <- function() {
     else
       NULL
   } else {
-    NULL
+    conda
   }
 }
 

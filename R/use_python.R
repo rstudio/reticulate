@@ -171,11 +171,12 @@ conda_install <- function(envname, packages, pip = FALSE, conda = "auto") {
   if (pip) {
     # use pip package manager
     condaenv_bin <- function(bin) path.expand(file.path(dirname(conda), bin))
-    cmd <- sprintf("%s%s && %s install --upgrade --ignore-installed %s",
-                   ifelse(is_windows(), "", "source "),
+    cmd <- sprintf("%s%s && %s install --upgrade --ignore-installed %s%s",
+                   ifelse(is_windows(), "", ifelse(is_osx(), "source ", "/bin/bash -c \"source ")),
                    shQuote(path.expand(condaenv_bin("activate"))),
                    shQuote(path.expand(condaenv_bin("pip"))),
-                   paste(shQuote(packages), collapse = " "))
+                   paste(shQuote(packages), collapse = " "),
+                   ifelse(is_windows(), "", ifelse(is_osx(), "", "\"")))
     result <- system(cmd)
     
   } else {

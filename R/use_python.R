@@ -225,6 +225,7 @@ find_conda <- function() {
     )
     if (is_windows()) {
       anaconda_versions <- windows_registry_anaconda_versions()
+      anaconda_versions <- subset(anaconda_versions, anaconda_versions$arch == .Platform$r_arch)
       if (nrow(anaconda_versions) > 0) {
         conda_scripts <- utils::shortPathName(
           file.path(anaconda_versions$install_path, "Scripts", "conda.exe")

@@ -473,6 +473,12 @@ read_python_versions_from_registry <- function(hive, key,type=key) {
             }
           }
           
+          # convert to R arch
+          if (arch == "32")
+            arch <- "i386"
+          else if (arch == "64")
+            arch <- "x64"
+          
           
           versions <- c(versions, version)
           archs <- c(archs, arch)

@@ -117,7 +117,7 @@ py_discover_config <- function(required_module = NULL) {
   if (is_windows()) {
     
     # get all versions of python referenced in the registry
-    registry_versions <- windows_registry_python_versions()
+    registry_versions <- py_versions_windows()
     
     # first add conda environments derivative of the required module
     windows_versions <- c()
@@ -185,6 +185,22 @@ py_discover_config <- function(required_module = NULL) {
     return(python_config(python_versions[[1]], required_module, python_versions))  
   else
     return(NULL)
+}
+
+
+#' Discover versions of Python installed on a Widnows system
+#' 
+#' @return Data frame with `type`, `hive`, `install_path`, `executable_path`,
+#'   and `version`.
+#'   
+#' @keywords internal
+#' @export
+py_versions_windows <- function() {
+  rbind(
+    read_python_versions_from_registry("HCU", key = "PythonCore"),
+    read_python_versions_from_registry("HLM", key = "PythonCore"),
+    windows_registry_anaconda_versions()
+  )
 }
 
 
@@ -394,14 +410,6 @@ normalize_python_path <- function(python) {
 }
 
 
-windows_registry_python_versions <- function() {
-  rbind(
-    read_python_versions_from_registry("HCU", key = "PythonCore"),
-    read_python_versions_from_registry("HLM", key = "PythonCore"),
-    windows_registry_anaconda_versions()
-  )
-}
-
 windows_registry_anaconda_versions <- function() {
   rbind(read_python_versions_from_registry("HCU", key = "ContinuumAnalytics", type = "Anaconda"),
         read_python_versions_from_registry("HLM", key = "ContinuumAnalytics", type = "Anaconda"))
@@ -415,23 +423,59 @@ read_python_versions_from_registry <- function(hive, key,type=key) {
   
   
   types <- c()
+  hives <- c()
   install_paths <- c()
   executable_paths <- c()
   versions <- c()
-  
+  archs <- c()
   
   if (length(python_core_key) > 0) {
     for (version in names(python_core_key)) {
       version_key <- python_core_key[[version]]
       if (is.list(version_key) && !is.null(version_key$InstallPath)) {
         version_dir <- version_key$InstallPath$`(Default)`
-        if (!is.null(version_dir) && file.exists(version_dir)) {
+        if (!is.null(version_dir) && utils::file_test("-d", version_dir)) {
           types <- c(types, type)
+          hives <- c(hives, hive)
           install_path <- version_dir
           install_paths <- c(install_paths, utils::shortPathName(install_path))
           executable_path <- file.path(install_path, "python.exe")
           executable_paths <- c(executable_paths, utils::shortPathName(executable_path))
+          
+          # determine version and arch
+          if (type == "Anaconda") {
+            matches <- regexec("^Anaconda(\\d)(\\d)-(32|64)$", version)
+            matches <- regmatches(version, matches)[[1]]
+            if (length(matches) == 4) {
+              version <- paste(matches[[2]], matches[[3]], sep = ".")
+              arch <- matches[[4]]
+            } else {
+              warning("Unexpected format for Anaconda version: ", version)
+              arch <- NA
+            }
+          } else { # type == "PythonCore"
+            matches <- regexec("^(\\d)\\.(\\d)(?:-(32|64))?$", version)
+            matches <- regmatches(version, matches)[[1]]
+            if (length(matches) == 4) {
+              version <- paste(matches[[2]], matches[[3]], sep = ".")
+              arch <- matches[[4]]
+              if (!nzchar(arch)) {
+                if (numeric_version(version) >= "3.0")
+                  arch <- "64"
+                else {
+                  python_arch <- python_arch(executable_path)
+                  arch <- gsub("bit", "", python_arch, fixed = TRUE)
+                }
+              }
+            } else {
+              warning("Unexpected format for PythonCore version: ", version)
+              arch <- NA
+            }
+          }
+          
+          
           versions <- c(versions, version)
+          archs <- c(archs, arch)
         }
       }
     }
@@ -439,15 +483,35 @@ read_python_versions_from_registry <- function(hive, key,type=key) {
   
   data.frame(
     type = types,
+    hive = hives,
     install_path = install_paths,
     executable_path = executable_paths,
     version = versions,
+    arch = archs,
     stringsAsFactors = FALSE
   )
 }
 
+
+# get the architecture from a python binary
+python_arch <- function(python) {
+  
+  # run command 
+  result <- system2(python, stdout = TRUE, args = c("-c", shQuote(
+    "import sys; import platform; sys.stdout.write(platform.architecture()[0])")))
+  
+  # check for error
+  error_status <- attr(result, "status")
+  if (!is.null(error_status))
+    stop("Error ", error_status, " occurred while checking for python architecture", call. = FALSE)
+  
+  # return arch
+  result
+  
+}
+
 # convert R arch to python arch
-python_arch <- function() {
+current_python_arch <- function() {
   if (.Platform$r_arch == "i386")
     "32bit"
   else if (.Platform$r_arch == "x64")
@@ -460,7 +524,7 @@ python_arch <- function() {
 # check for compatible architecture
 is_incompatible_arch <- function(config) {
   if (is_windows()) {
-    !identical(python_arch(),config$architecture)
+    !identical(current_python_arch(),config$architecture)
   } else {
     FALSE
   }

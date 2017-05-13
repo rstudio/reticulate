@@ -46,6 +46,10 @@ py_is_none <- function(x) {
     .Call('reticulate_py_is_none', PACKAGE = 'reticulate', x)
 }
 
+py_compare_impl <- function(a, b, op) {
+    .Call('reticulate_py_compare_impl', PACKAGE = 'reticulate', a, b, op)
+}
+
 py_str_impl <- function(x) {
     .Call('reticulate_py_str_impl', PACKAGE = 'reticulate', x)
 }

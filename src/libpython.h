@@ -164,6 +164,15 @@ LIBPYTHON_EXTERN PyObject* (*PyObject_Str)(PyObject *);
 
 LIBPYTHON_EXTERN int (*PyObject_IsInstance)(PyObject *object, PyObject *typeorclass);
 
+/* Rich comparison opcodes */
+#define Py_LT 0
+#define Py_LE 1
+#define Py_EQ 2
+#define Py_NE 3
+#define Py_GT 4
+#define Py_GE 5
+LIBPYTHON_EXTERN int (*PyObject_RichCompareBool)(PyObject *o1, PyObject *o2, int opid);
+
 LIBPYTHON_EXTERN PyObject* (*PyObject_Dir)(PyObject *);
 
 LIBPYTHON_EXTERN PyObject* (*PyObject_Call)(PyObject *callable_object,

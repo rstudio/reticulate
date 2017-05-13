@@ -104,6 +104,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// py_compare_impl
+bool py_compare_impl(PyObjectRef a, PyObjectRef b, const std::string& op);
+RcppExport SEXP reticulate_py_compare_impl(SEXP aSEXP, SEXP bSEXP, SEXP opSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< PyObjectRef >::type a(aSEXP);
+    Rcpp::traits::input_parameter< PyObjectRef >::type b(bSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type op(opSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_compare_impl(a, b, op));
+    return rcpp_result_gen;
+END_RCPP
+}
 // py_str_impl
 CharacterVector py_str_impl(PyObjectRef x);
 RcppExport SEXP reticulate_py_str_impl(SEXP xSEXP) {

@@ -25,20 +25,16 @@ and other conventional install locations).}
 
 \item{envname}{Name of conda environment}
 
-\item{pip}{\code{TRUE} to use pip (defaults to \code{FALSE})}
+\item{packages}{Character vector with package names to install.}
 
-\item{pkgs}{Character vector with package names to install.}
+\item{pip}{\code{TRUE} to use pip (defaults to \code{FALSE})}
 }
 \value{
 \code{conda_list()} returns a data frame with the names and paths to the
 respective python binaries of available environments. \code{conda_create()}
 returns the Path to the python binary of the created environment.
-\code{conda_binary()} returns the location of the conda binary or \code{NULL}
+\code{conda_binary()} returns the location of the main conda binary or \code{NULL}
 if none can be found.
-
-\code{conda_create()} can be called with the name of an existing
-environment (in that case it simply returns the path to the python
-binary within that environment).
 }
 \description{
 Interface to conda utility commands

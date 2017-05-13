@@ -53,6 +53,9 @@
   
 - Added `conda_*` family of functions for using conda utilities from
   within R.
+  
+- Implement comparison operators (e.g. `==`, `>=`, etc.) for Python objects 
+
 
 ## Bug Fixes
 

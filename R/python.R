@@ -140,6 +140,46 @@ as.character.python.builtin.object <- function(x, ...) {
   py_str(x)
 }
 
+#' @export
+"==.python.builtin.object" <- function(a, b) {
+  py_compare(a, b, "==")
+}
+
+#' @export
+"!=.python.builtin.object" <- function(a, b) {
+  py_compare(a, b, "!=")
+}
+
+#' @export
+"<.python.builtin.object" <- function(a, b) {
+  py_compare(a, b, "<")
+}
+
+#' @export
+">.python.builtin.object" <- function(a, b) {
+  py_compare(a, b, ">")
+}
+
+#' @export
+">=.python.builtin.object" <- function(a, b) {
+  py_compare(a, b, ">=")
+}
+
+#' @export
+"<=.python.builtin.object" <- function(a, b) {
+  py_compare(a, b, "<=")
+}
+
+
+py_compare <- function(a, b, op) {
+  ensure_python_initialized()
+  py_validate_xptr(a)
+  if (!inherits(b, "python.builtin.object"))
+    b <- r_to_py(b)
+  py_validate_xptr(b)
+  py_compare_impl(a, b, op)
+}
+
 
 #' @export
 summary.python.builtin.object <- function(object, ...) {

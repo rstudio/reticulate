@@ -1375,6 +1375,33 @@ bool py_is_none(PyObjectRef x) {
 }
 
 // [[Rcpp::export]]
+bool py_compare_impl(PyObjectRef a, PyObjectRef b, const std::string& op) {
+  
+  int opcode;
+  if (op == "==")
+    opcode = Py_EQ;
+  else if (op == "!=")
+    opcode = Py_NE;
+  else if (op == ">")
+    opcode = Py_GT;
+  else if (op == ">=")
+    opcode = Py_GE;
+  else if (op == "<")
+    opcode = Py_LT;
+  else if (op == "<=")
+    opcode = Py_LE;
+  else 
+    stop("Unexpected comparison operation " + op);
+  
+  // do the comparison
+  int res = PyObject_RichCompareBool(a, b, opcode);
+  if (res == -1)
+    stop(py_fetch_error());
+  else 
+    return res == 1;
+}
+
+// [[Rcpp::export]]
 CharacterVector py_str_impl(PyObjectRef x) {
   PyObjectPtr str(PyObject_Str(x));
   if (str.is_null())

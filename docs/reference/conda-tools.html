@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Articles • reticulate</title>
+<title>Interface to conda utility commands — conda-tools • reticulate</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -36,7 +36,7 @@
   </head>
 
   <body>
-    <div class="container template-vignette-index">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
   <div class="container">
@@ -97,23 +97,66 @@
       
       </header>
 
-      <div class="page-header">
-  <h1>Articles <small>version&nbsp;0.7.0.9016</small></h1>
-</div>
-
-<div class="row">
-  <div class="col-md-9">
-    <div class="section ">
-      <h3>All vignettes</h3>
-      <p class="section-desc"></p>
-
-      <ul>
-        <li><a href="arrays.html">Arrays in R and Python</a></li>
-        <li><a href="introduction.html">Introduction to reticulate</a></li>
-        <li><a href="package.html">Using reticulate in an R Package</a></li>
-        <li><a href="versions.html">Python Version Configuration</a></li>
-      </ul>
+      <div class="row">
+  <div class="col-md-9 contents">
+    <div class="page-header">
+    <h1>Interface to conda utility commands</h1>
     </div>
+
+    
+    <p>Interface to conda utility commands</p>
+    
+
+    <pre class="usage"><span class='fu'>conda_list</span>(<span class='kw'>conda</span> <span class='kw'>=</span> <span class='st'>"auto"</span>)
+
+<span class='fu'>conda_create</span>(<span class='no'>envname</span>, <span class='kw'>packages</span> <span class='kw'>=</span> <span class='st'>"python"</span>, <span class='kw'>conda</span> <span class='kw'>=</span> <span class='st'>"auto"</span>)
+
+<span class='fu'>conda_remove</span>(<span class='no'>envname</span>, <span class='kw'>packages</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>conda</span> <span class='kw'>=</span> <span class='st'>"auto"</span>)
+
+<span class='fu'>conda_install</span>(<span class='no'>envname</span>, <span class='no'>packages</span>, <span class='kw'>pip</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>conda</span> <span class='kw'>=</span> <span class='st'>"auto"</span>)
+
+<span class='fu'>conda_binary</span>(<span class='kw'>conda</span> <span class='kw'>=</span> <span class='st'>"auto"</span>)</pre>
+    
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>conda</th>
+      <td><p>Path to conda executable (or "auto" to find conda using the PATH
+and other conventional install locations).</p></td>
+    </tr>
+    <tr>
+      <th>envname</th>
+      <td><p>Name of conda environment</p></td>
+    </tr>
+    <tr>
+      <th>packages</th>
+      <td><p>Character vector with package names to install.</p></td>
+    </tr>
+    <tr>
+      <th>pip</th>
+      <td><p><code>TRUE</code> to use pip (defaults to <code>FALSE</code>)</p></td>
+    </tr>
+    </table>
+    
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p><code>conda_list()</code> returns a data frame with the names and paths to the
+respective python binaries of available environments. <code>conda_create()</code>
+returns the Path to the python binary of the created environment.
+<code>conda_binary()</code> returns the location of the main conda binary or <code>NULL</code>
+if none can be found.</p>
+    
+
+  </div>
+  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+    <h2>Contents</h2>
+    <ul class="nav nav-pills nav-stacked">
+      <li><a href="#arguments">Arguments</a></li>
+      
+      <li><a href="#value">Value</a></li>
+          </ul>
+
   </div>
 </div>
 

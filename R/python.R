@@ -397,6 +397,16 @@ length.python.builtin.dict <- function(x) {
 }
 
 #' @export
+names.python.builtin.object <- function(x, ...) {
+  .DollarNames.python.builtin.object(x, ...)
+}
+
+#' @export
+names.python.builtin.module <- function(x, ...) {
+  .DollarNames.python.builtin.module(x, ...)
+}
+
+#' @export
 as.array.numpy.ndarray <- function(x, ...) {
   py_to_r(x)
 }

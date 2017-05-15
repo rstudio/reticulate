@@ -56,6 +56,8 @@
   
 - Implement comparison operators (e.g. `==`, `>=`, etc.) for Python objects 
 
+- Implement `names()` generic for Python objects
+
 
 ## Bug Fixes
 

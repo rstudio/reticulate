@@ -96,49 +96,30 @@ py_discover_config <- function(required_module = NULL) {
   # (start with versions specified via environment variable or use_* function)
   python_versions <- reticulate_python_versions()
 
-  # if we have a required module then hunt for virtualenvs or condaenvs that
-  # share it's name (or r-<name>) as well
-  if (!is.null(required_module)) {
-    module_envs <- c(paste0("r-", required_module), required_module)
-    python_versions <- c(python_versions,
-      path.expand(sprintf("~/.virtualenvs/%s/bin/python", module_envs)),
-      path.expand(sprintf("~/anaconda/envs/%s/bin/python", module_envs)),
-      path.expand(sprintf("~/anaconda3/envs/%s/bin/python", module_envs)),
-      path.expand(sprintf("~/%s/bin/python", module_envs))
-    )
+  # next look in virtual environments with required module derived names
+  if (is_windows()) {
+    registry_versions <- py_versions_windows()
+    anaconda_registry_versions <- subset(registry_versions, registry_versions$type == "Anaconda")
+    env_dirs <- file.path(anaconda_registry_versions$install_path, "envs")
+    if (length(env_dirs) > 0) {
+      if (!is.null(required_module))
+        python_versions <- c(python_versions, python_environments(env_dirs, required_module))
+    }
+    
+  } else {
+    env_dirs <- c("~/.virtualenvs", "~/anaconda/envs", "~/anaconda3/envs", "~/anaconda3/envs", "~")
+    if (!is.null(required_module))
+      python_versions <- c(python_versions, python_environments(env_dirs, required_module))
   }
   
   # look on system path
-  python <- Sys.which("python")
+  python <- as.character(Sys.which("python"))
   if (nzchar(python))
     python_versions <- c(python_versions, python)
 
   # provide other common locations
   if (is_windows()) {
-    
-    # get all versions of python referenced in the registry
-    registry_versions <- py_versions_windows()
-    
-    # first add conda environments derivative of the required module
-    windows_versions <- c()
-    if (!is.null(required_module)) {
-      for (i in 1:nrow(registry_versions)) {
-        if (registry_versions$type[[i]] == "Anaconda") {
-          module_envs <- c(paste0("r-", required_module), required_module)
-          windows_versions <- c(windows_versions, utils::shortPathName(
-            file.path(registry_versions$install_path[[i]], 
-                      "envs", module_envs, "python.exe")
-          ))
-        }
-      }  
-    }
-    
-    # then add the core executables
-    windows_versions <- c(windows_versions, registry_versions$executable_path)
-    
-    # append to python versions
-    python_versions <- c(python_versions, windows_versions)
-                    
+    python_versions <- c(python_versions, registry_versions$executable_path)
   } else {
     python_versions <- c(python_versions,
       "/usr/bin/python",
@@ -153,6 +134,10 @@ py_discover_config <- function(required_module = NULL) {
       path.expand("~/anaconda3/bin/python")
     )
   }
+  
+  # next virtual or conda environments
+  if (length(env_dirs) > 0)
+    python_versions <- c(python_versions, python_environments(env_dirs))
 
   # de-duplicate
   python_versions <- unique(python_versions)
@@ -202,6 +187,37 @@ py_versions_windows <- function() {
     windows_registry_anaconda_versions()
   )
 }
+
+
+python_environments <- function(env_dirs, required_module = NULL) {
+  
+  # filter env_dirs by existence
+  env_dirs <- env_dirs[utils::file_test("-d", env_dirs)]
+
+  # envs to return  
+  envs <- c()
+  
+  # python bin differs by platform
+  python_bin <- ifelse(is_windows(), "python.exe", "bin/python")
+  
+  for (env_dir in env_dirs) {
+    # filter by required module if requested
+    if (!is.null(required_module)) {
+      module_envs <- c(paste0("r-", required_module), required_module)
+      envs <- c(envs, path.expand(sprintf("%s/%s/%s", env_dir, module_envs, python_bin)))
+      
+      # otherwise return all
+    } else {
+      envs <- c(envs, path.expand(sprintf("%s/%s", 
+                                          list.dirs(env_dir, recursive = FALSE),
+                                          python_bin)))
+    }
+  }
+  
+  # filter by existence
+  envs[file.exists(envs)]
+}
+
 
 
 python_config <- function(python, required_module, python_versions) {

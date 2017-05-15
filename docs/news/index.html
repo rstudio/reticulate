@@ -129,6 +129,10 @@
 <li><p>Added ability to customize mapping of Python classes to R classes via the <code>as</code> argument to <code><a href="../reference/import.html">import()</a></code> and the <code><a href="../reference/register_class_filter.html">register_class_filter()</a></code> function</p></li>
 <li><p>Added separate <code>on_load</code> and <code>on_error</code> functions for <code>delay_load</code></p></li>
 <li><p>Scan customary root directories for virtualenv installations</p></li>
+<li><p>Allow calling <code>__getitem__</code> via <code>[[</code> operator (zero-based to match Python style indexing)</p></li>
+<li><p>Added <code>conda_*</code> family of functions for using conda utilities from within R.</p></li>
+<li><p>Implement comparison operators (e.g. <code>==</code>, <code>&gt;=</code>, etc.) for Python objects</p></li>
+<li><p>Implement <code>names()</code> generic for Python objects</p></li>
 </ul>
 </div>
 <div id="bug-fixes" class="section level2">

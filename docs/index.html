@@ -87,8 +87,8 @@
 <p>The <strong>reticulate</strong> package provides an R interface to Python modules, classes, and functions. For example, this code imports the Python <code>os</code> module and calls some functions within it:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(reticulate)
 os &lt;-<span class="st"> </span><span class="kw"><a href="reference/import.html">import</a></span>(<span class="st">"os"</span>)
-os$<span class="kw">chdir</span>(<span class="st">"tests"</span>)
-os$<span class="kw">getcwd</span>()</code></pre></div>
+os<span class="op">$</span><span class="kw">chdir</span>(<span class="st">"tests"</span>)
+os<span class="op">$</span><span class="kw">getcwd</span>()</code></pre></div>
 <p>Functions and other data within Python modules and classes can be accessed via the <code>$</code> operator (analogous to the way you would interact with an R list, environment, or reference class).</p>
 <p>When calling into Python, R data types are automatically converted to their equivalent Python types. When values are returned from Python to R they are converted back to R types. Types are converted as follows:</p>
 <table class="table">

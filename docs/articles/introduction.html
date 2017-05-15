@@ -91,8 +91,8 @@
 <p>The <strong>reticulate</strong> package provides an R interface to Python modules, classes, and functions. For example, this code imports the Python <code>os</code> module and calls some functions within it:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(reticulate)
 os &lt;-<span class="st"> </span><span class="kw"><a href="../reference/import.html">import</a></span>(<span class="st">"os"</span>)
-os$<span class="kw">chdir</span>(<span class="st">"tests"</span>)
-os$<span class="kw">getcwd</span>()</code></pre></div>
+os<span class="op">$</span><span class="kw">chdir</span>(<span class="st">"tests"</span>)
+os<span class="op">$</span><span class="kw">getcwd</span>()</code></pre></div>
 <p>Functions and other data within Python modules and classes can be accessed via the <code>$</code> operator (analogous to the way you would interact with an R list, environment, or reference class).</p>
 <p>The <strong>reticulate</strong> package is compatible with all versions of Python &gt;= 2.7. Integration with NumPy is optional and requires NumPy &gt;= 1.6.</p>
 </div>
@@ -159,15 +159,15 @@ os$<span class="kw">getcwd</span>()</code></pre></div>
 <a href="#importing-modules" class="anchor"></a>Importing Modules</h2>
 <p>The <code>import</code> function can be used to import any Python module. For example:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">difflib &lt;-<span class="st"> </span><span class="kw"><a href="../reference/import.html">import</a></span>(<span class="st">"difflib"</span>)
-difflib$<span class="kw">ndiff</span>(foo, bar)
+difflib<span class="op">$</span><span class="kw">ndiff</span>(foo, bar)
 
 filecmp &lt;-<span class="st"> </span><span class="kw"><a href="../reference/import.html">import</a></span>(<span class="st">"filecmp"</span>)
-filecmp$<span class="kw">cmp</span>(dir1, dir2)</code></pre></div>
+filecmp<span class="op">$</span><span class="kw">cmp</span>(dir1, dir2)</code></pre></div>
 <p>The <code><a href="../reference/import.html">import_main()</a></code> and <code><a href="../reference/import.html">import_builtins()</a></code> functions give you access to the main module where code is executed by default and the collection of built in Python functions. For example:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">main &lt;-<span class="st"> </span><span class="kw"><a href="../reference/import.html">import_main</a></span>()
 
 py &lt;-<span class="st"> </span><span class="kw"><a href="../reference/import.html">import_builtins</a></span>()
-py$<span class="kw">print</span>(<span class="st">'foo'</span>)</code></pre></div>
+py<span class="op">$</span><span class="kw">print</span>(<span class="st">'foo'</span>)</code></pre></div>
 <p>The main module is generally useful if you have executed Python code from a file or string and want to get access to it’s results (see the section below for more details).</p>
 <div id="object-conversion" class="section level3">
 <h3 class="hasAnchor">
@@ -177,8 +177,8 @@ py$<span class="kw">print</span>(<span class="st">'foo'</span>)</code></pre></di
 np &lt;-<span class="st"> </span><span class="kw"><a href="../reference/import.html">import</a></span>(<span class="st">"numpy"</span>, <span class="dt">convert =</span> <span class="ot">FALSE</span>)
 
 <span class="co"># do some array manipulations with NumPy</span>
-a &lt;-<span class="st"> </span>np$<span class="kw">array</span>(<span class="kw">c</span>(<span class="dv">1</span>:<span class="dv">4</span>))
-sum &lt;-<span class="st"> </span>a$<span class="kw">cumsum</span>()
+a &lt;-<span class="st"> </span>np<span class="op">$</span><span class="kw">array</span>(<span class="kw">c</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">4</span>))
+sum &lt;-<span class="st"> </span>a<span class="op">$</span><span class="kw">cumsum</span>()
 
 <span class="co"># convert to R explicitly at the end</span>
 <span class="kw"><a href="../reference/r-py-conversion.html">py_to_r</a></span>(sum)</code></pre></div>
@@ -192,14 +192,14 @@ sum &lt;-<span class="st"> </span>a$<span class="kw">cumsum</span>()
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/py_run.html">py_run_file</a></span>(<span class="st">"script.py"</span>)
 
 main &lt;-<span class="st"> </span><span class="kw"><a href="../reference/py_run.html">py_run_string</a></span>(<span class="st">"x = 10"</span>)
-main$x</code></pre></div>
+main<span class="op">$</span>x</code></pre></div>
 </div>
 <div id="lists-tuples-and-dictionaries" class="section level2">
 <h2 class="hasAnchor">
 <a href="#lists-tuples-and-dictionaries" class="anchor"></a>Lists, Tuples, and Dictionaries</h2>
 <p>The automatic conversion of R types to Python types works well in most cases, but occasionally you will need to be more explicit on the R side to provide Python the type it expects.</p>
 <p>For example, if a Python API requires a list and you pass a single element R vector it will be converted to a Python scalar. To overcome this simply use the R <code>list</code> function explicitly:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">foo$<span class="kw">bar</span>(<span class="dt">indexes =</span> <span class="kw">list</span>(42L))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">foo<span class="op">$</span><span class="kw">bar</span>(<span class="dt">indexes =</span> <span class="kw">list</span>(42L))</code></pre></div>
 <p>Similarly, a Python API might require a <code>tuple</code> rather than a list. In that case you can use the <code><a href="../reference/tuple.html">tuple()</a></code> function:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/tuple.html">tuple</a></span>(<span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span>)</code></pre></div>
 <p>R named lists are converted to Python dictionaries however you can also explicitly create a Python dictionary using the <code><a href="../reference/dict.html">dict()</a></code> function:</p>
@@ -211,8 +211,8 @@ main$x</code></pre></div>
 <a href="#with-contexts" class="anchor"></a>With Contexts</h2>
 <p>The R <code>with</code> generic function can be used to interact with Python context manager objects (in Python you use the <code>with</code> keyword to do the same). For example:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">py &lt;-<span class="st"> </span><span class="kw"><a href="../reference/import.html">import_builtins</a></span>()
-<span class="kw">with</span>(py$<span class="kw">open</span>(<span class="st">"output.txt"</span>, <span class="st">"w"</span>) %as%<span class="st"> </span>file, {
-  file$<span class="kw">write</span>(<span class="st">"Hello, there!"</span>)
+<span class="kw">with</span>(py<span class="op">$</span><span class="kw">open</span>(<span class="st">"output.txt"</span>, <span class="st">"w"</span>) <span class="op">%as%</span><span class="st"> </span>file, {
+  file<span class="op">$</span><span class="kw">write</span>(<span class="st">"Hello, there!"</span>)
 })</code></pre></div>
 <p>This example opens a file and ensures that it is automatically closed at the end of the with block. Note the use of the <code>%as%</code> operator to alias the object created by the context manager.</p>
 </div>

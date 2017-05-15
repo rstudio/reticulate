@@ -119,9 +119,7 @@ py_discover_config <- function(required_module = NULL) {
 
   # provide other common locations
   if (is_windows()) {
-    windows_versions <- c(windows_versions, registry_versions$executable_path)
-    python_versions <- c(python_versions, windows_versions)
-                    
+    python_versions <- c(python_versions, registry_versions$executable_path)
   } else {
     python_versions <- c(python_versions,
       "/usr/bin/python",

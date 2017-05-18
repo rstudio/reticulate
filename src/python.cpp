@@ -697,16 +697,25 @@ SEXP py_to_r(PyObject* x, bool convert) {
 
   // dict
   else if (PyDict_Check(x)) {
-    // allocate R list
-    Rcpp::List list;
+    
+    // allocate memory for name and value vectors
+    Py_ssize_t size = PyDict_Size(x);
+    std::vector<std::string> names(size);
+    Rcpp::List list(size);
+    
     // iterate over dict
     PyObject *key, *value;
     Py_ssize_t pos = 0;
+    Py_ssize_t idx = 0;
     while (PyDict_Next(x, &pos, &key, &value)) {
       PyObjectPtr str(PyObject_Str(key));
-      list[as_std_string(str)] = py_to_r(value, convert);
+      names[idx] = as_std_string(str);
+      list[idx] = py_to_r(value, convert);
+      idx++;
     }
+    list.names() = names;
     return list;
+    
   }
 
   // numpy array
@@ -1756,8 +1765,8 @@ CharacterVector py_list_submodules(const std::string& module) {
 List py_iterate(PyObjectRef x, Function f) {
 
   // List to return
-  List list;
-
+  std::vector<RObject> list;
+ 
   // get the iterator
   PyObjectPtr iterator(PyObject_GetIter(x));
   if (iterator.is_null())
@@ -1783,7 +1792,10 @@ List py_iterate(PyObjectRef x, Function f) {
   }
 
   // return the list
-  return list;
+  List rList(list.size());
+  for (size_t i = 0; i<list.size(); i++)
+    rList[i] = list[i];
+  return rList;
 }
 
 

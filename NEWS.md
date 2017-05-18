@@ -58,6 +58,9 @@
 
 - Implement `names()` generic for Python objects
 
+- Improve performance for marshalling of large Python dictionaries and 
+  iterators that return large numbers of items.
+
 
 ## Bug Fixes
 

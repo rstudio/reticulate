@@ -60,6 +60,9 @@
 
 - Improve performance for marshalling of large Python dictionaries and 
   iterators that return large numbers of items.
+  
+- Implement `str` methods for Python List, Dict, and Tuple (to prevent
+  printing of very large collections via default `str` method)
 
 
 ## Bug Fixes

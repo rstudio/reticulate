@@ -786,6 +786,36 @@ py_str.python.builtin.module <- function(object, ...) {
   paste0("Module(", py_get_name(object), ")")
 }
 
+#' @export
+py_str.python.builtin.list <- function(object, ...) {
+  py_collection_str("List", object)
+}
+
+#' @export
+py_str.python.builtin.dict <- function(object, ...) {
+  py_collection_str("Dict", object)
+}
+
+#' @export
+py_str.python.builtin.tuple <- function(object, ...) {
+  py_collection_str("Tuple", object)
+}
+
+py_collection_str <- function(name, object) {
+  len <- py_collection_len(object)
+  if (len > 10)
+    paste0(name, " (", len, " items)")
+  else
+    py_str.python.builtin.object(object)
+}
+
+py_collection_len <- function(object) {
+  # do this dance so we can call __len__ on dictionaries (which
+  # otherwise overload the $)
+  len <- py_get_attr(object, "__len__")
+  py_to_r(py_call(len))
+}
+
 #' Suppress Python warnings for an expression
 #'
 #' @param expr Expression to suppress warnings for

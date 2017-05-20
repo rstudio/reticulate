@@ -143,7 +143,8 @@ py_discover_config <- function(required_module = NULL) {
   python_versions <- unique(python_versions)
   
   # filter locations by existence
-  python_versions <- python_versions[file.exists(python_versions)]
+  if (length(python_versions) > 0)
+    python_versions <- python_versions[file.exists(python_versions)]
 
   # scan until we find a version of python that meets our qualifying conditions
   valid_python_versions <- c()

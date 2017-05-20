@@ -143,7 +143,7 @@
 <h2 class="hasAnchor">
 <a href="#displaying-arrays" class="anchor"></a>Displaying arrays</h2>
 <p>R displays array data with unambiguously-labeled coordinate indices. Python doesn’t show this and displays n-d array data in different order than R (making matters somewhat confusing for R users). Consider the following example that creates and displays identical 4x3x2 arrays in R and Python:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">array</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">24</span>, <span class="kw">c</span>(<span class="dv">4</span>,<span class="dv">3</span>,<span class="dv">2</span>))
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">array</span>(<span class="dv">1</span>:<span class="dv">24</span>, <span class="kw">c</span>(<span class="dv">4</span>,<span class="dv">3</span>,<span class="dv">2</span>))
 
 ## , , 1
 ##      [,1] [,2] [,3]
@@ -177,7 +177,7 @@ np.reshape(np.arange(<span class="dv">1</span>,<span class="dv">25</span>), (<sp
 <span class="co">##         [ 8, 20],</span>
 <span class="co">##         [12, 24]]])</span></code></pre></div>
 <p>It’s easier to know which coordinates go where in R because they are labeled. Python, using column-major ordering, displays the same thing but in a different order where the first indices are grouped together in order. To see that these arrays are, in fact, <strong>the same</strong>, let’s pick out values along just the first “row”, that is values with a first index of 1 (R) or 0 (Python):</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">array</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">24</span>, <span class="kw">c</span>(<span class="dv">4</span>, <span class="dv">3</span>, <span class="dv">2</span>))[<span class="dv">1</span>,, ,drop=<span class="ot">FALSE</span>]
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">array</span>(<span class="dv">1</span>:<span class="dv">24</span>, <span class="kw">c</span>(<span class="dv">4</span>, <span class="dv">3</span>, <span class="dv">2</span>))[<span class="dv">1</span>,, ,drop=<span class="ot">FALSE</span>]
 
 ## , , 1
 ##      [,1] [,2] [,3]
@@ -192,7 +192,7 @@ np.reshape(np.arange(<span class="dv">1</span>,<span class="dv">25</span>), (<sp
 <span class="co">##        [ 5, 17],</span>
 <span class="co">##        [ 9, 21]])</span></code></pre></div>
 <p>I specified R’s <code>drop=FALSE</code> argument to preserve array dimensionality above. If we use <code>drop=TRUE</code> (the default) then R returns a 3x2 array in column-major order–exactly the same result as Python above.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">array</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">24</span>, <span class="kw">c</span>(<span class="dv">4</span>, <span class="dv">3</span>, <span class="dv">2</span>))[<span class="dv">1</span>,, ,drop=<span class="ot">TRUE</span>]
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">array</span>(<span class="dv">1</span>:<span class="dv">24</span>, <span class="kw">c</span>(<span class="dv">4</span>, <span class="dv">3</span>, <span class="dv">2</span>))[<span class="dv">1</span>,, ,drop=<span class="ot">TRUE</span>]
 
 ##      [,1] [,2]
 ## [1,]    1   13
@@ -229,7 +229,7 @@ np.reshape(np.arange(<span class="dv">1</span>,<span class="dv">25</span>), (<sp
 <p>The following example creates a 2x2x2 array in Python using native NumPy row-major ordering and imports it into R. Despite the fact that they print out differently, they are in fact the same.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(reticulate)
 np &lt;-<span class="st"> </span><span class="kw"><a href="../reference/import.html">import</a></span>(<span class="st">"numpy"</span>, <span class="dt">convert=</span><span class="ot">FALSE</span>)
-(x &lt;-<span class="st"> </span>np<span class="op">$</span><span class="kw">arange</span>(<span class="dv">1</span>, <span class="dv">9</span>)<span class="op">$</span><span class="kw">reshape</span>(2L, 2L, 2L))
+(x &lt;-<span class="st"> </span>np$<span class="kw">arange</span>(<span class="dv">1</span>, <span class="dv">9</span>)$<span class="kw">reshape</span>(2L, 2L, 2L))
 
 ## [[[ 1.  2.]
 ##   [ 3.  4.]]
@@ -270,7 +270,7 @@ y[<span class="dv">1</span>,,, drop=<span class="ot">TRUE</span>]
 <a href="#another-example" class="anchor"></a>Another example</h3>
 <p>Let’s look at this again with another example, this time with an array with different lengths along each dimension to make things even more clear (hopefully). Consider the following 4x3x2 array constructed in Python in row-major order:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">np &lt;-<span class="st"> </span><span class="kw"><a href="../reference/import.html">import</a></span>(<span class="st">"numpy"</span>, <span class="dt">convert=</span><span class="ot">FALSE</span>)
-(x &lt;-<span class="st"> </span>np<span class="op">$</span><span class="kw">reshape</span>(np<span class="op">$</span><span class="kw">arange</span>(<span class="dv">1</span>, <span class="dv">25</span>), <span class="kw">c</span>(4L, 3L, 2L)))
+(x &lt;-<span class="st"> </span>np$<span class="kw">reshape</span>(np$<span class="kw">arange</span>(<span class="dv">1</span>, <span class="dv">25</span>), <span class="kw">c</span>(4L, 3L, 2L)))
 
 ## [[[  1.   2.]
 ##   [  3.   4.]
@@ -304,7 +304,7 @@ y[<span class="dv">1</span>,,, drop=<span class="ot">TRUE</span>]
 ## [3,]   14   16   18
 ## [4,]   20   22   24</code></pre></div>
 <p>Again, they look quite different but the R and Python arrays are really the same. Let’s pick out the sub-array with third index = 0 (Python), equivalently the third index = 1 in R.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">np<span class="op">$</span><span class="kw">take</span>(x, 0L, 2L)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">np$<span class="kw">take</span>(x, 0L, 2L)
 
 ## [[  1.   3.   5.]
 ##  [  7.   9.  11.]
@@ -327,7 +327,7 @@ y[, , <span class="dv">1</span>]
 <h2 class="hasAnchor">
 <a href="#what-about-going-from-r-column-major-arrays-to-python" class="anchor"></a>What about going from R column-major arrays to Python?</h2>
 <p>The previous examples focused on row-major arrays natively constructed in Python. Let’s see what happens when we start with column-major arrays from R and work with them in Python.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">(y &lt;-<span class="st"> </span><span class="kw">array</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">24</span>, <span class="kw">c</span>(<span class="dv">4</span>, <span class="dv">3</span>, <span class="dv">2</span>)))  <span class="co"># In R</span>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">(y &lt;-<span class="st"> </span><span class="kw">array</span>(<span class="dv">1</span>:<span class="dv">24</span>, <span class="kw">c</span>(<span class="dv">4</span>, <span class="dv">3</span>, <span class="dv">2</span>)))  <span class="co"># In R</span>
 
 ## , , 1
 ##      [,1] [,2] [,3]
@@ -343,7 +343,7 @@ y[, , <span class="dv">1</span>]
 ## [3,]   15   19   23
 ## [4,]   16   20   24
 
-(x &lt;-<span class="st"> </span>np<span class="op">$</span><span class="kw">array</span>(y))              <span class="co"># and now in Python</span>
+(x &lt;-<span class="st"> </span>np$<span class="kw">array</span>(y))              <span class="co"># and now in Python</span>
 
 ## [[[ 1 13]
 ##   [ 5 17]
@@ -361,7 +361,7 @@ y[, , <span class="dv">1</span>]
 ##   [ 8 20]
 ##   [12 24]]]</code></pre></div>
 <p>Note that the Python version takes advantage of NumPy’s extraordinary flexibility and preserves R’s column-major ordering:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">x<span class="op">$</span>flags
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">x$flags
 
 ##   C_CONTIGUOUS : False
 ##   F_CONTIGUOUS : True
@@ -378,14 +378,14 @@ y[, , <span class="dv">1</span>]
 ## [3,]    3    7   11
 ## [4,]    4    8   12
 
-np<span class="op">$</span><span class="kw">take</span>(x, 0L, 2L)
+np$<span class="kw">take</span>(x, 0L, 2L)
 
 ## [[ 1  5  9]
 ##  [ 2  6 10]
 ##  [ 3  7 11]
 ##  [ 4  8 12]]</code></pre></div>
 <p>It’s important to remember that the order is preserved from Python when copying an array result back into R:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/r-py-conversion.html">py_to_r</a></span>(np<span class="op">$</span><span class="kw">take</span>(x, 0L, 2L))
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/r-py-conversion.html">py_to_r</a></span>(np$<span class="kw">take</span>(x, 0L, 2L))
 
 ##      [,1] [,2] [,3]
 ## [1,]    1    5    9
@@ -397,7 +397,7 @@ np<span class="op">$</span><span class="kw">take</span>(x, 0L, 2L)
 <h3 class="hasAnchor">
 <a href="#but-the-array-i-created-in-r-ends-up-transposed-compared-to-ones-i-create-in-python" class="anchor"></a>But the array I created in R ends up transposed compared to ones I create in Python?</h3>
 <p>Right. That’s just a simple consequence of the default column-major and row-major formats used in R and NumPy respectively. You are always free to use R’s column-major format directly in Python, for example using the “F” flag below (for Fortran):</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">np<span class="op">$</span><span class="kw">reshape</span>(np<span class="op">$</span><span class="kw">arange</span>(<span class="dv">1</span>, <span class="dv">25</span>), <span class="kw">c</span>(4L, 3L, 2L), <span class="st">"F"</span>)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">np$<span class="kw">reshape</span>(np$<span class="kw">arange</span>(<span class="dv">1</span>, <span class="dv">25</span>), <span class="kw">c</span>(4L, 3L, 2L), <span class="st">"F"</span>)
 
 ## [[[  1.  13.]
 ##   [  5.  17.]
@@ -416,14 +416,14 @@ np<span class="op">$</span><span class="kw">take</span>(x, 0L, 2L)
 ##   [ 12.  24.]]]</code></pre></div>
 <p>Note that the result is just like the one we got starting from R above.</p>
 <p>Re-arranging R arrays into row-major order requires more work. R is less flexible than Python and we can’t explicitly change R’s memory order representation. When the array is a matrix when we can simply use <code>byrow=TRUE</code>. In the n-d array case, a portion of the problem can be reduced to using <code>byrow=TRUE</code> followed by judicious index permutation with <code>aperm()</code>. Here is one somewhat inefficient example:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">y &lt;-<span class="st"> </span><span class="kw">aperm</span>(<span class="kw">array</span>(<span class="kw">matrix</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">24</span>, <span class="kw">c</span>(<span class="dv">3</span> <span class="op">*</span><span class="st"> </span><span class="dv">4</span>, <span class="dv">2</span>), <span class="dt">byrow=</span><span class="ot">TRUE</span>),
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">y &lt;-<span class="st"> </span><span class="kw">aperm</span>(<span class="kw">array</span>(<span class="kw">matrix</span>(<span class="dv">1</span>:<span class="dv">24</span>, <span class="kw">c</span>(<span class="dv">3</span> *<span class="st"> </span><span class="dv">4</span>, <span class="dv">2</span>), <span class="dt">byrow=</span><span class="ot">TRUE</span>),
            <span class="kw">c</span>(<span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">2</span>)), <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">3</span>))</code></pre></div>
 <p>See the last section below for a different example.</p>
 <p>We can verify that the above ugly expression exactly reproduces a NumPy row-major array by subtracting our R array from a native Python one:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">np &lt;-<span class="st"> </span><span class="kw"><a href="../reference/import.html">import</a></span>(<span class="st">"numpy"</span>, <span class="dt">convert=</span><span class="ot">FALSE</span>)
 o  &lt;-<span class="st"> </span><span class="kw"><a href="../reference/import.html">import</a></span>(<span class="st">"operator"</span>, <span class="dt">convert=</span><span class="ot">FALSE</span>)
 
-o<span class="op">$</span><span class="kw">sub</span>(np<span class="op">$</span><span class="kw">arange</span>(<span class="dv">1</span>, <span class="dv">25</span>)<span class="op">$</span><span class="kw">reshape</span>(4L, 3L, 2L), np<span class="op">$</span><span class="kw">array</span>(y))
+o$<span class="kw">sub</span>(np$<span class="kw">arange</span>(<span class="dv">1</span>, <span class="dv">25</span>)$<span class="kw">reshape</span>(4L, 3L, 2L), np$<span class="kw">array</span>(y))
 
 ## [[[ 0.  0.]
 ##   [ 0.  0.]
@@ -451,20 +451,20 @@ o<span class="op">$</span><span class="kw">sub</span>(np<span class="op">$</span
 <p>It’s easy to be confused by this, so let’s see an example using a 4x3x2 array, first in Python:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(reticulate)
 np &lt;-<span class="st"> </span><span class="kw"><a href="../reference/import.html">import</a></span>(<span class="st">"numpy"</span>, <span class="dt">convert=</span><span class="ot">FALSE</span>)
-x  &lt;-<span class="st"> </span>np<span class="op">$</span><span class="kw">arange</span>(<span class="dv">1</span>, <span class="dv">25</span>)<span class="op">$</span><span class="kw">reshape</span>(<span class="kw">c</span>(4L, 3L, 2L))
-x<span class="op">$</span><span class="kw">sum</span>(<span class="dv">0</span>)   <span class="co"># N. B. a 3x2 matrix!</span>
+x  &lt;-<span class="st"> </span>np$<span class="kw">arange</span>(<span class="dv">1</span>, <span class="dv">25</span>)$<span class="kw">reshape</span>(<span class="kw">c</span>(4L, 3L, 2L))
+x$<span class="kw">sum</span>(<span class="dv">0</span>)   <span class="co"># N. B. a 3x2 matrix!</span>
 
 ## [[ 40.  44.]
 ##  [ 48.  52.]
 ##  [ 56.  60.]]
 
 <span class="co"># N. B. A tuple() object is required here (NumPy vectors won't work)</span>
-x<span class="op">$</span><span class="kw">sum</span>(<span class="kw"><a href="../reference/tuple.html">tuple</a></span>(1L, 2L))
+x$<span class="kw">sum</span>(<span class="kw"><a href="../reference/tuple.html">tuple</a></span>(1L, 2L))
 
 ## [  21.   57.   93.  129.]</code></pre></div>
 <p>And now the corresponding sums in R:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">y &lt;-<span class="st"> </span><span class="kw"><a href="../reference/r-py-conversion.html">py_to_r</a></span>(x)
-<span class="kw">apply</span>(y, <span class="kw">dim</span>(y)[<span class="op">-</span><span class="dv">1</span>], sum)
+<span class="kw">apply</span>(y, <span class="kw">dim</span>(y)[-<span class="dv">1</span>], sum)
 
 ##      [,1] [,2] [,3]
 ## [1,]   40   48   56
@@ -480,17 +480,17 @@ x<span class="op">$</span><span class="kw">sum</span>(<span class="kw"><a href="
 <p>These notes were prepared in response to a tensorflow issue now in the reticulate package <a href="https://github.com/rstudio/reticulate/issues/9" class="uri">https://github.com/rstudio/reticulate/issues/9</a>. The issue directly gets to a common source of confusion with n-d arrays in R and Python and how they are printed and stored. A lightly-edited reproduction of the reference Python code in the issue appears below.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(tensorflow)
 np   &lt;-<span class="st"> </span><span class="kw"><a href="../reference/import.html">import</a></span>(<span class="st">"numpy"</span>, <span class="dt">convert=</span><span class="ot">FALSE</span>)
-a    &lt;-<span class="st"> </span>np<span class="op">$</span><span class="kw">arange</span>(<span class="dv">1</span>, <span class="dv">9</span>)<span class="op">$</span><span class="kw">reshape</span>(<span class="kw">c</span>(2L, 2L, 2L))
-b    &lt;-<span class="st"> </span>np<span class="op">$</span><span class="kw">arange</span>(<span class="dv">1</span>, <span class="dv">5</span>)<span class="op">$</span><span class="kw">reshape</span>(<span class="kw">c</span>(2L, 2L, 1L))
-c    &lt;-<span class="st"> </span>tf<span class="op">$</span><span class="kw">matmul</span>(tf<span class="op">$</span><span class="kw">constant</span>(a), tf<span class="op">$</span><span class="kw">constant</span>(b))
-tf<span class="op">$</span><span class="kw">Session</span>()<span class="op">$</span><span class="kw">run</span>(c)
+a    &lt;-<span class="st"> </span>np$<span class="kw">arange</span>(<span class="dv">1</span>, <span class="dv">9</span>)$<span class="kw">reshape</span>(<span class="kw">c</span>(2L, 2L, 2L))
+b    &lt;-<span class="st"> </span>np$<span class="kw">arange</span>(<span class="dv">1</span>, <span class="dv">5</span>)$<span class="kw">reshape</span>(<span class="kw">c</span>(2L, 2L, 1L))
+c    &lt;-<span class="st"> </span>tf$<span class="kw">matmul</span>(tf$<span class="kw">constant</span>(a), tf$<span class="kw">constant</span>(b))
+tf$<span class="kw">Session</span>()$<span class="kw">run</span>(c)
 
 ## , , 1
 ##      [,1] [,2]
 ## [1,]    5   11
 ## [2,]   39   53</code></pre></div>
 <p>The issue goes on to reproduce the example using R-generated arrays as follows:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">A &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="kw">matrix</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">4</span>, <span class="dt">nrow=</span><span class="dv">2</span>, <span class="dt">byrow=</span>T), <span class="kw">matrix</span>(<span class="dv">5</span><span class="op">:</span><span class="dv">8</span>, <span class="dt">nrow=</span><span class="dv">2</span>, <span class="dt">byrow=</span>T))
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">A &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="kw">matrix</span>(<span class="dv">1</span>:<span class="dv">4</span>, <span class="dt">nrow=</span><span class="dv">2</span>, <span class="dt">byrow=</span>T), <span class="kw">matrix</span>(<span class="dv">5</span>:<span class="dv">8</span>, <span class="dt">nrow=</span><span class="dv">2</span>, <span class="dt">byrow=</span>T))
 A &lt;-<span class="st"> </span><span class="kw">array</span>(<span class="kw">unlist</span>(A), <span class="dt">dim=</span><span class="kw">c</span>(<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>))</code></pre></div>
 <p>However, already at this point we see that the R-generated array <em>A</em> is not the same as the above array <em>a</em> by comparing <em>a</em> with <code>np$array(A)</code> below.</p>
 <p>However, we can see how it can be easy to make the mistake that they are the same simply because of the way the arrays are printed! The R array looks superficially the same as the printed Python array.</p>
@@ -503,7 +503,7 @@ A &lt;-<span class="st"> </span><span class="kw">array</span>(<span class="kw">u
 ##   [ 7.  8.]]]
 
 
-<span class="kw">print</span>(np<span class="op">$</span><span class="kw">array</span>(A))
+<span class="kw">print</span>(np$<span class="kw">array</span>(A))
 
 ## [[[1 5]
 ##   [2 6]]
@@ -524,7 +524,7 @@ A &lt;-<span class="st"> </span><span class="kw">array</span>(<span class="kw">u
 ## [1,]    5    6
 ## [2,]    7    8</code></pre></div>
 <p>Instead, we need to construct the R array <em>A</em> differently to match the row-major order of Python, discussed in the previous sections. We can use many approaches including:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">(A &lt;-<span class="st"> </span>np<span class="op">$</span><span class="kw">array</span>(<span class="kw">aperm</span>(<span class="kw">array</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">8</span>, <span class="kw">c</span>(<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>)), <span class="kw">c</span>(<span class="dv">3</span>,<span class="dv">2</span>,<span class="dv">1</span>))))
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">(A &lt;-<span class="st"> </span>np$<span class="kw">array</span>(<span class="kw">aperm</span>(<span class="kw">array</span>(<span class="dv">1</span>:<span class="dv">8</span>, <span class="kw">c</span>(<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>)), <span class="kw">c</span>(<span class="dv">3</span>,<span class="dv">2</span>,<span class="dv">1</span>))))
 
 ## [[[1 2]
 ##   [3 4]]
@@ -532,10 +532,10 @@ A &lt;-<span class="st"> </span><span class="kw">array</span>(<span class="kw">u
 ##  [[5 6]
 ##   [7 8]]]</code></pre></div>
 <p>With similar care ordering the values in the <em>b</em> array we can finish replicating the example in R (with the same result as the reference Python example above).</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">A &lt;-<span class="st"> </span>np<span class="op">$</span><span class="kw">array</span>(<span class="kw">aperm</span>(<span class="kw">array</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">8</span>, <span class="kw">c</span>(<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>)), <span class="kw">c</span>(<span class="dv">3</span>,<span class="dv">2</span>,<span class="dv">1</span>)))
-B &lt;-<span class="st"> </span>np<span class="op">$</span><span class="kw">array</span>(<span class="kw">aperm</span>(<span class="kw">array</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">4</span>, <span class="kw">c</span>(<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">1</span>)), <span class="kw">c</span>(<span class="dv">2</span>,<span class="dv">1</span>,<span class="dv">3</span>)))
-C &lt;-<span class="st"> </span>tf<span class="op">$</span><span class="kw">matmul</span>(tf<span class="op">$</span><span class="kw">constant</span>(A), tf<span class="op">$</span><span class="kw">constant</span>(B))
-tf<span class="op">$</span><span class="kw">Session</span>()<span class="op">$</span><span class="kw">run</span>(C)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">A &lt;-<span class="st"> </span>np$<span class="kw">array</span>(<span class="kw">aperm</span>(<span class="kw">array</span>(<span class="dv">1</span>:<span class="dv">8</span>, <span class="kw">c</span>(<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>)), <span class="kw">c</span>(<span class="dv">3</span>,<span class="dv">2</span>,<span class="dv">1</span>)))
+B &lt;-<span class="st"> </span>np$<span class="kw">array</span>(<span class="kw">aperm</span>(<span class="kw">array</span>(<span class="dv">1</span>:<span class="dv">4</span>, <span class="kw">c</span>(<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">1</span>)), <span class="kw">c</span>(<span class="dv">2</span>,<span class="dv">1</span>,<span class="dv">3</span>)))
+C &lt;-<span class="st"> </span>tf$<span class="kw">matmul</span>(tf$<span class="kw">constant</span>(A), tf$<span class="kw">constant</span>(B))
+tf$<span class="kw">Session</span>()$<span class="kw">run</span>(C)
 
 ## , , 1
 ##      [,1] [,2]

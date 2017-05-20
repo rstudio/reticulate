@@ -91,7 +91,7 @@
 <p>It is not uncommon for several version of Python (and several conda or virtualenv environmetns within a given version) to be available on a given system. The <strong>reticulate</strong> package can bind to any of these versions, and in all cases will attempt to locate a version which includes the first Python package imported via the <code><a href="../reference/import.html">import()</a></code> function. Consider the following code:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(reticulate)
 scipy &lt;-<span class="st"> </span><span class="kw"><a href="../reference/import.html">import</a></span>(<span class="st">"scipy"</span>)
-scipy<span class="op">$</span><span class="kw">amin</span>(<span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">3</span>,<span class="dv">5</span>,<span class="dv">7</span>))</code></pre></div>
+scipy$<span class="kw">amin</span>(<span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">3</span>,<span class="dv">5</span>,<span class="dv">7</span>))</code></pre></div>
 <p>In this case, the various versions of Python installed on the system will be scanned to see whether one of them includes the “scipy” Python package (the first version found that satisfies this requirement will be used).</p>
 <p>By default, the version of Python found on the system <code>PATH</code> is checked first, and then a number of other conventional location for Py Python (e.g. <code>/usr/local/bin/python</code>, <code>/opt/local/bin/python</code>, etc.) are checked.</p>
 </div>

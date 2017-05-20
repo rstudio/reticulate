@@ -95,7 +95,7 @@
 <li>
 <p>It allows users to specify a desired location for Python before interacting with your package. For example:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(mypackage)
-reticulate<span class="op">::</span><span class="kw"><a href="../reference/use_python.html">use_virtualenv</a></span>(<span class="st">"~/pythonenvs/userenv"</span>)
+reticulate::<span class="kw"><a href="../reference/use_python.html">use_virtualenv</a></span>(<span class="st">"~/pythonenvs/userenv"</span>)
 <span class="co"># call functions from mypackage</span></code></pre></div>
 </li>
 </ol>
@@ -112,7 +112,7 @@ reticulate<span class="op">::</span><span class="kw"><a href="../reference/use_p
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># python 'foo' module I want to use in my package</span>
 foo &lt;-<span class="st"> </span><span class="ot">NULL</span>
 
-.onLoad &lt;-<span class="st"> </span><span class="cf">function</span>(libname, pkgname) {
+.onLoad &lt;-<span class="st"> </span>function(libname, pkgname) {
   <span class="co"># delay load foo module (will only be loaded when accessed via $)</span>
   foo &lt;&lt;-<span class="st"> </span><span class="kw"><a href="../reference/import.html">import</a></span>(<span class="st">"foo"</span>, <span class="dt">delay_load =</span> <span class="ot">TRUE</span>)
 }</code></pre></div>
@@ -120,9 +120,9 @@ foo &lt;-<span class="st"> </span><span class="ot">NULL</span>
 <li>
 <p>When writing tests, check to see if your module is available and if it isn’t then skip the test. For example, if you are using the <strong>testthat</strong> package, you might do this:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># helper function to skip tests if we don't have the 'foo' module</span>
-skip_if_no_foo &lt;-<span class="st"> </span><span class="cf">function</span>() {
+skip_if_no_foo &lt;-<span class="st"> </span>function() {
   have_foo &lt;-<span class="st"> </span><span class="kw"><a href="../reference/py_module_available.html">py_module_available</a></span>(<span class="st">"foo"</span>)
-  <span class="cf">if</span> (<span class="op">!</span>have_foo)
+  if (!have_foo)
     <span class="kw">skip</span>(<span class="st">"foo not available for testing"</span>)
 }
 
@@ -140,17 +140,17 @@ skip_if_no_foo &lt;-<span class="st"> </span><span class="cf">function</span>() 
 <p>Python objects exposed by <strong>reticulate</strong> carry their Python classes into R, so it’s possible to write S3 methods to customize e.g. the <code>str</code> or <code>print</code> behavior for a given class (note that it’s not typically necessary that you do this since the default <code>str</code> and <code>print</code> methods call <code>PyObject_Str</code>, which typically provides an acceptable default behavior).</p>
 <p>If you do decide to implement custom S3 methods for a Python class it’s important to keep in mind that when an R session ends the connection to Python objects is lost, so when the .RData saved from one R session is restored in a subsequent R session the Python objects are effectively lost (technically they become <code>NULL</code> R <code>externalptr</code> objects).</p>
 <p>By default when you attempt to interact with a Python object from a previous session (a <code>NULL</code> R <code>externalptr</code>) an error is thrown. If you want to do something more customized in your S3 method you can use the <code><a href="../reference/py_is_null_xptr.html">py_is_null_xptr()</a></code> function. For example:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">method.MyModule.MyPythonClass &lt;-<span class="st"> </span><span class="cf">function</span>(x, y, ...) {
-  <span class="cf">if</span> (<span class="kw"><a href="../reference/py_is_null_xptr.html">py_is_null_xptr</a></span>(x))
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">method.MyModule.MyPythonClass &lt;-<span class="st"> </span>function(x, y, ...) {
+  if (<span class="kw"><a href="../reference/py_is_null_xptr.html">py_is_null_xptr</a></span>(x))
     <span class="co"># whatever is appropriate</span>
-  <span class="cf">else</span> 
+  else 
     <span class="co"># interact with the object</span>
 }</code></pre></div>
 <p>Note that this check isn’t required, as by default an R error will occur. If it’s desirable to avoid this error for any reason then you can use <code><a href="../reference/py_is_null_xptr.html">py_is_null_xptr()</a></code> to do so.</p>
 <p>The <strong>reticulate</strong> package exports a <code>py_str</code> generic method which is called from the <code>str</code> method only after doing appropriate validation (if the object is NULL then <code>&lt;pointer: 0x0&gt;</code> is returned). You can implement the <code>py_str</code> method as follows:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#' @importFrom reticulate py_str</span>
 <span class="co">#' @export </span>
-py_str.MyModule.MyPythonClass &lt;-<span class="st"> </span><span class="cf">function</span>(object, ...) {
+py_str.MyModule.MyPythonClass &lt;-<span class="st"> </span>function(object, ...) {
   <span class="co"># interact with the object to generate the string</span>
 }</code></pre></div>
 <p>The <code>print</code> and <code>summary</code> methods for Python objects both call the <code>str</code> method by default, so if you implement <code><a href="../reference/py_str.html">py_str()</a></code> you will automatically inherit implementations for those methods.</p>

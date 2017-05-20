@@ -9,7 +9,7 @@
 #' 
 #' @docType package
 #' @name reticulate
-#' @useDynLib reticulate
+#' @useDynLib reticulate, .registration = TRUE
 #' @importFrom Rcpp evalCpp
 NULL
 

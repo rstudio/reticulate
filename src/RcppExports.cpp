@@ -441,3 +441,50 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+
+static const R_CallMethodDef CallEntries[] = {
+    {"reticulate_is_python3", (DL_FUNC) &reticulate_is_python3, 0},
+    {"reticulate_py_last_error", (DL_FUNC) &reticulate_py_last_error, 0},
+    {"reticulate_py_clear_last_error", (DL_FUNC) &reticulate_py_clear_last_error, 0},
+    {"reticulate_py_is_callable", (DL_FUNC) &reticulate_py_is_callable, 1},
+    {"reticulate_r_to_py_impl", (DL_FUNC) &reticulate_r_to_py_impl, 2},
+    {"reticulate_py_activate_virtualenv", (DL_FUNC) &reticulate_py_activate_virtualenv, 1},
+    {"reticulate_py_initialize", (DL_FUNC) &reticulate_py_initialize, 7},
+    {"reticulate_py_finalize", (DL_FUNC) &reticulate_py_finalize, 0},
+    {"reticulate_py_is_none", (DL_FUNC) &reticulate_py_is_none, 1},
+    {"reticulate_py_compare_impl", (DL_FUNC) &reticulate_py_compare_impl, 3},
+    {"reticulate_py_str_impl", (DL_FUNC) &reticulate_py_str_impl, 1},
+    {"reticulate_py_print", (DL_FUNC) &reticulate_py_print, 1},
+    {"reticulate_py_is_function", (DL_FUNC) &reticulate_py_is_function, 1},
+    {"reticulate_py_is_null_xptr", (DL_FUNC) &reticulate_py_is_null_xptr, 1},
+    {"reticulate_py_validate_xptr", (DL_FUNC) &reticulate_py_validate_xptr, 1},
+    {"reticulate_py_numpy_available_impl", (DL_FUNC) &reticulate_py_numpy_available_impl, 0},
+    {"reticulate_py_list_attributes_impl", (DL_FUNC) &reticulate_py_list_attributes_impl, 1},
+    {"reticulate_py_has_attr", (DL_FUNC) &reticulate_py_has_attr, 2},
+    {"reticulate_py_get_attr_impl", (DL_FUNC) &reticulate_py_get_attr_impl, 3},
+    {"reticulate_py_set_attr_impl", (DL_FUNC) &reticulate_py_set_attr_impl, 3},
+    {"reticulate_py_get_attribute_types", (DL_FUNC) &reticulate_py_get_attribute_types, 2},
+    {"reticulate_py_ref_to_r_with_convert", (DL_FUNC) &reticulate_py_ref_to_r_with_convert, 2},
+    {"reticulate_py_ref_to_r", (DL_FUNC) &reticulate_py_ref_to_r, 1},
+    {"reticulate_py_call_impl", (DL_FUNC) &reticulate_py_call_impl, 3},
+    {"reticulate_py_dict", (DL_FUNC) &reticulate_py_dict, 3},
+    {"reticulate_py_dict_get_item", (DL_FUNC) &reticulate_py_dict_get_item, 2},
+    {"reticulate_py_dict_set_item", (DL_FUNC) &reticulate_py_dict_set_item, 3},
+    {"reticulate_py_dict_length", (DL_FUNC) &reticulate_py_dict_length, 1},
+    {"reticulate_py_dict_get_keys_as_str", (DL_FUNC) &reticulate_py_dict_get_keys_as_str, 1},
+    {"reticulate_py_tuple", (DL_FUNC) &reticulate_py_tuple, 2},
+    {"reticulate_py_tuple_length", (DL_FUNC) &reticulate_py_tuple_length, 1},
+    {"reticulate_py_module_import", (DL_FUNC) &reticulate_py_module_import, 2},
+    {"reticulate_py_module_proxy_import", (DL_FUNC) &reticulate_py_module_proxy_import, 1},
+    {"reticulate_py_list_submodules", (DL_FUNC) &reticulate_py_list_submodules, 1},
+    {"reticulate_py_iterate", (DL_FUNC) &reticulate_py_iterate, 2},
+    {"reticulate_py_run_string_impl", (DL_FUNC) &reticulate_py_run_string_impl, 3},
+    {"reticulate_py_run_file_impl", (DL_FUNC) &reticulate_py_run_file_impl, 3},
+    {"reticulate_py_eval_impl", (DL_FUNC) &reticulate_py_eval_impl, 2},
+    {NULL, NULL, 0}
+};
+
+RcppExport void R_init_reticulate(DllInfo *dll) {
+    R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
+    R_useDynamicSymbols(dll, FALSE);
+}

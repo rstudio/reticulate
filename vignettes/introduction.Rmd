@@ -213,7 +213,7 @@ The following articles cover additional aspects of using **reticulate**:
 
 - [Python Version Configuration](versions.html)
 
-- [Using reticulate in an R Package](pacakge.html)
+- [Using reticulate in an R Package](package.html)
 
 - [Arrays in R and Python](arrays.html)
 

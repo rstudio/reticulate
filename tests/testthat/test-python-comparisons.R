@@ -2,8 +2,6 @@ context("comparisons")
 
 source("utils.R")
 
-py <- import_builtins(convert = FALSE)
-
 test_that("Python integers can be compared", {
   skip_if_no_python()
   a <- py$int(1)

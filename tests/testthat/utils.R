@@ -4,6 +4,7 @@ if (py_available(initialize = TRUE)) {
   test <- import("rpytools.test")
   inspect <- import("inspect") 
   sys <- import("sys")
+  py <- import_builtins(convert = FALSE)
 }
 
 # helper to skip tests if python is not avaialable

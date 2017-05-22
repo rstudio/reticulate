@@ -16,8 +16,8 @@ test_that("Python integers can be compared", {
 
 test_that("Python objects with the same reference are equal", {
   skip_if_no_python()
-  apply <- py$apply
-  expect_true(apply == py$apply)
+  list_fn <- py$list
+  expect_true(list_fn == py$list)
 })
 
 

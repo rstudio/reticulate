@@ -1,5 +1,5 @@
 
-# reticulate 0.8 (unreleased)
+# reticulate 0.8
 
 ## Features
 

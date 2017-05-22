@@ -3,6 +3,7 @@ context("wrapper")
 source("utils.R")
 
 test_that("test_py_function_wrapper() generates wrapper correctly for functions", {
+  skip_on_cran()
   skip_if_no_python()
   generated_wrapper <- py_function_wrapper("test$test_py_function_wrapper")
   generated_output <- capture.output(generated_wrapper)
@@ -11,6 +12,7 @@ test_that("test_py_function_wrapper() generates wrapper correctly for functions"
 })
 
 test_that("test_py_function_wrapper() generates wrapper correctly for classes", {
+  skip_on_cran()
   skip_if_no_python()
   generated_wrapper <- py_function_wrapper("test$TestPyFunctionWrapperClass")
   generated_output <- capture.output(generated_wrapper)

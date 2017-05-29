@@ -128,6 +128,8 @@ scipy$<span class="kw">amin</span>(<span class="kw">c</span>(<span class="dv">1<
 <span class="kw"><a href="../reference/use_python.html">use_python</a></span>(<span class="st">"/usr/local/bin/python"</span>)
 <span class="kw"><a href="../reference/use_python.html">use_virtualenv</a></span>(<span class="st">"~/myenv"</span>)
 <span class="kw"><a href="../reference/use_python.html">use_condaenv</a></span>(<span class="st">"myenv"</span>)</code></pre></div>
+<p>The <code>use_condaenv</code> function will use whatever conda binary is found on the system PATH. If you want to use a specific alternate version you can use the <code>conda</code> paramter. For example:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/use_python.html">use_condaenv</a></span>(<span class="dt">condaenv =</span> <span class="st">"r-nlp"</span>, <span class="dt">conda =</span> <span class="st">"/opt/anaconda3/bin/conda"</span>)</code></pre></div>
 <p>Note that the <code>use</code> functions are by default considered only hints as to where to find Python (i.e. they don’t produce errors if the specified version doesn’t exist). You can add the <code>required</code> parameter to ensure that the specified version of Python actually exists:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/use_python.html">use_virtualenv</a></span>(<span class="st">"~/myenv"</span>, <span class="dt">required =</span> <span class="ot">TRUE</span>)</code></pre></div>
 </div>

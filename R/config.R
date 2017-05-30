@@ -461,11 +461,11 @@ read_python_versions_from_registry <- function(hive, key,type=key) {
           
           # determine version and arch
           if (type == "Anaconda") {
-            matches <- regexec("^Anaconda(\\d)(\\d)-(32|64)$", version)
+            matches <- regexec("^Anaconda.*(32|64).*$", version)
             matches <- regmatches(version, matches)[[1]]
-            if (length(matches) == 4) {
-              version <- paste(matches[[2]], matches[[3]], sep = ".")
-              arch <- matches[[4]]
+            if (length(matches) == 2) {
+              version <- version_key$SysVersion
+              arch <- matches[[2]]
             } else {
               warning("Unexpected format for Anaconda version: ", version)
               arch <- NA

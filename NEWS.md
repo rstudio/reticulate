@@ -1,4 +1,9 @@
 
+# reticulate 0.9 (unreleased)
+
+- Detect older versions of Anaconda during registry scanning.
+
+
 # reticulate 0.8
 
 ## Features

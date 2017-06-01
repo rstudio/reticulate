@@ -89,7 +89,7 @@ void interruptPollingWorker(void *) {
   while(true) {
     
     // Throttle via sleep
-    this_thread::sleep_for(chrono::milliseconds(1000));
+    this_thread::sleep_for(chrono::milliseconds(100));
     
     // Schedule polling on the main thread if the interpeter is still running
     // Note that Py_AddPendingCall is documented to be callable from a background

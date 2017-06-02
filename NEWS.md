@@ -3,6 +3,8 @@
 
 - Detect older versions of Anaconda during registry scanning.
 
+- Poll for interrupts every 500ms rather than 100ms
+
 
 # reticulate 0.8
 

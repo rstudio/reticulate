@@ -27,4 +27,33 @@ def end_stderr_capture(restore):
   sys.stderr = restore
   return output
 
+
+class OutputRemap(object):
+  
+  def __init__(self, target, handler):
+    self.target = target
+    self.handler = handler
+  
+  def write(self, message):
+    self.handler(message)
+    
+  def __getattr__(self, attr): 
+    return getattr(self.target, attr)
+
+  def close(self):
+    return None
+  
+  def flush(self):
+    return None
+
+
+def remap_output_streams(r_stdout, r_stderr):
+  sys.stdout = OutputRemap(sys.stdout, r_stdout)
+  sys.stderr = OutputRemap(sys.stderr, r_stderr)
+
+
+
+
+
+
   

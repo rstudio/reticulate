@@ -42,6 +42,10 @@ ensure_python_initialized <- function(required_module = NULL) {
         .globals$delay_load_module <- NULL # one shot
      }
     .globals$py_config <- initialize_python(required_module)
+    
+    # remap output streams to R output handlers
+    remap_output_streams()
+    
   }
 }
 

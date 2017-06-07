@@ -5,6 +5,8 @@
 
 - Poll for interrupts every 500ms rather than 100ms
 
+- Provide sys.stdout and sys.stderr when they are None (e.g. in R GUI)
+
 
 # reticulate 0.8
 

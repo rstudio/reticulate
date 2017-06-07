@@ -38,7 +38,10 @@ class OutputRemap(object):
     self.handler(message)
     
   def __getattr__(self, attr): 
-    return getattr(self.target, attr)
+    if (self.target): 
+      return getattr(self.target, attr)
+    else:
+      return 0
 
   def close(self):
     return None
@@ -48,8 +51,10 @@ class OutputRemap(object):
 
 
 def remap_output_streams(r_stdout, r_stderr):
-  sys.stdout = OutputRemap(sys.stdout, r_stdout)
-  sys.stderr = OutputRemap(sys.stderr, r_stderr)
+  if (sys.stdout is None):
+    sys.stdout = OutputRemap(sys.stdout, r_stdout)
+  if (sys.stderr is None):
+    sys.stderr = OutputRemap(sys.stderr, r_stderr)
 
 
 

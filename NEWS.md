@@ -3,6 +3,8 @@
 
 - Detect older versions of Anaconda during registry scanning.
 
+- Don't probe python versions on windows when no executable is found
+
 - Poll for interrupts every 500ms rather than 100ms
 
 - Provide sys.stdout and sys.stderr when they are None (e.g. in R GUI)

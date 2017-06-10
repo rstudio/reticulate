@@ -9,6 +9,8 @@
 
 - Provide sys.stdout and sys.stderr when they are None (e.g. in R GUI)
 
+- Add Scripts directory to PATH on Windows
+
 
 # reticulate 0.8
 

@@ -77,8 +77,12 @@ initialize_python <- function(required_module = NULL) {
   
   # add the python bin dir to the PATH (so that any execution of python from 
   # within the interpreter, from a system call, or from within a terminal 
-  # hosted within the front end will use the same version of python
-  Sys.setenv(PATH = paste(normalizePath(dirname(config$python)), 
+  # hosted within the front end will use the same version of python. On 
+  # Windows also add the Scripts path
+  python_dirs <- normalizePath(dirname(config$python))
+  if (is_windows())
+    python_dirs <- c(python_dirs, file.path(python_dirs, "Scripts", fsep = "\\"))
+  Sys.setenv(PATH = paste(paste(python_dirs, collapse =  .Platform$path.sep), 
                           Sys.getenv("PATH"),
                           sep = .Platform$path.sep))  
   

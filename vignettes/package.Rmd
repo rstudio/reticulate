@@ -38,7 +38,7 @@ If you use **reticulate** in another R package you need to account for the fact 
 
 There are two things you should do to ensure your package is well behaved on CRAN:
 
-1. Use the `delay_load` option (as described aboe) to ensure that the module (and Python) is loaded only on it's first use. For example:
+1. Use the `delay_load` option (as described above) to ensure that the module (and Python) is loaded only on it's first use. For example:
 
     ```{r}
     # python 'foo' module I want to use in my package

@@ -680,12 +680,6 @@ iterate <- function(x, f = base::identity, simplify = TRUE) {
   invisible(result)
 }
 
-#' @export
-print.python.builtin.iterator <- function(x, ...) {
-  str(x, ...)
-  cat("Python iterator/generator (use iterate function to traverse)\n")
-}
-
 #' Call a Python callable object
 #' 
 #' @param ... Arguments to function (named and/or unnamed)

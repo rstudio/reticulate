@@ -11,6 +11,8 @@
 
 - Add Scripts directory to PATH on Windows
 
+- Eliminate special print method for iterators/generators
+
 
 # reticulate 0.8
 

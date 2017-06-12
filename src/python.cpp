@@ -1798,6 +1798,28 @@ List py_iterate(PyObjectRef x, Function f) {
   return rList;
 }
 
+// [[Rcpp::export]]
+SEXP py_iter_next(PyObjectRef iterator, RObject completed) {
+  
+  PyObjectPtr item(PyIter_Next(iterator));
+  if (item.is_null()) {
+    
+    // null could mean that iteraton is done so we check to 
+    // ensure that an error actually occrred
+    if (PyErr_Occurred())
+      stop(py_fetch_error());
+  
+    // if there wasn't an error then return the 'completed' sentinel
+    return completed;
+  
+  } else {
+    
+    // return R object
+    return iterator.convert() ? py_to_r(item, true) : py_ref(item, false);
+  
+  }
+}
+
 
 // [[Rcpp::export]]
 SEXP py_run_string_impl(const std::string& code, 

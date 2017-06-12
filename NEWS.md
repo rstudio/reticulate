@@ -11,6 +11,8 @@
 
 - Add Scripts directory to PATH on Windows
 
+- Add iter_next function for element-by-element access to iterators
+
 - Eliminate special print method for iterators/generators
 
 

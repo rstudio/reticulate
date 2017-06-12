@@ -107,13 +107,15 @@
     <p>Traverse a Python iterator or generator</p>
     
 
-    <pre class="usage"><span class='fu'>iterate</span>(<span class='no'>x</span>, <span class='kw'>f</span> <span class='kw'>=</span> <span class='kw'>base</span><span class='kw'>::</span><span class='no'>identity</span>, <span class='kw'>simplify</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
+    <pre class="usage"><span class='fu'>iterate</span>(<span class='no'>it</span>, <span class='kw'>f</span> <span class='kw'>=</span> <span class='kw'>base</span><span class='kw'>::</span><span class='no'>identity</span>, <span class='kw'>simplify</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
+
+<span class='fu'>iter_next</span>(<span class='no'>it</span>, <span class='kw'>completed</span> <span class='kw'>=</span> <span class='fl'>NA</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>x</th>
+      <th>it</th>
       <td><p>Python iterator or generator</p></td>
     </tr>
     <tr>
@@ -125,18 +127,24 @@
       <th>simplify</th>
       <td><p>Should the result be simplified to a vector if possible?</p></td>
     </tr>
+    <tr>
+      <th>completed</th>
+      <td><p>Sentinel value to return from <code>iter_next()</code> if the iteration
+completes (defaults to <code>NA</code> but can be any R value you specify).</p></td>
+    </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>List or vector containing the results of calling <code>f</code> on each
-item in <code>x</code> (invisibly).</p>
+    <p>For <code>iterate()</code>, A list or vector containing the results of calling
+<code>f</code> on each item in <code>x</code> (invisibly); For <code>iter_next()</code>, the next
+value in the iteration (or the sentinel <code>completed</code> value if the iteration
+is complete).</p>
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>Simplification is only attempted all elements are length 1
-vectors of type "character", "complex", "double", "integer", or
-"logical".</p>
+    <p>Simplification is only attempted all elements are length 1 vectors
+of type "character", "complex", "double", "integer", or "logical".</p>
     
 
   </div>

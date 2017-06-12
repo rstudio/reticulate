@@ -226,6 +226,23 @@ main<span class="op">$</span>x</code></pre></div>
 <p>Note that the <code>Iterators</code> will be drained of their values by <code><a href="../reference/iterate.html">iterate()</a></code>:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">a &lt;-<span class="st"> </span><span class="kw"><a href="../reference/iterate.html">iterate</a></span>(iter) <span class="co"># results are not empty</span>
 b &lt;-<span class="st"> </span><span class="kw"><a href="../reference/iterate.html">iterate</a></span>(iter) <span class="co"># results are empty since items have already been drained</span></code></pre></div>
+<div id="element-level-iteration" class="section level3">
+<h3 class="hasAnchor">
+<a href="#element-level-iteration" class="anchor"></a>Element Level Iteration</h3>
+<p>You can also iterate on an element-by-element basis using the <code><a href="../reference/iterate.html">iter_next()</a></code> function. For example:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">while</span> (<span class="ot">TRUE</span>) {
+  item &lt;-<span class="st"> </span><span class="kw"><a href="../reference/iterate.html">iter_next</a></span>(iter)
+  <span class="cf">if</span> (<span class="kw">is.na</span>(item))
+    <span class="cf">break</span>
+}</code></pre></div>
+<p>By default <code><a href="../reference/iterate.html">iter_next()</a></code> will return <code>NA</code> when the iteration is complete but you can provide a custom value and it will be returned instead. For example:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">while</span> (<span class="ot">TRUE</span>) {
+  item &lt;-<span class="st"> </span><span class="kw"><a href="../reference/iterate.html">iter_next</a></span>(iter, <span class="dt">completed =</span> <span class="ot">NULL</span>)
+  <span class="cf">if</span> (<span class="kw">is.null</span>(item))
+    <span class="cf">break</span>
+}</code></pre></div>
+<p>Note that some iterators/genrators in Python are infinite. In that case the caller will need custom logic to determine when to terminate the loop.</p>
+</div>
 </div>
 <div id="advanced-functions" class="section level2">
 <h2 class="hasAnchor">

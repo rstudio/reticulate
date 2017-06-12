@@ -176,6 +176,10 @@ py_iterate <- function(x, f) {
     .Call(reticulate_py_iterate, x, f)
 }
 
+py_iter_next <- function(iterator, completed) {
+    .Call(reticulate_py_iter_next, iterator, completed)
+}
+
 py_run_string_impl <- function(code, local = FALSE, convert = TRUE) {
     .Call(reticulate_py_run_string_impl, code, local, convert)
 }

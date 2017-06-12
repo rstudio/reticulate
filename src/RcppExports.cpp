@@ -403,6 +403,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// py_iter_next
+SEXP py_iter_next(PyObjectRef iterator, RObject completed);
+RcppExport SEXP reticulate_py_iter_next(SEXP iteratorSEXP, SEXP completedSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< PyObjectRef >::type iterator(iteratorSEXP);
+    Rcpp::traits::input_parameter< RObject >::type completed(completedSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_iter_next(iterator, completed));
+    return rcpp_result_gen;
+END_RCPP
+}
 // py_run_string_impl
 SEXP py_run_string_impl(const std::string& code, bool local, bool convert);
 RcppExport SEXP reticulate_py_run_string_impl(SEXP codeSEXP, SEXP localSEXP, SEXP convertSEXP) {
@@ -478,6 +490,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"reticulate_py_module_proxy_import", (DL_FUNC) &reticulate_py_module_proxy_import, 1},
     {"reticulate_py_list_submodules", (DL_FUNC) &reticulate_py_list_submodules, 1},
     {"reticulate_py_iterate", (DL_FUNC) &reticulate_py_iterate, 2},
+    {"reticulate_py_iter_next", (DL_FUNC) &reticulate_py_iter_next, 2},
     {"reticulate_py_run_string_impl", (DL_FUNC) &reticulate_py_run_string_impl, 3},
     {"reticulate_py_run_file_impl", (DL_FUNC) &reticulate_py_run_file_impl, 3},
     {"reticulate_py_eval_impl", (DL_FUNC) &reticulate_py_eval_impl, 2},

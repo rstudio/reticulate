@@ -2,7 +2,7 @@
 % Please edit documentation in R/config.R
 \name{py_versions_windows}
 \alias{py_versions_windows}
-\title{Discover versions of Python installed on a Widnows system}
+\title{Discover versions of Python installed on a Windows system}
 \usage{
 py_versions_windows()
 }
@@ -11,6 +11,6 @@ Data frame with \code{type}, \code{hive}, \code{install_path}, \code{executable_
 and \code{version}.
 }
 \description{
-Discover versions of Python installed on a Widnows system
+Discover versions of Python installed on a Windows system
 }
 \keyword{internal}

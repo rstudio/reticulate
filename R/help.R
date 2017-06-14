@@ -6,7 +6,10 @@
 #'
 #' @export
 py_help <- function(object) {
-  import_builtins()$help(object)
+  help <- py_capture_output(import_builtins()$help(object), type = "stdout")
+  tmp <- tempfile("py_help", fileext = ".txt")
+  writeLines(help, con = tmp)
+  file.show(tmp, title = paste("Python Help:", object$`__name__`), delete.file = TRUE)
 }
 
 #' Register help topics

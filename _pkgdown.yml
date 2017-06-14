@@ -66,6 +66,7 @@ reference:
       - py_str
       - py_unicode
       - py_last_error
+      - py_help
  
  
  

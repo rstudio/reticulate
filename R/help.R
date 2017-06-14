@@ -1,4 +1,14 @@
 
+
+#' Documentation for Python Objects
+#' 
+#' @param object Object to print documentation for
+#'
+#' @export
+py_help <- function(object) {
+  import_builtins()$help(object)
+}
+
 #' Register help topics
 #'
 #' Register a set of help topics for dispatching from F1 help

@@ -212,6 +212,14 @@ conda_binary <- function(conda = "auto") {
 }
 
 
+#' @rdname conda-tools
+#' @export
+conda_version <- function(conda = "auto") {
+  conda_bin <- conda_binary(conda)
+  system2(conda_bin, "--version", stdout = TRUE)
+}
+
+
 
 find_conda <- function() {
   conda <- Sys.which("conda")

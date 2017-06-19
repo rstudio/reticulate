@@ -15,7 +15,9 @@
 
 - Eliminate special print method for iterators/generators
 
-- Added `py_help` function for printing documentation on Python objects
+- Added `py_help()` function for printing documentation on Python objects
+
+- Added `conda_version()` function.
 
 
 # reticulate 0.8

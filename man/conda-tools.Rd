@@ -7,6 +7,7 @@
 \alias{conda_remove}
 \alias{conda_install}
 \alias{conda_binary}
+\alias{conda_version}
 \title{Interface to conda utility commands}
 \usage{
 conda_list(conda = "auto")
@@ -18,6 +19,8 @@ conda_remove(envname, packages = NULL, conda = "auto")
 conda_install(envname, packages, pip = FALSE, conda = "auto")
 
 conda_binary(conda = "auto")
+
+conda_version(conda = "auto")
 }
 \arguments{
 \item{conda}{Path to conda executable (or "auto" to find conda using the PATH

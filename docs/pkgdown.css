@@ -34,6 +34,10 @@ img.icon {
   float: right;
 }
 
+img {
+  max-width: 100%;
+}
+
 /* Section anchors ---------------------------------*/
 
 a.anchor {

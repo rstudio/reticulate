@@ -471,9 +471,14 @@ dict <- function(..., convert = FALSE) {
   # evaluate names in parent env to get keys
   frame <- parent.frame()
   keys <- lapply(names, function(name) {
-    if (exists(name, envir = frame, inherits = FALSE))
-      key <- get(name, envir = frame, inherits = FALSE)
-    else {
+    # allow python objects to serve as keys
+    if (exists(name, envir = frame, inherits = TRUE)) {
+      key <- get(name, envir = frame, inherits = TRUE)
+      if (inherits(key, "python.builtin.object"))
+        key
+      else
+        name
+    } else {
       if (grepl("[0-9]+", name))
         name <- as.integer(name)
       else

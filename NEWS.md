@@ -19,6 +19,9 @@
 
 - Added `conda_version()` function.
 
+- Search `dict()` parent frames for symbols; only use symbols which inherit
+  from python.builtin.object as keys.
+
 
 # reticulate 0.8
 

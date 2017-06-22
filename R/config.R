@@ -216,7 +216,10 @@ python_environments <- function(env_dirs, required_module = NULL) {
   }
   
   # filter by existence
-  envs[file.exists(envs)]
+  if (length(envs) > 0)
+    envs[file.exists(envs)]
+  else
+    envs
 }
 
 

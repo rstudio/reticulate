@@ -3,6 +3,8 @@
 
 - Search WORKON_HOME (used by virtualenv_wrapper) for Python environments  
 
+- Support `priority` field for delay loaded modules.
+
 
 # reticulate 0.9
 

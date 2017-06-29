@@ -38,12 +38,15 @@ import <- function(module, as = NULL, convert = TRUE, delay_load = FALSE) {
   }
   
   # resolve delay load
+  delay_load_priority <- 0
   delay_load_functions <- NULL
   if (is.function(delay_load)) {
     delay_load_functions <- list(on_load = delay_load)
     delay_load <- TRUE
   } else if (is.list(delay_load)) {
     delay_load_functions <- delay_load
+    if (!is.null(delay_load$priority))
+      delay_load_priority <- delay_load$priority
     delay_load <- TRUE
   }
   
@@ -59,8 +62,10 @@ import <- function(module, as = NULL, convert = TRUE, delay_load = FALSE) {
   
   # delay load case (wait until first access)
   else {
-    if (is.null(.globals$delay_load_module))
+    if (is.null(.globals$delay_load_module) || (delay_load_priority > .globals$delay_load_priority)) {
       .globals$delay_load_module <- module
+      .globals$delay_load_priority <- delay_load_priority
+    }
     module_proxy <- new.env(parent = emptyenv())
     module_proxy$module <- module
     module_proxy$convert <- convert
@@ -1092,6 +1097,7 @@ py_resolve_module_proxy <- function(proxy) {
   
   # clear the global tracking of delay load modules
   .globals$delay_load_module <- NULL
+  .globals$delay_load_priority <- 0
   
   # call on_load if specifed
   if (!is.null(on_load))

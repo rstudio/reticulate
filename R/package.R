@@ -18,6 +18,7 @@ NULL
 .globals$use_python_versions <- c()
 .globals$py_config <- NULL
 .globals$delay_load_module <- NULL
+.globals$delay_load_priority <- 0
 .globals$suppress_warnings_handlers <- list()
 .globals$class_filters <- list()
 
@@ -40,6 +41,7 @@ ensure_python_initialized <- function(required_module = NULL) {
      if (!is.null(.globals$delay_load_module)) {
         required_module <- .globals$delay_load_module
         .globals$delay_load_module <- NULL # one shot
+        .globals$delay_load_priority <- 0
      }
     .globals$py_config <- initialize_python(required_module)
     

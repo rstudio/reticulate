@@ -1,4 +1,9 @@
 
+# reticulate 1.0 (unreleased)
+
+- Search WORKON_HOME (used by virtualenv_wrapper) for Python environments  
+
+
 # reticulate 0.9
 
 - Detect older versions of Anaconda during registry scanning.

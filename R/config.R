@@ -107,7 +107,14 @@ py_discover_config <- function(required_module = NULL) {
     }
     
   } else {
-    env_dirs <- c("~/.virtualenvs", "~/anaconda/envs", "~/anaconda3/envs", "~/anaconda3/envs", "~")
+    # virtualenv_wrapper allows redirection of root envs directory via WORKON_HOME
+    workon_home <- Sys.getenv("WORKON_HOME", unset = NA)
+    if (is.na(workon_home))
+      workon_home <- NULL
+    # all possible environment dirs
+    env_dirs <- c(workon_home, "~/.virtualenvs", 
+                  "~/anaconda/envs", "~/anaconda3/envs", "~/anaconda3/envs", 
+                  "~")
     if (!is.null(required_module))
       python_versions <- c(python_versions, python_environments(env_dirs, required_module))
   }

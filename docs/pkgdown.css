@@ -137,9 +137,14 @@ pre, code {
   color: #333;
 }
 
-pre img {
+pre .img {
+  margin: 5px 0;
+}
+
+pre .img img {
   background-color: #fff;
   display: block;
+  height: auto;
 }
 
 code a, pre a {

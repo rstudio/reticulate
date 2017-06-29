@@ -143,9 +143,10 @@ scipy<span class="op">$</span><span class="kw">amin</span>(<span class="kw">c</s
 <li>
 <p>Within virtualenvs and conda envs that carry the same name as the first module imported. For example, if you execute <code><a href="../reference/import.html">import("nltk")</a></code> then the following locations (among other similar ones) would be scanned for a version of Python with the <strong>nltk</strong> module installed:</p>
 <ul>
-<li>~/nltk</li>
+<li>$WORKON_HOME/nltk</li>
 <li>~/.virtualenvs/nltk</li>
 <li>~/anaconda/envs/nltk</li>
+<li>~/nltk</li>
 </ul>
 </li>
 <li><p>At the location of the Python binary discovered on the system <code>PATH</code> (via the <code>Sys.which</code> function).</p></li>

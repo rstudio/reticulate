@@ -5,6 +5,8 @@
 
 - Support `priority` field for delay loaded modules.
 
+- Use json output from conda_list (handle spaces in path of conda env)
+
 
 # reticulate 0.9
 

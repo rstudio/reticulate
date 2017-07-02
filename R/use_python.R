@@ -84,6 +84,8 @@ use_condaenv <- function(condaenv, conda = "auto", required = FALSE) {
 #'   
 #' @keywords intername
 #' @name conda-tools
+#' 
+#' @importFrom jsonlite fromJSON
 #'   
 #' @export
 conda_list <- function(conda = "auto") {
@@ -92,27 +94,24 @@ conda_list <- function(conda = "auto") {
   conda <- conda_binary(conda)
   
   # list envs
-  conda_envs <- system2(conda, args = c("info", "--envs"), stdout = TRUE)
-  conda_envs <- conda_envs[!grepl("Anaconda Cloud", conda_envs, fixed = TRUE)]
-  matches <- regexec(paste0("^([^#][^ ]+)[ \\*]+(.*)$"), conda_envs)
-  matches <- regmatches(conda_envs, matches)
-  
+  conda_envs <- system2(conda, args = c("info", "--json"), stdout = TRUE)
+  conda_envs <- fromJSON(conda_envs)$envs
+
   # build data frame
   name <- character()
   python <- character()
-  for (match in matches) {
-    if (length(match) == 3) {
-      name <- c(name, match[[2]])
-      conda_env_dir <- match[[3]]
-      if (!is_windows())
-        conda_env_dir <- file.path(conda_env_dir, "bin")
-      conda_env_python <- file.path(conda_env_dir, "python")
-      if (is_windows()) {
-        conda_env_python <- paste0(conda_env_python, ".exe")
-        conda_env_python <- normalizePath(conda_env_python)
-      }
-      python <- c(python, conda_env_python)
+  for (conda_env in conda_envs) {
+    name <- c(name, basename(conda_env))
+    conda_env_dir <- conda_env
+    if (!is_windows())
+      conda_env_dir <- file.path(conda_env_dir, "bin")
+    conda_env_python <- file.path(conda_env_dir, "python")
+    if (is_windows()) {
+      conda_env_python <- paste0(conda_env_python, ".exe")
+      conda_env_python <- normalizePath(conda_env_python)
     }
+    python <- c(python, conda_env_python)
+    
   }
   data.frame(name = name, python = python, stringsAsFactors = FALSE)
 }

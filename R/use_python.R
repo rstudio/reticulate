@@ -95,6 +95,12 @@ conda_list <- function(conda = "auto") {
   
   # list envs
   conda_envs <- system2(conda, args = c("info", "--json"), stdout = TRUE)
+  
+  # strip out anaconda cloud prefix (not valid json)
+  if (length(conda_envs) > 0 && grepl("Anaconda Cloud", conda_envs[[1]], fixed = TRUE))
+    conda_envs <- conda_envs[-1]
+    
+  # convert to json
   conda_envs <- fromJSON(conda_envs)$envs
 
   # build data frame

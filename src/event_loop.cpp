@@ -85,14 +85,14 @@ int pollForEvents(void*);
 void checkUserInterrupt(void*);
   
 // Background thread which re-schedules pollForEvents on the main Python
-// interpreter thread every 100ms so long as the Python interpeter is still
+// interpreter thread every 250ms so long as the Python interpeter is still
 // running (when it stops running it will stop calling pollForEvents and
 // the polling signal will not be set).
 void eventPollingWorker(void *) {
   while(true) {
     
     // Throttle via sleep
-    this_thread::sleep_for(chrono::milliseconds(500));
+    this_thread::sleep_for(chrono::milliseconds(250));
     
     // Schedule polling on the main thread if the interpeter is still running
     // Note that Py_AddPendingCall is documented to be callable from a background

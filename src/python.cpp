@@ -1261,7 +1261,8 @@ void call_python_function(void* data) {
   PythonCall* call = (PythonCall*)data; 
 
   // call the function
-  PyObjectPtr res(PyObject_CallFunctionObjArgs(call->func, call->data, NULL));
+  PyObject* arg = py_is_none(call->data) ? NULL : call->data;
+  PyObjectPtr res(PyObject_CallFunctionObjArgs(call->func, arg, NULL));
   if (res.is_null()) {
     // don't throw from here as we are in a callback
     std::string msg = py_fetch_error();

@@ -6,7 +6,7 @@ using namespace Rcpp;
 
 #include "reticulate_types.h"
 
-#include "interrupt.h"
+#include "event_loop.h"
 
 #include <fstream>
 

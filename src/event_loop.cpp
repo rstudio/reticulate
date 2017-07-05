@@ -30,7 +30,7 @@
 // raised.
 //
 
-#include "interrupt.h"
+#include "event_loop.h"
 
 #include "libpython.h"
 using namespace libpython;

@@ -40,6 +40,10 @@ using namespace tthread;
 
 #include <Rinternals.h>
 
+#include <vector>
+
+namespace event_loop {
+
 namespace {
 
 // Class that is used to signal the need to poll for interrupts between
@@ -78,6 +82,10 @@ private:
 
 EventPollingSignal s_pollingSignal;
 
+// vector of pending tasks (note that this is only interacted with on the
+// foreground thread so doesn't need to be synchronized)
+std::vector<Task> s_eventLoopTasks;
+
 extern "C" {
 
 // Forward declarations
@@ -113,6 +121,13 @@ void eventPollingWorker(void *) {
 // the scheduling of the function by using a background thread + a sleep timer.
 int pollForEvents(void*) {
   
+  // Call any registered tasks (make a copy first so there is no chance
+  // the task list can be interacted with while we are working)
+  std::vector<Task> tasks = s_eventLoopTasks;
+  s_eventLoopTasks.clear();
+  for (size_t i = 0; i<tasks.size(); ++i)
+    tasks[i].func(tasks[i].data);
+  
   // Check whether an interrupt has been requested by the user. If one
   // has then set the Python interrupt flag (which will soon after result
   // in a KeyboardInterrupt error being thrown).
@@ -143,11 +158,17 @@ void checkUserInterrupt(void*) {
 
 
 // Initialize event loop polling background thread
-void initialize_event_loop_polling() {
+void initialize() {
   thread t(eventPollingWorker, NULL);
   t.detach();
 }
 
+// Register a task to run on the event loop
+void register_task(Task task) {
+  s_eventLoopTasks.push_back(task);
+}
+
+} // namespace event_loop
 
 
 

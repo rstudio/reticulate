@@ -1365,7 +1365,7 @@ void py_initialize(const std::string& python,
     s_numpy_load_error = numpy_load_error;
   
   // poll for events while executing python code
-  initialize_event_loop_polling();
+  event_loop::initialize();
 }
 
 // [[Rcpp::export]]

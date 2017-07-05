@@ -7,6 +7,7 @@
 
 - Use json output from conda_list (handle spaces in path of conda env)
 
+- Look for callable before iterable when converting Python objects to R
 
 # reticulate 0.9
 

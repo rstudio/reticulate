@@ -889,16 +889,6 @@ SEXP py_to_r(PyObject* x, bool convert) {
     }
   }
 
-  // iterator/generator
-  else if (PyObject_HasAttrString(x, "__iter__") &&
-           (PyObject_HasAttrString(x, "next") ||
-            PyObject_HasAttrString(x, "__next__"))) {
-
-    // return it raw but add a class so we can create S3 methods for it
-    Py_IncRef(x);
-    return py_ref(x, true, std::string("python.builtin.iterator"));
-  }
-
   // callable
   else if (py_is_callable(x)) {
     
@@ -919,6 +909,16 @@ SEXP py_to_r(PyObject* x, bool convert) {
     
     // return the R function
     return f;
+  }
+  
+  // iterator/generator
+  else if (PyObject_HasAttrString(x, "__iter__") &&
+           (PyObject_HasAttrString(x, "next") ||
+           PyObject_HasAttrString(x, "__next__"))) {
+    
+    // return it raw but add a class so we can create S3 methods for it
+    Py_IncRef(x);
+    return py_ref(x, true, std::string("python.builtin.iterator"));
   }
   
   // default is to return opaque wrapper to python object. we pass convert = true 

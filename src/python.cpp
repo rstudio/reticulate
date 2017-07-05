@@ -1232,11 +1232,20 @@ extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* k
   rArgs = append(rArgs, rKeywords);
 
   // call the R function
-  Function doCall("do.call");
-  RObject result = doCall(rFunction, rArgs);
-
-  // return it's result
-  return r_to_py(result, convert);
+  std::string err;
+  try {
+    Function doCall("do.call");
+    RObject result = doCall(rFunction, rArgs);
+    return r_to_py(result, convert);
+  } catch(const std::exception& e) {
+    err = e.what();
+  } catch(...) {
+    err = "(Unknown exception occurred)";
+  }
+  
+  // won't reach this code unless an error occurred
+  Rf_warning("Error calling R function from Python: %s", err.c_str());
+  return as_python_str(err);
 }
 
 struct PythonCall {

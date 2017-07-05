@@ -128,8 +128,9 @@ void checkUserInterrupt(void*);
 void eventPollingWorker(void *) {
   while(true) {
     
-    // Throttle via sleep 
-    this_thread::sleep_for(chrono::milliseconds(250));
+    // Throttle via sleep (do less throttling if there are pending tasks)
+    int sleepTime = s_eventLoopTasks.empty() ? 250 : 50;
+    this_thread::sleep_for(chrono::milliseconds(sleepTime));
     
     // Schedule polling on the main thread if the interpeter is still running
     // Note that Py_AddPendingCall is documented to be callable from a background

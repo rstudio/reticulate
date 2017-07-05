@@ -1239,10 +1239,66 @@ extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* k
   return r_to_py(result, convert);
 }
 
+struct PythonCall {
+  PythonCall(PyObject* func, PyObject* data) : func(func), data(data) {
+    Py_IncRef(func);
+    Py_IncRef(data);
+  }
+  ~PythonCall() {
+    Py_DecRef(func);
+    Py_DecRef(data);
+  }
+  PyObject* func;
+  PyObject* data;
+private:
+  PythonCall(const PythonCall& other); 
+  PythonCall& operator=(const PythonCall&);
+};
+
+void call_python_function(void* data) {
+  
+  // cast to call
+  PythonCall* call = (PythonCall*)data; 
+
+  // call the function
+  PyObjectPtr res(PyObject_CallFunctionObjArgs(call->func, call->data, NULL));
+  if (res.is_null()) {
+    // don't throw from here as we are in a callback
+    std::string msg = py_fetch_error();
+    std::cerr << "Error calling event loop task: " << msg << std::endl;
+  }
+  
+  // delete the call object (will decref the members)
+  delete call;
+}
+
+
+extern "C" PyObject* register_event_loop_task(PyObject *self, PyObject* args, PyObject* keywords) {
+  
+  // arguments are the python function to call and an optional data argument
+  // capture them and then incref them so they survive past this call (we'll
+  // decref them in the call_python_function callback)
+  PyObject* func = PyTuple_GetItem(args, 0);
+  PyObject* data = PyTuple_GetItem(args, 1);
+  
+  // create the call object (the func and data will be automaticlaly incref'd then 
+  // decrefed when the call object is destroyed)
+  PythonCall* call = new PythonCall(func, data);
+
+  // schedule calling the function
+  event_loop::register_task(event_loop::Task(call_python_function, (void*)call));
+  
+  // return none
+  Py_IncRef(Py_None);
+  return Py_None; 
+}
+
 
 PyMethodDef RPYCallMethods[] = {
   { "call_r_function", (PyCFunction)call_r_function,
     METH_VARARGS | METH_KEYWORDS, "Call an R function" },
+  { "register_event_loop_task", (PyCFunction)register_event_loop_task,
+    METH_VARARGS | METH_KEYWORDS, "Register an event loop task" },
   { NULL, NULL, 0, NULL }
 };
 

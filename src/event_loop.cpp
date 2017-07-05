@@ -82,9 +82,38 @@ private:
 
 EventPollingSignal s_pollingSignal;
 
-// vector of pending tasks (note that this is only interacted with on the
-// foreground thread so doesn't need to be synchronized)
-std::vector<Task> s_eventLoopTasks;
+// pending tasks
+class EventLoopTasks {
+public:
+  EventLoopTasks() {}
+  
+  void add(Task task) { 
+    lock_guard<mutex> lock(mutex_);
+    tasks_.push_back(task); 
+  }
+  
+  std::vector<Task> collect() {
+    lock_guard<mutex> lock(mutex_);
+    std::vector<Task> tasks = tasks_;
+    tasks_.clear();
+    return tasks;
+  }
+  
+  bool empty() {
+    lock_guard<mutex> lock(mutex_);
+    return tasks_.empty();
+  }
+  
+private:
+  EventLoopTasks(const EventLoopTasks& other); 
+  EventLoopTasks& operator=(const EventLoopTasks&);
+private:
+  mutex mutex_; 
+  std::vector<Task> tasks_;  
+};
+
+EventLoopTasks s_eventLoopTasks;
+
 
 extern "C" {
 
@@ -99,7 +128,7 @@ void checkUserInterrupt(void*);
 void eventPollingWorker(void *) {
   while(true) {
     
-    // Throttle via sleep
+    // Throttle via sleep 
     this_thread::sleep_for(chrono::milliseconds(250));
     
     // Schedule polling on the main thread if the interpeter is still running
@@ -121,10 +150,8 @@ void eventPollingWorker(void *) {
 // the scheduling of the function by using a background thread + a sleep timer.
 int pollForEvents(void*) {
   
-  // Call any registered tasks (make a copy first so there is no chance
-  // the task list can be interacted with while we are working)
-  std::vector<Task> tasks = s_eventLoopTasks;
-  s_eventLoopTasks.clear();
+  // Collect and call any registered tasks
+  std::vector<Task> tasks = s_eventLoopTasks.collect();
   for (size_t i = 0; i<tasks.size(); ++i)
     tasks[i].func(tasks[i].data);
   
@@ -165,7 +192,7 @@ void initialize() {
 
 // Register a task to run on the event loop
 void register_task(Task task) {
-  s_eventLoopTasks.push_back(task);
+  s_eventLoopTasks.add(task);
 }
 
 } // namespace event_loop

@@ -1364,8 +1364,8 @@ void py_initialize(const std::string& python,
   else
     s_numpy_load_error = numpy_load_error;
   
-  // poll for interrupts
-  initialize_interrupt_polling();
+  // poll for events while executing python code
+  initialize_event_loop_polling();
 }
 
 // [[Rcpp::export]]

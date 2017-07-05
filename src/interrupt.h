@@ -1,7 +1,7 @@
 
-#ifndef __PYTHON_INTERRUPT__
-#define __PYTHON_INTERRUPT__
+#ifndef __PYTHON_EVENT_LOOP__
+#define __PYTHON_EVENT_LOOP__
 
-void initialize_interrupt_polling();
+void initialize_event_loop_polling();
 
-#endif // __PYTHON_INTERRUPT__
+#endif // __PYTHON_EVENT_LOOP__

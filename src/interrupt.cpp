@@ -1,16 +1,18 @@
-// This code implements the ability to interrupt executing Python code using 
-// the standard R interrupt handling mechanism.
+// This code implements the ability to poll for events while Python code 
+// is executing. Events of interest include checking for interrupts as well
+// as executing GUI front end code.
 // 
 // Since execution of Python code occurs within native C++ code the normal R 
-// interpeter checking for interrupts that occurs during do_eval does not have 
+// interpeter event polling that occurs during do_eval does not have 
 // a chance to execute. Typically within Rcpp packages long running user code 
 // will call Rcpp::checkForInterrupts periodically to check for an interrupt 
-// and exit via an exception if there is one. However there is no opportunity 
+// and exit via an exception if there is one (tthis call to checkForInterrupts
+// calls the R process events machinery as well). However there is no opportunity 
 // to do this during Python execution, so we need to find a way to get periodic
 // callbacks during the Python interpeter's processing to perform this check.
 // 
 // This is provided for via the Py_AddPendingCall function, which enables the 
-// scheduling of a C callabck on the main interpeter thread *during* the 
+// scheduling of a C callback on the main interpeter thread *during* the 
 // execution of Python code. Unfortunately this call occurs very eagerly, so we
 // can't just schedule a callback and have the callback reschedule itself (this
 // completely swamps the interpeteter). Rather, we need to have a background 
@@ -19,13 +21,14 @@
 // Python interpeter remains running).
 // 
 // Having arranged for callbacks during Python interpretation at the 
-// appropriate rate, we then need to interact with R to check for a user 
-// interrupt, then interact with Python to notify it of any interrupt. We poll 
-// for interrupts in R using the same technique as Rcpp::checkForException. If 
-// we determine that an interrupt has occurred we call PyErr_SetInterrupt, 
-// which signals Python that an interrupt has been requested, which will 
-// ultimately result in a KeyboardInterrupt error being raised.
-
+// appropriate rate, we then need to interact with R to check for interrupts
+// (and thus pump events), then interact with Python to notify it of any 
+// interrupt. We poll for interrupts in R using the same technique as 
+// Rcpp::checkForInterrupts. If we determine that an interrupt has occurred
+// we call PyErr_SetInterrupt, which signals Python that an interrupt has been
+// requested, which will ultimately result in a KeyboardInterrupt error being 
+// raised.
+//
 
 #include "interrupt.h"
 
@@ -41,17 +44,17 @@ namespace {
 
 // Class that is used to signal the need to poll for interrupts between
 // threads. The function called by the Python interpreter during execution
-// (pollForInterrupts) always calls requestPolling to keep polling alive. The
+// (pollForEvents) always calls requestPolling to keep polling alive. The
 // background thread periodically attmeps to "collect" this request and if
-// successful re-schedules the pollForInterrupts function using
+// successful re-schedules the pollForEvents function using
 // Py_AddPendingCall. This allows us to prevent the background thread from
-// continually scheduling pollForInterrupts even when the Python interpreter is
-// not running (because once pollForInterrupts is no longer being called by the
-// Python interpreter no additonal calls to pollForInterrupts will be
+// continually scheduling pollForEvents even when the Python interpreter is
+// not running (because once pollForEvents is no longer being called by the
+// Python interpreter no additonal calls to pollForEvents will be
 // scheduled)
-class InterruptPollingSignal {
+class EventPollingSignal {
 public:
-  InterruptPollingSignal() : pollingRequested_(true) {}
+  EventPollingSignal() : pollingRequested_(true) {}
   
   void requestPolling() {
     lock_guard<mutex> lock(mutex_);
@@ -66,26 +69,26 @@ public:
   }
  
 private:
-  InterruptPollingSignal(const InterruptPollingSignal& other); 
-  InterruptPollingSignal& operator=(const InterruptPollingSignal&);
+  EventPollingSignal(const EventPollingSignal& other); 
+  EventPollingSignal& operator=(const EventPollingSignal&);
 private:
   mutex mutex_; 
   bool pollingRequested_;
 };
 
-InterruptPollingSignal s_pollingSignal;
+EventPollingSignal s_pollingSignal;
 
 extern "C" {
 
 // Forward declarations
-int pollForInterrupts(void*);
+int pollForEvents(void*);
 void checkUserInterrupt(void*);
   
-// Background thread which re-schedules pollForInterrupts on the main Python
+// Background thread which re-schedules pollForEvents on the main Python
 // interpreter thread every 100ms so long as the Python interpeter is still
-// running (when it stops running it will stop calling pollForInterrupts and
+// running (when it stops running it will stop calling pollForEvents and
 // the polling signal will not be set).
-void interruptPollingWorker(void *) {
+void eventPollingWorker(void *) {
   while(true) {
     
     // Throttle via sleep
@@ -97,7 +100,7 @@ void interruptPollingWorker(void *) {
     // doesn’t need the global interpreter lock."
     // (see: https://docs.python.org/3/c-api/init.html#c.Py_AddPendingCall)
     if (s_pollingSignal.collectRequest())
-      Py_AddPendingCall(pollForInterrupts, NULL);
+      Py_AddPendingCall(pollForEvents, NULL);
     
   }
 }
@@ -108,7 +111,7 @@ void interruptPollingWorker(void *) {
 // this function keep reschedulding itself or the interpreter would be swamped
 // with just calling and re-calling this function. Rather, we need to throttle
 // the scheduling of the function by using a background thread + a sleep timer.
-int pollForInterrupts(void*) {
+int pollForEvents(void*) {
   
   // Check whether an interrupt has been requested by the user. If one
   // has then set the Python interrupt flag (which will soon after result
@@ -139,9 +142,9 @@ void checkUserInterrupt(void*) {
 } // anonymous namespace
 
 
-// Initialize interrupt polling background thread
-void initialize_interrupt_polling() {
-  thread t(interruptPollingWorker, NULL);
+// Initialize event loop polling background thread
+void initialize_event_loop_polling() {
+  thread t(eventPollingWorker, NULL);
   t.detach();
 }
 

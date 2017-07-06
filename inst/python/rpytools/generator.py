@@ -43,16 +43,7 @@ class RGenerator(object):
     return res
 
 
-# Some test code
 
-def iterate_on_thread(iter):
-  def iteration_worker():
-    for i in iter:
-      print i
-  thread = threading.Thread(target = iteration_worker)
-  thread.start()
-  while thread.isAlive():
-    thread.join(0.1)
 
 
 

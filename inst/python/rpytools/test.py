@@ -1,4 +1,13 @@
 
+import threading
+
+import sys
+is_py2 = sys.version[0] == '2'
+if is_py2:
+  import Queue as queue
+else:
+  import queue as queue
+
 
 def isScalar(x):
   return not isinstance(x, (list, tuple))
@@ -23,6 +32,18 @@ def makeGenerator(n):
   while i < n:
     yield i
     i += 1
+    
+def iterateOnThread(iter):
+  results = []
+  def iteration_worker():
+    for i in iter:
+      results.append(i)
+  thread = threading.Thread(target = iteration_worker)
+  thread.start()
+  while thread.isAlive():
+    thread.join(0.1)
+  return results
+
 
 def reflect(x):
   return x

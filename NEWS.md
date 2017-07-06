@@ -9,6 +9,11 @@
 
 - Look for callable before iterable when converting Python objects to R
 
+- Correct propagation of errors in R functions called from Python
+
+- Support for generators (creating Python iterators from R functions)
+
+
 # reticulate 0.9
 
 - Detect older versions of Anaconda during registry scanning.

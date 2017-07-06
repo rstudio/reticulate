@@ -196,6 +196,7 @@ Python [generators](https://wiki.python.org/moin/Generators) are functions that 
 In Python, generators produce values using the `yield` keyword. In R, values are simply returned from the function. One benefit of the `yield` keyword is that it enables successive iterations to use the state of previous iterations. In R, this can be done by returning a function that mutates it's enclosing environment via the <<- operator. For example:
 
 ```{r}
+# define a generator function
 sequence_generator <-function(start) {
   value <- start
   function() {
@@ -204,7 +205,8 @@ sequence_generator <-function(start) {
   }
 }
 
-g <- generator(sequence_generator(10))
+# convert the function to a python iterator
+iter <- py_iterator(sequence_generator(10))
 ```
 
 If you want to indicate the end of the iteration, return `NULL` from the function:
@@ -222,7 +224,7 @@ sequence_generator <-function(start) {
 }
 ```
 
-Note that you can change the value that indicates the end of the iteration using the `completed` parameter (e.g. `generator(func, completed = NA)`).
+Note that you can change the value that indicates the end of the iteration using the `completed` parameter (e.g. `py_iterator(func, completed = NA)`).
 
 ## Advanced Functions
 

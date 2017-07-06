@@ -58,7 +58,7 @@
 #' generator is run on a background thread.
 #' 
 #' @export
-generator <- function(fn, completed = NULL) {
+py_iterator <- function(fn, completed = NULL) {
   
   # validation
   if (!is.function(fn)) 

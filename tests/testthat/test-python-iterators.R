@@ -70,20 +70,20 @@ sequence_generator <-function(start, completed = NULL) {
 
 test_that("generator functions iterate as expected", {
   skip_if_no_python()
-  gen <- generator(sequence_generator(10L))
+  gen <- py_iterator(sequence_generator(10L))
   expect_equal(iterate(gen), 11L:19L)
 })
 
 
 test_that("generator functions support a custom completed value", {
   skip_if_no_python()
-  gen <- generator(sequence_generator(10L, completed = NA), completed = NA)
+  gen <- py_iterator(sequence_generator(10L, completed = NA), completed = NA)
   expect_equal(iterate(gen), 11L:19L)
 })
 
 test_that("generator functions are always called on the main thread", {
   skip_if_no_python()
-  gen <- generator(sequence_generator(10L))
+  gen <- py_iterator(sequence_generator(10L))
   expect_equal(test$iterateOnThread(gen), 11L:19L)
 })
 

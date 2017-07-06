@@ -38,7 +38,6 @@ reference:
       - dict
       - tuple
       - iterate
-      - generator
       - with.python.builtin.object
     
   - title: "Python Configuration"
@@ -65,6 +64,7 @@ reference:
       - r_to_py
       - py_is_null_xptr
       - py_str
+      - py_iterator
       - py_unicode
       - py_last_error
       - py_help

@@ -3,8 +3,8 @@
 #' Create a Python iterator from an R function
 #'
 #' @param fn R function with no arguments.
-#' @param stop Special sentinel return value which indicates that 
-#'  iteration is complete.
+#' @param completed Special sentinel return value which indicates that 
+#'  iteration is complete (defaults to `NULL`)
 #'
 #' @return Python iterator which calls the R function for each iteration.
 #'
@@ -33,7 +33,7 @@
 #' In Python, returning from a function without calling `yield` indicates the
 #' end of the iteration. In R however, `return` is used to yield values, so 
 #' the end of iteration is indicated by a special return value (`NULL` by
-#' default, however this can be changed using the `stop` parameter). For 
+#' default, however this can be changed using the `completed` parameter). For 
 #' example:
 #' 
 #' ```r
@@ -58,7 +58,7 @@
 #' generator is run on a background thread.
 #' 
 #' @export
-generator <- function(fn, stop = NULL) {
+generator <- function(fn, completed = NULL) {
   
   # validation
   if (!is.function(fn)) 
@@ -68,5 +68,5 @@ generator <- function(fn, stop = NULL) {
   
   # create the generator
   tools <- import("rpytools")
-  tools$generator$RGenerator(fn, stop)
+  tools$generator$RGenerator(fn, completed)
 }

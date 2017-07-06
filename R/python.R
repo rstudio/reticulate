@@ -648,7 +648,7 @@ with.python.builtin.object <- function(data, expr, as = NULL, ...) {
 #'   \code{identity} function which just reflects back the value of the item.
 #' @param simplify Should the result be simplified to a vector if possible?
 #' @param completed Sentinel value to return from `iter_next()` if the iteration
-#'   completes (defaults to `NA` but can be any R value you specify).
+#'   completes (defaults to `NULL` but can be any R value you specify).
 #'
 #' @return For `iterate()`, A list or vector containing the results of calling
 #'   \code{f} on each item in \code{x} (invisibly); For `iter_next()`, the next
@@ -698,7 +698,7 @@ iterate <- function(it, f = base::identity, simplify = TRUE) {
 
 #' @rdname iterate
 #' @export
-iter_next <- function(it, completed = NA) {
+iter_next <- function(it, completed = NULL) {
   
   # validate
   if (!inherits(it, "python.builtin.iterator"))

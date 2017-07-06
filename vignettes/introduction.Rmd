@@ -171,17 +171,17 @@ You can also iterate on an element-by-element basis using the `iter_next()` func
 ```{r}
 while (TRUE) {
   item <- iter_next(iter)
-  if (is.na(item))
+  if (is.null(item))
     break
 }
 ```
 
-By default `iter_next()` will return `NA` when the iteration is complete but you can provide a custom value and it will be returned instead. For example:
+By default `iter_next()` will return `NULL` when the iteration is complete but you can provide a custom value and it will be returned instead. For example:
 
 ```{r}
 while (TRUE) {
-  item <- iter_next(iter, completed = NULL)
-  if (is.null(item))
+  item <- iter_next(iter, completed = NA)
+  if (is.na(item))
     break
 }
 ```

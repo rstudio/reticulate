@@ -13,6 +13,8 @@
 
 - Support for generators (creating Python iterators from R functions)
 
+- Changed default `completed` value for `iter_next()` to `NULL` (was `NA`)
+
 
 # reticulate 0.9
 

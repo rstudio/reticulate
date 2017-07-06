@@ -11,10 +11,10 @@ else:
 
 class RGenerator(object):
   
-  def __init__(self, r_function, stop):
+  def __init__(self, r_function, completed):
     
     self.r_function = r_function
-    self.stop = stop
+    self.completed = completed
   
   def __iter__(self):
     return self
@@ -35,8 +35,8 @@ class RGenerator(object):
       )
       res = result.get()
       
-    # check for special 'stop' return value
-    if (res == self.stop):
+    # check for special 'completed' return value
+    if (res == self.completed):
       raise StopIteration()
       
     # return result

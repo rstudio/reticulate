@@ -4,13 +4,13 @@
 \alias{generator}
 \title{Create a Python iterator from an R function}
 \usage{
-generator(fn, stop = NULL)
+generator(fn, completed = NULL)
 }
 \arguments{
 \item{fn}{R function with no arguments.}
 
-\item{stop}{Special sentinel return value which indicates that
-iteration is complete.}
+\item{completed}{Special sentinel return value which indicates that
+iteration is complete (defaults to \code{NULL})}
 }
 \value{
 Python iterator which calls the R function for each iteration.
@@ -42,7 +42,7 @@ g <- generator(sequence_generator(10))
 In Python, returning from a function without calling \code{yield} indicates the
 end of the iteration. In R however, \code{return} is used to yield values, so
 the end of iteration is indicated by a special return value (\code{NULL} by
-default, however this can be changed using the \code{stop} parameter). For
+default, however this can be changed using the \code{completed} parameter). For
 example:\preformatted{sequence_generator <-function(start) {
   value <- start
   function() {

@@ -7,7 +7,7 @@
 \usage{
 iterate(it, f = base::identity, simplify = TRUE)
 
-iter_next(it, completed = NA)
+iter_next(it, completed = NULL)
 }
 \arguments{
 \item{it}{Python iterator or generator}
@@ -18,7 +18,7 @@ iter_next(it, completed = NA)
 \item{simplify}{Should the result be simplified to a vector if possible?}
 
 \item{completed}{Sentinel value to return from \code{iter_next()} if the iteration
-completes (defaults to \code{NA} but can be any R value you specify).}
+completes (defaults to \code{NULL} but can be any R value you specify).}
 }
 \value{
 For \code{iterate()}, A list or vector containing the results of calling

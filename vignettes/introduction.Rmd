@@ -176,7 +176,7 @@ while (TRUE) {
 }
 ```
 
-By default `iter_next()` will return `NULL` when the iteration is complete but you can provide a custom value and it will be returned instead. For example:
+By default `iter_next()` will return `NULL` when the iteration is complete but you can provide a custom `completed` value it will be returned instead. For example:
 
 ```{r}
 while (TRUE) {
@@ -188,6 +188,41 @@ while (TRUE) {
 
 Note that some iterators/genrators in Python are infinite. In that case the caller will need custom logic to determine when to terminate the loop.
 
+
+### Generators
+
+Python [generators](https://wiki.python.org/moin/Generators) are functions that implement the Python iterator protocol. Similarly, the reticulate `generator()` function enables you to create a Python iterator from an R function.
+
+In Python, generators produce values using the `yield` keyword. In R, values are simply returned from the function. One benefit of the `yield` keyword is that it enables successive iterations to use the state of previous iterations. In R, this can be done by returning a function that mutates it's enclosing environment via the <<- operator. For example:
+
+```{r}
+sequence_generator <-function(start) {
+  value <- start
+  function() {
+    value <<- value + 1
+    value
+  }
+}
+
+g <- generator(sequence_generator(10))
+```
+
+If you want to indicate the end of the iteration, return `NULL` from the function:
+
+```{r}
+sequence_generator <-function(start) {
+  value <- start
+  function() {
+    value <<- value + 1
+    if (value < 100)
+      value
+    else
+      NULL
+  }
+}
+```
+
+Note that you can change the value that indicates the end of the iteration using the `completed` parameter (e.g. `generator(func, completed = NA)`).
 
 ## Advanced Functions
 

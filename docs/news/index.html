@@ -110,7 +110,13 @@
 <h1 class="hasAnchor">
 <a href="#reticulate-1-0-unreleased" class="anchor"></a>reticulate 1.0 (unreleased)</h1>
 <ul>
-<li>Search WORKON_HOME (used by virtualenv_wrapper) for Python environments</li>
+<li><p>Search WORKON_HOME (used by virtualenv_wrapper) for Python environments</p></li>
+<li><p>Support <code>priority</code> field for delay loaded modules.</p></li>
+<li><p>Use json output from conda_list (handle spaces in path of conda env)</p></li>
+<li><p>Look for callable before iterable when converting Python objects to R</p></li>
+<li><p>Correct propagation of errors in R functions called from Python</p></li>
+<li><p>Support for generators (creating Python iterators from R functions)</p></li>
+<li><p>Changed default <code>completed</code> value for <code><a href="../reference/iterate.html">iter_next()</a></code> to <code>NULL</code> (was <code>NA</code>)</p></li>
 </ul>
 </div>
     <div id="reticulate-0-9" class="section level1">

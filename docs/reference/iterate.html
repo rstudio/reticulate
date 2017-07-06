@@ -110,7 +110,7 @@
 
     <pre class="usage"><span class='fu'>iterate</span>(<span class='no'>it</span>, <span class='kw'>f</span> <span class='kw'>=</span> <span class='kw pkg'>base</span><span class='kw ns'>::</span><span class='no'><a href='http://www.rdocumentation.org/packages/base/topics/identity'>identity</a></span>, <span class='kw'>simplify</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
 
-<span class='fu'>iter_next</span>(<span class='no'>it</span>, <span class='kw'>completed</span> <span class='kw'>=</span> <span class='fl'>NA</span>)</pre>
+<span class='fu'>iter_next</span>(<span class='no'>it</span>, <span class='kw'>completed</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
@@ -131,7 +131,7 @@
     <tr>
       <th>completed</th>
       <td><p>Sentinel value to return from <code>iter_next()</code> if the iteration
-completes (defaults to <code>NA</code> but can be any R value you specify).</p></td>
+completes (defaults to <code>NULL</code> but can be any R value you specify).</p></td>
     </tr>
     </table>
     

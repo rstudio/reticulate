@@ -38,6 +38,7 @@ reference:
       - dict
       - tuple
       - iterate
+      - generator
       - with.python.builtin.object
     
   - title: "Python Configuration"

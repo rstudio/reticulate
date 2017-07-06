@@ -14,7 +14,7 @@
 #'
 #' In Python, the `yield` keyword enables successive iterations to use the state
 #' of previous iterations. In R, this can be done by returning a function that
-#' accesses it's enclosing environment via the `<<-` operator. For example:
+#' mutates it's enclosing environment via the `<<-` operator. For example:
 #'
 #' ```r
 #' sequence_generator <-function(start) {
@@ -27,6 +27,26 @@
 #' 
 #' g <- generator(sequence_generator(10))
 #' ```
+#' 
+#' @section Ending Iteration:
+#' 
+#' In Python, returning from a function without calling `yield` indicates the
+#' end of the iteration. In R however, `return` is used to yield values, so 
+#' the end of iteration is indicated by a special return value (`NULL` by
+#' default, however this can be changed using the `stop` parameter). For 
+#' example:
+#' 
+#' ```r
+#' sequence_generator <-function(start) {
+#'   value <- start
+#'   function() {
+#'     value <<- value + 1
+#'     if (value < 100)
+#'       value
+#'     else
+#'       NULL
+#'   }
+#' }
 #' 
 #' @section Threading:
 #' 

@@ -82,39 +82,6 @@ private:
 
 EventPollingSignal s_pollingSignal;
 
-// pending tasks
-class EventLoopTasks {
-public:
-  EventLoopTasks() {}
-  
-  void add(Task task) { 
-    lock_guard<mutex> lock(mutex_);
-    tasks_.push_back(task); 
-  }
-  
-  std::vector<Task> collect() {
-    lock_guard<mutex> lock(mutex_);
-    std::vector<Task> tasks = tasks_;
-    tasks_.clear();
-    return tasks;
-  }
-  
-  bool empty() {
-    lock_guard<mutex> lock(mutex_);
-    return tasks_.empty();
-  }
-  
-private:
-  EventLoopTasks(const EventLoopTasks& other); 
-  EventLoopTasks& operator=(const EventLoopTasks&);
-private:
-  mutex mutex_; 
-  std::vector<Task> tasks_;  
-};
-
-EventLoopTasks s_eventLoopTasks;
-
-
 extern "C" {
 
 // Forward declarations
@@ -128,9 +95,8 @@ void checkUserInterrupt(void*);
 void eventPollingWorker(void *) {
   while(true) {
     
-    // Throttle via sleep (do less throttling if there are pending tasks)
-    int sleepTime = s_eventLoopTasks.empty() ? 250 : 50;
-    this_thread::sleep_for(chrono::milliseconds(sleepTime));
+    // Throttle via sleep
+    this_thread::sleep_for(chrono::milliseconds(250));
     
     // Schedule polling on the main thread if the interpeter is still running
     // Note that Py_AddPendingCall is documented to be callable from a background
@@ -150,11 +116,6 @@ void eventPollingWorker(void *) {
 // with just calling and re-calling this function. Rather, we need to throttle
 // the scheduling of the function by using a background thread + a sleep timer.
 int pollForEvents(void*) {
-  
-  // Collect and call any registered tasks
-  std::vector<Task> tasks = s_eventLoopTasks.collect();
-  for (size_t i = 0; i<tasks.size(); ++i)
-    tasks[i].func(tasks[i].data);
   
   // Check whether an interrupt has been requested by the user. If one
   // has then set the Python interrupt flag (which will soon after result
@@ -189,11 +150,6 @@ void checkUserInterrupt(void*) {
 void initialize() {
   thread t(eventPollingWorker, NULL);
   t.detach();
-}
-
-// Register a task to run on the event loop
-void register_task(Task task) {
-  s_eventLoopTasks.add(task);
 }
 
 } // namespace event_loop

@@ -1237,6 +1237,9 @@ extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* k
     Function doCall("do.call");
     RObject result = doCall(rFunction, rArgs);
     return r_to_py(result, convert);
+  } catch(const Rcpp::internal::InterruptedException& e) {
+    err = "Execution interrupted";
+    PyErr_SetInterrupt();
   } catch(const std::exception& e) {
     err = e.what();
   } catch(...) {
@@ -1264,7 +1267,7 @@ private:
   PythonCall& operator=(const PythonCall&);
 };
 
-void call_python_function(void* data) {
+int call_python_function(void* data) {
   
   // cast to call
   PythonCall* call = (PythonCall*)data; 
@@ -1272,18 +1275,20 @@ void call_python_function(void* data) {
   // call the function
   PyObject* arg = py_is_none(call->data) ? NULL : call->data;
   PyObjectPtr res(PyObject_CallFunctionObjArgs(call->func, arg, NULL));
-  if (res.is_null()) {
-    // don't throw from here as we are in a callback
-    std::string msg = py_fetch_error();
-    std::cerr << "Error calling event loop task: " << msg << std::endl;
-  }
   
   // delete the call object (will decref the members)
   delete call;
+  
+  // return status as per https://docs.python.org/3/c-api/init.html#c.Py_AddPendingCall
+  if (!res.is_null())
+    return 0;
+  else
+    return -1;
 }
 
 
-extern "C" PyObject* register_event_loop_task(PyObject *self, PyObject* args, PyObject* keywords) {
+extern "C" PyObject* call_python_function_on_main_thread(
+                PyObject *self, PyObject* args, PyObject* keywords) {
   
   // arguments are the python function to call and an optional data argument
   // capture them and then incref them so they survive past this call (we'll
@@ -1296,7 +1301,8 @@ extern "C" PyObject* register_event_loop_task(PyObject *self, PyObject* args, Py
   PythonCall* call = new PythonCall(func, data);
 
   // schedule calling the function
-  event_loop::register_task(event_loop::Task(call_python_function, (void*)call));
+  if (Py_AddPendingCall(call_python_function, call) == -1)
+    std::cerr << "Unexpected error calling Py_AddPendingCal" << std::endl;
   
   // return none
   Py_IncRef(Py_None);
@@ -1307,8 +1313,8 @@ extern "C" PyObject* register_event_loop_task(PyObject *self, PyObject* args, Py
 PyMethodDef RPYCallMethods[] = {
   { "call_r_function", (PyCFunction)call_r_function,
     METH_VARARGS | METH_KEYWORDS, "Call an R function" },
-  { "register_event_loop_task", (PyCFunction)register_event_loop_task,
-    METH_VARARGS | METH_KEYWORDS, "Register an event loop task" },
+  { "call_python_function_on_main_thread", (PyCFunction)call_python_function_on_main_thread,
+    METH_VARARGS | METH_KEYWORDS, "Call a Python function on the main thread" },
   { NULL, NULL, 0, NULL }
 };
 

@@ -9,7 +9,7 @@ if is_py2:
 else:
   import queue as queue
 
-class GeneratorRFunction(object):
+class RGenerator(object):
   
   def __init__(self, r_function):
     self.r_function = r_function

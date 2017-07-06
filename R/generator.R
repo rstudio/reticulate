@@ -3,6 +3,8 @@
 #' Create a Python iterator from an R function
 #'
 #' @param fn R function with no arguments.
+#' @param stop Special sentinel return value which indicates that 
+#'  iteration is complete.
 #'
 #' @return Python iterator which calls the R function for each iteration.
 #'
@@ -10,7 +12,7 @@
 #' protocol. In Python, values are returned using the `yield` keyword. In R,
 #' values are simply returned from the function.
 #'
-#' The `yield` keyword in Python enables successive iterations to use the state
+#' In Python, the `yield` keyword enables successive iterations to use the state
 #' of previous iterations. In R, this can be done by returning a function that
 #' accesses it's enclosing environment via the `<<-` operator. For example:
 #'
@@ -36,7 +38,7 @@
 #' generator is run on a background thread.
 #' 
 #' @export
-generator <- function(fn) {
+generator <- function(fn, stop = NULL) {
   
   # validation
   if (!is.function(fn)) 
@@ -46,5 +48,5 @@ generator <- function(fn) {
   
   # create the generator
   tools <- import("rpytools")
-  tools$generator$RGenerator(f)
+  tools$generator$RGenerator(fn, stop)
 }

@@ -11,8 +11,10 @@ else:
 
 class RGenerator(object):
   
-  def __init__(self, r_function):
+  def __init__(self, r_function, stop):
+    
     self.r_function = r_function
+    self.stop = stop
   
   def __iter__(self):
     return self
@@ -21,23 +23,32 @@ class RGenerator(object):
     return self.next()
 
   def next(self):
+    
+    # call iterator
     if (isinstance(threading.current_thread(), threading._MainThread)):
-      return self.r_function()
+      res = self.r_function()
     else:
       result = queue.Queue()
       rpycall.call_python_function_on_main_thread(
         lambda: result.put(self.r_function()), 
         None
       )
-      return result.get()
+      res = result.get()
+      
+    # check for special 'stop' return value
+    if (res == self.stop):
+      raise StopIteration()
+      
+    # return result
+    return res
 
 
 # Some test code
 
 def iterate_on_thread(iter):
   def iteration_worker():
-    for i in range(1,10):
-      iter.next()
+    for i in iter:
+      print i
   thread = threading.Thread(target = iteration_worker)
   thread.start()
   while thread.isAlive():

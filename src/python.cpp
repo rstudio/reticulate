@@ -1231,6 +1231,11 @@ extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* k
   Function append("append");
   rArgs = append(rArgs, rKeywords);
 
+  // Some special constants for various special error conditions
+  // (NOTE: these are also defined in call.py so must be changed in both places)
+  const char* const kErrorKey = "F4B07A71E0ED40469929658827023424";
+  const char* const kInterruptError = "E04414EDEA17488B93FE2AE30F1F67AF";
+
   // call the R function
   std::string err;
   try {
@@ -1238,17 +1243,20 @@ extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* k
     RObject result = doCall(rFunction, rArgs);
     return r_to_py(result, convert);
   } catch(const Rcpp::internal::InterruptedException& e) {
-    err = "Execution interrupted";
-    PyErr_SetInterrupt();
+    err = kInterruptError;
   } catch(const std::exception& e) {
     err = e.what();
   } catch(...) {
     err = "(Unknown exception occurred)";
   }
   
-  // won't reach this code unless an error occurred
-  Rf_warning("Error calling R function from Python: %s", err.c_str());
-  return as_python_str(err);
+  // ...we won't reach this code unless an error occurred
+  
+  // Return a special named list which the caller transforms into a python error
+  PyObjectPtr errorDict(PyDict_New());
+  PyObjectPtr errorMsg(as_python_str(err));
+  PyDict_SetItemString(errorDict, kErrorKey, errorMsg);
+  return errorDict.detach();
 }
 
 struct PythonCall {

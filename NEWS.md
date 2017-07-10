@@ -15,6 +15,8 @@
 
 - Changed default `completed` value for `iter_next()` to `NULL` (was `NA`)
 
+- Support for converting 16-bit floats (NPY_HALF) to R
+
 
 # reticulate 0.9
 

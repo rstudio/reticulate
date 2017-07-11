@@ -17,6 +17,8 @@
 
 - Support for converting 16-bit floats (NPY_HALF) to R
 
+- Don't throw error when probing Python <= 2.6 
+
 
 # reticulate 0.9
 

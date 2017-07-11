@@ -162,12 +162,13 @@ py_discover_config <- function(required_module = NULL) {
 
     # if we have a required module ensure it's satsified.
     # also check architecture (can be an issue on windows)
-    has_compatible_arch = !is_incompatible_arch(config)
+    has_python_gte_27 <- as.numeric_version(config$version) >= "2.7"
+    has_compatible_arch <- !is_incompatible_arch(config)
     has_preferred_numpy <- !is.null(config$numpy) && config$numpy$version >= "1.6"
     if (has_compatible_arch && has_preferred_numpy)
       valid_python_versions <- c(valid_python_versions, python_version)
     has_required_module <- is.null(config$required_module) || !is.null(config$required_module_path)
-    if (has_compatible_arch && has_preferred_numpy && has_required_module) 
+    if (has_python_gte_27 && has_compatible_arch && has_preferred_numpy && has_required_module) 
       return(config)
   }
 
@@ -274,15 +275,27 @@ python_config <- function(python, required_module, python_versions) {
       else
         libpython[[1]]
     }
-    libpython <- python_libdir_config("LIBPL")
-    if (!file.exists(libpython))
-      libpython <- python_libdir_config("LIBDIR")
+    if (!is.null(config$LIBPL)) {
+      libpython <- python_libdir_config("LIBPL")
+      if (!file.exists(libpython)) {
+        if (!is.null(config$LIBDIR))
+          libpython <- python_libdir_config("LIBDIR")
+        else
+          libpython <- NULL
+      }
+    } else {
+      libpython <- NULL
+    }
   }
 
   # determine PYTHONHOME
-  pythonhome <- config$PREFIX
-  if (!is_windows())
-    pythonhome <- paste(pythonhome, config$EXEC_PREFIX, sep = ":")
+  if (!is.null(config$PREFIX)) {
+    pythonhome <- config$PREFIX
+    if (!is_windows())
+      pythonhome <- paste(pythonhome, config$EXEC_PREFIX, sep = ":")
+  } else {
+    pythonhome <- NULL
+  }
 
 
   as_numeric_version <- function(version) {
@@ -331,8 +344,8 @@ str.py_config <- function(object, ...) {
   x <- object
   out <- ""
   out <- paste0(out, "python:         ", x$python, "\n")
-  out <- paste0(out, "libpython:      ", x$libpython, ifelse(is_windows() || file.exists(x$libpython), "", "[NOT FOUND]"), "\n")
-  out <- paste0(out, "pythonhome:     ", x$pythonhome, "\n")
+  out <- paste0(out, "libpython:      ", ifelse(is.null(x$libpython), "[NOT FOUND]", x$libpython), ifelse(is_windows() || is.null(x$libpython) || file.exists(x$libpython), "", "[NOT FOUND]"), "\n")
+  out <- paste0(out, "pythonhome:     ", ifelse(is.null(x$pythonhome), "[NOT FOUND]", x$pythonhome), "\n")
   if (nzchar(x$virtualenv_activate))
     out <- paste0(out, "virtualenv:     ", x$virtualenv_activate, "\n")
   out <- paste0(out, "version:        ", x$version_string, "\n")

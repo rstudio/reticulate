@@ -5,7 +5,7 @@ import platform
 import imp
 
 sys.stdout.write('Version: ' + str(sys.version).replace('\n', ' '))
-sys.stdout.write('\nVersionNumber: ' + str(sys.version_info.major) + '.' + str(sys.version_info.minor))
+sys.stdout.write('\nVersionNumber: ' + str(sys.version_info[0]) + '.' + str(sys.version_info[1]))
 
 try:
   import sysconfig

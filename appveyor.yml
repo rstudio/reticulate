@@ -3,6 +3,7 @@
 image: Visual Studio 2015
 
 environment:
+  NOT_CRAN: true
   USE_RTOOLS: true
   PATH: "%PATH%;C:\\MinGW\\bin;C:\\MinGW\\msys\\1.0;C:\\MinGW\\msys\\1.0\\bin"
   matrix:

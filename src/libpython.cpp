@@ -214,6 +214,7 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
   LOAD_PYTHON_SYMBOL(PyObject_Call)
   LOAD_PYTHON_SYMBOL(PyObject_CallFunctionObjArgs)
   LOAD_PYTHON_SYMBOL(PyType_IsSubtype)
+  LOAD_PYTHON_SYMBOL(PySys_WriteStderr)
 
   if (python3) {
     LOAD_PYTHON_SYMBOL(PyModule_Create2)

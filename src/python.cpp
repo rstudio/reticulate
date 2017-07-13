@@ -1311,7 +1311,7 @@ extern "C" PyObject* call_python_function_on_main_thread(
 
   // schedule calling the function
   if (Py_AddPendingCall(call_python_function, call) == -1)
-    std::cerr << "Unexpected error calling Py_AddPendingCal" << std::endl;
+    PySys_WriteStderr("Unexpected error calling Py_AddPendingCall\n");
   
   // return none
   Py_IncRef(Py_None);

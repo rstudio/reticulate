@@ -1,5 +1,25 @@
 # DO NOT CHANGE the "init" and "install" sections below
 
+image: Visual Studio 2015
+
+environment:
+  USE_RTOOLS: true
+  PATH: "%PATH%;C:\\MinGW\\bin;C:\\MinGW\\msys\\1.0;;C:\\MinGW\\msys\\1.0\\bin"
+  matrix:
+    - PYTHON: "C:\\Python27"
+      RETICULATE_PYTHON: "C:\\Python27"
+    - PYTHON: "C:\\Python33"
+      RETICULATE_PYTHON: "C:\\Python33"
+    - PYTHON: "C:\\Python34"
+      RETICULATE_PYTHON: "C:\\Python34"
+    - PYTHON: "C:\\Python35"
+      RETICULATE_PYTHON: "C:\\Python36"
+    - PYTHON: "C:\\Python35"
+      RETICULATE_PYTHON: "C:\\Python36"
+
+matrix:
+  fast_finish: true
+
 # Download script file from GitHub
 init:
   ps: |
@@ -16,16 +36,11 @@ cache:
 # Adapt as necessary starting from here
 
 build_script:
+  - "%PYTHON%\\python.exe -m pip install setuptools numpy"
   - travis-tool.sh install_deps
 
 test_script:
   - travis-tool.sh run_tests
-
-environment:
-  global:
-    USE_RTOOLS: true
-    PYTHON: "C:\\Python35"
-    RETICULATE_PYTHON: "C:\\Python35"
 
 on_failure:
   - 7z a failure.zip *.Rcheck\*

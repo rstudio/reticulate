@@ -8,13 +8,11 @@ environment:
   matrix:
     - PYTHON: "C:\\Python27"
       RETICULATE_PYTHON: "C:\\Python27"
-    - PYTHON: "C:\\Python33"
-      RETICULATE_PYTHON: "C:\\Python33"
     - PYTHON: "C:\\Python34"
       RETICULATE_PYTHON: "C:\\Python34"
     - PYTHON: "C:\\Python35"
-      RETICULATE_PYTHON: "C:\\Python36"
-    - PYTHON: "C:\\Python35"
+      RETICULATE_PYTHON: "C:\\Python35"
+    - PYTHON: "C:\\Python36"
       RETICULATE_PYTHON: "C:\\Python36"
 
 matrix:

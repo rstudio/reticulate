@@ -18,7 +18,6 @@ environment:
 
 matrix:
   fast_finish: true
-  matrix:
   allow_failures:
     - PYTHON: "C:\\Python34"
 

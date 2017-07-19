@@ -699,8 +699,9 @@ SEXP py_to_r(PyObject* x, bool convert) {
   // dict
   else if (PyDict_Check(x)) {
     
-    // allocate memory for name and value vectors
-    Py_ssize_t size = PyDict_Size(x);
+    // copy the dict and allocate 
+    PyObjectPtr dict(PyDict_Copy(x));
+    Py_ssize_t size = PyDict_Size(dict);
     std::vector<std::string> names(size);
     Rcpp::List list(size);
     
@@ -708,7 +709,7 @@ SEXP py_to_r(PyObject* x, bool convert) {
     PyObject *key, *value;
     Py_ssize_t pos = 0;
     Py_ssize_t idx = 0;
-    while (PyDict_Next(x, &pos, &key, &value)) {
+    while (PyDict_Next(dict, &pos, &key, &value)) {
       PyObjectPtr str(PyObject_Str(key));
       names[idx] = as_std_string(str);
       list[idx] = py_to_r(value, convert);

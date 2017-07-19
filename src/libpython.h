@@ -257,6 +257,7 @@ LIBPYTHON_EXTERN int (*PyDict_Next)(
 LIBPYTHON_EXTERN PyObject* (*PyDict_Keys)(PyObject *mp);
 LIBPYTHON_EXTERN PyObject* (*PyDict_Values)(PyObject *mp);
 LIBPYTHON_EXTERN Py_ssize_t (*PyDict_Size)(PyObject *mp);
+LIBPYTHON_EXTERN PyObject* (*PyDict_Copy)(PyObject *mp);
 
 LIBPYTHON_EXTERN PyObject* (*PyInt_FromLong)(long);
 LIBPYTHON_EXTERN long (*PyInt_AsLong)(PyObject *);

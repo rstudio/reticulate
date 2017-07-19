@@ -19,6 +19,9 @@
 
 - Don't throw error when probing Python <= 2.6 
 
+- Copy Python dictionary before converting to R named list (fixes issue
+  with dictionaries that are mutated during iteration, e.g. sys.modules)
+
 
 # reticulate 0.9
 

@@ -850,12 +850,7 @@ py_suppress_warnings <- function(expr) {
 
   ensure_python_initialized()
 
-  # ignore python warnings
-  warnings <- import("warnings")
-  warnings$simplefilter("ignore")
-  on.exit(warnings$resetwarnings(), add = TRUE)
-
-  # ignore other warnings
+  # ignore any registered warning output types (e.g. tf warnings)
   contexts <- lapply(.globals$suppress_warnings_handlers, function(handler) {
     handler$suppress()
   })
@@ -868,9 +863,9 @@ py_suppress_warnings <- function(expr) {
     }
   }, add = TRUE)
   
-
-  # evaluate the expression
-  force(expr)
+  # evaluate while ignoring python warnings
+  warnings <- import("warnings")
+  with(warnings$catch_warnings(), expr)
 }
 
 

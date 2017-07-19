@@ -21,6 +21,8 @@
 
 - Copy Python dictionary before converting to R named list (fixes issue
   with dictionaries that are mutated during iteration, e.g. sys.modules)
+  
+- Ensure that existing warning filters aren't reset by py_suppress_warnings
 
 
 # reticulate 0.9

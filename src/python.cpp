@@ -723,6 +723,9 @@ SEXP py_to_r(PyObject* x, bool convert) {
   // numpy array
   else if (isPyArray(x)) {
 
+    // R array to return
+    RObject rArray = R_NilValue;
+    
     // get the array
     PyArrayObject* array = (PyArrayObject*)x;
 
@@ -752,9 +755,6 @@ SEXP py_to_r(PyObject* x, bool convert) {
 
     // ensure we release it within this scope
     PyObjectPtr ptrArray((PyObject*)array);
-
-    // R array to return
-    SEXP rArray = R_NilValue;
 
     // copy the data as required per-type
     switch(typenum) {
@@ -1955,6 +1955,9 @@ SEXP py_run_file_impl(const std::string& file,
 // [[Rcpp::export]]
 SEXP py_eval_impl(const std::string& code, bool convert = true) {
   
+  // R object to return
+  RObject rObject;
+  
   // compile the code
   PyObjectPtr compiledCode(Py_CompileString(code.c_str(), "reticulate_eval", Py_eval_input));
   if (compiledCode.is_null())
@@ -1971,9 +1974,10 @@ SEXP py_eval_impl(const std::string& code, bool convert = true) {
  // return (convert to R if requested)
  Py_IncRef(res);
  if (convert)
-   return py_to_r(res, convert);
+   rObject = py_to_r(res, convert);
  else
-   return py_ref(res, convert);
+   rObject = py_ref(res, convert);
+ return rObject;
 }
 
 

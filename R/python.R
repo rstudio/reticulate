@@ -484,7 +484,7 @@ dict <- function(..., convert = FALSE) {
       else
         name
     } else {
-      if (grepl("[0-9]+", name))
+      if (grepl("^[0-9]+$", name))
         name <- as.integer(name)
       else
         name

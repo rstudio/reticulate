@@ -1,4 +1,8 @@
 
+# reticulate 1.1 (unreleased)
+
+
+
 # reticulate 1.0
 
 - Search WORKON_HOME (used by virtualenv_wrapper) for Python environments  

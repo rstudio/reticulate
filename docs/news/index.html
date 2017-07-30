@@ -106,9 +106,16 @@
     </div>
 
     <div class="contents">
-    <div id="reticulate-1-0-unreleased" class="section level1">
+    <div id="reticulate-1-1-unreleased" class="section level1">
 <h1 class="hasAnchor">
-<a href="#reticulate-1-0-unreleased" class="anchor"></a>reticulate 1.0 (unreleased)</h1>
+<a href="#reticulate-1-1-unreleased" class="anchor"></a>reticulate 1.1 (unreleased)</h1>
+<ul>
+<li>Allow <code><a href="../reference/dict.html">dict()</a></code> function to accept keys with mixed alpha/numeric characters</li>
+</ul>
+</div>
+    <div id="reticulate-1-0" class="section level1">
+<h1 class="hasAnchor">
+<a href="#reticulate-1-0" class="anchor"></a>reticulate 1.0</h1>
 <ul>
 <li><p>Search WORKON_HOME (used by virtualenv_wrapper) for Python environments</p></li>
 <li><p>Support <code>priority</code> field for delay loaded modules.</p></li>
@@ -117,6 +124,10 @@
 <li><p>Correct propagation of errors in R functions called from Python</p></li>
 <li><p>Support for generators (creating Python iterators from R functions)</p></li>
 <li><p>Changed default <code>completed</code> value for <code><a href="../reference/iterate.html">iter_next()</a></code> to <code>NULL</code> (was <code>NA</code>)</p></li>
+<li><p>Support for converting 16-bit floats (NPY_HALF) to R</p></li>
+<li><p>Don’t throw error when probing Python &lt;= 2.6</p></li>
+<li><p>Copy Python dictionary before converting to R named list (fixes issue with dictionaries that are mutated during iteration, e.g. sys.modules)</p></li>
+<li><p>Ensure that existing warning filters aren’t reset by py_suppress_warnings</p></li>
 </ul>
 </div>
     <div id="reticulate-0-9" class="section level1">
@@ -196,7 +207,8 @@ primitive R functions (don’t check environment inheritance chain when looking 
     <div id="tocnav">
       <h2>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
-        <li><a href="#reticulate-1-0-unreleased">1.0</a></li>
+        <li><a href="#reticulate-1-1-unreleased">1.1</a></li>
+        <li><a href="#reticulate-1-0">1.0</a></li>
         <li><a href="#reticulate-0-9">0.9</a></li>
         <li><a href="#reticulate-0-8">0.8</a></li>
         <li><a href="#reticulate-0-7">0.7</a></li>

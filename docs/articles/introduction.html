@@ -253,9 +253,10 @@ b &lt;-<span class="st"> </span><span class="kw"><a href="../reference/iterate.h
 <div id="generators" class="section level3">
 <h3 class="hasAnchor">
 <a href="#generators" class="anchor"></a>Generators</h3>
-<p>Python <a href="https://wiki.python.org/moin/Generators">generators</a> are functions that implement the Python iterator protocol. Similarly, the reticulate <code><a href="../reference/generator.html">generator()</a></code> function enables you to create a Python iterator from an R function.</p>
+<p>Python <a href="https://wiki.python.org/moin/Generators">generators</a> are functions that implement the Python iterator protocol. Similarly, the reticulate <code>generator()</code> function enables you to create a Python iterator from an R function.</p>
 <p>In Python, generators produce values using the <code>yield</code> keyword. In R, values are simply returned from the function. One benefit of the <code>yield</code> keyword is that it enables successive iterations to use the state of previous iterations. In R, this can be done by returning a function that mutates it’s enclosing environment via the &lt;&lt;- operator. For example:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sequence_generator &lt;-<span class="cf">function</span>(start) {
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># define a generator function</span>
+sequence_generator &lt;-<span class="cf">function</span>(start) {
   value &lt;-<span class="st"> </span>start
   <span class="cf">function</span>() {
     value &lt;&lt;-<span class="st"> </span>value <span class="op">+</span><span class="st"> </span><span class="dv">1</span>
@@ -263,7 +264,8 @@ b &lt;-<span class="st"> </span><span class="kw"><a href="../reference/iterate.h
   }
 }
 
-g &lt;-<span class="st"> </span><span class="kw"><a href="../reference/generator.html">generator</a></span>(<span class="kw">sequence_generator</span>(<span class="dv">10</span>))</code></pre></div>
+<span class="co"># convert the function to a python iterator</span>
+iter &lt;-<span class="st"> </span><span class="kw"><a href="../reference/py_iterator.html">py_iterator</a></span>(<span class="kw">sequence_generator</span>(<span class="dv">10</span>))</code></pre></div>
 <p>If you want to indicate the end of the iteration, return <code>NULL</code> from the function:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sequence_generator &lt;-<span class="cf">function</span>(start) {
   value &lt;-<span class="st"> </span>start
@@ -275,7 +277,7 @@ g &lt;-<span class="st"> </span><span class="kw"><a href="../reference/generator
       <span class="ot">NULL</span>
   }
 }</code></pre></div>
-<p>Note that you can change the value that indicates the end of the iteration using the <code>completed</code> parameter (e.g. <code><a href="../reference/generator.html">generator(func, completed = NA)</a></code>).</p>
+<p>Note that you can change the value that indicates the end of the iteration using the <code>completed</code> parameter (e.g. <code><a href="../reference/py_iterator.html">py_iterator(func, completed = NA)</a></code>).</p>
 </div>
 </div>
 <div id="advanced-functions" class="section level2">

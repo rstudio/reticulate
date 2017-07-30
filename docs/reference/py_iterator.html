@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Articles • reticulate</title>
+<title>Create a Python iterator from an R function — py_iterator • reticulate</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -37,7 +37,7 @@
   </head>
 
   <body>
-    <div class="container template-vignette-index">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
   <div class="container">
@@ -98,23 +98,98 @@
       
       </header>
 
-      <div class="page-header">
-  <h1>Articles <small>version&nbsp;1.0.0.9000</small></h1>
-</div>
-
-<div class="row">
-  <div class="col-md-9">
-    <div class="section ">
-      <h3>All vignettes</h3>
-      <p class="section-desc"></p>
-
-      <ul>
-        <li><a href="arrays.html">Arrays in R and Python</a></li>
-        <li><a href="introduction.html">Introduction to reticulate</a></li>
-        <li><a href="package.html">Using reticulate in an R Package</a></li>
-        <li><a href="versions.html">Python Version Configuration</a></li>
-      </ul>
+      <div class="row">
+  <div class="col-md-9 contents">
+    <div class="page-header">
+    <h1>Create a Python iterator from an R function</h1>
     </div>
+
+    
+    <p>Create a Python iterator from an R function</p>
+    
+
+    <pre class="usage"><span class='fu'>py_iterator</span>(<span class='no'>fn</span>, <span class='kw'>completed</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>fn</th>
+      <td><p>R function with no arguments.</p></td>
+    </tr>
+    <tr>
+      <th>completed</th>
+      <td><p>Special sentinel return value which indicates that
+iteration is complete (defaults to <code>NULL</code>)</p></td>
+    </tr>
+    </table>
+    
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>Python iterator which calls the R function for each iteration.</p>
+    
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>Python generators are functions that implement the Python iterator
+protocol. In Python, values are returned using the <code>yield</code> keyword. In R,
+values are simply returned from the function.</p>
+<p>In Python, the <code>yield</code> keyword enables successive iterations to use the state
+of previous iterations. In R, this can be done by returning a function that
+mutates it's enclosing environment via the <code>&lt;&lt;-</code> operator. For example:</p><pre>sequence_generator &lt;-function(start) {
+  value &lt;- start
+  function() {
+    value &lt;&lt;- value + 1
+    value
+  }
+}
+    g &lt;- generator(sequence_generator(10))
+</pre>
+    
+    <h2 class="hasAnchor" id="ending-iteration"><a class="anchor" href="#ending-iteration"></a>Ending Iteration</h2>
+
+    
+    <p>In Python, returning from a function without calling <code>yield</code> indicates the
+end of the iteration. In R however, <code>return</code> is used to yield values, so
+the end of iteration is indicated by a special return value (<code>NULL</code> by
+default, however this can be changed using the <code>completed</code> parameter). For
+example:</p><pre>sequence_generator &lt;-function(start) {
+  value &lt;- start
+  function() {
+    value &lt;&lt;- value + 1
+    if (value &lt; 100)
+      value
+    else
+      NULL
+  }
+}
+</pre>
+    
+    <h2 class="hasAnchor" id="threading"><a class="anchor" href="#threading"></a>Threading</h2>
+
+    
+    <p>Some Python APIs use generators to parallelize operations by calling the
+generator on a background thread and then consuming it's results on
+the foreground thread. The <code>generator()</code> function creates threadsafe
+iterators by ensuring that the R function is always called on the main
+thread (to be compatible with R's single-threaded runtime) even if the
+generator is run on a background thread.</p>
+    
+
+  </div>
+  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+    <h2>Contents</h2>
+    <ul class="nav nav-pills nav-stacked">
+      <li><a href="#arguments">Arguments</a></li>
+      
+      <li><a href="#value">Value</a></li>
+
+      <li><a href="#details">Details</a></li>
+
+      <li><a href="#ending-iteration">Ending Iteration</a></li>
+
+      <li><a href="#threading">Threading</a></li>
+          </ul>
+
   </div>
 </div>
 

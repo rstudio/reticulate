@@ -3,6 +3,9 @@
 
 - Allow `dict()` function to accept keys with mixed alpha/numeric characters
 
+- Use `conda_list()` to discover conda environments on Windows (slower but
+  much more reliable than scanning the filesystem)
+
 
 # reticulate 1.0
 

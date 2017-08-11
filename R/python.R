@@ -272,7 +272,7 @@ py_has_convert <- function(x) {
   else if (inherits(x, "python.builtin.dict"))
     attrib <- py_dict_get_item(x, name)
   else
-    attrib <- py_get_attr(x, name)
+    attrib <- py_get_attr(x, name, silent = TRUE)
   
   # convert
   if (convert || py_is_callable(attrib)) {

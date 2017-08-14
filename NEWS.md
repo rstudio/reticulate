@@ -6,10 +6,6 @@
 - Use `conda_list()` to discover conda environments on Windows (slower but
   much more reliable than scanning the filesystem)
 
-- Return `NULL` if an error occurs calling `py_get_attr` from `$` (if 
-  attributes are properties they can throw errors, and this is 
-  problematic if `$` is called for code completion)
-
 
 # reticulate 1.0
 

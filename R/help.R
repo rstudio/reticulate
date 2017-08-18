@@ -48,6 +48,24 @@ help_handler <- function(type = c("completion", "parameter", "url"), topic, sour
   }
 }
 
+#' Register a help handler for a root Python module
+#'
+#' @param module Name of a root Python module
+#' @param handler Handler function: `function(name, subtopic = NULL)`. The name
+#'   will be the fully qualfied name of a Python object (module, function, or
+#'   class). The `subtopic` is optional and is currently used only for methods
+#'   within classes.
+#'
+#' @details The help handler is passed a fully qualfied module, class, or
+#'   function name (and optional method for classes). It should return a URL for
+#'   a help page (or `""` if no help page is available).
+#'
+#' @keywords internal
+#' @export
+register_module_help_handler <- function(module, handler) {
+  .module_help_handlers[[module]] <- handler
+}
+
 # Return help for display in the completion popup window
 help_completion_handler.python.builtin.object <- function(topic, source) {
 
@@ -364,9 +382,15 @@ module_help <- function(module, topic) {
   lookup <- paste(module, topic, sep = ".")
   page <- .module_help_topics[[lookup]]
 
-  # if so then append topic
+  # if so then append topic and return
   if (!is.null(page))
-    paste(page, topic, sep = "#")
+    return(paste(page, topic, sep = "#"))
+  
+  # do we have a module handler
+  main_module <- strsplit(module, ".", fixed = TRUE)[[1]][[1]]
+  handler <- .module_help_handlers[[main_module]]
+  if (!is.null(handler))
+    handler(lookup)
   else
     ""
 }
@@ -388,14 +412,20 @@ class_help <- function(class, topic) {
   # do we have a page for this class?
   page <- .class_help_topics[[class]]
 
-  # if so then append class and topic
+  # if so then append class and topic and return
   if (!is.null(page)) {
     components <- strsplit(class, ".", fixed = TRUE)[[1]]
     class <- components[[length(components)]]
-    paste0(page, "#", class, ".", topic)
-  } else {
-    ""
+    return(paste0(page, "#", class, ".", topic))
   }
+  
+  # do we have a handler for this module
+  main_module <- strsplit(class, ".", fixed = TRUE)[[1]][[1]]
+  handler <- .module_help_handlers[[main_module]]
+  if (!is.null(handler))
+    handler(class, topic)
+  else 
+    ""
 }
 
 help_get_attribute <- function(source, topic) {
@@ -419,6 +449,7 @@ help_get_attribute <- function(source, topic) {
 # Environments where we store help topics (mappings of module/class name to URL)
 .module_help_topics <- new.env(parent = emptyenv())
 .class_help_topics <- new.env(parent = emptyenv())
+.module_help_handlers <- new.env(parent = emptyenv())
 
 
 

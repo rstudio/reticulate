@@ -6,6 +6,8 @@
 - Use `conda_list()` to discover conda environments on Windows (slower but
   much more reliable than scanning the filesystem)
 
+- Add interface for registering F1 help handlers for Python modules
+
 
 # reticulate 1.0
 

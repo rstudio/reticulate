@@ -725,6 +725,25 @@ py_call <- function(x, ...) {
 }
 
 
+#' Check if a Python object has an attribute
+#'
+#' Check whether a Python object \code{x} has an attribute
+#' \code{name}. If \code{x} is a lazy-loaded module, it will
+#' explicitly loaded.
+#' 
+#' @param x A python object.
+#' @param name The attribute to be accessed.
+#'
+#' @return \code{TRUE} if the object has the attribute \code{name}, and
+#'   \code{FALSE} otherwise.
+#' @export
+py_has_attr <- function(x, name) {
+  ensure_python_initialized()
+  if (py_is_module_proxy(x))
+    py_resolve_module_proxy(x)
+  py_has_attr_impl(x, name)
+}
+
 #' Get an attribute of a Python object
 #'
 #' @param x Python object
@@ -736,6 +755,8 @@ py_call <- function(x, ...) {
 #' @export
 py_get_attr <- function(x, name, silent = FALSE) {
   ensure_python_initialized()
+  if (py_is_module_proxy(x))
+    py_resolve_module_proxy(x)
   py_get_attr_impl(x, name, silent)
 }
 
@@ -748,6 +769,8 @@ py_get_attr <- function(x, name, silent = FALSE) {
 #' @export
 py_set_attr <- function(x, name, value) {
   ensure_python_initialized()
+  if (py_is_module_proxy(x))
+    py_resolve_module_proxy(x)
   py_set_attr_impl(x, name, value)
 }
 
@@ -760,6 +783,8 @@ py_set_attr <- function(x, name, value) {
 #' @export
 py_list_attributes <- function(x) {
   ensure_python_initialized()
+  if (py_is_module_proxy(x))
+    py_resolve_module_proxy(x)
   py_list_attributes_impl(x)
 }
 

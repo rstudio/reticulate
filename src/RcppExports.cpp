@@ -191,15 +191,15 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// py_has_attr
-bool py_has_attr(PyObjectRef x, const std::string& name);
-RcppExport SEXP _reticulate_py_has_attr(SEXP xSEXP, SEXP nameSEXP) {
+// py_has_attr_impl
+bool py_has_attr_impl(PyObjectRef x, const std::string& name);
+RcppExport SEXP _reticulate_py_has_attr_impl(SEXP xSEXP, SEXP nameSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< PyObjectRef >::type x(xSEXP);
     Rcpp::traits::input_parameter< const std::string& >::type name(nameSEXP);
-    rcpp_result_gen = Rcpp::wrap(py_has_attr(x, name));
+    rcpp_result_gen = Rcpp::wrap(py_has_attr_impl(x, name));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -472,7 +472,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_reticulate_py_validate_xptr", (DL_FUNC) &_reticulate_py_validate_xptr, 1},
     {"_reticulate_py_numpy_available_impl", (DL_FUNC) &_reticulate_py_numpy_available_impl, 0},
     {"_reticulate_py_list_attributes_impl", (DL_FUNC) &_reticulate_py_list_attributes_impl, 1},
-    {"_reticulate_py_has_attr", (DL_FUNC) &_reticulate_py_has_attr, 2},
+    {"_reticulate_py_has_attr_impl", (DL_FUNC) &_reticulate_py_has_attr_impl, 2},
     {"_reticulate_py_get_attr_impl", (DL_FUNC) &_reticulate_py_get_attr_impl, 3},
     {"_reticulate_py_set_attr_impl", (DL_FUNC) &_reticulate_py_set_attr_impl, 3},
     {"_reticulate_py_get_attribute_types", (DL_FUNC) &_reticulate_py_get_attribute_types, 2},

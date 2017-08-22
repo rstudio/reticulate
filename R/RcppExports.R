@@ -97,15 +97,8 @@ py_list_attributes_impl <- function(x) {
     .Call(`_reticulate_py_list_attributes_impl`, x)
 }
 
-#' Check if a Python object has an attribute
-#'
-#' @param x Python object
-#' @param name Attribute name
-#'
-#' @return Logical indicating whether it has the specified attribute
-#' @export
-py_has_attr <- function(x, name) {
-    .Call(`_reticulate_py_has_attr`, x, name)
+py_has_attr_impl <- function(x, name) {
+    .Call(`_reticulate_py_has_attr_impl`, x, name)
 }
 
 py_get_attr_impl <- function(x, name, silent = FALSE) {

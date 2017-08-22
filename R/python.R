@@ -738,6 +738,7 @@ py_call <- function(x, ...) {
 #'   \code{FALSE} otherwise.
 #' @export
 py_has_attr <- function(x, name) {
+  ensure_python_initialized()
   if (py_is_module_proxy(x))
     py_resolve_module_proxy(x)
   py_has_attr_impl(x, name)
@@ -753,6 +754,7 @@ py_has_attr <- function(x, name) {
 #' @return Attribute of Python object
 #' @export
 py_get_attr <- function(x, name, silent = FALSE) {
+  ensure_python_initialized()
   if (py_is_module_proxy(x))
     py_resolve_module_proxy(x)
   py_get_attr_impl(x, name, silent)
@@ -766,6 +768,7 @@ py_get_attr <- function(x, name, silent = FALSE) {
 #'
 #' @export
 py_set_attr <- function(x, name, value) {
+  ensure_python_initialized()
   if (py_is_module_proxy(x))
     py_resolve_module_proxy(x)
   py_set_attr_impl(x, name, value)
@@ -779,6 +782,7 @@ py_set_attr <- function(x, name, value) {
 #' @return Character vector of attributes
 #' @export
 py_list_attributes <- function(x) {
+  ensure_python_initialized()
   if (py_is_module_proxy(x))
     py_resolve_module_proxy(x)
   py_list_attributes_impl(x)

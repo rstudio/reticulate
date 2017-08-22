@@ -86,11 +86,13 @@ py_module_available <- function(module) {
 #' 
 #' @param required_module A optional module name that must be available
 #'   in order for a version of Python to be used. 
+#' @param use_environment An optional virtual/conda environment name
+#'   to prefer in the search
 #' 
 #' @return Python configuration object.
 #' 
 #' @export
-py_discover_config <- function(required_module = NULL) {
+py_discover_config <- function(required_module = NULL, use_environment = NULL) {
   
   # create a list of possible python versions to bind to
   # (start with versions specified via environment variable or use_* function)
@@ -100,7 +102,7 @@ py_discover_config <- function(required_module = NULL) {
   python_envs <- python_environment_versions()
   if (!is.null(required_module)) {
     # filter by required module
-    module_python_envs <- python_envs[python_envs$name %in% c(required_module, paste0("r-", required_module)),]
+    module_python_envs <- python_envs[python_envs$name %in% c(required_module, paste0("r-", required_module), use_environment),]
     python_versions <- c(python_versions, module_python_envs$python)
   }
   
@@ -205,7 +207,7 @@ python_environment_versions <- function() {
                   "~/anaconda/envs", "~/anaconda3/envs", "~/anaconda3/envs", 
                   "~")
     python_env_binaries <- python_environments(env_dirs)
-    data.frame(name = basename(dirname(python_env_binaries)), 
+    data.frame(name = basename(dirname(dirname(python_env_binaries))), 
                python = python_env_binaries,
                stringsAsFactors = FALSE)
   }

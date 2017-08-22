@@ -18,6 +18,7 @@ NULL
 .globals$use_python_versions <- c()
 .globals$py_config <- NULL
 .globals$delay_load_module <- NULL
+.globals$delay_load_environment <- NULL
 .globals$delay_load_priority <- 0
 .globals$suppress_warnings_handlers <- list()
 .globals$class_filters <- list()
@@ -38,12 +39,15 @@ is_python_initialized <- function() {
 ensure_python_initialized <- function(required_module = NULL) {
   if (!is_python_initialized()) {
      # give delay load modules priority
+     use_environment <- NULL
      if (!is.null(.globals$delay_load_module)) {
         required_module <- .globals$delay_load_module
+        use_environment <- .globals$delay_load_environment
         .globals$delay_load_module <- NULL # one shot
+        .globals$delay_load_environment <- NULL
         .globals$delay_load_priority <- 0
      }
-    .globals$py_config <- initialize_python(required_module)
+    .globals$py_config <- initialize_python(required_module, use_environment)
     
     # remap output streams to R output handlers
     remap_output_streams()
@@ -51,14 +55,14 @@ ensure_python_initialized <- function(required_module = NULL) {
   }
 }
 
-initialize_python <- function(required_module = NULL) {
+initialize_python <- function(required_module = NULL, use_environment = NULL) {
 
   # resolve top level module for search
   if (!is.null(required_module))
     required_module <- strsplit(required_module, ".", fixed = TRUE)[[1]][[1]]
   
   # find configuration
-  config <- py_discover_config(required_module)
+  config <- py_discover_config(required_module, use_environment)
 
   # check for basic python prerequsities
   if (is.null(config)) {

@@ -8,6 +8,8 @@
 
 - Add interface for registering F1 help handlers for Python modules
 
+- Provide virtual/conda env hint mechanism for delay loaded imports
+
 
 # reticulate 1.0
 

@@ -728,8 +728,7 @@ py_call <- function(x, ...) {
 #' Check if a Python object has an attribute
 #'
 #' Check whether a Python object \code{x} has an attribute
-#' \code{name}. If \code{x} is a lazy-loaded module, it will
-#' explicitly loaded.
+#' \code{name}.
 #' 
 #' @param x A python object.
 #' @param name The attribute to be accessed.

@@ -17,6 +17,5 @@ py_has_attr(x, name)
 }
 \description{
 Check whether a Python object \code{x} has an attribute
-\code{name}. If \code{x} is a lazy-loaded module, it will
-explicitly loaded.
+\code{name}.
 }

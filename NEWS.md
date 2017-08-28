@@ -1,5 +1,5 @@
 
-# reticulate 1.1 (unreleased)
+# reticulate 1.1
 
 - Allow `dict()` function to accept keys with mixed alpha/numeric characters
 

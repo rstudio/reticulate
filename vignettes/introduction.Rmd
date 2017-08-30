@@ -130,6 +130,21 @@ dict(foo = "bar", index = 42L)
 This might be useful if you need to pass a dictionary that uses a more complex object (as opposed to a string) as it's key.
 
 
+## Arrays
+
+R matrices and arrays are converted automatically to and from [NumPy](http://www.numpy.org/) arrays. 
+
+When converting from R to NumPy, the NumPy array is mapped directly to the underlying memory of the R array (no copy is made). In this case, the NumPy array uses a column-based in memory layout that is compatible with R (i.e. Fortran style rather than C style). When converting from NumPy to R, R receives a column-ordered copy of the NumPy array. 
+
+You can also manually convert R arrays to NumPy using the `np_array()` function. For example, you might do this if you needed to create a NumPy array with C rather than Fortran style in-memory layout (for higher performance in row-oriented computations) or if you wanted to control the data type of the NumPy array more explicitly. Here are some example uses of `np_array()`:
+
+```r
+a <- np_array(c(1:8), dtype = "float16")
+a <- np_array(c(1:8), dim = c(2,4), order = "C")
+```
+
+Reasoning about arrays which use distinct in-memory orders can be tricky. The [Arrays in R and Python](arrays.html) article provides additional details.
+
 ## With Contexts
 
 The R `with` generic function can be used to interact with Python context manager objects (in Python you use the `with` keyword to do the same). For example:

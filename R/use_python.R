@@ -231,7 +231,9 @@ find_conda <- function() {
   if (!nzchar(conda)) {
     conda_locations <- c(
       path.expand("~/anaconda/bin/conda"),
-      path.expand("~/anaconda3/bin/conda")
+      path.expand("~/anaconda2/bin/conda"),
+      path.expand("~/anaconda3/bin/conda"),
+      path.expand("~/anaconda4/bin/conda")
     )
     if (is_windows()) {
       anaconda_versions <- windows_registry_anaconda_versions()

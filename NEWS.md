@@ -1,5 +1,13 @@
 
-# reticulate 1.1 (unreleased)
+# reticulate 1.2 (unreleased)
+
+- Add `np_array` function for creating NumPy arrays and converting the data type, 
+  dimensions, and in-memory ordering of existing NumPy arrays.
+
+- Search in additional locations for Anaconda on Linux/Mac
+
+
+# reticulate 1.1
 
 - Allow `dict()` function to accept keys with mixed alpha/numeric characters
 

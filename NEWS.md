@@ -6,6 +6,9 @@
 
 - Search in additional locations for Anaconda on Linux/Mac
 
+- Improved support for UTF-8 converstions (always use UTF-8 when converting from
+  Python to R
+
 
 # reticulate 1.1
 

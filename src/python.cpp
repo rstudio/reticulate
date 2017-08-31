@@ -125,11 +125,7 @@ typedef PyPtr<PyObject> PyObjectPtr;
 typedef PyPtr<PyArray_Descr> PyArray_DescrPtr;
 
 PyObject* PyUnicode_AsBytes(PyObject* str) {
-#ifdef _WIN32
-  return PyUnicode_AsMBCSString(str);
-#else
   return PyUnicode_AsEncodedString(str, "utf-8", "ignore");
-#endif
 }
 
 std::string as_std_string(PyObject* str) {
@@ -153,6 +149,8 @@ std::string as_std_string(PyObject* str) {
 
   return std::string(buffer, length);
 }
+
+#define as_utf8_r_string(str) Rcpp::String(as_std_string(str))
 
 PyObject* as_python_bytes(Rbyte* bytes, size_t len) {
   if (is_python3())
@@ -520,7 +518,7 @@ CharacterVector py_tuple_to_character(PyObject* tuple) {
   Py_ssize_t len = PyTuple_Size(tuple);
   CharacterVector vec(len);
   for (Py_ssize_t i = 0; i<len; i++)
-    vec[i] = as_std_string(PyTuple_GetItem(tuple, i));
+    vec[i] = as_utf8_r_string(PyTuple_GetItem(tuple, i));
   return vec;
 }
 
@@ -638,7 +636,7 @@ SEXP py_to_r(PyObject* x, bool convert) {
 
     // string
     else if (scalarType == STRSXP)
-      return CharacterVector::create(as_std_string(x));
+      return CharacterVector::create(as_utf8_r_string(x));
 
     else
       return R_NilValue; // keep compiler happy
@@ -677,7 +675,7 @@ SEXP py_to_r(PyObject* x, bool convert) {
     } else if (scalarType == STRSXP) {
       Rcpp::CharacterVector vec(len);
       for (Py_ssize_t i = 0; i<len; i++)
-        vec[i] = as_std_string(PyList_GetItem(x, i));
+        vec[i] = as_utf8_r_string(PyList_GetItem(x, i));
       return vec;
     } else { // not a homegenous list of scalars, return a list
       Rcpp::List list(len);
@@ -711,7 +709,7 @@ SEXP py_to_r(PyObject* x, bool convert) {
     Py_ssize_t idx = 0;
     while (PyDict_Next(dict, &pos, &key, &value)) {
       PyObjectPtr str(PyObject_Str(key));
-      names[idx] = as_std_string(str);
+      names[idx] = as_utf8_r_string(str);
       list[idx] = py_to_r(value, convert);
       idx++;
     }
@@ -1497,7 +1495,7 @@ CharacterVector py_str_impl(PyObjectRef x) {
   PyObjectPtr str(PyObject_Str(x));
   if (str.is_null())
     stop(py_fetch_error());
-  return as_std_string(str);
+  return CharacterVector::create(as_utf8_r_string(str));
 }
 
 // [[Rcpp::export]]
@@ -1505,7 +1503,9 @@ void py_print(PyObjectRef x) {
   PyObjectPtr str(PyObject_Str(x));
   if (str.is_null())
     stop(py_fetch_error());
-  Rcout << as_std_string(str) << std::endl;
+  CharacterVector out = CharacterVector::create(as_utf8_r_string(str));
+  Rf_PrintValue(out);
+  Rcout << std::endl;
 }
 
 // [[Rcpp::export]]

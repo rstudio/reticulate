@@ -369,6 +369,7 @@ length.python.builtin.dict <- function(x) {
   if (inherits(x, "python.builtin.dict")) {
     
     names <- py_dict_get_keys_as_str(x)
+    names <- names[substr(names, 1, 1) != '_']
     types <- rep_len(0L, length(names))
     
   } else {

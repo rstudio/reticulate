@@ -4,6 +4,8 @@
 - Add `np_array` function for creating NumPy arrays and converting the data type, 
   dimensions, and in-memory ordering of existing NumPy arrays.
 
+- Search in additional locations for Anaconda on Linux/Mac
+
 
 # reticulate 1.1
 

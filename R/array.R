@@ -4,7 +4,7 @@
 #' Create NumPy arrays and convert the data type, dimensions, and in-memory
 #' ordering of existing NumPy arrays.
 #'
-#' @param data Vector or exisitng NumPy array providing data for the array
+#' @param data Vector or existing NumPy array providing data for the array
 #' @param dim Integer vector with array dimensions.
 #' @param dtype Numpy data type (e.g. "float32", "float64", etc.)
 #' @param order Memory ordering for array. "C" means C order, "F" means Fortran

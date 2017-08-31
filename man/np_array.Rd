@@ -7,7 +7,7 @@
 np_array(data, dim = dim(data), dtype = NULL, order = "C")
 }
 \arguments{
-\item{data}{Vector or exisitng NumPy array providing data for the array}
+\item{data}{Vector or existing NumPy array providing data for the array}
 
 \item{dim}{Integer vector with array dimensions.}
 

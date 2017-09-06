@@ -8,6 +8,11 @@
 
 - Search in additional locations for Anaconda on Linux/Mac
 
+- Improved support for UTF-8 converstions (always use UTF-8 when converting from
+  Python to R
+
+- Ignore private ("_" prefixed) attributes of dictionaries for .DollarNames
+
 
 # reticulate 1.1
 

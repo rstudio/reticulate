@@ -4,6 +4,8 @@
 - Add `np_array` function for creating NumPy arrays and converting the data type, 
   dimensions, and in-memory ordering of existing NumPy arrays.
 
+- Add `py_set_seed` function for setting Python and NumPy random seeds.
+
 - Search in additional locations for Anaconda on Linux/Mac
 
 

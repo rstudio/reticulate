@@ -67,6 +67,7 @@ reference:
       - py_str
       - py_iterator
       - py_unicode
+      - py_set_seed
       - py_last_error
       - py_help
  

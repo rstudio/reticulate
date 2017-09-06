@@ -41,3 +41,39 @@ np_array <- function(data, dim = dim(data), dtype = NULL, order = "C") {
   data$astype(dtype = dtype, order = order, copy = FALSE)
 }
 
+#' @export
+"dim.numpy.ndarray" <- function(x) {
+  if (py_is_null_xptr(x))
+    NULL
+  else {
+    ndim <- as_r_value(x$ndim)
+    if (ndim == 0)
+      NULL
+    else
+      as.integer(as_r_value(x$shape))
+  }
+}
+
+#' @export
+"dim<-.numpy.ndarray" <- function(x, value) {
+  if (!py_is_null_xptr(x))
+    r_to_py(x$reshape(as.integer(value)))
+  else
+    x
+}
+
+#' @export
+"length.numpy.ndarray" <- function(x) {
+  if (py_is_null_xptr(x))
+    length(NULL)
+  else
+    as_r_value(x$size)
+}
+
+as_r_value <- function(x) {
+  if (inherits(x, "python.builtin.object"))
+    py_to_r(x)
+  else
+    x
+}
+

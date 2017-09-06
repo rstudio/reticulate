@@ -5,6 +5,8 @@ Install the development version with: `install_github("rstudio/reticulate")`
 
 - Add `np_array` function for creating NumPy arrays and converting the data type, 
   dimensions, and in-memory ordering of existing NumPy arrays.
+  
+- Add `dim` and `length` functions for NumPy arrays
 
 - Add `py_set_seed` function for setting Python and NumPy random seeds.
 

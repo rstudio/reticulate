@@ -106,9 +106,21 @@
     </div>
 
     <div class="contents">
-    <div id="reticulate-1-1" class="section level1">
-<h1 class="hasAnchor">
-<a href="#reticulate-1-1" class="anchor"></a>reticulate 1.1</h1>
+    <div id="reticulate-1-2-development" class="section level2">
+<h2 class="hasAnchor">
+<a href="#reticulate-1-2-development" class="anchor"></a>reticulate 1.2 (development)</h2>
+<p>Install the development version with: <code>install_github("rstudio/reticulate")</code></p>
+<ul>
+<li><p>Add <code>np_array</code> function for creating NumPy arrays and converting the data type, dimensions, and in-memory ordering of existing NumPy arrays.</p></li>
+<li><p>Add <code>py_set_seed</code> function for setting Python and NumPy random seeds.</p></li>
+<li><p>Search in additional locations for Anaconda on Linux/Mac</p></li>
+<li><p>Improved support for UTF-8 converstions (always use UTF-8 when converting from Python to R</p></li>
+<li><p>Ignore private (“_" prefixed) attributes of dictionaries for .DollarNames</p></li>
+</ul>
+</div>
+    <div id="reticulate-1-1-cran" class="section level2">
+<h2 class="hasAnchor">
+<a href="#reticulate-1-1-cran" class="anchor"></a>reticulate 1.1 (CRAN)</h2>
 <ul>
 <li><p>Allow <code><a href="../reference/dict.html">dict()</a></code> function to accept keys with mixed alpha/numeric characters</p></li>
 <li><p>Use <code><a href="../reference/conda-tools.html">conda_list()</a></code> to discover conda environments on Windows (slower but much more reliable than scanning the filesystem)</p></li>
@@ -116,9 +128,9 @@
 <li><p>Provide virtual/conda env hint mechanism for delay loaded imports</p></li>
 </ul>
 </div>
-    <div id="reticulate-1-0" class="section level1">
-<h1 class="hasAnchor">
-<a href="#reticulate-1-0" class="anchor"></a>reticulate 1.0</h1>
+    <div id="reticulate-1-0" class="section level2">
+<h2 class="hasAnchor">
+<a href="#reticulate-1-0" class="anchor"></a>reticulate 1.0</h2>
 <ul>
 <li><p>Search WORKON_HOME (used by virtualenv_wrapper) for Python environments</p></li>
 <li><p>Support <code>priority</code> field for delay loaded modules.</p></li>
@@ -133,9 +145,9 @@
 <li><p>Ensure that existing warning filters aren’t reset by py_suppress_warnings</p></li>
 </ul>
 </div>
-    <div id="reticulate-0-9" class="section level1">
-<h1 class="hasAnchor">
-<a href="#reticulate-0-9" class="anchor"></a>reticulate 0.9</h1>
+    <div id="reticulate-0-9" class="section level2">
+<h2 class="hasAnchor">
+<a href="#reticulate-0-9" class="anchor"></a>reticulate 0.9</h2>
 <ul>
 <li><p>Detect older versions of Anaconda during registry scanning.</p></li>
 <li><p>Don’t probe python versions on windows when no executable is found</p></li>
@@ -149,12 +161,9 @@
 <li><p>Search <code><a href="../reference/dict.html">dict()</a></code> parent frames for symbols; only use symbols which inherit from python.builtin.object as keys.</p></li>
 </ul>
 </div>
-    <div id="reticulate-0-8" class="section level1">
-<h1 class="hasAnchor">
-<a href="#reticulate-0-8" class="anchor"></a>reticulate 0.8</h1>
-<div id="features" class="section level2">
+    <div id="reticulate-0-8" class="section level2">
 <h2 class="hasAnchor">
-<a href="#features" class="anchor"></a>Features</h2>
+<a href="#reticulate-0-8" class="anchor"></a>reticulate 0.8</h2>
 <ul>
 <li><p>Add <code><a href="../reference/import.html">import_from_path()</a></code> function for importing Python modules from the filesystem.</p></li>
 <li><p>Add <code><a href="../reference/py_discover_config.html">py_discover_config()</a></code> function to determine which versions of Python will be discovered and which one will be used by reticulate.</p></li>
@@ -179,12 +188,6 @@
 <li><p>Implement <code>names()</code> generic for Python objects</p></li>
 <li><p>Improve performance for marshalling of large Python dictionaries and iterators that return large numbers of items.</p></li>
 <li><p>Implement <code>str</code> methods for Python List, Dict, and Tuple (to prevent printing of very large collections via default <code>str</code> method)</p></li>
-</ul>
-</div>
-<div id="bug-fixes" class="section level2">
-<h2 class="hasAnchor">
-<a href="#bug-fixes" class="anchor"></a>Bug Fixes</h2>
-<ul>
 <li><p>Use <code>grepl()</code> rather than <code>endsWith()</code> for compatibility with R &lt;= 3.2</p></li>
 <li><p>Use <code>inspect.getmro</code> rather than <code>__bases__</code> for enumerating the base classes of Python objects.</p></li>
 <li><p>Fix <code>PROTECT</code>/<code>UNPROTECT</code> issue detected by CRAN</p></li>
@@ -195,10 +198,9 @@ primitive R functions (don’t check environment inheritance chain when looking 
 <li><p>Propagate <code>convert</code> parameter for modules with <code>delay_load</code></p></li>
 </ul>
 </div>
-</div>
-    <div id="reticulate-0-7" class="section level1">
-<h1 class="hasAnchor">
-<a href="#reticulate-0-7" class="anchor"></a>reticulate 0.7</h1>
+    <div id="reticulate-0-7" class="section level2">
+<h2 class="hasAnchor">
+<a href="#reticulate-0-7" class="anchor"></a>reticulate 0.7</h2>
 <ul>
 <li>Initial CRAN release</li>
 </ul>
@@ -210,7 +212,8 @@ primitive R functions (don’t check environment inheritance chain when looking 
     <div id="tocnav">
       <h2>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
-        <li><a href="#reticulate-1-1">1.1</a></li>
+        <li><a href="#reticulate-1-2-development">1.2</a></li>
+        <li><a href="#reticulate-1-1-cran">1.1</a></li>
         <li><a href="#reticulate-1-0">1.0</a></li>
         <li><a href="#reticulate-0-9">0.9</a></li>
         <li><a href="#reticulate-0-8">0.8</a></li>

@@ -1,5 +1,7 @@
 
-# reticulate 1.2 (unreleased)
+## reticulate 1.2 (development)
+
+Install the development version with: `install_github("rstudio/reticulate")`
 
 - Add `np_array` function for creating NumPy arrays and converting the data type, 
   dimensions, and in-memory ordering of existing NumPy arrays.
@@ -14,7 +16,7 @@
 - Ignore private ("_" prefixed) attributes of dictionaries for .DollarNames
 
 
-# reticulate 1.1
+## reticulate 1.1 (CRAN)
 
 - Allow `dict()` function to accept keys with mixed alpha/numeric characters
 
@@ -26,7 +28,7 @@
 - Provide virtual/conda env hint mechanism for delay loaded imports
 
 
-# reticulate 1.0
+## reticulate 1.0
 
 - Search WORKON_HOME (used by virtualenv_wrapper) for Python environments  
 
@@ -52,7 +54,7 @@
 - Ensure that existing warning filters aren't reset by py_suppress_warnings
 
 
-# reticulate 0.9
+## reticulate 0.9
 
 - Detect older versions of Anaconda during registry scanning.
 
@@ -76,9 +78,7 @@
   from python.builtin.object as keys.
 
 
-# reticulate 0.8
-
-## Features
+## reticulate 0.8
 
 - Add `import_from_path()` function for importing Python modules from 
   the filesystem.
@@ -141,9 +141,6 @@
 - Implement `str` methods for Python List, Dict, and Tuple (to prevent
   printing of very large collections via default `str` method)
 
-
-## Bug Fixes
-
 - Use `grepl()` rather than `endsWith()` for compatibility with R <= 3.2
 
 - Use `inspect.getmro` rather than `__bases__` for enumerating the base classes
@@ -162,7 +159,7 @@
 - Propagate `convert` parameter for modules with `delay_load`
 
   
-# reticulate 0.7
+## reticulate 0.7
 
 - Initial CRAN release
 

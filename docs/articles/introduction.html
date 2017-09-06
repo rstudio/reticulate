@@ -213,6 +213,16 @@ main<span class="op">$</span>x</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/dict.html">dict</a></span>(<span class="dt">foo =</span> <span class="st">"bar"</span>, <span class="dt">index =</span> 42L)</code></pre></div>
 <p>This might be useful if you need to pass a dictionary that uses a more complex object (as opposed to a string) as it’s key.</p>
 </div>
+<div id="arrays" class="section level2">
+<h2 class="hasAnchor">
+<a href="#arrays" class="anchor"></a>Arrays</h2>
+<p>R matrices and arrays are converted automatically to and from <a href="http://www.numpy.org/">NumPy</a> arrays.</p>
+<p>When converting from R to NumPy, the NumPy array is mapped directly to the underlying memory of the R array (no copy is made). In this case, the NumPy array uses a column-based in memory layout that is compatible with R (i.e. Fortran style rather than C style). When converting from NumPy to R, R receives a column-ordered copy of the NumPy array.</p>
+<p>You can also manually convert R arrays to NumPy using the <code><a href="../reference/np_array.html">np_array()</a></code> function. For example, you might do this if you needed to create a NumPy array with C rather than Fortran style in-memory layout (for higher performance in row-oriented computations) or if you wanted to control the data type of the NumPy array more explicitly. Here are some example uses of <code><a href="../reference/np_array.html">np_array()</a></code>:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">a &lt;-<span class="st"> </span><span class="kw"><a href="../reference/np_array.html">np_array</a></span>(<span class="kw">c</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">8</span>), <span class="dt">dtype =</span> <span class="st">"float16"</span>)
+a &lt;-<span class="st"> </span><span class="kw"><a href="../reference/np_array.html">np_array</a></span>(<span class="kw">c</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">8</span>), <span class="dt">dim =</span> <span class="kw">c</span>(<span class="dv">2</span>,<span class="dv">4</span>), <span class="dt">order =</span> <span class="st">"C"</span>)</code></pre></div>
+<p>Reasoning about arrays which use distinct in-memory orders can be tricky. The <a href="arrays.html">Arrays in R and Python</a> article provides additional details.</p>
+</div>
 <div id="with-contexts" class="section level2">
 <h2 class="hasAnchor">
 <a href="#with-contexts" class="anchor"></a>With Contexts</h2>
@@ -398,18 +408,22 @@ iter &lt;-<span class="st"> </span><span class="kw"><a href="../reference/py_ite
 </tr></thead>
 <tbody>
 <tr class="odd">
+<td><code><a href="../reference/py_set_seed.html">py_set_seed()</a></code></td>
+<td>Set Python and NumPy random seeds.</td>
+</tr>
+<tr class="even">
 <td><code><a href="../reference/py_unicode.html">py_unicode()</a></code></td>
 <td>Convert a string to a Python unicode object.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code><a href="../reference/py_str.html">py_str()</a></code></td>
 <td>Get the string representation of Python object.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code><a href="../reference/py_is_null_xptr.html">py_is_null_xptr()</a></code></td>
 <td>Check whether a Python object is a null externalptr.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code><a href="../reference/py_is_null_xptr.html">py_validate_xptr()</a></code></td>
 <td>Check whether a Python object is a null externalptr and throw an error if it is.</td>
 </tr>
@@ -441,6 +455,7 @@ iter &lt;-<span class="st"> </span><span class="kw"><a href="../reference/py_ite
       <li><a href="#executing-code">Executing Code</a></li>
       <li><a href="#getting-help">Getting Help</a></li>
       <li><a href="#lists-tuples-and-dictionaries">Lists, Tuples, and Dictionaries</a></li>
+      <li><a href="#arrays">Arrays</a></li>
       <li><a href="#with-contexts">With Contexts</a></li>
       <li><a href="#iterators">Iterators</a></li>
       <li><a href="#advanced-functions">Advanced Functions</a></li>

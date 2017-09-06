@@ -34,8 +34,8 @@ py_set_seed <- function(seed, disable_hash_randomization = TRUE) {
   
   # set numpy seed if numpy is available
   if (py_numpy_available()) {
-    np$random$seed(seed)
     np <- import("numpy")
+    np$random$seed(seed)
   }
    
   invisible(NULL)

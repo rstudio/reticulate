@@ -1,9 +1,0 @@
-citHeader("To cite reticulate in publications, please use:")
-
-citEntry(entry = "manual",
-  author = "JJ Allaire, Kevin Ushey, Yuan Tang, and Dirk Eddelbuettel",
-  title = "reticulate: R Interface to Python",
-  year = "2017",
-  url = "https://github.com/rstudio/reticulate",
-  textVersion = "JJ Allaire, Kevin Ushey, Yuan Tang, and Dirk Eddelbuettel (2017). reticulate: R Interface to Python. https://github.com/rstudio/reticulate"
-)

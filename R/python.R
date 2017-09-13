@@ -377,6 +377,8 @@ length.python.builtin.dict <- function(x) {
     # get the names and filter out internal attributes (_*)
     names <- py_suppress_warnings(py_list_attributes(x))
     names <- names[substr(names, 1, 1) != '_']
+    # replace function with `function`
+    names <- sub("^function$", "`function`", names)
     names <- sort(names, decreasing = FALSE)
     
     # get the types

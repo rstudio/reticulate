@@ -17,6 +17,8 @@ Install the development version with: `install_github("rstudio/reticulate")`
 
 - Ignore private ("_" prefixed) attributes of dictionaries for .DollarNames
 
+- Provide "&#96;function&#96;" rather than "function" in completions.
+
 
 ## reticulate 1.1 (CRAN)
 

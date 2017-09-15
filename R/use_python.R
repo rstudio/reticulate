@@ -96,6 +96,22 @@ conda_list <- function(conda = "auto") {
   # list envs
   conda_envs <- system2(conda, args = c("info", "--json"), stdout = TRUE)
   
+  # check for error
+  status <- attr(conda_envs, "status")
+  if (!is.null(status)) {
+    # show warning if conda_diagnostics are enabled
+    if (getOption("reticulate.conda_diagnostics", default = FALSE)) {
+      errmsg <- attr(config, "errmsg")
+      warning("Error ", status, " occurred running ", conda, " ", errmsg)
+    }
+    # return empty data frame
+    return(data.frame(
+      name = character(), 
+      python = character(), 
+      stringsAsFactors = FALSE)
+    )
+  }
+  
   # strip out anaconda cloud prefix (not valid json)
   if (length(conda_envs) > 0 && grepl("Anaconda Cloud", conda_envs[[1]], fixed = TRUE))
     conda_envs <- conda_envs[-1]

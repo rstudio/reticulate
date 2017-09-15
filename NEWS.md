@@ -19,6 +19,8 @@ Install the development version with: `install_github("rstudio/reticulate")`
 
 - Provide "&#96;function&#96;" rather than "function" in completions.
 
+- Fail gracefully if call to conda in `conda_list` results in an error
+
 
 ## reticulate 1.1 (CRAN)
 

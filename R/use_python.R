@@ -94,14 +94,16 @@ conda_list <- function(conda = "auto") {
   conda <- conda_binary(conda)
   
   # list envs
-  conda_envs <- system2(conda, args = c("info", "--json"), stdout = TRUE)
+  conda_envs <- suppressWarnings(
+    system2(conda, args = c("info", "--json"), stdout = TRUE)
+  )
   
   # check for error
   status <- attr(conda_envs, "status")
   if (!is.null(status)) {
     # show warning if conda_diagnostics are enabled
     if (getOption("reticulate.conda_diagnostics", default = FALSE)) {
-      errmsg <- attr(config, "errmsg")
+      errmsg <- attr(status, "errmsg")
       warning("Error ", status, " occurred running ", conda, " ", errmsg)
     }
     # return empty data frame

@@ -21,6 +21,8 @@ Install the development version with: `install_github("rstudio/reticulate")`
 
 - Fail gracefully if call to conda in `conda_list` results in an error
 
+- Add `pip_ignore_installed` option to `conda_install` function.
+
 
 ## reticulate 1.1 (CRAN)
 

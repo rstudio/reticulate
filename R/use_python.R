@@ -180,10 +180,15 @@ conda_remove <- function(envname, packages = NULL, conda = "auto") {
   }
 }
 
-
+#' @param pip_ignore_installed Ignore installed versions when using pip. This is `TRUE` by default
+#'   so that specific package versions can be installed even if they are downgrades. The `FALSE` 
+#'   option is useful for situations where you don't want a pip install to attempt an overwrite
+#'   of a conda binary package (e.g. SciPy on Windows which is very difficult to install via
+#'   pip due to compilation requirements).
+#'
 #' @rdname conda-tools
 #' @export
-conda_install <- function(envname, packages, pip = FALSE, conda = "auto") {
+conda_install <- function(envname, packages, pip = FALSE, pip_ignore_installed = TRUE, conda = "auto") {
  
   # resolve conda binary
   conda <- conda_binary(conda)
@@ -191,10 +196,11 @@ conda_install <- function(envname, packages, pip = FALSE, conda = "auto") {
   if (pip) {
     # use pip package manager
     condaenv_bin <- function(bin) path.expand(file.path(dirname(conda), bin))
-    cmd <- sprintf("%s%s %s && pip install --upgrade --ignore-installed %s%s",
+    cmd <- sprintf("%s%s %s && pip install --upgrade %s %s%s",
                    ifelse(is_windows(), "", ifelse(is_osx(), "source ", "/bin/bash -c \"source ")),
                    shQuote(path.expand(condaenv_bin("activate"))),
                    envname,
+                   ifelse(pip_ignore_installed, "--ignore-installed", ""),
                    paste(shQuote(packages), collapse = " "),
                    ifelse(is_windows(), "", ifelse(is_osx(), "", "\"")))
     result <- system(cmd)

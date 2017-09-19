@@ -16,7 +16,8 @@ conda_create(envname, packages = "python", conda = "auto")
 
 conda_remove(envname, packages = NULL, conda = "auto")
 
-conda_install(envname, packages, pip = FALSE, conda = "auto")
+conda_install(envname, packages, pip = FALSE, pip_ignore_installed = TRUE,
+  conda = "auto")
 
 conda_binary(conda = "auto")
 
@@ -31,6 +32,12 @@ and other conventional install locations).}
 \item{packages}{Character vector with package names to install.}
 
 \item{pip}{\code{TRUE} to use pip (defaults to \code{FALSE})}
+
+\item{pip_ignore_installed}{Ignore installed versions when using pip. This is \code{TRUE} by default
+so that specific package versions can be installed even if they are downgrades. The \code{FALSE}
+option is useful for situations where you don't want a pip install to attempt an overwrite
+of a conda binary package (e.g. SciPy on Windows which is very difficult to install via
+pip due to compilation requirements).}
 }
 \value{
 \code{conda_list()} returns a data frame with the names and paths to the

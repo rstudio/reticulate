@@ -1,7 +1,5 @@
 
-## reticulate 1.2 (development)
-
-Install the development version with: `install_github("rstudio/reticulate")`
+## reticulate 1.2
 
 - Add `np_array` function for creating NumPy arrays and converting the data type, 
   dimensions, and in-memory ordering of existing NumPy arrays.
@@ -13,7 +11,7 @@ Install the development version with: `install_github("rstudio/reticulate")`
 - Search in additional locations for Anaconda on Linux/Mac
 
 - Improved support for UTF-8 conversions (always use UTF-8 when converting from
-  Python to R
+  Python to R)
 
 - Ignore private ("_" prefixed) attributes of dictionaries for .DollarNames
 
@@ -24,7 +22,7 @@ Install the development version with: `install_github("rstudio/reticulate")`
 - Add `pip_ignore_installed` option to `conda_install` function.
 
 
-## reticulate 1.1 (CRAN)
+## reticulate 1.1
 
 - Allow `dict()` function to accept keys with mixed alpha/numeric characters
 

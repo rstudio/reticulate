@@ -139,6 +139,7 @@ void initialize_type_objects(bool python3);
 #define PyComplex_Check(o) (Py_TYPE(o) == Py_TYPE(Py_Complex))
 
 LIBPYTHON_EXTERN void (*Py_Initialize)();
+LIBPYTHON_EXTERN int (*Py_IsInitialized)();
 
 LIBPYTHON_EXTERN int (*Py_AddPendingCall)(int (*func)(void *), void *arg);
 LIBPYTHON_EXTERN void (*PyErr_SetInterrupt)();

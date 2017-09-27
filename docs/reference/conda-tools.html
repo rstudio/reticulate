@@ -114,7 +114,8 @@
 
 <span class='fu'>conda_remove</span>(<span class='no'>envname</span>, <span class='kw'>packages</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>conda</span> <span class='kw'>=</span> <span class='st'>"auto"</span>)
 
-<span class='fu'>conda_install</span>(<span class='no'>envname</span>, <span class='no'>packages</span>, <span class='kw'>pip</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>conda</span> <span class='kw'>=</span> <span class='st'>"auto"</span>)
+<span class='fu'>conda_install</span>(<span class='no'>envname</span>, <span class='no'>packages</span>, <span class='kw'>pip</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>pip_ignore_installed</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>conda</span> <span class='kw'>=</span> <span class='st'>"auto"</span>)
 
 <span class='fu'>conda_binary</span>(<span class='kw'>conda</span> <span class='kw'>=</span> <span class='st'>"auto"</span>)
 
@@ -139,6 +140,14 @@ and other conventional install locations).</p></td>
     <tr>
       <th>pip</th>
       <td><p><code>TRUE</code> to use pip (defaults to <code>FALSE</code>)</p></td>
+    </tr>
+    <tr>
+      <th>pip_ignore_installed</th>
+      <td><p>Ignore installed versions when using pip. This is <code>TRUE</code> by default
+so that specific package versions can be installed even if they are downgrades. The <code>FALSE</code>
+option is useful for situations where you don't want a pip install to attempt an overwrite
+of a conda binary package (e.g. SciPy on Windows which is very difficult to install via
+pip due to compilation requirements).</p></td>
     </tr>
     </table>
     

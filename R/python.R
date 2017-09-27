@@ -474,9 +474,15 @@ dict <- function(..., convert = FALSE) {
   # get the args 
   values <- list(...)
   
+  # flag indicating whether we should scan the parent frame for python 
+  # objects that should serve as the key (e.g. a Tensor)
+  scan_parent_frame <- TRUE
+  
   # if there is a single element and it's a list then use that
-  if (length(values) == 1 && is.list(values[[1]]))
+  if (length(values) == 1 && is.null(names(values)) && is.list(values[[1]])) {
     values <- values[[1]]
+    scan_parent_frame <- FALSE
+  }
   
   # get names
   names <- names(values)
@@ -485,7 +491,7 @@ dict <- function(..., convert = FALSE) {
   frame <- parent.frame()
   keys <- lapply(names, function(name) {
     # allow python objects to serve as keys
-    if (exists(name, envir = frame, inherits = TRUE)) {
+    if (scan_parent_frame && exists(name, envir = frame, inherits = TRUE)) {
       key <- get(name, envir = frame, inherits = TRUE)
       if (inherits(key, "python.builtin.object"))
         key

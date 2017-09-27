@@ -1,5 +1,13 @@
 
-## reticulate 1.2
+## reticulate 1.3 (development)
+
+Install the development version with: `install_github("rstudio/reticulate")`
+
+- `dict`: Don't scan parent frame for Python objects if a single unnamed list 
+  is passed.
+
+
+## reticulate 1.2 (CRAN)
 
 - Add `np_array` function for creating NumPy arrays and converting the data type, 
   dimensions, and in-memory ordering of existing NumPy arrays.

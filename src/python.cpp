@@ -1401,12 +1401,20 @@ void py_initialize(const std::string& python,
     s_pythonhome_v3 = to_wstring(pythonhome);
     Py_SetPythonHome_v3(const_cast<wchar_t*>(s_pythonhome_v3.c_str()));
 
-    // add rpycall module
-    PyImport_AppendInittab("rpycall", &initializeRPYCall);
+    if (Py_IsInitialized()) {
+      // if R is embedded in a python environment, rpycall has to be loaded as a regular
+      // module.
+      PyImport_AddModule("rpycall");
+      PyDict_SetItemString(PyImport_GetModuleDict(), "rpycall", initializeRPYCall());
 
-    // initialize python
-    Py_Initialize();
-    
+    } else {
+      // add rpycall module
+      PyImport_AppendInittab("rpycall", &initializeRPYCall);
+
+      // initialize python
+      Py_Initialize();
+    }
+
     const wchar_t *argv[1] = {s_python_v3.c_str()};
     PySys_SetArgv_v3(1, const_cast<wchar_t**>(argv));
 
@@ -1420,8 +1428,10 @@ void py_initialize(const std::string& python,
     s_pythonhome = pythonhome;
     Py_SetPythonHome(const_cast<char*>(s_pythonhome.c_str()));
 
-    // initialize python
-    Py_Initialize();
+    if (!Py_IsInitialized()) {
+      // initialize python
+      Py_Initialize();
+    }
 
     // add rpycall module
     Py_InitModule4("rpycall", RPYCallMethods, (char *)NULL, (PyObject *)NULL,

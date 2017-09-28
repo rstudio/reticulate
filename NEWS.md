@@ -9,6 +9,8 @@ Install the development version with: `install_github("rstudio/reticulate")`
 - Use existing instance of Python when reticulate is loaded within an 
   embedded Python environment (e.g. rpy2, rice, etc.)
 
+- Force use of Python specified by RETICULATE_PYTHON
+
 
 ## reticulate 1.2 (CRAN)
 

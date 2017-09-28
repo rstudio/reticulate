@@ -31,7 +31,7 @@ By default, the version of Python found on the system `PATH` is checked first, a
 
 There are two ways you can provide hints as to which version of Python should be used:
 
-1. By setting the value of the `RETICULATE_PYTHON` environment variable a Python binary.
+1. By setting the value of the `RETICULATE_PYTHON` environment variable to a Python binary. Note that if you set this environment variable then the specified version of Python will always be used (i.e. this is perscriptive rather than advisory).
 
 2. By calling one of the these functions:
 

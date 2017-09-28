@@ -94,6 +94,17 @@ py_module_available <- function(module) {
 #' @export
 py_discover_config <- function(required_module = NULL, use_environment = NULL) {
   
+  # if RETICULATE_PYTHON is specified then use it without scanning further
+  reticulate_python_env <- Sys.getenv("RETICULATE_PYTHON", unset = NA)
+  if (!is.na(reticulate_python_env)) {
+    python_version <- normalize_python_path(reticulate_python_env)
+    if (!python_version$exists)
+      stop("Python specified in RETICULATE_PYTHON (", reticulate_python_env, ") does not exist")
+    python_version <- python_version$path
+    config <- python_config(python_version, required_module, python_version, forced = TRUE)
+    return(config)
+  }
+  
   # create a list of possible python versions to bind to
   # (start with versions specified via environment variable or use_* function)
   python_versions <- reticulate_python_versions()
@@ -247,7 +258,7 @@ python_environments <- function(env_dirs, required_module = NULL) {
 
 
 
-python_config <- function(python, required_module, python_versions) {
+python_config <- function(python, required_module, python_versions, forced = FALSE) {
   
   # collect configuration information
   if (!is.null(required_module)) {
@@ -349,7 +360,8 @@ python_config <- function(python, required_module, python_versions) {
     required_module = required_module,
     required_module_path = required_module_path,
     available = FALSE,
-    python_versions = python_versions
+    python_versions = python_versions,
+    forced = forced
   ))
   
 }
@@ -378,6 +390,9 @@ str.py_config <- function(object, ...) {
       out <- paste0(out, x$required_module_path, "\n")
     else
       out <- paste0(out, "[NOT FOUND]\n")
+  }
+  if (x$forced) {
+    out <- paste0(out, "\nNOTE: Python version was forced by RETICULATE_PYTHON environment variable\n")
   }
   if (length(x$python_versions) > 1) {
     out <- paste0(out, "\npython versions found: \n")
@@ -411,13 +426,9 @@ reticulate_python_versions <- function() {
   # python versions to return
   python_versions <- c()
   
-  # combine registered versions with the RETICULATE_PYTHON environment variable
+  # get versions specified via use_* functions
   reticulate_python_options <- .globals$use_python_versions
-  reticulate_python_env <- Sys.getenv("RETICULATE_PYTHON", unset = NA)
-  if (!is.na(reticulate_python_env))
-    reticulate_python_options <- c(reticulate_python_env, reticulate_python_options)
-  
-  
+ 
   # determine python versions to return
   if (length(reticulate_python_options) > 0) {
     for (i in 1:length(reticulate_python_options)) {

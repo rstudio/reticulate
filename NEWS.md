@@ -5,6 +5,9 @@ Install the development version with: `install_github("rstudio/reticulate")`
 
 - `dict`: Don't scan parent frame for Python objects if a single unnamed list 
   is passed.
+  
+- Use existing instance of Python when reticulate is loaded within an 
+  embedded Python environment (e.g. rpy2, rice, etc.)
 
 
 ## reticulate 1.2 (CRAN)

@@ -11,6 +11,8 @@ Install the development version with: `install_github("rstudio/reticulate")`
 
 - Force use of Python specified by RETICULATE_PYTHON
 
+- Wait as long as required for scheduling generator calls on the main thread
+
 
 ## reticulate 1.2 (CRAN)
 

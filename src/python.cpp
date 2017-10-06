@@ -7,6 +7,7 @@ using namespace Rcpp;
 #include "reticulate_types.h"
 
 #include "event_loop.h"
+#include "tinythread.h"
 
 #include <fstream>
 
@@ -1308,10 +1309,42 @@ extern "C" PyObject* call_python_function_on_main_thread(
   // decrefed when the call object is destroyed)
   PythonCall* call = new PythonCall(func, data);
 
-  // schedule calling the function
-  if (Py_AddPendingCall(call_python_function, call) == -1)
-    PySys_WriteStderr("Unexpected error calling Py_AddPendingCall\n");
-  
+  // Schedule calling the function. Note that we have at least one report of Py_AddPendingCall 
+  // returning -1, the source code for Py_AddPendingCall is here:
+  // https://github.com/python/cpython/blob/faa135acbfcd55f79fb97f7525c8aa6f5a5b6a22/Python/ceval.c#L321-L361
+  // From this it looks like it can fail if:
+  //
+  //   (a) It can't acquire the _PyRuntime.ceval.pending.lock after 100 tries; or
+  //   (b) There are more than NPENDINGCALLS already queued
+  //
+  // As a result we need to check for failure and then sleep and retry in that case. 
+  //
+  // This could in theory result in waiting "forever" but note that if we never successfully
+  // add the pending call then we will wait forever anyway as the result queue will 
+  // never be signaled, i.e. see this code which waits on the call: 
+  // https://github.com/rstudio/reticulate/blob/b507f954dc08c16710f0fb39328b9770175567c0/inst/python/rpytools/generator.py#L27-L36)
+  //
+  // As a diagnostic for perverse failure to schedule the call, print a message to stderr
+  // every 60 seconds 
+  //
+  const size_t wait_ms = 100;
+  size_t waited_ms = 0;
+  while(true) {
+    
+    // try to schedule the pending call (exit loop on success)
+    if (Py_AddPendingCall(call_python_function, call) == 0)
+      break;
+    
+    // otherwise sleep for wait_ms
+    using namespace tthread;
+    this_thread::sleep_for(chrono::milliseconds(wait_ms));
+    
+    // increment total wait time and print a warning every 60 seconds
+    waited_ms += wait_ms;
+    if ((waited_ms % 60000) == 0)
+      PySys_WriteStderr("Waiting to schedule call on main R interpeter thread...\n");
+  }
+ 
   // return none
   Py_IncRef(Py_None);
   return Py_None; 

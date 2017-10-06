@@ -45,4 +45,6 @@ as_r_value <- function(x) {
     x
 }
 
-
+yoink <- function(package, symbol) {
+  do.call(":::", list(package, symbol))
+}

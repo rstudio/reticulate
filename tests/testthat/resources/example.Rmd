@@ -1,0 +1,19 @@
+---
+title: "Using reticulate's Python Engine with knitr"
+---
+
+```{r setup, include = FALSE}
+library(reticulate)
+knitr::knit_engines$set(python = eng_python)
+```
+
+```{python}
+x = 1
+print x
+```
+
+```{python}
+y = 2
+print y
+```
+

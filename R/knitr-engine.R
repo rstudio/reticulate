@@ -20,12 +20,12 @@
 #' @export
 eng_python <- function(options) {
   
-  ast <- import("ast")
+  ast <- import("ast", convert = TRUE)
   
   # helper function for extracting range of code, dropping blank lines
   extract <- function(code, range) {
     snippet <- code[range[1]:range[2]]
-    snippet[nzchar(snippet)]
+    paste(snippet[nzchar(snippet)], collapse = "\n")
   }
   
   # extract the code to be run -- we'll attempt to run the code line by line
@@ -53,7 +53,31 @@ eng_python <- function(options) {
   ranges <- mapply(c, starts, ends, SIMPLIFY = FALSE)
   
   # line index from which source should be emitted
-  pending <- 1
+  pending_source_index <- 1
+  
+  # plots captured from Python which need to be emitted
+  pending_plots <- list()
+  
+  # monkey-patch matplotlib's show method: rather than showing a plot
+  # on the screen, we write the plot to file
+  matplotlib <- import("matplotlib", convert = FALSE)
+  plt <- matplotlib$pyplot
+  
+  # save + restore old show hook
+  show <- plt$show
+  on.exit(plt$show <- show, add = TRUE)
+  matplotlib$pyplot$show <- function(...) {
+    
+    # write plot to file
+    plot_counter <- yoink("knitr", "plot_counter")
+    path <- knitr::fig_path(".png", number = plot_counter())
+    dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
+    plt$savefig(path, dpi = options$dpi)
+    
+    # return as a knitr image path
+    pending_plots[[length(pending_plots) + 1]] <<-
+      knitr::include_graphics(path)
+  }
   
   # actual outputs to be returned to knitr
   outputs <- list()
@@ -66,27 +90,33 @@ eng_python <- function(options) {
       py_run_string(snippet, convert = FALSE)
     )
     
-    if (is.character(captured) && nzchar(captured)) {
+    if (nzchar(captured) || length(pending_plots)) {
       
       # append pending source to outputs
       outputs[[length(outputs) + 1]] <- structure(
-        list(src = extract(code, c(pending, range[2]))),
+        list(src = extract(code, c(pending_source_index, range[2]))),
         class = "source"
       )
       
       # append captured outputs
-      outputs[[length(outputs) + 1]] <- captured
+      if (nzchar(captured))
+        outputs[[length(outputs) + 1]] <- captured
       
-      # TODO: find and append image data?
+      # append captured images / figures
+      if (length(pending_plots)) {
+        for (plot in pending_plots)
+          outputs[[length(outputs) + 1]] <- plot
+        pending_plots <- list()
+      }
       
       # update pending source range
-      pending <- range[2] + 1
+      pending_source_index <- range[2] + 1
     }
   }
   
   # if we have leftover input, add that now
-  if (pending < n) {
-    leftover <- extract(code, c(pending, n))
+  if (pending_source_index < n) {
+    leftover <- extract(code, c(pending_source_index, n))
     outputs[[length(outputs) + 1]] <- structure(
       list(src = leftover),
       class = "source"

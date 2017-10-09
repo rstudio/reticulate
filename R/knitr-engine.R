@@ -68,6 +68,9 @@ eng_python <- function(options) {
   on.exit(plt$show <- show, add = TRUE)
   matplotlib$pyplot$show <- function(...) {
     
+    # set plot figure dimensions
+    plt$figure(figsize = tuple(options$fig.width, options$fig.height))
+    
     # write plot to file
     plot_counter <- yoink("knitr", "plot_counter")
     path <- knitr::fig_path(".png", number = plot_counter())

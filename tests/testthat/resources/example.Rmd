@@ -9,11 +9,10 @@ knitr::knit_engines$set(python = eng_python)
 
 ```{python}
 x = 1
-print x
+y = 2
 ```
 
 ```{python}
-y = 2
+print x
 print y
 ```
-

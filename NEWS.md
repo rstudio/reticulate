@@ -13,6 +13,8 @@ Install the development version with: `install_github("rstudio/reticulate")`
 
 - Wait as long as required for scheduling generator calls on the main thread
 
+- Define R_SESSION_INITIALIZED (used by rpy2)
+
 
 ## reticulate 1.2 (CRAN)
 

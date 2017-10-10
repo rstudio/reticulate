@@ -17,8 +17,9 @@ print x
 print y
 ```
 
-```{python}
+```{python, fig.width = 4, fig.height = 3, dev = 'svg'}
 import matplotlib.pyplot as plt
+plt.style.use('ggplot')
 plt.plot([1, 2, 3, 4])
 plt.show()
 ```

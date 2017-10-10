@@ -70,13 +70,12 @@ eng_python <- function(options) {
     
     # write plot to file
     plot_counter <- yoink("knitr", "plot_counter")
-    path <- knitr::fig_path(".png", number = plot_counter())
+    path <- knitr::fig_path(options$dev, number = plot_counter())
     dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
     plt$savefig(path, dpi = options$dpi)
     
     # return as a knitr image path
-    pending_plots[[length(pending_plots) + 1]] <<-
-      knitr::include_graphics(path)
+    pending_plots[[length(pending_plots) + 1]] <<- knitr::include_graphics(path)
   }
   
   # set up figure dimensions

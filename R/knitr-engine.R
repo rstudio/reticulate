@@ -58,28 +58,11 @@ eng_python <- function(options) {
   # plots captured from Python which need to be emitted
   pending_plots <- list()
   
-  # monkey-patch matplotlib's show method: rather than showing a plot
-  # on the screen, we write the plot to file
-  matplotlib <- import("matplotlib", convert = FALSE)
-  plt <- matplotlib$pyplot
-  
-  # save + restore old show hook
-  show <- plt$show
-  on.exit(plt$show <- show, add = TRUE)
-  matplotlib$pyplot$show <- function(...) {
-    
-    # write plot to file
-    plot_counter <- yoink("knitr", "plot_counter")
-    path <- knitr::fig_path(options$dev, number = plot_counter())
-    dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
-    plt$savefig(path, dpi = options$dpi)
-    
-    # return as a knitr image path
-    pending_plots[[length(pending_plots) + 1]] <<- knitr::include_graphics(path)
-  }
-  
-  # set up figure dimensions
-  plt$rc("figure", figsize = tuple(options$fig.width, options$fig.height))
+  eng_python_initialize(
+    options,
+    context = environment(),
+    envir = environment()
+  )
   
   # actual outputs to be returned to knitr
   outputs <- list()
@@ -130,5 +113,40 @@ eng_python <- function(options) {
   # https://github.com/yihui/knitr/commit/71bfd8796d485ed7bb9db0920acdf02464b3df9a
   wrap <- yoink("knitr", "wrap")
   wrap(outputs, options)
+  
+}
+
+eng_python_initialize <- function(options, context, envir) {
+  eng_python_initialize_matplotlib(options, context, envir)
+}
+
+eng_python_initialize_matplotlib <- function(options,
+                                             context,
+                                             envir)
+{
+  if (!py_module_available("matplotlib"))
+    return()
+  
+  matplotlib <- import("matplotlib", convert = FALSE)
+  plt <- matplotlib$pyplot
+  
+  # save + restore old show hook
+  show <- plt$show
+  defer(plt$show <- show, envir = envir)
+  plt$show <- function(...) {
+    
+    # write plot to file
+    plot_counter <- yoink("knitr", "plot_counter")
+    path <- knitr::fig_path(options$dev, number = plot_counter())
+    dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
+    plt$savefig(path, dpi = options$dpi)
+    
+    # return as a knitr image path
+    context$pending_plots[[length(context$pending_plots) + 1]] <<-
+      knitr::include_graphics(path)
+  }
+  
+  # set up figure dimensions
+  plt$rc("figure", figsize = tuple(options$fig.width, options$fig.height))
   
 }

@@ -48,3 +48,11 @@ as_r_value <- function(x) {
 yoink <- function(package, symbol) {
   do.call(":::", list(package, symbol))
 }
+
+defer <- function(expr, envir = parent.frame()) {
+  call <- substitute(
+    evalq(expr, envir = envir),
+    list(expr = substitute(expr), envir = parent.frame())
+  )
+  do.call(base::on.exit, list(substitute(call), add = TRUE), envir = envir)
+}

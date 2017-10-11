@@ -20,6 +20,12 @@
 #' @export
 eng_python <- function(options) {
   
+  eng_python_initialize(
+    options,
+    context = environment(),
+    envir = environment()
+  )
+  
   ast <- import("ast", convert = TRUE)
   
   # helper function for extracting range of code, dropping blank lines
@@ -57,12 +63,6 @@ eng_python <- function(options) {
   
   # plots captured from Python which need to be emitted
   pending_plots <- list()
-  
-  eng_python_initialize(
-    options,
-    context = environment(),
-    envir = environment()
-  )
   
   # actual outputs to be returned to knitr
   outputs <- list()
@@ -117,6 +117,10 @@ eng_python <- function(options) {
 }
 
 eng_python_initialize <- function(options, context, envir) {
+  
+  if (is.character(options$engine.path))
+    use_python(options$engine.path[[1]])
+  
   eng_python_initialize_matplotlib(options, context, envir)
 }
 

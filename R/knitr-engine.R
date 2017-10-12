@@ -134,13 +134,17 @@ eng_python_initialize_matplotlib <- function(options,
   matplotlib <- import("matplotlib", convert = FALSE)
   plt <- matplotlib$pyplot
   
+  # rudely steal 'plot_counter' (used below), and reset
+  # it when we're done
+  plot_counter <- yoink("knitr", "plot_counter")
+  defer(plot_counter(reset = TRUE), envir = envir)
+  
   # save + restore old show hook
   show <- plt$show
   defer(plt$show <- show, envir = envir)
   plt$show <- function(...) {
     
     # write plot to file
-    plot_counter <- yoink("knitr", "plot_counter")
     path <- knitr::fig_path(options$dev, number = plot_counter())
     dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
     plt$savefig(path, dpi = options$dpi)

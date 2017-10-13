@@ -56,7 +56,7 @@ The `use_condaenv` function will use whatever conda binary is found on the syste
 use_condaenv(condaenv = "r-nlp", conda = "/opt/anaconda3/bin/conda")
 ```
 
-Note that the `use` functions are by default considered only hints as to where to find Python (i.e. they don't produce errors if the specified version doesn't exist). You can add the `required` parameter to ensure that the specified version of Python actually exists:
+Note that the `use` functions are by default considered only hints as to where to find Python (i.e. they don't produce errors if the specified version doesn't exist). You can add the `required` parameter to ensure that the specified version of Python is always used (it will be an error if the specified version doesn't exist):
 
 ```{r}
 use_virtualenv("~/myenv", required = TRUE)

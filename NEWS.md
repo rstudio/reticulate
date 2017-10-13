@@ -11,6 +11,8 @@ Install the development version with: `install_github("rstudio/reticulate")`
 
 - Force use of Python specified by RETICULATE_PYTHON
 
+- Force use of Python when `required = TRUE` in `use_python` functions
+
 - Wait as long as required for scheduling generator calls on the main thread
 
 - Define R_SESSION_INITIALIZED (used by rpy2)

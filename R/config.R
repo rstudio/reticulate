@@ -94,13 +94,23 @@ py_module_available <- function(module) {
 #' @export
 py_discover_config <- function(required_module = NULL, use_environment = NULL) {
   
-  # if RETICULATE_PYTHON is specified then use it without scanning further
+  # if RETICULATE_PYTHON is specified then use it without scanning further (this is a "hard"
+  # requirement because an embedding process may set this to indicate that the python
+  # interpreter is already loaded)
   reticulate_python_env <- Sys.getenv("RETICULATE_PYTHON", unset = NA)
   if (!is.na(reticulate_python_env)) {
     python_version <- normalize_python_path(reticulate_python_env)
     if (!python_version$exists)
       stop("Python specified in RETICULATE_PYTHON (", reticulate_python_env, ") does not exist")
     python_version <- python_version$path
+    config <- python_config(python_version, required_module, python_version, forced = TRUE)
+    return(config)
+  }
+  
+  # next look for a required python version (e.g. use_python("/usr/bin/python", required = TRUE))
+  required_version <- .globals$required_python_version
+  if (!is.null(required_version)) {
+    python_version <- normalize_python_path(required_version)$path
     config <- python_config(python_version, required_module, python_version, forced = TRUE)
     return(config)
   }
@@ -392,7 +402,7 @@ str.py_config <- function(object, ...) {
       out <- paste0(out, "[NOT FOUND]\n")
   }
   if (x$forced) {
-    out <- paste0(out, "\nNOTE: Python version was forced by RETICULATE_PYTHON environment variable\n")
+    out <- paste0(out, "\nNOTE: Python version was forced by RETICULATE_PYTHON or use_python function\n")
   }
   if (length(x$python_versions) > 1) {
     out <- paste0(out, "\npython versions found: \n")

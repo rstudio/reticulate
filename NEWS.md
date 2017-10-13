@@ -15,6 +15,10 @@ Install the development version with: `install_github("rstudio/reticulate")`
 
 - Define R_SESSION_INITIALIZED (used by rpy2)
 
+- Refine stripping of object addresses from output of `py_str()` method
+
+- Added `py_id()` function to get globally unique ids for Python objects
+
 
 ## reticulate 1.2 (CRAN)
 

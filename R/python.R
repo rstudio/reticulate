@@ -804,6 +804,28 @@ py_list_attributes <- function(x) {
 }
 
 
+#' Unique identifer for Python object
+#' 
+#' Get a globally unique identifer for a Python object. 
+#' 
+#' @note In the current implementation of CPython this is the 
+#'  memory address of the object.
+#' 
+#' @param object Python object
+#' 
+#' @return Unique identifer (as integer) or `NULL`
+#'
+#' @export
+py_id <- function(object) {
+  if (py_is_null_xptr(object) || !py_available())
+    NULL
+  else {
+    py <- import_builtins()
+    py$id(object)
+  }
+}
+
+
 #' An S3 method for getting the string representation of a Python object
 #' 
 #' @param object Python object
@@ -835,11 +857,9 @@ py_str.python.builtin.object <- function(object, ...) {
   # get default rep
   str <- py_str_impl(object)
   
-  # pick out class name for cases where there is python str method
-  match <- regexpr("[A-Z]\\w+ object at ", str)
-  if (match != -1)
-    str <- gsub(" object at ", "", regmatches(str, match))
-  
+  # remove e.g. 'object at 0x10d084710'
+  str <- gsub(" object at 0x\\w{4,}", "", str)
+
   # return
   str
 }

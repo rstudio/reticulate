@@ -67,6 +67,9 @@ eng_python <- function(options) {
   # actual outputs to be returned to knitr
   outputs <- list()
   
+  # synchronize state R -> Python
+  eng_python_synchronize_before(code)
+  
   for (range in ranges) {
     
     # evaluate current chunk of code
@@ -107,6 +110,8 @@ eng_python <- function(options) {
       class = "source"
     )
   }
+  
+  eng_python_synchronize_after()
   
   # TODO: development version of knitr supplies new 'engine_output()'
   # interface -- use that when it's on CRAN
@@ -156,5 +161,60 @@ eng_python_initialize_matplotlib <- function(options,
   
   # set up figure dimensions
   plt$rc("figure", figsize = tuple(options$fig.width, options$fig.height))
+  
+}
+
+# given a Python AST node, analyze that node for free variables
+# (variables without a definition in scope)
+
+#' @param node
+#'   A Python AST node.
+#'   
+#' @param scope
+#'   An \R character vector, naming variables present to this scope.
+#'   TODO: maybe this should just be a list of Python ASTs that provide
+#'   variables? We'll see...
+eng_python_analyze <- function(node, variables) {
+  
+  ast <- import("ast", convert = FALSE)
+  node <- ast$parse("x = 1\ny = 2\n")
+  print(node)
+  print(node$body)
+  
+  # convert Python code into a parsed node
+  if (is.character(node)) {
+    code <- paste(node, collapse = "\n")
+    node <- ast$parse(code)
+  }
+  
+  if (inherits(node, "_ast.Module")) {
+  }
+  
+}
+
+# synchronize objects R -> Python
+eng_python_synchronize_before <- function(code) {
+  
+  code <- paste(
+    "def foo(a, b = 1): print a + b + c",
+    "foo(10)",
+    "",
+    sep = "\n"
+  )
+  
+  code <- paste(code, collapse = "\n")
+  
+  ast <- import("ast", convert = FALSE)
+  parsed <- ast$parse(code, "<string>", "exec")
+  
+  # figure out what variables are used in this chunk of code
+  builtins <- import_builtins(convert = FALSE)
+  compiled <- builtins$compile(parsed, "<string>", "exec")
+  compiled$co_freevars
+  
+}
+
+# synchronize objects Python -> R
+eng_python_synchronize_after <- function() {
   
 }

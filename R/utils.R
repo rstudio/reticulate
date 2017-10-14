@@ -38,3 +38,11 @@ clear_error_handler <- function(retvalue = NA) {
   }
 }
 
+as_r_value <- function(x) {
+  if (inherits(x, "python.builtin.object"))
+    py_to_r(x)
+  else
+    x
+}
+
+

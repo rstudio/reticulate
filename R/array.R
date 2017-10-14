@@ -70,10 +70,3 @@ np_array <- function(data, dim = dim(data), dtype = NULL, order = "C") {
     as_r_value(x$size)
 }
 
-as_r_value <- function(x) {
-  if (inherits(x, "python.builtin.object"))
-    py_to_r(x)
-  else
-    x
-}
-

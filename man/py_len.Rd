@@ -7,7 +7,7 @@
 py_len(x)
 }
 \arguments{
-\item{Python}{object}
+\item{x}{Python object}
 }
 \value{
 Length as integer

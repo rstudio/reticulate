@@ -563,7 +563,7 @@ length.python.builtin.tuple <- function(x) {
 #' Get the length of a Python object (equivalent to the Python `len()`
 #' built in function).
 #' 
-#' @param Python object
+#' @param x Python object
 #' 
 #' @return Length as integer 
 #'

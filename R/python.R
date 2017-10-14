@@ -558,6 +558,28 @@ length.python.builtin.tuple <- function(x) {
     py_tuple_length(x)
 }
 
+#' Length of Python object
+#' 
+#' Get the length of a Python object (equivalent to the Python `len()`
+#' built in function).
+#' 
+#' @param Python object
+#' 
+#' @return Length as integer 
+#'
+#' @export
+py_len <- function(x) {
+  if (py_is_null_xptr(x) || !py_available())
+    0L
+  else
+    as_r_value(x$`__len__`())
+}
+
+#' @export
+length.python.builtin.list <- function(x) {
+  py_len(x)
+}
+
 
 #' Convert to Python Unicode Object
 #' 

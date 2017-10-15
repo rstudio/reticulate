@@ -3,19 +3,21 @@
 
 Install the development version with: `install_github("rstudio/reticulate")`
 
-- `dict`: Don't scan parent frame for Python objects if a single unnamed list 
-  is passed.
-  
 - Use existing instance of Python when reticulate is loaded within an 
   embedded Python environment (e.g. rpy2, rice, etc.)
 
-- Force use of Python specified by RETICULATE_PYTHON
+- Force use of Python specified in PYTHON_SESSION_INITIALIZED (defined by rpy2)
+
+- Define R_SESSION_INITIALIZED (used by rpy2)
 
 - Force use of Python when `required = TRUE` in `use_python` functions
 
-- Wait as long as required for scheduling generator calls on the main thread
+- Force use of Python specified by RETICULATE_PYTHON
 
-- Define R_SESSION_INITIALIZED (used by rpy2)
+- `dict`: Don't scan parent frame for Python objects if a single unnamed list 
+  is passed.
+
+- Wait as long as required for scheduling generator calls on the main thread
 
 - Refine stripping of object addresses from output of `py_str()` method
 

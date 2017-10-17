@@ -68,7 +68,7 @@ eng_python <- function(options) {
   outputs <- list()
   
   # synchronize state R -> Python
-  eng_python_synchronize_before(code)
+  eng_python_synchronize_before()
   
   for (range in ranges) {
     
@@ -164,57 +164,31 @@ eng_python_initialize_matplotlib <- function(options,
   
 }
 
-# given a Python AST node, analyze that node for free variables
-# (variables without a definition in scope)
-
-#' @param node
-#'   A Python AST node.
-#'   
-#' @param scope
-#'   An \R character vector, naming variables present to this scope.
-#'   TODO: maybe this should just be a list of Python ASTs that provide
-#'   variables? We'll see...
-eng_python_analyze <- function(node, variables) {
-  
-  ast <- import("ast", convert = FALSE)
-  node <- ast$parse("x = 1\ny = 2\n")
-  print(node)
-  print(node$body)
-  
-  # convert Python code into a parsed node
-  if (is.character(node)) {
-    code <- paste(node, collapse = "\n")
-    node <- ast$parse(code)
-  }
-  
-  if (inherits(node, "_ast.Module")) {
-  }
-  
-}
-
 # synchronize objects R -> Python
-eng_python_synchronize_before <- function(code) {
+eng_python_synchronize_before <- function() {
   
-  code <- paste(
-    "def foo(a, b = 1): print a + b + c",
-    "foo(10)",
-    "",
-    sep = "\n"
-  )
+  # define an 'R' class (we will attach properties to it dynamically)
+  py_run_string("class R: pass\nr = R()")
   
-  code <- paste(code, collapse = "\n")
-  
-  ast <- import("ast", convert = FALSE)
-  parsed <- ast$parse(code, "<string>", "exec")
-  
-  # figure out what variables are used in this chunk of code
+  # extract 'r' module from main (or define it if none exists)
   builtins <- import_builtins(convert = FALSE)
-  compiled <- builtins$compile(parsed, "<string>", "exec")
-  compiled$co_freevars
+  main <- import_main(convert = FALSE)
+  R <- main$R
   
+  # set some properties on the class dynamically, using R functions
+  # to retrieve values available in the knit environment
+  .knitEnv <- yoink("knitr", ".knitEnv")
+  envir <- .knitEnv$knit_global
+  
+  objects <- ls(envir, all.names = TRUE)
+  lapply(objects, function(key) {
+    py_set_attr(R, key, builtins$property(
+      fget = function(self) { envir[[key]] },
+      fset = function(self, value) { envir[[key]] <- value }
+    ))
+  })
 }
 
 # synchronize objects Python -> R
 eng_python_synchronize_after <- function() {
-  
 }

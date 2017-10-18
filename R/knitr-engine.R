@@ -178,14 +178,19 @@ eng_python_synchronize_before <- function() {
   .knitEnv <- yoink("knitr", ".knitEnv")
   envir <- .knitEnv$knit_global
   
-  # give it custom methods for getting, setting attributes
-  py_set_attr(R, "__setattr__", function(self, name, value) {
-    envir[[py_to_r(name)]] <<- py_to_r(value)
-  })
-  
-  py_set_attr(R, "__getattr__", function(self, name) {
+  # define the getters, setters we'll attach to the Python class
+  getter <- function(self, name) {
     r_to_py(envir[[py_to_r(name)]])
-  })
+  }
+  
+  setter <- function(self, name, value) {
+    envir[[py_to_r(name)]] <<- py_to_r(value)
+  }
+  
+  py_set_attr(R, "__getattr__", getter)
+  py_set_attr(R, "__setattr__", setter)
+  py_set_attr(R, "__getitem__", getter)
+  py_set_attr(R, "__setitem__", setter)
   
   # now define the R object
   py_run_string("r = R()")

@@ -37,14 +37,19 @@ Python can access objects available in the R environment.
 
 ```{r}
 x <- 1:5
+y <- 6:10
 ```
 
 ```{python}
 print r.x
+print r['y']
+
 r.hello = "World"
+r['answer'] = 42
 ```
 
 ```{r}
 print(hello)
+print(answer)
 ```
 

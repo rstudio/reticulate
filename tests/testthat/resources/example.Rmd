@@ -40,7 +40,11 @@ x <- 1:5
 ```
 
 ```{python}
-print r
 print r.x
+r.hello = "World"
+```
+
+```{r}
+print(hello)
 ```
 

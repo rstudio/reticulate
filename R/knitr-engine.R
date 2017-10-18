@@ -167,26 +167,28 @@ eng_python_initialize_matplotlib <- function(options,
 # synchronize objects R -> Python
 eng_python_synchronize_before <- function() {
   
-  # define an 'R' class (we will attach properties to it dynamically)
-  py_run_string("class R: pass\nr = R()")
+  # define our 'R' class
+  py_run_string("class R(object): pass")
   
   # extract 'r' module from main (or define it if none exists)
-  builtins <- import_builtins(convert = FALSE)
   main <- import_main(convert = FALSE)
   R <- main$R
   
-  # set some properties on the class dynamically, using R functions
-  # to retrieve values available in the knit environment
+  # extract active knit environment
   .knitEnv <- yoink("knitr", ".knitEnv")
   envir <- .knitEnv$knit_global
   
-  objects <- ls(envir, all.names = TRUE)
-  lapply(objects, function(key) {
-    py_set_attr(R, key, builtins$property(
-      fget = function(self) { envir[[key]] },
-      fset = function(self, value) { envir[[key]] <- value }
-    ))
+  # give it custom methods for getting, setting attributes
+  py_set_attr(R, "__setattr__", function(self, name, value) {
+    envir[[py_to_r(name)]] <<- py_to_r(value)
   })
+  
+  py_set_attr(R, "__getattr__", function(self, name) {
+    r_to_py(envir[[py_to_r(name)]])
+  })
+  
+  # now define the R object
+  py_run_string("r = R()")
 }
 
 # synchronize objects Python -> R

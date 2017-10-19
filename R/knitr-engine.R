@@ -170,7 +170,7 @@ eng_python_synchronize_before <- function() {
   # define our 'R' class
   py_run_string("class R(object): pass")
   
-  # extract 'r' module from main (or define it if none exists)
+  # extract it from the main module
   main <- import_main(convert = FALSE)
   R <- main$R
   
@@ -178,24 +178,13 @@ eng_python_synchronize_before <- function() {
   .knitEnv <- yoink("knitr", ".knitEnv")
   envir <- .knitEnv$knit_global
   
-  # safely evaluate an R expression within a Python context
-  safely <- function(expr) {
-    tryCatch(
-      expr = expr,
-      error = function(e) {
-        warning(e)
-        NULL
-      }
-    )
-  }
-  
   # define the getters, setters we'll attach to the Python class
   getter <- function(self, code) {
-    safely(r_to_py(eval(parse(text = as_r_value(code)), envir = envir)))
+    r_to_py(eval(parse(text = as_r_value(code)), envir = envir))
   }
   
   setter <- function(self, name, value) {
-    safely(envir[[as_r_value(name)]] <<- as_r_value(value))
+    envir[[as_r_value(name)]] <<- as_r_value(value)
   }
   
   py_set_attr(R, "__getattr__", getter)

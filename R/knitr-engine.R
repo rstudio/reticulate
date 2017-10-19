@@ -191,15 +191,11 @@ eng_python_synchronize_before <- function() {
   
   # define the getters, setters we'll attach to the Python class
   getter <- function(self, code) {
-    if (inherits(code, "python.builtin.object"))
-      code <- py_to_r(code)
-    safely(r_to_py(eval(parse(text = code), envir = envir)))
+    safely(r_to_py(eval(parse(text = as_r_value(code)), envir = envir)))
   }
   
   setter <- function(self, name, value) {
-    if (inherits(name, "python.builtin.object"))
-      name <- py_to_r(name)
-    safely(envir[[name]] <<- py_to_r(value))
+    safely(envir[[as_r_value(name)]] <<- as_r_value(value))
   }
   
   py_set_attr(R, "__getattr__", getter)

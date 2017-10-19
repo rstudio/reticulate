@@ -53,3 +53,10 @@ print(hello)
 print(answer)
 ```
 
+Arbitrary R code can be evaluated from Python.
+
+```{python}
+mpg = r["mtcars$mpg"]
+print mpg
+```
+

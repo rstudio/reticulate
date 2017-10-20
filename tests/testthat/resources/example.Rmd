@@ -5,6 +5,7 @@ title: "Using reticulate's Python Engine with knitr"
 ```{r setup, include = FALSE}
 library(reticulate)
 knitr::knit_engines$set(python = eng_python)
+knitr::opts_chunk$set(engine.path = list(python = "/usr/local/bin/python"))
 ```
 
 Python variables live across chunk boundaries.

@@ -20,6 +20,32 @@
 #' @export
 eng_python <- function(options) {
   
+  engine.path <- if (is.list(options[["engine.path"]]))
+    options[["engine.path"]][["python"]]
+  else
+    options[["engine.path"]]
+    
+  # if the user has requested a custom Python, attempt
+  # to honor that request (warn if Python already initialized
+  # to a different version)
+  if (is.character(engine.path)) {
+    
+    # if Python has not yet been loaded, then try
+    # to load it with the requested version of Python
+    if (!py_available())
+      use_python(engine.path, required = TRUE)
+      
+    # double-check that we've loaded the requested Python
+    conf <- py_config()
+    requestedPython <- normalizePath(engine.path)
+    actualPython <- normalizePath(conf$python)
+    if (requestedPython != actualPython) {
+      fmt <- "cannot honor request to use Python %s [%s already loaded]"
+      msg <- sprintf(fmt, requestedPython, actualPython)
+      warning(msg, immediate. = TRUE, call. = FALSE)
+    }
+  }
+  
   context <- new.env(parent = emptyenv())
   eng_python_initialize(
     options,

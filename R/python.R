@@ -196,12 +196,12 @@ summary.python.builtin.object <- function(object, ...) {
 }
 
 
-#' Convert between Pyton and R objects
+#' Convert between Python and R objects
 #' 
 #' @inheritParams import
-#' @param x Object to convert
+#' @param x A Python object.
 #' 
-#' @return Converted object
+#' @return An \R object, as converted from the Python object.
 #' 
 #' @name r-py-conversion
 #' @export
@@ -212,38 +212,36 @@ py_to_r <- function(x) {
   if (!inherits(x, "python.builtin.object"))
     stop("Object to convert is not a Python object")
   
-  # get the default wrapper
-  x <- py_ref_to_r(x)
-  
-  # allow customization of the wrapper
-  wrapper <- py_to_r_wrapper(x)
-  attributes(wrapper) <- attributes(x)
-  
-  # return the wrapper
-  wrapper 
-}
-
-#' R wrapper for Python objects 
-#' 
-#' S3 method to create a custom R wrapper for a Python object.
-#' The default wrapper is either an R environment or an R function
-#' (for callable python objects).
-#' 
-#' @param x Python object 
-#' 
-#' @export
-py_to_r_wrapper <- function(x) {
-  UseMethod("py_to_r_wrapper")
+  UseMethod("py_to_r")
 }
 
 #' @export
-py_to_r_wrapper.default <- function(x) {
-  x
+py_to_r.default <- function(x) {
+  py_ref_to_r(x)
 }
 
-
-
-
+#' @export
+py_to_r.pandas.core.frame.DataFrame <- function(x) {
+  
+  # disable conversion for this scope
+  envir <- as.environment(x)
+  if (exists("convert", envir = envir, inherits = FALSE)) {
+    convert <- get("convert", envir = envir)
+    assign("convert", FALSE, envir = envir)
+    on.exit(assign("convert", convert, envir = envir), add = TRUE)
+  }
+  
+  # extract numpy arrays associated with each column
+  columns <- as_r_value(x$columns$values)
+  items <- lapply(columns, function(column) {
+    x[[column]]$as_matrix()
+  })
+  names(items) <- columns
+  
+  # convert back to R
+  converted <- py_ref_to_r(dict(items))
+  as.data.frame(converted, optional = TRUE, stringsAsFactors = FALSE)
+}
 
 #' @rdname r-py-conversion
 #' @export

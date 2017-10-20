@@ -25,6 +25,10 @@ Install the development version with: `install_github("rstudio/reticulate")`
 
 - Added `py_len()` function and S3 `length()` method for Python lists (already
   had `length()` methods for dicts, tuples, and NumPy arrays).
+  
+- Exported `py` object (reference to Python main module)
+
+- Added `eng_python()` (knitr engine for Python chunks)
 
 
 ## reticulate 1.2 (CRAN)

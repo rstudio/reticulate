@@ -56,7 +56,7 @@ print(answer)
 Arbitrary R code can be evaluated from Python.
 
 ```{python}
-mpg = r["mtcars$mpg"]
+mpg = r["mtcars$mpg[1:5]"]
 print mpg
 ```
 

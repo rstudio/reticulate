@@ -20,9 +20,10 @@
 #' @export
 eng_python <- function(options) {
   
+  context <- new.env(parent = emptyenv())
   eng_python_initialize(
     options,
-    context = environment(),
+    context = context,
     envir = environment()
   )
   
@@ -61,9 +62,6 @@ eng_python <- function(options) {
   # line index from which source should be emitted
   pending_source_index <- 1
   
-  # plots captured from Python which need to be emitted
-  pending_plots <- list()
-  
   # actual outputs to be returned to knitr
   outputs <- list()
   
@@ -78,7 +76,7 @@ eng_python <- function(options) {
       py_run_string(snippet, convert = FALSE)
     )
     
-    if (nzchar(captured) || length(pending_plots)) {
+    if (nzchar(captured) || length(context$pending_plots)) {
       
       # append pending source to outputs
       outputs[[length(outputs) + 1]] <- structure(
@@ -91,10 +89,10 @@ eng_python <- function(options) {
         outputs[[length(outputs) + 1]] <- captured
       
       # append captured images / figures
-      if (length(pending_plots)) {
-        for (plot in pending_plots)
+      if (length(context$pending_plots)) {
+        for (plot in context$pending_plots)
           outputs[[length(outputs) + 1]] <- plot
-        pending_plots <- list()
+        context$pending_plots <- list()
       }
       
       # update pending source range
@@ -135,6 +133,9 @@ eng_python_initialize_matplotlib <- function(options,
 {
   if (!py_module_available("matplotlib"))
     return()
+  
+  # initialize pending_plots list
+  context$pending_plots <- list()
   
   matplotlib <- import("matplotlib", convert = FALSE)
   plt <- matplotlib$pyplot

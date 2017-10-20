@@ -26,12 +26,6 @@ NULL
 
 
 
-.onUnload <- function(libpath) {
-  if (is_python_initialized())
-    py_finalize();
-}
-
-
 is_python_initialized <- function() {
   !is.null(.globals$py_config)
 }

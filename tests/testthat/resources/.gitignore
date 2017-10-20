@@ -1,0 +1,6 @@
+*.md
+*.html
+*.pdf
+
+figure/
+example_files/

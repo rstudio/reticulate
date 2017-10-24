@@ -4,12 +4,10 @@
 \alias{np_array}
 \title{NumPy array}
 \usage{
-np_array(data, dim = dim(data), dtype = NULL, order = "C")
+np_array(data, dtype = NULL, order = "C")
 }
 \arguments{
 \item{data}{Vector or existing NumPy array providing data for the array}
-
-\item{dim}{Integer vector with array dimensions.}
 
 \item{dtype}{Numpy data type (e.g. "float32", "float64", etc.)}
 
@@ -20,6 +18,6 @@ order.}
 A NumPy array object.
 }
 \description{
-Create NumPy arrays and convert the data type, dimensions, and in-memory
+Create NumPy arrays and convert the data type and in-memory
 ordering of existing NumPy arrays.
 }

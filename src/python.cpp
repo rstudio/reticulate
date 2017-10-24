@@ -181,20 +181,8 @@ PyObject* as_python_str(const std::string& str) {
 }
 
 bool has_null_bytes(PyObject* str) {
-
-  PyObjectPtr pStr;
-  if (is_python3()) {
-    // python3 requires that we turn PyUnicode into PyBytes before
-    // we call PyBytes_AsStringAndSize (whereas python2 would
-    // automatically handle unicode in PyBytes_AsStringAndSize)
-    str = PyUnicode_AsBytes(str);
-    pStr.assign(str);
-  }
-
   char* buffer;
-  int res = is_python3() ?
-    PyBytes_AsStringAndSize(str, &buffer, NULL) :
-    PyString_AsStringAndSize(str, &buffer, NULL);
+  int res = PyString_AsStringAndSize(str, &buffer, NULL);
   if (res == -1) {
     py_fetch_error();
     return true;

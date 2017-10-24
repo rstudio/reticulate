@@ -133,17 +133,12 @@ PyObject* as_python_str(const std::string& str);
 
 std::string as_std_string(PyObject* str) {
 
+  // conver to bytes if its unicode
   PyObjectPtr pStr;
   if (PyUnicode_Check(str)) {
-    if (is_python3()) {
-      str = PyUnicode_AsBytes(str);
-      pStr.assign(str);
-    } else {
-      PyObjectPtr encode(PyObject_GetAttrString(str, "encode"));
-      str = PyObject_CallFunctionObjArgs(encode, as_python_str("utf-8"), "ignore");
-      pStr.assign(str);
-    }
-  }
+    str = PyUnicode_AsBytes(str);
+    pStr.assign(str);
+  } 
 
   char* buffer;
   Py_ssize_t length;
@@ -210,7 +205,7 @@ bool has_null_bytes(PyObject* str) {
 
 bool is_python_str(PyObject* x) {
 
-  if (PyUnicode_Check(x) && !has_null_bytes(x))
+  if (PyUnicode_Check(x))
     return true;
 
   // python3 doesn't have PyString_* so mask it out (all strings in

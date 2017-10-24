@@ -30,6 +30,9 @@ Install the development version with: `install_github("rstudio/reticulate")`
 
 - Added `eng_python()` (knitr engine for Python chunks)
 
+- Improved compatibility with strings containing high unicode characters 
+  when running under Python 2
+
 
 ## reticulate 1.2 (CRAN)
 

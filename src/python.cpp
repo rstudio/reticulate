@@ -129,16 +129,16 @@ PyObject* PyUnicode_AsBytes(PyObject* str) {
   return PyUnicode_AsEncodedString(str, "utf-8", "ignore");
 }
 
+PyObject* as_python_str(const std::string& str);
+
 std::string as_std_string(PyObject* str) {
 
+  // conver to bytes if its unicode
   PyObjectPtr pStr;
-  if (is_python3() && PyUnicode_Check(str)) {
-    // python3 requires that we turn PyUnicode into PyBytes before
-    // we call PyBytes_AsStringAndSize (whereas python2 would
-    // automatically handle unicode in PyBytes_AsStringAndSize)
+  if (PyUnicode_Check(str)) {
     str = PyUnicode_AsBytes(str);
     pStr.assign(str);
-  }
+  } 
 
   char* buffer;
   Py_ssize_t length;
@@ -205,7 +205,7 @@ bool has_null_bytes(PyObject* str) {
 
 bool is_python_str(PyObject* x) {
 
-  if (PyUnicode_Check(x) && !has_null_bytes(x))
+  if (PyUnicode_Check(x))
     return true;
 
   // python3 doesn't have PyString_* so mask it out (all strings in
@@ -709,8 +709,12 @@ SEXP py_to_r(PyObject* x, bool convert) {
     Py_ssize_t pos = 0;
     Py_ssize_t idx = 0;
     while (PyDict_Next(dict, &pos, &key, &value)) {
-      PyObjectPtr str(PyObject_Str(key));
-      names[idx] = as_utf8_r_string(str);
+      if (is_python_str(key)) {
+        names[idx] = as_utf8_r_string(key);
+      } else {
+        PyObjectPtr str(PyObject_Str(key));
+        names[idx] = as_utf8_r_string(str); 
+      }
       list[idx] = py_to_r(value, convert);
       idx++;
     }
@@ -1535,18 +1539,20 @@ bool py_compare_impl(PyObjectRef a, PyObjectRef b, const std::string& op) {
 
 // [[Rcpp::export]]
 CharacterVector py_str_impl(PyObjectRef x) {
-  PyObjectPtr str(PyObject_Str(x));
-  if (str.is_null())
-    stop(py_fetch_error());
-  return CharacterVector::create(as_utf8_r_string(str));
+  
+  if (!is_python_str(x)) {
+    PyObjectPtr str(PyObject_Str(x));
+    if (str.is_null())
+      stop(py_fetch_error());
+    return CharacterVector::create(as_utf8_r_string(str));
+  } else {
+    return CharacterVector::create(as_utf8_r_string(x));
+  }
 }
 
 // [[Rcpp::export]]
 void py_print(PyObjectRef x) {
-  PyObjectPtr str(PyObject_Str(x));
-  if (str.is_null())
-    stop(py_fetch_error());
-  CharacterVector out = CharacterVector::create(as_utf8_r_string(str));
+  CharacterVector out = py_str_impl(x);
   Rf_PrintValue(out);
   Rcout << std::endl;
 }
@@ -1799,10 +1805,15 @@ CharacterVector py_dict_get_keys_as_str(PyObjectRef dict) {
 
   // get the keys as strings
   for (Py_ssize_t i = 0; i<len; i++) {
-    PyObjectPtr str(PyObject_Str(PyList_GetItem(pyKeys, i)));
-    if (str.is_null())
-      stop(py_fetch_error());
-    keys[i] = as_std_string(str);
+    PyObject* item = PyList_GetItem(pyKeys, i);
+    if (is_python_str(item)) {
+      keys[i] = as_utf8_r_string(item);
+    } else {
+      PyObjectPtr str(PyObject_Str(item));
+      if (str.is_null())
+        stop(py_fetch_error());
+      keys[i] = as_utf8_r_string(str);
+    }
   }
   
   // return

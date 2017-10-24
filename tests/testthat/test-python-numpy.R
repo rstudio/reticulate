@@ -59,30 +59,19 @@ test_that("np_array creates arrays of the expected type", {
 test_that("np_array creates arrays of the expected order", {
   skip_if_no_numpy()
   np <- import("numpy")
-  a <- np_array(c(1L:8L), dim = c(2,4), dtype = "float32", order = "F")
+  a <- np_array(c(1L:8L), dtype = "float32", order = "F")
   expect_true(py_to_r(a$flags$f_contiguous))
 })
 
-test_that("np_array can reshape existing numpy arrays", {
-  skip_if_no_numpy()
-  np <- import("numpy")
-  a <- np_array(c(1L:8L), dim = c(2,4), dtype = "float32")
-  a <- np_array(a, dim = c(2,2,2))
-  expect_equal(py_to_r(a$shape), list(2L, 2L, 2L))
-})
-
-test_that("numpy dim and length functions work", {
+test_that("numpy length functions works", {
   skip_if_no_numpy()
   
   test_array <- function(a) {
-    expect_equal(dim(a), c(2,4))
-    dim(a) <- c(2,2,2)
-    expect_equal(dim(a), c(2,2,2))
     expect_equal(length(a), 8)
   }
   
   # test no-convert numpy array
-  a <- np_array(c(1L:8L), dim = c(2,4), dtype = "float32")
+  a <- np_array(c(1L:8L), dtype = "float32")
   test_array(a)
   
   # test convertable numpy array

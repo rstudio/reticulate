@@ -33,6 +33,9 @@ Install the development version with: `install_github("rstudio/reticulate")`
 - Improved compatibility with strings containing high unicode characters 
   when running under Python 2
 
+- Remove `dim` methods for NumPy arrays (semantics of NumPy reshaping are
+  different from R reshaping)
+
 
 ## reticulate 1.2 (CRAN)
 

@@ -50,10 +50,10 @@ np_array <- function(data, dtype = NULL, order = "C") {
 #' align with the behavior of NumPy's own `reshape()` function.
 #' 
 #' This function differs from e.g. `dim(x) <- dim` in a very important way: by
-#' default, `rearray()` will fill the new dimensions in row-major
-#' (`F`ortran-style) ordering, while [dim<-()] will fill new dimensions in
-#' column-major (`C`-style) ordering. This is done to be consistent with the
-#' NumPy `np.reshape()` function, which defaults to this sort of ordering when
+#' default, `array_reshape()` will fill the new dimensions in row-major (`C`-style)
+#' ordering, while [dim<-()] will fill new dimensions in column-major
+#' (`F`ortran-style) ordering. This is done to be consistent with the NumPy
+#' `np.reshape()` function, which defaults to this sort of ordering when
 #' reshaping arrays. See the examples for why this difference may be important.
 #' 
 #' @param x Either an \R array or a NumPy array.
@@ -68,7 +68,7 @@ np_array <- function(data, dtype = NULL, order = "C") {
 #' x <- 1:4
 #' 
 #' # rearrange will fill the array row-wise
-#' rearray(x, c(2, 2))
+#' array_reshape(x, c(2, 2))
 #' #      [,1] [,2]
 #' # [1,]    1    2
 #' # [2,]    3    4
@@ -79,7 +79,7 @@ np_array <- function(data, dtype = NULL, order = "C") {
 #' # [1,]    1    3
 #' # [2,]    2    4
 #' @export
-rearray <- function(x, dim, order = c("C", "F")) {
+array_reshape <- function(x, dim, order = c("C", "F")) {
   np <- import("numpy", convert = FALSE)
   order <- match.arg(order)
   reshaped <- np$reshape(x, as.integer(dim), order)

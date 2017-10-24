@@ -2,8 +2,8 @@ context("arrays")
 
 expect_reshape <- function(r, dim) {
   expect_equal(
-    rearray(r, dim = dim),
-    py_to_r(rearray(r_to_py(r), dim = dim))
+    array_reshape(r, dim = dim),
+    py_to_r(array_reshape(r_to_py(r), dim = dim))
   )
 }
 
@@ -26,7 +26,7 @@ test_that("rearray reshapes R, Python vectors similarily", {
 
 test_that("rearray and dim<- don't do the same thing", {
   x <- 1:4
-  r <- rearray(x, c(2, 2))
+  r <- array_reshape(x, c(2, 2))
   dim(x) <- c(2, 2)
   expect_false(identical(r, x))
 })

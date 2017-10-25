@@ -519,7 +519,7 @@ dim(x) <- c(1000, 28, 28)
 In R, this operation simply changes the "dim" attribute of the array, effectively 
 re-interpreting the array indices as specified using column-major semantics.
 
-However, the NumPy `reshape` method uses row-major semantics, so if you are mixing
+However, the NumPy `reshape` method uses row-major semantics by default, so if you are mixing
 R and Python code that reshapes arrays you will find that the reshaping will be
 inconsistent if you use the R `dim<-()` function. 
 

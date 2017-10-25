@@ -29,6 +29,7 @@ ordering, while \code{\link[=dim<-]{dim<-()}} will fill new dimensions in column
 reshaping arrays. See the examples for why this difference may be important.
 }
 \examples{
+\dontrun{
 # let's construct a 2x2 array from a vector of 4 elements
 x <- 1:4
 
@@ -43,4 +44,5 @@ x
 #      [,1] [,2]
 # [1,]    1    3
 # [2,]    2    4
+}
 }

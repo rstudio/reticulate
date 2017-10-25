@@ -63,7 +63,7 @@ np_array <- function(data, dtype = NULL, order = "C") {
 #'   order, with the last index changing fastest; `"F"` means elements should
 #'   be read in column-major order, with the first index changing fastest.
 #' 
-#' @examples
+#' @examples \dontrun{
 #' # let's construct a 2x2 array from a vector of 4 elements
 #' x <- 1:4
 #' 
@@ -78,6 +78,7 @@ np_array <- function(data, dtype = NULL, order = "C") {
 #' #      [,1] [,2]
 #' # [1,]    1    3
 #' # [2,]    2    4
+#' }
 #' @export
 array_reshape <- function(x, dim, order = c("C", "F")) {
   np <- import("numpy", convert = FALSE)

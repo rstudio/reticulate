@@ -35,7 +35,10 @@ Install the development version with: `install_github("rstudio/reticulate")`
 
 - Remove `dim` methods for NumPy arrays (semantics of NumPy reshaping are
   different from R reshaping)
-
+  
+- Added `array_reshape` function for reshaping R arrays using NumPy (row-major)
+  semantics.
+  
 
 ## reticulate 1.2 (CRAN)
 

@@ -7,7 +7,7 @@
 array_reshape(x, dim, order = c("C", "F"))
 }
 \arguments{
-\item{x}{Either an \R array or a NumPy array.}
+\item{x}{An array}
 
 \item{dim}{The new dimensions to be set on the array.}
 
@@ -17,15 +17,15 @@ order, with the last index changing fastest; \code{"F"} means elements should
 be read in column-major order, with the first index changing fastest.}
 }
 \description{
-Reshape (reindex) a multi-dimensional array, using reshaping semantics that
-align with the behavior of NumPy's own \code{reshape()} function.
+Reshape (reindex) a multi-dimensional array, using row-major (C-style) reshaping
+semantics by default.
 }
 \details{
 This function differs from e.g. \code{dim(x) <- dim} in a very important way: by
 default, \code{array_reshape()} will fill the new dimensions in row-major (\code{C}-style)
 ordering, while \code{\link[=dim<-]{dim<-()}} will fill new dimensions in column-major
-(\code{F}ortran-style) ordering. This is done to be consistent with the NumPy
-\code{np.reshape()} function, which defaults to this sort of ordering when
+(\code{F}ortran-style) ordering. This is done to be consistent with libraries
+like NumPy, Keras, and TensorFlow, which default to this sort of ordering when
 reshaping arrays. See the examples for why this difference may be important.
 }
 \examples{

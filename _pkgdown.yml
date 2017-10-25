@@ -37,7 +37,6 @@ reference:
     contents:
       - dict
       - tuple
-      - np_array
       - iterate
       - with.python.builtin.object
     
@@ -54,6 +53,11 @@ reference:
       - py_capture_output
       - py_suppress_warnings
       
+  - title: "Arrays"
+    contents:
+      - np_array
+      - array_reshape
+  
   - title: "Low-Level Interface"
     contents:
       - py_has_attr

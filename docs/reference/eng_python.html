@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Articles • reticulate</title>
+<title>A reticulate Engine for Knitr — eng_python • reticulate</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -37,7 +37,7 @@
   </head>
 
   <body>
-    <div class="container template-vignette-index">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
   <div class="container">
@@ -98,23 +98,47 @@
       
       </header>
 
-      <div class="page-header">
-  <h1>Articles <small>version&nbsp;1.2.0.9008</small></h1>
-</div>
-
-<div class="row">
-  <div class="col-md-9">
-    <div class="section ">
-      <h3>All vignettes</h3>
-      <p class="section-desc"></p>
-
-      <ul>
-        <li><a href="arrays.html">Arrays in R and Python</a></li>
-        <li><a href="introduction.html">Introduction to reticulate</a></li>
-        <li><a href="package.html">Using reticulate in an R Package</a></li>
-        <li><a href="versions.html">Python Version Configuration</a></li>
-      </ul>
+      <div class="row">
+  <div class="col-md-9 contents">
+    <div class="page-header">
+    <h1>A reticulate Engine for Knitr</h1>
     </div>
+
+    
+    <p>This provides a <code>reticulate</code> engine for <code>knitr</code>, suitable for usage when
+attempting to render Python chunks. Using this engine allows for shared state
+between Python chunks in a document -- that is, variables defined by one
+Python chunk can be used by later Python chunks.</p>
+    
+
+    <pre class="usage"><span class='fu'>eng_python</span>(<span class='no'>options</span>)</pre>
+    
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>options</th>
+      <td><p>Chunk options, as provided by <code>knitr</code> during chunk execution.</p></td>
+    </tr>
+    </table>
+    
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>The engine can be activated by setting (for example)</p><pre>knitr::knit_engines$set(python = reticulate::eng_python)
+</pre>
+    <p>Typically, this will be set within a document's setup chunk, or by the
+environment requesting that Python chunks be processed by this engine.</p>
+    
+
+  </div>
+  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+    <h2>Contents</h2>
+    <ul class="nav nav-pills nav-stacked">
+      <li><a href="#arguments">Arguments</a></li>
+      
+      <li><a href="#details">Details</a></li>
+          </ul>
+
   </div>
 </div>
 

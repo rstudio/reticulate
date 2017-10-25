@@ -106,9 +106,31 @@
     </div>
 
     <div class="contents">
-    <div id="reticulate-1-2" class="section level2">
+    <div id="reticulate-1-3-development" class="section level2">
 <h2 class="hasAnchor">
-<a href="#reticulate-1-2" class="anchor"></a>reticulate 1.2</h2>
+<a href="#reticulate-1-3-development" class="anchor"></a>reticulate 1.3 (development)</h2>
+<p>Install the development version with: <code>install_github("rstudio/reticulate")</code></p>
+<ul>
+<li><p>Use existing instance of Python when reticulate is loaded within an embedded Python environment (e.g. rpy2, rice, etc.)</p></li>
+<li><p>Force use of Python specified in PYTHON_SESSION_INITIALIZED (defined by rpy2)</p></li>
+<li><p>Define R_SESSION_INITIALIZED (used by rpy2)</p></li>
+<li><p>Force use of Python when <code>required = TRUE</code> in <code>use_python</code> functions</p></li>
+<li><p>Force use of Python specified by RETICULATE_PYTHON</p></li>
+<li><p><code>dict</code>: Don’t scan parent frame for Python objects if a single unnamed list is passed.</p></li>
+<li><p>Wait as long as required for scheduling generator calls on the main thread</p></li>
+<li><p>Refine stripping of object addresses from output of <code><a href="../reference/py_str.html">py_str()</a></code> method</p></li>
+<li><p>Added <code><a href="../reference/py_id.html">py_id()</a></code> function to get globally unique ids for Python objects</p></li>
+<li><p>Added <code><a href="../reference/py_len.html">py_len()</a></code> function and S3 <code>length()</code> method for Python lists (already had <code>length()</code> methods for dicts, tuples, and NumPy arrays).</p></li>
+<li><p>Exported <code>py</code> object (reference to Python main module)</p></li>
+<li><p>Added <code><a href="../reference/eng_python.html">eng_python()</a></code> (knitr engine for Python chunks)</p></li>
+<li><p>Improved compatibility with strings containing high unicode characters when running under Python 2</p></li>
+<li><p>Remove <code>dim</code> methods for NumPy arrays (semantics of NumPy reshaping are different from R reshaping)</p></li>
+<li><p>Added <code>array_reshape</code> function for reshaping R arrays using NumPy (row-major) semantics.</p></li>
+</ul>
+</div>
+    <div id="reticulate-1-2-cran" class="section level2">
+<h2 class="hasAnchor">
+<a href="#reticulate-1-2-cran" class="anchor"></a>reticulate 1.2 (CRAN)</h2>
 <ul>
 <li><p>Add <code>np_array</code> function for creating NumPy arrays and converting the data type, dimensions, and in-memory ordering of existing NumPy arrays.</p></li>
 <li><p>Add <code>dim</code> and <code>length</code> functions for NumPy arrays</p></li>
@@ -215,7 +237,8 @@ primitive R functions (don’t check environment inheritance chain when looking 
     <div id="tocnav">
       <h2>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
-        <li><a href="#reticulate-1-2">1.2</a></li>
+        <li><a href="#reticulate-1-3-development">1.3</a></li>
+        <li><a href="#reticulate-1-2-cran">1.2</a></li>
         <li><a href="#reticulate-1-1">1.1</a></li>
         <li><a href="#reticulate-1-0">1.0</a></li>
         <li><a href="#reticulate-0-9">0.9</a></li>

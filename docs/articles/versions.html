@@ -100,7 +100,7 @@ scipy<span class="op">$</span><span class="kw">amin</span>(<span class="kw">c</s
 <a href="#providing-hints" class="anchor"></a>Providing Hints</h2>
 <p>There are two ways you can provide hints as to which version of Python should be used:</p>
 <ol style="list-style-type: decimal">
-<li><p>By setting the value of the <code>RETICULATE_PYTHON</code> environment variable a Python binary.</p></li>
+<li><p>By setting the value of the <code>RETICULATE_PYTHON</code> environment variable to a Python binary. Note that if you set this environment variable then the specified version of Python will always be used (i.e. this is perscriptive rather than advisory).</p></li>
 <li><p>By calling one of the these functions:</p></li>
 </ol>
 <table class="table">
@@ -130,7 +130,7 @@ scipy<span class="op">$</span><span class="kw">amin</span>(<span class="kw">c</s
 <span class="kw"><a href="../reference/use_python.html">use_condaenv</a></span>(<span class="st">"myenv"</span>)</code></pre></div>
 <p>The <code>use_condaenv</code> function will use whatever conda binary is found on the system PATH. If you want to use a specific alternate version you can use the <code>conda</code> paramter. For example:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/use_python.html">use_condaenv</a></span>(<span class="dt">condaenv =</span> <span class="st">"r-nlp"</span>, <span class="dt">conda =</span> <span class="st">"/opt/anaconda3/bin/conda"</span>)</code></pre></div>
-<p>Note that the <code>use</code> functions are by default considered only hints as to where to find Python (i.e. they don’t produce errors if the specified version doesn’t exist). You can add the <code>required</code> parameter to ensure that the specified version of Python actually exists:</p>
+<p>Note that the <code>use</code> functions are by default considered only hints as to where to find Python (i.e. they don’t produce errors if the specified version doesn’t exist). You can add the <code>required</code> parameter to ensure that the specified version of Python is always used (it will be an error if the specified version doesn’t exist):</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/use_python.html">use_virtualenv</a></span>(<span class="st">"~/myenv"</span>, <span class="dt">required =</span> <span class="ot">TRUE</span>)</code></pre></div>
 </div>
 <div id="order-of-discovery" class="section level2">

@@ -1,8 +1,7 @@
 ---
-title: "R Interface to Python"
+title: "Introduction to reticulate"
 output: 
-  rmarkdown::html_vignette:
-    readme: true
+  rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{R interface to Python}
   %\VignetteEngine{knitr::rmarkdown}
@@ -27,6 +26,10 @@ os$getcwd()
 
 Functions and other data within Python modules and classes can be accessed via the `$` operator (analogous to the way you would interact with an R list, environment, or reference class).
 
+The **reticulate** package is compatible with all versions of Python >= 2.7. Integration with NumPy is optional and requires NumPy >= 1.6.
+
+## Type Conversions
+
 When calling into Python, R data types are automatically converted to their equivalent Python types. When values are returned from Python to R they are converted back to R types. Types are converted as follows:
 
 | R  | Python | Examples |
@@ -41,66 +44,6 @@ When calling into Python, R data types are automatically converted to their equi
 
 If a Python object of a custom class is returned then an R reference to that object is returned. You can call methods and access properties of the object just as if it was an instance of an R reference class.
 
-The **reticulate** package is compatible with all versions of Python >= 2.7. Integration with NumPy is optional and requires NumPy >= 1.6.
-
-## Installation
-
-You can install from GitHub as follows:
-
-```{r}
-devtools::install_github("rstudio/reticulate")
-```
-
-Note that the package includes native C/C++ code so it's installation requires [R Tools](https://cran.r-project.org/bin/windows/Rtools/) on Windows and [Command Line Tools](http://osxdaily.com/2014/02/12/install-command-line-tools-mac-os-x/) on OS X. If the package installation fails because of inability to compile then install the appropriate tools for your platform based on the links above and try again.
-
-### Locating Python
-
-If the version of Python you want to use is located on the system `PATH` then it will be automatically discovered (via `Sys.which`) and used. 
-
-Alternatively, you can use one of the following functions to specify alternate versions of Python:
-
-| Function  | Description | 
-|----------------|------------------------------------------------------------------|
-| use_python | Specify the path a specific Python binary. | 
-| use_virtualenv | Specify the directory containing a Python virtualenv. | 
-| use_condaenv | Specify the name of a Conda environment. | 
-
-For example:
-
-```{r}
-library(reticulate)
-use_python("/usr/local/bin/python")
-use_virtualenv("~/myenv")
-use_condaenv("myenv")
-```
-
-Note that the NumPy features of **reticulate** require NumPy &gt;= 1.6 so versions of Python that satisfy this requirement will be preferred over ones that don't.
-
-Also note that the `use` functions are by default considered only hints as to where to find Python (i.e. they don't produce errors if the specified version doesn't exist). You can add the `required` parameter to ensure that the specified version of Python actually exists:
-
-```{r}
-use_virtualenv("~/myenv", required = TRUE)
-```
-
-The order in which versions of Python will be discovered and used is as follows:
-
-1.  If specified, at the locations referenced by calls to `use_python`, `use_virtualenv`, and `use_condaenv`.
-
-2.  If specified, at the location referenced by the `RETICULATE_PYTHON` environment variable.
-
-3.  At the location of the Python binary discovered on the system `PATH` (via the `Sys.which` function).
-
-4.  At other customary locations for Python including `/usr/local/bin/python`, `/opt/local/bin/python`, etc.
-
-The scanning for and binding to a version of Python typically occurs at the time of the first call to `import` within an R session. As a result, priority will be given to versions of Python that include the module specified within the call to `import` (i.e. versions that don't include it will be skipped).
-
-You can use the `py_config` function to query for information about the specific version of Python in use as well as a list of other Python versions discovered on the system:
-
-```{r}
-py_config()
-```
-
-
 ## Importing Modules
 
 The `import` function can be used to import any Python module. For example:
@@ -113,7 +56,7 @@ filecmp <- import("filecmp")
 filecmp$cmp(dir1, dir2)
 ```
 
-The `import_main` and `import_builtins` functions give you access to the main module where code is executed by default and the collection of built in Python functions. For example:
+The `import_main()` and `import_builtins()` functions give you access to the main module where code is executed by default and the collection of built in Python functions. For example:
 
 ```{r}
 main <- import_main()
@@ -129,7 +72,7 @@ The main module is generally useful if you have executed Python code from a file
 By default when Python objects are returned to R they are converted to their equivalent R types. However, if you'd rather make conversion from Python to R explicit and deal in native Python objects by default you can pass `convert = FALSE` to the `import` function. In this case Python to R conversion will be disabled for the module returned from `import`. For example:
 
 ```{r}
-# import numpy and speicfy no automatic Python to R conversion
+# import numpy and specify no automatic Python to R conversion
 np <- import("numpy", convert = FALSE)
 
 # do some array manipulations with NumPy
@@ -140,8 +83,7 @@ sum <- a$cumsum()
 py_to_r(sum)
 ```
 
-As illustrated above, if you need access to an R object at end of your computations you can call the `py_to_r` function explicitly.
-
+As illustrated above, if you need access to an R object at end of your computations you can call the `py_to_r()` function explicitly.
 
 ## Executing Code
 
@@ -154,6 +96,15 @@ main <- py_run_string("x = 10")
 main$x
 ```
 
+## Getting Help
+
+You can print documentation on any Python object using the `py_help()` function. For example:
+
+```r
+os <- import("os")
+py_help(os$chdir)
+```
+
 ## Lists, Tuples, and Dictionaries
 
 The automatic conversion of R types to Python types works well in most cases, but occasionally you will need to be more explicit on the R side to provide Python the type it expects.
@@ -164,13 +115,13 @@ For example, if a Python API requires a list and you pass a single element R vec
 foo$bar(indexes = list(42L))
 ```
 
-Similarly, a Python API might require a `tuple` rather than a list. In that case you can use the `tuple` function:
+Similarly, a Python API might require a `tuple` rather than a list. In that case you can use the `tuple()` function:
 
 ```r
 tuple("a", "b", "c")
 ```
 
-R named lists are converted to Python dictionaries however you can also explicitly create a Python dictionary using the `dict` function:
+R named lists are converted to Python dictionaries however you can also explicitly create a Python dictionary using the `dict()` function:
 
 ```r
 dict(foo = "bar", index = 42L)
@@ -178,6 +129,20 @@ dict(foo = "bar", index = 42L)
 
 This might be useful if you need to pass a dictionary that uses a more complex object (as opposed to a string) as it's key.
 
+## Arrays
+
+R matrices and arrays are converted automatically to and from [NumPy](http://www.numpy.org/) arrays. 
+
+When converting from R to NumPy, the NumPy array is mapped directly to the underlying memory of the R array (no copy is made). In this case, the NumPy array uses a column-based in memory layout that is compatible with R (i.e. Fortran style rather than C style). When converting from NumPy to R, R receives a column-ordered copy of the NumPy array. 
+
+You can also manually convert R arrays to NumPy using the `np_array()` function. For example, you might do this if you needed to create a NumPy array with C rather than Fortran style in-memory layout (for higher performance in row-oriented computations) or if you wanted to control the data type of the NumPy array more explicitly. Here are some example uses of `np_array()`:
+
+```r
+a <- np_array(c(1:8), dtype = "float16")
+a <- np_array(c(1:8), dim = c(2,4), order = "C")
+```
+
+Reasoning about arrays which use distinct in-memory orders can be tricky. The [Arrays in R and Python](arrays.html) article provides additional details.
 
 ## With Contexts
 
@@ -194,7 +159,7 @@ This example opens a file and ensures that it is automatically closed at the end
 
 ## Iterators
 
-If a Python API returns an [iterator or generator](http://anandology.com/python-practice-book/iterators.html) you can interact with it using the `iterate` function. The `iterate` function can be used to apply an R function to each item yielded by the iterator:
+If a Python API returns an [iterator or generator](http://anandology.com/python-practice-book/iterators.html) you can interact with it using the `iterate()` function. The `iterate()` function can be used to apply an R function to each item yielded by the iterator:
 
 ```{r}
 iterate(iter, print)
@@ -213,19 +178,67 @@ a <- iterate(iter) # results are not empty
 b <- iterate(iter) # results are empty since items have already been drained
 ```
 
+### Element Level Iteration
 
-## Callable Objects
-
-In addition to accessing their methods and properties, some Python objects are also callable (meaning they can be invoked with parameters just like an ordinary function). Callable Python objects are returned to R as objects rather than functions, however, you can still execute the callable function via the `$call()` method, for example:
+You can also iterate on an element-by-element basis using the `iter_next()` function. For example:
 
 ```{r}
-# get a callable object
-parser <- spacy$English()
-
-# call the object as a function
-parser$call(spacy)
+while (TRUE) {
+  item <- iter_next(iter)
+  if (is.null(item))
+    break
+}
 ```
 
+By default `iter_next()` will return `NULL` when the iteration is complete but you can provide a custom `completed` value it will be returned instead. For example:
+
+```{r}
+while (TRUE) {
+  item <- iter_next(iter, completed = NA)
+  if (is.na(item))
+    break
+}
+```
+
+Note that some iterators/genrators in Python are infinite. In that case the caller will need custom logic to determine when to terminate the loop.
+
+
+### Generators
+
+Python [generators](https://wiki.python.org/moin/Generators) are functions that implement the Python iterator protocol. Similarly, the reticulate `generator()` function enables you to create a Python iterator from an R function.
+
+In Python, generators produce values using the `yield` keyword. In R, values are simply returned from the function. One benefit of the `yield` keyword is that it enables successive iterations to use the state of previous iterations. In R, this can be done by returning a function that mutates it's enclosing environment via the <<- operator. For example:
+
+```{r}
+# define a generator function
+sequence_generator <-function(start) {
+  value <- start
+  function() {
+    value <<- value + 1
+    value
+  }
+}
+
+# convert the function to a python iterator
+iter <- py_iterator(sequence_generator(10))
+```
+
+If you want to indicate the end of the iteration, return `NULL` from the function:
+
+```{r}
+sequence_generator <-function(start) {
+  value <- start
+  function() {
+    value <<- value + 1
+    if (value < 100)
+      value
+    else
+      NULL
+  }
+}
+```
+
+Note that you can change the value that indicates the end of the iteration using the `completed` parameter (e.g. `py_iterator(func, completed = NA)`).
 
 ## Advanced Functions
 
@@ -237,13 +250,14 @@ Typically interacting with Python objects from R involves using the `$` operator
 
 | Function  | Description | 
 |----------------|------------------------------------------------------------------|
-| py_has_attr | Check if an object has a specified attribute.  | 
-| py_get_attr | Get an attribute of a Python object.  | 
-| py_set_attr | Set an attribute of a Python object.  | 
-| py_list_attributes | List all attributes of a Python object. |
-| py_call | Call a Python callable object with the specified arguments.  | 
-| py_to_r | Convert a Python object to it's R equivalent |
-| r_to_py | Convert an R object to it's Python equivalent |
+| `py_has_attr()` | Check if an object has a specified attribute.  | 
+| `py_get_attr()` | Get an attribute of a Python object.  | 
+| `py_set_attr()` | Set an attribute of a Python object.  | 
+| `py_list_attributes()` | List all attributes of a Python object. |
+| `py_len()` | Length of Python object. |
+| `py_call()` | Call a Python callable object with the specified arguments.  | 
+| `py_to_r()` | Convert a Python object to it's R equivalent |
+| `r_to_py()` | Convert an R object to it's Python equivalent |
 
 ### Configuration
 
@@ -251,10 +265,10 @@ The following functions enable you to query for information about the Python con
 
 | Function  | Description | 
 |----------------|------------------------------------------------------------------|
-| py_available | Check whether a Python interface is available on this system. |
-| py_numpy_available | Check whether the R interface to NumPy is available (requires NumPy >= 1.6) |
-| py_module_available | Check whether a Python module is available on this system. |
-| py_config | Get information on the location and version of Python in use.  | 
+| `py_available()` | Check whether a Python interface is available on this system. |
+| `py_numpy_available()` | Check whether the R interface to NumPy is available (requires NumPy >= 1.6) |
+| `py_module_available()` | Check whether a Python module is available on this system. |
+| `py_config()` | Get information on the location and version of Python in use.  | 
 
 
 ### Output Control
@@ -263,8 +277,8 @@ These functions enable you to capture or suppress output from Python:
 
 | Function  | Description | 
 |----------------|------------------------------------------------------------------|
-| py_capture_output | Capture Python output for the specified expression and return it as an R character vector. | 
-| py_suppress_warnings | Execute the specified expression, suppressing the display Python warnings.   | 
+| `py_capture_output()` | Capture Python output for the specified expression and return it as an R character vector. | 
+| `py_suppress_warnings()` | Execute the specified expression, suppressing the display Python warnings.   | 
 
 
 ### Miscellaneous
@@ -273,90 +287,22 @@ The functions provide miscellaneous other lower-level capabilities:
 
 | Function  | Description | 
 |----------------|------------------------------------------------------------------|
-| py_unicode | Convert a string to a Python unicode object. |
-| py_str | Get the string representation of Python object. |
-| py_is_null_xptr | Check whether a Python object is a null externalptr. |
-| py_validate_xptr | Check whether a Python object is a null externalptr and throw an error if it is. |
+| `py_set_seed()` | Set Python and NumPy random seeds. |
+| `py_unicode()` | Convert a string to a Python unicode object. |
+| `py_str()` | Get the string representation of Python object. |
+| `py_id()`  | Get a unique identifier for a Python object |
+| `py_is_null_xptr()` | Check whether a Python object is a null externalptr. |
+| `py_validate_xptr()` | Check whether a Python object is a null externalptr and throw an error if it is. |
 
 
-## Using in a Package
+## Learning More
 
-### Checking and Testing on CRAN
+The following articles cover additional aspects of using **reticulate**:
 
-If you use **reticulate** in another R package you need to account for the fact that when your package is submitted to CRAN, the CRAN test servers may not have Python, NumPy, or whatever other Python modules you are wrapping in your package. If you don't do this then your package may fail to load and/or pass it's tests when run on CRAN.
+- [Python Version Configuration](versions.html)
 
-There are two things you should do to ensure your package is well behaved on CRAN:
+- [Using reticulate in an R Package](package.html)
 
-1. When importing Python modules for use inside your package you should use the `delay_load` option to ensure that the module (and Python) is loaded only on it's first use. For example:
-
-    ```{r}
-    # python 'foo' module I want to use in my package
-    foo <- NULL
-    
-    .onLoad <- function(libname, pkgname) {
-      # delay load foo module (will only be loaded when accessed via $)
-      foo <<- import("foo", delay_load = TRUE)
-    }
-    ```
-
-2. When writing tests, check to see if your module is available and if it isn't then skip the test. For example, if you are using the **testthat** package, you might do this:
-
-    ```{r}
-    # helper function to skip tests if we don't have the 'foo' module
-    skip_if_no_foo <- function() {
-      have_foo <- py_module_available("foo")
-      if (!have_foo)
-        skip("foo not available for testing")
-    }
-    
-    # then call this function from all of your tests
-    test_that("Things work as expected", {
-      skip_if_no_foo()
-      # test code here...
-    })
-    ```
-
-### S3 Methods
-
-Python objects exposed by **reticulate** carry their Python classes into R, so it's possible to write S3 methods to customize e.g. the `str` or `print` behavior for a given class (note that it's not typically necessary that you do this since the default `str` and `print` methods call `PyObject_Str`, which typically provides an acceptable default behavior).
-
-If you do decide to implement custom S3 methods for a Python class it's important to keep in mind that when an R session ends the connection to Python objects is lost, so when the .RData saved from one R session is restored in a subsequent R session the Python objects are effectively lost (technically they become `NULL` R `externalptr` objects).
-
-This means that you should always use the `py_is_null_xptr` function on objects before interacting with them in an S3 method. For example:
-
-```{r}
-#' @export
-summary.MyPythonClass <- function(object, ...) {
-  if (py_is_null_xptr(object))
-    stop("Object is NULL")
-  else
-    # interact with the object to generate the summary
-}
-```
-
-There are a couple of shortcut methods you can use to make this more straightforward. The `py_validate_xptr` function will do the check and automatically throw an error if it fails. So the example above could be re-written as:
-
-```{r}
-#' @export
-summary.MyPythonClass <- function(object, ...) {
-  py_validate_xptr(object)
-  # interact with the object to generate the summary
-}
-```
-
-Finally, the **reticulate** package exports a `py_str` generic method which is called from the `str` method only after doing appropriate validation (if the object is NULL then `<pointer: 0x0>` is returned). You can implement the `py_str` method as follows:
-
-```{r}
-#' @importFrom reticulate py_str
-#' @export 
-py_str.MyPythonClass <- function(object, ...) {
-  # interact with the object to generate the string
-}
-```
-
-So in short, to provide custom `str` and `print` methods, just implement `py_str`. For other S3 methods be sure to call either `py_validate_xptr` or `py_is_null_xptr` before interacting with the object.
-
-
-
+- [Arrays in R and Python](arrays.html)
 
 

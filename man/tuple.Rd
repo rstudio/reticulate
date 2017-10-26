@@ -4,12 +4,12 @@
 \alias{tuple}
 \title{Create Python tuple}
 \usage{
-tuple(..., .convert = FALSE)
+tuple(..., convert = FALSE)
 }
 \arguments{
-\item{...}{Values for tuple}
+\item{...}{Values for tuple (or a single list to be converted to a tuple).}
 
-\item{.convert}{\code{TRUE} to automatically convert Python objects to their R
+\item{convert}{\code{TRUE} to automatically convert Python objects to their R
 equivalent. If you pass \code{FALSE} you can do manual conversion using the
 \code{\link[=py_to_r]{py_to_r()}} function.}
 }
@@ -20,7 +20,7 @@ A Python tuple
 Create a Python tuple object
 }
 \note{
-The returned tuple will not automatically convert it's elements
-from Python to R. You can do manual converstion with the \code{\link[=py_to_r]{py_to_r()}}
-function or pass \code{convert = TRUE} to request automatic conversion.
+The returned tuple will not automatically convert it's elements from
+Python to R. You can do manual converstion with the \code{\link[=py_to_r]{py_to_r()}} function or
+pass \code{convert = TRUE} to request automatic conversion.
 }

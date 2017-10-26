@@ -4,23 +4,31 @@
 \alias{py_run}
 \alias{py_run_string}
 \alias{py_run_file}
+\alias{py_eval}
 \title{Run Python code}
 \usage{
-py_run_string(code, convert = TRUE)
+py_run_string(code, local = FALSE, convert = TRUE)
 
-py_run_file(file, convert = TRUE)
+py_run_file(file, local = FALSE, convert = TRUE)
+
+py_eval(code, convert = TRUE)
 }
 \arguments{
 \item{code}{Code to execute}
 
-\item{convert}{\code{TRUE} to automatically convert Python objects to their
-R equivalent. If you pass \code{FALSE} you can do manual conversion using the
+\item{local}{Whether to create objects in a local/private namespace (if
+\code{FALSE}, objects are created within the main module).}
+
+\item{convert}{\code{TRUE} to automatically convert Python objects to their R
+equivalent. If you pass \code{FALSE} you can do manual conversion using the
 \code{\link[=py_to_r]{py_to_r()}} function.}
 
 \item{file}{File to execute}
 }
 \value{
-Reference to \code{__main__} Python module.
+For \code{py_eval()}, the result of evaluating the expression; For
+\code{py_run_string()} and \code{py_run_file()}, the dictionary associated with
+the code execution.
 }
 \description{
 Execute code within the the \code{__main__} Python module.

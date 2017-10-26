@@ -10,6 +10,7 @@
 #endif
 
 #include <string>
+#include <vector>
 #include <iostream>
 #include <sstream>
 
@@ -109,6 +110,20 @@ bool closeLibrary(void* pLib, std::string* pError)
   }
 }
 
+
+bool loadSymbol(void* pLib, const std::vector<std::string>& names, void** ppSymbol, std::string* pError) {
+  
+  // search for a symbol with one of the specified names
+  for (size_t i = 0; i<names.size(); ++i) {
+    std::string name = names[i];
+    if (loadSymbol(pLib, name, ppSymbol, pError))
+      return true;
+  }
+  
+  // return false if nonone found
+  return false;
+}
+
 } // anonymous namespace
 
 
@@ -154,6 +169,10 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
   bool is64bit = sizeof(size_t) >= 8;
 
   LOAD_PYTHON_SYMBOL(Py_Initialize)
+  LOAD_PYTHON_SYMBOL(Py_IsInitialized)
+  LOAD_PYTHON_SYMBOL(Py_AddPendingCall)
+  LOAD_PYTHON_SYMBOL(PyErr_SetInterrupt)
+  LOAD_PYTHON_SYMBOL(PyExc_KeyboardInterrupt)
   LOAD_PYTHON_SYMBOL(Py_IncRef)
   LOAD_PYTHON_SYMBOL(Py_DecRef)
   LOAD_PYTHON_SYMBOL(PyObject_GetAttrString)
@@ -171,13 +190,18 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
   LOAD_PYTHON_SYMBOL(PyErr_Fetch)
   LOAD_PYTHON_SYMBOL(PyErr_Occurred)
   LOAD_PYTHON_SYMBOL(PyErr_NormalizeException)
+  LOAD_PYTHON_SYMBOL(PyErr_ExceptionMatches)
+  LOAD_PYTHON_SYMBOL(PyErr_GivenExceptionMatches)
   LOAD_PYTHON_SYMBOL(PyObject_Str)
   LOAD_PYTHON_SYMBOL(PyObject_Dir)
   LOAD_PYTHON_SYMBOL(PyCallable_Check)
   LOAD_PYTHON_SYMBOL(PyRun_StringFlags)
+  LOAD_PYTHON_SYMBOL(Py_CompileString)
+  LOAD_PYTHON_SYMBOL(PyEval_EvalCode)
   LOAD_PYTHON_SYMBOL(PyModule_GetDict)
   LOAD_PYTHON_SYMBOL(PyImport_AddModule)
   LOAD_PYTHON_SYMBOL(PyImport_ImportModule)
+  LOAD_PYTHON_SYMBOL(PyImport_Import)
   LOAD_PYTHON_SYMBOL(PyImport_GetModuleDict)
   LOAD_PYTHON_SYMBOL(PyObject_GetIter)
   LOAD_PYTHON_SYMBOL(PyIter_Next)
@@ -193,6 +217,7 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
   LOAD_PYTHON_SYMBOL(PyDict_Keys)
   LOAD_PYTHON_SYMBOL(PyDict_Values)
   LOAD_PYTHON_SYMBOL(PyDict_Size)
+  LOAD_PYTHON_SYMBOL(PyDict_Copy)
   LOAD_PYTHON_SYMBOL(PyFloat_AsDouble)
   LOAD_PYTHON_SYMBOL(PyFloat_FromDouble)
   LOAD_PYTHON_SYMBOL(PyFunction_Type)
@@ -202,10 +227,21 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
   LOAD_PYTHON_SYMBOL(PyComplex_RealAsDouble)
   LOAD_PYTHON_SYMBOL(PyComplex_ImagAsDouble)
   LOAD_PYTHON_SYMBOL(PyObject_IsInstance)
+  LOAD_PYTHON_SYMBOL(PyObject_RichCompareBool)
   LOAD_PYTHON_SYMBOL(PyObject_Call)
   LOAD_PYTHON_SYMBOL(PyObject_CallFunctionObjArgs)
   LOAD_PYTHON_SYMBOL(PyType_IsSubtype)
+  LOAD_PYTHON_SYMBOL(PySys_WriteStderr)
 
+  // PyUnicode_AsEncodedString may have several different names depending on the Python
+  // version and the UCS build type 
+  std::vector<std::string> names;
+  names.push_back("PyUnicode_AsEncodedString");
+  names.push_back("PyUnicodeUCS2_AsEncodedString");
+  names.push_back("PyUnicodeUCS4_AsEncodedString");
+  if (!loadSymbol(pLib_, names, (void**)&PyUnicode_AsEncodedString, pError) )
+    return false;
+    
   if (python3) {
     LOAD_PYTHON_SYMBOL(PyModule_Create2)
     LOAD_PYTHON_SYMBOL(PyImport_AppendInittab)
@@ -213,6 +249,9 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
     LOAD_PYTHON_SYMBOL_AS(Py_SetPythonHome, Py_SetPythonHome_v3)
     LOAD_PYTHON_SYMBOL_AS(PySys_SetArgv, PySys_SetArgv_v3)
     LOAD_PYTHON_SYMBOL(PyUnicode_EncodeLocale)
+#ifdef _WIN32
+    LOAD_PYTHON_SYMBOL(PyUnicode_AsMBCSString)
+#endif
     LOAD_PYTHON_SYMBOL(PyBytes_AsStringAndSize)
     LOAD_PYTHON_SYMBOL(PyBytes_FromStringAndSize)
     LOAD_PYTHON_SYMBOL(PyUnicode_FromString)

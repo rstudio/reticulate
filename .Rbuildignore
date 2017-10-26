@@ -8,4 +8,7 @@ images
 .Renviron
 LICENSE
 .travis.yml
+_pkgdown.yml
 travis_install.sh
+^_pkgdown\.yml$
+^appveyor\.yml$

@@ -14,3 +14,8 @@ test_that("Python functions can be called by python", {
   expect_equal(test$callFunc(test$asString, x), x)
 })
 
+test_that("Python callables can be called by R", {
+  skip_if_no_python()
+  callable <- test$create_callable()
+  expect_equal(callable(10), 10)
+})

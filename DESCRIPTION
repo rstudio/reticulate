@@ -1,23 +1,25 @@
 Package: reticulate
 Type: Package
 Title: R Interface to Python
-Version: 0.6.0
-Date: 2017-02-06
+Version: 1.2.0.9008
 Authors@R: c(
-  person("JJ", "Allaire", role = c("aut", "cre"),
-     comment = "R interface", email = "jj@rstudio.com"),
+  person("JJ", "Allaire", role = c("aut", "cre"), email = "jj@rstudio.com"),
   person("Kevin", "Ushey", role = c("ctb"),
          email = "kevin@rstudio.com"),
-  person(family = "RStudio", role = "cph"),
-  person("Yuan", "Tang", role = c("ctb", "cph"),
+  person("RStudio", role = c("cph", "fnd")),
+  person("Yuan", "Tang", role = c("aut", "cph"),
          email = "terrytangyuan@gmail.com"),
   person("Dirk", "Eddelbuettel", role = c("ctb", "cph"),
-         email = "edd@debian.org")
+         email = "edd@debian.org"),
+  person("Bryan", "Lewis", role = c("ctb", "cph"),
+         email = "blewis@illposed.net"),
+  person("Marcus", "Geelnard", role = c("aut", "cph"),
+         comment = "TinyThread library, http://tinythreadpp.bitsnbites.eu/")
   )
 Description: R interface to Python modules, classes, and functions. When calling
     into Python R data types are automatically converted to their equivalent Python
     types. When values are returned from Python to R they are converted back to R
-    types. The reticulate package is compatible with all versions of Python >= 2.7.
+    types. Compatible with all versions of Python >= 2.7.
 License: Apache License 2.0
 URL: https://github.com/rstudio/reticulate
 BugReports: https://github.com/rstudio/reticulate/issues
@@ -29,6 +31,7 @@ Depends:
 Imports:
     utils,
     graphics,
+    jsonlite,
     Rcpp (>= 0.12.7)
 Suggests:
     testthat,

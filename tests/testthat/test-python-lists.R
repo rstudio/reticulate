@@ -29,6 +29,22 @@ test_that("R unnamed lists become Python lists", {
 
 test_that("Python unnamed tuples become R unnamed lists", {
   skip_if_no_python()
-  tuple <- test$makeTuple()
-  expect_equal(tuple, list(1, 2, 3))
+  l <- list(1, 2, 3)
+  tuple1 <- test$makeTuple()
+  expect_equal(tuple1, l)
+
+  expect_equal(length(tuple(l)), length(l))
 })
+
+
+test_that("length method for Python lists works", {
+  skip_if_no_python()
+  py <- import_builtins(convert = FALSE)
+  l <- py$list()
+  l$append(1)
+  l$append(2)
+  l$append(3)
+  expect_equal(length(l), 3)
+})
+
+

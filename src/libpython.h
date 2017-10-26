@@ -31,6 +31,7 @@ typedef long Py_ssize_t;
 #define METH_KEYWORDS 0x0002
 
 #define Py_file_input 257
+#define Py_eval_input 258
 
 #define _PyObject_HEAD_EXTRA
 #define _PyObject_EXTRA_INIT
@@ -119,6 +120,7 @@ LIBPYTHON_EXTERN PyObject* Py_Float;
 LIBPYTHON_EXTERN PyObject* Py_List;
 LIBPYTHON_EXTERN PyObject* Py_Tuple;
 LIBPYTHON_EXTERN PyObject* Py_Complex;
+LIBPYTHON_EXTERN PyObject* PyExc_KeyboardInterrupt;
 
 void initialize_type_objects(bool python3);
 
@@ -137,12 +139,17 @@ void initialize_type_objects(bool python3);
 #define PyComplex_Check(o) (Py_TYPE(o) == Py_TYPE(Py_Complex))
 
 LIBPYTHON_EXTERN void (*Py_Initialize)();
+LIBPYTHON_EXTERN int (*Py_IsInitialized)();
+
+LIBPYTHON_EXTERN int (*Py_AddPendingCall)(int (*func)(void *), void *arg);
+LIBPYTHON_EXTERN void (*PyErr_SetInterrupt)();
 
 LIBPYTHON_EXTERN PyObject* (*Py_InitModule4)(const char *name, PyMethodDef *methods,
            const char *doc, PyObject *self,
            int apiver);
 
 LIBPYTHON_EXTERN PyObject* (*PyImport_ImportModule)(const char *name);
+LIBPYTHON_EXTERN PyObject* (*PyImport_Import)(PyObject * name);
 LIBPYTHON_EXTERN PyObject* (*PyImport_GetModuleDict)();
 
 
@@ -157,6 +164,15 @@ LIBPYTHON_EXTERN void (*Py_DecRef)(PyObject *);
 LIBPYTHON_EXTERN PyObject* (*PyObject_Str)(PyObject *);
 
 LIBPYTHON_EXTERN int (*PyObject_IsInstance)(PyObject *object, PyObject *typeorclass);
+
+/* Rich comparison opcodes */
+#define Py_LT 0
+#define Py_LE 1
+#define Py_EQ 2
+#define Py_NE 3
+#define Py_GT 4
+#define Py_GE 5
+LIBPYTHON_EXTERN int (*PyObject_RichCompareBool)(PyObject *o1, PyObject *o2, int opid);
 
 LIBPYTHON_EXTERN PyObject* (*PyObject_Dir)(PyObject *);
 
@@ -192,6 +208,7 @@ LIBPYTHON_EXTERN PyObject* (*PyString_FromString)(const char *);
 LIBPYTHON_EXTERN PyObject* (*PyString_FromStringAndSize)(const char *, Py_ssize_t);
 
 LIBPYTHON_EXTERN PyObject* (*PyUnicode_EncodeLocale)(PyObject *unicode, const char *errors);
+LIBPYTHON_EXTERN PyObject* (*PyUnicode_AsEncodedString)(PyObject *unicode, const char *encoding, const char *errors);
 LIBPYTHON_EXTERN int (*PyBytes_AsStringAndSize)(
     PyObject *obj,      /* string or Unicode object */
     char **s,           /* pointer to buffer variable */
@@ -199,12 +216,18 @@ LIBPYTHON_EXTERN int (*PyBytes_AsStringAndSize)(
   (only possible for 0-terminated
   strings) */
 );
+#ifdef _WIN32
+LIBPYTHON_EXTERN PyObject* (*PyUnicode_AsMBCSString)(PyObject *unicode);
+#endif
+
 LIBPYTHON_EXTERN PyObject* (*PyBytes_FromStringAndSize)(const char *, Py_ssize_t);
 LIBPYTHON_EXTERN PyObject* (*PyUnicode_FromString)(const char *u);
 
 LIBPYTHON_EXTERN void (*PyErr_Fetch)(PyObject **, PyObject **, PyObject **);
 LIBPYTHON_EXTERN PyObject* (*PyErr_Occurred)(void);
 LIBPYTHON_EXTERN void (*PyErr_NormalizeException)(PyObject**, PyObject**, PyObject**);
+LIBPYTHON_EXTERN int (*PyErr_GivenExceptionMatches)(PyObject *given, PyObject *exc);
+LIBPYTHON_EXTERN int (*PyErr_ExceptionMatches)(PyObject *exc);
 
 LIBPYTHON_EXTERN int (*PyCallable_Check)(PyObject *);
 
@@ -212,6 +235,8 @@ LIBPYTHON_EXTERN PyObject* (*PyModule_GetDict)(PyObject *);
 LIBPYTHON_EXTERN PyObject* (*PyImport_AddModule)(const char *);
 
 LIBPYTHON_EXTERN PyObject* (*PyRun_StringFlags)(const char *, int, PyObject*, PyObject*, void*);
+LIBPYTHON_EXTERN PyObject* (*Py_CompileString)(const char *str, const char *filename, int start);
+LIBPYTHON_EXTERN PyObject* (*PyEval_EvalCode)(PyObject *co, PyObject *globals, PyObject *locals);
 
 LIBPYTHON_EXTERN PyObject* (*PyObject_GetIter)(PyObject *);
 LIBPYTHON_EXTERN PyObject* (*PyIter_Next)(PyObject *);
@@ -233,6 +258,7 @@ LIBPYTHON_EXTERN int (*PyDict_Next)(
 LIBPYTHON_EXTERN PyObject* (*PyDict_Keys)(PyObject *mp);
 LIBPYTHON_EXTERN PyObject* (*PyDict_Values)(PyObject *mp);
 LIBPYTHON_EXTERN Py_ssize_t (*PyDict_Size)(PyObject *mp);
+LIBPYTHON_EXTERN PyObject* (*PyDict_Copy)(PyObject *mp);
 
 LIBPYTHON_EXTERN PyObject* (*PyInt_FromLong)(long);
 LIBPYTHON_EXTERN long (*PyInt_AsLong)(PyObject *);
@@ -260,6 +286,8 @@ LIBPYTHON_EXTERN void (*Py_SetPythonHome_v3)(wchar_t *);
 
 LIBPYTHON_EXTERN void (*PySys_SetArgv)(int, char **);
 LIBPYTHON_EXTERN void (*PySys_SetArgv_v3)(int, wchar_t **);
+
+LIBPYTHON_EXTERN void (*PySys_WriteStderr)(const char *format, ...);
 
 #define PyObject_TypeCheck(o, tp) ((PyTypeObject*)Py_TYPE(o) == (tp)) || PyType_IsSubtype((PyTypeObject*)Py_TYPE(o), (tp))
 

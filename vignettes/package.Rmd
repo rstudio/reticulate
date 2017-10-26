@@ -1,0 +1,113 @@
+---
+title: "Using reticulate in an R Package"
+output: 
+  rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Using reticulate in an R Package}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(eval = FALSE)
+```
+
+## Delay Loading Python Modules
+
+If you write an R package that wraps one or more Py thon packages, it's likely that you'll be importing Python modules within the `.onLoad` method of your package so that you can have convenient access to them within the rest of the package source code.
+
+When you do this, you should use the `delay_load` flag to the `import()` function. This has two benifits:
+
+1. It allows you to successfully load your package even when Python / Python packages are not installed on the target system (this is particularly important when testing on CRAN build machines).
+
+2. It allows users to specify a desired location for Python before interacting with your package. For example:
+
+    ```r
+    library(mypackage)
+    reticulate::use_virtualenv("~/pythonenvs/userenv")
+    # call functions from mypackage
+    ```
+
+Without the `delay_load`, Python would be loaded immediately and the user's call to `use_virtualenv` would have no effect.
+
+
+## Checking and Testing on CRAN
+
+If you use **reticulate** in another R package you need to account for the fact that when your package is submitted to CRAN, the CRAN test servers may not have Python, NumPy, or whatever other Python modules you are wrapping in your package. If you don't do this then your package may fail to load and/or pass it's tests when run on CRAN.
+
+There are two things you should do to ensure your package is well behaved on CRAN:
+
+1. Use the `delay_load` option (as described above) to ensure that the module (and Python) is loaded only on it's first use. For example:
+
+    ```{r}
+    # python 'foo' module I want to use in my package
+    foo <- NULL
+    
+    .onLoad <- function(libname, pkgname) {
+      # delay load foo module (will only be loaded when accessed via $)
+      foo <<- import("foo", delay_load = TRUE)
+    }
+    ```
+
+2. When writing tests, check to see if your module is available and if it isn't then skip the test. For example, if you are using the **testthat** package, you might do this:
+
+    ```{r}
+    # helper function to skip tests if we don't have the 'foo' module
+    skip_if_no_foo <- function() {
+      have_foo <- py_module_available("foo")
+      if (!have_foo)
+        skip("foo not available for testing")
+    }
+    
+    # then call this function from all of your tests
+    test_that("Things work as expected", {
+      skip_if_no_foo()
+      # test code here...
+    })
+    ```
+
+## Implementing S3 Methods
+
+Python objects exposed by **reticulate** carry their Python classes into R, so it's possible to write S3 methods to customize e.g. the `str` or `print` behavior for a given class (note that it's not typically necessary that you do this since the default `str` and `print` methods call `PyObject_Str`, which typically provides an acceptable default behavior).
+
+If you do decide to implement custom S3 methods for a Python class it's important to keep in mind that when an R session ends the connection to Python objects is lost, so when the .RData saved from one R session is restored in a subsequent R session the Python objects are effectively lost (technically they become `NULL` R `externalptr` objects).
+
+By default when you attempt to interact with a Python object from a previous session (a `NULL` R `externalptr`) an error is thrown. If you want to do something more customized in your S3 method you can use the `py_is_null_xptr()` function. For example:
+
+```{r}
+method.MyModule.MyPythonClass <- function(x, y, ...) {
+  if (py_is_null_xptr(x))
+    # whatever is appropriate
+  else 
+    # interact with the object
+}
+```
+
+Note that this check isn't required, as by default an R error will occur. If it's desirable to avoid this error for any reason then you can use `py_is_null_xptr()` to do so.
+
+The **reticulate** package exports a `py_str` generic method which is called from the `str` method only after doing appropriate validation (if the object is NULL then `<pointer: 0x0>` is returned). You can implement the `py_str` method as follows:
+
+```{r}
+#' @importFrom reticulate py_str
+#' @export 
+py_str.MyModule.MyPythonClass <- function(object, ...) {
+  # interact with the object to generate the string
+}
+```
+
+The `print` and `summary` methods for Python objects both call the `str` method by default, so if you implement `py_str()` you will automatically inherit implementations for those methods.
+
+## Using Travis-CI
+
+[Travis-CI(https://travis-ci.org/) is a commonly used platform for continuous integration and testing of R packages. Making it work with **reticulate** is pretty simple - all you need to do is add a `before_install` section to a standard R `.travis.yml` file that asks Travis to guarantee the testing machine has `numpy` (which **reticulate** depends on) and any Python modules you're interacting with that don't ship with the language itself:
+
+```
+before_install:
+  - pip install numpy any_other_dependencies go_here
+```
+
+
+
+
+

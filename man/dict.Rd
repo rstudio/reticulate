@@ -4,12 +4,13 @@
 \alias{dict}
 \title{Create Python dictionary}
 \usage{
-dict(..., .convert = FALSE)
+dict(..., convert = FALSE)
 }
 \arguments{
-\item{...}{Name/value pairs for dictionary}
+\item{...}{Name/value pairs for dictionary (or a single named list to be
+converted to a dictionary).}
 
-\item{.convert}{\code{TRUE} to automatically convert Python objects to their R
+\item{convert}{\code{TRUE} to automatically convert Python objects to their R
 equivalent. If you pass \code{FALSE} you can do manual conversion using the
 \code{\link[=py_to_r]{py_to_r()}} function.}
 }

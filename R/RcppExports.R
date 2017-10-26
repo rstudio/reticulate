@@ -2,43 +2,64 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 is_python3 <- function() {
-    .Call('reticulate_is_python3', PACKAGE = 'reticulate')
+    .Call(`_reticulate_is_python3`)
 }
 
-r_to_py_impl <- function(object, convert) {
-    .Call('reticulate_r_to_py_impl', PACKAGE = 'reticulate', object, convert)
+#' Get or clear the last Python error encountered
+#' 
+#' @return For `py_last_error()`, a list with the type, value, 
+#' and traceback for the last Python error encountered (can be 
+#' `NULL` if no error has yet been encountered).
+#' 
+#' @export
+py_last_error <- function() {
+    .Call(`_reticulate_py_last_error`)
 }
 
-py_activate_virtualenv <- function(script) {
-    invisible(.Call('reticulate_py_activate_virtualenv', PACKAGE = 'reticulate', script))
-}
-
-py_initialize <- function(python, libpython, pythonhome, virtualenv_activate, python3, numpy_load_error) {
-    invisible(.Call('reticulate_py_initialize', PACKAGE = 'reticulate', python, libpython, pythonhome, virtualenv_activate, python3, numpy_load_error))
-}
-
-py_finalize <- function() {
-    invisible(.Call('reticulate_py_finalize', PACKAGE = 'reticulate'))
-}
-
-py_is_none <- function(x) {
-    .Call('reticulate_py_is_none', PACKAGE = 'reticulate', x)
-}
-
-py_str_impl <- function(x) {
-    .Call('reticulate_py_str_impl', PACKAGE = 'reticulate', x)
-}
-
-py_print <- function(x) {
-    invisible(.Call('reticulate_py_print', PACKAGE = 'reticulate', x))
+#' @rdname py_last_error
+#' @export
+py_clear_last_error <- function() {
+    invisible(.Call(`_reticulate_py_clear_last_error`))
 }
 
 py_is_callable <- function(x) {
-    .Call('reticulate_py_is_callable', PACKAGE = 'reticulate', x)
+    .Call(`_reticulate_py_is_callable`, x)
+}
+
+r_to_py_impl <- function(object, convert) {
+    .Call(`_reticulate_r_to_py_impl`, object, convert)
+}
+
+py_activate_virtualenv <- function(script) {
+    invisible(.Call(`_reticulate_py_activate_virtualenv`, script))
+}
+
+py_initialize <- function(python, libpython, pythonhome, virtualenv_activate, python3, interactive, numpy_load_error) {
+    invisible(.Call(`_reticulate_py_initialize`, python, libpython, pythonhome, virtualenv_activate, python3, interactive, numpy_load_error))
+}
+
+py_finalize <- function() {
+    invisible(.Call(`_reticulate_py_finalize`))
+}
+
+py_is_none <- function(x) {
+    .Call(`_reticulate_py_is_none`, x)
+}
+
+py_compare_impl <- function(a, b, op) {
+    .Call(`_reticulate_py_compare_impl`, a, b, op)
+}
+
+py_str_impl <- function(x) {
+    .Call(`_reticulate_py_str_impl`, x)
+}
+
+py_print <- function(x) {
+    invisible(.Call(`_reticulate_py_print`, x))
 }
 
 py_is_function <- function(x) {
-    .Call('reticulate_py_is_function', PACKAGE = 'reticulate', x)
+    .Call(`_reticulate_py_is_function`, x)
 }
 
 #' Check if a Python object is a null externalptr
@@ -59,99 +80,108 @@ py_is_function <- function(x) {
 #' 
 #' @export
 py_is_null_xptr <- function(x) {
-    .Call('reticulate_py_is_null_xptr', PACKAGE = 'reticulate', x)
+    .Call(`_reticulate_py_is_null_xptr`, x)
 }
 
 #' @rdname py_is_null_xptr
 #' @export
 py_validate_xptr <- function(x) {
-    invisible(.Call('reticulate_py_validate_xptr', PACKAGE = 'reticulate', x))
+    invisible(.Call(`_reticulate_py_validate_xptr`, x))
 }
 
 py_numpy_available_impl <- function() {
-    .Call('reticulate_py_numpy_available_impl', PACKAGE = 'reticulate')
+    .Call(`_reticulate_py_numpy_available_impl`)
 }
 
 py_list_attributes_impl <- function(x) {
-    .Call('reticulate_py_list_attributes_impl', PACKAGE = 'reticulate', x)
+    .Call(`_reticulate_py_list_attributes_impl`, x)
 }
 
-#' Check if a Python object has an attribute
-#'
-#' @param x Python object
-#' @param name Attribute name
-#'
-#' @return Logical indicating whether it has the specified attribute
-#' @export
-py_has_attr <- function(x, name) {
-    .Call('reticulate_py_has_attr', PACKAGE = 'reticulate', x, name)
+py_has_attr_impl <- function(x, name) {
+    .Call(`_reticulate_py_has_attr_impl`, x, name)
 }
 
 py_get_attr_impl <- function(x, name, silent = FALSE) {
-    .Call('reticulate_py_get_attr_impl', PACKAGE = 'reticulate', x, name, silent)
+    .Call(`_reticulate_py_get_attr_impl`, x, name, silent)
 }
 
 py_set_attr_impl <- function(x, name, value) {
-    invisible(.Call('reticulate_py_set_attr_impl', PACKAGE = 'reticulate', x, name, value))
+    invisible(.Call(`_reticulate_py_set_attr_impl`, x, name, value))
 }
 
 py_get_attribute_types <- function(x, attributes) {
-    .Call('reticulate_py_get_attribute_types', PACKAGE = 'reticulate', x, attributes)
+    .Call(`_reticulate_py_get_attribute_types`, x, attributes)
+}
+
+py_ref_to_r_with_convert <- function(x, convert) {
+    .Call(`_reticulate_py_ref_to_r_with_convert`, x, convert)
 }
 
 py_ref_to_r <- function(x) {
-    .Call('reticulate_py_ref_to_r', PACKAGE = 'reticulate', x)
+    .Call(`_reticulate_py_ref_to_r`, x)
 }
 
 py_call_impl <- function(x, args = NULL, keywords = NULL) {
-    .Call('reticulate_py_call_impl', PACKAGE = 'reticulate', x, args, keywords)
+    .Call(`_reticulate_py_call_impl`, x, args, keywords)
 }
 
 py_dict <- function(keys, items, convert) {
-    .Call('reticulate_py_dict', PACKAGE = 'reticulate', keys, items, convert)
+    .Call(`_reticulate_py_dict`, keys, items, convert)
 }
 
 py_dict_get_item <- function(dict, key) {
-    .Call('reticulate_py_dict_get_item', PACKAGE = 'reticulate', dict, key)
+    .Call(`_reticulate_py_dict_get_item`, dict, key)
 }
 
 py_dict_set_item <- function(dict, item, value) {
-    invisible(.Call('reticulate_py_dict_set_item', PACKAGE = 'reticulate', dict, item, value))
+    invisible(.Call(`_reticulate_py_dict_set_item`, dict, item, value))
 }
 
 py_dict_length <- function(dict) {
-    .Call('reticulate_py_dict_length', PACKAGE = 'reticulate', dict)
+    .Call(`_reticulate_py_dict_length`, dict)
 }
 
 py_dict_get_keys_as_str <- function(dict) {
-    .Call('reticulate_py_dict_get_keys_as_str', PACKAGE = 'reticulate', dict)
+    .Call(`_reticulate_py_dict_get_keys_as_str`, dict)
 }
 
 py_tuple <- function(items, convert) {
-    .Call('reticulate_py_tuple', PACKAGE = 'reticulate', items, convert)
+    .Call(`_reticulate_py_tuple`, items, convert)
+}
+
+py_tuple_length <- function(tuple) {
+    .Call(`_reticulate_py_tuple_length`, tuple)
 }
 
 py_module_import <- function(module, convert) {
-    .Call('reticulate_py_module_import', PACKAGE = 'reticulate', module, convert)
+    .Call(`_reticulate_py_module_import`, module, convert)
 }
 
 py_module_proxy_import <- function(proxy) {
-    invisible(.Call('reticulate_py_module_proxy_import', PACKAGE = 'reticulate', proxy))
+    invisible(.Call(`_reticulate_py_module_proxy_import`, proxy))
 }
 
 py_list_submodules <- function(module) {
-    .Call('reticulate_py_list_submodules', PACKAGE = 'reticulate', module)
+    .Call(`_reticulate_py_list_submodules`, module)
 }
 
 py_iterate <- function(x, f) {
-    .Call('reticulate_py_iterate', PACKAGE = 'reticulate', x, f)
+    .Call(`_reticulate_py_iterate`, x, f)
 }
 
-py_run_string_impl <- function(code, convert = TRUE) {
-    .Call('reticulate_py_run_string_impl', PACKAGE = 'reticulate', code, convert)
+py_iter_next <- function(iterator, completed) {
+    .Call(`_reticulate_py_iter_next`, iterator, completed)
 }
 
-py_run_file_impl <- function(file, convert = TRUE) {
-    .Call('reticulate_py_run_file_impl', PACKAGE = 'reticulate', file, convert)
+py_run_string_impl <- function(code, local = FALSE, convert = TRUE) {
+    .Call(`_reticulate_py_run_string_impl`, code, local, convert)
+}
+
+py_run_file_impl <- function(file, local = FALSE, convert = TRUE) {
+    .Call(`_reticulate_py_run_file_impl`, file, local, convert)
+}
+
+py_eval_impl <- function(code, convert = TRUE) {
+    .Call(`_reticulate_py_eval_impl`, code, convert)
 }
 

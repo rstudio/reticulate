@@ -4,35 +4,48 @@
 \alias{import}
 \alias{import_main}
 \alias{import_builtins}
+\alias{import_from_path}
 \title{Import a Python module}
 \usage{
-import(module, convert = TRUE, delay_load = FALSE)
+import(module, as = NULL, convert = TRUE, delay_load = FALSE)
 
 import_main(convert = TRUE)
 
 import_builtins(convert = TRUE)
+
+import_from_path(module, path, convert = TRUE, delay_load = FALSE)
 }
 \arguments{
 \item{module}{Module name}
 
-\item{convert}{\code{TRUE} to automatically convert Python objects to their
-R equivalent. If you pass \code{FALSE} you can do manual conversion using the
+\item{as}{Alias for module name (affects names of R classes)}
+
+\item{convert}{\code{TRUE} to automatically convert Python objects to their R
+equivalent. If you pass \code{FALSE} you can do manual conversion using the
 \code{\link[=py_to_r]{py_to_r()}} function.}
 
-\item{delay_load}{\code{TRUE} or a function to delay loading the module until
-it is first used (if a function is provided then it will be called
-once the module is loaded). \code{FALSE} to load the module immediately.}
+\item{delay_load}{\code{TRUE} to delay loading the module until it is first used.
+\code{FALSE} to load the module immediately. If a function is provided then it
+will be called once the module is loaded. If a list containing \code{on_load()}
+and \code{on_error(e)} elements is provided then \code{on_load()} will be called on
+successful load and \code{on_error(e)} if an error occurs.}
+
+\item{path}{Path to import from}
 }
 \value{
 A Python module
 }
 \description{
-Import the specified Python module for calling from R. Use \code{"__main__"}
-to import the main module.
+Import the specified Python module for calling from R.
+}
+\details{
+The \code{import_from_path} function imports a Python module from an
+arbitrary filesystem path (the directory of the specified python script is
+automatically added to the \code{sys.path}).
 }
 \examples{
 \dontrun{
-main <- import("__main__")
+main <- import_main()
 sys <- import("sys")
 }
 

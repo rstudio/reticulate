@@ -1,4 +1,17 @@
 
+
+#' Documentation for Python Objects
+#' 
+#' @param object Object to print documentation for
+#'
+#' @export
+py_help <- function(object) {
+  help <- py_capture_output(import_builtins()$help(object), type = "stdout")
+  tmp <- tempfile("py_help", fileext = ".txt")
+  writeLines(help, con = tmp)
+  file.show(tmp, title = paste("Python Help:", object$`__name__`), delete.file = TRUE)
+}
+
 #' Register help topics
 #'
 #' Register a set of help topics for dispatching from F1 help
@@ -35,6 +48,24 @@ help_handler <- function(type = c("completion", "parameter", "url"), topic, sour
   }
 }
 
+#' Register a help handler for a root Python module
+#'
+#' @param module Name of a root Python module
+#' @param handler Handler function: `function(name, subtopic = NULL)`. The name
+#'   will be the fully qualfied name of a Python object (module, function, or
+#'   class). The `subtopic` is optional and is currently used only for methods
+#'   within classes.
+#'
+#' @details The help handler is passed a fully qualfied module, class, or
+#'   function name (and optional method for classes). It should return a URL for
+#'   a help page (or `""` if no help page is available).
+#'
+#' @keywords internal
+#' @export
+register_module_help_handler <- function(module, handler) {
+  .module_help_handlers[[module]] <- handler
+}
+
 # Return help for display in the completion popup window
 help_completion_handler.python.builtin.object <- function(topic, source) {
 
@@ -48,19 +79,33 @@ help_completion_handler.python.builtin.object <- function(topic, source) {
 
   # check for property help
   help <- import("rpytools.help")
-  description <- help$get_property_doc(source, topic)
+  doc <- help$get_property_doc(source, topic)
   # check for standard help
-  if (is.null(description)) {
+  if (is.null(doc)) {
     inspect <- import("inspect")
-    description <- inspect$getdoc(help_get_attribute(source, topic))
+    doc <- inspect$getdoc(help_get_attribute(source, topic))
   }
-  # default to no description
-  if (is.null(description))
-    description <- ""
+  # default to no doc
+  if (is.null(doc))
+    doc <- ""
+  
+  # extract preamble
+  arguments_matches <- regexpr(pattern ='\nArg(s|uments):', doc)
+  if (arguments_matches[[1]] != -1)
+    description <- substring(doc, 1, arguments_matches[[1]])
+  else
+    description <- doc
+  
+  # extract description and details
   matches <- regexpr(pattern ='\n', description, fixed=TRUE)
-  if (matches[[1]] != -1)
-    description <- substring(description, 1, matches[[1]])
-  description <- convert_description_types(description)
+  if (matches[[1]] != -1) {
+    details <- substring(description, matches[[1]] + 1)
+    description <- substring(description, 1, matches[[1]] - 1)
+  } else {
+    details <- "" 
+  }
+  details <- cleanup_description(details)
+  description <- cleanup_description(description)
 
   # try to generate a signature
   signature <- NULL
@@ -73,10 +118,24 @@ help_completion_handler.python.builtin.object <- function(topic, source) {
     signature <- paste0(topic, signature)
   }
 
+  # collect other sections
+  sections <- sections_from_doc(doc)
+  
+  # try to get return info
+  returns <- sections$Returns
+  
+  # remove arguments and returns
+  sections$Args <- NULL
+  sections$Arguments <- NULL
+  sections$Returns <- NULL
+
   # return docs
   list(title = topic,
        signature = signature,
-       description = description)
+       returns = returns,
+       description = description,
+       details = details,
+       sections = sections)
 }
 
 
@@ -181,24 +240,27 @@ help_formals_handler.python.builtin.object <- function(topic, source) {
 
 # Extract argument descriptions from python docstring
 arg_descriptions_from_doc <- function(args, doc) {
+  
+  # extract arguments section of the doc and break into lines
+  arguments <- section_from_doc('Arg(s|uments)', doc)
   doc <- strsplit(doc, "\n", fixed = TRUE)[[1]]
+  
   arg_descriptions <- sapply(args, function(arg) {
-    prefix <- paste0("  ", arg, ": ")
-    arg_line <- which(grepl(paste0("^", prefix), doc))
+    arg_line <- which(grepl(paste0("^\\s+", arg, ":"), doc))
     if (length(arg_line) > 0) {
-      arg_description <- substring(doc[[arg_line]], nchar(prefix))
+      line <- doc[[arg_line]]
+      arg_description <- substring(line, regexpr(':', line)[[1]] + 1)
       next_line <- arg_line + 1
       while((arg_line + 1) <= length(doc)) {
         line <- doc[[arg_line + 1]]
-        if (grepl("^    ", line)) {
+        if (!grepl("^\\s*$", line) && !grepl("^\\s+\\w+: ", line)) {
           arg_description <- paste(arg_description, line)
           arg_line <- arg_line + 1
         }
         else
           break
       }
-      arg_description <- gsub("^\\s*", "", arg_description)
-      arg_description <- convert_description_types(arg_description)
+      arg_description <- cleanup_description(arg_description)
     } else {
       arg
     }
@@ -206,12 +268,86 @@ arg_descriptions_from_doc <- function(args, doc) {
   arg_descriptions
 }
 
+# Extract all sections from the doc
+sections_from_doc <- function(doc) {
+  
+  # sections to return
+  sections <- list()
+  
+  # grab section headers
+  doc <- strsplit(doc, "\n", fixed = TRUE)[[1]]
+  section_lines <- which(grepl("^\\w(\\w|\\s)+:", doc))
+
+  # for each section
+  for (i in section_lines) {
+    
+    # get the section line and name
+    section_line <- i
+    section_name <- gsub(":\\s*$", "", doc[[i]])
+    
+    # collect the sections text
+    section_text <- c()
+    while((section_line + 1) <= length(doc)) {
+      line <- doc[[section_line + 1]]
+      if (grepl("\\w+", line)) {
+        section_text <- paste(section_text, line)
+        section_line <- section_line + 1
+      }
+      else
+        break
+    }
+    
+    # add to our list
+    sections[[section_name]] <- cleanup_description(section_text)
+  }
+  
+  # return the sections
+  sections
+}
+
+
+# Extract section from doc
+section_from_doc <- function(name, doc) {
+  section <- ""
+  doc <- strsplit(doc, "\n", fixed = TRUE)[[1]]
+  line_index <- which(grepl(paste0("^", name, ":"), doc))
+  if (length(line_index) > 0) {
+    while((line_index + 1) <= length(doc)) {
+      line <- doc[[line_index + 1]]
+      if (grepl("\\w+", line)) {
+        section <- paste(section, line)
+        line_index <- line_index + 1
+      }
+      else
+        break
+    }
+  } 
+  cleanup_description(section)
+}
+
 # Convert types in description
-convert_description_types <- function(description) {
-  description <- sub("`None`", "`NULL`", description)
-  description <- sub("`True`", "`TRUE`", description)
-  description <- sub("`False`", "`FALSE`", description)
-  description
+cleanup_description <- function(description) {
+  if (is.null(description)) {
+    NULL
+  } else {
+    
+    # remove leading and trailing whitespace
+    description <- gsub("^\\s+|\\s+$", "", description)
+    
+    # convert 2+ whitespace to 1 ws
+    description <- gsub("(\\s\\s+)", " ", description)
+    
+    # convert literals
+    description <- gsub("None", "NULL", description)
+    description <- gsub("True", "TRUE", description)
+    description <- gsub("False", "FALSE", description)
+    
+    # convert tuple to list
+    description <- gsub("tuple", "list", description)
+    description <- gsub("list/list", "list", description)
+    
+    description
+  }
 }
 
 # Convert source to object if necessary
@@ -246,9 +382,15 @@ module_help <- function(module, topic) {
   lookup <- paste(module, topic, sep = ".")
   page <- .module_help_topics[[lookup]]
 
-  # if so then append topic
+  # if so then append topic and return
   if (!is.null(page))
-    paste(page, topic, sep = "#")
+    return(paste(page, topic, sep = "#"))
+  
+  # do we have a module handler
+  main_module <- strsplit(module, ".", fixed = TRUE)[[1]][[1]]
+  handler <- .module_help_handlers[[main_module]]
+  if (!is.null(handler))
+    handler(lookup)
   else
     ""
 }
@@ -270,14 +412,20 @@ class_help <- function(class, topic) {
   # do we have a page for this class?
   page <- .class_help_topics[[class]]
 
-  # if so then append class and topic
+  # if so then append class and topic and return
   if (!is.null(page)) {
     components <- strsplit(class, ".", fixed = TRUE)[[1]]
     class <- components[[length(components)]]
-    paste0(page, "#", class, ".", topic)
-  } else {
-    ""
+    return(paste0(page, "#", class, ".", topic))
   }
+  
+  # do we have a handler for this module
+  main_module <- strsplit(class, ".", fixed = TRUE)[[1]][[1]]
+  handler <- .module_help_handlers[[main_module]]
+  if (!is.null(handler))
+    handler(class, topic)
+  else 
+    ""
 }
 
 help_get_attribute <- function(source, topic) {
@@ -294,13 +442,14 @@ help_get_attribute <- function(source, topic) {
   }
 
   # get attribute w/ no warnings or errors
-  tryCatch(py_suppress_warnings(py_get_attr(source, topic)), error = function(e) NULL)
+  tryCatch(py_suppress_warnings(py_get_attr(source, topic)), 
+           error = clear_error_handler(NULL))
 }
 
 # Environments where we store help topics (mappings of module/class name to URL)
 .module_help_topics <- new.env(parent = emptyenv())
 .class_help_topics <- new.env(parent = emptyenv())
-
+.module_help_handlers <- new.env(parent = emptyenv())
 
 
 

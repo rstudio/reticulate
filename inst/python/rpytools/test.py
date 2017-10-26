@@ -1,4 +1,13 @@
 
+import threading
+
+import sys
+is_py2 = sys.version[0] == '2'
+if is_py2:
+  import Queue as queue
+else:
+  import queue as queue
+
 
 def isScalar(x):
   return not isinstance(x, (list, tuple))
@@ -23,6 +32,18 @@ def makeGenerator(n):
   while i < n:
     yield i
     i += 1
+    
+def iterateOnThread(iter):
+  results = []
+  def iteration_worker():
+    for i in iter:
+      results.append(i)
+  thread = threading.Thread(target = iteration_worker)
+  thread.start()
+  while thread.isAlive():
+    thread.join(0.1)
+  return results
+
 
 def reflect(x):
   return x
@@ -36,4 +57,30 @@ def testThrowError():
 def throwError():
   raise ValueError('A very specific bad thing happened')
 
+
+class PythonClass(object):
+  
+  FOO = 1
+  BAR = 2
+  
+  @classmethod
+  def class_method(cls):
+    return cls.FOO
+  
+class PythonCallable(object):
+  
+  FOO = 1
+  BAR = 2
+  
+  """ Call a callable
+    Args:
+      arg1: First argument.
+  """
+  def __call__(self, arg1):
+    return arg1
+  
+def create_callable():
+  return PythonCallable()
+
+dict_with_callable = dict(callable = create_callable())
 

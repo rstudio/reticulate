@@ -5,27 +5,25 @@
 #' Python R data types are automatically converted to their equivalent Python 
 #' types. When values are returned from Python to R they are converted back to R
 #' types. The reticulate package is compatible with all versions of Python >= 2.7.
-#' Integrate with NumPy requires NumPy version 1.6 or higher.
+#' Integration with NumPy requires NumPy version 1.6 or higher.
 #' 
 #' @docType package
 #' @name reticulate
-#' @useDynLib reticulate
+#' @useDynLib reticulate, .registration = TRUE
 #' @importFrom Rcpp evalCpp
 NULL
 
 # package level mutable global state
 .globals <- new.env(parent = emptyenv())
+.globals$required_python_version <- NULL
 .globals$use_python_versions <- c()
 .globals$py_config <- NULL
 .globals$delay_load_module <- NULL
+.globals$delay_load_environment <- NULL
+.globals$delay_load_priority <- 0
 .globals$suppress_warnings_handlers <- list()
+.globals$class_filters <- list()
 
-
-
-.onUnload <- function(libpath) {
-  if (is_python_initialized())
-    py_finalize();
-}
 
 
 is_python_initialized <- function() {
@@ -35,24 +33,39 @@ is_python_initialized <- function() {
 
 ensure_python_initialized <- function(required_module = NULL) {
   if (!is_python_initialized()) {
-    if (is.null(required_module))
-      required_module <- .globals$delay_load_module
-    .globals$py_config <- initialize_python(required_module)
+     # give delay load modules priority
+     use_environment <- NULL
+     if (!is.null(.globals$delay_load_module)) {
+        required_module <- .globals$delay_load_module
+        use_environment <- .globals$delay_load_environment
+        .globals$delay_load_module <- NULL # one shot
+        .globals$delay_load_environment <- NULL
+        .globals$delay_load_priority <- 0
+     }
+    .globals$py_config <- initialize_python(required_module, use_environment)
+    
+    # remap output streams to R output handlers
+    remap_output_streams()
+    
   }
 }
 
-initialize_python <- function(required_module = NULL) {
+initialize_python <- function(required_module = NULL, use_environment = NULL) {
 
+  # resolve top level module for search
+  if (!is.null(required_module))
+    required_module <- strsplit(required_module, ".", fixed = TRUE)[[1]][[1]]
+  
   # find configuration
-  config <- py_discover_config(required_module)
+  config <- py_discover_config(required_module, use_environment)
 
   # check for basic python prerequsities
   if (is.null(config)) {
     stop("Installation of Python not found, Python bindings not loaded.")
-  } else if (!file.exists(config$libpython)) {
+  } else if (!is_windows() && (is.null(config$libpython) || !file.exists(config$libpython))) {
     stop("Python shared library '", config$libpython, "' not found, Python bindings not loaded.")
   } else if (is_incompatible_arch(config)) {
-    stop("Your current architecture is ", python_arch(), " however this version of ",
+    stop("Your current architecture is ", current_python_arch(), " however this version of ",
          "Python is compiled for ", config$architecture, ".")
   }
 
@@ -62,13 +75,31 @@ initialize_python <- function(required_module = NULL) {
   else
     numpy_load_error <- ""
   
+  
+  # add the python bin dir to the PATH (so that any execution of python from 
+  # within the interpreter, from a system call, or from within a terminal 
+  # hosted within the front end will use the same version of python. On 
+  # Windows also add the Scripts path
+  python_dirs <- normalizePath(dirname(config$python))
+  if (is_windows())
+    python_dirs <- c(python_dirs, file.path(python_dirs, "Scripts", fsep = "\\"))
+  Sys.setenv(PATH = paste(paste(python_dirs, collapse =  .Platform$path.sep), 
+                          Sys.getenv("PATH"),
+                          sep = .Platform$path.sep))  
+  
+  
   # initialize python
   py_initialize(config$python,
                 config$libpython,
                 config$pythonhome,
                 config$virtualenv_activate,
                 config$version >= "3.0",
+                interactive(),
                 numpy_load_error)
+  
+  # if we have a virtualenv then set the VIRTUAL_ENV environment variable
+  if (nzchar(config$virtualenv_activate))
+    Sys.setenv(VIRTUAL_ENV = path.expand(dirname(dirname(config$virtualenv_activate))))
 
   # set available flag indicating we have py bindings
   config$available <- TRUE
@@ -77,7 +108,10 @@ initialize_python <- function(required_module = NULL) {
   py_run_string_impl(paste0("import sys; sys.path.append('",
                        system.file("python", package = "reticulate") ,
                        "')"))
-
+  
+  # set R_SESSION_INITIALIZED flag (used by rpy2)
+  Sys.setenv(R_SESSION_INITIALIZED=sprintf('PID=%s:NAME="reticulate"', Sys.getpid()))
+ 
   # return config
   config
 }

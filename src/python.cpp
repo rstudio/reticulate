@@ -28,8 +28,16 @@ bool is_interactive() {
 }
 
 // track whether we have required numpy
+bool s_attempted_numpy_load = false;
 std::string s_numpy_load_error;
 bool haveNumPy() {
+  // load on demand (but only try once)
+  if (s_numpy_load_error.empty()) {
+    if (!s_attempted_numpy_load) {
+      s_attempted_numpy_load = true;
+      import_numpy_api(is_python3(), &s_numpy_load_error);
+    }
+  } 
   return s_numpy_load_error.empty();
 }
 bool requireNumPy() {
@@ -1473,12 +1481,11 @@ void py_initialize(const std::string& python,
   if (!virtualenv_activate.empty())
     py_activate_virtualenv(virtualenv_activate);
   
-  // resovlve numpy
-  if (numpy_load_error.empty())
-    import_numpy_api(is_python3(), &s_numpy_load_error);
-  else
+  // forward any numpy error (in the absence of an error numpy bindings will be 
+  // initialized on first use)
+  if (!numpy_load_error.empty())
     s_numpy_load_error = numpy_load_error;
-  
+
   // poll for events while executing python code
   event_loop::initialize();
 }

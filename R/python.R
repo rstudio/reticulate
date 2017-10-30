@@ -211,8 +211,37 @@ py_to_r <- function(x) {
   if (!inherits(x, "python.builtin.object"))
     stop("Object to convert is not a Python object")
   
-  py_ref_to_r(x)
+  # get the default wrapper
+  x <- py_ref_to_r(x)
+  
+  # allow customization of the wrapper
+  wrapper <- py_to_r_wrapper(x)
+  attributes(wrapper) <- attributes(x)
+  
+  # return the wrapper
+  wrapper 
 }
+
+#' R wrapper for Python objects 
+#' 
+#' S3 method to create a custom R wrapper for a Python object.
+#' The default wrapper is either an R environment or an R function
+#' (for callable python objects).
+#' 
+#' @param x Python object 
+#' 
+#' @export
+py_to_r_wrapper <- function(x) {
+  UseMethod("py_to_r_wrapper")
+}
+
+#' @export
+py_to_r_wrapper.default <- function(x) {
+  x
+}
+
+
+
 
 
 #' @rdname r-py-conversion

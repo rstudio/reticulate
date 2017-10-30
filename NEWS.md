@@ -39,6 +39,8 @@ Install the development version with: `install_github("rstudio/reticulate")`
 - Added `array_reshape` function for reshaping R arrays using NumPy (row-major)
   semantics.
   
+- Provide mechanism for custom R wrapper objects for Python objects
+
 
 ## reticulate 1.2 (CRAN)
 

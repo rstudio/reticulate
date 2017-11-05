@@ -57,6 +57,11 @@ reference:
     contents:
       - np_array
       - array_reshape
+      
+  - title: "Persistence"
+    contents:
+      - py_save_object
+      - py_load_object
   
   - title: "Low-Level Interface"
     contents:

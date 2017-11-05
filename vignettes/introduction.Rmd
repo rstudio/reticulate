@@ -259,6 +259,15 @@ Typically interacting with Python objects from R involves using the `$` operator
 | `py_to_r()` | Convert a Python object to it's R equivalent |
 | `r_to_py()` | Convert an R object to it's Python equivalent |
 
+### Pickle
+
+You can save and load Python objects (via pickle) using the `py_save_object` and `py_load_object` functions:
+
+| Function  | Description | 
+|----------------|------------------------------------------------------------------|
+| `py_save_object()` | Save a Python object to a file with pickle. |
+| `py_load_object()` | Load a previously saved Python object from a file. |
+
 ### Configuration
 
 The following functions enable you to query for information about the Python configuration available on the current system.

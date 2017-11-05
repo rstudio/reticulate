@@ -41,6 +41,8 @@ Install the development version with: `install_github("rstudio/reticulate")`
   
 - Provide mechanism for custom R wrapper objects for Python objects
 
+- Added interface to pickle (`py_save_object()` and `py_load_object()`)
+
 
 ## reticulate 1.2 (CRAN)
 

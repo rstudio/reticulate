@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Articles • reticulate</title>
+<title>Save and load Python objects with pickle — py_save_object • reticulate</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -37,7 +37,7 @@
   </head>
 
   <body>
-    <div class="container template-vignette-index">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
   <div class="container">
@@ -98,23 +98,46 @@
       
       </header>
 
-      <div class="page-header">
-  <h1>Articles <small>version&nbsp;1.2.0.9010</small></h1>
-</div>
-
-<div class="row">
-  <div class="col-md-9">
-    <div class="section ">
-      <h3>All vignettes</h3>
-      <p class="section-desc"></p>
-
-      <ul>
-        <li><a href="arrays.html">Arrays in R and Python</a></li>
-        <li><a href="introduction.html">Introduction to reticulate</a></li>
-        <li><a href="package.html">Using reticulate in an R Package</a></li>
-        <li><a href="versions.html">Python Version Configuration</a></li>
-      </ul>
+      <div class="row">
+  <div class="col-md-9 contents">
+    <div class="page-header">
+    <h1>Save and load Python objects with pickle</h1>
     </div>
+
+    
+    <p>Save and load Python objects with pickle</p>
+    
+
+    <pre class="usage"><span class='fu'>py_save_object</span>(<span class='no'>object</span>, <span class='no'>filename</span>, <span class='kw'>pickle</span> <span class='kw'>=</span> <span class='st'>"pickle"</span>)
+
+<span class='fu'>py_load_object</span>(<span class='no'>filename</span>, <span class='kw'>pickle</span> <span class='kw'>=</span> <span class='st'>"pickle"</span>)</pre>
+    
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>object</th>
+      <td><p>Object to save</p></td>
+    </tr>
+    <tr>
+      <th>filename</th>
+      <td><p>File name</p></td>
+    </tr>
+    <tr>
+      <th>pickle</th>
+      <td><p>The implementation of pickle to use (defaults to "pickle" but
+could e.g. also be "cPickle")</p></td>
+    </tr>
+    </table>
+    
+
+  </div>
+  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+    <h2>Contents</h2>
+    <ul class="nav nav-pills nav-stacked">
+      <li><a href="#arguments">Arguments</a></li>
+                </ul>
+
   </div>
 </div>
 

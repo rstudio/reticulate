@@ -45,6 +45,8 @@ Install the development version with: `install_github("rstudio/reticulate")`
 
 - Catch and print errors which occur in generator functions
 
+- Implement `isatty` when providing custom Python output streams
+
 
 ## reticulate 1.2 (CRAN)
 

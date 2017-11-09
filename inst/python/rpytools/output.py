@@ -30,12 +30,16 @@ def end_stderr_capture(restore):
 
 class OutputRemap(object):
   
-  def __init__(self, target, handler):
+  def __init__(self, target, handler, tty = True):
     self.target = target
     self.handler = handler
+    self.tty = tty
   
   def write(self, message):
     self.handler(message)
+    
+  def isatty(self):
+    return self.tty
     
   def __getattr__(self, attr): 
     if (self.target): 
@@ -50,11 +54,11 @@ class OutputRemap(object):
     return None
 
 
-def remap_output_streams(r_stdout, r_stderr):
+def remap_output_streams(r_stdout, r_stderr, tty):
   if (sys.stdout is None):
-    sys.stdout = OutputRemap(sys.stdout, r_stdout)
+    sys.stdout = OutputRemap(sys.stdout, r_stdout, tty)
   if (sys.stderr is None):
-    sys.stderr = OutputRemap(sys.stderr, r_stderr)
+    sys.stderr = OutputRemap(sys.stderr, r_stderr, tty)
 
 
 

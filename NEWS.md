@@ -43,6 +43,8 @@ Install the development version with: `install_github("rstudio/reticulate")`
 
 - Added interface to pickle (`py_save_object()` and `py_load_object()`)
 
+- Catch and print errors which occur in generator functions
+
 
 ## reticulate 1.2 (CRAN)
 

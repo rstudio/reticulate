@@ -52,7 +52,7 @@
 #' 
 #' Some Python APIs use generators to parallelize operations by calling the
 #' generator on a background thread and then consuming it's results on 
-#' the foreground thread. The `generator()` function creates threadsafe
+#' the foreground thread. The `py_iterator()` function creates threadsafe
 #' iterators by ensuring that the R function is always called on the main
 #' thread (to be compatible with R's single-threaded runtime) even if the
 #' generator is run on a background thread.
@@ -66,7 +66,20 @@ py_iterator <- function(fn, completed = NULL) {
   if (length(formals(fn) != 0))
     stop("fn must be an R function with no arguments")
   
+  # wrap the function in an error handler
+  wrapped_fn <- function() {
+    tryCatch({
+      fn()
+    }, error = function(e) {
+      message("Error occurred in generator: ", e$message)
+      completed
+    })
+  }
+ 
   # create the generator
   tools <- import("rpytools")
-  tools$generator$RGenerator(fn, completed)
+  tools$generator$RGenerator(wrapped_fn, completed)
 }
+
+
+

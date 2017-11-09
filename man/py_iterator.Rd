@@ -61,7 +61,7 @@ example:\preformatted{sequence_generator <-function(start) {
 
 Some Python APIs use generators to parallelize operations by calling the
 generator on a background thread and then consuming it's results on
-the foreground thread. The \code{generator()} function creates threadsafe
+the foreground thread. The \code{py_iterator()} function creates threadsafe
 iterators by ensuring that the R function is always called on the main
 thread (to be compatible with R's single-threaded runtime) even if the
 generator is run on a background thread.

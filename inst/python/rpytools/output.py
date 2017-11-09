@@ -36,7 +36,7 @@ class OutputRemap(object):
     self.tty = tty
   
   def write(self, message):
-    self.handler(message)
+    return self.handler(message)
     
   def isatty(self):
     return self.tty

@@ -1,7 +1,5 @@
 
-## reticulate 1.3 (development)
-
-Install the development version with: `install_github("rstudio/reticulate")`
+## reticulate 1.3 (CRAN)
 
 - Use existing instance of Python when reticulate is loaded within an 
   embedded Python environment (e.g. rpy2, rice, etc.)
@@ -46,7 +44,7 @@ Install the development version with: `install_github("rstudio/reticulate")`
 - Catch and print errors which occur in generator functions
 
 
-## reticulate 1.2 (CRAN)
+## reticulate 1.2
 
 - Add `np_array` function for creating NumPy arrays and converting the data type, 
   dimensions, and in-memory ordering of existing NumPy arrays.

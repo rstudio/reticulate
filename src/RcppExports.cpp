@@ -6,6 +6,28 @@
 
 using namespace Rcpp;
 
+// write_stdout
+int write_stdout(std::string text);
+RcppExport SEXP _reticulate_write_stdout(SEXP textSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< std::string >::type text(textSEXP);
+    rcpp_result_gen = Rcpp::wrap(write_stdout(text));
+    return rcpp_result_gen;
+END_RCPP
+}
+// write_stderr
+int write_stderr(std::string text);
+RcppExport SEXP _reticulate_write_stderr(SEXP textSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< std::string >::type text(textSEXP);
+    rcpp_result_gen = Rcpp::wrap(write_stderr(text));
+    return rcpp_result_gen;
+END_RCPP
+}
 // is_python3
 bool is_python3();
 RcppExport SEXP _reticulate_is_python3() {
@@ -455,6 +477,8 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_reticulate_write_stdout", (DL_FUNC) &_reticulate_write_stdout, 1},
+    {"_reticulate_write_stderr", (DL_FUNC) &_reticulate_write_stderr, 1},
     {"_reticulate_is_python3", (DL_FUNC) &_reticulate_is_python3, 0},
     {"_reticulate_py_last_error", (DL_FUNC) &_reticulate_py_last_error, 0},
     {"_reticulate_py_clear_last_error", (DL_FUNC) &_reticulate_py_clear_last_error, 0},

@@ -1397,6 +1397,9 @@ void py_activate_virtualenv(const std::string& script)
     stop(py_fetch_error());
 }
 
+int py_tracefunc(PyObject *obj, PyFrameObject *frame, int what, PyObject *arg) {
+  return 0;
+}
 
 // [[Rcpp::export]]
 void py_initialize(const std::string& python,
@@ -1478,6 +1481,9 @@ void py_initialize(const std::string& python,
     import_numpy_api(is_python3(), &s_numpy_load_error);
   else
     s_numpy_load_error = numpy_load_error;
+  
+  // initialize trace
+  PyEval_SetProfile(&py_tracefunc, NULL);
   
   // poll for events while executing python code
   event_loop::initialize();

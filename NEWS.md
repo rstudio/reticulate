@@ -43,6 +43,11 @@
 
 - Catch and print errors which occur in generator functions
 
+- Write using Rprintf when providing custom Python output streams
+  (enables correct handling of terminal control characters)
+
+- Implement `isatty` when providing custom Python output streams
+
 
 ## reticulate 1.2
 

@@ -1412,18 +1412,10 @@ void trace_print(int threadId, PyFrameObject *frame) {
   fprintf(stderr, tracemsg.c_str(), tracemsg.size());
 }
 
-clock_t py_tracefunc_interval = 0;
-int py_tracefunc(PyObject *obj, PyFrameObject *frame, int what, PyObject *arg) {
-  if (clock() - py_tracefunc_interval < CLOCKS_PER_SEC) return 0;
-  py_tracefunc_interval = clock();
-  
-  trace_print(0, frame);
-  
-  return 0;
-}
-
 void trace_thread_main(void* aArg) {
   using namespace tthread;
+  
+  int* tracems = (int*)aArg;
   
   while (true) {
     PyGILState_STATE gstate;
@@ -1438,13 +1430,13 @@ void trace_thread_main(void* aArg) {
     
     PyGILState_Release(gstate);
     
-    this_thread::sleep_for(chrono::milliseconds(1000));
+    this_thread::sleep_for(chrono::milliseconds(*tracems));
   }
 }
 
 tthread::thread* ptrace_thread;
-void trace_thread_init() {
-  ptrace_thread = new tthread::thread(trace_thread_main, NULL);
+void trace_thread_init(int tracems) {
+  ptrace_thread = new tthread::thread(trace_thread_main, &tracems);
 }
 
 // [[Rcpp::export]]
@@ -1454,7 +1446,8 @@ void py_initialize(const std::string& python,
                    const std::string& virtualenv_activate,
                    bool python3,
                    bool interactive,
-                   const std::string& numpy_load_error) {
+                   const std::string& numpy_load_error,
+                   int tracems) {
 
   // set python3 and interactive flags
   s_isPython3 = python3;
@@ -1529,8 +1522,7 @@ void py_initialize(const std::string& python,
     s_numpy_load_error = numpy_load_error;
   
   // initialize trace
-  // PyEval_SetProfile(&py_tracefunc, NULL);
-  trace_thread_init();
+  if (tracems > 0) trace_thread_init(tracems);
   
   // poll for events while executing python code
   event_loop::initialize();

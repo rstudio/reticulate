@@ -10,6 +10,7 @@ using namespace Rcpp;
 #include "tinythread.h"
 
 #include <fstream>
+#include <time.h>
 
 using namespace libpython;
 
@@ -1397,7 +1398,23 @@ void py_activate_virtualenv(const std::string& script)
     stop(py_fetch_error());
 }
 
+clock_t py_tracefunc_interval = 0;
 int py_tracefunc(PyObject *obj, PyFrameObject *frame, int what, PyObject *arg) {
+  if (clock() - py_tracefunc_interval < CLOCKS_PER_SEC) return 0;
+  py_tracefunc_interval = clock();
+  
+  std::string tracemsg = "";
+  while (NULL != frame) {
+    std::string filename = as_std_string(frame->f_code->co_filename);
+    std::string funcname = as_std_string(frame->f_code->co_name);
+    tracemsg = funcname + " " + tracemsg;
+
+    frame = frame->f_back;
+  }
+  
+  tracemsg = tracemsg + "\n";
+  Rprintf(tracemsg.c_str());
+  
   return 0;
 }
 

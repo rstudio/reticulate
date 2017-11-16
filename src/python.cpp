@@ -1412,8 +1412,10 @@ int py_tracefunc(PyObject *obj, PyFrameObject *frame, int what, PyObject *arg) {
     frame = frame->f_back;
   }
   
-  tracemsg = tracemsg + "\n";
-  Rprintf(tracemsg.c_str());
+  Rcpp::Environment base("package:base"); 
+  Rcpp::Function message = base["message"];  
+  
+  message(tracemsg.c_str());
   
   return 0;
 }

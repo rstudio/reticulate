@@ -1398,8 +1398,8 @@ void py_activate_virtualenv(const std::string& script)
     stop(py_fetch_error());
 }
 
-void trace_print(PyFrameObject *frame) {
-  std::string tracemsg = "TRACE: [";
+void trace_print(int threadId, PyFrameObject *frame) {
+  std::string tracemsg = "";
   while (NULL != frame) {
     std::string filename = as_std_string(frame->f_code->co_filename);
     std::string funcname = as_std_string(frame->f_code->co_name);
@@ -1408,11 +1408,7 @@ void trace_print(PyFrameObject *frame) {
     frame = frame->f_back;
   }
   
-  // Rcpp::Environment base("package:base"); 
-  // Rcpp::Function message = base["message"];  
-  
-  // message(tracemsg.c_str());
-  tracemsg += "]\n";
+  tracemsg = "THREAD(" + std::to_string(threadId) + "): [" + tracemsg + "]\n";
   fprintf(stderr, tracemsg.c_str(), tracemsg.size());
 }
 
@@ -1421,7 +1417,7 @@ int py_tracefunc(PyObject *obj, PyFrameObject *frame, int what, PyObject *arg) {
   if (clock() - py_tracefunc_interval < CLOCKS_PER_SEC) return 0;
   py_tracefunc_interval = clock();
   
-  trace_print(frame);
+  trace_print(0, frame);
   
   return 0;
 }
@@ -1433,9 +1429,12 @@ void trace_thread_main(void* aArg) {
     PyGILState_STATE gstate;
     gstate = PyGILState_Ensure();
     
-    PyThreadState* state = PyGILState_GetThisThreadState();
+    PyThreadState* pState = PyGILState_GetThisThreadState();
     
-    trace_print(state->frame);
+    while (pState != NULL) {
+      trace_print(pState->thread_id, pState->frame);
+      pState = PyThreadState_Next(pState);
+    }
     
     PyGILState_Release(gstate);
     

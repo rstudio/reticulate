@@ -236,6 +236,7 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
   LOAD_PYTHON_SYMBOL(PyGILState_GetThisThreadState)
   LOAD_PYTHON_SYMBOL(PyGILState_Ensure)
   LOAD_PYTHON_SYMBOL(PyGILState_Release)
+  LOAD_PYTHON_SYMBOL(PyThreadState_Next)
 
   // PyUnicode_AsEncodedString may have several different names depending on the Python
   // version and the UCS build type 

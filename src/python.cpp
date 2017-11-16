@@ -1408,7 +1408,7 @@ void trace_print(int threadId, PyFrameObject *frame) {
     frame = frame->f_back;
   }
   
-  tracemsg = "THREAD(" + std::to_string(threadId) + "): [" + tracemsg + "]\n";
+  tracemsg = "THREAD: [" + tracemsg + "]\n";
   fprintf(stderr, tracemsg.c_str(), tracemsg.size());
 }
 

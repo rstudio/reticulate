@@ -106,10 +106,9 @@
     </div>
 
     <div class="contents">
-    <div id="reticulate-1-3-development" class="section level2">
+    <div id="reticulate-1-3-cran" class="section level2">
 <h2 class="hasAnchor">
-<a href="#reticulate-1-3-development" class="anchor"></a>reticulate 1.3 (development)</h2>
-<p>Install the development version with: <code>install_github("rstudio/reticulate")</code></p>
+<a href="#reticulate-1-3-cran" class="anchor"></a>reticulate 1.3 (CRAN)</h2>
 <ul>
 <li><p>Use existing instance of Python when reticulate is loaded within an embedded Python environment (e.g. rpy2, rice, etc.)</p></li>
 <li><p>Force use of Python specified in PYTHON_SESSION_INITIALIZED (defined by rpy2)</p></li>
@@ -128,11 +127,14 @@
 <li><p>Added <code>array_reshape</code> function for reshaping R arrays using NumPy (row-major) semantics.</p></li>
 <li><p>Provide mechanism for custom R wrapper objects for Python objects</p></li>
 <li><p>Added interface to pickle (<code><a href="../reference/py_save_object.html">py_save_object()</a></code> and <code><a href="../reference/py_save_object.html">py_load_object()</a></code>)</p></li>
+<li><p>Catch and print errors which occur in generator functions</p></li>
+<li><p>Write using Rprintf when providing custom Python output streams (enables correct handling of terminal control characters)</p></li>
+<li><p>Implement <code>isatty</code> when providing custom Python output streams</p></li>
 </ul>
 </div>
-    <div id="reticulate-1-2-cran" class="section level2">
+    <div id="reticulate-1-2" class="section level2">
 <h2 class="hasAnchor">
-<a href="#reticulate-1-2-cran" class="anchor"></a>reticulate 1.2 (CRAN)</h2>
+<a href="#reticulate-1-2" class="anchor"></a>reticulate 1.2</h2>
 <ul>
 <li><p>Add <code>np_array</code> function for creating NumPy arrays and converting the data type, dimensions, and in-memory ordering of existing NumPy arrays.</p></li>
 <li><p>Add <code>dim</code> and <code>length</code> functions for NumPy arrays</p></li>
@@ -239,8 +241,8 @@ primitive R functions (don’t check environment inheritance chain when looking 
     <div id="tocnav">
       <h2>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
-        <li><a href="#reticulate-1-3-development">1.3</a></li>
-        <li><a href="#reticulate-1-2-cran">1.2</a></li>
+        <li><a href="#reticulate-1-3-cran">1.3</a></li>
+        <li><a href="#reticulate-1-2">1.2</a></li>
         <li><a href="#reticulate-1-1">1.1</a></li>
         <li><a href="#reticulate-1-0">1.0</a></li>
         <li><a href="#reticulate-0-9">0.9</a></li>

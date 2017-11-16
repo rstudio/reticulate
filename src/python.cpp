@@ -1398,26 +1398,54 @@ void py_activate_virtualenv(const std::string& script)
     stop(py_fetch_error());
 }
 
+void trace_print(PyFrameObject *frame) {
+  std::string tracemsg = "TRACE: [";
+  while (NULL != frame) {
+    std::string filename = as_std_string(frame->f_code->co_filename);
+    std::string funcname = as_std_string(frame->f_code->co_name);
+    tracemsg = funcname + " " + tracemsg;
+    
+    frame = frame->f_back;
+  }
+  
+  // Rcpp::Environment base("package:base"); 
+  // Rcpp::Function message = base["message"];  
+  
+  // message(tracemsg.c_str());
+  tracemsg += "]\n";
+  fprintf(stderr, tracemsg.c_str(), tracemsg.size());
+}
+
 clock_t py_tracefunc_interval = 0;
 int py_tracefunc(PyObject *obj, PyFrameObject *frame, int what, PyObject *arg) {
   if (clock() - py_tracefunc_interval < CLOCKS_PER_SEC) return 0;
   py_tracefunc_interval = clock();
   
-  std::string tracemsg = "";
-  while (NULL != frame) {
-    std::string filename = as_std_string(frame->f_code->co_filename);
-    std::string funcname = as_std_string(frame->f_code->co_name);
-    tracemsg = funcname + " " + tracemsg;
-
-    frame = frame->f_back;
-  }
-  
-  Rcpp::Environment base("package:base"); 
-  Rcpp::Function message = base["message"];  
-  
-  message(tracemsg.c_str());
+  trace_print(frame);
   
   return 0;
+}
+
+void trace_thread_main(void* aArg) {
+  using namespace tthread;
+  
+  while (true) {
+    PyGILState_STATE gstate;
+    gstate = PyGILState_Ensure();
+    
+    PyThreadState* state = PyGILState_GetThisThreadState();
+    
+    trace_print(state->frame);
+    
+    PyGILState_Release(gstate);
+    
+    this_thread::sleep_for(chrono::milliseconds(1000));
+  }
+}
+
+tthread::thread* ptrace_thread;
+void trace_thread_init() {
+  ptrace_thread = new tthread::thread(trace_thread_main, NULL);
 }
 
 // [[Rcpp::export]]
@@ -1502,7 +1530,8 @@ void py_initialize(const std::string& python,
     s_numpy_load_error = numpy_load_error;
   
   // initialize trace
-  PyEval_SetProfile(&py_tracefunc, NULL);
+  // PyEval_SetProfile(&py_tracefunc, NULL);
+  trace_thread_init();
   
   // poll for events while executing python code
   event_loop::initialize();

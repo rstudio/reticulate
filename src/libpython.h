@@ -638,7 +638,14 @@ typedef struct _frame {
   PyObject *f_localsplus[1];	/* locals+stack, dynamically sized */
 } PyFrameObject;
 
+typedef
+  enum {PyGILState_LOCKED, PyGILState_UNLOCKED}
+PyGILState_STATE;
+
 LIBPYTHON_EXTERN void (*PyEval_SetProfile)(Py_tracefunc func, PyObject *obj);
+LIBPYTHON_EXTERN PyThreadState* (*PyGILState_GetThisThreadState)(void);
+LIBPYTHON_EXTERN PyGILState_STATE (*PyGILState_Ensure)(void);
+LIBPYTHON_EXTERN void (*PyGILState_Release)(PyGILState_STATE);
 
 /* End PyFrameObject */
 

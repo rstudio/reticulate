@@ -16,6 +16,7 @@ test_that("Objects can be saved and loaded with pickle", {
 
 test_that("The cPickle implementation can be used", {
   skip_if_no_python()
+  skip_on_cran()
   expect_error({
     x <- dict()
     x$a <- 1

@@ -14,6 +14,10 @@ Install the development version with: `install_github("rstudio/reticulate")`
 
 ## reticulate 1.3
 
+- Support for `RETICULATE_TRACE` environment variable which can be set to
+  the number of milliseconds in which to output into stderr the call stacks
+  from all running threads.
+
 - Use existing instance of Python when reticulate is loaded within an 
   embedded Python environment (e.g. rpy2, rice, etc.)
 

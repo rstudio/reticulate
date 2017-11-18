@@ -127,7 +127,7 @@ eng_python <- function(options) {
   }
   
   # if we have leftover input, add that now
-  if (pending_source_index < n) {
+  if (pending_source_index <= n) {
     leftover <- extract(code, c(pending_source_index, n))
     outputs[[length(outputs) + 1]] <- structure(
       list(src = leftover),

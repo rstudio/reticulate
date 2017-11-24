@@ -58,3 +58,13 @@ mpg = r["mtcars$mpg[1:5]"]
 print mpg
 ```
 
+- #126: Ensure single-line Python chunks that produce no output still have source code emitted.
+
+```{python}
+y = "a,b,c".split(",")
+```
+
+```{python}
+print y
+```
+

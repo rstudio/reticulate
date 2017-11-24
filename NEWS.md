@@ -1,5 +1,11 @@
 
-## reticulate 1.3 (CRAN)
+## reticulate 1.3.1 (CRAN)
+
+- Bugfix: ensure single-line Python chunks that produce no output still 
+  have source code emitted.
+
+
+## reticulate 1.3
 
 - Use existing instance of Python when reticulate is loaded within an 
   embedded Python environment (e.g. rpy2, rice, etc.)

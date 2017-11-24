@@ -1,6 +1,8 @@
 context("knitr")
 
 test_that("An R Markdown document can be rendered using reticulate", {
+  
+  skip_on_cran()
   skip_if_not_installed("rmarkdown")
   
   modules <- c("numpy", "matplotlib")

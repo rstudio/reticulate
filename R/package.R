@@ -87,7 +87,7 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
                           Sys.getenv("PATH"),
                           sep = .Platform$path.sep))  
   
-  trace_ms <- Sys.getenv("RETICULATE_TRACE", 0)
+  trace_ms <- Sys.getenv("RETICULATE_DUMP_STACK_TRACE", 0)
   
   # initialize python
   py_initialize(config$python,
@@ -97,7 +97,7 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
                 config$version >= "3.0",
                 interactive(),
                 numpy_load_error,
-                as.numeric(trace_ms))
+                as.integer(trace_ms))
   
   # if we have a virtualenv then set the VIRTUAL_ENV environment variable
   if (nzchar(config$virtualenv_activate))

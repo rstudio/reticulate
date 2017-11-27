@@ -5,7 +5,7 @@
 
 Install the development version with: `install_github("rstudio/reticulate")`
 
-- Support for `RETICULATE_TRACE` environment variable which can be set to
+- Support for `RETICULATE_DUMP_STACK_TRACE` environment variable which can be set to
   the number of milliseconds in which to output into stderr the call stacks
   from all running threads.
   

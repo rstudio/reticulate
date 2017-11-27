@@ -55,7 +55,7 @@ py_function_wrapper <- function(python_function, r_prefix = NULL, r_function = N
     if (!is.null(r_prefix))
       r_function <- paste(r_prefix, r_function, sep = "_")
   }
-  signature <- sub(paste0(r_function, "\\("), paste(r_function, "<- function("), docs$signature)
+  signature <- sub(paste0(docs$name, "\\("), paste(r_function, "<- function("), docs$signature)
   write(paste(signature, "{"), file = con)
   
   # delegation

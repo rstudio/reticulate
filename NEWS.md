@@ -4,6 +4,8 @@
 - Bugfix: ensure single-line Python chunks that produce no output still 
   have source code emitted.
 
+- Provide hook to change target module when delay loading
+
 
 ## reticulate 1.3
 

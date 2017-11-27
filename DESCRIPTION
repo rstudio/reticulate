@@ -35,7 +35,8 @@ Imports:
     Rcpp (>= 0.12.7)
 Suggests:
     testthat,
-    knitr
+    knitr,
+    callr
 LinkingTo: Rcpp
 RoxygenNote: 6.0.1
 Roxygen: list(markdown = TRUE)

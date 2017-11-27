@@ -73,6 +73,7 @@ import <- function(module, as = NULL, convert = TRUE, delay_load = FALSE) {
     module_proxy$module <- module
     module_proxy$convert <- convert
     if (!is.null(delay_load_functions)) {
+      module_proxy$get_module <- delay_load_functions$get_module
       module_proxy$on_load <- delay_load_functions$on_load
       module_proxy$on_error <- delay_load_functions$on_error
     }
@@ -1162,10 +1163,7 @@ py_is_module_proxy <- function(x) {
 
 py_resolve_module_proxy <- function(proxy) {
   
-  # name of module to import
-  module <- get("module", envir = proxy)
-  
-  # collect on_load and on_error
+  # collect module proxy hooks
   collect_value <- function(name) {
     if (exists(name, envir = proxy, inherits = FALSE)) {
       value <- get(name, envir = proxy, inherits = FALSE)
@@ -1175,6 +1173,16 @@ py_resolve_module_proxy <- function(proxy) {
       NULL
     }
   }
+  
+  # name of module to import (allow just in time customization via hook)
+  get_module <- collect_value("get_module")
+  if (!is.null(get_module))
+    assign("module", get_module(), envir = proxy)
+  
+  # get module name
+  module <- get("module", envir = proxy)
+    
+  # load and error handlers
   on_load <- collect_value("on_load")
   on_error <- collect_value("on_error")
   

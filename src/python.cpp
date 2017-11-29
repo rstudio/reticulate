@@ -10,6 +10,7 @@ using namespace Rcpp;
 #include "tinythread.h"
 
 #include <fstream>
+#include <time.h>
 
 using namespace libpython;
 
@@ -1397,6 +1398,46 @@ void py_activate_virtualenv(const std::string& script)
     stop(py_fetch_error());
 }
 
+void trace_print(int threadId, PyFrameObject *frame) {
+  std::string tracemsg = "";
+  while (NULL != frame) {
+    std::string filename = as_std_string(frame->f_code->co_filename);
+    std::string funcname = as_std_string(frame->f_code->co_name);
+    tracemsg = funcname + " " + tracemsg;
+    
+    frame = frame->f_back;
+  }
+  
+  tracemsg = "THREAD: [" + tracemsg + "]\n";
+  fprintf(stderr, tracemsg.c_str(), tracemsg.size());
+}
+
+void trace_thread_main(void* aArg) {
+  using namespace tthread;
+  
+  int* tracems = (int*)aArg;
+  
+  while (true) {
+    PyGILState_STATE gstate;
+    gstate = PyGILState_Ensure();
+    
+    PyThreadState* pState = PyGILState_GetThisThreadState();
+    
+    while (pState != NULL) {
+      trace_print(pState->thread_id, pState->frame);
+      pState = PyThreadState_Next(pState);
+    }
+    
+    PyGILState_Release(gstate);
+    
+    this_thread::sleep_for(chrono::milliseconds(*tracems));
+  }
+}
+
+tthread::thread* ptrace_thread;
+void trace_thread_init(int tracems) {
+  ptrace_thread = new tthread::thread(trace_thread_main, &tracems);
+}
 
 // [[Rcpp::export]]
 void py_initialize(const std::string& python,
@@ -1405,7 +1446,8 @@ void py_initialize(const std::string& python,
                    const std::string& virtualenv_activate,
                    bool python3,
                    bool interactive,
-                   const std::string& numpy_load_error) {
+                   const std::string& numpy_load_error,
+                   int tracems) {
 
   // set python3 and interactive flags
   s_isPython3 = python3;
@@ -1478,6 +1520,9 @@ void py_initialize(const std::string& python,
     import_numpy_api(is_python3(), &s_numpy_load_error);
   else
     s_numpy_load_error = numpy_load_error;
+  
+  // initialize trace
+  if (tracems > 0) trace_thread_init(tracems);
   
   // poll for events while executing python code
   event_loop::initialize();

@@ -519,6 +519,137 @@ inline SharedLibrary& libPython() {
   return instance;
 }
 
+/* Start PyFrameObject */
+
+/* Bytecode object */
+typedef struct {
+  PyObject_HEAD
+  int co_argcount;		/* #arguments, except *args */
+  int co_nlocals;		/* #local variables */
+  int co_stacksize;		/* #entries needed for evaluation stack */
+  int co_flags;		/* CO_..., see below */
+  PyObject *co_code;		/* instruction opcodes */
+  PyObject *co_consts;	/* list (constants used) */
+  PyObject *co_names;		/* list of strings (names used) */
+  PyObject *co_varnames;	/* tuple of strings (local variable names) */
+  PyObject *co_freevars;	/* tuple of strings (free variable names) */
+  PyObject *co_cellvars;      /* tuple of strings (cell variable names) */
+  /* The rest doesn't count for hash/cmp */
+  PyObject *co_filename;	/* string (where it was loaded from) */
+  PyObject *co_name;		/* string (name, for reference) */
+  int co_firstlineno;		/* first source line number */
+  PyObject *co_lnotab;	/* string (encoding addr<->lineno mapping) See
+  Objects/lnotab_notes.txt for details. */
+  void *co_zombieframe;     /* for optimization only (see frameobject.c) */
+  PyObject *co_weakreflist;   /* to support weakrefs to code objects */
+} PyCodeObject;
+
+#define CO_MAXBLOCKS 20
+typedef struct {
+  int b_type;         /* what kind of block this is */
+  int b_handler;      /* where to jump to find handler */
+  int b_level;        /* value stack level to pop to */
+} PyTryBlock;
+
+typedef struct _is {
+  
+  struct _is *next;
+  struct _ts *tstate_head;
+  
+  PyObject *modules;
+  PyObject *modules_by_index;
+  PyObject *sysdict;
+  PyObject *builtins;
+  PyObject *modules_reloading;
+  
+  PyObject *codec_search_path;
+  PyObject *codec_search_cache;
+  PyObject *codec_error_registry;
+  int codecs_initialized;
+  
+} PyInterpreterState;
+
+typedef int (*Py_tracefunc)(PyObject *, struct _frame *, int, PyObject *);
+
+typedef struct _ts {
+  /* See Python/ceval.c for comments explaining most fields */
+  
+  struct _ts *next;
+  PyInterpreterState *interp;
+  
+  struct _frame *frame;
+  int recursion_depth;
+  char overflowed; /* The stack has overflowed. Allow 50 more calls
+  to handle the runtime error. */
+  char recursion_critical; /* The current calls must not cause 
+  a stack overflow. */
+  /* 'tracing' keeps track of the execution depth when tracing/profiling.
+  This is to prevent the actual trace/profile code from being recorded in
+  the trace/profile. */
+  int tracing;
+  int use_tracing;
+  
+  Py_tracefunc c_profilefunc;
+  Py_tracefunc c_tracefunc;
+  PyObject *c_profileobj;
+  PyObject *c_traceobj;
+  
+  PyObject *curexc_type;
+  PyObject *curexc_value;
+  PyObject *curexc_traceback;
+  
+  PyObject *exc_type;
+  PyObject *exc_value;
+  PyObject *exc_traceback;
+  
+  PyObject *dict;
+
+  int tick_counter;
+  
+  int gilstate_counter;
+  
+  PyObject *async_exc;
+  long thread_id;
+  
+} PyThreadState;
+
+typedef struct _frame {
+  PyObject_VAR_HEAD
+  struct _frame *f_back;	/* previous frame, or NULL */
+  PyCodeObject *f_code;	/* code segment */
+  PyObject *f_builtins;	/* builtin symbol table (PyDictObject) */
+  PyObject *f_globals;	/* global symbol table (PyDictObject) */
+  PyObject *f_locals;		/* local symbol table (any mapping) */
+  PyObject **f_valuestack;	/* points after the last local */
+  /* Next free slot in f_valuestack.  Frame creation sets to f_valuestack.
+  Frame evaluation usually NULLs it, but a frame that yields sets it
+  to the current stack top. */
+  PyObject **f_stacktop;
+  PyObject *f_trace;		/* Trace function */
+  
+  PyObject *f_exc_type, *f_exc_value, *f_exc_traceback;
+  
+  PyThreadState *f_tstate;
+  int f_lasti;		/* Last instruction if called */
+  
+  int f_lineno;		/* Current line number */
+  int f_iblock;		/* index in f_blockstack */
+  PyTryBlock f_blockstack[CO_MAXBLOCKS]; /* for try and loop blocks */
+  PyObject *f_localsplus[1];	/* locals+stack, dynamically sized */
+} PyFrameObject;
+
+typedef
+  enum {PyGILState_LOCKED, PyGILState_UNLOCKED}
+PyGILState_STATE;
+
+LIBPYTHON_EXTERN void (*PyEval_SetProfile)(Py_tracefunc func, PyObject *obj);
+LIBPYTHON_EXTERN PyThreadState* (*PyGILState_GetThisThreadState)(void);
+LIBPYTHON_EXTERN PyGILState_STATE (*PyGILState_Ensure)(void);
+LIBPYTHON_EXTERN void (*PyGILState_Release)(PyGILState_STATE);
+LIBPYTHON_EXTERN PyThreadState* (*PyThreadState_Next)(PyThreadState*);
+
+/* End PyFrameObject */
+
 } // namespace libpython
 
 #endif

@@ -1,6 +1,4 @@
-## reticulate 1.4 (development)
 
-<<<<<<< HEAD
 ## reticulate 1.4 (development)
 
 Install the development version with: `install_github("rstudio/reticulate")`
@@ -19,10 +17,6 @@ Install the development version with: `install_github("rstudio/reticulate")`
 
 
 ## reticulate 1.3
-=======
-Install the development version with: `install_github("rstudio/reticulate")`
-  
-## reticulate 1.3 (CRAN)
 
 - Use existing instance of Python when reticulate is loaded within an 
   embedded Python environment (e.g. rpy2, rice, etc.)

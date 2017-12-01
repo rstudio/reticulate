@@ -235,6 +235,7 @@ python_environment_versions <- function() {
     # all possible environment dirs
     env_dirs <- c(workon_home, "~/.virtualenvs", 
                   "~/anaconda/envs", "~/anaconda3/envs", "~/anaconda3/envs", 
+                  "/anaconda/envs", "/anaconda3/envs", 
                   "~")
     python_env_binaries <- python_environments(env_dirs)
     data.frame(name = basename(dirname(dirname(python_env_binaries))), 

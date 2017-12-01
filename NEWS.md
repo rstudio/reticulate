@@ -9,6 +9,8 @@ Install the development version with: `install_github("rstudio/reticulate")`
   
 - Provide hook to change target module when delay loading
 
+- Scan for conda environments in system-level installations 
+
 
 ## reticulate 1.3.1 (CRAN)
 

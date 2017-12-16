@@ -260,7 +260,9 @@ find_conda <- function() {
       path.expand("~/anaconda/bin/conda"),
       path.expand("~/anaconda2/bin/conda"),
       path.expand("~/anaconda3/bin/conda"),
-      path.expand("~/anaconda4/bin/conda")
+      path.expand("~/miniconda/bin/conda"),
+      path.expand("~/miniconda2/bin/conda"),
+      path.expand("~/miniconda3/bin/conda"),
     )
     if (is_windows()) {
       anaconda_versions <- windows_registry_anaconda_versions()

@@ -68,3 +68,32 @@ y = "a,b,c".split(",")
 print y
 ```
 
+- #130: The `echo` chunk option is respected (for `TRUE` and `FALSE` values). Output, but not source, should show in the following output.
+
+```{python echo=FALSE}
+print "Chunk with echo = FALSE"
+```
+
+- #130: The `results` chunk option is respected for Python outputs. Source, but not output, should show in the following output.
+
+```{python results='hide'}
+print "Chunk with results = 'hide'"
+```
+
+- #130: The `include` chunk option is respected for Python outputs. No chunk output should appear following this bullet.
+
+```{python include=FALSE}
+print "Chunk with include = FALSE"
+```
+
+- #130: The `eval` chunk option is respected for Python outputs.
+
+```{python eval=FALSE}
+# We have set 'eval = FALSE' here
+r["abc"] = 1
+```
+
+```{r}
+exists("abc", envir = globalenv())
+```
+

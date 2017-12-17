@@ -233,9 +233,24 @@ python_environment_versions <- function() {
     if (is.na(workon_home))
       workon_home <- NULL
     # all possible environment dirs
-    env_dirs <- c(workon_home, "~/.virtualenvs", 
-                  "~/anaconda/envs", "~/anaconda3/envs", "~/anaconda3/envs", "~/miniconda/envs", "~/miniconda3/envs",
-                  "/anaconda/envs", "/anaconda3/envs", "/miniconda/envs", "/miniconda3/envs",
+    env_dirs <- c(workon_home,
+                  "~/.virtualenvs", 
+                  "~/anaconda/envs",
+                  "~/anaconda2/envs",
+                  "~/anaconda3/envs",
+                  "~/anaconda4/envs",
+                  "~/miniconda/envs",
+                  "~/miniconda2/envs",
+                  "~/miniconda3/envs",
+                  "~/miniconda4/envs",
+                  "/anaconda/envs",
+                  "/anaconda2/envs",
+                  "/anaconda3/envs",
+                  "/anaconda4/envs",
+                  "/miniconda/envs",
+                  "/miniconda2/envs",
+                  "/miniconda3/envs",
+                  "/miniconda4/envs",
                   "~")
     python_env_binaries <- python_environments(env_dirs)
     data.frame(name = basename(dirname(dirname(python_env_binaries))), 

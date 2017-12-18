@@ -1409,7 +1409,7 @@ void trace_print(int threadId, PyFrameObject *frame) {
   }
   
   tracemsg = "THREAD: [" + tracemsg + "]\n";
-  fprintf(stderr, tracemsg.c_str(), tracemsg.size());
+  PySys_WriteStderr(tracemsg.c_str());
 }
 
 void trace_thread_main(void* aArg) {

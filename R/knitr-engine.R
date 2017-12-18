@@ -96,28 +96,39 @@ eng_python <- function(options) {
   
   for (range in ranges) {
     
-    # evaluate current chunk of code
+    # extract code to be run
     snippet <- extract(code, range)
-    captured <- py_capture_output(
-      py_run_string(snippet, convert = FALSE)
-    )
+    
+    # run code and capture output (leave output
+    # empty for 'eval = FALSE' case
+    captured <- ""
+    if (!identical(options$eval, FALSE)) {
+      if (is.numeric(options$eval))
+        warning("numeric 'eval' chunk option not supported by reticulate engine")
+      captured <- py_capture_output(py_run_string(snippet, convert = FALSE))
+    }
     
     if (nzchar(captured) || length(context$pending_plots)) {
       
-      # append pending source to outputs
-      outputs[[length(outputs) + 1]] <- structure(
-        list(src = extract(code, c(pending_source_index, range[2]))),
-        class = "source"
-      )
+      # append pending source to outputs (respecting 'echo' option)
+      if (!identical(options$echo, FALSE)) {
+        extracted <- extract(code, c(pending_source_index, range[2]))
+        if (is.numeric(options$echo))
+          warning("numeric 'echo' chunk option not supported by reticulate engine")
+        output <- structure(list(src = extracted), class = "source")
+        outputs[[length(outputs) + 1]] <- output
+      }
       
       # append captured outputs
-      if (nzchar(captured))
+      if (nzchar(captured) && isTRUE(options$include))
         outputs[[length(outputs) + 1]] <- captured
       
       # append captured images / figures
       if (length(context$pending_plots)) {
-        for (plot in context$pending_plots)
-          outputs[[length(outputs) + 1]] <- plot
+        if (isTRUE(options$include)) {
+          for (plot in context$pending_plots)
+            outputs[[length(outputs) + 1]] <- plot
+        }
         context$pending_plots <- list()
       }
       

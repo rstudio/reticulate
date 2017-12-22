@@ -1446,8 +1446,7 @@ void py_initialize(const std::string& python,
                    const std::string& virtualenv_activate,
                    bool python3,
                    bool interactive,
-                   const std::string& numpy_load_error,
-                   int tracems) {
+                   const std::string& numpy_load_error) {
 
   // set python3 and interactive flags
   s_isPython3 = python3;
@@ -1522,7 +1521,11 @@ void py_initialize(const std::string& python,
     s_numpy_load_error = numpy_load_error;
   
   // initialize trace
-  if (tracems > 0) trace_thread_init(tracems);
+  Function sysGetEnv("Sys.getenv");
+  std::string tracems_env = as<std::string>(sysGetEnv("RETICULATE_DUMP_STACK_TRACE", 0));
+  int tracems = ::atoi(tracems_env.c_str());
+  if (tracems > 0) 
+    trace_thread_init(tracems);
   
   // poll for events while executing python code
   event_loop::initialize();

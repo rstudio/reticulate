@@ -91,8 +91,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // py_initialize
-void py_initialize(const std::string& python, const std::string& libpython, const std::string& pythonhome, const std::string& virtualenv_activate, bool python3, bool interactive, const std::string& numpy_load_error, int tracems);
-RcppExport SEXP _reticulate_py_initialize(SEXP pythonSEXP, SEXP libpythonSEXP, SEXP pythonhomeSEXP, SEXP virtualenv_activateSEXP, SEXP python3SEXP, SEXP interactiveSEXP, SEXP numpy_load_errorSEXP, SEXP tracemsSEXP) {
+void py_initialize(const std::string& python, const std::string& libpython, const std::string& pythonhome, const std::string& virtualenv_activate, bool python3, bool interactive, const std::string& numpy_load_error);
+RcppExport SEXP _reticulate_py_initialize(SEXP pythonSEXP, SEXP libpythonSEXP, SEXP pythonhomeSEXP, SEXP virtualenv_activateSEXP, SEXP python3SEXP, SEXP interactiveSEXP, SEXP numpy_load_errorSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const std::string& >::type python(pythonSEXP);
@@ -102,8 +102,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< bool >::type python3(python3SEXP);
     Rcpp::traits::input_parameter< bool >::type interactive(interactiveSEXP);
     Rcpp::traits::input_parameter< const std::string& >::type numpy_load_error(numpy_load_errorSEXP);
-    Rcpp::traits::input_parameter< int >::type tracems(tracemsSEXP);
-    py_initialize(python, libpython, pythonhome, virtualenv_activate, python3, interactive, numpy_load_error, tracems);
+    py_initialize(python, libpython, pythonhome, virtualenv_activate, python3, interactive, numpy_load_error);
     return R_NilValue;
 END_RCPP
 }
@@ -486,7 +485,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_reticulate_py_is_callable", (DL_FUNC) &_reticulate_py_is_callable, 1},
     {"_reticulate_r_to_py_impl", (DL_FUNC) &_reticulate_r_to_py_impl, 2},
     {"_reticulate_py_activate_virtualenv", (DL_FUNC) &_reticulate_py_activate_virtualenv, 1},
-    {"_reticulate_py_initialize", (DL_FUNC) &_reticulate_py_initialize, 8},
+    {"_reticulate_py_initialize", (DL_FUNC) &_reticulate_py_initialize, 7},
     {"_reticulate_py_finalize", (DL_FUNC) &_reticulate_py_finalize, 0},
     {"_reticulate_py_is_none", (DL_FUNC) &_reticulate_py_is_none, 1},
     {"_reticulate_py_compare_impl", (DL_FUNC) &_reticulate_py_compare_impl, 3},

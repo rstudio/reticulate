@@ -27,6 +27,8 @@ In this case, the various versions of Python installed on the system will be sca
 
 By default, the version of Python found on the system `PATH` is checked first, and then a number of other conventional location for Py Python (e.g. `/usr/local/bin/python`, `/opt/local/bin/python`, etc.) are checked.
 
+Note that in order for reticulate to bind to a version of Python it must be compiled with shared library support (i.e. with the `--enable-shared` flag).
+
 ## Providing Hints
 
 There are two ways you can provide hints as to which version of Python should be used:

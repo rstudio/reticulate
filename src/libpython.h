@@ -197,9 +197,9 @@ LIBPYTHON_EXTERN PyObject* (*PyList_GetItem)(PyObject *, Py_ssize_t);
 LIBPYTHON_EXTERN int (*PyList_SetItem)(PyObject *, Py_ssize_t, PyObject *);
 
 LIBPYTHON_EXTERN int (*PyString_AsStringAndSize)(
-    register PyObject *obj,	/* string or Unicode object */
-    register char **s,		/* pointer to buffer variable */
-    register Py_ssize_t *len	/* pointer to length variable or NULL
+    PyObject *obj,	/* string or Unicode object */
+    char **s,		/* pointer to buffer variable */
+    Py_ssize_t *len	/* pointer to length variable or NULL
   (only possible for 0-terminated
   strings) */
 );

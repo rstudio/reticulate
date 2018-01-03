@@ -112,9 +112,9 @@ eng_python <- function(options) {
       
       # append pending source to outputs (respecting 'echo' option)
       if (!identical(options$echo, FALSE)) {
-        extracted <- extract(code, c(pending_source_index, range[2]))
         if (is.numeric(options$echo))
           warning("numeric 'echo' chunk option not supported by reticulate engine")
+        extracted <- extract(code, c(pending_source_index, range[2]))
         output <- structure(list(src = extracted), class = "source")
         outputs[[length(outputs) + 1]] <- output
       }
@@ -138,7 +138,9 @@ eng_python <- function(options) {
   }
   
   # if we have leftover input, add that now
-  if (pending_source_index <= n) {
+  if (!identical(options$echo, FALSE) && pending_source_index <= n) {
+    if (is.numeric(options$echo))
+      warning("numeric 'echo' chunk option not supported by reticulate engine")
     leftover <- extract(code, c(pending_source_index, n))
     outputs[[length(outputs) + 1]] <- structure(
       list(src = leftover),

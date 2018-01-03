@@ -164,6 +164,14 @@ eng_python_initialize <- function(options, context, envir) {
   eng_python_initialize_matplotlib(options, context, envir)
 }
 
+eng_python_matplotlib_show <- function(plt, options) {
+  plot_counter <- yoink("knitr", "plot_counter")
+  path <- knitr::fig_path(options$dev, number = plot_counter())
+  dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
+  plt$savefig(path, dpi = options$dpi)
+  knitr::include_graphics(path)
+}
+
 eng_python_initialize_matplotlib <- function(options,
                                              context,
                                              envir)
@@ -177,8 +185,8 @@ eng_python_initialize_matplotlib <- function(options,
   matplotlib <- import("matplotlib", convert = FALSE)
   plt <- matplotlib$pyplot
   
-  # rudely steal 'plot_counter' (used below), and reset
-  # it when we're done
+  # rudely steal 'plot_counter' (used by default 'show()' implementation below)
+  # and then reset the counter when we're done
   plot_counter <- yoink("knitr", "plot_counter")
   defer(plot_counter(reset = TRUE), envir = envir)
   
@@ -186,15 +194,9 @@ eng_python_initialize_matplotlib <- function(options,
   show <- plt$show
   defer(plt$show <- show, envir = envir)
   plt$show <- function(...) {
-    
-    # write plot to file
-    path <- knitr::fig_path(options$dev, number = plot_counter())
-    dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
-    plt$savefig(path, dpi = options$dpi)
-    
-    # return as a knitr image path
-    context$pending_plots[[length(context$pending_plots) + 1]] <<-
-      knitr::include_graphics(path)
+    hook <- getOption("reticulate.matplotlib.show", eng_python_matplotlib_show)
+    graphic <- hook(plt, options)
+    context$pending_plots[[length(context$pending_plots) + 1]] <<- graphic
   }
   
   # set up figure dimensions

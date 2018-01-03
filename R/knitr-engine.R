@@ -106,6 +106,10 @@ eng_python <- function(options) {
       if (is.numeric(options$eval))
         warning("numeric 'eval' chunk option not supported by reticulate engine")
       captured <- py_capture_output(py_run_string(snippet, convert = FALSE))
+      
+      # trim a trailing newline
+      if (nzchar(captured))
+        captured <- sub("\n$", "", captured)
     }
     
     if (nzchar(captured) || length(context$pending_plots)) {
@@ -214,13 +218,11 @@ eng_python_synchronize_before <- function() {
   R <- main$R
   
   # extract active knit environment
-  .knitEnv <- yoink("knitr", ".knitEnv")
-  envir <- .knitEnv$knit_global
-  
-  # when running in notebook mode, no environment will be set -- in such
-  # a case we want the R code to populate in the global environment
-  if (is.null(envir))
-    envir <- globalenv()
+  envir <- getOption("reticulate.engine.environment")
+  if (is.null(envir)) {
+    .knitEnv <- yoink("knitr", ".knitEnv")
+    envir <- .knitEnv$knit_global
+  }
   
   # define the getters, setters we'll attach to the Python class
   getter <- function(self, code) {

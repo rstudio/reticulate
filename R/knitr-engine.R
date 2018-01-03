@@ -150,10 +150,7 @@ eng_python <- function(options) {
   
   eng_python_synchronize_after()
   
-  # TODO: development version of knitr supplies new 'engine_output()'
-  # interface -- use that when it's on CRAN
-  # https://github.com/yihui/knitr/commit/71bfd8796d485ed7bb9db0920acdf02464b3df9a
-  wrap <- yoink("knitr", "wrap")
+  wrap <- getOption("reticulate.engine.wrap", eng_python_wrap)
   wrap(outputs, options)
   
 }
@@ -196,7 +193,7 @@ eng_python_initialize_matplotlib <- function(options,
   show <- plt$show
   defer(plt$show <- show, envir = envir)
   plt$show <- function(...) {
-    hook <- getOption("reticulate.matplotlib.show", eng_python_matplotlib_show)
+    hook <- getOption("reticulate.engine.matplotlib.show", eng_python_matplotlib_show)
     graphic <- hook(plt, options)
     context$pending_plots[[length(context$pending_plots) + 1]] <<- graphic
   }
@@ -244,5 +241,12 @@ eng_python_synchronize_before <- function() {
 }
 
 # synchronize objects Python -> R
-eng_python_synchronize_after <- function() {
+eng_python_synchronize_after <- function() {}
+
+eng_python_wrap <- function(outputs, options) {
+  # TODO: development version of knitr supplies new 'engine_output()'
+  # interface -- use that when it's on CRAN
+  # https://github.com/yihui/knitr/commit/71bfd8796d485ed7bb9db0920acdf02464b3df9a
+  wrap <- yoink("knitr", "wrap")
+  wrap(outputs, options)
 }

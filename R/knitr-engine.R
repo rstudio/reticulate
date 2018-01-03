@@ -220,6 +220,11 @@ eng_python_synchronize_before <- function() {
   .knitEnv <- yoink("knitr", ".knitEnv")
   envir <- .knitEnv$knit_global
   
+  # when running in notebook mode, no environment will be set -- in such
+  # a case we want the R code to populate in the global environment
+  if (is.null(envir))
+    envir <- globalenv()
+  
   # define the getters, setters we'll attach to the Python class
   getter <- function(self, code) {
     r_to_py(eval(parse(text = as_r_value(code)), envir = envir))

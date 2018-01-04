@@ -97,3 +97,11 @@ r["abc"] = 1
 exists("abc", envir = globalenv())
 ```
 
+Respect the `error=TRUE` chunk option -- allow execution even after a Python
+error occurs.
+
+```{python, error=TRUE}
+raise RuntimeError("oops!")
+print "This line is still reached."
+```
+

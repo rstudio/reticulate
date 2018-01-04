@@ -61,6 +61,14 @@ eng_python <- function(options) {
     paste(snippet[nzchar(snippet)], collapse = "\n")
   }
   
+  # helper function for running a snippet of code and capturing output
+  run <- function(snippet) {
+    output <- py_capture_output(py_run_string(snippet, convert = FALSE))
+    if (nzchar(output))
+      output <- sub("\n$", "", output)
+    output
+  }
+  
   # extract the code to be run -- we'll attempt to run the code line by line
   # and detect changes so that we can interleave code and output (similar to
   # what one sees when executing an R chunk in knitr). to wit, we'll do our
@@ -105,11 +113,19 @@ eng_python <- function(options) {
     if (!identical(options$eval, FALSE)) {
       if (is.numeric(options$eval))
         warning("numeric 'eval' chunk option not supported by reticulate engine")
-      captured <- py_capture_output(py_run_string(snippet, convert = FALSE))
       
-      # trim a trailing newline
-      if (nzchar(captured))
-        captured <- sub("\n$", "", captured)
+      # error=TRUE implies that errors should be captured and converted
+      # into output messages
+      if (identical(options$error, TRUE)) {
+        tryCatch(
+          captured <- run(snippet),
+          error = function(e) {
+            captured <<- conditionMessage(e)
+          }
+        )
+      } else {
+        captured <- run(snippet)
+      }
     }
     
     if (nzchar(captured) || length(context$pending_plots)) {

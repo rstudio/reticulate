@@ -63,7 +63,10 @@ eng_python <- function(options) {
   
   # helper function for running a snippet of code and capturing output
   run <- function(snippet) {
-    py_capture_output(py_run_string(snippet, convert = FALSE))
+    output <- py_capture_output(py_run_string(snippet, convert = FALSE))
+    if (nzchar(output))
+      output <- sub("\n$", "", output)
+    output
   }
   
   # extract the code to be run -- we'll attempt to run the code line by line
@@ -123,10 +126,6 @@ eng_python <- function(options) {
       } else {
         captured <- run(snippet)
       }
-      
-      # trim a trailing newline
-      if (nzchar(captured))
-        captured <- sub("\n$", "", captured)
     }
     
     if (nzchar(captured) || length(context$pending_plots)) {

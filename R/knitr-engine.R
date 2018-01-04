@@ -106,15 +106,19 @@ eng_python <- function(options) {
       if (is.numeric(options$eval))
         warning("numeric 'eval' chunk option not supported by reticulate engine")
       captured <- py_capture_output(py_run_string(snippet, convert = FALSE))
+      
+      # trim a trailing newline
+      if (nzchar(captured))
+        captured <- sub("\n$", "", captured)
     }
     
     if (nzchar(captured) || length(context$pending_plots)) {
       
       # append pending source to outputs (respecting 'echo' option)
       if (!identical(options$echo, FALSE)) {
-        extracted <- extract(code, c(pending_source_index, range[2]))
         if (is.numeric(options$echo))
           warning("numeric 'echo' chunk option not supported by reticulate engine")
+        extracted <- extract(code, c(pending_source_index, range[2]))
         output <- structure(list(src = extracted), class = "source")
         outputs[[length(outputs) + 1]] <- output
       }
@@ -138,7 +142,9 @@ eng_python <- function(options) {
   }
   
   # if we have leftover input, add that now
-  if (pending_source_index <= n) {
+  if (!identical(options$echo, FALSE) && pending_source_index <= n) {
+    if (is.numeric(options$echo))
+      warning("numeric 'echo' chunk option not supported by reticulate engine")
     leftover <- extract(code, c(pending_source_index, n))
     outputs[[length(outputs) + 1]] <- structure(
       list(src = leftover),
@@ -148,10 +154,7 @@ eng_python <- function(options) {
   
   eng_python_synchronize_after()
   
-  # TODO: development version of knitr supplies new 'engine_output()'
-  # interface -- use that when it's on CRAN
-  # https://github.com/yihui/knitr/commit/71bfd8796d485ed7bb9db0920acdf02464b3df9a
-  wrap <- yoink("knitr", "wrap")
+  wrap <- getOption("reticulate.engine.wrap", eng_python_wrap)
   wrap(outputs, options)
   
 }
@@ -162,6 +165,14 @@ eng_python_initialize <- function(options, context, envir) {
     use_python(options$engine.path[[1]])
   
   eng_python_initialize_matplotlib(options, context, envir)
+}
+
+eng_python_matplotlib_show <- function(plt, options) {
+  plot_counter <- yoink("knitr", "plot_counter")
+  path <- knitr::fig_path(options$dev, number = plot_counter())
+  dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
+  plt$savefig(path, dpi = options$dpi)
+  knitr::include_graphics(path)
 }
 
 eng_python_initialize_matplotlib <- function(options,
@@ -177,8 +188,8 @@ eng_python_initialize_matplotlib <- function(options,
   matplotlib <- import("matplotlib", convert = FALSE)
   plt <- matplotlib$pyplot
   
-  # rudely steal 'plot_counter' (used below), and reset
-  # it when we're done
+  # rudely steal 'plot_counter' (used by default 'show()' implementation below)
+  # and then reset the counter when we're done
   plot_counter <- yoink("knitr", "plot_counter")
   defer(plot_counter(reset = TRUE), envir = envir)
   
@@ -186,15 +197,9 @@ eng_python_initialize_matplotlib <- function(options,
   show <- plt$show
   defer(plt$show <- show, envir = envir)
   plt$show <- function(...) {
-    
-    # write plot to file
-    path <- knitr::fig_path(options$dev, number = plot_counter())
-    dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
-    plt$savefig(path, dpi = options$dpi)
-    
-    # return as a knitr image path
-    context$pending_plots[[length(context$pending_plots) + 1]] <<-
-      knitr::include_graphics(path)
+    hook <- getOption("reticulate.engine.matplotlib.show", eng_python_matplotlib_show)
+    graphic <- hook(plt, options)
+    context$pending_plots[[length(context$pending_plots) + 1]] <<- graphic
   }
   
   # set up figure dimensions
@@ -213,8 +218,11 @@ eng_python_synchronize_before <- function() {
   R <- main$R
   
   # extract active knit environment
-  .knitEnv <- yoink("knitr", ".knitEnv")
-  envir <- .knitEnv$knit_global
+  envir <- getOption("reticulate.engine.environment")
+  if (is.null(envir)) {
+    .knitEnv <- yoink("knitr", ".knitEnv")
+    envir <- .knitEnv$knit_global
+  }
   
   # define the getters, setters we'll attach to the Python class
   getter <- function(self, code) {
@@ -235,5 +243,12 @@ eng_python_synchronize_before <- function() {
 }
 
 # synchronize objects Python -> R
-eng_python_synchronize_after <- function() {
+eng_python_synchronize_after <- function() {}
+
+eng_python_wrap <- function(outputs, options) {
+  # TODO: development version of knitr supplies new 'engine_output()'
+  # interface -- use that when it's on CRAN
+  # https://github.com/yihui/knitr/commit/71bfd8796d485ed7bb9db0920acdf02464b3df9a
+  wrap <- yoink("knitr", "wrap")
+  wrap(outputs, options)
 }

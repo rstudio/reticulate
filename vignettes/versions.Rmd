@@ -52,7 +52,7 @@ use_virtualenv("~/myenv")
 use_condaenv("myenv")
 ```
 
-The `use_condaenv` function will use whatever conda binary is found on the system PATH. If you want to use a specific alternate version you can use the `conda` paramter. For example:
+The `use_condaenv` function will use whatever conda binary is found on the system PATH. If you want to use a specific alternate version you can use the `conda` parameter. For example:
 
 ```{r}
 use_condaenv(condaenv = "r-nlp", conda = "/opt/anaconda3/bin/conda")

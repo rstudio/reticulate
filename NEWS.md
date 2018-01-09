@@ -1,7 +1,5 @@
 
-## reticulate 1.4 (Development)
-
-Install the development version with: `install_github("rstudio/reticulate")`
+## reticulate 1.4 (CRAN)
 
 - Support for `RETICULATE_DUMP_STACK_TRACE` environment variable which can be set to
   the number of milliseconds in which to output into stderr the call stacks
@@ -16,7 +14,7 @@ Install the development version with: `install_github("rstudio/reticulate")`
 - Implement `eval`, `echo`, and `include` knitr chunk options for Python engine
 
 
-## reticulate 1.3.1 (CRAN)
+## reticulate 1.3.1
 
 - Bugfix: ensure single-line Python chunks that produce no output still 
   have source code emitted.

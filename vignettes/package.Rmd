@@ -100,7 +100,7 @@ The `print` and `summary` methods for Python objects both call the `str` method 
 
 ## Using Travis-CI
 
-[Travis-CI(https://travis-ci.org/) is a commonly used platform for continuous integration and testing of R packages. Making it work with **reticulate** is pretty simple - all you need to do is add a `before_install` section to a standard R `.travis.yml` file that asks Travis to guarantee the testing machine has `numpy` (which **reticulate** depends on) and any Python modules you're interacting with that don't ship with the language itself:
+[Travis-CI](https://travis-ci.org/) is a commonly used platform for continuous integration and testing of R packages. Making it work with **reticulate** is pretty simple - all you need to do is add a `before_install` section to a standard R `.travis.yml` file that asks Travis to guarantee the testing machine has `numpy` (which **reticulate** depends on) and any Python modules you're interacting with that don't ship with the language itself:
 
 ```
 before_install:

@@ -94,6 +94,7 @@ scipy &lt;-<span class="st"> </span><span class="kw"><a href="../reference/impor
 scipy<span class="op">$</span><span class="kw">amin</span>(<span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">3</span>,<span class="dv">5</span>,<span class="dv">7</span>))</code></pre></div>
 <p>In this case, the various versions of Python installed on the system will be scanned to see whether one of them includes the “scipy” Python package (the first version found that satisfies this requirement will be used).</p>
 <p>By default, the version of Python found on the system <code>PATH</code> is checked first, and then a number of other conventional location for Py Python (e.g. <code>/usr/local/bin/python</code>, <code>/opt/local/bin/python</code>, etc.) are checked.</p>
+<p>Note that in order for reticulate to bind to a version of Python it must be compiled with shared library support (i.e. with the <code>--enable-shared</code> flag).</p>
 </div>
 <div id="providing-hints" class="section level2">
 <h2 class="hasAnchor">
@@ -128,7 +129,7 @@ scipy<span class="op">$</span><span class="kw">amin</span>(<span class="kw">c</s
 <span class="kw"><a href="../reference/use_python.html">use_python</a></span>(<span class="st">"/usr/local/bin/python"</span>)
 <span class="kw"><a href="../reference/use_python.html">use_virtualenv</a></span>(<span class="st">"~/myenv"</span>)
 <span class="kw"><a href="../reference/use_python.html">use_condaenv</a></span>(<span class="st">"myenv"</span>)</code></pre></div>
-<p>The <code>use_condaenv</code> function will use whatever conda binary is found on the system PATH. If you want to use a specific alternate version you can use the <code>conda</code> paramter. For example:</p>
+<p>The <code>use_condaenv</code> function will use whatever conda binary is found on the system PATH. If you want to use a specific alternate version you can use the <code>conda</code> parameter. For example:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/use_python.html">use_condaenv</a></span>(<span class="dt">condaenv =</span> <span class="st">"r-nlp"</span>, <span class="dt">conda =</span> <span class="st">"/opt/anaconda3/bin/conda"</span>)</code></pre></div>
 <p>Note that the <code>use</code> functions are by default considered only hints as to where to find Python (i.e. they don’t produce errors if the specified version doesn’t exist). You can add the <code>required</code> parameter to ensure that the specified version of Python is always used (it will be an error if the specified version doesn’t exist):</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/use_python.html">use_virtualenv</a></span>(<span class="st">"~/myenv"</span>, <span class="dt">required =</span> <span class="ot">TRUE</span>)</code></pre></div>

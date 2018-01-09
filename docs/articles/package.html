@@ -158,7 +158,7 @@ py_str.MyModule.MyPythonClass &lt;-<span class="st"> </span><span class="cf">fun
 <div id="using-travis-ci" class="section level2">
 <h2 class="hasAnchor">
 <a href="#using-travis-ci" class="anchor"></a>Using Travis-CI</h2>
-<p>[Travis-CI(<a href="https://travis-ci.org/" class="uri">https://travis-ci.org/</a>) is a commonly used platform for continuous integration and testing of R packages. Making it work with <strong>reticulate</strong> is pretty simple - all you need to do is add a <code>before_install</code> section to a standard R <code>.travis.yml</code> file that asks Travis to guarantee the testing machine has <code>numpy</code> (which <strong>reticulate</strong> depends on) and any Python modules you’re interacting with that don’t ship with the language itself:</p>
+<p><a href="https://travis-ci.org/">Travis-CI</a> is a commonly used platform for continuous integration and testing of R packages. Making it work with <strong>reticulate</strong> is pretty simple - all you need to do is add a <code>before_install</code> section to a standard R <code>.travis.yml</code> file that asks Travis to guarantee the testing machine has <code>numpy</code> (which <strong>reticulate</strong> depends on) and any Python modules you’re interacting with that don’t ship with the language itself:</p>
 <pre><code>before_install:
   - pip install numpy any_other_dependencies go_here</code></pre>
 </div>

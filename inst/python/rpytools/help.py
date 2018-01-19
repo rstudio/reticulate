@@ -12,21 +12,9 @@ def isstring(s):
 
 
 def normalize_func(func):
-    # convert class to __init__ method if we can
-    if inspect.isclass(func):
-      if (inspect.ismethod(func.__init__)):
-        return func.__init__
-      else:
-        return None
-
-    # convert func to __call__
-    if not inspect.isfunction(func) and not inspect.ismethod(func) and hasattr(func, '__call__'):
-      return func.__call__
-
     # return None for builtins
     if (inspect.isbuiltin(func)):
         return None
-
     return func
 
 def get_doc(func):
@@ -37,14 +25,6 @@ def get_doc(func):
       return None
     else:
       doc = inspect.getdoc(func)
-  
-  # if this func is actually a class, grab the args from its __init__ method
-  if isinstance(func, type) and hasattr(func, '__init__'):
-    args_doc = inspect.getdoc(func.__init__)
-    if not args_doc is None:
-      doc += '\n'
-      doc += args_doc
-
   return doc
   
 
@@ -146,9 +126,6 @@ def generate_signature_for_function(func):
         continue
       args_list.append(arg)
 
-    # TODO(mrry): This is a workaround for documenting signature of
-    # functions that have the @contextlib.contextmanager decorator.
-    # We should do something better.
     if argspec.varargs == "args" and hasattr(argspec, 'keywords') and argspec.keywords == "kwds":
       original_func = func.__closure__[0].cell_contents
       return generate_signature_for_function(original_func)

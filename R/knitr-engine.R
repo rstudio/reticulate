@@ -198,10 +198,14 @@ eng_python_initialize_matplotlib <- function(options,
   if (!py_module_available("matplotlib"))
     return()
   
+  matplotlib <- import("matplotlib", convert = FALSE)
+  if (!py_has_attr(matplotlib, "pyplot")) {
+    warning("'matplotlib' installed but 'pyplot' not available")
+    return()
+  }
+  
   # initialize pending_plots list
   context$pending_plots <- list()
-  
-  matplotlib <- import("matplotlib", convert = FALSE)
   plt <- matplotlib$pyplot
   
   # rudely steal 'plot_counter' (used by default 'show()' implementation below)

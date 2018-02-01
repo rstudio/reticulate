@@ -78,11 +78,29 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
   
   # add the python bin dir to the PATH (so that any execution of python from 
   # within the interpreter, from a system call, or from within a terminal 
-  # hosted within the front end will use the same version of python. On 
-  # Windows also add the Scripts path
-  python_dirs <- normalizePath(dirname(config$python))
-  if (is_windows())
-    python_dirs <- c(python_dirs, file.path(python_dirs, "Scripts", fsep = "\\"))
+  # hosted within the front end will use the same version of python.
+  python_home <- dirname(config$python)
+  python_dirs <- c(normalizePath(python_home))
+  
+  if (is_windows()) {
+    
+    # include the Scripts path, as well
+    python_scripts <- file.path(python_home, "Scripts")
+    if (file.exists(python_scripts))
+      python_dirs <- c(python_dirs, normalizePath(python_scripts))
+    
+    # we saw some crashes occurring when Python modules attempted to load
+    # dynamic libraries at runtime; e.g.
+    #
+    #   Intel MKL FATAL ERROR: Cannot load mkl_intel_thread.dll
+    #
+    # we work around this by putting the associated binary directory
+    # on the PATH so it can be successfully resolved
+    python_bin <- file.path(python_home, "Library/bin")
+    if (file.exists(python_bin))
+      python_dirs <- c(python_dirs, normalizePath(python_bin))
+  }
+    
   Sys.setenv(PATH = paste(paste(python_dirs, collapse =  .Platform$path.sep), 
                           Sys.getenv("PATH"),
                           sep = .Platform$path.sep))  

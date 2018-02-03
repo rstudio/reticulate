@@ -15,9 +15,9 @@ knitr::opts_chunk$set(eval = FALSE)
 
 ## Delay Loading Python Modules
 
-If you write an R package that wraps one or more Py thon packages, it's likely that you'll be importing Python modules within the `.onLoad` method of your package so that you can have convenient access to them within the rest of the package source code.
+If you write an R package that wraps one or more Python packages, it's likely that you'll be importing Python modules within the `.onLoad` method of your package so that you can have convenient access to them within the rest of the package source code.
 
-When you do this, you should use the `delay_load` flag to the `import()` function. This has two benifits:
+When you do this, you should use the `delay_load` flag to the `import()` function. This has two benefits:
 
 1. It allows you to successfully load your package even when Python / Python packages are not installed on the target system (this is particularly important when testing on CRAN build machines).
 

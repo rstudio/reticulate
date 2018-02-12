@@ -200,7 +200,7 @@ while (TRUE) {
 }
 ```
 
-Note that some iterators/genrators in Python are infinite. In that case the caller will need custom logic to determine when to terminate the loop.
+Note that some iterators/generators in Python are infinite. In that case the caller will need custom logic to determine when to terminate the loop.
 
 
 ### Generators

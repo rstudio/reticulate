@@ -15,7 +15,7 @@ knitr::opts_chunk$set(eval = FALSE)
 
 ## Locating Python
 
-It is not uncommon for several version of Python (and several conda or virtualenv environmetns within a given version) to be available on a given system. The **reticulate** package can bind to any of these versions, and in all cases will attempt to locate a version which includes the first Python package imported via the `import()` function. Consider the following code:
+It is not uncommon for several version of Python (and several conda or virtualenv environments within a given version) to be available on a given system. The **reticulate** package can bind to any of these versions, and in all cases will attempt to locate a version which includes the first Python package imported via the `import()` function. Consider the following code:
 
 ```{r}
 library(reticulate)
@@ -33,7 +33,7 @@ Note that in order for reticulate to bind to a version of Python it must be comp
 
 There are two ways you can provide hints as to which version of Python should be used:
 
-1. By setting the value of the `RETICULATE_PYTHON` environment variable to a Python binary. Note that if you set this environment variable then the specified version of Python will always be used (i.e. this is perscriptive rather than advisory).
+1. By setting the value of the `RETICULATE_PYTHON` environment variable to a Python binary. Note that if you set this environment variable then the specified version of Python will always be used (i.e. this is prescriptive rather than advisory).
 
 2. By calling one of the these functions:
 

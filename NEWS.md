@@ -1,14 +1,12 @@
 
-## reticulate 1.5 (development)
-
-Install the development version with: `install_github("rstudio/reticulate")`
+## reticulate 1.5 (CRAN)
 
 - Remove implicit documentation extraction for Python classes
 
 - Add `Library\bin` to PATH on Windows to ensure Anaconda can find MKL
 
 
-## reticulate 1.4 (CRAN)
+## reticulate 1.4
 
 - Support for `RETICULATE_DUMP_STACK_TRACE` environment variable which can be set to
   the number of milliseconds in which to output into stderr the call stacks

@@ -1077,7 +1077,7 @@ py_capture_output <- function(expr, type = c("stdout", "stderr")) {
 #' 
 #' @inheritParams import
 #' @param code Code to execute
-#' @param file File to execute
+#' @param file Source file
 #' @param local Whether to create objects in a local/private namespace (if
 #'   `FALSE`, objects are created within the main module).
 #'   

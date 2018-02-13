@@ -5,6 +5,9 @@
 
 - Add `Library\bin` to PATH on Windows to ensure Anaconda can find MKL
 
+- New `source_python()` function for sourcing Python scripts into R 
+  environments.
+
 
 ## reticulate 1.4
 

@@ -23,7 +23,7 @@ py_eval(code, convert = TRUE)
 equivalent. If you pass \code{FALSE} you can do manual conversion using the
 \code{\link[=py_to_r]{py_to_r()}} function.}
 
-\item{file}{File to execute}
+\item{file}{Source file}
 }
 \value{
 For \code{py_eval()}, the result of evaluating the expression; For

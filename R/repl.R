@@ -7,8 +7,10 @@
 #' 
 #' @import utils
 #' 
+#' @param banner Boolean; print a startup banner when launching the REPL?
+#' 
 #' @export
-py_repl <- function() {
+python_repl <- function(banner = TRUE) {
  
   codeop <- import("codeop", convert = TRUE)
   
@@ -92,23 +94,27 @@ py_repl <- function() {
     
   }
   
-  # notify the user we're entering a reticulate-powered Python REPL
-  config <- py_config()
+  # notify the user we're entering the REPL (when requested)
+  if (isTRUE(banner)) {
+    
+    config <- py_config()
+    
+    fmt <- c(
+      "Python %s",
+      "Reticulate %s REPL -- A Python interpreter in R."
+    )
+    
+    msg <- sprintf(
+      paste(fmt, collapse = "\n"),
+      config$version_string,
+      packageVersion("reticulate")
+    )
+    
+    message(msg)
+    
+  }
   
-  fmt <- c(
-    "Python %s",
-    "Reticulate %s REPL -- A Python interpreter in R."
-  )
-  
-  msg <- sprintf(
-    paste(fmt, collapse = "\n"),
-    config$version_string,
-    packageVersion("reticulate")
-  )
-  
-  message(msg)
-  
-  # REPL ----
+  # enter the REPL loop
   repeat {
     
     if (quit_requested)

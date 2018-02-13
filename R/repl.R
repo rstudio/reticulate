@@ -53,8 +53,11 @@ py_repl <- function() {
     prompt <- if (length(buffer)) "... " else ">>> "
     contents <- readline(prompt = prompt)
     
+    # trim whitespace for handling of special commands
+    trimmed <- gsub("^\\s*|\\s*$", "", contents)
+    
     # special handling for e.g. 'quit', 'exit'
-    if (contents %in% c("quit", "exit")) {
+    if (trimmed %in% c("quit", "exit")) {
       quit_requested <<- TRUE
       return()
     }

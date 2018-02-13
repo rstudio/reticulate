@@ -5,10 +5,36 @@
 #' run within the Python 'main' module, and will remain accessible after the
 #' REPL is detached.
 #' 
+#' @import utils
+#' 
 #' @export
 py_repl <- function() {
  
   codeop <- import("codeop", convert = TRUE)
+  
+  # check to see if the current environment supports history
+  has_history <- tryCatch(
+    { utils::savehistory(tempfile()); TRUE },
+    error = function(e) FALSE
+  )
+  
+  if (has_history) {
+    
+    # if we have history, save and then restore the current R history
+    utils::savehistory()
+    on.exit(utils::loadhistory(), add = TRUE)
+    
+    # file to be used for command history during session
+    histfile <- getOption("reticulate.repl.histfile")
+    if (is.null(histfile))
+      histfile <- file.path(tempdir(), ".reticulatehistory")
+    
+    # load history (create emptu file if none exists yet)
+    if (!file.exists(histfile))
+      file.create(histfile)
+    utils::loadhistory(histfile)
+    
+  }
   
   # buffer of pending console input (we don't send input to
   # the console until we have a complete Python statement)
@@ -31,6 +57,12 @@ py_repl <- function() {
     if (contents %in% c("quit", "exit")) {
       quit_requested <<- TRUE
       return()
+    }
+    
+    # update history file
+    if (has_history) {
+      write(contents, file = histfile, append = TRUE)
+      utils::loadhistory(histfile)
     }
     
     # update buffer
@@ -59,8 +91,18 @@ py_repl <- function() {
   
   # notify the user we're entering a reticulate-powered Python REPL
   config <- py_config()
-  fmt <- "Python %s\nReticulate %s REPL -- A Python interpreter in R."
-  msg <- sprintf(fmt, config$version_string, packageVersion("reticulate"))
+  
+  fmt <- c(
+    "Python %s",
+    "Reticulate %s REPL -- A Python interpreter in R."
+  )
+  
+  msg <- sprintf(
+    paste(fmt, collapse = "\n"),
+    config$version_string,
+    packageVersion("reticulate")
+  )
+  
   message(msg)
   
   # REPL ----

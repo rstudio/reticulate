@@ -5,7 +5,7 @@
 #' run within the Python 'main' module, and will remain accessible after the
 #' REPL is detached.
 #' 
-#' @param modules An (optional) Python module to be imported before
+#' @param module An (optional) Python module to be imported before
 #'   the REPL is launched. Defaults to the value of the `reticulate.repl.module`
 #'   option.
 #' @param quiet Boolean; print a startup banner when launching the REPL? If
@@ -69,6 +69,16 @@ py_repl <- function(
   options(reticulate.repl.active = TRUE)
   on.exit(options(reticulate.repl.active = FALSE), add = TRUE)
   
+  # handle errors produced during REPL actions
+  handle_error <- function(output) {
+    failed <- inherits(output, "error")
+    if (failed) {
+      error <- py_last_error()
+      message(paste(error$type, error$value, sep = ": "))
+    }
+    failed
+  }
+  
   repl <- function() {
     
     # read user input
@@ -99,12 +109,18 @@ py_repl <- function(
     # update buffer
     buffer <<- c(buffer, contents)
     
-    # generate code to be sent to command interpreter
+    # generate code to be sent to command interpreter. an error generated
+    # at this pooint implies something like a syntax error; we should clear
+    # the command buffer at that point
     code <- paste(buffer, collapse = "\n")
-    compiled <- tryCatch(compiler(code), condition = identity)
+    ready <- tryCatch(compiler(code), condition = identity)
+    if (handle_error(ready)) {
+      buffer <<- character()
+      return()
+    }
     
     # a NULL return implies that we can accept more input
-    if (is.null(compiled))
+    if (is.null(ready))
       return()
     
     # otherwise, we should have received a code output object
@@ -113,14 +129,13 @@ py_repl <- function(
     
     # now compile and run the code. we use 'single' mode to ensure that
     # python auto-prints the statement as it is evaluated.
-    compiled <- builtins$compile(code, '<string>', 'single')
-    output <- tryCatch(builtins$eval(compiled, locals, globals), error = identity)
+    compiled <- tryCatch(builtins$compile(code, '<string>', 'single'), error = identity)
+    if (handle_error(compiled))
+      return()
     
-    # if execution failed, let the user know
-    if (inherits(output, "error")) {
-      error <- py_last_error()
-      message(paste(error$type, error$value, sep = ": "))
-    }
+    output <- tryCatch(builtins$eval(compiled, locals, globals), error = identity)
+    if (handle_error(output))
+      return()
     
   }
   

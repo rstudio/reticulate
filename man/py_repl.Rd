@@ -8,12 +8,12 @@ py_repl(module = getOption("reticulate.repl.module", default = character()),
   quiet = FALSE)
 }
 \arguments{
-\item{quiet}{Boolean; print a startup banner when launching the REPL? If
-\code{FALSE}, the banner will be suppressed.}
-
-\item{modules}{An (optional) Python module to be imported before
+\item{module}{An (optional) Python module to be imported before
 the REPL is launched. Defaults to the value of the \code{reticulate.repl.module}
 option.}
+
+\item{quiet}{Boolean; print a startup banner when launching the REPL? If
+\code{FALSE}, the banner will be suppressed.}
 }
 \description{
 This function provides a Python REPL in the R session, which can be used

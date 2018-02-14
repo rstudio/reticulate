@@ -84,8 +84,10 @@ py_repl <- function(
       return()
     }
     
-    # if the user didn't submit any input, repeat
-    if (!nzchar(trimmed))
+    # if the user submitted a blank line at the top level,
+    # ignore it (but submit whitespace-only lines that might
+    # terminate a block)
+    if (length(buffer) == 0 && !nzchar(trimmed))
       return()
     
     # update history file

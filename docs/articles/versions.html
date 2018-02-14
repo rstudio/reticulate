@@ -88,7 +88,7 @@
 <div id="locating-python" class="section level2">
 <h2 class="hasAnchor">
 <a href="#locating-python" class="anchor"></a>Locating Python</h2>
-<p>It is not uncommon for several version of Python (and several conda or virtualenv environmetns within a given version) to be available on a given system. The <strong>reticulate</strong> package can bind to any of these versions, and in all cases will attempt to locate a version which includes the first Python package imported via the <code><a href="../reference/import.html">import()</a></code> function. Consider the following code:</p>
+<p>It is not uncommon for several version of Python (and several conda or virtualenv environments within a given version) to be available on a given system. The <strong>reticulate</strong> package can bind to any of these versions, and in all cases will attempt to locate a version which includes the first Python package imported via the <code><a href="../reference/import.html">import()</a></code> function. Consider the following code:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(reticulate)
 scipy &lt;-<span class="st"> </span><span class="kw"><a href="../reference/import.html">import</a></span>(<span class="st">"scipy"</span>)
 scipy<span class="op">$</span><span class="kw">amin</span>(<span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">3</span>,<span class="dv">5</span>,<span class="dv">7</span>))</code></pre></div>
@@ -101,7 +101,7 @@ scipy<span class="op">$</span><span class="kw">amin</span>(<span class="kw">c</s
 <a href="#providing-hints" class="anchor"></a>Providing Hints</h2>
 <p>There are two ways you can provide hints as to which version of Python should be used:</p>
 <ol style="list-style-type: decimal">
-<li><p>By setting the value of the <code>RETICULATE_PYTHON</code> environment variable to a Python binary. Note that if you set this environment variable then the specified version of Python will always be used (i.e. this is perscriptive rather than advisory).</p></li>
+<li><p>By setting the value of the <code>RETICULATE_PYTHON</code> environment variable to a Python binary. Note that if you set this environment variable then the specified version of Python will always be used (i.e. this is prescriptive rather than advisory).</p></li>
 <li><p>By calling one of the these functions:</p></li>
 </ol>
 <table class="table">

@@ -88,8 +88,8 @@
 <div id="delay-loading-python-modules" class="section level2">
 <h2 class="hasAnchor">
 <a href="#delay-loading-python-modules" class="anchor"></a>Delay Loading Python Modules</h2>
-<p>If you write an R package that wraps one or more Py thon packages, it’s likely that you’ll be importing Python modules within the <code>.onLoad</code> method of your package so that you can have convenient access to them within the rest of the package source code.</p>
-<p>When you do this, you should use the <code>delay_load</code> flag to the <code><a href="../reference/import.html">import()</a></code> function. This has two benifits:</p>
+<p>If you write an R package that wraps one or more Python packages, it’s likely that you’ll be importing Python modules within the <code>.onLoad</code> method of your package so that you can have convenient access to them within the rest of the package source code.</p>
+<p>When you do this, you should use the <code>delay_load</code> flag to the <code><a href="../reference/import.html">import()</a></code> function. This has two benefits:</p>
 <ol style="list-style-type: decimal">
 <li><p>It allows you to successfully load your package even when Python / Python packages are not installed on the target system (this is particularly important when testing on CRAN build machines).</p></li>
 <li>

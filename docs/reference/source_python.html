@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Run Python code — py_run • reticulate</title>
+<title>Read and evaluate a Python script — source_python • reticulate</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -101,30 +101,27 @@
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Run Python code</h1>
+    <h1>Read and evaluate a Python script</h1>
     </div>
 
     
-    <p>Execute code within the the <code>__main__</code> Python module.</p>
+    <p>Evaluate a Python script and make created Python objects available within R.</p>
     
 
-    <pre class="usage"><span class='fu'>py_run_string</span>(<span class='no'>code</span>, <span class='kw'>local</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>convert</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
-
-<span class='fu'>py_run_file</span>(<span class='no'>file</span>, <span class='kw'>local</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>convert</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
-
-<span class='fu'>py_eval</span>(<span class='no'>code</span>, <span class='kw'>convert</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
+    <pre class="usage"><span class='fu'>source_python</span>(<span class='no'>file</span>, <span class='kw'>envir</span> <span class='kw'>=</span> <span class='fu'>parent.frame</span>(), <span class='kw'>convert</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>code</th>
-      <td><p>Code to execute</p></td>
+      <th>file</th>
+      <td><p>Source file</p></td>
     </tr>
     <tr>
-      <th>local</th>
-      <td><p>Whether to create objects in a local/private namespace (if
-<code>FALSE</code>, objects are created within the main module).</p></td>
+      <th>envir</th>
+      <td><p>The environment to assign Python objects into
+(for example, <code>parent.frame()</code> or <code>globalenv()</code>). Specify <code>NULL</code> to
+not assign Python objects.</p></td>
     </tr>
     <tr>
       <th>convert</th>
@@ -132,17 +129,7 @@
 equivalent. If you pass <code>FALSE</code> you can do manual conversion using the
 <code><a href='r-py-conversion.html'>py_to_r()</a></code> function.</p></td>
     </tr>
-    <tr>
-      <th>file</th>
-      <td><p>Source file</p></td>
-    </tr>
     </table>
-    
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
-
-    <p>For <code>py_eval()</code>, the result of evaluating the expression; For
-<code>py_run_string()</code> and <code>py_run_file()</code>, the dictionary associated with
-the code execution.</p>
     
 
   </div>
@@ -150,9 +137,7 @@ the code execution.</p>
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-      
-      <li><a href="#value">Value</a></li>
-          </ul>
+                </ul>
 
   </div>
 </div>

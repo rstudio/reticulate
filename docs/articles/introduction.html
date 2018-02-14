@@ -157,7 +157,7 @@ os<span class="op">$</span><span class="kw">getcwd</span>()</code></pre></div>
 <div id="importing-modules" class="section level2">
 <h2 class="hasAnchor">
 <a href="#importing-modules" class="anchor"></a>Importing Modules</h2>
-<p>The <code>import</code> function can be used to import any Python module. For example:</p>
+<p>The <code><a href="../reference/import.html">import()</a></code> function can be used to import any Python module. For example:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">difflib &lt;-<span class="st"> </span><span class="kw"><a href="../reference/import.html">import</a></span>(<span class="st">"difflib"</span>)
 difflib<span class="op">$</span><span class="kw">ndiff</span>(foo, bar)
 
@@ -169,9 +169,30 @@ filecmp<span class="op">$</span><span class="kw">cmp</span>(dir1, dir2)</code></
 py &lt;-<span class="st"> </span><span class="kw"><a href="../reference/import.html">import_builtins</a></span>()
 py<span class="op">$</span><span class="kw">print</span>(<span class="st">'foo'</span>)</code></pre></div>
 <p>The main module is generally useful if you have executed Python code from a file or string and want to get access to it’s results (see the section below for more details).</p>
-<div id="object-conversion" class="section level3">
-<h3 class="hasAnchor">
-<a href="#object-conversion" class="anchor"></a>Object Conversion</h3>
+</div>
+<div id="sourcing-scripts" class="section level2">
+<h2 class="hasAnchor">
+<a href="#sourcing-scripts" class="anchor"></a>Sourcing Scripts</h2>
+<p>The <code><a href="../reference/source_python.html">source_python()</a></code> function will source a Python script and make the objects it creates available within an R environment (by default the calling environment). For example, consider the following Python script:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="kw">def</span> add(x, y):
+  <span class="cf">return</span> x <span class="op">+</span> y</code></pre></div>
+<p>We source it using the <code><a href="../reference/source_python.html">source_python()</a></code> function and then can call the <code>add()</code> function directly from R:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/source_python.html">source_python</a></span>(<span class="st">'add.py'</span>)
+<span class="kw">add</span>(<span class="dv">5</span>, <span class="dv">10</span>)</code></pre></div>
+<pre><code>[1] 15</code></pre>
+</div>
+<div id="executing-code" class="section level2">
+<h2 class="hasAnchor">
+<a href="#executing-code" class="anchor"></a>Executing Code</h2>
+<p>You can execute Python code within the main module using the <code>py_run_file</code> and <code>py_run_string</code> functions. These functions both return a reference to the main Python module so you can access the results of their execution. For example:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/py_run.html">py_run_file</a></span>(<span class="st">"script.py"</span>)
+
+main &lt;-<span class="st"> </span><span class="kw"><a href="../reference/py_run.html">py_run_string</a></span>(<span class="st">"x = 10"</span>)
+main<span class="op">$</span>x</code></pre></div>
+</div>
+<div id="object-conversion" class="section level2">
+<h2 class="hasAnchor">
+<a href="#object-conversion" class="anchor"></a>Object Conversion</h2>
 <p>By default when Python objects are returned to R they are converted to their equivalent R types. However, if you’d rather make conversion from Python to R explicit and deal in native Python objects by default you can pass <code>convert = FALSE</code> to the <code>import</code> function. In this case Python to R conversion will be disabled for the module returned from <code>import</code>. For example:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># import numpy and specify no automatic Python to R conversion</span>
 np &lt;-<span class="st"> </span><span class="kw"><a href="../reference/import.html">import</a></span>(<span class="st">"numpy"</span>, <span class="dt">convert =</span> <span class="ot">FALSE</span>)
@@ -183,16 +204,6 @@ sum &lt;-<span class="st"> </span>a<span class="op">$</span><span class="kw">cum
 <span class="co"># convert to R explicitly at the end</span>
 <span class="kw"><a href="../reference/r-py-conversion.html">py_to_r</a></span>(sum)</code></pre></div>
 <p>As illustrated above, if you need access to an R object at end of your computations you can call the <code><a href="../reference/r-py-conversion.html">py_to_r()</a></code> function explicitly.</p>
-</div>
-</div>
-<div id="executing-code" class="section level2">
-<h2 class="hasAnchor">
-<a href="#executing-code" class="anchor"></a>Executing Code</h2>
-<p>You can execute Python code within the main module using the <code>py_run_file</code> and <code>py_run_string</code> functions. These functions both return a reference to the main Python module so you can access the results of their execution. For example:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/py_run.html">py_run_file</a></span>(<span class="st">"script.py"</span>)
-
-main &lt;-<span class="st"> </span><span class="kw"><a href="../reference/py_run.html">py_run_string</a></span>(<span class="st">"x = 10"</span>)
-main<span class="op">$</span>x</code></pre></div>
 </div>
 <div id="getting-help" class="section level2">
 <h2 class="hasAnchor">
@@ -258,7 +269,7 @@ b &lt;-<span class="st"> </span><span class="kw"><a href="../reference/iterate.h
   <span class="cf">if</span> (<span class="kw">is.na</span>(item))
     <span class="cf">break</span>
 }</code></pre></div>
-<p>Note that some iterators/genrators in Python are infinite. In that case the caller will need custom logic to determine when to terminate the loop.</p>
+<p>Note that some iterators/generators in Python are infinite. In that case the caller will need custom logic to determine when to terminate the loop.</p>
 </div>
 <div id="generators" class="section level3">
 <h3 class="hasAnchor">
@@ -481,7 +492,9 @@ iter &lt;-<span class="st"> </span><span class="kw"><a href="../reference/py_ite
 <li><a href="#overview">Overview</a></li>
       <li><a href="#type-conversions">Type Conversions</a></li>
       <li><a href="#importing-modules">Importing Modules</a></li>
+      <li><a href="#sourcing-scripts">Sourcing Scripts</a></li>
       <li><a href="#executing-code">Executing Code</a></li>
+      <li><a href="#object-conversion">Object Conversion</a></li>
       <li><a href="#getting-help">Getting Help</a></li>
       <li><a href="#lists-tuples-and-dictionaries">Lists, Tuples, and Dictionaries</a></li>
       <li><a href="#arrays">Arrays</a></li>

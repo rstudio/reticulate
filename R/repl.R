@@ -49,6 +49,10 @@ python_repl <- function(banner = TRUE) {
   # record whether the used has requested a quit
   quit_requested <- FALSE
   
+  # inform others that the reticulate REPL is active
+  options(reticulate.repl = TRUE)
+  on.exit(options(reticulate.repl = FALSE), add = TRUE)
+  
   repl <- function() {
     
     # read user input

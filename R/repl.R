@@ -5,8 +5,6 @@
 #' run within the Python 'main' module, and will remain accessible after the
 #' REPL is detached.
 #' 
-#' @import utils
-#' 
 #' @param banner Boolean; print a startup banner when launching the REPL?
 #' 
 #' @export

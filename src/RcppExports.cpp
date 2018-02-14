@@ -475,6 +475,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// readline
+std::string readline(const std::string& prompt);
+RcppExport SEXP _reticulate_readline(SEXP promptSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const std::string& >::type prompt(promptSEXP);
+    rcpp_result_gen = Rcpp::wrap(readline(prompt));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_reticulate_write_stdout", (DL_FUNC) &_reticulate_write_stdout, 1},
@@ -518,6 +529,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_reticulate_py_run_string_impl", (DL_FUNC) &_reticulate_py_run_string_impl, 3},
     {"_reticulate_py_run_file_impl", (DL_FUNC) &_reticulate_py_run_file_impl, 3},
     {"_reticulate_py_eval_impl", (DL_FUNC) &_reticulate_py_eval_impl, 2},
+    {"_reticulate_readline", (DL_FUNC) &_reticulate_readline, 1},
     {NULL, NULL, 0}
 };
 

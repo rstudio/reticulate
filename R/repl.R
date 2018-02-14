@@ -14,7 +14,7 @@
 #' @export
 py_repl <- function(
   module = getOption("reticulate.repl.module", default = character()),
-  quiet = FALSE)
+  quiet = getOption("reticulate.repl.quiet", default = FALSE))
 {
   # load modules (do this first so that we bind to the expected version of
   # Python if this is the first attempt to load Python)

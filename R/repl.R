@@ -5,11 +5,22 @@
 #' run within the Python 'main' module, and will remain accessible after the
 #' REPL is detached.
 #' 
-#' @param banner Boolean; print a startup banner when launching the REPL?
+#' @param quiet Boolean; print a startup banner when launching the REPL? If
+#'   `FALSE`, the banner will be suppressed.
+#' @param modules A set of Python modules (packages) to be imported before
+#'   the REPL is launched. Defaults to the value of the `reticulate.repl.modules`
+#'   option.
 #' 
 #' @export
-python_repl <- function(banner = TRUE) {
- 
+python_repl <- function(
+  quiet = FALSE,
+  modules = getOption("reticulate.repl.modules", default = character()))
+{
+  # load modules (do this first so that we bind to the expected version of
+  # Python if this is the first attempt to load Python)
+  for (module in modules)
+    import(module)
+  
   codeop <- import("codeop", convert = TRUE)
   
   # check to see if the current environment supports history
@@ -97,7 +108,7 @@ python_repl <- function(banner = TRUE) {
   }
   
   # notify the user we're entering the REPL (when requested)
-  if (isTRUE(banner)) {
+  if (!quiet) {
     
     config <- py_config()
     

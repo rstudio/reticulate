@@ -5,23 +5,30 @@
 #' run within the Python 'main' module, and will remain accessible after the
 #' REPL is detached.
 #' 
+#' @param modules An (optional) Python module to be imported before
+#'   the REPL is launched. Defaults to the value of the `reticulate.repl.module`
+#'   option.
 #' @param quiet Boolean; print a startup banner when launching the REPL? If
 #'   `FALSE`, the banner will be suppressed.
-#' @param modules A set of Python modules (packages) to be imported before
-#'   the REPL is launched. Defaults to the value of the `reticulate.repl.modules`
-#'   option.
 #' 
 #' @export
-python_repl <- function(
-  quiet = FALSE,
-  modules = getOption("reticulate.repl.modules", default = character()))
+py_repl <- function(
+  module = getOption("reticulate.repl.module", default = character()),
+  quiet = FALSE)
 {
   # load modules (do this first so that we bind to the expected version of
   # Python if this is the first attempt to load Python)
-  for (module in modules)
-    import(module)
+  for (m in module)
+    import(m)
   
+  # import other required modules for the REPL
+  builtins <- import_builtins(convert = FALSE)
+  main <- import_main(convert = FALSE)
   codeop <- import("codeop", convert = TRUE)
+  
+  # grab references to the locals, globals of the main module
+  locals <- py_run_string("locals()")
+  globals <- py_run_string("globals()")
   
   # check to see if the current environment supports history
   has_history <- tryCatch(
@@ -59,8 +66,8 @@ python_repl <- function(
   quit_requested <- FALSE
   
   # inform others that the reticulate REPL is active
-  options(reticulate.repl = TRUE)
-  on.exit(options(reticulate.repl = FALSE), add = TRUE)
+  options(reticulate.repl.active = TRUE)
+  on.exit(options(reticulate.repl.active = FALSE), add = TRUE)
   
   repl <- function() {
     
@@ -76,6 +83,10 @@ python_repl <- function(
       quit_requested <<- TRUE
       return()
     }
+    
+    # if the user didn't submit any input, repeat
+    if (!nzchar(trimmed))
+      return()
     
     # update history file
     if (has_history) {
@@ -97,7 +108,11 @@ python_repl <- function(
     # otherwise, we should have received a code output object
     # so we can just run the code submitted thus far
     buffer <<- character()
-    output <- tryCatch(py_run_string(code), condition = identity)
+    
+    # now compile and run the code. we use 'single' mode to ensure that
+    # python auto-prints the statement as it is evaluated.
+    compiled <- builtins$compile(code, '<string>', 'single')
+    output <- tryCatch(builtins$eval(compiled, locals, globals), error = identity)
     
     # if execution failed, let the user know
     if (inherits(output, "error")) {

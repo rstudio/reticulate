@@ -23,6 +23,7 @@ py_repl <- function(
   # import other required modules for the REPL
   builtins <- import_builtins(convert = FALSE)
   main <- import_main(convert = FALSE)
+  sys <- import("sys", convert = TRUE)
   codeop <- import("codeop", convert = TRUE)
   
   # grab references to the locals, globals of the main module
@@ -171,16 +172,24 @@ py_repl <- function(
   # notify the user we're entering the REPL (when requested)
   if (!quiet) {
     
-    config <- py_config()
+    version <- paste(
+      sys$version_info$major,
+      sys$version_info$minor,
+      sys$version_info$micro,
+      sep = "."
+    )
+    
+    executable <- sys$executable
     
     fmt <- c(
-      "Python %s",
+      "Python %s (%s)",
       "Reticulate %s REPL -- A Python interpreter in R."
     )
     
     msg <- sprintf(
       paste(fmt, collapse = "\n"),
-      config$version_string,
+      version,
+      executable,
       packageVersion("reticulate")
     )
     

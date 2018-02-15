@@ -88,13 +88,6 @@ py_repl <- function(
     # trim whitespace for handling of special commands
     trimmed <- gsub("^\\s*|\\s*$", "", contents)
     
-    # special handling for e.g. 'quit', 'exit' when executed
-    # at the top level
-    if (length(buffer) == 0 && trimmed %in% c("quit", "exit")) {
-      quit_requested <<- TRUE
-      return()
-    }
-    
     # run hook provided by front-end (in case special actions
     # need to be taken in response to console input)
     hook <- getOption("reticulate.repl.hook")
@@ -102,6 +95,20 @@ py_repl <- function(
       status <- hook(buffer, contents, trimmed)
       if (isTRUE(status))
         return()
+    }
+    
+    # special handling for e.g. 'quit', 'exit' when executed
+    # at the top level
+    if (length(buffer) == 0 && trimmed %in% c("quit", "exit")) {
+      quit_requested <<- TRUE
+      return()
+    }
+    
+    # special handling for help requests prefixed with '?'
+    if (length(buffer) == 0 && regexpr("?", trimmed, fixed = TRUE) == 1) {
+      code <- sprintf("help(\"%s\")", substring(trimmed, 2))
+      py_run_string(code)
+      return()
     }
     
     # if the user submitted a blank line at the top level,

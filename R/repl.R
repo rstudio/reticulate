@@ -54,9 +54,27 @@ py_repl <- function(
     
   }
   
-  # buffer of pending console input (we don't send input to
-  # the console until we have a complete Python statement)
-  buffer <- character()
+  # buffer of pending console input (we don't evaluate code
+  # until the user has submitted a complete Python statement)
+  #
+  # we return an environment of functions bound in a local environment
+  # so that hook can manipulate the buffer if required
+  buffer <- (function() {
+    
+    .data <- character()
+    
+    methods <- list(
+      clear  = function() { .data <<- character() },
+      data   = function() { .data },
+      empty  = function() { length(.data) == 0 },
+      length = function() { length(.data) },
+      push   = function(line) { .data[[length(.data) + 1]] <<- line },
+      set    = function(data) { .data <<- data }
+    )
+    
+    list2env(methods)
+    
+  })()
   
   # command compiler (used to check if we've received a complete piece
   # of Python input)
@@ -82,7 +100,7 @@ py_repl <- function(
   repl <- function() {
     
     # read user input
-    prompt <- if (length(buffer)) "... " else ">>> "
+    prompt <- if (buffer$empty()) ">>> " else "... "
     contents <- readline(prompt = prompt)
     
     # trim whitespace for handling of special commands
@@ -92,30 +110,43 @@ py_repl <- function(
     # need to be taken in response to console input)
     hook <- getOption("reticulate.repl.hook")
     if (is.function(hook)) {
-      status <- hook(buffer, contents, trimmed)
+      
+      status <- tryCatch(hook(buffer, contents, trimmed), error = identity)
+      
+      # report errors to the user
+      if (inherits(status, "error")) {
+        message(paste("Error:", conditionMessage(status)))
+        return()
+      }
+      
+      # a TRUE return implies the hook handled this input
       if (isTRUE(status))
         return()
     }
     
-    # special handling for e.g. 'quit', 'exit' when executed
-    # at the top level
-    if (length(buffer) == 0 && trimmed %in% c("quit", "exit")) {
-      quit_requested <<- TRUE
-      return()
+    # special handling for top-level commands (when buffer is empty)
+    if (buffer$empty()) {
+      
+      # handle user requests to quit
+      if (trimmed %in% c("quit", "exit")) {
+        quit_requested <<- TRUE
+        return()
+      }
+      
+      # special handling for help requests prefixed with '?'
+      if (regexpr("?", trimmed, fixed = TRUE) == 1) {
+        code <- sprintf("help(\"%s\")", substring(trimmed, 2))
+        py_run_string(code)
+        return()
+      }
+      
+      # if the user submitted a blank line at the top level,
+      # ignore it (note that we intentionally submit whitespace-only
+      # lines that might terminate a block)
+      if (!nzchar(trimmed))
+        return()
+      
     }
-    
-    # special handling for help requests prefixed with '?'
-    if (length(buffer) == 0 && regexpr("?", trimmed, fixed = TRUE) == 1) {
-      code <- sprintf("help(\"%s\")", substring(trimmed, 2))
-      py_run_string(code)
-      return()
-    }
-    
-    # if the user submitted a blank line at the top level,
-    # ignore it (but submit whitespace-only lines that might
-    # terminate a block)
-    if (length(buffer) == 0 && !nzchar(trimmed))
-      return()
     
     # update history file
     if (has_history) {
@@ -124,11 +155,11 @@ py_repl <- function(
     }
     
     # update buffer
-    previous <- buffer
-    buffer <<- c(buffer, contents)
+    previous <- buffer$data()
+    buffer$push(contents)
     
     # generate code to be sent to command interpreter
-    code <- paste(buffer, collapse = "\n")
+    code <- paste(buffer$data(), collapse = "\n")
     ready <- tryCatch(compiler(code), condition = identity)
     
     # a NULL return implies that we can accept more input
@@ -160,7 +191,7 @@ py_repl <- function(
       }
       
       # now, handle the newest line of code submitted
-      buffer <<- contents
+      buffer$set(contents)
       code <- contents
       ready <- tryCatch(compiler(code), condition = identity)
       
@@ -171,7 +202,7 @@ py_repl <- function(
     
     # otherwise, we should have received a code output object
     # so we can just run the code submitted thus far
-    buffer <<- character()
+    buffer$clear()
     
     # now compile and run the code. we use 'single' mode to ensure that
     # python auto-prints the statement as it is evaluated.

@@ -87,8 +87,9 @@ py_repl <- function(
     # trim whitespace for handling of special commands
     trimmed <- gsub("^\\s*|\\s*$", "", contents)
     
-    # special handling for e.g. 'quit', 'exit'
-    if (trimmed %in% c("quit", "exit")) {
+    # special handling for e.g. 'quit', 'exit' when executed
+    # at the top level
+    if (length(buffer) == 0 && trimmed %in% c("quit", "exit")) {
       quit_requested <<- TRUE
       return()
     }
@@ -106,21 +107,50 @@ py_repl <- function(
     }
     
     # update buffer
+    previous <- buffer
     buffer <<- c(buffer, contents)
     
-    # generate code to be sent to command interpreter. an error generated
-    # at this pooint implies something like a syntax error; we should clear
-    # the command buffer at that point
+    # generate code to be sent to command interpreter
     code <- paste(buffer, collapse = "\n")
     ready <- tryCatch(compiler(code), condition = identity)
-    if (handle_error(ready)) {
-      buffer <<- character()
-      return()
-    }
     
     # a NULL return implies that we can accept more input
     if (is.null(ready))
       return()
+    
+    # on error, attempt to submit the previous buffer and then handle
+    # the newest line of code independently. this allows us to handle
+    # python constructs such as:
+    #
+    #   def foo():
+    #     return 42
+    #   foo()
+    #
+    #   try:
+    #     print 1
+    #   except:
+    #     print 2
+    #   print 3
+    #
+    # which would otherwise fail
+    if (length(previous) && inherits(ready, "error")) {
+      
+      # attempt to evaluate previous set of code
+      code <- paste(previous, collapse = "\n")
+      compiled <- tryCatch(builtins$compile(code, '<string>', 'single'), error = identity)
+      if (!handle_error(compiled)) {
+        tryCatch(builtins$eval(compiled, locals, globals), error = identity)
+      }
+      
+      # now, handle the newest line of code submitted
+      buffer <<- contents
+      code <- contents
+      ready <- tryCatch(compiler(code), condition = identity)
+      
+      # a NULL return implies that we can accept more input
+      if (is.null(ready))
+        return()
+    }
     
     # otherwise, we should have received a code output object
     # so we can just run the code submitted thus far

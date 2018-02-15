@@ -4,13 +4,12 @@
 \alias{py_repl}
 \title{Run a Python REPL}
 \usage{
-py_repl(module = getOption("reticulate.repl.module", default = character()),
-  quiet = FALSE)
+py_repl(module = NULL, quiet = getOption("reticulate.repl.quiet", default =
+  FALSE))
 }
 \arguments{
 \item{module}{An (optional) Python module to be imported before
-the REPL is launched. Defaults to the value of the \code{reticulate.repl.module}
-option.}
+the REPL is launched.}
 
 \item{quiet}{Boolean; print a startup banner when launching the REPL? If
 \code{FALSE}, the banner will be suppressed.}

@@ -95,6 +95,15 @@ py_repl <- function(
       return()
     }
     
+    # run hook provided by front-end (in case special actions
+    # need to be taken in response to console input)
+    hook <- getOption("reticulate.repl.hook")
+    if (is.function(hook)) {
+      status <- hook(buffer, contents, trimmed)
+      if (isTRUE(status))
+        return()
+    }
+    
     # if the user submitted a blank line at the top level,
     # ignore it (but submit whitespace-only lines that might
     # terminate a block)

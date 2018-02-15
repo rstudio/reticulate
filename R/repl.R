@@ -66,8 +66,8 @@ py_repl <- function(
   quit_requested <- FALSE
   
   # inform others that the reticulate REPL is active
-  options(reticulate.repl.active = TRUE)
-  on.exit(options(reticulate.repl.active = FALSE), add = TRUE)
+  .globals$py_repl_active <- TRUE
+  on.exit(.globals$py_repl_active <- FALSE, add = TRUE)
   
   # handle errors produced during REPL actions
   handle_error <- function(output) {
@@ -210,4 +210,15 @@ py_repl <- function(
     repl()
   }
   
+}
+
+#' Check Whether the Python REPL is Active
+#' 
+#' Check to see whether the Python REPL is active. This is primarily
+#' for use by R front-ends, which might want to toggle or affect
+#' the state of the Python REPL while it is running.
+#' 
+#' @export
+py_repl_active <- function() {
+  .globals$py_repl_active
 }

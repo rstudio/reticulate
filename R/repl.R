@@ -6,20 +6,19 @@
 #' REPL is detached.
 #' 
 #' @param module An (optional) Python module to be imported before
-#'   the REPL is launched. Defaults to the value of the `reticulate.repl.module`
-#'   option.
+#'   the REPL is launched.
+#'   
 #' @param quiet Boolean; print a startup banner when launching the REPL? If
 #'   `FALSE`, the banner will be suppressed.
 #' 
 #' @export
 py_repl <- function(
-  module = getOption("reticulate.repl.module", default = character()),
+  module = NULL,
   quiet = getOption("reticulate.repl.quiet", default = FALSE))
 {
-  # load modules (do this first so that we bind to the expected version of
-  # Python if this is the first attempt to load Python)
-  for (m in module)
-    import(m)
+  # load module if requested
+  if (is.character(module))
+    import(module)
   
   # import other required modules for the REPL
   builtins <- import_builtins(convert = FALSE)

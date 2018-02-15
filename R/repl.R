@@ -20,6 +20,17 @@ py_repl <- function(
   if (is.character(module))
     import(module)
   
+  # run hooks for initialize, teardown
+  initialize <- getOption("reticulate.repl.initialize")
+  if (is.function(initialize)) {
+    initialize()
+  }
+  
+  teardown <- getOption("reticulate.repl.teardown")
+  if (is.function(teardown)) {
+    on.exit(teardown(), add = TRUE)
+  }
+    
   # import other required modules for the REPL
   builtins <- import_builtins(convert = FALSE)
   main <- import_main(convert = FALSE)

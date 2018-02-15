@@ -133,6 +133,12 @@ py_call_impl <- function(x, args = NULL, keywords = NULL) {
     .Call(`_reticulate_py_call_impl`, x, args, keywords)
 }
 
+#' Create python dictionary from the lists of keys and values.
+#'
+#' @param keys List of keys which can be python objects.
+#' @param items List of values.
+#' @param convert TRUE to automatically convert Python objects to their R equivalent.
+#' @export
 py_dict <- function(keys, items, convert) {
     .Call(`_reticulate_py_dict`, keys, items, convert)
 }

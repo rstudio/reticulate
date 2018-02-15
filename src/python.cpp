@@ -1792,6 +1792,12 @@ SEXP py_call_impl(PyObjectRef x, List args = R_NilValue, List keywords = R_NilVa
 }
 
 
+//' Create python dictionary from the lists of keys and values.
+//'
+//' @param keys List of keys which can be python objects.
+//' @param items List of values.
+//' @param convert TRUE to automatically convert Python objects to their R equivalent.
+//' @export
 // [[Rcpp::export]]
 PyObjectRef py_dict(const List& keys, const List& items, bool convert) {
   PyObject* dict = PyDict_New();

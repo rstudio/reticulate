@@ -70,22 +70,7 @@ py_repl <- function(
   #
   # we return an environment of functions bound in a local environment
   # so that hook can manipulate the buffer if required
-  buffer <- (function() {
-    
-    .data <- character()
-    
-    methods <- list(
-      clear  = function() { .data <<- character() },
-      data   = function() { .data },
-      empty  = function() { length(.data) == 0 },
-      length = function() { length(.data) },
-      push   = function(line) { .data[[length(.data) + 1]] <<- line },
-      set    = function(data) { .data <<- data }
-    )
-    
-    list2env(methods)
-    
-  })()
+  buffer <- new_stack()
   
   # command compiler (used to check if we've received a complete piece
   # of Python input)
@@ -107,6 +92,13 @@ py_repl <- function(
     }
     failed
   }
+  
+  # register custom completer
+  custom.completer <- utils::rc.getOption("custom.completer")
+  utils::rc.options(custom.completer = function(envir) {
+    envir$comps <- tryCatch(py_completer(envir), error = function(e) character())
+  })
+  on.exit(utils::rc.options(custom.completer = custom.completer), add = TRUE)
   
   repl <- function() {
     

@@ -23,7 +23,7 @@ NULL
 .globals$delay_load_priority <- 0
 .globals$suppress_warnings_handlers <- list()
 .globals$class_filters <- list()
-
+.globals$py_repl_active <- FALSE
 
 
 is_python_initialized <- function() {

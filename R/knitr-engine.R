@@ -224,8 +224,9 @@ eng_python_initialize_matplotlib <- function(options,
 }
 
 # synchronize objects R -> Python
-eng_python_synchronize_before <- function() {
-  
+eng_python_synchronize_before <- function(
+  envir = getOption("reticulate.engine.environment"))
+{
   # define our 'R' class
   py_run_string("class R(object): pass")
   
@@ -234,7 +235,6 @@ eng_python_synchronize_before <- function() {
   R <- main$R
   
   # extract active knit environment
-  envir <- getOption("reticulate.engine.environment")
   if (is.null(envir)) {
     .knitEnv <- yoink("knitr", ".knitEnv")
     envir <- .knitEnv$knit_global

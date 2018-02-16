@@ -193,3 +193,7 @@ py_eval_impl <- function(code, convert = TRUE) {
     .Call(`_reticulate_py_eval_impl`, code, convert)
 }
 
+readline <- function(prompt) {
+    .Call(`_reticulate_readline`, prompt)
+}
+

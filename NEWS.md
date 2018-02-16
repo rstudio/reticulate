@@ -3,6 +3,8 @@
 
 Install the development version with: `install_github("rstudio/reticulate")`
 
+- `py_repl()` function implementing a lightweight Python REPL in R.
+
 - `py_dict()` function to enable creation of dictionaries based on lists of 
   keys and values.
 

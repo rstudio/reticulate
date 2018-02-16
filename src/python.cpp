@@ -1793,7 +1793,7 @@ SEXP py_call_impl(PyObjectRef x, List args = R_NilValue, List keywords = R_NilVa
 
 
 // [[Rcpp::export]]
-PyObjectRef py_dict(const List& keys, const List& items, bool convert) {
+PyObjectRef py_dict_impl(const List& keys, const List& items, bool convert) {
   PyObject* dict = PyDict_New();
   for (R_xlen_t i = 0; i<keys.length(); i++) {
     PyObjectPtr key(r_to_py(keys.at(i), convert));

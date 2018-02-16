@@ -133,8 +133,8 @@ py_call_impl <- function(x, args = NULL, keywords = NULL) {
     .Call(`_reticulate_py_call_impl`, x, args, keywords)
 }
 
-py_dict <- function(keys, items, convert) {
-    .Call(`_reticulate_py_dict`, keys, items, convert)
+py_dict_impl <- function(keys, items, convert) {
+    .Call(`_reticulate_py_dict_impl`, keys, items, convert)
 }
 
 py_dict_get_item <- function(dict, key) {

@@ -2,9 +2,12 @@
 % Please edit documentation in R/python.R
 \name{dict}
 \alias{dict}
+\alias{py_dict}
 \title{Create Python dictionary}
 \usage{
 dict(..., convert = FALSE)
+
+py_dict(keys, values, convert = FALSE)
 }
 \arguments{
 \item{...}{Name/value pairs for dictionary (or a single named list to be
@@ -13,6 +16,10 @@ converted to a dictionary).}
 \item{convert}{\code{TRUE} to automatically convert Python objects to their R
 equivalent. If you pass \code{FALSE} you can do manual conversion using the
 \code{\link[=py_to_r]{py_to_r()}} function.}
+
+\item{keys}{Keys to dictionary (can be Python objects)}
+
+\item{values}{Values for dictionary}
 }
 \value{
 A Python dictionary

@@ -1,4 +1,12 @@
 
+## reticulate 1.6 (development)
+
+Install the development version with: `install_github("rstudio/reticulate")`
+
+- `py_dict()` function to enable creation of dictionaries based on lists of 
+  keys and values.
+
+
 ## reticulate 1.5 (CRAN)
 
 - Remove implicit documentation extraction for Python classes

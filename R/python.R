@@ -486,6 +486,8 @@ plot.numpy.ndarray <- function(x, y, ...) {
 #' 
 #' @param ... Name/value pairs for dictionary (or a single named list to be 
 #'   converted to a dictionary).
+#' @param keys Keys to dictionary (can be Python objects)
+#' @param values Values for dictionary
 #' @param convert `TRUE` to automatically convert Python objects to their R 
 #'   equivalent. If you pass `FALSE` you can do manual conversion using the 
 #'   [py_to_r()] function.
@@ -534,12 +536,18 @@ dict <- function(..., convert = FALSE) {
         name
     }
   })
-  
 
 
   # construct dict
-  py_dict(keys, values, convert = convert)
+  py_dict_impl(keys, values, convert = convert)
 }
+
+#' @rdname dict
+#' @export
+py_dict <- function(keys, values, convert = FALSE) {
+  ensure_python_initialized()
+  py_dict_impl(keys, values, convert = convert)
+} 
 
 #' Create Python tuple
 #' 

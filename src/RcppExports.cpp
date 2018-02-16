@@ -298,16 +298,16 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// py_dict
-PyObjectRef py_dict(const List& keys, const List& items, bool convert);
-RcppExport SEXP _reticulate_py_dict(SEXP keysSEXP, SEXP itemsSEXP, SEXP convertSEXP) {
+// py_dict_impl
+PyObjectRef py_dict_impl(const List& keys, const List& items, bool convert);
+RcppExport SEXP _reticulate_py_dict_impl(SEXP keysSEXP, SEXP itemsSEXP, SEXP convertSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const List& >::type keys(keysSEXP);
     Rcpp::traits::input_parameter< const List& >::type items(itemsSEXP);
     Rcpp::traits::input_parameter< bool >::type convert(convertSEXP);
-    rcpp_result_gen = Rcpp::wrap(py_dict(keys, items, convert));
+    rcpp_result_gen = Rcpp::wrap(py_dict_impl(keys, items, convert));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -514,7 +514,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_reticulate_py_ref_to_r_with_convert", (DL_FUNC) &_reticulate_py_ref_to_r_with_convert, 2},
     {"_reticulate_py_ref_to_r", (DL_FUNC) &_reticulate_py_ref_to_r, 1},
     {"_reticulate_py_call_impl", (DL_FUNC) &_reticulate_py_call_impl, 3},
-    {"_reticulate_py_dict", (DL_FUNC) &_reticulate_py_dict, 3},
+    {"_reticulate_py_dict_impl", (DL_FUNC) &_reticulate_py_dict_impl, 3},
     {"_reticulate_py_dict_get_item", (DL_FUNC) &_reticulate_py_dict_get_item, 2},
     {"_reticulate_py_dict_set_item", (DL_FUNC) &_reticulate_py_dict_set_item, 3},
     {"_reticulate_py_dict_length", (DL_FUNC) &_reticulate_py_dict_length, 1},

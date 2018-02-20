@@ -1,5 +1,5 @@
 # basic autocompletion support (used for the Python REPL)
-py_completer <- function(envir) {
+py_completer <- function(line) {
   
   # helper function for constructing a regular expression pattern from token
   pattern <- function(token) { paste("^\\Q", token, "\\E", sep = "") }
@@ -22,7 +22,6 @@ py_completer <- function(envir) {
   builtins <- import_builtins(convert = FALSE)
   
   # extract line
-  line <- envir$linebuffer
   trimmed <- sub("^\\s*", "", line)
   
   # check to see if we're attempting to import a module

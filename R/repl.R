@@ -96,7 +96,8 @@ py_repl <- function(
   # register custom completer
   custom.completer <- utils::rc.getOption("custom.completer")
   utils::rc.options(custom.completer = function(envir) {
-    envir$comps <- tryCatch(py_completer(envir), error = function(e) character())
+    line <- envir$linebuffer
+    envir$comps <- tryCatch(py_completer(line), error = function(e) character())
   })
   on.exit(utils::rc.options(custom.completer = custom.completer), add = TRUE)
   

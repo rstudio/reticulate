@@ -260,7 +260,7 @@ py_repl <- function(
       paste(fmt, collapse = "\n"),
       version,
       executable,
-      packageVersion("reticulate")
+      utils::packageVersion("reticulate")
     )
     
     message(msg)

@@ -86,7 +86,7 @@ new_stack <- function() {
       length = function() { length(.data) },
       push   = function(line) { .data[[length(.data) + 1]] <<- line },
       peek   = function() { .data[[length(.data)]] },
-      pop    = function() { .data <<- head(.data, n = -1) },
+      pop    = function() { .data <<- utils::head(.data, n = -1) },
       set    = function(data) { .data <<- data }
     )
     

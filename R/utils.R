@@ -58,6 +58,21 @@ defer <- function(expr, envir = parent.frame()) {
 }
 
 #' @importFrom utils head
+disable_conversion_scope <- function(object) {
+  
+  if (!inherits(object, "python.builtin.object"))
+    return(FALSE)
+  
+  envir <- as.environment(object)
+  if (exists("convert", envir = envir, inherits = FALSE)) {
+    convert <- get("convert", envir = envir)
+    assign("convert", FALSE, envir = envir)
+    defer(assign("convert", convert, envir = envir), envir = parent.frame())
+  }
+  
+  TRUE
+}
+
 new_stack <- function() {
   
   (function() {

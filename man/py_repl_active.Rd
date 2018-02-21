@@ -7,5 +7,7 @@
 py_repl_active()
 }
 \description{
-Check to see whether the Python REPL is active.
+Check to see whether the Python REPL is active. This is primarily
+for use by R front-ends, which might want to toggle or affect
+the state of the Python REPL while it is running.
 }

@@ -107,6 +107,13 @@ py_repl <- function(
     prompt <- if (buffer$empty()) ">>> " else "... "
     contents <- readline(prompt = prompt)
     
+    # NULL implies the user sent EOF -- time to leave
+    if (is.null(contents)) {
+      writeLines("exit", con = stdout())
+      quit_requested <<- TRUE
+      return()
+    }
+    
     # trim whitespace for handling of special commands
     trimmed <- gsub("^\\s*|\\s*$", "", contents)
     

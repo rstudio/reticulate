@@ -12,9 +12,3 @@ test_that("Simple Pandas data frames can be roundtripped", {
   }, before, after)
   
 })
-
-test_that("Dates can be roundtripped", {
-  r_to_py(Sys.Date())
-  df <- data.frame(x = as.Date(1, origin = "1970-01-01"))
-  r_to_py(df$x)
-})

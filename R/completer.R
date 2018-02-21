@@ -166,12 +166,15 @@ py_list_modules <- function() {
   # now, search for other modules within the common paths
   paths <- sys$path
   
+  # helper function for constructing a regular expression pattern from token
+  pattern <- function(token) { paste("^\\Q", token, "\\E", sep = "") }
+  
   # remove paths that are a subdirectory of another path in the set (so we
   # don't recursively crawl directories we've already visited)
   prefixes <- Reduce(`+`, lapply(paths, function(path) {
-    grepl(pattern(token), paths, perl = TRUE)
+    grepl(pattern(path), paths, perl = TRUE)
   }))
-  paths <- paths[prefixes == 0]
+  paths <- paths[prefixes == 1]
   
   # now, recursively search for __init__.py -- each directory that contains
   # such a file can be considered as a module

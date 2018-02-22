@@ -476,7 +476,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // readline
-std::string readline(const std::string& prompt);
+SEXP readline(const std::string& prompt);
 RcppExport SEXP _reticulate_readline(SEXP promptSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;

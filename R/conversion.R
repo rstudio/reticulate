@@ -34,9 +34,17 @@ py_to_r.default <- function(x) {
 }
 
 
+
+#' @export
+r_to_py.factor <- function(x, convert = FALSE) {
+  r_to_py_impl(as.character(x), convert = convert)
+}
+
+
+
 #' @export
 r_to_py.POSIXt <- function(x, convert = FALSE) {
-  datetime <- import("datetime", convert = FALSE)
+  datetime <- import("datetime", convert = convert)
   datetime$datetime$fromtimestamp(as.double(x))
 }
 
@@ -52,7 +60,7 @@ py_to_r.datetime.datetime <- function(x) {
 
 #' @export
 r_to_py.Date <- function(x, convert = FALSE) {
-  datetime <- import("datetime", convert = FALSE)
+  datetime <- import("datetime", convert = convert)
   iso <- strsplit(format(x), "-", fixed = TRUE)[[1]]
   year <- as.integer(iso[[1]])
   month <- as.integer(iso[[2]])
@@ -75,7 +83,7 @@ r_to_py.data.frame <- function(x, convert = FALSE) {
   if (!py_module_available("pandas"))
     return(r_to_py_impl(x, convert = convert))
   
-  pd <- import("pandas", convert = FALSE)
+  pd <- import("pandas", convert = convert)
   
   # manually convert each column to associated Python vector type
   columns <- lapply(x, function(column) {

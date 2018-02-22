@@ -43,6 +43,39 @@ r_to_py.factor <- function(x, convert = FALSE) {
 
 
 #' @export
+py_to_r.numpy.ndarray <- function(x) {
+  disable_conversion_scope(x)
+  
+  # handle numpy datetime64 objects. fortunately, as per the
+  # numpy documentation:
+  #
+  #    Datetimes are always stored based on POSIX time
+  #
+  # although some work is required to handle the different
+  # subtypes of datetime64 (since the units since epoch can
+  # be configurable)
+  np <- import("numpy", convert = TRUE)
+  if (x$dtype == "datetime64[ns]") {
+    vector <- py_to_r(x$astype("float64"))
+    return(as.POSIXct(vector / 1E9, origin = "1970-01-01"))
+  } else if (x$dtype == "datetime64[us]") {
+    vector <- py_to_r(x$astype("float64"))
+    return(as.POSIXct(vector / 1E6, origin = "1970-01-01"))
+  } else if (x$dtype == "datetime64[ms]") {
+    vector <- py_to_r(x$astype("float64"))
+    return(as.POSIXct(vector / 1E3, origin = "1970-01-01"))
+  } else if (np$issubdtype(x$dtype, np$datetime64)) {
+    vector <- py_to_r(x$astype("datetime64[ns]")$astype("float64"))
+    return(as.POSIXct(vector / 1E9, origin = "1970-01-01"))
+  }
+  
+  # no special handler found; delegate to next method
+  NextMethod()
+}
+
+
+
+#' @export
 r_to_py.POSIXt <- function(x, convert = FALSE) {
   datetime <- import("datetime", convert = convert)
   datetime$datetime$fromtimestamp(as.double(x))
@@ -50,6 +83,7 @@ r_to_py.POSIXt <- function(x, convert = FALSE) {
 
 #' @export
 py_to_r.datetime.datetime <- function(x) {
+  disable_conversion_scope(x)
   time <- import("time", convert = TRUE)
   posix <- time$mktime(x$timetuple())
   posix <- posix + as.numeric(as_r_value(x$microsecond)) * 1E-6
@@ -70,8 +104,17 @@ r_to_py.Date <- function(x, convert = FALSE) {
 
 #' @export
 py_to_r.datetime.date <- function(x) {
+  disable_conversion_scope(x)
   iso <- py_to_r(x$isoformat())
   as.Date(iso)
+}
+
+
+
+#' @export
+py_to_r.pandas.core.series.Series <- function(x) {
+  disable_conversion_scope(x)
+  py_to_r(x$as_matrix())
 }
 
 
@@ -83,7 +126,7 @@ r_to_py.data.frame <- function(x, convert = FALSE) {
   if (!py_module_available("pandas"))
     return(r_to_py_impl(x, convert = convert))
   
-  pd <- import("pandas", convert = convert)
+  pd <- import("pandas", convert = FALSE)
   
   # manually convert each column to associated Python vector type
   columns <- lapply(x, function(column) {
@@ -96,8 +139,15 @@ r_to_py.data.frame <- function(x, convert = FALSE) {
     }
   })
   
-  # otherwise, attempt conversion using pandas APIs
+  # generate DataFrame from dictionary
   pdf <- pd$DataFrame$from_dict(columns)
+  
+  # copy over row names if they exist
+  rni <- .row_names_info(x, type = 0L)
+  if (is.character(rni))
+    pdf$index <- rni
+  
+  # re-order based on original columns
   pdf$reindex(columns = names(x))
   
 }
@@ -107,7 +157,7 @@ py_to_r.pandas.core.frame.DataFrame <- function(x) {
   disable_conversion_scope(x)
   
   # extract numpy arrays associated with each column
-  columns <- as_r_value(x$columns$values)
+  columns <- py_to_r(x$columns$values)
   items <- lapply(columns, function(column) {
     x[[column]]$as_matrix()
   })
@@ -134,5 +184,17 @@ py_to_r.pandas.core.frame.DataFrame <- function(x) {
   }
   
   # re-order based on ordering of pandas DataFrame
-  as.data.frame(converted[columns], optional = TRUE, stringsAsFactors = FALSE)
+  df <- as.data.frame(
+    converted[columns],
+    optional = TRUE,
+    stringsAsFactors = FALSE
+  )
+  
+  # copy over index
+  index <- x$index
+  if (inherits(index, "pandas.core.indexes.base.Index"))
+    rownames(df) <- py_to_r(index$values)
+  
+  df
+  
 }

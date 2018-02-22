@@ -194,8 +194,9 @@ py_repl <- function(
     # which would otherwise fail
     if (length(previous) && inherits(ready, "error")) {
       
-      # attempt to evaluate previous set of code
-      code <- paste(previous, collapse = "\n")
+      # attempt to evaluate previous set of code (trim trailing whitespace
+      # as that can lead to syntax errors during execution)
+      code <- sub("\\s*$", "", paste(previous, collapse = "\n"))
       compiled <- tryCatch(builtins$compile(code, '<string>', 'single'), error = identity)
       if (!handle_error(compiled)) {
         tryCatch(builtins$eval(compiled, locals, globals), error = identity)
@@ -214,6 +215,9 @@ py_repl <- function(
     # otherwise, we should have received a code output object
     # so we can just run the code submitted thus far
     buffer$clear()
+    
+    # trim trailing whitespace to avoid potential syntax errors
+    code <- sub("\\s*$", "", code)
     
     # now compile and run the code. we use 'single' mode to ensure that
     # python auto-prints the statement as it is evaluated.

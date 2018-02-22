@@ -23,3 +23,16 @@ test_that("source_python respects the convert argument", {
   expect_s3_class(add(2, 4), 'python.builtin.object')
 })
 
+test_that("python functions can call each other", {
+  skip_if_no_python()
+  source_python('script.py')
+  expect_equal(secret(), 42)
+  expect_equal(api(), 42)
+})
+
+test_that("source_python() overlays in the main module", {
+  skip_if_no_python()
+  source_python('script.py')
+  main <- import_main()
+  expect_equal(main$value, 42)
+})

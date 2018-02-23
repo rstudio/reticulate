@@ -54,19 +54,14 @@ py_to_r.numpy.ndarray <- function(x) {
   # although some work is required to handle the different
   # subtypes of datetime64 (since the units since epoch can
   # be configurable)
+  #
+  # TODO: Python (by default) displays times using UTC time;
+  # to reflect that behavior we also us 'tz = "UTC"', but we
+  # might consider just using the default (local timezone)
   np <- import("numpy", convert = TRUE)
-  if (x$dtype == "datetime64[ns]") {
-    vector <- py_to_r(x$astype("float64"))
-    return(as.POSIXct(vector / 1E9, origin = "1970-01-01"))
-  } else if (x$dtype == "datetime64[us]") {
-    vector <- py_to_r(x$astype("float64"))
-    return(as.POSIXct(vector / 1E6, origin = "1970-01-01"))
-  } else if (x$dtype == "datetime64[ms]") {
-    vector <- py_to_r(x$astype("float64"))
-    return(as.POSIXct(vector / 1E3, origin = "1970-01-01"))
-  } else if (np$issubdtype(x$dtype, np$datetime64)) {
+  if (np$issubdtype(x$dtype, np$datetime64)) {
     vector <- py_to_r(x$astype("datetime64[ns]")$astype("float64"))
-    return(as.POSIXct(vector / 1E9, origin = "1970-01-01"))
+    return(as.POSIXct(vector / 1E9, origin = "1970-01-01", tz = "UTC"))
   }
   
   # no special handler found; delegate to next method

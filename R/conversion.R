@@ -185,10 +185,15 @@ py_to_r.pandas.core.frame.DataFrame <- function(x) {
     stringsAsFactors = FALSE
   )
   
-  # copy over index
+  # attempt to copy over index, and set as rownames when appropriate
+  # TODO: should we tag the R data.frame with the original Python index
+  # object in case users need it?
   index <- x$index
-  if (inherits(index, "pandas.core.indexes.base.Index"))
-    rownames(df) <- py_to_r(index$values)
+  if (inherits(index, "pandas.core.indexes.base.Index")) {
+    converted <- tryCatch(py_to_r(index$values), error = identity)
+    if (is.character(converted) || is.numeric(converted))
+      rownames(df) <- converted
+  }
   
   df
   

@@ -12,3 +12,14 @@ test_that("Simple Pandas data frames can be roundtripped", {
   }, before, after)
   
 })
+
+test_that("Ordered factors are preserved", {
+  skip_if_no_pandas()
+  pd <- import("pandas")
+  
+  set.seed(123)
+  before <- data.frame(x = ordered(letters, levels = sample(letters)))
+  after <- py_to_r(r_to_py(before))
+  expect_equal(before, after)
+  
+})

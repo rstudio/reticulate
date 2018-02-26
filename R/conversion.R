@@ -37,6 +37,8 @@ py_to_r.default <- function(x) {
 
 #' @export
 r_to_py.factor <- function(x, convert = FALSE) {
+  if (inherits(x, "ordered"))
+    warning("converting ordered factor to character; ordering will be lost")
   r_to_py_impl(as.character(x), convert = convert)
 }
 
@@ -126,7 +128,9 @@ r_to_py.data.frame <- function(x, convert = FALSE) {
   # manually convert each column to associated Python vector type
   columns <- lapply(x, function(column) {
     if (is.factor(column)) {
-      pd$Categorical(as.character(column), categories = levels(column))
+      pd$Categorical(as.character(column),
+                     categories = levels(column),
+                     ordered = inherits(column, "ordered"))
     } else if (is.numeric(column) || is.character(column)) {
       np_array(column)
     } else {
@@ -143,13 +147,18 @@ r_to_py.data.frame <- function(x, convert = FALSE) {
     pdf$index <- rni
   
   # re-order based on original columns
-  pdf$reindex(columns = names(x))
+  if (length(x) > 1)
+    pdf <- pdf$reindex(columns = names(x))
+  
+  pdf
   
 }
 
 #' @export
 py_to_r.pandas.core.frame.DataFrame <- function(x) {
   disable_conversion_scope(x)
+  
+  np <- import("numpy", convert = TRUE)
   
   # extract numpy arrays associated with each column
   columns <- py_to_r(x$columns$values)
@@ -173,7 +182,8 @@ py_to_r.pandas.core.frame.DataFrame <- function(x) {
     # convert categorical variables to factors
     if (identical(py_to_r(x[[column]]$dtype$name), "category")) {
       levels <- py_to_r(x[[column]]$values$categories$values)
-      converted[[i]] <- factor(converted[[i]], levels = levels)
+      ordered <- py_to_r(x[[column]]$dtype$ordered)
+      converted[[i]] <- factor(converted[[i]], levels = levels, ordered = ordered)
     }
     
   }
@@ -190,9 +200,32 @@ py_to_r.pandas.core.frame.DataFrame <- function(x) {
   # object in case users need it?
   index <- x$index
   if (inherits(index, "pandas.core.indexes.base.Index")) {
-    converted <- tryCatch(py_to_r(index$values), error = identity)
-    if (is.character(converted) || is.numeric(converted))
-      rownames(df) <- converted
+    
+    if (inherits(index, "pandas.core.indexes.range.RangeIndex") &&
+        np$issubdtype(index$dtype, np$number))
+    {
+      # check for a range index from 0 -> n. in such a case, we don't need
+      # to copy or translate the index. note that we need to translate from
+      # Python's 0-based indexing to R's one-based indexing
+      start <- py_to_r(index[["_start"]])
+      stop  <- py_to_r(index[["_stop"]])
+      step  <- py_to_r(index[["_step"]])
+      if (start != 0 || stop != nrow(df) || step != 1) {
+        values <- tryCatch(py_to_r(index$values), error = identity)
+        if (is.numeric(values)) {
+          rownames(df) <- values + 1
+        }
+      }
+    }
+    
+    # TODO: Pandas allows for a large variety of index formats; we should
+    # try to explicitly whitelist a small family which we can represent
+    # effectively in R
+    else {
+      converted <- tryCatch(py_to_r(index$values), error = identity)
+      if (is.character(converted) || is.numeric(converted))
+        rownames(df) <- converted
+    }
   }
   
   df

@@ -1,0 +1,22 @@
+---
+title: "Using reticulate's Python Engine with knitr"
+---
+
+```{r setup, include = FALSE}
+library(reticulate)
+knitr::opts_chunk$set(cache=TRUE)
+knitr::knit_engines$set(python = eng_python)
+knitr::cache_engines$set(python = cache_eng_python)
+```
+
+Cache can handle changes to second chunk:
+
+```{python}
+x = 1
+```
+
+```{python}
+print(x + 1)
+```
+
+

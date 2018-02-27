@@ -1,6 +1,6 @@
 # basic autocompletion support (used for the Python REPL)
 py_completer <- function(line) {
-  
+ 
   # helper function for constructing a regular expression pattern from token
   pattern <- function(token) { paste("^\\Q", token, "\\E", sep = "") }
   
@@ -111,6 +111,16 @@ py_completer <- function(line) {
     # extract the portion of the filepath provided by the user thus far
     path <- path.expand(substring(token, index + 1))
     
+    # for compatibility with R + readline, we use the R completion system
+    # so that file completions are processed as expected there
+    if (!identical(.Platform$GUI, "RStudio")) {
+      utils <- asNamespace("utils")
+      completions <- tryCatch(utils$fileCompletions(path), error = identity)
+      if (inherits(completions, "error"))
+        return(character())
+      return(completions)
+    }
+    
     # find the index of the last slash -- everything following is
     # the completion token; everything before is the directory to
     # search for completions in
@@ -129,7 +139,7 @@ py_completer <- function(line) {
       list.files(py_to_r(os$getcwd()))
     }
     
-    return(make_completions(rhs, files))
+    return(make_completions(path, files))
   }
   
   # now, assume 'default' completion context (items from main module,

@@ -19,4 +19,6 @@ equivalent. If you pass \code{FALSE} you can do manual conversion using the
 }
 \description{
 Evaluate a Python script and make created Python objects available within R.
+The Python script is sourced within the Python main module, and so any
+objects defined are made available within Python as well.
 }

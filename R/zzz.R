@@ -25,6 +25,15 @@
     main
     
   })
+  
+  # R's default completion system will still be hooked up for
+  # file completions, so make sure to prime the system as otherwise
+  # errors can occur when completing within strings for the Python REPL
+  if (requireNamespace("utils", quietly = TRUE)) {
+    utils <- asNamespace("utils")
+    utils$.setFileComp(FALSE)
+  }
+  
 }
 
 .onUnload <- function(libpath) {

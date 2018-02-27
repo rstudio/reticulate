@@ -91,21 +91,31 @@ help_completion_handler.python.builtin.object <- function(topic, source) {
   
   arguments_matches <- regexpr(pattern = "\nParameters\n+[-]+", doc)
   if (arguments_matches[[1]] != -1) {
-    # Sphinx style docs
-    docutils <- import("docutils.core")
-    doctree <- docutils$publish_doctree(doc)
+    # Docs in Sphinx style
+    docutils <- import("docutils")
+    doctree <- docutils$core$publish_doctree(doc)
     returns <- doctree$ids$returns$astext()
     description <- substring(doc, 1, arguments_matches[[1]])
+    
+    # Get XML representation so it's easier to work with
+    # etree <- import("xml.etree.ElementTree")
+    # doctree <- etree$fromstring(doctree$ids$parameters$asdom()$toxml())
+    params <- doctree$ids$parameters$children[[2]]$children
+    params_kv_pairs <- lapply(params, function(param) {
+      list(
+        term = param$children[[1]]$astext(),
+        definition = param$children[[3]]$astext())
+    })
+    lapply(names(doctree$ids), function(name) if (!name %in% c("parameters", "returns")) doctree$ids[[name]])
   } else {
+    # Docs in other styles, e.g. TensorFlow
     # extract preamble
     arguments_matches <- regexpr(pattern = '\n(Arg(s|uments):)', doc)
     if (arguments_matches[[1]] != -1)
       description <- substring(doc, 1, arguments_matches[[1]])
     else
       description <- doc
-    
-    
-    
+
     # collect other sections
     sections <- sections_from_doc(doc)
     

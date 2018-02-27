@@ -89,12 +89,34 @@ help_completion_handler.python.builtin.object <- function(topic, source) {
   if (is.null(doc))
     doc <- ""
   
-  # extract preamble
-  arguments_matches <- regexpr(pattern ='\nArg(s|uments):', doc)
-  if (arguments_matches[[1]] != -1)
+  arguments_matches <- regexpr(pattern = "\nParameters\n+[-]+", doc)
+  if (arguments_matches[[1]] != -1) {
+    # Sphinx style docs
+    docutils <- import("docutils.core")
+    doctree <- docutils$publish_doctree(doc)
+    returns <- doctree$ids$returns$astext()
     description <- substring(doc, 1, arguments_matches[[1]])
-  else
-    description <- doc
+  } else {
+    # extract preamble
+    arguments_matches <- regexpr(pattern = '\n(Arg(s|uments):)', doc)
+    if (arguments_matches[[1]] != -1)
+      description <- substring(doc, 1, arguments_matches[[1]])
+    else
+      description <- doc
+    
+    
+    
+    # collect other sections
+    sections <- sections_from_doc(doc)
+    
+    # try to get return info
+    returns <- sections$Returns
+    
+    # remove arguments and returns
+    sections$Args <- NULL
+    sections$Arguments <- NULL
+    sections$Returns <- NULL
+  }
   
   # extract description and details
   matches <- regexpr(pattern ='\n', description, fixed=TRUE)
@@ -106,7 +128,7 @@ help_completion_handler.python.builtin.object <- function(topic, source) {
   }
   details <- cleanup_description(details)
   description <- cleanup_description(description)
-
+  
   # try to generate a signature
   signature <- NULL
   target <- help_get_attribute(source, topic)
@@ -117,17 +139,6 @@ help_completion_handler.python.builtin.object <- function(topic, source) {
       signature <- "()"
     signature <- paste0(topic, signature)
   }
-
-  # collect other sections
-  sections <- sections_from_doc(doc)
-  
-  # try to get return info
-  returns <- sections$Returns
-  
-  # remove arguments and returns
-  sections$Args <- NULL
-  sections$Arguments <- NULL
-  sections$Returns <- NULL
 
   # return docs
   list(title = topic,

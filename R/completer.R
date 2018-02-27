@@ -106,16 +106,17 @@ py_completer <- function(line) {
     #
     #   read("~/foo.R")
     #
-    # note that Python APIs don't perform tilde expansion, but we
-    # place the onus of tilde expansion on the front-end if required
-    path <- substring(token, index + 1)
+    # note that Python APIs don't perform tilde expansion, so the onus
+    # is on us to do that for the user
+    # extract the portion of the filepath provided by the user thus far
+    path <- path.expand(substring(token, index + 1))
     
     # find the index of the last slash -- everything following is
     # the completion token; everything before is the directory to
     # search for completions in
     indices <- gregexpr("/", path, fixed = TRUE)[[1]]
     if (!identical(c(indices), -1L)) {
-      lhs <- substring(path, 1, tail(indices, n = 1))
+      lhs <- substring(path, 1, tail(indices, n = 1) - 1)
       rhs <- substring(path, tail(indices, n = 1) + 1)
     } else {
       lhs <- ""
@@ -123,7 +124,7 @@ py_completer <- function(line) {
     }
     
     files <- if (nzchar(lhs)) {
-      list.files(lhs)
+      file.path(lhs, list.files(lhs))
     } else {
       list.files(py_to_r(os$getcwd()))
     }

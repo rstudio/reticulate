@@ -92,21 +92,18 @@ help_completion_handler.python.builtin.object <- function(topic, source) {
   arguments_matches <- regexpr(pattern = "\nParameters\n+[-]+", doc)
   if (arguments_matches[[1]] != -1) {
     # Docs in Sphinx style
-    docutils <- import("docutils")
-    doctree <- docutils$core$publish_doctree(doc)
+    doctree <- sphinx_doctree_from_doc(doc)
     returns <- doctree$ids$returns$astext()
     description <- substring(doc, 1, arguments_matches[[1]])
     
-    # Get XML representation so it's easier to work with
-    # etree <- import("xml.etree.ElementTree")
-    # doctree <- etree$fromstring(doctree$ids$parameters$asdom()$toxml())
     params <- doctree$ids$parameters$children[[2]]$children
     params_kv_pairs <- lapply(params, function(param) {
       list(
         term = param$children[[1]]$astext(),
         definition = param$children[[3]]$astext())
     })
-    lapply(names(doctree$ids), function(name) if (!name %in% c("parameters", "returns")) doctree$ids[[name]])
+    sections <- lapply(names(doctree$ids), function(name) if (!name %in% c("parameters", "returns")) doctree$ids[[name]])
+    sections[sapply(sections, is.null)] <- NULL
   } else {
     # Docs in other styles, e.g. TensorFlow
     # extract preamble
@@ -181,10 +178,7 @@ help_completion_parameter_handler.python.builtin.object <- function(source) {
     if (!is.null(args)) {
       # get the descriptions
       doc <- help$get_doc(target)
-      if (is.null(doc))
-        arg_descriptions <- args
-      else
-        arg_descriptions <- arg_descriptions_from_doc(args, doc)
+      arg_descriptions_from_doc(args, doc)
       return(list(
         args = args,
         arg_descriptions = arg_descriptions
@@ -259,33 +253,55 @@ help_formals_handler.python.builtin.object <- function(topic, source) {
   NULL
 }
 
+is_sphinx_doc <- function(doc) {
+  arguments_matches <- regexpr(pattern = "\nParameters\n+[-]+", doc)
+  arguments_matches[[1]] != -1
+}
+
+sphinx_doctree_from_doc <- function(doc) {
+  docutils <- import("docutils")
+  docutils$core$publish_doctree(doc)
+}
+
 # Extract argument descriptions from python docstring
 arg_descriptions_from_doc <- function(args, doc) {
-  
-  # extract arguments section of the doc and break into lines
-  arguments <- section_from_doc('Arg(s|uments)', doc)
-  doc <- strsplit(doc, "\n", fixed = TRUE)[[1]]
-  
-  arg_descriptions <- sapply(args, function(arg) {
-    arg_line <- which(grepl(paste0("^\\s+", arg, ":"), doc))
-    if (length(arg_line) > 0) {
-      line <- doc[[arg_line]]
-      arg_description <- substring(line, regexpr(':', line)[[1]] + 1)
-      next_line <- arg_line + 1
-      while((arg_line + 1) <= length(doc)) {
-        line <- doc[[arg_line + 1]]
-        if (!grepl("^\\s*$", line) && !grepl("^\\s+\\w+: ", line)) {
-          arg_description <- paste(arg_description, line)
-          arg_line <- arg_line + 1
+  if (is_sphinx_doc(doc)) {
+    doctree <- sphinx_doctree_from_doc(doc)
+    params <- doctree$ids$parameters$children[[2]]$children
+    arg_descriptions <- sapply(params, function(param) {
+      param$children[[3]]$astext()
+    })
+  } else {
+    if (is.null(doc))
+      arg_descriptions <- args
+    else {
+      # extract arguments section of the doc and break into lines
+      arguments <- section_from_doc('Arg(s|uments)', doc)
+      doc <- strsplit(doc, "\n", fixed = TRUE)[[1]]
+      
+      arg_descriptions <- sapply(args, function(arg) {
+        arg_line <- which(grepl(paste0("^\\s+", arg, ":"), doc))
+        if (length(arg_line) > 0) {
+          line <- doc[[arg_line]]
+          arg_description <- substring(line, regexpr(':', line)[[1]] + 1)
+          next_line <- arg_line + 1
+          while((arg_line + 1) <= length(doc)) {
+            line <- doc[[arg_line + 1]]
+            if (!grepl("^\\s*$", line) && !grepl("^\\s+\\w+: ", line)) {
+              arg_description <- paste(arg_description, line)
+              arg_line <- arg_line + 1
+            }
+            else
+              break
+          }
+          arg_description <- cleanup_description(arg_description)
+        } else {
+          arg
         }
-        else
-          break
-      }
-      arg_description <- cleanup_description(arg_description)
-    } else {
-      arg
+      })
     }
-  })
+  }
+
   arg_descriptions
 }
 

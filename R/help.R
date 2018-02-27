@@ -89,20 +89,14 @@ help_completion_handler.python.builtin.object <- function(topic, source) {
   if (is.null(doc))
     doc <- ""
   
-  arguments_matches <- regexpr(pattern = "\nParameters\n+[-]+", doc)
+  arguments_matches <- regexpr(pattern = sphinx_doc_params_pattern(), doc)
   if (arguments_matches[[1]] != -1) {
     # Docs in Sphinx style
     doctree <- sphinx_doctree_from_doc(doc)
-    returns <- doctree$ids$returns$astext()
+    returns <- gsub("Returns\n", "", doctree$ids$returns$astext(), fixed = TRUE)
     description <- substring(doc, 1, arguments_matches[[1]])
-    
-    params <- doctree$ids$parameters$children[[2]]$children
-    params_kv_pairs <- lapply(params, function(param) {
-      list(
-        term = param$children[[1]]$astext(),
-        definition = param$children[[3]]$astext())
-    })
-    sections <- lapply(names(doctree$ids), function(name) if (!name %in% c("parameters", "returns")) doctree$ids[[name]])
+    sections <- lapply(names(doctree$ids), function(name) 
+      if (!name %in% c("parameters", "returns")) doctree$ids[[name]])
     sections[sapply(sections, is.null)] <- NULL
   } else {
     # Docs in other styles, e.g. TensorFlow
@@ -253,18 +247,20 @@ help_formals_handler.python.builtin.object <- function(topic, source) {
   NULL
 }
 
+sphinx_doc_params_pattern <- function() { "\nParameters\n+[-]+" }
+
 is_sphinx_doc <- function(doc) {
-  arguments_matches <- regexpr(pattern = "\nParameters\n+[-]+", doc)
+  arguments_matches <- regexpr(pattern = sphinx_doc_params_pattern(), doc)
   arguments_matches[[1]] != -1
 }
 
 sphinx_doctree_from_doc <- function(doc) {
   module_name <- "docutils"
   if (py_module_available(module_name)) {
-    docutils <- import("docutils")
+    docutils <- import(module_name)
     docutils$core$publish_doctree(doc)
   } else {
-    stop("docutils module needs to be installed to extract doc from Sphinx style documentation.")
+    stop(paste0(module_name, " module needs to be installed to extract doc from Sphinx style documentation."))
   }
 }
 

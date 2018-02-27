@@ -13,6 +13,14 @@ py_completer <- function(line) {
       completions
   }
   
+  # helper function for returning a completion vector with some extra
+  # attributes
+  make_completions <- function(token, completions = character()) {
+    sorted <- sort(filter(completions, token))
+    attr(sorted, "token") <- token
+    sorted
+  }
+  
   # import with 'convert = FALSE' to minimize potential for unintended
   # coercion between Python and R (only do it explicitly)
   os <- import("os", convert = FALSE)
@@ -25,7 +33,7 @@ py_completer <- function(line) {
   trimmed <- sub("^\\s*", "", line)
   
   # check to see if we're attempting to import a module
-  if (grepl("^import\\s+[\\w_]*", trimmed, perl = TRUE)) {
+  if (grepl("^import\\s+[\\w_.]*$", trimmed, perl = TRUE)) {
     
     modules <- py_list_modules()
     
@@ -38,15 +46,14 @@ py_completer <- function(line) {
     dots <- gregexpr(".", token, fixed = TRUE)[[1]]
     if (identical(c(dots), -1L)) {
       toplevel <- grep(".", modules, fixed = TRUE, invert = TRUE, value = TRUE)
-      completions <- filter(toplevel, token)
-      return(sort(completions))
+      return(make_completions(token, toplevel))
     }
     
     # we had dots; list all sub-modules of that module (since
     # we're now scoped to sub-modules it doesn't hurt to
     # display potentially more than just one layer)
     completions <- filter(modules, token)
-    return(sort(completions))
+    return(make_completions(token, completions))
   }
   
   # otherwise, just try to grab completions in the main module + builtins
@@ -54,42 +61,53 @@ py_completer <- function(line) {
   last <- tail(spaces, n = 1)
   token <- substring(line, last + 1)
   
-  # check for completion of dictionary keys, e.g.
-  #
-  #   foo["ab
-  #
-  re_lookup <- "([\\w_.]+)\\s*\\[\\s*['\"]([\\w_.]*)"
-  matches <- regmatches(token, regexec(re_lookup, token, perl = TRUE))[[1]]
-  if (length(matches) == 3) {
-    
-    lhs <- matches[[2]]
-    rhs <- matches[[3]]
-    
-    object <- tryCatch(py_eval(lhs, convert = FALSE), error = identity)
-    if (inherits(object, "error"))
-      return(character())
-    
-    method <- py_get_attr(object, "keys", silent = TRUE)
-    if (!inherits(method, "python.builtin.object"))
-      return(character())
-    
-    keys <- py_to_r(method)
-    candidates <- py_to_r(keys())
-    
-    completions <- filter(candidates, rhs)
-    return(sort(completions))
-  }
-  
-  # check for completion of file names within strings, e.g.
-  #
-  #   read("~/foo.R")
-  #
-  # note that Python APIs don't perform tilde expansion, so the onus
-  # is on us to do that for the user
-  context <- py_completion_context(token)
+  # check for completion of file names within strings
+  context <- py_completion_context(line)
   if (context$state %in% c("'", "\"")) {
     index <- context$index
     
+    # check for completion of dictionary keys, e.g.
+    #
+    #   <stuff>["ab
+    #
+    # we want to allow for nested completions in e.g.
+    #
+    #   foo['a']['b']['
+    #
+    # but we should be careful not to evaluate function calls.
+    # to that end, we use a permissive regex but further filter
+    # after the fact
+    re_lookup <- "(.+)\\s*\\[\\s*['\"]([^'\"]*)"
+    matches <- regmatches(token, regexec(re_lookup, token, perl = TRUE))[[1]]
+    if (length(matches) == 3) {
+      
+      lhs <- matches[[2]]
+      rhs <- matches[[3]]
+      
+      if (grepl("(", lhs, fixed = TRUE))
+        return(make_completions(rhs))
+      
+      object <- tryCatch(py_eval(lhs, convert = FALSE), error = identity)
+      if (inherits(object, "error"))
+        return(make_completions(rhs))
+      
+      method <- py_get_attr(object, "keys", silent = TRUE)
+      if (!inherits(method, "python.builtin.object"))
+        return(make_completions(rhs))
+      
+      keys <- py_to_r(method)
+      candidates <- py_to_r(keys())
+      
+      return(make_completions(rhs, candidates))
+    }
+    
+    # we're not completing a dictionary key, so assume we're
+    # forming a different kind of string (e.g. path)
+    #
+    #   read("~/foo.R")
+    #
+    # note that Python APIs don't perform tilde expansion, so the onus
+    # is on us to do that for the user
     # extract the portion of the filepath provided by the user thus far
     path <- path.expand(substring(token, index + 1))
     
@@ -111,9 +129,7 @@ py_completer <- function(line) {
       list.files(py_to_r(os$getcwd()))
     }
     
-    completions <- filter(files, rhs)
-    return(sort(completions))
-    
+    return(make_completions(rhs, files))
   }
   
   # now, assume 'default' completion context (items from main module,
@@ -122,8 +138,7 @@ py_completer <- function(line) {
   if (identical(c(dots), -1L)) {
     # no dots; just try to complete objects from the main module
     items <- c(names(main), names(builtins), py_to_r(keyword$kwlist))
-    completions <- filter(items, token)
-    return(sort(completions))
+    return(make_completions(token, items))
   }
   
   # we had dots; try to evaluate the left-hand side of the dots
@@ -135,19 +150,14 @@ py_completer <- function(line) {
   # try evaluating the left-hand side
   object <- tryCatch(py_eval(lhs, convert = FALSE), error = identity)
   if (inherits(object, "error"))
-    return(character())
+    return(make_completions(rhs))
   
   # attempt to get completions
   items <- tryCatch(py_list_attributes(object), error = identity)
   if (inherits(items, "error"))
-    return(character())
-  completions <- filter(items, rhs)
+    return(make_completions(rhs))
   
-  # re-attach the lhs of the completion string
-  completions <- paste(lhs, completions, sep = '.')
-  
-  # sort and we're done!
-  return(sort(completions))
+  return(make_completions(rhs, items))
 }
 
 # list available modules (including submodules). note that this is an expensive
@@ -165,16 +175,6 @@ py_list_modules <- function() {
   
   # now, search for other modules within the common paths
   paths <- sys$path
-  
-  # helper function for constructing a regular expression pattern from token
-  pattern <- function(token) { paste("^\\Q", token, "\\E", sep = "") }
-  
-  # remove paths that are a subdirectory of another path in the set (so we
-  # don't recursively crawl directories we've already visited)
-  prefixes <- Reduce(`+`, lapply(paths, function(path) {
-    grepl(pattern(path), paths, perl = TRUE)
-  }))
-  paths <- paths[prefixes == 1]
   
   # now, recursively search for __init__.py -- each directory that contains
   # such a file can be considered as a module

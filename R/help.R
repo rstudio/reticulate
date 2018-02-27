@@ -89,12 +89,11 @@ help_completion_handler.python.builtin.object <- function(topic, source) {
   if (is.null(doc))
     doc <- ""
   
-  arguments_matches <- regexpr(pattern = sphinx_doc_params_pattern(), doc)
-  if (arguments_matches[[1]] != -1) {
+  if (is_sphinx_doc(doc)) {
     # Docs in Sphinx style
     doctree <- sphinx_doctree_from_doc(doc)
     returns <- gsub("Returns\n", "", doctree$ids$returns$astext(), fixed = TRUE)
-    description <- substring(doc, 1, arguments_matches[[1]])
+    description <- substring(doc, 1, sphinx_doc_params_matches(doc)[[1]])
     sections <- lapply(names(doctree$ids), function(name) 
       if (!name %in% c("parameters", "returns")) doctree$ids[[name]])
     sections[sapply(sections, is.null)] <- NULL
@@ -249,9 +248,12 @@ help_formals_handler.python.builtin.object <- function(topic, source) {
 
 sphinx_doc_params_pattern <- function() { "\nParameters\n+[-]+" }
 
+sphinx_doc_params_matches <- function(doc) {
+  regexpr(pattern = sphinx_doc_params_pattern(), doc)
+}
+
 is_sphinx_doc <- function(doc) {
-  arguments_matches <- regexpr(pattern = sphinx_doc_params_pattern(), doc)
-  arguments_matches[[1]] != -1
+  sphinx_doc_params_matches(doc)[[1]] != -1
 }
 
 sphinx_doctree_from_doc <- function(doc) {

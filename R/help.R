@@ -178,7 +178,7 @@ help_completion_parameter_handler.python.builtin.object <- function(source) {
     if (!is.null(args)) {
       # get the descriptions
       doc <- help$get_doc(target)
-      arg_descriptions_from_doc(args, doc)
+      arg_descriptions <- arg_descriptions_from_doc(args, doc)
       return(list(
         args = args,
         arg_descriptions = arg_descriptions
@@ -259,47 +259,50 @@ is_sphinx_doc <- function(doc) {
 }
 
 sphinx_doctree_from_doc <- function(doc) {
-  docutils <- import("docutils")
-  docutils$core$publish_doctree(doc)
+  module_name <- "docutils"
+  if (py_module_available(module_name)) {
+    docutils <- import("docutils")
+    docutils$core$publish_doctree(doc)
+  } else {
+    stop("docutils module needs to be installed to extract doc from Sphinx style documentation.")
+  }
 }
 
 # Extract argument descriptions from python docstring
 arg_descriptions_from_doc <- function(args, doc) {
-  if (is_sphinx_doc(doc)) {
+  if (is.null(doc)) {
+    arg_descriptions <- args
+  } else if (is_sphinx_doc(doc)) {
     doctree <- sphinx_doctree_from_doc(doc)
     params <- doctree$ids$parameters$children[[2]]$children
     arg_descriptions <- sapply(params, function(param) {
       param$children[[3]]$astext()
     })
   } else {
-    if (is.null(doc))
-      arg_descriptions <- args
-    else {
-      # extract arguments section of the doc and break into lines
-      arguments <- section_from_doc('Arg(s|uments)', doc)
-      doc <- strsplit(doc, "\n", fixed = TRUE)[[1]]
-      
-      arg_descriptions <- sapply(args, function(arg) {
-        arg_line <- which(grepl(paste0("^\\s+", arg, ":"), doc))
-        if (length(arg_line) > 0) {
-          line <- doc[[arg_line]]
-          arg_description <- substring(line, regexpr(':', line)[[1]] + 1)
-          next_line <- arg_line + 1
-          while((arg_line + 1) <= length(doc)) {
-            line <- doc[[arg_line + 1]]
-            if (!grepl("^\\s*$", line) && !grepl("^\\s+\\w+: ", line)) {
-              arg_description <- paste(arg_description, line)
-              arg_line <- arg_line + 1
-            }
-            else
-              break
+    # extract arguments section of the doc and break into lines
+    arguments <- section_from_doc('Arg(s|uments)', doc)
+    doc <- strsplit(doc, "\n", fixed = TRUE)[[1]]
+    
+    arg_descriptions <- sapply(args, function(arg) {
+      arg_line <- which(grepl(paste0("^\\s+", arg, ":"), doc))
+      if (length(arg_line) > 0) {
+        line <- doc[[arg_line]]
+        arg_description <- substring(line, regexpr(':', line)[[1]] + 1)
+        next_line <- arg_line + 1
+        while((arg_line + 1) <= length(doc)) {
+          line <- doc[[arg_line + 1]]
+          if (!grepl("^\\s*$", line) && !grepl("^\\s+\\w+: ", line)) {
+            arg_description <- paste(arg_description, line)
+            arg_line <- arg_line + 1
           }
-          arg_description <- cleanup_description(arg_description)
-        } else {
-          arg
+          else
+            break
         }
-      })
-    }
+        arg_description <- cleanup_description(arg_description)
+      } else {
+        arg
+      }
+    })
   }
 
   arg_descriptions

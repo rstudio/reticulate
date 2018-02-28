@@ -1247,5 +1247,59 @@ py_filter_classes <- function(classes) {
   classes
 }
 
+# list available modules (including submodules). note that this is an expensive
+# task as it requires crawling through the filesystem for Python packages
+# on the sys.path, so results should be cached
+py_list_modules <- function(cache = TRUE) {
+  
+  # use cached modules if available
+  if (cache && !is.null(.globals$modules))
+    return(.globals$modules)
+  
+  # first, grab builtin modules
+  sys <- import("sys")
+  builtins <- as.character(sys$builtin_module_names)
+  
+  # now, search for other modules within the common paths
+  paths <- sys$path
+  
+  # now, recursively search for __init__.py -- each directory that contains
+  # such a file can be considered as a module
+  discovered <- new.env(parent = emptyenv())
+  list_submodules <- function(root, child) {
+    
+    # bail if no '__init__.py'
+    if (!file.exists(file.path(child, "__init__.py")))
+      return()
+    
+    # contains an __init__.py; it's a module
+    name <- gsub("/", ".", substring(child, nchar(root) + 2), fixed = TRUE)
+    discovered[[name]] <<- TRUE
+    
+    # now search sub-directories for modules too
+    children <- list.dirs(child, recursive = FALSE)
+    lapply(children, function(child) {
+      list_submodules(root, child)
+    })
+    
+  }
+  
+  for (root in paths) {
+    children <- list.dirs(root, recursive = FALSE)
+    lapply(children, function(child) {
+      list_submodules(root, child)
+    })
+  }
+  
+  modules <- ls(envir = discovered)
+  
+  # collect all our discoveries together
+  all <- unique(sort(c(builtins, modules)))
+  
+  # cache for quick lookup
+  .globals$modules <- all
+  
+  all
+}
 
 

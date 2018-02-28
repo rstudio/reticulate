@@ -90,16 +90,18 @@ help_completion_handler.python.builtin.object <- function(topic, source) {
     doc <- ""
   
   if (is_sphinx_doc(doc)) {
-    # Docs in Sphinx style
+    # docs in Sphinx style
     doctree <- sphinx_doctree_from_doc(doc)
     returns <- gsub("Returns\n", "", doctree$ids$returns$astext(), fixed = TRUE)
+    # remove the additional space before ":" as it's Sphinx specific
+    returns <- gsub(" : ", ": ", returns, fixed = TRUE)
     description <- substring(doc, 1, sphinx_doc_params_matches(doc)[[1]])
+    # extract sections other than parameters and returns
     sections <- lapply(names(doctree$ids), function(name) 
       if (!name %in% c("parameters", "returns")) doctree$ids[[name]])
     sections[sapply(sections, is.null)] <- NULL
   } else {
-    # Docs in other styles, e.g. TensorFlow
-    # extract preamble
+    # docs in other styles, e.g. TensorFlow
     arguments_matches <- regexpr(pattern = '\n(Arg(s|uments):)', doc)
     if (arguments_matches[[1]] != -1)
       description <- substring(doc, 1, arguments_matches[[1]])

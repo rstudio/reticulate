@@ -189,16 +189,14 @@ eng_python_initialize <- function(options, context, envir) {
     use_python(options$engine.path[[1]])
   
   if (options$cache > 0) {
-    load_module <- tryCatch(
-      import("dill"),
-      error = function(c) {
-        py_error <- py_last_error()
-        if(py_error$type == "ImportError" && py_error$value == "No module named dill") {
-          warning("The Python module dill was not found. This module is needed for full cache functionality.")
-          "No dill"
-        }})
-    if (load_module != "No dill") 
-      py_run_string("import dill")
+    module <- tryCatch(import("dill"), error = identity)
+    if (inherits(module, "error")) {
+      if (module$message == "ImportError: No module named dill") {
+        warning("The Python module dill was not found. This module is needed for full cache functionality.")
+      } else {
+        stop(module$message)
+      }
+    }
   } 
   eng_python_initialize_matplotlib(options, context, envir)
 }
@@ -292,18 +290,20 @@ eng_python_wrap <- function(outputs, options) {
 }
 
 save_python_session <- function(cache_path) {
-  dill <- tryCatch(
-    import("dill"),
-    error = function(c) {
-      py_error <- py_last_error()
-      if(py_error$type == "ImportError" && py_error$value == "No module named dill") {
-        "No dill"
-      }})
-  if (dill == "No dill") return()
-
-  py_run_string("globals().pop('r')")
-  py_run_string("globals().pop('R')")
-  dill$dump_session(filename = paste0(cache_path, ".pkl"), byref = TRUE)
+  module <- tryCatch(import("dill"), error = identity)
+  if (inherits(module, "error")) {
+    if (module$message == "ImportError: No module named dill") return()
+    signalCondition(module$message)
+  }
+  
+  r_objs_exist <- "all(r_obj in globals() for r_obj in ('r', 'R'))"
+  r_is_R <- "isinstance(r, R)"
+  if (py_eval(r_objs_exist) && py_eval(r_is_R)) {
+    py_run_string("globals().pop('r')")
+    py_run_string("globals().pop('R')")
+  }
+  
+  module$dump_session(filename = paste0(cache_path, ".pkl"), byref = TRUE)
 }
 
 #' A reticulate cache engine for Knitr
@@ -327,15 +327,13 @@ save_python_session <- function(cache_path) {
 #'   
 #' @export
 cache_eng_python <- function(cache_path) {
-  dill <- tryCatch(
-    import("dill"),
-    error = function(c) {
-      py_error <- py_last_error()
-      if(py_error$type == "ImportError" && py_error$value == "No module named dill") {
-        "No dill"
-      }})
-  if (dill == "No dill") return()
-  dill$load_session(filename = paste0(cache_path, ".pkl"))
+  module <- tryCatch(import("dill"), error = identity)
+  if (inherits(module, "error")) {
+    if (module$message == "ImportError: No module named dill") return()
+    stop(module$message)
+  }
+
+  module$load_session(filename = paste0(cache_path, ".pkl"))
 }
 
 

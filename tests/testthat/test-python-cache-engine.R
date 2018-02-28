@@ -6,6 +6,8 @@ test_that("An R Markdown document can be rendered with cache using reticulate", 
   skip_if_not_installed("rmarkdown")
   skip_if_not_installed("callr")
   
+  unlink("resources/eng-reticulate-cache-test_cache/", recursive = TRUE)
+  
   path <- callr::r(
     function() {
       rmarkdown::render("resources/eng-reticulate-cache-test.Rmd", quiet = TRUE, envir = new.env())

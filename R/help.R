@@ -89,7 +89,7 @@ help_completion_handler.python.builtin.object <- function(topic, source) {
   if (is.null(doc))
     doc <- ""
   
-  if (is_sphinx_doc(doc)) {
+  if (is_sphinx_doc(doc) && is_docutils_available()) {
     # docs in Sphinx style
     doctree <- sphinx_doctree_from_doc(doc)
     returns <- gsub("Returns\n", "", doctree$ids$returns$astext(), fixed = TRUE)
@@ -248,23 +248,24 @@ help_formals_handler.python.builtin.object <- function(topic, source) {
   NULL
 }
 
-sphinx_doc_params_pattern <- function() { "\nParameters\n+[-]+" }
-
 sphinx_doc_params_matches <- function(doc) {
-  regexpr(pattern = sphinx_doc_params_pattern(), doc)
+  regexpr(pattern = "\nParameters\n+[-]+", doc)
 }
 
 is_sphinx_doc <- function(doc) {
   sphinx_doc_params_matches(doc)[[1]] != -1
 }
 
+is_docutils_available <- function() {
+  py_module_available("docutils")
+}
+
 sphinx_doctree_from_doc <- function(doc) {
-  module_name <- "docutils"
-  if (py_module_available(module_name)) {
-    docutils <- import(module_name)
+  if (is_docutils_available()) {
+    docutils <- import("docutils")
     docutils$core$publish_doctree(doc)
   } else {
-    stop(paste0(module_name, " module needs to be installed to extract doc from Sphinx style documentation."))
+    warning("docutils module needs to be installed to extract doc from Sphinx style documentation.")
   }
 }
 
@@ -272,7 +273,7 @@ sphinx_doctree_from_doc <- function(doc) {
 arg_descriptions_from_doc <- function(args, doc) {
   if (is.null(doc)) {
     arg_descriptions <- args
-  } else if (is_sphinx_doc(doc)) {
+  } else if (is_sphinx_doc(doc) && is_docutils_available()) {
     doctree <- sphinx_doctree_from_doc(doc)
     params <- doctree$ids$parameters$children[[2]]$children
     arg_descriptions <- sapply(params, function(param) {

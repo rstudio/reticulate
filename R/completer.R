@@ -77,6 +77,20 @@ py_complete_keys <- function(object, token) {
   py_completions(token, candidates)
 }
 
+py_complete_functions <- function(object, token) {
+  
+  # use 'inspect' module to grab function arguments
+  inspect <- import("inspect", convert = TRUE)
+  arguments <- inspect$getargspec(object)$args
+  
+  # paste on an '=' for completions (Python users seem to prefer no
+  # spaces between the argument name and value)
+  completions <- paste(arguments, "=", sep = "")
+  
+  py_completions(token, completions)
+  
+}
+
 py_complete_default <- function(token) {
   
   dots <- gregexpr(".", token, fixed = TRUE)[[1]]
@@ -106,12 +120,12 @@ py_complete_default <- function(token) {
   if (inherits(candidates, "error"))
     return(py_complete_none())
   
-  # R readline completion requires us to keep the '.'s
-  if (!is_rstudio()) {
-    rhs <- paste(lhs, rhs, sep = ".")
-    candidates <- paste(lhs, candidates, sep = ".")
-  }
-
+  # R readline completion, and older versions of RStudio,
+  # require us to keep the '.'s (newer versions of RStudio will
+  # trim the '.' and display the completions more neatly)
+  rhs <- paste(lhs, rhs, sep = ".")
+  candidates <- paste(lhs, candidates, sep = ".")
+  
   py_completions(rhs, candidates)
 }
 
@@ -155,35 +169,8 @@ py_completer <- function(line) {
       if (!cursor$moveToPreviousToken())
         return(py_complete_none())
       
-      # now, try to find the start of the expression
-      repeat {
-        
-        # skip matching brackets
-        if (cursor$bwdToMatchingBracket()) {
-          if (!cursor$moveToPreviousToken())
-            return(py_complete_none())
-          next
-        }
-        
-        # consume identifiers, strings, '.'
-        if (cursor$tokenType() %in% c("string", "identifier") ||
-            cursor$tokenValue() %in% ".")
-        {
-          # if we can't move to the previous token, we must be at the
-          # start of the token stream, so just consume from here
-          if (!cursor$moveToPreviousToken())
-            break
-          next
-        }
-        
-        # if this isn't a matched token, then move back up a single
-        # token and break
-        if (!cursor$moveToNextToken())
-          return(py_complete_none())
-        
-        break
-        
-      }
+      if (!cursor$moveToStartOfEvaluation())
+        return(py_complete_none())
       
       # grab text from this offset
       lhs <- substring(line, cursor$tokenOffset(), saved$offset - 1)
@@ -210,8 +197,60 @@ py_completer <- function(line) {
     
   }
   
-  # TODO: check for completions of function argument names here?
-  # otherwise, attempt completions in main module or builtins
+  # try to guess if we're trying to autocomplete function arguments
+  maybe_function <-
+    cursor$peek(0 )$value %in% c("(", ",") ||
+    cursor$peek(-1)$value %in% c("(", ",")
+  
+  if (maybe_function) {
+    offset <- cursor$cursorOffset()
+    
+    # try to find an opening bracket
+    repeat {
+      
+      # skip matching brackets
+      if (cursor$bwdToMatchingBracket()) {
+        if (!cursor$moveToPreviousToken())
+          return(py_complete_none())
+        next
+      }
+      
+      # if we find an opening bracket, check to see if the token to the
+      # left is something that is, or could produce, a function
+      if (cursor$tokenValue() == "(" &&
+          cursor$moveToPreviousToken() &&
+          (cursor$tokenValue() == "]" || cursor$tokenType() %in% "identifier"))
+      {
+        # find code to be evaluted that will produce function
+        endToken   <- cursor$peek()
+        cursor$moveToStartOfEvaluation()
+        startToken <- cursor$peek()
+        
+        # extract the associated text
+        start <- startToken$offset
+        end   <- endToken$offset + nchar(endToken$value) - 1
+        text <- substring(line, start, end)
+        
+        # attempt to evaluate it
+        object <- tryCatch(py_eval(text, convert = FALSE), error = identity)
+        if (inherits(object, "error"))
+          break
+        
+        # success! get argument completions
+        rhs <- if (token$type %in% "identifier") token$value else ""
+        return(py_complete_arguments(object, rhs))
+      }
+      
+      if (!cursor$moveToPreviousToken())
+        break
+    }
+    
+    # if we got here, our attempts to find a function failed, so
+    # go home and fall back to the default completion solution
+    cursor$moveToOffset(offset)
+  }
+  
+  # start looking backwards
   repeat {
     
     # skip matching brackets

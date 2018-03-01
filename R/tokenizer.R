@@ -168,9 +168,10 @@ py_token_cursor <- function(tokens) {
     ")" = "(", "]" = "[", "}" = "{"
   )
   
-  tokenValue  <- function() { .tokens[[.offset]]$value  }
-  tokenType   <- function() { .tokens[[.offset]]$type   }
-  tokenOffset <- function() { .tokens[[.offset]]$offset }
+  tokenValue   <- function() { .tokens[[.offset]]$value  }
+  tokenType    <- function() { .tokens[[.offset]]$type   }
+  tokenOffset  <- function() { .tokens[[.offset]]$offset }
+  cursorOffset <- function() { .offset                   }
   
   moveToOffset <- function(offset) {
     if (offset < 1L)
@@ -291,18 +292,50 @@ py_token_cursor <- function(tokens) {
     }
   }
   
+  # move to the start of a Python statement, e.g.
+  #
+  #    alpha.beta["gamma"]
+  #    ^~~~~~~~~<~~~~~~~~^
+  #
+  moveToStartOfEvaluation <- function() {
+    
+    repeat {
+      
+      # skip matching brackets
+      if (bwdToMatchingBracket()) {
+        if (!moveToPreviousToken())
+          return(TRUE)
+        next
+      }
+      
+      # if the previous token is an identifier or a '.', move on to it
+      previous <- peek(-1L)
+      if (previous$value %in% "." || previous$type %in% "identifier") {
+        moveToPreviousToken()
+        next
+      }
+      
+      break
+      
+    }
+    
+    TRUE
+  }
+  
   list(
-    tokenValue            = tokenValue,
-    tokenType             = tokenType,
-    tokenOffset           = tokenOffset,
-    moveToNextToken       = moveToNextToken,
-    moveToPreviousToken   = moveToPreviousToken,
-    fwdToMatchingBracket  = fwdToMatchingBracket,
-    bwdToMatchingBracket  = bwdToMatchingBracket,
-    moveToOffset          = moveToOffset,
-    moveRelative          = moveRelative,
-    peek                  = peek,
-    find                  = find
+    tokenValue              = tokenValue,
+    tokenType               = tokenType,
+    tokenOffset             = tokenOffset,
+    cursorOffset            = cursorOffset,
+    moveToNextToken         = moveToNextToken,
+    moveToPreviousToken     = moveToPreviousToken,
+    fwdToMatchingBracket    = fwdToMatchingBracket,
+    bwdToMatchingBracket    = bwdToMatchingBracket,
+    moveToOffset            = moveToOffset,
+    moveRelative            = moveRelative,
+    peek                    = peek,
+    find                    = find,
+    moveToStartOfEvaluation = moveToStartOfEvaluation
   )
   
 }

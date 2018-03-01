@@ -24,6 +24,7 @@ NULL
 .globals$suppress_warnings_handlers <- list()
 .globals$class_filters <- list()
 .globals$py_repl_active <- FALSE
+.globals$modules <- new.env(parent = emptyenv())
 
 
 is_python_initialized <- function() {

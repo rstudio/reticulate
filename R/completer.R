@@ -11,19 +11,63 @@ py_complete_none <- function() {
 
 # retrieve module completions
 py_complete_imports <- function(token) {
-  modules <- py_list_modules()
   
-  # check to see if the user is attempting to import a submodule
-  dots <- gregexpr(".", token, fixed = TRUE)[[1]]
-  if (identical(c(dots), -1L)) {
-    toplevel <- grep(".", modules, fixed = TRUE, invert = TRUE, value = TRUE)
-    return(py_completions(token, toplevel))
+  # split into pieces (note that strsplit drops an empty final match
+  # so we need to add it back if the token is e.g. 'a.b.')
+  pieces <- strsplit(token, ".", fixed = TRUE)[[1]]
+  if (grepl("[.]$", token))
+    pieces <- c(pieces, "")
+  module <- pieces[[1]]
+  
+  # no '.' implies we're completing top-level modules
+  if (length(pieces) == 1)
+    return(py_completions(token, py_list_modules()))
+  
+  # we're completing a sub-module. first, find the sub module path,
+  # and then attempt to construct the path to the sub module we're
+  # looking inside
+  imp <- import("imp", convert = FALSE)
+  info <- tryCatch(imp$find_module(module), error = identity)
+  if (inherits(info, "error"))
+    return(py_complete_none())
+  
+  # construct sub-module path
+  path <- py_to_r(info[[1]])
+  for (component in pieces[-c(1, length(pieces))])
+    path <- file.path(path, component)
+  
+  # list modules in this path
+  postfix <- pieces[length(pieces)]
+  completions <- py_completions(postfix, py_list_modules(path))
+  
+  # now, bring back full prefix for completions
+  if (length(completions)) {
+    prefix <- paste(pieces[-length(pieces)], collapse = ".")
+    completions <- paste(prefix, completions, sep = ".")
   }
   
-  # we had dots; list all sub-modules of that module (since
-  # we're now scoped to sub-modules it doesn't hurt to
-  # display potentially more than just one layer)
-  py_completions(token, modules)
+  # add in metadata
+  attr(completions, "token") <- token
+  attr(completions, "type") <- 21
+  completions
+  
+}
+
+py_complete_imports_from <- function(module, token) {
+  
+  # request completions as though this were <module>.<token>
+  pasted <- paste(module, token, sep = ".")
+  completions <- py_complete_imports(pasted)
+  
+  # fix up the completions (remove the <module> prefix)
+  if (length(completions)) {
+    prefix <- paste(module, ".", sep = "")
+    completions <- sub(prefix, "", completions, fixed = TRUE)
+  }
+  
+  attr(completions, "token") <- token
+  completions
+  
 }
 
 py_complete_files <- function(token) {
@@ -126,17 +170,65 @@ py_complete_default <- function(token) {
   rhs <- paste(lhs, rhs, sep = ".")
   candidates <- paste(lhs, candidates, sep = ".")
   
+  # similar motivation requires us to trim quotations, if we're trying
+  # to e.g. complete methods on a string literal
+  rhs <- gsub(".*['\"]", "", rhs)
+  candidates <- gsub(".*['\"]", "", candidates)
+  
+  # TODO: Figure out how to get readline completions to stop appending
+  # a quote when autocompleting a string literal's methods. (presumedly,
+  # something in R thinks it's completing a file, and so auto-closes
+  # the quote?)
+  
   py_completions(rhs, candidates)
 }
 
 # basic autocompletion support (used for the Python REPL)
 py_completer <- function(line) {
   
-  # check for completion of a module name in e.g. 'import nu'
-  re_import <- "^[[:space:]]*import[[:space:]]+([[:alnum:]._]*)$"
+  # check for completion of a module name in e.g. 'import nu' or 'from nu'
+  re_import <- paste(
+    "^[[:space:]]*",      # leading whitespace
+    "(?:from|import)",    # from or import
+    "[[:space:]]+",       # separating spaces
+    "([[:alnum:]._]+)$",  # module name
+    sep = ""
+  )
+  
   matches <- regmatches(line, regexec(re_import, line, perl = TRUE))[[1]]
   if (length(matches) == 2)
     return(py_complete_imports(matches[[2]]))
+  
+  # check for completion of submodule
+  re_import_from <- paste(
+    "^[[:space:]]*",     # leading space
+    "from",              # 'from'
+    "[[:space:]]+",      # separating spaces
+    "([[:alnum:]._]+)",  # module name
+    "[[:space:]]+",      # separating spaces
+    "import",            # 'import'
+    "[[:space:]]+",      # separating spaces
+    "\\(?",              # an optional opening bracket (tuple style)
+    "(.*)",              # the rest
+    sep = ""
+  )
+  
+  matches <- regmatches(line, regexec(re_import_from, line, perl = TRUE))[[1]]
+  if (length(matches) == 3) {
+    
+    # extract module from which imports are being drawn
+    module <- matches[[2]]
+    imports <- matches[[3]]
+    
+    # figure out the text following the last comma
+    pieces <- strsplit(imports, ",[[:space:]]*")[[1]]
+    if (grepl(",$", imports))
+      pieces <- c(pieces, "")
+    
+    token <- pieces[[length(pieces)]]
+    return(py_complete_imports_from(module, token))
+    
+  }
   
   # tokenize the line and grab the last token
   tokens <- py_tokenize(

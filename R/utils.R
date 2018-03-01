@@ -1,4 +1,6 @@
-
+is_rstudio <- function() {
+  identical(.Platform$GUI, "RStudio")
+}
 
 traceback_enabled <- function() {
   

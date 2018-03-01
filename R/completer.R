@@ -1,293 +1,378 @@
-# basic autocompletion support (used for the Python REPL)
-py_completer <- function(line) {
- 
-  # helper function for constructing a regular expression pattern from token
-  pattern <- function(token) { paste("^\\Q", token, "\\E", sep = "") }
+py_completions <- function(token, candidates) {
+  pattern <- paste("^\\Q", token, "\\E", sep = "")
+  completions <- sort(grep(pattern, candidates, perl = TRUE, value = TRUE))
+  attr(completions, "token") <- token
+  completions
+}
+
+py_complete_none <- function() {
+  character()
+}
+
+# retrieve module completions
+py_complete_imports <- function(token) {
   
-  # helper function for filtering a completion set
-  # TODO: do we want to allow for e.g. RStudio-style subsequence matching?
-  filter <- function(completions, token) {
-    if (nzchar(token))
-      grep(pattern(token), completions, perl = TRUE, value = TRUE)
-    else
-      completions
+  # split into pieces (note that strsplit drops an empty final match
+  # so we need to add it back if the token is e.g. 'a.b.')
+  pieces <- strsplit(token, ".", fixed = TRUE)[[1]]
+  if (grepl("[.]$", token))
+    pieces <- c(pieces, "")
+  module <- pieces[[1]]
+  
+  # no '.' implies we're completing top-level modules
+  if (length(pieces) == 1)
+    return(py_completions(token, py_list_modules()))
+  
+  # we're completing a sub-module. first, find the sub module path,
+  # and then attempt to construct the path to the sub module we're
+  # looking inside
+  imp <- import("imp", convert = FALSE)
+  info <- tryCatch(imp$find_module(module), error = identity)
+  if (inherits(info, "error"))
+    return(py_complete_none())
+  
+  # construct sub-module path
+  path <- py_to_r(info[[1]])
+  for (component in pieces[-c(1, length(pieces))])
+    path <- file.path(path, component)
+  
+  # list modules in this path
+  postfix <- pieces[length(pieces)]
+  completions <- py_completions(postfix, py_list_modules(path))
+  
+  # now, bring back full prefix for completions
+  if (length(completions)) {
+    prefix <- paste(pieces[-length(pieces)], collapse = ".")
+    completions <- paste(prefix, completions, sep = ".")
   }
   
-  # helper function for returning a completion vector with some extra
-  # attributes
-  make_completions <- function(token, completions = character()) {
-    sorted <- sort(filter(completions, token))
-    attr(sorted, "token") <- token
-    sorted
+  # add in metadata
+  attr(completions, "token") <- token
+  attr(completions, "type") <- 21
+  completions
+  
+}
+
+py_complete_imports_from <- function(module, token) {
+  
+  # request completions as though this were <module>.<token>
+  pasted <- paste(module, token, sep = ".")
+  completions <- py_complete_imports(pasted)
+  
+  # fix up the completions (remove the <module> prefix)
+  if (length(completions)) {
+    prefix <- paste(module, ".", sep = "")
+    completions <- sub(prefix, "", completions, fixed = TRUE)
   }
   
-  # import with 'convert = FALSE' to minimize potential for unintended
-  # coercion between Python and R (only do it explicitly)
-  os <- import("os", convert = FALSE)
-  sys <- import("sys", convert = FALSE)
-  main <- import_main(convert = FALSE)
-  keyword <- import("keyword", convert = FALSE)
-  builtins <- import_builtins(convert = FALSE)
+  attr(completions, "token") <- token
+  completions
   
-  # extract line
-  trimmed <- sub("^\\s*", "", line)
+}
+
+py_complete_files <- function(token) {
   
-  # check to see if we're attempting to import a module
-  if (grepl("^import\\s+[\\w_.]*$", trimmed, perl = TRUE)) {
-    
-    modules <- py_list_modules()
-    
-    # figure out what the user has typed so far
-    parts <- strsplit(trimmed, "\\s+")[[1]]
-    token <- if (length(parts) == 1) "" else parts[[2]]
-    
-    # find the last dot in the token (for cases where the user is
-    # importing a submodule)
-    dots <- gregexpr(".", token, fixed = TRUE)[[1]]
-    if (identical(c(dots), -1L)) {
-      toplevel <- grep(".", modules, fixed = TRUE, invert = TRUE, value = TRUE)
-      return(make_completions(token, toplevel))
-    }
-    
-    # we had dots; list all sub-modules of that module (since
-    # we're now scoped to sub-modules it doesn't hurt to
-    # display potentially more than just one layer)
-    completions <- filter(modules, token)
-    return(make_completions(token, completions))
+  os <- import("os", convert = TRUE)
+  token <- gsub("^['\"]|['\"]$", "", token)
+  expanded <- path.expand(token)
+  
+  # for compatibility with R + readline, we use the R completion system
+  # so that file completions are processed as expected there
+  if (!is_rstudio()) {
+    utils <- asNamespace("utils")
+    completions <- tryCatch(utils$fileCompletions(expanded), error = identity)
+    if (inherits(completions, "error"))
+      return(character())
+    return(completions)
   }
   
-  # otherwise, just try to grab completions in the main module + builtins
-  spaces <- gregexpr("[[:space:]]", line)[[1]]
-  last <- tail(spaces, n = 1)
-  token <- substring(line, last + 1)
-  
-  # check for completion of file names within strings
-  context <- py_completion_context(line)
-  if (context$state %in% c("'", "\"")) {
-    index <- context$index
-    
-    # check for completion of dictionary keys, e.g.
-    #
-    #   <stuff>["ab
-    #
-    # we want to allow for nested completions in e.g.
-    #
-    #   foo['a']['b']['
-    #
-    # but we should be careful not to evaluate function calls.
-    # to that end, we use a permissive regex but further filter
-    # after the fact
-    re_lookup <- "(.+)\\s*\\[\\s*['\"]([^'\"]*)"
-    matches <- regmatches(token, regexec(re_lookup, token, perl = TRUE))[[1]]
-    if (length(matches) == 3) {
-      
-      lhs <- matches[[2]]
-      rhs <- matches[[3]]
-      
-      if (grepl("(", lhs, fixed = TRUE))
-        return(make_completions(rhs))
-      
-      object <- tryCatch(py_eval(lhs, convert = FALSE), error = identity)
-      if (inherits(object, "error"))
-        return(make_completions(rhs))
-      
-      method <- py_get_attr(object, "keys", silent = TRUE)
-      if (!inherits(method, "python.builtin.object"))
-        return(make_completions(rhs))
-      
-      keys <- py_to_r(method)
-      candidates <- py_to_r(keys())
-      
-      return(make_completions(rhs, candidates))
-    }
-    
-    # we're not completing a dictionary key, so assume we're
-    # forming a different kind of string (e.g. path)
-    #
-    #   read("~/foo.R")
-    #
-    # note that Python APIs don't perform tilde expansion, so the onus
-    # is on us to do that for the user
-    # extract the portion of the filepath provided by the user thus far
-    path <- path.expand(substring(token, index + 1))
-    
-    # for compatibility with R + readline, we use the R completion system
-    # so that file completions are processed as expected there
-    if (!identical(.Platform$GUI, "RStudio")) {
-      utils <- asNamespace("utils")
-      completions <- tryCatch(utils$fileCompletions(path), error = identity)
-      if (inherits(completions, "error"))
-        return(character())
-      return(completions)
-    }
-    
-    # find the index of the last slash -- everything following is
-    # the completion token; everything before is the directory to
-    # search for completions in
-    indices <- gregexpr("/", path, fixed = TRUE)[[1]]
-    if (!identical(c(indices), -1L)) {
-      lhs <- substring(path, 1, tail(indices, n = 1) - 1)
-      rhs <- substring(path, tail(indices, n = 1) + 1)
-    } else {
-      lhs <- ""
-      rhs <- path
-    }
-    
-    files <- if (nzchar(lhs)) {
-      file.path(lhs, list.files(lhs))
-    } else {
-      list.files(py_to_r(os$getcwd()))
-    }
-    
-    return(make_completions(path, files))
+  # find the index of the last slash -- everything following is
+  # the completion token; everything before is the directory to
+  # search for completions in
+  indices <- gregexpr("/", expanded, fixed = TRUE)[[1]]
+  if (!identical(c(indices), -1L)) {
+    lhs <- substring(expanded, 1, tail(indices, n = 1))
+    rhs <- substring(expanded, tail(indices, n = 1) + 1)
+    files <- paste(lhs, list.files(lhs), sep = "")
+  } else {
+    lhs <- "."
+    rhs <- expanded
+    files <- list.files(os$getcwd())
   }
   
-  # now, assume 'default' completion context (items from main module,
-  # or attributes of a Python object)
+  # form completions (but add extra metadata after)
+  completions <- py_completions(expanded, files)
+  attr(completions, "token") <- token
+  
+  info <- file.info(completions)
+  attr(completions, "types") <- ifelse(info$isdir, 16, 15)
+  
+  completions
+}
+
+py_complete_keys <- function(object, token) {
+  
+  method <- py_get_attr(object, "keys", silent = TRUE)
+  if (!inherits(method, "python.builtin.object"))
+    return(py_complete_none())
+  
+  keys <- py_to_r(method)
+  candidates <- py_to_r(keys())
+  py_completions(token, candidates)
+}
+
+py_complete_arguments <- function(object, token) {
+  
+  # use 'inspect' module to grab function arguments
+  inspect <- import("inspect", convert = TRUE)
+  arguments <- inspect$getargspec(object)$args
+  
+  # paste on an '=' for completions (Python users seem to prefer no
+  # spaces between the argument name and value)
+  completions <- paste(arguments, "=", sep = "")
+  
+  py_completions(token, completions)
+  
+}
+
+py_complete_default <- function(token) {
+  
   dots <- gregexpr(".", token, fixed = TRUE)[[1]]
   if (identical(c(dots), -1L)) {
     # no dots; just try to complete objects from the main module
-    items <- c(names(main), names(builtins), py_to_r(keyword$kwlist))
-    return(make_completions(token, items))
+    main     <- import_main(convert = TRUE)
+    builtins <- import_builtins(convert = TRUE)
+    keyword  <- import("keyword", convert = TRUE)
+    
+    candidates <- c(names(main), names(builtins), keyword$kwlist)
+    return(py_completions(token, candidates))
   }
-  
+
   # we had dots; try to evaluate the left-hand side of the dots
   # and then filter on the attributes of the object (if any)
   last <- tail(dots, n = 1)
   lhs <- substring(token, 1, last - 1)
   rhs <- substring(token, last + 1)
-  
+
   # try evaluating the left-hand side
   object <- tryCatch(py_eval(lhs, convert = FALSE), error = identity)
   if (inherits(object, "error"))
-    return(make_completions(rhs))
-  
+    return(py_complete_none())
+
   # attempt to get completions
-  items <- tryCatch(py_list_attributes(object), error = identity)
-  if (inherits(items, "error"))
-    return(make_completions(rhs))
+  candidates <- tryCatch(py_list_attributes(object), error = identity)
+  if (inherits(candidates, "error"))
+    return(py_complete_none())
   
-  return(make_completions(rhs, items))
+  # R readline completion, and older versions of RStudio,
+  # require us to keep the '.'s (newer versions of RStudio will
+  # trim the '.' and display the completions more neatly)
+  rhs <- paste(lhs, rhs, sep = ".")
+  candidates <- paste(lhs, candidates, sep = ".")
+  
+  # similar motivation requires us to trim quotations, if we're trying
+  # to e.g. complete methods on a string literal
+  rhs <- gsub(".*['\"]", "", rhs)
+  candidates <- gsub(".*['\"]", "", candidates)
+  
+  # TODO: Figure out how to get readline completions to stop appending
+  # a quote when autocompleting a string literal's methods. (presumedly,
+  # something in R thinks it's completing a file, and so auto-closes
+  # the quote?)
+  
+  py_completions(rhs, candidates)
 }
 
-# list available modules (including submodules). note that this is an expensive
-# task as it requires crawling through the filesystem for Python packages
-# on the sys.path, so results need to be cached
-py_list_modules <- function() {
+# basic autocompletion support (used for the Python REPL)
+py_completer <- function(line) {
   
-  # use cached modules if available
-  if (!is.null(.globals$modules))
-    return(.globals$modules)
+  # check for completion of a module name in e.g. 'import nu' or 'from nu'
+  re_import <- paste(
+    "^[[:space:]]*",      # leading whitespace
+    "(?:from|import)",    # from or import
+    "[[:space:]]+",       # separating spaces
+    "([[:alnum:]._]+)$",  # module name
+    sep = ""
+  )
   
-  # first, grab builtin modules
-  sys <- import("sys")
-  builtins <- as.character(sys$builtin_module_names)
+  matches <- regmatches(line, regexec(re_import, line, perl = TRUE))[[1]]
+  if (length(matches) == 2)
+    return(py_complete_imports(matches[[2]]))
   
-  # now, search for other modules within the common paths
-  paths <- sys$path
+  # check for completion of submodule
+  re_import_from <- paste(
+    "^[[:space:]]*",     # leading space
+    "from",              # 'from'
+    "[[:space:]]+",      # separating spaces
+    "([[:alnum:]._]+)",  # module name
+    "[[:space:]]+",      # separating spaces
+    "import",            # 'import'
+    "[[:space:]]+",      # separating spaces
+    "\\(?",              # an optional opening bracket (tuple style)
+    "(.*)",              # the rest
+    sep = ""
+  )
   
-  # now, recursively search for __init__.py -- each directory that contains
-  # such a file can be considered as a module
-  discovered <- new.env(parent = emptyenv())
-  list_submodules <- function(root, child) {
+  matches <- regmatches(line, regexec(re_import_from, line, perl = TRUE))[[1]]
+  if (length(matches) == 3) {
     
-    # bail if no '__init__.py'
-    if (!file.exists(file.path(child, "__init__.py")))
-      return()
+    # extract module from which imports are being drawn
+    module <- matches[[2]]
+    imports <- matches[[3]]
     
-    # contains an __init__.py; it's a module
-    name <- gsub("/", ".", substring(child, nchar(root) + 2), fixed = TRUE)
-    discovered[[name]] <<- TRUE
+    # figure out the text following the last comma
+    pieces <- strsplit(imports, ",[[:space:]]*")[[1]]
+    if (grepl(",$", imports))
+      pieces <- c(pieces, "")
     
-    # now search sub-directories for modules too
-    children <- list.dirs(child, recursive = FALSE)
-    lapply(children, function(child) {
-      list_submodules(root, child)
-    })
+    token <- pieces[[length(pieces)]]
+    return(py_complete_imports_from(module, token))
     
   }
   
-  for (root in paths) {
-    children <- list.dirs(root, recursive = FALSE)
-    lapply(children, function(child) {
-      list_submodules(root, child)
-    })
+  # tokenize the line and grab the last token
+  tokens <- py_tokenize(
+    code = line,
+    exclude = function(token) { token$type %in% c("whitespace", "comment") },
+    keep.unknown = FALSE
+  )
+  
+  if (length(tokens) == 0)
+    return(py_complete_none())
+
+  # construct token cursor
+  cursor <- py_token_cursor(tokens)
+  cursor$moveToOffset(length(tokens))
+  token <- cursor$peek()
+  
+  # for strings, we may be either completing dictionary keys or files
+  if (token$type %in% "string") {
+    
+    # if there's no prior token, assume this is a file name
+    if (!cursor$moveToPreviousToken())
+      return(py_complete_files(token$value))
+    
+    # if the prior token is an open bracket, assume we're completing
+    # a dictionary key
+    if (cursor$tokenValue() == "[") {
+      
+      saved <- cursor$peek()
+      
+      if (!cursor$moveToPreviousToken())
+        return(py_complete_none())
+      
+      if (!cursor$moveToStartOfEvaluation())
+        return(py_complete_none())
+      
+      # grab text from this offset
+      lhs <- substring(line, cursor$tokenOffset(), saved$offset - 1)
+      rhs <- gsub("^['\"]|['\"]$", "", token$value)
+      
+      # bail if there are any '(' tokens (avoid arbitrary function eval)
+      # in theory this screens out tuples but that's okay for now
+      tokens <- py_tokenize(lhs)
+      lparen <- Find(function(token) token$value == "(", tokens)
+      if (!is.null(lparen))
+        return(py_complete_none())
+      
+      # attempt to evaluate left-hand side
+      evaluated <- tryCatch(py_eval(lhs, convert = FALSE), error = identity)
+      if (inherits(evaluated, "error"))
+        return(py_complete_none())
+      
+      return(py_complete_keys(evaluated, rhs))
+      
+    }
+    
+    # doesn't look like a dictionary; perform filesystem completion
+    return(py_complete_files(token$value))
+    
   }
   
-  modules <- ls(envir = discovered)
+  # try to guess if we're trying to autocomplete function arguments
+  maybe_function <-
+    cursor$peek(0 )$value %in% c("(", ",") ||
+    cursor$peek(-1)$value %in% c("(", ",")
   
-  # collect all our discoveries together
-  all <- unique(sort(c(builtins, modules)))
-  
-  # cache for quick lookup
-  .globals$modules <- all
-  
-  all
-}
-
-py_completion_context <- function(line) {
-  
-  # states we care about for our completion context
-  STATE_TOPLEVEL <- "<top>"    
-  STATE_SQUOTE   <- "'"
-  STATE_DQUOTE   <- "\""
-  
-  state <- new_stack()
-  state$push(list(index = 0, state = STATE_TOPLEVEL))
-  
-  # would love to use Python's own tokenizer here but it doesn't handle
-  # incomplete strings (it returns an error instead) so we implement our
-  # own ad-hoc tokenizer with just enough to get completion context we need
-  
-  # iterate through tokens
-  i <- 0; n <- nchar(line)
-  while (i < n) {
+  if (maybe_function) {
+    offset <- cursor$cursorOffset()
     
-    # move to next character
-    i <- i + 1; c <- substring(line, i, i)
+    # try to find an opening bracket
+    repeat {
+      
+      # skip matching brackets
+      if (cursor$bwdToMatchingBracket()) {
+        if (!cursor$moveToPreviousToken())
+          return(py_complete_none())
+        next
+      }
+      
+      # if we find an opening bracket, check to see if the token to the
+      # left is something that is, or could produce, a function
+      if (cursor$tokenValue() == "(" &&
+          cursor$moveToPreviousToken() &&
+          (cursor$tokenValue() == "]" || cursor$tokenType() %in% "identifier"))
+      {
+        # find code to be evaluted that will produce function
+        endToken   <- cursor$peek()
+        cursor$moveToStartOfEvaluation()
+        startToken <- cursor$peek()
+        
+        # extract the associated text
+        start <- startToken$offset
+        end   <- endToken$offset + nchar(endToken$value) - 1
+        text <- substring(line, start, end)
+        
+        # attempt to evaluate it
+        object <- tryCatch(py_eval(text, convert = FALSE), error = identity)
+        if (inherits(object, "error"))
+          break
+        
+        # success! get argument completions
+        rhs <- if (token$type %in% "identifier") token$value else ""
+        return(py_complete_arguments(object, rhs))
+      }
+      
+      if (!cursor$moveToPreviousToken())
+        break
+    }
     
-    # on backslash, skip to next character
-    if (c == "\\") {
-      i <- i + 1
+    # if we got here, our attempts to find a function failed, so
+    # go home and fall back to the default completion solution
+    cursor$moveToOffset(offset)
+  }
+  
+  # start looking backwards
+  repeat {
+    
+    # skip matching brackets
+    if (cursor$bwdToMatchingBracket()) {
+      if (!cursor$moveToPreviousToken())
+        return(py_complete_none())
       next
     }
     
-    # grab current state and figure out next action
-    current <- state$peek()$state
-    if (current == STATE_TOPLEVEL) {
-      
-      if (c == "'") {
-        state$push(list(index = i, state = STATE_SQUOTE))
-        next
-      }
-      
-      if (c == "\"") {
-        state$push(list(index = i, state = STATE_DQUOTE))
-        next
-      }
-      
+    # consume identifiers, strings, '.'
+    if (cursor$tokenType() %in% c("string", "identifier") ||
+        cursor$tokenValue() %in% ".")
+    {
+      # if we can't move to the previous token, we must be at the
+      # start of the token stream, so just consume from here
+      if (!cursor$moveToPreviousToken())
+        break
+      next
     }
     
-    if (current == STATE_SQUOTE) {
-      
-      if (c == "'") {
-        state$pop()
-        next
-      }
-      
-    }
+    # if this isn't a matched token, then move back up a single
+    # token and break
+    if (!cursor$moveToNextToken())
+      return(py_complete_none())
     
-    if (current == STATE_DQUOTE) {
-      
-      if (c == "\"") {
-        state$pop()
-        next
-      }
-      
-    }
+    break
     
   }
   
-  state$peek()
+  text <- substring(line, cursor$tokenOffset())
+  py_complete_default(text)
   
 }

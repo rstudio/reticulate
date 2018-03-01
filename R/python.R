@@ -1232,7 +1232,7 @@ py_get_name <- function(x) {
 }
 
 py_get_submodule <- function(x, name, convert = TRUE) {
-  module_name <- paste(py_get_name(x), name, sep=".")
+  module_name <- paste(py_get_name(x), name, sep = ".")
   result <- tryCatch(import(module_name, convert = convert), 
                      error = clear_error_handler())
   if (inherits(result, "error"))
@@ -1247,5 +1247,48 @@ py_filter_classes <- function(classes) {
   classes
 }
 
+# list modules within a particular path
+# (NULL means all top-level modules)
+py_list_modules <- function(path = NULL) {
+  
+  # construct key from provided path
+  key <- if (is.null(path)) "<top-level>" else path
+  
+  # use cached modules if available
+  if (!is.null(.globals$modules[[key]]))
+    return(.globals$modules[[key]])
+  
+  sys      <- import("sys", convert = TRUE)
+  pkgutil  <- import("pkgutil", convert = FALSE)
+  builtins <- import_builtins(convert = FALSE)
+  
+  # attempt to list top-level modules. NOTE: iter_modules() expects its
+  # input as an array, except when NULL (None)
+  if (!is.null(path))
+    path <- as.list(path)
+  
+  modules <- tryCatch(
+    builtins$list(pkgutil$iter_modules(path)),
+    error = identity
+  )
+  
+  if (inherits(modules, "error"))
+    return(character())
+  
+  # convert to R object and extract module names
+  names <- vapply(py_to_r(modules), `[[`, 2, FUN.VALUE = character(1))
+  
+  # if we're completing top-level modules, include builtin modules
+  if (is.null(path))
+    names <- c(names, as.character(sys$builtin_module_names))
+  
+  # sort and uniquify
+  all <- sort(unique(names))
+  
+  # cache for quick lookup
+  .globals$modules[[key]] <- all
+  
+  all
+}
 
 

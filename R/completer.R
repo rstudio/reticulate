@@ -77,7 +77,7 @@ py_complete_keys <- function(object, token) {
   py_completions(token, candidates)
 }
 
-py_complete_functions <- function(object, token) {
+py_complete_arguments <- function(object, token) {
   
   # use 'inspect' module to grab function arguments
   inspect <- import("inspect", convert = TRUE)

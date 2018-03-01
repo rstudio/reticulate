@@ -262,7 +262,7 @@ py_token_cursor <- function(tokens) {
   peek <- function(i = 0L) {
     offset <- .offset + i
     if (offset < 1L || offset > .n)
-      return(list(token = "", type = "unknown", offset = offset))
+      return(py_token("", "unknown", -1L))
     return(.tokens[[offset]])
   }
   

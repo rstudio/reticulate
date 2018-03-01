@@ -38,7 +38,7 @@ test_that("autocompletion of function arguments works", {
   py_run_string("def foo(a1, a2, a3, b1, b2, b3): pass")
   line <- "x = 1 + foo(1, a"
   completions <- py_completer(line)
-  expect_equal(c(completions), c("delta"))
-  expect_equal(attr(completions, "token"), "d")
+  expect_equal(c(completions), c("a1=", "a2=", "a3="))
+  expect_equal(attr(completions, "token"), "a")
   
 })

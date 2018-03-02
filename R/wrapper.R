@@ -26,15 +26,17 @@ py_function_wrapper <- function(python_function, r_prefix = NULL, r_function = N
   write(sprintf("#' %s\n#' ", docs$description), file = con)
   details <- gsub("\n", "\n#' ", docs$details, fixed = TRUE)
   write(sprintf("#' %s\n#' ", details), file = con)
-  
+
   # parameters
-  for (param in names(docs$parameters))
-    write(sprintf("#' @param %s %s", param, docs$parameters[[param]]), file = con)
+  for (param in names(docs$parameters)) {
+    param_description <- gsub("\n", "\n#' ", docs$parameters[[param]], fixed = TRUE)
+    write(sprintf("#' @param %s %s", param, param_description), file = con)
+  }
   
   # returns
   if (isTRUE(nzchar(docs$returns))) {
     write("#' ", file = con)
-    write(sprintf("#' @return %s", docs$returns), file = con)
+    write(sprintf("#' @return %s", gsub("^\n", "", docs$returns)), file = con)
   }
   
   # sections

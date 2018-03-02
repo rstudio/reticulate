@@ -93,6 +93,31 @@ py_repl <- function(
     failed
   }
   
+  # submit code for evaluation. return TRUE if evaluation succeeded
+  process <- function(code) {
+    
+    # Python's command compiler complains if the only thing you submit
+    # is a comment, so detect that case first
+    if (grepl("^\\s*#", code))
+      return(TRUE)
+    
+    # Python is picky about trailing whitespace, so ensure only a single
+    # newline follows the code to be submitted
+    code <- sub("\\s*$", "\n", code)
+    
+    # now compile and run the code. we use 'single' mode to ensure that
+    # python auto-prints the statement as it is evaluated.
+    compiled <- tryCatch(builtins$compile(code, '<string>', 'single'), error = identity)
+    if (handle_error(compiled))
+      return(FALSE)
+    
+    output <- tryCatch(builtins$eval(compiled, locals, globals), error = identity)
+    if (handle_error(output))
+      return(FALSE)
+    
+    TRUE
+  }
+  
   repl <- function() {
     
     # read user input
@@ -186,18 +211,8 @@ py_repl <- function(
     # which would otherwise fail
     if (length(previous) && inherits(ready, "error")) {
       
-      # attempt to evaluate previous set of code. trim trailing whitespace
-      # as that can lead to syntax errors, but keep a single trailing newline
-      # as otherwise constructs like:
-      #
-      #    def foo(): pass
-      #
-      # can fail to parse
-      code <- sub("\\s*$", "\n", paste(previous, collapse = "\n"))
-      compiled <- tryCatch(builtins$compile(code, '<string>', 'single'), error = identity)
-      if (!handle_error(compiled)) {
-        tryCatch(builtins$eval(compiled, locals, globals), error = identity)
-      }
+      # submit previous code
+      process(paste(previous, collapse = "\n"))
       
       # now, handle the newest line of code submitted
       buffer$set(contents)
@@ -212,25 +227,8 @@ py_repl <- function(
     # otherwise, we should have received a code output object
     # so we can just run the code submitted thus far
     buffer$clear()
-    
-    # trim trailing whitespace as that can lead to syntax errors, but keep a
-    # single trailing newline as otherwise constructs like:
-    #
-    #    def foo(): pass
-    #
-    # can fail to parse
-    code <- sub("\\s*$", "\n", code)
-    
-    # now compile and run the code. we use 'single' mode to ensure that
-    # python auto-prints the statement as it is evaluated.
-    compiled <- tryCatch(builtins$compile(code, '<string>', 'single'), error = identity)
-    if (handle_error(compiled))
-      return()
-    
-    output <- tryCatch(builtins$eval(compiled, locals, globals), error = identity)
-    if (handle_error(output))
-      return()
-    
+    process(code)
+        
   }
   
   # notify the user we're entering the REPL (when requested)

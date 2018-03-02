@@ -66,6 +66,51 @@ register_module_help_handler <- function(module, handler) {
   .module_help_handlers[[module]] <- handler
 }
 
+# Extract docs in TensorFlow-like styles
+help_completion_handler_default <- function(doc) {
+  arguments_matches <- regexpr(pattern = '\n(Arg(s|uments):)', doc)
+  if (arguments_matches[[1]] != -1)
+    description <- substring(doc, 1, arguments_matches[[1]])
+  else
+    description <- doc
+  
+  # collect other sections
+  sections <- sections_from_doc(doc)
+  
+  # try to get return info
+  returns <- sections$Returns
+  
+  # remove arguments and returns
+  sections$Args <- NULL
+  sections$Arguments <- NULL
+  sections$Returns <- NULL
+  
+  list(
+    description = description,
+    sections = sections,
+    returns = returns
+  )
+}
+
+# Extract docs in Sphinx style
+help_completion_handler_sphinx <- function(doc) {
+  doctree <- sphinx_doctree_from_doc(doc)
+  returns <- gsub("Returns\n", "", doctree$ids$returns$astext(), fixed = TRUE)
+  # remove the additional space before ":" as it's Sphinx specific
+  returns <- gsub(" : ", ": ", returns, fixed = TRUE)
+  description <- substring(doc, 1, sphinx_doc_params_matches(doc)[[1]])
+  # extract sections other than parameters and returns
+  sections <- lapply(names(doctree$ids), function(name) 
+    if (!name %in% c("parameters", "returns")) doctree$ids[[name]])
+  sections[sapply(sections, is.null)] <- NULL
+  
+  list(
+    description = description,
+    sections = sections,
+    returns = returns
+  )
+}
+
 # Return help for display in the completion popup window
 help_completion_handler.python.builtin.object <- function(topic, source) {
 
@@ -90,35 +135,18 @@ help_completion_handler.python.builtin.object <- function(topic, source) {
     doc <- ""
   
   if (is_sphinx_doc(doc) && is_docutils_available()) {
-    # docs in Sphinx style
-    doctree <- sphinx_doctree_from_doc(doc)
-    returns <- gsub("Returns\n", "", doctree$ids$returns$astext(), fixed = TRUE)
-    # remove the additional space before ":" as it's Sphinx specific
-    returns <- gsub(" : ", ": ", returns, fixed = TRUE)
-    description <- substring(doc, 1, sphinx_doc_params_matches(doc)[[1]])
-    # extract sections other than parameters and returns
-    sections <- lapply(names(doctree$ids), function(name) 
-      if (!name %in% c("parameters", "returns")) doctree$ids[[name]])
-    sections[sapply(sections, is.null)] <- NULL
+    extracted <- tryCatch(
+      help_completion_handler_sphinx(doc),
+      error = identity)
+    if (inherits(extracted, "error"))
+      extracted <- help_completion_handler_default(doc)
   } else {
-    # docs in other styles, e.g. TensorFlow
-    arguments_matches <- regexpr(pattern = '\n(Arg(s|uments):)', doc)
-    if (arguments_matches[[1]] != -1)
-      description <- substring(doc, 1, arguments_matches[[1]])
-    else
-      description <- doc
-
-    # collect other sections
-    sections <- sections_from_doc(doc)
-    
-    # try to get return info
-    returns <- sections$Returns
-    
-    # remove arguments and returns
-    sections$Args <- NULL
-    sections$Arguments <- NULL
-    sections$Returns <- NULL
+    extracted <- help_completion_handler_default(doc)
   }
+  
+  description <- extracted$description
+  sections <- extracted$sections
+  returns <- extracted$returns
   
   # extract description and details
   matches <- regexpr(pattern ='\n', description, fixed=TRUE)
@@ -261,12 +289,45 @@ is_docutils_available <- function() {
 }
 
 sphinx_doctree_from_doc <- function(doc) {
-  if (is_docutils_available()) {
-    docutils <- import("docutils")
-    docutils$core$publish_doctree(doc)
-  } else {
-    warning("docutils module needs to be installed to extract doc from Sphinx style documentation.")
-  }
+  docutils <- import("docutils")
+  docutils$core$publish_doctree(doc)
+}
+
+# Extract arguments descriptions for docs in TensorFlow-like styles
+arg_descriptions_from_doc_default <- function(args, doc) {
+  # extract arguments section of the doc and break into lines
+  arguments <- section_from_doc('Arg(s|uments)', doc)
+  doc <- strsplit(doc, "\n", fixed = TRUE)[[1]]
+  
+  sapply(args, function(arg) {
+    arg_line <- which(grepl(paste0("^\\s+", arg, ":"), doc))
+    if (length(arg_line) > 0) {
+      line <- doc[[arg_line]]
+      arg_description <- substring(line, regexpr(':', line)[[1]] + 1)
+      next_line <- arg_line + 1
+      while((arg_line + 1) <= length(doc)) {
+        line <- doc[[arg_line + 1]]
+        if (!grepl("^\\s*$", line) && !grepl("^\\s+\\w+: ", line)) {
+          arg_description <- paste(arg_description, line)
+          arg_line <- arg_line + 1
+        }
+        else
+          break
+      }
+      arg_description <- cleanup_description(arg_description)
+    } else {
+      arg
+    }
+  })
+}
+
+# Extract arguments descriptions for docs in Sphinx style
+arg_descriptions_from_doc_sphinx <- function(args, doc) {
+  doctree <- sphinx_doctree_from_doc(doc)
+  params <- doctree$ids$parameters$children[[2]]$children
+  sapply(params, function(param) {
+    param$children[[3]]$astext()
+  })
 }
 
 # Extract argument descriptions from python docstring
@@ -274,38 +335,14 @@ arg_descriptions_from_doc <- function(args, doc) {
   if (is.null(doc)) {
     arg_descriptions <- args
   } else if (is_sphinx_doc(doc) && is_docutils_available()) {
-    doctree <- sphinx_doctree_from_doc(doc)
-    params <- doctree$ids$parameters$children[[2]]$children
-    arg_descriptions <- sapply(params, function(param) {
-      param$children[[3]]$astext()
-    })
+    arg_descriptions <- tryCatch(
+      arg_descriptions_from_doc_sphinx(args, doc),
+      error = identity)
+    if (inherits(arg_descriptions, "error"))
+      arg_descriptions <- arg_descriptions_from_doc_default(args, doc)
   } else {
-    # extract arguments section of the doc and break into lines
-    arguments <- section_from_doc('Arg(s|uments)', doc)
-    doc <- strsplit(doc, "\n", fixed = TRUE)[[1]]
-    
-    arg_descriptions <- sapply(args, function(arg) {
-      arg_line <- which(grepl(paste0("^\\s+", arg, ":"), doc))
-      if (length(arg_line) > 0) {
-        line <- doc[[arg_line]]
-        arg_description <- substring(line, regexpr(':', line)[[1]] + 1)
-        next_line <- arg_line + 1
-        while((arg_line + 1) <= length(doc)) {
-          line <- doc[[arg_line + 1]]
-          if (!grepl("^\\s*$", line) && !grepl("^\\s+\\w+: ", line)) {
-            arg_description <- paste(arg_description, line)
-            arg_line <- arg_line + 1
-          }
-          else
-            break
-        }
-        arg_description <- cleanup_description(arg_description)
-      } else {
-        arg
-      }
-    })
+    arg_descriptions <- arg_descriptions_from_doc_default(args, doc)
   }
-
   arg_descriptions
 }
 

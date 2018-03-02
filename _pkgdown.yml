@@ -1,6 +1,6 @@
 template:
   params:
-    bootswatch: cosmo
+    bootswatch: flatly
 
 navbar:
   title: "reticulate"

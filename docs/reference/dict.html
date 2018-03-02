@@ -11,7 +11,7 @@
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
-<link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/cosmo/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+<link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/flatly/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
@@ -109,7 +109,9 @@
 other Python objects rather than character vectors.</p>
     
 
-    <pre class="usage"><span class='fu'>dict</span>(<span class='no'>...</span>, <span class='kw'>convert</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+    <pre class="usage"><span class='fu'>dict</span>(<span class='no'>...</span>, <span class='kw'>convert</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+
+<span class='fu'>py_dict</span>(<span class='no'>keys</span>, <span class='no'>values</span>, <span class='kw'>convert</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
@@ -124,6 +126,14 @@ converted to a dictionary).</p></td>
       <td><p><code>TRUE</code> to automatically convert Python objects to their R
 equivalent. If you pass <code>FALSE</code> you can do manual conversion using the
 <code><a href='r-py-conversion.html'>py_to_r()</a></code> function.</p></td>
+    </tr>
+    <tr>
+      <th>keys</th>
+      <td><p>Keys to dictionary (can be Python objects)</p></td>
+    </tr>
+    <tr>
+      <th>values</th>
+      <td><p>Values for dictionary</p></td>
     </tr>
     </table>
     

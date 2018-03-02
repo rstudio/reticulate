@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Python Version Configuration • reticulate</title>
-<!-- jquery --><script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/cosmo/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+<!-- jquery --><script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/flatly/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script><!-- Font Awesome icons --><link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 <!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script><script src="../pkgdown.js"></script><!-- mathjax --><script src="https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!--[if lt IE 9]>
@@ -93,15 +93,15 @@
 scipy &lt;-<span class="st"> </span><span class="kw"><a href="../reference/import.html">import</a></span>(<span class="st">"scipy"</span>)
 scipy<span class="op">$</span><span class="kw">amin</span>(<span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">3</span>,<span class="dv">5</span>,<span class="dv">7</span>))</code></pre></div>
 <p>In this case, the various versions of Python installed on the system will be scanned to see whether one of them includes the “scipy” Python package (the first version found that satisfies this requirement will be used).</p>
-<p>By default, the version of Python found on the system <code>PATH</code> is checked first, and then a number of other conventional location for Py Python (e.g. <code>/usr/local/bin/python</code>, <code>/opt/local/bin/python</code>, etc.) are checked.</p>
-<p>Note that in order for reticulate to bind to a version of Python it must be compiled with shared library support (i.e. with the <code>--enable-shared</code> flag).</p>
+<p>By default, the version of Python found on the system <code>PATH</code> is checked first, and then some other conventional location for Py Python (e.g. <code>/usr/local/bin/python</code>, <code>/opt/local/bin/python</code>, etc.) are checked.</p>
+<p>Note that for reticulate to bind to a version of Python it must be compiled with shared library support (i.e. with the <code>--enable-shared</code> flag).</p>
 </div>
 <div id="providing-hints" class="section level2">
 <h2 class="hasAnchor">
 <a href="#providing-hints" class="anchor"></a>Providing Hints</h2>
 <p>There are two ways you can provide hints as to which version of Python should be used:</p>
 <ol style="list-style-type: decimal">
-<li><p>By setting the value of the <code>RETICULATE_PYTHON</code> environment variable to a Python binary. Note that if you set this environment variable then the specified version of Python will always be used (i.e. this is prescriptive rather than advisory).</p></li>
+<li><p>By setting the value of the <code>RETICULATE_PYTHON</code> environment variable to a Python binary. Note that if you set this environment variable, then the specified version of Python will always be used (i.e. this is prescriptive rather than advisory). To set the value of <code>RETICULATE_PYTHON</code>, insert <code>Sys.setenv(RETICULATE_PYTHON = PATH)</code> into your project’s .Rprofile, where <code>PATH</code> is your preferred Python binary.</p></li>
 <li><p>By calling one of the these functions:</p></li>
 </ol>
 <table class="table">

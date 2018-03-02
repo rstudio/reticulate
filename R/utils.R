@@ -57,6 +57,7 @@ defer <- function(expr, envir = parent.frame()) {
   do.call(base::on.exit, list(substitute(call), add = TRUE), envir = envir)
 }
 
+#' @importFrom utils head
 new_stack <- function() {
   
   (function() {

@@ -168,6 +168,14 @@ py_repl <- function(
         return()
       }
       
+      # similar handling for help requests postfixed with '?'
+      if (grepl("[?]\\s*$", trimmed)) {
+        replaced <- sub("[?]\\s*$", "", trimmed)
+        code <- sprintf("help(\"%s\")", replaced)
+        py_run_string(code)
+        return()
+      }
+      
       # if the user submitted a blank line at the top level,
       # ignore it (note that we intentionally submit whitespace-only
       # lines that might terminate a block)

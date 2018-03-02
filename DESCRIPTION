@@ -7,13 +7,13 @@ Authors@R: c(
   person("Kevin", "Ushey", role = c("ctb"),
          email = "kevin@rstudio.com"),
   person("RStudio", role = c("cph", "fnd")),
-  person("Yuan", "Tang", role = c("aut", "cph"),
+  person("Yuan", "Tang", role = c("ctb", "cph"),
          email = "terrytangyuan@gmail.com"),
   person("Dirk", "Eddelbuettel", role = c("ctb", "cph"),
          email = "edd@debian.org"),
   person("Bryan", "Lewis", role = c("ctb", "cph"),
          email = "blewis@illposed.net"),
-  person("Marcus", "Geelnard", role = c("aut", "cph"),
+  person("Marcus", "Geelnard", role = c("ctb", "cph"),
          comment = "TinyThread library, http://tinythreadpp.bitsnbites.eu/")
   )
 Description: Interface to 'Python' modules, classes, and functions. When calling

@@ -186,9 +186,14 @@ py_repl <- function(
     # which would otherwise fail
     if (length(previous) && inherits(ready, "error")) {
       
-      # attempt to evaluate previous set of code (trim trailing whitespace
-      # as that can lead to syntax errors during execution)
-      code <- sub("\\s*$", "", paste(previous, collapse = "\n"))
+      # attempt to evaluate previous set of code. trim trailing whitespace
+      # as that can lead to syntax errors, but keep a single trailing newline
+      # as otherwise constructs like:
+      #
+      #    def foo(): pass
+      #
+      # can fail to parse
+      code <- sub("\\s*$", "\n", paste(previous, collapse = "\n"))
       compiled <- tryCatch(builtins$compile(code, '<string>', 'single'), error = identity)
       if (!handle_error(compiled)) {
         tryCatch(builtins$eval(compiled, locals, globals), error = identity)
@@ -208,8 +213,13 @@ py_repl <- function(
     # so we can just run the code submitted thus far
     buffer$clear()
     
-    # trim trailing whitespace to avoid potential syntax errors
-    code <- sub("\\s*$", "", code)
+    # trim trailing whitespace as that can lead to syntax errors, but keep a
+    # single trailing newline as otherwise constructs like:
+    #
+    #    def foo(): pass
+    #
+    # can fail to parse
+    code <- sub("\\s*$", "\n", code)
     
     # now compile and run the code. we use 'single' mode to ensure that
     # python auto-prints the statement as it is evaluated.

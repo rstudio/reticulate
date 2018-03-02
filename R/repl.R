@@ -11,6 +11,7 @@
 #' @param quiet Boolean; print a startup banner when launching the REPL? If
 #'   `FALSE`, the banner will be suppressed.
 #' 
+#' @importFrom utils packageVersion
 #' @export
 py_repl <- function(
   module = NULL,
@@ -33,7 +34,6 @@ py_repl <- function(
     
   # import other required modules for the REPL
   builtins <- import_builtins(convert = FALSE)
-  main <- import_main(convert = FALSE)
   sys <- import("sys", convert = TRUE)
   codeop <- import("codeop", convert = TRUE)
   
@@ -92,14 +92,6 @@ py_repl <- function(
     }
     failed
   }
-  
-  # register custom completer
-  custom.completer <- utils::rc.getOption("custom.completer")
-  utils::rc.options(custom.completer = function(envir) {
-    line <- envir$linebuffer
-    envir$comps <- tryCatch(py_completer(line), error = function(e) character())
-  })
-  on.exit(utils::rc.options(custom.completer = custom.completer), add = TRUE)
   
   repl <- function() {
     

@@ -322,7 +322,7 @@ arg_descriptions_from_doc_default <- function(args, doc) {
 }
 
 # Extract arguments descriptions for docs in Sphinx style
-arg_descriptions_from_doc_sphinx <- function(args, doc) {
+arg_descriptions_from_doc_sphinx <- function(doc) {
   doctree <- sphinx_doctree_from_doc(doc)
   params <- doctree$ids$parameters$children[[2]]$children
   sapply(params, function(param) {
@@ -336,7 +336,7 @@ arg_descriptions_from_doc <- function(args, doc) {
     arg_descriptions <- args
   } else if (is_sphinx_doc(doc) && is_docutils_available()) {
     arg_descriptions <- tryCatch(
-      arg_descriptions_from_doc_sphinx(args, doc),
+      arg_descriptions_from_doc_sphinx(doc),
       error = identity)
     if (inherits(arg_descriptions, "error"))
       arg_descriptions <- arg_descriptions_from_doc_default(args, doc)

@@ -20,5 +20,10 @@ skip_if_no_numpy <- function() {
     skip("NumPy not available for testing.")
 }
 
-
+skip_if_no_docutils <- function() {
+  skip_on_cran()
+  skip_if_no_python()
+  if (!is_docutils_available())
+    skip("docutils not available for testing.")
+}
 

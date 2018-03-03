@@ -29,7 +29,9 @@ py_function_wrapper <- function(python_function, r_prefix = NULL, r_function = N
 
   # parameters
   for (param in names(docs$parameters)) {
-    param_description <- gsub("\n", "\n#' ", docs$parameters[[param]], fixed = TRUE)
+    # Note: the gsub is needed to prefix necessary indentations
+    # to bullet points in parameter description
+    param_description <- gsub("\n", "\n#'  ", docs$parameters[[param]], fixed = TRUE)
     write(sprintf("#' @param %s %s", param, param_description), file = con)
   }
   

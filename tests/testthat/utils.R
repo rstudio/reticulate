@@ -23,7 +23,7 @@ skip_if_no_numpy <- function() {
 skip_if_no_docutils <- function() {
   skip_on_cran()
   skip_if_no_python()
-  if (!is_docutils_available())
+  if (!py_module_available("docutils"))
     skip("docutils not available for testing.")
 }
 

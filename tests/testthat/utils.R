@@ -17,7 +17,7 @@ skip_if_no_numpy <- function() {
   skip_on_cran()
   skip_if_no_python()
   if (!py_numpy_available())
-    skip("NumPy not available for testing.")
+    skip("NumPy not available for testing")
 }
 
 skip_if_no_docutils <- function() {
@@ -25,5 +25,12 @@ skip_if_no_docutils <- function() {
   skip_if_no_python()
   if (!py_module_available("docutils"))
     skip("docutils not available for testing.")
+}
+
+skip_if_no_pandas <- function() {
+  skip_on_cran()
+  skip_if_no_python()
+  if (!py_module_available("pandas"))
+    skip("pandas not available for testing")
 }
 

@@ -107,13 +107,23 @@ py_repl <- function(
     
     # now compile and run the code. we use 'single' mode to ensure that
     # python auto-prints the statement as it is evaluated.
-    compiled <- tryCatch(builtins$compile(code, '<string>', 'single'), error = identity)
-    if (handle_error(compiled))
-      return(FALSE)
-    
-    output <- tryCatch(builtins$eval(compiled, locals, globals), error = identity)
-    if (handle_error(output))
-      return(FALSE)
+    if (is_python3()) {
+      
+      output <- tryCatch(builtins$eval(code, globals, locals), error = identity)
+      if (handle_error(output))
+        return(FALSE)
+      
+    } else {
+      
+      compiled <- tryCatch(builtins$compile(code, '<string>', 'single'), error = identity)
+      if (handle_error(compiled))
+        return(FALSE)
+      
+      output <- tryCatch(builtins$eval(compiled, globals, locals), error = identity)
+      if (handle_error(output))
+        return(FALSE)
+      
+    }
     
     TRUE
   }

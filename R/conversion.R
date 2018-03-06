@@ -155,7 +155,7 @@ r_to_py.data.frame <- function(x, convert = FALSE) {
   columns <- lapply(x, function(column) {
     if (is.factor(column)) {
       pd$Categorical(as.character(column),
-                     categories = levels(column),
+                     categories = as.list(levels(column)),
                      ordered = inherits(column, "ordered"))
     } else if (is.numeric(column) || is.character(column)) {
       np_array(column)

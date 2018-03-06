@@ -49,3 +49,17 @@ test_that("Timestamped arrays in Pandas DataFrames can be roundtripped", {
   expect_equal(py_to_r(before$to_csv()), py_to_r(after$to_csv()))
   
 })
+
+test_that("data.frames with length-one factor columns can be converted", {
+  skip_if_no_pandas()
+  
+  pd <- import("pandas", convert = FALSE)
+  np <- import("numpy", convert = FALSE)
+  
+  before <- data.frame(x = "hello")
+  converted <- r_to_py(data)
+  after <- py_to_r(converted)
+  
+  expect_identical(before, after)
+  
+})

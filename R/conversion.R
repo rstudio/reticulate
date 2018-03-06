@@ -159,6 +159,8 @@ r_to_py.data.frame <- function(x, convert = FALSE) {
                      ordered = inherits(column, "ordered"))
     } else if (is.numeric(column) || is.character(column)) {
       np_array(column)
+    } else if (inherits(column, "POSIXt")) {
+      np_array(as.numeric(column), dtype = "datetime64[s]")
     } else {
       r_to_py(column)
     }
@@ -188,13 +190,10 @@ py_to_r.pandas.core.frame.DataFrame <- function(x) {
   
   # extract numpy arrays associated with each column
   columns <- py_to_r(x$columns$values)
-  items <- lapply(columns, function(column) {
-    x[[column]]$as_matrix()
+  converted <- lapply(columns, function(column) {
+    py_to_r(x[[column]]$as_matrix())
   })
-  names(items) <- columns
-  
-  # convert back to R
-  converted <- py_ref_to_r(dict(items))
+  names(converted) <- columns
   
   # clean up converted objects
   for (i in seq_along(converted)) {
@@ -222,8 +221,13 @@ py_to_r.pandas.core.frame.DataFrame <- function(x) {
   )
   
   # attempt to copy over index, and set as rownames when appropriate
+  #
   # TODO: should we tag the R data.frame with the original Python index
   # object in case users need it?
+  #
+  # TODO: Pandas allows for a large variety of index formats; we should
+  # try to explicitly whitelist a small family which we can represent
+  # effectively in R
   index <- x$index
   if (inherits(index, "pandas.core.indexes.base.Index")) {
     
@@ -244,9 +248,6 @@ py_to_r.pandas.core.frame.DataFrame <- function(x) {
       }
     }
     
-    # TODO: Pandas allows for a large variety of index formats; we should
-    # try to explicitly whitelist a small family which we can represent
-    # effectively in R
     else {
       converted <- tryCatch(py_to_r(index$values), error = identity)
       if (is.character(converted) || is.numeric(converted))

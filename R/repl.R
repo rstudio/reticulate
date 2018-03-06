@@ -115,6 +115,10 @@ py_repl <- function(
     if (handle_error(output))
       return(FALSE)
     
+    # ensure stdout, stderr flushed (required for Python 3)
+    sys$stdout$flush()
+    sys$stderr$flush()
+    
     TRUE
   }
   

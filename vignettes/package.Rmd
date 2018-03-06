@@ -98,6 +98,19 @@ py_str.MyModule.MyPythonClass <- function(object, ...) {
 
 The `print` and `summary` methods for Python objects both call the `str` method by default, so if you implement `py_str()` you will automatically inherit implementations for those methods.
 
+### Converting between R and Python
+
+**reticulate** provides the generics `r_to_py()` for converting R objects into Python objects, and `py_to_r()` for converting Python objects back into R objects. Package authors can provide methods for these generics to convert Python and R objects otherwise not handled by **reticulate**.
+
+**reticulate** provides conversion operators for some of the most commonly used Python objects, including:
+
+- Built-in Python objects (lists, dictionaries, numbers, strings, tuples)
+- NumPy arrays,
+- Pandas objects (`Index`, `Series`, `DataFrame`),
+- Python `datetime` objects.
+
+If you see that **reticulate** is missing support for conversion of one or more objects from these packages, please [let us know](https://github.com/rstudio/reticulate/issues) and we'll try to implement the missing converter. For Python packages not in this set, you can provide conversion operators in your own extension package.
+
 ## Using Travis-CI
 
 [Travis-CI](https://travis-ci.org/) is a commonly used platform for continuous integration and testing of R packages. Making it work with **reticulate** is pretty simple - all you need to do is add a `before_install` section to a standard R `.travis.yml` file that asks Travis to guarantee the testing machine has `numpy` (which **reticulate** depends on) and any Python modules you're interacting with that don't ship with the language itself:

@@ -29,6 +29,14 @@ use_python <- function(python, required = FALSE) {
 #' @export
 use_virtualenv <- function(virtualenv, required = FALSE) {
 
+  # prepend root virtualenv directory it doesn't exist and 
+  # it's not an absolute path
+  if (!utils::file_test("-d", virtualenv) & 
+      !grepl("^/|^[a-zA-Z]:/|^~", virtualenv, perl = TRUE)) {
+    workon_home <- Sys.getenv("WORKON_HOME", unset = "~/.virtualenvs")
+    virtualenv <- file.path(workon_home, virtualenv)
+  }
+  
   # compute the bin dir
   if (is_windows())
     python_dir <- file.path(virtualenv, "Scripts")

@@ -1,4 +1,3 @@
-
 # import some modules used by the tests
 if (py_available(initialize = TRUE)) {
   test <- import("rpytools.test")

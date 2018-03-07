@@ -103,7 +103,7 @@ r_to_py.POSIXt <- function(x, convert = FALSE) {
   
   # we prefer datetime64 for efficiency
   if (py_module_available("numpy"))
-    return(np_array(as.numeric(x), dtype = "datetime64[s]"))
+    return(np_array(as.numeric(x) * 1E9, dtype = "datetime64[ns]"))
   
   datetime <- import("datetime", convert = convert)
   datetime$datetime$fromtimestamp(as.double(x))

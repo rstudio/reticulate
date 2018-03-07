@@ -180,6 +180,8 @@ eng_python_initialize <- function(options, context, envir) {
   if (is.character(options$engine.path))
     use_python(options$engine.path[[1]])
   
+  ensure_python_initialized()
+  
   eng_python_initialize_matplotlib(options, context, envir)
 }
 

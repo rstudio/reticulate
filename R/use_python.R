@@ -56,7 +56,7 @@ use_virtualenv <- function(virtualenv, required = FALSE) {
   python <- file.path(python_dir, "python")
   if (is_windows())
     python <- paste0(python, ".exe")
-  use_python(python)
+  use_python(python, required = required)
 }
 
 #' @rdname use_python
@@ -72,7 +72,7 @@ use_condaenv <- function(condaenv, conda = "auto", required = FALSE) {
     stop("Unable to locate conda environment '", condaenv, "'.")
   
   if (!is.null(condaenv))
-    use_python(conda_env_python)
+    use_python(conda_env_python, required = required)
   
   invisible(NULL)
 }

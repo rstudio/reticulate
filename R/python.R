@@ -249,7 +249,17 @@ py_has_convert <- function(x) {
   
   # convert
   if (convert || py_is_callable(attrib)) {
-    py_ref_to_r_with_convert(attrib, convert)
+  
+    # capture previous convert for attr
+    attrib_convert <- py_has_convert(attrib)
+    
+    # temporarily change convert so we can call py_to_r and get S3 dispatch
+    envir <- as.environment(attrib)
+    assign("convert", convert, envir = envir)
+    on.exit(assign("convert", attrib_convert, envir = envir))
+    
+    # call py_to_r
+    py_to_r(attrib) 
   }
   else
     attrib

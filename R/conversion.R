@@ -100,6 +100,11 @@ py_to_r.numpy.ndarray <- function(x) {
 
 #' @export
 r_to_py.POSIXt <- function(x, convert = FALSE) {
+  
+  # we prefer datetime64 for efficiency
+  if (py_module_available("numpy"))
+    return(np_array(as.numeric(x), dtype = "datetime64[s]"))
+  
   datetime <- import("datetime", convert = convert)
   datetime$datetime$fromtimestamp(as.double(x))
 }
@@ -117,12 +122,25 @@ py_to_r.datetime.datetime <- function(x) {
 
 #' @export
 r_to_py.Date <- function(x, convert = FALSE) {
+  
+  # we prefer datetime64 for efficiency
+  if (py_module_available("numpy"))
+    return(r_to_py.POSIXt(as.POSIXct(x)))
+  
+  # otherwise, fallback to using Python's datetime class
   datetime <- import("datetime", convert = convert)
-  iso <- strsplit(format(x), "-", fixed = TRUE)[[1]]
-  year <- as.integer(iso[[1]])
-  month <- as.integer(iso[[2]])
-  day <- as.integer(iso[[3]])
-  datetime$date(year, month, day)
+  items <- lapply(x, function(item) {
+    iso <- strsplit(format(x), "-", fixed = TRUE)[[1]]
+    year <- as.integer(iso[[1]])
+    month <- as.integer(iso[[2]])
+    day <- as.integer(iso[[3]])
+    datetime$date(year, month, day)
+  })
+  
+  if (length(items) == 1)
+    items[[1]]
+  else
+    items
 }
 
 #' @export

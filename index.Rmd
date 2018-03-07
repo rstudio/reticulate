@@ -1,0 +1,73 @@
+---
+title: "R Interface to Python"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Overview
+
+The **reticulate** package provides a comprensive set of Python interopability tools for R. 
+
+If you are an R developer that uses Python for some of your work or a member of data science team that uses both languages, reticulate can dramatically streamline your workflow. Reticulte embeds a Python session within your R session, enabling the following types of interoperability:
+
+1) Multi-language R Markdown --- The `eng_python()` function adds a Python language engine to R Markdown that supports bi-directional communication between R and Python (R chunks can access Python objects and vice-versa).
+
+2) Sourcing Python scripts --- Use the `source_python()` to source a Python script the same way you would `source()` an R script (Python functions and objects defined within the script become available to the R session).
+
+3) Importing Python modules -- The `import()` function allows you to import any Python module and call it's functions directly from R.
+
+4) Python REPL --- If you need to work interactively with Python use the `py_repl()` function to create a Python REPL (Read-Eval-Print-Loop") within R. Objects you create within the Python REPL are also available to your R session.
+
+Each of these techniques will be explained in more detail below.
+
+### Getting Started
+
+First, install reticulate from CRAN as follows:
+
+``` r
+install.packages("reticulate")
+```
+
+Then, review the examples below and check out the additional articles enumerated in the [Learning More] section.
+
+## Multi-language R Markdown
+
+
+## Sourcing Python scripts
+
+
+## Importing Python modules
+
+
+## Python REPL
+
+
+## Learning More
+
+The following articles cover the various aspects of using **reticulate**:
+
+- [Introduction to reticulate](https://rstudio.github.io/reticulate/articles/introduction.html)
+
+- [Python Version Configuration](https://rstudio.github.io/reticulate/articles/versions.html)
+
+- [Using reticulate in an R Package](https://rstudio.github.io/reticulate/articles/package.html)
+
+- [Arrays in R and Python](https://rstudio.github.io/reticulate/articles/arrays.html)
+
+
+## Why reticulate?
+
+From [Wikipedia](https://en.wikipedia.org/wiki/Reticulated_python):
+
+> The reticulated python is a speicies of python found in Southeast Asia. They are the world's longest snakes and longest reptiles...The specific name, reticulatus, is Latin meaning "net-like", or reticulated, and is a reference to the complex colour pattern. 
+
+The reticulate package enables a new flavor of "reticulated" Python code that is weaved closely together with R.
+
+
+
+
+
+

@@ -1,8 +1,4 @@
-
-
 context("source")
-
-source("utils.R")
 
 test_that("Python scripts can be sourced", {
   skip_if_no_python()

@@ -1,7 +1,5 @@
 context("strings")
 
-source("utils.R")
-
 test_that("Unicode strings are handled by py_str", {
   skip_if_no_python()
   skip_on_cran()

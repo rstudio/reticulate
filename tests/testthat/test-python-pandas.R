@@ -57,7 +57,7 @@ test_that("data.frames with length-one factor columns can be converted", {
   np <- import("numpy", convert = FALSE)
   
   before <- data.frame(x = "hello")
-  converted <- r_to_py(data)
+  converted <- r_to_py(before)
   after <- py_to_r(converted)
   
   expect_identical(before, after)

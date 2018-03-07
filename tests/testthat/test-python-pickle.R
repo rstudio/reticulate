@@ -1,7 +1,5 @@
 context("pickle")
 
-source("utils.R")
-
 test_that("Objects can be saved and loaded with pickle", {
   skip_if_no_python()
   x <- dict()

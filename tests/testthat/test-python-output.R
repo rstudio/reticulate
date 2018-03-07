@@ -1,7 +1,5 @@
 context("output")
 
-source("utils.R")
-
 capture_test_output <- function(type) {
   py_capture_output(type = type, { 
     if ("stdout" %in% type)

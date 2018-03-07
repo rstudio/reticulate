@@ -1,7 +1,5 @@
 context("functions")
 
-source("utils.R")
-
 test_that("Python functions are marshalled as function objects", {
   skip_if_no_python()
   spec <- inspect$getargspec(inspect$getclasstree)

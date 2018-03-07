@@ -178,7 +178,7 @@ r_to_py.data.frame <- function(x, convert = FALSE) {
     } else if (is.numeric(column) || is.character(column)) {
       np_array(column)
     } else if (inherits(column, "POSIXt")) {
-      np_array(as.numeric(column), dtype = "datetime64[s]")
+      np_array(as.numeric(column) * 1E9, dtype = "datetime64[ns]")
     } else {
       r_to_py(column)
     }

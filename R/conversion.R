@@ -266,6 +266,23 @@ py_to_r.pandas.core.frame.DataFrame <- function(x) {
       }
     }
     
+    else if (inherits(index, "pandas.core.indexes.datetimes.DatetimeIndex")) {
+      py_tz <- index[["tz"]]
+      tz <- NULL
+      
+      if(inherits(py_tz, "pytz.tzinfo.BaseTzInfo") || 
+         inherits(py_tz, "pytz.UTC")) {
+        tz <- tryCatch(py_to_r(py_tz$zone), error = identity)
+      }
+      
+      converted <- tryCatch(py_to_r(index$values), error = identity)
+      
+      if(!is.null(tz) && tz %in% OlsonNames()) {
+        attr(converted, "tzone") <- tz
+      }
+      rownames(df) <- converted
+    }
+    
     else {
       converted <- tryCatch(py_to_r(index$values), error = identity)
       if (is.character(converted) || is.numeric(converted))

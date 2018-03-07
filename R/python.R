@@ -256,7 +256,7 @@ py_has_convert <- function(x) {
     # temporarily change convert so we can call py_to_r and get S3 dispatch
     envir <- as.environment(attrib)
     assign("convert", convert, envir = envir)
-    on.exit(assign("convert", attrib_convert, envir = envir))
+    on.exit(assign("convert", attrib_convert, envir = envir), add = TRUE)
     
     # call py_to_r
     py_to_r(attrib) 

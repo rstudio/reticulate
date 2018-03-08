@@ -25,10 +25,10 @@ Each of these techniques will be explained in more detail below.
 
 ### Getting Started
 
-First, install reticulate from CRAN as follows:
+First, install reticulate from GitHub as follows:
 
 ``` r
-install.packages("reticulate")
+devtools::install_github("rstudio/reticulate")
 ```
 
 Then, review the examples below and check out the additional articles enumerated in the [Learning More] section.

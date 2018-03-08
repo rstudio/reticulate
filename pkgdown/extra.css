@@ -1,3 +1,5 @@
+
+
 h4.date,
 h4.author {
   display: none;
@@ -5,6 +7,10 @@ h4.author {
 
 h2.hasAnchor {
   font-weight: 350;
+}
+
+.contents h2 {
+  padding-top: 80px;
 }
 
 .ref-index tbody {

@@ -2,7 +2,8 @@
 ^\.Rproj\.user$
 ^docs$
 ^issues$
-^pkgdown
+^pkgdown$
+^images$
 README.[R]?md
 README.html
 images

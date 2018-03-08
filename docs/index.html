@@ -40,7 +40,7 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="articles/calling_python_from_r.html">Calling Python from R</a>
+      <a href="articles/calling_python.html">Calling Python from R</a>
     </li>
     <li>
       <a href="articles/versions.html">Python Version Configuration</a>
@@ -86,12 +86,13 @@
 <div id="r-interface-to-python" class="section level1">
 <div class="page-header"><h1 class="hasAnchor">
 <a href="#r-interface-to-python" class="anchor"></a>R Interface to Python</h1></div>
-<p>The <strong>reticulate</strong> package provides a comprensive set of Python interoperability tools for R.</p>
+
+<p>The <strong>reticulate</strong> package provides a comprehensive set of Python interoperability tools for R.</p>
 <p>If you are an R developer that uses Python for some of your work or a member of data science team that uses both languages, reticulate can dramatically streamline your workflow. Reticulte embeds a Python session within your R session, enabling the following types of interoperability:</p>
 <ol style="list-style-type: decimal">
 <li><p><a href="#python-in-r-markdown">Python in R Markdown</a> — A new Python language engine for R Markdown that supports bi-directional communication between R and Python (R chunks can access Python objects and vice-versa).</p></li>
 <li><p><a href="#sourcing-python-scripts">Sourcing Python scripts</a> — The <code><a href="reference/source_python.html">source_python()</a></code> function enables you to source a Python script the same way you would <code>source()</code> an R script (Python functions and objects defined within the script become directly available to the R session).</p></li>
-<li><p><a href="#importing-python-modules">Importing Python modules</a> – The <code><a href="reference/import.html">import()</a></code> function enbles you to import any Python module and call it’s functions directly from R.</p></li>
+<li><p><a href="#importing-python-modules">Importing Python modules</a> – The <code><a href="reference/import.html">import()</a></code> function enables you to import any Python module and call it’s functions directly from R.</p></li>
 <li><p><a href="#python-repl">Python REPL</a> — The <code><a href="reference/py_repl.html">py_repl()</a></code> function creates a Python REPL (Read-Eval-Print-Loop“) within R. Objects you create within the Python REPL are available to your R session (and vice-versa).</p></li>
 </ol>
 <p>Each of these techniques will be explained in more detail below.</p>
@@ -105,7 +106,7 @@
 <div id="python-in-r-markdown" class="section level2">
 <h2 class="hasAnchor">
 <a href="#python-in-r-markdown" class="anchor"></a>Python in R Markdown</h2>
-<p>The <strong>reticulate</strong> pacakge includes a Python engine for <a href="http://rmarkdown.rstudio.com">R Markdown</a> with the following features:</p>
+<p>The <strong>reticulate</strong> package includes a Python engine for <a href="http://rmarkdown.rstudio.com">R Markdown</a> with the following features:</p>
 <div class="figure">
 <img src="images/rmarkdown_engine.png" class="screenshot" align="right" style="margin-left: 40px;" width="400">
 </div>
@@ -146,7 +147,7 @@ flights &lt;-<span class="st"> </span><span class="kw">read_flights</span>(<span
 <p>You can use the <code><a href="reference/import.html">import()</a></code> function to import any Python module and call it from R. For example, this code imports the Python <code>os</code> module and calls some functions within it:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(reticulate)
 os &lt;-<span class="st"> </span><span class="kw"><a href="reference/import.html">import</a></span>(<span class="st">"os"</span>)
-os<span class="op">$</span><span class="kw">listdir</span>(<span class="st">'.'</span>)</code></pre></div>
+os<span class="op">$</span><span class="kw">listdir</span>(<span class="st">"."</span>)</code></pre></div>
 <pre><code> [1] ".git"             ".gitignore"       ".Rbuildignore"    ".RData"          
  [5] ".Rhistory"        ".Rproj.user"      ".travis.yml"      "appveyor.yml"    
  [9] "DESCRIPTION"      "docs"             "external"         "index.html"      
@@ -231,15 +232,16 @@ os<span class="op">$</span><span class="kw">listdir</span>(<span class="st">'.'<
 </tr>
 </tbody>
 </table>
+<p>If a Python object of a custom class is returned then an R reference to that object is returned. You can call methods and access properties of the object just as if it was an instance of an R reference class.</p>
 </div>
 <div id="learning-more" class="section level2">
 <h2 class="hasAnchor">
 <a href="#learning-more" class="anchor"></a>Learning more</h2>
 <p>The following articles cover the various aspects of using <strong>reticulate</strong>:</p>
 <ul>
-<li><p><a href="https://rstudio.github.io/reticulate/articles/introduction.html">Calling Python from R</a> — Describes the various ways to access Python objects from R as well as functions available for more advanced interactions and conversion behavior.</p></li>
-<li><p><a href="https://rstudio.github.io/reticulate/articles/versions.html">Python Version Configuration</a> — Describes facillities for determining which version of Python is used by reticulate within an R session.</p></li>
-<li><p><a href="https://rstudio.github.io/reticulate/articles/package.html">Using reticulate in an R Package</a> — Guidlines and best practices for using reticualte in an R package.</p></li>
+<li><p><a href="https://rstudio.github.io/reticulate/articles/calling_python.html">Calling Python from R</a> — Describes the various ways to access Python objects from R as well as functions available for more advanced interactions and conversion behavior.</p></li>
+<li><p><a href="https://rstudio.github.io/reticulate/articles/versions.html">Python Version Configuration</a> — Describes facilities for determining which version of Python is used by reticulate within an R session.</p></li>
+<li><p><a href="https://rstudio.github.io/reticulate/articles/package.html">Using reticulate in an R Package</a> — Guidelines and best practices for using reticulate in an R package.</p></li>
 <li><p><a href="https://rstudio.github.io/reticulate/articles/arrays.html">Arrays in R and Python</a> — Advanced discussion of the differences between arrays in R and Python and the implications for conversion and interoperability.</p></li>
 </ul>
 </div>
@@ -277,6 +279,12 @@ os<span class="op">$</span><span class="kw">listdir</span>(<span class="st">'.'<
 <a href="https://www.rstudio.com"><img src="http://tidyverse.org/rstudio-logo.svg" height="24"></a> <br><small class="roles"> Copyright holder, funder </small> </li>
 <li>Yuan Tang <br><small class="roles"> Author, copyright holder </small> </li>
 <li><a href="authors.html">All authors...</a></li>
+</ul>
+<h2>Dev status</h2>
+<ul class="list-unstyled">
+<li><a href="https://travis-ci.org/rstudio/reticulate"><img src="https://travis-ci.org/rstudio/reticulate.svg?branch=master" alt="Travis-CI Build Status"></a></li>
+<li><a href="https://ci.appveyor.com/project/rstudio/reticulate"><img src="https://ci.appveyor.com/api/projects/status/github/rstudio/reticulate?svg=true" alt="Appveyor Build Status"></a></li>
+<li><a href="https://cran.r-project.org/package=reticulate"><img src="https://www.r-pkg.org/badges/version/reticulate" alt="CRAN_Status_Badge"></a></li>
 </ul>
 </div>
 

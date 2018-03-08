@@ -1,7 +1,7 @@
 ---
-title: "R Interface to Python"
 output: html_document
 ---
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -9,7 +9,10 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # R Interface to Python
 
-The **reticulate** package provides a comprensive set of Python interoperability tools for R. 
+[![Travis-CI Build Status](https://travis-ci.org/rstudio/reticulate.svg?branch=master)](https://travis-ci.org/rstudio/reticulate) [![Appveyor Build Status](https://ci.appveyor.com/api/projects/status/github/rstudio/reticulate?svg=true)](https://ci.appveyor.com/project/rstudio/reticulate)  [![CRAN\_Status\_Badge](https://www.r-pkg.org/badges/version/reticulate)](https://cran.r-project.org/package=reticulate)
+
+
+The **reticulate** package provides a comprehensive set of Python interoperability tools for R. 
 
 If you are an R developer that uses Python for some of your work or a member of data science team that uses both languages, reticulate can dramatically streamline your workflow. Reticulte embeds a Python session within your R session, enabling the following types of interoperability:
 
@@ -17,7 +20,7 @@ If you are an R developer that uses Python for some of your work or a member of 
 
 2) [Sourcing Python scripts] --- The `source_python()` function enables you to source a Python script the same way you would `source()` an R script (Python functions and objects defined within the script become directly available to the R session).
 
-3) [Importing Python modules] -- The `import()` function enbles you to import any Python module and call it's functions directly from R.
+3) [Importing Python modules] -- The `import()` function enables you to import any Python module and call it's functions directly from R.
 
 4) [Python REPL] --- The `py_repl()` function creates a Python REPL (Read-Eval-Print-Loop") within R. Objects you create within the Python REPL are available to your R session (and vice-versa).
 
@@ -35,7 +38,7 @@ Then, review the examples below and check out the additional articles enumerated
 
 ## Python in R Markdown
 
-The **reticulate** pacakge includes a Python engine for [R Markdown](http://rmarkdown.rstudio.com) with the following features:
+The **reticulate** package includes a Python engine for [R Markdown](http://rmarkdown.rstudio.com) with the following features:
 
 ![](images/rmarkdown_engine.png){.screenshot width=400 align=right style="margin-left: 40px;"}
 
@@ -138,9 +141,9 @@ The following articles cover the various aspects of using **reticulate**:
 
 - [Calling Python from R](https://rstudio.github.io/reticulate/articles/calling_python.html) --- Describes the various ways to access Python objects from R as well as functions available for more advanced interactions and conversion behavior.
 
-- [Python Version Configuration](https://rstudio.github.io/reticulate/articles/versions.html) --- Describes facillities for determining which version of Python is used by reticulate within an R session.
+- [Python Version Configuration](https://rstudio.github.io/reticulate/articles/versions.html) --- Describes facilities for determining which version of Python is used by reticulate within an R session.
 
-- [Using reticulate in an R Package](https://rstudio.github.io/reticulate/articles/package.html) --- Guidlines and best practices for using reticualte in an R package.
+- [Using reticulate in an R Package](https://rstudio.github.io/reticulate/articles/package.html) --- Guidelines and best practices for using reticulate in an R package.
 
 - [Arrays in R and Python](https://rstudio.github.io/reticulate/articles/arrays.html) --- Advanced discussion of the differences between arrays in R and Python and the implications for conversion and interoperability.
 

@@ -15,7 +15,7 @@ navbar:
     - text: "Articles"
       menu:
         - text: "Calling Python from R"
-          href: articles/calling_python_from_r.html
+          href: articles/calling_python.html
         - text: "Python Version Configuration"
           href: articles/versions.html
         - text: "Using reticulate in an R Package"

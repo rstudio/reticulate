@@ -136,7 +136,7 @@ If a Python object of a custom class is returned then an R reference to that obj
 
 The following articles cover the various aspects of using **reticulate**:
 
-- [Calling Python from R](https://rstudio.github.io/reticulate/articles/introduction.html) --- Describes the various ways to access Python objects from R as well as functions available for more advanced interactions and conversion behavior.
+- [Calling Python from R](https://rstudio.github.io/reticulate/articles/calling_python.html) --- Describes the various ways to access Python objects from R as well as functions available for more advanced interactions and conversion behavior.
 
 - [Python Version Configuration](https://rstudio.github.io/reticulate/articles/versions.html) --- Describes facillities for determining which version of Python is used by reticulate within an R session.
 

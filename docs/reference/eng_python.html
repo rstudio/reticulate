@@ -127,7 +127,9 @@ Python chunk can be used by later Python chunks.</p>
     <p>The engine can be activated by setting (for example)</p><pre>knitr::knit_engines$set(python = reticulate::eng_python)
 </pre>
     <p>Typically, this will be set within a document's setup chunk, or by the
-environment requesting that Python chunks be processed by this engine.</p>
+environment requesting that Python chunks be processed by this engine.
+Note that <code>knitr</code> (since version 1.18) will use the <code>reticulate</code> engine by
+default when executing Python chunks within an R Markdown document.</p>
     
 
   </div>

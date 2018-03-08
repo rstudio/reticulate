@@ -1,7 +1,5 @@
 context("closures")
 
-source("utils.R")
-
 test_that("R functions are converted to Python closures", {
   skip_if_no_python()
   func <- function(x, y) x - y

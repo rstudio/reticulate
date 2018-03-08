@@ -1,7 +1,5 @@
 context("lists")
 
-source("utils.R")
-
 test_that("R named lists become Python dictionaries", {
   skip_if_no_python()
   l <- list(a = 1, b = 2, c = 3)

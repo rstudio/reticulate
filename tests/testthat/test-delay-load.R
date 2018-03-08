@@ -1,7 +1,5 @@
 context("delay-load")
 
-source("utils.R")
-
 library(callr)
 
 test_that("imoprted module can be customized via delay_load", {

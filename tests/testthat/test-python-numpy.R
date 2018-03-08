@@ -1,7 +1,5 @@
 context("numpy")
 
-source("utils.R")
-
 test_that("R matrixes are converted to numpy ndarray", {
   skip_if_no_numpy()
   np <- import("numpy")

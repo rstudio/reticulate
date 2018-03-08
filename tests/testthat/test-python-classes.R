@@ -1,7 +1,5 @@
 context("classes")
 
-source("utils.R")
-
 test_that("Python class variables are accessible via $", {
   skip_if_no_python()
   expect_equal(test$PythonClass$FOO, 1)

@@ -1,8 +1,5 @@
 context("dict")
 
-source("utils.R")
-
-
 test_that("Python dictionaries can be created", {
   skip_if_no_python()
   expect_is(dict(), "python.builtin.dict")  

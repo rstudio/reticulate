@@ -1,7 +1,5 @@
 context("helper handlers")
 
-source("utils.R")
-
 test_that("Documentations in Sphinx style can be extracted correctly for help handlers", {
   skip_if_no_docutils()
 

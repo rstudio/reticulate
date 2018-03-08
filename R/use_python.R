@@ -29,6 +29,14 @@ use_python <- function(python, required = FALSE) {
 #' @export
 use_virtualenv <- function(virtualenv, required = FALSE) {
 
+  # prepend root virtualenv directory it doesn't exist and 
+  # it's not an absolute path
+  if (!utils::file_test("-d", virtualenv) & 
+      !grepl("^/|^[a-zA-Z]:/|^~", virtualenv, perl = TRUE)) {
+    workon_home <- Sys.getenv("WORKON_HOME", unset = "~/.virtualenvs")
+    virtualenv <- file.path(workon_home, virtualenv)
+  }
+  
   # compute the bin dir
   if (is_windows())
     python_dir <- file.path(virtualenv, "Scripts")
@@ -48,7 +56,7 @@ use_virtualenv <- function(virtualenv, required = FALSE) {
   python <- file.path(python_dir, "python")
   if (is_windows())
     python <- paste0(python, ".exe")
-  use_python(python)
+  use_python(python, required = required)
 }
 
 #' @rdname use_python
@@ -64,7 +72,7 @@ use_condaenv <- function(condaenv, conda = "auto", required = FALSE) {
     stop("Unable to locate conda environment '", condaenv, "'.")
   
   if (!is.null(condaenv))
-    use_python(conda_env_python)
+    use_python(conda_env_python, required = required)
   
   invisible(NULL)
 }

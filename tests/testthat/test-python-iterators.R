@@ -1,7 +1,5 @@
 context("iterators")
 
-source("utils.R")
-
 test_that("Iterators reflect values back", {
   skip_if_no_python()
   rlist <- list("foo", "bar", 42L)

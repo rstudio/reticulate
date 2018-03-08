@@ -1,7 +1,5 @@
 context("vectors")
 
-source("utils.R")
-
 test_that("Single element vectors are treated as scalars", {
   skip_if_no_python()
   expect_true(test$isScalar(5))

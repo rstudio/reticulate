@@ -1,7 +1,5 @@
 context("complex numbers")
 
-source("utils.R")
-
 test_that("Complex scalars are converted correctly", {
   skip_if_no_python()
   z <- complex(real = stats::rnorm(1), imaginary = stats::rnorm(1))

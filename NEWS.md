@@ -8,6 +8,13 @@ Install the development version with: `install_github("rstudio/reticulate")`
 - `py_dict()` function to enable creation of dictionaries based on lists of 
   keys and values.
 
+- Provide default base directory (e.g. '~/.virtualenvs') for environments
+  specified by name in `use_virtualenv()`.
+  
+- Ensure that `use_*` python version is satsified when using `eng_python()`
+
+- Forward `required` argument from `use_virtualenv()` and `use_condaenv()`
+
 
 ## reticulate 1.5 (CRAN)
 

@@ -100,6 +100,11 @@ py_to_r.numpy.ndarray <- function(x) {
 
 #' @export
 r_to_py.POSIXt <- function(x, convert = FALSE) {
+  
+  # we prefer datetime64 for efficiency
+  if (py_module_available("numpy"))
+    return(np_array(as.numeric(x) * 1E9, dtype = "datetime64[ns]"))
+  
   datetime <- import("datetime", convert = convert)
   datetime$datetime$fromtimestamp(as.double(x))
 }
@@ -117,12 +122,25 @@ py_to_r.datetime.datetime <- function(x) {
 
 #' @export
 r_to_py.Date <- function(x, convert = FALSE) {
+  
+  # we prefer datetime64 for efficiency
+  if (py_module_available("numpy"))
+    return(r_to_py.POSIXt(as.POSIXct(x)))
+  
+  # otherwise, fallback to using Python's datetime class
   datetime <- import("datetime", convert = convert)
-  iso <- strsplit(format(x), "-", fixed = TRUE)[[1]]
-  year <- as.integer(iso[[1]])
-  month <- as.integer(iso[[2]])
-  day <- as.integer(iso[[3]])
-  datetime$date(year, month, day)
+  items <- lapply(x, function(item) {
+    iso <- strsplit(format(x), "-", fixed = TRUE)[[1]]
+    year <- as.integer(iso[[1]])
+    month <- as.integer(iso[[2]])
+    day <- as.integer(iso[[3]])
+    datetime$date(year, month, day)
+  })
+  
+  if (length(items) == 1)
+    items[[1]]
+  else
+    items
 }
 
 #' @export
@@ -155,10 +173,12 @@ r_to_py.data.frame <- function(x, convert = FALSE) {
   columns <- lapply(x, function(column) {
     if (is.factor(column)) {
       pd$Categorical(as.character(column),
-                     categories = levels(column),
+                     categories = as.list(levels(column)),
                      ordered = inherits(column, "ordered"))
     } else if (is.numeric(column) || is.character(column)) {
       np_array(column)
+    } else if (inherits(column, "POSIXt")) {
+      np_array(as.numeric(column) * 1E9, dtype = "datetime64[ns]")
     } else {
       r_to_py(column)
     }
@@ -188,13 +208,10 @@ py_to_r.pandas.core.frame.DataFrame <- function(x) {
   
   # extract numpy arrays associated with each column
   columns <- py_to_r(x$columns$values)
-  items <- lapply(columns, function(column) {
-    x[[column]]$as_matrix()
+  converted <- lapply(columns, function(column) {
+    py_to_r(x[[column]]$as_matrix())
   })
-  names(items) <- columns
-  
-  # convert back to R
-  converted <- py_ref_to_r(dict(items))
+  names(converted) <- columns
   
   # clean up converted objects
   for (i in seq_along(converted)) {
@@ -222,8 +239,13 @@ py_to_r.pandas.core.frame.DataFrame <- function(x) {
   )
   
   # attempt to copy over index, and set as rownames when appropriate
+  #
   # TODO: should we tag the R data.frame with the original Python index
   # object in case users need it?
+  #
+  # TODO: Pandas allows for a large variety of index formats; we should
+  # try to explicitly whitelist a small family which we can represent
+  # effectively in R
   index <- x$index
   if (inherits(index, "pandas.core.indexes.base.Index")) {
     
@@ -244,9 +266,6 @@ py_to_r.pandas.core.frame.DataFrame <- function(x) {
       }
     }
     
-    # TODO: Pandas allows for a large variety of index formats; we should
-    # try to explicitly whitelist a small family which we can represent
-    # effectively in R
     else {
       converted <- tryCatch(py_to_r(index$values), error = identity)
       if (is.character(converted) || is.numeric(converted))

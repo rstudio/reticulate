@@ -95,6 +95,8 @@ os$listdir(".")
 
 Functions and other data within Python modules and classes can be accessed via the `$` operator (analogous to the way you would interact with an R list, environment, or reference class).
 
+See [Calling Python from R](https://rstudio.github.io/reticulate/articles/calling_python.html) for additional details on interacting with Python objects from within R.
+
 Python REPL
 -----------
 

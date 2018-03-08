@@ -101,7 +101,12 @@ os<span class="op">$</span><span class="kw">getcwd</span>()</code></pre></div>
 <h2 class="hasAnchor">
 <a href="#type-conversions" class="anchor"></a>Type Conversions</h2>
 <p>When calling into Python, R data types are automatically converted to their equivalent Python types. When values are returned from Python to R they are converted back to R types. Types are converted as follows:</p>
-<table class="table">
+<table style="width:17%;" class="table">
+<colgroup>
+<col width="5%">
+<col width="5%">
+<col width="5%">
+</colgroup>
 <thead><tr class="header">
 <th>R</th>
 <th>Python</th>
@@ -140,11 +145,16 @@ os<span class="op">$</span><span class="kw">getcwd</span>()</code></pre></div>
 <td><code>matrix(c(1,2,3,4), nrow = 2, ncol = 2)</code></td>
 </tr>
 <tr class="even">
+<td>Data Frame</td>
+<td>Pandas DataFrame</td>
+<td><code>data.frame(x = c(1,2,3), y = c("a", "b", "c"))   x y</code></td>
+</tr>
+<tr class="odd">
 <td>Function</td>
 <td>Python function</td>
 <td><code>function(x) x + 1</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>NULL, TRUE, FALSE</td>
 <td>None, True, False</td>
 <td>

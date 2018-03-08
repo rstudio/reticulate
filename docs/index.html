@@ -83,29 +83,28 @@
     
     
 <div class="contents">
-<div id="overview" class="section level2">
-<h2 class="hasAnchor">
-<a href="#overview" class="anchor"></a>Overview</h2>
-<p>The <strong>reticulate</strong> package provides a comprensive set of Python interopability tools for R.</p>
+<div id="r-interface-to-python" class="section level1">
+<div class="page-header"><h1 class="hasAnchor">
+<a href="#r-interface-to-python" class="anchor"></a>R Interface to Python</h1></div>
+<p>The <strong>reticulate</strong> package provides a comprensive set of Python interoperability tools for R.</p>
 <p>If you are an R developer that uses Python for some of your work or a member of data science team that uses both languages, reticulate can dramatically streamline your workflow. Reticulte embeds a Python session within your R session, enabling the following types of interoperability:</p>
 <ol style="list-style-type: decimal">
-<li><p>Multi-language R Markdown — The <code><a href="reference/eng_python.html">eng_python()</a></code> function adds a Python language engine to R Markdown that supports bi-directional communication between R and Python (R chunks can access Python objects and vice-versa).</p></li>
-<li><p>Sourcing Python scripts — Use the <code><a href="reference/source_python.html">source_python()</a></code> to source a Python script the same way you would <code>source()</code> an R script (Python functions and objects defined within the script become available to the R session).</p></li>
-<li><p>Importing Python modules – The <code><a href="reference/import.html">import()</a></code> function allows you to import any Python module and call it’s functions directly from R.</p></li>
-<li><p>Python REPL — If you need to work interactively with Python use the <code><a href="reference/py_repl.html">py_repl()</a></code> function to create a Python REPL (Read-Eval-Print-Loop“) within R. Objects you create within the Python REPL are also available to your R session.</p></li>
+<li><p><a href="#python-in-r-markdown">Python in R Markdown</a> — reticulate adds a Python language engine to R Markdown that supports bi-directional communication between R and Python (R chunks can access Python objects and vice-versa).</p></li>
+<li><p><a href="#sourcing-python-scripts">Sourcing Python scripts</a> — Use the <code><a href="reference/source_python.html">source_python()</a></code> function to source a Python script the same way you would <code>source()</code> an R script (Python functions and objects defined within the script become available to the R session).</p></li>
+<li><p><a href="#importing-python-modules">Importing Python modules</a> – The <code><a href="reference/import.html">import()</a></code> function allows you to import any Python module and call it’s functions directly from R.</p></li>
+<li><p><a href="#python-repl">Python REPL</a> — If you need to work interactively with Python use the <code><a href="reference/py_repl.html">py_repl()</a></code> function to create a Python REPL (Read-Eval-Print-Loop“) within R. Objects you create within the Python REPL are also available to your R session.</p></li>
 </ol>
 <p>Each of these techniques will be explained in more detail below.</p>
 <div id="getting-started" class="section level3">
 <h3 class="hasAnchor">
 <a href="#getting-started" class="anchor"></a>Getting Started</h3>
-<p>First, install reticulate from CRAN as follows:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">install.packages</span>(<span class="st">"reticulate"</span>)</code></pre></div>
+<p>First, install reticulate from GitHub as follows:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">devtools<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/devtools/topics/install_github">install_github</a></span>(<span class="st">"rstudio/reticulate"</span>)</code></pre></div>
 <p>Then, review the examples below and check out the additional articles enumerated in the <a href="#learning-more">Learning More</a> section.</p>
 </div>
-</div>
-<div id="multi-language-r-markdown" class="section level2">
+<div id="python-in-r-markdown" class="section level2">
 <h2 class="hasAnchor">
-<a href="#multi-language-r-markdown" class="anchor"></a>Multi-language R Markdown</h2>
+<a href="#python-in-r-markdown" class="anchor"></a>Python in R Markdown</h2>
 <p>The reticulate pacakge includes a Python engine for knitr / R Markdown with the following features:</p>
 <div class="figure">
 <img src="images/rmarkdown_engine.png" class="screenshot" align="right" style="margin-left: 40px;" width="400">
@@ -116,24 +115,123 @@
 <li><p>Access to objects created within Python chunks from R using the <code>py</code> object (e.g. <code>py$x</code> would access an <code>x</code> variable created within Python from R).</p></li>
 <li><p>Access to objects created within R chunks from Python using the <code>r</code> object (e.g. <code>r.x</code> would access to <code>x</code> variable created within R from Python)</p></li>
 </ol>
-<p>Built in conversion for many Python object types is provided, including NumPy arrays and Pandas data frames. From example, you can use Pandas to read and manipulate data then easily plot the Pandas data frame using ggplot2 (as illustrated on the right).</p>
+<div style="clear: both;">
+
+</div>
+<p>Built in conversion for many Python object types is provided, including NumPy arrays and Pandas data frames. From example, you can use Pandas to read and manipulate data then easily plot the Pandas data frame using ggplot2 (as illustrated above).</p>
 <p>The reticulate Python engine is enabled by default within knitr whenever reticulate is installed.</p>
 </div>
 <div id="sourcing-python-scripts" class="section level2">
 <h2 class="hasAnchor">
 <a href="#sourcing-python-scripts" class="anchor"></a>Sourcing Python scripts</h2>
+<p>You can source any Python script just as you would source an R script using the <code><a href="reference/source_python.html">source_python()</a></code> function. For example, if you had the following Python script “flights.py”:</p>
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="im">import</span> pandas
+<span class="kw">def</span> read_flights(<span class="bu">file</span>):
+  flights <span class="op">=</span> pandas.read_csv(<span class="st">"flights.csv"</span>)
+  flights <span class="op">=</span> flights[flights[<span class="st">'dest'</span>] <span class="op">==</span> <span class="st">"ORD"</span>]
+  flights <span class="op">=</span> flights[[<span class="st">'carrier'</span>, <span class="st">'dep_delay'</span>, <span class="st">'arr_delay'</span>]]
+  flights <span class="op">=</span> flights.dropna()
+  <span class="cf">return</span> flights</code></pre></div>
+<p>Then you can source the script and call the <code>read_flights()</code> function as follows:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="reference/source_python.html">source_python</a></span>(<span class="st">"flights.py"</span>)
+flights &lt;-<span class="st"> </span><span class="kw">read_flights</span>(<span class="st">"flights.csv"</span>)
+
+<span class="kw">library</span>(ggplot2)
+<span class="kw"><a href="http://www.rdocumentation.org/packages/ggplot2/topics/ggplot">ggplot</a></span>(flights, <span class="kw"><a href="http://www.rdocumentation.org/packages/ggplot2/topics/aes">aes</a></span>(carrier, arr_delay)) <span class="op">+</span><span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/ggplot2/topics/geom_point">geom_point</a></span>() <span class="op">+</span><span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/ggplot2/topics/geom_jitter">geom_jitter</a></span>()</code></pre></div>
 </div>
 <div id="importing-python-modules" class="section level2">
 <h2 class="hasAnchor">
 <a href="#importing-python-modules" class="anchor"></a>Importing Python modules</h2>
+<p>You can use the <code><a href="reference/import.html">import()</a></code> function to import any Python module and call it from R. For example, this code imports the Python <code>os</code> module and calls some functions within it:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(reticulate)
+os &lt;-<span class="st"> </span><span class="kw"><a href="reference/import.html">import</a></span>(<span class="st">"os"</span>)
+os<span class="op">$</span><span class="kw">chdir</span>(<span class="st">"tests"</span>)
+os<span class="op">$</span><span class="kw">getcwd</span>()</code></pre></div>
+<p>Functions and other data within Python modules and classes can be accessed via the <code>$</code> operator (analogous to the way you would interact with an R list, environment, or reference class).</p>
 </div>
 <div id="python-repl" class="section level2">
 <h2 class="hasAnchor">
 <a href="#python-repl" class="anchor"></a>Python REPL</h2>
+<p>If you want to work with Python interactively you can call the <code><a href="reference/py_repl.html">py_repl()</a></code> function, which provides a Python REPL embedded within your R session. Objects created within the Python REPL can be accessed from R using the <code>py</code> object exported from reticulate. For example:</p>
+<div class="figure">
+<img src="images/python_repl.png" class="screenshot">
+</div>
+<p>Enter <code>exit</code> within the Python REPL to return to the R prompt.</p>
+<p>Note that Python code can also access objects from within the R session using the <code>r</code> object:</p>
+<div class="figure">
+<img src="images/python_r_object.png" class="screenshot">
+</div>
+</div>
+<div id="type-conversions" class="section level2">
+<h2 class="hasAnchor">
+<a href="#type-conversions" class="anchor"></a>Type conversions</h2>
+<p>When calling into Python, R data types are automatically converted to their equivalent Python types. When values are returned from Python to R they are converted back to R types. Types are converted as follows:</p>
+<table style="width:17%;" class="table">
+<colgroup>
+<col width="5%">
+<col width="5%">
+<col width="5%">
+</colgroup>
+<thead><tr class="header">
+<th>R</th>
+<th>Python</th>
+<th>Examples</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>Single-element vector</td>
+<td>Scalar</td>
+<td>
+<code>1</code>, <code>1L</code>, <code>TRUE</code>, <code>"foo"</code>
+</td>
+</tr>
+<tr class="even">
+<td>Multi-element vector</td>
+<td>List</td>
+<td>
+<code>c(1.0, 2.0, 3.0)</code>, <code>c(1L, 2L, 3L)</code>
+</td>
+</tr>
+<tr class="odd">
+<td>List of multiple types</td>
+<td>Tuple</td>
+<td><code>list(1L, TRUE, "foo")</code></td>
+</tr>
+<tr class="even">
+<td>Named list</td>
+<td>Dict</td>
+<td>
+<code>list(a = 1L, b = 2.0)</code>, <code><a href="reference/dict.html">dict(x = x_data)</a></code>
+</td>
+</tr>
+<tr class="odd">
+<td>Matrix/Array</td>
+<td>NumPy ndarray</td>
+<td><code>matrix(c(1,2,3,4), nrow = 2, ncol = 2)</code></td>
+</tr>
+<tr class="even">
+<td>Data Frame</td>
+<td>Pandas DataFrame</td>
+<td><code>data.frame(x = c(1,2,3), y = c("a", "b", "c"))   x y</code></td>
+</tr>
+<tr class="odd">
+<td>Function</td>
+<td>Python function</td>
+<td><code>function(x) x + 1</code></td>
+</tr>
+<tr class="even">
+<td>NULL, TRUE, FALSE</td>
+<td>None, True, False</td>
+<td>
+<code>NULL</code>, <code>TRUE</code>, <code>FALSE</code>
+</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div id="learning-more" class="section level2">
 <h2 class="hasAnchor">
-<a href="#learning-more" class="anchor"></a>Learning More</h2>
+<a href="#learning-more" class="anchor"></a>Learning more</h2>
 <p>The following articles cover the various aspects of using <strong>reticulate</strong>:</p>
 <ul>
 <li><p><a href="https://rstudio.github.io/reticulate/articles/introduction.html">Introduction to reticulate</a></p></li>
@@ -150,6 +248,7 @@
 <p>The reticulated python is a speicies of python found in Southeast Asia. They are the world’s longest snakes and longest reptiles…The specific name, reticulatus, is Latin meaning “net-like”, or reticulated, and is a reference to the complex colour pattern.</p>
 </blockquote>
 <p>The reticulate package enables a new flavor of “reticulated” Python code that is weaved closely together with R.</p>
+</div>
 </div>
 </div>
   </div>

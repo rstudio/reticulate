@@ -6,7 +6,7 @@ R Interface to Python
 
 The **reticulate** package provides a comprehensive set of Python interoperability tools for R.
 
-If you are an R developer that uses Python for some of your work or a member of data science team that uses both languages, reticulate can dramatically streamline your workflow. Reticulte embeds a Python session within your R session, enabling the following types of interoperability:
+If you are an R developer that uses Python for some of your work or a member of data science team that uses both languages, reticulate can dramatically streamline your workflow. Reticulate embeds a Python session within your R session, enabling the following types of interoperability:
 
 1.  [Python in R Markdown](#python-in-r-markdown) — A new Python language engine for R Markdown that supports bi-directional communication between R and Python (R chunks can access Python objects and vice-versa).
 

@@ -13,6 +13,8 @@
 #' 
 #' Typically, this will be set within a document's setup chunk, or by the
 #' environment requesting that Python chunks be processed by this engine.
+#' Note that `knitr` (since version 1.18) will use the `reticulate` engine by
+#' default when executing Python chunks within an R Markdown document.
 #' 
 #' @param options
 #'   Chunk options, as provided by `knitr` during chunk execution.

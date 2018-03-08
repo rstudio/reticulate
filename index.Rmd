@@ -35,6 +35,21 @@ Then, review the examples below and check out the additional articles enumerated
 
 ## Multi-language R Markdown
 
+The reticulate pacakge includes a Python engine for knitr / R Markdown with the following features:
+
+![](images/rmarkdown_engine.png){.screenshot width=400 align=right style="margin-left: 40px;"}
+
+1) Run Python chunks in a single Python session embedded within your R session (shared variables/state between Python chunks)
+
+2) Printing of Python output, including graphical output from [matplotlib](https://matplotlib.org/).
+
+3) Access to objects created within Python chunks from R using the `py` object (e.g. `py$x` would access an `x` variable created within Python from R).
+
+4) Access to objects created within R chunks from Python using the `r` object (e.g. `r.x` would access to `x` variable created within R from Python)
+
+Built in conversion for many Python object types is provided, including NumPy arrays and Pandas data frames. From example, you can use Pandas to read and manipulate data then easily plot the Pandas data frame using ggplot2 (as illustrated on the right). 
+
+The reticulate Python engine is enabled by default within knitr whenever reticulate is installed.
 
 ## Sourcing Python scripts
 

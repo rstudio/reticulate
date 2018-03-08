@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Convert between Pyton and R objects — r-py-conversion • reticulate</title>
+<title>Convert between Python and R objects — r-py-conversion • reticulate</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -23,7 +23,7 @@
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-  
+  <link href="../extra.css" rel="stylesheet">
   
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
@@ -101,23 +101,23 @@
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Convert between Pyton and R objects</h1>
+    <h1>Convert between Python and R objects</h1>
     </div>
 
     
-    <p>Convert between Pyton and R objects</p>
+    <p>Convert between Python and R objects</p>
     
 
-    <pre class="usage"><span class='fu'>py_to_r</span>(<span class='no'>x</span>)
+    <pre class="usage"><span class='fu'>r_to_py</span>(<span class='no'>x</span>, <span class='kw'>convert</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
 
-<span class='fu'>r_to_py</span>(<span class='no'>x</span>, <span class='kw'>convert</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+<span class='fu'>py_to_r</span>(<span class='no'>x</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>x</th>
-      <td><p>Object to convert</p></td>
+      <td><p>A Python object.</p></td>
     </tr>
     <tr>
       <th>convert</th>
@@ -129,7 +129,7 @@ equivalent. If you pass <code>FALSE</code> you can do manual conversion using th
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>Converted object</p>
+    <p>An <span style="R">R</span> object, as converted from the Python object.</p>
     
 
   </div>

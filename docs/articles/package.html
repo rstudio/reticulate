@@ -9,7 +9,8 @@
 <!-- jquery --><script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/flatly/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script><!-- Font Awesome icons --><link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 <!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../jquery.sticky-kit.min.js"></script><script src="../pkgdown.js"></script><!-- mathjax --><script src="https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!--[if lt IE 9]>
+<script src="../jquery.sticky-kit.min.js"></script><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
+<!-- mathjax --><script src="https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
@@ -154,6 +155,19 @@ py_str.MyModule.MyPythonClass &lt;-<span class="st"> </span><span class="cf">fun
   <span class="co"># interact with the object to generate the string</span>
 }</code></pre></div>
 <p>The <code>print</code> and <code>summary</code> methods for Python objects both call the <code>str</code> method by default, so if you implement <code><a href="../reference/py_str.html">py_str()</a></code> you will automatically inherit implementations for those methods.</p>
+<div id="converting-between-r-and-python" class="section level3">
+<h3 class="hasAnchor">
+<a href="#converting-between-r-and-python" class="anchor"></a>Converting between R and Python</h3>
+<p><strong>reticulate</strong> provides the generics <code><a href="../reference/r-py-conversion.html">r_to_py()</a></code> for converting R objects into Python objects, and <code><a href="../reference/r-py-conversion.html">py_to_r()</a></code> for converting Python objects back into R objects. Package authors can provide methods for these generics to convert Python and R objects otherwise not handled by <strong>reticulate</strong>.</p>
+<p><strong>reticulate</strong> provides conversion operators for some of the most commonly used Python objects, including:</p>
+<ul>
+<li>Built-in Python objects (lists, dictionaries, numbers, strings, tuples)</li>
+<li>NumPy arrays,</li>
+<li>Pandas objects (<code>Index</code>, <code>Series</code>, <code>DataFrame</code>),</li>
+<li>Python <code>datetime</code> objects.</li>
+</ul>
+<p>If you see that <strong>reticulate</strong> is missing support for conversion of one or more objects from these packages, please <a href="https://github.com/rstudio/reticulate/issues">let us know</a> and we’ll try to implement the missing converter. For Python packages not in this set, you can provide conversion operators in your own extension package.</p>
+</div>
 </div>
 <div id="using-travis-ci" class="section level2">
 <h2 class="hasAnchor">

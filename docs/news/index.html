@@ -23,7 +23,7 @@
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-  
+  <link href="../extra.css" rel="stylesheet">
   
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
@@ -113,6 +113,9 @@
 <ul>
 <li><p><code><a href="../reference/py_repl.html">py_repl()</a></code> function implementing a lightweight Python REPL in R.</p></li>
 <li><p><code><a href="../reference/dict.html">py_dict()</a></code> function to enable creation of dictionaries based on lists of keys and values.</p></li>
+<li><p>Provide default base directory (e.g. ‘~/.virtualenvs’) for environments specified by name in <code><a href="../reference/use_python.html">use_virtualenv()</a></code>.</p></li>
+<li><p>Ensure that <code>use_*</code> python version is satsified when using <code><a href="../reference/eng_python.html">eng_python()</a></code></p></li>
+<li><p>Forward <code>required</code> argument from <code><a href="../reference/use_python.html">use_virtualenv()</a></code> and <code><a href="../reference/use_python.html">use_condaenv()</a></code></p></li>
 </ul>
 </div>
     <div id="reticulate-1-5-cran" class="section level2">

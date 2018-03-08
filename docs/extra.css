@@ -1,0 +1,66 @@
+h4.date,
+h4.author {
+  display: none;
+}
+
+h2.hasAnchor {
+  font-weight: 350;
+}
+
+.ref-index tbody {
+  margin-bottom: 60px;
+}
+
+pre:not([class]) {
+  background-color: white;
+}
+
+blockquote {
+  font-size: inherit;
+}
+
+.examples .page-header {
+  border-bottom: none;
+  margin: 0;
+  padding-bottom: 0;
+}
+
+.examples .sourceCode {
+  margin-top: 25px;
+}
+
+#sidebar .nav>li>a {
+  padding-top: 1px;
+  padding-bottom: 2px;
+}
+
+#installation .sourceCode {
+  font-size: 13px;
+}
+
+.r-plot {
+  margin-top: 15px;
+  margin-bottom: 20px;
+  border: solid 1px #cccccc;
+}
+
+.screenshot, .illustration {
+  margin-bottom: 20px;
+  border: solid 1px #cccccc;
+}
+
+
+.source-ref {
+  margin-bottom: 20px;
+}
+
+.source-ref .caption {
+  display: none;
+}
+
+.link-table td {
+  padding-top: 20px !important;
+  padding-bottom: 210x !important;
+}
+
+

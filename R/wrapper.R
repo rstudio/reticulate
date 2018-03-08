@@ -12,7 +12,9 @@
 #'   values to Python integers via `as.integer` where required, etc.) so is
 #'   really intended as an starting point for an R wrapper rather than a wrapper
 #'   that can be used without modification.
-#'   
+#'  
+#' @keywords internal   
+#'     
 #' @export
 py_function_wrapper <- function(python_function, r_prefix = NULL, r_function = NULL) {
   

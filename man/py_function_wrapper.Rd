@@ -28,3 +28,4 @@ values to Python integers via \code{as.integer} where required, etc.) so is
 really intended as an starting point for an R wrapper rather than a wrapper
 that can be used without modification.
 }
+\keyword{internal}

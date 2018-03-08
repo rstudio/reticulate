@@ -50,6 +50,8 @@ py_to_r.default <- function(x) {
 #' 
 #' @param x Python object 
 #' 
+#' @keywords internal
+#' 
 #' @export
 py_to_r_wrapper <- function(x) {
   UseMethod("py_to_r_wrapper")

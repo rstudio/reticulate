@@ -49,4 +49,5 @@ if none can be found.
 \description{
 Interface to conda utility commands
 }
+\keyword{internal}
 \keyword{intername}

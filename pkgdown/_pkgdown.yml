@@ -1,3 +1,7 @@
+
+# Topics missing from index: conda-tools, , , 
+#                            ,, reticulate, 
+
 template:
   params:
     bootswatch: flatly
@@ -10,8 +14,8 @@ navbar:
       href: index.html
     - text: "Articles"
       menu:
-        - text: "Introduction to reticulate"
-          href: articles/introduction.html
+        - text: "Calling Python from R"
+          href: articles/calling_python_from_r.html
         - text: "Python Version Configuration"
           href: articles/versions.html
         - text: "Using reticulate in an R Package"
@@ -31,7 +35,11 @@ reference:
   - title: "Python Execution"
     contents:
       - import
+      - source_python
+      - eng_python
+      - py_repl
       - py_run
+      - py
       
   - title: "Python Types"
     contents:
@@ -74,6 +82,7 @@ reference:
       - r_to_py
       - py_is_null_xptr
       - py_id
+      - py_len
       - py_str
       - py_iterator
       - py_unicode

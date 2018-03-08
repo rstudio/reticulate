@@ -198,6 +198,9 @@ conda_remove <- function(envname, packages = NULL, conda = "auto") {
 #'   pip due to compilation requirements).
 #'
 #' @rdname conda-tools
+#' 
+#' @keywords internal
+#' 
 #' @export
 conda_install <- function(envname, packages, pip = FALSE, pip_ignore_installed = TRUE, conda = "auto") {
  

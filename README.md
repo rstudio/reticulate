@@ -16,7 +16,7 @@ If you are an R developer that uses Python for some of your work or a member of 
 
 4.  [Python REPL](#python-repl) — The `py_repl()` function creates a Python REPL (Read-Eval-Print-Loop") within R. Objects you create within the Python REPL are available to your R session (and vice-versa).
 
-Each of these techniques will be explained in more detail below.
+Each of these techniques is explained in more detail below.
 
 ### Getting Started
 

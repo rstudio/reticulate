@@ -33,8 +33,6 @@ Python in R Markdown
 
 The **reticulate** package includes a Python engine for [R Markdown](http://rmarkdown.rstudio.com) with the following features:
 
-<img src="images/rmarkdown_engine.png" class="screenshot" align="right" style="margin-left: 40px;" width="400" />
-
 1.  Run Python chunks in a single Python session embedded within your R session (shared variables/state between Python chunks)
 
 2.  Printing of Python output, including graphical output from [matplotlib](https://matplotlib.org/).
@@ -43,7 +41,9 @@ The **reticulate** package includes a Python engine for [R Markdown](http://rmar
 
 4.  Access to objects created within R chunks from Python using the `r` object (e.g. `r.x` would access to `x` variable created within R from Python)
 
-Built in conversion for many Python object types is provided, including [NumPy](http://www.numpy.org/) arrays and [Pandas](https://pandas.pydata.org/) data frames. From example, you can use Pandas to read and manipulate data then easily plot the Pandas data frame using [ggplot2](http://ggplot2.org/) (as illustrated above).
+Built in conversion for many Python object types is provided, including [NumPy](http://www.numpy.org/) arrays and [Pandas](https://pandas.pydata.org/) data frames. From example, you can use Pandas to read and manipulate data then easily plot the Pandas data frame using [ggplot2](http://ggplot2.org/):
+
+<img src="images/rmarkdown_engine_zoomed.png" class="screenshot" />
 
 The reticulate Python engine is enabled by default within R Markdown whenever reticulate is installed. See the `eng_python()` documentation for additional details on the R Markdown Python engine.
 

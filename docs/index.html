@@ -107,9 +107,6 @@
 <h2 class="hasAnchor">
 <a href="#python-in-r-markdown" class="anchor"></a>Python in R Markdown</h2>
 <p>The <strong>reticulate</strong> package includes a Python engine for <a href="http://rmarkdown.rstudio.com">R Markdown</a> with the following features:</p>
-<div class="figure">
-<img src="images/rmarkdown_engine.png" class="screenshot" align="right" style="margin-left: 40px;" width="400">
-</div>
 <ol style="list-style-type: decimal">
 <li><p>Run Python chunks in a single Python session embedded within your R session (shared variables/state between Python chunks)</p></li>
 <li><p>Printing of Python output, including graphical output from <a href="https://matplotlib.org/">matplotlib</a>.</p></li>
@@ -119,7 +116,10 @@
 <div style="clear: both;">
 
 </div>
-<p>Built in conversion for many Python object types is provided, including <a href="http://www.numpy.org/">NumPy</a> arrays and <a href="https://pandas.pydata.org/">Pandas</a> data frames. From example, you can use Pandas to read and manipulate data then easily plot the Pandas data frame using <a href="http://ggplot2.org/">ggplot2</a> (as illustrated above).</p>
+<p>Built in conversion for many Python object types is provided, including <a href="http://www.numpy.org/">NumPy</a> arrays and <a href="https://pandas.pydata.org/">Pandas</a> data frames. From example, you can use Pandas to read and manipulate data then easily plot the Pandas data frame using <a href="http://ggplot2.org/">ggplot2</a>:</p>
+<div class="figure">
+<img src="images/rmarkdown_engine_zoomed.png" class="screenshot">
+</div>
 <p>The reticulate Python engine is enabled by default within R Markdown whenever reticulate is installed. See the <code><a href="reference/eng_python.html">eng_python()</a></code> documentation for additional details on the R Markdown Python engine.</p>
 </div>
 <div id="sourcing-python-scripts" class="section level2">

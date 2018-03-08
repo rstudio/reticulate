@@ -92,7 +92,7 @@
 <ol style="list-style-type: decimal">
 <li><p><a href="#python-in-r-markdown">Python in R Markdown</a> — A new Python language engine for R Markdown that supports bi-directional communication between R and Python (R chunks can access Python objects and vice-versa).</p></li>
 <li><p><a href="#sourcing-python-scripts">Sourcing Python scripts</a> — The <code><a href="reference/source_python.html">source_python()</a></code> function enables you to source a Python script the same way you would <code>source()</code> an R script (Python functions and objects defined within the script become directly available to the R session).</p></li>
-<li><p><a href="#importing-python-modules">Importing Python modules</a> – The <code><a href="reference/import.html">import()</a></code> function enables you to import any Python module and call it’s functions directly from R.</p></li>
+<li><p><a href="#importing-python-modules">Importing Python modules</a> — The <code><a href="reference/import.html">import()</a></code> function enables you to import any Python module and call it’s functions directly from R.</p></li>
 <li><p><a href="#python-repl">Python REPL</a> — The <code><a href="reference/py_repl.html">py_repl()</a></code> function creates a Python REPL (Read-Eval-Print-Loop“) within R. Objects you create within the Python REPL are available to your R session (and vice-versa).</p></li>
 </ol>
 <p>Each of these techniques will be explained in more detail below.</p>
@@ -156,6 +156,7 @@ os<span class="op">$</span><span class="kw">listdir</span>(<span class="st">"."<
 [21] "R"                "README.md"        "reticulate.Rproj" "src"             
 [25] "tests"            "vignettes"      </code></pre>
 <p>Functions and other data within Python modules and classes can be accessed via the <code>$</code> operator (analogous to the way you would interact with an R list, environment, or reference class).</p>
+<p>See <a href="https://rstudio.github.io/reticulate/articles/calling_python.html">Calling Python from R</a> for additional details on interacting with Python objects from within R.</p>
 </div>
 <div id="python-repl" class="section level2">
 <h2 class="hasAnchor">

@@ -8,13 +8,13 @@ The **reticulate** package provides a comprehensive set of Python interoperabili
 
 If you are an R developer that uses Python for some of your work or a member of data science team that uses both languages, reticulate can dramatically streamline your workflow. Reticulte embeds a Python session within your R session, enabling the following types of interoperability:
 
-1.  [Python in R Markdown](#python-in-r-markdown) --- A new Python language engine for R Markdown that supports bi-directional communication between R and Python (R chunks can access Python objects and vice-versa).
+1.  [Python in R Markdown](#python-in-r-markdown) — A new Python language engine for R Markdown that supports bi-directional communication between R and Python (R chunks can access Python objects and vice-versa).
 
-2.  [Sourcing Python scripts](#sourcing-python-scripts) --- The `source_python()` function enables you to source a Python script the same way you would `source()` an R script (Python functions and objects defined within the script become directly available to the R session).
+2.  [Sourcing Python scripts](#sourcing-python-scripts) — The `source_python()` function enables you to source a Python script the same way you would `source()` an R script (Python functions and objects defined within the script become directly available to the R session).
 
-3.  [Importing Python modules](#importing-python-modules) -- The `import()` function enables you to import any Python module and call it's functions directly from R.
+3.  [Importing Python modules](#importing-python-modules) — The `import()` function enables you to import any Python module and call it's functions directly from R.
 
-4.  [Python REPL](#python-repl) --- The `py_repl()` function creates a Python REPL (Read-Eval-Print-Loop") within R. Objects you create within the Python REPL are available to your R session (and vice-versa).
+4.  [Python REPL](#python-repl) — The `py_repl()` function creates a Python REPL (Read-Eval-Print-Loop") within R. Objects you create within the Python REPL are available to your R session (and vice-versa).
 
 Each of these techniques will be explained in more detail below.
 
@@ -135,13 +135,13 @@ Learning more
 
 The following articles cover the various aspects of using **reticulate**:
 
--   [Calling Python from R](https://rstudio.github.io/reticulate/articles/calling_python.html) --- Describes the various ways to access Python objects from R as well as functions available for more advanced interactions and conversion behavior.
+-   [Calling Python from R](https://rstudio.github.io/reticulate/articles/calling_python.html) — Describes the various ways to access Python objects from R as well as functions available for more advanced interactions and conversion behavior.
 
--   [Python Version Configuration](https://rstudio.github.io/reticulate/articles/versions.html) --- Describes facilities for determining which version of Python is used by reticulate within an R session.
+-   [Python Version Configuration](https://rstudio.github.io/reticulate/articles/versions.html) — Describes facilities for determining which version of Python is used by reticulate within an R session.
 
--   [Using reticulate in an R Package](https://rstudio.github.io/reticulate/articles/package.html) --- Guidelines and best practices for using reticulate in an R package.
+-   [Using reticulate in an R Package](https://rstudio.github.io/reticulate/articles/package.html) — Guidelines and best practices for using reticulate in an R package.
 
--   [Arrays in R and Python](https://rstudio.github.io/reticulate/articles/arrays.html) --- Advanced discussion of the differences between arrays in R and Python and the implications for conversion and interoperability.
+-   [Arrays in R and Python](https://rstudio.github.io/reticulate/articles/arrays.html) — Advanced discussion of the differences between arrays in R and Python and the implications for conversion and interoperability.
 
 Why reticulate?
 ---------------

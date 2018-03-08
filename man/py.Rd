@@ -11,6 +11,9 @@ py
 }
 \description{
 The \code{py} object provides a means for interacting
-with the Python main session directly from \R.
+with the Python main session directly from \R. Python
+objects accessed through \code{py} are automatically converted
+into \R objects, and can be used with any other \R
+functions as needed.
 }
 \keyword{datasets}

@@ -1,7 +1,10 @@
 #' Interact with the Python Main Module
 #' 
 #' The `py` object provides a means for interacting
-#' with the Python main session directly from \R.
+#' with the Python main session directly from \R. Python
+#' objects accessed through `py` are automatically converted
+#' into \R objects, and can be used with any other \R
+#' functions as needed.
 #'
 #' @format An \R object acting as an interface to the
 #'   Python main module.
@@ -19,7 +22,7 @@
     
     # attempt to initialize main
     if (is_python_initialized())
-      main <<- import_main()
+      main <<- import_main(convert = TRUE)
     
     # return value of main
     main

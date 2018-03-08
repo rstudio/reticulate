@@ -1,15 +1,38 @@
 #' Run a Python REPL
 #' 
-#' This function provides a Python REPL in the R session, which can be used
+#' This function provides a Python REPL in the \R session, which can be used
 #' to interactively run Python code. All code executed within the REPL is
-#' run within the Python 'main' module, and will remain accessible after the
-#' REPL is detached.
+#' run within the Python main module, and any generated Python objects will
+#' persist in the Python session after the REPL is detached.
+#' 
+#' When working with R and Python scripts interactively, one can activate
+#' the Python REPL with `py_repl()`, run Python code, and later run `exit`
+#' to return to the \R console.
+#' 
+#' @examples \dontrun{
+#' 
+#' # enter the Python REPL, create a dictionary, and exit
+#' py_repl()
+#' dictionary = {'alpha': 1, 'beta': 2}
+#' exit
+#' 
+#' # access the created dictionary from R
+#' py$dictionary
+#' # $alpha
+#' # [1] 1
+#' # 
+#' # $beta
+#' # [1] 2
+#' 
+#' }
 #' 
 #' @param module An (optional) Python module to be imported before
 #'   the REPL is launched.
 #'   
 #' @param quiet Boolean; print a startup banner when launching the REPL? If
 #'   `FALSE`, the banner will be suppressed.
+#' 
+#' @seealso [py], for accessing objects created using the Python REPL.
 #' 
 #' @importFrom utils packageVersion
 #' @export

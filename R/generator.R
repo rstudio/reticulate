@@ -17,7 +17,7 @@
 #' mutates it's enclosing environment via the `<<-` operator. For example:
 #'
 #' ```r
-#' sequence_generator <-function(start) {
+#' sequence_generator <- function(start) {
 #'   value <- start
 #'   function() {
 #'     value <<- value + 1
@@ -25,7 +25,7 @@
 #'   }
 #' }
 #' 
-#' g <- generator(sequence_generator(10))
+#' g <- py_iterator(sequence_generator(10))
 #' ```
 #' 
 #' @section Ending Iteration:

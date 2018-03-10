@@ -46,6 +46,7 @@ reference:
       - dict
       - tuple
       - iterate
+      - py_iterator
       - with.python.builtin.object
     
   - title: "Python Configuration"
@@ -84,7 +85,6 @@ reference:
       - py_id
       - py_len
       - py_str
-      - py_iterator
       - py_unicode
       - py_set_seed
       - py_last_error

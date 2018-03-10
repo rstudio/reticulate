@@ -24,7 +24,9 @@
 #'     value
 #'   }
 #' }
-#' 
+#' ```
+#' Then create an iterator using `py_iterator()`:
+#' ```r
 #' g <- py_iterator(sequence_generator(10))
 #' ```
 #' 
@@ -75,11 +77,10 @@ py_iterator <- function(fn, completed = NULL) {
       completed
     })
   }
- 
+  
   # create the generator
   tools <- import("rpytools")
   tools$generator$RGenerator(wrapped_fn, completed)
 }
-
 
 

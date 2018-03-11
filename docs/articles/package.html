@@ -8,8 +8,10 @@
 <title>Using reticulate in an R Package • reticulate</title>
 <!-- jquery --><script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/flatly/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script><!-- Font Awesome icons --><link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
-<!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../jquery.sticky-kit.min.js"></script><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
+<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
+<script src="../jquery.sticky-kit.min.js"></script><script src="../pkgdown.js"></script><meta property="og:title" content="Using reticulate in an R Package">
+<meta property="og:description" content="">
+<meta name="twitter:card" content="summary">
 <!-- mathjax --><script src="https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -95,9 +97,9 @@
 <li><p>It allows you to successfully load your package even when Python / Python packages are not installed on the target system (this is particularly important when testing on CRAN build machines).</p></li>
 <li>
 <p>It allows users to specify a desired location for Python before interacting with your package. For example:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(mypackage)
-reticulate<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/reticulate/topics/use_python">use_virtualenv</a></span>(<span class="st">"~/pythonenvs/userenv"</span>)
-<span class="co"># call functions from mypackage</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">library</span>(mypackage)</a>
+<a class="sourceLine" id="cb1-2" data-line-number="2">reticulate<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/reticulate/topics/use_python">use_virtualenv</a></span>(<span class="st">"~/pythonenvs/userenv"</span>)</a>
+<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="co"># call functions from mypackage</span></a></code></pre></div>
 </li>
 </ol>
 <p>Without the <code>delay_load</code>, Python would be loaded immediately and the user’s call to <code>use_virtualenv</code> would have no effect.</p>
@@ -110,28 +112,28 @@ reticulate<span class="op">::</span><span class="kw"><a href="http://www.rdocume
 <ol style="list-style-type: decimal">
 <li>
 <p>Use the <code>delay_load</code> option (as described above) to ensure that the module (and Python) is loaded only on it’s first use. For example:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># python 'foo' module I want to use in my package</span>
-foo &lt;-<span class="st"> </span><span class="ot">NULL</span>
-
-.onLoad &lt;-<span class="st"> </span><span class="cf">function</span>(libname, pkgname) {
-  <span class="co"># delay load foo module (will only be loaded when accessed via $)</span>
-  foo &lt;&lt;-<span class="st"> </span><span class="kw"><a href="../reference/import.html">import</a></span>(<span class="st">"foo"</span>, <span class="dt">delay_load =</span> <span class="ot">TRUE</span>)
-}</code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="co"># python 'foo' module I want to use in my package</span></a>
+<a class="sourceLine" id="cb2-2" data-line-number="2">foo &lt;-<span class="st"> </span><span class="ot">NULL</span></a>
+<a class="sourceLine" id="cb2-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb2-4" data-line-number="4">.onLoad &lt;-<span class="st"> </span><span class="cf">function</span>(libname, pkgname) {</a>
+<a class="sourceLine" id="cb2-5" data-line-number="5">  <span class="co"># delay load foo module (will only be loaded when accessed via $)</span></a>
+<a class="sourceLine" id="cb2-6" data-line-number="6">  foo &lt;&lt;-<span class="st"> </span><span class="kw"><a href="../reference/import.html">import</a></span>(<span class="st">"foo"</span>, <span class="dt">delay_load =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb2-7" data-line-number="7">}</a></code></pre></div>
 </li>
 <li>
 <p>When writing tests, check to see if your module is available and if it isn’t then skip the test. For example, if you are using the <strong>testthat</strong> package, you might do this:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># helper function to skip tests if we don't have the 'foo' module</span>
-skip_if_no_foo &lt;-<span class="st"> </span><span class="cf">function</span>() {
-  have_foo &lt;-<span class="st"> </span><span class="kw"><a href="../reference/py_module_available.html">py_module_available</a></span>(<span class="st">"foo"</span>)
-  <span class="cf">if</span> (<span class="op">!</span>have_foo)
-    <span class="kw">skip</span>(<span class="st">"foo not available for testing"</span>)
-}
-
-<span class="co"># then call this function from all of your tests</span>
-<span class="kw">test_that</span>(<span class="st">"Things work as expected"</span>, {
-  <span class="kw">skip_if_no_foo</span>()
-  <span class="co"># test code here...</span>
-})</code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="co"># helper function to skip tests if we don't have the 'foo' module</span></a>
+<a class="sourceLine" id="cb3-2" data-line-number="2">skip_if_no_foo &lt;-<span class="st"> </span><span class="cf">function</span>() {</a>
+<a class="sourceLine" id="cb3-3" data-line-number="3">  have_foo &lt;-<span class="st"> </span><span class="kw"><a href="../reference/py_module_available.html">py_module_available</a></span>(<span class="st">"foo"</span>)</a>
+<a class="sourceLine" id="cb3-4" data-line-number="4">  <span class="cf">if</span> (<span class="op">!</span>have_foo)</a>
+<a class="sourceLine" id="cb3-5" data-line-number="5">    <span class="kw">skip</span>(<span class="st">"foo not available for testing"</span>)</a>
+<a class="sourceLine" id="cb3-6" data-line-number="6">}</a>
+<a class="sourceLine" id="cb3-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb3-8" data-line-number="8"><span class="co"># then call this function from all of your tests</span></a>
+<a class="sourceLine" id="cb3-9" data-line-number="9"><span class="kw">test_that</span>(<span class="st">"Things work as expected"</span>, {</a>
+<a class="sourceLine" id="cb3-10" data-line-number="10">  <span class="kw">skip_if_no_foo</span>()</a>
+<a class="sourceLine" id="cb3-11" data-line-number="11">  <span class="co"># test code here...</span></a>
+<a class="sourceLine" id="cb3-12" data-line-number="12">})</a></code></pre></div>
 </li>
 </ol>
 </div>
@@ -141,19 +143,19 @@ skip_if_no_foo &lt;-<span class="st"> </span><span class="cf">function</span>() 
 <p>Python objects exposed by <strong>reticulate</strong> carry their Python classes into R, so it’s possible to write S3 methods to customize e.g. the <code>str</code> or <code>print</code> behavior for a given class (note that it’s not typically necessary that you do this since the default <code>str</code> and <code>print</code> methods call <code>PyObject_Str</code>, which typically provides an acceptable default behavior).</p>
 <p>If you do decide to implement custom S3 methods for a Python class it’s important to keep in mind that when an R session ends the connection to Python objects is lost, so when the .RData saved from one R session is restored in a subsequent R session the Python objects are effectively lost (technically they become <code>NULL</code> R <code>externalptr</code> objects).</p>
 <p>By default when you attempt to interact with a Python object from a previous session (a <code>NULL</code> R <code>externalptr</code>) an error is thrown. If you want to do something more customized in your S3 method you can use the <code><a href="../reference/py_is_null_xptr.html">py_is_null_xptr()</a></code> function. For example:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">method.MyModule.MyPythonClass &lt;-<span class="st"> </span><span class="cf">function</span>(x, y, ...) {
-  <span class="cf">if</span> (<span class="kw"><a href="../reference/py_is_null_xptr.html">py_is_null_xptr</a></span>(x))
-    <span class="co"># whatever is appropriate</span>
-  <span class="cf">else</span> 
-    <span class="co"># interact with the object</span>
-}</code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">method.MyModule.MyPythonClass &lt;-<span class="st"> </span><span class="cf">function</span>(x, y, ...) {</a>
+<a class="sourceLine" id="cb4-2" data-line-number="2">  <span class="cf">if</span> (<span class="kw"><a href="../reference/py_is_null_xptr.html">py_is_null_xptr</a></span>(x))</a>
+<a class="sourceLine" id="cb4-3" data-line-number="3">    <span class="co"># whatever is appropriate</span></a>
+<a class="sourceLine" id="cb4-4" data-line-number="4">  <span class="cf">else</span> </a>
+<a class="sourceLine" id="cb4-5" data-line-number="5">    <span class="co"># interact with the object</span></a>
+<a class="sourceLine" id="cb4-6" data-line-number="6">}</a></code></pre></div>
 <p>Note that this check isn’t required, as by default an R error will occur. If it’s desirable to avoid this error for any reason then you can use <code><a href="../reference/py_is_null_xptr.html">py_is_null_xptr()</a></code> to do so.</p>
 <p>The <strong>reticulate</strong> package exports a <code>py_str</code> generic method which is called from the <code>str</code> method only after doing appropriate validation (if the object is NULL then <code>&lt;pointer: 0x0&gt;</code> is returned). You can implement the <code>py_str</code> method as follows:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co">#' @importFrom reticulate py_str</span>
-<span class="co">#' @export </span>
-py_str.MyModule.MyPythonClass &lt;-<span class="st"> </span><span class="cf">function</span>(object, ...) {
-  <span class="co"># interact with the object to generate the string</span>
-}</code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="co">#' @importFrom reticulate py_str</span></a>
+<a class="sourceLine" id="cb5-2" data-line-number="2"><span class="co">#' @export </span></a>
+<a class="sourceLine" id="cb5-3" data-line-number="3">py_str.MyModule.MyPythonClass &lt;-<span class="st"> </span><span class="cf">function</span>(object, ...) {</a>
+<a class="sourceLine" id="cb5-4" data-line-number="4">  <span class="co"># interact with the object to generate the string</span></a>
+<a class="sourceLine" id="cb5-5" data-line-number="5">}</a></code></pre></div>
 <p>The <code>print</code> and <code>summary</code> methods for Python objects both call the <code>str</code> method by default, so if you implement <code><a href="../reference/py_str.html">py_str()</a></code> you will automatically inherit implementations for those methods.</p>
 <div id="converting-between-r-and-python" class="section level3">
 <h3 class="hasAnchor">
@@ -196,11 +198,11 @@ py_str.MyModule.MyPythonClass &lt;-<span class="st"> </span><span class="cf">fun
 
 
       <footer><div class="copyright">
-  <p>Developed by JJ Allaire, Kevin Ushey, <a href="https://www.rstudio.com"><img src="http://tidyverse.org/rstudio-logo.svg" height="24"></a>, Yuan Tang.</p>
+  <p>Developed by JJ Allaire, Kevin Ushey, <a href="https://www.rstudio.com"><img src="http://tidyverse.org/rstudio-logo.svg" alt="RStudio" height="24"></a>, Yuan Tang.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="http://hadley.github.io/pkgdown/">pkgdown</a>.</p>
+  <p>Site built with <a href="http://pkgdown.r-lib.org/">pkgdown</a>.</p>
 </div>
 
       </footer>

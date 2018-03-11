@@ -12,9 +12,27 @@ knitr::opts_chunk$set(echo = TRUE)
 [![Travis-CI Build Status](https://travis-ci.org/rstudio/reticulate.svg?branch=master)](https://travis-ci.org/rstudio/reticulate) [![Appveyor Build Status](https://ci.appveyor.com/api/projects/status/github/rstudio/reticulate?svg=true)](https://ci.appveyor.com/project/rstudio/reticulate)  [![CRAN\_Status\_Badge](https://www.r-pkg.org/badges/version/reticulate)](https://cran.r-project.org/package=reticulate)
 
 
-The **reticulate** package provides a comprehensive set of Python interoperability tools for R. 
+The **reticulate** package provides a comprehensive set of Python interoperability tools for R, including:
 
-If you are an R developer that uses Python for some of your work or a member of data science team that uses both languages, reticulate can dramatically streamline your workflow. Reticulate embeds a Python session within your R session, enabling the following types of interoperability:
+<img src="images/reticulated-python.png" width=250 align=right title="A reticulated python"/>
+
+- Translation between R and Python objects (for example, between R and Pandas data frames, or between R matrices and NumPy arrays).
+
+- A variety of ways to call Python from R including R Markdown, sourcing Python scripts, importing Python modules, and using Python interactively within an R session.
+
+- Flexible binding to different versions of Python including virtual environments and Conda environments.
+
+Reticulate embeds a Python session within your R session, enabling seamless, high-performance interoperability. If you are an R developer that uses Python for some of your work or a member of data science team that uses both languages, reticulate can dramatically streamline your workflow! 
+
+## Getting started
+
+First, install **reticulate** from GitHub as follows:
+
+``` r
+devtools::install_github("rstudio/reticulate")
+```
+
+Then, depending on your requirements, choose one or more of the following ways of integrating Python code into your R project:
 
 1) [Python in R Markdown] &mdash; A new Python language engine for R Markdown that supports bi-directional communication between R and Python (R chunks can access Python objects and vice-versa).
 
@@ -26,20 +44,9 @@ If you are an R developer that uses Python for some of your work or a member of 
 
 Each of these techniques is explained in more detail below.
 
-### Getting Started
-
-First, install **reticulate** from GitHub as follows:
-
-``` r
-devtools::install_github("rstudio/reticulate")
-```
-
-Then, review the examples below and check out the additional articles enumerated in the [Learning More] section.
-
 ## Python in R Markdown
 
 The **reticulate** package includes a Python engine for [R Markdown](http://rmarkdown.rstudio.com) with the following features:
-
 
 1) Run Python chunks in a single Python session embedded within your R session (shared variables/state between Python chunks)
 

@@ -8,8 +8,10 @@
 <title>Python Version Configuration • reticulate</title>
 <!-- jquery --><script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/flatly/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script><!-- Font Awesome icons --><link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
-<!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../jquery.sticky-kit.min.js"></script><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
+<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
+<script src="../jquery.sticky-kit.min.js"></script><script src="../pkgdown.js"></script><meta property="og:title" content="Python Version Configuration">
+<meta property="og:description" content="">
+<meta name="twitter:card" content="summary">
 <!-- mathjax --><script src="https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -90,9 +92,9 @@
 <h2 class="hasAnchor">
 <a href="#locating-python" class="anchor"></a>Locating Python</h2>
 <p>It is not uncommon for several version of Python (and several conda or virtualenv environments within a given version) to be available on a given system. The <strong>reticulate</strong> package can bind to any of these versions, and in all cases will attempt to locate a version which includes the first Python package imported via the <code><a href="../reference/import.html">import()</a></code> function. Consider the following code:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(reticulate)
-scipy &lt;-<span class="st"> </span><span class="kw"><a href="../reference/import.html">import</a></span>(<span class="st">"scipy"</span>)
-scipy<span class="op">$</span><span class="kw">amin</span>(<span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">3</span>,<span class="dv">5</span>,<span class="dv">7</span>))</code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">library</span>(reticulate)</a>
+<a class="sourceLine" id="cb1-2" data-line-number="2">scipy &lt;-<span class="st"> </span><span class="kw"><a href="../reference/import.html">import</a></span>(<span class="st">"scipy"</span>)</a>
+<a class="sourceLine" id="cb1-3" data-line-number="3">scipy<span class="op">$</span><span class="kw">amin</span>(<span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">3</span>,<span class="dv">5</span>,<span class="dv">7</span>))</a></code></pre></div>
 <p>In this case, the various versions of Python installed on the system will be scanned to see whether one of them includes the “scipy” Python package (the first version found that satisfies this requirement will be used).</p>
 <p>By default, the version of Python found on the system <code>PATH</code> is checked first, and then some other conventional location for Py Python (e.g. <code>/usr/local/bin/python</code>, <code>/opt/local/bin/python</code>, etc.) are checked.</p>
 <p>Note that for reticulate to bind to a version of Python it must be compiled with shared library support (i.e. with the <code>--enable-shared</code> flag).</p>
@@ -126,14 +128,14 @@ scipy<span class="op">$</span><span class="kw">amin</span>(<span class="kw">c</s
 </tbody>
 </table>
 <p>For example:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(reticulate)
-<span class="kw"><a href="../reference/use_python.html">use_python</a></span>(<span class="st">"/usr/local/bin/python"</span>)
-<span class="kw"><a href="../reference/use_python.html">use_virtualenv</a></span>(<span class="st">"~/myenv"</span>)
-<span class="kw"><a href="../reference/use_python.html">use_condaenv</a></span>(<span class="st">"myenv"</span>)</code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw">library</span>(reticulate)</a>
+<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="kw"><a href="../reference/use_python.html">use_python</a></span>(<span class="st">"/usr/local/bin/python"</span>)</a>
+<a class="sourceLine" id="cb2-3" data-line-number="3"><span class="kw"><a href="../reference/use_python.html">use_virtualenv</a></span>(<span class="st">"~/myenv"</span>)</a>
+<a class="sourceLine" id="cb2-4" data-line-number="4"><span class="kw"><a href="../reference/use_python.html">use_condaenv</a></span>(<span class="st">"myenv"</span>)</a></code></pre></div>
 <p>The <code>use_condaenv</code> function will use whatever conda binary is found on the system PATH. If you want to use a specific alternate version you can use the <code>conda</code> parameter. For example:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/use_python.html">use_condaenv</a></span>(<span class="dt">condaenv =</span> <span class="st">"r-nlp"</span>, <span class="dt">conda =</span> <span class="st">"/opt/anaconda3/bin/conda"</span>)</code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="kw"><a href="../reference/use_python.html">use_condaenv</a></span>(<span class="dt">condaenv =</span> <span class="st">"r-nlp"</span>, <span class="dt">conda =</span> <span class="st">"/opt/anaconda3/bin/conda"</span>)</a></code></pre></div>
 <p>Note that the <code>use</code> functions are by default considered only hints as to where to find Python (i.e. they don’t produce errors if the specified version doesn’t exist). You can add the <code>required</code> parameter to ensure that the specified version of Python is always used (it will be an error if the specified version doesn’t exist):</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/use_python.html">use_virtualenv</a></span>(<span class="st">"~/myenv"</span>, <span class="dt">required =</span> <span class="ot">TRUE</span>)</code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="kw"><a href="../reference/use_python.html">use_virtualenv</a></span>(<span class="st">"~/myenv"</span>, <span class="dt">required =</span> <span class="ot">TRUE</span>)</a></code></pre></div>
 </div>
 <div id="order-of-discovery" class="section level2">
 <h2 class="hasAnchor">
@@ -160,9 +162,9 @@ scipy<span class="op">$</span><span class="kw">amin</span>(<span class="kw">c</s
 <h2 class="hasAnchor">
 <a href="#configuration-info" class="anchor"></a>Configuration Info</h2>
 <p>You can use the <code><a href="../reference/py_config.html">py_config()</a></code> function to query for information about the specific version of Python in use as well as a list of other Python versions discovered on the system:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/py_config.html">py_config</a></span>()</code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="kw"><a href="../reference/py_config.html">py_config</a></span>()</a></code></pre></div>
 <p>You can also use the <code><a href="../reference/py_discover_config.html">py_discover_config()</a></code> function to see what version of Python will be used without actually loading Python:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/py_discover_config.html">py_discover_config</a></span>()</code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="kw"><a href="../reference/py_discover_config.html">py_discover_config</a></span>()</a></code></pre></div>
 </div>
 </div>
   </div>
@@ -184,11 +186,11 @@ scipy<span class="op">$</span><span class="kw">amin</span>(<span class="kw">c</s
 
 
       <footer><div class="copyright">
-  <p>Developed by JJ Allaire, Kevin Ushey, <a href="https://www.rstudio.com"><img src="http://tidyverse.org/rstudio-logo.svg" height="24"></a>, Yuan Tang.</p>
+  <p>Developed by JJ Allaire, Kevin Ushey, <a href="https://www.rstudio.com"><img src="http://tidyverse.org/rstudio-logo.svg" alt="RStudio" height="24"></a>, Yuan Tang.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="http://hadley.github.io/pkgdown/">pkgdown</a>.</p>
+  <p>Site built with <a href="http://pkgdown.r-lib.org/">pkgdown</a>.</p>
 </div>
 
       </footer>

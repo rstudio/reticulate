@@ -4,6 +4,7 @@ pkgdown_sha: 17f683717d0a1547f13a08a259b34c58927452d6
 articles:
   arrays: arrays.html
   calling_python: calling_python.html
+  extra.css: extra.css
   package: package.html
   versions: versions.html
 

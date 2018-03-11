@@ -13,6 +13,8 @@ vignette: >
 knitr::opts_chunk$set(eval = FALSE)
 ```
 
+<link rel="stylesheet" type="text/css" href="extra.css"/>
+
 ## Locating Python
 
 It is not uncommon for several version of Python (and several conda or virtualenv environments within a given version) to be available on a given system. The **reticulate** package can bind to any of these versions, and in all cases will attempt to locate a version which includes the first Python package imported via the `import()` function. Consider the following code:

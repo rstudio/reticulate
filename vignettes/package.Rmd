@@ -13,6 +13,9 @@ vignette: >
 knitr::opts_chunk$set(eval = FALSE)
 ```
 
+<link rel="stylesheet" type="text/css" href="extra.css"/>
+
+
 ## Delay Loading Python Modules
 
 If you write an R package that wraps one or more Python packages, it's likely that you'll be importing Python modules within the `.onLoad` method of your package so that you can have convenient access to them within the rest of the package source code.

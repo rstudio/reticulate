@@ -17,15 +17,17 @@
 #' mutates it's enclosing environment via the `<<-` operator. For example:
 #'
 #' ```r
-#' sequence_generator <-function(start) {
+#' sequence_generator <- function(start) {
 #'   value <- start
 #'   function() {
 #'     value <<- value + 1
 #'     value
 #'   }
 #' }
-#' 
-#' g <- generator(sequence_generator(10))
+#' ```
+#' Then create an iterator using `py_iterator()`:
+#' ```r
+#' g <- py_iterator(sequence_generator(10))
 #' ```
 #' 
 #' @section Ending Iteration:
@@ -75,11 +77,10 @@ py_iterator <- function(fn, completed = NULL) {
       completed
     })
   }
- 
+  
   # create the generator
   tools <- import("rpytools")
   tools$generator$RGenerator(wrapped_fn, completed)
 }
-
 
 

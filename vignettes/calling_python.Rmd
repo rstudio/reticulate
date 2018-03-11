@@ -89,13 +89,17 @@ add(5, 10)
 
 ## Executing Code
 
-You can execute Python code within the main module using the `py_run_file` and `py_run_string` functions. These functions both return a reference to the main Python module so you can access the results of their execution. For example:
+You can execute Python code within the main module using the `py_run_file` and `py_run_string` functions. You can then access any objects created using the `py` object exported by reticulate:
 
 ```{r}
+library(reticulate)
+
 py_run_file("script.py")
 
-main <- py_run_string("x = 10")
-main$x
+py_run_string("x = 10")
+
+# access the python main module via the 'py' object
+py$x
 ```
 
 ## Object Conversion

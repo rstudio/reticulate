@@ -190,11 +190,15 @@ py<span class="op">$</span><span class="kw">print</span>(<span class="st">'foo'<
 <div id="executing-code" class="section level2">
 <h2 class="hasAnchor">
 <a href="#executing-code" class="anchor"></a>Executing Code</h2>
-<p>You can execute Python code within the main module using the <code>py_run_file</code> and <code>py_run_string</code> functions. These functions both return a reference to the main Python module so you can access the results of their execution. For example:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="../reference/py_run.html">py_run_file</a></span>(<span class="st">"script.py"</span>)
+<p>You can execute Python code within the main module using the <code>py_run_file</code> and <code>py_run_string</code> functions. You can then access any objects created using the <code>py</code> object exported by reticulate:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(reticulate)
 
-main &lt;-<span class="st"> </span><span class="kw"><a href="../reference/py_run.html">py_run_string</a></span>(<span class="st">"x = 10"</span>)
-main<span class="op">$</span>x</code></pre></div>
+<span class="kw"><a href="../reference/py_run.html">py_run_file</a></span>(<span class="st">"script.py"</span>)
+
+<span class="kw"><a href="../reference/py_run.html">py_run_string</a></span>(<span class="st">"x = 10"</span>)
+
+<span class="co"># access the python main module via the 'py' object</span>
+py<span class="op">$</span>x</code></pre></div>
 </div>
 <div id="object-conversion" class="section level2">
 <h2 class="hasAnchor">

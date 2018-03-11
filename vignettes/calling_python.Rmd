@@ -17,11 +17,19 @@ knitr::opts_chunk$set(eval = FALSE)
 
 The **reticulate** package provides an R interface to Python modules, classes, and functions. For example, this code imports the Python `os` module and calls some functions within it:
 
-```{r}
+```{r, eval=FALSE}
 library(reticulate)
 os <- import("os")
-os$chdir("tests")
-os$getcwd()
+os$listdir(".")
+```
+```
+ [1] ".git"             ".gitignore"       ".Rbuildignore"    ".RData"          
+ [5] ".Rhistory"        ".Rproj.user"      ".travis.yml"      "appveyor.yml"    
+ [9] "DESCRIPTION"      "docs"             "external"         "index.html"      
+[13] "index.Rmd"        "inst"             "issues"           "LICENSE"         
+[17] "man"              "NAMESPACE"        "NEWS.md"          "pkgdown"         
+[21] "R"                "README.md"        "reticulate.Rproj" "src"             
+[25] "tests"            "vignettes"      
 ```
 
 Functions and other data within Python modules and classes can be accessed via the `$` operator (analogous to the way you would interact with an R list, environment, or reference class).

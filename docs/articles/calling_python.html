@@ -92,8 +92,14 @@
 <p>The <strong>reticulate</strong> package provides an R interface to Python modules, classes, and functions. For example, this code imports the Python <code>os</code> module and calls some functions within it:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(reticulate)
 os &lt;-<span class="st"> </span><span class="kw"><a href="../reference/import.html">import</a></span>(<span class="st">"os"</span>)
-os<span class="op">$</span><span class="kw">chdir</span>(<span class="st">"tests"</span>)
-os<span class="op">$</span><span class="kw">getcwd</span>()</code></pre></div>
+os<span class="op">$</span><span class="kw">listdir</span>(<span class="st">"."</span>)</code></pre></div>
+<pre><code> [1] ".git"             ".gitignore"       ".Rbuildignore"    ".RData"          
+ [5] ".Rhistory"        ".Rproj.user"      ".travis.yml"      "appveyor.yml"    
+ [9] "DESCRIPTION"      "docs"             "external"         "index.html"      
+[13] "index.Rmd"        "inst"             "issues"           "LICENSE"         
+[17] "man"              "NAMESPACE"        "NEWS.md"          "pkgdown"         
+[21] "R"                "README.md"        "reticulate.Rproj" "src"             
+[25] "tests"            "vignettes"      </code></pre>
 <p>Functions and other data within Python modules and classes can be accessed via the <code>$</code> operator (analogous to the way you would interact with an R list, environment, or reference class).</p>
 <p>The <strong>reticulate</strong> package is compatible with all versions of Python &gt;= 2.7. Integration with NumPy is optional and requires NumPy &gt;= 1.6.</p>
 </div>

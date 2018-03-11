@@ -135,14 +135,15 @@ protocol. In Python, values are returned using the <code>yield</code> keyword. I
 values are simply returned from the function.</p>
 <p>In Python, the <code>yield</code> keyword enables successive iterations to use the state
 of previous iterations. In R, this can be done by returning a function that
-mutates it's enclosing environment via the <code>&lt;&lt;-</code> operator. For example:</p><pre>sequence_generator &lt;-function(start) {
+mutates it's enclosing environment via the <code>&lt;&lt;-</code> operator. For example:</p><pre>sequence_generator &lt;- function(start) {
   value &lt;- start
   function() {
     value &lt;&lt;- value + 1
     value
   }
 }
-    g &lt;- generator(sequence_generator(10))
+</pre>
+    <p>Then create an iterator using <code>py_iterator()</code>:</p><pre>g &lt;- py_iterator(sequence_generator(10))
 </pre>
     
     <h2 class="hasAnchor" id="ending-iteration"><a class="anchor" href="#ending-iteration"></a>Ending Iteration</h2>

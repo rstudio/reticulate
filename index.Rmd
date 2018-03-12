@@ -37,11 +37,11 @@ Then, depending on your requirements, choose one or more of the following ways o
 
 1) [Python in R Markdown] &mdash; A new Python language engine for R Markdown that supports bi-directional communication between R and Python (R chunks can access Python objects and vice-versa).
 
-2) [Sourcing Python scripts] &mdash; The `source_python()` function enables you to source a Python script the same way you would `source()` an R script (Python functions and objects defined within the script become directly available to the R session).
+2) [Importing Python modules] &mdash; The `import()` function enables you to import any Python module and call it's functions directly from R.
 
-3) [Importing Python modules] &mdash; The `import()` function enables you to import any Python module and call it's functions directly from R.
+3) [Sourcing Python scripts] &mdash; The `source_python()` function enables you to source a Python script the same way you would `source()` an R script (Python functions and objects defined within the script become directly available to the R session).
 
-4) [Python REPL] &mdash; The `py_repl()` function creates a Python REPL (Read-Eval-Print-Loop") within R. Objects you create within the Python REPL are available to your R session (and vice-versa).
+4) [Python REPL] &mdash; The `repl_python()` function creates an interactive Python console within R. Objects you create within Python are available to your R session (and vice-versa).
 
 Each of these techniques is explained in more detail below.
 
@@ -64,6 +64,30 @@ Built in conversion for many Python object types is provided, including [NumPy](
 ![](images/rmarkdown_engine_zoomed.png){.screenshot}
 
 The reticulate Python engine is enabled by default within R Markdown whenever reticulate is installed. See the `eng_python()` documentation for additional details on the R Markdown Python engine.
+
+## Importing Python modules
+
+You can use the `import()` function to import any Python module and call it from R. For example, this code imports the Python `os` module and calls some functions within it:
+
+```{r, eval=FALSE}
+library(reticulate)
+os <- import("os")
+os$listdir(".")
+```
+```
+ [1] ".git"             ".gitignore"       ".Rbuildignore"    ".RData"          
+ [5] ".Rhistory"        ".Rproj.user"      ".travis.yml"      "appveyor.yml"    
+ [9] "DESCRIPTION"      "docs"             "external"         "index.html"      
+[13] "index.Rmd"        "inst"             "issues"           "LICENSE"         
+[17] "man"              "NAMESPACE"        "NEWS.md"          "pkgdown"         
+[21] "R"                "README.md"        "reticulate.Rproj" "src"             
+[25] "tests"            "vignettes"      
+```
+
+Functions and other data within Python modules and classes can be accessed via the `$` operator (analogous to the way you would interact with an R list, environment, or reference class).
+
+See [Calling Python from R](https://rstudio.github.io/reticulate/articles/calling_python.html) for additional details on interacting with Python objects from within R.
+
 
 ## Sourcing Python scripts
 
@@ -92,42 +116,15 @@ ggplot(flights, aes(carrier, arr_delay)) + geom_point() + geom_jitter()
 
 See the `source_python()` documentation for additional details on sourcing Python code.
 
-## Importing Python modules
-
-You can use the `import()` function to import any Python module and call it from R. For example, this code imports the Python `os` module and calls some functions within it:
-
-```{r, eval=FALSE}
-library(reticulate)
-os <- import("os")
-os$listdir(".")
-```
-```
- [1] ".git"             ".gitignore"       ".Rbuildignore"    ".RData"          
- [5] ".Rhistory"        ".Rproj.user"      ".travis.yml"      "appveyor.yml"    
- [9] "DESCRIPTION"      "docs"             "external"         "index.html"      
-[13] "index.Rmd"        "inst"             "issues"           "LICENSE"         
-[17] "man"              "NAMESPACE"        "NEWS.md"          "pkgdown"         
-[21] "R"                "README.md"        "reticulate.Rproj" "src"             
-[25] "tests"            "vignettes"      
-```
-
-Functions and other data within Python modules and classes can be accessed via the `$` operator (analogous to the way you would interact with an R list, environment, or reference class).
-
-See [Calling Python from R](https://rstudio.github.io/reticulate/articles/calling_python.html) for additional details on interacting with Python objects from within R.
-
 ## Python REPL
 
-If you want to work with Python interactively you can call the `py_repl()` function, which provides a Python REPL embedded within your R session. Objects created within the Python REPL can be accessed from R using the `py` object exported from reticulate. For example:
+If you want to work with Python interactively you can call the `repl_python()` function, which provides a Python REPL embedded within your R session. Objects created within the Python REPL can be accessed from R using the `py` object exported from reticulate. For example:
 
 ![](images/python_repl.png){.screenshot}
 
 Enter `exit` within the Python REPL to return to the R prompt.
 
-Note that Python code can also access objects from within the R session using the `r` object:
-
-![](images/python_r_object.png){.screenshot}
-
-See the `py_repl()` documentation for additional details on using the embedded Python REPL.
+Note that Python code can also access objects from within the R session using the `r` object (e.g. `r.flights`). See the `repl_python()` documentation for additional details on using the embedded Python REPL.
 
 ## Type conversions
 

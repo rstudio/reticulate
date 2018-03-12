@@ -7,6 +7,8 @@ Status](https://travis-ci.org/rstudio/reticulate.svg?branch=master)](https://tra
 Status](https://ci.appveyor.com/api/projects/status/github/rstudio/reticulate?svg=true)](https://ci.appveyor.com/project/rstudio/reticulate)
 [![CRAN\_Status\_Badge](https://www.r-pkg.org/badges/version/reticulate)](https://cran.r-project.org/package=reticulate)
 
+<link rel="stylesheet" type="text/css" href="articles/extra.css"/>
+
 The **reticulate** package provides a comprehensive set of Python
 interoperability tools for R,
 including:
@@ -45,20 +47,19 @@ following ways of integrating Python code into your R project:
     communication between R and Python (R chunks can access Python
     objects and vice-versa).
 
-2)  [Sourcing Python scripts](#sourcing-python-scripts) — The
+2)  [Importing Python modules](#importing-python-modules) — The
+    `import()` function enables you to import any Python module and call
+    it’s functions directly from R.
+
+3)  [Sourcing Python scripts](#sourcing-python-scripts) — The
     `source_python()` function enables you to source a Python script the
     same way you would `source()` an R script (Python functions and
     objects defined within the script become directly available to the R
     session).
 
-3)  [Importing Python modules](#importing-python-modules) — The
-    `import()` function enables you to import any Python module and call
-    it’s functions directly from R.
-
-4)  [Python REPL](#python-repl) — The `py_repl()` function creates a
-    Python REPL (Read-Eval-Print-Loop“) within R. Objects you create
-    within the Python REPL are available to your R session (and
-    vice-versa).
+4)  [Python REPL](#python-repl) — The `repl_python()` function creates
+    an interactive Python console within R. Objects you create within
+    Python are available to your R session (and vice-versa).
 
 Each of these techniques is explained in more detail below.
 
@@ -97,36 +98,6 @@ The reticulate Python engine is enabled by default within R Markdown
 whenever reticulate is installed. See the `eng_python()` documentation
 for additional details on the R Markdown Python engine.
 
-## Sourcing Python scripts
-
-You can source any Python script just as you would source an R script
-using the `source_python()` function. For example, if you had the
-following Python script *flights.py*:
-
-``` python
-import pandas
-def read_flights(file):
-  flights = pandas.read_csv("flights.csv")
-  flights = flights[flights['dest'] == "ORD"]
-  flights = flights[['carrier', 'dep_delay', 'arr_delay']]
-  flights = flights.dropna()
-  return flights
-```
-
-Then you can source the script and call the `read_flights()` function as
-follows:
-
-``` r
-source_python("flights.py")
-flights <- read_flights("flights.csv")
-
-library(ggplot2)
-ggplot(flights, aes(carrier, arr_delay)) + geom_point() + geom_jitter()
-```
-
-See the `source_python()` documentation for additional details on
-sourcing Python code.
-
 ## Importing Python modules
 
 You can use the `import()` function to import any Python module and call
@@ -157,24 +128,50 @@ See [Calling Python from
 R](https://rstudio.github.io/reticulate/articles/calling_python.html)
 for additional details on interacting with Python objects from within R.
 
+## Sourcing Python scripts
+
+You can source any Python script just as you would source an R script
+using the `source_python()` function. For example, if you had the
+following Python script *flights.py*:
+
+``` python
+import pandas
+def read_flights(file):
+  flights = pandas.read_csv("flights.csv")
+  flights = flights[flights['dest'] == "ORD"]
+  flights = flights[['carrier', 'dep_delay', 'arr_delay']]
+  flights = flights.dropna()
+  return flights
+```
+
+Then you can source the script and call the `read_flights()` function as
+follows:
+
+``` r
+source_python("flights.py")
+flights <- read_flights("flights.csv")
+
+library(ggplot2)
+ggplot(flights, aes(carrier, arr_delay)) + geom_point() + geom_jitter()
+```
+
+See the `source_python()` documentation for additional details on
+sourcing Python code.
+
 ## Python REPL
 
 If you want to work with Python interactively you can call the
-`py_repl()` function, which provides a Python REPL embedded within your
-R session. Objects created within the Python REPL can be accessed from R
-using the `py` object exported from reticulate. For example:
+`repl_python()` function, which provides a Python REPL embedded within
+your R session. Objects created within the Python REPL can be accessed
+from R using the `py` object exported from reticulate. For example:
 
 ![](images/python_repl.png)
 
 Enter `exit` within the Python REPL to return to the R prompt.
 
 Note that Python code can also access objects from within the R session
-using the `r` object:
-
-![](images/python_r_object.png)
-
-See the `py_repl()` documentation for additional details on using the
-embedded Python REPL.
+using the `r` object (e.g. `r.flights`). See the `repl_python()`
+documentation for additional details on using the embedded Python REPL.
 
 ## Type conversions
 

@@ -109,9 +109,9 @@
 <p>Then, depending on your requirements, choose one or more of the following ways of integrating Python code into your R project:</p>
 <ol style="list-style-type: decimal">
 <li><p><a href="#python-in-r-markdown">Python in R Markdown</a> — A new Python language engine for R Markdown that supports bi-directional communication between R and Python (R chunks can access Python objects and vice-versa).</p></li>
-<li><p><a href="#sourcing-python-scripts">Sourcing Python scripts</a> — The <code><a href="reference/source_python.html">source_python()</a></code> function enables you to source a Python script the same way you would <code>source()</code> an R script (Python functions and objects defined within the script become directly available to the R session).</p></li>
 <li><p><a href="#importing-python-modules">Importing Python modules</a> — The <code><a href="reference/import.html">import()</a></code> function enables you to import any Python module and call it’s functions directly from R.</p></li>
-<li><p><a href="#python-repl">Python REPL</a> — The <code><a href="reference/py_repl.html">py_repl()</a></code> function creates a Python REPL (Read-Eval-Print-Loop“) within R. Objects you create within the Python REPL are available to your R session (and vice-versa).</p></li>
+<li><p><a href="#sourcing-python-scripts">Sourcing Python scripts</a> — The <code><a href="reference/source_python.html">source_python()</a></code> function enables you to source a Python script the same way you would <code>source()</code> an R script (Python functions and objects defined within the script become directly available to the R session).</p></li>
+<li><p><a href="#python-repl">Python REPL</a> — The <code><a href="reference/repl_python.html">repl_python()</a></code> function creates an interactive Python console within R. Objects you create within Python are available to your R session (and vice-versa).</p></li>
 </ol>
 <p>Each of these techniques is explained in more detail below.</p>
 </div>
@@ -132,32 +132,13 @@
 <p><img src="images/rmarkdown_engine_zoomed.png" class="screenshot"></p>
 <p>The reticulate Python engine is enabled by default within R Markdown whenever reticulate is installed. See the <code><a href="reference/eng_python.html">eng_python()</a></code> documentation for additional details on the R Markdown Python engine.</p>
 </div>
-<div id="sourcing-python-scripts" class="section level2">
-<h2 class="hasAnchor">
-<a href="#sourcing-python-scripts" class="anchor"></a>Sourcing Python scripts</h2>
-<p>You can source any Python script just as you would source an R script using the <code><a href="reference/source_python.html">source_python()</a></code> function. For example, if you had the following Python script <em>flights.py</em>:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="im">import</span> pandas</a>
-<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="kw">def</span> read_flights(<span class="bu">file</span>):</a>
-<a class="sourceLine" id="cb2-3" data-line-number="3">  flights <span class="op">=</span> pandas.read_csv(<span class="st">"flights.csv"</span>)</a>
-<a class="sourceLine" id="cb2-4" data-line-number="4">  flights <span class="op">=</span> flights[flights[<span class="st">'dest'</span>] <span class="op">==</span> <span class="st">"ORD"</span>]</a>
-<a class="sourceLine" id="cb2-5" data-line-number="5">  flights <span class="op">=</span> flights[[<span class="st">'carrier'</span>, <span class="st">'dep_delay'</span>, <span class="st">'arr_delay'</span>]]</a>
-<a class="sourceLine" id="cb2-6" data-line-number="6">  flights <span class="op">=</span> flights.dropna()</a>
-<a class="sourceLine" id="cb2-7" data-line-number="7">  <span class="cf">return</span> flights</a></code></pre></div>
-<p>Then you can source the script and call the <code>read_flights()</code> function as follows:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="kw"><a href="reference/source_python.html">source_python</a></span>(<span class="st">"flights.py"</span>)</a>
-<a class="sourceLine" id="cb3-2" data-line-number="2">flights &lt;-<span class="st"> </span><span class="kw">read_flights</span>(<span class="st">"flights.csv"</span>)</a>
-<a class="sourceLine" id="cb3-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb3-4" data-line-number="4"><span class="kw">library</span>(ggplot2)</a>
-<a class="sourceLine" id="cb3-5" data-line-number="5"><span class="kw"><a href="http://www.rdocumentation.org/packages/ggplot2/topics/ggplot">ggplot</a></span>(flights, <span class="kw"><a href="http://www.rdocumentation.org/packages/ggplot2/topics/aes">aes</a></span>(carrier, arr_delay)) <span class="op">+</span><span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/ggplot2/topics/geom_point">geom_point</a></span>() <span class="op">+</span><span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/ggplot2/topics/geom_jitter">geom_jitter</a></span>()</a></code></pre></div>
-<p>See the <code><a href="reference/source_python.html">source_python()</a></code> documentation for additional details on sourcing Python code.</p>
-</div>
 <div id="importing-python-modules" class="section level2">
 <h2 class="hasAnchor">
 <a href="#importing-python-modules" class="anchor"></a>Importing Python modules</h2>
 <p>You can use the <code><a href="reference/import.html">import()</a></code> function to import any Python module and call it from R. For example, this code imports the Python <code>os</code> module and calls some functions within it:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="kw">library</span>(reticulate)</a>
-<a class="sourceLine" id="cb4-2" data-line-number="2">os &lt;-<span class="st"> </span><span class="kw"><a href="reference/import.html">import</a></span>(<span class="st">"os"</span>)</a>
-<a class="sourceLine" id="cb4-3" data-line-number="3">os<span class="op">$</span><span class="kw">listdir</span>(<span class="st">"."</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw">library</span>(reticulate)</a>
+<a class="sourceLine" id="cb2-2" data-line-number="2">os &lt;-<span class="st"> </span><span class="kw"><a href="reference/import.html">import</a></span>(<span class="st">"os"</span>)</a>
+<a class="sourceLine" id="cb2-3" data-line-number="3">os<span class="op">$</span><span class="kw">listdir</span>(<span class="st">"."</span>)</a></code></pre></div>
 <pre><code> [1] ".git"             ".gitignore"       ".Rbuildignore"    ".RData"          
  [5] ".Rhistory"        ".Rproj.user"      ".travis.yml"      "appveyor.yml"    
  [9] "DESCRIPTION"      "docs"             "external"         "index.html"      
@@ -168,15 +149,32 @@
 <p>Functions and other data within Python modules and classes can be accessed via the <code>$</code> operator (analogous to the way you would interact with an R list, environment, or reference class).</p>
 <p>See <a href="https://rstudio.github.io/reticulate/articles/calling_python.html">Calling Python from R</a> for additional details on interacting with Python objects from within R.</p>
 </div>
+<div id="sourcing-python-scripts" class="section level2">
+<h2 class="hasAnchor">
+<a href="#sourcing-python-scripts" class="anchor"></a>Sourcing Python scripts</h2>
+<p>You can source any Python script just as you would source an R script using the <code><a href="reference/source_python.html">source_python()</a></code> function. For example, if you had the following Python script <em>flights.py</em>:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="im">import</span> pandas</a>
+<a class="sourceLine" id="cb4-2" data-line-number="2"><span class="kw">def</span> read_flights(<span class="bu">file</span>):</a>
+<a class="sourceLine" id="cb4-3" data-line-number="3">  flights <span class="op">=</span> pandas.read_csv(<span class="st">"flights.csv"</span>)</a>
+<a class="sourceLine" id="cb4-4" data-line-number="4">  flights <span class="op">=</span> flights[flights[<span class="st">'dest'</span>] <span class="op">==</span> <span class="st">"ORD"</span>]</a>
+<a class="sourceLine" id="cb4-5" data-line-number="5">  flights <span class="op">=</span> flights[[<span class="st">'carrier'</span>, <span class="st">'dep_delay'</span>, <span class="st">'arr_delay'</span>]]</a>
+<a class="sourceLine" id="cb4-6" data-line-number="6">  flights <span class="op">=</span> flights.dropna()</a>
+<a class="sourceLine" id="cb4-7" data-line-number="7">  <span class="cf">return</span> flights</a></code></pre></div>
+<p>Then you can source the script and call the <code>read_flights()</code> function as follows:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="kw"><a href="reference/source_python.html">source_python</a></span>(<span class="st">"flights.py"</span>)</a>
+<a class="sourceLine" id="cb5-2" data-line-number="2">flights &lt;-<span class="st"> </span><span class="kw">read_flights</span>(<span class="st">"flights.csv"</span>)</a>
+<a class="sourceLine" id="cb5-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb5-4" data-line-number="4"><span class="kw">library</span>(ggplot2)</a>
+<a class="sourceLine" id="cb5-5" data-line-number="5"><span class="kw"><a href="http://www.rdocumentation.org/packages/ggplot2/topics/ggplot">ggplot</a></span>(flights, <span class="kw"><a href="http://www.rdocumentation.org/packages/ggplot2/topics/aes">aes</a></span>(carrier, arr_delay)) <span class="op">+</span><span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/ggplot2/topics/geom_point">geom_point</a></span>() <span class="op">+</span><span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/ggplot2/topics/geom_jitter">geom_jitter</a></span>()</a></code></pre></div>
+<p>See the <code><a href="reference/source_python.html">source_python()</a></code> documentation for additional details on sourcing Python code.</p>
+</div>
 <div id="python-repl" class="section level2">
 <h2 class="hasAnchor">
 <a href="#python-repl" class="anchor"></a>Python REPL</h2>
-<p>If you want to work with Python interactively you can call the <code><a href="reference/py_repl.html">py_repl()</a></code> function, which provides a Python REPL embedded within your R session. Objects created within the Python REPL can be accessed from R using the <code>py</code> object exported from reticulate. For example:</p>
+<p>If you want to work with Python interactively you can call the <code><a href="reference/repl_python.html">repl_python()</a></code> function, which provides a Python REPL embedded within your R session. Objects created within the Python REPL can be accessed from R using the <code>py</code> object exported from reticulate. For example:</p>
 <p><img src="images/python_repl.png" class="screenshot"></p>
 <p>Enter <code>exit</code> within the Python REPL to return to the R prompt.</p>
-<p>Note that Python code can also access objects from within the R session using the <code>r</code> object:</p>
-<p><img src="images/python_r_object.png" class="screenshot"></p>
-<p>See the <code><a href="reference/py_repl.html">py_repl()</a></code> documentation for additional details on using the embedded Python REPL.</p>
+<p>Note that Python code can also access objects from within the R session using the <code>r</code> object (e.g. <code>r.flights</code>). See the <code><a href="reference/repl_python.html">repl_python()</a></code> documentation for additional details on using the embedded Python REPL.</p>
 </div>
 <div id="type-conversions" class="section level2">
 <h2 class="hasAnchor">

@@ -6,13 +6,13 @@
 #' persist in the Python session after the REPL is detached.
 #' 
 #' When working with R and Python scripts interactively, one can activate
-#' the Python REPL with `py_repl()`, run Python code, and later run `exit`
+#' the Python REPL with `repl_python()`, run Python code, and later run `exit`
 #' to return to the \R console.
 #' 
 #' @examples \dontrun{
 #' 
 #' # enter the Python REPL, create a dictionary, and exit
-#' py_repl()
+#' repl_python()
 #' dictionary = {'alpha': 1, 'beta': 2}
 #' exit
 #' 
@@ -36,7 +36,7 @@
 #' 
 #' @importFrom utils packageVersion
 #' @export
-py_repl <- function(
+repl_python <- function(
   module = NULL,
   quiet = getOption("reticulate.repl.quiet", default = FALSE))
 {

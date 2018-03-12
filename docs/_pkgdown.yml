@@ -36,8 +36,8 @@ reference:
     contents:
       - import
       - source_python
+      - repl_python
       - eng_python
-      - py_repl
       - py_run
       - py
       

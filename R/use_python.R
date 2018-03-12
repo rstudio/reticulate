@@ -68,7 +68,7 @@ use_condaenv <- function(condaenv, conda = "auto", required = FALSE) {
   
   # look for one with that name
   conda_env_python <- subset(conda_envs, conda_envs$name == condaenv)$python
-  if (is.null(conda_env_python) && required)
+  if (length(conda_env_python) == 0 && required)
     stop("Unable to locate conda environment '", condaenv, "'.")
   
   if (!is.null(condaenv))

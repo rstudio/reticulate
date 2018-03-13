@@ -94,9 +94,12 @@ frame using [ggplot2](http://ggplot2.org/):
 
 ![](images/rmarkdown_engine_zoomed.png)
 
-The reticulate Python engine is enabled by default within R Markdown
-whenever reticulate is installed. See the `eng_python()` documentation
-for additional details on the R Markdown Python engine.
+Note that the reticulate Python engine is enabled by default within R
+Markdown whenever reticulate is installed.
+
+See the [R Markdown Python
+Engine](https://rstudio.github.io/reticulate/articles/r_markdown.html)
+documentation for additional details.
 
 ## Importing Python modules
 
@@ -199,6 +202,12 @@ the object just as if it was an instance of an R reference class.
 
 The following articles cover the various aspects of using
 **reticulate**:
+
+  - [R Markdown Python
+    Engine](https://rstudio.github.io/reticulate/articles/r_markdown.html)
+    — Provides details on using Python chunks within R Markdown
+    documents, including how call Python code from R chunks and
+    vice-versa.
 
   - [Calling Python from
     R](https://rstudio.github.io/reticulate/articles/calling_python.html)

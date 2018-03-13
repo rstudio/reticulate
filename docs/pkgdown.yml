@@ -5,6 +5,12 @@ articles:
   arrays: arrays.html
   calling_python: calling_python.html
   extra.css: extra.css
+  python_chunks.png: images/python_chunks.png
+  r_from_python.png: images/r_from_python.png
+  reticulate_disable.png: images/reticulate_disable.png
+  reticulate_enable.png: images/reticulate_enable.png
+  rmarkdown_engine_zoomed.png: images/rmarkdown_engine_zoomed.png
   package: package.html
+  r_markdown: r_markdown.html
   versions: versions.html
 

@@ -45,6 +45,9 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
+      <a href="articles/r_markdown.html">R Markdown Python Engine</a>
+    </li>
+    <li>
       <a href="articles/calling_python.html">Calling Python from R</a>
     </li>
     <li>
@@ -130,7 +133,8 @@
 </div>
 <p>Built in conversion for many Python object types is provided, including <a href="http://www.numpy.org/">NumPy</a> arrays and <a href="https://pandas.pydata.org/">Pandas</a> data frames. From example, you can use Pandas to read and manipulate data then easily plot the Pandas data frame using <a href="http://ggplot2.org/">ggplot2</a>:</p>
 <p><img src="images/rmarkdown_engine_zoomed.png" class="screenshot"></p>
-<p>The reticulate Python engine is enabled by default within R Markdown whenever reticulate is installed. See the <code><a href="reference/eng_python.html">eng_python()</a></code> documentation for additional details on the R Markdown Python engine.</p>
+<p>Note that the reticulate Python engine is enabled by default within R Markdown whenever reticulate is installed.</p>
+<p>See the <a href="https://rstudio.github.io/reticulate/articles/r_markdown.html">R Markdown Python Engine</a> documentation for additional details.</p>
 </div>
 <div id="importing-python-modules" class="section level2">
 <h2 class="hasAnchor">
@@ -244,6 +248,7 @@
 <a href="#learning-more" class="anchor"></a>Learning more</h2>
 <p>The following articles cover the various aspects of using <strong>reticulate</strong>:</p>
 <ul>
+<li><p><a href="https://rstudio.github.io/reticulate/articles/r_markdown.html">R Markdown Python Engine</a> — Provides details on using Python chunks within R Markdown documents, including how call Python code from R chunks and vice-versa.</p></li>
 <li><p><a href="https://rstudio.github.io/reticulate/articles/calling_python.html">Calling Python from R</a> — Describes the various ways to access Python objects from R as well as functions available for more advanced interactions and conversion behavior.</p></li>
 <li><p><a href="https://rstudio.github.io/reticulate/articles/versions.html">Python Version Configuration</a> — Describes facilities for determining which version of Python is used by reticulate within an R session.</p></li>
 <li><p><a href="https://rstudio.github.io/reticulate/articles/package.html">Using reticulate in an R Package</a> — Guidelines and best practices for using reticulate in an R package.</p></li>

@@ -14,6 +14,8 @@ navbar:
       href: index.html
     - text: "Articles"
       menu:
+        - text: "R Markdown Python Engine"
+          href: articles/r_markdown.html
         - text: "Calling Python from R"
           href: articles/calling_python.html
         - text: "Python Version Configuration"

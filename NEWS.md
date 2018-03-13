@@ -15,6 +15,8 @@ Install the development version with: `install_github("rstudio/reticulate")`
 - Provide default base directory (e.g. '~/.virtualenvs') for environments
   specified by name in `use_virtualenv()`.
   
+- Fail when environment not found with `use_condaenv(..., required = TRUE)`
+  
 - Ensure that `use_*` python version is satsified when using `eng_python()`
 
 - Forward `required` argument from `use_virtualenv()` and `use_condaenv()`

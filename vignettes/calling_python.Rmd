@@ -180,6 +180,17 @@ a <- np_array(c(1:8), dim = c(2,4), order = "C")
 
 Reasoning about arrays which use distinct in-memory orders can be tricky. The [Arrays in R and Python](arrays.html) article provides additional details.
 
+## DataFrames
+
+R data frames can be automatically converted to and from [Pandas](https://pandas.pydata.org/) DataFrames. By default, columns are converted using the same rules governing R array <-> NumPy array conversion, but a couple extensions are provided:
+
+| R      | Python                                    |
+| ------ | ----------------------------------------- |
+| Factor | Categorical Variable                      |
+| POSIXt | NumPy array with dtype = `datetime64[ns]` |
+
+If the R data frame has row names, the generated Pandas DataFrame will be re-indexed using those row names (and vice versa). Special handling is also available for a `DatetimeIndex` associated with a Pandas DataFrame; however, because R only supports character vectors for row names they are converted to character first.
+
 ## With Contexts
 
 The R `with` generic function can be used to interact with Python context manager objects (in Python you use the `with` keyword to do the same). For example:

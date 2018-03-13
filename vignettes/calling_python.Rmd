@@ -344,6 +344,8 @@ The functions provide miscellaneous other lower-level capabilities:
 
 The following articles cover additional aspects of using **reticulate**:
 
+- [R Markdown Python Engine](r_markdown.html) 
+
 - [Python Version Configuration](versions.html)
 
 - [Using reticulate in an R Package](package.html)

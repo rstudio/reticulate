@@ -256,6 +256,29 @@
 <a class="sourceLine" id="cb14-2" data-line-number="2">a &lt;-<span class="st"> </span><span class="kw"><a href="../reference/np_array.html">np_array</a></span>(<span class="kw">c</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">8</span>), <span class="dt">dim =</span> <span class="kw">c</span>(<span class="dv">2</span>,<span class="dv">4</span>), <span class="dt">order =</span> <span class="st">"C"</span>)</a></code></pre></div>
 <p>Reasoning about arrays which use distinct in-memory orders can be tricky. The <a href="arrays.html">Arrays in R and Python</a> article provides additional details.</p>
 </div>
+<div id="dataframes" class="section level2">
+<h2 class="hasAnchor">
+<a href="#dataframes" class="anchor"></a>DataFrames</h2>
+<p>R data frames can be automatically converted to and from <a href="https://pandas.pydata.org/">Pandas</a> DataFrames. By default, columns are converted using the same rules governing R array &lt;-&gt; NumPy array conversion, but a couple extensions are provided:</p>
+<table class="table">
+<thead><tr class="header">
+<th>R</th>
+<th>Python</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>Factor</td>
+<td>Categorical Variable</td>
+</tr>
+<tr class="even">
+<td>POSIXt</td>
+<td>NumPy array with dtype = <code>datetime64[ns]</code>
+</td>
+</tr>
+</tbody>
+</table>
+<p>If the R data frame has row names, the generated Pandas DataFrame will be re-indexed using those row names (and vice versa). Special handling is also available for a <code>DatetimeIndex</code> associated with a Pandas DataFrame; however, because R only supports character vectors for row names they are converted to character first.</p>
+</div>
 <div id="with-contexts" class="section level2">
 <h2 class="hasAnchor">
 <a href="#with-contexts" class="anchor"></a>With Contexts</h2>
@@ -521,6 +544,7 @@
       <li><a href="#getting-help">Getting Help</a></li>
       <li><a href="#lists-tuples-and-dictionaries">Lists, Tuples, and Dictionaries</a></li>
       <li><a href="#arrays">Arrays</a></li>
+      <li><a href="#dataframes">DataFrames</a></li>
       <li><a href="#with-contexts">With Contexts</a></li>
       <li><a href="#iterators">Iterators</a></li>
       <li><a href="#advanced-functions">Advanced Functions</a></li>

@@ -9,16 +9,16 @@ Status](https://ci.appveyor.com/api/projects/status/github/rstudio/reticulate?sv
 
 <link rel="stylesheet" type="text/css" href="articles/extra.css"/>
 
-The **reticulate** package provides a comprehensive set of Python
-interoperability tools for R,
-including:
+The **reticulate** package provides a comprehensive set of tools for
+interopability between Python and R. The package includes facilites
+for:
 
 <img src="images/reticulated-python.png" width=250 align=right title="A reticulated python"/>
 
   - Translation between R and Python objects (for example, between R and
     Pandas data frames, or between R matrices and NumPy arrays).
 
-  - A variety of ways to call Python from R including R Markdown,
+  - Calling Python from R in a variety of ways including R Markdown,
     sourcing Python scripts, importing Python modules, and using Python
     interactively within an R session.
 

@@ -160,6 +160,8 @@ py_to_r.pandas.core.series.Series <- function(x) {
   py_to_r(x$as_matrix())
 }
 
+pandas_shape <- function(object) unlist(as_r_value(object$shape))
+
 #' @export
 summary.pandas.core.series.Series <- function(object, ...) {
   if (py_is_null_xptr(object) || !py_available())
@@ -172,16 +174,14 @@ summary.pandas.core.series.Series <- function(object, ...) {
 length.pandas.core.series.Series <- function(x) {
   if (py_is_null_xptr(x) || !py_available())
     0L
-  else
-    py_to_r(x$size)
+  else {
+    pandas_shape(x)[[1]]
+  }
 }
 
 #' @export
 dim.pandas.core.series.Series <- function(x) {
-  if (py_is_null_xptr(x) || !py_available())
-    NULL
-  else
-    unlist(py_to_r(x$shape))
+  NULL
 }
 
 #' @export
@@ -318,16 +318,21 @@ py_to_r.pandas.core.frame.DataFrame <- function(x) {
 }
 
 #' @export
-summary.pandas.core.frame.DataFrame <- function(object, ...) {
-  summary.pandas.core.series.Series(object, ...)
-}
+summary.pandas.core.frame.DataFrame <- summary.pandas.core.series.Series
 
 #' @export
 length.pandas.core.frame.DataFrame <- function(x) {
-  length.pandas.core.series.Series(x)
+  if (py_is_null_xptr(x) || !py_available())
+    0L
+  else {
+    pandas_shape(x)[[2]]
+  }
 }
 
 #' @export
 dim.pandas.core.frame.DataFrame <- function(x) {
-  dim.pandas.core.series.Series(x)
+  if (py_is_null_xptr(x) || !py_available())
+    NULL
+  else
+    pandas_shape(x)
 }

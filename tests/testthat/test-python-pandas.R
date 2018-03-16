@@ -31,14 +31,14 @@ test_that("Generic methods for pandas objects produce correct results", {
   df <- data.frame(x = c(1, 3), y = c(4, 4), z = c(5, 5))
   pdf <- r_to_py(df)
 
-  expect_equal(length(pdf), 6)
-  expect_equal(length(pdf$x), 2)
+  expect_equal(length(pdf), length(df))
+  expect_equal(length(pdf$x), length(df$x))
   
-  expect_equal(dim(pdf), c(2, 3))
-  expect_equal(dim(pdf$x), 2)
+  expect_equal(dim(pdf), dim(df))
+  expect_equal(dim(pdf$x), dim(df$x))
 
   expect_equal(dim(summary(pdf)), c(8, 3))
-  expect_equal(dim(summary(pdf$x)), 8)
+  expect_equal(length(summary(pdf$x)), 8)
 })
 
 test_that("Timestamped arrays in Pandas DataFrames can be roundtripped", {

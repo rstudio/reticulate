@@ -21,6 +21,8 @@ Install the development version with: `install_github("rstudio/reticulate")`
 
 - Forward `required` argument from `use_virtualenv()` and `use_condaenv()`
 
+- Fix leak which occurred when assigning R objects into Python containers
+
 
 ## reticulate 1.5 (CRAN)
 

@@ -1686,9 +1686,8 @@ PyObjectRef py_get_attr_impl(PyObjectRef x, const std::string& name, bool silent
 
 // [[Rcpp::export]]
 void py_set_attr_impl(PyObjectRef x, const std::string& name, RObject value) {
-  PyObject* converted = r_to_py(value, x.convert());
+  PyObjectPtr converted(r_to_py(value, x.convert()));
   int res = PyObject_SetAttrString(x, name.c_str(), converted);
-  Py_DecRef(converted);
   if (res != 0)
     stop(py_fetch_error());
 }

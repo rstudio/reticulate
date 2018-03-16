@@ -162,17 +162,26 @@ py_to_r.pandas.core.series.Series <- function(x) {
 
 #' @export
 summary.pandas.core.series.Series <- function(object, ...) {
-  object$describe()
+  if (py_is_null_xptr(object) || !py_available())
+    str(object)
+  else
+    object$describe()
 }
 
 #' @export
 length.pandas.core.series.Series <- function(x) {
-  py_to_r(x$size)
+  if (py_is_null_xptr(x) || !py_available())
+    0L
+  else
+    py_to_r(x$size)
 }
 
 #' @export
 dim.pandas.core.series.Series <- function(x) {
-  unlist(py_to_r(x$shape))
+  if (py_is_null_xptr(x) || !py_available())
+    NULL
+  else
+    unlist(py_to_r(x$shape))
 }
 
 #' @export
@@ -310,15 +319,15 @@ py_to_r.pandas.core.frame.DataFrame <- function(x) {
 
 #' @export
 summary.pandas.core.frame.DataFrame <- function(object, ...) {
-  object$describe()
+  summary.pandas.core.series.Series(object, ...)
 }
 
 #' @export
 length.pandas.core.frame.DataFrame <- function(x) {
-  py_to_r(x$size)
+  length.pandas.core.series.Series(x)
 }
 
 #' @export
 dim.pandas.core.frame.DataFrame <- function(x) {
-  unlist(py_to_r(x$shape))
+  dim.pandas.core.series.Series(x)
 }

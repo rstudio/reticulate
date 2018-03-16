@@ -15,9 +15,9 @@ use_condaenv(condaenv, conda = "auto", required = FALSE)
 \arguments{
 \item{python}{Path to Python binary}
 
-\item{required}{Is this version of Python required? If \code{TRUE} then
-an error occurs if it's not located. Otherwise, the version is taken
-as a hint only and scanning for other versions will still proceed.}
+\item{required}{Is this version of Python required? If \code{TRUE} then an error
+occurs if it's not located. Otherwise, the version is taken as a hint only
+and scanning for other versions will still proceed.}
 
 \item{virtualenv}{Directory of Python virtualenv}
 

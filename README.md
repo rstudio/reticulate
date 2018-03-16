@@ -13,7 +13,7 @@ The **reticulate** package provides a comprehensive set of tools for
 interopability between Python and R. The package includes facilites
 for:
 
-<img src="images/reticulated_python.jpg" width=200 align=right title="A reticulated python"/>
+<img src="images/reticulated_python.png" width=200 align=right title="A reticulated python"/>
 
   - Translation between R and Python objects (for example, between R and
     Pandas data frames, or between R matrices and NumPy arrays).

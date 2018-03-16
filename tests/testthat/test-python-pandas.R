@@ -25,13 +25,18 @@ test_that("Ordered factors are preserved", {
   
 })
 
-test_that("Dimension of converted pandas objects are correct", {
+test_that("Generic methods for pandas objects produce correct results", {
   skip_if_no_pandas()
 
   df <- data.frame(x = c(1, 3), y = c(4, 4), z = c(5, 5))
   pdf <- r_to_py(df)
-  expect_equal(length(df), length(pdf))
-  expect_equal(dim(df), dim(pdf))
+  expect_equal(length(pdf), 6)
+  expect_equal(length(pdf$x), 2)
+  expect_equal(dim(pdf), c(2, 3))
+  expect_equal(dim(pdf$x), 2)
+  
+  expect_equal(dim(summary(pdf)), c(8, 3))
+  expect_equal(dim(summary(pdf$x)), 8)
 })
 
 test_that("Timestamped arrays in Pandas DataFrames can be roundtripped", {

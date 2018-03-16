@@ -166,6 +166,11 @@ summary.pandas.core.series.Series <- function(object, ...) {
 }
 
 #' @export
+length.pandas.core.series.Series <- function(x) {
+  py_to_r(x$size)
+}
+
+#' @export
 dim.pandas.core.series.Series <- function(x) {
   unlist(py_to_r(x$shape))
 }
@@ -309,6 +314,11 @@ summary.pandas.core.frame.DataFrame <- function(object, ...) {
 }
 
 #' @export
-summary.pandas.core.frame.DataFrame <- function(x) {
+length.pandas.core.frame.DataFrame <- function(x) {
+  py_to_r(x$size)
+}
+
+#' @export
+dim.pandas.core.frame.DataFrame <- function(x) {
   unlist(py_to_r(x$shape))
 }

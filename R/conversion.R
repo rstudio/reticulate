@@ -160,7 +160,15 @@ py_to_r.pandas.core.series.Series <- function(x) {
   py_to_r(x$as_matrix())
 }
 
+#' @export
+summary.pandas.core.series.Series <- function(object, ...) {
+  object$describe()
+}
 
+#' @export
+dim.pandas.core.series.Series <- function(x) {
+  unlist(py_to_r(x$shape))
+}
 
 #' @export
 r_to_py.data.frame <- function(x, convert = FALSE) {
@@ -293,4 +301,14 @@ py_to_r.pandas.core.frame.DataFrame <- function(x) {
   
   df
   
+}
+
+#' @export
+summary.pandas.core.frame.DataFrame <- function(object, ...) {
+  object$describe()
+}
+
+#' @export
+summary.pandas.core.frame.DataFrame <- function(x) {
+  unlist(py_to_r(x$shape))
 }

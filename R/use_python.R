@@ -6,9 +6,9 @@
 #' @param condaenv Name of Conda environment
 #' @param conda Conda executable. Default is `"auto"`, which checks the `PATH`
 #'   as well as other standard locations for Anaconda installations.
-#' @param required Is this version of Python required? If `TRUE` then
-#'  an error occurs if it's not located. Otherwise, the version is taken
-#'  as a hint only and scanning for other versions will still proceed.
+#' @param required Is this version of Python required? If `TRUE` then an error
+#'   occurs if it's not located. Otherwise, the version is taken as a hint only
+#'   and scanning for other versions will still proceed.
 #'
 #' @importFrom utils file_test
 #'

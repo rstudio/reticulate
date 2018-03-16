@@ -83,7 +83,11 @@ eng_python <- function(options) {
   # use 'ast.parse()' to parse Python code and collect line numbers, so we
   # can split source code into statements
   pasted <- paste(code, collapse = "\n")
-  parsed <- ast$parse(pasted, "<string>")
+  parsed <- tryCatch(ast$parse(pasted, "<string>"), error = identity)
+  if (inherits(parsed, "error")) {
+    error <- reticulate::py_last_error()
+    stop(error$value, call. = FALSE)
+  }
   
   # iterate over top-level nodes and extract line numbers
   lines <- vapply(parsed$body, function(node) {

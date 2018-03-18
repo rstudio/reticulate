@@ -175,7 +175,7 @@ You can also manually convert R arrays to NumPy using the `np_array()` function.
 
 ```r
 a <- np_array(c(1:8), dtype = "float16")
-a <- np_array(c(1:8), dim = c(2,4), order = "C")
+a <- np_array(c(1:8), order = "C")
 ```
 
 Reasoning about arrays which use distinct in-memory orders can be tricky. The [Arrays in R and Python](arrays.html) article provides additional details.

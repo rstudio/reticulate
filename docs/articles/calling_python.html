@@ -184,8 +184,8 @@
 <p>The <code><a href="../reference/import.html">import_main()</a></code> and <code><a href="../reference/import.html">import_builtins()</a></code> functions give you access to the main module where code is executed by default and the collection of built in Python functions. For example:</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">main &lt;-<span class="st"> </span><span class="kw"><a href="../reference/import.html">import_main</a></span>()</a>
 <a class="sourceLine" id="cb4-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb4-3" data-line-number="3">py &lt;-<span class="st"> </span><span class="kw"><a href="../reference/import.html">import_builtins</a></span>()</a>
-<a class="sourceLine" id="cb4-4" data-line-number="4">py<span class="op">$</span><span class="kw">print</span>(<span class="st">'foo'</span>)</a></code></pre></div>
+<a class="sourceLine" id="cb4-3" data-line-number="3">builtins &lt;-<span class="st"> </span><span class="kw"><a href="../reference/import.html">import_builtins</a></span>()</a>
+<a class="sourceLine" id="cb4-4" data-line-number="4">builtins<span class="op">$</span><span class="kw">print</span>(<span class="st">'foo'</span>)</a></code></pre></div>
 <p>The main module is generally useful if you have executed Python code from a file or string and want to get access to it’s results (see the section below for more details).</p>
 </div>
 <div id="sourcing-scripts" class="section level2">

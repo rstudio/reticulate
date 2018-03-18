@@ -73,8 +73,8 @@ The `import_main()` and `import_builtins()` functions give you access to the mai
 ```{r}
 main <- import_main()
 
-py <- import_builtins()
-py$print('foo')
+builtins <- import_builtins()
+builtins$print('foo')
 ```
 
 The main module is generally useful if you have executed Python code from a file or string and want to get access to it's results (see the section below for more details).

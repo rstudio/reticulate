@@ -26,7 +26,7 @@ Just a placeholder here.
 "
 
   doctree <- sphinx_doctree_from_doc(docs)
-  expect_equal(names(doctree$ids), c("parameters", "returns", "section1"))
+  expect_setequal(names(doctree$ids), c("parameters", "returns", "section1"))
 
   arg_descriptions <- arg_descriptions_from_doc_sphinx(docs)
   expect_equal(names(arg_descriptions), c("a", "type"))
@@ -87,6 +87,7 @@ omega: int, optional
   pass
 ')
   
+  main <- import_main(convert = FALSE)
   output <- help_completion_parameter_handler.python.builtin.object(main$foo)
   expect_equal(output$args, c("alpha", "omega"))
   expect_match(output$arg_descriptions[[1]], "The first argument.")

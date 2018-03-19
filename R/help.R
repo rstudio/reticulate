@@ -291,7 +291,7 @@ help_formals_handler.python.builtin.object <- function(topic, source) {
 }
 
 sphinx_doc_params_matches <- function(doc) {
-  regexpr(pattern = "\nParameters\n+[-]+", doc)
+  regexpr(pattern = "(?:^|\n)Parameters\n+[-]+", doc)
 }
 
 is_sphinx_doc <- function(doc) {
@@ -309,17 +309,17 @@ sphinx_doctree_from_doc <- function(doc) {
 
 # Extract arguments descriptions for docs in TensorFlow-like styles
 arg_descriptions_from_doc_default <- function(args, doc) {
+  
   # extract arguments section of the doc and break into lines
-  arguments <- section_from_doc('Arg(s|uments)', doc)
   doc <- strsplit(doc, "\n", fixed = TRUE)[[1]]
   
   sapply(args, function(arg) {
-    arg_line <- which(grepl(paste0("^\\s+", arg, ":"), doc))
+    arg_line <- which(grepl(paste0("^\\s*", arg, ":"), doc))
     if (length(arg_line) > 0) {
       line <- doc[[arg_line]]
       arg_description <- substring(line, regexpr(':', line)[[1]] + 1)
       next_line <- arg_line + 1
-      while((arg_line + 1) <= length(doc)) {
+      while ((arg_line + 1) <= length(doc)) {
         line <- doc[[arg_line + 1]]
         if (!grepl("^\\s*$", line) && !grepl("^\\s+\\w+: ", line)) {
           arg_description <- paste(arg_description, line)
@@ -337,11 +337,22 @@ arg_descriptions_from_doc_default <- function(args, doc) {
 
 # Extract arguments descriptions for docs in Sphinx style
 arg_descriptions_from_doc_sphinx <- function(doc) {
+  
   doctree <- sphinx_doctree_from_doc(doc)
   params <- doctree$ids$parameters$children[[2]]$children
-  sapply(params, function(param) {
-    param$children[[3]]$astext()
+  
+  output <- lapply(params, function(param) {
+    children <- param$children
+    children[[length(children)]]$astext()
   })
+  
+  nms <- vapply(params, function(param) {
+    name <- param$children[[1]]$astext()
+    sub(":.*", "", name)
+  }, character(1))
+  
+  names(output) <- nms
+  output
 }
 
 # Extract argument descriptions from python docstring

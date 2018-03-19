@@ -1,11 +1,12 @@
 context("output")
 
 capture_test_output <- function(type) {
+  sys <- import("sys", convert = TRUE)
   py_capture_output(type = type, { 
     if ("stdout" %in% type)
-      sys$stdout$write("out"); 
+      sys$stdout$write("out")
     if ("stderr" %in% type)
-    sys$stderr$write("err"); 
+      sys$stderr$write("err")
   })
 }
 

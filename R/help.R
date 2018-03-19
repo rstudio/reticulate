@@ -248,7 +248,6 @@ help_url_handler.python.builtin.object <- function(topic, source) {
   }
 
   # get help page
-  page <- NULL
   inspect <- import("inspect")
   if (inspect$ismodule(source)) {
     module <- py_get_name(source)
@@ -348,7 +347,7 @@ arg_descriptions_from_doc_sphinx <- function(doc) {
   
   nms <- vapply(params, function(param) {
     name <- param$children[[1]]$astext()
-    sub(":.*", "", name)
+    sub("\\s*:.*", "", name)
   }, character(1))
   
   names(output) <- nms
@@ -390,7 +389,7 @@ sections_from_doc <- function(doc) {
     
     # collect the sections text
     section_text <- c()
-    while((section_line + 1) <= length(doc)) {
+    while ((section_line + 1) <= length(doc)) {
       line <- doc[[section_line + 1]]
       if (grepl("\\w+", line)) {
         section_text <- paste(section_text, line)

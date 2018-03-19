@@ -75,4 +75,18 @@ blockquote {
   padding-bottom: 210x !important;
 }
 
+.alert-warning {
+  color: #8a6d3b;
+  background-color: #fcf8e3;
+  padding: 15px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  background-image: linear-gradient(to bottom,#fcf8e3 0,#f8efc0 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fffcf8e3', endColorstr='#fff8efc0', GradientType=0);
+  background-repeat: repeat-x;
+  border: 1px solid #f5e79e;
+  border-radius: 4px;
+}
+
+
 

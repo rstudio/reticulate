@@ -33,3 +33,11 @@ skip_if_no_pandas <- function() {
     skip("pandas not available for testing")
 }
 
+skip_if_no_test_environments <- function() {
+  skip_on_cran()
+  skip_if_no_python()
+  skip <- is.na(Sys.getenv("RETICULATE_TEST_ENVIRONMENTS", unset = NA))
+  if (skip)
+    skip("python environments not available for testing")
+}
+

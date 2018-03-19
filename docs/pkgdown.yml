@@ -12,6 +12,7 @@ articles:
   reticulate_enable.png: images/reticulate_enable.png
   rmarkdown_engine_zoomed.png: images/rmarkdown_engine_zoomed.png
   package: package.html
+  python_packages: python_packages.html
   r_markdown: r_markdown.html
   versions: versions.html
 

@@ -87,6 +87,13 @@ The order in which versions of Python will be discovered and used is as follows:
 
 The scanning for and binding to a version of Python typically occurs at the time of the first call to `import()` within an R session. As a result, priority will be given to versions of Python that include the module specified within the call to `import()` (i.e. versions that don't include it will be skipped).
 
+## Python Packages
+
+Each version of Python on your system has it's own set of packages and as described above reticulate will automatically find a version of Python that contains the first package that you import from R. 
+
+You can learn more about installing Python packages into virtualenvs or Conda environments in the article on [Installing Python Packages](python_packages.html).
+
+
 ## Configuration Info
 
 You can use the `py_config()` function to query for information about the specific version of Python in use as well as a list of other Python versions discovered on the system:

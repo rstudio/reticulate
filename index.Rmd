@@ -171,11 +171,13 @@ If a Python object of a custom class is returned then an R reference to that obj
 
 The following articles cover the various aspects of using **reticulate**:
 
-- [R Markdown Python Engine](https://rstudio.github.io/reticulate/articles/r_markdown.html) &mdash; Provides details on using Python chunks within R Markdown documents, including how call Python code from R chunks and vice-versa.
-
 - [Calling Python from R](https://rstudio.github.io/reticulate/articles/calling_python.html) &mdash; Describes the various ways to access Python objects from R as well as functions available for more advanced interactions and conversion behavior.
 
+- [R Markdown Python Engine](https://rstudio.github.io/reticulate/articles/r_markdown.html) &mdash; Provides details on using Python chunks within R Markdown documents, including how call Python code from R chunks and vice-versa.
+
 - [Python Version Configuration](https://rstudio.github.io/reticulate/articles/versions.html) &mdash; Describes facilities for determining which version of Python is used by reticulate within an R session.
+
+- [Installing Python Packages](https://rstudio.github.io/reticulate/articles/python_packages.html) &mdash; Documentation on installing Python packages from PyPI or Conda, and managing package installations using virtualenvs and Conda environments.
 
 - [Using reticulate in an R Package](https://rstudio.github.io/reticulate/articles/package.html) &mdash; Guidelines and best practices for using reticulate in an R package.
 

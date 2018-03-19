@@ -185,17 +185,31 @@ help_completion_parameter_handler.python.builtin.object <- function(source) {
 
   if (!py_available())
     return(NULL)
-
+  
+  # handle Python functions as-is
+  if (inherits(source, "python.builtin.object"))
+    target <- source
+  
   # split into topic and source
-  components <- source_components(source)
-  if (is.null(components))
-    return(NULL)
-  topic <- components$topic
-  source <- components$source
-
-  # get the function
-  target <- help_get_attribute(source, topic)
-  if (!is.null(target) & py_is_callable(target)) {
+  if (is.character(source)) {
+    components <- source_components(source)
+    if (is.null(components))
+      return(NULL)
+    topic <- components$topic
+    source <- components$source
+    
+    # get the function
+    target <- help_get_attribute(source, topic)
+  }
+  
+  # if this is a class object, use the __init__ method
+  if (inherits(target, "python.builtin.type")) {
+    init <- py_get_attr(target, "__init__", silent = TRUE)
+    if (!is.null(init))
+      target <- init
+  }
+  
+  if (!is.null(target) && py_is_callable(target)) {
     help <- import("rpytools.help")
     args <- help$get_arguments(target)
     if (!is.null(args)) {

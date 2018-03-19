@@ -122,8 +122,9 @@
 </div>
 <div id="python-version" class="section level4">
 <h4 class="hasAnchor">
-<a href="#python-version" class="anchor"></a>Python Version</h4>
-<p>By default, reticulate uses the version of Python found on your <code>PATH</code> (i.e. <code>Sys.which("python")</code>). The <code><a href="reference/use_python.html">use_python()</a></code> function enables you to specify an alternate version, for example:</p>
+<a href="#python-version" class="anchor"></a>Python version</h4>
+<p>By default, reticulate uses the version of Python found on your <code>PATH</code> (i.e. <code>Sys.which("python")</code>).</p>
+<p>The <code><a href="reference/use_python.html">use_python()</a></code> function enables you to specify an alternate version, for example:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw">library</span>(reticulate)</a>
 <a class="sourceLine" id="cb2-2" data-line-number="2"><span class="kw"><a href="reference/use_python.html">use_python</a></span>(<span class="st">"/usr/local/bin/python"</span>)</a></code></pre></div>
 <p>The <code><a href="reference/use_python.html">use_virtualenv()</a></code> and <code><a href="reference/use_python.html">use_condaenv()</a></code> functions enable you to specify versions of Python in virtual or conda environments, for example:</p>
@@ -131,10 +132,15 @@
 <a class="sourceLine" id="cb3-2" data-line-number="2"><span class="kw"><a href="reference/use_python.html">use_virtualenv</a></span>(<span class="st">"myenv"</span>)</a></code></pre></div>
 <p>See the article on <a href="https://rstudio.github.io/reticulate/articles/versions.html">Python Version Configuration</a> for additional details.</p>
 </div>
+<div id="python-packages" class="section level4">
+<h4 class="hasAnchor">
+<a href="#python-packages" class="anchor"></a>Python packages</h4>
+<p>You can install any required Python packages using standard shell tools like <code>pip</code> and <code>conda</code>. Alternately, reticulate includes a set of functions for managing and installing packages within virtualenvs and Conda environments. See the article on <a href="https://rstudio.github.io/reticulate/articles/python_packages.html">Installing Python Packages</a> for additional details.</p>
+</div>
 <div id="calling-python" class="section level4">
 <h4 class="hasAnchor">
 <a href="#calling-python" class="anchor"></a>Calling Python</h4>
-<p>There are a variety of ways to integrate Python code into your R project:</p>
+<p>There are a variety of ways to integrate Python code into your R projects:</p>
 <ol style="list-style-type: decimal">
 <li><p><a href="#python-in-r-markdown">Python in R Markdown</a> — A new Python language engine for R Markdown that supports bi-directional communication between R and Python (R chunks can access Python objects and vice-versa).</p></li>
 <li><p><a href="#importing-python-modules">Importing Python modules</a> — The <code><a href="reference/import.html">import()</a></code> function enables you to import any Python module and call it’s functions directly from R.</p></li>
@@ -289,7 +295,11 @@
 <blockquote>
 <p>The reticulated python is a speicies of python found in Southeast Asia. They are the world’s longest snakes and longest reptiles…The specific name, reticulatus, is Latin meaning “net-like”, or reticulated, and is a reference to the complex colour pattern.</p>
 </blockquote>
-<p>The reticulate package enables a new flavor of “reticulated” Python code that is weaved closely together with R.</p>
+<p>From <a href="https://www.merriam-webster.com/dictionary/reticulate">Merriam-Webster</a>:</p>
+<blockquote>
+<p>1: resembling a net or network; especially : having veins, fibers, or lines crossing a reticulate leaf. 2: being or involving evolutionary change dependent on genetic recombination involving diverse interbreeding populations.</p>
+</blockquote>
+<p>The package enables you to <em>reticulate</em> Python code into R, creating a new breed of project that weaves together the two languages.</p>
 </div>
 </div>
 </div>

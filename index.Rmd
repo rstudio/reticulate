@@ -35,9 +35,11 @@ Install the **reticulate** pacakge from GitHub as follows:
 devtools::install_github("rstudio/reticulate")
 ```
 
-#### Python Version
+#### Python version
 
-By default, reticulate uses the version of Python found on your `PATH` (i.e. `Sys.which("python")`). The `use_python()` function enables you to specify an alternate version, for example:
+By default, reticulate uses the version of Python found on your `PATH` (i.e. `Sys.which("python")`). 
+
+The `use_python()` function enables you to specify an alternate version, for example:
 
 ```r
 library(reticulate)
@@ -53,9 +55,13 @@ use_virtualenv("myenv")
 
 See the article on [Python Version Configuration](https://rstudio.github.io/reticulate/articles/versions.html) for additional details.
 
+#### Python packages
+
+You can install any required Python packages using standard shell tools like `pip` and `conda`. Alternately, reticulate includes a set of functions for managing and installing packages within virtualenvs and Conda environments. See the article on [Installing Python Packages](https://rstudio.github.io/reticulate/articles/python_packages.html) for additional details.
+
 #### Calling Python 
 
-There are a variety of ways to integrate Python code into your R project:
+There are a variety of ways to integrate Python code into your R projects:
 
 1) [Python in R Markdown] &mdash; A new Python language engine for R Markdown that supports bi-directional communication between R and Python (R chunks can access Python objects and vice-versa).
 
@@ -190,7 +196,11 @@ From [Wikipedia](https://en.wikipedia.org/wiki/Reticulated_python):
 
 > The reticulated python is a speicies of python found in Southeast Asia. They are the world's longest snakes and longest reptiles...The specific name, reticulatus, is Latin meaning "net-like", or reticulated, and is a reference to the complex colour pattern. 
 
-The reticulate package enables a new flavor of "reticulated" Python code that is weaved closely together with R.
+From [Merriam-Webster](https://www.merriam-webster.com/dictionary/reticulate):
+
+> 1: resembling a net or network; especially : having veins, fibers, or lines crossing a reticulate leaf. 2: being or involving evolutionary change dependent on genetic recombination involving diverse interbreeding populations.
+
+The package enables you to *reticulate* Python code into R, creating a new breed of project that weaves together the two languages.
 
 
 

@@ -1,7 +1,4 @@
 
-# Topics missing from index: conda-tools, , , 
-#                            ,, reticulate, 
-
 template:
   params:
     bootswatch: flatly
@@ -94,5 +91,9 @@ reference:
       - py_last_error
       - py_help
  
- 
+  - title: "Package Installation"
+    contents: 
+      - virtualenv-tools
+      - conda-tools
+
  

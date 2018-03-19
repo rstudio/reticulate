@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Articles • reticulate</title>
+<title>Interface to virtualenv — virtualenv-tools • reticulate</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -25,7 +25,10 @@
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-<meta property="og:title" content="Articles" />
+<meta property="og:title" content="Interface to virtualenv — virtualenv-tools" />
+
+<meta property="og:description" content="R functions for managing Python virtual environments" />
+<meta name="twitter:card" content="summary" />
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -38,7 +41,7 @@
   </head>
 
   <body>
-    <div class="container template-vignette-index">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
   <div class="container">
@@ -104,24 +107,72 @@
       
       </header>
 
-      <div class="page-header">
-  <h1>Articles <small>version&nbsp;1.5.0.9005</small></h1>
-</div>
-
-<div class="row">
-  <div class="col-md-9">
-    <div class="section ">
-      <h3>All vignettes</h3>
-      <p class="section-desc"></p>
-
-      <ul>
-        <li><a href="arrays.html">Arrays in R and Python</a></li>
-        <li><a href="calling_python.html">Calling Python from R</a></li>
-        <li><a href="package.html">Using reticulate in an R Package</a></li>
-        <li><a href="r_markdown.html">R Markdown Python Engine</a></li>
-        <li><a href="versions.html">Python Version Configuration</a></li>
-      </ul>
+      <div class="row">
+  <div class="col-md-9 contents">
+    <div class="page-header">
+    <h1>Interface to virtualenv</h1>
     </div>
+
+    
+    <p>R functions for managing Python <a href='https://virtualenv.pypa.io/en/stable/'>virtual environments</a></p>
+    
+
+    <pre class="usage"><span class='fu'>virtualenv_list</span>()
+
+<span class='fu'>virtualenv_root</span>()
+
+<span class='fu'>virtualenv_create</span>(<span class='no'>envname</span>)
+
+<span class='fu'>virtualenv_install</span>(<span class='no'>envname</span>, <span class='no'>packages</span>, <span class='kw'>ignore_installed</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+
+<span class='fu'>virtualenv_remove</span>(<span class='no'>envname</span>, <span class='kw'>packages</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>confirm</span> <span class='kw'>=</span> <span class='fu'>interactive</span>())</pre>
+    
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>envname</th>
+      <td><p>Name of virtual environment</p></td>
+    </tr>
+    <tr>
+      <th>packages</th>
+      <td><p>Character vector with package names to install or remove.</p></td>
+    </tr>
+    <tr>
+      <th>ignore_installed</th>
+      <td><p>Ignore any previously installed versions of packages</p></td>
+    </tr>
+    <tr>
+      <th>confirm</th>
+      <td><p>Confirm before removing packages or virtual environments</p></td>
+    </tr>
+    </table>
+    
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p><code>virtualenv_list()</code> returns a chracter vector with the names
+of available virtual environments. <code>virtualenv_root()</code> returns the
+root directory for virtual environments.</p>
+    
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>Virtual environments are by default located at <code>~/.virtualenvs</code>. You can change this
+behavior by defining the <code>WORKON_HOME</code> environment variable.</p>
+<p>Virtual environment functions are not supported on Windows (the use of
+<a href='conda-tools.html'>conda environments</a> is recommended on Windows).</p>
+    
+
+  </div>
+  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+    <h2>Contents</h2>
+    <ul class="nav nav-pills nav-stacked">
+      <li><a href="#arguments">Arguments</a></li>
+      
+      <li><a href="#value">Value</a></li>
+
+      <li><a href="#details">Details</a></li>
+          </ul>
+
   </div>
 </div>
 

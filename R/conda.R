@@ -15,7 +15,6 @@
 #'   `conda_binary()` returns the location of the main conda binary or `NULL`
 #'   if none can be found.
 #'
-#' @keywords internal
 #' @name conda-tools
 #'
 #' @importFrom jsonlite fromJSON

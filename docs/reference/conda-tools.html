@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Interface to conda utility commands — conda-tools • reticulate</title>
+<title>Interface to conda — conda-tools • reticulate</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -25,9 +25,9 @@
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-<meta property="og:title" content="Interface to conda utility commands — conda-tools" />
+<meta property="og:title" content="Interface to conda — conda-tools" />
 
-<meta property="og:description" content="Interface to conda utility commands" />
+<meta property="og:description" content="R functions for managing Python condaenvironments." />
 <meta name="twitter:card" content="summary" />
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
@@ -110,11 +110,11 @@
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Interface to conda utility commands</h1>
+    <h1>Interface to conda</h1>
     </div>
 
     
-    <p>Interface to conda utility commands</p>
+    <p>R functions for managing Python <a href='https://conda.io/docs/user-guide/tasks/manage-environments.html'>condaenvironments</a>.</p>
     
 
     <pre class="usage"><span class='fu'>conda_list</span>(<span class='kw'>conda</span> <span class='kw'>=</span> <span class='st'>"auto"</span>)
@@ -123,8 +123,8 @@
 
 <span class='fu'>conda_remove</span>(<span class='no'>envname</span>, <span class='kw'>packages</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>conda</span> <span class='kw'>=</span> <span class='st'>"auto"</span>)
 
-<span class='fu'>conda_install</span>(<span class='no'>envname</span>, <span class='no'>packages</span>, <span class='kw'>pip</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>pip_ignore_installed</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>conda</span> <span class='kw'>=</span> <span class='st'>"auto"</span>)
+<span class='fu'>conda_install</span>(<span class='no'>envname</span>, <span class='no'>packages</span>, <span class='kw'>forge</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>pip</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>pip_ignore_installed</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>conda</span> <span class='kw'>=</span> <span class='st'>"auto"</span>)
 
 <span class='fu'>conda_binary</span>(<span class='kw'>conda</span> <span class='kw'>=</span> <span class='st'>"auto"</span>)
 
@@ -135,8 +135,8 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>conda</th>
-      <td><p>Path to conda executable (or "auto" to find conda using the PATH
-and other conventional install locations).</p></td>
+      <td><p>Path to conda executable (or "auto" to find conda using the
+PATH and other conventional install locations).</p></td>
     </tr>
     <tr>
       <th>envname</th>
@@ -144,7 +144,11 @@ and other conventional install locations).</p></td>
     </tr>
     <tr>
       <th>packages</th>
-      <td><p>Character vector with package names to install.</p></td>
+      <td><p>Character vector with package names to install or remove.</p></td>
+    </tr>
+    <tr>
+      <th>forge</th>
+      <td><p>Include the <a href='https://conda-forge.org/'>Conda Forge</a> repository.</p></td>
     </tr>
     <tr>
       <th>pip</th>

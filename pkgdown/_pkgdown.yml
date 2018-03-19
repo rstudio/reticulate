@@ -14,16 +14,18 @@ navbar:
       href: index.html
     - text: "Articles"
       menu:
-        - text: "R Markdown Python Engine"
-          href: articles/r_markdown.html
+        - text: Using
         - text: "Calling Python from R"
           href: articles/calling_python.html
+        - text: "R Markdown Python Engine"
+          href: articles/r_markdown.html
+        - text: Advanced
         - text: "Python Version Configuration"
           href: articles/versions.html
-        - text: "Using reticulate in an R Package"
-          href: articles/package.html
         - text: "Arrays in R and Python"
           href: articles/arrays.html
+        - text: "Using reticulate in an R Package"
+          href: articles/package.html
     - text: "Reference"
       href: reference/index.html
     - text: "News"

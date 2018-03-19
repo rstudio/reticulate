@@ -41,20 +41,22 @@
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu">
-<li>
-      <a href="../articles/r_markdown.html">R Markdown Python Engine</a>
-    </li>
+<li class="dropdown-header">Using</li>
     <li>
       <a href="../articles/calling_python.html">Calling Python from R</a>
     </li>
     <li>
+      <a href="../articles/r_markdown.html">R Markdown Python Engine</a>
+    </li>
+    <li class="dropdown-header">Advanced</li>
+    <li>
       <a href="../articles/versions.html">Python Version Configuration</a>
     </li>
     <li>
-      <a href="../articles/package.html">Using reticulate in an R Package</a>
+      <a href="../articles/arrays.html">Arrays in R and Python</a>
     </li>
     <li>
-      <a href="../articles/arrays.html">Arrays in R and Python</a>
+      <a href="../articles/package.html">Using reticulate in an R Package</a>
     </li>
   </ul>
 </li>
@@ -108,6 +110,17 @@
 [25] "tests"            "vignettes"      </code></pre>
 <p>Functions and other data within Python modules and classes can be accessed via the <code>$</code> operator (analogous to the way you would interact with an R list, environment, or reference class).</p>
 <p>The <strong>reticulate</strong> package is compatible with all versions of Python &gt;= 2.7. Integration with NumPy is optional and requires NumPy &gt;= 1.6.</p>
+</div>
+<div id="python-version" class="section level2">
+<h2 class="hasAnchor">
+<a href="#python-version" class="anchor"></a>Python Version</h2>
+<p>By default, reticulate uses the version of Python found on your <code>PATH</code> (i.e. <code>Sys.which("python")</code>). The <code><a href="../reference/use_python.html">use_python()</a></code> function enables you to specify an alternate version, for example:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="kw">library</span>(reticulate)</a>
+<a class="sourceLine" id="cb3-2" data-line-number="2"><span class="kw"><a href="../reference/use_python.html">use_python</a></span>(<span class="st">"/usr/local/bin/python"</span>)</a></code></pre></div>
+<p>The <code><a href="../reference/use_python.html">use_virtualenv()</a></code> and <code><a href="../reference/use_python.html">use_condaenv()</a></code> functions enable you to specify versions of Python in virtual or conda environments, for example:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="kw">library</span>(reticulate)</a>
+<a class="sourceLine" id="cb4-2" data-line-number="2"><span class="kw"><a href="../reference/use_python.html">use_virtualenv</a></span>(<span class="st">"myenv"</span>)</a></code></pre></div>
+<p>See the article on <a href="versions.html">Python Version Configuration</a> for additional details.</p>
 </div>
 <div id="type-conversions" class="section level2">
 <h2 class="hasAnchor">
@@ -176,74 +189,74 @@
 <h2 class="hasAnchor">
 <a href="#importing-modules" class="anchor"></a>Importing Modules</h2>
 <p>The <code><a href="../reference/import.html">import()</a></code> function can be used to import any Python module. For example:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">difflib &lt;-<span class="st"> </span><span class="kw"><a href="../reference/import.html">import</a></span>(<span class="st">"difflib"</span>)</a>
-<a class="sourceLine" id="cb3-2" data-line-number="2">difflib<span class="op">$</span><span class="kw">ndiff</span>(foo, bar)</a>
-<a class="sourceLine" id="cb3-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb3-4" data-line-number="4">filecmp &lt;-<span class="st"> </span><span class="kw"><a href="../reference/import.html">import</a></span>(<span class="st">"filecmp"</span>)</a>
-<a class="sourceLine" id="cb3-5" data-line-number="5">filecmp<span class="op">$</span><span class="kw">cmp</span>(dir1, dir2)</a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1">difflib &lt;-<span class="st"> </span><span class="kw"><a href="../reference/import.html">import</a></span>(<span class="st">"difflib"</span>)</a>
+<a class="sourceLine" id="cb5-2" data-line-number="2">difflib<span class="op">$</span><span class="kw">ndiff</span>(foo, bar)</a>
+<a class="sourceLine" id="cb5-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb5-4" data-line-number="4">filecmp &lt;-<span class="st"> </span><span class="kw"><a href="../reference/import.html">import</a></span>(<span class="st">"filecmp"</span>)</a>
+<a class="sourceLine" id="cb5-5" data-line-number="5">filecmp<span class="op">$</span><span class="kw">cmp</span>(dir1, dir2)</a></code></pre></div>
 <p>The <code><a href="../reference/import.html">import_main()</a></code> and <code><a href="../reference/import.html">import_builtins()</a></code> functions give you access to the main module where code is executed by default and the collection of built in Python functions. For example:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">main &lt;-<span class="st"> </span><span class="kw"><a href="../reference/import.html">import_main</a></span>()</a>
-<a class="sourceLine" id="cb4-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb4-3" data-line-number="3">builtins &lt;-<span class="st"> </span><span class="kw"><a href="../reference/import.html">import_builtins</a></span>()</a>
-<a class="sourceLine" id="cb4-4" data-line-number="4">builtins<span class="op">$</span><span class="kw">print</span>(<span class="st">'foo'</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1">main &lt;-<span class="st"> </span><span class="kw"><a href="../reference/import.html">import_main</a></span>()</a>
+<a class="sourceLine" id="cb6-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb6-3" data-line-number="3">builtins &lt;-<span class="st"> </span><span class="kw"><a href="../reference/import.html">import_builtins</a></span>()</a>
+<a class="sourceLine" id="cb6-4" data-line-number="4">builtins<span class="op">$</span><span class="kw">print</span>(<span class="st">'foo'</span>)</a></code></pre></div>
 <p>The main module is generally useful if you have executed Python code from a file or string and want to get access to it’s results (see the section below for more details).</p>
 </div>
 <div id="sourcing-scripts" class="section level2">
 <h2 class="hasAnchor">
 <a href="#sourcing-scripts" class="anchor"></a>Sourcing Scripts</h2>
 <p>The <code><a href="../reference/source_python.html">source_python()</a></code> function will source a Python script and make the objects it creates available within an R environment (by default the calling environment). For example, consider the following Python script:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="kw">def</span> add(x, y):</a>
-<a class="sourceLine" id="cb5-2" data-line-number="2">  <span class="cf">return</span> x <span class="op">+</span> y</a></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="kw">def</span> add(x, y):</a>
+<a class="sourceLine" id="cb7-2" data-line-number="2">  <span class="cf">return</span> x <span class="op">+</span> y</a></code></pre></div>
 <p>We source it using the <code><a href="../reference/source_python.html">source_python()</a></code> function and then can call the <code>add()</code> function directly from R:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="kw"><a href="../reference/source_python.html">source_python</a></span>(<span class="st">'add.py'</span>)</a>
-<a class="sourceLine" id="cb6-2" data-line-number="2"><span class="kw">add</span>(<span class="dv">5</span>, <span class="dv">10</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="kw"><a href="../reference/source_python.html">source_python</a></span>(<span class="st">'add.py'</span>)</a>
+<a class="sourceLine" id="cb8-2" data-line-number="2"><span class="kw">add</span>(<span class="dv">5</span>, <span class="dv">10</span>)</a></code></pre></div>
 <pre><code>[1] 15</code></pre>
 </div>
 <div id="executing-code" class="section level2">
 <h2 class="hasAnchor">
 <a href="#executing-code" class="anchor"></a>Executing Code</h2>
 <p>You can execute Python code within the main module using the <code>py_run_file</code> and <code>py_run_string</code> functions. You can then access any objects created using the <code>py</code> object exported by reticulate:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="kw">library</span>(reticulate)</a>
-<a class="sourceLine" id="cb8-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb8-3" data-line-number="3"><span class="kw"><a href="../reference/py_run.html">py_run_file</a></span>(<span class="st">"script.py"</span>)</a>
-<a class="sourceLine" id="cb8-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb8-5" data-line-number="5"><span class="kw"><a href="../reference/py_run.html">py_run_string</a></span>(<span class="st">"x = 10"</span>)</a>
-<a class="sourceLine" id="cb8-6" data-line-number="6"></a>
-<a class="sourceLine" id="cb8-7" data-line-number="7"><span class="co"># access the python main module via the 'py' object</span></a>
-<a class="sourceLine" id="cb8-8" data-line-number="8">py<span class="op">$</span>x</a></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1"><span class="kw">library</span>(reticulate)</a>
+<a class="sourceLine" id="cb10-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb10-3" data-line-number="3"><span class="kw"><a href="../reference/py_run.html">py_run_file</a></span>(<span class="st">"script.py"</span>)</a>
+<a class="sourceLine" id="cb10-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb10-5" data-line-number="5"><span class="kw"><a href="../reference/py_run.html">py_run_string</a></span>(<span class="st">"x = 10"</span>)</a>
+<a class="sourceLine" id="cb10-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb10-7" data-line-number="7"><span class="co"># access the python main module via the 'py' object</span></a>
+<a class="sourceLine" id="cb10-8" data-line-number="8">py<span class="op">$</span>x</a></code></pre></div>
 </div>
 <div id="object-conversion" class="section level2">
 <h2 class="hasAnchor">
 <a href="#object-conversion" class="anchor"></a>Object Conversion</h2>
 <p>By default when Python objects are returned to R they are converted to their equivalent R types. However, if you’d rather make conversion from Python to R explicit and deal in native Python objects by default you can pass <code>convert = FALSE</code> to the <code>import</code> function. In this case Python to R conversion will be disabled for the module returned from <code>import</code>. For example:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="co"># import numpy and specify no automatic Python to R conversion</span></a>
-<a class="sourceLine" id="cb9-2" data-line-number="2">np &lt;-<span class="st"> </span><span class="kw"><a href="../reference/import.html">import</a></span>(<span class="st">"numpy"</span>, <span class="dt">convert =</span> <span class="ot">FALSE</span>)</a>
-<a class="sourceLine" id="cb9-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb9-4" data-line-number="4"><span class="co"># do some array manipulations with NumPy</span></a>
-<a class="sourceLine" id="cb9-5" data-line-number="5">a &lt;-<span class="st"> </span>np<span class="op">$</span><span class="kw">array</span>(<span class="kw">c</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">4</span>))</a>
-<a class="sourceLine" id="cb9-6" data-line-number="6">sum &lt;-<span class="st"> </span>a<span class="op">$</span><span class="kw">cumsum</span>()</a>
-<a class="sourceLine" id="cb9-7" data-line-number="7"></a>
-<a class="sourceLine" id="cb9-8" data-line-number="8"><span class="co"># convert to R explicitly at the end</span></a>
-<a class="sourceLine" id="cb9-9" data-line-number="9"><span class="kw"><a href="../reference/r-py-conversion.html">py_to_r</a></span>(sum)</a></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="co"># import numpy and specify no automatic Python to R conversion</span></a>
+<a class="sourceLine" id="cb11-2" data-line-number="2">np &lt;-<span class="st"> </span><span class="kw"><a href="../reference/import.html">import</a></span>(<span class="st">"numpy"</span>, <span class="dt">convert =</span> <span class="ot">FALSE</span>)</a>
+<a class="sourceLine" id="cb11-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb11-4" data-line-number="4"><span class="co"># do some array manipulations with NumPy</span></a>
+<a class="sourceLine" id="cb11-5" data-line-number="5">a &lt;-<span class="st"> </span>np<span class="op">$</span><span class="kw">array</span>(<span class="kw">c</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">4</span>))</a>
+<a class="sourceLine" id="cb11-6" data-line-number="6">sum &lt;-<span class="st"> </span>a<span class="op">$</span><span class="kw">cumsum</span>()</a>
+<a class="sourceLine" id="cb11-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb11-8" data-line-number="8"><span class="co"># convert to R explicitly at the end</span></a>
+<a class="sourceLine" id="cb11-9" data-line-number="9"><span class="kw"><a href="../reference/r-py-conversion.html">py_to_r</a></span>(sum)</a></code></pre></div>
 <p>As illustrated above, if you need access to an R object at end of your computations you can call the <code><a href="../reference/r-py-conversion.html">py_to_r()</a></code> function explicitly.</p>
 </div>
 <div id="getting-help" class="section level2">
 <h2 class="hasAnchor">
 <a href="#getting-help" class="anchor"></a>Getting Help</h2>
 <p>You can print documentation on any Python object using the <code><a href="../reference/py_help.html">py_help()</a></code> function. For example:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1">os &lt;-<span class="st"> </span><span class="kw"><a href="../reference/import.html">import</a></span>(<span class="st">"os"</span>)</a>
-<a class="sourceLine" id="cb10-2" data-line-number="2"><span class="kw"><a href="../reference/py_help.html">py_help</a></span>(os<span class="op">$</span>chdir)</a></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1">os &lt;-<span class="st"> </span><span class="kw"><a href="../reference/import.html">import</a></span>(<span class="st">"os"</span>)</a>
+<a class="sourceLine" id="cb12-2" data-line-number="2"><span class="kw"><a href="../reference/py_help.html">py_help</a></span>(os<span class="op">$</span>chdir)</a></code></pre></div>
 </div>
 <div id="lists-tuples-and-dictionaries" class="section level2">
 <h2 class="hasAnchor">
 <a href="#lists-tuples-and-dictionaries" class="anchor"></a>Lists, Tuples, and Dictionaries</h2>
 <p>The automatic conversion of R types to Python types works well in most cases, but occasionally you will need to be more explicit on the R side to provide Python the type it expects.</p>
 <p>For example, if a Python API requires a list and you pass a single element R vector it will be converted to a Python scalar. To overcome this simply use the R <code>list</code> function explicitly:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1">foo<span class="op">$</span><span class="kw">bar</span>(<span class="dt">indexes =</span> <span class="kw">list</span>(42L))</a></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1">foo<span class="op">$</span><span class="kw">bar</span>(<span class="dt">indexes =</span> <span class="kw">list</span>(42L))</a></code></pre></div>
 <p>Similarly, a Python API might require a <code>tuple</code> rather than a list. In that case you can use the <code><a href="../reference/tuple.html">tuple()</a></code> function:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1"><span class="kw"><a href="../reference/tuple.html">tuple</a></span>(<span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1"><span class="kw"><a href="../reference/tuple.html">tuple</a></span>(<span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span>)</a></code></pre></div>
 <p>R named lists are converted to Python dictionaries however you can also explicitly create a Python dictionary using the <code><a href="../reference/dict.html">dict()</a></code> function:</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1"><span class="kw"><a href="../reference/dict.html">dict</a></span>(<span class="dt">foo =</span> <span class="st">"bar"</span>, <span class="dt">index =</span> 42L)</a></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" data-line-number="1"><span class="kw"><a href="../reference/dict.html">dict</a></span>(<span class="dt">foo =</span> <span class="st">"bar"</span>, <span class="dt">index =</span> 42L)</a></code></pre></div>
 <p>This might be useful if you need to pass a dictionary that uses a more complex object (as opposed to a string) as it’s key.</p>
 </div>
 <div id="arrays" class="section level2">
@@ -252,8 +265,8 @@
 <p>R matrices and arrays are converted automatically to and from <a href="http://www.numpy.org/">NumPy</a> arrays.</p>
 <p>When converting from R to NumPy, the NumPy array is mapped directly to the underlying memory of the R array (no copy is made). In this case, the NumPy array uses a column-based in memory layout that is compatible with R (i.e. Fortran style rather than C style). When converting from NumPy to R, R receives a column-ordered copy of the NumPy array.</p>
 <p>You can also manually convert R arrays to NumPy using the <code><a href="../reference/np_array.html">np_array()</a></code> function. For example, you might do this if you needed to create a NumPy array with C rather than Fortran style in-memory layout (for higher performance in row-oriented computations) or if you wanted to control the data type of the NumPy array more explicitly. Here are some example uses of <code><a href="../reference/np_array.html">np_array()</a></code>:</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1">a &lt;-<span class="st"> </span><span class="kw"><a href="../reference/np_array.html">np_array</a></span>(<span class="kw">c</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">8</span>), <span class="dt">dtype =</span> <span class="st">"float16"</span>)</a>
-<a class="sourceLine" id="cb14-2" data-line-number="2">a &lt;-<span class="st"> </span><span class="kw"><a href="../reference/np_array.html">np_array</a></span>(<span class="kw">c</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">8</span>), <span class="dt">order =</span> <span class="st">"C"</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1">a &lt;-<span class="st"> </span><span class="kw"><a href="../reference/np_array.html">np_array</a></span>(<span class="kw">c</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">8</span>), <span class="dt">dtype =</span> <span class="st">"float16"</span>)</a>
+<a class="sourceLine" id="cb16-2" data-line-number="2">a &lt;-<span class="st"> </span><span class="kw"><a href="../reference/np_array.html">np_array</a></span>(<span class="kw">c</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">8</span>), <span class="dt">order =</span> <span class="st">"C"</span>)</a></code></pre></div>
 <p>Reasoning about arrays which use distinct in-memory orders can be tricky. The <a href="arrays.html">Arrays in R and Python</a> article provides additional details.</p>
 </div>
 <div id="dataframes" class="section level2">
@@ -283,37 +296,37 @@
 <h2 class="hasAnchor">
 <a href="#with-contexts" class="anchor"></a>With Contexts</h2>
 <p>The R <code>with</code> generic function can be used to interact with Python context manager objects (in Python you use the <code>with</code> keyword to do the same). For example:</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" data-line-number="1">py &lt;-<span class="st"> </span><span class="kw"><a href="../reference/import.html">import_builtins</a></span>()</a>
-<a class="sourceLine" id="cb15-2" data-line-number="2"><span class="kw">with</span>(py<span class="op">$</span><span class="kw">open</span>(<span class="st">"output.txt"</span>, <span class="st">"w"</span>) <span class="op">%as%</span><span class="st"> </span>file, {</a>
-<a class="sourceLine" id="cb15-3" data-line-number="3">  file<span class="op">$</span><span class="kw">write</span>(<span class="st">"Hello, there!"</span>)</a>
-<a class="sourceLine" id="cb15-4" data-line-number="4">})</a></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" data-line-number="1">py &lt;-<span class="st"> </span><span class="kw"><a href="../reference/import.html">import_builtins</a></span>()</a>
+<a class="sourceLine" id="cb17-2" data-line-number="2"><span class="kw">with</span>(py<span class="op">$</span><span class="kw">open</span>(<span class="st">"output.txt"</span>, <span class="st">"w"</span>) <span class="op">%as%</span><span class="st"> </span>file, {</a>
+<a class="sourceLine" id="cb17-3" data-line-number="3">  file<span class="op">$</span><span class="kw">write</span>(<span class="st">"Hello, there!"</span>)</a>
+<a class="sourceLine" id="cb17-4" data-line-number="4">})</a></code></pre></div>
 <p>This example opens a file and ensures that it is automatically closed at the end of the with block. Note the use of the <code>%as%</code> operator to alias the object created by the context manager.</p>
 </div>
 <div id="iterators" class="section level2">
 <h2 class="hasAnchor">
 <a href="#iterators" class="anchor"></a>Iterators</h2>
 <p>If a Python API returns an <a href="http://anandology.com/python-practice-book/iterators.html">iterator or generator</a> you can interact with it using the <code><a href="../reference/iterate.html">iterate()</a></code> function. The <code><a href="../reference/iterate.html">iterate()</a></code> function can be used to apply an R function to each item yielded by the iterator:</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1"><span class="kw"><a href="../reference/iterate.html">iterate</a></span>(iter, print)</a></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1"><span class="kw"><a href="../reference/iterate.html">iterate</a></span>(iter, print)</a></code></pre></div>
 <p>If you don’t pass a function to <code>iterate</code> the results will be collected into an R vector:</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" data-line-number="1">results &lt;-<span class="st"> </span><span class="kw"><a href="../reference/iterate.html">iterate</a></span>(iter)</a></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" data-line-number="1">results &lt;-<span class="st"> </span><span class="kw"><a href="../reference/iterate.html">iterate</a></span>(iter)</a></code></pre></div>
 <p>Note that the <code>Iterators</code> will be drained of their values by <code><a href="../reference/iterate.html">iterate()</a></code>:</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1">a &lt;-<span class="st"> </span><span class="kw"><a href="../reference/iterate.html">iterate</a></span>(iter) <span class="co"># results are not empty</span></a>
-<a class="sourceLine" id="cb18-2" data-line-number="2">b &lt;-<span class="st"> </span><span class="kw"><a href="../reference/iterate.html">iterate</a></span>(iter) <span class="co"># results are empty since items have already been drained</span></a></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" data-line-number="1">a &lt;-<span class="st"> </span><span class="kw"><a href="../reference/iterate.html">iterate</a></span>(iter) <span class="co"># results are not empty</span></a>
+<a class="sourceLine" id="cb20-2" data-line-number="2">b &lt;-<span class="st"> </span><span class="kw"><a href="../reference/iterate.html">iterate</a></span>(iter) <span class="co"># results are empty since items have already been drained</span></a></code></pre></div>
 <div id="element-level-iteration" class="section level3">
 <h3 class="hasAnchor">
 <a href="#element-level-iteration" class="anchor"></a>Element Level Iteration</h3>
 <p>You can also iterate on an element-by-element basis using the <code><a href="../reference/iterate.html">iter_next()</a></code> function. For example:</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" data-line-number="1"><span class="cf">while</span> (<span class="ot">TRUE</span>) {</a>
-<a class="sourceLine" id="cb19-2" data-line-number="2">  item &lt;-<span class="st"> </span><span class="kw"><a href="../reference/iterate.html">iter_next</a></span>(iter)</a>
-<a class="sourceLine" id="cb19-3" data-line-number="3">  <span class="cf">if</span> (<span class="kw">is.null</span>(item))</a>
-<a class="sourceLine" id="cb19-4" data-line-number="4">    <span class="cf">break</span></a>
-<a class="sourceLine" id="cb19-5" data-line-number="5">}</a></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" data-line-number="1"><span class="cf">while</span> (<span class="ot">TRUE</span>) {</a>
+<a class="sourceLine" id="cb21-2" data-line-number="2">  item &lt;-<span class="st"> </span><span class="kw"><a href="../reference/iterate.html">iter_next</a></span>(iter)</a>
+<a class="sourceLine" id="cb21-3" data-line-number="3">  <span class="cf">if</span> (<span class="kw">is.null</span>(item))</a>
+<a class="sourceLine" id="cb21-4" data-line-number="4">    <span class="cf">break</span></a>
+<a class="sourceLine" id="cb21-5" data-line-number="5">}</a></code></pre></div>
 <p>By default <code><a href="../reference/iterate.html">iter_next()</a></code> will return <code>NULL</code> when the iteration is complete but you can provide a custom <code>completed</code> value it will be returned instead. For example:</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" data-line-number="1"><span class="cf">while</span> (<span class="ot">TRUE</span>) {</a>
-<a class="sourceLine" id="cb20-2" data-line-number="2">  item &lt;-<span class="st"> </span><span class="kw"><a href="../reference/iterate.html">iter_next</a></span>(iter, <span class="dt">completed =</span> <span class="ot">NA</span>)</a>
-<a class="sourceLine" id="cb20-3" data-line-number="3">  <span class="cf">if</span> (<span class="kw">is.na</span>(item))</a>
-<a class="sourceLine" id="cb20-4" data-line-number="4">    <span class="cf">break</span></a>
-<a class="sourceLine" id="cb20-5" data-line-number="5">}</a></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" data-line-number="1"><span class="cf">while</span> (<span class="ot">TRUE</span>) {</a>
+<a class="sourceLine" id="cb22-2" data-line-number="2">  item &lt;-<span class="st"> </span><span class="kw"><a href="../reference/iterate.html">iter_next</a></span>(iter, <span class="dt">completed =</span> <span class="ot">NA</span>)</a>
+<a class="sourceLine" id="cb22-3" data-line-number="3">  <span class="cf">if</span> (<span class="kw">is.na</span>(item))</a>
+<a class="sourceLine" id="cb22-4" data-line-number="4">    <span class="cf">break</span></a>
+<a class="sourceLine" id="cb22-5" data-line-number="5">}</a></code></pre></div>
 <p>Note that some iterators/generators in Python are infinite. In that case the caller will need custom logic to determine when to terminate the loop.</p>
 </div>
 <div id="generators" class="section level3">
@@ -321,28 +334,28 @@
 <a href="#generators" class="anchor"></a>Generators</h3>
 <p>Python <a href="https://wiki.python.org/moin/Generators">generators</a> are functions that implement the Python iterator protocol. Similarly, the reticulate <code>generator()</code> function enables you to create a Python iterator from an R function.</p>
 <p>In Python, generators produce values using the <code>yield</code> keyword. In R, values are simply returned from the function. One benefit of the <code>yield</code> keyword is that it enables successive iterations to use the state of previous iterations. In R, this can be done by returning a function that mutates it’s enclosing environment via the &lt;&lt;- operator. For example:</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" data-line-number="1"><span class="co"># define a generator function</span></a>
-<a class="sourceLine" id="cb21-2" data-line-number="2">sequence_generator &lt;-<span class="cf">function</span>(start) {</a>
-<a class="sourceLine" id="cb21-3" data-line-number="3">  value &lt;-<span class="st"> </span>start</a>
-<a class="sourceLine" id="cb21-4" data-line-number="4">  <span class="cf">function</span>() {</a>
-<a class="sourceLine" id="cb21-5" data-line-number="5">    value &lt;&lt;-<span class="st"> </span>value <span class="op">+</span><span class="st"> </span><span class="dv">1</span></a>
-<a class="sourceLine" id="cb21-6" data-line-number="6">    value</a>
-<a class="sourceLine" id="cb21-7" data-line-number="7">  }</a>
-<a class="sourceLine" id="cb21-8" data-line-number="8">}</a>
-<a class="sourceLine" id="cb21-9" data-line-number="9"></a>
-<a class="sourceLine" id="cb21-10" data-line-number="10"><span class="co"># convert the function to a python iterator</span></a>
-<a class="sourceLine" id="cb21-11" data-line-number="11">iter &lt;-<span class="st"> </span><span class="kw"><a href="../reference/py_iterator.html">py_iterator</a></span>(<span class="kw">sequence_generator</span>(<span class="dv">10</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" data-line-number="1"><span class="co"># define a generator function</span></a>
+<a class="sourceLine" id="cb23-2" data-line-number="2">sequence_generator &lt;-<span class="cf">function</span>(start) {</a>
+<a class="sourceLine" id="cb23-3" data-line-number="3">  value &lt;-<span class="st"> </span>start</a>
+<a class="sourceLine" id="cb23-4" data-line-number="4">  <span class="cf">function</span>() {</a>
+<a class="sourceLine" id="cb23-5" data-line-number="5">    value &lt;&lt;-<span class="st"> </span>value <span class="op">+</span><span class="st"> </span><span class="dv">1</span></a>
+<a class="sourceLine" id="cb23-6" data-line-number="6">    value</a>
+<a class="sourceLine" id="cb23-7" data-line-number="7">  }</a>
+<a class="sourceLine" id="cb23-8" data-line-number="8">}</a>
+<a class="sourceLine" id="cb23-9" data-line-number="9"></a>
+<a class="sourceLine" id="cb23-10" data-line-number="10"><span class="co"># convert the function to a python iterator</span></a>
+<a class="sourceLine" id="cb23-11" data-line-number="11">iter &lt;-<span class="st"> </span><span class="kw"><a href="../reference/py_iterator.html">py_iterator</a></span>(<span class="kw">sequence_generator</span>(<span class="dv">10</span>))</a></code></pre></div>
 <p>If you want to indicate the end of the iteration, return <code>NULL</code> from the function:</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" data-line-number="1">sequence_generator &lt;-<span class="cf">function</span>(start) {</a>
-<a class="sourceLine" id="cb22-2" data-line-number="2">  value &lt;-<span class="st"> </span>start</a>
-<a class="sourceLine" id="cb22-3" data-line-number="3">  <span class="cf">function</span>() {</a>
-<a class="sourceLine" id="cb22-4" data-line-number="4">    value &lt;&lt;-<span class="st"> </span>value <span class="op">+</span><span class="st"> </span><span class="dv">1</span></a>
-<a class="sourceLine" id="cb22-5" data-line-number="5">    <span class="cf">if</span> (value <span class="op">&lt;</span><span class="st"> </span><span class="dv">100</span>)</a>
-<a class="sourceLine" id="cb22-6" data-line-number="6">      value</a>
-<a class="sourceLine" id="cb22-7" data-line-number="7">    <span class="cf">else</span></a>
-<a class="sourceLine" id="cb22-8" data-line-number="8">      <span class="ot">NULL</span></a>
-<a class="sourceLine" id="cb22-9" data-line-number="9">  }</a>
-<a class="sourceLine" id="cb22-10" data-line-number="10">}</a></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" data-line-number="1">sequence_generator &lt;-<span class="cf">function</span>(start) {</a>
+<a class="sourceLine" id="cb24-2" data-line-number="2">  value &lt;-<span class="st"> </span>start</a>
+<a class="sourceLine" id="cb24-3" data-line-number="3">  <span class="cf">function</span>() {</a>
+<a class="sourceLine" id="cb24-4" data-line-number="4">    value &lt;&lt;-<span class="st"> </span>value <span class="op">+</span><span class="st"> </span><span class="dv">1</span></a>
+<a class="sourceLine" id="cb24-5" data-line-number="5">    <span class="cf">if</span> (value <span class="op">&lt;</span><span class="st"> </span><span class="dv">100</span>)</a>
+<a class="sourceLine" id="cb24-6" data-line-number="6">      value</a>
+<a class="sourceLine" id="cb24-7" data-line-number="7">    <span class="cf">else</span></a>
+<a class="sourceLine" id="cb24-8" data-line-number="8">      <span class="ot">NULL</span></a>
+<a class="sourceLine" id="cb24-9" data-line-number="9">  }</a>
+<a class="sourceLine" id="cb24-10" data-line-number="10">}</a></code></pre></div>
 <p>Note that you can change the value that indicates the end of the iteration using the <code>completed</code> parameter (e.g. <code><a href="../reference/py_iterator.html">py_iterator(func, completed = NA)</a></code>).</p>
 </div>
 </div>
@@ -536,6 +549,7 @@
 <a href="#tocnav" class="anchor"></a>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
 <li><a href="#overview">Overview</a></li>
+      <li><a href="#python-version">Python Version</a></li>
       <li><a href="#type-conversions">Type Conversions</a></li>
       <li><a href="#importing-modules">Importing Modules</a></li>
       <li><a href="#sourcing-scripts">Sourcing Scripts</a></li>

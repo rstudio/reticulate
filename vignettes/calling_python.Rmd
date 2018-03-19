@@ -57,6 +57,10 @@ use_virtualenv("myenv")
 
 See the article on [Python Version Configuration](versions.html) for additional details.
 
+## Python Packages
+
+You can install any required Python packages using standard shell tools like `pip` and `conda`. Alternately, reticulate includes a set of functions for managing and installing packages within virtualenvs and Conda environments. See the article on [Installing Python Packages](https://rstudio.github.io/reticulate/articles/python_packages.html) for additional details.
+
 ## Type Conversions
 
 When calling into Python, R data types are automatically converted to their equivalent Python types. When values are returned from Python to R they are converted back to R types. Types are converted as follows:

@@ -163,6 +163,8 @@ os <- import("os")
 py_help(os$chdir)
 ```
 
+
+
 ## Lists, Tuples, and Dictionaries
 
 The automatic conversion of R types to Python types works well in most cases, but occasionally you will need to be more explicit on the R side to provide Python the type it expects.
@@ -187,6 +189,30 @@ dict(foo = "bar", index = 42L)
 
 This might be useful if you need to pass a dictionary that uses a more complex object (as opposed to a string) as it's key.
 
+## Numeric Types and Indexes
+
+R and Python have different default numeric types. If you write `42` in R it is considered a floating point number whereas `42` in Python is considered an integer.
+
+This means that when a Python API expects an integer, you need to be sure to use the `L` suffix within R. For example, if the `foo` function requires an integer as it's `index` argument you would do this:
+
+```r
+foo$bar(index = 42L)
+```
+
+Python collections are addressed using 0-based indices rather than the 1-based indices you might be familiar with from R. So to address the first item of an array in R you would write:
+
+```r
+items[[1]]
+```
+
+Whereas if you are calling a method in Python via reticulate that takes an index you would write this to address the first item:
+
+```r
+items$get(0L)
+```
+
+Note the use of the 0-based index as well as the `L` to indicate t that the value is an integer.
+
 ## Arrays
 
 R matrices and arrays are converted automatically to and from [NumPy](http://www.numpy.org/) arrays. 
@@ -201,6 +227,8 @@ a <- np_array(c(1:8), order = "C")
 ```
 
 Reasoning about arrays which use distinct in-memory orders can be tricky. The [Arrays in R and Python](arrays.html) article provides additional details.
+
+Also, always remember that when calling NumPy methods array indices are 0 rather than 1 based and require the `L` suffix to indicate they are integers.
 
 ## DataFrames
 

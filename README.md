@@ -13,7 +13,7 @@ The **reticulate** package provides a comprehensive set of tools for
 interopability between Python and R. The package includes facilites
 for:
 
-<img src="images/reticulated_python.png" width=200 align=right title="A reticulated python"/>
+<img src="images/reticulated_python.png" width=200 align=right style="margin-left: 15px;" title="A reticulated python"/>
 
   - Translation between R and Python objects (for example, between R and
     Pandas data frames, or between R matrices and NumPy arrays).
@@ -31,16 +31,44 @@ that uses Python for some of your work or a member of data science team
 that uses both languages, reticulate can dramatically streamline your
 workflow\!
 
-## Getting started
+### Getting started
 
-First, install **reticulate** from GitHub as follows:
+#### Installation
+
+Install the **reticulate** pacakge from GitHub as follows:
 
 ``` r
 devtools::install_github("rstudio/reticulate")
 ```
 
-Then, depending on your requirements, choose one or more of the
-following ways of integrating Python code into your R project:
+#### Python Version
+
+By default, reticulate uses the version of Python found on your `PATH`
+(i.e. `Sys.which("python")`). The `use_python()` function enables you to
+specify an alternate version, for example:
+
+``` r
+library(reticulate)
+use_python("/usr/local/bin/python")
+```
+
+The `use_virtualenv()` and `use_condaenv()` functions enable you to
+specify versions of Python in virtual or conda environments, for
+example:
+
+``` r
+library(reticulate)
+use_virtualenv("myenv")
+```
+
+See the article on [Python Version
+Configuration](https://rstudio.github.io/reticulate/articles/versions.html)
+for additional details.
+
+#### Calling Python
+
+There are a variety of ways to integrate Python code into your R
+project:
 
 1)  [Python in R Markdown](#python-in-r-markdown) — A new Python
     language engine for R Markdown that supports bi-directional

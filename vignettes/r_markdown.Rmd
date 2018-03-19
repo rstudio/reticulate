@@ -22,17 +22,15 @@ The **reticulate** package includes a Python engine for [R Markdown](http://rmar
 
 Python chunks behave very similar to R chunks (including graphical output from matplotlib) and the two languages have full access each other's objects. Built in conversion for many Python object types is provided, including [NumPy](http://www.numpy.org/) arrays and [Pandas](https://pandas.pydata.org/) data frames. 
 
-### Setup
+If you are using knitr version 1.18 or higher, then the reticulate Python engine will be enabled by default whenever reticulate is installed and no further setup is required. If you are running an earlier version of knitr or want to disable the use of the reticulate engine see the [Engine Setup] section below.
 
-If you are using knitr version 1.18 or higher, then the reticulate Python engine will be enabled by default whenever reticulate is installed and no further setup is required.
+## Python Version
 
-If you are using an earlier version of knitr then add this code to your setup chunk:
+By default, reticulate uses the version of Python found on your `PATH` (i.e. `Sys.which("python")`). If you want to use an alternate version you should add one of the `use_python()` family of functions to your R Markdown setup chunk, for example:
 
-![](images/reticulate_enable.png){.screenshot width="98%"}
+![](images/python_version.png){.screenshot width="98%"}
 
-If you do not wish to use the reticulate Python engine then set the `python.reticulate` chunk option to `FALSE`:
-
-![](images/reticulate_disable.png){.screenshot width="98%"}
+See the article on [Python Version Configuration](versions.html) for additional details on configuring Python versions (including the use of conda or virtualenv environments).
 
 ## Python Chunks
 
@@ -58,6 +56,15 @@ You can analagously access R objects within Python chunks via the `r` object. Fo
 
 ![](images/r_from_python.png){.screenshot width="98%"}
 
+## Engine Setup
+
+If you are using a version of knitr prior to 1.18 then add this code to your setup chunk to enable the reticulate Python engine:
+
+![](images/reticulate_enable.png){.screenshot width="98%"}
+
+If you do not wish to use the reticulate Python engine then set the `python.reticulate` chunk option to `FALSE`:
+
+![](images/reticulate_disable.png){.screenshot width="98%"}
 
 
 

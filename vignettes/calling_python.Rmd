@@ -39,6 +39,24 @@ Functions and other data within Python modules and classes can be accessed via t
 
 The **reticulate** package is compatible with all versions of Python >= 2.7. Integration with NumPy is optional and requires NumPy >= 1.6.
 
+## Python Version
+
+By default, reticulate uses the version of Python found on your `PATH` (i.e. `Sys.which("python")`). The `use_python()` function enables you to specify an alternate version, for example:
+
+```r
+library(reticulate)
+use_python("/usr/local/bin/python")
+```
+
+The `use_virtualenv()` and `use_condaenv()` functions enable you to specify versions of Python in virtual or conda environments, for example:
+
+```r
+library(reticulate)
+use_virtualenv("myenv")
+```
+
+See the article on [Python Version Configuration](versions.html) for additional details.
+
 ## Type Conversions
 
 When calling into Python, R data types are automatically converted to their equivalent Python types. When values are returned from Python to R they are converted back to R types. Types are converted as follows:

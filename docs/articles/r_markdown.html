@@ -97,15 +97,14 @@
 <a href="#overview" class="anchor"></a>Overview</h2>
 <p>The <strong>reticulate</strong> package includes a Python engine for <a href="http://rmarkdown.rstudio.com">R Markdown</a> that enables easy interoperabilty between Python and R chunks.</p>
 <p>Python chunks behave very similar to R chunks (including graphical output from matplotlib) and the two languages have full access each other’s objects. Built in conversion for many Python object types is provided, including <a href="http://www.numpy.org/">NumPy</a> arrays and <a href="https://pandas.pydata.org/">Pandas</a> data frames.</p>
-<div id="setup" class="section level3">
-<h3 class="hasAnchor">
-<a href="#setup" class="anchor"></a>Setup</h3>
-<p>If you are using knitr version 1.18 or higher, then the reticulate Python engine will be enabled by default whenever reticulate is installed and no further setup is required.</p>
-<p>If you are using an earlier version of knitr then add this code to your setup chunk:</p>
-<p><img src="images/reticulate_enable.png" class="screenshot" style="width:98.0%"></p>
-<p>If you do not wish to use the reticulate Python engine then set the <code>python.reticulate</code> chunk option to <code>FALSE</code>:</p>
-<p><img src="images/reticulate_disable.png" class="screenshot" style="width:98.0%"></p>
+<p>If you are using knitr version 1.18 or higher, then the reticulate Python engine will be enabled by default whenever reticulate is installed and no further setup is required. If you are running an earlier version of knitr or want to disable the use of the reticulate engine see the <a href="#engine-setup">Engine Setup</a> section below.</p>
 </div>
+<div id="python-version" class="section level2">
+<h2 class="hasAnchor">
+<a href="#python-version" class="anchor"></a>Python Version</h2>
+<p>By default, reticulate uses the version of Python found on your <code>PATH</code> (i.e. <code>Sys.which("python")</code>). If you want to use an alternate version you should add one of the <code><a href="../reference/use_python.html">use_python()</a></code> family of functions to your R Markdown setup chunk, for example:</p>
+<p><img src="images/python_version.png" class="screenshot" style="width:98.0%"></p>
+<p>See the article on <a href="https://rstudio.github.io/reticulate/articles/versions.html">Python Version Configuration</a> for additional details on configuration Python versions (including the use of conda or virtualenv environments).</p>
 </div>
 <div id="python-chunks" class="section level2">
 <h2 class="hasAnchor">
@@ -128,6 +127,14 @@
 <p>You can analagously access R objects within Python chunks via the <code>r</code> object. For example:</p>
 <p><img src="images/r_from_python.png" class="screenshot" style="width:98.0%"></p>
 </div>
+<div id="engine-setup" class="section level2">
+<h2 class="hasAnchor">
+<a href="#engine-setup" class="anchor"></a>Engine Setup</h2>
+<p>If you are using an earlier version of knitr then add this code to your setup chunk:</p>
+<p><img src="images/reticulate_enable.png" class="screenshot" style="width:98.0%"></p>
+<p>If you do not wish to use the reticulate Python engine then set the <code>python.reticulate</code> chunk option to <code>FALSE</code>:</p>
+<p><img src="images/reticulate_disable.png" class="screenshot" style="width:98.0%"></p>
+</div>
 </div>
   </div>
 
@@ -137,9 +144,11 @@
 <a href="#tocnav" class="anchor"></a>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
 <li><a href="#overview">Overview</a></li>
+      <li><a href="#python-version">Python Version</a></li>
       <li><a href="#python-chunks">Python Chunks</a></li>
       <li><a href="#calling-python-from-r">Calling Python from R</a></li>
       <li><a href="#calling-r-from-python">Calling R from Python</a></li>
+      <li><a href="#engine-setup">Engine Setup</a></li>
       </ul>
 </div>
       </div>

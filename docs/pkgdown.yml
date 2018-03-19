@@ -6,6 +6,7 @@ articles:
   calling_python: calling_python.html
   extra.css: extra.css
   python_chunks.png: images/python_chunks.png
+  python_version.png: images/python_version.png
   r_from_python.png: images/r_from_python.png
   reticulate_disable.png: images/reticulate_disable.png
   reticulate_enable.png: images/reticulate_enable.png

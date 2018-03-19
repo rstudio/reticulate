@@ -20,7 +20,20 @@ knitr::opts_chunk$set(eval = FALSE)
 
 If you write an R package that wraps one or more Python packages, it's likely that you'll be importing Python modules within the `.onLoad` method of your package so that you can have convenient access to them within the rest of the package source code.
 
-When you do this, you should use the `delay_load` flag to the `import()` function. This has two benefits:
+When you do this, you should use the `delay_load` flag to the `import()` function, for example:
+
+```r
+# global reference to scipy (will be initialized in .onLoad)
+scipy <- NULL
+
+.onLoad <- function(libname, pkgname) {
+  # use superassignment to update global reference to scipy
+  scipy <<- reticulate::import("scipy", delay_load = TRUE)
+}
+```
+
+
+Using the `delay_load` flag has two important benefits:
 
 1. It allows you to successfully load your package even when Python / Python packages are not installed on the target system (this is particularly important when testing on CRAN build machines).
 
@@ -44,12 +57,12 @@ There are two things you should do to ensure your package is well behaved on CRA
 1. Use the `delay_load` option (as described above) to ensure that the module (and Python) is loaded only on it's first use. For example:
 
     ```{r}
-    # python 'foo' module I want to use in my package
-    foo <- NULL
+    # python 'scipy' module I want to use in my package
+    scipy <- NULL
     
     .onLoad <- function(libname, pkgname) {
       # delay load foo module (will only be loaded when accessed via $)
-      foo <<- import("foo", delay_load = TRUE)
+      scipy <<- import("scipy", delay_load = TRUE)
     }
     ```
 
@@ -57,15 +70,15 @@ There are two things you should do to ensure your package is well behaved on CRA
 
     ```{r}
     # helper function to skip tests if we don't have the 'foo' module
-    skip_if_no_foo <- function() {
-      have_foo <- py_module_available("foo")
-      if (!have_foo)
-        skip("foo not available for testing")
+    skip_if_no_scipy <- function() {
+      have_scipy <- py_module_available("scipy")
+      if (!have_scipy)
+        skip("scipy not available for testing")
     }
     
     # then call this function from all of your tests
     test_that("Things work as expected", {
-      skip_if_no_foo()
+      skip_if_no_scipy()
       # test code here...
     })
     ```

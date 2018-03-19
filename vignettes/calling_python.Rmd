@@ -230,7 +230,7 @@ Reasoning about arrays which use distinct in-memory orders can be tricky. The [A
 
 Also, always remember that when calling NumPy methods array indices are 0 rather than 1 based and require the `L` suffix to indicate they are integers.
 
-## DataFrames
+## Data Frames
 
 R data frames can be automatically converted to and from [Pandas](https://pandas.pydata.org/) DataFrames. By default, columns are converted using the same rules governing R array <-> NumPy array conversion, but a couple extensions are provided:
 

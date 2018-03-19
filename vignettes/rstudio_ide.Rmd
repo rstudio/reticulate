@@ -1,0 +1,16 @@
+---
+title: "RStudio IDE Tools for Python"
+output: 
+  rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{RStudio IDE Tools for Python}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(eval = FALSE)
+```
+
+<link rel="stylesheet" type="text/css" href="extra.css"/>

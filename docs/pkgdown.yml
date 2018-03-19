@@ -14,5 +14,6 @@ articles:
   package: package.html
   python_packages: python_packages.html
   r_markdown: r_markdown.html
+  rstudio_ide: rstudio_ide.html
   versions: versions.html
 

@@ -1,22 +1,25 @@
-#' Interface to conda utility commands
-#' 
+#' Interface to conda
+#'
+#' R functions for managing Python [conda
+#' environments](https://conda.io/docs/user-guide/tasks/manage-environments.html).
+#'
 #' @param envname Name of conda environment
-#' @param conda Path to conda executable (or "auto" to find conda using the PATH
-#'   and other conventional install locations).
-#' @param packages Character vector with package names to install.
+#' @param conda Path to conda executable (or "auto" to find conda using the
+#'   PATH and other conventional install locations).
+#' @param packages Character vector with package names to install or remove.
 #' @param pip `TRUE` to use pip (defaults to `FALSE`)
-#'   
+#'
 #' @return `conda_list()` returns a data frame with the names and paths to the
 #'   respective python binaries of available environments. `conda_create()`
 #'   returns the Path to the python binary of the created environment.
 #'   `conda_binary()` returns the location of the main conda binary or `NULL`
 #'   if none can be found.
-#'   
-#' @keywords intername
+#'
+#' @keywords internal
 #' @name conda-tools
-#' 
+#'
 #' @importFrom jsonlite fromJSON
-#'   
+#'
 #' @export
 conda_list <- function(conda = "auto") {
   
@@ -110,6 +113,7 @@ conda_remove <- function(envname, packages = NULL, conda = "auto") {
   }
 }
 
+#' @param forge Include the [Conda Forge](https://conda-forge.org/) repository.
 #' @param pip_ignore_installed Ignore installed versions when using pip. This is `TRUE` by default
 #'   so that specific package versions can be installed even if they are downgrades. The `FALSE` 
 #'   option is useful for situations where you don't want a pip install to attempt an overwrite
@@ -121,7 +125,7 @@ conda_remove <- function(envname, packages = NULL, conda = "auto") {
 #' @keywords internal
 #' 
 #' @export
-conda_install <- function(envname, packages, pip = FALSE, pip_ignore_installed = TRUE, conda = "auto") {
+conda_install <- function(envname, packages, forge = TRUE, pip = FALSE, pip_ignore_installed = TRUE, conda = "auto") {
   
   # resolve conda binary
   conda <- conda_binary(conda)
@@ -139,8 +143,11 @@ conda_install <- function(envname, packages, pip = FALSE, pip_ignore_installed =
     result <- system(cmd)
     
   } else {
-    # use native conda package manager
-    result <- system2(conda, shQuote(c("install", "--yes", "--name", envname, packages)))
+    args <- c("install")
+    if (forge)
+      args <- c(args, "-c", "conda-forge")
+    args <- c(args, "--yes", "--name", envname, packages)
+    result <- system2(conda, shQuote(args))
   }
   
   # check for errors

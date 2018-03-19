@@ -23,6 +23,10 @@ Install the development version with: `install_github("rstudio/reticulate")`
 
 - Fix leak which occurred when assigning R objects into Python containers
 
+- Add support for Conda Forge (enabled by default) to `conda_install()`
+
+- Added functions for managing Python virtual environments (virtualenv)
+
 
 ## reticulate 1.5 (CRAN)
 

@@ -8,7 +8,7 @@
 \alias{conda_install}
 \alias{conda_binary}
 \alias{conda_version}
-\title{Interface to conda utility commands}
+\title{Interface to conda}
 \usage{
 conda_list(conda = "auto")
 
@@ -16,20 +16,22 @@ conda_create(envname, packages = "python", conda = "auto")
 
 conda_remove(envname, packages = NULL, conda = "auto")
 
-conda_install(envname, packages, pip = FALSE, pip_ignore_installed = TRUE,
-  conda = "auto")
+conda_install(envname, packages, forge = TRUE, pip = FALSE,
+  pip_ignore_installed = TRUE, conda = "auto")
 
 conda_binary(conda = "auto")
 
 conda_version(conda = "auto")
 }
 \arguments{
-\item{conda}{Path to conda executable (or "auto" to find conda using the PATH
-and other conventional install locations).}
+\item{conda}{Path to conda executable (or "auto" to find conda using the
+PATH and other conventional install locations).}
 
 \item{envname}{Name of conda environment}
 
-\item{packages}{Character vector with package names to install.}
+\item{packages}{Character vector with package names to install or remove.}
+
+\item{forge}{Include the \href{https://conda-forge.org/}{Conda Forge} repository.}
 
 \item{pip}{\code{TRUE} to use pip (defaults to \code{FALSE})}
 
@@ -47,7 +49,6 @@ returns the Path to the python binary of the created environment.
 if none can be found.
 }
 \description{
-Interface to conda utility commands
+R functions for managing Python \href{https://conda.io/docs/user-guide/tasks/manage-environments.html}{condaenvironments}.
 }
 \keyword{internal}
-\keyword{intername}

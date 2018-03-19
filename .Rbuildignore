@@ -6,12 +6,10 @@
 ^images$
 README.[R]?md
 README.html
-images
+index.Rmd
 .Renviron
 LICENSE
 .travis.yml
-travis_install.sh
 ^_pkgdown\.yml$
 ^appveyor\.yml$
-^website$
 ^pkgdown$

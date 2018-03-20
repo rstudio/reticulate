@@ -5,12 +5,18 @@ articles:
   arrays: arrays.html
   calling_python: calling_python.html
   extra.css: extra.css
+  code_completion.png: images/code_completion.png
+  help.png: images/help.png
   python_chunks.png: images/python_chunks.png
   python_version.png: images/python_version.png
   r_from_python.png: images/r_from_python.png
+  repl_python.png: images/repl_python.png
   reticulate_disable.png: images/reticulate_disable.png
   reticulate_enable.png: images/reticulate_enable.png
   rmarkdown_engine_zoomed.png: images/rmarkdown_engine_zoomed.png
+  rmarkdown_reticulate.png: images/rmarkdown_reticulate.png
+  rmarkdown_reticulate_matplotlib.png: images/rmarkdown_reticulate_matplotlib.png
+  source_python.png: images/source_python.png
   package: package.html
   python_packages: python_packages.html
   r_markdown: r_markdown.html

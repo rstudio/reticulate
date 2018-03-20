@@ -53,6 +53,52 @@ You can download the current daily build of RStudio for various platforms here:
 Note that RStudio daily builds are intended for testing purposes, and are not recommended for general use. If you use the daily build to try out the new features please report bugs at <https://github.com/rstudio/rstudio/issues>.
 </div>
 
+Al of the features described below require that you have previously installed the reticulate package, which you can do as follows:
+
+```r
+devtools::install_github("rstudio/reticulate")
+```
+
+## R Notebooks
+
+R Notebooks have been enhanced to support executing Python chunks using the reticulate Python engine. For example:
+
+![](images/rmarkdown_reticulate.png){.screenshot width="98%"}
+
+### matplotlib
+
+R Notebooks can also display matplotlib plots inline when they are printed from Python chunks:
+
+![](images/rmarkdown_reticulate_matplotlib.png){.screenshot width="98%"}
+
+
+## Line-by-Line Execution
+
+You can execute code from Python scripts line-by-line using the **Run** button (or Control+Enter) in the same way as you execute R code line-by-line. RStudio will automatically switch into reticulate's `repl_python()` mode whenever you execute lines from a Python script:
+
+![](images/repl_python.png){.screenshot width="98%"}
+
+Type `exit` from the Python REPL to exit back into R (RStudio will also automatically switch back to R mode whenever you execute code from an R script).
+
+## Sourcing Scripts
+
+Click the editor's **Source Script** button within a Python source file to execute a script using reticulate's `source_python()` function:
+
+![](images/source_python.png){.screenshot width="98%"}
+
+
+## Completion and Help
+
+RStudio now provides code completion for Python scripts:
+
+![](images/code_completion.png){.screenshot width="98%"}
+
+
+Additionally, pressing the F1 button over a Python symbol will display the help topic for that symbol:
+
+![](images/help.png){.screenshot width="98%"}
+
+
 
 
 

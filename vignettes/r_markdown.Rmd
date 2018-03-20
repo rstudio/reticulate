@@ -42,6 +42,8 @@ Here's an R Markdown document that demonstrates this:
 
 ![](images/python_chunks.png){.screenshot width="98%"}
 
+Note that the [daily build](https://dailies.rstudio.com) of RStudio includes support for using reticulate to execute Python chunks within R Notebooks. See the [RStudio IDE Tools for reticulate](rstudio_ide.html) article for additional details.
+
 ## Calling Python from R
 
 All objects created within Python chunks are available to R using the `py` object exported by the reticulate package. For example, the following code demonstrates reading and filtering a CSV file using Pandas then plotting the resulting data frame using ggplot2:

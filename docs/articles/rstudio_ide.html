@@ -115,7 +115,7 @@
 <li><p>Display of <a href="https://matplotlib.org/">matplotlib</a> plots within both notebook and console execution modes.</p></li>
 </ol>
 <p>A note about the philosophy behind Python tools within RStudio: these tools are not intended for standalone Python work but rather explicitly aimed at the <em>integration of Python into R projects</em> (and as such are closely tied to the reticulate package).</p>
-<p>There are many excellent IDEs for doing data science with Python including <a href="https://github.com/jupyterlab/jupyterlab">JupyterLab</a>, <a href="https://www.yhat.com/products/rodeo">Rodeo</a>, <a href="https://github.com/spyder-ide/spyder">Spyder</a>, and <a href="https://code.visualstudio.com/docs/languages/python">Visual Studio Code</a>, and we strongly recommend using one of them for Python-only projects. However, if you are using reticulated Python within an R project then RStudio provides a set of tools that we think you will find extremely helpful.</p>
+<p>There are many IDEs available for doing data science with Python including <a href="https://github.com/jupyterlab/jupyterlab">JupyterLab</a>, <a href="https://www.yhat.com/products/rodeo">Rodeo</a>, <a href="https://github.com/spyder-ide/spyder">Spyder</a>, and <a href="https://code.visualstudio.com/docs/languages/python">Visual Studio Code</a>, and we strongly recommend using one of them for Python-only projects. However, if you are using reticulated Python within an R project then RStudio provides a set of tools that we think you will find extremely helpful.</p>
 </div>
 <div id="installation" class="section level2">
 <h2 class="hasAnchor">
@@ -132,6 +132,41 @@
 <div class="alert alert-warning">
 <p>Note that RStudio daily builds are intended for testing purposes, and are not recommended for general use. If you use the daily build to try out the new features please report bugs at <a href="https://github.com/rstudio/rstudio/issues" class="uri">https://github.com/rstudio/rstudio/issues</a>.</p>
 </div>
+<p>Al of the features described below require that you have previously installed the reticulate package, which you can do as follows:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1">devtools<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/devtools/topics/install_github">install_github</a></span>(<span class="st">"rstudio/reticulate"</span>)</a></code></pre></div>
+</div>
+<div id="r-notebooks" class="section level2">
+<h2 class="hasAnchor">
+<a href="#r-notebooks" class="anchor"></a>R Notebooks</h2>
+<p>R Notebooks have been enhanced to support executing Python chunks using the reticulate Python engine. For example:</p>
+<p><img src="images/rmarkdown_reticulate.png" class="screenshot" style="width:98.0%"></p>
+<div id="matplotlib" class="section level3">
+<h3 class="hasAnchor">
+<a href="#matplotlib" class="anchor"></a>matplotlib</h3>
+<p>R Notebooks can also display matplotlib plots inline when they are printed from Python chunks:</p>
+<p><img src="images/rmarkdown_reticulate_matplotlib.png" class="screenshot" style="width:98.0%"></p>
+</div>
+</div>
+<div id="line-by-line-execution" class="section level2">
+<h2 class="hasAnchor">
+<a href="#line-by-line-execution" class="anchor"></a>Line-by-Line Execution</h2>
+<p>You can execute code from Python scripts line-by-line using the <strong>Run</strong> button (or Control+Enter) in the same way as you execute R code line-by-line. RStudio will automatically switch into reticulate’s <code><a href="../reference/repl_python.html">repl_python()</a></code> mode whenever you execute lines from a Python script:</p>
+<p><img src="images/repl_python.png" class="screenshot" style="width:98.0%"></p>
+<p>Type <code>exit</code> from the Python REPL to exit back into R (RStudio will also automatically switch back to R mode whenever you execute code from an R script).</p>
+</div>
+<div id="sourcing-scripts" class="section level2">
+<h2 class="hasAnchor">
+<a href="#sourcing-scripts" class="anchor"></a>Sourcing Scripts</h2>
+<p>Click the editor’s <strong>Source Script</strong> button within a Python source file to execute a script using reticulate’s <code><a href="../reference/source_python.html">source_python()</a></code> function:</p>
+<p><img src="images/source_python.png" class="screenshot" style="width:98.0%"></p>
+</div>
+<div id="completion-and-help" class="section level2">
+<h2 class="hasAnchor">
+<a href="#completion-and-help" class="anchor"></a>Completion and Help</h2>
+<p>RStudio now provides code completion for Python scripts:</p>
+<p><img src="images/code_completion.png" class="screenshot" style="width:98.0%"></p>
+<p>Additionally, pressing the F1 button over a Python symbol will display the help topic for that symbol:</p>
+<p><img src="images/help.png" class="screenshot" style="width:98.0%"></p>
 </div>
 </div>
   </div>
@@ -143,6 +178,10 @@
       <ul class="nav nav-pills nav-stacked">
 <li><a href="#overview">Overview</a></li>
       <li><a href="#installation">Installation</a></li>
+      <li><a href="#r-notebooks">R Notebooks</a></li>
+      <li><a href="#line-by-line-execution">Line-by-Line Execution</a></li>
+      <li><a href="#sourcing-scripts">Sourcing Scripts</a></li>
+      <li><a href="#completion-and-help">Completion and Help</a></li>
       </ul>
 </div>
       </div>

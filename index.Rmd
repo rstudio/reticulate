@@ -192,11 +192,11 @@ The following articles cover the various aspects of using **reticulate**:
 
 ## Why reticulate?
 
-From [Wikipedia](https://en.wikipedia.org/wiki/Reticulated_python):
+From the [Wikipedia](https://en.wikipedia.org/wiki/Reticulated_python) article on the reticulated python:
 
 > The reticulated python is a speicies of python found in Southeast Asia. They are the world's longest snakes and longest reptiles...The specific name, reticulatus, is Latin meaning "net-like", or reticulated, and is a reference to the complex colour pattern. 
 
-From [Merriam-Webster](https://www.merriam-webster.com/dictionary/reticulate):
+From the [Merriam-Webster](https://www.merriam-webster.com/dictionary/reticulate) definition of reticulate:
 
 > 1: resembling a net or network; especially : having veins, fibers, or lines crossing a reticulate leaf. 2: being or involving evolutionary change dependent on genetic recombination involving diverse interbreeding populations.
 

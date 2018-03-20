@@ -105,7 +105,7 @@ The main module is generally useful if you have executed Python code from a file
 
 The `source_python()` function will source a Python script and make the objects it creates available within an R environment (by default the calling environment). For example, consider the following Python script:
 
-```{python, eval=FALSE}
+```python
 def add(x, y):
   return x + y
 ```

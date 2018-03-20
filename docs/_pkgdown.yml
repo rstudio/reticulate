@@ -27,7 +27,8 @@ navbar:
         - text: "Using reticulate in an R Package"
           href: articles/package.html
         - text: "---"
-        - text: "RStudio IDE Tools for Python"
+        - text: "Tools"
+        - text: "RStudio IDE Tools for reticulate"
           href: articles/rstudio_ide.html
     - text: "Reference"
       href: reference/index.html

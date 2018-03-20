@@ -1,9 +1,9 @@
 ---
-title: "RStudio IDE Tools for Python"
+title: "RStudio IDE Tools for reticulate"
 output: 
   rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{RStudio IDE Tools for Python}
+  %\VignetteIndexEntry{RStudio IDE Tools for reticulate}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -19,22 +19,38 @@ knitr::opts_chunk$set(eval = FALSE)
 
 The current [daily builds](https://dailies.rstudio.com) of RStudio IDE include experimental support for the reticulate package, including:
 
-1) Support for executing Python chunks within R Notebooks
+1) Support for executing reticulated Python chunks within [R Notebooks](https://rmarkdown.rstudio.com/r_notebooks.html).
 
-2) 
+2) Line-by-line execution of Python code using the reticulate `repl_python()` function.
 
-### Philosophy
+3) Sourcing Python scripts using the reticulate `source_python()` function.
 
-A note about the philosophy behind the Python tools within RStudio: these tools are not intended for standalone Python work but rather explicitly aimed at the integration of Python into R projects (as such the tools are closely tied to the reticulate package). 
+4) Code completion and inline help for Python. 
 
-There are many excellent IDEs for doing data science with Python including JupyterLab, Rodeo, Spyder, and Visual Studio Code, and we strongly recommend using one of them for Python-only projects. However, if you are using "reticulated" Python within an R project then RStudio provides a set of tools that we think you will find extremely helpful.
+5) Display of [matplotlib](https://matplotlib.org/) plots within both notebook and console execution modes.
 
-### Installation
+A note about the philosophy behind Python tools within RStudio: these tools are not intended for standalone Python work but rather explicitly aimed at the *integration of Python into R projects* (and as such are closely tied to the reticulate package). 
 
-You can download the current daily build of RStudio here: <https://dailies.rstudio.com>
+There are many excellent IDEs for doing data science with Python including [JupyterLab](https://github.com/jupyterlab/jupyterlab), [Rodeo](https://www.yhat.com/products/rodeo), [Spyder](https://github.com/spyder-ide/spyder), and [Visual Studio Code](https://code.visualstudio.com/docs/languages/python), and we strongly recommend using one of them for Python-only projects. However, if you are using reticulated Python within an R project then RStudio provides a set of tools that we think you will find extremely helpful.
+
+## Installation
+
+You can download the current daily build of RStudio for various platforms here: 
+
+- [Windows Desktop](https://dailies.rstudio.com/rstudio/oss/windows/)
+
+- [Mac OS X Desktop](https://dailies.rstudio.com/rstudio/oss/mac/)
+
+- [Ubuntu Desktop](https://dailies.rstudio.com/rstudio/oss/ubuntu/amd64/)
+
+- [RedHat Server](https://dailies.rstudio.com/rstudioserver/oss/redhat6/x86_64/)
+
+- [Ubuntu Server](https://dailies.rstudio.com/rstudioserver/oss/ubuntu/amd64/)
+
+- [Other Platforms](https://dailies.rstudio.com)
 
 <div class="alert alert-warning">
-Note that RStudio daily builds are intended for testing purposes, and are not recommended for general use. If you use the daily build to try out the new Python features please report bugs at <https://github.com/rstudio/rstudio/issues>.
+Note that RStudio daily builds are intended for testing purposes, and are not recommended for general use. If you use the daily build to try out the new features please report bugs at <https://github.com/rstudio/rstudio/issues>.
 </div>
 
 

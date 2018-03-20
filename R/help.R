@@ -290,7 +290,10 @@ is_docutils_available <- function() {
 
 sphinx_doctree_from_doc <- function(doc) {
   docutils <- import("docutils")
-  docutils$core$publish_doctree(doc)
+  py_capture_output(
+    doctree <- docutils$core$publish_doctree(doc)
+  )
+  doctree
 }
 
 # Extract arguments descriptions for docs in TensorFlow-like styles

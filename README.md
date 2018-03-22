@@ -1,11 +1,11 @@
 
 # R Interface to Python
 
+[![CRAN\_Status\_Badge](https://www.r-pkg.org/badges/version/reticulate)](https://cran.r-project.org/package=reticulate)
 [![Travis-CI Build
 Status](https://travis-ci.org/rstudio/reticulate.svg?branch=master)](https://travis-ci.org/rstudio/reticulate)
 [![Appveyor Build
 Status](https://ci.appveyor.com/api/projects/status/github/rstudio/reticulate?svg=true)](https://ci.appveyor.com/project/rstudio/reticulate)
-[![CRAN\_Status\_Badge](https://www.r-pkg.org/badges/version/reticulate)](https://cran.r-project.org/package=reticulate)
 
 <link rel="stylesheet" type="text/css" href="articles/extra.css"/>
 
@@ -15,12 +15,12 @@ for:
 
 <img src="images/reticulated_python.png" width=200 align=right style="margin-left: 15px;" title="A reticulated python"/>
 
-  - Translation between R and Python objects (for example, between R and
-    Pandas data frames, or between R matrices and NumPy arrays).
-
   - Calling Python from R in a variety of ways including R Markdown,
     sourcing Python scripts, importing Python modules, and using Python
     interactively within an R session.
+
+  - Translation between R and Python objects (for example, between R and
+    Pandas data frames, or between R matrices and NumPy arrays).
 
   - Flexible binding to different versions of Python including virtual
     environments and Conda environments.
@@ -41,11 +41,13 @@ Install the **reticulate** pacakge from GitHub as follows:
 devtools::install_github("rstudio/reticulate")
 ```
 
-#### Python Version
+#### Python version
 
 By default, reticulate uses the version of Python found on your `PATH`
-(i.e. `Sys.which("python")`). The `use_python()` function enables you to
-specify an alternate version, for example:
+(i.e. `Sys.which("python")`).
+
+The `use_python()` function enables you to specify an alternate version,
+for example:
 
 ``` r
 library(reticulate)
@@ -65,10 +67,19 @@ See the article on [Python Version
 Configuration](https://rstudio.github.io/reticulate/articles/versions.html)
 for additional details.
 
+#### Python packages
+
+You can install any required Python packages using standard shell tools
+like `pip` and `conda`. Alternately, reticulate includes a set of
+functions for managing and installing packages within virtualenvs and
+Conda environments. See the article on [Installing Python
+Packages](https://rstudio.github.io/reticulate/articles/python_packages.html)
+for additional details.
+
 #### Calling Python
 
 There are a variety of ways to integrate Python code into your R
-project:
+projects:
 
 1)  [Python in R Markdown](#python-in-r-markdown) — A new Python
     language engine for R Markdown that supports bi-directional
@@ -231,22 +242,28 @@ the object just as if it was an instance of an R reference class.
 The following articles cover the various aspects of using
 **reticulate**:
 
-  - [R Markdown Python
-    Engine](https://rstudio.github.io/reticulate/articles/r_markdown.html)
-    — Provides details on using Python chunks within R Markdown
-    documents, including how call Python code from R chunks and
-    vice-versa.
-
   - [Calling Python from
     R](https://rstudio.github.io/reticulate/articles/calling_python.html)
     — Describes the various ways to access Python objects from R as well
     as functions available for more advanced interactions and conversion
     behavior.
 
+  - [R Markdown Python
+    Engine](https://rstudio.github.io/reticulate/articles/r_markdown.html)
+    — Provides details on using Python chunks within R Markdown
+    documents, including how call Python code from R chunks and
+    vice-versa.
+
   - [Python Version
     Configuration](https://rstudio.github.io/reticulate/articles/versions.html)
     — Describes facilities for determining which version of Python is
     used by reticulate within an R session.
+
+  - [Installing Python
+    Packages](https://rstudio.github.io/reticulate/articles/python_packages.html)
+    — Documentation on installing Python packages from PyPI or Conda,
+    and managing package installations using virtualenvs and Conda
+    environments.
 
   - [Using reticulate in an R
     Package](https://rstudio.github.io/reticulate/articles/package.html)
@@ -260,12 +277,22 @@ The following articles cover the various aspects of using
 
 ## Why reticulate?
 
-From [Wikipedia](https://en.wikipedia.org/wiki/Reticulated_python):
+From the [Wikipedia](https://en.wikipedia.org/wiki/Reticulated_python)
+article on the reticulated python:
 
 > The reticulated python is a speicies of python found in Southeast
 > Asia. They are the world’s longest snakes and longest reptiles…The
 > specific name, reticulatus, is Latin meaning “net-like”, or
 > reticulated, and is a reference to the complex colour pattern.
 
-The reticulate package enables a new flavor of “reticulated” Python code
-that is weaved closely together with R.
+From the
+[Merriam-Webster](https://www.merriam-webster.com/dictionary/reticulate)
+definition of reticulate:
+
+> 1: resembling a net or network; especially : having veins, fibers, or
+> lines crossing a reticulate leaf. 2: being or involving evolutionary
+> change dependent on genetic recombination involving diverse
+> interbreeding populations.
+
+The package enables you to *reticulate* Python code into R, creating a
+new breed of project that weaves together the two languages.

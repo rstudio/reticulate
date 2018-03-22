@@ -9,7 +9,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # R Interface to Python
 
-[![Travis-CI Build Status](https://travis-ci.org/rstudio/reticulate.svg?branch=master)](https://travis-ci.org/rstudio/reticulate) [![Appveyor Build Status](https://ci.appveyor.com/api/projects/status/github/rstudio/reticulate?svg=true)](https://ci.appveyor.com/project/rstudio/reticulate)  [![CRAN\_Status\_Badge](https://www.r-pkg.org/badges/version/reticulate)](https://cran.r-project.org/package=reticulate)
+[![CRAN\_Status\_Badge](https://www.r-pkg.org/badges/version/reticulate)](https://cran.r-project.org/package=reticulate)
+[![Travis-CI Build Status](https://travis-ci.org/rstudio/reticulate.svg?branch=master)](https://travis-ci.org/rstudio/reticulate) [![Appveyor Build Status](https://ci.appveyor.com/api/projects/status/github/rstudio/reticulate?svg=true)](https://ci.appveyor.com/project/rstudio/reticulate)  
 
 <link rel="stylesheet" type="text/css" href="articles/extra.css"/>
 
@@ -17,9 +18,9 @@ The **reticulate** package provides a comprehensive set of tools for interopabil
 
 <img src="images/reticulated_python.png" width=200 align=right style="margin-left: 15px;" title="A reticulated python"/>
 
-- Translation between R and Python objects (for example, between R and Pandas data frames, or between R matrices and NumPy arrays).
-
 - Calling Python from R in a variety of ways including R Markdown, sourcing Python scripts, importing Python modules, and using Python interactively within an R session.
+
+- Translation between R and Python objects (for example, between R and Pandas data frames, or between R matrices and NumPy arrays).
 
 - Flexible binding to different versions of Python including virtual environments and Conda environments.
 

@@ -1,7 +1,5 @@
 
-## reticulate 1.6 (development)
-
-Install the development version with: `install_github("rstudio/reticulate")`
+## reticulate 1.6 (CRAN)
 
 - `repl_python()` function implementing a lightweight Python REPL in R.
 
@@ -28,7 +26,7 @@ Install the development version with: `install_github("rstudio/reticulate")`
 - Added functions for managing Python virtual environments (virtualenv)
 
 
-## reticulate 1.5 (CRAN)
+## reticulate 1.5
 
 - Remove implicit documentation extraction for Python classes
 

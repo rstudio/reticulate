@@ -109,7 +109,7 @@
 <a href="#r-interface-to-python" class="anchor"></a>R Interface to Python</h1></div>
 
 <p><link rel="stylesheet" type="text/css" href="articles/extra.css"></p>
-<p>The <strong>reticulate</strong> package provides a comprehensive set of tools for interopability between Python and R. The package includes facilites for:</p>
+<p>The <strong>reticulate</strong> package provides a comprehensive set of tools for interopability between Python and R. The package includes facilities for:</p>
 <p><img src="images/reticulated_python.png" width="200" align="right" style="margin-left: 15px;" title="A reticulated python"></p>
 <ul>
 <li><p>Calling Python from R in a variety of ways including R Markdown, sourcing Python scripts, importing Python modules, and using Python interactively within an R session.</p></li>
@@ -123,7 +123,7 @@
 <div id="installation" class="section level4">
 <h4 class="hasAnchor">
 <a href="#installation" class="anchor"></a>Installation</h4>
-<p>Install the <strong>reticulate</strong> pacakge from GitHub as follows:</p>
+<p>Install the <strong>reticulate</strong> package from GitHub as follows:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1">devtools<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/devtools/topics/install_github">install_github</a></span>(<span class="st">"rstudio/reticulate"</span>)</a></code></pre></div>
 </div>
 <div id="python-version" class="section level4">
@@ -133,7 +133,7 @@
 <p>The <code><a href="reference/use_python.html">use_python()</a></code> function enables you to specify an alternate version, for example:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw">library</span>(reticulate)</a>
 <a class="sourceLine" id="cb2-2" data-line-number="2"><span class="kw"><a href="reference/use_python.html">use_python</a></span>(<span class="st">"/usr/local/bin/python"</span>)</a></code></pre></div>
-<p>The <code><a href="reference/use_python.html">use_virtualenv()</a></code> and <code><a href="reference/use_python.html">use_condaenv()</a></code> functions enable you to specify versions of Python in virtual or conda environments, for example:</p>
+<p>The <code><a href="reference/use_python.html">use_virtualenv()</a></code> and <code><a href="reference/use_python.html">use_condaenv()</a></code> functions enable you to specify versions of Python in virtual or Conda environments, for example:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="kw">library</span>(reticulate)</a>
 <a class="sourceLine" id="cb3-2" data-line-number="2"><span class="kw"><a href="reference/use_python.html">use_virtualenv</a></span>(<span class="st">"myenv"</span>)</a></code></pre></div>
 <p>See the article on <a href="https://rstudio.github.io/reticulate/articles/versions.html">Python Version Configuration</a> for additional details.</p>
@@ -177,7 +177,7 @@
 <div id="importing-python-modules" class="section level2">
 <h2 class="hasAnchor">
 <a href="#importing-python-modules" class="anchor"></a>Importing Python modules</h2>
-<p>You can use the <code><a href="reference/import.html">import()</a></code> function to import any Python module and call it from R. For example, this code imports the Python <code>os</code> module and calls some functions within it:</p>
+<p>You can use the <code><a href="reference/import.html">import()</a></code> function to import any Python module and call it from R. For example, this code imports the Python <code>os</code> module and calls the <code>listdir()</code> function:</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="kw">library</span>(reticulate)</a>
 <a class="sourceLine" id="cb4-2" data-line-number="2">os &lt;-<span class="st"> </span><span class="kw"><a href="reference/import.html">import</a></span>(<span class="st">"os"</span>)</a>
 <a class="sourceLine" id="cb4-3" data-line-number="3">os<span class="op">$</span><span class="kw">listdir</span>(<span class="st">"."</span>)</a></code></pre></div>

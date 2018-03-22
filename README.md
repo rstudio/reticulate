@@ -10,7 +10,7 @@ Status](https://ci.appveyor.com/api/projects/status/github/rstudio/reticulate?sv
 <link rel="stylesheet" type="text/css" href="articles/extra.css"/>
 
 The **reticulate** package provides a comprehensive set of tools for
-interopability between Python and R. The package includes facilites
+interopability between Python and R. The package includes facilities
 for:
 
 <img src="images/reticulated_python.png" width=200 align=right style="margin-left: 15px;" title="A reticulated python"/>
@@ -35,7 +35,7 @@ workflow\!
 
 #### Installation
 
-Install the **reticulate** pacakge from GitHub as follows:
+Install the **reticulate** package from GitHub as follows:
 
 ``` r
 devtools::install_github("rstudio/reticulate")
@@ -55,7 +55,7 @@ use_python("/usr/local/bin/python")
 ```
 
 The `use_virtualenv()` and `use_condaenv()` functions enable you to
-specify versions of Python in virtual or conda environments, for
+specify versions of Python in virtual or Conda environments, for
 example:
 
 ``` r
@@ -144,7 +144,7 @@ documentation for additional details.
 
 You can use the `import()` function to import any Python module and call
 it from R. For example, this code imports the Python `os` module and
-calls some functions within it:
+calls the `listdir()` function:
 
 ``` r
 library(reticulate)

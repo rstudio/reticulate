@@ -10,7 +10,7 @@ Status](https://ci.appveyor.com/api/projects/status/github/rstudio/reticulate?sv
 <link rel="stylesheet" type="text/css" href="articles/extra.css"/>
 
 The **reticulate** package provides a comprehensive set of tools for
-interopability between Python and R. The package includes facilities
+interoperability between Python and R. The package includes facilities
 for:
 
 <img src="images/reticulated_python.png" width=200 align=right style="margin-left: 15px;" title="A reticulated python"/>

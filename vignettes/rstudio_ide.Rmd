@@ -56,7 +56,7 @@ Note that RStudio daily builds are intended for testing purposes, and are not re
 Al of the features described below require that you have previously installed the reticulate package, which you can do as follows:
 
 ```r
-devtools::install_github("rstudio/reticulate")
+install.packages("reticulate")
 ```
 
 ## R Notebooks

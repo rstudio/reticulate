@@ -2,7 +2,7 @@
 % Please edit documentation in R/wrap_fn.R
 \name{wrap_fn}
 \alias{wrap_fn}
-\title{Wrap R function into Python function with the same signature.}
+\title{Wrap an R function in a Python function with the same signature.}
 \usage{
 wrap_fn(f)
 }
@@ -10,9 +10,9 @@ wrap_fn(f)
 \item{f}{An R function}
 }
 \value{
-A Python function with the same signature as \code{f}.
+A Python function that calls the R function \code{f} with the same signature.
 }
 \description{
-This function could wrap an R function into Python function with
+This function could wrap an R function in a Python function with
 the same signature. Note that this is function still experimental.
 }

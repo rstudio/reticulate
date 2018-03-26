@@ -1,6 +1,6 @@
 context("Function Wrapping")
 
-test_that("R functions can be wrapped into Python function with the same signature", {
+test_that("R functions can be wrapped in a Python function with the same signature", {
   skip_if_no_python()
   
   # R function
@@ -27,4 +27,7 @@ def f1(a, b=3):
   expect_equal(
     wrap_fn(f1)(1, 2),
     util$f1(1, 2))
+  expect_equal(
+    wrap_fn(f1)(a = 1, b = 2),
+    util$f1(a = 1, b = 2))
 })

@@ -16,13 +16,13 @@ get_signature <- function(sigs) {
   signature
 }
 
-#' Wrap R function into Python function with the same signature.
+#' Wrap an R function in a Python function with the same signature.
 #' 
-#' This function could wrap an R function into Python function with
+#' This function could wrap an R function in a Python function with
 #' the same signature. Note that this is function still experimental.
 #' 
 #' @param f An R function
-#' @return A Python function with the same signature as `f`.
+#' @return A Python function that calls the R function `f` with the same signature.
 #' 
 wrap_fn <- function(f) {
   sigs <- formals(f)

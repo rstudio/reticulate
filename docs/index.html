@@ -199,7 +199,7 @@
 <p>You can source any Python script just as you would source an R script using the <code><a href="reference/source_python.html">source_python()</a></code> function. For example, if you had the following Python script <em>flights.py</em>:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="im">import</span> pandas</a>
 <a class="sourceLine" id="cb6-2" data-line-number="2"><span class="kw">def</span> read_flights(<span class="bu">file</span>):</a>
-<a class="sourceLine" id="cb6-3" data-line-number="3">  flights <span class="op">=</span> pandas.read_csv(<span class="st">"flights.csv"</span>)</a>
+<a class="sourceLine" id="cb6-3" data-line-number="3">  flights <span class="op">=</span> pandas.read_csv(file)</a>
 <a class="sourceLine" id="cb6-4" data-line-number="4">  flights <span class="op">=</span> flights[flights[<span class="st">'dest'</span>] <span class="op">==</span> <span class="st">"ORD"</span>]</a>
 <a class="sourceLine" id="cb6-5" data-line-number="5">  flights <span class="op">=</span> flights[[<span class="st">'carrier'</span>, <span class="st">'dep_delay'</span>, <span class="st">'arr_delay'</span>]]</a>
 <a class="sourceLine" id="cb6-6" data-line-number="6">  flights <span class="op">=</span> flights.dropna()</a>
@@ -301,7 +301,7 @@
 <a href="#why-reticulate" class="anchor"></a>Why reticulate?</h2>
 <p>From the <a href="https://en.wikipedia.org/wiki/Reticulated_python">Wikipedia</a> article on the reticulated python:</p>
 <blockquote>
-<p>The reticulated python is a speicies of python found in Southeast Asia. They are the world’s longest snakes and longest reptiles…The specific name, reticulatus, is Latin meaning “net-like”, or reticulated, and is a reference to the complex colour pattern.</p>
+<p>The reticulated python is a species of python found in Southeast Asia. They are the world’s longest snakes and longest reptiles…The specific name, reticulatus, is Latin meaning “net-like”, or reticulated, and is a reference to the complex colour pattern.</p>
 </blockquote>
 <p>From the <a href="https://www.merriam-webster.com/dictionary/reticulate">Merriam-Webster</a> definition of reticulate:</p>
 <blockquote>

@@ -1,23 +1,19 @@
 get_signature <- function(sigs) {
-  signature <- ""
   sig_names <- names(sigs)
-  for(k in sig_names) {
-    if (isTRUE(sigs[[k]] == ""))
+  signature_strings <- lapply(sig_names, function(k) {
+    if (identical(sigs[[k]], quote(expr =)))
       # arg without default
-      signature <- paste0(signature, k)
+      k
     else {
       # arg with default
       py_value_str <- ifelse(
         is.character(sigs[[k]]),
         paste0("'", sigs[[k]], "'"),
         as.character(r_to_py(eval(sigs[[k]])))) 
-      signature <- paste0(signature, k, "=", py_value_str)
+      paste0(k, "=", py_value_str)
     }
-    # if this is not the last arg, append a comma
-    if (k != sig_names[length(sig_names)]) 
-      signature <- paste0(signature, ", ")
-  }
-  signature
+  })
+  paste(signature_strings, collapse = ", ")
 }
 
 #' Wrap an R function in a Python function with the same signature.
@@ -37,7 +33,8 @@ wrap_fn <- function(f) {
       func_signature <- func_pass_args <- ""
     } else {
       func_signature <- get_signature(sigs)
-      func_pass_args <- get_signature(lapply(sigs, function(sig) ""))
+      func_pass_args <- get_signature(
+        lapply(sigs, function(sig) quote(expr =)))
     }
     wrap_fn_util <- py_run_string(sprintf("
 def wrap_fn(f):

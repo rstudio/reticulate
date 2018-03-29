@@ -9,7 +9,7 @@ get_signature <- function(sigs) {
       # arg with default
       py_value_str <- ifelse(
         is.character(sigs[[k]]),
-        paste0("'", value, "'"),
+        paste0("'", sigs[[k]], "'"),
         as.character(r_to_py(eval(sigs[[k]])))) 
       signature <- paste0(signature, k, "=", py_value_str)
     }
@@ -23,7 +23,9 @@ get_signature <- function(sigs) {
 #' Wrap an R function in a Python function with the same signature.
 #' 
 #' This function could wrap an R function in a Python function with
-#' the same signature. Note that this is function still experimental.
+#' the same signature. Note that if the signature of the R function
+#' contain esoteric Python-incompatible constructs, the signature of 
+#' the returned function will be `function(...)`.
 #' 
 #' @param f An R function
 #' @return A Python function that calls the R function `f` with the same signature.

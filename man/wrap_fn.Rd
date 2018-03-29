@@ -14,5 +14,7 @@ A Python function that calls the R function \code{f} with the same signature.
 }
 \description{
 This function could wrap an R function in a Python function with
-the same signature. Note that this is function still experimental.
+the same signature. Note that if the signature of the R function
+contain esoteric Python-incompatible constructs, the signature of
+the returned function will be \code{function(...)}.
 }

@@ -33,7 +33,8 @@ Imports:
     utils,
     graphics,
     jsonlite,
-    Rcpp (>= 0.12.7)
+    Rcpp (>= 0.12.7),
+    Matrix
 Suggests:
     testthat,
     knitr,

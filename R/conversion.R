@@ -360,11 +360,9 @@ r_to_py.dgCMatrix <- function(x, convert = FALSE) {
   csc_x
 }
 
+#' @importFrom Matrix Matrix
 #' @export
 py_to_r.scipy.sparse.csc.csc_matrix <- function(x) {
   disable_conversion_scope(x)
-  converted <- as_r_value(x$toarray())
-  if (require("Matrix"))
-    converted <- Matrix(converted)
-  converted
+  Matrix(as_r_value(x$toarray()))
 }

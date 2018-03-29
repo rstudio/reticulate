@@ -17,35 +17,35 @@ def f1(a, b=3):
   # signatures should match
   inspect <- import("inspect")
   expect_equal(
-    inspect$getargspec(wrap_fn(f1)),
+    inspect$getargspec(py_func(f1)),
     inspect$getargspec(util$f1))
 
   # results should match
   expect_equal(
-    wrap_fn(f1)(1),
+    py_func(f1)(1),
     util$f1(1))
   expect_equal(
-    wrap_fn(f1)(1, 2),
+    py_func(f1)(1, 2),
     util$f1(1, 2))
   expect_equal(
-    wrap_fn(f1)(a = 1, b = 2),
+    py_func(f1)(a = 1, b = 2),
     util$f1(a = 1, b = 2))
   
   has_args <- function(f) {
     length(inspect$getargspec(f)$args) != 0
   }
   # Some micellaneous test cases which should not fail
-  expect_true(has_args(wrap_fn(function(a = c(1, 2, 3)) {})))
-  expect_true(has_args(wrap_fn(function(a = NULL) {})))
-  expect_true(has_args(wrap_fn(function(a = "abc") {})))
-  expect_true(has_args(wrap_fn(function(a, b = 3) {})))
-  expect_true(has_args(wrap_fn(function(a = list()) {})))
-  expect_true(has_args(wrap_fn(function(a = list("a", 1, list(3, "b", NULL))) {})))
-  # TODO: test case for wrap_fn(function(x = NA) {}) 
+  expect_true(has_args(py_func(function(a = c(1, 2, 3)) {})))
+  expect_true(has_args(py_func(function(a = NULL) {})))
+  expect_true(has_args(py_func(function(a = "abc") {})))
+  expect_true(has_args(py_func(function(a, b = 3) {})))
+  expect_true(has_args(py_func(function(a = list()) {})))
+  expect_true(has_args(py_func(function(a = list("a", 1, list(3, "b", NULL))) {})))
+  # TODO: test case for py_func(function(x = NA) {}) 
   # currently blocked by https://github.com/rstudio/reticulate/issues/197
   
   # Fallback to default behavior (e.g. function(...)) if the R function's signature
   # contains esoteric Python-incompatible constructs
-  expect_false(has_args(wrap_fn(function(a = 1, b) {})))
-  expect_false(has_args(wrap_fn(function(a.b) {})))
+  expect_false(has_args(py_func(function(a = 1, b) {})))
+  expect_false(has_args(py_func(function(a.b) {})))
 })

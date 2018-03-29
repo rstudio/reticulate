@@ -25,8 +25,8 @@ get_signature <- function(sigs) {
 #' 
 #' @param f An R function
 #' @return A Python function that calls the R function `f` with the same signature.
-#' 
-wrap_fn <- function(f) {
+#' @export
+py_func <- function(f) {
   tryCatch({
     sigs <- formals(f)
     if (is.null(sigs)) {

@@ -13,7 +13,6 @@ vignette: >
 knitr::opts_chunk$set(eval = FALSE)
 ```
 
-<link rel="stylesheet" type="text/css" href="extra.css"/>
 
 ## Locating Python
 

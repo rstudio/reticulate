@@ -12,9 +12,6 @@ vignette: >
 knitr::opts_chunk$set(eval = FALSE)
 ```
 
-<link rel="stylesheet" type="text/css" href="extra.css"/>
-
-
 Dense data are stored contiguously in memory, addressed by a single index (the
 memory address). Array memory ordering schemes translate that single index into
 multiple indices corresponding to the array coordinates. For example, matrices

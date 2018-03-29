@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>All news • reticulate</title>
+<title>Changelog • reticulate</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -25,7 +25,11 @@
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-<meta property="og:title" content="All news" />
+  <link href="../extra.css" rel="stylesheet">
+  
+<meta property="og:title" content="Changelog" />
+
+
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -33,6 +37,8 @@
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
+
+
 
 
   </head>
@@ -48,8 +54,12 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="../index.html">reticulate</a>
+      <span class="navbar-brand">
+        <a class="navbar-link" href="../index.html">reticulate</a>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">1.6</span>
+      </span>
     </div>
+
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
@@ -106,6 +116,7 @@
   </a>
 </li>
       </ul>
+      
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
@@ -117,12 +128,14 @@
 
   <div class="col-md-9">
     <div class="page-header">
-      <h1>Change log <small>All releases</small></h1>
+      <h1>Changelog <small></small></h1>
+      <small>Source: <a href='https://github.com/rstudio/reticulate/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
     <div class="contents">
-    <div class="section level2">
-<h2>reticulate 1.6 (CRAN)</h2>
+    <div id="reticulate-1-6-cran" class="section level2">
+<h2 class="hasAnchor">
+<a href="#reticulate-1-6-cran" class="anchor"></a>reticulate 1.6 (CRAN)</h2>
 <ul>
 <li><p><code><a href="../reference/repl_python.html">repl_python()</a></code> function implementing a lightweight Python REPL in R.</p></li>
 <li><p>Support for converting Pandas objects (<code>Index</code>, <code>Series</code>, <code>DataFrame</code>)</p></li>
@@ -137,16 +150,18 @@
 <li><p>Added functions for managing Python virtual environments (virtualenv)</p></li>
 </ul>
 </div>
-    <div class="section level2">
-<h2>reticulate 1.5</h2>
+    <div id="reticulate-1-5" class="section level2">
+<h2 class="hasAnchor">
+<a href="#reticulate-1-5" class="anchor"></a>reticulate 1.5</h2>
 <ul>
 <li><p>Remove implicit documentation extraction for Python classes</p></li>
 <li><p>Add <code>Library\bin</code> to PATH on Windows to ensure Anaconda can find MKL</p></li>
 <li><p>New <code><a href="../reference/source_python.html">source_python()</a></code> function for sourcing Python scripts into R environments.</p></li>
 </ul>
 </div>
-    <div class="section level2">
-<h2>reticulate 1.4</h2>
+    <div id="reticulate-1-4" class="section level2">
+<h2 class="hasAnchor">
+<a href="#reticulate-1-4" class="anchor"></a>reticulate 1.4</h2>
 <ul>
 <li><p>Support for <code>RETICULATE_DUMP_STACK_TRACE</code> environment variable which can be set to the number of milliseconds in which to output into stderr the call stacks from all running threads.</p></li>
 <li><p>Provide hook to change target module when delay loading</p></li>
@@ -155,14 +170,16 @@
 <li><p>Implement <code>eval</code>, <code>echo</code>, and <code>include</code> knitr chunk options for Python engine</p></li>
 </ul>
 </div>
-    <div class="section level2">
-<h2>reticulate 1.3.1</h2>
+    <div id="reticulate-1-3-1" class="section level2">
+<h2 class="hasAnchor">
+<a href="#reticulate-1-3-1" class="anchor"></a>reticulate 1.3.1</h2>
 <ul>
 <li>Bugfix: ensure single-line Python chunks that produce no output still have source code emitted.</li>
 </ul>
 </div>
-    <div class="section level2">
-<h2>reticulate 1.3</h2>
+    <div id="reticulate-1-3" class="section level2">
+<h2 class="hasAnchor">
+<a href="#reticulate-1-3" class="anchor"></a>reticulate 1.3</h2>
 <ul>
 <li><p>Use existing instance of Python when reticulate is loaded within an embedded Python environment (e.g. rpy2, rice, etc.)</p></li>
 <li><p>Force use of Python specified in PYTHON_SESSION_INITIALIZED (defined by rpy2)</p></li>
@@ -186,8 +203,9 @@
 <li><p>Implement <code>isatty</code> when providing custom Python output streams</p></li>
 </ul>
 </div>
-    <div class="section level2">
-<h2>reticulate 1.2</h2>
+    <div id="reticulate-1-2" class="section level2">
+<h2 class="hasAnchor">
+<a href="#reticulate-1-2" class="anchor"></a>reticulate 1.2</h2>
 <ul>
 <li><p>Add <code>np_array</code> function for creating NumPy arrays and converting the data type, dimensions, and in-memory ordering of existing NumPy arrays.</p></li>
 <li><p>Add <code>dim</code> and <code>length</code> functions for NumPy arrays</p></li>
@@ -200,8 +218,9 @@
 <li><p>Add <code>pip_ignore_installed</code> option to <code>conda_install</code> function.</p></li>
 </ul>
 </div>
-    <div class="section level2">
-<h2>reticulate 1.1</h2>
+    <div id="reticulate-1-1" class="section level2">
+<h2 class="hasAnchor">
+<a href="#reticulate-1-1" class="anchor"></a>reticulate 1.1</h2>
 <ul>
 <li><p>Allow <code><a href="../reference/dict.html">dict()</a></code> function to accept keys with mixed alpha/numeric characters</p></li>
 <li><p>Use <code><a href="../reference/conda-tools.html">conda_list()</a></code> to discover conda environments on Windows (slower but much more reliable than scanning the filesystem)</p></li>
@@ -209,8 +228,9 @@
 <li><p>Provide virtual/conda env hint mechanism for delay loaded imports</p></li>
 </ul>
 </div>
-    <div class="section level2">
-<h2>reticulate 1.0</h2>
+    <div id="reticulate-1-0" class="section level2">
+<h2 class="hasAnchor">
+<a href="#reticulate-1-0" class="anchor"></a>reticulate 1.0</h2>
 <ul>
 <li><p>Search WORKON_HOME (used by virtualenv_wrapper) for Python environments</p></li>
 <li><p>Support <code>priority</code> field for delay loaded modules.</p></li>
@@ -225,8 +245,9 @@
 <li><p>Ensure that existing warning filters aren’t reset by py_suppress_warnings</p></li>
 </ul>
 </div>
-    <div class="section level2">
-<h2>reticulate 0.9</h2>
+    <div id="reticulate-0-9" class="section level2">
+<h2 class="hasAnchor">
+<a href="#reticulate-0-9" class="anchor"></a>reticulate 0.9</h2>
 <ul>
 <li><p>Detect older versions of Anaconda during registry scanning.</p></li>
 <li><p>Don’t probe python versions on windows when no executable is found</p></li>
@@ -240,8 +261,9 @@
 <li><p>Search <code><a href="../reference/dict.html">dict()</a></code> parent frames for symbols; only use symbols which inherit from python.builtin.object as keys.</p></li>
 </ul>
 </div>
-    <div class="section level2">
-<h2>reticulate 0.8</h2>
+    <div id="reticulate-0-8" class="section level2">
+<h2 class="hasAnchor">
+<a href="#reticulate-0-8" class="anchor"></a>reticulate 0.8</h2>
 <ul>
 <li><p>Add <code><a href="../reference/import.html">import_from_path()</a></code> function for importing Python modules from the filesystem.</p></li>
 <li><p>Add <code><a href="../reference/py_discover_config.html">py_discover_config()</a></code> function to determine which versions of Python will be discovered and which one will be used by reticulate.</p></li>
@@ -276,8 +298,9 @@ primitive R functions (don’t check environment inheritance chain when looking 
 <li><p>Propagate <code>convert</code> parameter for modules with <code>delay_load</code></p></li>
 </ul>
 </div>
-    <div class="section level2">
-<h2>reticulate 0.7</h2>
+    <div id="reticulate-0-7" class="section level2">
+<h2 class="hasAnchor">
+<a href="#reticulate-0-7" class="anchor"></a>reticulate 0.7</h2>
 <ul>
 <li>Initial CRAN release</li>
 </ul>
@@ -289,17 +312,17 @@ primitive R functions (don’t check environment inheritance chain when looking 
     <div id="tocnav">
       <h2>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
-        <li><a href="#NA">1.6</a></li>
-        <li><a href="#NA">1.5</a></li>
-        <li><a href="#NA">1.4</a></li>
-        <li><a href="#NA">1.3.1</a></li>
-        <li><a href="#NA">1.3</a></li>
-        <li><a href="#NA">1.2</a></li>
-        <li><a href="#NA">1.1</a></li>
-        <li><a href="#NA">1.0</a></li>
-        <li><a href="#NA">0.9</a></li>
-        <li><a href="#NA">0.8</a></li>
-        <li><a href="#NA">0.7</a></li>
+        <li><a href="#reticulate-1-6-cran">1.6</a></li>
+        <li><a href="#reticulate-1-5">1.5</a></li>
+        <li><a href="#reticulate-1-4">1.4</a></li>
+        <li><a href="#reticulate-1-3-1">1.3.1</a></li>
+        <li><a href="#reticulate-1-3">1.3</a></li>
+        <li><a href="#reticulate-1-2">1.2</a></li>
+        <li><a href="#reticulate-1-1">1.1</a></li>
+        <li><a href="#reticulate-1-0">1.0</a></li>
+        <li><a href="#reticulate-0-9">0.9</a></li>
+        <li><a href="#reticulate-0-8">0.8</a></li>
+        <li><a href="#reticulate-0-7">0.7</a></li>
       </ul>
     </div>
   </div>
@@ -317,6 +340,8 @@ primitive R functions (don’t check environment inheritance chain when looking 
 
       </footer>
    </div>
+
+  
 
   </body>
 </html>

@@ -25,12 +25,16 @@
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
+  <link href="../extra.css" rel="stylesheet">
+  
 <meta property="og:title" content="Discover the version of Python to use with reticulate. — py_discover_config" />
 
 <meta property="og:description" content="This function enables callers to check which versions of Python will
 be discovered on a system as well as which one will be chosen for
 use with reticulate." />
 <meta name="twitter:card" content="summary" />
+
+
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -38,6 +42,8 @@ use with reticulate." />
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
+
+
 
 
   </head>
@@ -53,8 +59,12 @@ use with reticulate." />
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="../index.html">reticulate</a>
+      <span class="navbar-brand">
+        <a class="navbar-link" href="../index.html">reticulate</a>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">1.6</span>
+      </span>
     </div>
+
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
@@ -111,6 +121,7 @@ use with reticulate." />
   </a>
 </li>
       </ul>
+      
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
@@ -122,6 +133,7 @@ use with reticulate." />
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Discover the version of Python to use with reticulate.</h1>
+    <small>Source: <a href='https://github.com/rstudio/reticulate/blob/master/R/config.R'><code>R/config.R</code></a></small>
     </div>
 
     
@@ -132,7 +144,7 @@ use with reticulate.</p>
 
     <pre class="usage"><span class='fu'>py_discover_config</span>(<span class='kw'>required_module</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>use_environment</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
@@ -175,6 +187,8 @@ to prefer in the search</p></td>
 
       </footer>
    </div>
+
+  
 
   </body>
 </html>

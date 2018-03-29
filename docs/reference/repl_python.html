@@ -25,6 +25,8 @@
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
+  <link href="../extra.css" rel="stylesheet">
+  
 <meta property="og:title" content="Run a Python REPL — repl_python" />
 
 <meta property="og:description" content="This function provides a Python REPL in the R session, which can be used
@@ -32,6 +34,8 @@ to interactively run Python code. All code executed within the REPL is
 run within the Python main module, and any generated Python objects will
 persist in the Python session after the REPL is detached." />
 <meta name="twitter:card" content="summary" />
+
+
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -39,6 +43,8 @@ persist in the Python session after the REPL is detached." />
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
+
+
 
 
   </head>
@@ -54,8 +60,12 @@ persist in the Python session after the REPL is detached." />
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="../index.html">reticulate</a>
+      <span class="navbar-brand">
+        <a class="navbar-link" href="../index.html">reticulate</a>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">1.6</span>
+      </span>
     </div>
+
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
@@ -112,6 +122,7 @@ persist in the Python session after the REPL is detached." />
   </a>
 </li>
       </ul>
+      
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
@@ -123,6 +134,7 @@ persist in the Python session after the REPL is detached." />
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Run a Python REPL</h1>
+    <small>Source: <a href='https://github.com/rstudio/reticulate/blob/master/R/repl.R'><code>R/repl.R</code></a></small>
     </div>
 
     
@@ -135,7 +147,7 @@ persist in the Python session after the REPL is detached.</p>
     <pre class="usage"><span class='fu'>repl_python</span>(<span class='kw'>module</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>quiet</span> <span class='kw'>=</span> <span class='fu'>getOption</span>(<span class='st'>"reticulate.repl.quiet"</span>,
   <span class='kw'>default</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>))</pre>
     
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
@@ -206,6 +218,8 @@ py$dictionary
 
       </footer>
    </div>
+
+  
 
   </body>
 </html>

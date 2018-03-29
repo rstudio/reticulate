@@ -7,8 +7,6 @@ Status](https://travis-ci.org/rstudio/reticulate.svg?branch=master)](https://tra
 [![Appveyor Build
 Status](https://ci.appveyor.com/api/projects/status/github/rstudio/reticulate?svg=true)](https://ci.appveyor.com/project/rstudio/reticulate)
 
-<link rel="stylesheet" type="text/css" href="articles/extra.css"/>
-
 The **reticulate** package provides a comprehensive set of tools for
 interoperability between Python and R. The package includes facilities
 for:
@@ -284,10 +282,10 @@ The following articles cover the various aspects of using
 From the [Wikipedia](https://en.wikipedia.org/wiki/Reticulated_python)
 article on the reticulated python:
 
-> The reticulated python is a species of python found in Southeast
-> Asia. They are the world’s longest snakes and longest reptiles…The
-> specific name, reticulatus, is Latin meaning “net-like”, or
-> reticulated, and is a reference to the complex colour pattern.
+> The reticulated python is a species of python found in Southeast Asia.
+> They are the world’s longest snakes and longest reptiles…The specific
+> name, reticulatus, is Latin meaning “net-like”, or reticulated, and is
+> a reference to the complex colour pattern.
 
 From the
 [Merriam-Webster](https://www.merriam-webster.com/dictionary/reticulate)

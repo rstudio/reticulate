@@ -14,6 +14,8 @@ $(function() {
     offset: 60
   });
 
+  $('[data-toggle="tooltip"]').tooltip();
+
   var cur_path = paths(location.pathname);
   $("#navbar ul li a").each(function(index, value) {
     if (value.text == "Home")
@@ -44,6 +46,11 @@ function paths(pathname) {
 function is_prefix(needle, haystack) {
   if (needle.length > haystack.lengh)
     return(false);
+
+  // Special case for length-0 haystack, since for loop won't run
+  if (haystack.length === 0) {
+    return(needle.length === 0);
+  }
 
   for (var i = 0; i < haystack.length; i++) {
     if (needle[i] != haystack[i])

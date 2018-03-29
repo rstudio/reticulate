@@ -29,18 +29,20 @@ get_signature <- function(sigs) {
 #' @return A Python function that calls the R function `f` with the same signature.
 #' 
 wrap_fn <- function(f) {
-  sigs <- formals(f)
-  if (is.null(sigs)) {
-    func_signature <- func_pass_args <- ""
-  } else {
-    func_signature <- get_signature(sigs)
-    func_pass_args <- get_signature(lapply(sigs, function(sig) ""))
-  }
-  wrap_fn_util <- py_run_string(sprintf("
+  tryCatch({
+    sigs <- formals(f)
+    if (is.null(sigs)) {
+      func_signature <- func_pass_args <- ""
+    } else {
+      func_signature <- get_signature(sigs)
+      func_pass_args <- get_signature(lapply(sigs, function(sig) ""))
+    }
+    wrap_fn_util <- py_run_string(sprintf("
 def wrap_fn(f):
   def fn(%s):
     return f(%s)
   return fn
 ", func_signature, func_pass_args))
-  wrap_fn_util$wrap_fn(f)
+    wrap_fn_util$wrap_fn(f)
+  }, error = function(e) r_to_py(f))
 }

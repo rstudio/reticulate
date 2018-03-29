@@ -40,4 +40,13 @@ def f1(a, b=3):
   wrap_fn(function(a = list("a", 1, list(3, "b", NULL))) {})
   # TODO: test case for wrap_fn(function(x = NA) {}) 
   # currently blocked by https://github.com/rstudio/reticulate/issues/197
+  
+  # Fallback to default behavior if the R function's signature contains
+  # esoteric Python-incompatible constructs
+  expect_equal(
+    inspect$getargspec(wrap_fn(function(a = 1, b) {}))$args,
+    list())
+  expect_equal(
+    inspect$getargspec(wrap_fn(function(a.b) {}))$args,
+    list())
 })

@@ -30,4 +30,14 @@ def f1(a, b=3):
   expect_equal(
     wrap_fn(f1)(a = 1, b = 2),
     util$f1(a = 1, b = 2))
+  
+  # Some micellaneous test cases which should not fail
+  wrap_fn(function(a = c(1, 2, 3)) {})
+  wrap_fn(function(a = NULL) {})
+  wrap_fn(function(a = "abc") {})
+  wrap_fn(function(a, b = 3) {})
+  wrap_fn(function(a = list()) {})
+  wrap_fn(function(a = list("a", 1, list(3, "b", NULL))) {})
+  # TODO: test case for wrap_fn(function(x = NA) {}) 
+  # currently blocked by https://github.com/rstudio/reticulate/issues/197
 })

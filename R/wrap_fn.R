@@ -2,12 +2,16 @@ get_signature <- function(sigs) {
   signature <- ""
   sig_names <- names(sigs)
   for(k in sig_names) {
-    if (sigs[[k]] == "") 
+    if (isTRUE(sigs[[k]] == ""))
       # arg without default
       signature <- paste0(signature, k)
     else {
       # arg with default
-      signature <- paste0(signature, k, "=", as.character(r_to_py(sigs[[k]])))
+      py_value_str <- ifelse(
+        is.character(sigs[[k]]),
+        paste0("'", value, "'"),
+        as.character(r_to_py(eval(sigs[[k]])))) 
+      signature <- paste0(signature, k, "=", py_value_str)
     }
     # if this is not the last arg, append a comma
     if (k != sig_names[length(sig_names)]) 
@@ -27,8 +31,7 @@ get_signature <- function(sigs) {
 wrap_fn <- function(f) {
   sigs <- formals(f)
   if (is.null(sigs)) {
-    func_signature <- ""
-    func_pass_args <- ""
+    func_signature <- func_pass_args <- ""
   } else {
     func_signature <- get_signature(sigs)
     func_pass_args <- get_signature(lapply(sigs, function(sig) ""))

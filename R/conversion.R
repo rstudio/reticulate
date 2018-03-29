@@ -336,3 +336,35 @@ dim.pandas.core.frame.DataFrame <- function(x) {
   else
     pandas_shape(x)
 }
+
+# Conversion between `Matrix::dgCMatrix` and `scipy.sparse.csc.csc_matrix`.
+# Scipy CSC Matrix: https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.csc_matrix.html
+
+#' @export
+r_to_py.dgCMatrix <- function(x, convert = FALSE) {
+  # use default implementation if scipy is not available
+  if (!py_module_available("scipy"))
+    return(r_to_py_impl(x, convert = convert))
+  sp <- import("scipy.sparse", convert = FALSE)
+  csc_x <- sp$csc_matrix(
+    tuple(
+      x@x, # Data array of the matrix
+      x@i, # CSC format index array
+      x@p), # CSC format index pointer array
+    shape = dim(x))
+  if (any(dim(x) != as_r_value(csc_x$shape)))
+    stop(
+      paste0(
+        "Failed to convert: dimensions of the original dgCMatrix ",
+        "object and the converted CSC matrix do not match"))
+  csc_x
+}
+
+#' @export
+py_to_r.scipy.sparse.csc.csc_matrix <- function(x) {
+  disable_conversion_scope(x)
+  converted <- as_r_value(x$toarray())
+  if (require("Matrix"))
+    converted <- Matrix(converted)
+  converted
+}

@@ -25,6 +25,8 @@
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
+  <link href="../extra.css" rel="stylesheet">
+  
 <meta property="og:title" content="Evaluate an expression within a context. — with.python.builtin.object" />
 
 <meta property="og:description" content="The with method for objects of type python.builtin.object
@@ -33,6 +35,8 @@ statement. The passed object must implement the
 context
 manager (__enter__ and __exit__ methods." />
 <meta name="twitter:card" content="summary" />
+
+
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -40,6 +44,8 @@ manager (__enter__ and __exit__ methods." />
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
+
+
 
 
   </head>
@@ -55,8 +61,12 @@ manager (__enter__ and __exit__ methods." />
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="../index.html">reticulate</a>
+      <span class="navbar-brand">
+        <a class="navbar-link" href="../index.html">reticulate</a>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">1.6</span>
+      </span>
     </div>
+
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
@@ -113,6 +123,7 @@ manager (__enter__ and __exit__ methods." />
   </a>
 </li>
       </ul>
+      
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
@@ -124,6 +135,7 @@ manager (__enter__ and __exit__ methods." />
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Evaluate an expression within a context.</h1>
+    <small>Source: <a href='https://github.com/rstudio/reticulate/blob/master/R/python.R'><code>R/python.R</code></a></small>
     </div>
 
     
@@ -137,7 +149,7 @@ manager</a> (<code>__enter__</code> and <code>__exit__</code> methods.</p>
     <pre class="usage"><span class='co'># S3 method for python.builtin.object</span>
 <span class='fu'>with</span>(<span class='no'>data</span>, <span class='no'>expr</span>, <span class='kw'>as</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>...</span>)</pre>
     
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
@@ -181,6 +193,8 @@ expression's evaluation (optional).</p></td>
 
       </footer>
    </div>
+
+  
 
   </body>
 </html>

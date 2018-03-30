@@ -1,4 +1,11 @@
 
+## reticulate 1.7 (development)
+
+Install the development version with: `install_github("rstudio/reticulate")`
+
+- Improved filtering of non-numeric characters in Python / NumPy versions 
+
+
 ## reticulate 1.6 (CRAN)
 
 - `repl_python()` function implementing a lightweight Python REPL in R.

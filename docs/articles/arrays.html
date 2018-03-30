@@ -9,7 +9,8 @@
 <!-- jquery --><script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/flatly/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script><!-- Font Awesome icons --><link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../jquery.sticky-kit.min.js"></script><script src="../pkgdown.js"></script><meta property="og:title" content="Arrays in R and Python">
+<script src="../jquery.sticky-kit.min.js"></script><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
+<meta property="og:title" content="Arrays in R and Python">
 <meta property="og:description" content="">
 <meta name="twitter:card" content="summary">
 <!-- mathjax --><script src="https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!--[if lt IE 9]>
@@ -27,8 +28,12 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="../index.html">reticulate</a>
+      <span class="navbar-brand">
+        <a class="navbar-link" href="../index.html">reticulate</a>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">1.6</span>
+      </span>
     </div>
+
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
@@ -97,12 +102,14 @@
     <div class="page-header toc-ignore">
       <h1>Arrays in R and Python</h1>
             
-          </div>
+      
+      <small>Source: <a href="https://github.com/rstudio/reticulate/blob/master/vignettes/arrays.Rmd"><code>vignettes/arrays.Rmd</code></a></small>
+
+    </div>
 
     
     
 <div class="contents">
-<p><link rel="stylesheet" type="text/css" href="extra.css"></p>
 <p>Dense data are stored contiguously in memory, addressed by a single index (the memory address). Array memory ordering schemes translate that single index into multiple indices corresponding to the array coordinates. For example, matrices have two indices: rows and columns. Three-d arrays have three, and so on.</p>
 <div id="column-major-order" class="section level2">
 <h2 class="hasAnchor">
@@ -619,6 +626,8 @@
 
       </footer>
 </div>
+
+  
 
   </body>
 </html>

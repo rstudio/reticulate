@@ -25,12 +25,16 @@
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
+  <link href="../extra.css" rel="stylesheet">
+  
 <meta property="og:title" content="Read and evaluate a Python script — source_python" />
 
 <meta property="og:description" content="Evaluate a Python script and make created Python objects available within R.
 The Python script is sourced within the Python main module, and so any
 objects defined are made available within Python as well." />
 <meta name="twitter:card" content="summary" />
+
+
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -38,6 +42,8 @@ objects defined are made available within Python as well." />
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
+
+
 
 
   </head>
@@ -53,8 +59,12 @@ objects defined are made available within Python as well." />
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="../index.html">reticulate</a>
+      <span class="navbar-brand">
+        <a class="navbar-link" href="../index.html">reticulate</a>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">1.6</span>
+      </span>
     </div>
+
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
@@ -111,6 +121,7 @@ objects defined are made available within Python as well." />
   </a>
 </li>
       </ul>
+      
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
@@ -122,6 +133,7 @@ objects defined are made available within Python as well." />
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Read and evaluate a Python script</h1>
+    <small>Source: <a href='https://github.com/rstudio/reticulate/blob/master/R/source.R'><code>R/source.R</code></a></small>
     </div>
 
     
@@ -132,7 +144,7 @@ objects defined are made available within Python as well.</p>
 
     <pre class="usage"><span class='fu'>source_python</span>(<span class='no'>file</span>, <span class='kw'>envir</span> <span class='kw'>=</span> <span class='fu'>parent.frame</span>(), <span class='kw'>convert</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
     
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
@@ -175,6 +187,8 @@ equivalent. If you pass <code>FALSE</code> you can do manual conversion using th
 
       </footer>
    </div>
+
+  
 
   </body>
 </html>

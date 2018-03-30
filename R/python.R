@@ -104,7 +104,10 @@ import_builtins <- function(convert = TRUE) {
 
 #' @rdname import
 #' @export
-import_from_path <- function(module, path, convert = TRUE, delay_load = FALSE) {
+import_from_path <- function(module, path = ".", convert = TRUE, delay_load = FALSE) {
+  
+  # normalize path
+  path <- normalizePath(path)
   
   # add the path to sys.path if it isn't already there
   sys <- import("sys", convert = FALSE)

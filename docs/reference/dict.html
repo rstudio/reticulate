@@ -25,11 +25,15 @@
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
+  <link href="../extra.css" rel="stylesheet">
+  
 <meta property="og:title" content="Create Python dictionary — dict" />
 
 <meta property="og:description" content="Create a Python dictionary object, including a dictionary whose keys are
 other Python objects rather than character vectors." />
 <meta name="twitter:card" content="summary" />
+
+
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
 
@@ -37,6 +41,8 @@ other Python objects rather than character vectors." />
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
+
+
 
 
   </head>
@@ -52,8 +58,12 @@ other Python objects rather than character vectors." />
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="../index.html">reticulate</a>
+      <span class="navbar-brand">
+        <a class="navbar-link" href="../index.html">reticulate</a>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">1.6</span>
+      </span>
     </div>
+
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
@@ -110,6 +120,7 @@ other Python objects rather than character vectors." />
   </a>
 </li>
       </ul>
+      
     </div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
@@ -121,6 +132,7 @@ other Python objects rather than character vectors." />
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Create Python dictionary</h1>
+    <small>Source: <a href='https://github.com/rstudio/reticulate/blob/master/R/python.R'><code>R/python.R</code></a></small>
     </div>
 
     
@@ -132,7 +144,7 @@ other Python objects rather than character vectors.</p>
 
 <span class='fu'>py_dict</span>(<span class='no'>keys</span>, <span class='no'>values</span>, <span class='kw'>convert</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
     
-    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
@@ -192,6 +204,8 @@ function or pass <code>convert = TRUE</code> to request automatic conversion.</p
 
       </footer>
    </div>
+
+  
 
   </body>
 </html>

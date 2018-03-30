@@ -13,8 +13,6 @@ vignette: >
 knitr::opts_chunk$set(eval = FALSE)
 ```
 
-<link rel="stylesheet" type="text/css" href="extra.css"/>
-
 ## Overview
 
 The current [daily builds](https://dailies.rstudio.com) of RStudio IDE include experimental support for the reticulate package, including:

@@ -12,8 +12,6 @@ knitr::opts_chunk$set(echo = TRUE)
 [![CRAN\_Status\_Badge](https://www.r-pkg.org/badges/version/reticulate)](https://cran.r-project.org/package=reticulate)
 [![Travis-CI Build Status](https://travis-ci.org/rstudio/reticulate.svg?branch=master)](https://travis-ci.org/rstudio/reticulate) [![Appveyor Build Status](https://ci.appveyor.com/api/projects/status/github/rstudio/reticulate?svg=true)](https://ci.appveyor.com/project/rstudio/reticulate)  
 
-<link rel="stylesheet" type="text/css" href="articles/extra.css"/>
-
 The **reticulate** package provides a comprehensive set of tools for interoperability between Python and R. The package includes facilities for:
 
 <img src="images/reticulated_python.png" width=200 align=right style="margin-left: 15px;" alt="reticulated python"/>
@@ -133,7 +131,7 @@ You can source any Python script just as you would source an R script using the 
 import pandas
 
 def read_flights(file):
-  flights = pandas.read_csv("flights.csv")
+  flights = pandas.read_csv(file)
   flights = flights[flights['dest'] == "ORD"]
   flights = flights[['carrier', 'dep_delay', 'arr_delay']]
   flights = flights.dropna()
@@ -200,7 +198,7 @@ The following articles cover the various aspects of using **reticulate**:
 
 From the [Wikipedia](https://en.wikipedia.org/wiki/Reticulated_python) article on the reticulated python:
 
-> The reticulated python is a speicies of python found in Southeast Asia. They are the world's longest snakes and longest reptiles...The specific name, reticulatus, is Latin meaning "net-like", or reticulated, and is a reference to the complex colour pattern. 
+> The reticulated python is a species of python found in Southeast Asia. They are the world's longest snakes and longest reptiles...The specific name, reticulatus, is Latin meaning "net-like", or reticulated, and is a reference to the complex colour pattern. 
 
 From the [Merriam-Webster](https://www.merriam-webster.com/dictionary/reticulate) definition of reticulate:
 

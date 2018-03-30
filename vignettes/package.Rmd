@@ -13,8 +13,6 @@ vignette: >
 knitr::opts_chunk$set(eval = FALSE)
 ```
 
-<link rel="stylesheet" type="text/css" href="extra.css"/>
-
 
 ## Delay Loading Python Modules
 
@@ -50,7 +48,7 @@ Without the `delay_load`, Python would be loaded immediately and the user's call
 
 ## Checking and Testing on CRAN
 
-If you use **reticulate** in another R package you need to account for the fact that when your package is submitted to CRAN, the CRAN test servers may not have Python, NumPy, or whatever other Python modules you are wrapping in your package. If you don't do this then your package may fail to load and/or pass it's tests when run on CRAN.
+If you use **reticulate** in another R package you need to account for the fact that when your package is submitted to CRAN, the CRAN test servers may not have Python, NumPy, or whatever other Python modules you are wrapping in your package. If you don't do this then your package may fail to load and/or pass its tests when run on CRAN.
 
 There are two things you should do to ensure your package is well behaved on CRAN:
 

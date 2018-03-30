@@ -9,7 +9,8 @@
 <!-- jquery --><script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/flatly/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script><!-- Font Awesome icons --><link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
-<script src="jquery.sticky-kit.min.js"></script><script src="pkgdown.js"></script><meta property="og:title" content="Interface to 'Python'">
+<script src="jquery.sticky-kit.min.js"></script><script src="pkgdown.js"></script><link href="extra.css" rel="stylesheet">
+<meta property="og:title" content="Interface to 'Python'">
 <meta property="og:description" content="Interface to 'Python' modules, classes, and functions. When calling
     into 'Python', R data types are automatically converted to their equivalent 'Python'
     types. When values are returned from 'Python' to R they are converted back to R
@@ -30,8 +31,12 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="index.html">reticulate</a>
+      <span class="navbar-brand">
+        <a class="navbar-link" href="index.html">reticulate</a>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">1.6</span>
+      </span>
     </div>
+
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
@@ -108,7 +113,6 @@
 <div class="page-header"><h1 class="hasAnchor">
 <a href="#r-interface-to-python" class="anchor"></a>R Interface to Python</h1></div>
 
-<p><link rel="stylesheet" type="text/css" href="articles/extra.css"></p>
 <p>The <strong>reticulate</strong> package provides a comprehensive set of tools for interoperability between Python and R. The package includes facilities for:</p>
 <p><img src="images/reticulated_python.png" width="200" align="right" style="margin-left: 15px;" alt="reticulated python"></p>
 <ul>
@@ -199,7 +203,7 @@
 <p>You can source any Python script just as you would source an R script using the <code><a href="reference/source_python.html">source_python()</a></code> function. For example, if you had the following Python script <em>flights.py</em>:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="im">import</span> pandas</a>
 <a class="sourceLine" id="cb6-2" data-line-number="2"><span class="kw">def</span> read_flights(<span class="bu">file</span>):</a>
-<a class="sourceLine" id="cb6-3" data-line-number="3">  flights <span class="op">=</span> pandas.read_csv(<span class="st">"flights.csv"</span>)</a>
+<a class="sourceLine" id="cb6-3" data-line-number="3">  flights <span class="op">=</span> pandas.read_csv(<span class="bu">file</span>)</a>
 <a class="sourceLine" id="cb6-4" data-line-number="4">  flights <span class="op">=</span> flights[flights[<span class="st">'dest'</span>] <span class="op">==</span> <span class="st">"ORD"</span>]</a>
 <a class="sourceLine" id="cb6-5" data-line-number="5">  flights <span class="op">=</span> flights[[<span class="st">'carrier'</span>, <span class="st">'dep_delay'</span>, <span class="st">'arr_delay'</span>]]</a>
 <a class="sourceLine" id="cb6-6" data-line-number="6">  flights <span class="op">=</span> flights.dropna()</a>
@@ -301,7 +305,7 @@
 <a href="#why-reticulate" class="anchor"></a>Why reticulate?</h2>
 <p>From the <a href="https://en.wikipedia.org/wiki/Reticulated_python">Wikipedia</a> article on the reticulated python:</p>
 <blockquote>
-<p>The reticulated python is a speicies of python found in Southeast Asia. They are the world’s longest snakes and longest reptiles…The specific name, reticulatus, is Latin meaning “net-like”, or reticulated, and is a reference to the complex colour pattern.</p>
+<p>The reticulated python is a species of python found in Southeast Asia. They are the world’s longest snakes and longest reptiles…The specific name, reticulatus, is Latin meaning “net-like”, or reticulated, and is a reference to the complex colour pattern.</p>
 </blockquote>
 <p>From the <a href="https://www.merriam-webster.com/dictionary/reticulate">Merriam-Webster</a> definition of reticulate:</p>
 <blockquote>
@@ -314,33 +318,43 @@
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
-    <h2 class="hasAnchor">
-<a href="#sidebar" class="anchor"></a>Links</h2>
+    <div class="links">
+<h2>Links</h2>
 <ul class="list-unstyled">
-<li>Download from CRAN at <br><a href="https://cran.r-project.org/package=reticulate">https://​cran.r-project.org/​package=reticulate</a>
+<li>Download from CRAN at <br><a href="https://cloud.r-project.org/package=reticulate">https://​cloud.r-project.org/​package=reticulate</a>
 </li>
 <li>Browse source code at <br><a href="https://github.com/rstudio/reticulate">https://​github.com/​rstudio/​reticulate</a>
 </li>
 <li>Report a bug at <br><a href="https://github.com/rstudio/reticulate/issues">https://​github.com/​rstudio/​reticulate/​issues</a>
 </li>
 </ul>
+</div>
+<div class="license">
 <h2>License</h2>
-<p>Apache License 2.0</p>
+<ul class="list-unstyled">
+<li>Apache License 2.0</li>
+</ul>
+</div>
+<div class="developers">
 <h2>Developers</h2>
 <ul class="list-unstyled">
 <li>JJ Allaire <br><small class="roles"> Author, maintainer </small>  </li>
 <li>Kevin Ushey <br><small class="roles"> Author </small>  </li>
 <li>
 <a href="https://www.rstudio.com"><img src="http://tidyverse.org/rstudio-logo.svg" alt="RStudio" height="24"></a> <br><small class="roles"> Copyright holder, funder </small>  </li>
-<li>Yuan Tang <br><small class="roles"> Author, copyright holder </small> <a href="https://orcid.org/0000-0001-5243-233X" target="orcid.widget"><img src="https://members.orcid.org/sites/default/files/vector_iD_icon.svg" class="orcid"></a> </li>
+<li>Yuan Tang <br><small class="roles"> Author, copyright holder </small> <a href="https://orcid.org/0000-0001-5243-233X" target="orcid.widget"><img src="https://members.orcid.org/sites/default/files/vector_iD_icon.svg" class="orcid" height="16"></a> </li>
 <li><a href="authors.html">All authors...</a></li>
 </ul>
+</div>
+
+      <div class="dev-status">
 <h2>Dev status</h2>
 <ul class="list-unstyled">
 <li><a href="https://cran.r-project.org/package=reticulate"><img src="https://www.r-pkg.org/badges/version/reticulate" alt="CRAN_Status_Badge"></a></li>
 <li><a href="https://travis-ci.org/rstudio/reticulate"><img src="https://travis-ci.org/rstudio/reticulate.svg?branch=master" alt="Travis-CI Build Status"></a></li>
 <li><a href="https://ci.appveyor.com/project/rstudio/reticulate"><img src="https://ci.appveyor.com/api/projects/status/github/rstudio/reticulate?svg=true" alt="Appveyor Build Status"></a></li>
 </ul>
+</div>
 </div>
 
 </div>
@@ -356,6 +370,8 @@
 
       </footer>
 </div>
+
+  
 
   </body>
 </html>

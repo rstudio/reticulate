@@ -471,7 +471,7 @@ is_ubuntu <- function() {
 
 
 clean_version <- function(version) {
-  gsub("\\.$", "", gsub("[A-Za-z_]+", "", version))
+  gsub("\\.$", "", gsub("[A-Za-z_+].*$", "", version))
 }
 
 reticulate_python_versions <- function() {

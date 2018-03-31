@@ -43,7 +43,8 @@ def wrap_fn(f):
 ", func_signature, func_pass_args))
     wrap_fn_util$wrap_fn(f)
   }, error = function(e) {
-    cat("The R function's signature must not contains esoteric Python-incompatible constructs")
-    cat(e$message)
+    stop(paste0("The R function's signature must not contains esoteric ",
+                "Python-incompatible constructs. Detailed traceback: \n",
+                e$message))
   })
 }

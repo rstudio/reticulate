@@ -3,8 +3,8 @@
 
 Install the development version with: `install_github("rstudio/reticulate")`
 
-- Improved filtering of non-numeric characters in Python / NumPy versions 
-- Added `py_func()` to wrap an R function in a Python function with the same signature
+- Improved filtering of non-numeric characters in Python / NumPy versions.
+- Added `py_func()` to wrap an R function in a Python function with the same signature as that of the original R function.
 
 
 ## reticulate 1.6 (CRAN)

@@ -19,9 +19,8 @@ get_signature <- function(sigs) {
 #' Wrap an R function in a Python function with the same signature.
 #' 
 #' This function could wrap an R function in a Python function with
-#' the same signature. Note that if the signature of the R function
-#' contain esoteric Python-incompatible constructs, the signature of 
-#' the returned function will be `function(...)`.
+#' the same signature. Note that the signature of the R function
+#' must not contain esoteric Python-incompatible constructs.
 #' 
 #' @param f An R function
 #' @return A Python function that calls the R function `f` with the same signature.
@@ -43,5 +42,8 @@ def wrap_fn(f):
   return fn
 ", func_signature, func_pass_args))
     wrap_fn_util$wrap_fn(f)
-  }, error = function(e) r_to_py(f))
+  }, error = function(e) {
+    cat("The R function's signature must not contains esoteric Python-incompatible constructs")
+    cat(e$message)
+  })
 }

@@ -44,8 +44,8 @@ def f1(a, b=3):
   # TODO: test case for py_func(function(x = NA) {}) 
   # currently blocked by https://github.com/rstudio/reticulate/issues/197
   
-  # Fallback to default behavior (e.g. function(...)) if the R function's signature
+  # Should error out if the R function's signature
   # contains esoteric Python-incompatible constructs
-  expect_false(has_args(py_func(function(a = 1, b) {})))
-  expect_false(has_args(py_func(function(a.b) {})))
+  expect_error(py_func(function(a = 1, b) {}))
+  expect_error(py_func(function(a.b) {}))
 })

@@ -160,7 +160,7 @@ py_to_r.pandas.core.series.Series <- function(x) {
   py_to_r(x$as_matrix())
 }
 
-pandas_shape <- function(object) unlist(as_r_value(object$shape))
+py_object_shape <- function(object) unlist(as_r_value(object$shape))
 
 #' @export
 summary.pandas.core.series.Series <- function(object, ...) {
@@ -175,7 +175,7 @@ length.pandas.core.series.Series <- function(x) {
   if (py_is_null_xptr(x) || !py_available())
     0L
   else {
-    pandas_shape(x)[[1]]
+    py_object_shape(x)[[1]]
   }
 }
 
@@ -325,7 +325,7 @@ length.pandas.core.frame.DataFrame <- function(x) {
   if (py_is_null_xptr(x) || !py_available())
     0L
   else {
-    pandas_shape(x)[[2]]
+    py_object_shape(x)[[2]]
   }
 }
 
@@ -334,7 +334,7 @@ dim.pandas.core.frame.DataFrame <- function(x) {
   if (py_is_null_xptr(x) || !py_available())
     NULL
   else
-    pandas_shape(x)
+    py_object_shape(x)
 }
 
 # Conversion between `Matrix::dgCMatrix` and `scipy.sparse.csc.csc_matrix`.
@@ -372,5 +372,13 @@ dim.scipy.sparse.csc.csc_matrix <- function(x) {
   if (py_is_null_xptr(x) || !py_available())
     NULL
   else
-    unlist(as_r_value(x$shape))
+    py_object_shape(x)
+}
+
+#' @export
+length.scipy.sparse.csc.csc_matrix <- function(x) {
+  if (py_is_null_xptr(x) || !py_available())
+    2L
+  else
+    Reduce(`*`, py_object_shape(x))
 }

@@ -12,4 +12,5 @@ test_that("Conversion between Matrix::dgCMatrix and Scipy sparse matrix works", 
   result <- r_to_py(x)
   expect_true(all(py_to_r(result) == x))
   expect_equal(dim(result), dim(x))
+  expect_equal(length(result), length(x))
 })

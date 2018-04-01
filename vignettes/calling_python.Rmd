@@ -239,30 +239,6 @@ R data frames can be automatically converted to and from [Pandas](https://pandas
 
 If the R data frame has row names, the generated Pandas DataFrame will be re-indexed using those row names (and vice versa). Special handling is also available for a `DatetimeIndex` associated with a Pandas DataFrame; however, because R only supports character vectors for row names they are converted to character first.
 
-## Functions
-
-If you are trying to pass an R function to your Python code, `r_to_py()` will be applied to the R function first to wrap the R function in a Python function with signature `function(...)` where there's neither keyword argument nor default value for each argument.
-
-For example, below we apply `r_to_py()` to an R function and then we use [inspect Python module](https://docs.python.org/3/library/inspect.html) to get the function's argument spec of the Python function that wraps the R function. You can see that the signature of the wrapped function looks different than the original R function's signature.
-
-```
-> inspect <- import("inspect")
-> converted_func <- r_to_py(function(a, b = 1.5) {})
-> inspect$getargspec(converted_func)
-ArgSpec(args=[], varargs='args', keywords='kwargs', defaults=None)
-```
-
-This will cause issues sometimes since some Python libraries have very strict checking on the function signature that the user passes. In the above example, if the Python library you are using requires the function that you are passing to have arguments `a` and `b`, then this converted function will not be acceptable since it doesn't have any of those keyword arguments. 
-
-In order to convert the R function correctly, you can use `py_func()` to wrap the R function so that the wrapped function has exactly the same signature as that of the original R function, e.g. one argument `a` without default value and another argument `b` with default value 1.5. 
-
-```
-> wrapped_func <- py_func(function(a, b = 1.5) {})
-> inspect$getargspec(wrapped_func)
-ArgSpec(args=['a', 'b'], varargs=None, keywords=None, defaults=(1.5,))
-```
-
-Note that the signature of the R function must not contain esoteric Python-incompatible constructs. For example, we cannot have R function with signature like `function(a = 1, b)` since Python function requires that arguments without default values appear before arguments with default values.
 
 ## With Contexts
 
@@ -360,7 +336,33 @@ sequence_generator <-function(start) {
 
 Note that you can change the value that indicates the end of the iteration using the `completed` parameter (e.g. `py_iterator(func, completed = NA)`).
 
-## Advanced Functions
+## Functions
+
+By default R functions are converted to Python with a generic signature (`function(...)`), where there's neither keyword argument nor default values for arguments.
+
+For example, below we apply `r_to_py()` to an R function and then we use [inspect Python module](https://docs.python.org/3/library/inspect.html) to get the converted function's argument spec. You can see that the signature of the wrapped function looks different than the original R function's signature.
+
+```r
+> inspect <- import("inspect")
+> converted_func <- r_to_py(function(a, b = 1.5) {})
+> inspect$getargspec(converted_func)
+ArgSpec(args=[], varargs='args', keywords='kwargs', defaults=None)
+```
+
+This default converssion typically works fine, however some Python libraries have strict checking on the function signatures of user proviced callbacks. In these cases the generic `function(...)` signature will fail this checking.
+
+For these cases you can use `py_func()` to wrap the R function so that the wrapped function has exactly the same signature as that of the original R function, e.g. one argument `a` without default value and another argument `b` with default value 1.5. 
+
+```r
+> wrapped_func <- py_func(function(a, b = 1.5) {})
+> inspect$getargspec(wrapped_func)
+ArgSpec(args=['a', 'b'], varargs=None, keywords=None, defaults=(1.5,))
+```
+
+Note that the signature of the R function must not contain esoteric Python-incompatible constructs. For example, we cannot have R function with signature like `function(a = 1, b)` since Python function requires that arguments without default values appear before arguments with default values.
+
+
+## Advanced 
 
 There are several more advanced functions available that are useful principally when creating high level R interfaces for Python libraries.
 

@@ -366,3 +366,11 @@ py_to_r.scipy.sparse.csc.csc_matrix <- function(x) {
   disable_conversion_scope(x)
   Matrix(as_r_value(x$toarray()))
 }
+
+#' @export
+dim.scipy.sparse.csc.csc_matrix <- function(x) {
+  if (py_is_null_xptr(x) || !py_available())
+    NULL
+  else
+    unlist(as_r_value(x$shape))
+}

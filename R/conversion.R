@@ -355,8 +355,8 @@ r_to_py.dgCMatrix <- function(x, convert = FALSE) {
   if (any(dim(x) != as_r_value(csc_x$shape)))
     stop(
       paste0(
-        "Failed to convert: dimensions of the original dgCMatrix ",
-        "object and the converted CSC matrix do not match"))
+        "Failed to convert: dimensions of the original Matrix::dgCMatrix ",
+        "object and the converted Scipy CSC matrix do not match"))
   csc_x
 }
 

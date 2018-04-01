@@ -239,6 +239,61 @@ R data frames can be automatically converted to and from [Pandas](https://pandas
 
 If the R data frame has row names, the generated Pandas DataFrame will be re-indexed using those row names (and vice versa). Special handling is also available for a `DatetimeIndex` associated with a Pandas DataFrame; however, because R only supports character vectors for row names they are converted to character first.
 
+## Sparse Matrices
+
+Sparse matrices created by [Matrix R package](https://CRAN.R-project.org/package=Matrix) can be converted [Scipy CSC matrix](https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.csc_matrix.html), and vice versa. This is often useful when you want to pass sparse matrices to Python functions that accepts Scipy CSC matrix to take advantage of this format, such as efficient column slicing and fast matrix vector products. 
+
+For example, we first create a sparse matrix using `Matrix::sparseMatrix()`:
+
+```
+library(Matrix)
+N <- 5
+dgc_matrix <- sparseMatrix(
+  i = sample(N, N),
+  j = sample(N, N),
+  x = runif(N),
+  dims = c(N, N))
+```
+
+The sparse matrix looks like this:
+
+```
+> dgc_matrix
+5 x 5 sparse Matrix of class "dgCMatrix"
+                                                        
+[1,] 0.2264952 .          .          .         .        
+[2,] .         .          .          .         0.3927282
+[3,] .         .          .          0.9215908 .        
+[4,] .         .          0.01777771 .         .        
+[5,] .         0.05885743 .          .         . 
+```
+
+Let's convert it to Scipy CSC matrix using `r_to_py()`:
+
+```
+> csc_matrix <- r_to_py(x)
+> csc_matrix
+  (0, 0)	0.226495201467
+  (4, 1)	0.0588574311696
+  (3, 2)	0.0177777127828
+  (2, 3)	0.921590822982
+  (1, 4)	0.392728160601
+```
+
+Note that the right-hand side contains the non-zero entries of the matrix while the left-hand side represents their locations in the matrix. 
+
+We can also use `py_to_r()` to convert the CSC matrix back to `Matrix::dgCMatrix` representation that can then be manipulated easily in R which is the same as the original sparse matrix that we created earlier using `Matrix::sparseMatrix()`:
+
+```
+> py_to_r(csc_matrix)
+5 x 5 sparse Matrix of class "dgCMatrix"
+                                                        
+[1,] 0.2264952 .          .          .         .        
+[2,] .         .          .          .         0.3927282
+[3,] .         .          .          0.9215908 .        
+[4,] .         .          0.01777771 .         .        
+[5,] .         0.05885743 .          .         .        
+```
 
 ## With Contexts
 

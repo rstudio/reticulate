@@ -364,7 +364,11 @@ r_to_py.dgCMatrix <- function(x, convert = FALSE) {
 #' @export
 py_to_r.scipy.sparse.csc.csc_matrix <- function(x) {
   disable_conversion_scope(x)
-  Matrix(as_r_value(x$toarray()))
+  sparseMatrix(
+    i = 1 + as_r_value(x$indices),
+    p = as_r_value(x$indptr),
+    x = as.vector(as_r_value(x$data)),
+    dims = dim(x))
 }
 
 #' @export

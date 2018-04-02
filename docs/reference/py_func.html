@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Check if a Python module is available on this system. — py_module_available • reticulate</title>
+<title>Wrap an R function in a Python function with the same signature. — py_func • reticulate</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -27,9 +27,11 @@
 <script src="../pkgdown.js"></script>
   <link href="../extra.css" rel="stylesheet">
   
-<meta property="og:title" content="Check if a Python module is available on this system. — py_module_available" />
+<meta property="og:title" content="Wrap an R function in a Python function with the same signature. — py_func" />
 
-<meta property="og:description" content="Check if a Python module is available on this system." />
+<meta property="og:description" content="This function could wrap an R function in a Python function with
+the same signature. Note that the signature of the R function
+must not contain esoteric Python-incompatible constructs." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -130,28 +132,30 @@
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Check if a Python module is available on this system.</h1>
-    <small>Source: <a href='https://github.com/rstudio/reticulate/blob/master/R/config.R'><code>R/config.R</code></a></small>
+    <h1>Wrap an R function in a Python function with the same signature.</h1>
+    <small>Source: <a href='https://github.com/rstudio/reticulate/blob/master/R/py_func.R'><code>R/py_func.R</code></a></small>
     </div>
 
     
-    <p>Check if a Python module is available on this system.</p>
+    <p>This function could wrap an R function in a Python function with
+the same signature. Note that the signature of the R function
+must not contain esoteric Python-incompatible constructs.</p>
     
 
-    <pre class="usage"><span class='fu'>py_module_available</span>(<span class='no'>module</span>)</pre>
+    <pre class="usage"><span class='fu'>py_func</span>(<span class='no'>f</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>module</th>
-      <td><p>Name of module</p></td>
+      <th>f</th>
+      <td><p>An R function</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>Logical indicating whether module is available</p>
+    <p>A Python function that calls the R function <code>f</code> with the same signature.</p>
     
 
   </div>

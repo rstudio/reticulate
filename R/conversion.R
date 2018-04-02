@@ -160,7 +160,7 @@ py_to_r.pandas.core.series.Series <- function(x) {
   py_to_r(x$as_matrix())
 }
 
-pandas_shape <- function(object) unlist(as_r_value(object$shape))
+py_object_shape <- function(object) unlist(as_r_value(object$shape))
 
 #' @export
 summary.pandas.core.series.Series <- function(object, ...) {
@@ -175,7 +175,7 @@ length.pandas.core.series.Series <- function(x) {
   if (py_is_null_xptr(x) || !py_available())
     0L
   else {
-    pandas_shape(x)[[1]]
+    py_object_shape(x)[[1]]
   }
 }
 
@@ -325,7 +325,7 @@ length.pandas.core.frame.DataFrame <- function(x) {
   if (py_is_null_xptr(x) || !py_available())
     0L
   else {
-    pandas_shape(x)[[2]]
+    py_object_shape(x)[[2]]
   }
 }
 
@@ -334,5 +334,55 @@ dim.pandas.core.frame.DataFrame <- function(x) {
   if (py_is_null_xptr(x) || !py_available())
     NULL
   else
-    pandas_shape(x)
+    py_object_shape(x)
+}
+
+# Conversion between `Matrix::dgCMatrix` and `scipy.sparse.csc.csc_matrix`.
+# Scipy CSC Matrix: https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.csc_matrix.html
+
+#' @export
+r_to_py.dgCMatrix <- function(x, convert = FALSE) {
+  # use default implementation if scipy is not available
+  if (!py_module_available("scipy"))
+    return(r_to_py_impl(x, convert = convert))
+  sp <- import("scipy.sparse", convert = FALSE)
+  csc_x <- sp$csc_matrix(
+    tuple(
+      x@x, # Data array of the matrix
+      x@i, # CSC format index array
+      x@p), # CSC format index pointer array
+    shape = dim(x))
+  if (any(dim(x) != as_r_value(csc_x$shape)))
+    stop(
+      paste0(
+        "Failed to convert: dimensions of the original Matrix::dgCMatrix ",
+        "object and the converted Scipy CSC matrix do not match"))
+  csc_x
+}
+
+#' @importFrom Matrix sparseMatrix
+#' @export
+py_to_r.scipy.sparse.csc.csc_matrix <- function(x) {
+  disable_conversion_scope(x)
+  sparseMatrix(
+    i = 1 + as_r_value(x$indices),
+    p = as_r_value(x$indptr),
+    x = as.vector(as_r_value(x$data)),
+    dims = dim(x))
+}
+
+#' @export
+dim.scipy.sparse.csc.csc_matrix <- function(x) {
+  if (py_is_null_xptr(x) || !py_available())
+    NULL
+  else
+    py_object_shape(x)
+}
+
+#' @export
+length.scipy.sparse.csc.csc_matrix <- function(x) {
+  if (py_is_null_xptr(x) || !py_available())
+    2L
+  else
+    Reduce(`*`, py_object_shape(x))
 }

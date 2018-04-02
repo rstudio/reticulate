@@ -349,7 +349,7 @@ For example, below we apply `r_to_py()` to an R function and then we use [inspec
 ArgSpec(args=[], varargs='args', keywords='kwargs', defaults=None)
 ```
 
-This default converssion typically works fine, however some Python libraries have strict checking on the function signatures of user proviced callbacks. In these cases the generic `function(...)` signature will fail this checking.
+This default conversion typically works fine, however some Python libraries have strict checking on the function signatures of user provided callbacks. In these cases the generic `function(...)` signature will fail this checking.
 
 For these cases you can use `py_func()` to wrap the R function so that the wrapped function has exactly the same signature as that of the original R function, e.g. one argument `a` without default value and another argument `b` with default value 1.5. 
 

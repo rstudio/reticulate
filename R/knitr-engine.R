@@ -206,6 +206,9 @@ eng_python_initialize_matplotlib <- function(options,
   if (!py_module_available("matplotlib"))
     return()
   
+  if (!py_module_available("matplotlib.pyplot"))
+    return()
+  
   # initialize pending_plots list
   context$pending_plots <- list()
   

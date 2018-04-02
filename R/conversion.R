@@ -255,12 +255,12 @@ py_to_r.pandas.core.frame.DataFrame <- function(x) {
     
   }
   
-  # re-order based on ordering of pandas DataFrame
-  df <- as.data.frame(
-    converted[columns],
-    optional = TRUE,
-    stringsAsFactors = FALSE
-  )
+  # re-order based on ordering of pandas DataFrame. note that
+  # as.data.frame() will not handle list columns correctly, so
+  # we construct the data.frame 'by hand'
+  df <- converted[columns]
+  class(df) <- "data.frame"
+  attr(df, "row.names") <- c(NA_integer_, -nrow(x))
   
   # attempt to copy over index, and set as rownames when appropriate
   #

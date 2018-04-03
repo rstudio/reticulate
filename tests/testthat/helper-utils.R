@@ -33,6 +33,13 @@ skip_if_no_pandas <- function() {
     skip("pandas not available for testing")
 }
 
+skip_if_no_scipy <- function() {
+  skip_on_cran()
+  skip_if_no_python()
+  if (!py_module_available("scipy"))
+    skip("scipy not available for testing")
+}
+
 skip_if_no_test_environments <- function() {
   skip_on_cran()
   skip_if_no_python()

@@ -7,6 +7,8 @@ Install the development version with: `install_github("rstudio/reticulate")`
 
 - Added `py_func()` to wrap an R function in a Python function with the same signature as that of the original R function.
 
+- Added support for conversion between `Matrix::dgCMatrix` objects in R and `Scipy` CSC matrices in Python.
+
 
 ## reticulate 1.6 (CRAN)
 

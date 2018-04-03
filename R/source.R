@@ -13,12 +13,21 @@
 #'   not assign Python objects.
 #'
 #' @export
+#' @importFrom utils download.file
 source_python <- function(file, envir = parent.frame(), convert = TRUE) {
   
+  # Download file content from URL to a local tempory file
+  if (!file.exists(file) && isTRUE(grepl("http", file))) {
+    tmpfile <- tempfile(fileext = ".py")
+    utils::download.file(url = file, destfile = tmpfile)
+    file <- tmpfile
+    on.exit(unlink(file), add = TRUE)
+  }
+
   # source the python script (locally so we can track what mutations are
   # made in the file scope)
   dict <- py_run_file(file, local = TRUE, convert = convert)
-  
+
   # replay changes into the python main module
   main <- import_main(convert = FALSE)
   update <- py_to_r(py_get_attr(main$`__dict__`, "update"))

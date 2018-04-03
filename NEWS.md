@@ -9,6 +9,8 @@ Install the development version with: `install_github("rstudio/reticulate")`
 
 - Added support for conversion between `Matrix::dgCMatrix` objects in R and `Scipy` CSC matrices in Python.
 
+- `source_python()` can now source a Python script from a URL into R environments.
+
 
 ## reticulate 1.6 (CRAN)
 

@@ -15,10 +15,21 @@
 #' @export
 source_python <- function(file, envir = parent.frame(), convert = TRUE) {
   
+  # Copy lines from URL to a local tempory file
+  tmp_file <- NULL
+  if (!file.exists(file) && isTRUE(grepl("http", file))) {
+    lines <- readLines(file, warn = FALSE)
+    file <- tmp_file <- tempfile(fileext = ".py")
+    cat(lines, file = tmp_file, sep = "\n")
+  }
+
   # source the python script (locally so we can track what mutations are
   # made in the file scope)
   dict <- py_run_file(file, local = TRUE, convert = convert)
   
+  # Remove the temporarily created file (if any)
+  if (!is.null(tmp_file)) unlink(tmp_file)
+
   # replay changes into the python main module
   main <- import_main(convert = FALSE)
   update <- py_to_r(py_get_attr(main$`__dict__`, "update"))

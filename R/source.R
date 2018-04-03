@@ -13,13 +13,14 @@
 #'   not assign Python objects.
 #'
 #' @export
+#' @importFrom utils download.file
 source_python <- function(file, envir = parent.frame(), convert = TRUE) {
   
-  # Copy lines from URL to a local tempory file
+  # Download file content from URL to a local tempory file
   if (!file.exists(file) && isTRUE(grepl("http", file))) {
-    lines <- readLines(file, warn = FALSE)
-    file <- tempfile(fileext = ".py")
-    cat(lines, file = file, sep = "\n")
+    tmpfile <- tempfile(fileext = ".py")
+    utils::download.file(url = file, destfile = tmpfile)
+    file <- tmpfile
     on.exit(unlink(file), add = TRUE)
   }
 

@@ -212,8 +212,7 @@ eng_python_initialize_matplotlib <- function(options,
   # initialize pending_plots list
   context$pending_plots <- list()
   
-  matplotlib <- import("matplotlib", convert = FALSE)
-  plt <- matplotlib$pyplot
+  plt <- import("matplotlib.pyplot", convert = FALSE)
   
   # rudely steal 'plot_counter' (used by default 'show()' implementation below)
   # and then reset the counter when we're done

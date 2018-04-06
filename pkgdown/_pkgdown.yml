@@ -97,6 +97,7 @@ reference:
       - py_set_seed
       - py_last_error
       - py_help
+      - py_func
  
   - title: "Package Installation"
     contents: 

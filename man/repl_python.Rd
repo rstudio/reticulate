@@ -12,7 +12,7 @@ repl_python(module = NULL, quiet = getOption("reticulate.repl.quiet",
 the REPL is launched.}
 
 \item{quiet}{Boolean; print a startup banner when launching the REPL? If
-\code{FALSE}, the banner will be suppressed.}
+\code{TRUE}, the banner will be suppressed.}
 }
 \description{
 This function provides a Python REPL in the \R session, which can be used

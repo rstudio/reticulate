@@ -32,6 +32,21 @@ When installing Python packages it's typically a good practice to isolate them w
 
 The reticulate package includes functions for creating Python environments (either virtualenvs or conda envs) and installing packages within them. Using virtualenvs is supported on Linux and Mac OS X, using Conda environments is supported on all platforms including Windows.
 
+## Simple Installation
+
+> **NOTE**: The `py_install()` function described below is currently only available in the development version of reticulate. You can install the development version with `devtools::install_github("rstudio/reticulate")`.
+
+The reticulate package includes a `py_install()` function that can be used to install one or more Python packages. The packages will be by default be installed within a virtualenv or Conda environment named "r-reticulate". For example:
+
+```r
+library(reticulate)
+py_install("pandas")
+```
+
+This provides a straightforward high-level interface to package installation and helps encourage the use of a common default environment ("r-reticulate") across the installation of distinct Python packages.
+
+There are also functions available for directly managing both Conda and virtualenvs for situations where you want more control over how packages are installed. These functions are covered in the sections below.
+
 ## Conda installation
 
 The following functions are available for managing Conda environments:

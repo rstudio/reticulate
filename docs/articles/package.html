@@ -138,33 +138,17 @@
 <h2 class="hasAnchor">
 <a href="#installing-python-dependencies" class="anchor"></a>Installing Python Dependencies</h2>
 <blockquote>
-<p><strong>NOTE</strong>: The dependency installation features described below are currently only available in the development version of reticulate. You can install the development version with <code><a href="http://www.rdocumentation.org/packages/devtools/topics/install_github">devtools::install_github("rstudio/reticulate")</a></code>.</p>
+<p><strong>NOTE</strong>: The <code><a href="../reference/py_install.html">py_install()</a></code> function described below is currently only available in the development version of reticulate. You can install the development version with <code><a href="http://www.rdocumentation.org/packages/devtools/topics/install_github">devtools::install_github("rstudio/reticulate")</a></code>.</p>
 </blockquote>
 <p>Your R package likely depends on the installation of one or more Python packages. As a convenience to your users, you may want to provide a high-level R function to allow users to install these Python packages. It’s furthermore beneficial if multiple R packages that depend on Python packages install their dependencies in the same Python environment (so that they can be easily used together).</p>
-<p>Here is the approach we recommend to installing Python dependencies required by R packages:</p>
-<ol style="list-style-type: decimal">
-<li><p>Ask your users to install the Anaconda Python distribution from this link: <a href="https://docs.anaconda.com/anaconda/install/" class="uri">https://docs.anaconda.com/anaconda/install/</a></p></li>
-<li>
-<p>Provide an R function that installs the required Python package(s) into the “r-reticulate” Conda environment. For example:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">install_scipy &lt;-<span class="st"> </span><span class="cf">function</span>(<span class="dt">conda =</span> <span class="st">"auto"</span>) {</a>
-<a class="sourceLine" id="cb3-2" data-line-number="2">  reticulate<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/reticulate/topics/conda-tools">conda_install</a></span>(<span class="st">"r-reticulate"</span>, <span class="st">"scipy"</span>, <span class="dt">conda =</span> conda)</a>
-<a class="sourceLine" id="cb3-3" data-line-number="3">}</a></code></pre></div>
-</li>
-<li>
-<p>Then, provide a hint to reticulate that Python packages you are importing are likely to be found in the “r-reticulate” environment. Extending the <code>.onLoad()</code> example from above:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="co"># global reference to scipy (will be initialized in .onLoad)</span></a>
-<a class="sourceLine" id="cb4-2" data-line-number="2">scipy &lt;-<span class="st"> </span><span class="ot">NULL</span></a>
-<a class="sourceLine" id="cb4-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb4-4" data-line-number="4">.onLoad &lt;-<span class="st"> </span><span class="cf">function</span>(libname, pkgname) {</a>
-<a class="sourceLine" id="cb4-5" data-line-number="5">  <span class="co"># use superassignment to update global reference to scipy</span></a>
-<a class="sourceLine" id="cb4-6" data-line-number="6">  scipy &lt;&lt;-<span class="st"> </span>reticulate<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/reticulate/topics/import">import</a></span>(</a>
-<a class="sourceLine" id="cb4-7" data-line-number="7">    <span class="st">"scipy"</span>, </a>
-<a class="sourceLine" id="cb4-8" data-line-number="8">    <span class="dt">delay_load =</span> <span class="kw">list</span>(<span class="dt">environment =</span> <span class="st">"r-reticulate"</span>)</a>
-<a class="sourceLine" id="cb4-9" data-line-number="9">  )</a>
-<a class="sourceLine" id="cb4-10" data-line-number="10">}</a></code></pre></div>
-</li>
-</ol>
-<p>While reticulate is capable of binding to <a href="calling_python.html#python-versions">any Python environment</a> available on a system, it’s much more straightforward for users if there is a common environment used by R packages with convenient high-level functions provided for installation. We therefore strongly recommend that R package developers use the approach described here.</p>
+<p>The <code><a href="../reference/py_install.html">py_install()</a></code> function provides a high-level interface for installing one or more Python packages. The packages will be by default be installed within a virtualenv or Conda environment named “r-reticulate”. For example:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="kw">library</span>(reticulate)</a>
+<a class="sourceLine" id="cb3-2" data-line-number="2"><span class="kw"><a href="../reference/py_install.html">py_install</a></span>(<span class="st">"scipy"</span>)</a></code></pre></div>
+<p>You can document the use of this function along with your package or alternatively provide a wrapper function for <code><a href="../reference/py_install.html">py_install()</a></code>. For example:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">install_scipy &lt;-<span class="st"> </span><span class="cf">function</span>(<span class="dt">method =</span> <span class="st">"auto"</span>, <span class="dt">conda =</span> <span class="st">"auto"</span>) {</a>
+<a class="sourceLine" id="cb4-2" data-line-number="2">  reticulate<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/reticulate/topics/py_install">py_install</a></span>(<span class="st">"scipy"</span>, <span class="dt">method =</span> method, <span class="dt">conda =</span> conda)</a>
+<a class="sourceLine" id="cb4-3" data-line-number="3">}</a></code></pre></div>
+<p>While reticulate is capable of binding to <a href="calling_python.html#python-version">any Python environment</a> available on a system, it’s much more straightforward for users if there is a common environment used by R packages with convenient high-level functions provided for installation. We therefore strongly recommend that R package developers use the approach described here.</p>
 </div>
 <div id="checking-and-testing-on-cran" class="section level2">
 <h2 class="hasAnchor">

@@ -128,8 +128,12 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
   # (start with versions specified via environment variable or use_* function)
   python_versions <- reticulate_python_versions()
   
-  # next look in virtual environments that have a required module derived name
+  # prioritize the r-reticulate python environment
   python_envs <- python_environment_versions()
+  r_reticulate_python_envs <- python_envs[python_envs$name == "r-reticulate",]
+  python_versions <- c(python_versions, r_reticulate_python_envs$python)
+  
+  # next look in virtual environments that have a required module derived name
   if (!is.null(required_module)) {
     # filter by required module
     module_python_envs <- python_envs[python_envs$name %in% c(required_module, paste0("r-", required_module), use_environment),]

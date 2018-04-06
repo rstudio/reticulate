@@ -30,7 +30,7 @@
 #'   the REPL is launched.
 #'   
 #' @param quiet Boolean; print a startup banner when launching the REPL? If
-#'   `FALSE`, the banner will be suppressed.
+#'   `TRUE`, the banner will be suppressed.
 #' 
 #' @seealso [py], for accessing objects created using the Python REPL.
 #' 

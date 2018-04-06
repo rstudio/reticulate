@@ -5,7 +5,7 @@
 \title{Install Python packages}
 \usage{
 py_install(packages, envname = "r-reticulate", method = c("auto",
-  "virtualenv", "conda"), conda = "auto")
+  "virtualenv", "conda"), conda = "auto", ...)
 }
 \arguments{
 \item{packages}{Character vector with package names to install}
@@ -19,6 +19,9 @@ available on Windows.}
 
 \item{conda}{Path to conda executable (or "auto" to find conda using the
 PATH and other conventional install locations).}
+
+\item{...}{Additional arguments passed to \code{\link[=conda_install]{conda_install()}}
+or \code{\link[=virtualenv_install]{virtualenv_install()}}.}
 }
 \description{
 Install Python packages into a virtualenv or conda env.

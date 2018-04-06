@@ -13,6 +13,8 @@
 #'   method that will work in the local environment. Change the default to force
 #'   a specific installation method. Note that the "virtualenv" method is not
 #'   available on Windows.
+#' @param ... Additional arguments passed to [conda_install()]
+#'   or [virtualenv_install()].
 #'   
 #' @details On Linux and OS X the "virtualenv" method will be used by default 
 #'   ("conda" will be used if virtualenv isn't available). On Windows, the 
@@ -21,9 +23,13 @@
 #' @seealso [conda-tools], [virtualenv-tools]
 #'
 #' @export
-py_install <- function(packages, envname = "r-reticulate", 
-                       method = c("auto", "virtualenv", "conda"), conda = "auto") {
- 
+py_install <- function(
+  packages,
+  envname = "r-reticulate",
+  method = c("auto", "virtualenv", "conda"),
+  conda = "auto",
+  ...) {
+
   # validate method
   if (identical(method, "virtualenv") && is_windows()) {
     stop("Installing Python packages into a virtualenv is not supported on Windows",
@@ -41,7 +47,7 @@ py_install <- function(packages, envname = "r-reticulate",
   
   # mac and linux
   if (is_unix()) {
-    
+
     # check for explicit conda method
     if (identical(method, "conda")) {
       
@@ -50,7 +56,7 @@ py_install <- function(packages, envname = "r-reticulate",
         stop("Conda installation failed (no conda binary found)\n", call. = FALSE)
       
       # do install
-      conda_install(envname, packages = packages, conda = conda)
+      conda_install(envname, packages = packages, conda = conda, ...)
       
     } else {
       
@@ -68,7 +74,7 @@ py_install <- function(packages, envname = "r-reticulate",
       # if we don't have pip and virtualenv then try for conda if it's allowed
       if ((!have_pip || !have_virtualenv) && have_conda) {
         
-        conda_install(envname, packages = packages, conda = conda)
+        conda_install(envname, packages = packages, conda = conda, ...)
         
       # otherwise this is either an "auto" installation w/o working conda
       # or it's an explicit "virtualenv" installation
@@ -120,7 +126,7 @@ py_install <- function(packages, envname = "r-reticulate",
         }
         
         # do the install
-        virtualenv_install(envname, packages)
+        virtualenv_install(envname, packages, ...)
       }
     }
     
@@ -136,7 +142,7 @@ py_install <- function(packages, envname = "r-reticulate",
     }
     
     # do the install
-    conda_install(envname, packages, conda = conda)
+    conda_install(envname, packages, conda = conda, ...)
   }
   
   cat("\nInstallation complete.\n\n")

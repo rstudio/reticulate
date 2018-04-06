@@ -45,6 +45,40 @@ Using the `delay_load` flag has two important benefits:
 
 Without the `delay_load`, Python would be loaded immediately and the user's call to `use_virtualenv` would have no effect.
 
+## Installing Python Dependencies
+
+> **NOTE**: The dependency installation features described below are currently only available in the development version of reticulate. You can install the development version with `devtools::install_github("rstudio/reticulate")`.
+
+Your R package likely depends on the installation of one or more Python packages. As a convenience to your users, you may want to provide a high-level R function to allow users to install these Python packages. It's furthermore beneficial if multiple R packages that depend on Python packages install their dependencies in the same Python environment (so that they can be easily used together). 
+
+Here is the approach we recommend to installing Python dependencies required by R packages:
+
+1) Ask your users to install the Anaconda Python distribution from this link: <https://docs.anaconda.com/anaconda/install/>
+
+2) Provide an R function that installs the required Python package(s) into the "r-reticulate" Conda environment. For example:
+
+    ```{r, eval = FALSE}
+    install_scipy <- function(conda = "auto") {
+      reticulate::conda_install("r-reticulate", "scipy", conda = conda)
+    }
+    ```
+
+3) Then, provide a hint to reticulate that Python packages you are importing are likely to be found in the "r-reticulate" environment. Extending the `.onLoad()` example from above:
+
+    ```{r, eval = FALSE}
+    # global reference to scipy (will be initialized in .onLoad)
+    scipy <- NULL
+
+    .onLoad <- function(libname, pkgname) {
+      # use superassignment to update global reference to scipy
+      scipy <<- reticulate::import(
+        "scipy", 
+        delay_load = list(environment = "r-reticulate")
+      )
+    }
+    ```
+
+While reticulate is capable of binding to [any Python environment](calling_python.html#python-versions) available on a system, it's much more straightforward for users if there is a common environment used by R packages with convenient high-level functions provided for installation. We therefore strongly recommend that R package developers use the approach described here.
 
 ## Checking and Testing on CRAN
 

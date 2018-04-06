@@ -30,7 +30,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">1.6.0.9000</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">1.6.0.9002</span>
       </span>
     </div>
 
@@ -326,41 +326,81 @@
 </table>
 <p>If the R data frame has row names, the generated Pandas DataFrame will be re-indexed using those row names (and vice versa). Special handling is also available for a <code>DatetimeIndex</code> associated with a Pandas DataFrame; however, because R only supports character vectors for row names they are converted to character first.</p>
 </div>
+<div id="sparse-matrices" class="section level2">
+<h2 class="hasAnchor">
+<a href="#sparse-matrices" class="anchor"></a>Sparse Matrices</h2>
+<p>Sparse matrices created by <a href="https://CRAN.R-project.org/package=Matrix">Matrix R package</a> can be converted <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.csc_matrix.html">Scipy CSC matrix</a>, and vice versa. This is often useful when you want to pass sparse matrices to Python functions that accepts Scipy CSC matrix to take advantage of this format, such as efficient column slicing and fast matrix vector products.</p>
+<p>For example, we first create a sparse matrix using <code><a href="http://www.rdocumentation.org/packages/Matrix/topics/sparseMatrix">Matrix::sparseMatrix()</a></code>:</p>
+<pre><code>library(Matrix)
+N &lt;- 5
+dgc_matrix &lt;- sparseMatrix(
+  i = sample(N, N),
+  j = sample(N, N),
+  x = runif(N),
+  dims = c(N, N))</code></pre>
+<p>The sparse matrix looks like this:</p>
+<pre><code>&gt; dgc_matrix
+5 x 5 sparse Matrix of class "dgCMatrix"
+                                                        
+[1,] 0.2264952 .          .          .         .        
+[2,] .         .          .          .         0.3927282
+[3,] .         .          .          0.9215908 .        
+[4,] .         .          0.01777771 .         .        
+[5,] .         0.05885743 .          .         . </code></pre>
+<p>Let’s convert it to Scipy CSC matrix using <code><a href="../reference/r-py-conversion.html">r_to_py()</a></code>:</p>
+<pre><code>&gt; csc_matrix &lt;- r_to_py(x)
+&gt; csc_matrix
+  (0, 0)    0.226495201467
+  (4, 1)    0.0588574311696
+  (3, 2)    0.0177777127828
+  (2, 3)    0.921590822982
+  (1, 4)    0.392728160601</code></pre>
+<p>Note that the right-hand side contains the non-zero entries of the matrix while the left-hand side represents their locations in the matrix.</p>
+<p>We can also use <code><a href="../reference/r-py-conversion.html">py_to_r()</a></code> to convert the CSC matrix back to <code>Matrix::dgCMatrix</code> representation that can then be manipulated easily in R which is the same as the original sparse matrix that we created earlier using <code><a href="http://www.rdocumentation.org/packages/Matrix/topics/sparseMatrix">Matrix::sparseMatrix()</a></code>:</p>
+<pre><code>&gt; py_to_r(csc_matrix)
+5 x 5 sparse Matrix of class "dgCMatrix"
+                                                        
+[1,] 0.2264952 .          .          .         .        
+[2,] .         .          .          .         0.3927282
+[3,] .         .          .          0.9215908 .        
+[4,] .         .          0.01777771 .         .        
+[5,] .         0.05885743 .          .         .        </code></pre>
+</div>
 <div id="with-contexts" class="section level2">
 <h2 class="hasAnchor">
 <a href="#with-contexts" class="anchor"></a>With Contexts</h2>
 <p>The R <code>with</code> generic function can be used to interact with Python context manager objects (in Python you use the <code>with</code> keyword to do the same). For example:</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" data-line-number="1">py &lt;-<span class="st"> </span><span class="kw"><a href="../reference/import.html">import_builtins</a></span>()</a>
-<a class="sourceLine" id="cb20-2" data-line-number="2"><span class="kw">with</span>(py<span class="op">$</span><span class="kw">open</span>(<span class="st">"output.txt"</span>, <span class="st">"w"</span>) <span class="op">%as%</span><span class="st"> </span>file, {</a>
-<a class="sourceLine" id="cb20-3" data-line-number="3">  file<span class="op">$</span><span class="kw">write</span>(<span class="st">"Hello, there!"</span>)</a>
-<a class="sourceLine" id="cb20-4" data-line-number="4">})</a></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" data-line-number="1">py &lt;-<span class="st"> </span><span class="kw"><a href="../reference/import.html">import_builtins</a></span>()</a>
+<a class="sourceLine" id="cb24-2" data-line-number="2"><span class="kw">with</span>(py<span class="op">$</span><span class="kw">open</span>(<span class="st">"output.txt"</span>, <span class="st">"w"</span>) <span class="op">%as%</span><span class="st"> </span>file, {</a>
+<a class="sourceLine" id="cb24-3" data-line-number="3">  file<span class="op">$</span><span class="kw">write</span>(<span class="st">"Hello, there!"</span>)</a>
+<a class="sourceLine" id="cb24-4" data-line-number="4">})</a></code></pre></div>
 <p>This example opens a file and ensures that it is automatically closed at the end of the with block. Note the use of the <code>%as%</code> operator to alias the object created by the context manager.</p>
 </div>
 <div id="iterators" class="section level2">
 <h2 class="hasAnchor">
 <a href="#iterators" class="anchor"></a>Iterators</h2>
 <p>If a Python API returns an <a href="http://anandology.com/python-practice-book/iterators.html">iterator or generator</a> you can interact with it using the <code><a href="../reference/iterate.html">iterate()</a></code> function. The <code><a href="../reference/iterate.html">iterate()</a></code> function can be used to apply an R function to each item yielded by the iterator:</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" data-line-number="1"><span class="kw"><a href="../reference/iterate.html">iterate</a></span>(iter, print)</a></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" data-line-number="1"><span class="kw"><a href="../reference/iterate.html">iterate</a></span>(iter, print)</a></code></pre></div>
 <p>If you don’t pass a function to <code>iterate</code> the results will be collected into an R vector:</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" data-line-number="1">results &lt;-<span class="st"> </span><span class="kw"><a href="../reference/iterate.html">iterate</a></span>(iter)</a></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" data-line-number="1">results &lt;-<span class="st"> </span><span class="kw"><a href="../reference/iterate.html">iterate</a></span>(iter)</a></code></pre></div>
 <p>Note that the <code>Iterators</code> will be drained of their values by <code><a href="../reference/iterate.html">iterate()</a></code>:</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" data-line-number="1">a &lt;-<span class="st"> </span><span class="kw"><a href="../reference/iterate.html">iterate</a></span>(iter) <span class="co"># results are not empty</span></a>
-<a class="sourceLine" id="cb23-2" data-line-number="2">b &lt;-<span class="st"> </span><span class="kw"><a href="../reference/iterate.html">iterate</a></span>(iter) <span class="co"># results are empty since items have already been drained</span></a></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" data-line-number="1">a &lt;-<span class="st"> </span><span class="kw"><a href="../reference/iterate.html">iterate</a></span>(iter) <span class="co"># results are not empty</span></a>
+<a class="sourceLine" id="cb27-2" data-line-number="2">b &lt;-<span class="st"> </span><span class="kw"><a href="../reference/iterate.html">iterate</a></span>(iter) <span class="co"># results are empty since items have already been drained</span></a></code></pre></div>
 <div id="element-level-iteration" class="section level3">
 <h3 class="hasAnchor">
 <a href="#element-level-iteration" class="anchor"></a>Element Level Iteration</h3>
 <p>You can also iterate on an element-by-element basis using the <code><a href="../reference/iterate.html">iter_next()</a></code> function. For example:</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" data-line-number="1"><span class="cf">while</span> (<span class="ot">TRUE</span>) {</a>
-<a class="sourceLine" id="cb24-2" data-line-number="2">  item &lt;-<span class="st"> </span><span class="kw"><a href="../reference/iterate.html">iter_next</a></span>(iter)</a>
-<a class="sourceLine" id="cb24-3" data-line-number="3">  <span class="cf">if</span> (<span class="kw">is.null</span>(item))</a>
-<a class="sourceLine" id="cb24-4" data-line-number="4">    <span class="cf">break</span></a>
-<a class="sourceLine" id="cb24-5" data-line-number="5">}</a></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb28-1" data-line-number="1"><span class="cf">while</span> (<span class="ot">TRUE</span>) {</a>
+<a class="sourceLine" id="cb28-2" data-line-number="2">  item &lt;-<span class="st"> </span><span class="kw"><a href="../reference/iterate.html">iter_next</a></span>(iter)</a>
+<a class="sourceLine" id="cb28-3" data-line-number="3">  <span class="cf">if</span> (<span class="kw">is.null</span>(item))</a>
+<a class="sourceLine" id="cb28-4" data-line-number="4">    <span class="cf">break</span></a>
+<a class="sourceLine" id="cb28-5" data-line-number="5">}</a></code></pre></div>
 <p>By default <code><a href="../reference/iterate.html">iter_next()</a></code> will return <code>NULL</code> when the iteration is complete but you can provide a custom <code>completed</code> value it will be returned instead. For example:</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" data-line-number="1"><span class="cf">while</span> (<span class="ot">TRUE</span>) {</a>
-<a class="sourceLine" id="cb25-2" data-line-number="2">  item &lt;-<span class="st"> </span><span class="kw"><a href="../reference/iterate.html">iter_next</a></span>(iter, <span class="dt">completed =</span> <span class="ot">NA</span>)</a>
-<a class="sourceLine" id="cb25-3" data-line-number="3">  <span class="cf">if</span> (<span class="kw">is.na</span>(item))</a>
-<a class="sourceLine" id="cb25-4" data-line-number="4">    <span class="cf">break</span></a>
-<a class="sourceLine" id="cb25-5" data-line-number="5">}</a></code></pre></div>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb29-1" data-line-number="1"><span class="cf">while</span> (<span class="ot">TRUE</span>) {</a>
+<a class="sourceLine" id="cb29-2" data-line-number="2">  item &lt;-<span class="st"> </span><span class="kw"><a href="../reference/iterate.html">iter_next</a></span>(iter, <span class="dt">completed =</span> <span class="ot">NA</span>)</a>
+<a class="sourceLine" id="cb29-3" data-line-number="3">  <span class="cf">if</span> (<span class="kw">is.na</span>(item))</a>
+<a class="sourceLine" id="cb29-4" data-line-number="4">    <span class="cf">break</span></a>
+<a class="sourceLine" id="cb29-5" data-line-number="5">}</a></code></pre></div>
 <p>Note that some iterators/generators in Python are infinite. In that case the caller will need custom logic to determine when to terminate the loop.</p>
 </div>
 <div id="generators" class="section level3">
@@ -368,28 +408,28 @@
 <a href="#generators" class="anchor"></a>Generators</h3>
 <p>Python <a href="https://wiki.python.org/moin/Generators">generators</a> are functions that implement the Python iterator protocol. Similarly, the reticulate <code>generator()</code> function enables you to create a Python iterator from an R function.</p>
 <p>In Python, generators produce values using the <code>yield</code> keyword. In R, values are simply returned from the function. One benefit of the <code>yield</code> keyword is that it enables successive iterations to use the state of previous iterations. In R, this can be done by returning a function that mutates it’s enclosing environment via the &lt;&lt;- operator. For example:</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" data-line-number="1"><span class="co"># define a generator function</span></a>
-<a class="sourceLine" id="cb26-2" data-line-number="2">sequence_generator &lt;-<span class="cf">function</span>(start) {</a>
-<a class="sourceLine" id="cb26-3" data-line-number="3">  value &lt;-<span class="st"> </span>start</a>
-<a class="sourceLine" id="cb26-4" data-line-number="4">  <span class="cf">function</span>() {</a>
-<a class="sourceLine" id="cb26-5" data-line-number="5">    value &lt;&lt;-<span class="st"> </span>value <span class="op">+</span><span class="st"> </span><span class="dv">1</span></a>
-<a class="sourceLine" id="cb26-6" data-line-number="6">    value</a>
-<a class="sourceLine" id="cb26-7" data-line-number="7">  }</a>
-<a class="sourceLine" id="cb26-8" data-line-number="8">}</a>
-<a class="sourceLine" id="cb26-9" data-line-number="9"></a>
-<a class="sourceLine" id="cb26-10" data-line-number="10"><span class="co"># convert the function to a python iterator</span></a>
-<a class="sourceLine" id="cb26-11" data-line-number="11">iter &lt;-<span class="st"> </span><span class="kw"><a href="../reference/py_iterator.html">py_iterator</a></span>(<span class="kw">sequence_generator</span>(<span class="dv">10</span>))</a></code></pre></div>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb30-1" data-line-number="1"><span class="co"># define a generator function</span></a>
+<a class="sourceLine" id="cb30-2" data-line-number="2">sequence_generator &lt;-<span class="cf">function</span>(start) {</a>
+<a class="sourceLine" id="cb30-3" data-line-number="3">  value &lt;-<span class="st"> </span>start</a>
+<a class="sourceLine" id="cb30-4" data-line-number="4">  <span class="cf">function</span>() {</a>
+<a class="sourceLine" id="cb30-5" data-line-number="5">    value &lt;&lt;-<span class="st"> </span>value <span class="op">+</span><span class="st"> </span><span class="dv">1</span></a>
+<a class="sourceLine" id="cb30-6" data-line-number="6">    value</a>
+<a class="sourceLine" id="cb30-7" data-line-number="7">  }</a>
+<a class="sourceLine" id="cb30-8" data-line-number="8">}</a>
+<a class="sourceLine" id="cb30-9" data-line-number="9"></a>
+<a class="sourceLine" id="cb30-10" data-line-number="10"><span class="co"># convert the function to a python iterator</span></a>
+<a class="sourceLine" id="cb30-11" data-line-number="11">iter &lt;-<span class="st"> </span><span class="kw"><a href="../reference/py_iterator.html">py_iterator</a></span>(<span class="kw">sequence_generator</span>(<span class="dv">10</span>))</a></code></pre></div>
 <p>If you want to indicate the end of the iteration, return <code>NULL</code> from the function:</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" data-line-number="1">sequence_generator &lt;-<span class="cf">function</span>(start) {</a>
-<a class="sourceLine" id="cb27-2" data-line-number="2">  value &lt;-<span class="st"> </span>start</a>
-<a class="sourceLine" id="cb27-3" data-line-number="3">  <span class="cf">function</span>() {</a>
-<a class="sourceLine" id="cb27-4" data-line-number="4">    value &lt;&lt;-<span class="st"> </span>value <span class="op">+</span><span class="st"> </span><span class="dv">1</span></a>
-<a class="sourceLine" id="cb27-5" data-line-number="5">    <span class="cf">if</span> (value <span class="op">&lt;</span><span class="st"> </span><span class="dv">100</span>)</a>
-<a class="sourceLine" id="cb27-6" data-line-number="6">      value</a>
-<a class="sourceLine" id="cb27-7" data-line-number="7">    <span class="cf">else</span></a>
-<a class="sourceLine" id="cb27-8" data-line-number="8">      <span class="ot">NULL</span></a>
-<a class="sourceLine" id="cb27-9" data-line-number="9">  }</a>
-<a class="sourceLine" id="cb27-10" data-line-number="10">}</a></code></pre></div>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb31-1" data-line-number="1">sequence_generator &lt;-<span class="cf">function</span>(start) {</a>
+<a class="sourceLine" id="cb31-2" data-line-number="2">  value &lt;-<span class="st"> </span>start</a>
+<a class="sourceLine" id="cb31-3" data-line-number="3">  <span class="cf">function</span>() {</a>
+<a class="sourceLine" id="cb31-4" data-line-number="4">    value &lt;&lt;-<span class="st"> </span>value <span class="op">+</span><span class="st"> </span><span class="dv">1</span></a>
+<a class="sourceLine" id="cb31-5" data-line-number="5">    <span class="cf">if</span> (value <span class="op">&lt;</span><span class="st"> </span><span class="dv">100</span>)</a>
+<a class="sourceLine" id="cb31-6" data-line-number="6">      value</a>
+<a class="sourceLine" id="cb31-7" data-line-number="7">    <span class="cf">else</span></a>
+<a class="sourceLine" id="cb31-8" data-line-number="8">      <span class="ot">NULL</span></a>
+<a class="sourceLine" id="cb31-9" data-line-number="9">  }</a>
+<a class="sourceLine" id="cb31-10" data-line-number="10">}</a></code></pre></div>
 <p>Note that you can change the value that indicates the end of the iteration using the <code>completed</code> parameter (e.g. <code><a href="../reference/py_iterator.html">py_iterator(func, completed = NA)</a></code>).</p>
 </div>
 </div>
@@ -398,15 +438,15 @@
 <a href="#functions" class="anchor"></a>Functions</h2>
 <p>By default R functions are converted to Python with a generic signature (<code>function(...)</code>), where there’s neither keyword argument nor default values for arguments.</p>
 <p>For example, below we apply <code><a href="../reference/r-py-conversion.html">r_to_py()</a></code> to an R function and then we use <a href="https://docs.python.org/3/library/inspect.html">inspect Python module</a> to get the converted function’s argument spec. You can see that the signature of the wrapped function looks different than the original R function’s signature.</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb28-1" data-line-number="1"><span class="op">&gt;</span><span class="st"> </span>inspect &lt;-<span class="st"> </span><span class="kw"><a href="../reference/import.html">import</a></span>(<span class="st">"inspect"</span>)</a>
-<a class="sourceLine" id="cb28-2" data-line-number="2"><span class="op">&gt;</span><span class="st"> </span>converted_func &lt;-<span class="st"> </span><span class="kw"><a href="../reference/r-py-conversion.html">r_to_py</a></span>(<span class="cf">function</span>(a, <span class="dt">b =</span> <span class="fl">1.5</span>) {})</a>
-<a class="sourceLine" id="cb28-3" data-line-number="3"><span class="op">&gt;</span><span class="st"> </span>inspect<span class="op">$</span><span class="kw">getargspec</span>(converted_func)</a>
-<a class="sourceLine" id="cb28-4" data-line-number="4"><span class="kw">ArgSpec</span>(<span class="dt">args=</span>[], <span class="dt">varargs=</span><span class="st">'args'</span>, <span class="dt">keywords=</span><span class="st">'kwargs'</span>, <span class="dt">defaults=</span>None)</a></code></pre></div>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb32-1" data-line-number="1"><span class="op">&gt;</span><span class="st"> </span>inspect &lt;-<span class="st"> </span><span class="kw"><a href="../reference/import.html">import</a></span>(<span class="st">"inspect"</span>)</a>
+<a class="sourceLine" id="cb32-2" data-line-number="2"><span class="op">&gt;</span><span class="st"> </span>converted_func &lt;-<span class="st"> </span><span class="kw"><a href="../reference/r-py-conversion.html">r_to_py</a></span>(<span class="cf">function</span>(a, <span class="dt">b =</span> <span class="fl">1.5</span>) {})</a>
+<a class="sourceLine" id="cb32-3" data-line-number="3"><span class="op">&gt;</span><span class="st"> </span>inspect<span class="op">$</span><span class="kw">getargspec</span>(converted_func)</a>
+<a class="sourceLine" id="cb32-4" data-line-number="4"><span class="kw">ArgSpec</span>(<span class="dt">args=</span>[], <span class="dt">varargs=</span><span class="st">'args'</span>, <span class="dt">keywords=</span><span class="st">'kwargs'</span>, <span class="dt">defaults=</span>None)</a></code></pre></div>
 <p>This default conversion typically works fine, however some Python libraries have strict checking on the function signatures of user provided callbacks. In these cases the generic <code>function(...)</code> signature will fail this checking.</p>
 <p>For these cases you can use <code><a href="../reference/py_func.html">py_func()</a></code> to wrap the R function so that the wrapped function has exactly the same signature as that of the original R function, e.g. one argument <code>a</code> without default value and another argument <code>b</code> with default value 1.5.</p>
-<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb29-1" data-line-number="1"><span class="op">&gt;</span><span class="st"> </span>wrapped_func &lt;-<span class="st"> </span><span class="kw"><a href="../reference/py_func.html">py_func</a></span>(<span class="cf">function</span>(a, <span class="dt">b =</span> <span class="fl">1.5</span>) {})</a>
-<a class="sourceLine" id="cb29-2" data-line-number="2"><span class="op">&gt;</span><span class="st"> </span>inspect<span class="op">$</span><span class="kw">getargspec</span>(wrapped_func)</a>
-<a class="sourceLine" id="cb29-3" data-line-number="3"><span class="kw">ArgSpec</span>(<span class="dt">args=</span>[<span class="st">'a'</span>, <span class="st">'b'</span>], <span class="dt">varargs=</span>None, <span class="dt">keywords=</span>None, <span class="dt">defaults=</span>(<span class="fl">1.5</span>,))</a></code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" data-line-number="1"><span class="op">&gt;</span><span class="st"> </span>wrapped_func &lt;-<span class="st"> </span><span class="kw"><a href="../reference/py_func.html">py_func</a></span>(<span class="cf">function</span>(a, <span class="dt">b =</span> <span class="fl">1.5</span>) {})</a>
+<a class="sourceLine" id="cb33-2" data-line-number="2"><span class="op">&gt;</span><span class="st"> </span>inspect<span class="op">$</span><span class="kw">getargspec</span>(wrapped_func)</a>
+<a class="sourceLine" id="cb33-3" data-line-number="3"><span class="kw">ArgSpec</span>(<span class="dt">args=</span>[<span class="st">'a'</span>, <span class="st">'b'</span>], <span class="dt">varargs=</span>None, <span class="dt">keywords=</span>None, <span class="dt">defaults=</span>(<span class="fl">1.5</span>,))</a></code></pre></div>
 <p>Note that the signature of the R function must not contain esoteric Python-incompatible constructs. For example, we cannot have R function with signature like <code>function(a = 1, b)</code> since Python function requires that arguments without default values appear before arguments with default values.</p>
 </div>
 <div id="advanced" class="section level2">
@@ -612,6 +652,7 @@
       <li><a href="#numeric-types-and-indexes">Numeric Types and Indexes</a></li>
       <li><a href="#arrays">Arrays</a></li>
       <li><a href="#data-frames">Data Frames</a></li>
+      <li><a href="#sparse-matrices">Sparse Matrices</a></li>
       <li><a href="#with-contexts">With Contexts</a></li>
       <li><a href="#iterators">Iterators</a></li>
       <li><a href="#functions">Functions</a></li>

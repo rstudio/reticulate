@@ -11,6 +11,8 @@ Install the development version with: `install_github("rstudio/reticulate")`
 
 - `source_python()` can now source a Python script from a URL into R environments.
 
+- Automatically create conda environment for `conda_install()`
+
 
 ## reticulate 1.6 (CRAN)
 

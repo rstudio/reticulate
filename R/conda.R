@@ -129,6 +129,12 @@ conda_install <- function(envname, packages, forge = TRUE, pip = FALSE, pip_igno
   # resolve conda binary
   conda <- conda_binary(conda)
   
+  # create the environment if needed
+  conda_envs <- conda_list(conda = conda)
+  conda_envs <- subset(conda_envs, conda_envs$name == envname)
+  if (nrow(conda_envs) == 0)
+    conda_create(envname, conda = conda)
+  
   if (pip) {
     # use pip package manager
     condaenv_bin <- function(bin) path.expand(file.path(dirname(conda), bin))

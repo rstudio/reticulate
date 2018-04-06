@@ -30,7 +30,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">1.6.0.9000</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">1.6.0.9002</span>
       </span>
     </div>
 
@@ -134,6 +134,38 @@
 </ol>
 <p>Without the <code>delay_load</code>, Python would be loaded immediately and the user’s call to <code>use_virtualenv</code> would have no effect.</p>
 </div>
+<div id="installing-python-dependencies" class="section level2">
+<h2 class="hasAnchor">
+<a href="#installing-python-dependencies" class="anchor"></a>Installing Python Dependencies</h2>
+<blockquote>
+<p><strong>NOTE</strong>: The dependency installation features described below are currently only available in the development version of reticulate. You can install the development version with <code><a href="http://www.rdocumentation.org/packages/devtools/topics/install_github">devtools::install_github("rstudio/reticulate")</a></code>.</p>
+</blockquote>
+<p>Your R package likely depends on the installation of one or more Python packages. As a convenience to your users, you may want to provide a high-level R function to allow users to install these Python packages. It’s furthermore beneficial if multiple R packages that depend on Python packages install their dependencies in the same Python environment (so that they can be easily used together).</p>
+<p>Here is the approach we recommend to installing Python dependencies required by R packages:</p>
+<ol style="list-style-type: decimal">
+<li><p>Ask your users to install the Anaconda Python distribution from this link: <a href="https://docs.anaconda.com/anaconda/install/" class="uri">https://docs.anaconda.com/anaconda/install/</a></p></li>
+<li>
+<p>Provide an R function that installs the required Python package(s) into the “r-reticulate” Conda environment. For example:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">install_scipy &lt;-<span class="st"> </span><span class="cf">function</span>(<span class="dt">conda =</span> <span class="st">"auto"</span>) {</a>
+<a class="sourceLine" id="cb3-2" data-line-number="2">  reticulate<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/reticulate/topics/conda-tools">conda_install</a></span>(<span class="st">"r-reticulate"</span>, <span class="st">"scipy"</span>, <span class="dt">conda =</span> conda)</a>
+<a class="sourceLine" id="cb3-3" data-line-number="3">}</a></code></pre></div>
+</li>
+<li>
+<p>Then, provide a hint to reticulate that Python packages you are importing are likely to be found in the “r-reticulate” environment. Extending the <code>.onLoad()</code> example from above:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="co"># global reference to scipy (will be initialized in .onLoad)</span></a>
+<a class="sourceLine" id="cb4-2" data-line-number="2">scipy &lt;-<span class="st"> </span><span class="ot">NULL</span></a>
+<a class="sourceLine" id="cb4-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb4-4" data-line-number="4">.onLoad &lt;-<span class="st"> </span><span class="cf">function</span>(libname, pkgname) {</a>
+<a class="sourceLine" id="cb4-5" data-line-number="5">  <span class="co"># use superassignment to update global reference to scipy</span></a>
+<a class="sourceLine" id="cb4-6" data-line-number="6">  scipy &lt;&lt;-<span class="st"> </span>reticulate<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/reticulate/topics/import">import</a></span>(</a>
+<a class="sourceLine" id="cb4-7" data-line-number="7">    <span class="st">"scipy"</span>, </a>
+<a class="sourceLine" id="cb4-8" data-line-number="8">    <span class="dt">delay_load =</span> <span class="kw">list</span>(<span class="dt">environment =</span> <span class="st">"r-reticulate"</span>)</a>
+<a class="sourceLine" id="cb4-9" data-line-number="9">  )</a>
+<a class="sourceLine" id="cb4-10" data-line-number="10">}</a></code></pre></div>
+</li>
+</ol>
+<p>While reticulate is capable of binding to <a href="calling_python.html#python-versions">any Python environment</a> available on a system, it’s much more straightforward for users if there is a common environment used by R packages with convenient high-level functions provided for installation. We therefore strongly recommend that R package developers use the approach described here.</p>
+</div>
 <div id="checking-and-testing-on-cran" class="section level2">
 <h2 class="hasAnchor">
 <a href="#checking-and-testing-on-cran" class="anchor"></a>Checking and Testing on CRAN</h2>
@@ -142,28 +174,28 @@
 <ol style="list-style-type: decimal">
 <li>
 <p>Use the <code>delay_load</code> option (as described above) to ensure that the module (and Python) is loaded only on it’s first use. For example:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="co"># python 'scipy' module I want to use in my package</span></a>
-<a class="sourceLine" id="cb3-2" data-line-number="2">scipy &lt;-<span class="st"> </span><span class="ot">NULL</span></a>
-<a class="sourceLine" id="cb3-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb3-4" data-line-number="4">.onLoad &lt;-<span class="st"> </span><span class="cf">function</span>(libname, pkgname) {</a>
-<a class="sourceLine" id="cb3-5" data-line-number="5">  <span class="co"># delay load foo module (will only be loaded when accessed via $)</span></a>
-<a class="sourceLine" id="cb3-6" data-line-number="6">  scipy &lt;&lt;-<span class="st"> </span><span class="kw"><a href="../reference/import.html">import</a></span>(<span class="st">"scipy"</span>, <span class="dt">delay_load =</span> <span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb3-7" data-line-number="7">}</a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="co"># python 'scipy' module I want to use in my package</span></a>
+<a class="sourceLine" id="cb5-2" data-line-number="2">scipy &lt;-<span class="st"> </span><span class="ot">NULL</span></a>
+<a class="sourceLine" id="cb5-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb5-4" data-line-number="4">.onLoad &lt;-<span class="st"> </span><span class="cf">function</span>(libname, pkgname) {</a>
+<a class="sourceLine" id="cb5-5" data-line-number="5">  <span class="co"># delay load foo module (will only be loaded when accessed via $)</span></a>
+<a class="sourceLine" id="cb5-6" data-line-number="6">  scipy &lt;&lt;-<span class="st"> </span><span class="kw"><a href="../reference/import.html">import</a></span>(<span class="st">"scipy"</span>, <span class="dt">delay_load =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb5-7" data-line-number="7">}</a></code></pre></div>
 </li>
 <li>
 <p>When writing tests, check to see if your module is available and if it isn’t then skip the test. For example, if you are using the <strong>testthat</strong> package, you might do this:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="co"># helper function to skip tests if we don't have the 'foo' module</span></a>
-<a class="sourceLine" id="cb4-2" data-line-number="2">skip_if_no_scipy &lt;-<span class="st"> </span><span class="cf">function</span>() {</a>
-<a class="sourceLine" id="cb4-3" data-line-number="3">  have_scipy &lt;-<span class="st"> </span><span class="kw"><a href="../reference/py_module_available.html">py_module_available</a></span>(<span class="st">"scipy"</span>)</a>
-<a class="sourceLine" id="cb4-4" data-line-number="4">  <span class="cf">if</span> (<span class="op">!</span>have_scipy)</a>
-<a class="sourceLine" id="cb4-5" data-line-number="5">    <span class="kw">skip</span>(<span class="st">"scipy not available for testing"</span>)</a>
-<a class="sourceLine" id="cb4-6" data-line-number="6">}</a>
-<a class="sourceLine" id="cb4-7" data-line-number="7"></a>
-<a class="sourceLine" id="cb4-8" data-line-number="8"><span class="co"># then call this function from all of your tests</span></a>
-<a class="sourceLine" id="cb4-9" data-line-number="9"><span class="kw">test_that</span>(<span class="st">"Things work as expected"</span>, {</a>
-<a class="sourceLine" id="cb4-10" data-line-number="10">  <span class="kw">skip_if_no_scipy</span>()</a>
-<a class="sourceLine" id="cb4-11" data-line-number="11">  <span class="co"># test code here...</span></a>
-<a class="sourceLine" id="cb4-12" data-line-number="12">})</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="co"># helper function to skip tests if we don't have the 'foo' module</span></a>
+<a class="sourceLine" id="cb6-2" data-line-number="2">skip_if_no_scipy &lt;-<span class="st"> </span><span class="cf">function</span>() {</a>
+<a class="sourceLine" id="cb6-3" data-line-number="3">  have_scipy &lt;-<span class="st"> </span><span class="kw"><a href="../reference/py_module_available.html">py_module_available</a></span>(<span class="st">"scipy"</span>)</a>
+<a class="sourceLine" id="cb6-4" data-line-number="4">  <span class="cf">if</span> (<span class="op">!</span>have_scipy)</a>
+<a class="sourceLine" id="cb6-5" data-line-number="5">    <span class="kw">skip</span>(<span class="st">"scipy not available for testing"</span>)</a>
+<a class="sourceLine" id="cb6-6" data-line-number="6">}</a>
+<a class="sourceLine" id="cb6-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb6-8" data-line-number="8"><span class="co"># then call this function from all of your tests</span></a>
+<a class="sourceLine" id="cb6-9" data-line-number="9"><span class="kw">test_that</span>(<span class="st">"Things work as expected"</span>, {</a>
+<a class="sourceLine" id="cb6-10" data-line-number="10">  <span class="kw">skip_if_no_scipy</span>()</a>
+<a class="sourceLine" id="cb6-11" data-line-number="11">  <span class="co"># test code here...</span></a>
+<a class="sourceLine" id="cb6-12" data-line-number="12">})</a></code></pre></div>
 </li>
 </ol>
 </div>
@@ -173,19 +205,19 @@
 <p>Python objects exposed by <strong>reticulate</strong> carry their Python classes into R, so it’s possible to write S3 methods to customize e.g. the <code>str</code> or <code>print</code> behavior for a given class (note that it’s not typically necessary that you do this since the default <code>str</code> and <code>print</code> methods call <code>PyObject_Str</code>, which typically provides an acceptable default behavior).</p>
 <p>If you do decide to implement custom S3 methods for a Python class it’s important to keep in mind that when an R session ends the connection to Python objects is lost, so when the .RData saved from one R session is restored in a subsequent R session the Python objects are effectively lost (technically they become <code>NULL</code> R <code>externalptr</code> objects).</p>
 <p>By default when you attempt to interact with a Python object from a previous session (a <code>NULL</code> R <code>externalptr</code>) an error is thrown. If you want to do something more customized in your S3 method you can use the <code><a href="../reference/py_is_null_xptr.html">py_is_null_xptr()</a></code> function. For example:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1">method.MyModule.MyPythonClass &lt;-<span class="st"> </span><span class="cf">function</span>(x, y, ...) {</a>
-<a class="sourceLine" id="cb5-2" data-line-number="2">  <span class="cf">if</span> (<span class="kw"><a href="../reference/py_is_null_xptr.html">py_is_null_xptr</a></span>(x))</a>
-<a class="sourceLine" id="cb5-3" data-line-number="3">    <span class="co"># whatever is appropriate</span></a>
-<a class="sourceLine" id="cb5-4" data-line-number="4">  <span class="cf">else</span> </a>
-<a class="sourceLine" id="cb5-5" data-line-number="5">    <span class="co"># interact with the object</span></a>
-<a class="sourceLine" id="cb5-6" data-line-number="6">}</a></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1">method.MyModule.MyPythonClass &lt;-<span class="st"> </span><span class="cf">function</span>(x, y, ...) {</a>
+<a class="sourceLine" id="cb7-2" data-line-number="2">  <span class="cf">if</span> (<span class="kw"><a href="../reference/py_is_null_xptr.html">py_is_null_xptr</a></span>(x))</a>
+<a class="sourceLine" id="cb7-3" data-line-number="3">    <span class="co"># whatever is appropriate</span></a>
+<a class="sourceLine" id="cb7-4" data-line-number="4">  <span class="cf">else</span> </a>
+<a class="sourceLine" id="cb7-5" data-line-number="5">    <span class="co"># interact with the object</span></a>
+<a class="sourceLine" id="cb7-6" data-line-number="6">}</a></code></pre></div>
 <p>Note that this check isn’t required, as by default an R error will occur. If it’s desirable to avoid this error for any reason then you can use <code><a href="../reference/py_is_null_xptr.html">py_is_null_xptr()</a></code> to do so.</p>
 <p>The <strong>reticulate</strong> package exports a <code>py_str</code> generic method which is called from the <code>str</code> method only after doing appropriate validation (if the object is NULL then <code>&lt;pointer: 0x0&gt;</code> is returned). You can implement the <code>py_str</code> method as follows:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="co">#' @importFrom reticulate py_str</span></a>
-<a class="sourceLine" id="cb6-2" data-line-number="2"><span class="co">#' @export </span></a>
-<a class="sourceLine" id="cb6-3" data-line-number="3">py_str.MyModule.MyPythonClass &lt;-<span class="st"> </span><span class="cf">function</span>(object, ...) {</a>
-<a class="sourceLine" id="cb6-4" data-line-number="4">  <span class="co"># interact with the object to generate the string</span></a>
-<a class="sourceLine" id="cb6-5" data-line-number="5">}</a></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="co">#' @importFrom reticulate py_str</span></a>
+<a class="sourceLine" id="cb8-2" data-line-number="2"><span class="co">#' @export </span></a>
+<a class="sourceLine" id="cb8-3" data-line-number="3">py_str.MyModule.MyPythonClass &lt;-<span class="st"> </span><span class="cf">function</span>(object, ...) {</a>
+<a class="sourceLine" id="cb8-4" data-line-number="4">  <span class="co"># interact with the object to generate the string</span></a>
+<a class="sourceLine" id="cb8-5" data-line-number="5">}</a></code></pre></div>
 <p>The <code>print</code> and <code>summary</code> methods for Python objects both call the <code>str</code> method by default, so if you implement <code><a href="../reference/py_str.html">py_str()</a></code> you will automatically inherit implementations for those methods.</p>
 <div id="converting-between-r-and-python" class="section level3">
 <h3 class="hasAnchor">
@@ -217,6 +249,7 @@
 <a href="#tocnav" class="anchor"></a>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
 <li><a href="#delay-loading-python-modules">Delay Loading Python Modules</a></li>
+      <li><a href="#installing-python-dependencies">Installing Python Dependencies</a></li>
       <li><a href="#checking-and-testing-on-cran">Checking and Testing on CRAN</a></li>
       <li><a href="#implementing-s3-methods">Implementing S3 Methods</a></li>
       <li><a href="#using-travis-ci">Using Travis-CI</a></li>

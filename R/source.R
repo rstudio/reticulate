@@ -2,15 +2,18 @@
 
 #' Read and evaluate a Python script
 #'
-#' Evaluate a Python script and make created Python objects available within R.
-#' The Python script is sourced within the Python main module, and so any
-#' objects defined are made available within Python as well.
+#' Evaluate a Python script within the Python main module, then make all public
+#' (non-module) objects within the main Python module available within the
+#' specified R environment.
+#'
+#' To prevent assignment of objects into R, pass `NULL` for the `envir`
+#' parameter.
 #'
 #' @inheritParams py_run_file
 #'
-#' @param envir The environment to assign Python objects into
-#'   (for example, `parent.frame()` or `globalenv()`). Specify `NULL` to
-#'   not assign Python objects.
+#' @param envir The environment to assign Python objects into (for example,
+#'   `parent.frame()` or `globalenv()`). Specify `NULL` to not assign Python
+#'   objects.
 #'
 #' @export
 #' @importFrom utils download.file
@@ -24,25 +27,23 @@ source_python <- function(file, envir = parent.frame(), convert = TRUE) {
     on.exit(unlink(file), add = TRUE)
   }
 
-  # source the python script (locally so we can track what mutations are
-  # made in the file scope)
-  dict <- py_run_file(file, local = TRUE, convert = convert)
+  # source the python script into the main python module
+  dict <- py_run_file(file, local = FALSE, convert = convert)
 
-  # replay changes into the python main module
-  main <- import_main(convert = FALSE)
-  update <- py_to_r(py_get_attr(main$`__dict__`, "update"))
-  update(dict)
-  
-  # get the keys
-  names <- py_dict_get_keys_as_str(dict)
-  Encoding(names) <- "UTF-8"
-  
-  # assign the objects into the specified environment
+  # copy objects from the main python module into the specified R environment
   if (!is.null(envir)) {
-    for (name in names)
-      assign(name, dict[[name]], envir = envir)
+    main <- import_main(convert = convert)
+    main_dict <- py_get_attr(main, "__dict__")
+    names <- py_dict_get_keys_as_str(main_dict)
+    names <- names[substr(names, 1, 1) != '_']
+    Encoding(names) <- "UTF-8"
+    for (name in names) {
+      value <- main_dict[[name]]
+      if (!inherits(value, "python.builtin.module"))
+        assign(name, value, envir = envir)
+    }
   }
-  
+ 
   # return nothing
   invisible(NULL)
 }

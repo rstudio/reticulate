@@ -9,16 +9,20 @@ source_python(file, envir = parent.frame(), convert = TRUE)
 \arguments{
 \item{file}{Source file}
 
-\item{envir}{The environment to assign Python objects into
-(for example, \code{parent.frame()} or \code{globalenv()}). Specify \code{NULL} to
-not assign Python objects.}
+\item{envir}{The environment to assign Python objects into (for example,
+\code{parent.frame()} or \code{globalenv()}). Specify \code{NULL} to not assign Python
+objects.}
 
 \item{convert}{\code{TRUE} to automatically convert Python objects to their R
 equivalent. If you pass \code{FALSE} you can do manual conversion using the
 \code{\link[=py_to_r]{py_to_r()}} function.}
 }
 \description{
-Evaluate a Python script and make created Python objects available within R.
-The Python script is sourced within the Python main module, and so any
-objects defined are made available within Python as well.
+Evaluate a Python script within the Python main module, then make all public
+(non-module) objects within the main Python module available within the
+specified R environment.
+}
+\details{
+To prevent assignment of objects into R, pass \code{NULL} for the \code{envir}
+parameter.
 }

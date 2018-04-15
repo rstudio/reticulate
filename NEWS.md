@@ -11,6 +11,8 @@ Install the development version with: `install_github("rstudio/reticulate")`
 
 - `source_python()` can now source a Python script from a URL into R environments.
 
+- Always run `source_python()` in the main Python module.
+
 - `py_install()` function for installing Python packages into virtualenvs and conda envs
 
 - Automatically create conda environment for `conda_install()`

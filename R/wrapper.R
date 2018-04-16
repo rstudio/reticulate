@@ -233,7 +233,7 @@ py_function_custom_scaffold <- function(
       
       # Generate function signature
       signature <- sub(paste0(docs$name, "\\("),
-                       paste(r_function, "<- function(\n\t"), docs$signature)
+                       paste(r_function, "<- function("), docs$signature)
       write_line(paste(signature, "{\n"))
       
       # Execute the Python function

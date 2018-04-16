@@ -144,7 +144,6 @@ print.py_wrapper <- function(x, ...) {
 #' @param additional_roxygen_fields A list of additional roxygen fields to write
 #'   to the roxygen docs, e.g. `list(export = "", rdname =
 #'   "generated-wrappers")`.
-#'
 #' @param process_docs_fn A function to process docs obtained from
 #'   `reticulate::py_function_docs(python_function)`.
 #' @param process_param_fn A function to process each parameter needed for
@@ -159,7 +158,7 @@ print.py_wrapper <- function(x, ...) {
 #'
 #' @examples
 #' \dontrun{
-#' 
+#'
 #' library(tensorflow)
 #' library(stringr)
 #'
@@ -177,11 +176,11 @@ print.py_wrapper <- function(x, ...) {
 #'   }
 #'   param
 #' }
-#' 
+#'
 #' # Note that since the default value of parameter `k` is `1L`. It is wrapped
-#' # by `as.integer()` to ensure it's casted to integer before sending it to `tf$nn$top_k` 
+#' # by `as.integer()` to ensure it's casted to integer before sending it to `tf$nn$top_k`
 #' # for execution. We then print out the python function result.
-#' 
+#'
 #' py_function_custom_scaffold(
 #'   "tf$nn$top_k",
 #'   r_function = "top_k",

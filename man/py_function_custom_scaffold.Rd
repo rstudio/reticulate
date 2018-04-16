@@ -37,7 +37,7 @@ function.}
 \code{NULL}, the generated wrapper will only be printed out in the console.}
 }
 \description{
-This utility function can be used to generate R wrapper for a specified
+This function can be used to generate R wrapper for a specified
 Python function while allowing to inject custom code for critical parts of
 the wrapper generation, such as process the any part of the docs obtained
 from \code{\link[=py_function_docs]{py_function_docs()}} and append additional roxygen fields. The result
@@ -54,12 +54,12 @@ library(stringr)
 # Example of a `process_param_fn` to cast parameters with default values
 # that contains "L" to integers
 process_int_param_fn <- function(param, docs) {
-  # Extract the params with integer types
+  # Extract the list of parameters that have integer values as default
   int_params <- gsub(
     " = [-]?[0-9]+L",
     "",
     str_extract_all(docs$signature, "[A-z]+ = [-]?[0-9]+L")[[1]])
-  # Custom handling of integer params
+  # Explicitly cast parameter in the list obtained above to integer
   if (param \%in\% int_params) {
     param <- paste0("as.integer(", param, ")")
   }
@@ -69,7 +69,6 @@ process_int_param_fn <- function(param, docs) {
 # Note that since the default value of parameter `k` is `1L`. It is wrapped
 # by `as.integer()` to ensure it's casted to integer before sending it to `tf$nn$top_k`
 # for execution. We then print out the python function result.
-
 py_function_custom_scaffold(
   "tf$nn$top_k",
   r_function = "top_k",

@@ -163,7 +163,8 @@ print.py_wrapper <- function(x, ...) {
 #' library(tensorflow)
 #' library(stringr)
 #'
-#' # Example of a `process_param_fn` to cast parameters with default values that contains "L" to integers
+#' # Example of a `process_param_fn` to cast parameters with default values
+#' # that contains "L" to integers
 #' process_int_param_fn <- function(param, docs) {
 #'   # Extract the params with integer types
 #'   int_params <- gsub(

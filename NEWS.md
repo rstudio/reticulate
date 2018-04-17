@@ -17,6 +17,8 @@ Install the development version with: `install_github("rstudio/reticulate")`
 
 - Automatically create conda environment for `conda_install()`
 
+- Removed `delay_load` parameter from `import_from_path()`
+
 
 ## reticulate 1.6 (CRAN)
 

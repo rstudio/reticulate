@@ -13,7 +13,7 @@ import_main(convert = TRUE)
 
 import_builtins(convert = TRUE)
 
-import_from_path(module, path = ".", convert = TRUE, delay_load = FALSE)
+import_from_path(module, path = ".", convert = TRUE)
 }
 \arguments{
 \item{module}{Module name}

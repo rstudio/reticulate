@@ -104,7 +104,7 @@ import_builtins <- function(convert = TRUE) {
 
 #' @rdname import
 #' @export
-import_from_path <- function(module, path = ".", convert = TRUE, delay_load = FALSE) {
+import_from_path <- function(module, path = ".", convert = TRUE) {
   
   # normalize path
   path <- normalizePath(path)
@@ -115,7 +115,7 @@ import_from_path <- function(module, path = ".", convert = TRUE, delay_load = FA
     sys$path$append(path)
   
   # import
-  import(module, convert = convert, delay_load = delay_load)
+  import(module, convert = convert)
 }
 
 

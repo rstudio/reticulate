@@ -322,18 +322,19 @@ save_python_session <- function(cache_path) {
 #' Typically, this will be set within a document's setup chunk, or by the
 #' environment requesting that Python chunks be processed by this engine.
 #' 
-#' @param cache_path
-#'   The path to save the chunk cache, as provided by `knitr` during chunk execution.
+#' @param options
+#'   List of chunk options provided by `knitr` during chunk execution. 
+#'   Contains the caching path.
 #'   
 #' @export
-cache_eng_python <- function(cache_path) {
+cache_eng_python <- function(options) {
   module <- tryCatch(import("dill"), error = identity)
   if (inherits(module, "error")) {
     if (module$message == "ImportError: No module named dill") return()
     stop(module$message)
   }
 
-  module$load_session(filename = paste0(cache_path, ".pkl"))
+  module$load_session(filename = paste0(options$hash, ".pkl"))
 }
 
 

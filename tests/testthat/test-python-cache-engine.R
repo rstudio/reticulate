@@ -25,9 +25,9 @@ test_that("An R Markdown document builds if a cache is modified", {
   old_var <- "1"
   new_var <- "0"
   mutate_chunk <- function(x) {
-    print_line <- 19
+    print_line <- 17
     file_text <- readLines("resources/eng-reticulate-cache-test.Rmd")
-    file_text[print_line] <- paste("print(x + ", x, ")", sep = "")
+    file_text[print_line] <- paste0("print(x + ", x, ")")
     writeLines(file_text, "resources/eng-reticulate-cache-test.Rmd")
   }
   mutate_chunk(old_var)

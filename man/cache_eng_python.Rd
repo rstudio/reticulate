@@ -4,10 +4,11 @@
 \alias{cache_eng_python}
 \title{A reticulate cache engine for Knitr}
 \usage{
-cache_eng_python(cache_path)
+cache_eng_python(options)
 }
 \arguments{
-\item{cache_path}{The path to save the chunk cache, as provided by \code{knitr} during chunk execution.}
+\item{options}{List of chunk options provided by \code{knitr} during chunk execution.
+Contains the caching path.}
 }
 \description{
 This provides a \code{reticulate} cache engine for \code{knitr}. The cache engine

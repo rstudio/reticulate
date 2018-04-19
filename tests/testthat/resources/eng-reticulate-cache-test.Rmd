@@ -1,0 +1,20 @@
+---
+title: "Using reticulate's Python Engine with knitr"
+---
+
+```{r setup, include = FALSE}
+library(reticulate)
+knitr::opts_chunk$set(cache=TRUE)
+```
+
+Cache can handle changes to second chunk:
+
+```{python}
+x = 1
+```
+
+```{python}
+print(x + 1)
+```
+
+

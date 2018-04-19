@@ -26,7 +26,7 @@ Just a placeholder here.
 "
 
   doctree <- sphinx_doctree_from_doc(docs)
-  expect_equal(names(doctree$ids), c("parameters", "returns", "section1"))
+  expect_setequal(names(doctree$ids), c("parameters", "returns", "section1"))
 
   arg_descriptions <- arg_descriptions_from_doc_sphinx(docs)
   expect_equal(names(arg_descriptions), c("a", "type"))
@@ -69,3 +69,27 @@ Section1:
   expect_match(result$returns, "array-like values")
 })
 
+test_that("Parameter help can be extracted from Python objects", {
+  skip_if_no_docutils()
+  
+  py_run_string('
+def foo(alpha, omega):
+  """
+Parameters
+----------
+
+alpha: int, optional
+  The first argument.
+
+omega: int, optional
+  The last argument.
+"""
+  pass
+')
+  
+  main <- import_main(convert = FALSE)
+  output <- help_completion_parameter_handler.python.builtin.object(main$foo)
+  expect_equal(output$args, c("alpha", "omega"))
+  expect_match(output$arg_descriptions[[1]], "The first argument.")
+  expect_match(output$arg_descriptions[[2]], "The last argument.")
+})

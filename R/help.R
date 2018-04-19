@@ -185,17 +185,31 @@ help_completion_parameter_handler.python.builtin.object <- function(source) {
 
   if (!py_available())
     return(NULL)
-
+  
+  # handle Python functions as-is
+  if (inherits(source, "python.builtin.object"))
+    target <- source
+  
   # split into topic and source
-  components <- source_components(source)
-  if (is.null(components))
-    return(NULL)
-  topic <- components$topic
-  source <- components$source
-
-  # get the function
-  target <- help_get_attribute(source, topic)
-  if (!is.null(target) & py_is_callable(target)) {
+  if (is.character(source)) {
+    components <- source_components(source)
+    if (is.null(components))
+      return(NULL)
+    topic <- components$topic
+    source <- components$source
+    
+    # get the function
+    target <- help_get_attribute(source, topic)
+  }
+  
+  # if this is a class object, use the __init__ method
+  if (inherits(target, "python.builtin.type")) {
+    init <- py_get_attr(target, "__init__", silent = TRUE)
+    if (!is.null(init))
+      target <- init
+  }
+  
+  if (!is.null(target) && py_is_callable(target)) {
     help <- import("rpytools.help")
     args <- help$get_arguments(target)
     if (!is.null(args)) {
@@ -234,7 +248,6 @@ help_url_handler.python.builtin.object <- function(topic, source) {
   }
 
   # get help page
-  page <- NULL
   inspect <- import("inspect")
   if (inspect$ismodule(source)) {
     module <- py_get_name(source)
@@ -277,7 +290,7 @@ help_formals_handler.python.builtin.object <- function(topic, source) {
 }
 
 sphinx_doc_params_matches <- function(doc) {
-  regexpr(pattern = "\nParameters\n+[-]+", doc)
+  regexpr(pattern = "(?:^|\n)Parameters\n+[-]+", doc)
 }
 
 is_sphinx_doc <- function(doc) {
@@ -298,17 +311,17 @@ sphinx_doctree_from_doc <- function(doc) {
 
 # Extract arguments descriptions for docs in TensorFlow-like styles
 arg_descriptions_from_doc_default <- function(args, doc) {
+  
   # extract arguments section of the doc and break into lines
-  arguments <- section_from_doc('Arg(s|uments)', doc)
   doc <- strsplit(doc, "\n", fixed = TRUE)[[1]]
   
   sapply(args, function(arg) {
-    arg_line <- which(grepl(paste0("^\\s+", arg, ":"), doc))
+    arg_line <- which(grepl(paste0("^\\s*", arg, ":"), doc))
     if (length(arg_line) > 0) {
       line <- doc[[arg_line]]
       arg_description <- substring(line, regexpr(':', line)[[1]] + 1)
       next_line <- arg_line + 1
-      while((arg_line + 1) <= length(doc)) {
+      while ((arg_line + 1) <= length(doc)) {
         line <- doc[[arg_line + 1]]
         if (!grepl("^\\s*$", line) && !grepl("^\\s+\\w+: ", line)) {
           arg_description <- paste(arg_description, line)
@@ -326,11 +339,22 @@ arg_descriptions_from_doc_default <- function(args, doc) {
 
 # Extract arguments descriptions for docs in Sphinx style
 arg_descriptions_from_doc_sphinx <- function(doc) {
+  
   doctree <- sphinx_doctree_from_doc(doc)
   params <- doctree$ids$parameters$children[[2]]$children
-  sapply(params, function(param) {
-    param$children[[3]]$astext()
+  
+  output <- lapply(params, function(param) {
+    children <- param$children
+    children[[length(children)]]$astext()
   })
+  
+  nms <- vapply(params, function(param) {
+    name <- param$children[[1]]$astext()
+    sub("\\s*:.*", "", name)
+  }, character(1))
+  
+  names(output) <- nms
+  output
 }
 
 # Extract argument descriptions from python docstring
@@ -368,7 +392,7 @@ sections_from_doc <- function(doc) {
     
     # collect the sections text
     section_text <- c()
-    while((section_line + 1) <= length(doc)) {
+    while ((section_line + 1) <= length(doc)) {
       line <- doc[[section_line + 1]]
       if (grepl("\\w+", line)) {
         section_text <- paste(section_text, line)

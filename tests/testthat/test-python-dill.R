@@ -1,6 +1,6 @@
 context("dill")
 
-source("utils.R")
+source("helper-utils.R")
 
 test_that("Interpreter sessions can be saved and loaded with dill", {
   skip_if_no_python()

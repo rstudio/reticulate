@@ -24,7 +24,7 @@ test_that("Iterators are drained of their values by iteration", {
 
 test_that("infinite iterators can be accessed with iter_next", {
   skip_if_no_python()
-  
+
   # create an infinite generator
   main <- py_run_string("
 def infinite_generator():
@@ -34,7 +34,7 @@ def infinite_generator():
     n += 1
 ")
   it <- main$infinite_generator()
-  
+
   # iterate and stop when i is 10
   while(TRUE) {
     i <- iter_next(it)
@@ -84,11 +84,3 @@ test_that("generator functions are always called on the main thread", {
   gen <- py_iterator(sequence_generator(10L))
   expect_equal(test$iterateOnThread(gen), 11L:19L)
 })
-
-
-
-
-
-
-
-

@@ -18,7 +18,7 @@
 #' @export
 #' @importFrom utils download.file
 source_python <- function(file, envir = parent.frame(), convert = TRUE) {
-  
+
   # Download file content from URL to a local tempory file
   if (!file.exists(file) && isTRUE(grepl("http", file))) {
     tmpfile <- tempfile(fileext = ".py")
@@ -43,7 +43,8 @@ source_python <- function(file, envir = parent.frame(), convert = TRUE) {
         assign(name, value, envir = envir)
     }
   }
- 
+
   # return nothing
   invisible(NULL)
 }
+

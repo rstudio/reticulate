@@ -23,3 +23,4 @@ test_that("The list function forces single-element vectors to be lists", {
   expect_false(test$isScalar(list("5")))
   expect_false(test$isScalar(list(TRUE)))
 })
+

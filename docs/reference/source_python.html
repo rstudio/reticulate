@@ -29,9 +29,9 @@
   
 <meta property="og:title" content="Read and evaluate a Python script — source_python" />
 
-<meta property="og:description" content="Evaluate a Python script and make created Python objects available within R.
-The Python script is sourced within the Python main module, and so any
-objects defined are made available within Python as well." />
+<meta property="og:description" content="Evaluate a Python script within the Python main module, then make all public
+(non-module) objects within the main Python module available within the
+specified R environment." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -137,9 +137,9 @@ objects defined are made available within Python as well." />
     </div>
 
     
-    <p>Evaluate a Python script and make created Python objects available within R.
-The Python script is sourced within the Python main module, and so any
-objects defined are made available within Python as well.</p>
+    <p>Evaluate a Python script within the Python main module, then make all public
+(non-module) objects within the main Python module available within the
+specified R environment.</p>
     
 
     <pre class="usage"><span class='fu'>source_python</span>(<span class='no'>file</span>, <span class='kw'>envir</span> <span class='kw'>=</span> <span class='fu'>parent.frame</span>(), <span class='kw'>convert</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
@@ -153,9 +153,9 @@ objects defined are made available within Python as well.</p>
     </tr>
     <tr>
       <th>envir</th>
-      <td><p>The environment to assign Python objects into
-(for example, <code>parent.frame()</code> or <code>globalenv()</code>). Specify <code>NULL</code> to
-not assign Python objects.</p></td>
+      <td><p>The environment to assign Python objects into (for example,
+<code>parent.frame()</code> or <code>globalenv()</code>). Specify <code>NULL</code> to not assign Python
+objects.</p></td>
     </tr>
     <tr>
       <th>convert</th>
@@ -165,13 +165,20 @@ equivalent. If you pass <code>FALSE</code> you can do manual conversion using th
     </tr>
     </table>
     
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>To prevent assignment of objects into R, pass <code>NULL</code> for the <code>envir</code>
+parameter.</p>
+    
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-                </ul>
+      
+      <li><a href="#details">Details</a></li>
+          </ul>
 
   </div>
 </div>

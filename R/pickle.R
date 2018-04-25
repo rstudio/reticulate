@@ -6,7 +6,7 @@
 #' @param filename File name
 #' @param pickle The implementation of pickle to use (defaults to "pickle" but
 #'   could e.g. also be "cPickle")
-#' 
+#'
 #' @export
 py_save_object <- function(object, filename, pickle = "pickle") {
   builtins <- import_builtins()
@@ -21,7 +21,8 @@ py_save_object <- function(object, filename, pickle = "pickle") {
 py_load_object <- function(filename, pickle = "pickle") {
   builtins <- import_builtins()
   pickle <- import(pickle)
-  handle <- builtins$open(filename, "rb") 
+  handle <- builtins$open(filename, "rb")
   on.exit(handle$close(), add = TRUE)
   pickle$load(handle)
 }
+

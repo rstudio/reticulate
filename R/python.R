@@ -1,42 +1,42 @@
 
 #' Import a Python module
-#' 
+#'
 #' Import the specified Python module for calling from R.
-#' 
+#'
 #' @param module Module name
 #' @param as Alias for module name (affects names of R classes)
 #' @param path Path to import from
 #' @param convert `TRUE` to automatically convert Python objects to their R
-#'   equivalent. If you pass `FALSE` you can do manual conversion using the 
+#'   equivalent. If you pass `FALSE` you can do manual conversion using the
 #'   [py_to_r()] function.
 #' @param delay_load `TRUE` to delay loading the module until it is first used.
 #'   `FALSE` to load the module immediately. If a function is provided then it
 #'   will be called once the module is loaded. If a list containing `on_load()`
 #'   and `on_error(e)` elements is provided then `on_load()` will be called on
 #'   successful load and `on_error(e)` if an error occurs.
-#'   
+#'
 #' @details The `import_from_path` function imports a Python module from an
 #'   arbitrary filesystem path (the directory of the specified python script is
 #'   automatically added to the `sys.path`).
-#'   
+#'
 #' @return A Python module
-#'   
+#'
 #' @examples
 #' \dontrun{
 #' main <- import_main()
 #' sys <- import("sys")
 #' }
-#' 
+#'
 #' @export
 import <- function(module, as = NULL, convert = TRUE, delay_load = FALSE) {
-  
+
   # if there is an as argument then register a filter for it
   if (!is.null(as)) {
     register_class_filter(function(classes) {
       sub(paste0("^", module), as, classes)
     })
   }
-  
+
   # resolve delay load
   delay_load_environment <- NULL
   delay_load_priority <- 0
@@ -51,17 +51,17 @@ import <- function(module, as = NULL, convert = TRUE, delay_load = FALSE) {
       delay_load_priority <- delay_load$priority
     delay_load <- TRUE
   }
-  
+
   # normal case (load immediately)
   if (!delay_load || is_python_initialized()) {
     # ensure that python is initialized (pass top level module as
     # a hint as to which version of python to choose)
     ensure_python_initialized(required_module = module)
-  
+
     # import the module
     py_module_import(module, convert = convert)
   }
-  
+
   # delay load case (wait until first access)
   else {
     if (is.null(.globals$delay_load_module) || (delay_load_priority > .globals$delay_load_priority)) {
@@ -77,7 +77,7 @@ import <- function(module, as = NULL, convert = TRUE, delay_load = FALSE) {
       module_proxy$on_load <- delay_load_functions$on_load
       module_proxy$on_error <- delay_load_functions$on_error
     }
-    attr(module_proxy, "class") <- c("python.builtin.module", 
+    attr(module_proxy, "class") <- c("python.builtin.module",
                                      "python.builtin.object")
     module_proxy
   }
@@ -105,10 +105,10 @@ import_builtins <- function(convert = TRUE) {
 #' @rdname import
 #' @export
 import_from_path <- function(module, path = ".", convert = TRUE) {
-  
+
   # normalize path
   path <- normalizePath(path)
-  
+
   # add the path to sys.path if it isn't already there
   sys <- import("sys", convert = FALSE)
   sys$path$insert(as.integer(0), path)
@@ -146,7 +146,7 @@ str.python.builtin.module <- function(object, ...) {
     cat("Module(", get("module", envir = object), ")\n", sep = "")
   } else {
     cat(py_str(object), "\n", sep = "")
-  } 
+  }
 }
 
 #' @export
@@ -202,20 +202,20 @@ summary.python.builtin.object <- function(object, ...) {
 
 #' @export
 `$.python.builtin.module` <- function(x, name) {
- 
+
   # resolve module proxies
-  if (py_is_module_proxy(x)) 
+  if (py_is_module_proxy(x))
     py_resolve_module_proxy(x)
-  
+
   `$.python.builtin.object`(x, name)
 }
 
 py_has_convert <- function(x) {
-  
+
   # resolve wrapped environment
   x <- as.environment(x)
-  
-  # get convert flag 
+
+  # get convert flag
   if (exists("convert", x, inherits = FALSE))
     get("convert", x, inherits = FALSE)
   else
@@ -226,16 +226,16 @@ py_has_convert <- function(x) {
 `$.python.builtin.object` <- function(x, name) {
 
   # resolve module proxies
-  if (py_is_module_proxy(x)) 
+  if (py_is_module_proxy(x))
     py_resolve_module_proxy(x)
-  
+
   # skip if this is a NULL xptr
   if (py_is_null_xptr(x) || !py_available())
     return(NULL)
 
   # deterimine whether this object converts to python
   convert <- py_has_convert(x)
-  
+
   # special handling for embedded modules (which don't always show
   # up as "attributes")
   if (py_is_module(x) && !py_has_attr(x, name)) {
@@ -243,7 +243,7 @@ py_has_convert <- function(x) {
     if (!is.null(module))
       return(module)
   }
-  
+
   # get the attrib
   if (is.numeric(name) && (length(name) == 1) && py_has_attr(x, "__getitem__"))
     attrib <- x$`__getitem__`(as.integer(name))
@@ -251,20 +251,20 @@ py_has_convert <- function(x) {
     attrib <- py_dict_get_item(x, name)
   else
     attrib <- py_get_attr(x, name)
-  
+
   # convert
   if (convert || py_is_callable(attrib)) {
-  
+
     # capture previous convert for attr
     attrib_convert <- py_has_convert(attrib)
-    
+
     # temporarily change convert so we can call py_to_r and get S3 dispatch
     envir <- as.environment(attrib)
     assign("convert", convert, envir = envir)
     on.exit(assign("convert", attrib_convert, envir = envir), add = TRUE)
-    
+
     # call py_to_r
-    py_to_r(attrib) 
+    py_to_r(attrib)
   }
   else
     attrib
@@ -273,9 +273,9 @@ py_has_convert <- function(x) {
 
 
 # the as.environment generic enables pytyhon objects that manifest
-# as R functions (e.g. for functions, classes, callables, etc.) to 
+# as R functions (e.g. for functions, classes, callables, etc.) to
 # be automatically converted to enviroments during the construction
-# of PyObjectRef. This makes them a seamless drop-in for standard 
+# of PyObjectRef. This makes them a seamless drop-in for standard
 # python objects represented as environments
 
 #' @export
@@ -328,10 +328,10 @@ length.python.builtin.dict <- function(x) {
 
 #' @export
 .DollarNames.python.builtin.module <- function(x, pattern = "") {
-  
+
   # resolve module proxies (ignore errors since this is occurring during completion)
   result <- tryCatch({
-    if (py_is_module_proxy(x)) 
+    if (py_is_module_proxy(x))
       py_resolve_module_proxy(x)
     TRUE
   }, error = clear_error_handler(FALSE))
@@ -352,12 +352,12 @@ length.python.builtin.dict <- function(x) {
 
   # check for dictionary
   if (inherits(x, "python.builtin.dict")) {
-    
+
     names <- py_dict_get_keys_as_str(x)
     names <- names[substr(names, 1, 1) != '_']
     Encoding(names) <- "UTF-8"
     types <- rep_len(0L, length(names))
-    
+
   } else {
     # get the names and filter out internal attributes (_*)
     names <- py_suppress_warnings(py_list_attributes(x))
@@ -365,12 +365,12 @@ length.python.builtin.dict <- function(x) {
     # replace function with `function`
     names <- sub("^function$", "`function`", names)
     names <- sort(names, decreasing = FALSE)
-    
+
     # get the types
     types <- py_suppress_warnings(py_get_attribute_types(x, names))
   }
 
- 
+
   # if this is a module then add submodules
   if (inherits(x, "python.builtin.module")) {
     name <- py_get_name(x)
@@ -385,11 +385,11 @@ length.python.builtin.dict <- function(x) {
   if (length(names) > 0) {
     # set types
     attr(names, "types") <- types
-  
+
     # specify a help_handler
     attr(names, "helpHandler") <- "reticulate:::help_handler"
   }
-  
+
   # return
   names
 }
@@ -435,42 +435,42 @@ plot.numpy.ndarray <- function(x, y, ...) {
 
 
 #' Create Python dictionary
-#' 
-#' Create a Python dictionary object, including a dictionary whose keys are 
+#'
+#' Create a Python dictionary object, including a dictionary whose keys are
 #' other Python objects rather than character vectors.
-#' 
-#' @param ... Name/value pairs for dictionary (or a single named list to be 
+#'
+#' @param ... Name/value pairs for dictionary (or a single named list to be
 #'   converted to a dictionary).
 #' @param keys Keys to dictionary (can be Python objects)
 #' @param values Values for dictionary
-#' @param convert `TRUE` to automatically convert Python objects to their R 
-#'   equivalent. If you pass `FALSE` you can do manual conversion using the 
+#' @param convert `TRUE` to automatically convert Python objects to their R
+#'   equivalent. If you pass `FALSE` you can do manual conversion using the
 #'   [py_to_r()] function.
-#'   
+#'
 #' @return A Python dictionary
-#'   
-#' @note The returned dictionary will not automatically convert it's elements 
-#'   from Python to R. You can do manual converstion with the [py_to_r()] 
+#'
+#' @note The returned dictionary will not automatically convert it's elements
+#'   from Python to R. You can do manual converstion with the [py_to_r()]
 #'   function or pass `convert = TRUE` to request automatic conversion.
-#'   
+#'
 #' @export
 dict <- function(..., convert = FALSE) {
 
   ensure_python_initialized()
 
-  # get the args 
+  # get the args
   values <- list(...)
-  
-  # flag indicating whether we should scan the parent frame for python 
+
+  # flag indicating whether we should scan the parent frame for python
   # objects that should serve as the key (e.g. a Tensor)
   scan_parent_frame <- TRUE
-  
+
   # if there is a single element and it's a list then use that
   if (length(values) == 1 && is.null(names(values)) && is.list(values[[1]])) {
     values <- values[[1]]
     scan_parent_frame <- FALSE
   }
-  
+
   # get names
   names <- names(values)
 
@@ -502,20 +502,20 @@ dict <- function(..., convert = FALSE) {
 py_dict <- function(keys, values, convert = FALSE) {
   ensure_python_initialized()
   py_dict_impl(keys, values, convert = convert)
-} 
+}
 
 #' Create Python tuple
-#' 
+#'
 #' Create a Python tuple object
-#' 
+#'
 #' @inheritParams dict
 #' @param ... Values for tuple (or a single list to be converted to a tuple).
-#'   
+#'
 #' @return A Python tuple
 #' @note The returned tuple will not automatically convert it's elements from
 #'   Python to R. You can do manual converstion with the [py_to_r()] function or
 #'   pass `convert = TRUE` to request automatic conversion.
-#'   
+#'
 #' @export
 tuple <- function(..., convert = FALSE) {
 
@@ -523,7 +523,7 @@ tuple <- function(..., convert = FALSE) {
 
   # get the args
   values <- list(...)
-  
+
   # if it's a single value then maybe do some special resolution
   if (length(values) == 1) {
 
@@ -552,13 +552,13 @@ length.python.builtin.tuple <- function(x) {
 }
 
 #' Length of Python object
-#' 
+#'
 #' Get the length of a Python object (equivalent to the Python `len()`
 #' built in function).
-#' 
+#'
 #' @param x Python object
-#' 
-#' @return Length as integer 
+#'
+#' @return Length as integer
 #'
 #' @export
 py_len <- function(x) {
@@ -575,16 +575,16 @@ length.python.builtin.list <- function(x) {
 
 
 #' Convert to Python Unicode Object
-#' 
+#'
 #' @param str Single element character vector to convert
-#' 
+#'
 #' @details By default R character vectors are converted to Python strings.
-#'   In Python 3 these values are unicode objects however in Python 2 
-#'   they are 8-bit string objects. This function enables you to 
-#'   obtain a Python unicode object from an R character vector 
-#'   when running under Python 2 (under Python 3 a standard Python 
+#'   In Python 3 these values are unicode objects however in Python 2
+#'   they are 8-bit string objects. This function enables you to
+#'   obtain a Python unicode object from an R character vector
+#'   when running under Python 2 (under Python 3 a standard Python
 #'   string object is returend).
-#' 
+#'
 #' @export
 py_unicode <- function(str) {
   ensure_python_initialized()
@@ -728,24 +728,24 @@ iterate <- function(it, f = base::identity, simplify = TRUE) {
 #' @rdname iterate
 #' @export
 iter_next <- function(it, completed = NULL) {
-  
+
   # validate
   if (!inherits(it, "python.builtin.iterator"))
     stop("iter_next function called with non-iterator argument")
-  
+
   # call iterator
   py_iter_next(it, completed)
 
 }
 
 #' Call a Python callable object
-#' 
+#'
 #' @param ... Arguments to function (named and/or unnamed)
-#'   
+#'
 #' @return Return value of call as a Python object.
-#' 
+#'
 #' @keywords internal
-#'   
+#'
 #' @export
 py_call <- function(x, ...) {
   ensure_python_initialized()
@@ -758,7 +758,7 @@ py_call <- function(x, ...) {
 #'
 #' Check whether a Python object \code{x} has an attribute
 #' \code{name}.
-#' 
+#'
 #' @param x A python object.
 #' @param name The attribute to be accessed.
 #'
@@ -803,10 +803,10 @@ py_set_attr <- function(x, name, value) {
 }
 
 #' List all attributes of a Python object
-#' 
-#' 
+#'
+#'
 #' @param x Python object
-#' 
+#'
 #' @return Character vector of attributes
 #' @export
 py_list_attributes <- function(x) {
@@ -820,14 +820,14 @@ py_list_attributes <- function(x) {
 
 
 #' Unique identifer for Python object
-#' 
-#' Get a globally unique identifer for a Python object. 
-#' 
-#' @note In the current implementation of CPython this is the 
+#'
+#' Get a globally unique identifer for a Python object.
+#'
+#' @note In the current implementation of CPython this is the
 #'  memory address of the object.
-#' 
+#'
 #' @param object Python object
-#' 
+#'
 #' @return Unique identifer (as integer) or `NULL`
 #'
 #' @export
@@ -842,14 +842,14 @@ py_id <- function(object) {
 
 
 #' An S3 method for getting the string representation of a Python object
-#' 
+#'
 #' @param object Python object
 #' @param ... Unused
-#' 
-#' @return Character vector 
-#' 
+#'
+#' @return Character vector
+#'
 #' @details The default implementation will call `PyObject_Str` on the object.
-#' 
+#'
 #' @export
 py_str <- function(object, ...) {
   if (!inherits(object, "python.builtin.object"))
@@ -868,10 +868,10 @@ py_str.default <- function(object, ...) {
 
 #' @export
 py_str.python.builtin.object <- function(object, ...) {
-  
+
   # get default rep
   str <- py_str_impl(object)
-  
+
   # remove e.g. 'object at 0x10d084710'
   str <- gsub(" object at 0x\\w{4,}", "", str)
 
@@ -937,7 +937,7 @@ py_suppress_warnings <- function(expr) {
       }
     }
   }, add = TRUE)
-  
+
   # evaluate while ignoring python warnings
   warnings <- import("warnings")
   with(warnings$catch_warnings(), expr)
@@ -958,10 +958,10 @@ register_suppress_warnings_handler <- function(handler) {
 }
 
 #' Register a filter for class names
-#' 
+#'
 #' @param filter Function which takes a class name and maps it to an alternate
 #'   name
-#'   
+#'
 #' @keywords internal
 #' @export
 register_class_filter <- function(filter) {
@@ -980,10 +980,10 @@ py_capture_output <- function(expr, type = c("stdout", "stderr")) {
 
   # initialize python if necessary
   ensure_python_initialized()
-  
+
   # resolve type argument
   type <- match.arg(type, several.ok = TRUE)
- 
+
   # get output tools helper functions
   output_tools <- import("rpytools.output")
 
@@ -1006,7 +1006,7 @@ py_capture_output <- function(expr, type = c("stdout", "stderr")) {
         output_tools$end_stderr_capture(restore_stderr)
     }, add = TRUE)
   }
-  
+
   # evaluate the expression
   force(expr)
 
@@ -1026,7 +1026,7 @@ py_capture_output <- function(expr, type = c("stdout", "stderr")) {
       output <- paste0(output, "\n")
     restore_stderr <- NULL
   }
- 
+
   # return the output
   output
 }
@@ -1035,21 +1035,21 @@ py_capture_output <- function(expr, type = c("stdout", "stderr")) {
 
 
 #' Run Python code
-#' 
+#'
 #' Execute code within the the \code{__main__} Python module.
-#' 
+#'
 #' @inheritParams import
 #' @param code Code to execute
 #' @param file Source file
 #' @param local Whether to create objects in a local/private namespace (if
 #'   `FALSE`, objects are created within the main module).
-#'   
-#' @return For `py_eval()`, the result of evaluating the expression; For 
-#'   `py_run_string()` and `py_run_file()`, the dictionary associated with 
+#'
+#' @return For `py_eval()`, the result of evaluating the expression; For
+#'   `py_run_string()` and `py_run_file()`, the dictionary associated with
 #'   the code execution.
-#'   
+#'
 #' @name py_run
-#'   
+#'
 #' @export
 py_run_string <- function(code, local = FALSE, convert = TRUE) {
   ensure_python_initialized()
@@ -1125,7 +1125,7 @@ py_is_module_proxy <- function(x) {
 }
 
 py_resolve_module_proxy <- function(proxy) {
-  
+
   # collect module proxy hooks
   collect_value <- function(name) {
     if (exists(name, envir = proxy, inherits = FALSE)) {
@@ -1136,47 +1136,47 @@ py_resolve_module_proxy <- function(proxy) {
       NULL
     }
   }
-  
+
   # name of module to import (allow just in time customization via hook)
   get_module <- collect_value("get_module")
   if (!is.null(get_module))
     assign("module", get_module(), envir = proxy)
-  
+
   # get module name
   module <- get("module", envir = proxy)
-    
+
   # load and error handlers
   on_load <- collect_value("on_load")
   on_error <- collect_value("on_error")
-  
+
   # perform the import -- capture error and ammend it with
   # python configuration information if we have it
   result <- tryCatch(import(module), error = clear_error_handler())
   if (inherits(result, "error")) {
     if (!is.null(on_error)) {
-      
+
       # call custom error handler
       on_error(result)
-      
+
       # error handler can and should call `stop`, this is just a failsafe
       stop("Error loading Python module ", module, call. = FALSE)
-      
+
     } else {
-      
+
       # default error message/handler
       message <- py_config_error_message(paste("Python module", module, "was not found."))
       stop(message, call. = FALSE)
     }
   }
-  
-  # fixup the proxy 
+
+  # fixup the proxy
   py_module_proxy_import(proxy)
-  
+
   # clear the global tracking of delay load modules
   .globals$delay_load_module <- NULL
   .globals$delay_load_environment <- NULL
   .globals$delay_load_priority <- 0
-  
+
   # call on_load if specifed
   if (!is.null(on_load))
     on_load()
@@ -1188,7 +1188,7 @@ py_get_name <- function(x) {
 
 py_get_submodule <- function(x, name, convert = TRUE) {
   module_name <- paste(py_get_name(x), name, sep=".")
-  result <- tryCatch(import(module_name, convert = convert), 
+  result <- tryCatch(import(module_name, convert = convert),
                      error = clear_error_handler())
   if (inherits(result, "error"))
     NULL
@@ -1201,6 +1201,4 @@ py_filter_classes <- function(classes) {
     classes <- filter(classes)
   classes
 }
-
-
 

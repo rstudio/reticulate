@@ -139,7 +139,7 @@
     
 
     <pre class="usage"><span class='fu'>py_install</span>(<span class='no'>packages</span>, <span class='kw'>envname</span> <span class='kw'>=</span> <span class='st'>"r-reticulate"</span>, <span class='kw'>method</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='st'>"auto"</span>,
-  <span class='st'>"virtualenv"</span>, <span class='st'>"conda"</span>), <span class='kw'>conda</span> <span class='kw'>=</span> <span class='st'>"auto"</span>)</pre>
+  <span class='st'>"virtualenv"</span>, <span class='st'>"conda"</span>), <span class='kw'>conda</span> <span class='kw'>=</span> <span class='st'>"auto"</span>, <span class='no'>...</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -163,6 +163,11 @@ available on Windows.</p></td>
       <th>conda</th>
       <td><p>Path to conda executable (or "auto" to find conda using the
 PATH and other conventional install locations).</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>Additional arguments passed to <code><a href='conda-tools.html'>conda_install()</a></code>
+or <code><a href='virtualenv-tools.html'>virtualenv_install()</a></code>.</p></td>
     </tr>
     </table>
     

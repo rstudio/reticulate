@@ -37,7 +37,7 @@ exit
 py$dictionary
 # $alpha
 # [1] 1
-# 
+#
 # $beta
 # [1] 2
 

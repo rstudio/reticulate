@@ -66,11 +66,3 @@ If you do not wish to use the reticulate Python engine then set the `python.reti
 
 ![](images/reticulate_disable.png){.screenshot width="98%"}
 
-
-
-
-
-
-
-
-

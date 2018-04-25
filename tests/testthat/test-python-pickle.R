@@ -10,3 +10,4 @@ test_that("Objects can be saved and loaded with pickle", {
   y <- py_load_object("x.pickle")
   expect_true(x == y)
 })
+

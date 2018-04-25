@@ -63,17 +63,16 @@ test_that("np_array creates arrays of the expected order", {
 
 test_that("numpy length functions works", {
   skip_if_no_numpy()
-  
+
   test_array <- function(a) {
     expect_equal(length(a), 8)
   }
-  
+
   # test no-convert numpy array
   a <- np_array(c(1L:8L), dtype = "float32")
   test_array(a)
-  
+
   # test convertable numpy array
   np <- import("numpy")
   test_array(r_to_py(matrix(c(1:8), nrow = 2, ncol = 4)))
 })
-

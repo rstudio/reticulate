@@ -38,3 +38,4 @@ test_that("source_python() overlays in the main module", {
   main <- import_main()
   expect_equal(main$value, 42)
 })
+

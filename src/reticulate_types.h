@@ -15,15 +15,15 @@ inline void python_object_finalize(SEXP object) {
 class PyObjectRef : public Rcpp::Environment {
 
 public:
-  
+
   explicit PyObjectRef(SEXP object) : Rcpp::Environment(object) {}
-  
-  explicit PyObjectRef(PyObject* object, bool convert) : 
+
+  explicit PyObjectRef(PyObject* object, bool convert) :
       Rcpp::Environment(Rcpp::Environment::empty_env().new_child(false)) {
     set(object);
     assign("convert", convert);
   }
-  
+
   PyObject* get() const {
     SEXP pyObject = getFromEnvironment("pyobj");
     if (pyObject != R_NilValue) {
@@ -33,11 +33,11 @@ public:
     }
     Rcpp::stop("Unable to access object (object is from previous session and is now invalid)");
   }
-  
+
   operator PyObject*() const {
     return get();
   }
-  
+
   bool is_null_xptr() const {
     SEXP pyObject = getFromEnvironment("pyobj");
     if (pyObject == NULL)
@@ -49,28 +49,26 @@ public:
     else
       return false;
   }
-  
+
   void set(PyObject* object) {
     SEXP xptr = R_MakeExternalPtr((void*) object, R_NilValue, R_NilValue);
     R_RegisterCFinalizer(xptr, python_object_finalize);
     assign("pyobj", xptr);
   }
-  
+
   bool convert() const {
     SEXP pyObject = getFromEnvironment("convert");
     if (pyObject == R_NilValue)
       return true;
-    else 
+    else
       return Rcpp::as<bool>(pyObject);
   }
-  
-  
+
+
   SEXP getFromEnvironment(const std::string& name) const {
     return Rcpp::Environment::get(name);
   }
-    
+
 };
-
-
 
 #endif // __RETICULATE_TYPES__

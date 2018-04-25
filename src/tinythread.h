@@ -81,7 +81,7 @@ freely, subject to the following restrictions:
   #include <signal.h>
   #include <sched.h>
   #include <unistd.h>
-  #include <stdlib.h> 
+  #include <stdlib.h>
 #endif
 
 // Generic includes
@@ -998,3 +998,4 @@ inline thread::id this_thread::get_id()
 
 
 #endif // _TINYTHREAD_H_
+

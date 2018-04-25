@@ -1,12 +1,12 @@
 
 #' R Interface to Python
-#' 
-#' R interface to Python modules, classes, and functions. When calling into 
-#' Python R data types are automatically converted to their equivalent Python 
+#'
+#' R interface to Python modules, classes, and functions. When calling into
+#' Python R data types are automatically converted to their equivalent Python
 #' types. When values are returned from Python to R they are converted back to R
 #' types. The reticulate package is compatible with all versions of Python >= 2.7.
 #' Integration with NumPy requires NumPy version 1.6 or higher.
-#' 
+#'
 #' @docType package
 #' @name reticulate
 #' @useDynLib reticulate, .registration = TRUE
@@ -43,10 +43,10 @@ ensure_python_initialized <- function(required_module = NULL) {
         .globals$delay_load_priority <- 0
      }
     .globals$py_config <- initialize_python(required_module, use_environment)
-    
+
     # remap output streams to R output handlers
     remap_output_streams()
-    
+
   }
 }
 
@@ -55,7 +55,7 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
   # resolve top level module for search
   if (!is.null(required_module))
     required_module <- strsplit(required_module, ".", fixed = TRUE)[[1]][[1]]
-  
+
   # find configuration
   config <- py_discover_config(required_module, use_environment)
 
@@ -70,25 +70,25 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
   }
 
   # check numpy version and provide a load error message if we don't satisfy it
-  if (is.null(config$numpy) || config$numpy$version < "1.6") 
+  if (is.null(config$numpy) || config$numpy$version < "1.6")
     numpy_load_error <- "installation of Numpy >= 1.6 not found"
   else
     numpy_load_error <- ""
-  
-  
-  # add the python bin dir to the PATH (so that any execution of python from 
-  # within the interpreter, from a system call, or from within a terminal 
+
+
+  # add the python bin dir to the PATH (so that any execution of python from
+  # within the interpreter, from a system call, or from within a terminal
   # hosted within the front end will use the same version of python.
   python_home <- dirname(config$python)
   python_dirs <- c(normalizePath(python_home))
-  
+
   if (is_windows()) {
-    
+
     # include the Scripts path, as well
     python_scripts <- file.path(python_home, "Scripts")
     if (file.exists(python_scripts))
       python_dirs <- c(python_dirs, normalizePath(python_scripts))
-    
+
     # we saw some crashes occurring when Python modules attempted to load
     # dynamic libraries at runtime; e.g.
     #
@@ -100,11 +100,11 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
     if (file.exists(python_bin))
       python_dirs <- c(python_dirs, normalizePath(python_bin))
   }
-    
-  Sys.setenv(PATH = paste(paste(python_dirs, collapse =  .Platform$path.sep), 
+
+  Sys.setenv(PATH = paste(paste(python_dirs, collapse =  .Platform$path.sep),
                           Sys.getenv("PATH"),
-                          sep = .Platform$path.sep))  
-  
+                          sep = .Platform$path.sep))
+
   # initialize python
   py_initialize(config$python,
                 config$libpython,
@@ -113,7 +113,7 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
                 config$version >= "3.0",
                 interactive(),
                 numpy_load_error)
-  
+
   # if we have a virtualenv then set the VIRTUAL_ENV environment variable
   if (nzchar(config$virtualenv_activate))
     Sys.setenv(VIRTUAL_ENV = path.expand(dirname(dirname(config$virtualenv_activate))))
@@ -125,14 +125,13 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
   py_run_string_impl(paste0("import sys; sys.path.append('",
                        system.file("python", package = "reticulate") ,
                        "')"))
-  
+
   # set R_SESSION_INITIALIZED flag (used by rpy2)
   Sys.setenv(R_SESSION_INITIALIZED=sprintf('PID=%s:NAME="reticulate"', Sys.getpid()))
- 
+
   # return config
   config
 }
-
 
 
 

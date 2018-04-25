@@ -20,4 +20,3 @@ test_that("Python objects with the same reference are equal", {
   expect_true(list_fn == builtins$list)
 })
 
-

@@ -552,65 +552,65 @@ typedef struct {
 } PyTryBlock;
 
 typedef struct _is {
-  
+
   struct _is *next;
   struct _ts *tstate_head;
-  
+
   PyObject *modules;
   PyObject *modules_by_index;
   PyObject *sysdict;
   PyObject *builtins;
   PyObject *modules_reloading;
-  
+
   PyObject *codec_search_path;
   PyObject *codec_search_cache;
   PyObject *codec_error_registry;
   int codecs_initialized;
-  
+
 } PyInterpreterState;
 
 typedef int (*Py_tracefunc)(PyObject *, struct _frame *, int, PyObject *);
 
 typedef struct _ts {
   /* See Python/ceval.c for comments explaining most fields */
-  
+
   struct _ts *next;
   PyInterpreterState *interp;
-  
+
   struct _frame *frame;
   int recursion_depth;
   char overflowed; /* The stack has overflowed. Allow 50 more calls
   to handle the runtime error. */
-  char recursion_critical; /* The current calls must not cause 
+  char recursion_critical; /* The current calls must not cause
   a stack overflow. */
   /* 'tracing' keeps track of the execution depth when tracing/profiling.
   This is to prevent the actual trace/profile code from being recorded in
   the trace/profile. */
   int tracing;
   int use_tracing;
-  
+
   Py_tracefunc c_profilefunc;
   Py_tracefunc c_tracefunc;
   PyObject *c_profileobj;
   PyObject *c_traceobj;
-  
+
   PyObject *curexc_type;
   PyObject *curexc_value;
   PyObject *curexc_traceback;
-  
+
   PyObject *exc_type;
   PyObject *exc_value;
   PyObject *exc_traceback;
-  
+
   PyObject *dict;
 
   int tick_counter;
-  
+
   int gilstate_counter;
-  
+
   PyObject *async_exc;
   long thread_id;
-  
+
 } PyThreadState;
 
 typedef struct _frame {
@@ -626,12 +626,12 @@ typedef struct _frame {
   to the current stack top. */
   PyObject **f_stacktop;
   PyObject *f_trace;		/* Trace function */
-  
+
   PyObject *f_exc_type, *f_exc_value, *f_exc_traceback;
-  
+
   PyThreadState *f_tstate;
   int f_lasti;		/* Last instruction if called */
-  
+
   int f_lineno;		/* Current line number */
   int f_iblock;		/* index in f_blockstack */
   PyTryBlock f_blockstack[CO_MAXBLOCKS]; /* for try and loop blocks */
@@ -653,4 +653,5 @@ LIBPYTHON_EXTERN PyThreadState* (*PyThreadState_Next)(PyThreadState*);
 } // namespace libpython
 
 #endif
+
 

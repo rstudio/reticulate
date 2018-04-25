@@ -44,5 +44,3 @@ test_that("length method for Python lists works", {
   l$append(3)
   expect_equal(length(l), 3)
 })
-
-

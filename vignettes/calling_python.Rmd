@@ -495,4 +495,3 @@ The following articles cover additional aspects of using **reticulate**:
 
 - [Arrays in R and Python](arrays.html)
 
-

@@ -2,7 +2,7 @@ context("scipy sparse matrix")
 
 test_that("Conversion between Matrix::dgCMatrix and Scipy sparse matrix works", {
   skip_if_no_scipy()
-  
+
   N <- 1000
   x <- sparseMatrix(
     i = sample(N, N),
@@ -14,3 +14,4 @@ test_that("Conversion between Matrix::dgCMatrix and Scipy sparse matrix works", 
   expect_equal(dim(result), dim(x))
   expect_equal(length(result), length(x))
 })
+

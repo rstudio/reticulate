@@ -1,10 +1,10 @@
 #' Convert between Python and R objects
-#' 
+#'
 #' @inheritParams import
 #' @param x A Python object.
-#' 
+#'
 #' @return An \R object, as converted from the Python object.
-#' 
+#'
 #' @name r-py-conversion
 #' @export
 r_to_py <- function(x, convert = FALSE) {
@@ -30,28 +30,28 @@ r_to_py.default <- function(x, convert = FALSE) {
 py_to_r.default <- function(x) {
   if (!inherits(x, "python.builtin.object"))
     stop("Object to convert is not a Python object")
-  
+
   # get the default wrapper
   x <- py_ref_to_r(x)
-    
+
   # allow customization of the wrapper
   wrapper <- py_to_r_wrapper(x)
   attributes(wrapper) <- attributes(x)
-  
+
   # return the wrapper
-  wrapper 
+  wrapper
 }
 
-#' R wrapper for Python objects 
-#' 
+#' R wrapper for Python objects
+#'
 #' S3 method to create a custom R wrapper for a Python object.
 #' The default wrapper is either an R environment or an R function
 #' (for callable python objects).
-#' 
-#' @param x Python object 
-#' 
+#'
+#' @param x Python object
+#'
 #' @keywords internal
-#' 
+#'
 #' @export
 py_to_r_wrapper <- function(x) {
   UseMethod("py_to_r_wrapper")
@@ -59,8 +59,8 @@ py_to_r_wrapper <- function(x) {
 
 #' @export
 py_to_r_wrapper.default <- function(x) {
-  x 
-}  
+  x
+}
 
 
 #' @export
@@ -75,7 +75,7 @@ r_to_py.factor <- function(x, convert = FALSE) {
 #' @export
 py_to_r.numpy.ndarray <- function(x) {
   disable_conversion_scope(x)
-  
+
   # handle numpy datetime64 objects. fortunately, as per the
   # numpy documentation:
   #
@@ -93,7 +93,7 @@ py_to_r.numpy.ndarray <- function(x) {
     vector <- py_to_r(x$astype("datetime64[ns]")$astype("float64"))
     return(as.POSIXct(vector / 1E9, origin = "1970-01-01", tz = "UTC"))
   }
-  
+
   # no special handler found; delegate to next method
   NextMethod()
 }
@@ -102,11 +102,11 @@ py_to_r.numpy.ndarray <- function(x) {
 
 #' @export
 r_to_py.POSIXt <- function(x, convert = FALSE) {
-  
+
   # we prefer datetime64 for efficiency
   if (py_module_available("numpy"))
     return(np_array(as.numeric(x) * 1E9, dtype = "datetime64[ns]"))
-  
+
   datetime <- import("datetime", convert = convert)
   datetime$datetime$fromtimestamp(as.double(x))
 }
@@ -124,11 +124,11 @@ py_to_r.datetime.datetime <- function(x) {
 
 #' @export
 r_to_py.Date <- function(x, convert = FALSE) {
-  
+
   # we prefer datetime64 for efficiency
   if (py_module_available("numpy"))
     return(r_to_py.POSIXt(as.POSIXct(x)))
-  
+
   # otherwise, fallback to using Python's datetime class
   datetime <- import("datetime", convert = convert)
   items <- lapply(x, function(item) {
@@ -138,7 +138,7 @@ r_to_py.Date <- function(x, convert = FALSE) {
     day <- as.integer(iso[[3]])
     datetime$date(year, month, day)
   })
-  
+
   if (length(items) == 1)
     items[[1]]
   else
@@ -186,13 +186,13 @@ dim.pandas.core.series.Series <- function(x) {
 
 #' @export
 r_to_py.data.frame <- function(x, convert = FALSE) {
-  
+
   # if we don't have pandas, just use default implementation
   if (!py_module_available("pandas"))
     return(r_to_py_impl(x, convert = convert))
-  
+
   pd <- import("pandas", convert = FALSE)
-  
+
   # manually convert each column to associated Python vector type
   columns <- lapply(x, function(column) {
     if (is.factor(column)) {
@@ -207,61 +207,61 @@ r_to_py.data.frame <- function(x, convert = FALSE) {
       r_to_py(column)
     }
   })
-  
+
   # generate DataFrame from dictionary
   pdf <- pd$DataFrame$from_dict(columns)
-  
+
   # copy over row names if they exist
   rni <- .row_names_info(x, type = 0L)
   if (is.character(rni))
     pdf$index <- rni
-  
+
   # re-order based on original columns
   if (length(x) > 1)
     pdf <- pdf$reindex(columns = names(x))
-  
+
   pdf
-  
+
 }
 
 #' @export
 py_to_r.pandas.core.frame.DataFrame <- function(x) {
   disable_conversion_scope(x)
-  
+
   np <- import("numpy", convert = TRUE)
-  
+
   # extract numpy arrays associated with each column
   columns <- py_to_r(x$columns$values)
   converted <- lapply(columns, function(column) {
     py_to_r(x[[column]]$as_matrix())
   })
   names(converted) <- columns
-  
+
   # clean up converted objects
   for (i in seq_along(converted)) {
     column <- names(converted)[[i]]
-    
+
     # drop 1D dimensions
     if (identical(dim(converted[[i]]), length(converted[[i]]))) {
       dim(converted[[i]]) <- NULL
     }
-    
+
     # convert categorical variables to factors
     if (identical(py_to_r(x[[column]]$dtype$name), "category")) {
       levels <- py_to_r(x[[column]]$values$categories$values)
       ordered <- py_to_r(x[[column]]$dtype$ordered)
       converted[[i]] <- factor(converted[[i]], levels = levels, ordered = ordered)
     }
-    
+
   }
-  
+
   # re-order based on ordering of pandas DataFrame. note that
   # as.data.frame() will not handle list columns correctly, so
   # we construct the data.frame 'by hand'
   df <- converted[columns]
   class(df) <- "data.frame"
   attr(df, "row.names") <- c(NA_integer_, -nrow(x))
-  
+
   # attempt to copy over index, and set as rownames when appropriate
   #
   # TODO: should we tag the R data.frame with the original Python index
@@ -272,7 +272,7 @@ py_to_r.pandas.core.frame.DataFrame <- function(x) {
   # effectively in R
   index <- x$index
   if (inherits(index, "pandas.core.indexes.base.Index")) {
-    
+
     if (inherits(index, "pandas.core.indexes.range.RangeIndex") &&
         np$issubdtype(index$dtype, np$number))
     {
@@ -289,11 +289,11 @@ py_to_r.pandas.core.frame.DataFrame <- function(x) {
         }
       }
     }
-    
+
     else if (inherits(index, "pandas.core.indexes.datetimes.DatetimeIndex")) {
-      
+
       converted <- tryCatch(py_to_r(index$values), error = identity)
-      
+
       tz <- index[["tz"]]
       if (inherits(tz, "pytz.tzinfo.BaseTzInfo") ||
           inherits(tz, "pytz.UTC"))
@@ -302,19 +302,19 @@ py_to_r.pandas.core.frame.DataFrame <- function(x) {
         if (!is.null(zone) && zone %in% OlsonNames())
           attr(converted, "tzone") <- zone
       }
-      
+
       rownames(df) <- converted
     }
-    
+
     else {
       converted <- tryCatch(py_to_r(index$values), error = identity)
       if (is.character(converted) || is.numeric(converted))
         rownames(df) <- converted
     }
   }
-  
+
   df
-  
+
 }
 
 #' @export
@@ -386,3 +386,4 @@ length.scipy.sparse.csc.csc_matrix <- function(x) {
   else
     Reduce(`*`, py_object_shape(x))
 }
+

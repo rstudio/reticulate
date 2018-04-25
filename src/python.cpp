@@ -41,7 +41,7 @@ bool requireNumPy() {
 bool isPyArray(PyObject* object) {
   if (!haveNumPy())
     return false;
-  else 
+  else
     return PyArray_Check(object);
 }
 bool isPyArrayScalar(PyObject* object) {
@@ -139,7 +139,7 @@ std::string as_std_string(PyObject* str) {
   if (PyUnicode_Check(str)) {
     str = PyUnicode_AsBytes(str);
     pStr.assign(str);
-  } 
+  }
 
   char* buffer;
   Py_ssize_t length;
@@ -212,7 +212,7 @@ bool py_is_none(PyObject* object) {
   return object == Py_None;
 }
 
-// convenience wrapper for PyImport_Import 
+// convenience wrapper for PyImport_Import
 PyObject* py_import(const std::string& module) {
   PyObjectPtr module_str(as_python_str(module));
   return PyImport_Import(module_str);
@@ -236,7 +236,7 @@ std::string as_r_class(PyObject* classPtr) {
 // wrap a PyObject
 PyObjectRef py_ref(PyObject* object, bool convert, const std::string& extraClass = "") {
 
-  // wrap 
+  // wrap
   PyObjectRef ref(object, convert);
 
   // class attribute
@@ -253,8 +253,8 @@ PyObjectRef py_ref(PyObject* object, bool convert, const std::string& extraClass
   if (PyObject_HasAttrString(object, "__class__")) {
     // class
     PyObjectPtr classPtr(PyObject_GetAttrString(object, "__class__"));
-    
-    // call inspect.getmro to get the class and it's bases in 
+
+    // call inspect.getmro to get the class and it's bases in
     // method resolution order
     PyObjectPtr inspect(py_import("inspect"));
     if (inspect.is_null())
@@ -265,7 +265,7 @@ PyObjectRef py_ref(PyObject* object, bool convert, const std::string& extraClass
     PyObjectPtr classes(PyObject_CallFunctionObjArgs(getmro, classPtr.get(), NULL));
     if (classes.is_null())
       stop(py_fetch_error());
-    
+
     // add the bases to the R class attribute
     Py_ssize_t len = PyTuple_Size(classes);
     for (Py_ssize_t i = 0; i<len; i++) {
@@ -279,15 +279,15 @@ PyObjectRef py_ref(PyObject* object, bool convert, const std::string& extraClass
                                                       == attrClass.end()) {
     attrClass.push_back("python.builtin.object");
   }
-  
+
   // apply class filter
   Rcpp::Environment pkgEnv = Rcpp::Environment::namespace_env("reticulate");
   Rcpp::Function py_filter_classes = pkgEnv["py_filter_classes"];
   attrClass = as<std::vector<std::string> >(py_filter_classes(attrClass));
-  
+
   // set classes
   ref.attr("class") = attrClass;
-  
+
   // return ref
   return ref;
 }
@@ -305,32 +305,32 @@ bool traceback_enabled() {
 
 
 class LastError {
-  
+
 public:
-  
+
   bool empty() const { return type_.empty(); }
-  
+
   std::string type() const { return type_; }
   void setType(const std::string& type) { type_ = type; }
-  
+
   std::string value() const { return value_; }
   void setValue(const std::string& value) { value_ = value; }
-  
+
   std::string message() const { return message_; }
   void setMessage(const std::string& message) { message_ = message; }
-    
+
   std::vector<std::string> traceback() const { return traceback_; };
   void setTraceback(const std::vector<std::string>& traceback) {
     traceback_ = traceback;
   }
-  
+
   void clear() {
     type_.clear();
     value_.clear();
     traceback_.clear();
     message_.clear();
   }
-  
+
 private:
   std::string type_;
   std::string value_;
@@ -341,11 +341,11 @@ private:
 LastError s_lastError;
 
 //' Get or clear the last Python error encountered
-//' 
-//' @return For `py_last_error()`, a list with the type, value, 
-//' and traceback for the last Python error encountered (can be 
+//'
+//' @return For `py_last_error()`, a list with the type, value,
+//' and traceback for the last Python error encountered (can be
 //' `NULL` if no error has yet been encountered).
-//' 
+//'
 //' @export
 // [[Rcpp::export]]
 SEXP py_last_error() {
@@ -375,7 +375,7 @@ std::string py_fetch_error() {
 
   // clear last error
   s_lastError.clear();
-  
+
   // determine error
   std::string error;
   PyObject *excType , *excValue , *excTraceback;
@@ -390,47 +390,47 @@ std::string py_fetch_error() {
     if (!pExcType.is_null()) {
       PyObjectPtr pStr(PyObject_GetAttrString(pExcType, "__name__"));
       std::string type = as_std_string(pStr);
-      
+
       // check for keyboard interrupt
       if (type == "KeyboardInterrupt")
         throw Rcpp::internal::InterruptedException();
-      
+
       // store in last error
       s_lastError.setType(type);
-      
+
       // print
       ostr << type << ": ";
     }
     if (!pExcValue.is_null()) {
       PyObjectPtr pStr(PyObject_Str(pExcValue));
       std::string value = as_std_string(pStr);
-      
+
       // store in last error
       s_lastError.setValue(value);
-      
+
       // print
       ostr << value;
     }
 
-    // check for traceback      
+    // check for traceback
     if (!pExcTraceback.is_null()) {
-      // call into python for traceback 
+      // call into python for traceback
       PyObjectPtr module(py_import("traceback"));
       if (!module.is_null()) {
         PyObjectPtr func(PyObject_GetAttrString(module, "format_tb"));
         if (!func.is_null()) {
           PyObjectPtr tb(PyObject_CallFunctionObjArgs(func, excTraceback, NULL));
           if (!tb.is_null()) {
-            
+
             // get the traceback
             std::vector<std::string> traceback;
             Py_ssize_t len = PyList_Size(tb);
             for (Py_ssize_t i = 0; i<len; i++)
               traceback.push_back(as_std_string(PyList_GetItem(tb, i)));
-            
+
             // store in last error
             s_lastError.setTraceback(traceback);
-            
+
             // print if enabled
             if (traceback_enabled()) {
               ostr << std::endl << std::endl << "Detailed traceback: " << std::endl;
@@ -442,12 +442,12 @@ std::string py_fetch_error() {
         }
       }
     }
-    
+
     error = ostr.str();
-    
+
     // set error message
     s_lastError.setMessage(error);
-    
+
   } else {
     error = "<unknown error>";
   }
@@ -548,13 +548,13 @@ int narrow_array_typenum(int typenum) {
     typenum = NPY_CDOUBLE;
     break;
 
-    
+
     // string/object (leave these alone)
   case NPY_STRING:
   case NPY_UNICODE:
   case NPY_OBJECT:
     break;
-  
+
     // unsupported
   default:
     stop("Conversion from numpy array type %d is not supported", typenum);
@@ -579,12 +579,12 @@ void set_string_element(SEXP rArray, int i, PyObject* pyStr) {
   SEXP strSEXP = Rf_mkCharCE(str.c_str(), ce);
   SET_STRING_ELT(rArray, i, strSEXP);
 }
- 
- 
+
+
 bool py_is_callable(PyObject* x) {
   return PyCallable_Check(x) == 1 || PyObject_HasAttrString(x, "__call__");
 }
- 
+
 // [[Rcpp::export]]
 bool py_is_callable(PyObjectRef x) {
   if (x.is_null_xptr())
@@ -686,13 +686,13 @@ SEXP py_to_r(PyObject* x, bool convert) {
 
   // dict
   else if (PyDict_Check(x)) {
-    
-    // copy the dict and allocate 
+
+    // copy the dict and allocate
     PyObjectPtr dict(PyDict_Copy(x));
     Py_ssize_t size = PyDict_Size(dict);
     std::vector<std::string> names(size);
     Rcpp::List list(size);
-    
+
     // iterate over dict
     PyObject *key, *value;
     Py_ssize_t pos = 0;
@@ -702,14 +702,14 @@ SEXP py_to_r(PyObject* x, bool convert) {
         names[idx] = as_utf8_r_string(key);
       } else {
         PyObjectPtr str(PyObject_Str(key));
-        names[idx] = as_utf8_r_string(str); 
+        names[idx] = as_utf8_r_string(str);
       }
       list[idx] = py_to_r(value, convert);
       idx++;
     }
     list.names() = names;
     return list;
-    
+
   }
 
   // numpy array
@@ -717,12 +717,12 @@ SEXP py_to_r(PyObject* x, bool convert) {
 
     // R array to return
     RObject rArray = R_NilValue;
-    
+
     // get the array
     PyArrayObject* array = (PyArrayObject*)x;
 
-    // get the dimensions -- treat 0-dim array (numpy scalar) as 
-    // a 1-dim for converstion to R (will end up with a single 
+    // get the dimensions -- treat 0-dim array (numpy scalar) as
+    // a 1-dim for converstion to R (will end up with a single
     // element R vector)
     npy_intp len = PyArray_SIZE(array);
     int nd = PyArray_NDIM(array);
@@ -734,7 +734,7 @@ SEXP py_to_r(PyObject* x, bool convert) {
     } else {
       dimsVector.push_back(1);
     }
-    
+
     // determine the target type of the array
     int typenum = narrow_array_typenum(array);
 
@@ -803,10 +803,10 @@ SEXP py_to_r(PyObject* x, bool convert) {
         break;
       }
       case NPY_OBJECT: {
-        
+
         // get python objects
         PyObject** pData = (PyObject**)PyArray_DATA(array);
-        
+
         // check for all strings
         bool allStrings = true;
         for (npy_intp i=0; i<len; i++) {
@@ -815,14 +815,14 @@ SEXP py_to_r(PyObject* x, bool convert) {
             break;
           }
         }
-        
+
         // return a character vector if it's all strings
         if (allStrings) {
           rArray = Rf_allocArray(STRSXP, dimsVector);
           RObject protectArray(rArray);
           for (npy_intp i=0; i<len; i++)
             set_string_element(rArray, i, pData[i]);
-          
+
         // otherwise return a list of objects
         } else {
           rArray = Rf_allocArray(VECSXP, dimsVector);
@@ -885,37 +885,37 @@ SEXP py_to_r(PyObject* x, bool convert) {
 
   // callable
   else if (py_is_callable(x)) {
-    
+
     // reference to underlying python object
     Py_IncRef(x);
     PyObjectRef pyFunc = py_ref(x, convert);
-    
+
     // create an R function wrapper
     Rcpp::Environment pkgEnv = Rcpp::Environment::namespace_env("reticulate");
     Rcpp::Function py_callable_as_function = pkgEnv["py_callable_as_function"];
     Rcpp::Function f = py_callable_as_function(pyFunc, convert);
-    
+
     // forward classes
     f.attr("class") = pyFunc.attr("class");
-    
+
     // save reference to underlying py_object
     f.attr("py_object") = pyFunc;
-    
+
     // return the R function
     return f;
   }
-  
+
   // iterator/generator
   else if (PyObject_HasAttrString(x, "__iter__") &&
            (PyObject_HasAttrString(x, "next") ||
            PyObject_HasAttrString(x, "__next__"))) {
-    
+
     // return it raw but add a class so we can create S3 methods for it
     Py_IncRef(x);
     return py_ref(x, true, std::string("python.builtin.iterator"));
   }
-  
-  // default is to return opaque wrapper to python object. we pass convert = true 
+
+  // default is to return opaque wrapper to python object. we pass convert = true
   // because if we hit this code then conversion has been either implicitly
   // or explicitly requested.
   else {
@@ -941,8 +941,8 @@ PyObject* r_to_py(RObject x, bool convert) {
   } else if (x.hasAttribute("py_object")) {
     PyObjectRef obj = as<PyObjectRef>(x.attr("py_object"));
     Py_IncRef(obj.get());
-    return obj.get();    
-    
+    return obj.get();
+
   // pass python objects straight through (Py_IncRef since returning this
   // creates a new reference from the caller)
   } else if (x.inherits("python.builtin.object")) {
@@ -1008,12 +1008,12 @@ PyObject* r_to_py(RObject x, bool convert) {
         PyObject* pyStr = as_python_str(STRING_ELT(x, i));
         pData[i] = pyStr;
       }
-      
+
     } else {
       // wrap the R object in a capsule that's tied to the lifetime of the matrix
       // (so the R doesn't deallocate the memory while python is still pointing to it)
       PyObjectPtr capsule(r_object_capsule(x));
-      
+
       // set base object using correct version of the API (detach since this
       // effectively steals a reference to the provided base object)
       if (PyArray_GetNDArrayCFeatureVersion() >= NPY_1_7_API_VERSION) {
@@ -1024,7 +1024,7 @@ PyObject* r_to_py(RObject x, bool convert) {
         PyArray_BASE(array) = capsule.detach();
       }
     }
-    
+
     // return it
     return array;
 
@@ -1151,9 +1151,9 @@ PyObject* r_to_py(RObject x, bool convert) {
     PyCapsule_SetContext(capsule, (void*)convert);
 
     // check for a py_function_name attribute
-    PyObjectPtr pyFunctionName(r_to_py(x.attr("py_function_name"), 
+    PyObjectPtr pyFunctionName(r_to_py(x.attr("py_function_name"),
                                        convert));
-   
+
     // create the python wrapper function
     PyObjectPtr module(py_import("rpytools.call"));
     if (module == NULL)
@@ -1161,9 +1161,9 @@ PyObject* r_to_py(RObject x, bool convert) {
     PyObjectPtr func(PyObject_GetAttrString(module, "make_python_function"));
     if (func == NULL)
       stop(py_fetch_error());
-    PyObjectPtr wrapper(PyObject_CallFunctionObjArgs(func, 
-                                                     capsule.get(), 
-                                                     pyFunctionName.get(), 
+    PyObjectPtr wrapper(PyObject_CallFunctionObjArgs(func,
+                                                     capsule.get(),
+                                                     pyFunctionName.get(),
                                                      NULL));
     if (wrapper == NULL)
       stop(py_fetch_error());
@@ -1179,7 +1179,7 @@ PyObject* r_to_py(RObject x, bool convert) {
 
 // [[Rcpp::export]]
 PyObjectRef r_to_py_impl(RObject object, bool convert) {
-  return py_ref(r_to_py(object, convert), convert);  
+  return py_ref(r_to_py(object, convert), convert);
 }
 
 // custom module used for calling R functions from python wrappers
@@ -1206,7 +1206,7 @@ extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* k
       rArgs.push_back(py_ref(item, convert));
     }
   }
- 
+
   // get keyword arguments
   List rKeywords;
   if (convert) {
@@ -1243,9 +1243,9 @@ extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* k
   } catch(...) {
     err = "(Unknown exception occurred)";
   }
-  
+
   // ...we won't reach this code unless an error occurred
-  
+
   // Return a special named list which the caller transforms into a python error
   PyObjectPtr errorDict(PyDict_New());
   PyObjectPtr errorMsg(as_python_str(err));
@@ -1265,22 +1265,22 @@ struct PythonCall {
   PyObject* func;
   PyObject* data;
 private:
-  PythonCall(const PythonCall& other); 
+  PythonCall(const PythonCall& other);
   PythonCall& operator=(const PythonCall&);
 };
 
 int call_python_function(void* data) {
-  
+
   // cast to call
-  PythonCall* call = (PythonCall*)data; 
+  PythonCall* call = (PythonCall*)data;
 
   // call the function
   PyObject* arg = py_is_none(call->data) ? NULL : call->data;
   PyObjectPtr res(PyObject_CallFunctionObjArgs(call->func, arg, NULL));
-  
+
   // delete the call object (will decref the members)
   delete call;
-  
+
   // return status as per https://docs.python.org/3/c-api/init.html#c.Py_AddPendingCall
   if (!res.is_null())
     return 0;
@@ -1291,18 +1291,18 @@ int call_python_function(void* data) {
 
 extern "C" PyObject* call_python_function_on_main_thread(
                 PyObject *self, PyObject* args, PyObject* keywords) {
-  
+
   // arguments are the python function to call and an optional data argument
   // capture them and then incref them so they survive past this call (we'll
   // decref them in the call_python_function callback)
   PyObject* func = PyTuple_GetItem(args, 0);
   PyObject* data = PyTuple_GetItem(args, 1);
-  
-  // create the call object (the func and data will be automaticlaly incref'd then 
+
+  // create the call object (the func and data will be automaticlaly incref'd then
   // decrefed when the call object is destroyed)
   PythonCall* call = new PythonCall(func, data);
 
-  // Schedule calling the function. Note that we have at least one report of Py_AddPendingCall 
+  // Schedule calling the function. Note that we have at least one report of Py_AddPendingCall
   // returning -1, the source code for Py_AddPendingCall is here:
   // https://github.com/python/cpython/blob/faa135acbfcd55f79fb97f7525c8aa6f5a5b6a22/Python/ceval.c#L321-L361
   // From this it looks like it can fail if:
@@ -1310,37 +1310,37 @@ extern "C" PyObject* call_python_function_on_main_thread(
   //   (a) It can't acquire the _PyRuntime.ceval.pending.lock after 100 tries; or
   //   (b) There are more than NPENDINGCALLS already queued
   //
-  // As a result we need to check for failure and then sleep and retry in that case. 
+  // As a result we need to check for failure and then sleep and retry in that case.
   //
   // This could in theory result in waiting "forever" but note that if we never successfully
-  // add the pending call then we will wait forever anyway as the result queue will 
-  // never be signaled, i.e. see this code which waits on the call: 
+  // add the pending call then we will wait forever anyway as the result queue will
+  // never be signaled, i.e. see this code which waits on the call:
   // https://github.com/rstudio/reticulate/blob/b507f954dc08c16710f0fb39328b9770175567c0/inst/python/rpytools/generator.py#L27-L36)
   //
   // As a diagnostic for perverse failure to schedule the call, print a message to stderr
-  // every 60 seconds 
+  // every 60 seconds
   //
   const size_t wait_ms = 100;
   size_t waited_ms = 0;
   while(true) {
-    
+
     // try to schedule the pending call (exit loop on success)
     if (Py_AddPendingCall(call_python_function, call) == 0)
       break;
-    
+
     // otherwise sleep for wait_ms
     using namespace tthread;
     this_thread::sleep_for(chrono::milliseconds(wait_ms));
-    
+
     // increment total wait time and print a warning every 60 seconds
     waited_ms += wait_ms;
     if ((waited_ms % 60000) == 0)
       PySys_WriteStderr("Waiting to schedule call on main R interpeter thread...\n");
   }
- 
+
   // return none
   Py_IncRef(Py_None);
-  return Py_None; 
+  return Py_None;
 }
 
 
@@ -1377,21 +1377,21 @@ void py_activate_virtualenv(const std::string& script)
   // get main dict
   PyObject* main = PyImport_AddModule("__main__");
   PyObject* mainDict = PyModule_GetDict(main);
-  
+
   // create local dict with __file__
   PyObjectPtr localDict(PyDict_New());
   PyObjectPtr file(as_python_str(script));
   int res = PyDict_SetItemString(localDict, "__file__", file);
   if (res != 0)
     stop(py_fetch_error());
-  
+
   // read the code in the script
   std::ifstream ifs(script.c_str());
   if (!ifs)
     stop("Unable to open file '%s' (does it exist?)", script);
   std::string code((std::istreambuf_iterator<char>(ifs)),
                    (std::istreambuf_iterator<char>()));
-  
+
   // run string
   PyObjectPtr runRes(PyRun_StringFlags(code.c_str(), Py_file_input, mainDict, localDict, NULL));
   if (runRes.is_null())
@@ -1404,32 +1404,32 @@ void trace_print(int threadId, PyFrameObject *frame) {
     std::string filename = as_std_string(frame->f_code->co_filename);
     std::string funcname = as_std_string(frame->f_code->co_name);
     tracemsg = funcname + " " + tracemsg;
-    
+
     frame = frame->f_back;
   }
-  
+
   tracemsg = "THREAD: [" + tracemsg + "]\n";
   PySys_WriteStderr(tracemsg.c_str());
 }
 
 void trace_thread_main(void* aArg) {
   using namespace tthread;
-  
+
   int* tracems = (int*)aArg;
-  
+
   while (true) {
     PyGILState_STATE gstate;
     gstate = PyGILState_Ensure();
-    
+
     PyThreadState* pState = PyGILState_GetThisThreadState();
-    
+
     while (pState != NULL) {
       trace_print(pState->thread_id, pState->frame);
       pState = PyThreadState_Next(pState);
     }
-    
+
     PyGILState_Release(gstate);
-    
+
     this_thread::sleep_for(chrono::milliseconds(*tracems));
   }
 }
@@ -1456,7 +1456,7 @@ void py_initialize(const std::string& python,
   std::string err;
   if (!libPython().load(libpython, is_python3(), &err))
     stop(err);
-  
+
   if (is_python3()) {
 
     // set program name
@@ -1509,24 +1509,24 @@ void py_initialize(const std::string& python,
 
   // initialize type objects
   initialize_type_objects(is_python3());
-  
+
   // execute activate_this.py script for virtualenv if necessary
   if (!virtualenv_activate.empty())
     py_activate_virtualenv(virtualenv_activate);
-  
+
   // resovlve numpy
   if (numpy_load_error.empty())
     import_numpy_api(is_python3(), &s_numpy_load_error);
   else
     s_numpy_load_error = numpy_load_error;
-  
+
   // initialize trace
   Function sysGetEnv("Sys.getenv");
   std::string tracems_env = as<std::string>(sysGetEnv("RETICULATE_DUMP_STACK_TRACE", 0));
   int tracems = ::atoi(tracems_env.c_str());
-  if (tracems > 0) 
+  if (tracems > 0)
     trace_thread_init(tracems);
-  
+
   // poll for events while executing python code
   event_loop::initialize();
 }
@@ -1548,7 +1548,7 @@ bool py_is_none(PyObjectRef x) {
 
 // [[Rcpp::export]]
 bool py_compare_impl(PyObjectRef a, PyObjectRef b, const std::string& op) {
-  
+
   int opcode;
   if (op == "==")
     opcode = Py_EQ;
@@ -1562,20 +1562,20 @@ bool py_compare_impl(PyObjectRef a, PyObjectRef b, const std::string& op) {
     opcode = Py_LT;
   else if (op == "<=")
     opcode = Py_LE;
-  else 
+  else
     stop("Unexpected comparison operation " + op);
-  
+
   // do the comparison
   int res = PyObject_RichCompareBool(a, b, opcode);
   if (res == -1)
     stop(py_fetch_error());
-  else 
+  else
     return res == 1;
 }
 
 // [[Rcpp::export]]
 CharacterVector py_str_impl(PyObjectRef x) {
-  
+
   if (!is_python_str(x)) {
     PyObjectPtr str(PyObject_Str(x));
     if (str.is_null())
@@ -1604,17 +1604,17 @@ bool py_is_function(PyObjectRef x) {
 //' @param x Python object
 //'
 //' @return Logical indicating whether the object is a null externalptr
-//' 
-//' @details When Python objects are serialized within a persisted R 
+//'
+//' @details When Python objects are serialized within a persisted R
 //'  environment (e.g. .RData file) they are deserialized into null
 //'  externalptr objects (since the Python session they were originally
 //'  connected to no longer exists). This function allows you to safely
-//'  check whether whether a Python object is a null externalptr. 
-//'  
+//'  check whether whether a Python object is a null externalptr.
+//'
 //'  The `py_validate` function is a convenience function which calls
 //'  `py_is_null_xptr` and throws an error in the case that the xptr
 //'  is `NULL`.
-//' 
+//'
 //' @export
 // [[Rcpp::export]]
 bool py_is_null_xptr(PyObjectRef x) {
@@ -1670,7 +1670,7 @@ PyObjectRef py_get_attr_impl(PyObjectRef x, const std::string& name, bool silent
   if (attr == NULL) {
 
     std::string err = py_fetch_error();
-    
+
     if (!silent) {
       // error if we aren't silent
       stop(err);
@@ -1691,7 +1691,7 @@ void py_set_attr_impl(PyObjectRef x, const std::string& name, RObject value) {
   if (res != 0)
     stop(py_fetch_error());
 }
-  
+
 
 
 // [[Rcpp::export]]
@@ -1787,7 +1787,7 @@ SEXP py_call_impl(PyObjectRef x, List args = R_NilValue, List keywords = R_NilVa
   if (res.is_null())
     stop(py_fetch_error());
 
-  // return 
+  // return
   Py_IncRef(res);
   return py_ref(res, x.convert());
 }
@@ -1832,11 +1832,11 @@ int py_dict_length(PyObjectRef dict) {
 
 // [[Rcpp::export]]
 CharacterVector py_dict_get_keys_as_str(PyObjectRef dict) {
-    
+
   // get the keys and check their length
   PyObjectPtr pyKeys(PyDict_Keys(dict));
   Py_ssize_t len = PyList_Size(pyKeys);
-  
+
   // allocate keys to return
   CharacterVector keys(len);
 
@@ -1852,7 +1852,7 @@ CharacterVector py_dict_get_keys_as_str(PyObjectRef dict) {
       keys[i] = as_utf8_r_string(str);
     }
   }
-  
+
   // return
   return keys;
 }
@@ -1931,7 +1931,7 @@ List py_iterate(PyObjectRef x, Function f) {
 
   // List to return
   std::vector<RObject> list;
- 
+
   // get the iterator
   PyObjectPtr iterator(PyObject_GetIter(x));
   if (iterator.is_null())
@@ -1951,7 +1951,7 @@ List py_iterate(PyObjectRef x, Function f) {
         break;
     }
 
-    // call the function 
+    // call the function
     SEXP param = x.convert() ? py_to_r(item, x.convert()) : py_ref(item, false);
     list.push_back(f(param));
   }
@@ -1965,29 +1965,29 @@ List py_iterate(PyObjectRef x, Function f) {
 
 // [[Rcpp::export]]
 SEXP py_iter_next(PyObjectRef iterator, RObject completed) {
-  
+
   PyObjectPtr item(PyIter_Next(iterator));
   if (item.is_null()) {
-    
-    // null could mean that iteraton is done so we check to 
+
+    // null could mean that iteraton is done so we check to
     // ensure that an error actually occrred
     if (PyErr_Occurred())
       stop(py_fetch_error());
-  
+
     // if there wasn't an error then return the 'completed' sentinel
     return completed;
-  
+
   } else {
-    
+
     // return R object
     return iterator.convert() ? py_to_r(item, true) : py_ref(item, false);
-  
+
   }
 }
 
 
 // [[Rcpp::export]]
-SEXP py_run_string_impl(const std::string& code, 
+SEXP py_run_string_impl(const std::string& code,
                         bool local = false,
                         bool convert = true)
 {
@@ -2002,7 +2002,7 @@ SEXP py_run_string_impl(const std::string& code,
   } else {
     local_dict = main_dict;
   }
-  PyObjectPtr res(PyRun_StringFlags(code.c_str(), Py_file_input, 
+  PyObjectPtr res(PyRun_StringFlags(code.c_str(), Py_file_input,
                                     main_dict, local_dict, NULL));
   if (res.is_null())
     stop(py_fetch_error());
@@ -2014,14 +2014,14 @@ SEXP py_run_string_impl(const std::string& code,
 
 
 // [[Rcpp::export]]
-SEXP py_run_file_impl(const std::string& file, 
+SEXP py_run_file_impl(const std::string& file,
                       bool local = false,
                       bool convert = true)
 {
   // expand path
   Function pathExpand("path.expand");
   std::string expanded = as<std::string>(pathExpand(file));
-  
+
   // read file
   std::ifstream ifs(expanded.c_str());
   if (!ifs)
@@ -2030,22 +2030,22 @@ SEXP py_run_file_impl(const std::string& file,
                    (std::istreambuf_iterator<char>()));
   if (ifs.fail())
     stop("Error occurred while reading file '%s'", file);
-  
+
   // execute
   return py_run_string_impl(code, local, convert);
 }
 
 // [[Rcpp::export]]
 SEXP py_eval_impl(const std::string& code, bool convert = true) {
-  
+
   // R object to return
   RObject rObject;
-  
+
   // compile the code
   PyObjectPtr compiledCode(Py_CompileString(code.c_str(), "reticulate_eval", Py_eval_input));
   if (compiledCode.is_null())
     stop(py_fetch_error());
- 
+
  // execute the code
  PyObject* main = PyImport_AddModule("__main__");
  PyObject* dict = PyModule_GetDict(main);
@@ -2053,7 +2053,7 @@ SEXP py_eval_impl(const std::string& code, bool convert = true) {
  PyObjectPtr res(PyEval_EvalCode(compiledCode, dict, local_dict));
  if (res.is_null())
    stop(py_fetch_error());
- 
+
  // return (convert to R if requested)
  Py_IncRef(res);
  if (convert)
@@ -2062,6 +2062,3 @@ SEXP py_eval_impl(const std::string& code, bool convert = true) {
    rObject = py_ref(res, convert);
  return rObject;
 }
-
-
-

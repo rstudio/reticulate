@@ -96,7 +96,3 @@ Additionally, pressing the F1 button over a Python symbol will display the help 
 
 ![](images/help.png){.screenshot width="98%"}
 
-
-
-
-

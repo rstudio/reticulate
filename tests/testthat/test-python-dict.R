@@ -2,12 +2,12 @@ context("dict")
 
 test_that("Python dictionaries can be created", {
   skip_if_no_python()
-  expect_is(dict(), "python.builtin.dict")  
+  expect_is(dict(), "python.builtin.dict")
 })
 
 test_that("Python dictionaries can be created with py_dict", {
   skip_if_no_python()
-  expect_is(py_dict(list("a", "b", "c"), list(1,2,3)), "python.builtin.dict")  
+  expect_is(py_dict(list("a", "b", "c"), list(1,2,3)), "python.builtin.dict")
 })
 
 test_that("Python dictionaries can use python objects as keys", {
@@ -27,3 +27,4 @@ test_that("Python dictionaries can include numbers in their keys", {
   skip_if_no_python()
   expect_error(dict(foo42 = "foo"), NA)
 })
+

@@ -21,15 +21,15 @@
 #'
 #' @export
 conda_list <- function(conda = "auto") {
-  
+
   # resolve conda binary
   conda <- conda_binary(conda)
-  
+
   # list envs
   conda_envs <- suppressWarnings(
     system2(conda, args = c("info", "--json"), stdout = TRUE)
   )
-  
+
   # check for error
   status <- attr(conda_envs, "status")
   if (!is.null(status)) {
@@ -40,19 +40,19 @@ conda_list <- function(conda = "auto") {
     }
     # return empty data frame
     return(data.frame(
-      name = character(), 
-      python = character(), 
+      name = character(),
+      python = character(),
       stringsAsFactors = FALSE)
     )
   }
-  
+
   # strip out anaconda cloud prefix (not valid json)
   if (length(conda_envs) > 0 && grepl("Anaconda Cloud", conda_envs[[1]], fixed = TRUE))
     conda_envs <- conda_envs[-1]
-  
+
   # convert to json
   conda_envs <- fromJSON(conda_envs)$envs
-  
+
   # build data frame
   name <- character()
   python <- character()
@@ -67,7 +67,7 @@ conda_list <- function(conda = "auto") {
       conda_env_python <- normalizePath(conda_env_python)
     }
     python <- c(python, conda_env_python)
-    
+
   }
   data.frame(name = name, python = python, stringsAsFactors = FALSE)
 }
@@ -77,17 +77,17 @@ conda_list <- function(conda = "auto") {
 #' @rdname conda-tools
 #' @export
 conda_create <- function(envname, packages = "python", conda = "auto") {
-  
+
   # resolve conda binary
   conda <- conda_binary(conda)
-  
-  # create the environment 
+
+  # create the environment
   result <- system2(conda, shQuote(c("create", "--yes", "--name", envname, packages)))
   if (result != 0L) {
     stop("Error ", result, " occurred creating conda environment ", envname,
          call. = FALSE)
   }
-  
+
   # return the path to the python binary
   conda_envs <- conda_list(conda)
   invisible(subset(conda_envs, conda_envs$name == envname)$python)
@@ -96,14 +96,14 @@ conda_create <- function(envname, packages = "python", conda = "auto") {
 #' @rdname conda-tools
 #' @export
 conda_remove <- function(envname, packages = NULL, conda = "auto") {
-  
+
   # resolve conda binary
   conda <- conda_binary(conda)
-  
+
   # no packages means everything
   if (is.null(packages))
     packages <- "--all"
-  
+
   # remove packges (or the entire environment)
   result <- system2(conda, shQuote(c("remove", "--yes", "--name", envname, packages)))
   if (result != 0L) {
@@ -114,27 +114,27 @@ conda_remove <- function(envname, packages = NULL, conda = "auto") {
 
 #' @param forge Include the [Conda Forge](https://conda-forge.org/) repository.
 #' @param pip_ignore_installed Ignore installed versions when using pip. This is `TRUE` by default
-#'   so that specific package versions can be installed even if they are downgrades. The `FALSE` 
+#'   so that specific package versions can be installed even if they are downgrades. The `FALSE`
 #'   option is useful for situations where you don't want a pip install to attempt an overwrite
 #'   of a conda binary package (e.g. SciPy on Windows which is very difficult to install via
 #'   pip due to compilation requirements).
 #'
 #' @rdname conda-tools
-#' 
+#'
 #' @keywords internal
-#' 
+#'
 #' @export
 conda_install <- function(envname, packages, forge = TRUE, pip = FALSE, pip_ignore_installed = TRUE, conda = "auto") {
-  
+
   # resolve conda binary
   conda <- conda_binary(conda)
-  
+
   # create the environment if needed
   conda_envs <- conda_list(conda = conda)
   conda_envs <- subset(conda_envs, conda_envs$name == envname)
   if (nrow(conda_envs) == 0)
     conda_create(envname, conda = conda)
-  
+
   if (pip) {
     # use pip package manager
     condaenv_bin <- function(bin) path.expand(file.path(dirname(conda), bin))
@@ -146,7 +146,7 @@ conda_install <- function(envname, packages, forge = TRUE, pip = FALSE, pip_igno
                    paste(shQuote(packages), collapse = " "),
                    ifelse(is_windows(), "", ifelse(is_osx(), "", "\"")))
     result <- system(cmd)
-    
+
   } else {
     args <- c("install")
     if (forge)
@@ -154,13 +154,13 @@ conda_install <- function(envname, packages, forge = TRUE, pip = FALSE, pip_igno
     args <- c(args, "--yes", "--name", envname, packages)
     result <- system2(conda, shQuote(args))
   }
-  
+
   # check for errors
   if (result != 0L) {
-    stop("Error ", result, " occurred installing packages into conda environment ", 
+    stop("Error ", result, " occurred installing packages into conda environment ",
          envname, call. = FALSE)
   }
-  
+
   invisible(NULL)
 }
 
@@ -168,7 +168,7 @@ conda_install <- function(envname, packages, forge = TRUE, pip = FALSE, pip_igno
 #' @rdname conda-tools
 #' @export
 conda_binary <- function(conda = "auto") {
-  
+
   # automatic lookup if requested
   if (identical(conda, "auto")) {
     conda <- find_conda()
@@ -176,11 +176,11 @@ conda_binary <- function(conda = "auto") {
       stop("Unable to find conda binary. Is Anaconda installed?", call. = FALSE)
     conda <- conda[[1]]
   }
-  
+
   # validate existence
   if (!file.exists(conda))
     stop("Specified conda binary '", conda, "' does not exist.", call. = FALSE)
-  
+
   # return conda
   conda
 }
@@ -235,5 +235,4 @@ find_conda <- function() {
     conda
   }
 }
-
 

@@ -15,3 +15,5 @@ int write_stderr(std::string text) {
   REprintf(text.c_str());
   return text.length();
 }
+
+

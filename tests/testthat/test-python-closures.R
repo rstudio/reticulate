@@ -14,3 +14,4 @@ test_that("R functions can accept named arguments from Python", {
   expect_equal(func(x = 15, y = 10), test$callFunc(pyfunc, y = 10, x = 15))
 })
 
+

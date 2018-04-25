@@ -14,11 +14,11 @@ is_python3 <- function() {
 }
 
 #' Get or clear the last Python error encountered
-#' 
-#' @return For `py_last_error()`, a list with the type, value, 
-#' and traceback for the last Python error encountered (can be 
+#'
+#' @return For `py_last_error()`, a list with the type, value,
+#' and traceback for the last Python error encountered (can be
 #' `NULL` if no error has yet been encountered).
-#' 
+#'
 #' @export
 py_last_error <- function() {
     .Call(`_reticulate_py_last_error`)
@@ -75,17 +75,17 @@ py_is_function <- function(x) {
 #' @param x Python object
 #'
 #' @return Logical indicating whether the object is a null externalptr
-#' 
-#' @details When Python objects are serialized within a persisted R 
+#'
+#' @details When Python objects are serialized within a persisted R
 #'  environment (e.g. .RData file) they are deserialized into null
 #'  externalptr objects (since the Python session they were originally
 #'  connected to no longer exists). This function allows you to safely
-#'  check whether whether a Python object is a null externalptr. 
-#'  
+#'  check whether whether a Python object is a null externalptr.
+#'
 #'  The `py_validate` function is a convenience function which calls
 #'  `py_is_null_xptr` and throws an error in the case that the xptr
 #'  is `NULL`.
-#' 
+#'
 #' @export
 py_is_null_xptr <- function(x) {
     .Call(`_reticulate_py_is_null_xptr`, x)

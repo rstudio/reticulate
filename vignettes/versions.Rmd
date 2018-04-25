@@ -107,5 +107,3 @@ You can also use the `py_discover_config()` function to see what version of Pyth
 py_discover_config()
 ```
 
-
-

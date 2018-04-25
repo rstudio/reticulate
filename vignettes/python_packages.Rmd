@@ -139,12 +139,3 @@ $ conda install SciPy
 
 When doing this, be sure to make note of which version of Python your package has been installed within, and call `use_python()` functions as appropriate to ensure that this version is used by reticulate.
 
-
-
-
-
-
-
-
-
-

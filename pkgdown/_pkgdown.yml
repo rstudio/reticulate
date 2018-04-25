@@ -48,7 +48,7 @@ reference:
       - eng_python
       - py_run
       - py
-      
+
   - title: "Python Types"
     contents:
       - dict
@@ -56,7 +56,7 @@ reference:
       - iterate
       - py_iterator
       - with.python.builtin.object
-    
+
   - title: "Python Configuration"
     contents:
       - py_config
@@ -64,22 +64,22 @@ reference:
       - py_available
       - py_module_available
       - use_python
-      
-  - title: "Python Output"  
+
+  - title: "Python Output"
     contents:
       - py_capture_output
       - py_suppress_warnings
-      
+
   - title: "Arrays"
     contents:
       - np_array
       - array_reshape
-      
+
   - title: "Persistence"
     contents:
       - py_save_object
       - py_load_object
-  
+
   - title: "Low-Level Interface"
     contents:
       - py_has_attr
@@ -98,10 +98,11 @@ reference:
       - py_last_error
       - py_help
       - py_func
- 
+
   - title: "Package Installation"
-    contents: 
+    contents:
+      - py_install
       - virtualenv-tools
       - conda-tools
 
- 
+

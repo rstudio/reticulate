@@ -112,14 +112,14 @@ bool closeLibrary(void* pLib, std::string* pError)
 
 
 bool loadSymbol(void* pLib, const std::vector<std::string>& names, void** ppSymbol, std::string* pError) {
-  
+
   // search for a symbol with one of the specified names
   for (size_t i = 0; i<names.size(); ++i) {
     std::string name = names[i];
     if (loadSymbol(pLib, name, ppSymbol, pError))
       return true;
   }
-  
+
   // return false if nonone found
   return false;
 }
@@ -239,14 +239,14 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
   LOAD_PYTHON_SYMBOL(PyThreadState_Next)
 
   // PyUnicode_AsEncodedString may have several different names depending on the Python
-  // version and the UCS build type 
+  // version and the UCS build type
   std::vector<std::string> names;
   names.push_back("PyUnicode_AsEncodedString");
   names.push_back("PyUnicodeUCS2_AsEncodedString");
   names.push_back("PyUnicodeUCS4_AsEncodedString");
   if (!loadSymbol(pLib_, names, (void**)&PyUnicode_AsEncodedString, pError) )
     return false;
-    
+
   if (python3) {
     LOAD_PYTHON_SYMBOL(PyModule_Create2)
     LOAD_PYTHON_SYMBOL(PyImport_AppendInittab)
@@ -296,32 +296,32 @@ bool SharedLibrary::unload(std::string* pError)
 }
 
 bool import_numpy_api(bool python3, std::string* pError) {
-  
+
   PyObject* numpy = PyImport_ImportModule("numpy.core.multiarray");
   if (numpy == NULL) {
     *pError = "numpy.core.multiarray failed to import";
     return false;
   }
-  
+
   PyObject* c_api = PyObject_GetAttrString(numpy, "_ARRAY_API");
   Py_DecRef(numpy);
   if (c_api == NULL) {
     *pError = "numpy.core.multiarray _ARRAY_API not found";
     return false;
   }
-  
+
   // get api pointer
   if (python3)
     PyArray_API = (void **)PyCapsule_GetPointer(c_api, NULL);
   else
     PyArray_API = (void **)PyCObject_AsVoidPtr(c_api);
-  
+
   Py_DecRef(c_api);
   if (PyArray_API == NULL) {
     *pError = "_ARRAY_API is NULL pointer";
     return false;
   }
-  
+
   // check C API version
   if (NPY_VERSION != PyArray_GetNDArrayCVersion()) {
     std::ostringstream ostr;
@@ -330,8 +330,8 @@ bool import_numpy_api(bool python3, std::string* pError) {
     *pError = ostr.str();
     return false;
   }
-  
-  // check feature version 
+
+  // check feature version
   if (NPY_1_6_API_VERSION > PyArray_GetNDArrayCFeatureVersion()) {
     std::ostringstream ostr;
     ostr << "incompatible NumPy feature version " << (int) PyArray_GetNDArrayCFeatureVersion() << " "
@@ -339,12 +339,10 @@ bool import_numpy_api(bool python3, std::string* pError) {
     *pError = ostr.str();
     return false;
   }
-  
+
   return true;
 }
 
 
 } // namespace libpython
-
-
 

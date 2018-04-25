@@ -42,17 +42,17 @@ test_that("Documentations in Google style can be extracted correctly for help ha
 
   docs <- "
 Initialize the model.
-  
+
 Args:
   a: Description for a.
     Defaults to 3.
   type: Type of algorithm (default: 'linear')
     'linear'        - linear model
     'nonlinear'     - nonlinear model
-  
+
 Returns:
   array-like values
-  
+
 Section1:
   Just a placeholder here.
 "
@@ -63,7 +63,7 @@ Section1:
   arg_descriptions <- arg_descriptions_from_doc_default(c("a", "type"), docs)
   expect_match(arg_descriptions[["a"]], "Description for a")
   expect_match(arg_descriptions[["type"]], "Type of algorithm")
-  
+
   result <- help_completion_handler_default(docs)
   expect_match(result$description, "Initialize the model")
   expect_match(result$returns, "array-like values")

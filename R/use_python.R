@@ -20,7 +20,7 @@ use_python <- function(python, required = FALSE) {
 
   if (required)
     .globals$required_python_version <- python
-  
+
   .globals$use_python_versions <- unique(c(.globals$use_python_versions, python))
 }
 
@@ -29,20 +29,20 @@ use_python <- function(python, required = FALSE) {
 #' @export
 use_virtualenv <- function(virtualenv, required = FALSE) {
 
-  # prepend root virtualenv directory it doesn't exist and 
+  # prepend root virtualenv directory it doesn't exist and
   # it's not an absolute path
-  if (!utils::file_test("-d", virtualenv) & 
+  if (!utils::file_test("-d", virtualenv) &
       !grepl("^/|^[a-zA-Z]:/|^~", virtualenv, perl = TRUE)) {
     workon_home <- Sys.getenv("WORKON_HOME", unset = "~/.virtualenvs")
     virtualenv <- file.path(workon_home, virtualenv)
   }
-  
+
   # compute the bin dir
   if (is_windows())
     python_dir <- file.path(virtualenv, "Scripts")
   else
     python_dir <- file.path(virtualenv, "bin")
-  
+
 
   # validate it if required
   if (required) {
@@ -65,18 +65,14 @@ use_condaenv <- function(condaenv, conda = "auto", required = FALSE) {
 
   # list all conda environments
   conda_envs <- conda_list(conda)
-  
+
   # look for one with that name
   conda_env_python <- subset(conda_envs, conda_envs$name == condaenv)$python
   if (length(conda_env_python) == 0 && required)
     stop("Unable to locate conda environment '", condaenv, "'.")
-  
+
   if (!is.null(condaenv))
     use_python(conda_env_python, required = required)
-  
+
   invisible(NULL)
 }
-
-
-
-

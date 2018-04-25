@@ -111,13 +111,11 @@ import_from_path <- function(module, path = ".", convert = TRUE) {
 
   # add the path to sys.path if it isn't already there
   sys <- import("sys", convert = FALSE)
-  sys$path$insert(as.integer(0), path)
-
+  if (!path %in% py_to_r(sys$path))
+    sys$path$append(path)
+  
   # import
   import(module, convert = convert)
-
-  # Remove from path
-  sys$path$pop(as.integer(0))
 }
 
 

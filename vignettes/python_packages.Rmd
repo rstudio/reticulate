@@ -18,7 +18,7 @@ knitr::opts_chunk$set(eval = FALSE)
 
 Python packages are typically installed from one of two package repositories:
 
-1) [PyPI](https://pypi.python.org/pypi); or
+1) [PyPI](https://pypi.org/); or
 
 2) [Conda](https://conda.io/docs/) 
 

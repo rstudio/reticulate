@@ -40,7 +40,7 @@ Here's an R Markdown document that demonstrates this:
 
 ![](images/python_chunks.png){.screenshot width="98%"}
 
-Note that the [daily build](https://dailies.rstudio.com) of RStudio includes support for using reticulate to execute Python chunks within R Notebooks. See the [RStudio IDE Tools for reticulate](rstudio_ide.html) article for additional details.
+Note that the [daily build](https://dailies.rstudio.com) of RStudio includes support for using reticulate to execute Python chunks within R Notebooks. See the [RStudio IDE Tools for reticulate](https://rstudio.github.io/reticulate/articles/rstudio_ide.html) article for additional details.
 
 ## Calling Python from R
 

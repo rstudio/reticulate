@@ -865,19 +865,20 @@ py_str.default <- function(object, ...) {
 
 
 #' @export
+#' @importFrom utils capture.output
 py_str.python.builtin.object <- function(object, ...) {
 
   # get default rep
-  id <- py_str_impl(object)
+  str <- py_str_impl(object)
 
   # remove e.g. 'object at 0x10d084710'
-  id <- gsub(" object at 0x\\w{4,}", "", id)
+  str <- gsub(" object at 0x\\w{4,}", "", str)
 
-  # get list of accesible attr of the python object
-  attr <- capture.output(str(object$`__dict__`))
-
-  # combine
-  str <- paste0(c(id, attr), "\n")
+  # if available, use __dict__ to list accessible attr
+  if (py_has_attr(object, "__dict__")) {
+    attr <- capture.output(str(object$`__dict__`))
+    str <- paste0(c(str, attr), "\n")
+  }
 
   # return
   str

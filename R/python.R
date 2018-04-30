@@ -876,7 +876,8 @@ py_str.python.builtin.object <- function(object, ...) {
 
   # if available, use __dict__ to list accessible attr
   if (py_has_attr(object, "__dict__")) {
-    attr <- capture.output(str(object$`__dict__`))
+    attr <- py_to_r(py_get_attr(object, "__dict__"))
+    attr <- capture.output(str(attr))
     str <- paste0(c(str, attr), "\n")
   }
 

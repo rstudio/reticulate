@@ -1,4 +1,13 @@
 
+## reticulate 1.8 (development)
+
+Install the development version with: `install_github("rstudio/reticulate")`
+
+- Fix issue with Pandas column names that clash with built in methods (e.g. 'pop')
+
+- Improve default `str()` output for Python objects (print `__dict__` if available)
+
+
 ## reticulate 1.7 (CRAN)
 
 - Improved filtering of non-numeric characters in Python / NumPy versions.

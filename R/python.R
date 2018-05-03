@@ -113,7 +113,7 @@ import_from_path <- function(module, path = ".", convert = TRUE) {
   sys <- import("sys", convert = FALSE)
   if (!path %in% py_to_r(sys$path))
     sys$path$append(path)
-  
+
   # import
   import(module, convert = convert)
 }
@@ -865,6 +865,7 @@ py_str.default <- function(object, ...) {
 
 
 #' @export
+#' @importFrom utils capture.output
 py_str.python.builtin.object <- function(object, ...) {
 
   # get default rep
@@ -872,6 +873,13 @@ py_str.python.builtin.object <- function(object, ...) {
 
   # remove e.g. 'object at 0x10d084710'
   str <- gsub(" object at 0x\\w{4,}", "", str)
+
+  # if available, use __dict__ to list accessible attr
+  if (py_has_attr(object, "__dict__")) {
+    attr <- py_to_r(py_get_attr(object, "__dict__"))
+    attr <- capture.output(str(attr))
+    str <- c(str, attr)
+  }
 
   # return
   str

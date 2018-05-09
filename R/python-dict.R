@@ -1,4 +1,17 @@
 #' @export
+`$.python.builtin.dict` <- function(x, name) {
+  if (py_is_null_xptr(x) || !py_available())
+    return(NULL)
+  py_dict_get_item(x, name)
+}
+
+#' @export
+`[.python.builtin.dict` <- `$.python.builtin.dict`
+
+#' @export
+`[[.python.builtin.dict` <- `$.python.builtin.dict`
+
+#' @export
 `$<-.python.builtin.dict` <- function(x, name, value) {
   if (!py_is_null_xptr(x) && py_available())
     py_dict_set_item(x, name, value)

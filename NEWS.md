@@ -3,6 +3,10 @@
 
 Install the development version with: `install_github("rstudio/reticulate")`
 
+- Added `py_get_item()`, `py_set_item()`, and `py_del_item()` as lower-level
+  APIs for directly accessing the items of e.g. a Python dictionary or a Pandas
+  DataFrame.
+
 - Fix issue with Pandas column names that clash with built in methods (e.g. 'pop')
 
 - Improve default `str()` output for Python objects (print `__dict__` if available)

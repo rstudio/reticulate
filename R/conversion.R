@@ -233,7 +233,7 @@ py_to_r.pandas.core.frame.DataFrame <- function(x) {
   # extract numpy arrays associated with each column
   columns <- py_to_r(x$columns$values)
   converted <- lapply(columns, function(column) {
-    py_to_r(x[[column]]$values)
+    py_to_r(py_get_item(x, column)$values)
   })
   names(converted) <- columns
 
@@ -247,9 +247,9 @@ py_to_r.pandas.core.frame.DataFrame <- function(x) {
     }
 
     # convert categorical variables to factors
-    if (identical(py_to_r(x$`__getitem__`(column)$dtype$name), "category")) {
-      levels <- py_to_r(x$`__getitem__`(column)$values$categories$values)
-      ordered <- py_to_r(x$`__getitem__`(column)$dtype$ordered)
+    if (identical(py_to_r(py_get_item(x, column)$dtype$name), "category")) {
+      levels <- py_to_r(py_get_item(x, column)$values$categories$values)
+      ordered <- py_to_r(py_get_item(x, column)$dtype$ordered)
       converted[[i]] <- factor(converted[[i]], levels = levels, ordered = ordered)
     }
 

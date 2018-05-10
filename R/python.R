@@ -113,7 +113,7 @@ import_from_path <- function(module, path = ".", convert = TRUE) {
   sys <- import("sys", convert = FALSE)
   if (!path %in% py_to_r(sys$path))
     sys$path$append(path)
-  
+
   # import
   import(module, convert = convert)
 }
@@ -815,6 +815,94 @@ py_list_attributes <- function(x) {
   Encoding(attrs) <- "UTF-8"
   attrs
 }
+
+
+
+#' Get an item from a Python object
+#'
+#' Retrieve an item from a Python object, similar to how
+#' \code{x[name]} might be used in Python code to access an
+#' item called `name` on an object `x`. The object's
+#' `__getitem__` method will be called.
+#'
+#' @param x A Python object.
+#' @param name The item name.
+#' @param silent Boolean; when \code{TRUE}, attempts to access
+#'   missing items will return \code{NULL} rather than
+#'   throw an error.
+#'
+#' @family item-related APIs
+#' @export
+py_get_item <- function(x, name, silent = FALSE) {
+  ensure_python_initialized()
+  if (py_is_module_proxy(x))
+    py_resolve_module_proxy(x)
+
+  if (!py_has_attr(x, "__getitem__"))
+    stop("Python object has no '__getitem__' method")
+  getitem <- py_to_r(py_get_attr(x, "__getitem__", silent = FALSE))
+
+  item <- if (silent)
+    tryCatch(getitem(name), error = function(e) NULL)
+  else
+    getitem(name)
+
+  item
+}
+
+#' Set an item for a Python object
+#'
+#' Set an item on a Python object, similar to how
+#' \code{x[name] = value} might be used in Python code to
+#' set an item called `name` with value `value` on object
+#' `x`. The object's `__setitem__` method will be called.
+#'
+#' @param x A Python object.
+#' @param name The item name.
+#' @param value The item value.
+#'
+#' @return The (mutated) object `x`, invisibly.
+#'
+#' @family item-related APIs
+#' @export
+py_set_item <- function(x, name, value) {
+  ensure_python_initialized()
+  if (py_is_module_proxy(x))
+    py_resolve_module_proxy(x)
+
+  if (!py_has_attr(x, "__setitem__"))
+    stop("Python object has no '__setitem__' method")
+  setitem <- py_to_r(py_get_attr(x, "__setitem__", silent = FALSE))
+
+  setitem(name, value)
+  invisible(x)
+}
+
+#' Delete / remove an item from a Python object
+#'
+#' Delete an item associated with a Python object, as
+#' through its `__delitem__` method.
+#'
+#' @param x A Python object.
+#' @param name The item name.
+#'
+#' @return The (mutated) object `x`, invisibly.
+#'
+#' @family item-related APIs
+#' @export
+py_del_item <- function(x, name) {
+  ensure_python_initialized()
+  if (py_is_module_proxy(x))
+    py_resolve_module_proxy(x)
+
+  if (!py_has_attr(x, "__delitem__"))
+    stop("Python object has no '__delitem__' method")
+  delitem <- py_to_r(py_get_attr(x, "__delitem__", silent = FALSE))
+
+  delitem(name)
+  invisible(x)
+}
+
 
 
 #' Unique identifer for Python object

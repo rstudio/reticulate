@@ -1,7 +1,18 @@
 
-## reticulate 1.7 (development)
+## reticulate 1.8 (development)
 
 Install the development version with: `install_github("rstudio/reticulate")`
+
+- Added `py_get_item()`, `py_set_item()`, and `py_del_item()` as lower-level
+  APIs for directly accessing the items of e.g. a Python dictionary or a Pandas
+  DataFrame.
+
+- Fix issue with Pandas column names that clash with built in methods (e.g. 'pop')
+
+- Improve default `str()` output for Python objects (print `__dict__` if available)
+
+
+## reticulate 1.7 (CRAN)
 
 - Improved filtering of non-numeric characters in Python / NumPy versions.
 
@@ -20,7 +31,7 @@ Install the development version with: `install_github("rstudio/reticulate")`
 - Removed `delay_load` parameter from `import_from_path()`
 
 
-## reticulate 1.6 (CRAN)
+## reticulate 1.6
 
 - `repl_python()` function implementing a lightweight Python REPL in R.
 

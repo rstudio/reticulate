@@ -13,3 +13,11 @@ LICENSE
 ^_pkgdown\.yml$
 ^appveyor\.yml$
 ^pkgdown$
+vignettes/rstudio_ide.Rmd
+vignettes/rstudio_ide.html
+vignettes/images/rmarkdown_reticulate.png
+vignettes/images/rmarkdown_reticulate_matplotlib.png
+vignettes/images/repl_python.png
+vignettes/images/source_python.png
+vignettes/images/code_completion.png
+vignettes/images/help.png

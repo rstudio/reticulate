@@ -26,10 +26,10 @@ Just a placeholder here.
 "
 
   doctree <- sphinx_doctree_from_doc(docs)
-  expect_equal(names(doctree$ids), c("parameters", "returns", "section1"))
+  expect_setequal(names(doctree$ids), c("parameters", "returns", "section1"))
 
   arg_descriptions <- arg_descriptions_from_doc_sphinx(docs)
-  expect_equal(names(arg_descriptions), c("a", "type"))
+  expect_setequal(names(arg_descriptions), c("a", "type"))
   expect_match(arg_descriptions[["a"]], "Description for a")
   expect_match(arg_descriptions[["type"]], "Type of algorithm")
 

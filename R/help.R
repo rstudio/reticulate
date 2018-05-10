@@ -328,9 +328,17 @@ arg_descriptions_from_doc_default <- function(args, doc) {
 arg_descriptions_from_doc_sphinx <- function(doc) {
   doctree <- sphinx_doctree_from_doc(doc)
   params <- doctree$ids$parameters$children[[2]]$children
-  sapply(params, function(param) {
+
+  text <- vapply(params, function(param) {
     param$children[[3]]$astext()
-  })
+  }, character(1))
+
+  nm <- vapply(params, function(param) {
+    param$children[[1]]$astext()
+  }, character(1))
+
+  names(text) <- nm
+  text
 }
 
 # Extract argument descriptions from python docstring

@@ -241,7 +241,7 @@ py_maybe_convert <- function(x, convert) {
 # helper function for accessing attributes or items from a
 # Python object, after validating that we do indeed have
 # a valid Python object reference
-py_get_with <- function(accessor, x, name) {
+py_get_item_or_attr <- function(x, name, prefer_attr) {
   # resolve module proxies
   if (py_is_module_proxy(x))
     py_resolve_module_proxy(x)
@@ -259,23 +259,46 @@ py_get_with <- function(accessor, x, name) {
   }
 
   # get the attrib and convert as needed
-  object <- accessor(x, name)
+  if (prefer_attr) {
+
+    if (py_has_attr(x, name)) {
+      object <- py_get_attr(x, name)
+    } else {
+      object <- py_get_item(x, name)
+    }
+
+  } else {
+
+    # if we have an attribute, attempt to get the item
+    # but allow for fallback to that attribute
+    if (py_has_attr(x, name)) {
+      object <- py_get_item(x, name, silent = TRUE)
+      if (is.null(object))
+        object <- py_get_attr(x, name)
+    } else {
+      # we don't have an attribute; only attempt item
+      # access and allow normal error propagation
+      object <- py_get_item(x, name)
+    }
+
+  }
+
   py_maybe_convert(object, py_has_convert(x))
 }
 
 #' @export
 `$.python.builtin.object` <- function(x, name) {
-  py_get_with(py_get_attr, x, name)
+  py_get_item_or_attr(x, name, TRUE)
 }
 
 #' @export
 `[.python.builtin.object` <- function(x, name) {
-  py_get_with(py_get_item, x, name)
+  py_get_item_or_attr(x, name, FALSE)
 }
 
 #' @export
 `[[.python.builtin.object` <- function(x, name) {
-  py_get_with(py_get_item, x, name)
+  py_get_item_or_attr(x, name, FALSE)
 }
 
 

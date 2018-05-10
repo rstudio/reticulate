@@ -3,15 +3,28 @@
   if (py_is_null_xptr(x) || !py_available())
     return(NULL)
 
+  # for backwards compatibility, `$` prefers items for now,
+  # and falls back to an existing attribute (if any). in
+  # a future release of reticulate, we might consider
+  # having `$` only extract attributes
+  item <- py_dict_get_item(x, name)
+  if (!py_is_none(item))
+    return(py_maybe_convert(item, py_has_convert(x)))
+
+  `$.python.builtin.object`(x, name)
+}
+
+#' @export
+`[.python.builtin.dict` <- function(x, name) {
+  if (py_is_null_xptr(x) || !py_available())
+    return(NULL)
+
   item <- py_dict_get_item(x, name)
   py_maybe_convert(item, py_has_convert(x))
 }
 
 #' @export
-`[.python.builtin.dict` <- `$.python.builtin.dict`
-
-#' @export
-`[[.python.builtin.dict` <- `$.python.builtin.dict`
+`[[.python.builtin.dict` <- `[.python.builtin.dict`
 
 #' @export
 `$<-.python.builtin.dict` <- function(x, name, value) {

@@ -234,38 +234,8 @@ eng_python_initialize_matplotlib <- function(options,
 }
 
 # synchronize objects R -> Python
-eng_python_synchronize_before <- function(
-  envir = getOption("reticulate.engine.environment"))
-{
-  # define our 'R' class
-  py_run_string("class R(object): pass")
-
-  # extract it from the main module
-  main <- import_main(convert = FALSE)
-  R <- main$R
-
-  # extract active knit environment
-  if (is.null(envir)) {
-    .knitEnv <- yoink("knitr", ".knitEnv")
-    envir <- .knitEnv$knit_global
-  }
-
-  # define the getters, setters we'll attach to the Python class
-  getter <- function(self, code) {
-    r_to_py(eval(parse(text = as_r_value(code)), envir = envir))
-  }
-
-  setter <- function(self, name, value) {
-    envir[[as_r_value(name)]] <<- as_r_value(value)
-  }
-
-  py_set_attr(R, "__getattr__", getter)
-  py_set_attr(R, "__setattr__", setter)
-  py_set_attr(R, "__getitem__", getter)
-  py_set_attr(R, "__setitem__", setter)
-
-  # now define the R object
-  py_run_string("r = R()")
+eng_python_synchronize_before <- function() {
+  py_inject_r(envir = getOption("reticulate.engine.environment"))
 }
 
 # synchronize objects Python -> R

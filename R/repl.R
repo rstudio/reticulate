@@ -294,10 +294,6 @@ repl_python <- function(
 
   }
 
-  # allow for interacting with R session
-  eng_python_synchronize_before(globalenv())
-  on.exit(eng_python_synchronize_after(), add = TRUE)
-
   # enter the REPL loop
   repeat {
 

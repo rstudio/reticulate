@@ -160,6 +160,15 @@ py_to_r.pandas.core.series.Series <- function(x) {
   py_to_r(x$values)
 }
 
+#' @export
+py_to_r.pandas.core.categorical.Categorical <- function(x) {
+  disable_conversion_scope(x)
+  values <- py_to_r(x$get_values())
+  levels <- py_to_r(x$categories$values)
+  ordered <- py_to_r(x$dtype$ordered)
+  factor(values, levels = levels, ordered = ordered)
+}
+
 py_object_shape <- function(object) unlist(as_r_value(object$shape))
 
 #' @export
@@ -245,14 +254,6 @@ py_to_r.pandas.core.frame.DataFrame <- function(x) {
     if (identical(dim(converted[[i]]), length(converted[[i]]))) {
       dim(converted[[i]]) <- NULL
     }
-
-    # convert categorical variables to factors
-    if (identical(py_to_r(py_get_item(x, column)$dtype$name), "category")) {
-      levels <- py_to_r(py_get_item(x, column)$values$categories$values)
-      ordered <- py_to_r(py_get_item(x, column)$dtype$ordered)
-      converted[[i]] <- factor(converted[[i]], levels = levels, ordered = ordered)
-    }
-
   }
 
   # re-order based on ordering of pandas DataFrame. note that

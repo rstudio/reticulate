@@ -157,7 +157,7 @@ py_to_r.datetime.date <- function(x) {
 #' @export
 py_to_r.pandas.core.series.Series <- function(x) {
   disable_conversion_scope(x)
-  py_to_r(x$as_matrix())
+  py_to_r(x$values)
 }
 
 py_object_shape <- function(object) unlist(as_r_value(object$shape))
@@ -233,7 +233,7 @@ py_to_r.pandas.core.frame.DataFrame <- function(x) {
   # extract numpy arrays associated with each column
   columns <- py_to_r(x$columns$values)
   converted <- lapply(columns, function(column) {
-    py_to_r(x$`__getitem__`(column)$as_matrix())
+    py_to_r(x[[column]]$values)
   })
   names(converted) <- columns
 

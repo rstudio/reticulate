@@ -2,7 +2,9 @@
 `$.python.builtin.dict` <- function(x, name) {
   if (py_is_null_xptr(x) || !py_available())
     return(NULL)
-  py_dict_get_item(x, name)
+
+  item <- py_dict_get_item(x, name)
+  py_maybe_convert(item, py_has_convert(x))
 }
 
 #' @export

@@ -220,6 +220,24 @@ py_has_convert <- function(x) {
     TRUE
 }
 
+py_maybe_convert <- function(x, convert) {
+  if (convert || py_is_callable(x)) {
+
+    # capture previous convert for attr
+    attrib_convert <- py_has_convert(x)
+
+    # temporarily change convert so we can call py_to_r and get S3 dispatch
+    envir <- as.environment(x)
+    assign("convert", convert, envir = envir)
+    on.exit(assign("convert", attrib_convert, envir = envir), add = TRUE)
+
+    # call py_to_r
+    x <- py_to_r(x)
+  }
+
+  x
+}
+
 #' @export
 `$.python.builtin.object` <- function(x, name) {
 
@@ -242,25 +260,10 @@ py_has_convert <- function(x) {
       return(module)
   }
 
-  # get the attrib
+  # get the attrib and convert as needed
   attrib <- py_get_attr(x, name)
+  py_maybe_convert(attrib, convert)
 
-  # convert
-  if (convert || py_is_callable(attrib)) {
-
-    # capture previous convert for attr
-    attrib_convert <- py_has_convert(attrib)
-
-    # temporarily change convert so we can call py_to_r and get S3 dispatch
-    envir <- as.environment(attrib)
-    assign("convert", convert, envir = envir)
-    on.exit(assign("convert", attrib_convert, envir = envir), add = TRUE)
-
-    # call py_to_r
-    py_to_r(attrib)
-  }
-  else
-    attrib
 }
 
 

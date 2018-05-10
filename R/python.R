@@ -238,9 +238,10 @@ py_maybe_convert <- function(x, convert) {
   x
 }
 
-#' @export
-`$.python.builtin.object` <- function(x, name) {
-
+# helper function for accessing attributes or items from a
+# Python object, after validating that we do indeed have
+# a valid Python object reference
+py_get_with <- function(accessor, x, name) {
   # resolve module proxies
   if (py_is_module_proxy(x))
     py_resolve_module_proxy(x)
@@ -249,21 +250,32 @@ py_maybe_convert <- function(x, convert) {
   if (py_is_null_xptr(x) || !py_available())
     return(NULL)
 
-  # deterimine whether this object converts to python
-  convert <- py_has_convert(x)
-
   # special handling for embedded modules (which don't always show
   # up as "attributes")
   if (py_is_module(x) && !py_has_attr(x, name)) {
-    module <- py_get_submodule(x, name, convert)
+    module <- py_get_submodule(x, name, py_has_convert(x))
     if (!is.null(module))
       return(module)
   }
 
   # get the attrib and convert as needed
-  attrib <- py_get_attr(x, name)
-  py_maybe_convert(attrib, convert)
+  object <- accessor(x, name)
+  py_maybe_convert(object, py_has_convert(x))
+}
 
+#' @export
+`$.python.builtin.object` <- function(x, name) {
+  py_get_with(py_get_attr, x, name)
+}
+
+#' @export
+`[.python.builtin.object` <- function(x, name) {
+  py_get_with(py_get_item, x, name)
+}
+
+#' @export
+`[[.python.builtin.object` <- function(x, name) {
+  py_get_with(py_get_item, x, name)
 }
 
 
@@ -815,7 +827,7 @@ py_get_item <- function(x, name, silent = FALSE) {
     py_resolve_module_proxy(x)
 
   if (!py_has_attr(x, "__getitem__"))
-    stop("Python object has no '__getitem__' method")
+    stop("Python object has no '__getitem__' method", call. = FALSE)
   getitem <- py_to_r(py_get_attr(x, "__getitem__", silent = FALSE))
 
   item <- if (silent)
@@ -847,7 +859,7 @@ py_set_item <- function(x, name, value) {
     py_resolve_module_proxy(x)
 
   if (!py_has_attr(x, "__setitem__"))
-    stop("Python object has no '__setitem__' method")
+    stop("Python object has no '__setitem__' method", call. = FALSE)
   setitem <- py_to_r(py_get_attr(x, "__setitem__", silent = FALSE))
 
   setitem(name, value)
@@ -872,7 +884,7 @@ py_del_item <- function(x, name) {
     py_resolve_module_proxy(x)
 
   if (!py_has_attr(x, "__delitem__"))
-    stop("Python object has no '__delitem__' method")
+    stop("Python object has no '__delitem__' method", call. = FALSE)
   delitem <- py_to_r(py_get_attr(x, "__delitem__", silent = FALSE))
 
   delitem(name)

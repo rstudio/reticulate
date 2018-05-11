@@ -253,12 +253,12 @@ int narrow_array_typenum(PyArray_Descr* descr) {
 }
 
 bool is_numpy_str(PyObject* x) {
-  if (isPyArrayScalar(x)) {
-    PyArray_DescrPtr descrPtr(PyArray_DescrFromScalar(x));
-    int typenum = narrow_array_typenum(descrPtr);
-    return (typenum == NPY_STRING || typenum == NPY_UNICODE);
-  }
-  return false;
+  if (!isPyArrayScalar(x))
+    return false; // ndarray or other, not string
+  
+  PyArray_DescrPtr descrPtr(PyArray_DescrFromScalar(x));
+  int typenum = narrow_array_typenum(descrPtr);
+  return (typenum == NPY_STRING || typenum == NPY_UNICODE);
 }
 
 bool is_python_str(PyObject* x) {

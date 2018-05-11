@@ -6,7 +6,10 @@ test_that("R dates can be converted to / from Python datetimes", {
   before <- Sys.Date()
   after <- py_to_r(r_to_py(before))
 
-  expect_equal(as.numeric(as.POSIXct(before)), as.numeric(after))
+  expect_equal(
+    as.numeric(as.POSIXct(before)),
+    as.numeric(as.POSIXct(after))
+  )
 })
 
 test_that("R times can be converted to / from Python datetimes", {

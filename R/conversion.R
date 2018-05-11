@@ -20,6 +20,11 @@ py_to_r <- function(x) {
 }
 
 
+#' @export
+r_to_py.list <- function(x, convert = FALSE) {
+  converted <- lapply(x, r_to_py, convert = convert)
+  r_to_py_impl(converted, convert = convert)
+}
 
 #' @export
 r_to_py.default <- function(x, convert = FALSE) {
@@ -125,11 +130,6 @@ py_to_r.datetime.datetime <- function(x) {
 #' @export
 r_to_py.Date <- function(x, convert = FALSE) {
 
-  # we prefer datetime64 for efficiency
-  if (py_module_available("numpy"))
-    return(r_to_py.POSIXt(as.POSIXct(x)))
-
-  # otherwise, fallback to using Python's datetime class
   datetime <- import("datetime", convert = convert)
   items <- lapply(x, function(item) {
     iso <- strsplit(format(x), "-", fixed = TRUE)[[1]]

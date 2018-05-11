@@ -256,8 +256,7 @@ bool is_numpy_str(PyObject* x) {
   if (isPyArrayScalar(x)) {
     PyArray_DescrPtr descrPtr(PyArray_DescrFromScalar(x));
     int typenum = narrow_array_typenum(descrPtr);
-    if (typenum == NPY_STRING || typenum == NPY_UNICODE)
-      return true;
+    return (typenum == NPY_STRING || typenum == NPY_UNICODE);
   }
   return false;
 }

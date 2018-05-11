@@ -136,7 +136,7 @@ std::string as_std_string(PyObject* str) {
 
   // conver to bytes if its unicode
   PyObjectPtr pStr;
-  if (PyUnicode_Check(str)) {
+  if (PyUnicode_Check(str) | isPyArrayScalar(str)) {
     str = PyUnicode_AsBytes(str);
     pStr.assign(str);
   }
@@ -192,6 +192,76 @@ bool has_null_bytes(PyObject* str) {
   }
 }
 
+// helpers to narrow python array type to something convertable from R,
+// guaranteed to return NPY_BOOL, NPY_LONG, NPY_DOUBLE, or NPY_CDOUBLE
+// (throws an exception if it's unable to return one of these types)
+int narrow_array_typenum(int typenum) {
+
+  switch(typenum) {
+  // logical
+  case NPY_BOOL:
+    typenum = NPY_BOOL;
+    break;
+    // integer
+  case NPY_BYTE:
+  case NPY_UBYTE:
+  case NPY_SHORT:
+  case NPY_USHORT:
+  case NPY_INT:
+    typenum = NPY_LONG;
+    break;
+    // double
+  case NPY_UINT:
+  case NPY_ULONG:
+  case NPY_ULONGLONG:
+  case NPY_LONG:
+  case NPY_LONGLONG:
+  case NPY_HALF:
+  case NPY_FLOAT:
+  case NPY_DOUBLE:
+    typenum = NPY_DOUBLE;
+    break;
+
+    // complex
+  case NPY_CFLOAT:
+  case NPY_CDOUBLE:
+    typenum = NPY_CDOUBLE;
+    break;
+
+
+    // string/object (leave these alone)
+  case NPY_STRING:
+  case NPY_UNICODE:
+  case NPY_OBJECT:
+    break;
+
+    // unsupported
+  default:
+    stop("Conversion from numpy array type %d is not supported", typenum);
+    break;
+  }
+
+  return typenum;
+}
+
+int narrow_array_typenum(PyArrayObject* array) {
+  return narrow_array_typenum(PyArray_TYPE(array));
+}
+
+int narrow_array_typenum(PyArray_Descr* descr) {
+  return narrow_array_typenum(descr->type_num);
+}
+
+bool is_numpy_str(PyObject* x) {
+  if (isPyArrayScalar(x)) {
+    PyArray_DescrPtr descrPtr(PyArray_DescrFromScalar(x));
+    int typenum = narrow_array_typenum(descrPtr);
+    if (typenum == NPY_STRING || typenum == NPY_UNICODE)
+      return true;
+  }
+  return false;
+}
+
 bool is_python_str(PyObject* x) {
 
   if (PyUnicode_Check(x))
@@ -203,6 +273,9 @@ bool is_python_str(PyObject* x) {
   else if (!is_python3() && PyString_Check(x) && !has_null_bytes(x))
     return true;
 
+  if (is_numpy_str(x))
+    return true;
+  
   else
     return false;
 }
@@ -511,67 +584,6 @@ CharacterVector py_tuple_to_character(PyObject* tuple) {
     vec[i] = as_utf8_r_string(PyTuple_GetItem(tuple, i));
   return vec;
 }
-
-// helpers to narrow python array type to something convertable from R,
-// guaranteed to return NPY_BOOL, NPY_LONG, NPY_DOUBLE, or NPY_CDOUBLE
-// (throws an exception if it's unable to return one of these types)
-int narrow_array_typenum(int typenum) {
-
-  switch(typenum) {
-  // logical
-  case NPY_BOOL:
-    typenum = NPY_BOOL;
-    break;
-    // integer
-  case NPY_BYTE:
-  case NPY_UBYTE:
-  case NPY_SHORT:
-  case NPY_USHORT:
-  case NPY_INT:
-    typenum = NPY_LONG;
-    break;
-    // double
-  case NPY_UINT:
-  case NPY_ULONG:
-  case NPY_ULONGLONG:
-  case NPY_LONG:
-  case NPY_LONGLONG:
-  case NPY_HALF:
-  case NPY_FLOAT:
-  case NPY_DOUBLE:
-    typenum = NPY_DOUBLE;
-    break;
-
-    // complex
-  case NPY_CFLOAT:
-  case NPY_CDOUBLE:
-    typenum = NPY_CDOUBLE;
-    break;
-
-
-    // string/object (leave these alone)
-  case NPY_STRING:
-  case NPY_UNICODE:
-  case NPY_OBJECT:
-    break;
-
-    // unsupported
-  default:
-    stop("Conversion from numpy array type %d is not supported", typenum);
-    break;
-  }
-
-  return typenum;
-}
-
-int narrow_array_typenum(PyArrayObject* array) {
-  return narrow_array_typenum(PyArray_TYPE(array));
-}
-
-int narrow_array_typenum(PyArray_Descr* descr) {
-  return narrow_array_typenum(descr->type_num);
-}
-
 
 void set_string_element(SEXP rArray, int i, PyObject* pyStr) {
   std::string str = as_std_string(pyStr);

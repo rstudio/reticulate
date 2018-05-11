@@ -4,12 +4,12 @@
 \alias{py_get_item}
 \title{Get an item from a Python object}
 \usage{
-py_get_item(x, name, silent = FALSE)
+py_get_item(x, key, silent = FALSE)
 }
 \arguments{
 \item{x}{A Python object.}
 
-\item{name}{The item name.}
+\item{key}{The key used for item lookup.}
 
 \item{silent}{Boolean; when \code{TRUE}, attempts to access
 missing items will return \code{NULL} rather than
@@ -18,7 +18,7 @@ throw an error.}
 \description{
 Retrieve an item from a Python object, similar to how
 \code{x[name]} might be used in Python code to access an
-item called \code{name} on an object \code{x}. The object's
+item indexed by \code{key} on an object \code{x}. The object's
 \code{__getitem__} method will be called.
 }
 \seealso{

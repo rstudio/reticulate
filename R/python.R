@@ -241,7 +241,7 @@ py_maybe_convert <- function(x, convert) {
 # helper function for accessing attributes or items from a
 # Python object, after validating that we do indeed have
 # a valid Python object reference
-py_get_item_or_attr <- function(x, name, prefer_attr) {
+py_get_attr_or_item <- function(x, name, prefer_attr) {
   # resolve module proxies
   if (py_is_module_proxy(x))
     py_resolve_module_proxy(x)
@@ -256,6 +256,17 @@ py_get_item_or_attr <- function(x, name, prefer_attr) {
     module <- py_get_submodule(x, name, py_has_convert(x))
     if (!is.null(module))
       return(module)
+  }
+
+  # re-cast numeric values as integers
+  if (is.numeric(name))
+    name <- as.integer(name)
+
+  # attributes must always be indexed by strings, so if
+  # we receive a non-string 'name', we call py_get_item
+  if (!is.character(name)) {
+    item <- py_get_item(x, name)
+    return(py_maybe_convert(item, py_has_convert(x)))
   }
 
   # get the attrib and convert as needed
@@ -288,17 +299,17 @@ py_get_item_or_attr <- function(x, name, prefer_attr) {
 
 #' @export
 `$.python.builtin.object` <- function(x, name) {
-  py_get_item_or_attr(x, name, TRUE)
+  py_get_attr_or_item(x, name, TRUE)
 }
 
 #' @export
 `[.python.builtin.object` <- function(x, name) {
-  py_get_item_or_attr(x, name, FALSE)
+  py_get_attr_or_item(x, name, FALSE)
 }
 
 #' @export
 `[[.python.builtin.object` <- function(x, name) {
-  py_get_item_or_attr(x, name, FALSE)
+  py_get_attr_or_item(x, name, FALSE)
 }
 
 
@@ -833,18 +844,18 @@ py_list_attributes <- function(x) {
 #'
 #' Retrieve an item from a Python object, similar to how
 #' \code{x[name]} might be used in Python code to access an
-#' item called `name` on an object `x`. The object's
+#' item indexed by `key` on an object `x`. The object's
 #' `__getitem__` method will be called.
 #'
 #' @param x A Python object.
-#' @param name The item name.
+#' @param key The key used for item lookup.
 #' @param silent Boolean; when \code{TRUE}, attempts to access
 #'   missing items will return \code{NULL} rather than
 #'   throw an error.
 #'
 #' @family item-related APIs
 #' @export
-py_get_item <- function(x, name, silent = FALSE) {
+py_get_item <- function(x, key, silent = FALSE) {
   ensure_python_initialized()
   if (py_is_module_proxy(x))
     py_resolve_module_proxy(x)
@@ -854,9 +865,9 @@ py_get_item <- function(x, name, silent = FALSE) {
   getitem <- py_to_r(py_get_attr(x, "__getitem__", silent = FALSE))
 
   item <- if (silent)
-    tryCatch(getitem(name), error = function(e) NULL)
+    tryCatch(getitem(key), error = function(e) NULL)
   else
-    getitem(name)
+    getitem(key)
 
   item
 }

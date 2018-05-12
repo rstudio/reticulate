@@ -136,7 +136,7 @@ std::string as_std_string(PyObject* str) {
 
   // conver to bytes if its unicode
   PyObjectPtr pStr;
-  if (PyUnicode_Check(str) | isPyArrayScalar(str)) {
+  if (PyUnicode_Check(str) || isPyArrayScalar(str)) {
     str = PyUnicode_AsBytes(str);
     pStr.assign(str);
   }
@@ -272,7 +272,7 @@ bool is_python_str(PyObject* x) {
   else if (!is_python3() && PyString_Check(x) && !has_null_bytes(x))
     return true;
 
-  if (is_numpy_str(x))
+  else if (is_numpy_str(x))
     return true;
   
   else

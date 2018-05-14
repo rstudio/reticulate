@@ -271,13 +271,7 @@ py_get_attr_or_item <- function(x, name, prefer_attr) {
 
   # get the attrib and convert as needed
   if (prefer_attr) {
-
-    if (py_has_attr(x, name)) {
-      object <- py_get_attr(x, name)
-    } else {
-      object <- py_get_item(x, name)
-    }
-
+    object <- py_get_attr(x, name)
   } else {
 
     # if we have an attribute, attempt to get the item

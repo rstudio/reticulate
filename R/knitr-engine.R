@@ -94,6 +94,11 @@ eng_python <- function(options) {
     node$lineno
   }, integer(1))
 
+  # it's possible for multiple statements to live on the
+  # same line (e.g. `print("a"); print("b")`) so only keep
+  # uniques
+  lines <- unique(lines)
+
   # convert from lines to ranges
   starts <- lines
   ends <- c(lines[-1] - 1, length(code))

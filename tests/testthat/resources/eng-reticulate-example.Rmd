@@ -105,3 +105,8 @@ raise RuntimeError("oops!")
 print "This line is still reached."
 ```
 
+Ensure that lines with multiple statements are only run once.
+
+```{python}
+print("abc"); print("123")
+```

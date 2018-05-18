@@ -272,6 +272,12 @@ py_to_r.pandas.core.frame.DataFrame <- function(x) {
   # try to explicitly whitelist a small family which we can represent
   # effectively in R
   index <- x$index
+
+  # tag the returned object with the Python index, in case
+  # the user needs to explicitly access / munge the index
+  # for some need
+  attr(df, "pandas.index") <- index
+
   if (inherits(index, c("pandas.core.indexes.base.Index",
                         "pandas.indexes.base.Index"))) {
 
@@ -312,8 +318,14 @@ py_to_r.pandas.core.frame.DataFrame <- function(x) {
 
     else {
       converted <- tryCatch(py_to_r(index$values), error = identity)
-      if (is.character(converted) || is.numeric(converted))
-        rownames(df) <- converted
+      if (is.character(converted) || is.numeric(converted)) {
+        if (any(duplicated(converted))) {
+          warning("index contains duplicated values: row names not set")
+        } else {
+          rownames(df) <- converted
+        }
+      }
+
     }
   }
 

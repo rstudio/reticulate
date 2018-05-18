@@ -13,9 +13,10 @@ test_that("An R Markdown document can be rendered using reticulate", {
     }
   }
 
-  status <- withr::with_dir("resources", {
-    rmarkdown::render("eng-reticulate-example.Rmd", quiet = TRUE)
-  })
+  owd <- setwd("resources")
+  status <- rmarkdown::render("eng-reticulate-example.Rmd", quiet = TRUE)
+  setwd(owd)
+
   expect_true(file.exists(status), "example.Rmd rendered successfully")
 })
 

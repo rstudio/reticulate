@@ -15,7 +15,7 @@ knitr::opts_chunk$set(eval = FALSE)
 
 ## Overview
 
-The current [daily builds](https://dailies.rstudio.com) of RStudio IDE include experimental support for the reticulate package, including:
+The current [RStudio v1.2 preview release](https://www.rstudio.com/rstudio/download/preview/) includes experimental support for the reticulate package, including:
 
 1) Support for executing reticulated Python chunks within [R Notebooks](https://rmarkdown.rstudio.com/r_notebooks.html).
 
@@ -33,25 +33,9 @@ There are many IDEs available for doing data science with Python including [Jupy
 
 ## Installation
 
-You can download the current daily build of RStudio for various platforms here: 
+You can download the RStudio v1.2 preview release here: <https://www.rstudio.com/rstudio/download/preview/>.
 
-- [Windows Desktop](https://dailies.rstudio.com/rstudio/oss/windows/)
-
-- [Mac OS X Desktop](https://dailies.rstudio.com/rstudio/oss/mac/)
-
-- [Ubuntu Desktop](https://dailies.rstudio.com/rstudio/oss/ubuntu/amd64/)
-
-- [RedHat Server](https://dailies.rstudio.com/rstudioserver/oss/redhat6/x86_64/)
-
-- [Ubuntu Server](https://dailies.rstudio.com/rstudioserver/oss/ubuntu/amd64/)
-
-- [Other Platforms](https://dailies.rstudio.com)
-
-<div class="alert alert-warning">
-Note that RStudio daily builds are intended for testing purposes, and are not recommended for general use. If you use the daily build to try out the new features please report bugs at <https://github.com/rstudio/rstudio/issues>.
-</div>
-
-Al of the features described below require that you have previously installed the reticulate package, which you can do as follows:
+All of the features described below require that you have previously installed the reticulate package, which you can do as follows:
 
 ```r
 install.packages("reticulate")

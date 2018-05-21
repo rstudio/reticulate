@@ -1,4 +1,4 @@
-pandoc: 2.1.3
+pandoc: 2.2.1
 pkgdown: 0.1.0.9000
 pkgdown_sha: cb70bf3abeac66cb969901ef5f9caeac9c2ab8cc
 articles:

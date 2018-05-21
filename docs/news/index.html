@@ -56,7 +56,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">1.7</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">1.7.1</span>
       </span>
     </div>
 
@@ -133,6 +133,15 @@
     </div>
 
     <div class="contents">
+    <div id="reticulate-1-8-development" class="section level2">
+<h2 class="hasAnchor">
+<a href="#reticulate-1-8-development" class="anchor"></a>reticulate 1.8 (development)</h2>
+<p>Install the development version with: <code>install_github("rstudio/reticulate")</code></p>
+<ul>
+<li><p>Fix issue with Pandas column names that clash with built in methods (e.g. ‘pop’)</p></li>
+<li><p>Improve default <code>str()</code> output for Python objects (print <code>__dict__</code> if available)</p></li>
+</ul>
+</div>
     <div id="reticulate-1-7-cran" class="section level2">
 <h2 class="hasAnchor">
 <a href="#reticulate-1-7-cran" class="anchor"></a>reticulate 1.7 (CRAN)</h2>
@@ -226,7 +235,7 @@
 <li><p>Add <code>py_set_seed</code> function for setting Python and NumPy random seeds.</p></li>
 <li><p>Search in additional locations for Anaconda on Linux/Mac</p></li>
 <li><p>Improved support for UTF-8 conversions (always use UTF-8 when converting from Python to R)</p></li>
-<li><p>Ignore private (“_" prefixed) attributes of dictionaries for .DollarNames</p></li>
+<li><p>Ignore private ("_" prefixed) attributes of dictionaries for .DollarNames</p></li>
 <li><p>Provide “`function`” rather than “function” in completions.</p></li>
 <li><p>Fail gracefully if call to conda in <code>conda_list</code> results in an error</p></li>
 <li><p>Add <code>pip_ignore_installed</code> option to <code>conda_install</code> function.</p></li>
@@ -326,6 +335,7 @@ primitive R functions (don’t check environment inheritance chain when looking 
     <div id="tocnav">
       <h2>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
+        <li><a href="#reticulate-1-8-development">1.8</a></li>
         <li><a href="#reticulate-1-7-cran">1.7</a></li>
         <li><a href="#reticulate-1-6">1.6</a></li>
         <li><a href="#reticulate-1-5">1.5</a></li>

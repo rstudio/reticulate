@@ -44,6 +44,9 @@ ensure_python_initialized <- function(required_module = NULL) {
      }
     .globals$py_config <- initialize_python(required_module, use_environment)
 
+    # generate 'R' helper object
+    py_inject_r(envir = globalenv())
+
     # remap output streams to R output handlers
     remap_output_streams()
 

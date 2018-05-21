@@ -157,7 +157,16 @@ py_to_r.datetime.date <- function(x) {
 #' @export
 py_to_r.pandas.core.series.Series <- function(x) {
   disable_conversion_scope(x)
-  py_to_r(x$as_matrix())
+  py_to_r(x$values)
+}
+
+#' @export
+py_to_r.pandas.core.categorical.Categorical <- function(x) {
+  disable_conversion_scope(x)
+  values <- py_to_r(x$get_values())
+  levels <- py_to_r(x$categories$values)
+  ordered <- py_to_r(x$dtype$ordered)
+  factor(values, levels = levels, ordered = ordered)
 }
 
 py_object_shape <- function(object) unlist(as_r_value(object$shape))
@@ -233,7 +242,7 @@ py_to_r.pandas.core.frame.DataFrame <- function(x) {
   # extract numpy arrays associated with each column
   columns <- py_to_r(x$columns$values)
   converted <- lapply(columns, function(column) {
-    py_to_r(x$`__getitem__`(column)$as_matrix())
+    py_to_r(py_get_item(x, column)$values)
   })
   names(converted) <- columns
 
@@ -245,14 +254,6 @@ py_to_r.pandas.core.frame.DataFrame <- function(x) {
     if (identical(dim(converted[[i]]), length(converted[[i]]))) {
       dim(converted[[i]]) <- NULL
     }
-
-    # convert categorical variables to factors
-    if (identical(py_to_r(x$`__getitem__`(column)$dtype$name), "category")) {
-      levels <- py_to_r(x$`__getitem__`(column)$values$categories$values)
-      ordered <- py_to_r(x$`__getitem__`(column)$dtype$ordered)
-      converted[[i]] <- factor(converted[[i]], levels = levels, ordered = ordered)
-    }
-
   }
 
   # re-order based on ordering of pandas DataFrame. note that
@@ -271,6 +272,12 @@ py_to_r.pandas.core.frame.DataFrame <- function(x) {
   # try to explicitly whitelist a small family which we can represent
   # effectively in R
   index <- x$index
+
+  # tag the returned object with the Python index, in case
+  # the user needs to explicitly access / munge the index
+  # for some need
+  attr(df, "pandas.index") <- index
+
   if (inherits(index, c("pandas.core.indexes.base.Index",
                         "pandas.indexes.base.Index"))) {
 
@@ -311,8 +318,14 @@ py_to_r.pandas.core.frame.DataFrame <- function(x) {
 
     else {
       converted <- tryCatch(py_to_r(index$values), error = identity)
-      if (is.character(converted) || is.numeric(converted))
-        rownames(df) <- converted
+      if (is.character(converted) || is.numeric(converted)) {
+        if (any(duplicated(converted))) {
+          warning("index contains duplicated values: row names not set")
+        } else {
+          rownames(df) <- converted
+        }
+      }
+
     }
   }
 

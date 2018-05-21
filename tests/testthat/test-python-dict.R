@@ -28,3 +28,29 @@ test_that("Python dictionaries can include numbers in their keys", {
   expect_error(dict(foo42 = "foo"), NA)
 })
 
+test_that("Dictionary items can be get / set / removed with py_item APIs", {
+  skip_if_no_python()
+
+  d <- dict()
+  one <- r_to_py(1)
+
+  py_set_item(d, "apple", one)
+  expect_equal(py_get_item(d, "apple"), one)
+
+  py_del_item(d, "apple")
+  expect_error(py_get_item(d, "apple"))
+  expect_identical(py_get_item(d, "apple", silent = TRUE), NULL)
+})
+
+test_that("$, [ operators behave as expected", {
+  skip_if_no_python()
+
+  d <- dict(items = 1, apple = 42)
+
+  expect_true(is.function(d$items))
+  expect_true(d['items'] == 1)
+
+  expect_true(d$apple == 42)
+  expect_true(d['apple'] == 42)
+
+})

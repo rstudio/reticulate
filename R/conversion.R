@@ -243,11 +243,12 @@ py_to_r.pandas.core.frame.DataFrame <- function(x) {
   np <- import("numpy", convert = TRUE)
 
   # extract numpy arrays associated with each column
-  columns <- py_to_r(x$columns$values)
-  converted <- lapply(columns, function(column) {
+  columns <- x$columns$values
+  converted <- lapply(seq_along(columns) - 1L, function(i) {
+    column <- columns[[i]]
     py_to_r(py_get_item(x, column)$values)
   })
-  names(converted) <- columns
+  names(converted) <- py_to_r(x$columns$format())
 
   # clean up converted objects
   for (i in seq_along(converted)) {
@@ -259,10 +260,7 @@ py_to_r.pandas.core.frame.DataFrame <- function(x) {
     }
   }
 
-  # re-order based on ordering of pandas DataFrame. note that
-  # as.data.frame() will not handle list columns correctly, so
-  # we construct the data.frame 'by hand'
-  df <- converted[columns]
+  df <- converted
   class(df) <- "data.frame"
   attr(df, "row.names") <- c(NA_integer_, -nrow(x))
 

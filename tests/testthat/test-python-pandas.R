@@ -80,4 +80,17 @@ test_that("data.frames with length-one factor columns can be converted", {
 
 })
 
+test_that("complex names are handled", {
+  skip_if_no_pandas()
 
+  pd <- import("pandas", convert = FALSE)
+
+  d <- dict(col1 = list(1,2))
+
+  d[tuple("col1", "col2")] <- list(4, 5)
+
+  p <- pd$DataFrame(data = d)
+  r <- py_to_r(p)
+  expect_equal(names(r), c("col1", "(col1, col2)"))
+
+})

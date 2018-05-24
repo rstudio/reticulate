@@ -157,7 +157,10 @@ py_to_r.datetime.date <- function(x) {
 #' @export
 py_to_r.pandas.core.series.Series <- function(x) {
   disable_conversion_scope(x)
-  py_to_r(x$values)
+  values <- py_to_r(x$values)
+  index <- py_to_r(x$index)
+  names(values) <- index$format()
+  values
 }
 
 #' @export

@@ -21,7 +21,7 @@ test_that("Ordered factors are preserved", {
   set.seed(123)
   before <- data.frame(x = ordered(letters, levels = sample(letters)))
   after <- py_to_r(r_to_py(before))
-  expect_equal(before, after)
+  expect_equal(before, after, check.attributes = FALSE)
 
 })
 
@@ -76,8 +76,24 @@ test_that("data.frames with length-one factor columns can be converted", {
   converted <- r_to_py(before)
   after <- py_to_r(converted)
 
-  expect_identical(before, after)
+  expect_equal(before, after, check.attributes = FALSE)
 
 })
 
+test_that("py_to_r preserves a Series index as names", {
+  skip_if_no_pandas()
 
+  pd <- import("pandas", convert = FALSE)
+  np <- import("numpy", convert = FALSE)
+
+  index <- c("a", "b", "c", "d", "e")
+  values <- rnorm(5)
+
+  s <- pd$Series(values, index = as.list(index))
+  s$name <- "hi"
+
+  r <- py_to_r(s)
+  expect_equal(as.numeric(r), values)
+  expect_identical(names(r), index)
+
+})

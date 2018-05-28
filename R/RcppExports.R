@@ -13,6 +13,10 @@ is_python3 <- function() {
     .Call(`_reticulate_is_python3`)
 }
 
+has_python_symbols <- function() {
+    .Call(`_reticulate_has_python_symbols`)
+}
+
 #' Get or clear the last Python error encountered
 #'
 #' @return For `py_last_error()`, a list with the type, value,

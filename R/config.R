@@ -94,6 +94,16 @@ py_module_available <- function(module) {
 #' @export
 py_discover_config <- function(required_module = NULL, use_environment = NULL) {
 
+  # check if python symbols can be found in the main process
+  main_process_info <- has_python_symbols()
+  if (!is.null(main_process_info)) {
+    config <- python_config(
+        main_process_info$python,
+        required_module, python_version,
+        libpython = main_process_info$libpython,
+        forced = "main process")
+    return(config)
+  }
 
   # if PYTHON_SESSION_INITIALIZED is specified then use it without scanning
   # further (this is a "hard" requirement because an embedding process may
@@ -297,7 +307,7 @@ python_environments <- function(env_dirs, required_module = NULL) {
 
 
 
-python_config <- function(python, required_module, python_versions, forced = NULL) {
+python_config <- function(python, required_module, python_versions, libpython = NULL, forced = NULL) {
 
   # collect configuration information
   if (!is.null(required_module)) {
@@ -323,14 +333,14 @@ python_config <- function(python, required_module, python_versions, forced = NUL
   architecture <- config$Architecture
 
   # determine the location of libpython (see also # https://github.com/JuliaPy/PyCall.jl/blob/master/deps/build.jl)
-  if (is_windows()) {
+  if (is.null(libpython) && is_windows()) {
     # note that 'prefix' has the binary location and 'py_version_nodot` has the suffix`
     python_libdir <- dirname(python)
     python_dll <- paste0("python", gsub(".", "", version, fixed = TRUE), ".dll")
     libpython <- file.path(python_libdir, python_dll)
     if (!file.exists(libpython))
       libpython <- python_dll
-  } else {
+  } else if (is.null(libpython)) {
     # (note that the LIBRARY variable has the name of the static library)
     python_libdir_config <- function(var) {
       python_libdir <- config[[var]]
@@ -717,5 +727,3 @@ py_session_initialized_binary <- function() {
   # return
   python_binary
 }
-
-

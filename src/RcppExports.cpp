@@ -38,6 +38,16 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// has_python_symbols
+SEXP has_python_symbols();
+RcppExport SEXP _reticulate_has_python_symbols() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(has_python_symbols());
+    return rcpp_result_gen;
+END_RCPP
+}
 // py_last_error
 SEXP py_last_error();
 RcppExport SEXP _reticulate_py_last_error() {
@@ -491,6 +501,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_reticulate_write_stdout", (DL_FUNC) &_reticulate_write_stdout, 1},
     {"_reticulate_write_stderr", (DL_FUNC) &_reticulate_write_stderr, 1},
     {"_reticulate_is_python3", (DL_FUNC) &_reticulate_is_python3, 0},
+    {"_reticulate_has_python_symbols", (DL_FUNC) &_reticulate_has_python_symbols, 0},
     {"_reticulate_py_last_error", (DL_FUNC) &_reticulate_py_last_error, 0},
     {"_reticulate_py_clear_last_error", (DL_FUNC) &_reticulate_py_clear_last_error, 0},
     {"_reticulate_py_is_callable", (DL_FUNC) &_reticulate_py_is_callable, 1},

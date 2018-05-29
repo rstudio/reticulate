@@ -436,6 +436,19 @@ LIBPYTHON_EXTERN void **PyArray_API;
          (*(int (*)(PyObject *, void *, PyArray_Descr *)) \
             PyArray_API[63])
 
+// NOTE: PyArray_Malloc has a bit of indirection for different
+// versions of Python, but the underlying intention is to
+// always use the system allocator (through malloc). See:
+//
+// https://github.com/numpy/numpy/blob/f5758d6fe15c2b506290bfc5379a10027617b331/numpy/core/include/numpy/ndarraytypes.h#L348-L367
+// https://github.com/python/cpython/blob/28f713601d3ec80820e842dcb25a234093f1ff18/Objects/obmalloc.c#L66-L76
+//
+#ifdef __cplusplus
+#define PyArray_malloc std::malloc
+#else
+#define PyArray_malloc malloc
+#endif
+
 #define PyArray_New                                                                                          \
           (*(PyObject * (*)(PyTypeObject *, int, npy_intp *, int, npy_intp *, void *, int, int, PyObject *)) \
              PyArray_API[93])

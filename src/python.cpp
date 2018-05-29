@@ -1003,7 +1003,7 @@ PyObject* r_to_py(RObject x, bool convert) {
     // array will own the data so we do not free it after
     if (typenum == NPY_BOOL) {
       R_xlen_t n = XLENGTH(sexp);
-      bool* converted = (bool*) std::malloc(n * sizeof(bool));
+      bool* converted = (bool*) PyArray_malloc(n * sizeof(bool));
       for (R_xlen_t i = 0; i < n; i++)
         converted[i] = LOGICAL(sexp)[i];
       data = converted;

@@ -480,6 +480,7 @@ bool import_numpy_api(bool python3, std::string* pError);
 
 #define NPY_ARRAY_C_CONTIGUOUS    0x0001
 #define NPY_ARRAY_F_CONTIGUOUS    0x0002
+#define NPY_ARRAY_OWNDATA         0x0004
 #define NPY_ARRAY_ALIGNED         0x0100
 #define NPY_ARRAY_FARRAY_RO    (NPY_ARRAY_F_CONTIGUOUS | NPY_ARRAY_ALIGNED)
 #define NPY_ARRAY_CARRAY_RO    (NPY_ARRAY_C_CONTIGUOUS | NPY_ARRAY_ALIGNED)
@@ -487,6 +488,7 @@ bool import_numpy_api(bool python3, std::string* pError);
 #define NPY_ARRAY_WRITEABLE       0x0400
 #define NPY_ARRAY_BEHAVED      (NPY_ARRAY_ALIGNED | NPY_ARRAY_WRITEABLE)
 #define NPY_ARRAY_FARRAY       (NPY_ARRAY_F_CONTIGUOUS | NPY_ARRAY_BEHAVED)
+
 
 class SharedLibrary {
 

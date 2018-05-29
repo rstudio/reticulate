@@ -76,3 +76,10 @@ test_that("numpy length functions works", {
   np <- import("numpy")
   test_array(r_to_py(matrix(c(1:8), nrow = 2, ncol = 4)))
 })
+
+test_that("boolean matrices are converted appropriately", {
+  skip_if_no_numpy()
+
+  A <- matrix(TRUE, nrow = 2, ncol = 2)
+  expect_equal(A, py_to_r(r_to_py(A)))
+})

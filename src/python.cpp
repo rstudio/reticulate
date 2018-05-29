@@ -255,7 +255,7 @@ int narrow_array_typenum(PyArray_Descr* descr) {
 bool is_numpy_str(PyObject* x) {
   if (!isPyArrayScalar(x))
     return false; // ndarray or other, not string
-  
+
   PyArray_DescrPtr descrPtr(PyArray_DescrFromScalar(x));
   int typenum = narrow_array_typenum(descrPtr);
   return (typenum == NPY_STRING || typenum == NPY_UNICODE);
@@ -274,7 +274,7 @@ bool is_python_str(PyObject* x) {
 
   else if (is_numpy_str(x))
     return true;
-  
+
   else
     return false;
 }
@@ -995,6 +995,21 @@ PyObject* r_to_py(RObject x, bool convert) {
            "converted");
     }
 
+    int flags = NPY_ARRAY_FARRAY_RO;
+
+    // because R logical vectors are just ints under the
+    // hood, we need to explicitly construct a boolean
+    // vector for our Python array. note that the created
+    // array will own the data so we do not free it after
+    if (typenum == NPY_BOOL) {
+      R_xlen_t n = XLENGTH(sexp);
+      bool* converted = (bool*) PyArray_malloc(n * sizeof(bool));
+      for (R_xlen_t i = 0; i < n; i++)
+        converted[i] = LOGICAL(sexp)[i];
+      data = converted;
+      flags |= NPY_ARRAY_OWNDATA;
+    }
+
     // create the matrix
     PyObject* array = PyArray_New(&PyArray_Type,
                                    nd,
@@ -1003,7 +1018,7 @@ PyObject* r_to_py(RObject x, bool convert) {
                                    NULL,
                                    data,
                                    0,
-                                   NPY_ARRAY_FARRAY_RO,
+                                   flags,
                                    NULL);
 
     // check for error

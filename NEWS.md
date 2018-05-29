@@ -3,6 +3,9 @@
 
 Install the development version with: `install_github("rstudio/reticulate")`
 
+- Fixed an issue where logical R matrices would not be converted correctly to
+  their NumPy counterpart. (#280)
+
 - Fixed an issue where Python chunks containing multiple statements on the same
   line would be evaluated and printed multiple times.
 

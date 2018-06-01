@@ -44,6 +44,13 @@ source_python <- function(file, envir = parent.frame(), convert = TRUE) {
     }
   }
 
+  # flush stdout, stderr so printed output is shown
+  if (is_python3()) {
+    sys <- import("sys", convert = TRUE)
+    sys$stdout$flush()
+    sys$stderr$flush()
+  }
+
   # return nothing
   invisible(NULL)
 }

@@ -3,6 +3,10 @@
 
 Install the development version with: `install_github("rstudio/reticulate")`
 
+- `source_python()` now flushes stdout and stderr after running the associated
+  Python script, to ensure that `print()`-ed output is output to the console.
+  (#284)
+
 - Fixed an issue where logical R matrices would not be converted correctly to
   their NumPy counterpart. (#280)
 

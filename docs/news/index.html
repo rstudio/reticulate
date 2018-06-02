@@ -56,7 +56,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">1.7.1</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">1.7.2</span>
       </span>
     </div>
 
@@ -138,6 +138,10 @@
 <a href="#reticulate-1-8-development" class="anchor"></a>reticulate 1.8 (development)</h2>
 <p>Install the development version with: <code>install_github("rstudio/reticulate")</code></p>
 <ul>
+<li><p><code><a href="../reference/source_python.html">source_python()</a></code> now flushes stdout and stderr after running the associated Python script, to ensure that <code>print()</code>-ed output is output to the console. (<a href='https://github.com/rstudio/reticulate/issues/284'>#284</a>)</p></li>
+<li><p>Fixed an issue where logical R matrices would not be converted correctly to their NumPy counterpart. (<a href='https://github.com/rstudio/reticulate/issues/280'>#280</a>)</p></li>
+<li><p>Fixed an issue where Python chunks containing multiple statements on the same line would be evaluated and printed multiple times.</p></li>
+<li><p>Added <code><a href="../reference/py_get_item.html">py_get_item()</a></code>, <code><a href="../reference/py_set_item.html">py_set_item()</a></code>, and <code><a href="../reference/py_del_item.html">py_del_item()</a></code> as lower-level APIs for directly accessing the items of e.g. a Python dictionary or a Pandas DataFrame.</p></li>
 <li><p>Fix issue with Pandas column names that clash with built in methods (e.g. ‘pop’)</p></li>
 <li><p>Improve default <code>str()</code> output for Python objects (print <code>__dict__</code> if available)</p></li>
 </ul>

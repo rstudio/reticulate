@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Interact with the Python Main Module — py • reticulate</title>
+<title>Delete / remove an item from a Python object — py_del_item • reticulate</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -27,13 +27,10 @@
 <script src="../pkgdown.js"></script>
   <link href="../extra.css" rel="stylesheet">
   
-<meta property="og:title" content="Interact with the Python Main Module — py" />
+<meta property="og:title" content="Delete / remove an item from a Python object — py_del_item" />
 
-<meta property="og:description" content="The py object provides a means for interacting
-with the Python main session directly from R. Python
-objects accessed through py are automatically converted
-into R objects, and can be used with any other R
-functions as needed." />
+<meta property="og:description" content="Delete an item associated with a Python object, as
+through its __delitem__ method." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -134,32 +131,49 @@ functions as needed." />
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Interact with the Python Main Module</h1>
-    <small>Source: <a href='https://github.com/rstudio/reticulate/blob/master/R/zzz.R'><code>R/zzz.R</code></a></small>
+    <h1>Delete / remove an item from a Python object</h1>
+    <small>Source: <a href='https://github.com/rstudio/reticulate/blob/master/R/python.R'><code>R/python.R</code></a></small>
     </div>
 
     
-    <p>The <code>py</code> object provides a means for interacting
-with the Python main session directly from <span style="R">R</span>. Python
-objects accessed through <code>py</code> are automatically converted
-into <span style="R">R</span> objects, and can be used with any other <span style="R">R</span>
-functions as needed.</p>
+    <p>Delete an item associated with a Python object, as
+through its <code>__delitem__</code> method.</p>
     
 
-    <pre class="usage"><span class='no'>py</span></pre>
-        
-    <h2 class="hasAnchor" id="format"><a class="anchor" href="#format"></a>Format</h2>
+    <pre class="usage"><span class='fu'>py_del_item</span>(<span class='no'>x</span>, <span class='no'>name</span>)</pre>
+    
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>x</th>
+      <td><p>A Python object.</p></td>
+    </tr>
+    <tr>
+      <th>name</th>
+      <td><p>The item name.</p></td>
+    </tr>
+    </table>
+    
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>An <span style="R">R</span> object acting as an interface to the
-Python main module.</p>
+    <p>The (mutated) object <code>x</code>, invisibly.</p>
+    
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <p>Other item-related APIs: <code><a href='py_get_item.html'>py_get_item</a></code>,
+  <code><a href='py_set_item.html'>py_set_item</a></code></p>
     
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
+      <li><a href="#arguments">Arguments</a></li>
       
-      <li><a href="#format">Format</a></li>
+      <li><a href="#value">Value</a></li>
+
+      <li><a href="#see-also">See also</a></li>
           </ul>
 
   </div>

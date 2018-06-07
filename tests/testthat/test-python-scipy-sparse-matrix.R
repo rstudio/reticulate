@@ -1,6 +1,7 @@
 context("scipy sparse matrix")
 
 test_that("Conversion between Matrix::dgCMatrix and Scipy sparse matrix works", {
+  skip_on_cran()
   skip_if_no_scipy()
 
   N <- 1000

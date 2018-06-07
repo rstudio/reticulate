@@ -1,7 +1,5 @@
 
-## reticulate 1.8 (development)
-
-Install the development version with: `install_github("rstudio/reticulate")`
+## reticulate 1.8 (CRAN)
 
 - `source_python()` now flushes stdout and stderr after running the associated
   Python script, to ensure that `print()`-ed output is output to the console.
@@ -22,7 +20,7 @@ Install the development version with: `install_github("rstudio/reticulate")`
 - Improve default `str()` output for Python objects (print `__dict__` if available)
 
 
-## reticulate 1.7 (CRAN)
+## reticulate 1.7
 
 - Improved filtering of non-numeric characters in Python / NumPy versions.
 

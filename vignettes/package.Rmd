@@ -47,8 +47,6 @@ Without the `delay_load`, Python would be loaded immediately and the user's call
 
 ## Installing Python Dependencies
 
-> **NOTE**: The `py_install()` function described below is currently only available in the development version of reticulate. You can install the development version with `devtools::install_github("rstudio/reticulate")`.
-
 Your R package likely depends on the installation of one or more Python packages. As a convenience to your users, you may want to provide a high-level R function to allow users to install these Python packages. It's furthermore beneficial if multiple R packages that depend on Python packages install their dependencies in the same Python environment (so that they can be easily used together). 
 
 The `py_install()` function provides a high-level interface for installing one or more Python packages. The packages will be by default be installed within a virtualenv or Conda environment named "r-reticulate". For example:

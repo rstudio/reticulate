@@ -34,8 +34,6 @@ The reticulate package includes functions for creating Python environments (eith
 
 ## Simple Installation
 
-> **NOTE**: The `py_install()` function described below is currently only available in the development version of reticulate. You can install the development version with `devtools::install_github("rstudio/reticulate")`.
-
 The reticulate package includes a `py_install()` function that can be used to install one or more Python packages. The packages will be by default be installed within a virtualenv or Conda environment named "r-reticulate". For example:
 
 ```r

@@ -30,7 +30,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">1.7.2</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">1.8</span>
       </span>
     </div>
 
@@ -137,9 +137,6 @@
 <div id="installing-python-dependencies" class="section level2">
 <h2 class="hasAnchor">
 <a href="#installing-python-dependencies" class="anchor"></a>Installing Python Dependencies</h2>
-<blockquote>
-<p><strong>NOTE</strong>: The <code><a href="../reference/py_install.html">py_install()</a></code> function described below is currently only available in the development version of reticulate. You can install the development version with <code><a href="http://www.rdocumentation.org/packages/devtools/topics/install_github">devtools::install_github("rstudio/reticulate")</a></code>.</p>
-</blockquote>
 <p>Your R package likely depends on the installation of one or more Python packages. As a convenience to your users, you may want to provide a high-level R function to allow users to install these Python packages. It’s furthermore beneficial if multiple R packages that depend on Python packages install their dependencies in the same Python environment (so that they can be easily used together).</p>
 <p>The <code><a href="../reference/py_install.html">py_install()</a></code> function provides a high-level interface for installing one or more Python packages. The packages will be by default be installed within a virtualenv or Conda environment named “r-reticulate”. For example:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="kw">library</span>(reticulate)</a>

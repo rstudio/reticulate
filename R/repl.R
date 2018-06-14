@@ -65,9 +65,11 @@ repl_python <- function(
   globals <- py_run_string("globals()")
 
   # check to see if the current environment supports history
+  # (check for case where working directory not writable)
   use_history <-
     !"--vanilla" %in% commandArgs() &&
     !"--no-save" %in% commandArgs() &&
+    !is.null(getwd()) &&
     tryCatch(
       { utils::savehistory(tempfile()); TRUE },
       error = function(e) FALSE

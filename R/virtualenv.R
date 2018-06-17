@@ -166,12 +166,20 @@ virtualenv_config <- function() {
   }
 
   # find system python binary
+  pyver <- ""
   python <- python_unix_binary("python")
-  if (is.null(python))
-    stop("Unable to locate Python on this system.", call. = FALSE)
+  if (is.null(python)) {
+    # try for python3 if we are on linux
+    if (is_linux()) {
+      python <- python_unix_binary("python3")
+      if (is.null(python))
+        stop("Unable to locate Python on this system.", call. = FALSE)
+      pyver <- "3"
+    }
+  }
 
   # find required binaries
-  pip <- python_unix_binary("pip")
+  pip <- python_unix_binary(paste0("pip", pyver))
   have_pip <- !is.null(pip)
   virtualenv <- python_unix_binary("virtualenv")
   have_virtualenv <- !is.null(virtualenv)
@@ -189,14 +197,18 @@ virtualenv_config <- function() {
     if (!is.null(install_commands))
       install_commands <- paste(install_commands, collapse = "\n")
   } else if (is_ubuntu()) {
-    if (!have_pip)
-      install_commands <- c(install_commands, "python-pip")
-    if (!have_virtualenv)
-      install_commands <- c(install_commands, "python-virtualenv")
-    if (!is.null(install_commands)) {
-      install_commands <- paste("$ sudo apt-get install",
-                                paste(install_commands, collapse = " "))
+    if (!have_pip) {
+      install_commands <- c(install_commands, paste0("$ sudo apt-get install python", pyver ,"-pip"))
+      pip <- paste0("/usr/bin/pip", pyver)
     }
+    if (!have_virtualenv) {
+      if (identical(pyver, "3"))
+        install_commands <- c(install_commands, paste("$ sudo", pip, "install virtualenv"))
+      else
+        install_commands <- c(install_commands, "$ sudo apt-get install python-virtualenv")
+    }
+    if (!is.null(install_commands))
+      install_commands <- paste(install_commands, collapse = "\n")
   } else {
     if (!have_pip)
       install_commands <- c(install_commands, "pip")

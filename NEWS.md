@@ -1,4 +1,11 @@
 
+## retciulate 1.9 (development)
+
+Install the development version with: `install_github("rstudio/reticulate")`
+
+- Detect python 3 in environments where there is no python 2 (e.g. Ubuntu 18.04)
+
+
 ## reticulate 1.8 (CRAN)
 
 - `source_python()` now flushes stdout and stderr after running the associated

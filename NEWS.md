@@ -1,5 +1,5 @@
 
-## retciulate 1.9 (development)
+## reticulate 1.9 (development)
 
 Install the development version with: `install_github("rstudio/reticulate")`
 

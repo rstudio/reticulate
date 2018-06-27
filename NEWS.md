@@ -5,6 +5,8 @@ Install the development version with: `install_github("rstudio/reticulate")`
 
 - Detect python 3 in environments where there is no python 2 (e.g. Ubuntu 18.04)
 
+- Always call r_to_py S3 method when converting objects from Python to R
+
 
 ## reticulate 1.8 (CRAN)
 

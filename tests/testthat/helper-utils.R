@@ -38,6 +38,9 @@ skip_if_no_scipy <- function() {
   skip_if_no_python()
   if (!py_module_available("scipy"))
     skip("scipy not available for testing")
+  scipy <- import("scipy")
+  if (reticulate:::clean_version(scipy$`__version__`) < "1.0")
+    skip("scipy version is less than v1.0")
 }
 
 skip_if_no_test_environments <- function() {

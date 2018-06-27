@@ -938,8 +938,8 @@ SEXP py_to_r(PyObject* x, bool convert) {
 PyObject* r_to_py(RObject x, bool convert) {
 
   // get a static reference to the R version of r_to_py
-  static Rcpp::Environment pkgEnv = Rcpp::Environment::namespace_env("reticulate");
-  static Rcpp::Function r_to_py_fn = pkgEnv["r_to_py"];
+  Rcpp::Environment pkgEnv = Rcpp::Environment::namespace_env("reticulate");
+  Rcpp::Function r_to_py_fn = pkgEnv["r_to_py"];
 
   // call the R version and hold the return value in a PyObjectRef (SEXP wrapper)
   // this object will be released when the function returns

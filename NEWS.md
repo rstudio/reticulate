@@ -7,6 +7,8 @@ Install the development version with: `install_github("rstudio/reticulate")`
 
 - Always call r_to_py S3 method when converting objects from Python to R
 
+- Handle NULL module name when determining R class for Python objects
+
 
 ## reticulate 1.8 (CRAN)
 

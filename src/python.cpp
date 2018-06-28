@@ -294,13 +294,18 @@ std::string as_r_class(PyObject* classPtr) {
   PyObjectPtr modulePtr(PyObject_GetAttrString(classPtr, "__module__"));
   PyObjectPtr namePtr(PyObject_GetAttrString(classPtr, "__name__"));
   std::ostringstream ostr;
-  std::string module = as_std_string(modulePtr) + ".";
-  std::string builtin("__builtin__");
-  if (module.find(builtin) == 0)
-    module.replace(0, builtin.length(), "python.builtin");
-  std::string builtins("builtins");
-  if (module.find(builtins) == 0)
-    module.replace(0, builtins.length(), "python.builtin");
+  std::string module;
+  if (!modulePtr.is_null()) {
+    module = as_std_string(modulePtr) + ".";
+    std::string builtin("__builtin__");
+    if (module.find(builtin) == 0)
+      module.replace(0, builtin.length(), "python.builtin");
+    std::string builtins("builtins");
+    if (module.find(builtins) == 0)
+      module.replace(0, builtins.length(), "python.builtin");
+  } else {
+    module = "python.builtin.";
+  }
   ostr << module << as_std_string(namePtr);
   return ostr.str();
 }

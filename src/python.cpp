@@ -935,9 +935,30 @@ SEXP py_to_r(PyObject* x, bool convert) {
   }
 }
 
+PyObject* r_to_py(RObject x, bool convert) {
+
+  // get a static reference to the R version of r_to_py
+  Rcpp::Environment pkgEnv = Rcpp::Environment::namespace_env("reticulate");
+  Rcpp::Function r_to_py_fn = pkgEnv["r_to_py"];
+
+  // call the R version and hold the return value in a PyObjectRef (SEXP wrapper)
+  // this object will be released when the function returns
+  PyObjectRef ref(r_to_py_fn(x, convert));
+
+  // get the underlying Python object and call Py_IncRef before returning it
+  // this allows this function to provide the same memory sematnics as the
+  // previous C++ version of r_to_py (which is now r_to_py_cpp), which always
+  // calls Py_IncRef on Python objects before returning them
+  PyObject* obj = ref.get();
+  Py_IncRef(obj);
+
+  // return the Python object
+  return obj;
+}
+
 // convert an R object to a python object (the returned object
 // will have an active reference count on it)
-PyObject* r_to_py(RObject x, bool convert) {
+PyObject* r_to_py_cpp(RObject x, bool convert) {
 
   int type = x.sexp_type();
   SEXP sexp = x.get__();
@@ -1205,7 +1226,7 @@ PyObject* r_to_py(RObject x, bool convert) {
 
 // [[Rcpp::export]]
 PyObjectRef r_to_py_impl(RObject object, bool convert) {
-  return py_ref(r_to_py(object, convert), convert);
+  return py_ref(r_to_py_cpp(object, convert), convert);
 }
 
 // custom module used for calling R functions from python wrappers

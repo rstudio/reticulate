@@ -11,6 +11,8 @@ Install the development version with: `install_github("rstudio/reticulate")`
 
 - Convert RAW vectors to Python bytearray; Convert Python bytearray to RAW
 
+- Use importlib for detecting modules (rather than imp) for Python >= 3.4
+
 
 ## reticulate 1.8 (CRAN)
 

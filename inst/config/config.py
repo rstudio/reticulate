@@ -2,7 +2,20 @@
 import sys
 import os
 import platform
-import imp
+
+# The 'imp' module is deprecated since Python 3.4, and the use of
+# 'importlib' is recommended instead.
+if sys.version < '3.4':
+  import imp
+  def module_path(name):
+    spec = imp.find_module(name)
+    return spec[1]
+else:
+  from importlib import util
+  def module_path(name):
+    spec = util.find_spec(name)
+    origin = spec.origin
+    return origin[:origin.rfind('/')]
 
 sys.stdout.write('Version: ' + str(sys.version).replace('\n', ' '))
 sys.stdout.write('\nVersionNumber: ' + str(sys.version_info[0]) + '.' + str(sys.version_info[1]))
@@ -31,7 +44,7 @@ if "RETICULATE_REQUIRED_MODULE" in os.environ:
   required_module = os.environ.get("RETICULATE_REQUIRED_MODULE")
   try:
     sys.stdout.write('\nRequiredModule: ' + required_module)
-    sys.stdout.write('\nRequiredModulePath: ' + str(imp.find_module(required_module)[1]))
+    sys.stdout.write('\nRequiredModulePath: ' + str(module_path(required_module)))
   except Exception:
     pass
 

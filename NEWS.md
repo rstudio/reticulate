@@ -9,6 +9,8 @@ Install the development version with: `install_github("rstudio/reticulate")`
 
 - Handle NULL module name when determining R class for Python objects
 
+- Use importlib for detecting modules (rather than imp) for Python >= 3.4
+
 
 ## reticulate 1.8 (CRAN)
 

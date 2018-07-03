@@ -72,6 +72,7 @@ When calling into Python, R data types are automatically converted to their equi
 | Matrix/Array | NumPy ndarray  | `matrix(c(1,2,3,4), nrow = 2, ncol = 2)`
 | Data Frame | Pandas DataFrame | ` data.frame(x = c(1,2,3), y = c("a", "b", "c"))`  |
 | Function | Python function | `function(x) x + 1`
+| Raw  | Python bytearray | `as.raw(c(1:10))` |
 | NULL, TRUE, FALSE  | None, True, False  |  `NULL`, `TRUE`, `FALSE`
 
 If a Python object of a custom class is returned then an R reference to that object is returned. You can call methods and access properties of the object just as if it was an instance of an R reference class.

@@ -926,9 +926,11 @@ SEXP py_to_r(PyObject* x, bool convert) {
 
   // bytearray
   else if (PyByteArray_Check(x)) {
-    Rcpp::RawVector raw(PyByteArray_AsString(x),
-                        PyByteArray_AsString(x) + PyByteArray_Size(x));
-    return raw;
+    if (PyByteArray_Size(x) > 0)
+      return Rcpp::RawVector(PyByteArray_AsString(x),
+                             PyByteArray_AsString(x) + PyByteArray_Size(x));
+    else
+      return Rcpp::RawVector();
   }
 
   // default is to return opaque wrapper to python object. we pass convert = true
@@ -1168,7 +1170,10 @@ PyObject* r_to_py_cpp(RObject x, bool convert) {
   } else if (type == RAWSXP) {
 
     Rcpp::RawVector raw(sexp);
-    return PyByteArray_FromStringAndSize((const char*)&raw[0], raw.size());
+    if (raw.size() > 0)
+      return PyByteArray_FromStringAndSize((const char*)&raw[0], raw.size());
+    else
+      return PyByteArray_FromStringAndSize(NULL, 0);
 
   // list
   } else if (type == VECSXP) {

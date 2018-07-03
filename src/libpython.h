@@ -120,6 +120,7 @@ LIBPYTHON_EXTERN PyObject* Py_Float;
 LIBPYTHON_EXTERN PyObject* Py_List;
 LIBPYTHON_EXTERN PyObject* Py_Tuple;
 LIBPYTHON_EXTERN PyObject* Py_Complex;
+LIBPYTHON_EXTERN PyObject* Py_ByteArray;
 LIBPYTHON_EXTERN PyObject* PyExc_KeyboardInterrupt;
 
 void initialize_type_objects(bool python3);
@@ -137,6 +138,7 @@ void initialize_type_objects(bool python3);
 #define PyTuple_Check(o) (Py_TYPE(o) == Py_TYPE(Py_Tuple))
 #define PyList_Check(o) (Py_TYPE(o) == Py_TYPE(Py_List))
 #define PyComplex_Check(o) (Py_TYPE(o) == Py_TYPE(Py_Complex))
+#define PyByteArray_Check(o) (Py_TYPE(o) == Py_TYPE(Py_ByteArray))
 
 LIBPYTHON_EXTERN void (*Py_Initialize)();
 LIBPYTHON_EXTERN int (*Py_IsInitialized)();
@@ -221,6 +223,9 @@ LIBPYTHON_EXTERN PyObject* (*PyUnicode_AsMBCSString)(PyObject *unicode);
 #endif
 
 LIBPYTHON_EXTERN PyObject* (*PyBytes_FromStringAndSize)(const char *, Py_ssize_t);
+LIBPYTHON_EXTERN Py_ssize_t (*PyByteArray_Size)(PyObject *bytearray);
+LIBPYTHON_EXTERN PyObject* (*PyByteArray_FromStringAndSize)(const char *string, Py_ssize_t len);
+LIBPYTHON_EXTERN char* (*PyByteArray_AsString)(PyObject *bytearray);
 LIBPYTHON_EXTERN PyObject* (*PyUnicode_FromString)(const char *u);
 
 LIBPYTHON_EXTERN void (*PyErr_Fetch)(PyObject **, PyObject **, PyObject **);

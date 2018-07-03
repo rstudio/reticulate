@@ -9,6 +9,8 @@ Install the development version with: `install_github("rstudio/reticulate")`
 
 - Handle NULL module name when determining R class for Python objects
 
+- Convert RAW vectors to Python bytearray; Convert Python bytearray to RAW
+
 
 ## reticulate 1.8 (CRAN)
 

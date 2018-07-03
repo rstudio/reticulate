@@ -982,6 +982,15 @@ py_str.python.builtin.object <- function(object, ...) {
 }
 
 #' @export
+py_str.python.builtin.bytearray <- function(object, ...) {
+  builtins <- import_builtins()
+  paste(
+    paste0("python.builtin.bytearray (length ", builtins$len(object), "):"),
+    capture.output(str(py_to_r(ba), give.length = FALSE, give.head = FALSE, vec.len = 10))
+  )
+}
+
+#' @export
 py_str.python.builtin.module <- function(object, ...) {
   paste0("Module(", py_get_name(object), ")")
 }

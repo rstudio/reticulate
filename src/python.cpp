@@ -154,13 +154,6 @@ std::string as_std_string(PyObject* str) {
 
 #define as_utf8_r_string(str) Rcpp::String(as_std_string(str))
 
-PyObject* as_python_bytes(Rbyte* bytes, size_t len) {
-  if (is_python3())
-    return PyBytes_FromStringAndSize((const char*)bytes, len);
-  else
-    return PyString_FromStringAndSize((const char*)bytes, len);
-}
-
 PyObject* as_python_str(SEXP strSEXP) {
   if (is_python3()) {
     // python3 doesn't have PyString and all strings are unicode so
@@ -931,6 +924,13 @@ SEXP py_to_r(PyObject* x, bool convert) {
     return py_ref(x, true, std::string("python.builtin.iterator"));
   }
 
+  // bytearray
+  else if (PyByteArray_Check(x)) {
+    Rcpp::RawVector raw(PyByteArray_AsString(x),
+                        PyByteArray_AsString(x) + PyByteArray_Size(x));
+    return raw;
+  }
+
   // default is to return opaque wrapper to python object. we pass convert = true
   // because if we hit this code then conversion has been either implicitly
   // or explicitly requested.
@@ -1167,7 +1167,8 @@ PyObject* r_to_py_cpp(RObject x, bool convert) {
   // bytes
   } else if (type == RAWSXP) {
 
-    return as_python_bytes(RAW(sexp), Rf_length(sexp));
+    Rcpp::RawVector raw(sexp);
+    return PyByteArray_FromStringAndSize((const char*)&raw[0], raw.size());
 
   // list
   } else if (type == VECSXP) {

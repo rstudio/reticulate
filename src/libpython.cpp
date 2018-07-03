@@ -145,6 +145,7 @@ void initialize_type_objects(bool python3) {
   Py_Tuple = Py_BuildValue("(i)", 1024);
   Py_List = Py_BuildValue("[i]", 1024);
   Py_Complex = PyComplex_FromDoubles(0.0, 0.0);
+  Py_ByteArray = PyByteArray_FromStringAndSize("a", 1);
 }
 
 #define LOAD_PYTHON_SYMBOL_AS(name, as)             \
@@ -194,6 +195,9 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
   LOAD_PYTHON_SYMBOL(PyErr_GivenExceptionMatches)
   LOAD_PYTHON_SYMBOL(PyObject_Str)
   LOAD_PYTHON_SYMBOL(PyObject_Dir)
+  LOAD_PYTHON_SYMBOL(PyByteArray_Size)
+  LOAD_PYTHON_SYMBOL(PyByteArray_FromStringAndSize)
+  LOAD_PYTHON_SYMBOL(PyByteArray_AsString)
   LOAD_PYTHON_SYMBOL(PyCallable_Check)
   LOAD_PYTHON_SYMBOL(PyRun_StringFlags)
   LOAD_PYTHON_SYMBOL(Py_CompileString)

@@ -1,7 +1,5 @@
 
-## reticulate 1.9 (development)
-
-Install the development version with: `install_github("rstudio/reticulate")`
+## reticulate 1.9 (CRAN)
 
 - Detect python 3 in environments where there is no python 2 (e.g. Ubuntu 18.04)
 
@@ -16,7 +14,7 @@ Install the development version with: `install_github("rstudio/reticulate")`
 - Close text connection used for reading Python configuration probe
 
 
-## reticulate 1.8 (CRAN)
+## reticulate 1.8
 
 - `source_python()` now flushes stdout and stderr after running the associated
   Python script, to ensure that `print()`-ed output is output to the console.

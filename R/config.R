@@ -312,7 +312,9 @@ python_config <- function(python, required_module, python_versions, forced = NUL
     stop("Error ", status, " occurred running ", python, " ", errmsg)
   }
 
-  config <- read.dcf(textConnection(config), all = TRUE)
+  config_connection <- textConnection(config)
+  on.exit(close(config_connection))
+  config <- read.dcf(config_connection, all = TRUE)
 
   # get the full textual version and the numeric version, check for anaconda
   version_string <- config$Version

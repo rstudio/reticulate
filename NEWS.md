@@ -13,6 +13,8 @@ Install the development version with: `install_github("rstudio/reticulate")`
 
 - Use importlib for detecting modules (rather than imp) for Python >= 3.4
 
+- Close text connection used for reading Python configuration probe
+
 
 ## reticulate 1.8 (CRAN)
 

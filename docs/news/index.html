@@ -56,7 +56,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">1.8.0.9000</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">1.9</span>
       </span>
     </div>
 
@@ -133,17 +133,21 @@
     </div>
 
     <div class="contents">
-    <div id="retciulate-1-9-development" class="section level2">
+    <div id="reticulate-1-9-cran" class="section level2">
 <h2 class="hasAnchor">
-<a href="#retciulate-1-9-development" class="anchor"></a>retciulate 1.9 (development)</h2>
-<p>Install the development version with: <code>install_github("rstudio/reticulate")</code></p>
+<a href="#reticulate-1-9-cran" class="anchor"></a>reticulate 1.9 (CRAN)</h2>
 <ul>
-<li>Detect python 3 in environments where there is no python 2 (e.g. Ubuntu 18.04)</li>
+<li><p>Detect python 3 in environments where there is no python 2 (e.g. Ubuntu 18.04)</p></li>
+<li><p>Always call r_to_py S3 method when converting objects from Python to R</p></li>
+<li><p>Handle NULL module name when determining R class for Python objects</p></li>
+<li><p>Convert RAW vectors to Python bytearray; Convert Python bytearray to RAW</p></li>
+<li><p>Use importlib for detecting modules (rather than imp) for Python &gt;= 3.4</p></li>
+<li><p>Close text connection used for reading Python configuration probe</p></li>
 </ul>
 </div>
-    <div id="reticulate-1-8-cran" class="section level2">
+    <div id="reticulate-1-8" class="section level2">
 <h2 class="hasAnchor">
-<a href="#reticulate-1-8-cran" class="anchor"></a>reticulate 1.8 (CRAN)</h2>
+<a href="#reticulate-1-8" class="anchor"></a>reticulate 1.8</h2>
 <ul>
 <li><p><code><a href="../reference/source_python.html">source_python()</a></code> now flushes stdout and stderr after running the associated Python script, to ensure that <code>print()</code>-ed output is output to the console. (<a href='https://github.com/rstudio/reticulate/issues/284'>#284</a>)</p></li>
 <li><p>Fixed an issue where logical R matrices would not be converted correctly to their NumPy counterpart. (<a href='https://github.com/rstudio/reticulate/issues/280'>#280</a>)</p></li>
@@ -346,8 +350,8 @@ primitive R functions (don’t check environment inheritance chain when looking 
     <div id="tocnav">
       <h2>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
-        <li><a href="#retciulate-1-9-development">1.9</a></li>
-        <li><a href="#reticulate-1-8-cran">1.8</a></li>
+        <li><a href="#reticulate-1-9-cran">1.9</a></li>
+        <li><a href="#reticulate-1-8">1.8</a></li>
         <li><a href="#reticulate-1-7">1.7</a></li>
         <li><a href="#reticulate-1-6">1.6</a></li>
         <li><a href="#reticulate-1-5">1.5</a></li>

@@ -1,4 +1,11 @@
 
+## reticulate 1.10 (Development)
+
+Install the development version with: `install_github("rstudio/reticulate")`
+
+- Address memory protection issues identified by rchk
+
+
 ## reticulate 1.9 (CRAN)
 
 - Detect python 3 in environments where there is no python 2 (e.g. Ubuntu 18.04)

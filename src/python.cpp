@@ -978,7 +978,8 @@ PyObject* r_to_py_cpp(RObject x, bool convert) {
 
   // use py_object attribute if we have it
   } else if (x.hasAttribute("py_object")) {
-    PyObjectRef obj = as<PyObjectRef>(x.attr("py_object"));
+    Rcpp::RObject py_object = x.attr("py_object");
+    PyObjectRef obj = as<PyObjectRef>(py_object);
     Py_IncRef(obj.get());
     return obj.get();
 
@@ -1946,7 +1947,8 @@ PyObjectRef py_module_import(const std::string& module, bool convert) {
 // [[Rcpp::export]]
 void py_module_proxy_import(PyObjectRef proxy) {
   if (proxy.exists("module")) {
-    std::string module = as<std::string>(proxy.getFromEnvironment("module"));
+    Rcpp::RObject r_module = proxy.getFromEnvironment("module");
+    std::string module = as<std::string>(r_module);
     PyObject* pModule = py_import(module);
     if (pModule == NULL)
       stop(py_fetch_error());

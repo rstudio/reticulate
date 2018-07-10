@@ -51,13 +51,13 @@ public:
   }
 
   void set(PyObject* object) {
-    SEXP xptr = R_MakeExternalPtr((void*) object, R_NilValue, R_NilValue);
+    Rcpp::RObject xptr = R_MakeExternalPtr((void*) object, R_NilValue, R_NilValue);
     R_RegisterCFinalizer(xptr, python_object_finalize);
     assign("pyobj", xptr);
   }
 
   bool convert() const {
-    SEXP pyObject = getFromEnvironment("convert");
+    Rcpp::RObject pyObject = getFromEnvironment("convert");
     if (pyObject == R_NilValue)
       return true;
     else

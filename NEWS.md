@@ -1,9 +1,12 @@
 
-## reticulate 1.10 (Development)
+## reticulate 1.10 (development)
 
 Install the development version with: `install_github("rstudio/reticulate")`
 
 - Address memory protection issues identified by rchk
+
+- Make variables defined using `%as%` operator in `with()` available after 
+  execution of the with block (same behavior as Python).
 
 
 ## reticulate 1.9 (CRAN)

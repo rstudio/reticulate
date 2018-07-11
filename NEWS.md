@@ -1,4 +1,12 @@
 
+## reticulate 1.10 (development)
+
+Install the development version with: `install_github("rstudio/reticulate")`
+
+- Make variables defined using `%as%` operator in `with()` available after 
+  execution of the with block (same behavior as Python).
+
+
 ## reticulate 1.9 (CRAN)
 
 - Detect python 3 in environments where there is no python 2 (e.g. Ubuntu 18.04)

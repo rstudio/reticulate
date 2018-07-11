@@ -646,10 +646,7 @@ with.python.builtin.object <- function(data, expr, as = NULL, ...) {
     envir <- parent.frame()
 
   # assign the context if we have an as parameter
-  asRestore <- NULL
   if (!is.null(as)) {
-    if (exists(as, envir = envir))
-      asRestore <- get(as, envir = envir)
     assign(as, context, envir = envir)
   }
 
@@ -657,11 +654,6 @@ with.python.builtin.object <- function(data, expr, as = NULL, ...) {
   tryCatch(force(expr),
            finally = {
              data$`__exit__`(NULL, NULL, NULL)
-             if (!is.null(as)) {
-               remove(list = as, envir = envir)
-               if (!is.null(asRestore))
-                 assign(as, asRestore, envir = envir)
-             }
            }
           )
 }

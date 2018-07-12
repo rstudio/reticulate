@@ -7,6 +7,8 @@ Install the development version with: `install_github("rstudio/reticulate")`
 
 - Make variables defined using `%as%` operator in `with()` available after 
   execution of the with block (same behavior as Python).
+  
+- Check for presence of "__module__" property before reading in `as_r_class()`
 
 
 ## reticulate 1.9 (CRAN)

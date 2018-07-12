@@ -284,11 +284,11 @@ PyObject* py_import(const std::string& module) {
 }
 
 std::string as_r_class(PyObject* classPtr) {
-  PyObjectPtr modulePtr(PyObject_GetAttrString(classPtr, "__module__"));
   PyObjectPtr namePtr(PyObject_GetAttrString(classPtr, "__name__"));
   std::ostringstream ostr;
   std::string module;
-  if (!modulePtr.is_null()) {
+  if (PyObject_HasAttrString(classPtr, "__module__")) {
+    PyObjectPtr modulePtr(PyObject_GetAttrString(classPtr, "__module__"));
     module = as_std_string(modulePtr) + ".";
     std::string builtin("__builtin__");
     if (module.find(builtin) == 0)

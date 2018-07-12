@@ -297,6 +297,12 @@ std::string as_r_class(PyObject* classPtr) {
     if (module.find(builtins) == 0)
       module.replace(0, builtins.length(), "python.builtin");
   } else {
+    // Due to the way __module__ getters are defined in python3 for heaptype
+    // classes, the __module__ getter exists, but sets an error if it can't find
+    // a module. Hence, we clear the error.
+    //
+    // See https://github.com/python/cpython/blob/d6345def68d3a0227253da26213dadb247f786db/Objects/typeobject.c#L490
+    PyErr_Clear();
     module = "python.builtin.";
   }
   ostr << module << as_std_string(namePtr);

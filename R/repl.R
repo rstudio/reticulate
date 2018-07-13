@@ -282,7 +282,10 @@ repl_python <- function(
       sep = "."
     )
 
-    executable <- sys$executable
+    # NOTE: we used to use sys.executable but that would report
+    # the R process rather than the Python process
+    config <- py_config()
+    executable <- config$python
 
     fmt <- c(
       "Python %s (%s)",

@@ -54,10 +54,10 @@ class OutputRemap(object):
     return None
 
 
-def remap_output_streams(r_stdout, r_stderr, tty):
-  if (sys.stdout is None):
+def remap_output_streams(r_stdout, r_stderr, tty, force):
+  if (force or sys.stdout is None):
     sys.stdout = OutputRemap(sys.stdout, r_stdout, tty)
-  if (sys.stderr is None):
+  if (force or sys.stderr is None):
     sys.stderr = OutputRemap(sys.stderr, r_stderr, tty)
 
 

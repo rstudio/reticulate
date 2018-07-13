@@ -5,7 +5,8 @@ remap_output_streams <- function() {
   output$remap_output_streams(
     write_stdout,
     write_stderr,
-    tty = interactive() || isatty(stdout())
+    tty = interactive() || isatty(stdout()),
+    force = is_windows() && !is_python3()
   )
 }
 

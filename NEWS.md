@@ -3,6 +3,9 @@
 
 Install the development version with: `install_github("rstudio/reticulate")`
 
+- Output is now properly displayed when using the `reticulate` REPL with
+  Windows + Python 2.7.
+
 - Address memory protection issues identified by rchk
 
 - Make variables defined using `%as%` operator in `with()` available after 

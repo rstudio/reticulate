@@ -13,6 +13,8 @@ Install the development version with: `install_github("rstudio/reticulate")`
   
 - Check for presence of "__module__" property before reading in `as_r_class()`
 
+- Only update pip in virtual_install when version is < 8.1
+
 
 ## reticulate 1.9 (CRAN)
 

@@ -15,6 +15,8 @@ Install the development version with: `install_github("rstudio/reticulate")`
 
 - Only update pip in `virtualenv_install()` when version is < 8.1
 
+- Support converting Python `OrderedDict` to R
+
 
 ## reticulate 1.9 (CRAN)
 

@@ -153,6 +153,15 @@ py_to_r.datetime.date <- function(x) {
 }
 
 
+#' @export
+py_to_r.collections.OrderedDict <- function(x) {
+  keys <- names(x)
+  names(keys) <- keys
+  lapply(keys, function(key) {
+    x[[key]]
+  })
+}
+
 
 #' @export
 py_to_r.pandas.core.series.Series <- function(x) {

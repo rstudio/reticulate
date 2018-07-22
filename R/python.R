@@ -678,6 +678,7 @@ with.python.builtin.object <- function(data, expr, as = NULL, ...) {
 
 #' Traverse a Python iterator or generator
 #'
+#' @param x Python iterator or iterable
 #' @param it Python iterator or generator
 #' @param f Function to apply to each item. By default applies the
 #'   \code{identity} function which just reflects back the value of the item.
@@ -698,9 +699,8 @@ iterate <- function(it, f = base::identity, simplify = TRUE) {
 
   ensure_python_initialized()
 
-  # validate
-  if (!inherits(it, "python.builtin.iterator"))
-    stop("iterate function called with non-iterator argument")
+  # resolve iterator
+  it <- as_iterator(it)
 
   # perform iteration
   result <- py_iterate(it, f)
@@ -729,20 +729,30 @@ iterate <- function(it, f = base::identity, simplify = TRUE) {
 }
 
 
-
-
 #' @rdname iterate
 #' @export
 iter_next <- function(it, completed = NULL) {
 
-  # validate
+  # check for iterator
   if (!inherits(it, "python.builtin.iterator"))
-    stop("iter_next function called with non-iterator argument")
+    stop("iterator function called with non-iterator argument", call. = FALSE)
 
   # call iterator
   py_iter_next(it, completed)
-
 }
+
+
+#' @rdname iterate
+#' @export
+as_iterator <- function(x) {
+  if (inherits(x, "python.builtin.iterator"))
+    x
+  else if (py_has_attr(x, "__iter__"))
+    x$`__iter__`()
+  else
+    stop("iterator function called with non-iterator argument", call. = FALSE)
+}
+
 
 #' Call a Python callable object
 #'

@@ -54,6 +54,14 @@ test_that("iter_next returns sentinel value when it completes", {
   expect_equal(item, NA)
 })
 
+test_that("python iterables can be iterated", {
+  skip_if_no_python()
+  builtins <- import_builtins(convert = FALSE)
+  range <- builtins$range(1L, 10L)
+  result <- iterate(range)
+  expect_length(result, 9)
+})
+
 sequence_generator <-function(start, completed = NULL) {
   value <- start
   function() {

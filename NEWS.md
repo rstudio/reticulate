@@ -17,6 +17,8 @@ Install the development version with: `install_github("rstudio/reticulate")`
 
 - Support converting Python `OrderedDict` to R
 
+- Support for iterating all types of Python iterable
+
 
 ## reticulate 1.9 (CRAN)
 

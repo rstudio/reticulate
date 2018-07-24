@@ -18,7 +18,10 @@ import_from_path(module, path = ".", convert = TRUE)
 \arguments{
 \item{module}{Module name}
 
-\item{as}{Alias for module name (affects names of R classes)}
+\item{as}{Alias for module name (affects names of R classes). Note that
+this is an advanced parameter that should generally only be used
+in package development (since it affects the S3 name of the imported
+class and can therefore interfere with S3 method dispatching).}
 
 \item{convert}{\code{TRUE} to automatically convert Python objects to their R
 equivalent. If you pass \code{FALSE} you can do manual conversion using the

@@ -4,7 +4,10 @@
 #' Import the specified Python module for calling from R.
 #'
 #' @param module Module name
-#' @param as Alias for module name (affects names of R classes)
+#' @param as Alias for module name (affects names of R classes). Note that
+#'  this is an advanced parameter that should generally only be used
+#'  in package development (since it affects the S3 name of the imported
+#'  class and can therefore interfere with S3 method dispatching).
 #' @param path Path to import from
 #' @param convert `TRUE` to automatically convert Python objects to their R
 #'   equivalent. If you pass `FALSE` you can do manual conversion using the

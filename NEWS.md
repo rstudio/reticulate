@@ -3,6 +3,9 @@
 
 Install the development version with: `install_github("rstudio/reticulate")`
 
+- Added `find_conda()` and `get_virtualenv()` as lower-level APIs to access
+  the python executable.
+
 - Output is now properly displayed when using the `reticulate` REPL with
   Windows + Python 2.7.
 

@@ -538,7 +538,7 @@ int r_scalar_type(PyObject* x) {
 
   // double
   else if (PyFloat_Check(x))
-    return REALSXP;// [[Rcpp::export]]
+    return REALSXP;
 
   // complex
   else if (PyComplex_Check(x))

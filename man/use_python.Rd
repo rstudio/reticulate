@@ -2,11 +2,14 @@
 % Please edit documentation in R/use_python.R
 \name{use_python}
 \alias{use_python}
+\alias{get_virtualenv}
 \alias{use_virtualenv}
 \alias{use_condaenv}
 \title{Configure which version of Python to use}
 \usage{
 use_python(python, required = FALSE)
+
+get_virtualenv(virtualenv, required = FALSE)
 
 use_virtualenv(virtualenv, required = FALSE)
 

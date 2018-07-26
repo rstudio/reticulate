@@ -27,7 +27,7 @@ use_python <- function(python, required = FALSE) {
 
 #' @rdname use_python
 #' @export
-use_virtualenv <- function(virtualenv, required = FALSE) {
+get_virtualenv <- function(virtualenv, required = FALSE) {
 
   # prepend root virtualenv directory it doesn't exist and
   # it's not an absolute path
@@ -56,6 +56,14 @@ use_virtualenv <- function(virtualenv, required = FALSE) {
   python <- file.path(python_dir, "python")
   if (is_windows())
     python <- paste0(python, ".exe")
+
+  python
+}
+
+#' @rdname use_python
+#' @export
+use_virtualenv <-function(virtualenv, required = FALSE) {
+  python <- get_virtualenv(virtualenv = virtualenv, required = required)
   use_python(python, required = required)
 }
 

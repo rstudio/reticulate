@@ -194,7 +194,8 @@ conda_version <- function(conda = "auto") {
 }
 
 
-
+#' @rdname conda-tools
+#' @export
 find_conda <- function() {
   conda <- Sys.which("conda")
   if (!nzchar(conda)) {

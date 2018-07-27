@@ -8,6 +8,7 @@
 \alias{conda_install}
 \alias{conda_binary}
 \alias{conda_version}
+\alias{conda_python}
 \title{Interface to conda}
 \usage{
 conda_list(conda = "auto")
@@ -22,6 +23,8 @@ conda_install(envname, packages, forge = TRUE, pip = FALSE,
 conda_binary(conda = "auto")
 
 conda_version(conda = "auto")
+
+conda_python(envname, conda = "auto")
 }
 \arguments{
 \item{conda}{Path to conda executable (or "auto" to find conda using the

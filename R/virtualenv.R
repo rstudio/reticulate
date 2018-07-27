@@ -178,6 +178,17 @@ virtualenv_remove <- function(envname, packages = NULL, confirm = interactive())
   invisible(NULL)
 }
 
+#' @rdname virtualenv-tools
+#' @export
+virtualenv_python <- function(envname) {
+  config <- virtualenv_config()
+  virtualenv_path <- file.path(config$root, envname)
+  if (utils::file_test("-d", virtualenv_path))
+    path.expand(file.path(virtualenv_path, "bin", "python"))
+  else
+    stop("virtualenv ", envname, " not found")
+}
+
 
 virtualenv_config <- function() {
 

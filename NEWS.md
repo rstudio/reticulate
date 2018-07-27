@@ -19,6 +19,9 @@ Install the development version with: `install_github("rstudio/reticulate")`
 
 - Support for iterating all types of Python iterable
 
+- Add `conda_python()` and `virtualenv_python()` functions for finding the
+  python binary associated with an environment.
+
 
 ## reticulate 1.9 (CRAN)
 

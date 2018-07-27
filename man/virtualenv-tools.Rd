@@ -7,6 +7,7 @@
 \alias{virtualenv_create}
 \alias{virtualenv_install}
 \alias{virtualenv_remove}
+\alias{virtualenv_python}
 \title{Interface to virtualenv}
 \usage{
 virtualenv_list()
@@ -18,6 +19,8 @@ virtualenv_create(envname)
 virtualenv_install(envname, packages, ignore_installed = FALSE)
 
 virtualenv_remove(envname, packages = NULL, confirm = interactive())
+
+virtualenv_python(envname)
 }
 \arguments{
 \item{envname}{Name of virtual environment}

@@ -196,7 +196,8 @@ conda_version <- function(conda = "auto") {
 #' @rdname conda-tools
 #' @export
 conda_python <- function(envname, conda = "auto") {
-  env <- subset(conda_list(conda = conda), name == envname)
+  conda_envs <- conda_list(conda = conda)
+  env <- subset(conda_envs, conda_envs$name == envname)
   if (nrow(env) > 0)
     path.expand(env$python[[1]])
   else

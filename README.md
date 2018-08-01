@@ -33,10 +33,10 @@ workflow\!
 
 #### Installation
 
-Install the **reticulate** package from GitHub as follows:
+Install the **reticulate** package from CRAN as follows:
 
 ```r
-devtools::install_github("rstudio/reticulate")
+install.packages("reticulate")
 ```
 
 #### Python version

@@ -1,7 +1,5 @@
 
-## reticulate 1.10 (development)
-
-Install the development version with: `install_github("rstudio/reticulate")`
+## reticulate 1.10 (CRAN)
 
 - Output is now properly displayed when using the `reticulate` REPL with
   Windows + Python 2.7.
@@ -23,7 +21,7 @@ Install the development version with: `install_github("rstudio/reticulate")`
   python binary associated with an environment.
 
 
-## reticulate 1.9 (CRAN)
+## reticulate 1.9 
 
 - Detect python 3 in environments where there is no python 2 (e.g. Ubuntu 18.04)
 

@@ -475,6 +475,18 @@ is_ubuntu <- function() {
   }
 }
 
+is_rstudio <- function() {
+  exists("RStudio.Version", envir = globalenv())
+}
+
+is_rstudio_desktop <- function() {
+  if (!exists("RStudio.Version", envir = globalenv()))
+    return(FALSE)
+
+  RStudio.Version <- get("RStudio.Version", envir = globalenv())
+  version <- RStudio.Version()
+  identical(version$mode, "desktop")
+}
 
 clean_version <- function(version) {
   gsub("\\.$", "", gsub("[A-Za-z_+].*$", "", version))

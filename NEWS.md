@@ -1,4 +1,11 @@
 
+## reticulate 1.11 (development)
+
+Install the development version with: `devtools::install_github("rstudio/reticulate")`
+
+- Use "agg" matplotlib backend when running under RStudio Desktop
+
+
 ## reticulate 1.10 (CRAN)
 
 - Output is now properly displayed when using the `reticulate` REPL with

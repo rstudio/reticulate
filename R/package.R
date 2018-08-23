@@ -44,6 +44,11 @@ ensure_python_initialized <- function(required_module = NULL) {
      }
     .globals$py_config <- initialize_python(required_module, use_environment)
 
+    # ensure modules can be imported from the current working directory
+    sys <- import("sys", convert = FALSE)
+    if (sys$path$count("") == 0L)
+      sys$path$insert(0L, "")
+
     # generate 'R' helper object
     py_inject_r(envir = globalenv())
 

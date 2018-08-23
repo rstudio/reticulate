@@ -55,11 +55,6 @@ repl_python <- function(
     on.exit(teardown(), add = TRUE)
   }
 
-  # ensure modules can be imported from the current working directory
-  sys <- import("sys", convert = FALSE)
-  if (sys$path$count('') == 0L)
-    sys$path$insert(0L, '')
-
   # import other required modules for the REPL
   builtins <- import_builtins(convert = FALSE)
   sys <- import("sys", convert = TRUE)

@@ -110,3 +110,9 @@ Ensure that lines with multiple statements are only run once.
 ```{python}
 print("abc"); print("123")
 ```
+
+Ensure that syntax errors do not block document generation when `eval = FALSE`.
+
+```{python, eval=FALSE}
+here be syntax errors
+```

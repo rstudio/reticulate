@@ -3,7 +3,10 @@
 
 Install the development version with: `devtools::install_github("rstudio/reticulate")`
 
-- Use "agg" matplotlib backend when running under RStudio Desktop
+- Allow syntax errors in Python chunks with 'eval = FALSE' (#343)
+
+- Use "agg" matplotlib backend when running under RStudio Desktop (avoids
+  crashes when attempting to generate Python plots)
 
 
 ## reticulate 1.10 (CRAN)

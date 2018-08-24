@@ -8,6 +8,8 @@ Install the development version with: `devtools::install_github("rstudio/reticul
 
 - Allow syntax errors in Python chunks with 'eval = FALSE' (#343)
 
+- Avoid dropping blank lines in Python chunks (#328)
+
 - Use "agg" matplotlib backend when running under RStudio Desktop (avoids
   crashes when attempting to generate Python plots)
 

@@ -44,11 +44,6 @@ ensure_python_initialized <- function(required_module = NULL) {
      }
     .globals$py_config <- initialize_python(required_module, use_environment)
 
-    # ensure modules can be imported from the current working directory
-    sys <- import("sys", convert = FALSE)
-    if (sys$path$count("") == 0L)
-      sys$path$insert(0L, "")
-
     # generate 'R' helper object
     py_inject_r(envir = globalenv())
 
@@ -133,6 +128,9 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
   py_run_string_impl(paste0("import sys; sys.path.append('",
                        system.file("python", package = "reticulate") ,
                        "')"))
+
+  # ensure modules can be imported from the current working directory
+  py_run_string_impl("import sys; sys.path.insert(0, '')")
 
   # set R_SESSION_INITIALIZED flag (used by rpy2)
   Sys.setenv(R_SESSION_INITIALIZED=sprintf('PID=%s:NAME="reticulate"', Sys.getpid()))

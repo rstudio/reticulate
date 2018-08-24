@@ -71,7 +71,7 @@ eng_python <- function(options) {
   # helper function for extracting range of code, dropping blank lines
   extract <- function(code, range) {
     snippet <- code[range[1]:range[2]]
-    paste(snippet[nzchar(snippet)], collapse = "\n")
+    paste(snippet, collapse = "\n")
   }
 
   # helper function for running a snippet of code and capturing output

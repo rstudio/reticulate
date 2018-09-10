@@ -129,6 +129,9 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
                        system.file("python", package = "reticulate") ,
                        "')"))
 
+  # ensure modules can be imported from the current working directory
+  py_run_string_impl("import sys; sys.path.insert(0, '')")
+
   # set R_SESSION_INITIALIZED flag (used by rpy2)
   Sys.setenv(R_SESSION_INITIALIZED=sprintf('PID=%s:NAME="reticulate"', Sys.getpid()))
 

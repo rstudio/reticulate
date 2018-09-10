@@ -3,7 +3,15 @@
 
 Install the development version with: `devtools::install_github("rstudio/reticulate")`
 
-- Use "agg" matplotlib backend when running under RStudio Desktop
+- Remapping of Python output streams to be R can now be explicitly enabled
+  by setting the environment variable `RETICULATE_REMAP_OUTPUT_STREAMS` to 1. (#335)
+
+- Allow syntax errors in Python chunks with 'eval = FALSE' (#343)
+
+- Avoid dropping blank lines in Python chunks (#328)
+
+- Use "agg" matplotlib backend when running under RStudio Desktop (avoids
+  crashes when attempting to generate Python plots)
 
 - Add `as.character()` S3 method for Python bytes (defaults to converting using 
   UTF-8 encoding)

@@ -21,6 +21,17 @@
 #'
 #' @export
 eng_python <- function(options) {
+  options <- eng_python_validate_options(options)
+
+  # when 'eval = FALSE', we can just return the source code verbatim
+  # (skip any other per-chunk work)
+  if (identical(options$eval, FALSE)) {
+    outputs <- list()
+    if (!identical(options$echo, FALSE))
+      outputs[[1]] <- structure(list(src = options$code), class = "source")
+    wrap <- getOption("reticulate.engine.wrap", eng_python_wrap)
+    return(wrap(outputs, options))
+  }
 
   engine.path <- if (is.list(options[["engine.path"]]))
     options[["engine.path"]][["python"]]
@@ -60,7 +71,7 @@ eng_python <- function(options) {
   # helper function for extracting range of code, dropping blank lines
   extract <- function(code, range) {
     snippet <- code[range[1]:range[2]]
-    paste(snippet[nzchar(snippet)], collapse = "\n")
+    paste(snippet, collapse = "\n")
   }
 
   # helper function for running a snippet of code and capturing output
@@ -118,33 +129,26 @@ eng_python <- function(options) {
     # extract code to be run
     snippet <- extract(code, range)
 
-    # run code and capture output (leave output
-    # empty for 'eval = FALSE' case
+    # run code and capture output
     captured <- ""
-    if (!identical(options$eval, FALSE)) {
-      if (is.numeric(options$eval))
-        warning("numeric 'eval' chunk option not supported by reticulate engine")
 
-      # error=TRUE implies that errors should be captured and converted
-      # into output messages
-      if (identical(options$error, TRUE)) {
-        tryCatch(
-          captured <- run(snippet),
-          error = function(e) {
-            captured <<- conditionMessage(e)
-          }
-        )
-      } else {
-        captured <- run(snippet)
-      }
+    # error=TRUE implies that errors should be captured and converted
+    # into output messages
+    if (identical(options$error, TRUE)) {
+      tryCatch(
+        captured <- run(snippet),
+        error = function(e) {
+          captured <<- conditionMessage(e)
+        }
+      )
+    } else {
+      captured <- run(snippet)
     }
 
     if (nzchar(captured) || length(context$pending_plots)) {
 
       # append pending source to outputs (respecting 'echo' option)
       if (!identical(options$echo, FALSE)) {
-        if (is.numeric(options$echo))
-          warning("numeric 'echo' chunk option not supported by reticulate engine")
         extracted <- extract(code, c(pending_source_index, range[2]))
         output <- structure(list(src = extracted), class = "source")
         outputs[[length(outputs) + 1]] <- output
@@ -170,8 +174,6 @@ eng_python <- function(options) {
 
   # if we have leftover input, add that now
   if (!identical(options$echo, FALSE) && pending_source_index <= n) {
-    if (is.numeric(options$echo))
-      warning("numeric 'echo' chunk option not supported by reticulate engine")
     leftover <- extract(code, c(pending_source_index, n))
     outputs[[length(outputs) + 1]] <- structure(
       list(src = leftover),
@@ -274,4 +276,18 @@ eng_python_wrap <- function(outputs, options) {
   wrap(outputs, options)
 }
 
+eng_python_validate_options <- function(options) {
 
+  # warn about unsupported numeric options and convert to TRUE
+  no_numeric <- c("eval", "echo", "warning")
+  for (option in no_numeric) {
+    if (is.numeric(options[[option]])) {
+      fmt <- "numeric '%s' chunk option not supported by reticulate engine"
+      msg <- sprintf(fmt, option)
+      warning(msg, call. = FALSE)
+      options[[option]] <- TRUE
+    }
+  }
+
+  options
+}

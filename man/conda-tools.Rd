@@ -52,6 +52,6 @@ returns the Path to the python binary of the created environment.
 if none can be found.
 }
 \description{
-R functions for managing Python \href{https://conda.io/docs/user-guide/tasks/manage-environments.html}{condaenvironments}.
+R functions for managing Python \href{https://conda.io/docs/user-guide/tasks/manage-environments.html}{conda environments}.
 }
 \keyword{internal}

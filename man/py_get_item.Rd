@@ -25,3 +25,4 @@ item indexed by \code{key} on an object \code{x}. The object's
 Other item-related APIs: \code{\link{py_del_item}},
   \code{\link{py_set_item}}
 }
+\concept{item-related APIs}

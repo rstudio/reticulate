@@ -5,6 +5,9 @@ Install the development version with: `devtools::install_github("rstudio/reticul
 
 - Use "agg" matplotlib backend when running under RStudio Desktop
 
+- Add `as.character()` S3 method for Python bytes (defaults to converting using 
+  UTF-8 encoding)
+
 
 ## reticulate 1.10 (CRAN)
 

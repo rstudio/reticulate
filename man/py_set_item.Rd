@@ -26,3 +26,4 @@ set an item called \code{name} with value \code{value} on object
 Other item-related APIs: \code{\link{py_del_item}},
   \code{\link{py_get_item}}
 }
+\concept{item-related APIs}

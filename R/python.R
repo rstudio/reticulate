@@ -155,6 +155,19 @@ as.character.python.builtin.object <- function(x, ...) {
   py_str(x)
 }
 
+#' Convert Python bytes to an R character vector
+#'
+#' @inheritParams base::as.character
+#'
+#' @param encoding Encoding to use for conversion (defaults to utf-8)
+#' @param errors Policy for handling conversion errors. Default is 'strict'
+#'  which raises an error. Other possible values are 'ignore' and 'replace'
+#'
+#' @export
+as.character.python.builtin.bytes <- function(x, encoding = "utf-8", errors = "strict", ...) {
+  x$decode(encoding = encoding, errors = errors)
+}
+
 #' @export
 "==.python.builtin.object" <- function(a, b) {
   py_compare(a, b, "==")

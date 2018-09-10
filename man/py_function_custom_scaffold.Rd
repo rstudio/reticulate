@@ -5,8 +5,8 @@
 \title{Custom Scaffolding of R Wrappers for Python Functions}
 \usage{
 py_function_custom_scaffold(python_function, r_function = NULL,
-  additional_roxygen_fields = NULL, process_docs_fn = function(docs) docs,
-  process_param_fn = function(param, docs) param,
+  additional_roxygen_fields = NULL, process_docs_fn = function(docs)
+  docs, process_param_fn = function(param, docs) param,
   process_param_doc_fn = function(param_doc, docs) param_doc,
   postprocess_fn = function() { }, file_name = NULL)
 }

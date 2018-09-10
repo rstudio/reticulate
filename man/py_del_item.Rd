@@ -22,3 +22,4 @@ through its \code{__delitem__} method.
 Other item-related APIs: \code{\link{py_get_item}},
   \code{\link{py_set_item}}
 }
+\concept{item-related APIs}

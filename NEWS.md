@@ -15,6 +15,9 @@ Install the development version with: `devtools::install_github("rstudio/reticul
 
 - Add `as.character()` S3 method for Python bytes (defaults to converting using 
   UTF-8 encoding)
+  
+- Add `py_main_thread_func()` for providing R callbacks to Python libraries that may
+  invoke the function on a Python background thread.
 
 
 ## reticulate 1.10 (CRAN)

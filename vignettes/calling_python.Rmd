@@ -394,6 +394,8 @@ Note that you can change the value that indicates the end of the iteration using
 
 ## Functions
 
+### Signatures
+
 By default R functions are converted to Python with a generic signature (`function(...)`), where there's neither keyword argument nor default values for arguments.
 
 For example, below we apply `r_to_py()` to an R function and then we use [inspect Python module](https://docs.python.org/3/library/inspect.html) to get the converted function's argument spec. You can see that the signature of the wrapped function looks different than the original R function's signature.
@@ -417,6 +419,11 @@ ArgSpec(args=['a', 'b'], varargs=None, keywords=None, defaults=(1.5,))
 
 Note that the signature of the R function must not contain esoteric Python-incompatible constructs. For example, we cannot have R function with signature like `function(a = 1, b)` since Python function requires that arguments without default values appear before arguments with default values.
 
+### Background Threads
+
+In some cases Python libraries will invoke callbacks on a Python background thread. Since R code must run on the main thread, this won't work by default when you pass an R function as a callback. 
+
+To work around this, you can use `py_main_thread_func()`, which will provide a special wrapper for your R function that ensures it will only be called on the main thread. 
 
 ## Advanced 
 

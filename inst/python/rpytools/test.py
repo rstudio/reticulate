@@ -44,6 +44,16 @@ def iterateOnThread(iter):
     thread.join(0.1)
   return results
 
+def invokeOnThread(f, *args, **kwargs):
+  result = []
+  def invoke_worker():
+    result.append(f(*args, **kwargs))
+  thread = threading.Thread(target = invoke_worker)
+  thread.start()
+  while thread.isAlive():
+    thread.join(0.1)
+  return result[0]
+
 
 def reflect(x):
   return x

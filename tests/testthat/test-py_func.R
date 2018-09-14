@@ -50,3 +50,7 @@ def f1(a, b=3):
   expect_error(py_func(function(a.b) {}))
 })
 
+test_that("R functions wrapped in py_main_thread_func are called on the main thread", {
+  skip_if_no_python()
+  expect_equal(test$invokeOnThread(py_main_thread_func(function(x) x + 1), 41), 42)
+})

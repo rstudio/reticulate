@@ -98,6 +98,7 @@ reference:
       - py_last_error
       - py_help
       - py_func
+      - py_main_thread_func
 
   - title: "Package Installation"
     contents:

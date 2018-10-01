@@ -102,7 +102,7 @@ error occurs.
 
 ```{python, error=TRUE}
 raise RuntimeError("oops!")
-print ("This line is still reached.")
+print("This line is still reached.")
 ```
 
 Ensure that lines with multiple statements are only run once.
@@ -115,4 +115,11 @@ Ensure that syntax errors do not block document generation when `eval = FALSE`.
 
 ```{python, eval=FALSE}
 here be syntax errors
+```
+
+Output from bare statements should also be printed.
+
+```{python}
+"Hello, world!"
+[x for x in range(10)]
 ```

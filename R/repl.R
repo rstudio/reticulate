@@ -122,35 +122,6 @@ repl_python <- function(
     failed
   }
 
-  # submit code for evaluation. return TRUE if evaluation succeeded
-  process <- function(code) {
-
-    # Python's command compiler complains if the only thing you submit
-    # is a comment, so detect that case first
-    if (grepl("^\\s*#", code))
-      return(TRUE)
-
-    # Python is picky about trailing whitespace, so ensure only a single
-    # newline follows the code to be submitted
-    code <- sub("\\s*$", "\n", code)
-
-    # now compile and run the code. we use 'single' mode to ensure that
-    # python auto-prints the statement as it is evaluated.
-    compiled <- tryCatch(builtins$compile(code, '<string>', 'single'), error = identity)
-    if (handle_error(compiled))
-      return(FALSE)
-
-    output <- tryCatch(builtins$eval(compiled, globals, locals), error = identity)
-    if (handle_error(output))
-      return(FALSE)
-
-    # ensure stdout, stderr flushed (required for Python 3)
-    sys$stdout$flush()
-    sys$stderr$flush()
-
-    TRUE
-  }
-
   repl <- function() {
 
     # read user input
@@ -253,7 +224,8 @@ repl_python <- function(
     if (length(previous) && inherits(ready, "error")) {
 
       # submit previous code
-      process(paste(previous, collapse = "\n"))
+      pasted <- paste(previous, collapse = "\n")
+      tryCatch(py_compile_eval(pasted), error = handle_error)
 
       # now, handle the newest line of code submitted
       buffer$set(contents)
@@ -268,7 +240,7 @@ repl_python <- function(
     # otherwise, we should have received a code output object
     # so we can just run the code submitted thus far
     buffer$clear()
-    process(code)
+    tryCatch(py_compile_eval(code), error = handle_error)
 
   }
 

@@ -119,23 +119,11 @@ eng_python <- function(options) {
   # synchronize state R -> Python
   eng_python_synchronize_before()
 
-  # determine if we should capture errors (don't capture in rmarkdown::render())
-  capture_errors <- local({
-
-    if (identical(options$error, TRUE))
-      return(TRUE)
-
-    if (!requireNamespace("rmarkdown", quietly = TRUE))
-      return(TRUE)
-
-    rmarkdown <- asNamespace("rmarkdown")
-    context <- rmarkdown$.render_context
-    if (is.null(context))
-      return(TRUE)
-
-    is.null(context$peek())
-
-  })
+  # determine if we should capture errors
+  # (don't capture errors during knit)
+  capture_errors <-
+    identical(options$error, TRUE) ||
+    isFALSE(getOption("knitr.in.progress", default = FALSE))
 
   for (range in ranges) {
 

@@ -124,9 +124,6 @@ py_compile_eval <- function(code) {
   if (grepl("\n{2,}$", output))
     output <- sub("\n$", "", output)
 
-  # emit captured output
-  cat(output, sep = "")
-
   # and return
   invisible(output)
 }

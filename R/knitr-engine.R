@@ -74,14 +74,6 @@ eng_python <- function(options) {
     paste(snippet, collapse = "\n")
   }
 
-  # helper function for running a snippet of code and capturing output
-  run <- function(snippet) {
-    output <- py_capture_output(py_run_string(snippet, convert = FALSE))
-    if (nzchar(output))
-      output <- sub("\n$", "", output)
-    output
-  }
-
   # extract the code to be run -- we'll attempt to run the code line by line
   # and detect changes so that we can interleave code and output (similar to
   # what one sees when executing an R chunk in knitr). to wit, we'll do our
@@ -118,11 +110,20 @@ eng_python <- function(options) {
   # line index from which source should be emitted
   pending_source_index <- 1
 
+  # whether an error occurred during execution
+  had_error <- FALSE
+
   # actual outputs to be returned to knitr
   outputs <- list()
 
   # synchronize state R -> Python
   eng_python_synchronize_before()
+
+  # determine if we should capture errors
+  # (don't capture errors during knit)
+  capture_errors <-
+    identical(options$error, TRUE) ||
+    isFALSE(getOption("knitr.in.progress", default = FALSE))
 
   for (range in ranges) {
 
@@ -130,22 +131,12 @@ eng_python <- function(options) {
     snippet <- extract(code, range)
 
     # run code and capture output
-    captured <- ""
+    captured <- if (capture_errors)
+      tryCatch(py_compile_eval(snippet), error = identity)
+    else
+      py_compile_eval(snippet)
 
-    # error=TRUE implies that errors should be captured and converted
-    # into output messages
-    if (identical(options$error, TRUE)) {
-      tryCatch(
-        captured <- run(snippet),
-        error = function(e) {
-          captured <<- conditionMessage(e)
-        }
-      )
-    } else {
-      captured <- run(snippet)
-    }
-
-    if (nzchar(captured) || length(context$pending_plots)) {
+    if (length(context$pending_plots) || !identical(captured, "")) {
 
       # append pending source to outputs (respecting 'echo' option)
       if (!identical(options$echo, FALSE)) {
@@ -154,26 +145,34 @@ eng_python <- function(options) {
         outputs[[length(outputs) + 1]] <- output
       }
 
-      # append captured outputs
-      if (nzchar(captured) && isTRUE(options$include))
-        outputs[[length(outputs) + 1]] <- captured
+      # append captured outputs (respecting 'include' option)
+      if (isTRUE(options$include)) {
 
-      # append captured images / figures
-      if (length(context$pending_plots)) {
-        if (isTRUE(options$include)) {
-          for (plot in context$pending_plots)
-            outputs[[length(outputs) + 1]] <- plot
-        }
+        # append captured output
+        if (!identical(captured, ""))
+          outputs[[length(outputs) + 1]] <- captured
+
+        # append captured images / figures
+        for (plot in context$pending_plots)
+          outputs[[length(outputs) + 1]] <- plot
         context$pending_plots <- list()
+
       }
 
       # update pending source range
       pending_source_index <- range[2] + 1
+
+      # bail if we had an error with 'error=FALSE'
+      if (identical(options$error, FALSE) && inherits(captured, "error")) {
+        had_error <- TRUE
+        break
+      }
+
     }
   }
 
   # if we have leftover input, add that now
-  if (!identical(options$echo, FALSE) && pending_source_index <= n) {
+  if (!had_error && !identical(options$echo, FALSE) && pending_source_index <= n) {
     leftover <- extract(code, c(pending_source_index, n))
     outputs[[length(outputs) + 1]] <- structure(
       list(src = leftover),

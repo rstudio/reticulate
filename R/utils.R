@@ -96,3 +96,34 @@ new_stack <- function() {
 
 }
 
+py_compile_eval <- function(code) {
+
+  builtins <- import_builtins(convert = TRUE)
+  sys <- import("sys", convert = TRUE)
+
+  # allow 'globals' and 'locals' to both point at main module, so that
+  # evaluated code updates references there as well
+  globals <- py_eval("globals()", convert = FALSE)
+  locals <- globals
+
+  # Python's command compiler complains if the only thing you submit
+  # is a comment, so detect that case first
+  if (grepl("^\\s*#", code))
+    return(TRUE)
+
+  # Python is picky about trailing whitespace, so ensure only a single
+  # newline follows the code to be submitted
+  code <- sub("\\s*$", "\n", code)
+
+  # compile and eval the code -- using 'single' here ensures that Python
+  # auto-prints statements as they are evaluated
+  compiled <- builtins$compile(code, '<string>', 'single')
+  output <- py_capture_output(builtins$eval(compiled, globals, locals))
+
+  # py_capture_output can append an extra trailing newline, so remove it
+  if (grepl("\n{2,}$", output))
+    output <- sub("\n$", "", output)
+
+  # and return
+  invisible(output)
+}

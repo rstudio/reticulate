@@ -3,6 +3,15 @@
 
 Install the development version with: `devtools::install_github("rstudio/reticulate")`
 
+- Reticulate better handles conversions of R lists to Python, and similarly,
+  Python lists to R. We now call `r_to_py()` on each sub-element of an R list,
+  and similarly, `py_to_r()` on each sub-element of a Python list.
+
+- Reticulate now always converts R `Date` objects into Python `datetime`
+  objects. Note that these conversions can be inefficient -- if you would
+  prefer conversion to NumPy `datetime64` objects / arrays, you should convert
+  your date to `POSIXct` first.
+
 - Python chunks containing errors will cause execution to halt if 'error=FALSE'
   during render, conforming with the default knitr behavior for R chunks.
 

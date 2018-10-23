@@ -377,6 +377,13 @@ python_config <- function(python, required_module, python_versions, forced = NUL
   else
     numpy <- NULL
 
+  # check to see if this is a Python virtualenv
+  root <- dirname(dirname(python))
+  virtualenv <- if (is_python_virtualenv(root))
+    root
+  else
+    ""
+
   # check for virtualenv activate script
   activate_this <- file.path(dirname(python), "activate_this.py")
   if (file.exists(activate_this))
@@ -392,6 +399,7 @@ python_config <- function(python, required_module, python_versions, forced = NUL
     python = python,
     libpython = libpython,
     pythonhome = pythonhome,
+    virtualenv = virtualenv,
     virtualenv_activate = virtualenv_activate,
     version_string = version_string,
     version = version,

@@ -108,6 +108,12 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
                           Sys.getenv("PATH"),
                           sep = .Platform$path.sep))
 
+  # if we're a virtual environment then set VIRTUAL_ENV (need to
+  # set this before initializing Python so that module paths are
+  # set as appropriate)
+  if (nzchar(config$virtualenv))
+    Sys.setenv(VIRTUAL_ENV = config$virtualenv)
+
   # initialize python
   py_initialize(config$python,
                 config$libpython,
@@ -116,10 +122,6 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
                 config$version >= "3.0",
                 interactive(),
                 numpy_load_error)
-
-  # if we have a virtualenv then set the VIRTUAL_ENV environment variable
-  if (nzchar(config$virtualenv_activate))
-    Sys.setenv(VIRTUAL_ENV = path.expand(dirname(dirname(config$virtualenv_activate))))
 
   # set available flag indicating we have py bindings
   config$available <- TRUE

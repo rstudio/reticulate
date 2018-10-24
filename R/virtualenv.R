@@ -52,18 +52,26 @@ virtualenv_create <- function(envname) {
 
   if (!utils::file_test("-d", virtualenv_path) || !file.exists(virtualenv_bin("activate"))) {
     cat("Creating virtualenv at ", virtualenv_path, "\n")
-    result <- system2(config$virtualenv, shQuote(c(
-      "--system-site-packages",
-      "--python", config$python,
-      path.expand(virtualenv_path)))
-    )
+
+    prefix <- if (isTRUE(config$venv))
+      paste(config$python, "-m venv")
+    else
+      config$virtualenv
+
+    args <- "--system-site-packages"
+    if (!isTRUE(config$venv))
+      args <- c(args, "--python", config$python)
+    args <- c(args, path.expand(virtualenv_path))
+
+    command <- paste(prefix, paste(shQuote(args), collapse = " "), sep = " ")
+    result <- system(command)
+
     if (result != 0L)
       stop("Error ", result, " occurred creating virtualenv at ", virtualenv_path,
            call. = FALSE)
-  } else {
-    cat("virtualenv:", virtualenv_path, "\n")
   }
 
+  cat("virtualenv:", virtualenv_path, "\n")
   invisible(NULL)
 }
 
@@ -198,31 +206,31 @@ virtualenv_config <- function() {
          call. = FALSE)
   }
 
-  # find system python binary
-  pyver <- ""
-  python <- python_unix_binary("python")
-  if (is.null(python)) {
-    # try for python3 if we are on linux
-    if (is_linux()) {
-      python <- python_unix_binary("python3")
-      if (is.null(python))
-        stop("Unable to locate Python on this system.", call. = FALSE)
-      pyver <- "3"
-    }
-  }
+  # use currently configured version of Python
+  config <- py_config()
+  python <- config$python
+
+  # detect Python 2 vs Python 3
+  version <- package_version(config$version)
+  pyver <- if (version < "3") "" else "3"
 
   # find required binaries
   pip <- python_unix_binary(paste0("pip", pyver))
   have_pip <- !is.null(pip)
+
+  # try to find either virtualenv or venv module
   virtualenv <- python_unix_binary("virtualenv")
   have_virtualenv <- !is.null(virtualenv)
+
+  venv <- system(paste(python, "-m venv --help"), ignore.stdout = TRUE, ignore.stderr = TRUE)
+  have_venv <- venv == 0
 
   # validate that we have the required tools for the method
   install_commands <- NULL
   if (is_osx()) {
     if (!have_pip)
       install_commands <- c(install_commands, "$ sudo /usr/bin/easy_install pip")
-    if (!have_virtualenv) {
+    if (!have_virtualenv && !have_venv) {
       if (is.null(pip))
         pip <- "/usr/local/bin/pip"
       install_commands <- c(install_commands, sprintf("$ sudo %s install --upgrade virtualenv", pip))
@@ -234,7 +242,7 @@ virtualenv_config <- function() {
       install_commands <- c(install_commands, paste0("$ sudo apt-get install python", pyver ,"-pip"))
       pip <- paste0("/usr/bin/pip", pyver)
     }
-    if (!have_virtualenv) {
+    if (!have_virtualenv && !have_venv) {
       if (identical(pyver, "3"))
         install_commands <- c(install_commands, paste("$ sudo", pip, "install virtualenv"))
       else
@@ -245,7 +253,7 @@ virtualenv_config <- function() {
   } else {
     if (!have_pip)
       install_commands <- c(install_commands, "pip")
-    if (!have_virtualenv)
+    if (!have_virtualenv && !have_venv)
       install_commands <- c(install_commands, "virtualenv")
     if (!is.null(install_commands)) {
       install_commands <- paste("Please install the following Python packages before proceeding:",
@@ -270,6 +278,7 @@ virtualenv_config <- function() {
   list(
     python = python,
     virtualenv = virtualenv,
+    venv = identical(venv, 0L),
     pip_version = ifelse(python_version(python) >= "3.0", "pip3", "pip"),
     root = virtualenv_root()
   )

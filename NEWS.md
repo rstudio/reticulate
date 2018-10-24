@@ -3,6 +3,9 @@
 
 Install the development version with: `devtools::install_github("rstudio/reticulate")`
 
+- The `use_virtualenv()` function now understands how to bind to virtual
+  environments created by the Python `venv` module.
+  
 - Reticulate better handles conversions of R lists to Python, and similarly,
   Python lists to R. We now call `r_to_py()` on each sub-element of an R list,
   and similarly, `py_to_r()` on each sub-element of a Python list.

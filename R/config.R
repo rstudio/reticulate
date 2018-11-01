@@ -335,23 +335,19 @@ python_config <- function(python, required_module, python_versions, forced = NUL
     python_libdir_config <- function(var) {
       python_libdir <- config[[var]]
       ext <- switch(Sys.info()[["sysname"]], Darwin = ".dylib", Windows = ".dll", ".so")
-      libpython <- file.path(python_libdir, paste0("libpython" , version, c("", "m"), ext))
-      libpython_exists <- libpython[file.exists(libpython)]
-      if (length(libpython_exists) > 0)
-        libpython_exists[[1]]
-      else
-        libpython[[1]]
+      pattern <- paste0("^libpython", version, "m?", ext)
+      libpython <- list.files(python_libdir, pattern = pattern, full.names = TRUE)
     }
-    if (!is.null(config$LIBPL)) {
-      libpython <- python_libdir_config("LIBPL")
-      if (!file.exists(libpython)) {
-        if (!is.null(config$LIBDIR))
-          libpython <- python_libdir_config("LIBDIR")
+    for (libsrc in c("LIBPL", "LIBDIR")) {
+      if (!is.null(config[[libsrc]])) {
+        libpython <- python_libdir_config(libsrc)
+        if (length(libpython))
+          break
         else
           libpython <- NULL
+      } else {
+        libpython <- NULL
       }
-    } else {
-      libpython <- NULL
     }
   }
 
@@ -397,7 +393,7 @@ python_config <- function(python, required_module, python_versions, forced = NUL
   # return config info
   structure(class = "py_config", list(
     python = python,
-    libpython = libpython,
+    libpython = libpython[1],
     pythonhome = pythonhome,
     virtualenv = virtualenv,
     virtualenv_activate = virtualenv_activate,

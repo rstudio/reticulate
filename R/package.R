@@ -65,8 +65,8 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
   # check for basic python prerequsities
   if (is.null(config)) {
     stop("Installation of Python not found, Python bindings not loaded.")
-  } else if (!is_windows() && (is.null(config$libpython) || !file.exists(config$libpython))) {
-    stop("Python shared library '", config$libpython, "' not found, Python bindings not loaded.")
+  } else if (!is_windows() && is.null(config$libpython)) {
+    stop("Python shared library not found, Python bindings not loaded.")
   } else if (is_incompatible_arch(config)) {
     stop("Your current architecture is ", current_python_arch(), " however this version of ",
          "Python is compiled for ", config$architecture, ".")

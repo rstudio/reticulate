@@ -3,6 +3,9 @@
 
 Install the development version with: `devtools::install_github("rstudio/reticulate")`
 
+- The `r` helper object (used for evaluating R code from Python) now better
+  handles conversion of R functions. (#383)
+
 - The `use_virtualenv()` function now understands how to bind to virtual
   environments created by the Python `venv` module.
   

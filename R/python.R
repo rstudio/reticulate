@@ -1345,7 +1345,8 @@ py_inject_r <- function(envir) {
 
   # define the getters, setters we'll attach to the Python class
   getter <- function(self, code) {
-    r_to_py(eval(parse(text = as_r_value(code)), envir = envir))
+    object <- eval(parse(text = as_r_value(code)), envir = envir)
+    r_to_py(object, convert = is.function(object))
   }
 
   setter <- function(self, name, value) {

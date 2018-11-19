@@ -14,7 +14,7 @@
 #'
 #' In Python, the `yield` keyword enables successive iterations to use the state
 #' of previous iterations. In R, this can be done by returning a function that
-#' mutates it's enclosing environment via the `<<-` operator. For example:
+#' mutates its enclosing environment via the `<<-` operator. For example:
 #'
 #' ```r
 #' sequence_generator <- function(start) {
@@ -53,7 +53,7 @@
 #' @section Threading:
 #'
 #' Some Python APIs use generators to parallelize operations by calling the
-#' generator on a background thread and then consuming it's results on
+#' generator on a background thread and then consuming its results on
 #' the foreground thread. The `py_iterator()` function creates threadsafe
 #' iterators by ensuring that the R function is always called on the main
 #' thread (to be compatible with R's single-threaded runtime) even if the

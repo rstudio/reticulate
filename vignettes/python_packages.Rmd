@@ -24,7 +24,7 @@ Python packages are typically installed from one of two package repositories:
 
 Any Python package you install from PyPI or Conda can be used from R with reticulate. 
 
-Each version of Python on your system has it's own set of packages and reticulate will automatically find a version of Python that contains the first package that you import from R. If need be you can also configure reticulate to use a [specific version](versions.html) of Python.
+Each version of Python on your system has its own set of packages and reticulate will automatically find a version of Python that contains the first package that you import from R. If need be you can also configure reticulate to use a [specific version](versions.html) of Python.
 
 ### Python environments
 

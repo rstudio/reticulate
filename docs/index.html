@@ -8,8 +8,8 @@
 <title>Interface to 'Python' • reticulate</title>
 <!-- jquery --><script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/flatly/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script><!-- Font Awesome icons --><link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
-<script src="jquery.sticky-kit.min.js"></script><script src="pkgdown.js"></script><link href="extra.css" rel="stylesheet">
+<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/1.7.1/clipboard.min.js" integrity="sha384-cV+rhyOuRHc9Ub/91rihWcGmMmCXDeksTtCihMupQHSsi8GIIRDG0ThDc3HGQFJ3" crossorigin="anonymous"></script><!-- sticky kit --><script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
+<script src="pkgdown.js"></script><link href="extra.css" rel="stylesheet">
 <meta property="og:title" content="Interface to 'Python'">
 <meta property="og:description" content="Interface to 'Python' modules, classes, and functions. When calling
     into 'Python', R data types are automatically converted to their equivalent 'Python'
@@ -22,7 +22,7 @@
 <![endif]-->
 </head>
 <body>
-    <div class="container template-vignette">
+    <div class="container template-article">
       <header><div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">reticulate</a>
-        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">1.9</span>
+        <span class="label label-default" data-toggle="tooltip" data-placement="bottom" title="Released package">1.10.0.9002</span>
       </span>
     </div>
 
@@ -103,12 +103,11 @@
 
       
       </header><div class="row">
-  <div class="col-md-9">
+  <div class="col-md-9 contents">
     
 
     
     
-<div class="contents">
 <div id="r-interface-to-python" class="section level1">
 <div class="page-header"><h1 class="hasAnchor">
 <a href="#r-interface-to-python" class="anchor"></a>R Interface to Python</h1></div>
@@ -153,7 +152,7 @@
 <p>There are a variety of ways to integrate Python code into your R projects:</p>
 <ol style="list-style-type: decimal">
 <li><p><a href="#python-in-r-markdown">Python in R Markdown</a> — A new Python language engine for R Markdown that supports bi-directional communication between R and Python (R chunks can access Python objects and vice-versa).</p></li>
-<li><p><a href="#importing-python-modules">Importing Python modules</a> — The <code><a href="reference/import.html">import()</a></code> function enables you to import any Python module and call it’s functions directly from R.</p></li>
+<li><p><a href="#importing-python-modules">Importing Python modules</a> — The <code><a href="reference/import.html">import()</a></code> function enables you to import any Python module and call its functions directly from R.</p></li>
 <li><p><a href="#sourcing-python-scripts">Sourcing Python scripts</a> — The <code><a href="reference/source_python.html">source_python()</a></code> function enables you to source a Python script the same way you would <code>source()</code> an R script (Python functions and objects defined within the script become directly available to the R session).</p></li>
 <li><p><a href="#python-repl">Python REPL</a> — The <code><a href="reference/repl_python.html">repl_python()</a></code> function creates an interactive Python console within R. Objects you create within Python are available to your R session (and vice-versa).</p></li>
 </ol>
@@ -202,18 +201,19 @@
 <a href="#sourcing-python-scripts" class="anchor"></a>Sourcing Python scripts</h2>
 <p>You can source any Python script just as you would source an R script using the <code><a href="reference/source_python.html">source_python()</a></code> function. For example, if you had the following Python script <em>flights.py</em>:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="im">import</span> pandas</a>
-<a class="sourceLine" id="cb6-2" data-line-number="2"><span class="kw">def</span> read_flights(<span class="bu">file</span>):</a>
-<a class="sourceLine" id="cb6-3" data-line-number="3">  flights <span class="op">=</span> pandas.read_csv(<span class="bu">file</span>)</a>
-<a class="sourceLine" id="cb6-4" data-line-number="4">  flights <span class="op">=</span> flights[flights[<span class="st">'dest'</span>] <span class="op">==</span> <span class="st">"ORD"</span>]</a>
-<a class="sourceLine" id="cb6-5" data-line-number="5">  flights <span class="op">=</span> flights[[<span class="st">'carrier'</span>, <span class="st">'dep_delay'</span>, <span class="st">'arr_delay'</span>]]</a>
-<a class="sourceLine" id="cb6-6" data-line-number="6">  flights <span class="op">=</span> flights.dropna()</a>
-<a class="sourceLine" id="cb6-7" data-line-number="7">  <span class="cf">return</span> flights</a></code></pre></div>
+<a class="sourceLine" id="cb6-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb6-3" data-line-number="3"><span class="kw">def</span> read_flights(<span class="bu">file</span>):</a>
+<a class="sourceLine" id="cb6-4" data-line-number="4">  flights <span class="op">=</span> pandas.read_csv(<span class="bu">file</span>)</a>
+<a class="sourceLine" id="cb6-5" data-line-number="5">  flights <span class="op">=</span> flights[flights[<span class="st">'dest'</span>] <span class="op">==</span> <span class="st">"ORD"</span>]</a>
+<a class="sourceLine" id="cb6-6" data-line-number="6">  flights <span class="op">=</span> flights[[<span class="st">'carrier'</span>, <span class="st">'dep_delay'</span>, <span class="st">'arr_delay'</span>]]</a>
+<a class="sourceLine" id="cb6-7" data-line-number="7">  flights <span class="op">=</span> flights.dropna()</a>
+<a class="sourceLine" id="cb6-8" data-line-number="8">  <span class="cf">return</span> flights</a></code></pre></div>
 <p>Then you can source the script and call the <code>read_flights()</code> function as follows:</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="kw"><a href="reference/source_python.html">source_python</a></span>(<span class="st">"flights.py"</span>)</a>
 <a class="sourceLine" id="cb7-2" data-line-number="2">flights &lt;-<span class="st"> </span><span class="kw">read_flights</span>(<span class="st">"flights.csv"</span>)</a>
 <a class="sourceLine" id="cb7-3" data-line-number="3"></a>
 <a class="sourceLine" id="cb7-4" data-line-number="4"><span class="kw">library</span>(ggplot2)</a>
-<a class="sourceLine" id="cb7-5" data-line-number="5"><span class="kw"><a href="http://www.rdocumentation.org/packages/ggplot2/topics/ggplot">ggplot</a></span>(flights, <span class="kw"><a href="http://www.rdocumentation.org/packages/ggplot2/topics/aes">aes</a></span>(carrier, arr_delay)) <span class="op">+</span><span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/ggplot2/topics/geom_point">geom_point</a></span>() <span class="op">+</span><span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/ggplot2/topics/geom_jitter">geom_jitter</a></span>()</a></code></pre></div>
+<a class="sourceLine" id="cb7-5" data-line-number="5"><span class="kw"><a href="ggplot2.tidyverse.org/reference/ggplot.html">ggplot</a></span>(flights, <span class="kw"><a href="ggplot2.tidyverse.org/reference/aes.html">aes</a></span>(carrier, arr_delay)) <span class="op">+</span><span class="st"> </span><span class="kw"><a href="ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span>() <span class="op">+</span><span class="st"> </span><span class="kw"><a href="ggplot2.tidyverse.org/reference/geom_jitter.html">geom_jitter</a></span>()</a></code></pre></div>
 <p>See the <code><a href="reference/source_python.html">source_python()</a></code> documentation for additional details on sourcing Python code.</p>
 </div>
 <div id="python-repl" class="section level2">
@@ -314,7 +314,6 @@
 <p>The package enables you to <em>reticulate</em> Python code into R, creating a new breed of project that weaves together the two languages.</p>
 </div>
 </div>
-</div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
@@ -341,7 +340,7 @@
 <li>JJ Allaire <br><small class="roles"> Author, maintainer </small>  </li>
 <li>Kevin Ushey <br><small class="roles"> Author </small>  </li>
 <li>
-<a href="https://www.rstudio.com"><img src="http://tidyverse.org/rstudio-logo.svg" alt="RStudio" height="24"></a> <br><small class="roles"> Copyright holder, funder </small>  </li>
+<a href="https://www.rstudio.com"><img src="https://tidyverse.org/rstudio-logo.svg" alt="RStudio" height="24"></a> <br><small class="roles"> Copyright holder, funder </small>  </li>
 <li>Yuan Tang <br><small class="roles"> Author, copyright holder </small> <a href="https://orcid.org/0000-0001-5243-233X" target="orcid.widget"><img src="https://members.orcid.org/sites/default/files/vector_iD_icon.svg" class="orcid" height="16"></a> </li>
 <li><a href="authors.html">All authors...</a></li>
 </ul>
@@ -361,7 +360,7 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by JJ Allaire, Kevin Ushey, <a href="https://www.rstudio.com"><img src="http://tidyverse.org/rstudio-logo.svg" alt="RStudio" height="24"></a>, Yuan Tang.</p>
+  <p>Developed by JJ Allaire, Kevin Ushey, <a href="https://www.rstudio.com"><img src="https://tidyverse.org/rstudio-logo.svg" alt="RStudio" height="24"></a>, Yuan Tang.</p>
 </div>
 
 <div class="pkgdown">

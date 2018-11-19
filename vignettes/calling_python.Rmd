@@ -98,7 +98,7 @@ builtins <- import_builtins()
 builtins$print('foo')
 ```
 
-The main module is generally useful if you have executed Python code from a file or string and want to get access to it's results (see the section below for more details).
+The main module is generally useful if you have executed Python code from a file or string and want to get access to its results (see the section below for more details).
 
 ## Sourcing Scripts
 
@@ -186,13 +186,13 @@ R named lists are converted to Python dictionaries however you can also explicit
 dict(foo = "bar", index = 42L)
 ```
 
-This might be useful if you need to pass a dictionary that uses a more complex object (as opposed to a string) as it's key.
+This might be useful if you need to pass a dictionary that uses a more complex object (as opposed to a string) as its key.
 
 ## Numeric Types and Indexes
 
 R and Python have different default numeric types. If you write `42` in R it is considered a floating point number whereas `42` in Python is considered an integer.
 
-This means that when a Python API expects an integer, you need to be sure to use the `L` suffix within R. For example, if the `foo` function requires an integer as it's `index` argument you would do this:
+This means that when a Python API expects an integer, you need to be sure to use the `L` suffix within R. For example, if the `foo` function requires an integer as its `index` argument you would do this:
 
 ```r
 foo$bar(index = 42L)
@@ -359,7 +359,7 @@ Note that some iterators/generators in Python are infinite. In that case the cal
 
 Python [generators](https://wiki.python.org/moin/Generators) are functions that implement the Python iterator protocol. Similarly, the reticulate `generator()` function enables you to create a Python iterator from an R function.
 
-In Python, generators produce values using the `yield` keyword. In R, values are simply returned from the function. One benefit of the `yield` keyword is that it enables successive iterations to use the state of previous iterations. In R, this can be done by returning a function that mutates it's enclosing environment via the <<- operator. For example:
+In Python, generators produce values using the `yield` keyword. In R, values are simply returned from the function. One benefit of the `yield` keyword is that it enables successive iterations to use the state of previous iterations. In R, this can be done by returning a function that mutates its enclosing environment via the <<- operator. For example:
 
 ```{r}
 # define a generator function
@@ -441,8 +441,8 @@ Typically interacting with Python objects from R involves using the `$` operator
 | `py_list_attributes()` | List all attributes of a Python object. |
 | `py_len()` | Length of Python object. |
 | `py_call()` | Call a Python callable object with the specified arguments.  | 
-| `py_to_r()` | Convert a Python object to it's R equivalent |
-| `r_to_py()` | Convert an R object to it's Python equivalent |
+| `py_to_r()` | Convert a Python object to its R equivalent |
+| `r_to_py()` | Convert an R object to its Python equivalent |
 
 ### Pickle
 

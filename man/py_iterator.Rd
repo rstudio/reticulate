@@ -25,7 +25,7 @@ values are simply returned from the function.
 
 In Python, the \code{yield} keyword enables successive iterations to use the state
 of previous iterations. In R, this can be done by returning a function that
-mutates it's enclosing environment via the \code{<<-} operator. For example:\preformatted{sequence_generator <- function(start) {
+mutates its enclosing environment via the \code{<<-} operator. For example:\preformatted{sequence_generator <- function(start) {
   value <- start
   function() {
     value <<- value + 1
@@ -61,7 +61,7 @@ example:\preformatted{sequence_generator <-function(start) {
 
 
 Some Python APIs use generators to parallelize operations by calling the
-generator on a background thread and then consuming it's results on
+generator on a background thread and then consuming its results on
 the foreground thread. The \code{py_iterator()} function creates threadsafe
 iterators by ensuring that the R function is always called on the main
 thread (to be compatible with R's single-threaded runtime) even if the

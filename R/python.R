@@ -479,7 +479,7 @@ plot.numpy.ndarray <- function(x, y, ...) {
 #'
 #' @return A Python dictionary
 #'
-#' @note The returned dictionary will not automatically convert it's elements
+#' @note The returned dictionary will not automatically convert its elements
 #'   from Python to R. You can do manual converstion with the [py_to_r()]
 #'   function or pass `convert = TRUE` to request automatic conversion.
 #'
@@ -542,7 +542,7 @@ py_dict <- function(keys, values, convert = FALSE) {
 #' @param ... Values for tuple (or a single list to be converted to a tuple).
 #'
 #' @return A Python tuple
-#' @note The returned tuple will not automatically convert it's elements from
+#' @note The returned tuple will not automatically convert its elements from
 #'   Python to R. You can do manual converstion with the [py_to_r()] function or
 #'   pass `convert = TRUE` to request automatic conversion.
 #'

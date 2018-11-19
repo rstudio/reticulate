@@ -64,7 +64,7 @@ There are a variety of ways to integrate Python code into your R projects:
 
 1) [Python in R Markdown] &mdash; A new Python language engine for R Markdown that supports bi-directional communication between R and Python (R chunks can access Python objects and vice-versa).
 
-2) [Importing Python modules] &mdash; The `import()` function enables you to import any Python module and call it's functions directly from R.
+2) [Importing Python modules] &mdash; The `import()` function enables you to import any Python module and call its functions directly from R.
 
 3) [Sourcing Python scripts] &mdash; The `source_python()` function enables you to source a Python script the same way you would `source()` an R script (Python functions and objects defined within the script become directly available to the R session).
 

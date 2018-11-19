@@ -45,12 +45,8 @@ use_virtualenv <- function(virtualenv, required = FALSE) {
 
 
   # validate it if required
-  if (required) {
-    if (!file_test("-d", python_dir) ||
-        !file_test("-f", file.path(python_dir, "activate_this.py"))) {
-      stop("Directory ", virtualenv, " is not a Python virtualenv")
-    }
-  }
+  if (required && !is_python_virtualenv(virtualenv))
+    stop("Directory ", virtualenv, " is not a Python virtualenv")
 
   # set the option
   python <- file.path(python_dir, "python")

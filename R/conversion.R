@@ -20,7 +20,6 @@ py_to_r <- function(x) {
 }
 
 
-
 #' @export
 r_to_py.default <- function(x, convert = FALSE) {
   r_to_py_impl(x, convert = convert)
@@ -40,6 +39,36 @@ py_to_r.default <- function(x) {
 
   # return the wrapper
   wrapper
+}
+
+
+
+#' @export
+r_to_py.list <- function(x, convert = FALSE) {
+  converted <- lapply(x, r_to_py, convert = convert)
+  r_to_py_impl(converted, convert = convert)
+}
+
+#' @export
+py_to_r.python.builtin.list <- function(x) {
+  disable_conversion_scope(x)
+
+  # give internal code a chance to perform efficient
+  # conversion of e.g. numeric vectors and the like
+  converted <- py_ref_to_r(x)
+
+  # if we received an R list, assume that we may need
+  # to recursively convert elements
+  if (is.list(converted)) {
+    converted <- lapply(converted, function(object) {
+      if (inherits(object, "python.builtin.object"))
+        py_to_r(object)
+      else
+        object
+    })
+  }
+
+  converted
 }
 
 #' R wrapper for Python objects
@@ -125,11 +154,6 @@ py_to_r.datetime.datetime <- function(x) {
 #' @export
 r_to_py.Date <- function(x, convert = FALSE) {
 
-  # we prefer datetime64 for efficiency
-  if (py_module_available("numpy"))
-    return(r_to_py.POSIXt(as.POSIXct(x)))
-
-  # otherwise, fallback to using Python's datetime class
   datetime <- import("datetime", convert = convert)
   items <- lapply(x, function(item) {
     iso <- strsplit(format(x), "-", fixed = TRUE)[[1]]
@@ -142,7 +166,7 @@ r_to_py.Date <- function(x, convert = FALSE) {
   if (length(items) == 1)
     items[[1]]
   else
-    items
+    r_to_py_impl(items, convert)
 }
 
 #' @export

@@ -304,3 +304,15 @@ python_version <- function(python) {
   numeric_version(paste(matches[[2]], matches[[3]], sep = "."))
 }
 
+is_python_virtualenv <- function(dir) {
+
+  # virtual environment created with venv
+  if (file.exists(file.path(dir, "pyvenv.cfg")))
+    return(TRUE)
+
+  # virtual environment created with virtualenv
+  if (file.exists(file.path(dir, "bin/activate_this.py")))
+    return(TRUE)
+
+  FALSE
+}

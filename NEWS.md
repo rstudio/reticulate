@@ -3,6 +3,27 @@
 
 Install the development version with: `devtools::install_github("rstudio/reticulate")`
 
+- The `r` helper object (used for evaluating R code from Python) now better
+  handles conversion of R functions. (#383)
+
+- The `use_virtualenv()` function now understands how to bind to virtual
+  environments created by the Python `venv` module.
+  
+- Reticulate better handles conversions of R lists to Python, and similarly,
+  Python lists to R. We now call `r_to_py()` on each sub-element of an R list,
+  and similarly, `py_to_r()` on each sub-element of a Python list.
+
+- Reticulate now always converts R `Date` objects into Python `datetime`
+  objects. Note that these conversions can be inefficient -- if you would
+  prefer conversion to NumPy `datetime64` objects / arrays, you should convert
+  your date to `POSIXct` first.
+
+- Python chunks containing errors will cause execution to halt if 'error=FALSE'
+  during render, conforming with the default knitr behavior for R chunks.
+
+- The output of bare statements (e.g. `1 + 1`) is now emitted as output when using
+  the reticulate Python engine.
+
 - Remapping of Python output streams to be R can now be explicitly enabled
   by setting the environment variable `RETICULATE_REMAP_OUTPUT_STREAMS` to 1. (#335)
 

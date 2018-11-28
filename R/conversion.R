@@ -387,6 +387,35 @@ dim.pandas.core.frame.DataFrame <- function(x) {
     py_object_shape(x)
 }
 
+# Scipy sparse matrices
+
+#' @export
+dim.scipy.sparse.base.spmatrix <- function(x) {
+  if (py_is_null_xptr(x) || !py_available())
+    NULL
+  else
+    py_object_shape(x)
+}
+
+#' @export
+length.scipy.sparse.base.spmatrix <- function(x) {
+  if (py_is_null_xptr(x) || !py_available())
+    2L
+  else
+    Reduce(`*`, py_object_shape(x))
+}
+
+#' @export
+py_to_r.scipy.sparse.base.spmatrix <- function(x) {
+  py_to_r(x$tocsc())
+}
+
+#' @importFrom methods as
+#' @export
+r_to_py.sparseMatrix <- function(x, convert = FALSE) {
+  r_to_py(as(x, "dgCMatrix"), convert = convert)
+}
+
 # Conversion between `Matrix::dgCMatrix` and `scipy.sparse.csc.csc_matrix`.
 # Scipy CSC Matrix: https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.csc_matrix.html
 
@@ -410,30 +439,80 @@ r_to_py.dgCMatrix <- function(x, convert = FALSE) {
   csc_x
 }
 
-#' @importFrom Matrix sparseMatrix
+#' @importFrom methods new
 #' @export
 py_to_r.scipy.sparse.csc.csc_matrix <- function(x) {
   disable_conversion_scope(x)
-  sparseMatrix(
-    i = 1 + as_r_value(x$indices),
-    p = as_r_value(x$indptr),
+  new("dgCMatrix",
+    i = as.integer(as_r_value(x$indices)),
+    p = as.integer(as_r_value(x$indptr)),
     x = as.vector(as_r_value(x$data)),
-    dims = dim(x))
+    Dim = dim(x))
+}
+
+# Conversion between `Matrix::dgRMatrix` and `scipy.sparse.csr.csr_matrix`.
+# Scipy CSR Matrix: https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.csr_matrix.html
+
+#' @export
+r_to_py.dgRMatrix <- function(x, convert = FALSE) {
+  # use default implementation if scipy is not available
+  if (!py_module_available("scipy"))
+    return(r_to_py_impl(x, convert = convert))
+  sp <- import("scipy.sparse", convert = FALSE)
+  csr_x <- sp$csr_matrix(
+    tuple(
+      x@x, # Data array of the matrix
+      x@j, # CSR format index array
+      x@p), # CSR format index pointer array
+    shape = dim(x))
+  if (any(dim(x) != dim(csr_x)))
+    stop(
+      paste0(
+        "Failed to convert: dimensions of the original Matrix::dgRMatrix ",
+        "object and the converted Scipy CSR matrix do not match"))
+  csr_x
 }
 
 #' @export
-dim.scipy.sparse.csc.csc_matrix <- function(x) {
-  if (py_is_null_xptr(x) || !py_available())
-    NULL
-  else
-    py_object_shape(x)
+py_to_r.scipy.sparse.csr.csr_matrix <- function(x) {
+  disable_conversion_scope(x)
+  methods::new("dgRMatrix",
+      j = as.integer(as_r_value(x$indices)),
+      p = as.integer(as_r_value(x$indptr)),
+      x = as.vector(as_r_value(x$data)),
+      Dim = dim(x))
 }
+
+# Conversion between `Matrix::dgTMatrix` and `scipy.sparse.coo.coo_matrix`.
+# Scipy COO Matrix: https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.coo_matrix.html
 
 #' @export
-length.scipy.sparse.csc.csc_matrix <- function(x) {
-  if (py_is_null_xptr(x) || !py_available())
-    2L
-  else
-    Reduce(`*`, py_object_shape(x))
+r_to_py.dgTMatrix <- function(x, convert = FALSE) {
+  # use default implementation if scipy is not available
+  if (!py_module_available("scipy"))
+    return(r_to_py_impl(x, convert = convert))
+  sp <- import("scipy.sparse", convert = FALSE)
+  coo_x <- sp$coo_matrix(
+    tuple(
+      x@x, # Data array of the matrix
+      tuple(x@i,
+            x@j)), # COO format coordinate array
+    shape = dim(x))
+  if (any(dim(x) != dim(coo_x)))
+    stop(
+      paste0(
+        "Failed to convert: dimensions of the original Matrix::dgRMatrix ",
+        "object and the converted Scipy CSR matrix do not match"))
+  coo_x
 }
 
+#' @importFrom methods new
+#' @export
+py_to_r.scipy.sparse.coo.coo_matrix <- function(x) {
+  disable_conversion_scope(x)
+  new("dgTMatrix",
+      i = as.integer(as_r_value(x$row)),
+      j = as.integer(as_r_value(x$col)),
+      x = as.vector(as_r_value(x$data)),
+      Dim = dim(x))
+}

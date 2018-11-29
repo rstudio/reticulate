@@ -9,13 +9,16 @@
 #' Virtual environments are by default located at `~/.virtualenvs`. You can change this
 #' behavior by defining the `WORKON_HOME` environment variable.
 #'
+#' You can also create and/or use pre-existing Python virtual environments by
+#' providing the full path to the virtual environment.
+#'
 #' Virtual environment functions are not supported on Windows (the use of
 #' [conda environments][conda-tools] is recommended on Windows).
 #'
-#' @param envname Name of virtual environment
+#' @param envname The name of a virtual environment, or the absolute path to a virtual environment.
 #' @param packages Character vector with package names to install or remove.
-#' @param ignore_installed Ignore any previously installed versions of packages
-#' @param confirm Confirm before removing packages or virtual environments
+#' @param ignore_installed Ignore any previously installed versions of packages?
+#' @param confirm Confirm before removing packages or virtual environments?
 #'
 #' @return `virtualenv_list()` returns a chracter vector with the names
 #'  of available virtual environments. `virtualenv_root()` returns the
@@ -47,7 +50,7 @@ virtualenv_create <- function(envname) {
 
   config <- virtualenv_config()
 
-  virtualenv_path <- file.path(config$root, envname)
+  virtualenv_path <- virtualenv_path(config, envname)
   virtualenv_bin <- function(bin) path.expand(file.path(virtualenv_path, "bin", bin))
 
   if (!utils::file_test("-d", virtualenv_path) || !file.exists(virtualenv_bin("activate"))) {
@@ -74,7 +77,7 @@ virtualenv_install <- function(envname, packages, ignore_installed = FALSE) {
   virtualenv_create(envname)
 
   config <- virtualenv_config()
-  virtualenv_path <- file.path(config$root, envname)
+  virtualenv_path <- virtualenv_path(config, envname)
   virtualenv_bin <- function(bin) path.expand(file.path(virtualenv_path, "bin", bin))
 
   # see what version of pip is installed (assume 0.1 on error)
@@ -134,7 +137,7 @@ virtualenv_install <- function(envname, packages, ignore_installed = FALSE) {
 virtualenv_remove <- function(envname, packages = NULL, confirm = interactive()) {
 
   config <- virtualenv_config()
-  virtualenv_path <- file.path(config$root, envname)
+  virtualenv_path <- virtualenv_path(config, envname)
   virtualenv_bin <- function(bin) path.expand(file.path(virtualenv_path, "bin", bin))
 
   # packages = NULL means remove the entire virtualenv
@@ -182,7 +185,7 @@ virtualenv_remove <- function(envname, packages = NULL, confirm = interactive())
 #' @export
 virtualenv_python <- function(envname) {
   config <- virtualenv_config()
-  virtualenv_path <- file.path(config$root, envname)
+  virtualenv_path <- virtualenv_path(config, envname)
   if (utils::file_test("-d", virtualenv_path))
     path.expand(file.path(virtualenv_path, "bin", "python"))
   else
@@ -273,6 +276,19 @@ virtualenv_config <- function() {
     pip_version = ifelse(python_version(python) >= "3.0", "pip3", "pip"),
     root = virtualenv_root()
   )
+}
+
+virtualenv_path <- function(config, envname) {
+
+  # allow users to provide path to existing virtual environment
+  # (as opposed to just the name of a virtual environment)
+  if (grepl("[/\\]", envname)) {
+    if (file.exists(envname))
+      return(normalizePath(envname, winslash = "/"))
+    return(envname)
+  }
+
+  file.path(config$root, envname)
 }
 
 python_unix_binary <- function(bin) {

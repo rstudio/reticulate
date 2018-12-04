@@ -402,7 +402,7 @@ length.scipy.sparse.base.spmatrix <- function(x) {
   if (py_is_null_xptr(x) || !py_available())
     2L
   else
-    Reduce(`*`, py_object_shape(x))
+    prod(py_object_shape(x))
 }
 
 #' @export
@@ -431,11 +431,12 @@ r_to_py.dgCMatrix <- function(x, convert = FALSE) {
       x@i, # CSC format index array
       x@p), # CSC format index pointer array
     shape = dim(x))
-  if (any(dim(x) != as_r_value(csc_x$shape)))
+  if (any(dim(x) != dim(csc_x)))
     stop(
-      paste0(
+      paste(
         "Failed to convert: dimensions of the original Matrix::dgCMatrix ",
-        "object and the converted Scipy CSC matrix do not match"))
+        "object (", dim(x), ") and the converted Scipy CSC matrix (",
+        dim(csc_x), ") do not match", sep="", collapse=", "))
   csc_x
 }
 
@@ -467,9 +468,10 @@ r_to_py.dgRMatrix <- function(x, convert = FALSE) {
     shape = dim(x))
   if (any(dim(x) != dim(csr_x)))
     stop(
-      paste0(
+      paste(
         "Failed to convert: dimensions of the original Matrix::dgRMatrix ",
-        "object and the converted Scipy CSR matrix do not match"))
+        "object (", dim(x), ") and the converted Scipy CSR matrix (",
+        dim(csr_x), ") do not match", sep="", collapse=", "))
   csr_x
 }
 
@@ -500,9 +502,10 @@ r_to_py.dgTMatrix <- function(x, convert = FALSE) {
     shape = dim(x))
   if (any(dim(x) != dim(coo_x)))
     stop(
-      paste0(
-        "Failed to convert: dimensions of the original Matrix::dgRMatrix ",
-        "object and the converted Scipy CSR matrix do not match"))
+      paste(
+        "Failed to convert: dimensions of the original Matrix::dgTMatrix ",
+        "object (", dim(x), ") and the converted Scipy COO matrix (",
+        dim(coo_x), ") do not match", sep="", collapse=", "))
   coo_x
 }
 

@@ -15,10 +15,6 @@ pip_version <- function(pip) {
 
 pip_install <- function(pip, packages, ignore_installed = TRUE) {
 
-  # notify user
-  msg <- paste("Installing", paste(shQuote(packages), collapse = ", "), "...")
-  writeLines(msg)
-
   # construct command line arguments
   args <- c("install", "--upgrade")
   if (ignore_installed)
@@ -28,7 +24,8 @@ pip_install <- function(pip, packages, ignore_installed = TRUE) {
   # run it
   result <- system2(pip, args)
   if (result != 0L) {
-    msg <- paste("Error installing package(s):", paste(shQuote(packages), collapse = ", "))
+    pkglist <- paste(shQuote(packages), collapse = ", ")
+    msg <- paste("Error installing package(s):", pkglist)
     stop(msg, call. = FALSE)
   }
 
@@ -38,15 +35,12 @@ pip_install <- function(pip, packages, ignore_installed = TRUE) {
 
 pip_uninstall <- function(pip, packages) {
 
-  # notify user
-  msg <- paste("Removing", paste(shQuote(packages), collapse = ", "), "...")
-  writeLines(msg)
-
-  # construct command line arguments
+  # run it
   args <- c("uninstall", "--yes", packages)
   result <- system2(pip, args)
   if (result != 0L) {
-    msg <- paste("Error removing package(s):", paste(shQuote(packages), collapse = ", "))
+    pkglist <- paste(shQuote(packages), collapse = ", ")
+    msg <- paste("Error removing package(s):", pkglist)
     stop(msg, call. = FALSE)
   }
 

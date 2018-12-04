@@ -14,7 +14,7 @@ virtualenv_list()
 
 virtualenv_create(envname, python = NULL)
 
-virtualenv_install(envname, packages, ignored_installed = FALSE)
+virtualenv_install(envname, packages, ignore_installed = TRUE)
 
 virtualenv_remove(envname, packages = NULL, confirm = interactive())
 
@@ -23,22 +23,32 @@ virtualenv_root()
 virtualenv_python(envname)
 }
 \arguments{
-\item{envname}{The name of, or path to, a Python virtual environment.}
+\item{envname}{The name of, or path to, a Python virtual environment. If
+this name contains any slashes, the name will be interpreted as a path;
+if the name does not contain slashes, it will be treated as a virtual
+environment within \code{\link[=virtualenv_root]{virtualenv_root()}}.}
+
+\item{python}{The path to a Python interpreter, to be used with the created
+virtual environment. When \code{NULL}, the Python interpreter associated with
+the current session will be used.}
 
 \item{packages}{A character vector with package names to install or remove.}
 
+\item{ignore_installed}{Boolean; ignore previously-installed versions of the
+requested packages? (This should normally be \code{TRUE}, so that pre-installed
+packages available in the site libraries are ignored and new copies are
+made available in the virtual environment.)}
+
 \item{confirm}{Boolean; confirm before removing packages or virtual
 environments?}
-
-\item{ignore_installed}{Boolean; ignore previously-installed versions of the
-requested packages?}
 }
 \description{
 R functions for managing Python \href{https://virtualenv.pypa.io/en/stable/}{virtual environments}.
 }
 \details{
-Virtual environments are by default located at \code{~/.virtualenvs}. You can change this
-behavior by defining the \code{WORKON_HOME} environment variable.
+Virtual environments are by default located at \code{~/.virtualenvs} (accessed
+with the \code{\link[=virtualenv_root]{virtualenv_root()}} function). You can change the default location
+by defining defining the \code{WORKON_HOME} environment variable.
 
 Virtual environment functions are not supported on Windows (the use of
 \link[=conda-tools]{conda environments} is recommended on Windows).

@@ -40,6 +40,7 @@ Install the development version with: `devtools::install_github("rstudio/reticul
 - Add `py_main_thread_func()` for providing R callbacks to Python libraries that may
   invoke the function on a Python background thread.
 
+- Add `py_to_r` S3 methods for Scipy sparse matrices: CSR to dgRMatrix, COO to dgTMatrix, and for all other sparse matrices, conversion via CSC/dgCMatrix.
 
 ## reticulate 1.10 (CRAN)
 

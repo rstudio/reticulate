@@ -3,41 +3,38 @@
 \name{virtualenv-tools}
 \alias{virtualenv-tools}
 \alias{virtualenv_list}
-\alias{virtualenv_root}
 \alias{virtualenv_create}
 \alias{virtualenv_install}
 \alias{virtualenv_remove}
+\alias{virtualenv_root}
 \alias{virtualenv_python}
-\title{Interface to virtualenv}
+\title{Interface to Python Virtual Environments}
 \usage{
 virtualenv_list()
 
-virtualenv_root()
+virtualenv_create(envname, python = NULL)
 
-virtualenv_create(envname)
-
-virtualenv_install(envname, packages, ignore_installed = FALSE)
+virtualenv_install(envname, packages, ignored_installed = FALSE)
 
 virtualenv_remove(envname, packages = NULL, confirm = interactive())
+
+virtualenv_root()
 
 virtualenv_python(envname)
 }
 \arguments{
-\item{envname}{Name of virtual environment}
+\item{envname}{The name of, or path to, a Python virtual environment.}
 
-\item{packages}{Character vector with package names to install or remove.}
+\item{packages}{A character vector with package names to install or remove.}
 
-\item{ignore_installed}{Ignore any previously installed versions of packages}
+\item{confirm}{Boolean; confirm before removing packages or virtual
+environments?}
 
-\item{confirm}{Confirm before removing packages or virtual environments}
-}
-\value{
-\code{virtualenv_list()} returns a chracter vector with the names
-of available virtual environments. \code{virtualenv_root()} returns the
-root directory for virtual environments.
+\item{ignore_installed}{Boolean; ignore previously-installed versions of the
+requested packages?}
 }
 \description{
-R functions for managing Python \href{https://virtualenv.pypa.io/en/stable/}{virtual environments}
+R functions for managing Python \href{https://virtualenv.pypa.io/en/stable/}{virtual environments}.
 }
 \details{
 Virtual environments are by default located at \code{~/.virtualenvs}. You can change this

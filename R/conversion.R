@@ -400,7 +400,7 @@ dim.scipy.sparse.base.spmatrix <- function(x) {
 #' @export
 length.scipy.sparse.base.spmatrix <- function(x) {
   if (py_is_null_xptr(x) || !py_available())
-    2L
+    0L
   else
     prod(py_object_shape(x))
 }

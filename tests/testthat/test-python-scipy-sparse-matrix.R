@@ -28,7 +28,7 @@ test_that("Conversion to scipy sparse matrix S3 methods behave with null pointer
   # check that S3 methods behave with null pointers
   expect_true(is(result, "scipy.sparse.csc.csc_matrix"))
   expect_true(is.null(dim(result)))
-  expect_true(length(result) == 2L)
+  expect_true(length(result) == 0L)
   file.remove(temp_file)
 })
 

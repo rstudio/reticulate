@@ -204,7 +204,7 @@ virtualenv_default_python <- function(python) {
   if (!is.null(python))
     return(python)
 
-  config <- py_config()
+  config <- py_discover_config()
   normalizePath(config$python, winslash = "/")
 }
 

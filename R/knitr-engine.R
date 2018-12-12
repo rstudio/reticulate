@@ -123,7 +123,7 @@ eng_python <- function(options) {
   # (don't capture errors during knit)
   capture_errors <-
     identical(options$error, TRUE) ||
-    isFALSE(getOption("knitr.in.progress", default = FALSE))
+    identical(getOption("knitr.in.progress", default = FALSE), FALSE)
 
   for (range in ranges) {
 

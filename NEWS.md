@@ -3,6 +3,9 @@
 
 Install the development version with: `devtools::install_github("rstudio/reticulate")`
 
+- The current `matplotlib` figure is now cleared as each Python chunk in an
+  R Markdown document is run.
+
 - The `r` helper object (used for evaluating R code from Python) now better
   handles conversion of R functions. (#383)
 

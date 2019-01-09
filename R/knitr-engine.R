@@ -240,6 +240,9 @@ eng_python_initialize_matplotlib <- function(options,
 
   plt <- import("matplotlib.pyplot", convert = FALSE)
 
+  # clear any figure (give plt a clean slate)
+  plt$clf()
+
   # rudely steal 'plot_counter' (used by default 'show()' implementation below)
   # and then reset the counter when we're done
   plot_counter <- yoink("knitr", "plot_counter")

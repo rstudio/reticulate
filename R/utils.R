@@ -120,10 +120,20 @@ py_compile_eval <- function(code) {
   compiled <- builtins$compile(code, '<string>', 'single')
   output <- py_capture_output(builtins$eval(compiled, globals, locals))
 
+  # save the value that was produced
+  .globals$py_last_value <- py_last_value()
+
   # py_capture_output can append an extra trailing newline, so remove it
   if (grepl("\n{2,}$", output))
     output <- sub("\n$", "", output)
 
   # and return
   invisible(output)
+}
+
+py_last_value <- function() {
+  tryCatch(
+    py_eval("_", convert = FALSE),
+    error = function(e) r_to_py(NULL)
+  )
 }

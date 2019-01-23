@@ -3,6 +3,9 @@
 
 Install the development version with: `devtools::install_github("rstudio/reticulate")`
 
+- Top-level Python statements can now include leading indent when submitted
+  with `repl_python()`.
+
 - The current `matplotlib` figure is now cleared as each Python chunk in an
   R Markdown document is run.
 

@@ -194,6 +194,10 @@ repl_python <- function(
       utils::loadhistory(histfile)
     }
 
+    # trim whitespace if the buffer is empty (this effectively allows leading
+    # whitespace in top-level Python commands)
+    if (buffer$empty()) contents <- trimmed
+
     # update buffer
     previous <- buffer$data()
     buffer$push(contents)

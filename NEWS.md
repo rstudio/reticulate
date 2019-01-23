@@ -3,6 +3,12 @@
 
 Install the development version with: `devtools::install_github("rstudio/reticulate")`
 
+- Textual output generated when adding items to a matplotlib plot object
+  are now suppressed.
+
+- If the last statement in a Python chunk returns a matplotlib plot object,
+  the plot will now be auto-shown as in other environments.
+
 - The reticulate function help handler now returns function arguments for
   Python builtin functions.
 

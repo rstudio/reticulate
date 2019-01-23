@@ -269,17 +269,19 @@ help_formals_handler.python.builtin.object <- function(topic, source) {
   # for builtin functions, we need to try parsing the help documentation
   # (often, the first line provides a function signature)
   if (inherits(target, "python.builtin.builtin_function_or_method")) {
-    docs <- py_get_attr(target, "__doc__")
-    if (inherits(docs, "python.builtin.object"))
-      docs <- py_to_r(docs)
-    pieces <- strsplit(docs, "\n", fixed = TRUE)[[1]]
-    first <- pieces[[1]]
-    munged <- paste(gsub("[^(]*[(]", "function (", first), "{}")
-    parsed <- parse(text = munged)[[1]]
-    output <- list(
-      formals = names(parsed[[2]]),
-      helpHandler = "reticulate:::help_handler"
-    )
+    output <- tryCatch({
+      docs <- py_get_attr(target, "__doc__")
+      if (inherits(docs, "python.builtin.object"))
+        docs <- py_to_r(docs)
+      pieces <- strsplit(docs, "\n", fixed = TRUE)[[1]]
+      first <- pieces[[1]]
+      munged <- paste(gsub("[^(]*[(]", "function (", first), "{}")
+      parsed <- parse(text = munged)[[1]]
+      list(
+        formals = names(parsed[[2]]),
+        helpHandler = "reticulate:::help_handler"
+      )
+    }, error = function(e) NULL)
     return(output)
   }
 

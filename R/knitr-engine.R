@@ -66,8 +66,6 @@ eng_python <- function(options) {
     envir = environment()
   )
 
-  ast <- import("ast", convert = TRUE)
-
   # helper function for extracting range of code, dropping blank lines
   extract <- function(code, range) {
     snippet <- code[range[1]:range[2]]
@@ -85,6 +83,7 @@ eng_python <- function(options) {
 
   # use 'ast.parse()' to parse Python code and collect line numbers, so we
   # can split source code into statements
+  ast <- import("ast", convert = TRUE)
   pasted <- paste(code, collapse = "\n")
   parsed <- tryCatch(ast$parse(pasted, "<string>"), error = identity)
   if (inherits(parsed, "error")) {
@@ -125,16 +124,25 @@ eng_python <- function(options) {
     identical(options$error, TRUE) ||
     identical(getOption("knitr.in.progress", default = FALSE), FALSE)
 
-  for (range in ranges) {
+  for (i in seq_along(ranges)) {
+
+    # extract range
+    range <- ranges[[i]]
 
     # extract code to be run
     snippet <- extract(code, range)
+
+    # save last value
+    last_value <- py_last_value()
 
     # run code and capture output
     captured <- if (capture_errors)
       tryCatch(py_compile_eval(snippet), error = identity)
     else
       py_compile_eval(snippet)
+
+    # handle matplotlib output
+    captured <- eng_python_matplotlib_handle_output(captured, last_value, i == length(ranges))
 
     if (length(context$pending_plots) || !identical(captured, "")) {
 
@@ -202,13 +210,12 @@ eng_python_matplotlib_show <- function(plt, options) {
   path <- knitr::fig_path(options$dev, number = plot_counter())
   dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
   plt$savefig(path, dpi = options$dpi)
+  plt$clf()
   knitr::include_graphics(path)
 }
 
-eng_python_initialize_matplotlib <- function(options,
-                                             context,
-                                             envir)
-{
+eng_python_initialize_matplotlib <- function(options, context, envir) {
+
   if (!py_module_available("matplotlib"))
     return()
 
@@ -240,9 +247,6 @@ eng_python_initialize_matplotlib <- function(options,
 
   plt <- import("matplotlib.pyplot", convert = FALSE)
 
-  # clear any figure (give plt a clean slate)
-  plt$clf()
-
   # rudely steal 'plot_counter' (used by default 'show()' implementation below)
   # and then reset the counter when we're done
   plot_counter <- yoink("knitr", "plot_counter")
@@ -252,9 +256,18 @@ eng_python_initialize_matplotlib <- function(options,
   show <- plt$show
   defer(plt$show <- show, envir = envir)
   plt$show <- function(...) {
+
+    # call hook to generate plot
     hook <- getOption("reticulate.engine.matplotlib.show", eng_python_matplotlib_show)
     graphic <- hook(plt, options)
+
+    # update set of pending plots
     context$pending_plots[[length(context$pending_plots) + 1]] <<- graphic
+
+    # return None to ensure no printing of output here (just inclusion of
+    # plot as a side effect)
+    r_to_py(NULL)
+
   }
 
   # set up figure dimensions
@@ -292,4 +305,39 @@ eng_python_validate_options <- function(options) {
   }
 
   options
+}
+
+eng_python_is_matplotlib_output <- function(value) {
+
+  # extract 'boxed' matplotlib outputs
+  if (inherits(value, "python.builtin.list") && length(value) == 1)
+    value <- value[[0]]
+
+  # TODO: are there other types we care about?
+  inherits(value, "matplotlib.artist.Artist")
+
+}
+
+eng_python_matplotlib_handle_output <- function(captured, last_value, show) {
+
+  value <- py_last_value()
+
+  # bail if no new value was produced by interpreter
+  builtins <- import_builtins(convert = TRUE)
+  if (builtins$id(last_value) == builtins$id(value))
+    return(captured)
+
+  # bail if this isn't matplotlib output
+  if (!eng_python_is_matplotlib_output(value))
+    return(captured)
+
+  # show plot if requested
+  if (show) {
+    plt <- import("matplotlib.pyplot", convert = TRUE)
+    plt$show()
+  }
+
+  # suppress textual output
+  ""
+
 }

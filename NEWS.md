@@ -3,6 +3,9 @@
 
 Install the development version with: `devtools::install_github("rstudio/reticulate")`
 
+- The reticulate function help handler now returns function arguments for
+  Python builtin functions.
+
 - Top-level Python statements can now include leading indent when submitted
   with `repl_python()`.
 

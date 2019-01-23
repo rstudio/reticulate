@@ -258,22 +258,42 @@ help_formals_handler.python.builtin.object <- function(topic, source) {
   if (py_is_module_proxy(source))
     return(NULL)
 
-  if (py_has_attr(source, topic)) {
-    target <- help_get_attribute(source, topic)
-    if (!is.null(target) && py_is_callable(target)) {
-      help <- import("rpytools.help")
-      args <- help$get_arguments(target)
-      if (!is.null(args)) {
-        return(list(
-          formals = args,
-          helpHandler = "reticulate:::help_handler"
-        ))
-      }
-    }
+  # check for attribute
+  if (!py_has_attr(source, topic))
+    return(NULL)
+
+  target <- help_get_attribute(source, topic)
+  if (is.null(target) || !py_is_callable(target))
+    return(NULL)
+
+  # for builtin functions, we need to try parsing the help documentation
+  # (often, the first line provides a function signature)
+  if (inherits(target, "python.builtin.builtin_function_or_method")) {
+    docs <- py_get_attr(target, "__doc__")
+    if (inherits(docs, "python.builtin.object"))
+      docs <- py_to_r(docs)
+    pieces <- strsplit(docs, "\n", fixed = TRUE)[[1]]
+    first <- pieces[[1]]
+    munged <- paste(gsub("[^(]*[(]", "function (", first), "{}")
+    parsed <- parse(text = munged)[[1]]
+    output <- list(
+      formals = names(parsed[[2]]),
+      helpHandler = "reticulate:::help_handler"
+    )
+    return(output)
   }
 
-  # default to NULL if we couldn't get the arguments
-  NULL
+  # otherwise, use rpytools
+  help <- import("rpytools.help")
+  args <- help$get_arguments(target)
+  if (is.null(args))
+    return(NULL)
+
+  list(
+    formals = args,
+    helpHandler = "reticulate:::help_handler"
+  )
+
 }
 
 sphinx_doc_params_matches <- function(doc) {

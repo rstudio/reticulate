@@ -4,6 +4,7 @@ title: "Using reticulate's Python Engine with knitr"
 
 ```{r setup, include = FALSE}
 library(reticulate)
+reticulate::use_python("/usr/local/bin/python3", required = TRUE)
 knitr::knit_engines$set(python = eng_python)
 ```
 
@@ -122,4 +123,12 @@ Output from bare statements should also be printed.
 ```{python}
 "Hello, world!"
 [x for x in range(10)]
+```
+
+Expressions that generate plots should be shown.
+
+```{python}
+import numpy as np, pandas as pd
+a = np.random.normal(size=1000)
+pd.Series(a).hist()
 ```

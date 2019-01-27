@@ -3,6 +3,21 @@
 
 Install the development version with: `devtools::install_github("rstudio/reticulate")`
 
+- Textual output generated when adding items to a matplotlib plot object
+  are now suppressed.
+
+- If the last statement in a Python chunk returns a matplotlib plot object,
+  the plot will now be auto-shown as in other environments.
+
+- The reticulate function help handler now returns function arguments for
+  Python builtin functions.
+
+- Top-level Python statements can now include leading indent when submitted
+  with `repl_python()`.
+
+- The current `matplotlib` figure is now cleared as each Python chunk in an
+  R Markdown document is run.
+
 - The `r` helper object (used for evaluating R code from Python) now better
   handles conversion of R functions. (#383)
 

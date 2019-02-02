@@ -205,6 +205,10 @@ py_to_r.pandas.core.categorical.Categorical <- function(x) {
   factor(values, levels = levels, ordered = ordered)
 }
 
+#' @export
+py_to_r.pandas.core.arrays.categorical.Categorical <-
+  py_to_r.pandas.core.categorical.Categorical
+
 py_object_shape <- function(object) unlist(as_r_value(object$shape))
 
 #' @export

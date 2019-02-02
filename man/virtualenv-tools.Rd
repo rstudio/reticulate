@@ -26,7 +26,7 @@ virtualenv_python(envname)
 \item{envname}{The name of, or path to, a Python virtual environment. If
 this name contains any slashes, the name will be interpreted as a path;
 if the name does not contain slashes, it will be treated as a virtual
-environment within \code{\link[=virtualenv_root]{virtualenv_root()}}.}
+environment within \code{virtualenv_root()}.}
 
 \item{python}{The path to a Python interpreter, to be used with the created
 virtual environment. When \code{NULL}, the Python interpreter associated with
@@ -36,8 +36,8 @@ the current session will be used.}
 
 \item{ignore_installed}{Boolean; ignore previously-installed versions of the
 requested packages? (This should normally be \code{TRUE}, so that pre-installed
-packages available in the site libraries are ignored and new copies are
-made available in the virtual environment.)}
+packages available in the site libraries are ignored and hence packages
+are installed into the virtual environment.)}
 
 \item{confirm}{Boolean; confirm before removing packages or virtual
 environments?}
@@ -47,8 +47,8 @@ R functions for managing Python \href{https://virtualenv.pypa.io/en/stable/}{vir
 }
 \details{
 Virtual environments are by default located at \code{~/.virtualenvs} (accessed
-with the \code{\link[=virtualenv_root]{virtualenv_root()}} function). You can change the default location
-by defining defining the \code{WORKON_HOME} environment variable.
+with the \code{virtualenv_root} function). You can change the default location by
+defining defining the \code{WORKON_HOME} environment variable.
 
 Virtual environment functions are not supported on Windows (the use of
 \link[=conda-tools]{conda environments} is recommended on Windows).

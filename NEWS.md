@@ -3,6 +3,9 @@
 
 Install the development version with: `devtools::install_github("rstudio/reticulate")`
 
+- Fixed an issue where conversion of Pandas Categorical variables to R objects
+  would fail. (#389)
+
 - Textual output generated when adding items to a matplotlib plot object
   are now suppressed.
 

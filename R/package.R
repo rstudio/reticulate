@@ -113,15 +113,31 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
   # set as appropriate)
   if (nzchar(config$virtualenv))
     Sys.setenv(VIRTUAL_ENV = config$virtualenv)
+  
+  # set R_SESSION_INITIALIZED flag (used by rpy2)
+  curr_session_env <- Sys.getenv("R_SESSION_INITIALIZED", unset = NA)
+  Sys.setenv(R_SESSION_INITIALIZED = sprintf('PID=%s:NAME="reticulate"', Sys.getpid()))
 
   # initialize python
-  py_initialize(config$python,
-                config$libpython,
-                config$pythonhome,
-                config$virtualenv_activate,
-                config$version >= "3.0",
-                interactive(),
-                numpy_load_error)
+  tryCatch(
+    {
+      py_initialize(config$python,
+                    config$libpython,
+                    config$pythonhome,
+                    config$virtualenv_activate,
+                    config$version >= "3.0",
+                    interactive(),
+                    numpy_load_error)
+    },
+    error = function(e) {
+      if (is.na(curr_session_env)) {
+        Sys.unsetenv("R_SESSION_INITIALIZED")
+      } else {
+        Sys.setenv(R_SESSION_INITIALIZED = curr_session_env)
+      }
+      stop(e)
+    }
+  )
 
   # set available flag indicating we have py bindings
   config$available <- TRUE
@@ -133,9 +149,6 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
 
   # ensure modules can be imported from the current working directory
   py_run_string_impl("import sys; sys.path.insert(0, '')")
-
-  # set R_SESSION_INITIALIZED flag (used by rpy2)
-  Sys.setenv(R_SESSION_INITIALIZED=sprintf('PID=%s:NAME="reticulate"', Sys.getpid()))
 
   # return config
   config

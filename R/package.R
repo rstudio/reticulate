@@ -133,7 +133,7 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
       if (is.na(curr_session_env)) {
         Sys.unsetenv("R_SESSION_INITIALIZED")
       } else {
-        Sys.setenv(curr_session_env)
+        Sys.setenv(R_SESSION_INITIALIZED = curr_session_env)
       }
       stop(e)
     }

@@ -59,7 +59,11 @@ bool loadLibrary(const std::string& libPath, void** ppLib, std::string* pError)
 #ifdef _WIN32
   *ppLib = (void*)::LoadLibraryEx(libPath.c_str(), NULL, 0);
 #else
-  *ppLib = ::dlopen(libPath.c_str(), RTLD_NOW|RTLD_GLOBAL);
+  if (libPath == "NA") {
+    *ppLib = ::dlopen(NULL, RTLD_NOW|RTLD_GLOBAL);
+  } else {
+    *ppLib = ::dlopen(libPath.c_str(), RTLD_NOW|RTLD_GLOBAL);
+  }
 #endif
   if (*ppLib == NULL)
   {

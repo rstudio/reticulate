@@ -13,10 +13,6 @@ is_python3 <- function() {
     .Call(`_reticulate_is_python3`)
 }
 
-has_python_symbols <- function() {
-    .Call(`_reticulate_has_python_symbols`)
-}
-
 #' Get or clear the last Python error encountered
 #'
 #' @return For `py_last_error()`, a list with the type, value,
@@ -44,6 +40,10 @@ r_to_py_impl <- function(object, convert) {
 
 py_activate_virtualenv <- function(script) {
     invisible(.Call(`_reticulate_py_activate_virtualenv`, script))
+}
+
+main_process_python_info <- function() {
+    .Call(`_reticulate_main_process_python_info`)
 }
 
 py_initialize <- function(python, libpython, pythonhome, virtualenv_activate, python3, interactive, numpy_load_error) {

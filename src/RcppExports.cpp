@@ -38,16 +38,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// has_python_symbols
-SEXP has_python_symbols();
-RcppExport SEXP _reticulate_has_python_symbols() {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    rcpp_result_gen = Rcpp::wrap(has_python_symbols());
-    return rcpp_result_gen;
-END_RCPP
-}
 // py_last_error
 SEXP py_last_error();
 RcppExport SEXP _reticulate_py_last_error() {
@@ -98,6 +88,16 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const std::string& >::type script(scriptSEXP);
     py_activate_virtualenv(script);
     return R_NilValue;
+END_RCPP
+}
+// main_process_python_info
+SEXP main_process_python_info();
+RcppExport SEXP _reticulate_main_process_python_info() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(main_process_python_info());
+    return rcpp_result_gen;
 END_RCPP
 }
 // py_initialize
@@ -501,12 +501,12 @@ static const R_CallMethodDef CallEntries[] = {
     {"_reticulate_write_stdout", (DL_FUNC) &_reticulate_write_stdout, 1},
     {"_reticulate_write_stderr", (DL_FUNC) &_reticulate_write_stderr, 1},
     {"_reticulate_is_python3", (DL_FUNC) &_reticulate_is_python3, 0},
-    {"_reticulate_has_python_symbols", (DL_FUNC) &_reticulate_has_python_symbols, 0},
     {"_reticulate_py_last_error", (DL_FUNC) &_reticulate_py_last_error, 0},
     {"_reticulate_py_clear_last_error", (DL_FUNC) &_reticulate_py_clear_last_error, 0},
     {"_reticulate_py_is_callable", (DL_FUNC) &_reticulate_py_is_callable, 1},
     {"_reticulate_r_to_py_impl", (DL_FUNC) &_reticulate_r_to_py_impl, 2},
     {"_reticulate_py_activate_virtualenv", (DL_FUNC) &_reticulate_py_activate_virtualenv, 1},
+    {"_reticulate_main_process_python_info", (DL_FUNC) &_reticulate_main_process_python_info, 0},
     {"_reticulate_py_initialize", (DL_FUNC) &_reticulate_py_initialize, 7},
     {"_reticulate_py_finalize", (DL_FUNC) &_reticulate_py_finalize, 0},
     {"_reticulate_py_is_none", (DL_FUNC) &_reticulate_py_is_none, 1},

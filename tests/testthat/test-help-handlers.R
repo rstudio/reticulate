@@ -1,6 +1,7 @@
 context("helper handlers")
 
 test_that("Function arguments from builtin functions can be extracted", {
+  skip_if_no_python()
   skip_on_os("windows")
   os <- import("os")
   output <- help_formals_handler.python.builtin.object("chmod", os)
@@ -47,6 +48,7 @@ Just a placeholder here.
 })
 
 test_that("Documentations in Google style can be extracted correctly for help handlers", {
+  skip_if_no_docutils()
 
   docs <- "
 Initialize the model.

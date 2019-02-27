@@ -8,7 +8,6 @@ expect_reshape <- function(r, dim) {
 }
 
 test_that("rearray reshapes R, Python vectors similarily", {
-
   skip_if_no_numpy()
 
   # simple reshaping
@@ -23,11 +22,9 @@ test_that("rearray reshapes R, Python vectors similarily", {
   expect_reshape(a, c(6, 2, 2))
   expect_reshape(a, c(2, 2, 3, 2))
   expect_reshape(a, c(3, 2, 2, 2))
-
 })
 
 test_that("rearray and dim<- don't do the same thing", {
-
   skip_if_no_numpy()
 
   x <- 1:4

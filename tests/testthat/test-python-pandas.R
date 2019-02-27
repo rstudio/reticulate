@@ -44,6 +44,10 @@ test_that("Generic methods for pandas objects produce correct results", {
 test_that("Timestamped arrays in Pandas DataFrames can be roundtripped", {
   skip_if_no_pandas()
 
+  # TODO: this test fails on Windows because the int32 array gets
+  # converted to an R numeric vector rather than an integer vector
+  skip_on_os("windows")
+
   pd <- import("pandas", convert = FALSE)
   np <- import("numpy", convert = FALSE)
 

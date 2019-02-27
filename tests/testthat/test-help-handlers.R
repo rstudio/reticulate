@@ -1,6 +1,7 @@
 context("helper handlers")
 
 test_that("Function arguments from builtin functions can be extracted", {
+  skip_on_os("windows")
   os <- import("os")
   output <- help_formals_handler.python.builtin.object("chmod", os)
   expected <- list(formals = c("path", "mode"), helpHandler = "reticulate:::help_handler")

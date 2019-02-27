@@ -1437,10 +1437,9 @@ void py_activate_virtualenv(const std::string& script)
   PyObject* main = PyImport_AddModule("__main__");
   PyObject* mainDict = PyModule_GetDict(main);
 
-  // create local dict with __file__
-  PyObjectPtr localDict(PyDict_New());
+  // inject __file__
   PyObjectPtr file(as_python_str(script));
-  int res = PyDict_SetItemString(localDict, "__file__", file);
+  int res = PyDict_SetItemString(mainDict, "__file__", file);
   if (res != 0)
     stop(py_fetch_error());
 
@@ -1452,7 +1451,7 @@ void py_activate_virtualenv(const std::string& script)
                    (std::istreambuf_iterator<char>()));
 
   // run string
-  PyObjectPtr runRes(PyRun_StringFlags(code.c_str(), Py_file_input, mainDict, localDict, NULL));
+  PyObjectPtr runRes(PyRun_StringFlags(code.c_str(), Py_file_input, mainDict, NULL, NULL));
   if (runRes.is_null())
     stop(py_fetch_error());
 }

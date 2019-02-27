@@ -3,6 +3,9 @@
 
 Install the development version with: `devtools::install_github("rstudio/reticulate")`
 
+- Fixed an issue where attempts to activate virtual environments created with
+  virtualenv 16.4.1 would fail. (#437)
+
 - Fixed an issue where conversion of Pandas Categorical variables to R objects
   would fail. (#389)
 

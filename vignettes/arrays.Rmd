@@ -353,7 +353,8 @@ y[, , 1]
 
 The NumPy `take()` function is equivalent in this example to the Python
 notation  `x[:, :, 0]`; that is, entries with third dimension index = 0.  (See
-https://docs.scipy.org/doc/numpy/reference/generated/numpy.take.html.)
+https://docs.scipy.org/doc/numpy/reference/generated/numpy.take.html for
+more information.)
 
 The corresponding R notation, `y[, , 1]`, returns the same thing in this
 example: a 4x3 matrix.

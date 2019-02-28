@@ -1,7 +1,5 @@
 
-## reticulate 1.11 (development)
-
-Install the development version with: `devtools::install_github("rstudio/reticulate")`
+## reticulate 1.11 (CRAN)
 
 - Fixed an issue where attempts to activate virtual environments created with
   virtualenv 16.4.1 would fail. (#437)
@@ -62,7 +60,7 @@ Install the development version with: `devtools::install_github("rstudio/reticul
   invoke the function on a Python background thread.
 
 
-## reticulate 1.10 (CRAN)
+## reticulate 1.10
 
 - Output is now properly displayed when using the `reticulate` REPL with
   Windows + Python 2.7.

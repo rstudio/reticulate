@@ -18,6 +18,17 @@ use_python <- function(python, required = FALSE) {
   if (required && !file_test("-f", python) && !file_test("-d", python))
     stop("Specified version of python '", python, "' does not exist.")
 
+  # if required == TRUE and python is already initialized then confirm that we
+  # are using the correct version
+  if (required && is_python_initialized()) {
+    if (!identical(normalize_python_path(py_config()$python),
+                   normalize_python_path(python))) {
+      stop("Required version of Python '", python ,"' cannot be used ",
+           "because another version of Python ('", py_config()$python,
+           "') is already initialized ", "for this process.")
+    }
+  }
+
   if (required)
     .globals$required_python_version <- python
 

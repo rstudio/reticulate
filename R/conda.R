@@ -113,6 +113,7 @@ conda_remove <- function(envname, packages = NULL, conda = "auto") {
 }
 
 #' @param forge Include the [Conda Forge](https://conda-forge.org/) repository.
+#' @param channel Include additional channel to search for packages.
 #' @param pip_ignore_installed Ignore installed versions when using pip. This is `TRUE` by default
 #'   so that specific package versions can be installed even if they are downgrades. The `FALSE`
 #'   option is useful for situations where you don't want a pip install to attempt an overwrite
@@ -124,7 +125,7 @@ conda_remove <- function(envname, packages = NULL, conda = "auto") {
 #' @keywords internal
 #'
 #' @export
-conda_install <- function(envname, packages, forge = TRUE, pip = FALSE, pip_ignore_installed = TRUE, conda = "auto") {
+conda_install <- function(envname, packages, forge = TRUE, channel = NULL, pip = FALSE, pip_ignore_installed = TRUE, conda = "auto") {
 
   # resolve conda binary
   conda <- conda_binary(conda)
@@ -151,6 +152,8 @@ conda_install <- function(envname, packages, forge = TRUE, pip = FALSE, pip_igno
     args <- c("install")
     if (forge)
       args <- c(args, "-c", "conda-forge")
+    if (! is.null(channel))
+      args <- c(args, "-c", channel)
     args <- c(args, "--yes", "--name", envname, packages)
     result <- system2(conda, shQuote(args))
   }

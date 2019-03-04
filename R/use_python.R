@@ -21,8 +21,10 @@ use_python <- function(python, required = FALSE) {
   # if required == TRUE and python is already initialized then confirm that we
   # are using the correct version
   if (required && is_python_initialized()) {
-    if (!identical(normalize_python_path(py_config()$python),
-                   normalize_python_path(python))) {
+    normalize <- function(path) {
+      normalizePath(normalize_python_path(path)$path, winslash = "/")
+    }
+    if (!identical(normalize(py_config()$python), normalize(python))) {
       stop("Required version of Python '", python ,"' cannot be used ",
            "because another version of Python ('", py_config()$python,
            "') is already initialized ", "for this process.")

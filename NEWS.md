@@ -1,7 +1,7 @@
 
-## reticulate 1.12 (development)
+## reticulate 1.11.1 (CRAN)
 
-Install the development version with: `devtools::install_github("rstudio/reticulate")`
+- Fixed a failing virtual environment test on CRAN.
 
 ## reticulate 1.11 (CRAN)
 

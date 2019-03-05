@@ -2,6 +2,7 @@ context("Virtual Environments")
 
 test_that("reticulate can bind to virtual environments created with venv", {
   skip_if_no_python()
+  skip_on_cran()
 
   # find Python 3 binary for testing
   python3 <- Sys.which("python3")

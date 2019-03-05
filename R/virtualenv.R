@@ -219,7 +219,15 @@ virtualenv_default_python <- function(python) {
     return(python)
 
   config <- py_discover_config()
-  normalizePath(config$python, winslash = "/")
+  if (!nzchar(config$virtualenv))
+    return(normalizePath(config$python, winslash = "/"))
+
+  home <- strsplit(config$pythonhome, .Platform$path.sep, fixed = TRUE)[[1]][[1]]
+  binary <- if (is_windows())
+    file.path(home, "Scripts/python.exe")
+  else
+    file.path(home, "bin/python")
+
 }
 
 

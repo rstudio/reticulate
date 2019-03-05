@@ -129,6 +129,10 @@ conda_install <- function(envname, packages, forge = TRUE, pip = FALSE, pip_igno
   # resolve conda binary
   conda <- conda_binary(conda)
 
+  # resolve envname
+  if (is.null(envname))
+    envname <- "r-reticulate"
+
   # create the environment if needed
   conda_envs <- conda_list(conda = conda)
   conda_envs <- subset(conda_envs, conda_envs$name == envname)

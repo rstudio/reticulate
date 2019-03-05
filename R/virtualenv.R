@@ -77,11 +77,13 @@ virtualenv_create <- function(envname, python = NULL) {
 #' @inheritParams virtualenv-tools
 #' @rdname virtualenv-tools
 #' @export
-virtualenv_install <- function(envname, packages, ignore_installed = TRUE) {
+virtualenv_install <- function(envname = NULL, packages, ignore_installed = TRUE) {
 
   path <- virtualenv_path(envname)
   if (file.exists(path))
-    writeLines(paste("Using virtual environment", shQuote(envname), "..."))
+    writeLines(paste("Using virtual environment", shQuote(basename(path)), "..."))
+  else if (is.null(envname))
+    stop("virtualenv_install() called without active virtual environment")
   else
     path <- virtualenv_create(envname)
 
@@ -179,6 +181,18 @@ virtualenv_exists <- function(envname) {
 
 
 virtualenv_path <- function(envname) {
+
+  # if envname is NULL but Python is already active, then
+  # use the path to the current virtual environment
+  if (is.null(envname) && py_available()) {
+    config <- py_config()
+    if (nzchar(config$virtualenv))
+      return(config$virtualenv)
+  }
+
+  # if envname is still NULL, err
+  if (is.null(envname))
+    stop("missing environment name")
 
   # treat environment 'names' containins slashes as paths
   # rather than environments living in WORKON_HOME

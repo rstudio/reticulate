@@ -8,7 +8,9 @@
 #' @inheritParams conda_install
 #'
 #' @param packages Character vector with package names to install
-#' @param envname Name of environment to install packages into
+#' @param envname The name of the environment in which packages will be installed.
+#'   When `NULL` and attempting to install into a virtual environment, the active
+#'   virtual environment (if any) will be used.
 #' @param method Installation method. By default, "auto" automatically finds a
 #'   method that will work in the local environment. Change the default to force
 #'   a specific installation method. Note that the "virtualenv" method is not
@@ -25,7 +27,7 @@
 #' @export
 py_install <- function(
   packages,
-  envname = "r-reticulate",
+  envname = NULL,
   method = c("auto", "virtualenv", "conda"),
   conda = "auto",
   ...) {

@@ -4,13 +4,15 @@
 \alias{py_install}
 \title{Install Python packages}
 \usage{
-py_install(packages, envname = "r-reticulate", method = c("auto",
-  "virtualenv", "conda"), conda = "auto", ...)
+py_install(packages, envname = NULL, method = c("auto", "virtualenv",
+  "conda"), conda = "auto", ...)
 }
 \arguments{
 \item{packages}{Character vector with package names to install}
 
-\item{envname}{Name of environment to install packages into}
+\item{envname}{The name of the environment in which packages will be installed.
+When \code{NULL} and attempting to install into a virtual environment, the active
+virtual environment (if any) will be used.}
 
 \item{method}{Installation method. By default, "auto" automatically finds a
 method that will work in the local environment. Change the default to force

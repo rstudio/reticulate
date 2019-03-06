@@ -17,7 +17,6 @@ NULL
 .globals <- new.env(parent = emptyenv())
 .globals$required_python_version <- NULL
 .globals$use_python_versions <- c()
-.globals$py_initializing <- FALSE
 .globals$py_config <- NULL
 .globals$delay_load_module <- NULL
 .globals$delay_load_environment <- NULL
@@ -44,10 +43,6 @@ ensure_python_initialized <- function(required_module = NULL) {
       .globals$delay_load_environment <- NULL
       .globals$delay_load_priority <- 0
     }
-
-    # mark as initializing (so we know to save any PATH changes)
-    .globals$py_initializing <- TRUE
-    on.exit(.globals$py_initializing <- FALSE, add = TRUE)
 
     .globals$py_config <- initialize_python(required_module, use_environment)
 

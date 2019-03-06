@@ -182,15 +182,18 @@ virtualenv_exists <- function(envname) {
 
 virtualenv_path <- function(envname) {
 
-  # if envname is NULL but Python is already active, then
-  # use the path to the current virtual environment
-  if (is.null(envname) && py_available()) {
-    config <- py_config()
-    if (nzchar(config$virtualenv))
-      return(config$virtualenv)
+  # if envname is NULL, check for an active renv environment
+  # and use its virtual environment if available
+  if (is.null(envname)) {
+    renv <- Sys.getenv("RENV_PROJECT", unset = NA)
+    if (!is.na(renv)) {
+      path <- file.path(renv, "renv/r-reticulate")
+      if (utils::file_test("-d", path))
+        return(path)
+    }
   }
 
-  # if envname is still NULL, err
+  # err if no env supplied here
   if (is.null(envname))
     stop("missing environment name")
 

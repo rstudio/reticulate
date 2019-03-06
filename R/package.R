@@ -96,6 +96,7 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
   Sys.setenv(R_SESSION_INITIALIZED = sprintf('PID=%s:NAME="reticulate"', Sys.getpid()))
 
   # initialize python
+  oldpath <- python_munge_path(config$python)
   tryCatch(
     {
       py_initialize(config$python,
@@ -107,6 +108,7 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
                     numpy_load_error)
     },
     error = function(e) {
+      Sys.setenv(PATH = oldpath)
       if (is.na(curr_session_env)) {
         Sys.unsetenv("R_SESSION_INITIALIZED")
       } else {

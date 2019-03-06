@@ -294,9 +294,7 @@ python_environments <- function(env_dirs, required_module = NULL) {
     envs
 }
 
-
-
-python_config <- function(python, required_module, python_versions, forced = NULL) {
+python_munge_path <- function(python) {
 
   # add the python bin dir to the PATH (so that any execution of python from
   # within the interpreter, from a system call, or from within a terminal
@@ -326,15 +324,15 @@ python_config <- function(python, required_module, python_versions, forced = NUL
       python_dirs <- c(python_dirs, normalizePath(python_library_bin))
   }
 
-  # restore the PATH when we're done if we're not explicitly initializing Python
-  # (need to differentiate between a plain config discovery and true init)
-  PATH <- Sys.getenv("PATH")
-  if (!.globals$py_initializing)
-    on.exit(Sys.setenv(PATH = PATH), add = TRUE)
+  path_prepend(python_dirs)
 
-  Sys.setenv(PATH = paste(paste(python_dirs, collapse =  .Platform$path.sep),
-                          PATH,
-                          sep = .Platform$path.sep))
+}
+
+python_config <- function(python, required_module, python_versions, forced = NULL) {
+
+  # update and restore PATH when done
+  oldpath <- python_munge_path(python)
+  on.exit(Sys.setenv(PATH = oldpath), add = TRUE)
 
   # collect configuration information
   if (!is.null(required_module)) {

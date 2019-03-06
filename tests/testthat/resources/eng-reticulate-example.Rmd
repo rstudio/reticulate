@@ -4,7 +4,7 @@ title: "Using reticulate's Python Engine with knitr"
 
 ```{r setup, include = FALSE}
 library(reticulate)
-reticulate::use_python("/usr/local/bin/python3", required = TRUE)
+reticulate::use_python(Sys.which("python3"), required = TRUE)
 knitr::knit_engines$set(python = eng_python)
 ```
 

@@ -305,7 +305,8 @@ python_config <- function(python, required_module, python_versions, forced = NUL
   # we do this up-front in python_config as otherwise attempts to discover
   # and load numpy can fail, especially on Windows
   # https://github.com/rstudio/reticulate/issues/367
-  python_home <- python_dirs <- dirname(python)
+  python_home <- dirname(python)
+  python_dirs <- c(normalizePath(python_home))
   if (is_windows()) {
 
     # include the Scripts path, as well

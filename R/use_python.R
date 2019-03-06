@@ -58,7 +58,7 @@ use_virtualenv <- function(virtualenv, required = FALSE) {
 
 
   # validate it if required
-  if (required && !is_python_virtualenv(virtualenv))
+  if (required && !is_virtualenv(virtualenv))
     stop("Directory ", virtualenv, " is not a Python virtualenv")
 
   # set the option

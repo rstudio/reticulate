@@ -76,21 +76,25 @@ conda_list <- function(conda = "auto") {
 
 #' @rdname conda-tools
 #' @export
-conda_create <- function(envname, packages = "python", conda = "auto") {
+conda_create <- function(envname = NULL, packages = "python", conda = "auto") {
 
   # resolve conda binary
   conda <- conda_binary(conda)
 
+  # resolve environment name
+  envname <- condaenv_resolve(envname)
+
   # create the environment
-  result <- system2(conda, shQuote(c("create", "--yes", "--name", envname, packages)))
+  args <- conda_args("create", envname, packages)
+  result <- system2(conda, shQuote(args))
   if (result != 0L) {
     stop("Error ", result, " occurred creating conda environment ", envname,
          call. = FALSE)
   }
 
   # return the path to the python binary
-  conda_envs <- conda_list(conda)
-  invisible(subset(conda_envs, conda_envs$name == envname)$python)
+  conda_binary(envname)
+
 }
 
 #' @rdname conda-tools
@@ -100,12 +104,16 @@ conda_remove <- function(envname, packages = NULL, conda = "auto") {
   # resolve conda binary
   conda <- conda_binary(conda)
 
+  # resolve environment name
+  envname <- condaenv_resolve(envname)
+
   # no packages means everything
   if (is.null(packages))
     packages <- "--all"
 
   # remove packges (or the entire environment)
-  result <- system2(conda, shQuote(c("remove", "--yes", "--name", envname, packages)))
+  args <- conda_args("remove", envname, packages)
+  result <- system2(conda, shQuote(args))
   if (result != 0L) {
     stop("Error ", result, " occurred removing conda environment ", envname,
          call. = FALSE)
@@ -124,15 +132,17 @@ conda_remove <- function(envname, packages = NULL, conda = "auto") {
 #' @keywords internal
 #'
 #' @export
-conda_install <- function(envname, packages, forge = TRUE, pip = FALSE, pip_ignore_installed = TRUE, conda = "auto") {
+conda_install <- function(envname = NULL, packages, forge = TRUE, pip = FALSE, pip_ignore_installed = TRUE, conda = "auto") {
 
   # resolve conda binary
   conda <- conda_binary(conda)
 
+  # resolve environment name
+  envname <- condaenv_resolve(envname)
+
   # create the environment if needed
-  conda_envs <- conda_list(conda = conda)
-  conda_envs <- subset(conda_envs, conda_envs$name == envname)
-  if (nrow(conda_envs) == 0)
+  python <- conda_python(envname)
+  if (!file.exists(python))
     conda_create(envname, conda = conda)
 
   if (pip) {
@@ -148,10 +158,11 @@ conda_install <- function(envname, packages, forge = TRUE, pip = FALSE, pip_igno
     result <- system(cmd)
 
   } else {
-    args <- c("install")
+    # use conda
+    args <- conda_args("install", envname)
     if (forge)
       args <- c(args, "-c", "conda-forge")
-    args <- c(args, "--yes", "--name", envname, packages)
+    args <- c(args, packages)
     result <- system2(conda, shQuote(args))
   }
 
@@ -195,7 +206,23 @@ conda_version <- function(conda = "auto") {
 
 #' @rdname conda-tools
 #' @export
-conda_python <- function(envname, conda = "auto") {
+conda_python <- function(envname = NULL, conda = "auto") {
+
+  # resolve envname
+  envname <- condaenv_resolve(envname)
+
+  # for fully-qualified paths, construct path explicitly
+  if (grepl("[/\\]", envname, fixed = TRUE)) {
+    suffix <- if (is_windows()) "python.exe" else "bin/python"
+    path <- file.path(envname, suffix)
+    if (file.exists(path))
+      return(path)
+
+    fmt <- "no conda environment exists at path '%s'"
+    stop(sprintf(fmt, envname))
+  }
+
+  # otherwise, list conda environments and try to find it
   conda_envs <- conda_list(conda = conda)
   env <- subset(conda_envs, conda_envs$name == envname)
   if (nrow(env) > 0)
@@ -247,3 +274,59 @@ find_conda <- function() {
   }
 }
 
+condaenv_resolve <- function(envname = NULL) {
+
+  # handle case where envname is NULL (use default / active env)
+  if (is.null(envname)) {
+
+    default <- Sys.getenv("RETICULATE_PYTHON_ENV", unset = NA)
+    if (!is.na(default)) {
+      path <- normalizePath(default, winslash = "/", mustWork = FALSE)
+      if (!is_condaenv(path)) {
+        fmt <- "there is no conda environment at path '%s'"
+        stop(sprintf(fmt, path))
+      }
+      return(path)
+    }
+
+    # provide context of caller (if any) when emitting error
+    call <- sys.call(sys.parent())
+    if (is.null(call))
+      call <- sys.call()
+
+    fmt <- "missing environment in call to '%s'"
+    stop(sprintf(fmt, format(sys.call(sys.parent()))), call. = FALSE)
+
+  }
+
+  # treat environment 'names' containing slashes as paths
+  # rather than environments living in WORKON_HOME
+  if (grepl("[/\\]", envname)) {
+    if (file.exists(envname))
+      envname <- normalizePath(envname, winslash = "/")
+    return(envname)
+  }
+
+  # no slashes; just use the environment name as-is
+  envname
+
+}
+
+conda_args <- function(action, envname = NULL, ...) {
+
+  envname <- condaenv_resolve(envname)
+
+  # use '--prefix' as opposed to '--name' if envname looks like a path
+  args <- c(action, "--yes")
+  if (grepl("[/\\]", envname))
+    args <- c(args, "--prefix", envname, ...)
+  else
+    args <- c(args, "--name", envname, ...)
+
+  args
+
+}
+
+is_condaenv <- function(dir) {
+  file.exists(file.path(dir, "conda-meta"))
+}

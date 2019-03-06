@@ -375,7 +375,7 @@ python_config <- function(python, required_module, python_versions, forced = NUL
 
   # check to see if this is a Python virtualenv
   root <- dirname(dirname(python))
-  virtualenv <- if (is_python_virtualenv(root))
+  virtualenv <- if (is_virtualenv(root))
     root
   else
     ""

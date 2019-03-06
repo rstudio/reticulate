@@ -41,32 +41,19 @@ use_python <- function(python, required = FALSE) {
 #' @rdname use_python
 #' @export
 use_virtualenv <- function(virtualenv = NULL, required = FALSE) {
+
+  # resolve path to virtualenv
   virtualenv <- virtualenv_path(virtualenv)
-
-  # prepend root virtualenv directory it doesn't exist and
-  # it's not an absolute path
-  if (!utils::file_test("-d", virtualenv) &
-      !grepl("^/|^[a-zA-Z]:/|^~", virtualenv, perl = TRUE)) {
-    workon_home <- Sys.getenv("WORKON_HOME", unset = "~/.virtualenvs")
-    virtualenv <- file.path(workon_home, virtualenv)
-  }
-
-  # compute the bin dir
-  if (is_windows())
-    python_dir <- file.path(virtualenv, "Scripts")
-  else
-    python_dir <- file.path(virtualenv, "bin")
-
 
   # validate it if required
   if (required && !is_virtualenv(virtualenv))
     stop("Directory ", virtualenv, " is not a Python virtualenv")
 
-  # set the option
-  python <- file.path(python_dir, "python")
-  if (is_windows())
-    python <- paste0(python, ".exe")
+  # get path to Python binary
+  suffix <- if (is_windows()) "Scripts/python.exe" else "bin/python"
+  python <- file.path(virtualenv, suffix)
   use_python(python, required = required)
+
 }
 
 #' @rdname use_python

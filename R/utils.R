@@ -143,8 +143,9 @@ py_last_value <- function() {
 path_prepend <- function(entries) {
   oldpath <- Sys.getenv("PATH")
   if (length(entries)) {
+    entries <- path.expand(entries)
     splat <- strsplit(oldpath, split = .Platform$path.sep, fixed = TRUE)[[1]]
-    newpath <- c(entries, setdiff(splat, path.expand(entries)))
+    newpath <- c(entries, setdiff(splat, entries))
     Sys.setenv(PATH = paste(newpath, collapse = .Platform$path.sep))
   }
   oldpath

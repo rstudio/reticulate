@@ -195,7 +195,7 @@ virtualenv_path <- function(envname = NULL) {
     if (!is.na(default)) {
       path <- normalizePath(default, winslash = "/", mustWork = FALSE)
       if (!is_virtualenv(path)) {
-        fmt <- "there is no conda environment at path '%s'"
+        fmt <- "there is no virtual environment at path '%s'"
         stop(sprintf(fmt, path))
       }
       return(path)

@@ -40,7 +40,8 @@ use_python <- function(python, required = FALSE) {
 
 #' @rdname use_python
 #' @export
-use_virtualenv <- function(virtualenv, required = FALSE) {
+use_virtualenv <- function(virtualenv = NULL, required = FALSE) {
+  virtualenv <- virtualenv_path(virtualenv)
 
   # prepend root virtualenv directory it doesn't exist and
   # it's not an absolute path
@@ -70,7 +71,15 @@ use_virtualenv <- function(virtualenv, required = FALSE) {
 
 #' @rdname use_python
 #' @export
-use_condaenv <- function(condaenv, conda = "auto", required = FALSE) {
+use_condaenv <- function(condaenv = NULL, conda = "auto", required = FALSE) {
+
+  # check for condaenv supplied by path
+  condaenv <- condaenv_resolve(condaenv)
+  if (grepl("[/\\]", condaenv, fixed = TRUE) && is_condaenv(condaenv)) {
+    python <- conda_python(condaenv)
+    use_python(python, required = required)
+    return(invisible(NULL))
+  }
 
   # list all conda environments
   conda_envs <- conda_list(conda)

@@ -137,3 +137,17 @@ py_last_value <- function() {
     error = function(e) r_to_py(NULL)
   )
 }
+
+# prepends entries to the PATH (either moving or adding them as appropriate)
+# and returns the previously-set PATH
+path_prepend <- function(entries) {
+  oldpath <- Sys.getenv("PATH")
+  if (length(entries)) {
+    entries <- path.expand(entries)
+    splat <- strsplit(oldpath, split = .Platform$path.sep, fixed = TRUE)[[1]]
+    newpath <- c(entries, setdiff(splat, entries))
+    Sys.setenv(PATH = paste(newpath, collapse = .Platform$path.sep))
+  }
+  oldpath
+}
+

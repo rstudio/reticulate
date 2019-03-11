@@ -160,3 +160,17 @@ python_binary_path <- function(dir) {
   stop("failed to discover Python binary associated with path '", dir, "'")
 
 }
+
+# prepends entries to the PATH (either moving or adding them as appropriate)
+# and returns the previously-set PATH
+path_prepend <- function(entries) {
+  oldpath <- Sys.getenv("PATH")
+  if (length(entries)) {
+    entries <- path.expand(entries)
+    splat <- strsplit(oldpath, split = .Platform$path.sep, fixed = TRUE)[[1]]
+    newpath <- c(entries, setdiff(splat, entries))
+    Sys.setenv(PATH = paste(newpath, collapse = .Platform$path.sep))
+  }
+  oldpath
+}
+

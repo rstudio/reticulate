@@ -94,7 +94,6 @@ py_module_available <- function(module) {
 #' @export
 py_discover_config <- function(required_module = NULL, use_environment = NULL) {
 
-
   # if PYTHON_SESSION_INITIALIZED is specified then use it without scanning
   # further (this is a "hard" requirement because an embedding process may
   # set this to indicate that the python interpreter is already loaded)
@@ -307,15 +306,52 @@ python_environments <- function(env_dirs, required_module = NULL) {
     envs
 }
 
+python_munge_path <- function(python) {
 
+  # add the python bin dir to the PATH (so that any execution of python from
+  # within the interpreter, from a system call, or from within a terminal
+  # hosted within the front end will use the same version of python.
+  #
+  # we do this up-front in python_config as otherwise attempts to discover
+  # and load numpy can fail, especially on Windows
+  # https://github.com/rstudio/reticulate/issues/367
+  python_home <- dirname(python)
+  python_dirs <- c(normalizePath(python_home))
+  if (is_windows()) {
+
+    # include the Scripts path, as well
+    python_scripts <- file.path(python_home, "Scripts")
+    if (file.exists(python_scripts))
+      python_dirs <- c(python_dirs, normalizePath(python_scripts))
+
+    # we saw some crashes occurring when Python modules attempted to load
+    # dynamic libraries at runtime; e.g.
+    #
+    #   Intel MKL FATAL ERROR: Cannot load mkl_intel_thread.dll
+    #
+    # we work around this by putting the associated binary directory
+    # on the PATH so it can be successfully resolved
+    python_library_bin <- file.path(python_home, "Library/bin")
+    if (file.exists(python_library_bin))
+      python_dirs <- c(python_dirs, normalizePath(python_library_bin))
+  }
+
+  path_prepend(python_dirs)
+
+}
 
 python_config <- function(python, required_module, python_versions, forced = NULL) {
+
+  # update and restore PATH when done
+  oldpath <- python_munge_path(python)
+  on.exit(Sys.setenv(PATH = oldpath), add = TRUE)
 
   # collect configuration information
   if (!is.null(required_module)) {
     Sys.setenv(RETICULATE_REQUIRED_MODULE = required_module)
     on.exit(Sys.unsetenv("RETICULATE_REQUIRED_MODULE"), add = TRUE)
   }
+
   config_script <- system.file("config/config.py", package = "reticulate")
   config <- system2(command = python, args = paste0('"', config_script, '"'), stdout = TRUE)
   status <- attr(config, "status")

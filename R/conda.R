@@ -177,6 +177,16 @@ conda_binary <- function(conda = "auto") {
     conda <- conda[[1]]
   }
 
+  # if the user has requested a conda binary in the 'condabin' folder,
+  # try to find and use its sibling in the 'bin' folder instead as
+  # we rely on other tools typically bundled in the 'bin' folder
+  # https://github.com/rstudio/keras/issues/691
+  if (!is_windows()) {
+    altpath <- file.path(dirname(conda), "../bin/conda")
+    if (file.exists(altpath))
+      return(normalizePath(altpath, winslash = "/", mustWork = TRUE))
+  }
+
   # validate existence
   if (!file.exists(conda))
     stop("Specified conda binary '", conda, "' does not exist.", call. = FALSE)

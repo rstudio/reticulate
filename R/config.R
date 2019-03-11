@@ -106,13 +106,26 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
   }
 
   # if RETICULATE_PYTHON is specified then use it without scanning further
-  reticulate_python_env <- Sys.getenv("RETICULATE_PYTHON", unset = NA)
-  if (!is.na(reticulate_python_env)) {
-    python_version <- normalize_python_path(reticulate_python_env)
+  reticulate_env <- Sys.getenv("RETICULATE_PYTHON", unset = NA)
+  if (!is.na(reticulate_env)) {
+    python_version <- normalize_python_path(reticulate_env)
     if (!python_version$exists)
-      stop("Python specified in RETICULATE_PYTHON (", reticulate_python_env, ") does not exist")
+      stop("Python specified in RETICULATE_PYTHON (", reticulate_env, ") does not exist")
     python_version <- python_version$path
     config <- python_config(python_version, required_module, python_version, forced = "RETICULATE_PYTHON")
+    return(config)
+  }
+
+  # if RETICULATE_PYTHON_ENV is specified then use that
+  reticulate_python_env <- Sys.getenv("RETICULATE_PYTHON_ENV", unset = NA)
+  if (!is.na(reticulate_python_env)) {
+    suffix <- if (is_windows()) "Scripts/python.exe" else "bin/python"
+    python <- file.path(reticulate_python_env, suffix)
+    python_version <- normalize_python_path(python)
+    if (!python_version$exists)
+      stop("Python specified in RETICULATE_PYTHON_ENV (", reticulate_python_env, ") does not exist")
+    path <- python_version$path
+    config <- python_config(path, required_module, path, forced = "RETICULATE_PYTHON_ENV")
     return(config)
   }
 

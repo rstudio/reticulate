@@ -25,7 +25,7 @@
 #' @export
 py_install <- function(
   packages,
-  envname = "r-reticulate",
+  envname = NULL,
   method = c("auto", "virtualenv", "conda"),
   conda = "auto",
   ...) {
@@ -35,6 +35,11 @@ py_install <- function(
     stop("Installing Python packages into a virtualenv is not supported on Windows",
          call. = FALSE)
   }
+
+  # when envname is NULL, use default-supplied environment
+  # (or r-reticulate environment otherwise for backwards compatibility)
+  if (is.null(envname))
+    envname <- Sys.getenv("RETICULATE_PYTHON_ENV", unset = "r-reticulate")
 
   # find out which methods we can try
   method_available <- function(name) method %in% c("auto", name)

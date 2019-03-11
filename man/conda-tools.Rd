@@ -13,18 +13,18 @@
 \usage{
 conda_list(conda = "auto")
 
-conda_create(envname, packages = "python", conda = "auto")
+conda_create(envname = NULL, packages = "python", conda = "auto")
 
 conda_remove(envname, packages = NULL, conda = "auto")
 
-conda_install(envname, packages, forge = TRUE, pip = FALSE,
+conda_install(envname = NULL, packages, forge = TRUE, pip = FALSE,
   pip_ignore_installed = TRUE, conda = "auto")
 
 conda_binary(conda = "auto")
 
 conda_version(conda = "auto")
 
-conda_python(envname, conda = "auto")
+conda_python(envname = NULL, conda = "auto")
 }
 \arguments{
 \item{conda}{Path to conda executable (or "auto" to find conda using the

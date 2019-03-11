@@ -12,21 +12,24 @@
 \usage{
 virtualenv_list()
 
-virtualenv_create(envname, python = NULL)
+virtualenv_create(envname = NULL, python = NULL)
 
-virtualenv_install(envname, packages, ignore_installed = TRUE)
+virtualenv_install(envname = NULL, packages, ignore_installed = TRUE)
 
-virtualenv_remove(envname, packages = NULL, confirm = interactive())
+virtualenv_remove(envname = NULL, packages = NULL,
+  confirm = interactive())
 
 virtualenv_root()
 
-virtualenv_python(envname)
+virtualenv_python(envname = NULL)
 }
 \arguments{
 \item{envname}{The name of, or path to, a Python virtual environment. If
 this name contains any slashes, the name will be interpreted as a path;
 if the name does not contain slashes, it will be treated as a virtual
-environment within \code{virtualenv_root()}.}
+environment within \code{virtualenv_root()}. When \code{NULL}, the virtual environment
+as specified by the \code{RETICULATE_PYTHON_ENV} environment variable will be
+used instead.}
 
 \item{python}{The path to a Python interpreter, to be used with the created
 virtual environment. When \code{NULL}, the Python interpreter associated with

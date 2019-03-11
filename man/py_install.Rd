@@ -4,8 +4,8 @@
 \alias{py_install}
 \title{Install Python packages}
 \usage{
-py_install(packages, envname = "r-reticulate", method = c("auto",
-  "virtualenv", "conda"), conda = "auto", ...)
+py_install(packages, envname = NULL, method = c("auto", "virtualenv",
+  "conda"), conda = "auto", ...)
 }
 \arguments{
 \item{packages}{Character vector with package names to install}

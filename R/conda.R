@@ -93,7 +93,7 @@ conda_create <- function(envname = NULL, packages = "python", conda = "auto") {
   }
 
   # return the path to the python binary
-  conda_binary(envname)
+  conda_python(envname)
 
 }
 

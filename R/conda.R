@@ -93,7 +93,7 @@ conda_create <- function(envname = NULL, packages = "python", conda = "auto") {
   }
 
   # return the path to the python binary
-  conda_python(envname)
+  conda_python(envname = envname, conda = conda)
 
 }
 
@@ -141,7 +141,7 @@ conda_install <- function(envname = NULL, packages, forge = TRUE, pip = FALSE, p
   envname <- condaenv_resolve(envname)
 
   # create the environment if needed
-  python <- conda_python(envname)
+  python <- conda_python(envname = envname, conda = conda)
   if (!file.exists(python))
     conda_create(envname, conda = conda)
 

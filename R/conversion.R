@@ -156,7 +156,7 @@ r_to_py.Date <- function(x, convert = FALSE) {
 
   datetime <- import("datetime", convert = convert)
   items <- lapply(x, function(item) {
-    iso <- strsplit(format(x), "-", fixed = TRUE)[[1]]
+    iso <- strsplit(format(item), "-", fixed = TRUE)[[1]]
     year <- as.integer(iso[[1]])
     month <- as.integer(iso[[2]])
     day <- as.integer(iso[[3]])

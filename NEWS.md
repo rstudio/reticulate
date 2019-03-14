@@ -3,6 +3,8 @@
 
 Install the development version with: `devtools::install_github("rstudio/reticulate")`
 
+- Fixed an issue where vectors of R Dates were not converted correctly. (#454)
+
 ## reticulate 1.11.1 (CRAN)
 
 - Fixed a failing virtual environment test on CRAN.

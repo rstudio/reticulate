@@ -136,7 +136,7 @@ r_to_py.POSIXt <- function(x, convert = FALSE) {
   if (py_module_available("numpy"))
     return(np_array(as.numeric(x) * 1E9, dtype = "datetime64[ns]"))
 
-  datetime <- import("datetime", convert = convert)
+  datetime <- import("datetime", convert = FALSE)
   datetime$datetime$fromtimestamp(as.double(x))
 }
 
@@ -154,7 +154,7 @@ py_to_r.datetime.datetime <- function(x) {
 #' @export
 r_to_py.Date <- function(x, convert = FALSE) {
 
-  datetime <- import("datetime", convert = convert)
+  datetime <- import("datetime", convert = FALSE)
   items <- lapply(x, function(item) {
     iso <- strsplit(format(item), "-", fixed = TRUE)[[1]]
     year <- as.integer(iso[[1]])

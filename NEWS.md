@@ -5,6 +5,8 @@ Install the development version with: `devtools::install_github("rstudio/reticul
 
 - Fixed an issue where vectors of R Dates were not converted correctly. (#454)
 
+- Fixed an issue where R Dates could not be passed to Python functions. (#458)
+
 ## reticulate 1.11.1 (CRAN)
 
 - Fixed a failing virtual environment test on CRAN.

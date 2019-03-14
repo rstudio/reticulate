@@ -46,3 +46,11 @@ test_that("R times are converted to NumPy datetime64", {
   )
 
 })
+
+test_that("R datetimes can be passed to Python functions", {
+  skip_if_no_python()
+  py_run_string("def identity(x): return x")
+  main <- import_main()
+  date <- Sys.Date()
+  expect_equal(date, main$identity(Sys.Date()))
+})

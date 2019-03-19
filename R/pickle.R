@@ -11,7 +11,8 @@
 py_save_object <- function(object, filename, pickle = "pickle") {
   builtins <- import_builtins()
   pickle <- import(pickle)
-  handle <- builtins$open(filename, "wb")
+  norm_filename <- normalizePath(filename, mustWork = FALSE)
+  handle <- builtins$open(norm_filename, "wb")
   on.exit(handle$close(), add = TRUE)
   pickle$dump(object, handle, protocol = pickle$HIGHEST_PROTOCOL)
 }
@@ -21,7 +22,8 @@ py_save_object <- function(object, filename, pickle = "pickle") {
 py_load_object <- function(filename, pickle = "pickle") {
   builtins <- import_builtins()
   pickle <- import(pickle)
-  handle <- builtins$open(filename, "rb")
+  norm_filename <- normalizePath(filename)
+  handle <- builtins$open(norm_filename, "rb")
   on.exit(handle$close(), add = TRUE)
   pickle$load(handle)
 }

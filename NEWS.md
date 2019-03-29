@@ -3,6 +3,9 @@
 
 Install the development version with: `devtools::install_github("rstudio/reticulate")`
 
+- Fixed an issue where single-row data.frames with row names could not
+  be converted. (#468)
+
 - Fixed an issue where vectors of R Dates were not converted correctly. (#454)
 
 - Fixed an issue where R Dates could not be passed to Python functions. (#458)

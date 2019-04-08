@@ -3,6 +3,9 @@
 
 Install the development version with: `devtools::install_github("rstudio/reticulate")`
 
+- Fixed an issue where single-row data.frames with row names could not
+  be converted. (#468)
+
 - Fixed an issue where `reticulate` could fail to query Anaconda environment
   names with Anaconda 3.7.
 

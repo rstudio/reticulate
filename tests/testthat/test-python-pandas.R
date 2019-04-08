@@ -116,3 +116,12 @@ test_that("complex names are handled", {
   expect_equal(names(r), c("col1", "(col1, col2)"))
 
 })
+
+test_that("single-row data.frames with rownames can be converted", {
+  skip_if_no_pandas()
+
+  before <- data.frame(A = 1, row.names = "ID01")
+  after <- py_to_r(r_to_py(before))
+  expect_equal(c(before), c(after))
+
+})

@@ -3,6 +3,9 @@
 
 Install the development version with: `devtools::install_github("rstudio/reticulate")`
 
+- Fixed an issue where `reticulate` could fail to query Anaconda environment
+  names with Anaconda 3.7.
+
 - Fixed an issue where vectors of R Dates were not converted correctly. (#454)
 
 - Fixed an issue where R Dates could not be passed to Python functions. (#458)

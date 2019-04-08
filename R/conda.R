@@ -25,9 +25,10 @@ conda_list <- function(conda = "auto") {
   # resolve conda binary
   conda <- conda_binary(conda)
 
-  # list envs
+  # list envs -- discard stderr as Anaconda may emit warnings that can
+  # otherwise be ignored; see e.g. https://github.com/rstudio/reticulate/issues/474
   conda_envs <- suppressWarnings(
-    system2(conda, args = c("info", "--json"), stdout = TRUE)
+    system2(conda, args = c("info", "--json"), stdout = TRUE, stderr = FALSE)
   )
 
   # check for error

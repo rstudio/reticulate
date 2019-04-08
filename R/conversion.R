@@ -51,7 +51,10 @@ r_to_py.list <- function(x, convert = FALSE) {
 
 #' @export
 py_to_r.python.builtin.list <- function(x) {
-  disable_conversion_scope(x)
+
+  # NOTE: we don't disable conversion in this context
+  # as we want to ensure sub-objects inherit convert-ability
+  # see e.g. https://github.com/rstudio/keras/issues/732
 
   # give internal code a chance to perform efficient
   # conversion of e.g. numeric vectors and the like

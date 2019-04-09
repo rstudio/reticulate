@@ -1,9 +1,10 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^docs$
+^images$
 ^issues$
 ^pkgdown$
-^images$
+^revdep$
 README.[R]?md
 README.html
 index.Rmd
@@ -12,7 +13,6 @@ LICENSE
 .travis.yml
 ^_pkgdown\.yml$
 ^appveyor\.yml$
-^pkgdown$
 vignettes/rstudio_ide.Rmd
 vignettes/rstudio_ide.html
 vignettes/images/rmarkdown_reticulate.png

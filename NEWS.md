@@ -3,6 +3,9 @@
 
 Install the development version with: `devtools::install_github("rstudio/reticulate")`
 
+- Fixed an issue where Python objects within Python lists would not be
+  converted to R objects as expected.
+
 - Fixed an issue where single-row data.frames with row names could not
   be converted. (#468)
 

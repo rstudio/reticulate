@@ -57,9 +57,17 @@ bool loadLibrary(const std::string& libPath, void** ppLib, std::string* pError)
 {
   *ppLib = NULL;
 #ifdef _WIN32
-  *ppLib = (void*)::LoadLibraryEx(libPath.c_str(), NULL, 0);
+  if (libPath.empty()) {
+    *ppLib = (void*)::LoadLibraryEx(NULL, NULL, 0);
+  } else {
+    *ppLib = (void*)::LoadLibraryEx(libPath.c_str(), NULL, 0);
+  }
 #else
-  *ppLib = ::dlopen(libPath.c_str(), RTLD_NOW|RTLD_GLOBAL);
+  if (libPath.empty()) {
+    *ppLib = ::dlopen(NULL, RTLD_NOW|RTLD_GLOBAL);
+  } else {
+    *ppLib = ::dlopen(libPath.c_str(), RTLD_NOW|RTLD_GLOBAL);
+  }
 #endif
   if (*ppLib == NULL)
   {
@@ -349,4 +357,3 @@ bool import_numpy_api(bool python3, std::string* pError) {
 
 
 } // namespace libpython
-

@@ -1,5 +1,9 @@
 
-## reticulate 1.12.0 (CRAN)
+## reticulate 1.13 (DEVELOPMENT)
+
+Install the development version of reticulate with `remotes::install_github("rstudio/reticulate")`.
+
+## reticulate 1.12 (CRAN)
 
 - Fixed an issue where Python objects within Python lists would not be
   converted to R objects as expected.

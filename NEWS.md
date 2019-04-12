@@ -1,7 +1,5 @@
 
-## reticulate 1.12.0 (development)
-
-Install the development version with: `devtools::install_github("rstudio/reticulate")`
+## reticulate 1.12.0 (CRAN)
 
 - Fixed an issue where Python objects within Python lists would not be
   converted to R objects as expected.
@@ -16,7 +14,7 @@ Install the development version with: `devtools::install_github("rstudio/reticul
 
 - Fixed an issue where R Dates could not be passed to Python functions. (#458)
 
-## reticulate 1.11.1 (CRAN)
+## reticulate 1.11.1
 
 - Fixed a failing virtual environment test on CRAN.
 

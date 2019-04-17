@@ -782,7 +782,7 @@ as_flowery_iterator <- function(x) {
   flowery::generator({
     nxt <- iter_next(x)
     while(!is.null(nxt)) {
-      yield(nxt)
+      flowery::yield(nxt)
       nxt <- iter_next(x)
     }
   })

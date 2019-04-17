@@ -718,8 +718,13 @@ iterate <- function(it, f = base::identity, simplify = TRUE) {
   # resolve iterator
   it <- as_iterator(it)
 
+  result <- list()
+  i <- 1
   # perform iteration
-  result <- flowery::drain(it)
+  while(!flowery::is_done(it)) {
+    result[[i]] <- it()
+    i <- i + 1
+  }
 
   # simplify if requested and appropriate
   if (simplify) {

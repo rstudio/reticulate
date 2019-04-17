@@ -92,3 +92,13 @@ test_that("generator functions are always called on the main thread", {
   gen <- py_iterator(sequence_generator(10L))
   expect_equal(test$iterateOnThread(gen), 11L:19L)
 })
+
+test_that("can iterate using flowery syntax", {
+  iter <- as_iterator(test$makeIterator(c(1:5)))
+  flowery::iterate(
+    for (i in iter) {
+      x <- i
+    }
+  )
+  expect_equal(x, 5)
+})

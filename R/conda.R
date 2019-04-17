@@ -223,7 +223,7 @@ conda_python <- function(envname = NULL, conda = "auto") {
   envname <- condaenv_resolve(envname)
 
   # for fully-qualified paths, construct path explicitly
-  if (grepl("[/\\]", envname, fixed = TRUE)) {
+  if (grepl("[/\\\\]", envname)) {
     suffix <- if (is_windows()) "python.exe" else "bin/python"
     path <- file.path(envname, suffix)
     if (file.exists(path))

@@ -719,7 +719,7 @@ iterate <- function(it, f = base::identity, simplify = TRUE) {
   it <- as_iterator(it)
 
   # perform iteration
-  result <- py_iterate(it, f)
+  result <- flowery::drain(it)
 
   # simplify if requested and appropriate
   if (simplify) {
@@ -749,8 +749,12 @@ iterate <- function(it, f = base::identity, simplify = TRUE) {
 #' @export
 iter_next <- function(it, completed = NULL) {
 
+  if (inherits(it, "iterator"))
+    return(it())
+
   # check for iterator
-  if (!inherits(it, "python.builtin.iterator"))
+  if (!inherits(it, "python.builtin.iterator") &&
+      !inherits(it, "python.builtin.listiterator"))
     stop("iterator function called with non-iterator argument", call. = FALSE)
 
   # call iterator
@@ -762,13 +766,22 @@ iter_next <- function(it, completed = NULL) {
 #' @export
 as_iterator <- function(x) {
   if (inherits(x, "python.builtin.iterator"))
-    x
+    as_flowery_iterator(x)
   else if (py_has_attr(x, "__iter__"))
-    x$`__iter__`()
+    as_flowery_iterator(x$`__iter__`())
   else
     stop("iterator function called with non-iterator argument", call. = FALSE)
 }
 
+as_flowery_iterator <- function(x) {
+  flowery::generator({
+    nxt <- iter_next(x)
+    while(!is.null(nxt)) {
+      yield(nxt)
+      nxt <- iter_next(x)
+    }
+  })
+}
 
 #' Call a Python callable object
 #'

@@ -111,7 +111,7 @@ virtualenv_install("r-reticulate", "scipy")
 scipy <- import("scipy")
 ```
 
-Note that you may have a given Python package installed in multiple environments, in that case you may want to call the `use_condaenv()` function to ensure that a specific virtualenv is utilized by reticulate:
+Note that you may have a given Python package installed in multiple environments, in that case you may want to call the `use_virtualenv()` function to ensure that a specific virtualenv is utilized by reticulate:
 
 ```{r}
 library(reticulate)

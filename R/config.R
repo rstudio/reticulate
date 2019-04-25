@@ -2,7 +2,9 @@
 
 #' Python configuration
 #'
-#' Information on Python and Numpy versions detected
+#' Information on Python and Numpy versions detected.
+#' Note: Python will be initialized and therefore [py_available()] will return
+#' `TRUE`. If this is not desired, check the [py_discover_config()] function.
 #'
 #' @return Python configuration object; Logical indicating whether Python
 #'   bindings are available

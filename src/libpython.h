@@ -228,6 +228,7 @@ LIBPYTHON_EXTERN PyObject* (*PyByteArray_FromStringAndSize)(const char *string, 
 LIBPYTHON_EXTERN char* (*PyByteArray_AsString)(PyObject *bytearray);
 LIBPYTHON_EXTERN PyObject* (*PyUnicode_FromString)(const char *u);
 
+LIBPYTHON_EXTERN void (*PyErr_Clear)();
 LIBPYTHON_EXTERN void (*PyErr_Fetch)(PyObject **, PyObject **, PyObject **);
 LIBPYTHON_EXTERN PyObject* (*PyErr_Occurred)(void);
 LIBPYTHON_EXTERN void (*PyErr_NormalizeException)(PyObject**, PyObject**, PyObject**);

@@ -188,6 +188,7 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
   LOAD_PYTHON_SYMBOL(PyList_Size)
   LOAD_PYTHON_SYMBOL(PyList_GetItem)
   LOAD_PYTHON_SYMBOL(PyList_SetItem)
+  LOAD_PYTHON_SYMBOL(PyErr_Clear)
   LOAD_PYTHON_SYMBOL(PyErr_Fetch)
   LOAD_PYTHON_SYMBOL(PyErr_Occurred)
   LOAD_PYTHON_SYMBOL(PyErr_NormalizeException)
@@ -304,6 +305,7 @@ bool import_numpy_api(bool python3, std::string* pError) {
   PyObject* numpy = PyImport_ImportModule("numpy.core.multiarray");
   if (numpy == NULL) {
     *pError = "numpy.core.multiarray failed to import";
+    PyErr_Clear();
     return false;
   }
 

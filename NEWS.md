@@ -3,6 +3,9 @@
 
 Install the development version of reticulate with `remotes::install_github("rstudio/reticulate")`.
 
+- Fixed an issue where reticulate could crash after a failed attempt
+  to load NumPy. (#497, @ecoughlan)
+
 ## reticulate 1.12 (CRAN)
 
 - Fixed an issue where Python objects within Python lists would not be

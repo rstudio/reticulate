@@ -354,7 +354,7 @@ python_config <- function(python, required_module, python_versions, forced = NUL
 
   config_script <- system.file("config/config.py", package = "reticulate")
   # It seems that Windows in R3.6 returns the configuration from the python file only in stderr and not in stdout
-  config <- system2(command = python, args = paste0('"', config_script, '"'), stdout = TRUE, stderr = TRUE)
+  config <- system2(command = python, args = paste0('"', config_script, '"'), stdout = TRUE, stderr = FALSE)
   status <- attr(config, "status")
   if (!is.null(status)) {
     errmsg <- attr(config, "errmsg")

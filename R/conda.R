@@ -54,6 +54,11 @@ conda_list <- function(conda = "auto") {
   # convert to json
   conda_envs <- fromJSON(conda_envs)$envs
 
+  # normalize and remove duplicates (seems necessary on Windows as Anaconda
+  # may report both short-path and long-path versions of the same environment)
+  conda_envs <- Filter(file.exists, conda_envs)
+  conda_envs <- unique(normalizePath(conda_envs))
+
   # build data frame
   name <- character()
   python <- character()

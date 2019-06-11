@@ -42,7 +42,7 @@ py_install <- function(
     envname <- Sys.getenv("RETICULATE_PYTHON_ENV", unset = "r-reticulate")
 
   # find out which methods we can try
-  method_available <- function(name) method %in% c("auto", name)
+  method_available <- function(name) any(method %in% c("auto", name))
   virtualenv_available <- method_available("virtualenv")
   conda_available <- method_available("conda")
 
@@ -78,7 +78,7 @@ py_install <- function(
         }
       }
       # find other required tools
-      pip <-python_unix_binary(paste0("pip", pyver))
+      pip <- python_unix_binary(paste0("pip", pyver))
       have_pip <- !is.null(pip)
       virtualenv <- python_unix_binary("virtualenv")
       have_virtualenv <- virtualenv_available && !is.null(virtualenv)

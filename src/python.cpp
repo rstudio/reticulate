@@ -606,6 +606,10 @@ bool py_is_callable(PyObjectRef x) {
 // convert a python object to an R object
 SEXP py_to_r(PyObject* x, bool convert) {
 
+  // NULL pointer
+  if (x == NULL)
+    return R_NilValue;
+
   // NULL for Python None
   if (py_is_none(x))
     return R_NilValue;

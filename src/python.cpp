@@ -1889,6 +1889,11 @@ int py_dict_length(PyObjectRef dict) {
 }
 
 // [[Rcpp::export]]
+PyObjectRef py_dict_get_keys(PyObjectRef dict) {
+  return py_ref(PyDict_Keys(dict), dict.convert());
+}
+
+// [[Rcpp::export]]
 CharacterVector py_dict_get_keys_as_str(PyObjectRef dict) {
 
   // get the keys and check their length

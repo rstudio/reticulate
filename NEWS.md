@@ -3,6 +3,9 @@
 
 Install the development version of reticulate with `remotes::install_github("rstudio/reticulate")`.
 
+- Python OrderedDict objects with non-string keys are now properly
+  converted to R. (#516)
+
 - Fixed an issue where reticulate could crash after a failed attempt
   to load NumPy. (#497, @ecoughlan)
 

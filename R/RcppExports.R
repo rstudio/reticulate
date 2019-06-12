@@ -149,6 +149,10 @@ py_dict_length <- function(dict) {
     .Call(`_reticulate_py_dict_length`, dict)
 }
 
+py_dict_get_keys <- function(dict) {
+    .Call(`_reticulate_py_dict_get_keys`, dict)
+}
+
 py_dict_get_keys_as_str <- function(dict) {
     .Call(`_reticulate_py_dict_get_keys_as_str`, dict)
 }

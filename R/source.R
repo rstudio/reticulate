@@ -29,6 +29,7 @@ source_python <- function(file, envir = parent.frame(), convert = TRUE) {
 
   # source the python script into the main python module
   py_run_file(file, local = FALSE, convert = convert)
+  on.exit(py_flush_output(), add = TRUE)
 
   # copy objects from the main python module into the specified R environment
   if (!is.null(envir)) {
@@ -42,13 +43,6 @@ source_python <- function(file, envir = parent.frame(), convert = TRUE) {
       if (!inherits(value, "python.builtin.module"))
         assign(name, value, envir = envir)
     }
-  }
-
-  # flush stdout, stderr so printed output is shown
-  if (is_python3()) {
-    sys <- import("sys", convert = TRUE)
-    sys$stdout$flush()
-    sys$stderr$flush()
   }
 
   # return nothing

@@ -3,6 +3,9 @@
 
 Install the development version of reticulate with `remotes::install_github("rstudio/reticulate")`.
 
+- reticulate now flushes stdout / stderr after calls to `py_run_file()` and
+  `py_run_string()`.
+
 - Python tuples are now converted recursively, in the same way that Python
   lists are. This means that the sub-elements of the tuple will be converted
   to R objects when possible. (#525, @skeydan)

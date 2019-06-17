@@ -1157,6 +1157,17 @@ py_capture_output <- function(expr, type = c("stdout", "stderr")) {
   output
 }
 
+py_flush_output <- function() {
+
+  if (!is_python3())
+    return()
+
+  sys <- import("sys", convert = TRUE)
+  sys$stdout$flush()
+  sys$stderr$flush()
+
+}
+
 
 
 
@@ -1179,6 +1190,7 @@ py_capture_output <- function(expr, type = c("stdout", "stderr")) {
 #' @export
 py_run_string <- function(code, local = FALSE, convert = TRUE) {
   ensure_python_initialized()
+  on.exit(py_flush_output(), add = TRUE)
   invisible(py_run_string_impl(code, local, convert))
 }
 
@@ -1186,6 +1198,7 @@ py_run_string <- function(code, local = FALSE, convert = TRUE) {
 #' @export
 py_run_file <- function(file, local = FALSE, convert = TRUE) {
   ensure_python_initialized()
+  on.exit(py_flush_output(), add = TRUE)
   invisible(py_run_file_impl(file, local, convert))
 }
 

@@ -3,6 +3,10 @@
 
 Install the development version of reticulate with `remotes::install_github("rstudio/reticulate")`.
 
+- Python tuples are now converted recursively, in the same way that Python
+  lists are. This means that the sub-elements of the tuple will be converted
+  to R objects when possible. (#525, @skeydan)
+
 - Python OrderedDict objects with non-string keys are now properly
   converted to R. (#516)
 

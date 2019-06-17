@@ -1,5 +1,6 @@
 
 import threading
+import collections
 
 import sys
 is_py2 = sys.version[0] == '2'
@@ -23,6 +24,9 @@ def makeDict():
 
 def makeTuple():
   return (1.0, 2.0, 3.0)
+
+def makeTupleWithOrderedDict():
+  return (1.0, collections.OrderedDict({'b':777, 'a':22}))
 
 def makeIterator(x):
   return iter(x)

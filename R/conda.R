@@ -277,7 +277,10 @@ find_conda <- function() {
         conda_scripts <- utils::shortPathName(
           file.path(anaconda_versions$install_path, "Scripts", "conda.exe")
         )
-        conda_locations <- c(conda_locations, conda_scripts)
+        conda_bats <- utils::shortPathName(
+          file.path(anaconda_versions$install_path, "condabin", "conda.bat")
+        )
+        conda_locations <- c(conda_locations, conda_bats, conda_scripts)
       }
     }
     conda_locations <- conda_locations[file.exists(conda_locations)]

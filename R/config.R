@@ -187,7 +187,8 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
   # remove 'fake' / inaccessible python executables
   # https://github.com/rstudio/reticulate/issues/534
   info <- suppressWarnings(file.info(python_versions))
-  python_versions <- python_versions[info$size != 0]
+  size <- ifelse(is.na(info$size), 0, info$size)
+  python_versions <- python_versions[size != 0]
 
   # scan until we find a version of python that meets our qualifying conditions
   valid_python_versions <- c()

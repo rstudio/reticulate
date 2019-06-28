@@ -101,10 +101,13 @@ eng_python <- function(options) {
   # uniques
   lines <- unique(lines)
 
-  # convert from lines to ranges
-  starts <- lines
-  ends <- c(lines[-1] - 1, length(code))
-  ranges <- mapply(c, starts, ends, SIMPLIFY = FALSE)
+  # convert from lines to ranges (be sure to handle the zero-length case)
+  ranges <- list()
+  if (length(lines)) {
+    starts <- lines
+    ends <- c(lines[-1] - 1, length(code))
+    ranges <- mapply(c, starts, ends, SIMPLIFY = FALSE)
+  }
 
   # line index from which source should be emitted
   pending_source_index <- 1

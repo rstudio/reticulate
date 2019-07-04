@@ -207,7 +207,8 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
     if (has_compatible_arch && (is.null(config$numpy) || has_preferred_numpy))
       valid_python_versions <- c(valid_python_versions, python_version)
     has_required_module <- is.null(config$required_module) || !is.null(config$required_module_path)
-    if (has_python_gte_27 && has_compatible_arch && has_preferred_numpy && has_required_module)
+    if (has_python_gte_27 && has_compatible_arch && (is.null(config$numpy) || has_preferred_numpy) &&
+      has_required_module)
       return(config)
   }
 

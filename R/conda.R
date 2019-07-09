@@ -331,6 +331,22 @@ condaenv_resolve <- function(envname = NULL) {
 
 }
 
+condaenv_exists <- function(envname = NULL, conda = "auto") {
+
+  # check that conda is installed
+  condabin <- tryCatch(conda_binary(conda = conda), error = identity)
+  if (inherits(condabin, "error"))
+    return(FALSE)
+
+  # check that the environment exists
+  python <- tryCatch(conda_python(envname, conda = conda), error = identity)
+  if (inherits(python, "error"))
+    return(FALSE)
+
+  file.exists(python)
+
+}
+
 conda_args <- function(action, envname = NULL, ...) {
 
   envname <- condaenv_resolve(envname)

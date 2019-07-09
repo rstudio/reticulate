@@ -19,12 +19,3 @@ python_module_version <- function(python, module) {
   output <- system2(python, args, stdout = TRUE, stderr = FALSE)
   numeric_version(output)
 }
-
-python_unix_binary <- function(bin) {
-  locations <- file.path(c("/usr/bin", "/usr/local/bin", path.expand("~/.local/bin")), bin)
-  locations <- locations[file.exists(locations)]
-  if (length(locations) > 0)
-    locations[[1]]
-  else
-    NULL
-}

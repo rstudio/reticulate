@@ -231,13 +231,27 @@ virtualenv_pip <- function(envname) {
 
 
 
-virtualenv_default_python <- function(python) {
+virtualenv_default_python <- function(python = NULL) {
 
+  # if the user has supplied a verison of python already, use it
   if (!is.null(python))
     return(python)
 
+  # check for some pre-defined Python sources (prefer Python 3)
+  sources <- c(
+    Sys.getenv("RETICULATE_PYTHON"),
+    Sys.which("python3"),
+    Sys.which("python")
+  )
+
+  for (source in sources)
+    if (nzchar(source) && file.exists(source))
+      return(normalizePath(source, winslash = "/"))
+
+  # otherwise, try to explicitly detect Python
   config <- py_discover_config()
   normalizePath(config$python, winslash = "/")
+
 }
 
 
@@ -246,11 +260,12 @@ virtualenv_module <- function(python) {
   py_version <- python_version(python)
 
   # prefer 'venv' for Python 3, but allow for 'virtualenv' for both
+  # (note that 'venv' and 'virtualenv' are largely compatible)
   modules <- "virtualenv"
   if (py_version >= "3.6")
     modules <- c("venv", modules)
 
-  # if we have one of thesem odules available, return it
+  # if we have one of these modules available, return it
   for (module in modules)
     if (python_has_module(python, module))
       return(module)

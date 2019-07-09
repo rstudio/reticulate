@@ -147,8 +147,8 @@ conda_install <- function(envname = NULL, packages, forge = TRUE, pip = FALSE, p
   envname <- condaenv_resolve(envname)
 
   # create the environment if needed
-  python <- conda_python(envname = envname, conda = conda)
-  if (!file.exists(python))
+  python <- tryCatch(conda_python(envname = envname, conda = conda), error = identity)
+  if (inherits(python, "error") || !file.exists(python))
     conda_create(envname, conda = conda)
 
   if (pip) {

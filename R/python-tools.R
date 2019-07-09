@@ -9,7 +9,8 @@ python_version <- function(python) {
   code <- "import platform; print(platform.python_version())"
   args <- c("-E", "-c", shQuote(code))
   output <- system2(python, args, stdout = TRUE, stderr = FALSE)
-  numeric_version(output)
+  sanitized <- gsub("[^0-9.-]", "", output)
+  numeric_version(sanitized)
 }
 
 python_module_version <- function(python, module) {

@@ -54,14 +54,11 @@ virtualenv_create <- function(envname = NULL, python = NULL) {
     return(invisible(path))
   }
 
-  # if the user hasn't requested a particular Python binary,
-  # infer from the currently active Python session
   python <- virtualenv_default_python(python)
+  module <- virtualenv_module(python)
+
   writeLines(paste("Creating virtual environment", shQuote(name), "..."))
   writeLines(paste("Using python:", python))
-
-  # choose appropriate tool for creating virtualenv
-  module <- virtualenv_module(python)
 
   # use it to create the virtual environment
   args <- c("-m", module, "--system-site-packages", path.expand(path))
@@ -240,6 +237,7 @@ virtualenv_default_python <- function(python = NULL) {
   # check for some pre-defined Python sources (prefer Python 3)
   sources <- c(
     Sys.getenv("RETICULATE_PYTHON"),
+    .globals$required_python_version,
     Sys.which("python3"),
     Sys.which("python")
   )
@@ -281,7 +279,7 @@ virtualenv_module <- function(python) {
     if (python_has_module(python, "easy_install")) {
       commands$push(paste("$", python, "-m easy_install --upgrade --user pip"))
     } else if (is_ubuntu() && dirname(python) == "/usr/bin") {
-      package <- if (py_version < 3) "python-virtualenv" else "python3-venv"
+      package <- if (py_version < 3) "python-pip" else "python3-pip"
       commands$push(paste("$ sudo apt-get install", package))
     } else {
       commands$push("$ curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py")
@@ -290,9 +288,15 @@ virtualenv_module <- function(python) {
     commands$push("")
   }
 
-  # then, recommend installation of virtualenv or ven with pip
+  # then, recommend installation of virtualenv or venv with pip
   commands$push(paste("Install", modules[[1]], "with:"))
-  commands$push(paste("$", python, "-m pip install --upgrade --user", module))
+  if (is_ubuntu() && dirname(python) == "/usr/bin") {
+    package <- if (py_version < 3) "python-virtualenv" else "python3-venv"
+    commands$push(paste("$ sudo apt-get install", package))
+  } else {
+    commands$push(paste("$", python, "-m pip install --upgrade --user", module))
+  }
+  commands$push("\n")
 
   # report to user
   message <- paste(commands$data(), collapse = "\n")

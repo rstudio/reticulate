@@ -5,9 +5,9 @@
 \alias{py_load_object}
 \title{Save and load Python objects with pickle}
 \usage{
-py_save_object(object, filename, pickle = "pickle")
+py_save_object(object, filename, pickle = "pickle", ...)
 
-py_load_object(filename, pickle = "pickle")
+py_load_object(filename, pickle = "pickle", ...)
 }
 \arguments{
 \item{object}{Object to save}
@@ -16,6 +16,9 @@ py_load_object(filename, pickle = "pickle")
 
 \item{pickle}{The implementation of pickle to use (defaults to "pickle" but
 could e.g. also be "cPickle")}
+
+\item{...}{Optional arguments to be passed to the \code{load()} function defined
+by the associated \code{pickle} module.}
 }
 \description{
 Save and load Python objects with pickle

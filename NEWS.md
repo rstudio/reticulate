@@ -3,7 +3,9 @@
 
 Install the development version of reticulate with `remotes::install_github("rstudio/reticulate")`.
 
-- `reticulate::py_install()` has been revamped, and now better detects
+- `py_save_object()` and `py_load_object()` now accept `...` arguments. (#542)
+
+- `py_install()` has been revamped, and now better detects
   available Python tooling (virtualenv vs. venv vs. Conda). (#544)
 
 - reticulate now flushes stdout / stderr after calls to `py_run_file()` and

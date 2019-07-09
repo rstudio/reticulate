@@ -54,14 +54,11 @@ virtualenv_create <- function(envname = NULL, python = NULL) {
     return(invisible(path))
   }
 
-  # if the user hasn't requested a particular Python binary,
-  # infer from the currently active Python session
   python <- virtualenv_default_python(python)
+  module <- virtualenv_module(python)
+
   writeLines(paste("Creating virtual environment", shQuote(name), "..."))
   writeLines(paste("Using python:", python))
-
-  # choose appropriate tool for creating virtualenv
-  module <- virtualenv_module(python)
 
   # use it to create the virtual environment
   args <- c("-m", module, "--system-site-packages", path.expand(path))
@@ -231,13 +228,28 @@ virtualenv_pip <- function(envname) {
 
 
 
-virtualenv_default_python <- function(python) {
+virtualenv_default_python <- function(python = NULL) {
 
+  # if the user has supplied a verison of python already, use it
   if (!is.null(python))
     return(python)
 
+  # check for some pre-defined Python sources (prefer Python 3)
+  sources <- c(
+    Sys.getenv("RETICULATE_PYTHON"),
+    .globals$required_python_version,
+    Sys.which("python3"),
+    Sys.which("python")
+  )
+
+  for (source in sources)
+    if (nzchar(source) && file.exists(source))
+      return(normalizePath(source, winslash = "/"))
+
+  # otherwise, try to explicitly detect Python
   config <- py_discover_config()
   normalizePath(config$python, winslash = "/")
+
 }
 
 
@@ -246,18 +258,19 @@ virtualenv_module <- function(python) {
   py_version <- python_version(python)
 
   # prefer 'venv' for Python 3, but allow for 'virtualenv' for both
+  # (note that 'venv' and 'virtualenv' are largely compatible)
   modules <- "virtualenv"
   if (py_version >= "3.6")
     modules <- c("venv", modules)
 
-  # if we have one of thesem odules available, return it
+  # if we have one of these modules available, return it
   for (module in modules)
     if (python_has_module(python, module))
       return(module)
 
   # virtualenv not available: instruct the user to install
   commands <- new_stack()
-  commands$push("tools for managing Python virtual environments are not installed.")
+  commands$push("Tools for managing Python virtual environments are not installed.")
   commands$push("")
 
   # if we don't have pip, recommend its installation
@@ -266,7 +279,7 @@ virtualenv_module <- function(python) {
     if (python_has_module(python, "easy_install")) {
       commands$push(paste("$", python, "-m easy_install --upgrade --user pip"))
     } else if (is_ubuntu() && dirname(python) == "/usr/bin") {
-      package <- if (py_version < 3) "python-virtualenv" else "python3-venv"
+      package <- if (py_version < 3) "python-pip" else "python3-pip"
       commands$push(paste("$ sudo apt-get install", package))
     } else {
       commands$push("$ curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py")
@@ -275,9 +288,15 @@ virtualenv_module <- function(python) {
     commands$push("")
   }
 
-  # then, recommend installation of virtualenv or ven with pip
+  # then, recommend installation of virtualenv or venv with pip
   commands$push(paste("Install", modules[[1]], "with:"))
-  commands$push(paste("$", python, "-m pip install --upgrade --user", module))
+  if (is_ubuntu() && dirname(python) == "/usr/bin") {
+    package <- if (py_version < 3) "python-virtualenv" else "python3-venv"
+    commands$push(paste("$ sudo apt-get install", package))
+  } else {
+    commands$push(paste("$", python, "-m pip install --upgrade --user", module))
+  }
+  commands$push("\n")
 
   # report to user
   message <- paste(commands$data(), collapse = "\n")

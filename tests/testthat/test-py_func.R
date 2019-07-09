@@ -1,4 +1,4 @@
-context("Function Wrapping")
+context("function wrapping")
 
 test_that("R functions can be wrapped in a Python function with the same signature", {
   skip_if_no_python()

@@ -4,13 +4,15 @@
 \alias{py_install}
 \title{Install Python packages}
 \usage{
-py_install(packages, envname = NULL, method = c("auto", "virtualenv",
-  "conda"), conda = "auto", ...)
+py_install(packages, envname = Sys.getenv("RETICULATE_PYTHON_ENV", unset
+  = "r-reticulate"), method = c("auto", "virtualenv", "conda"),
+  conda = "auto", ...)
 }
 \arguments{
-\item{packages}{Character vector with package names to install}
+\item{packages}{Character vector with package names to install.}
 
-\item{envname}{Name of environment to install packages into}
+\item{envname}{The name, or full path, of the environment in which Python
+packages are to be installed.}
 
 \item{method}{Installation method. By default, "auto" automatically finds a
 method that will work in the local environment. Change the default to force
@@ -24,7 +26,7 @@ PATH and other conventional install locations).}
 or \code{\link[=virtualenv_install]{virtualenv_install()}}.}
 }
 \description{
-Install Python packages into a virtualenv or conda env.
+Install Python packages into a virtual environment or Conda environment.
 }
 \details{
 On Linux and OS X the "virtualenv" method will be used by default

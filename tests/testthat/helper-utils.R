@@ -1,3 +1,11 @@
+
+# prefer Python 3 if available
+if (is.na(Sys.getenv("RETICULATE_PYTHON", unset = NA))) {
+  python <- Sys.which("python3")
+  if (nzchar(python))
+    reticulate::use_python(python, required = TRUE)
+}
+
 # import some modules used by the tests
 if (py_available(initialize = TRUE)) {
   test <- import("rpytools.test")

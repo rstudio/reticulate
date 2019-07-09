@@ -147,8 +147,8 @@ conda_install <- function(envname = NULL, packages, forge = TRUE, pip = FALSE, p
   envname <- condaenv_resolve(envname)
 
   # create the environment if needed
-  python <- conda_python(envname = envname, conda = conda)
-  if (!file.exists(python))
+  python <- tryCatch(conda_python(envname = envname, conda = conda), error = identity)
+  if (inherits(python, "error") || !file.exists(python))
     conda_create(envname, conda = conda)
 
   if (pip) {
@@ -328,6 +328,22 @@ condaenv_resolve <- function(envname = NULL) {
 
   # no slashes; just use the environment name as-is
   envname
+
+}
+
+condaenv_exists <- function(envname = NULL, conda = "auto") {
+
+  # check that conda is installed
+  condabin <- tryCatch(conda_binary(conda = conda), error = identity)
+  if (inherits(condabin, "error"))
+    return(FALSE)
+
+  # check that the environment exists
+  python <- tryCatch(conda_python(envname, conda = conda), error = identity)
+  if (inherits(python, "error"))
+    return(FALSE)
+
+  file.exists(python)
 
 }
 

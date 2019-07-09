@@ -9,6 +9,7 @@ r:
   - 3.3
   - 3.4
   - 3.5
+  - 3.6
 
 addons:
   apt:
@@ -16,3 +17,5 @@ addons:
       - python2.7
       - python-numpy
       - python-scipy
+      - python-virtualenv
+      - python3-venv

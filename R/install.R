@@ -9,7 +9,7 @@ py_install_method_detect <- function(envname, conda = "auto") {
     if (inherits(conda, "error")) {
       msg <- paste(
         "Conda installation not found (failed to locate conda binary)",
-        "Please install Anaconda 3.x for Windows (https://www.anaconda.com/download/#windows) before proceeding.",
+        "Please install Anaconda for Windows (https://www.anaconda.com/download/#windows) before proceeding.",
         sep = "\n"
       )
       stop(msg, call. = FALSE)

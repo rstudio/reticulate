@@ -272,7 +272,7 @@ virtualenv_module <- function(python) {
 
   # virtualenv not available: instruct the user to install
   commands <- new_stack()
-  commands$push("tools for managing Python virtual environments are not installed.")
+  commands$push("Tools for managing Python virtual environments are not installed.")
   commands$push("")
 
   # if we don't have pip, recommend its installation

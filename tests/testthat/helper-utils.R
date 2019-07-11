@@ -3,7 +3,7 @@
 if (is.na(Sys.getenv("RETICULATE_PYTHON", unset = NA))) {
   python <- Sys.which("python3")
   if (nzchar(python))
-    reticulate::use_python(python, required = TRUE)
+    use_python(python, required = TRUE)
 }
 
 # import some modules used by the tests

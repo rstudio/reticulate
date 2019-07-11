@@ -3,6 +3,10 @@
 
 Install the development version of reticulate with `remotes::install_github("rstudio/reticulate")`.
 
+- reticulate now warns if it did not honor the user's request to load a
+  particular version of Python, as through e.g. `reticulate::use_python()`.
+  (#545)
+
 - `py_save_object()` and `py_load_object()` now accept `...` arguments. (#542)
 
 - `py_install()` has been revamped, and now better detects

@@ -128,19 +128,28 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
   # as the requested version of python
   local({
 
+    # nothing to do if user didn't request any version
     requested_versions <- reticulate_python_versions()
     if (length(requested_versions) == 0)
-      return(TRUE)
+      return()
 
+    # if we loaded one of the requested versions, everything is ok
     if (config$python %in% requested_versions)
-      return(TRUE)
+      return()
 
+    # otherwise, warn that we were unable to honor their request
     if (length(requested_versions) == 1) {
-      fmt <- "Python '%s' was requested but '%s' was loaded instead (see py_config() for more information)"
+      fmt <- paste(
+        "Python '%s' was requested but '%s' was loaded instead",
+        "(see reticulate::py_config() for more information)"
+      )
       msg <- sprintf(fmt, requested_versions[[1]], config$python)
       warning(msg, call. = FALSE)
     } else {
-      fmt <- "could not honor request to load desired versions of Python; '%s' was loaded instead (see py_config() for more information)"
+      fmt <- paste(
+        "could not honor request to load desired versions of Python; '%s' was loaded instead",
+        "(see reticulate::py_config() for more information)"
+      )
       msg <- sprintf(fmt, config$python)
       warning(msg, call. = FALSE)
     }

@@ -124,6 +124,38 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
   # ensure modules can be imported from the current working directory
   py_run_string_impl("import sys; sys.path.insert(0, '')")
 
+  # notify the user if the loaded version of Python isn't the same
+  # as the requested version of python
+  local({
+
+    # nothing to do if user didn't request any version
+    requested_versions <- reticulate_python_versions()
+    if (length(requested_versions) == 0)
+      return()
+
+    # if we loaded one of the requested versions, everything is ok
+    if (config$python %in% requested_versions)
+      return()
+
+    # otherwise, warn that we were unable to honor their request
+    if (length(requested_versions) == 1) {
+      fmt <- paste(
+        "Python '%s' was requested but '%s' was loaded instead",
+        "(see reticulate::py_config() for more information)"
+      )
+      msg <- sprintf(fmt, requested_versions[[1]], config$python)
+      warning(msg, call. = FALSE)
+    } else {
+      fmt <- paste(
+        "could not honor request to load desired versions of Python; '%s' was loaded instead",
+        "(see reticulate::py_config() for more information)"
+      )
+      msg <- sprintf(fmt, config$python)
+      warning(msg, call. = FALSE)
+    }
+
+  })
+
   # return config
   config
 }

@@ -24,7 +24,7 @@ test_that("reticulate can bind to virtual environments created with venv", {
   # try running reticulate and binding to that virtual environment
   R <- file.path(R.home("bin"), "R")
   script <- normalizePath("resources/venv-activate.R")
-  args <- c("--vanilla", "--slave", "-f", script, "--args", venv)
+  args <- c("--vanilla", "--slave", "-f", shQuote(script), "--args", shQuote(venv))
   output <- system2(R, args, stdout = TRUE)
 
   # test that we're using the site-packages dir in the venv

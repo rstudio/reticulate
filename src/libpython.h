@@ -1,6 +1,6 @@
 
-#ifndef __LIBPYTHON_HPP__
-#define __LIBPYTHON_HPP__
+#ifndef LIBPYTHON_H
+#define LIBPYTHON_H
 
 #include <string>
 #include <ostream>
@@ -15,93 +15,9 @@
 #define _PYTHON_API_VERSION 1013
 #define _PYTHON3_ABI_VERSION 3
 
+#include "libpython-types.h"
+
 namespace libpython {
-
-#if _WIN32 || _WIN64
-#if _WIN64
-typedef __int64 Py_ssize_t;
-#else
-typedef int Py_ssize_t;
-#endif
-#else
-typedef long Py_ssize_t;
-#endif
-
-#define METH_VARARGS  0x0001
-#define METH_KEYWORDS 0x0002
-
-#define Py_file_input 257
-#define Py_eval_input 258
-
-#define _PyObject_HEAD_EXTRA
-#define _PyObject_EXTRA_INIT
-
-#define PyObject_HEAD  \
-_PyObject_HEAD_EXTRA   \
-  Py_ssize_t ob_refcnt; \
-struct _typeobject *ob_type;
-
-#define PyObject_VAR_HEAD               \
-PyObject_HEAD                           \
-  Py_ssize_t ob_size;
-
-typedef struct _typeobject {
-PyObject_VAR_HEAD
-  const char *tp_name;
-  Py_ssize_t tp_basicsize, tp_itemsize;
-} PyTypeObject;
-
-typedef struct _object {
-PyObject_HEAD
-} PyObject;
-
-typedef PyObject *(*PyCFunction)(PyObject *, PyObject *);
-
-struct PyMethodDef {
-  const char	*ml_name;
-  PyCFunction  ml_meth;
-  int		 ml_flags;
-  const char	*ml_doc;
-};
-typedef struct PyMethodDef PyMethodDef;
-
-#define PyObject_HEAD3 PyObject ob_base;
-
-#define PyObject_HEAD_INIT(type) \
-{ _PyObject_EXTRA_INIT           \
-  1, type },
-
-#define PyModuleDef_HEAD_INIT { \
-PyObject_HEAD_INIT(NULL) \
-  NULL, \
-  0, \
-  NULL, \
-}
-
-typedef int (*inquiry)(PyObject *);
-typedef int (*visitproc)(PyObject *, void *);
-typedef int (*traverseproc)(PyObject *, visitproc, void *);
-typedef void (*freefunc)(void *);
-
-typedef struct PyModuleDef_Base {
-  PyObject_HEAD3
-  PyObject* (*m_init)(void);
-  Py_ssize_t m_index;
-  PyObject* m_copy;
-} PyModuleDef_Base;
-
-typedef struct PyModuleDef{
-  PyModuleDef_Base m_base;
-  const char* m_name;
-  const char* m_doc;
-  Py_ssize_t m_size;
-  PyMethodDef *m_methods;
-  inquiry m_reload;
-  traverseproc m_traverse;
-  inquiry m_clear;
-  freefunc m_free;
-} PyModuleDef;
-
 
 LIBPYTHON_EXTERN PyTypeObject* PyFunction_Type;
 LIBPYTHON_EXTERN PyTypeObject* PyModule_Type;
@@ -127,18 +43,19 @@ void initialize_type_objects(bool python3);
 
 #define Py_TYPE(ob) (((PyObject*)(ob))->ob_type)
 
-#define PyUnicode_Check(o) (Py_TYPE(o) == Py_TYPE(Py_Unicode))
-#define PyString_Check(o) (Py_TYPE(o) == Py_TYPE(Py_String))
-#define PyInt_Check(o)  (Py_TYPE(o) == Py_TYPE(Py_Int))
-#define PyLong_Check(o)  (Py_TYPE(o) == Py_TYPE(Py_Long))
-#define PyBool_Check(o) ((o == Py_False) | (o == Py_True))
-#define PyDict_Check(o) (Py_TYPE(o) == Py_TYPE(Py_Dict))
-#define PyFloat_Check(o) (Py_TYPE(o) == Py_TYPE(Py_Float))
-#define PyFunction_Check(op) ((PyTypeObject*)(Py_TYPE(op)) == PyFunction_Type)
-#define PyTuple_Check(o) (Py_TYPE(o) == Py_TYPE(Py_Tuple))
-#define PyList_Check(o) (Py_TYPE(o) == Py_TYPE(Py_List))
-#define PyComplex_Check(o) (Py_TYPE(o) == Py_TYPE(Py_Complex))
-#define PyByteArray_Check(o) (Py_TYPE(o) == Py_TYPE(Py_ByteArray))
+#define PyUnicode_Check(o)   (PyObject_Type(o) == PyObject_Type(Py_Unicode))
+#define PyString_Check(o)    (PyObject_Type(o) == PyObject_Type(Py_String))
+#define PyInt_Check(o)       (PyObject_Type(o) == PyObject_Type(Py_Int))
+#define PyLong_Check(o)      (PyObject_Type(o) == PyObject_Type(Py_Long))
+#define PyDict_Check(o)      (PyObject_Type(o) == PyObject_Type(Py_Dict))
+#define PyFloat_Check(o)     (PyObject_Type(o) == PyObject_Type(Py_Float))
+#define PyTuple_Check(o)     (PyObject_Type(o) == PyObject_Type(Py_Tuple))
+#define PyList_Check(o)      (PyObject_Type(o) == PyObject_Type(Py_List))
+#define PyComplex_Check(o)   (PyObject_Type(o) == PyObject_Type(Py_Complex))
+#define PyByteArray_Check(o) (PyObject_Type(o) == PyObject_Type(Py_ByteArray))
+
+#define PyFunction_Check(op) ((PyTypeObject*)(PyObject_Type(op)) == PyFunction_Type)
+#define PyBool_Check(o)      ((o == Py_False) | (o == Py_True))
 
 LIBPYTHON_EXTERN void (*Py_Initialize)();
 LIBPYTHON_EXTERN int (*Py_IsInitialized)();
@@ -155,7 +72,8 @@ LIBPYTHON_EXTERN PyObject* (*PyImport_Import)(PyObject * name);
 LIBPYTHON_EXTERN PyObject* (*PyImport_GetModuleDict)();
 
 
-LIBPYTHON_EXTERN PyObject* (*PyModule_Create)(PyModuleDef *def, int);
+LIBPYTHON_EXTERN PyObject* (*PyModule_Create2)(PyModuleDef *def, int);
+LIBPYTHON_EXTERN PyObject* (*PyModule_Create2TraceRefs)(PyModuleDef *def, int);
 LIBPYTHON_EXTERN int (*PyImport_AppendInittab)(const char *name, PyObject* (*initfunc)());
 
 LIBPYTHON_EXTERN PyObject* (*Py_BuildValue)(const char *format, ...);
@@ -676,6 +594,4 @@ LIBPYTHON_EXTERN PyThreadState* (*PyThreadState_Next)(PyThreadState*);
 
 } // namespace libpython
 
-#endif
-
-
+#endif /* LIBPYTHON_H */

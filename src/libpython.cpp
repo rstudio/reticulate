@@ -258,14 +258,9 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
 
   if (python3) {
 
-    // PyModule_Create has different names depending on how Python was compiled
-    {
-      std::vector<std::string> names;
-      names.push_back("PyModule_Create2TraceRefs");
-      names.push_back("PyModule_Create2");
-      if (!loadSymbol(pLib_, names, (void**)&PyModule_Create, pError) )
-        return false;
-    }
+    // debug versions of Python will provide PyModule_Create2TraceRefs instead
+    loadSymbol(pLib_, "PyModule_Create2", (void**) &PyModule_Create2, pError);
+    loadSymbol(pLib_, "PyModule_Create2TraceRefs", (void**) &PyModule_Create2TraceRefs, pError);
 
     LOAD_PYTHON_SYMBOL(PyImport_AppendInittab)
     LOAD_PYTHON_SYMBOL_AS(Py_SetProgramName, Py_SetProgramName_v3)

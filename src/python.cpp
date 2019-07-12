@@ -4,6 +4,7 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 
+#include "rpycall.h"
 #include "reticulate_types.h"
 
 #include "event_loop.h"
@@ -1242,9 +1243,6 @@ PyObjectRef r_to_py_impl(RObject object, bool convert) {
 }
 
 // custom module used for calling R functions from python wrappers
-
-
-
 extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* keywords)
 {
   // the first argument is always the capsule containing the R function to call
@@ -1402,29 +1400,19 @@ extern "C" PyObject* call_python_function_on_main_thread(
   return Py_None;
 }
 
-
-PyMethodDef RPYCallMethods[] = {
-  { "call_r_function", (PyCFunction)call_r_function,
-    METH_VARARGS | METH_KEYWORDS, "Call an R function" },
-  { "call_python_function_on_main_thread", (PyCFunction)call_python_function_on_main_thread,
-    METH_VARARGS | METH_KEYWORDS, "Call a Python function on the main thread" },
-  { NULL, NULL, 0, NULL }
-};
-
-static struct PyModuleDef RPYCallModuleDef = {
-  PyModuleDef_HEAD_INIT,
-  "rpycall",
-  NULL,
-  -1,
-  RPYCallMethods,
-  NULL,
-  NULL,
-  NULL,
-  NULL
-};
-
 extern "C" PyObject* initializeRPYCall(void) {
-  return PyModule_Create(&RPYCallModuleDef, _PYTHON3_ABI_VERSION);
+
+  if (PyModule_Create2 != NULL)
+  {
+    void* module = rpycall::rpycall_module_release();
+    return PyModule_Create2((PyModuleDef*) module, _PYTHON3_ABI_VERSION);
+  }
+  else
+  {
+    void* module = rpycall::rpycall_module_debug();
+    return PyModule_Create2TraceRefs((PyModuleDef*) module, _PYTHON3_ABI_VERSION);
+  }
+
 }
 
 // forward declare py_run_file
@@ -1558,7 +1546,8 @@ void py_initialize(const std::string& python,
     }
 
     // add rpycall module
-    Py_InitModule4("rpycall", RPYCallMethods, (char *)NULL, (PyObject *)NULL,
+    void* methods = rpycall::rpycall_methods_debug();
+    Py_InitModule4("rpycall", (PyMethodDef*) methods, (char *)NULL, (PyObject *)NULL,
                       _PYTHON_API_VERSION);
 
     const char *argv[1] = {s_python.c_str()};

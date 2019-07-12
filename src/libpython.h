@@ -155,7 +155,7 @@ LIBPYTHON_EXTERN PyObject* (*PyImport_Import)(PyObject * name);
 LIBPYTHON_EXTERN PyObject* (*PyImport_GetModuleDict)();
 
 
-LIBPYTHON_EXTERN PyObject* (*PyModule_Create2)(PyModuleDef *def, int);
+LIBPYTHON_EXTERN PyObject* (*PyModule_Create)(PyModuleDef *def, int);
 LIBPYTHON_EXTERN int (*PyImport_AppendInittab)(const char *name, PyObject* (*initfunc)());
 
 LIBPYTHON_EXTERN PyObject* (*Py_BuildValue)(const char *format, ...);
@@ -163,6 +163,8 @@ LIBPYTHON_EXTERN PyObject* (*Py_BuildValue)(const char *format, ...);
 LIBPYTHON_EXTERN void (*Py_IncRef)(PyObject *);
 LIBPYTHON_EXTERN void (*Py_DecRef)(PyObject *);
 
+LIBPYTHON_EXTERN int (*PyObject_Print)(PyObject *, FILE*, int);
+LIBPYTHON_EXTERN PyObject* (*PyObject_Type)(PyObject *);
 LIBPYTHON_EXTERN PyObject* (*PyObject_Str)(PyObject *);
 
 LIBPYTHON_EXTERN int (*PyObject_IsInstance)(PyObject *object, PyObject *typeorclass);
@@ -211,6 +213,7 @@ LIBPYTHON_EXTERN PyObject* (*PyString_FromStringAndSize)(const char *, Py_ssize_
 
 LIBPYTHON_EXTERN PyObject* (*PyUnicode_EncodeLocale)(PyObject *unicode, const char *errors);
 LIBPYTHON_EXTERN PyObject* (*PyUnicode_AsEncodedString)(PyObject *unicode, const char *encoding, const char *errors);
+
 LIBPYTHON_EXTERN int (*PyBytes_AsStringAndSize)(
     PyObject *obj,      /* string or Unicode object */
     char **s,           /* pointer to buffer variable */

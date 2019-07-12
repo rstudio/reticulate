@@ -194,6 +194,8 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
   LOAD_PYTHON_SYMBOL(PyErr_NormalizeException)
   LOAD_PYTHON_SYMBOL(PyErr_ExceptionMatches)
   LOAD_PYTHON_SYMBOL(PyErr_GivenExceptionMatches)
+  LOAD_PYTHON_SYMBOL(PyObject_Print)
+  LOAD_PYTHON_SYMBOL(PyObject_Type)
   LOAD_PYTHON_SYMBOL(PyObject_Str)
   LOAD_PYTHON_SYMBOL(PyObject_Dir)
   LOAD_PYTHON_SYMBOL(PyByteArray_Size)
@@ -245,15 +247,26 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
 
   // PyUnicode_AsEncodedString may have several different names depending on the Python
   // version and the UCS build type
-  std::vector<std::string> names;
-  names.push_back("PyUnicode_AsEncodedString");
-  names.push_back("PyUnicodeUCS2_AsEncodedString");
-  names.push_back("PyUnicodeUCS4_AsEncodedString");
-  if (!loadSymbol(pLib_, names, (void**)&PyUnicode_AsEncodedString, pError) )
-    return false;
+  {
+    std::vector<std::string> names;
+    names.push_back("PyUnicode_AsEncodedString");
+    names.push_back("PyUnicodeUCS2_AsEncodedString");
+    names.push_back("PyUnicodeUCS4_AsEncodedString");
+    if (!loadSymbol(pLib_, names, (void**)&PyUnicode_AsEncodedString, pError) )
+      return false;
+  }
 
   if (python3) {
-    LOAD_PYTHON_SYMBOL(PyModule_Create2)
+
+    // PyModule_Create has different names depending on how Python was compiled
+    {
+      std::vector<std::string> names;
+      names.push_back("PyModule_Create2TraceRefs");
+      names.push_back("PyModule_Create2");
+      if (!loadSymbol(pLib_, names, (void**)&PyModule_Create, pError) )
+        return false;
+    }
+
     LOAD_PYTHON_SYMBOL(PyImport_AppendInittab)
     LOAD_PYTHON_SYMBOL_AS(Py_SetProgramName, Py_SetProgramName_v3)
     LOAD_PYTHON_SYMBOL_AS(Py_SetPythonHome, Py_SetPythonHome_v3)

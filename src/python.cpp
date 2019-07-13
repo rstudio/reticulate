@@ -1400,7 +1400,7 @@ extern "C" PyObject* call_python_function_on_main_thread(
   return Py_None;
 }
 
-extern "C" PyObject* initializeRPYCall(void) {
+extern "C" PyObject* PyInit_rpycall(void) {
 
   if (PyModule_Create2 != NULL)
   {
@@ -1517,11 +1517,11 @@ void py_initialize(const std::string& python,
       // if R is embedded in a python environment, rpycall has to be loaded as a regular
       // module.
       PyImport_AddModule("rpycall");
-      PyDict_SetItemString(PyImport_GetModuleDict(), "rpycall", initializeRPYCall());
+      PyDict_SetItemString(PyImport_GetModuleDict(), "rpycall", PyInit_rpycall());
 
     } else {
       // add rpycall module
-      PyImport_AppendInittab("rpycall", &initializeRPYCall);
+      PyImport_AppendInittab("rpycall", &PyInit_rpycall);
 
       // initialize python
       Py_Initialize();

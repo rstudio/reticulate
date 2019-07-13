@@ -41,22 +41,6 @@ LIBPYTHON_EXTERN PyObject* PyExc_KeyboardInterrupt;
 
 void initialize_type_objects(bool python3);
 
-#define Py_TYPE(ob) (((PyObject*)(ob))->ob_type)
-
-#define PyUnicode_Check(o)   (PyObject_Type(o) == PyObject_Type(Py_Unicode))
-#define PyString_Check(o)    (PyObject_Type(o) == PyObject_Type(Py_String))
-#define PyInt_Check(o)       (PyObject_Type(o) == PyObject_Type(Py_Int))
-#define PyLong_Check(o)      (PyObject_Type(o) == PyObject_Type(Py_Long))
-#define PyDict_Check(o)      (PyObject_Type(o) == PyObject_Type(Py_Dict))
-#define PyFloat_Check(o)     (PyObject_Type(o) == PyObject_Type(Py_Float))
-#define PyTuple_Check(o)     (PyObject_Type(o) == PyObject_Type(Py_Tuple))
-#define PyList_Check(o)      (PyObject_Type(o) == PyObject_Type(Py_List))
-#define PyComplex_Check(o)   (PyObject_Type(o) == PyObject_Type(Py_Complex))
-#define PyByteArray_Check(o) (PyObject_Type(o) == PyObject_Type(Py_ByteArray))
-
-#define PyFunction_Check(op) ((PyTypeObject*)(PyObject_Type(op)) == PyFunction_Type)
-#define PyBool_Check(o)      ((o == Py_False) | (o == Py_True))
-
 LIBPYTHON_EXTERN void (*Py_Initialize)();
 LIBPYTHON_EXTERN int (*Py_IsInitialized)();
 
@@ -216,12 +200,64 @@ LIBPYTHON_EXTERN void (*PySys_SetArgv_v3)(int, wchar_t **);
 
 LIBPYTHON_EXTERN void (*PySys_WriteStderr)(const char *format, ...);
 
-#define PyObject_TypeCheck(o, tp) ((PyTypeObject*)Py_TYPE(o) == (tp)) || PyType_IsSubtype((PyTypeObject*)Py_TYPE(o), (tp))
+// NOTE: we prefer using PyObject_Type as we don't
+// want to depend on the struct layout of PyObject
+// values (for compatibility with debug + release)
+inline int py_object_types_equal(PyObject* lhs, PyObject* rhs) {
+
+  PyObject* lhstype = PyObject_Type(lhs);
+  PyObject* rhstype = PyObject_Type(rhs);
+
+  int ret = lhstype == rhstype;
+
+  Py_DecRef(lhstype);
+  Py_DecRef(rhstype);
+
+  return ret;
+
+}
+
+#define PyUnicode_Check(o)   (py_object_types_equal(o, Py_Unicode))
+#define PyString_Check(o)    (py_object_types_equal(o, Py_String))
+#define PyInt_Check(o)       (py_object_types_equal(o, Py_Int))
+#define PyLong_Check(o)      (py_object_types_equal(o, Py_Long))
+#define PyDict_Check(o)      (py_object_types_equal(o, Py_Dict))
+#define PyFloat_Check(o)     (py_object_types_equal(o, Py_Float))
+#define PyTuple_Check(o)     (py_object_types_equal(o, Py_Tuple))
+#define PyList_Check(o)      (py_object_types_equal(o, Py_List))
+#define PyComplex_Check(o)   (py_object_types_equal(o, Py_Complex))
+#define PyByteArray_Check(o) (py_object_types_equal(o, Py_ByteArray))
+
+inline int PyObject_TypeCheck(PyObject* object, PyTypeObject* expectedtype)
+{
+  PyObject* type = PyObject_Type(object);
+  if ((PyTypeObject*) type == expectedtype) {
+    Py_DecRef(type);
+    return 1;
+  }
+
+  if (PyType_IsSubtype((PyTypeObject*) type, expectedtype)) {
+    Py_DecRef(type);
+    return 1;
+  }
+
+  Py_DecRef(type);
+  return 0;
+}
+
+inline int PyFunction_Check(PyObject* object)
+{
+  PyObject* type = PyObject_Type(object);
+  int ret = (PyTypeObject*) type == PyFunction_Type;
+  Py_DecRef(type);
+  return ret;
+}
+
+#define PyBool_Check(o)      ((o == Py_False) || (o == Py_True))
+
+
 
 #define PyType_Check(o) PyObject_TypeCheck(o, PyType_Type)
-
-#define PyModule_Check(op) PyObject_TypeCheck(op, PyModule_Type)
-#define PyModule_CheckExact(op) (Py_TYPE(op) == PyModule_Type)
 
 
 enum NPY_TYPES {

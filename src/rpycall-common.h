@@ -26,18 +26,24 @@ namespace {
 PyMethodDef rpycallmethods[] = {
 
   {
-    "call_r_function", (PyCFunction)call_r_function,
-    METH_VARARGS | METH_KEYWORDS, "Call an R function"
+    "call_r_function",
+    (PyCFunction) call_r_function,
+    METH_VARARGS | METH_KEYWORDS,
+    "Call an R function"
   },
 
   {
-    "call_python_function_on_main_thread", (PyCFunction)call_python_function_on_main_thread,
-    METH_VARARGS | METH_KEYWORDS, "Call a Python function on the main thread"
+    "call_python_function_on_main_thread",
+    (PyCFunction) call_python_function_on_main_thread,
+    METH_VARARGS | METH_KEYWORDS,
+    "Call a Python function on the main thread"
   },
 
   {
-    NULL, NULL,
-    0, NULL
+    NULL,
+    NULL,
+    0,
+    NULL
   }
 
 };

@@ -253,7 +253,15 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
     return false;
 
   if (python3) {
-    LOAD_PYTHON_SYMBOL(PyModule_Create2)
+
+    // Debug versions of Python will provide PyModule_Create2TraceRefs,
+    // while release versions will provide PyModule_Create
+#ifdef RETICULATE_PYTHON_DEBUG
+    LOAD_PYTHON_SYMBOL_AS(PyModule_Create2TraceRefs, PyModule_Create)
+#else
+    LOAD_PYTHON_SYMBOL_AS(PyModule_Create2, PyModule_Create)
+#endif
+
     LOAD_PYTHON_SYMBOL(PyImport_AppendInittab)
     LOAD_PYTHON_SYMBOL_AS(Py_SetProgramName, Py_SetProgramName_v3)
     LOAD_PYTHON_SYMBOL_AS(Py_SetPythonHome, Py_SetPythonHome_v3)

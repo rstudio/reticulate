@@ -33,8 +33,20 @@ typedef long Py_ssize_t;
 #define Py_file_input 257
 #define Py_eval_input 258
 
+#ifdef RETICULATE_PYTHON_DEBUG
+
+#define _PyObject_HEAD_EXTRA            \
+    struct _object *_ob_next;           \
+    struct _object *_ob_prev;
+
+#define _PyObject_EXTRA_INIT 0, 0,
+
+#else
+
 #define _PyObject_HEAD_EXTRA
 #define _PyObject_EXTRA_INIT
+
+#endif /* RETICULATE_PYTHON_DEBUG */
 
 #define PyObject_HEAD  \
 _PyObject_HEAD_EXTRA   \
@@ -155,7 +167,7 @@ LIBPYTHON_EXTERN PyObject* (*PyImport_Import)(PyObject * name);
 LIBPYTHON_EXTERN PyObject* (*PyImport_GetModuleDict)();
 
 
-LIBPYTHON_EXTERN PyObject* (*PyModule_Create2)(PyModuleDef *def, int);
+LIBPYTHON_EXTERN PyObject* (*PyModule_Create)(PyModuleDef *def, int);
 LIBPYTHON_EXTERN int (*PyImport_AppendInittab)(const char *name, PyObject* (*initfunc)());
 
 LIBPYTHON_EXTERN PyObject* (*Py_BuildValue)(const char *format, ...);

@@ -1424,7 +1424,7 @@ static struct PyModuleDef RPYCallModuleDef = {
 };
 
 extern "C" PyObject* initializeRPYCall(void) {
-  return PyModule_Create2(&RPYCallModuleDef, _PYTHON3_ABI_VERSION);
+  return PyModule_Create(&RPYCallModuleDef, _PYTHON3_ABI_VERSION);
 }
 
 // forward declare py_run_file

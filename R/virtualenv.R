@@ -170,7 +170,11 @@ virtualenv_python <- function(envname = NULL) {
 
 
 virtualenv_exists <- function(envname = NULL) {
-  path <- virtualenv_path(envname)
+
+  # try to resolve path
+  path <- tryCatch(virtualenv_path(envname), error = identity)
+  if (inherits(path, "error"))
+    return(FALSE)
 
   # check that the directory exists
   if (!utils::file_test("-d", path))

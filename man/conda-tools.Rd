@@ -18,7 +18,7 @@ conda_create(envname = NULL, packages = "python", conda = "auto")
 conda_remove(envname, packages = NULL, conda = "auto")
 
 conda_install(envname = NULL, packages, forge = TRUE, pip = FALSE,
-  pip_ignore_installed = TRUE, conda = "auto")
+  pip_ignore_installed = TRUE, conda = "auto", python_version = NULL)
 
 conda_binary(conda = "auto")
 

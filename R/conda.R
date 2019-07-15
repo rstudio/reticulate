@@ -138,18 +138,29 @@ conda_remove <- function(envname, packages = NULL, conda = "auto") {
 #' @keywords internal
 #'
 #' @export
-conda_install <- function(envname = NULL, packages, forge = TRUE, pip = FALSE, pip_ignore_installed = TRUE, conda = "auto") {
-
+conda_install <- function(envname = NULL,
+                          packages,
+                          forge = TRUE,
+                          pip = FALSE,
+                          pip_ignore_installed = TRUE,
+                          conda = "auto",
+                          python_version = NULL)
+{
   # resolve conda binary
   conda <- conda_binary(conda)
 
   # resolve environment name
   envname <- condaenv_resolve(envname)
 
+  # honor request for specific Python
+  python_package <- NULL
+  if (!is.null(python_version))
+    python_package <- paste("python", python_version, sep = "=")
+
   # create the environment if needed
   python <- tryCatch(conda_python(envname = envname, conda = conda), error = identity)
   if (inherits(python, "error") || !file.exists(python))
-    conda_create(envname, conda = conda)
+    conda_create(envname, packages = python_package, conda = conda)
 
   if (pip) {
     # use pip package manager
@@ -168,7 +179,7 @@ conda_install <- function(envname = NULL, packages, forge = TRUE, pip = FALSE, p
     args <- conda_args("install", envname)
     if (forge)
       args <- c(args, "-c", "conda-forge")
-    args <- c(args, packages)
+    args <- c(args, python_package, packages)
     result <- system2(conda, shQuote(args))
   }
 
@@ -343,6 +354,7 @@ condaenv_exists <- function(envname = NULL, conda = "auto") {
   if (inherits(python, "error"))
     return(FALSE)
 
+  # validate the Python binary exists
   file.exists(python)
 
 }

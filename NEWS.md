@@ -3,6 +3,10 @@
 
 Install the development version of reticulate with `remotes::install_github("rstudio/reticulate")`.
 
+- It is now possible to compile `reticulate` with support for debug
+  versions of Python by setting the `RETICULATE_PYTHON_DEBUG` preprocessor
+  define during compilation. (#548)
+
 - reticulate now warns if it did not honor the user's request to load a
   particular version of Python, as through e.g. `reticulate::use_python()`.
   (#545)

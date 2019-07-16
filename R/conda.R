@@ -157,10 +157,22 @@ conda_install <- function(envname = NULL,
   if (!is.null(python_version))
     python_package <- paste("python", python_version, sep = "=")
 
-  # create the environment if needed
+  # check if the environment exists, and create it on demand if needed.
+  # if the environment does already exist, but a version of Python was
+  # requested, attempt to install that in the existing environment
+  # (effectively re-creating it if the Python version differs)
   python <- tryCatch(conda_python(envname = envname, conda = conda), error = identity)
-  if (inherits(python, "error") || !file.exists(python))
+  if (inherits(python, "error") || !file.exists(python)) {
     conda_create(envname, packages = python_package, conda = conda)
+  } else if (!is.null(python_package)) {
+    args <- conda_args("install", envname, python_package)
+    status <- system2(conda, shQuote(args))
+    if (result != 0L) {
+      fmt <- "installation of '%s' into environment '%s' failed [error code %i]"
+      msg <- sprintf(fmt, python_package, envname, result)
+      stop(msg, call. = FALSE)
+    }
+  }
 
   if (pip) {
     # use pip package manager

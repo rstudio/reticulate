@@ -82,10 +82,6 @@ py_install <- function(packages,
   if (method == "auto")
     method <- py_install_method_detect(envname = envname, conda = conda)
 
-  # handle NULL envname (may be passed from upstream calls)
-  if (is.null(envname))
-    envname <- Sys.getenv("RETICULATE_PYTHON_ENV", unset = "r-reticulate")
-
   # validate method
   if (identical(method, "virtualenv") && is_windows()) {
     stop("Installing Python packages into a virtualenv is not supported on Windows",
@@ -93,8 +89,7 @@ py_install <- function(packages,
   }
 
   # perform the install
-  switch(
-    method,
+  switch(method,
     virtualenv = virtualenv_install(envname = envname, packages = packages, ...),
     conda = conda_install(envname, packages = packages, conda = conda, python_version = python_version, ...),
     stop("unrecognized installation method '", method, "'")

@@ -318,39 +318,10 @@ find_conda <- function() {
 
 condaenv_resolve <- function(envname = NULL) {
 
-  # handle case where envname is NULL (use default / active env)
-  if (is.null(envname)) {
-
-    default <- Sys.getenv("RETICULATE_PYTHON_ENV", unset = NA)
-    if (!is.na(default)) {
-      path <- normalizePath(default, winslash = "/", mustWork = FALSE)
-      if (!is_condaenv(path)) {
-        fmt <- "there is no conda environment at path '%s'"
-        stop(sprintf(fmt, path))
-      }
-      return(path)
-    }
-
-    # provide context of caller (if any) when emitting error
-    call <- sys.call(sys.parent())
-    if (is.null(call))
-      call <- sys.call()
-
-    fmt <- "missing environment in call to '%s'"
-    stop(sprintf(fmt, format(sys.call(sys.parent()))), call. = FALSE)
-
-  }
-
-  # treat environment 'names' containing slashes as paths
-  # rather than environments living in WORKON_HOME
-  if (grepl("[/\\]", envname)) {
-    if (file.exists(envname))
-      envname <- normalizePath(envname, winslash = "/")
-    return(envname)
-  }
-
-  # no slashes; just use the environment name as-is
-  envname
+  python_environment_resolve(
+    envname = envname,
+    resolve = identity
+  )
 
 }
 

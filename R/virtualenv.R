@@ -15,13 +15,17 @@
 #'   environment within `virtualenv_root()`. When `NULL`, the virtual environment
 #'   as specified by the `RETICULATE_PYTHON_ENV` environment variable will be
 #'   used instead.
+#'
 #' @param packages A character vector with package names to install or remove.
+#'
 #' @param ignore_installed Boolean; ignore previously-installed versions of the
 #'   requested packages? (This should normally be `TRUE`, so that pre-installed
 #'   packages available in the site libraries are ignored and hence packages
 #'   are installed into the virtual environment.)
+#'
 #' @param confirm Boolean; confirm before removing packages or virtual
 #'   environments?
+#'
 #' @param python The path to a Python interpreter, to be used with the created
 #'   virtual environment. When `NULL`, the Python interpreter associated with
 #'   the current session will be used.
@@ -45,6 +49,7 @@ virtualenv_list <- function() {
 #' @rdname virtualenv-tools
 #' @export
 virtualenv_create <- function(envname = NULL, python = NULL) {
+
   path <- virtualenv_path(envname)
   name <- if (is.null(envname)) path else envname
 
@@ -69,6 +74,11 @@ virtualenv_create <- function(envname = NULL, python = NULL) {
     stop(msg, call. = FALSE)
   }
 
+  # upgrade pip and friends after creating the environment
+  # (since the version bundled with virtualenv / venv may be stale)
+  pip <- virtualenv_pip(path)
+  pip_install(pip, c("pip", "wheel", "setuptools"))
+
   invisible(path)
 }
 
@@ -79,11 +89,18 @@ virtualenv_create <- function(envname = NULL, python = NULL) {
 #' @export
 virtualenv_install <- function(envname = NULL, packages, ignore_installed = TRUE) {
 
+  # create virtual environment on demand
   path <- virtualenv_path(envname)
   if (!file.exists(path))
     path <- virtualenv_create(envname)
 
+  # validate that we've received the path to a virtual environment
   name <- if (is.null(envname)) path else envname
+  if (!is_virtualenv(path)) {
+    fmt <- "'%s' exists but is not a virtual environment"
+    stop(sprintf(fmt, name))
+  }
+
   writeLines(paste("Using virtual environment", shQuote(name), "..."))
 
   # ensure that pip + friends are up-to-date / recent enough
@@ -189,38 +206,10 @@ virtualenv_exists <- function(envname = NULL) {
 
 virtualenv_path <- function(envname = NULL) {
 
-  # handle case where envname is NULL (use default / active env)
-  if (is.null(envname)) {
-
-    default <- Sys.getenv("RETICULATE_PYTHON_ENV", unset = NA)
-    if (!is.na(default)) {
-      path <- normalizePath(default, winslash = "/", mustWork = FALSE)
-      if (!is_virtualenv(path)) {
-        fmt <- "there is no virtual environment at path '%s'"
-        stop(sprintf(fmt, path))
-      }
-      return(path)
-    }
-
-    # provide context of caller (if any) when emitting error
-    call <- sys.call(sys.parent())
-    if (is.null(call))
-      call <- sys.call()
-
-    fmt <- "missing environment in call to '%s'"
-    stop(sprintf(fmt, format(sys.call(sys.parent()))), call. = FALSE)
-
-  }
-
-  # treat environment 'names' containing slashes as paths
-  # rather than environments living in WORKON_HOME
-  if (grepl("[/\\]", envname)) {
-    if (file.exists(envname))
-      envname <- normalizePath(envname, winslash = "/")
-    return(envname)
-  }
-
-  file.path(virtualenv_root(), envname)
+  python_environment_resolve(
+    envname = envname,
+    resolve = function(envname) file.path(virtualenv_root(), envname)
+  )
 
 }
 

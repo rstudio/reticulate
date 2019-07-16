@@ -14,7 +14,8 @@ virtualenv_list()
 
 virtualenv_create(envname = NULL, python = NULL)
 
-virtualenv_install(envname = NULL, packages, ignore_installed = TRUE)
+virtualenv_install(envname = NULL, packages, ignore_installed = TRUE,
+  ...)
 
 virtualenv_remove(envname = NULL, packages = NULL,
   confirm = interactive())
@@ -41,6 +42,8 @@ the current session will be used.}
 requested packages? (This should normally be \code{TRUE}, so that pre-installed
 packages available in the site libraries are ignored and hence packages
 are installed into the virtual environment.)}
+
+\item{...}{Optional arguments; currently ignored for future expansion.}
 
 \item{confirm}{Boolean; confirm before removing packages or virtual
 environments?}

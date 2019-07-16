@@ -392,7 +392,7 @@ python_config <- function(python, required_module, python_versions, forced = NUL
     python_libdir_config <- function(var) {
       python_libdir <- config[[var]]
       ext <- switch(Sys.info()[["sysname"]], Darwin = ".dylib", Windows = ".dll", ".so")
-      pattern <- paste0("^libpython", version, "m?", ext)
+      pattern <- paste0("^libpython", version, "d?m?", ext)
       libpython <- list.files(python_libdir, pattern = pattern, full.names = TRUE)
     }
     for (libsrc in c("LIBPL", "LIBDIR")) {

@@ -4,10 +4,15 @@
 #' environments](https://conda.io/docs/user-guide/tasks/manage-environments.html).
 #'
 #' @param envname Name of conda environment
+#'
 #' @param conda Path to conda executable (or "auto" to find conda using the
 #'   PATH and other conventional install locations).
+#'
 #' @param packages Character vector with package names to install or remove.
+#'
 #' @param pip `TRUE` to use pip (defaults to `FALSE`)
+#'
+#' @param ... Optional arguments, reserved for future expansion.
 #'
 #' @return `conda_list()` returns a data frame with the names and paths to the
 #'   respective python binaries of available environments. `conda_create()`
@@ -144,7 +149,8 @@ conda_install <- function(envname = NULL,
                           pip = FALSE,
                           pip_ignore_installed = TRUE,
                           conda = "auto",
-                          python_version = NULL)
+                          python_version = NULL,
+                          ...)
 {
   # resolve conda binary
   conda <- conda_binary(conda)

@@ -30,6 +30,8 @@
 #'   virtual environment. When `NULL`, the Python interpreter associated with
 #'   the current session will be used.
 #'
+#' @param ... Optional arguments; currently ignored for future expansion.
+#'
 #' @name virtualenv-tools
 NULL
 
@@ -87,8 +89,11 @@ virtualenv_create <- function(envname = NULL, python = NULL) {
 #' @inheritParams virtualenv-tools
 #' @rdname virtualenv-tools
 #' @export
-virtualenv_install <- function(envname = NULL, packages, ignore_installed = TRUE) {
-
+virtualenv_install <- function(envname = NULL,
+                               packages,
+                               ignore_installed = TRUE,
+                               ...)
+{
   # create virtual environment on demand
   path <- virtualenv_path(envname)
   if (!file.exists(path))

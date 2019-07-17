@@ -1846,8 +1846,7 @@ SEXP py_call_impl(PyObjectRef x, List args = R_NilValue, List keywords = R_NilVa
     stop(py_fetch_error());
 
   // return
-  Py_IncRef(res);
-  return py_ref(res, x.convert());
+  return py_ref(res.detach(), x.convert());
 }
 
 
@@ -2047,7 +2046,9 @@ SEXP py_iter_next(PyObjectRef iterator, RObject completed) {
   } else {
 
     // return R object
-    return iterator.convert() ? py_to_r(item, true) : py_ref(item, false);
+    return iterator.convert()
+      ? py_to_r(item, true)
+      : py_ref(item.detach(), false);
 
   }
 }
@@ -2105,27 +2106,24 @@ SEXP py_run_file_impl(const std::string& file,
 // [[Rcpp::export]]
 SEXP py_eval_impl(const std::string& code, bool convert = true) {
 
-  // R object to return
-  RObject rObject;
-
   // compile the code
   PyObjectPtr compiledCode(Py_CompileString(code.c_str(), "reticulate_eval", Py_eval_input));
   if (compiledCode.is_null())
     stop(py_fetch_error());
 
- // execute the code
- PyObject* main = PyImport_AddModule("__main__");
- PyObject* dict = PyModule_GetDict(main);
- PyObjectPtr local_dict(PyDict_New());
- PyObjectPtr res(PyEval_EvalCode(compiledCode, dict, local_dict));
- if (res.is_null())
-   stop(py_fetch_error());
+  // execute the code
+  PyObject* main = PyImport_AddModule("__main__");
+  PyObject* dict = PyModule_GetDict(main);
+  PyObjectPtr local_dict(PyDict_New());
+  PyObjectPtr res(PyEval_EvalCode(compiledCode, dict, local_dict));
+  if (res.is_null())
+    stop(py_fetch_error());
 
- // return (convert to R if requested)
- Py_IncRef(res);
- if (convert)
-   rObject = py_to_r(res, convert);
- else
-   rObject = py_ref(res, convert);
- return rObject;
+  // return (convert to R if requested)
+  RObject result = convert
+    ? py_to_r(res, convert)
+    : py_ref(res.detach(), convert);
+
+  return result;
+
 }

@@ -188,17 +188,12 @@ py_to_r.collections.OrderedDict <- function(x) {
   disable_conversion_scope(x)
 
   keys <- py_dict_get_keys(x)
-
-  i <- 1
-  result <- vector("list", length(keys))
-  iterate(keys, function(key) {
-    result[[i]] <<- py_to_r(py_dict_get_item(x, key))
-    i <<- i + 1
+  result <- lapply(seq_len(length(keys)) - 1L, function(i) {
+    py_to_r(py_dict_get_item(x, keys[i]))
   })
 
   names(result) <- py_dict_get_keys_as_str(x)
   result
-
 }
 
 

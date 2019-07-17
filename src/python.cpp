@@ -2016,13 +2016,16 @@ List py_iterate(PyObjectRef x, Function f) {
     }
 
     // call the function
-    SEXP param = x.convert() ? py_to_r(item, x.convert()) : py_ref(item, false);
+    SEXP param = x.convert()
+      ? py_to_r(item, x.convert())
+      : py_ref(item.detach(), false);
+
     list.push_back(f(param));
   }
 
   // return the list
   List rList(list.size());
-  for (size_t i = 0; i<list.size(); i++)
+  for (size_t i = 0; i < list.size(); i++)
     rList[i] = list[i];
   return rList;
 }

@@ -3,6 +3,9 @@
 
 Install the development version of reticulate with `remotes::install_github("rstudio/reticulate")`.
 
+- Fixed an issue where reticulate could segfault in some cases
+  (e.g. when using the `iterate()` function). (#551)
+
 - It is now possible to compile `reticulate` with support for debug
   versions of Python by setting the `RETICULATE_PYTHON_DEBUG` preprocessor
   define during compilation. (#548)

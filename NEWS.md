@@ -3,6 +3,11 @@
 
 Install the development version of reticulate with `remotes::install_github("rstudio/reticulate")`.
 
+- `py_install()` now accepts `python_version`, and can be used
+  if a particular version of Python is required for a Conda
+  environment. (This argument is ignored for virtual environments.)
+  (#549)
+
 - Fixed an issue where reticulate could segfault in some cases
   (e.g. when using the `iterate()` function). (#551)
 

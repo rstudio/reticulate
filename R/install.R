@@ -51,11 +51,15 @@ py_install_method_detect <- function(envname, conda = "auto") {
 #'
 #' @param packages Character vector with package names to install.
 #' @param envname The name, or full path, of the environment in which Python
-#'   packages are to be installed.
+#'   packages are to be installed. When `NULL` (the default), the active
+#'   environment as set by the `RETICULATE_PYTHON_ENV` variable will be used;
+#'   if that is unset, then the `r-reticulate` environment will be used.
 #' @param method Installation method. By default, "auto" automatically finds a
 #'   method that will work in the local environment. Change the default to force
 #'   a specific installation method. Note that the "virtualenv" method is not
 #'   available on Windows.
+#' @param python_version The requested Python version. Ignored when attempting
+#'   to install with a Python virtual environment.
 #' @param ... Additional arguments passed to [conda_install()]
 #'   or [virtualenv_install()].
 #'
@@ -67,9 +71,10 @@ py_install_method_detect <- function(envname, conda = "auto") {
 #'
 #' @export
 py_install <- function(packages,
-                       envname = Sys.getenv("RETICULATE_PYTHON_ENV", unset = "r-reticulate"),
+                       envname = NULL,
                        method = c("auto", "virtualenv", "conda"),
                        conda = "auto",
+                       python_version = NULL,
                        ...)
 {
   # resolve 'auto' method
@@ -84,10 +89,9 @@ py_install <- function(packages,
   }
 
   # perform the install
-  switch(
-    method,
+  switch(method,
     virtualenv = virtualenv_install(envname = envname, packages = packages, ...),
-    conda = conda_install(envname, packages = packages, conda = conda, ...),
+    conda = conda_install(envname, packages = packages, conda = conda, python_version = python_version, ...),
     stop("unrecognized installation method '", method, "'")
   )
 

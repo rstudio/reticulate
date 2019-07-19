@@ -4,15 +4,16 @@
 \alias{py_install}
 \title{Install Python packages}
 \usage{
-py_install(packages, envname = Sys.getenv("RETICULATE_PYTHON_ENV", unset
-  = "r-reticulate"), method = c("auto", "virtualenv", "conda"),
-  conda = "auto", ...)
+py_install(packages, envname = NULL, method = c("auto", "virtualenv",
+  "conda"), conda = "auto", python_version = NULL, ...)
 }
 \arguments{
 \item{packages}{Character vector with package names to install.}
 
 \item{envname}{The name, or full path, of the environment in which Python
-packages are to be installed.}
+packages are to be installed. When \code{NULL} (the default), the active
+environment as set by the \code{RETICULATE_PYTHON_ENV} variable will be used;
+if that is unset, then the \code{r-reticulate} environment will be used.}
 
 \item{method}{Installation method. By default, "auto" automatically finds a
 method that will work in the local environment. Change the default to force
@@ -21,6 +22,9 @@ available on Windows.}
 
 \item{conda}{Path to conda executable (or "auto" to find conda using the
 PATH and other conventional install locations).}
+
+\item{python_version}{The requested Python version. Ignored when attempting
+to install with a Python virtual environment.}
 
 \item{...}{Additional arguments passed to \code{\link[=conda_install]{conda_install()}}
 or \code{\link[=virtualenv_install]{virtualenv_install()}}.}

@@ -18,7 +18,8 @@ conda_create(envname = NULL, packages = "python", conda = "auto")
 conda_remove(envname, packages = NULL, conda = "auto")
 
 conda_install(envname = NULL, packages, forge = TRUE, pip = FALSE,
-  pip_ignore_installed = TRUE, conda = "auto")
+  pip_ignore_installed = TRUE, conda = "auto", python_version = NULL,
+  ...)
 
 conda_binary(conda = "auto")
 
@@ -43,6 +44,8 @@ so that specific package versions can be installed even if they are downgrades. 
 option is useful for situations where you don't want a pip install to attempt an overwrite
 of a conda binary package (e.g. SciPy on Windows which is very difficult to install via
 pip due to compilation requirements).}
+
+\item{...}{Optional arguments, reserved for future expansion.}
 }
 \value{
 \code{conda_list()} returns a data frame with the names and paths to the

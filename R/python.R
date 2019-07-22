@@ -352,10 +352,6 @@ as.environment.python.builtin.object <- function(x) {
 
 
 #' @export
-`[[.python.builtin.object` <- `$.python.builtin.object`
-
-
-#' @export
 `$<-.python.builtin.object` <- function(x, name, value) {
   if (!py_is_null_xptr(x) && py_available())
     py_set_attr(x, name, value)

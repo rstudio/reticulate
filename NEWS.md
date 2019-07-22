@@ -3,6 +3,9 @@
 
 Install the development version of reticulate with `remotes::install_github("rstudio/reticulate")`.
 
+- Fixed an issue where the wrong definition of `[[.python.builtin.object`
+  was being exported. (#554)
+
 - `py_install()` now accepts `python_version`, and can be used
   if a particular version of Python is required for a Conda
   environment. (This argument is ignored for virtual environments.)

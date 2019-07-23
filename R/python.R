@@ -249,27 +249,36 @@ py_has_convert <- function(x) {
 }
 
 py_maybe_convert <- function(x, convert) {
-  if (convert || py_is_callable(x)) {
 
-    # capture previous convert for attr
-    attrib_convert <- py_has_convert(x)
+  # if this is already an R object, nothing to do
+  if (!inherits(x, "python.builtin.object"))
+    return(x)
 
-    # temporarily change convert so we can call py_to_r and get S3 dispatch
-    envir <- as.environment(x)
-    assign("convert", convert, envir = envir)
-    on.exit(assign("convert", attrib_convert, envir = envir), add = TRUE)
+  # if it's neither convertable nor callable,
+  # nothing to do
+  convertable <- convert || py_is_callable(x)
+  if (!convertable)
+    return(x)
 
-    # call py_to_r
-    x <- py_to_r(x)
-  }
+  # perform conversion
+  # capture previous convert for attr
+  attrib_convert <- py_has_convert(x)
 
-  x
+  # temporarily change convert so we can call py_to_r and get S3 dispatch
+  envir <- as.environment(x)
+  assign("convert", convert, envir = envir)
+  on.exit(assign("convert", attrib_convert, envir = envir), add = TRUE)
+
+  # call py_to_r
+  py_to_r(x)
+
 }
 
 # helper function for accessing attributes or items from a
 # Python object, after validating that we do indeed have
 # a valid Python object reference
 py_get_attr_or_item <- function(x, name, prefer_attr) {
+
   # resolve module proxies
   if (py_is_module_proxy(x))
     py_resolve_module_proxy(x)

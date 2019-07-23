@@ -3,6 +3,10 @@
 
 Install the development version of reticulate with `remotes::install_github("rstudio/reticulate")`.
 
+- Fixed an issue where subsetting with `[.python.builtin.object` could
+  fail when `convert = TRUE` is set on the associated Python object.
+  (#554)
+
 - Fixed an issue where the wrong definition of `[[.python.builtin.object`
   was being exported. (#554)
 

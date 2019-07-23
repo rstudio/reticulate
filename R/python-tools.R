@@ -1,3 +1,18 @@
+
+python_has_modules <- function(python, modules) {
+
+  # write code to tempfile
+  file <- tempfile("reticulate-python-", fileext = ".py")
+  code <- paste("import", modules)
+  writeLines(code, con = file)
+  on.exit(unlink(file), add = TRUE)
+
+  # invoke Python
+  status <- system2(python, shQuote(file), stdout = FALSE, stderr = FALSE)
+  status == 0L
+
+}
+
 python_has_module <- function(python, module) {
   code <- paste("import", module)
   args <- c("-E", "-c", shQuote(code))

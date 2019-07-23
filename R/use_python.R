@@ -25,9 +25,19 @@ use_python <- function(python, required = FALSE) {
       normalizePath(normalize_python_path(path)$path, winslash = "/")
     }
     if (!identical(normalize(py_config()$python), normalize(python))) {
-      stop("Required version of Python '", python ,"' cannot be used ",
-           "because another version of Python ('", py_config()$python,
-           "') is already initialized ", "for this process.")
+
+      fmt <- paste(
+        "ERROR: The requested version of Python ('%s') cannot be used, as",
+        "another version of Python ('%s') has already been initialized.",
+        "Please restart the R session if you need to attach reticulate",
+        "to a different version of Python."
+      )
+
+      msg <- sprintf(fmt, python, py_config()$python)
+      writeLines(strwrap(msg), con = stderr())
+
+      stop("failed to initialize requested version of Python")
+
     }
   }
 

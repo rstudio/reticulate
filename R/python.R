@@ -307,16 +307,27 @@ py_get_attr_or_item <- function(x, name, prefer_attr) {
   }
 
   # get the attrib and convert as needed
+  object <- NULL
   if (prefer_attr) {
     object <- py_get_attr(x, name)
   } else {
 
     # if we have an attribute, attempt to get the item
-    # but allow for fallback to that attribute
+    # but allow for fallback to that attribute. note that
+    # the logic here is fairly convoluted but is necessary
+    # to maintain backwards compatibility with a number of
+    # CRAN packages (hopefully we can simplify this in the
+    # future)
     if (py_has_attr(x, name)) {
-      object <- py_get_item(x, name, silent = TRUE)
+
+      # try to get item
+      if (py_has_attr(x, "__getitem__"))
+        object <- py_get_item(x, name, silent = TRUE)
+
+      # fallback to attribute
       if (is.null(object))
         object <- py_get_attr(x, name)
+
     } else {
       # we don't have an attribute; only attempt item
       # access and allow normal error propagation

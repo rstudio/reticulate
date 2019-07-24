@@ -4,6 +4,7 @@
 .RData
 .Ruserdata
 .DS_Store
+log/
 src/*.o
 src/*.so
 src/*.dll

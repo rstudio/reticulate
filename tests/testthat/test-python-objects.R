@@ -1,6 +1,7 @@
 context("objects")
 
 test_that("python objects with a __setitem__ method can be used", {
+  skip_if_no_python()
 
   library(reticulate)
   py_run_string('

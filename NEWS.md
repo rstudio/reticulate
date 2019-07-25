@@ -3,6 +3,9 @@
 
 Install the development version of reticulate with `remotes::install_github("rstudio/reticulate")`.
 
+- Properly check for NULL keyword arguments in `call_r_function()`.
+  (#562, @dfalbel)
+
 ## reticulate 1.13 (CRAN)
 
 - Fixed an issue where subsetting with `[.python.builtin.object` could

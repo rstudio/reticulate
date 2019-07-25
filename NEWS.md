@@ -1,5 +1,9 @@
 
-## reticulate 1.13
+## reticulate 1.14 (UNDER DEVELOPMENT)
+
+Install the development version of reticulate with `remotes::install_github("rstudio/reticulate")`.
+
+## reticulate 1.13 (CRAN)
 
 - Fixed an issue where subsetting with `[.python.builtin.object` could
   fail when `convert = TRUE` is set on the associated Python object.

@@ -3,6 +3,7 @@
 ^docs$
 ^images$
 ^issues$
+^log$
 ^pkgdown$
 ^revdep$
 README.[R]?md

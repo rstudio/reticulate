@@ -1,7 +1,5 @@
 
-## reticulate 1.13 (DEVELOPMENT)
-
-Install the development version of reticulate with `remotes::install_github("rstudio/reticulate")`.
+## reticulate 1.13
 
 - Fixed an issue where subsetting with `[.python.builtin.object` could
   fail when `convert = TRUE` is set on the associated Python object.
@@ -44,7 +42,7 @@ Install the development version of reticulate with `remotes::install_github("rst
 - Fixed an issue where reticulate could crash after a failed attempt
   to load NumPy. (#497, @ecoughlan)
 
-## reticulate 1.12 (CRAN)
+## reticulate 1.12
 
 - Fixed an issue where Python objects within Python lists would not be
   converted to R objects as expected.

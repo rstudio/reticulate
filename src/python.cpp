@@ -1250,6 +1250,7 @@ extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* k
   // the first argument is always the capsule containing the R function to call
   PyObject* capsule = PyTuple_GetItem(args, 0);
   RObject rFunction = r_object_from_capsule(capsule);
+
   bool convert = (bool)PyCapsule_GetContext(capsule);
 
   // convert remainder of positional arguments to R list
@@ -1268,15 +1269,18 @@ extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* k
 
   // get keyword arguments
   List rKeywords;
-  if (convert) {
-    rKeywords = ::py_to_r(keywords, convert);
-  } else {
-    PyObject *key, *value;
-    Py_ssize_t pos = 0;
-    while (PyDict_Next(keywords, &pos, &key, &value)) {
-      PyObjectPtr str(PyObject_Str(key));
-      Py_IncRef(value);
-      rKeywords[as_std_string(str)] = py_ref(value, convert);
+
+  if (keywords != NULL) {
+    if (convert) {
+      rKeywords = ::py_to_r(keywords, convert);
+    } else {
+      PyObject *key, *value;
+      Py_ssize_t pos = 0;
+      while (PyDict_Next(keywords, &pos, &key, &value)) {
+        PyObjectPtr str(PyObject_Str(key));
+        Py_IncRef(value);
+        rKeywords[as_std_string(str)] = py_ref(value, convert);
+      }
     }
   }
 

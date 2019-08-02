@@ -182,14 +182,13 @@ conda_install <- function(envname = NULL,
 
   if (pip) {
     # use pip package manager
-    condaenv_bin <- function(bin) path.expand(file.path(dirname(conda), bin))
-    cmd <- sprintf("%s%s %s && pip install --upgrade %s %s%s",
-                   ifelse(is_windows(), "", ifelse(is_osx(), "source ", "/bin/bash -c \"source ")),
-                   shQuote(path.expand(condaenv_bin("activate"))),
+    cmd <- sprintf("%s %s && pip install --upgrade %s %s%s",
+                   ifelse(is_windows(), paste(conda, "activate"),
+                          sprintf("bash -c \"eval $(%s shell.bash hook) && conda activate", conda)),
                    envname,
                    ifelse(pip_ignore_installed, "--ignore-installed", ""),
                    paste(shQuote(packages), collapse = " "),
-                   ifelse(is_windows(), "", ifelse(is_osx(), "", "\"")))
+                   ifelse(is_windows(), "", "\""))
     result <- system(cmd)
 
   } else {

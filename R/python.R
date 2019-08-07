@@ -1239,7 +1239,8 @@ py_callable_as_function <- function(callable, convert) {
       result
     }
   }
-  formals(f) <- attr(f, "formals")
+  if (length(attr(f, "formals")) > 0)
+    formals(f) <- attr(f, "formals")
   attr(f, "formals") <- NULL
   f
 }

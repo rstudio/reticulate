@@ -917,9 +917,11 @@ SEXP py_to_r(PyObject* x, bool convert) {
     if (formals.size() > 0) {
       // No Rcpp API to set formals, so do it in R.
       f.attr("formals") = formals;
+      Rcpp::Function str = Rcpp::Environment::global_env()["str"];
+      Rcpp::Rcout << "Setting formals:"; str(formals);
     }
 
-    Rcpp::Rcout << "returning function: " << f << "\n";
+    Rcpp::Rcout << "returning function\n";
 
     // return the R function
     return f;

@@ -602,6 +602,8 @@ bool py_is_callable(PyObjectRef x) {
     return py_is_callable(x.get());
 }
 
+Rcpp::Pairlist py_get_formals(PyObject* func, bool convert);
+
 
 // convert a python object to an R object
 SEXP py_to_r(PyObject* x, bool convert) {
@@ -910,6 +912,15 @@ SEXP py_to_r(PyObject* x, bool convert) {
     // save reference to underlying py_object
     f.attr("py_object") = pyFunc;
 
+    // Get python function signature
+    Rcpp::Pairlist formals = py_get_formals(x, convert);
+    if (formals.size() > 0) {
+      // No Rcpp API to set formals, so do it in R.
+      f.attr("formals") = formals;
+    }
+
+    Rcpp::Rcout << "returning function: " << f << "\n";
+
     // return the R function
     return f;
   }
@@ -940,6 +951,39 @@ SEXP py_to_r(PyObject* x, bool convert) {
     Py_IncRef(x);
     return py_ref(x, true);
   }
+}
+
+Rcpp::Pairlist py_get_formals(PyObject* func, bool convert) {
+  PyObjectPtr inspect(py_import("inspect"));
+  if (inspect.is_null()) stop(py_fetch_error());
+  PyObjectPtr get_signature(PyObject_GetAttrString(inspect, "signature"));
+  if (get_signature.is_null()) stop(py_fetch_error());
+  PyObjectPtr signature(PyObject_CallFunctionObjArgs(get_signature, func, NULL));
+  // if we could not get a signature, return an empty one
+  if (signature.is_null() || PyErr_Occurred()) {
+    // TODO: restrict to ValueError
+    if (PyErr_Occurred()) PyErr_Clear();
+    return Rcpp::Pairlist();
+  }
+  Rcpp::Rcout << "func: " << as_std_string(PyObject_Str(func)) << ", signature: " << as_std_string(PyObject_Str(signature.get())) << "\n";
+  PyObjectPtr params(PyObject_GetAttrString(signature, "parameters"));
+  if (params.is_null()) stop(py_fetch_error());
+
+  Rcpp::Pairlist formals;
+  PyObject *param_name, *param;
+  Py_ssize_t pos = 0;
+  while (PyDict_Next(params.get(), &pos, &param_name, &param)) {
+    PyObjectPtr default_(PyObject_GetAttrString(inspect, "param"));
+    if (default_.is_null()) stop(py_fetch_error());
+    Rcpp::Rcout << "parameter " << as_std_string(param_name) << "\n";
+
+    const SEXP param_r = (default_ == Py_None) ? R_MissingArg : py_to_r(default_, convert);
+    formals << Named(as_utf8_r_string(param_name), param_r);
+  }
+
+  Rcpp::Rcout << "formals: " << formals << "\n";
+
+  return formals;
 }
 
 PyObject* r_to_py(RObject x, bool convert) {

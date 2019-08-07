@@ -602,8 +602,6 @@ bool py_is_callable(PyObjectRef x) {
     return py_is_callable(x.get());
 }
 
-Rcpp::Pairlist py_get_formals(PyObject* func, bool convert);
-
 
 // convert a python object to an R object
 SEXP py_to_r(PyObject* x, bool convert) {
@@ -912,17 +910,6 @@ SEXP py_to_r(PyObject* x, bool convert) {
     // save reference to underlying py_object
     f.attr("py_object") = pyFunc;
 
-    // Get python function signature
-    Rcpp::Pairlist formals = py_get_formals(x, convert);
-    if (formals.size() > 0) {
-      // No Rcpp API to set formals, so do it in R.
-      f.attr("formals") = formals;
-      Rcpp::Function str = Rcpp::Environment::global_env()["str"];
-      Rcpp::Rcout << "Setting formals:"; str(formals);
-    }
-
-    Rcpp::Rcout << "returning function\n";
-
     // return the R function
     return f;
   }
@@ -955,17 +942,18 @@ SEXP py_to_r(PyObject* x, bool convert) {
   }
 }
 
-Rcpp::Pairlist py_get_formals(PyObject* func, bool convert) {
+// [[Rcpp::export]]
+SEXP py_get_formals(PyObjectRef func, bool convert) {
   PyObjectPtr inspect(py_import("inspect"));
   if (inspect.is_null()) stop(py_fetch_error());
   PyObjectPtr get_signature(PyObject_GetAttrString(inspect, "signature"));
   if (get_signature.is_null()) stop(py_fetch_error());
-  PyObjectPtr signature(PyObject_CallFunctionObjArgs(get_signature, func, NULL));
+  PyObjectPtr signature(PyObject_CallFunctionObjArgs(get_signature, func.get(), NULL));
   // if we could not get a signature, return an empty one
   if (signature.is_null() || PyErr_Occurred()) {
     // TODO: restrict to ValueError
     if (PyErr_Occurred()) PyErr_Clear();
-    return Rcpp::Pairlist();
+    return R_NilValue;
   }
   Rcpp::Rcout << "func: " << as_std_string(PyObject_Str(func)) << ", signature: " << as_std_string(PyObject_Str(signature.get())) << "\n";
   PyObjectPtr params(PyObject_GetAttrString(signature, "parameters"));
@@ -982,8 +970,6 @@ Rcpp::Pairlist py_get_formals(PyObject* func, bool convert) {
     const SEXP param_r = (default_ == Py_None) ? R_MissingArg : py_to_r(default_, convert);
     formals << Named(as_utf8_r_string(param_name), param_r);
   }
-
-  Rcpp::Rcout << "formals: " << formals << "\n";
 
   return formals;
 }

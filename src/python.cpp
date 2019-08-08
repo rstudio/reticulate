@@ -978,7 +978,8 @@ SEXP py_get_formals(PyObjectRef func, bool convert) {
     PyObjectPtr param_default(PyObject_GetAttrString(param, "default"));
     if (param_default.is_null()) stop(py_fetch_error());
 
-    const SEXP param_r = (param_default == empty_param) ? R_MissingArg : py_to_r(param_default.get(), convert);
+    //Here we could convert python objects to R language objects instead of R_NilValue
+    const SEXP param_r = (param_default == empty_param) ? R_MissingArg : R_NilValue;
     formals << Named(as_utf8_r_string(param_name.get()), param_r);
   }
 

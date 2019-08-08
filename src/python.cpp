@@ -974,6 +974,8 @@ SEXP py_get_formals(PyObjectRef func, bool convert) {
   if (var_pos.is_null()) stop(py_fetch_error());
   PyObjectPtr var_kw(PyObject_GetAttrString(param_class.get(), "VAR_KEYWORD"));
   if (var_kw.is_null()) stop(py_fetch_error());
+  PyObjectPtr kw_only(PyObject_GetAttrString(param_class.get(), "KEYWORD_ONLY"));
+  if (kw_only.is_null()) stop(py_fetch_error());
 
   Rcpp::Pairlist formals;
   PyObject* param;
@@ -992,12 +994,14 @@ SEXP py_get_formals(PyObjectRef func, bool convert) {
         formals << Named("...", R_MissingArg);
       }
       var_encountered = true;
-    } else if (param_default != empty_param) {
+    // There is inspect.Parameter(..., *, default = Parameter.empty, ...)
+    // so we check if param_kind == kw_only for this corner case.
+    } else if (param_kind == kw_only || param_default != empty_param) {
       // Here we could convert a subset of python objects to R defaults.
-      // Plain values (numeric, character, NULL, ...) are stored as such,
+      // Plain values (numeric, character, NULL, ...) are stored as is,
       // variables, calls, ... are stored as `symbol` or `language`.
       formals << Named(as_utf8_r_string(param_name.get()), R_NilValue);
-    } else {
+    } else { // Can be positional and has no default value
       formals << Named(as_utf8_r_string(param_name.get()), R_MissingArg);
     }
   }

@@ -979,6 +979,7 @@ SEXP py_get_formals(PyObjectRef func, bool convert) {
 
   Rcpp::Pairlist formals;
   PyObject* param;
+  bool var_encountered = false;
   while ((param = PyIter_Next(param_iter.get()))) {
     PyObjectPtr param_name(PyObject_GetAttrString(param, "name"));
     if (param_name.is_null()) stop(py_fetch_error());
@@ -987,22 +988,33 @@ SEXP py_get_formals(PyObjectRef func, bool convert) {
     PyObjectPtr param_default(PyObject_GetAttrString(param, "default"));
     if (param_default.is_null()) stop(py_fetch_error());
 
-    bool var_encountered = false;
+    // If we encounter our first kw_only param
+    // without having encountered `*args` or `**kw`,
+    // we insert `...` before the actual parameter.
+    if (param_kind == kw_only && !var_encountered) {
+      formals << Named("...", R_MissingArg);
+      var_encountered = true;
+    }
+
+    // If we encounter the first of `*args` or `**kw`,
+    // we insert `...` instead of a parameter.
+    // foo(*args, b=1, **kw) -> foo(..., b=1)
     if (param_kind == var_pos || param_kind == var_kw) {
-      // foo(*args, b=1, **kw, c=2) -> foo(..., b=1, c=2)
       if (!var_encountered) {
         formals << Named("...", R_MissingArg);
+        var_encountered = true;
       }
-      var_encountered = true;
+    // For a parameter w/o default value, we insert `R_MissingArg`.
     // There is inspect.Parameter(..., *, default = Parameter.empty, ...)
-    // so we check if param_kind == kw_only for this corner case.
-    } else if (param_kind == kw_only || param_default != empty_param) {
+    // so we check if param_kind != kw_only for this corner case.
+    } else if (param_kind != kw_only && param_default == empty_param) {
+      formals << Named(as_utf8_r_string(param_name.get()), R_MissingArg);
+    // If we arrive here we have a parameter with default value.
+    } else {
       // Here we could convert a subset of python objects to R defaults.
       // Plain values (numeric, character, NULL, ...) are stored as is,
       // variables, calls, ... are stored as `symbol` or `language`.
       formals << Named(as_utf8_r_string(param_name.get()), R_NilValue);
-    } else { // Can be positional and has no default value
-      formals << Named(as_utf8_r_string(param_name.get()), R_MissingArg);
     }
   }
 

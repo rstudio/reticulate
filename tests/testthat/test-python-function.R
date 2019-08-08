@@ -18,3 +18,43 @@ test_that("Python callables can be called by R", {
   expect_equal(callable(10), 10)
 })
 
+fmt_formals <- function(f) {
+  formatted <- vapply(names(f), function(n) {
+    v <- as.character(f[[n]])
+    if (is.null(f[[n]])) paste(n, '= NULL')
+    else if (nchar(v) == 0) n
+    else paste(n, '=', v)
+  }, character(1))
+  sprintf('(%s)', paste(formatted, collapse = ', '))
+}
+
+expect_formals <- function(given, expected) {
+  if (is.character(given)) {
+    sig <- given
+    given <- formals(py_eval(sprintf('lambda %s: None', given)))
+  } else {
+    sig <- '?'
+  }
+  info <- sprintf('(%s)/%s != %s', sig, fmt_formals(given), fmt_formals(expected))
+  expect_identical(as.list(given), expected, info)
+}
+
+test_that("Python signatures convert properly", {
+  expect_formals('a', alist(a = ))
+  expect_formals('a, b=1', alist(a = , b = NULL))
+  expect_formals('a, *, b=1', alist(a = , ... = , b = NULL))
+  expect_formals('a, *args, b=1', alist(a = , ... = , b = NULL))
+  expect_formals('a, b=1, **kw', alist(a = , b = NULL, ... = ))
+  expect_formals('a, *args, **kw', alist(a = , ... = ))
+  expect_formals('a, *args, b=1, **kw', alist(a = , ... = , b = NULL))
+})
+
+test_that("The inspect.Parameter signature converts properly", {
+  # Parameter.empty usually signifies no default parameter,
+  # but for args 3 and 4 here, it *is* the default parameter.
+  Parameter <- import("inspect")$Parameter
+  expect_formals(formals(Parameter), alist(
+    name = , kind = , ... = ,
+    default = NULL, annotation = NULL
+  ))
+})

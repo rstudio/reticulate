@@ -946,29 +946,40 @@ SEXP py_to_r(PyObject* x, bool convert) {
 SEXP py_get_formals(PyObjectRef func, bool convert) {
   PyObjectPtr inspect(py_import("inspect"));
   if (inspect.is_null()) stop(py_fetch_error());
-  PyObjectPtr get_signature(PyObject_GetAttrString(inspect, "signature"));
+  PyObjectPtr get_signature(PyObject_GetAttrString(inspect.get(), "signature"));
   if (get_signature.is_null()) stop(py_fetch_error());
-  PyObjectPtr signature(PyObject_CallFunctionObjArgs(get_signature, func.get(), NULL));
+  PyObjectPtr signature(PyObject_CallFunctionObjArgs(get_signature.get(), func.get(), NULL));
   // if we could not get a signature, return an empty one
   if (signature.is_null() || PyErr_Occurred()) {
     // TODO: restrict to ValueError
     if (PyErr_Occurred()) PyErr_Clear();
     return R_NilValue;
   }
-  Rcpp::Rcout << "func: " << as_std_string(PyObject_Str(func)) << ", signature: " << as_std_string(PyObject_Str(signature.get())) << "\n";
-  PyObjectPtr params(PyObject_GetAttrString(signature, "parameters"));
+  PyObjectPtr param_dict(PyObject_GetAttrString(signature.get(), "parameters"));
+  if (param_dict.is_null()) stop(py_fetch_error());
+
+  PyObjectPtr param_values(PyObject_GetAttrString(param_dict.get(), "values"));
+  if (param_values.is_null()) stop(py_fetch_error());
+  PyObjectPtr params(PyObject_CallFunctionObjArgs(param_values.get(), NULL, NULL));
   if (params.is_null()) stop(py_fetch_error());
+  PyObjectPtr param_iter(PyObject_GetIter(params.get()));
+  if (param_iter.is_null()) stop(py_fetch_error());
+
+  PyObjectPtr param_class(PyObject_GetAttrString(inspect.get(), "Parameter"));
+  if (param_class.is_null()) stop(py_fetch_error());
+  PyObjectPtr empty_param(PyObject_GetAttrString(param_class.get(), "empty"));
+  if (empty_param.is_null()) stop(py_fetch_error());
 
   Rcpp::Pairlist formals;
-  PyObject *param_name, *param;
-  Py_ssize_t pos = 0;
-  while (PyDict_Next(params.get(), &pos, &param_name, &param)) {
-    PyObjectPtr default_(PyObject_GetAttrString(inspect, "param"));
-    if (default_.is_null()) stop(py_fetch_error());
-    Rcpp::Rcout << "parameter " << as_std_string(param_name) << "\n";
+  PyObject* param;
+  while ((param = PyIter_Next(param_iter.get()))) {
+    PyObjectPtr param_name(PyObject_GetAttrString(param, "name"));
+    if (param_name.is_null()) stop(py_fetch_error());
+    PyObjectPtr param_default(PyObject_GetAttrString(param, "default"));
+    if (param_default.is_null()) stop(py_fetch_error());
 
-    const SEXP param_r = (default_ == Py_None) ? R_MissingArg : py_to_r(default_, convert);
-    formals << Named(as_utf8_r_string(param_name), param_r);
+    const SEXP param_r = (param_default == empty_param) ? R_MissingArg : py_to_r(param_default.get(), convert);
+    formals << Named(as_utf8_r_string(param_name.get()), param_r);
   }
 
   return formals;

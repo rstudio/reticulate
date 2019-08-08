@@ -965,22 +965,41 @@ SEXP py_get_formals(PyObjectRef func, bool convert) {
   PyObjectPtr param_iter(PyObject_GetIter(params.get()));
   if (param_iter.is_null()) stop(py_fetch_error());
 
+  // Static properties of the Parameter class
   PyObjectPtr param_class(PyObject_GetAttrString(inspect.get(), "Parameter"));
   if (param_class.is_null()) stop(py_fetch_error());
   PyObjectPtr empty_param(PyObject_GetAttrString(param_class.get(), "empty"));
   if (empty_param.is_null()) stop(py_fetch_error());
+  PyObjectPtr var_pos(PyObject_GetAttrString(param_class.get(), "VAR_POSITIONAL"));
+  if (var_pos.is_null()) stop(py_fetch_error());
+  PyObjectPtr var_kw(PyObject_GetAttrString(param_class.get(), "VAR_KEYWORD"));
+  if (var_kw.is_null()) stop(py_fetch_error());
 
   Rcpp::Pairlist formals;
   PyObject* param;
   while ((param = PyIter_Next(param_iter.get()))) {
     PyObjectPtr param_name(PyObject_GetAttrString(param, "name"));
     if (param_name.is_null()) stop(py_fetch_error());
+    PyObjectPtr param_kind(PyObject_GetAttrString(param, "kind"));
+    if (param_kind.is_null()) stop(py_fetch_error());
     PyObjectPtr param_default(PyObject_GetAttrString(param, "default"));
     if (param_default.is_null()) stop(py_fetch_error());
 
-    //Here we could convert python objects to R language objects instead of R_NilValue
-    const SEXP param_r = (param_default == empty_param) ? R_MissingArg : R_NilValue;
-    formals << Named(as_utf8_r_string(param_name.get()), param_r);
+    bool var_encountered = false;
+    if (param_kind == var_pos || param_kind == var_kw) {
+      // foo(*args, b=1, **kw, c=2) -> foo(..., b=1, c=2)
+      if (!var_encountered) {
+        formals << Named("...", R_MissingArg);
+      }
+      var_encountered = true;
+    } else if (param_default != empty_param) {
+      // Here we could convert a subset of python objects to R defaults.
+      // Plain values (numeric, character, NULL, ...) are stored as such,
+      // variables, calls, ... are stored as `symbol` or `language`.
+      formals << Named(as_utf8_r_string(param_name.get()), R_NilValue);
+    } else {
+      formals << Named(as_utf8_r_string(param_name.get()), R_MissingArg);
+    }
   }
 
   return formals;

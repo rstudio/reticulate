@@ -1226,7 +1226,7 @@ py_callable_as_function <- function(callable, convert) {
     # Cannot use list(...), as we replace the formals() later.
     call <- sys.call()
     call[[1]] <- as.name('list')
-    dots <- py_resolve_dots(eval(call))
+    dots <- py_resolve_dots(eval.parent(call))
     result <- py_call_impl(callable, dots$args, dots$keywords)
     if (convert) {
       result <- py_to_r(result)
@@ -1239,7 +1239,9 @@ py_callable_as_function <- function(callable, convert) {
       result
     }
   }
-  formals(f) <- py_get_formals(callable, convert)
+  sig <- py_get_formals(callable, convert)
+  if (!is.null(sig))
+    formals(f) <- sig
   f
 }
 

@@ -58,6 +58,7 @@ conda_list <- function(conda = "auto") {
 
   # convert to json
   conda_envs <- fromJSON(conda_envs)$envs
+  conda_envs <- Filter(file.exists, conda_envs)
 
   # return an empty data.frame when no envs are found
   if (length(conda_envs) == 0L) {
@@ -70,7 +71,6 @@ conda_list <- function(conda = "auto") {
 
   # normalize and remove duplicates (seems necessary on Windows as Anaconda
   # may report both short-path and long-path versions of the same environment)
-  conda_envs <- Filter(file.exists, conda_envs)
   conda_envs <- unique(normalizePath(conda_envs))
 
   # build data frame

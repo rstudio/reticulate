@@ -34,7 +34,8 @@ Imports:
     graphics,
     jsonlite,
     Rcpp (>= 0.12.7),
-    Matrix
+    Matrix,
+    flowery
 Suggests:
     testthat,
     knitr,
@@ -44,3 +45,5 @@ LinkingTo: Rcpp
 RoxygenNote: 6.1.1
 Roxygen: list(markdown = TRUE)
 VignetteBuilder: knitr
+Remotes:
+    lionel-/flowery

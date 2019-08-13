@@ -1016,6 +1016,7 @@ SEXP py_get_formals(PyObjectRef func, bool convert) {
       // variables, calls, ... are stored as `symbol` or `language`.
       formals << Named(as_utf8_r_string(param_name.get()), R_NilValue);
     }
+    Py_DECREF(param);
   }
 
   return formals;

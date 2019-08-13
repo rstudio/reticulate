@@ -949,12 +949,7 @@ SEXP py_get_formals(PyObjectRef func, bool convert) {
   PyObjectPtr get_signature(PyObject_GetAttrString(inspect.get(), "signature"));
   if (get_signature.is_null()) stop(py_fetch_error());
   PyObjectPtr signature(PyObject_CallFunctionObjArgs(get_signature.get(), func.get(), NULL));
-  // if we could not get a signature, return an empty one
-  if (signature.is_null() || PyErr_Occurred()) {
-    // TODO: restrict to ValueError
-    if (PyErr_Occurred()) PyErr_Clear();
-    return R_NilValue;
-  }
+  if (signature.is_null()) stop(py_fetch_error());
   PyObjectPtr param_dict(PyObject_GetAttrString(signature.get(), "parameters"));
   if (param_dict.is_null()) stop(py_fetch_error());
 

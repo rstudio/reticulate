@@ -1239,9 +1239,12 @@ py_callable_as_function <- function(callable, convert) {
       result
     }
   }
-  sig <- py_get_formals(callable, convert)
-  if (!is.null(sig))
-    formals(f) <- sig
+  attr(f, 'get_formals_error') <- tryCatch({
+    sig <- py_get_formals(callable, convert)
+    if (!is.null(sig))
+      formals(f) <- sig
+    NULL
+  }, error = function(e) e)
   f
 }
 

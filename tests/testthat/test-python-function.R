@@ -49,6 +49,15 @@ test_that("Python signatures convert properly", {
   expect_formals('a, *args, b=1, **kw', alist(a = , ... = , b = NULL))
 })
 
+test_that("Errors from e.g. builtins are not propagated", {
+  print <- import_builtins()$print
+  expect_formals(formals(print), alist(... = ))
+  expect_match(
+    attr(print, 'get_formals_error')$message,
+    "ValueError: no signature found for builtin <built-in function print>"
+  )
+})
+
 test_that("The inspect.Parameter signature converts properly", {
   # Parameter.empty usually signifies no default parameter,
   # but for args 3 and 4 here, it *is* the default parameter.

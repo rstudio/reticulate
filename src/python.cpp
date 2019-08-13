@@ -978,14 +978,14 @@ SEXP py_get_formals(PyObjectRef func, bool convert) {
   if (kw_only.is_null()) stop(py_fetch_error());
 
   Rcpp::Pairlist formals;
-  PyObject* param;
+  PyObjectPtr param;
   bool var_encountered = false;
-  while ((param = PyIter_Next(param_iter.get()))) {
-    PyObjectPtr param_name(PyObject_GetAttrString(param, "name"));
+  while (param.assign(PyIter_Next(param_iter.get())), !param.is_null()) {
+    PyObjectPtr param_name(PyObject_GetAttrString(param.get(), "name"));
     if (param_name.is_null()) stop(py_fetch_error());
-    PyObjectPtr param_kind(PyObject_GetAttrString(param, "kind"));
+    PyObjectPtr param_kind(PyObject_GetAttrString(param.get(), "kind"));
     if (param_kind.is_null()) stop(py_fetch_error());
-    PyObjectPtr param_default(PyObject_GetAttrString(param, "default"));
+    PyObjectPtr param_default(PyObject_GetAttrString(param.get(), "default"));
     if (param_default.is_null()) stop(py_fetch_error());
 
     // If we encounter our first kw_only param
@@ -1016,7 +1016,6 @@ SEXP py_get_formals(PyObjectRef func, bool convert) {
       // variables, calls, ... are stored as `symbol` or `language`.
       formals << Named(as_utf8_r_string(param_name.get()), R_NilValue);
     }
-    Py_DECREF(param);
   }
 
   return formals;

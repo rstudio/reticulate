@@ -67,3 +67,14 @@ test_that("The inspect.Parameter signature converts properly", {
     default = NULL, annotation = NULL
   ))
 })
+
+test_that("Parameters are not matched by prefix", {
+  f_r <- function(long = NULL, ...) list(long, list(...))
+  f_py <- py_eval('lambda long=None, **kw: (long, kw)')
+  expect_identical(formals(f_r), formals(f_py))
+
+  # Normal R functions match partially:
+  expect_identical(f_r(l = 2L), list(2L, list()))
+  # Python functions behave as expected:
+  expect_identical(f_py(l = 2L), list(NULL, list(l = 2L)))
+})

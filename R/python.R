@@ -1238,8 +1238,11 @@ py_eval <- function(code, convert = TRUE) {
 }
 
 py_callable_as_function <- function(callable, convert) {
-  function(...) {
-    dots <- py_resolve_dots(list(...))
+  f <- function(...) {
+    # Cannot use list(...), as we replace the formals() later.
+    call <- sys.call()
+    call[[1]] <- as.name('list')
+    dots <- py_resolve_dots(eval.parent(call))
     result <- py_call_impl(callable, dots$args, dots$keywords)
     if (convert) {
       result <- py_to_r(result)
@@ -1252,6 +1255,13 @@ py_callable_as_function <- function(callable, convert) {
       result
     }
   }
+  attr(f, 'get_formals_error') <- tryCatch({
+    sig <- py_get_formals(callable, convert)
+    if (!is.null(sig))
+      formals(f) <- sig
+    NULL
+  }, error = function(e) e)
+  f
 }
 
 py_resolve_dots <- function(dots) {

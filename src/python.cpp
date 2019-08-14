@@ -973,9 +973,11 @@ SEXP py_get_formals(PyObjectRef func, bool convert) {
   if (kw_only.is_null()) stop(py_fetch_error());
 
   Rcpp::Pairlist formals;
-  PyObjectPtr param;
   bool var_encountered = false;
-  while (param.assign(PyIter_Next(param_iter.get())), !param.is_null()) {
+  while (true) {
+    PyObjectPtr param(PyIter_Next(param_iter.get()));
+    if (param.is_null()) break;
+
     PyObjectPtr param_name(PyObject_GetAttrString(param.get(), "name"));
     if (param_name.is_null()) stop(py_fetch_error());
     PyObjectPtr param_kind(PyObject_GetAttrString(param.get(), "kind"));

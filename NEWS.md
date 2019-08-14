@@ -3,6 +3,13 @@
 
 Install the development version of reticulate with `remotes::install_github("rstudio/reticulate")`.
 
+- R functions wrapping Python functions now inherit the formal arguments
+  as specified by Python, making autocompletion more reliable.
+  (#573, @flying-sheep)
+
+- Fixed an issue where attempts to query Conda for environments could fail
+  on Windows. (#576; #575; @dfalbel)
+
 - Properly check for NULL keyword arguments in `call_r_function()`.
   (#562, @dfalbel)
 

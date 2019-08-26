@@ -39,6 +39,7 @@ Just a placeholder here.
 })
 
 test_that("Documentations in Google style can be extracted correctly for help handlers", {
+  skip_if_no_docutils()
 
   docs <- "
 Initialize the model.

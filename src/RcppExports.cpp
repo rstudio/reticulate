@@ -68,6 +68,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// py_get_formals
+SEXP py_get_formals(PyObjectRef func, bool convert);
+RcppExport SEXP _reticulate_py_get_formals(SEXP funcSEXP, SEXP convertSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< PyObjectRef >::type func(funcSEXP);
+    Rcpp::traits::input_parameter< bool >::type convert(convertSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_get_formals(func, convert));
+    return rcpp_result_gen;
+END_RCPP
+}
 // r_to_py_impl
 PyObjectRef r_to_py_impl(RObject object, bool convert);
 RcppExport SEXP _reticulate_r_to_py_impl(SEXP objectSEXP, SEXP convertSEXP) {
@@ -346,6 +358,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// py_dict_get_keys
+PyObjectRef py_dict_get_keys(PyObjectRef dict);
+RcppExport SEXP _reticulate_py_dict_get_keys(SEXP dictSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< PyObjectRef >::type dict(dictSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_dict_get_keys(dict));
+    return rcpp_result_gen;
+END_RCPP
+}
 // py_dict_get_keys_as_str
 CharacterVector py_dict_get_keys_as_str(PyObjectRef dict);
 RcppExport SEXP _reticulate_py_dict_get_keys_as_str(SEXP dictSEXP) {
@@ -494,6 +517,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_reticulate_py_last_error", (DL_FUNC) &_reticulate_py_last_error, 0},
     {"_reticulate_py_clear_last_error", (DL_FUNC) &_reticulate_py_clear_last_error, 0},
     {"_reticulate_py_is_callable", (DL_FUNC) &_reticulate_py_is_callable, 1},
+    {"_reticulate_py_get_formals", (DL_FUNC) &_reticulate_py_get_formals, 2},
     {"_reticulate_r_to_py_impl", (DL_FUNC) &_reticulate_r_to_py_impl, 2},
     {"_reticulate_py_activate_virtualenv", (DL_FUNC) &_reticulate_py_activate_virtualenv, 1},
     {"_reticulate_py_initialize", (DL_FUNC) &_reticulate_py_initialize, 7},
@@ -518,6 +542,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_reticulate_py_dict_get_item", (DL_FUNC) &_reticulate_py_dict_get_item, 2},
     {"_reticulate_py_dict_set_item", (DL_FUNC) &_reticulate_py_dict_set_item, 3},
     {"_reticulate_py_dict_length", (DL_FUNC) &_reticulate_py_dict_length, 1},
+    {"_reticulate_py_dict_get_keys", (DL_FUNC) &_reticulate_py_dict_get_keys, 1},
     {"_reticulate_py_dict_get_keys_as_str", (DL_FUNC) &_reticulate_py_dict_get_keys_as_str, 1},
     {"_reticulate_py_tuple", (DL_FUNC) &_reticulate_py_tuple, 2},
     {"_reticulate_py_tuple_length", (DL_FUNC) &_reticulate_py_tuple_length, 1},

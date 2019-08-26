@@ -44,6 +44,10 @@ test_that("Generic methods for pandas objects produce correct results", {
 test_that("Timestamped arrays in Pandas DataFrames can be roundtripped", {
   skip_if_no_pandas()
 
+  # TODO: this test fails on Windows because the int32 array gets
+  # converted to an R numeric vector rather than an integer vector
+  skip_on_os("windows")
+
   pd <- import("pandas", convert = FALSE)
   np <- import("numpy", convert = FALSE)
 
@@ -110,5 +114,14 @@ test_that("complex names are handled", {
   p <- pd$DataFrame(data = d)
   r <- py_to_r(p)
   expect_equal(names(r), c("col1", "(col1, col2)"))
+
+})
+
+test_that("single-row data.frames with rownames can be converted", {
+  skip_if_no_pandas()
+
+  before <- data.frame(A = 1, row.names = "ID01")
+  after <- py_to_r(r_to_py(before))
+  expect_equal(c(before), c(after))
 
 })

@@ -1,7 +1,11 @@
-context("Virtual Environments")
+context("virtual environments")
 
 test_that("reticulate can bind to virtual environments created with venv", {
   skip_if_no_python()
+  skip_on_cran()
+
+  Sys.unsetenv("RETICULATE_PYTHON")
+  Sys.unsetenv("RETICULATE_PYTHON_ENV")
 
   # find Python 3 binary for testing
   python3 <- Sys.which("python3")
@@ -20,7 +24,7 @@ test_that("reticulate can bind to virtual environments created with venv", {
   # try running reticulate and binding to that virtual environment
   R <- file.path(R.home("bin"), "R")
   script <- normalizePath("resources/venv-activate.R")
-  args <- c("--vanilla", "--slave", "-f", script, "--args", venv)
+  args <- c("--vanilla", "--slave", "-f", shQuote(script), "--args", shQuote(venv))
   output <- system2(R, args, stdout = TRUE)
 
   # test that we're using the site-packages dir in the venv

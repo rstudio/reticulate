@@ -44,3 +44,10 @@ test_that("length method for Python lists works", {
   l$append(3)
   expect_equal(length(l), 3)
 })
+
+test_that("tuples are converted recursively just like lists", {
+  skip_if_no_python()
+  t <- test$makeTupleWithOrderedDict()
+  expect_equal(class(t[[2]]), "list")
+})
+

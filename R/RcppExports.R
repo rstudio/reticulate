@@ -34,6 +34,10 @@ py_is_callable <- function(x) {
     .Call(`_reticulate_py_is_callable`, x)
 }
 
+py_get_formals <- function(func, convert) {
+    .Call(`_reticulate_py_get_formals`, func, convert)
+}
+
 r_to_py_impl <- function(object, convert) {
     .Call(`_reticulate_r_to_py_impl`, object, convert)
 }
@@ -147,6 +151,10 @@ py_dict_set_item <- function(dict, item, value) {
 
 py_dict_length <- function(dict) {
     .Call(`_reticulate_py_dict_length`, dict)
+}
+
+py_dict_get_keys <- function(dict) {
+    .Call(`_reticulate_py_dict_get_keys`, dict)
 }
 
 py_dict_get_keys_as_str <- function(dict) {

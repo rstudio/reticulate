@@ -188,6 +188,7 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
   LOAD_PYTHON_SYMBOL(PyList_Size)
   LOAD_PYTHON_SYMBOL(PyList_GetItem)
   LOAD_PYTHON_SYMBOL(PyList_SetItem)
+  LOAD_PYTHON_SYMBOL(PyErr_Clear)
   LOAD_PYTHON_SYMBOL(PyErr_Fetch)
   LOAD_PYTHON_SYMBOL(PyErr_Occurred)
   LOAD_PYTHON_SYMBOL(PyErr_NormalizeException)
@@ -252,7 +253,15 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
     return false;
 
   if (python3) {
-    LOAD_PYTHON_SYMBOL(PyModule_Create2)
+
+    // Debug versions of Python will provide PyModule_Create2TraceRefs,
+    // while release versions will provide PyModule_Create
+#ifdef RETICULATE_PYTHON_DEBUG
+    LOAD_PYTHON_SYMBOL_AS(PyModule_Create2TraceRefs, PyModule_Create)
+#else
+    LOAD_PYTHON_SYMBOL_AS(PyModule_Create2, PyModule_Create)
+#endif
+
     LOAD_PYTHON_SYMBOL(PyImport_AppendInittab)
     LOAD_PYTHON_SYMBOL_AS(Py_SetProgramName, Py_SetProgramName_v3)
     LOAD_PYTHON_SYMBOL_AS(Py_SetPythonHome, Py_SetPythonHome_v3)
@@ -304,6 +313,7 @@ bool import_numpy_api(bool python3, std::string* pError) {
   PyObject* numpy = PyImport_ImportModule("numpy.core.multiarray");
   if (numpy == NULL) {
     *pError = "numpy.core.multiarray failed to import";
+    PyErr_Clear();
     return false;
   }
 

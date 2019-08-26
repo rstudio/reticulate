@@ -1,7 +1,102 @@
 
-## reticulate 1.11 (development)
+## reticulate 1.14 (UNDER DEVELOPMENT)
 
-Install the development version with: `devtools::install_github("rstudio/reticulate")`
+Install the development version of reticulate with `remotes::install_github("rstudio/reticulate")`.
+
+- R functions wrapping Python functions now inherit the formal arguments
+  as specified by Python, making autocompletion more reliable.
+  (#573, @flying-sheep)
+
+- Fixed an issue where attempts to query Conda for environments could fail
+  on Windows. (#576; #575; @dfalbel)
+
+- Properly check for NULL keyword arguments in `call_r_function()`.
+  (#562, @dfalbel)
+
+## reticulate 1.13 (CRAN)
+
+- Fixed an issue where subsetting with `[.python.builtin.object` could
+  fail when `convert = TRUE` is set on the associated Python object.
+  (#554)
+
+- Fixed an issue where the wrong definition of `[[.python.builtin.object`
+  was being exported. (#554)
+
+- `py_install()` now accepts `python_version`, and can be used
+  if a particular version of Python is required for a Conda
+  environment. (This argument is ignored for virtual environments.)
+  (#549)
+
+- Fixed an issue where reticulate could segfault in some cases
+  (e.g. when using the `iterate()` function). (#551)
+
+- It is now possible to compile `reticulate` with support for debug
+  versions of Python by setting the `RETICULATE_PYTHON_DEBUG` preprocessor
+  define during compilation. (#548)
+
+- reticulate now warns if it did not honor the user's request to load a
+  particular version of Python, as through e.g. `reticulate::use_python()`.
+  (#545)
+
+- `py_save_object()` and `py_load_object()` now accept `...` arguments. (#542)
+
+- `py_install()` has been revamped, and now better detects
+  available Python tooling (virtualenv vs. venv vs. Conda). (#544)
+
+- reticulate now flushes stdout / stderr after calls to `py_run_file()` and
+  `py_run_string()`.
+
+- Python tuples are now converted recursively, in the same way that Python
+  lists are. This means that the sub-elements of the tuple will be converted
+  to R objects when possible. (#525, @skeydan)
+
+- Python OrderedDict objects with non-string keys are now properly
+  converted to R. (#516)
+
+- Fixed an issue where reticulate could crash after a failed attempt
+  to load NumPy. (#497, @ecoughlan)
+
+## reticulate 1.12
+
+- Fixed an issue where Python objects within Python lists would not be
+  converted to R objects as expected.
+
+- Fixed an issue where single-row data.frames with row names could not
+  be converted. (#468)
+
+- Fixed an issue where `reticulate` could fail to query Anaconda environment
+  names with Anaconda 3.7.
+
+- Fixed an issue where vectors of R Dates were not converted correctly. (#454)
+
+- Fixed an issue where R Dates could not be passed to Python functions. (#458)
+
+## reticulate 1.11.1
+
+- Fixed a failing virtual environment test on CRAN.
+
+## reticulate 1.11
+
+- Fixed an issue where attempts to activate virtual environments created with
+  virtualenv 16.4.1 would fail. (#437)
+
+- Fixed an issue where conversion of Pandas Categorical variables to R objects
+  would fail. (#389)
+
+- Textual output generated when adding items to a matplotlib plot object
+  are now suppressed.
+
+- If the last statement in a Python chunk returns a matplotlib plot object,
+  the plot will now be auto-shown as in other environments.
+
+- The reticulate function help handler now returns function arguments for
+  Python builtin functions.
+
+- Top-level Python statements can now include leading indent when submitted
+  with `repl_python()`.
+
+- The current `matplotlib` figure is now cleared as each Python chunk in an
+  R Markdown document is run.
 
 - The `r` helper object (used for evaluating R code from Python) now better
   handles conversion of R functions. (#383)
@@ -42,7 +137,7 @@ Install the development version with: `devtools::install_github("rstudio/reticul
 
 - Add `py_to_r` S3 methods for Scipy sparse matrices: CSR to dgRMatrix, COO to dgTMatrix, and for all other sparse matrices, conversion via CSC/dgCMatrix.
 
-## reticulate 1.10 (CRAN)
+## reticulate 1.10
 
 - Output is now properly displayed when using the `reticulate` REPL with
   Windows + Python 2.7.

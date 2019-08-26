@@ -94,7 +94,6 @@ py_module_available <- function(module) {
 #' @export
 py_discover_config <- function(required_module = NULL, use_environment = NULL) {
 
-
   # if PYTHON_SESSION_INITIALIZED is specified then use it without scanning
   # further (this is a "hard" requirement because an embedding process may
   # set this to indicate that the python interpreter is already loaded)
@@ -106,13 +105,25 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
   }
 
   # if RETICULATE_PYTHON is specified then use it without scanning further
-  reticulate_python_env <- Sys.getenv("RETICULATE_PYTHON", unset = NA)
-  if (!is.na(reticulate_python_env)) {
-    python_version <- normalize_python_path(reticulate_python_env)
+  reticulate_env <- Sys.getenv("RETICULATE_PYTHON", unset = NA)
+  if (!is.na(reticulate_env)) {
+    python_version <- normalize_python_path(reticulate_env)
     if (!python_version$exists)
-      stop("Python specified in RETICULATE_PYTHON (", reticulate_python_env, ") does not exist")
+      stop("Python specified in RETICULATE_PYTHON (", reticulate_env, ") does not exist")
     python_version <- python_version$path
     config <- python_config(python_version, required_module, python_version, forced = "RETICULATE_PYTHON")
+    return(config)
+  }
+
+  # if RETICULATE_PYTHON_ENV is specified then use that
+  reticulate_python_env <- Sys.getenv("RETICULATE_PYTHON_ENV", unset = NA)
+  if (!is.na(reticulate_python_env)) {
+    python <- python_binary_path(reticulate_python_env)
+    python_version <- normalize_python_path(python)
+    if (!python_version$exists)
+      stop("Python specified in RETICULATE_PYTHON_ENV (", reticulate_python_env, ") does not exist")
+    path <- python_version$path
+    config <- python_config(path, required_module, path, forced = "RETICULATE_PYTHON_ENV")
     return(config)
   }
 
@@ -172,6 +183,14 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
   # filter locations by existence
   if (length(python_versions) > 0)
     python_versions <- python_versions[file.exists(python_versions)]
+
+  # remove 'fake' / inaccessible python executables
+  # https://github.com/rstudio/reticulate/issues/534
+  if (is_windows()) {
+    info <- suppressWarnings(file.info(python_versions))
+    size <- ifelse(is.na(info$size), 0, info$size)
+    python_versions <- python_versions[size != 0]
+  }
 
   # scan until we find a version of python that meets our qualifying conditions
   valid_python_versions <- c()
@@ -295,17 +314,55 @@ python_environments <- function(env_dirs, required_module = NULL) {
     envs
 }
 
+python_munge_path <- function(python) {
 
+  # add the python bin dir to the PATH (so that any execution of python from
+  # within the interpreter, from a system call, or from within a terminal
+  # hosted within the front end will use the same version of python.
+  #
+  # we do this up-front in python_config as otherwise attempts to discover
+  # and load numpy can fail, especially on Windows
+  # https://github.com/rstudio/reticulate/issues/367
+  python_home <- dirname(python)
+  python_dirs <- c(normalizePath(python_home))
+  if (is_windows()) {
+
+    # include the Scripts path, as well
+    python_scripts <- file.path(python_home, "Scripts")
+    if (file.exists(python_scripts))
+      python_dirs <- c(python_dirs, normalizePath(python_scripts))
+
+    # we saw some crashes occurring when Python modules attempted to load
+    # dynamic libraries at runtime; e.g.
+    #
+    #   Intel MKL FATAL ERROR: Cannot load mkl_intel_thread.dll
+    #
+    # we work around this by putting the associated binary directory
+    # on the PATH so it can be successfully resolved
+    python_library_bin <- file.path(python_home, "Library/bin")
+    if (file.exists(python_library_bin))
+      python_dirs <- c(python_dirs, normalizePath(python_library_bin))
+  }
+
+  path_prepend(python_dirs)
+
+}
 
 python_config <- function(python, required_module, python_versions, forced = NULL) {
+
+  # update and restore PATH when done
+  oldpath <- python_munge_path(python)
+  on.exit(Sys.setenv(PATH = oldpath), add = TRUE)
 
   # collect configuration information
   if (!is.null(required_module)) {
     Sys.setenv(RETICULATE_REQUIRED_MODULE = required_module)
     on.exit(Sys.unsetenv("RETICULATE_REQUIRED_MODULE"), add = TRUE)
   }
+
   config_script <- system.file("config/config.py", package = "reticulate")
-  config <- system2(command = python, args = paste0('"', config_script, '"'), stdout = TRUE)
+  # It seems that Windows in R3.6 returns the configuration from the python file only in stderr and not in stdout
+  config <- system2(command = python, args = paste0('"', config_script, '"'), stdout = TRUE, stderr = FALSE)
   status <- attr(config, "status")
   if (!is.null(status)) {
     errmsg <- attr(config, "errmsg")
@@ -335,7 +392,7 @@ python_config <- function(python, required_module, python_versions, forced = NUL
     python_libdir_config <- function(var) {
       python_libdir <- config[[var]]
       ext <- switch(Sys.info()[["sysname"]], Darwin = ".dylib", Windows = ".dll", ".so")
-      pattern <- paste0("^libpython", version, "m?", ext)
+      pattern <- paste0("^libpython", version, "d?m?", ext)
       libpython <- list.files(python_libdir, pattern = pattern, full.names = TRUE)
     }
     for (libsrc in c("LIBPL", "LIBDIR")) {
@@ -375,7 +432,7 @@ python_config <- function(python, required_module, python_versions, forced = NUL
 
   # check to see if this is a Python virtualenv
   root <- dirname(dirname(python))
-  virtualenv <- if (is_python_virtualenv(root))
+  virtualenv <- if (is_virtualenv(root))
     root
   else
     ""

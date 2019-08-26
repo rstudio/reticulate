@@ -1,4 +1,5 @@
 
+`%||%` <- function(x, y) if (is.null(x)) y else x
 
 traceback_enabled <- function() {
 
@@ -120,6 +121,9 @@ py_compile_eval <- function(code) {
   compiled <- builtins$compile(code, '<string>', 'single')
   output <- py_capture_output(builtins$eval(compiled, globals, locals))
 
+  # save the value that was produced
+  .globals$py_last_value <- py_last_value()
+
   # py_capture_output can append an extra trailing newline, so remove it
   if (grepl("\n{2,}$", output))
     output <- sub("\n$", "", output)
@@ -127,3 +131,47 @@ py_compile_eval <- function(code) {
   # and return
   invisible(output)
 }
+
+py_last_value <- function() {
+  tryCatch(
+    py_eval("_", convert = FALSE),
+    error = function(e) r_to_py(NULL)
+  )
+}
+
+python_binary_path <- function(dir) {
+
+  # check for condaenv
+  if (is_condaenv(dir)) {
+    suffix <- if (is_windows()) "python.exe" else "bin/python"
+    return(file.path(dir, suffix))
+  }
+
+  # check for virtualenv
+  if (is_virtualenv(dir)) {
+    suffix <- if (is_windows()) "Scripts/python.exe" else "bin/python"
+    return(file.path(dir, suffix))
+  }
+
+  # check for directory containing Python
+  suffix <- if (is_windows()) "python.exe" else "python"
+  if (file.exists(file.path(dir, suffix)))
+    return(file.path(dir, suffix))
+
+  stop("failed to discover Python binary associated with path '", dir, "'")
+
+}
+
+# prepends entries to the PATH (either moving or adding them as appropriate)
+# and returns the previously-set PATH
+path_prepend <- function(entries) {
+  oldpath <- Sys.getenv("PATH")
+  if (length(entries)) {
+    entries <- path.expand(entries)
+    splat <- strsplit(oldpath, split = .Platform$path.sep, fixed = TRUE)[[1]]
+    newpath <- c(entries, setdiff(splat, entries))
+    Sys.setenv(PATH = paste(newpath, collapse = .Platform$path.sep))
+  }
+  oldpath
+}
+

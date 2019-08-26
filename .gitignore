@@ -1,12 +1,14 @@
+.Renviron
 .Rproj.user
 .Rhistory
 .RData
 .Ruserdata
 .DS_Store
+log/
 src/*.o
 src/*.so
 src/*.dll
-README.html
-.Renviron
+revdep/
 issues/
+README.html
 index.html

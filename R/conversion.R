@@ -51,7 +51,10 @@ r_to_py.list <- function(x, convert = FALSE) {
 
 #' @export
 py_to_r.python.builtin.list <- function(x) {
-  disable_conversion_scope(x)
+
+  # NOTE: we don't disable conversion in this context
+  # as we want to ensure sub-objects inherit convert-ability
+  # see e.g. https://github.com/rstudio/keras/issues/732
 
   # give internal code a chance to perform efficient
   # conversion of e.g. numeric vectors and the like
@@ -70,6 +73,9 @@ py_to_r.python.builtin.list <- function(x) {
 
   converted
 }
+
+#' @export
+py_to_r.python.builtin.tuple <- py_to_r.python.builtin.list
 
 #' R wrapper for Python objects
 #'
@@ -136,7 +142,7 @@ r_to_py.POSIXt <- function(x, convert = FALSE) {
   if (py_module_available("numpy"))
     return(np_array(as.numeric(x) * 1E9, dtype = "datetime64[ns]"))
 
-  datetime <- import("datetime", convert = convert)
+  datetime <- import("datetime", convert = FALSE)
   datetime$datetime$fromtimestamp(as.double(x))
 }
 
@@ -154,9 +160,9 @@ py_to_r.datetime.datetime <- function(x) {
 #' @export
 r_to_py.Date <- function(x, convert = FALSE) {
 
-  datetime <- import("datetime", convert = convert)
+  datetime <- import("datetime", convert = FALSE)
   items <- lapply(x, function(item) {
-    iso <- strsplit(format(x), "-", fixed = TRUE)[[1]]
+    iso <- strsplit(format(item), "-", fixed = TRUE)[[1]]
     year <- as.integer(iso[[1]])
     month <- as.integer(iso[[2]])
     day <- as.integer(iso[[3]])
@@ -179,11 +185,15 @@ py_to_r.datetime.date <- function(x) {
 
 #' @export
 py_to_r.collections.OrderedDict <- function(x) {
-  keys <- names(x)
-  names(keys) <- keys
-  lapply(keys, function(key) {
-    x[[key]]
+  disable_conversion_scope(x)
+
+  keys <- py_dict_get_keys(x)
+  result <- lapply(seq_len(length(keys)) - 1L, function(i) {
+    py_to_r(py_dict_get_item(x, keys[i]))
   })
+
+  names(result) <- py_dict_get_keys_as_str(x)
+  result
 }
 
 
@@ -204,6 +214,10 @@ py_to_r.pandas.core.categorical.Categorical <- function(x) {
   ordered <- py_to_r(x$dtype$ordered)
   factor(values, levels = levels, ordered = ordered)
 }
+
+#' @export
+py_to_r.pandas.core.arrays.categorical.Categorical <-
+  py_to_r.pandas.core.categorical.Categorical
 
 py_object_shape <- function(object) unlist(as_r_value(object$shape))
 
@@ -258,8 +272,11 @@ r_to_py.data.frame <- function(x, convert = FALSE) {
 
   # copy over row names if they exist
   rni <- .row_names_info(x, type = 0L)
-  if (is.character(rni))
+  if (is.character(rni)) {
+    if (length(rni) == 1)
+      rni <- as.list(rni)
     pdf$index <- rni
+  }
 
   # re-order based on original columns
   if (length(x) > 1)

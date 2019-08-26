@@ -942,6 +942,82 @@ SEXP py_to_r(PyObject* x, bool convert) {
   }
 }
 
+// [[Rcpp::export]]
+SEXP py_get_formals(PyObjectRef func, bool convert) {
+  PyObjectPtr inspect(py_import("inspect"));
+  if (inspect.is_null()) stop(py_fetch_error());
+  PyObjectPtr get_signature(PyObject_GetAttrString(inspect.get(), "signature"));
+  if (get_signature.is_null()) stop(py_fetch_error());
+  PyObjectPtr signature(PyObject_CallFunctionObjArgs(get_signature.get(), func.get(), NULL));
+  if (signature.is_null()) stop(py_fetch_error());
+  PyObjectPtr param_dict(PyObject_GetAttrString(signature.get(), "parameters"));
+  if (param_dict.is_null()) stop(py_fetch_error());
+
+  PyObjectPtr param_values(PyObject_GetAttrString(param_dict.get(), "values"));
+  if (param_values.is_null()) stop(py_fetch_error());
+  PyObjectPtr params(PyObject_CallFunctionObjArgs(param_values.get(), NULL, NULL));
+  if (params.is_null()) stop(py_fetch_error());
+  PyObjectPtr param_iter(PyObject_GetIter(params.get()));
+  if (param_iter.is_null()) stop(py_fetch_error());
+
+  // Static properties of the Parameter class
+  PyObjectPtr param_class(PyObject_GetAttrString(inspect.get(), "Parameter"));
+  if (param_class.is_null()) stop(py_fetch_error());
+  PyObjectPtr empty_param(PyObject_GetAttrString(param_class.get(), "empty"));
+  if (empty_param.is_null()) stop(py_fetch_error());
+  PyObjectPtr var_pos(PyObject_GetAttrString(param_class.get(), "VAR_POSITIONAL"));
+  if (var_pos.is_null()) stop(py_fetch_error());
+  PyObjectPtr var_kw(PyObject_GetAttrString(param_class.get(), "VAR_KEYWORD"));
+  if (var_kw.is_null()) stop(py_fetch_error());
+  PyObjectPtr kw_only(PyObject_GetAttrString(param_class.get(), "KEYWORD_ONLY"));
+  if (kw_only.is_null()) stop(py_fetch_error());
+
+  Rcpp::Pairlist formals;
+  bool var_encountered = false;
+  while (true) {
+    PyObjectPtr param(PyIter_Next(param_iter.get()));
+    if (param.is_null()) break;
+
+    PyObjectPtr param_name(PyObject_GetAttrString(param.get(), "name"));
+    if (param_name.is_null()) stop(py_fetch_error());
+    PyObjectPtr param_kind(PyObject_GetAttrString(param.get(), "kind"));
+    if (param_kind.is_null()) stop(py_fetch_error());
+    PyObjectPtr param_default(PyObject_GetAttrString(param.get(), "default"));
+    if (param_default.is_null()) stop(py_fetch_error());
+
+    // If we encounter our first kw_only param
+    // without having encountered `*args` or `**kw`,
+    // we insert `...` before the actual parameter.
+    if (param_kind == kw_only && !var_encountered) {
+      formals << Named("...", R_MissingArg);
+      var_encountered = true;
+    }
+
+    // If we encounter the first of `*args` or `**kw`,
+    // we insert `...` instead of a parameter.
+    // foo(*args, b=1, **kw) -> foo(..., b=1)
+    if (param_kind == var_pos || param_kind == var_kw) {
+      if (!var_encountered) {
+        formals << Named("...", R_MissingArg);
+        var_encountered = true;
+      }
+    // For a parameter w/o default value, we insert `R_MissingArg`.
+    // There is inspect.Parameter(..., *, default = Parameter.empty, ...)
+    // so we check if param_kind != kw_only for this corner case.
+    } else if (param_kind != kw_only && param_default == empty_param) {
+      formals << Named(as_utf8_r_string(param_name.get()), R_MissingArg);
+    // If we arrive here we have a parameter with default value.
+    } else {
+      // Here we could convert a subset of python objects to R defaults.
+      // Plain values (numeric, character, NULL, ...) are stored as is,
+      // variables, calls, ... are stored as `symbol` or `language`.
+      formals << Named(as_utf8_r_string(param_name.get()), R_NilValue);
+    }
+  }
+
+  return formals;
+}
+
 PyObject* r_to_py(RObject x, bool convert) {
 
   // get a static reference to the R version of r_to_py
@@ -1250,6 +1326,7 @@ extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* k
   // the first argument is always the capsule containing the R function to call
   PyObject* capsule = PyTuple_GetItem(args, 0);
   RObject rFunction = r_object_from_capsule(capsule);
+
   bool convert = (bool)PyCapsule_GetContext(capsule);
 
   // convert remainder of positional arguments to R list
@@ -1268,15 +1345,18 @@ extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* k
 
   // get keyword arguments
   List rKeywords;
-  if (convert) {
-    rKeywords = ::py_to_r(keywords, convert);
-  } else {
-    PyObject *key, *value;
-    Py_ssize_t pos = 0;
-    while (PyDict_Next(keywords, &pos, &key, &value)) {
-      PyObjectPtr str(PyObject_Str(key));
-      Py_IncRef(value);
-      rKeywords[as_std_string(str)] = py_ref(value, convert);
+
+  if (keywords != NULL) {
+    if (convert) {
+      rKeywords = ::py_to_r(keywords, convert);
+    } else {
+      PyObject *key, *value;
+      Py_ssize_t pos = 0;
+      while (PyDict_Next(keywords, &pos, &key, &value)) {
+        PyObjectPtr str(PyObject_Str(key));
+        Py_IncRef(value);
+        rKeywords[as_std_string(str)] = py_ref(value, convert);
+      }
     }
   }
 
@@ -1424,7 +1504,7 @@ static struct PyModuleDef RPYCallModuleDef = {
 };
 
 extern "C" PyObject* initializeRPYCall(void) {
-  return PyModule_Create2(&RPYCallModuleDef, _PYTHON3_ABI_VERSION);
+  return PyModule_Create(&RPYCallModuleDef, _PYTHON3_ABI_VERSION);
 }
 
 // forward declare py_run_file
@@ -1437,10 +1517,9 @@ void py_activate_virtualenv(const std::string& script)
   PyObject* main = PyImport_AddModule("__main__");
   PyObject* mainDict = PyModule_GetDict(main);
 
-  // create local dict with __file__
-  PyObjectPtr localDict(PyDict_New());
+  // inject __file__
   PyObjectPtr file(as_python_str(script));
-  int res = PyDict_SetItemString(localDict, "__file__", file);
+  int res = PyDict_SetItemString(mainDict, "__file__", file);
   if (res != 0)
     stop(py_fetch_error());
 
@@ -1452,7 +1531,7 @@ void py_activate_virtualenv(const std::string& script)
                    (std::istreambuf_iterator<char>()));
 
   // run string
-  PyObjectPtr runRes(PyRun_StringFlags(code.c_str(), Py_file_input, mainDict, localDict, NULL));
+  PyObjectPtr runRes(PyRun_StringFlags(code.c_str(), Py_file_input, mainDict, NULL, NULL));
   if (runRes.is_null())
     stop(py_fetch_error());
 }
@@ -1847,8 +1926,7 @@ SEXP py_call_impl(PyObjectRef x, List args = R_NilValue, List keywords = R_NilVa
     stop(py_fetch_error());
 
   // return
-  Py_IncRef(res);
-  return py_ref(res, x.convert());
+  return py_ref(res.detach(), x.convert());
 }
 
 
@@ -1887,6 +1965,11 @@ void py_dict_set_item(PyObjectRef dict, RObject item, RObject value) {
 // [[Rcpp::export]]
 int py_dict_length(PyObjectRef dict) {
   return PyDict_Size(dict);
+}
+
+// [[Rcpp::export]]
+PyObjectRef py_dict_get_keys(PyObjectRef dict) {
+  return py_ref(PyDict_Keys(dict), dict.convert());
 }
 
 // [[Rcpp::export]]
@@ -2012,13 +2095,16 @@ List py_iterate(PyObjectRef x, Function f) {
     }
 
     // call the function
-    SEXP param = x.convert() ? py_to_r(item, x.convert()) : py_ref(item, false);
+    SEXP param = x.convert()
+      ? py_to_r(item, x.convert())
+      : py_ref(item.detach(), false);
+
     list.push_back(f(param));
   }
 
   // return the list
   List rList(list.size());
-  for (size_t i = 0; i<list.size(); i++)
+  for (size_t i = 0; i < list.size(); i++)
     rList[i] = list[i];
   return rList;
 }
@@ -2040,7 +2126,9 @@ SEXP py_iter_next(PyObjectRef iterator, RObject completed) {
   } else {
 
     // return R object
-    return iterator.convert() ? py_to_r(item, true) : py_ref(item, false);
+    return iterator.convert()
+      ? py_to_r(item, true)
+      : py_ref(item.detach(), false);
 
   }
 }
@@ -2098,27 +2186,24 @@ SEXP py_run_file_impl(const std::string& file,
 // [[Rcpp::export]]
 SEXP py_eval_impl(const std::string& code, bool convert = true) {
 
-  // R object to return
-  RObject rObject;
-
   // compile the code
   PyObjectPtr compiledCode(Py_CompileString(code.c_str(), "reticulate_eval", Py_eval_input));
   if (compiledCode.is_null())
     stop(py_fetch_error());
 
- // execute the code
- PyObject* main = PyImport_AddModule("__main__");
- PyObject* dict = PyModule_GetDict(main);
- PyObjectPtr local_dict(PyDict_New());
- PyObjectPtr res(PyEval_EvalCode(compiledCode, dict, local_dict));
- if (res.is_null())
-   stop(py_fetch_error());
+  // execute the code
+  PyObject* main = PyImport_AddModule("__main__");
+  PyObject* dict = PyModule_GetDict(main);
+  PyObjectPtr local_dict(PyDict_New());
+  PyObjectPtr res(PyEval_EvalCode(compiledCode, dict, local_dict));
+  if (res.is_null())
+    stop(py_fetch_error());
 
- // return (convert to R if requested)
- Py_IncRef(res);
- if (convert)
-   rObject = py_to_r(res, convert);
- else
-   rObject = py_ref(res, convert);
- return rObject;
+  // return (convert to R if requested)
+  RObject result = convert
+    ? py_to_r(res, convert)
+    : py_ref(res.detach(), convert);
+
+  return result;
+
 }

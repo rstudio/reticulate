@@ -3,45 +3,58 @@
 \name{virtualenv-tools}
 \alias{virtualenv-tools}
 \alias{virtualenv_list}
-\alias{virtualenv_root}
 \alias{virtualenv_create}
 \alias{virtualenv_install}
 \alias{virtualenv_remove}
+\alias{virtualenv_root}
 \alias{virtualenv_python}
-\title{Interface to virtualenv}
+\title{Interface to Python Virtual Environments}
 \usage{
 virtualenv_list()
 
+virtualenv_create(envname = NULL, python = NULL)
+
+virtualenv_install(envname = NULL, packages, ignore_installed = TRUE,
+  ...)
+
+virtualenv_remove(envname = NULL, packages = NULL,
+  confirm = interactive())
+
 virtualenv_root()
 
-virtualenv_create(envname)
-
-virtualenv_install(envname, packages, ignore_installed = FALSE)
-
-virtualenv_remove(envname, packages = NULL, confirm = interactive())
-
-virtualenv_python(envname)
+virtualenv_python(envname = NULL)
 }
 \arguments{
-\item{envname}{Name of virtual environment}
+\item{envname}{The name of, or path to, a Python virtual environment. If
+this name contains any slashes, the name will be interpreted as a path;
+if the name does not contain slashes, it will be treated as a virtual
+environment within \code{virtualenv_root()}. When \code{NULL}, the virtual environment
+as specified by the \code{RETICULATE_PYTHON_ENV} environment variable will be
+used instead.}
 
-\item{packages}{Character vector with package names to install or remove.}
+\item{python}{The path to a Python interpreter, to be used with the created
+virtual environment. When \code{NULL}, the Python interpreter associated with
+the current session will be used.}
 
-\item{ignore_installed}{Ignore any previously installed versions of packages}
+\item{packages}{A character vector with package names to install or remove.}
 
-\item{confirm}{Confirm before removing packages or virtual environments}
-}
-\value{
-\code{virtualenv_list()} returns a chracter vector with the names
-of available virtual environments. \code{virtualenv_root()} returns the
-root directory for virtual environments.
+\item{ignore_installed}{Boolean; ignore previously-installed versions of the
+requested packages? (This should normally be \code{TRUE}, so that pre-installed
+packages available in the site libraries are ignored and hence packages
+are installed into the virtual environment.)}
+
+\item{...}{Optional arguments; currently ignored for future expansion.}
+
+\item{confirm}{Boolean; confirm before removing packages or virtual
+environments?}
 }
 \description{
-R functions for managing Python \href{https://virtualenv.pypa.io/en/stable/}{virtual environments}
+R functions for managing Python \href{https://virtualenv.pypa.io/en/stable/}{virtual environments}.
 }
 \details{
-Virtual environments are by default located at \code{~/.virtualenvs}. You can change this
-behavior by defining the \code{WORKON_HOME} environment variable.
+Virtual environments are by default located at \code{~/.virtualenvs} (accessed
+with the \code{virtualenv_root} function). You can change the default location by
+defining defining the \code{WORKON_HOME} environment variable.
 
 Virtual environment functions are not supported on Windows (the use of
 \link[=conda-tools]{conda environments} is recommended on Windows).

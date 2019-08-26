@@ -3,13 +3,10 @@ context("datetime")
 test_that("R dates can be converted to / from Python datetimes", {
   skip_if_no_python()
 
-  before <- Sys.Date()
-  after <- py_to_r(r_to_py(before))
+  before <- list(Sys.Date(), as.Date("2019-04-06"))
+  after  <- py_to_r(r_to_py(before))
 
-  expect_equal(
-    as.numeric(as.POSIXct(before)),
-    as.numeric(as.POSIXct(after))
-  )
+  expect_equal(before, after)
 })
 
 test_that("R times can be converted to / from Python datetimes", {
@@ -48,4 +45,12 @@ test_that("R times are converted to NumPy datetime64", {
     as.numeric(as.POSIXct(after))
   )
 
+})
+
+test_that("R datetimes can be passed to Python functions", {
+  skip_if_no_python()
+  py_run_string("def identity(x): return x")
+  main <- import_main()
+  date <- Sys.Date()
+  expect_equal(date, main$identity(Sys.Date()))
 })

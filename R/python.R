@@ -62,7 +62,19 @@ import <- function(module, as = NULL, convert = TRUE, delay_load = FALSE) {
     ensure_python_initialized(required_module = module)
 
     # import the module
-    py_module_import(module, convert = convert)
+    hookName <- paste("reticulate", module, "load", sep = "::")
+    module <- py_module_import(module, convert = convert)
+
+    # run load hooks
+    hooks <- getHook(hookName)
+    for (hook in hooks)
+      tryCatch(hook(module), error = warning)
+
+    # remove hooks (we only want to run on first import)
+    setHook(hookName, list(), "replace")
+
+    # return imported module
+    module
   }
 
   # delay load case (wait until first access)
@@ -237,27 +249,36 @@ py_has_convert <- function(x) {
 }
 
 py_maybe_convert <- function(x, convert) {
-  if (convert || py_is_callable(x)) {
 
-    # capture previous convert for attr
-    attrib_convert <- py_has_convert(x)
+  # if this is already an R object, nothing to do
+  if (!inherits(x, "python.builtin.object"))
+    return(x)
 
-    # temporarily change convert so we can call py_to_r and get S3 dispatch
-    envir <- as.environment(x)
-    assign("convert", convert, envir = envir)
-    on.exit(assign("convert", attrib_convert, envir = envir), add = TRUE)
+  # if it's neither convertable nor callable,
+  # nothing to do
+  convertable <- convert || py_is_callable(x)
+  if (!convertable)
+    return(x)
 
-    # call py_to_r
-    x <- py_to_r(x)
-  }
+  # perform conversion
+  # capture previous convert for attr
+  attrib_convert <- py_has_convert(x)
 
-  x
+  # temporarily change convert so we can call py_to_r and get S3 dispatch
+  envir <- as.environment(x)
+  assign("convert", convert, envir = envir)
+  on.exit(assign("convert", attrib_convert, envir = envir), add = TRUE)
+
+  # call py_to_r
+  py_to_r(x)
+
 }
 
 # helper function for accessing attributes or items from a
 # Python object, after validating that we do indeed have
 # a valid Python object reference
 py_get_attr_or_item <- function(x, name, prefer_attr) {
+
   # resolve module proxies
   if (py_is_module_proxy(x))
     py_resolve_module_proxy(x)
@@ -286,16 +307,27 @@ py_get_attr_or_item <- function(x, name, prefer_attr) {
   }
 
   # get the attrib and convert as needed
+  object <- NULL
   if (prefer_attr) {
     object <- py_get_attr(x, name)
   } else {
 
     # if we have an attribute, attempt to get the item
-    # but allow for fallback to that attribute
+    # but allow for fallback to that attribute. note that
+    # the logic here is fairly convoluted but is necessary
+    # to maintain backwards compatibility with a number of
+    # CRAN packages (hopefully we can simplify this in the
+    # future)
     if (py_has_attr(x, name)) {
-      object <- py_get_item(x, name, silent = TRUE)
+
+      # try to get item
+      if (py_has_attr(x, "__getitem__"))
+        object <- py_get_item(x, name, silent = TRUE)
+
+      # fallback to attribute
       if (is.null(object))
         object <- py_get_attr(x, name)
+
     } else {
       # we don't have an attribute; only attempt item
       # access and allow normal error propagation
@@ -337,10 +369,6 @@ as.environment.python.builtin.object <- function(x) {
   else
     x
 }
-
-
-#' @export
-`[[.python.builtin.object` <- `$.python.builtin.object`
 
 
 #' @export
@@ -1157,6 +1185,17 @@ py_capture_output <- function(expr, type = c("stdout", "stderr")) {
   output
 }
 
+py_flush_output <- function() {
+
+  if (!is_python3())
+    return()
+
+  sys <- import("sys", convert = TRUE)
+  sys$stdout$flush()
+  sys$stderr$flush()
+
+}
+
 
 
 
@@ -1179,6 +1218,7 @@ py_capture_output <- function(expr, type = c("stdout", "stderr")) {
 #' @export
 py_run_string <- function(code, local = FALSE, convert = TRUE) {
   ensure_python_initialized()
+  on.exit(py_flush_output(), add = TRUE)
   invisible(py_run_string_impl(code, local, convert))
 }
 
@@ -1186,6 +1226,7 @@ py_run_string <- function(code, local = FALSE, convert = TRUE) {
 #' @export
 py_run_file <- function(file, local = FALSE, convert = TRUE) {
   ensure_python_initialized()
+  on.exit(py_flush_output(), add = TRUE)
   invisible(py_run_file_impl(file, local, convert))
 }
 
@@ -1197,8 +1238,11 @@ py_eval <- function(code, convert = TRUE) {
 }
 
 py_callable_as_function <- function(callable, convert) {
-  function(...) {
-    dots <- py_resolve_dots(list(...))
+  f <- function(...) {
+    # Cannot use list(...), as we replace the formals() later.
+    call <- sys.call()
+    call[[1]] <- as.name('list')
+    dots <- py_resolve_dots(eval.parent(call))
     result <- py_call_impl(callable, dots$args, dots$keywords)
     if (convert) {
       result <- py_to_r(result)
@@ -1211,6 +1255,13 @@ py_callable_as_function <- function(callable, convert) {
       result
     }
   }
+  attr(f, 'get_formals_error') <- tryCatch({
+    sig <- py_get_formals(callable, convert)
+    if (!is.null(sig))
+      formals(f) <- sig
+    NULL
+  }, error = function(e) e)
+  f
 }
 
 py_resolve_dots <- function(dots) {

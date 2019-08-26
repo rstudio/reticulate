@@ -123,3 +123,11 @@ Output from bare statements should also be printed.
 "Hello, world!"
 [x for x in range(10)]
 ```
+
+Expressions that generate plots should be shown.
+
+```{python}
+import numpy as np, pandas as pd
+a = np.random.normal(size=1000)
+pd.Series(a).hist()
+```

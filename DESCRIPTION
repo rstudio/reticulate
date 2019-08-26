@@ -1,11 +1,11 @@
 Package: reticulate
 Type: Package
 Title: Interface to 'Python'
-Version: 1.10.0.9003
+Version: 1.13.0-9000
 Authors@R: c(
-  person("JJ", "Allaire", role = c("aut", "cre"), email = "jj@rstudio.com"),
-  person("Kevin", "Ushey", role = c("aut"),
+  person("Kevin", "Ushey", role = c("aut", "cre"),
          email = "kevin@rstudio.com"),
+  person("JJ", "Allaire", role = c("aut"), email = "jj@rstudio.com"),
   person("RStudio", role = c("cph", "fnd")),
   person("Yuan", "Tang", role = c("aut", "cph"),
          email = "terrytangyuan@gmail.com",
@@ -42,6 +42,6 @@ Suggests:
     callr,
     rmarkdown
 LinkingTo: Rcpp
-RoxygenNote: 6.1.0
+RoxygenNote: 6.1.1
 Roxygen: list(markdown = TRUE)
 VignetteBuilder: knitr

@@ -32,16 +32,18 @@ is_python_initialized <- function() {
 
 
 ensure_python_initialized <- function(required_module = NULL) {
+
   if (!is_python_initialized()) {
-     # give delay load modules priority
-     use_environment <- NULL
-     if (!is.null(.globals$delay_load_module)) {
-        required_module <- .globals$delay_load_module
-        use_environment <- .globals$delay_load_environment
-        .globals$delay_load_module <- NULL # one shot
-        .globals$delay_load_environment <- NULL
-        .globals$delay_load_priority <- 0
-     }
+    # give delay load modules priority
+    use_environment <- NULL
+    if (!is.null(.globals$delay_load_module)) {
+      required_module <- .globals$delay_load_module
+      use_environment <- .globals$delay_load_environment
+      .globals$delay_load_module <- NULL # one shot
+      .globals$delay_load_environment <- NULL
+      .globals$delay_load_priority <- 0
+    }
+
     .globals$py_config <- initialize_python(required_module, use_environment)
 
     # generate 'R' helper object
@@ -78,50 +80,38 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
   else
     numpy_load_error <- ""
 
-
-  # add the python bin dir to the PATH (so that any execution of python from
-  # within the interpreter, from a system call, or from within a terminal
-  # hosted within the front end will use the same version of python.
-  python_home <- dirname(config$python)
-  python_dirs <- c(normalizePath(python_home))
-
-  if (is_windows()) {
-
-    # include the Scripts path, as well
-    python_scripts <- file.path(python_home, "Scripts")
-    if (file.exists(python_scripts))
-      python_dirs <- c(python_dirs, normalizePath(python_scripts))
-
-    # we saw some crashes occurring when Python modules attempted to load
-    # dynamic libraries at runtime; e.g.
-    #
-    #   Intel MKL FATAL ERROR: Cannot load mkl_intel_thread.dll
-    #
-    # we work around this by putting the associated binary directory
-    # on the PATH so it can be successfully resolved
-    python_bin <- file.path(python_home, "Library/bin")
-    if (file.exists(python_bin))
-      python_dirs <- c(python_dirs, normalizePath(python_bin))
-  }
-
-  Sys.setenv(PATH = paste(paste(python_dirs, collapse =  .Platform$path.sep),
-                          Sys.getenv("PATH"),
-                          sep = .Platform$path.sep))
-
   # if we're a virtual environment then set VIRTUAL_ENV (need to
   # set this before initializing Python so that module paths are
   # set as appropriate)
   if (nzchar(config$virtualenv))
     Sys.setenv(VIRTUAL_ENV = config$virtualenv)
 
+  # set R_SESSION_INITIALIZED flag (used by rpy2)
+  curr_session_env <- Sys.getenv("R_SESSION_INITIALIZED", unset = NA)
+  Sys.setenv(R_SESSION_INITIALIZED = sprintf('PID=%s:NAME="reticulate"', Sys.getpid()))
+
   # initialize python
-  py_initialize(config$python,
-                config$libpython,
-                config$pythonhome,
-                config$virtualenv_activate,
-                config$version >= "3.0",
-                interactive(),
-                numpy_load_error)
+  oldpath <- python_munge_path(config$python)
+  tryCatch(
+    {
+      py_initialize(config$python,
+                    config$libpython,
+                    config$pythonhome,
+                    config$virtualenv_activate,
+                    config$version >= "3.0",
+                    interactive(),
+                    numpy_load_error)
+    },
+    error = function(e) {
+      Sys.setenv(PATH = oldpath)
+      if (is.na(curr_session_env)) {
+        Sys.unsetenv("R_SESSION_INITIALIZED")
+      } else {
+        Sys.setenv(R_SESSION_INITIALIZED = curr_session_env)
+      }
+      stop(e)
+    }
+  )
 
   # set available flag indicating we have py bindings
   config$available <- TRUE
@@ -134,8 +124,37 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
   # ensure modules can be imported from the current working directory
   py_run_string_impl("import sys; sys.path.insert(0, '')")
 
-  # set R_SESSION_INITIALIZED flag (used by rpy2)
-  Sys.setenv(R_SESSION_INITIALIZED=sprintf('PID=%s:NAME="reticulate"', Sys.getpid()))
+  # notify the user if the loaded version of Python isn't the same
+  # as the requested version of python
+  local({
+
+    # nothing to do if user didn't request any version
+    requested_versions <- reticulate_python_versions()
+    if (length(requested_versions) == 0)
+      return()
+
+    # if we loaded one of the requested versions, everything is ok
+    if (config$python %in% requested_versions)
+      return()
+
+    # otherwise, warn that we were unable to honor their request
+    if (length(requested_versions) == 1) {
+      fmt <- paste(
+        "Python '%s' was requested but '%s' was loaded instead",
+        "(see reticulate::py_config() for more information)"
+      )
+      msg <- sprintf(fmt, requested_versions[[1]], config$python)
+      warning(msg, call. = FALSE)
+    } else {
+      fmt <- paste(
+        "could not honor request to load desired versions of Python; '%s' was loaded instead",
+        "(see reticulate::py_config() for more information)"
+      )
+      msg <- sprintf(fmt, config$python)
+      warning(msg, call. = FALSE)
+    }
+
+  })
 
   # return config
   config

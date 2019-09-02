@@ -201,17 +201,18 @@ int narrow_array_typenum(int typenum) {
   case NPY_SHORT:
   case NPY_USHORT:
   case NPY_INT:
+  case NPY_LONG:
     typenum = NPY_LONG;
     break;
     // double
   case NPY_UINT:
   case NPY_ULONG:
   case NPY_ULONGLONG:
-  case NPY_LONG:
   case NPY_LONGLONG:
   case NPY_HALF:
   case NPY_FLOAT:
   case NPY_DOUBLE:
+
     typenum = NPY_DOUBLE;
     break;
 
@@ -618,9 +619,18 @@ SEXP py_to_r(PyObject* x, bool convert) {
       return LogicalVector::create(x == Py_True);
 
     // integer
-    else if (scalarType == INTSXP)
-      return IntegerVector::create(PyInt_AsLong(x));
-
+    else if (scalarType == INTSXP) {
+      long val = PyInt_AsLong(x);
+      if(val > std::numeric_limits<int>::max()) {
+        Rcpp::NumericVector vec(1);
+        std::memcpy(&(vec[0]), &(val), sizeof(double));
+        vec.attr("class") = "integer64";
+        return vec;
+      }
+      else{
+        return IntegerVector::create(val);
+      }
+    }
     // double
     else if (scalarType == REALSXP)
       return NumericVector::create(PyFloat_AsDouble(x));
@@ -653,9 +663,24 @@ SEXP py_to_r(PyObject* x, bool convert) {
       return vec;
     } else if (scalarType == INTSXP) {
       Rcpp::IntegerVector vec(len);
-      for (Py_ssize_t i = 0; i<len; i++)
-        vec[i] = PyInt_AsLong(PyList_GetItem(x, i));
+      for (Py_ssize_t i = 0; i<len; i++) {
+        long num = PyInt_AsLong(PyList_GetItem(x, i));
+        if(num > std::numeric_limits<int>::max()) {
+          //We need to start over an interpret as 64 bit int
+          Rcpp::NumericVector nVec(len);
+          long long* res_ptr  = (long long*) dataptr(nVec);
+          for (Py_ssize_t j = 0; j<len; j++) {
+            res_ptr[j] = PyInt_AsLong(PyList_GetItem(x, j));;
+          }
+          nVec.attr("class") = "integer64";
+          return nVec;
+          break;
+        } else {
+          vec[i] = num;
+        }
+      }
       return vec;
+
     } else if (scalarType == CPLXSXP) {
       Rcpp::ComplexVector vec(len);
       for (Py_ssize_t i = 0; i<len; i++) {
@@ -769,8 +794,17 @@ SEXP py_to_r(PyObject* x, bool convert) {
       case NPY_LONG: {
         npy_long* pData = (npy_long*)PyArray_DATA(array);
         rArray = Rf_allocArray(INTSXP, dimsVector);
-        for (int i=0; i<len; i++)
+        for (int i=0; i<len; i++) {
+          if(pData[i] > std::numeric_limits<int>::max()) {
+            Rcpp::NumericVector nVec(len);
+            //Inspired by https://gallery.rcpp.org/articles/creating-integer64-and-nanotime-vectors/
+            std::memcpy(&(nVec[0]), &(pData[0]), len * sizeof(double));
+            nVec.attr("class") = "integer64";
+            nVec.attr("dim") = dimsVector;
+            return nVec;
+          }
           INTEGER(rArray)[i] = pData[i];
+        }
         break;
       }
       case NPY_DOUBLE: {
@@ -1083,7 +1117,7 @@ PyObject* r_to_py_cpp(RObject x, bool convert) {
         typenum = NPY_INT;
       data = &(INTEGER(sexp)[0]);
     } else if (type == REALSXP) {
-      typenum = NPY_DOUBLE;
+      typenum = x.inherits("integer64") ? NPY_LONG : NPY_DOUBLE;
       data = &(REAL(sexp)[0]);
     } else if (type == LGLSXP) {
       typenum = NPY_BOOL;
@@ -1178,15 +1212,16 @@ PyObject* r_to_py_cpp(RObject x, bool convert) {
 
   // numeric (pass length 1 vectors as scalars, otherwise pass list)
   } else if (type == REALSXP) {
+    bool isInt64=x.inherits("integer64");
     if (LENGTH(sexp) == 1) {
       double value = REAL(sexp)[0];
-      return PyFloat_FromDouble(value);
+      return isInt64 ? PyInt_FromLong(reinterpret_cast<long&>(value)) : PyFloat_FromDouble(value);
     } else {
       PyObjectPtr list(PyList_New(LENGTH(sexp)));
       for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
         double value = REAL(sexp)[i];
         // NOTE: reference to added value is "stolen" by the list
-        int res = PyList_SetItem(list, i, PyFloat_FromDouble(value));
+        int res = PyList_SetItem(list, i, isInt64 ? PyInt_FromLong(reinterpret_cast<long&>(value)) : PyFloat_FromDouble(value));
         if (res != 0)
           stop(py_fetch_error());
       }

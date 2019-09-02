@@ -125,3 +125,10 @@ test_that("single-row data.frames with rownames can be converted", {
   expect_equal(c(before), c(after))
 
 })
+
+test_that("Large ints are handled correctly", {
+  skip_if_no_pandas()
+  require(bit64)
+  A <- data.frame(val=c(as.integer64("1567447722123456785"), as.integer64("1567447722123456786")))
+  expect_equal(A, py_to_r(r_to_py(A)))
+})

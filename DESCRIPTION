@@ -34,6 +34,7 @@ Imports:
     graphics,
     jsonlite,
     Rcpp (>= 0.12.7),
+    bit64,
     Matrix,
     methods
 Suggests:

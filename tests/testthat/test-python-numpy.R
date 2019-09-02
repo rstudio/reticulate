@@ -29,10 +29,22 @@ test_that("Character arrays are handled correctly", {
   expect_equal(a1, py_to_r(r_to_py(a1)))
 })
 
+
+test_that("Long integer types are converted to bit64", {
+  skip_if_no_numpy()
+  np <- import("numpy", convert = FALSE)
+  dtypes <- c(np$int64, np$long)
+  require(bit64)
+  lapply(dtypes, function(dtype) {
+    a1 <- np$array(c(as.integer64("12345"), as.integer64("1567447722123456786")), dtype = dtype)
+    expect_equal(class(py_to_r(a1)), "integer64")
+  })
+})
+
 test_that("Long integer types are converted to R numeric", {
   skip_if_no_numpy()
   np <- import("numpy", convert = FALSE)
-  dtypes <- c(np$int64, np$uint32, np$uint64, np$long, np$longlong)
+  dtypes <- c(np$uint32, np$uint64, np$longlong)
   lapply(dtypes, function(dtype) {
     a1 <- np$array(c(1L:30L), dtype = dtype)
     expect_equal(class(as.vector(py_to_r(a1))), "numeric")

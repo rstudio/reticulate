@@ -1,6 +1,6 @@
 ---
 title: "R Markdown Python Engine"
-output: 
+output:
   rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{R Markdown Python Engine}
@@ -16,9 +16,9 @@ knitr::opts_chunk$set(eval = FALSE)
 
 ## Overview
 
-The **reticulate** package includes a Python engine for [R Markdown](http://rmarkdown.rstudio.com) that enables easy interoperabilty between Python and R chunks. 
+The **reticulate** package includes a Python engine for [R Markdown](http://rmarkdown.rstudio.com) that enables easy interoperability between Python and R chunks.
 
-Python chunks behave very similar to R chunks (including graphical output from matplotlib) and the two languages have full access each other's objects. Built in conversion for many Python object types is provided, including [NumPy](http://www.numpy.org/) arrays and [Pandas](https://pandas.pydata.org/) data frames. 
+Python chunks behave very similar to R chunks (including graphical output from matplotlib) and the two languages have full access each other's objects. Built in conversion for many Python object types is provided, including [NumPy](http://www.numpy.org/) arrays and [Pandas](https://pandas.pydata.org/) data frames.
 
 If you are using knitr version 1.18 or higher, then the reticulate Python engine will be enabled by default whenever reticulate is installed and no further setup is required. If you are running an earlier version of knitr or want to disable the use of the reticulate engine see the [Engine Setup] section below.
 
@@ -26,13 +26,18 @@ If you are using knitr version 1.18 or higher, then the reticulate Python engine
 
 By default, reticulate uses the version of Python found on your `PATH` (i.e. `Sys.which("python")`). If you want to use an alternate version you should add one of the `use_python()` family of functions to your R Markdown setup chunk, for example:
 
-![](images/python_version.png){.screenshot width="98%"}
+````
+```{r setup, include=FALSE}`r ''`
+library(reticulate)
+use_python("/usr/local/bin/python")
+```
+````
 
 See the article on [Python Version Configuration](versions.html) for additional details on configuring Python versions (including the use of conda or virtualenv environments).
 
 ## Python Chunks
 
-Python code chunks work exactly like R code chunks: Python code is executed and any print or graphical (matplotlib) output is included within the document. 
+Python code chunks work exactly like R code chunks: Python code is executed and any print or graphical (matplotlib) output is included within the document.
 
 Python chunks all execute within a single Python session so have access to all objects created in previous chunks. Chunk options like `echo`, `include`, etc. all work as expected.
 
@@ -46,7 +51,20 @@ Note that the [RStudio v1.2 preview release](https://www.rstudio.com/rstudio/dow
 
 All objects created within Python chunks are available to R using the `py` object exported by the reticulate package. For example, the following code demonstrates reading and filtering a CSV file using Pandas then plotting the resulting data frame using ggplot2:
 
-![](images/rmarkdown_engine_zoomed.png){.screenshot width="98%"}
+````
+```{python}`r ''`
+import pandas
+flights = pandas.read_csv("flights.csv")
+flights = flights[flights['dest'] == "ORD"]
+flights = flights[['carrier', 'dep_delay', 'arr_delay']]
+flights = flights.dropna()
+```
+
+```{r, fig.width=7, fig.height=3}`r ''`
+library(ggplot2)
+ggplot(py$flights, aes(carrier, arr_delay)) + geom_point() + geom_jitter()
+```
+````
 
 See the [Calling Python from R](calling_python.html) article for additional details on how to interact with Python types from within R
 
@@ -54,15 +72,34 @@ See the [Calling Python from R](calling_python.html) article for additional deta
 
 You can analagously access R objects within Python chunks via the `r` object. For example:
 
-![](images/r_from_python.png){.screenshot width="98%"}
+````
+```{r}`r ''`
+library(tidyverse)
+flights <- read_csv("flights.csv") %>%
+  filter(dest == "ORD") %>%
+  select(carrier, dep_delay, arr_delay) %>%
+  na.omit()
+```
+
+```{python}`r ''`
+print(r.flights.head())
+```
+````
 
 ## Engine Setup
 
-If you are using a version of knitr prior to 1.18 then add this code to your setup chunk to enable the reticulate Python engine:
+If you are using a version of knitr prior to 1.18, then add this code to your setup chunk to enable the reticulate Python engine:
 
-![](images/reticulate_enable.png){.screenshot width="98%"}
+````
+```{r setup, include=FALSE}`r ''`
+knitr::knit_engines$set(python = reticulate::eng_python)
+```
+````
 
 If you do not wish to use the reticulate Python engine then set the `python.reticulate` chunk option to `FALSE`:
 
-![](images/reticulate_disable.png){.screenshot width="98%"}
-
+````
+```{r setup, include=FALSE}`r ''`
+knitr::opts_chunk$set(python.reticulate == FALSE)
+```
+````

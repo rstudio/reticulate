@@ -1,5 +1,7 @@
 context("scipy sparse matrix")
 
+library(Matrix)
+
 check_matrix_conversion <- function(r_matrix, python_matrix) {
   # check that the conversion to python works
   expect_true(all(py_to_r(python_matrix$toarray()) == as.matrix(r_matrix)))

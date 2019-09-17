@@ -202,9 +202,10 @@ virtualenv_exists <- function(envname = NULL) {
   if (!utils::file_test("-d", path))
     return(FALSE)
 
-  # check for some expected files within virtualenv layout
-  expected <- c("bin/activate", "bin/pip", "bin/python")
-  all(file.exists(file.path(path, expected)))
+  # check for expected files for virtualenv / venv
+  files <- c("bin/activate_this.py", "bin/pyvenv.cfg", "pyvenv.cfg")
+  any(file.exists(file.path(path, files)))
+
 }
 
 

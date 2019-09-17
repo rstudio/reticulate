@@ -3,6 +3,9 @@
 
 Install the development version of reticulate with `remotes::install_github("rstudio/reticulate")`.
 
+- Fixed an issue where Conda environments could be mis-detected as
+  virtual environments.
+
 - R functions wrapping Python functions now inherit the formal arguments
   as specified by Python, making autocompletion more reliable.
   (#573, @flying-sheep)

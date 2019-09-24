@@ -15,7 +15,7 @@ installer does not support paths containing spaces.}
 
 \item{version}{The (major) version of Python to use.}
 
-\item{update}{Boolean; update to the latest version of Conda after install?}
+\item{update}{Boolean; update to the latest version of Miniconda after install?}
 
 \item{packages}{A vector of Python packages to install into the Miniconda
 installation.}

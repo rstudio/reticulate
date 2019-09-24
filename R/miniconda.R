@@ -9,7 +9,7 @@
 #' 
 #' @param version The (major) version of Python to use.
 #' 
-#' @param update Boolean; update to the latest version of Conda after install?
+#' @param update Boolean; update to the latest version of Miniconda after install?
 #' 
 #' @param packages A vector of Python packages to install into the Miniconda
 #'   installation.
@@ -53,7 +53,8 @@ install_miniconda <- function(
     stopf("miniconda installation failed [unknown reason]")
   
   # update to latest version
-  miniconda_update(path)
+  if (update)
+    miniconda_update(path)
   
   # create r-reticulate environment
   conda <- miniconda_conda(path)
@@ -177,4 +178,8 @@ miniconda_conda <- function(path = miniconda_path()) {
   exe <- if (is_windows()) "condabin/conda.bat" else "bin/conda"
   conda <- file.path(path, exe)
   conda_binary(conda)
+}
+
+miniconda_envpath <- function(env, path = miniconda_path()) {
+  file.path(path, "envs", env)
 }

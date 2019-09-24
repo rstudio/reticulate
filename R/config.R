@@ -154,9 +154,8 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
 
   # add r-reticulate environment in miniconda
   # TODO: prioritize this over other r-reticulate environments in the future
-  envpath <- file.path(miniconda_path(), "envs/r-reticulate")
-  conda <- miniconda_conda()
-  if (file.exists(envpath) && condaenv_exists(envpath, conda = conda))
+  envpath <- miniconda_envpath("r-reticulate")
+  if (file.exists(envpath) && condaenv_exists(envpath, conda = miniconda_conda()))
     python_versions <- c(python_versions, python_binary_path(envpath))
   
   # look on system path

@@ -143,14 +143,22 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
   python_envs <- python_environment_versions()
   r_reticulate_python_envs <- python_envs[python_envs$name == "r-reticulate",]
   python_versions <- c(python_versions, r_reticulate_python_envs$python)
-
+  
   # next look in virtual environments that have a required module derived name
   if (!is.null(required_module)) {
     # filter by required module
-    module_python_envs <- python_envs[python_envs$name %in% c(required_module, paste0("r-", required_module), use_environment),]
+    envnames <- c(required_module, paste0("r-", required_module), use_environment)
+    module_python_envs <- python_envs[python_envs$name %in% envnames, ]
     python_versions <- c(python_versions, module_python_envs$python)
   }
 
+  # add r-reticulate environment in miniconda
+  # TODO: prioritize this over other r-reticulate environments in the future
+  envpath <- file.path(miniconda_path(), "envs/r-reticulate")
+  conda <- miniconda_conda()
+  if (file.exists(envpath) && condaenv_exists(envpath, conda = conda))
+    python_versions <- c(python_versions, python_binary_path(envpath))
+  
   # look on system path
   python <- as.character(Sys.which("python"))
   if (nzchar(python))
@@ -199,7 +207,7 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
     # get the config
     config <- python_config(python_version, required_module, python_versions)
 
-    # if we have a required module ensure it's satsified.
+    # if we have a required module ensure it's satisfied.
     # also check architecture (can be an issue on windows)
     has_python_gte_27 <- as.numeric_version(config$version) >= "2.7"
     has_compatible_arch <- !is_incompatible_arch(config)
@@ -569,7 +577,7 @@ reticulate_python_versions <- function() {
         python_versions <- c(python_versions, python$path)
     }
   }
-
+  
   # return them
   python_versions
 }

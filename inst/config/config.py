@@ -8,11 +8,15 @@ import platform
 if sys.version < '3.4':
   import imp
   def module_path(name):
+    if name in sys.builtin_module_names:
+      return "[builtin module]"
     spec = imp.find_module(name)
     return spec[1]
 else:
   from importlib import util
   def module_path(name):
+    if name in sys.builtin_module_names:
+      return "[builtin module]"
     spec = util.find_spec(name)
     origin = spec.origin
     return origin[:origin.rfind('/')]

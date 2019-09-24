@@ -14,6 +14,8 @@ Authors@R: c(
          email = "edd@debian.org"),
   person("Bryan", "Lewis", role = c("ctb", "cph"),
          email = "blewis@illposed.net"),
+  person("Ryan", "Hafen", role = c("ctb", "cph"),
+         email = "rhafen@gmail.com"),
   person("Marcus", "Geelnard", role = c("ctb", "cph"),
          comment = "TinyThread library, http://tinythreadpp.bitsnbites.eu/")
   )
@@ -30,12 +32,13 @@ LazyData: true
 Depends:
     R (>= 3.0)
 Imports:
-    utils,
     graphics,
     jsonlite,
-    Rcpp (>= 0.12.7),
     Matrix,
-    methods
+    methods,
+    rappdirs,
+    Rcpp (>= 0.12.7),
+    utils
 Suggests:
     testthat,
     knitr,

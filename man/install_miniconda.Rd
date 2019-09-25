@@ -4,21 +4,26 @@
 \alias{install_miniconda}
 \title{Install Miniconda}
 \usage{
-install_miniconda(path = miniconda_path(),
-  version = Sys.getenv("RETICULATE_MINICONDA_PYTHON_VERSION", unset =
-  "3"), update = TRUE, packages = c("numpy", "scipy", "pandas"),
+install_miniconda(path = miniconda_path(), version = 3,
+  update = TRUE, python = "python", packages = c("numpy"),
   force = FALSE)
 }
 \arguments{
 \item{path}{The path in which Miniconda will be installed. Note that the
 installer does not support paths containing spaces.}
 
-\item{version}{The (major) version of Python to use.}
+\item{version}{The version of Python associated with the Miniconda installer
+to be used.}
 
 \item{update}{Boolean; update to the latest version of Miniconda after install?}
 
+\item{python}{The version of Python to use. You can request specific
+versions of Python -- for example, to install Python 3.6, you can use
+\code{"python=3.6"}. By default, the latest version of Python is used.}
+
 \item{packages}{A vector of Python packages to install into the Miniconda
-installation.}
+installation. By default, \code{numpy} is installed into the \code{r-reticulate}
+environment.}
 
 \item{force}{Boolean; force re-installation if Miniconda is already installed
 at the requested path?}

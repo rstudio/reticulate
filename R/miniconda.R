@@ -35,7 +35,7 @@ install_miniconda <- function(
     force = FALSE)
 {
   if (grepl(" ", path, fixed = TRUE))
-    stop("cannot install miniconda into a path containing spaces")
+    stop("cannot install Miniconda into a path containing spaces")
   
   # TODO: what behavior when miniconda is already installed?
   # fail? validate installed and matches request? reinstall?
@@ -47,17 +47,18 @@ install_miniconda <- function(
   messagef("* Downloading %s ...", shQuote(url))
   status <- download.file(url, destfile = installer, mode = "wb")
   if (!file.exists(installer)) {
-    fmt <- "download of miniconda installer failed [status = %i]"
+    fmt <- "download of Miniconda installer failed [status = %i]"
     stopf(fmt, status)
   }
   
   # run the installer
-  message("* Installing miniconda ...")
+  message("* Installing Miniconda -- please wait a moment ...")
   miniconda_installer_run(installer, path)
   
   # validate the install succeeded
-  if (!miniconda_exists(path))
-    stopf("miniconda installation failed [unknown reason]")
+  ok <- miniconda_exists(path) && miniconda_test(path)
+  if (!ok)
+    stopf("Miniconda installation failed [unknown reason]")
   
   # update to latest version if requested
   if (update)
@@ -100,7 +101,7 @@ install_miniconda_preflight <- function(path, force) {
   
   # check for a miniconda installation
   if (miniconda_exists(path))
-    stopf("miniconda is already installed at %s", shQuote(path))
+    stopf("Miniconda is already installed at %s", shQuote(path))
   
   # ok to proceed
   invisible(TRUE)
@@ -128,12 +129,12 @@ miniconda_installer_url <- function(version = "3") {
 miniconda_installer_run <- function(installer, path) {
   
   args <- if (is_windows()) {
-    
+    dir.create(path, recursive = TRUE, showWarnings = FALSE)
     c(
       "/InstallationType=JustMe",
       "/RegisterPython=0",
       "/S",
-      paste("/D", path, sep = "=")
+      paste("/D", utils::shortPathName(path), sep = "=")
     )
     
   } else if (is_unix()) {
@@ -165,22 +166,24 @@ miniconda_path <- function() {
 }
 
 miniconda_path_default <- function() {
+  
   if (is_osx())
-    path.expand("~/Library/r-miniconda")
-  else
-    rappdirs::user_data_dir("r-miniconda")
+    return(path.expand("~/Library/r-miniconda"))
+  
+  root <- normalizePath(rappdirs::user_data_dir(), winslash = "/", mustWork = FALSE)
+  file.path(root, "r-miniconda")
+  
 }
 
 miniconda_exists <- function(path = miniconda_path()) {
-  
-  # check for license file
-  license <- file.path(path, "LICENSE.txt")
-  if (!file.exists(license))
-    return(FALSE)
-  
-  contents <- readLines(license, warn = FALSE)
-  any(grepl("Miniconda", contents))
-  
+  conda <- miniconda_conda(path)
+  file.exists(conda)
+}
+
+miniconda_test <- function(path = miniconda_path()) {
+  python <- python_binary_path(path)
+  status <- tryCatch(python_version(python), error = identity)
+  !inherits(status, "error")
 }
 
 miniconda_conda <- function(path = miniconda_path()) {

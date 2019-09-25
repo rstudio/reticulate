@@ -57,6 +57,12 @@ ensure_python_initialized <- function(required_module = NULL) {
 
 initialize_python <- function(required_module = NULL, use_environment = NULL) {
 
+  # provide hint to install Miniconda if no Python is found
+  python_not_found <- function(msg) {
+    hint <- "Use reticulate::install_miniconda() if you'd like to install a Miniconda Python environment."
+    stop(paste(msg, hint, sep = "\n"), call. = FALSE)
+  }
+
   # resolve top level module for search
   if (!is.null(required_module))
     required_module <- strsplit(required_module, ".", fixed = TRUE)[[1]][[1]]
@@ -66,12 +72,13 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
 
   # check for basic python prerequsities
   if (is.null(config)) {
-    stop("Installation of Python not found, Python bindings not loaded.")
+    python_not_found("Installation of Python not found, Python bindings not loaded.")
   } else if (!is_windows() && is.null(config$libpython)) {
-    stop("Python shared library not found, Python bindings not loaded.")
+    python_not_found("Python shared library not found, Python bindings not loaded.")
   } else if (is_incompatible_arch(config)) {
-    stop("Your current architecture is ", current_python_arch(), " however this version of ",
-         "Python is compiled for ", config$architecture, ".")
+    fmt <- "Your current architecture is %s; however, this version of Python was compiled for %s."
+    msg <- sprintf(fmt, current_python_arch(), config$architecture)
+    python_not_found(msg)
   }
 
   # check numpy version and provide a load error message if we don't satisfy it

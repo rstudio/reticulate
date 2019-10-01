@@ -140,23 +140,50 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
   python_versions <- reticulate_python_versions()
 
   # prioritize the r-reticulate python environment
-  python_envs <- python_environment_versions()
-  r_reticulate_python_envs <- python_envs[python_envs$name == "r-reticulate",]
+  python_virtualenvs <- python_virtualenv_versions()
+  r_reticulate_python_envs <- python_virtualenvs[python_virtualenvs$name == "r-reticulate", ]
   python_versions <- c(python_versions, r_reticulate_python_envs$python)
   
   # next look in virtual environments that have a required module derived name
   if (!is.null(required_module)) {
     # filter by required module
     envnames <- c(required_module, paste0("r-", required_module), use_environment)
-    module_python_envs <- python_envs[python_envs$name %in% envnames, ]
+    module_python_envs <- python_virtualenvs[python_virtualenvs$name %in% envnames, ]
     python_versions <- c(python_versions, module_python_envs$python)
   }
 
-  # add r-reticulate environment in miniconda
-  # TODO: prioritize this over other r-reticulate environments in the future
+  # look for r-reticulate environment in miniconda
+  # if the environment doesn't exist, and the user hasn't requested a separate
+  # environment, then we'll prompt for installation of miniconda
   envpath <- miniconda_envpath("r-reticulate")
-  if (file.exists(envpath) && condaenv_exists(envpath, conda = miniconda_conda()))
+  ok <- file.exists(envpath) && condaenv_exists(envpath, conda = miniconda_conda())
+  if (ok) {
     python_versions <- c(python_versions, python_binary_path(envpath))
+  } else {
+    install <- interactive() && length(python_versions) == 0 && miniconda_installable()
+    if (install) {
+      miniconda_install_prompt()
+      ok <- file.exists(envpath) && condaenv_exists(envpath, conda = miniconda_conda())
+      if (file.exists(envpath) && condaenv_exists(envpath, conda = miniconda_conda()))
+        python_versions <- c(python_versions, python_binary_path(envpath))
+    }
+  }
+  
+  # look for conda environments
+  python_condaenvs <- python_conda_versions()
+  r_reticulate_python_envs <- python_condaenvs[python_condaenvs$name == "r-reticulate", ]
+  python_versions <- c(python_versions, r_reticulate_python_envs$python)
+  
+  # next look in virtual environments that have a required module derived name
+  if (!is.null(required_module)) {
+    # filter by required module
+    envnames <- c(required_module, paste0("r-", required_module), use_environment)
+    module_python_envs <- python_condaenvs[python_condaenvs$name %in% envnames, ]
+    python_versions <- c(python_versions, module_python_envs$python)
+  }
+
+  # join virtualenv, condaenv environments together
+  python_envs <- rbind(python_virtualenvs, python_condaenvs)
   
   # look on system path
   python <- as.character(Sys.which("python"))
@@ -181,7 +208,7 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
     )
   }
 
-  # next add all known virtual enviornments
+  # next add all known virtual environments
   python_versions <- c(python_versions, python_envs$python)
 
   # de-duplicate
@@ -243,10 +270,20 @@ py_versions_windows <- function() {
   )
 }
 
+python_virtualenv_versions <- function() {
+  home <- virtualenv_root()
+  bins <- python_environments(home)
+  data.frame(
+    name = basename(dirname(dirname(bins))),
+    python = bins,
+    stringsAsFactors = FALSE
+  )
+}
 
-python_environment_versions <- function() {
-
+python_conda_versions <- function() {
+  
   if (is_windows()) {
+    
     # list all conda environments
     conda_envs <- data.frame(name = character(),
                              python = character(),
@@ -256,16 +293,12 @@ python_environment_versions <- function() {
     for (conda in file.path(anaconda_registry_versions$install_path, "Scripts", "conda.exe")) {
       conda_envs <- rbind(conda_envs, conda_list(conda = conda))
     }
+    
     conda_envs
+    
   } else {
-    # virtualenv_wrapper allows redirection of root envs directory via WORKON_HOME
-    workon_home <- Sys.getenv("WORKON_HOME", unset = NA)
-    if (is.na(workon_home))
-      workon_home <- NULL
-    # all possible environment dirs
-    env_dirs <- c(workon_home,
-                  "~/.virtualenvs",
-                  "~/anaconda/envs",
+    
+    env_dirs <- c("~/anaconda/envs",
                   "~/anaconda2/envs",
                   "~/anaconda3/envs",
                   "~/anaconda4/envs",
@@ -282,11 +315,13 @@ python_environment_versions <- function() {
                   "/miniconda3/envs",
                   "/miniconda4/envs",
                   "~")
+    
     python_env_binaries <- python_environments(env_dirs)
     data.frame(name = basename(dirname(dirname(python_env_binaries))),
                python = python_env_binaries,
                stringsAsFactors = FALSE)
   }
+  
 }
 
 python_environments <- function(env_dirs, required_module = NULL) {

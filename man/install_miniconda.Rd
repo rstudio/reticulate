@@ -12,14 +12,17 @@ install_miniconda(path = miniconda_path(), version = 3,
 \item{path}{The path in which Miniconda will be installed. Note that the
 installer does not support paths containing spaces.}
 
-\item{version}{The version of Python associated with the Miniconda installer
-to be used.}
+\item{version}{The version of the Miniconda installer to be used. Must be
+either 3 (for a Python 3.x installation) or 2 (for a Python 2.x
+installation).}
 
 \item{update}{Boolean; update to the latest version of Miniconda after install?}
 
 \item{python}{The version of Python to use. You can request specific
 versions of Python -- for example, to install Python 3.6, you can use
-\code{"python=3.6"}. By default, the latest version of Python is used.}
+\code{"python=3.6"}. By default, the latest version of Python is used.
+When \code{"python"} (the default), the latest version of Python as supported by
+Miniconda will be used.}
 
 \item{packages}{A vector of Python packages to install into the Miniconda
 installation. By default, \code{numpy} is installed into the \code{r-reticulate}

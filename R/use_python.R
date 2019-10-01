@@ -95,8 +95,7 @@ use_condaenv <- function(condaenv = NULL, conda = "auto", required = FALSE) {
 use_miniconda <- function(condaenv = NULL, required = FALSE) {
   
   # check that Miniconda is installed
-  path <- miniconda_path()
-  if (!file.exists(path)) {
+  if (!miniconda_exists()) {
     
     msg <- paste(
       "Miniconda is not installed.",

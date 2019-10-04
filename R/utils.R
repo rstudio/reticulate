@@ -175,3 +175,30 @@ path_prepend <- function(entries) {
   oldpath
 }
 
+# note: normally, we'd like to compare paths with normalizePath() but
+# that does not normalize for case on Windows by default so we fall back
+# to a heuristic (note: false positives are possible but we can accept
+# those in the contexts where this function is used)
+file_same <- function(lhs, rhs) {
+  
+  # check if paths are identical as-is
+  if (identical(lhs, rhs))
+    return(TRUE)
+  
+  # check if paths are identical after normalization
+  lhs <- normalizePath(lhs, winslash = "/", mustWork = FALSE)
+  rhs <- normalizePath(rhs, winslash = "/", mustWork = FALSE)
+  if (identical(lhs, rhs))
+    return(TRUE)
+  
+  # check if file info is the same
+  lhsi <- c(file.info(lhs, extra_cols = FALSE))
+  rhsi <- c(file.info(rhs, extra_cols = FALSE))
+  fields <- c("size", "isdir", "mode", "mtime", "ctime")
+  if (identical(lhsi[fields], rhsi[fields]))
+    return(TRUE)
+  
+  # checks failed; return FALSE
+  FALSE
+  
+}

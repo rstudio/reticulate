@@ -21,10 +21,8 @@ use_python <- function(python, required = FALSE) {
   # if required == TRUE and python is already initialized then confirm that we
   # are using the correct version
   if (required && is_python_initialized()) {
-    normalize <- function(path) {
-      normalizePath(normalize_python_path(path)$path, winslash = "/")
-    }
-    if (!identical(normalize(py_config()$python), normalize(python))) {
+    
+    if (!file_same(py_config()$python, python)) {
 
       fmt <- paste(
         "ERROR: The requested version of Python ('%s') cannot be used, as",

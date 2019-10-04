@@ -3,6 +3,9 @@
 
 Install the development version of reticulate with `remotes::install_github("rstudio/reticulate")`.
 
+- Fixed an issue where iterable Python objects could not be iterated with
+  `iter_next()` due to a missing class. (#603)
+
 - Fixed an issue where Conda environments could be mis-detected as
   virtual environments.
 

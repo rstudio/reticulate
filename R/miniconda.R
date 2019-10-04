@@ -195,8 +195,7 @@ miniconda_test <- function(path = miniconda_path()) {
 
 miniconda_conda <- function(path = miniconda_path()) {
   exe <- if (is_windows()) "condabin/conda.bat" else "bin/conda"
-  conda <- file.path(path, exe)
-  conda_binary(conda)
+  file.path(path, exe)
 }
 
 miniconda_envpath <- function(env, path = miniconda_path()) {

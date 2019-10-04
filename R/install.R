@@ -1,28 +1,13 @@
 
 py_install_method_detect <- function(envname, conda = "auto") {
 
-  # on Windows, we always use conda environments
-  if (is_windows()) {
-
-    # validate that conda is available
-    conda <- tryCatch(conda_binary(conda = conda), error = identity)
-    if (inherits(conda, "error")) {
-      msg <- paste(
-        "Conda installation not found (failed to locate conda binary)",
-        "Please install Anaconda for Windows (https://www.anaconda.com/download/#windows) before proceeding.",
-        sep = "\n"
-      )
-      stop(msg, call. = FALSE)
-    }
-
-    # return it
-    return("conda")
-
-  }
-
   # try to find an existing virtualenv
   if (virtualenv_exists(envname))
     return("virtualenv")
+  
+  # check and prompt for miniconda
+  if (miniconda_installable() && !miniconda_exists())
+    miniconda_install_prompt()
 
   # try to find an existing condaenv
   if (condaenv_exists(envname, conda = conda))
@@ -77,6 +62,28 @@ py_install <- function(packages,
                        python_version = NULL,
                        ...)
 {
+  # if no environment name was provided,
+  # but python has already been initialized,
+  # then install into that same environment
+  if (is.null(envname)) {
+    
+    python <- if (is_python_initialized())
+      .globals$py_config$python
+    else if (length(.globals$required_python_version))
+      .globals$required_python_version[[1]]
+    else
+      NULL
+    
+    if (!is.null(python)) {
+      info <- python_info(python)
+      envname <- info$root
+      method <- info$type
+      if (method == "conda")
+        conda <- conda_binary(info$root)
+    }
+    
+  }
+  
   # resolve 'auto' method
   method <- match.arg(method)
   if (method == "auto")
@@ -89,10 +96,26 @@ py_install <- function(packages,
   }
 
   # perform the install
-  switch(method,
-    virtualenv = virtualenv_install(envname = envname, packages = packages, ...),
-    conda = conda_install(envname, packages = packages, conda = conda, python_version = python_version, ...),
+  switch(
+    
+    method,
+    
+    virtualenv = virtualenv_install(
+      envname = envname,
+      packages = packages,
+      ...
+    ),
+    
+    conda = conda_install(
+      envname,
+      packages = packages,
+      conda = conda,
+      python_version = python_version,
+      ...
+    ),
+    
     stop("unrecognized installation method '", method, "'")
+    
   )
 
   invisible(NULL)

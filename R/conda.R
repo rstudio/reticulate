@@ -298,6 +298,7 @@ find_conda <- function() {
   conda <- Sys.which("conda")
   if (!nzchar(conda)) {
     conda_locations <- c(
+      miniconda_conda(),
       path.expand("~/anaconda/bin/conda"),
       path.expand("~/anaconda2/bin/conda"),
       path.expand("~/anaconda3/bin/conda"),

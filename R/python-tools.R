@@ -35,3 +35,44 @@ python_module_version <- function(python, module) {
   output <- system2(python, args, stdout = TRUE, stderr = FALSE)
   numeric_version(output)
 }
+
+# given the path to a Python binary, try to ascertain its type
+python_info <- function(python) {
+  
+  path <- dirname(python)
+  parent <- dirname(path)
+  
+  while (path != parent) {
+    
+    # check for virtual environment files
+    virtualenv <-
+      file.exists(file.path(path, "pyvenv.cfg")) ||
+      file.exists(file.path(path, ".Python"))
+
+    if (virtualenv) {
+      suffix <- if (is_windows()) "Scripts/python.exe" else "bin/python"
+      python <- file.path(path, suffix)
+      return(list(python = python, type = "virtualenv", root = path))
+    }
+
+    # check for conda-meta
+    condaenv <-
+      file.exists(file.path(path, "conda-meta")) &&
+      !file.exists(file.path(path, "condabin"))
+
+    if (condaenv) {
+      suffix <- if (is_windows()) "python.exe" else "bin/python"
+      python <- file.path(path, suffix)
+      return(list(python = python, type = "conda", root = path))
+    }
+    
+    # recurse
+    parent <- path
+    path <- dirname(path)
+    
+  }
+  
+  stopf("could not find a Python environment for %s", python)
+  
+}
+

@@ -16,7 +16,7 @@ knitr::opts_chunk$set(eval = FALSE)
 
 ## Overview
 
-The **reticulate** package includes a Python engine for [R Markdown](http://rmarkdown.rstudio.com) that enables easy interoperabilty between Python and R chunks. 
+The **reticulate** package includes a Python engine for [R Markdown](http://rmarkdown.rstudio.com) that enables easy interoperability between Python and R chunks. 
 
 Python chunks behave very similar to R chunks (including graphical output from matplotlib) and the two languages have full access each other's objects. Built in conversion for many Python object types is provided, including [NumPy](http://www.numpy.org/) arrays and [Pandas](https://pandas.pydata.org/) data frames. 
 

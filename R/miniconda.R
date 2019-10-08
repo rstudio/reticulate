@@ -7,49 +7,27 @@
 #' @param path The path in which Miniconda will be installed. Note that the
 #'   installer does not support paths containing spaces.
 #' 
-#' @param version The version of the Miniconda installer to be used. Must be
-#'   either 3 (for a Python 3.x installation) or 2 (for a Python 2.x
-#'   installation).
-#' 
 #' @param update Boolean; update to the latest version of Miniconda after install?
 #' 
-#' @param python The version of Python to use. You can request specific
-#'   versions of Python -- for example, to install Python 3.6, you can use
-#'   `"python=3.6"`. By default, the latest version of Python is used.
-#'   When `"python"` (the default), the latest version of Python as supported by
-#'   Miniconda will be used.
-#' 
-#' @param packages A vector of Python packages to install into the Miniconda
-#'   installation. By default, `numpy` is installed into the `r-reticulate`
-#'   environment.
-#'   
 #' @param force Boolean; force re-installation if Miniconda is already installed
 #'   at the requested path?
 #' 
 #' @family miniconda
 #' 
 #' @export
-install_miniconda <- function(
-    path = miniconda_path(),
-    version = 3,
-    update = TRUE,
-    python = "python",
-    packages = c("numpy"),
-    force = FALSE)
+install_miniconda <- function(path = miniconda_path(),
+                              update = TRUE,
+                              force = FALSE)
 {
   if (grepl(" ", path, fixed = TRUE))
     stop("cannot install Miniconda into a path containing spaces")
-  
-  # NOTE: we'll allow 4 for a future potential Python 4.x release
-  if (!version %in% c(2, 3, 4))
-    stopf("no known miniconda installer for version %i", as.integer(version))
   
   # TODO: what behavior when miniconda is already installed?
   # fail? validate installed and matches request? reinstall?
   install_miniconda_preflight(path, force)
   
   # download the installer
-  url <- miniconda_installer_url(version)
+  url <- miniconda_installer_url()
   installer <- file.path(tempdir(), basename(url))
   messagef("* Downloading %s ...", shQuote(url))
   status <- download.file(url, destfile = installer, mode = "wb")
@@ -73,8 +51,8 @@ install_miniconda <- function(
   
   # create r-reticulate environment
   conda <- miniconda_conda(path)
-  packages <- unique(c(python, packages))
-  conda_create("r-reticulate", packages = packages, conda = conda)
+  python <- Sys.getenv("RETICULATE_MINICONDA_PYTHON", unset = "python=3.6")
+  conda_create("r-reticulate", packages = c(python, "numpy"), conda = conda)
   
   messagef("* Miniconda has been successfully installed at %s.", shQuote(path))
   path

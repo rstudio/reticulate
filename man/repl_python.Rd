@@ -4,8 +4,10 @@
 \alias{repl_python}
 \title{Run a Python REPL}
 \usage{
-repl_python(module = NULL, quiet = getOption("reticulate.repl.quiet",
-  default = FALSE))
+repl_python(
+  module = NULL,
+  quiet = getOption("reticulate.repl.quiet", default = FALSE)
+)
 }
 \arguments{
 \item{module}{An (optional) Python module to be imported before

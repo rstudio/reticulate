@@ -25,13 +25,13 @@ values are simply returned from the function.
 
 In Python, the \code{yield} keyword enables successive iterations to use the state
 of previous iterations. In R, this can be done by returning a function that
-mutates its enclosing environment via the \code{<<-} operator. For example:\preformatted{sequence_generator <- function(start) {
+mutates its enclosing environment via the \verb{<<-} operator. For example:\preformatted{sequence_generator <- function(start) \{
   value <- start
-  function() {
+  function() \{
     value <<- value + 1
     value
-  }
-}
+  \}
+\}
 }
 
 Then create an iterator using \code{py_iterator()}:\preformatted{g <- py_iterator(sequence_generator(10))
@@ -44,16 +44,16 @@ In Python, returning from a function without calling \code{yield} indicates the
 end of the iteration. In R however, \code{return} is used to yield values, so
 the end of iteration is indicated by a special return value (\code{NULL} by
 default, however this can be changed using the \code{completed} parameter). For
-example:\preformatted{sequence_generator <-function(start) {
+example:\preformatted{sequence_generator <-function(start) \{
   value <- start
-  function() {
+  function() \{
     value <<- value + 1
     if (value < 100)
       value
     else
       NULL
-  }
-}
+  \}
+\}
 }
 }
 

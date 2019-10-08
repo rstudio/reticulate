@@ -4,18 +4,13 @@
 \alias{as.character.python.builtin.bytes}
 \title{Convert Python bytes to an R character vector}
 \usage{
-\method{as.character}{python.builtin.bytes}(x, encoding = "utf-8",
-  errors = "strict", ...)
+\method{as.character}{python.builtin.bytes}(x, encoding = "utf-8", errors = "strict", ...)
 }
 \arguments{
-\item{x}{object to be coerced or tested.}
-
 \item{encoding}{Encoding to use for conversion (defaults to utf-8)}
 
 \item{errors}{Policy for handling conversion errors. Default is 'strict'
 which raises an error. Other possible values are 'ignore' and 'replace'}
-
-\item{...}{further arguments passed to or from other methods.}
 }
 \description{
 Convert Python bytes to an R character vector

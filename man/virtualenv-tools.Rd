@@ -14,11 +14,9 @@ virtualenv_list()
 
 virtualenv_create(envname = NULL, python = NULL)
 
-virtualenv_install(envname = NULL, packages, ignore_installed = TRUE,
-  ...)
+virtualenv_install(envname = NULL, packages, ignore_installed = TRUE, ...)
 
-virtualenv_remove(envname = NULL, packages = NULL,
-  confirm = interactive())
+virtualenv_remove(envname = NULL, packages = NULL, confirm = interactive())
 
 virtualenv_root()
 
@@ -52,7 +50,7 @@ environments?}
 R functions for managing Python \href{https://virtualenv.pypa.io/en/stable/}{virtual environments}.
 }
 \details{
-Virtual environments are by default located at \code{~/.virtualenvs} (accessed
+Virtual environments are by default located at \verb{~/.virtualenvs} (accessed
 with the \code{virtualenv_root} function). You can change the default location by
 defining defining the \code{WORKON_HOME} environment variable.
 

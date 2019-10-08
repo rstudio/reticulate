@@ -204,10 +204,6 @@ virtualenv_exists <- function(envname = NULL) {
   if (inherits(path, "error"))
     return(FALSE)
 
-  # check that the directory exists
-  if (!utils::file_test("-d", path))
-    return(FALSE)
-
   # check for expected files for virtualenv / venv
   files <- c("bin/activate_this.py", "bin/pyvenv.cfg", "pyvenv.cfg")
   any(file.exists(file.path(path, files)))
@@ -331,14 +327,6 @@ virtualenv_module <- function(python) {
 
 
 is_virtualenv <- function(dir) {
-
-  # virtual environment created with venv
-  if (file.exists(file.path(dir, "pyvenv.cfg")))
-    return(TRUE)
-
-  # virtual environment created with virtualenv
-  if (file.exists(file.path(dir, "bin/activate_this.py")))
-    return(TRUE)
-
-  FALSE
+  files <- c("bin/activate_this.py", "bin/pyvenv.cfg", "pyvenv.cfg")
+  any(file.exists(file.path(dir, files)))
 }

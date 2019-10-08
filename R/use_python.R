@@ -85,7 +85,32 @@ use_condaenv <- function(condaenv = NULL, conda = "auto", required = FALSE) {
     stop("Unable to locate conda environment '", condaenv, "'.")
 
   if (!is.null(condaenv))
-    use_python(conda_env_python, required = required)
+    use_python(conda_env_python[[1]], required = required)
 
   invisible(NULL)
+}
+
+#' @rdname use_python
+#' @export
+use_miniconda <- function(condaenv = NULL, required = FALSE) {
+  
+  # check that Miniconda is installed
+  if (!miniconda_exists()) {
+    
+    msg <- paste(
+      "Miniconda is not installed.",
+      "Use reticulate::install_miniconda() to install Miniconda.",
+      sep = "\n"
+    )
+    stop(msg)
+    
+  }
+  
+  # use it
+  use_condaenv(
+    condaenv = condaenv,
+    conda = miniconda_conda(),
+    required = required
+  )
+  
 }

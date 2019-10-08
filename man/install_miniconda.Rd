@@ -4,9 +4,14 @@
 \alias{install_miniconda}
 \title{Install Miniconda}
 \usage{
-install_miniconda(path = miniconda_path(), version = 3,
-  update = TRUE, python = "python", packages = c("numpy"),
-  force = FALSE)
+install_miniconda(
+  path = miniconda_path(),
+  version = 3,
+  update = TRUE,
+  python = "python",
+  packages = c("numpy"),
+  force = FALSE
+)
 }
 \arguments{
 \item{path}{The path in which Miniconda will be installed. Note that the
@@ -36,7 +41,7 @@ Download the \href{https://docs.conda.io/en/latest/miniconda.html}{Miniconda}
 installer, and use it to install Miniconda.
 }
 \seealso{
-Other miniconda: \code{\link{miniconda_path}},
-  \code{\link{miniconda_update}}
+Other miniconda: \code{\link{miniconda_path}()},
+  \code{\link{miniconda_update}()}
 }
 \concept{miniconda}

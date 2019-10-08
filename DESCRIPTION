@@ -45,6 +45,6 @@ Suggests:
     callr,
     rmarkdown
 LinkingTo: Rcpp
-RoxygenNote: 6.1.1
+RoxygenNote: 6.1.99.9001
 Roxygen: list(markdown = TRUE)
 VignetteBuilder: knitr

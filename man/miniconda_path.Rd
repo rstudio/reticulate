@@ -10,7 +10,7 @@ miniconda_path()
 The path to the Miniconda installation to use.
 }
 \seealso{
-Other miniconda: \code{\link{install_miniconda}},
-  \code{\link{miniconda_update}}
+Other miniconda: \code{\link{install_miniconda}()},
+  \code{\link{miniconda_update}()}
 }
 \concept{miniconda}

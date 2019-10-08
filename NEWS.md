@@ -3,6 +3,13 @@
 
 Install the development version of reticulate with `remotes::install_github("rstudio/reticulate")`.
 
+- `reticulate` will now prompt the user to create and use a
+  [Miniconda](https://docs.conda.io/en/latest/miniconda.html) environment
+  when no other suitable Python environment has already been requested. This
+  should help ease some of the trouble in setting up a Python environment on
+  different platforms. The installer code was contributed by @hafen, from the
+  [rminiconda](https://github.com/hafen/rminiconda) package.
+
 - Fixed an issue where `virtualenv_create(..., python = "<python>")` could
   fail to use the requested version of Python when `venv` is not installed.
   (#399)

@@ -6,6 +6,7 @@
 ^log$
 ^pkgdown$
 ^revdep$
+^tags$
 README.[R]?md
 README.html
 index.Rmd

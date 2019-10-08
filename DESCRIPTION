@@ -40,10 +40,10 @@ Imports:
     Rcpp (>= 0.12.7),
     utils
 Suggests:
-    testthat,
-    knitr,
     callr,
-    rmarkdown
+    knitr,
+    rmarkdown,
+    testthat
 LinkingTo: Rcpp
 RoxygenNote: 6.1.99.9001
 Roxygen: list(markdown = TRUE)

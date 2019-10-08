@@ -67,9 +67,15 @@ virtualenv_create <- function(envname = NULL, python = NULL) {
   writeLines(paste("Creating virtual environment", shQuote(name), "..."))
   writeLines(paste("Using python:", python))
 
-  # use it to create the virtual environment
-  args <- c("-m", module, "--system-site-packages", path.expand(path))
-  result <- system2(python, shQuote(args))
+  # use it to create the virtual environment (note that 'virtualenv'
+  # requires us to request the specific Python binary we wish to use when
+  # creating the environment)
+  args <- c("-m", module)
+  if (module == "virtualenv")
+    args <- c(args, "-p", shQuote(python))
+  args <- c(args, "--system-site-packages", shQuote(path.expand(path)))
+  
+  result <- system2(python, args)
   if (result != 0L) {
     fmt <- "Error creating virtual environment '%s' [error code %d]"
     msg <- sprintf(fmt, name, result)

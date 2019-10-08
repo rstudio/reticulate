@@ -3,6 +3,10 @@
 
 Install the development version of reticulate with `remotes::install_github("rstudio/reticulate")`.
 
+- Fixed an issue where `virtualenv_create(..., python = "<python>")` could
+  fail to use the requested version of Python when `venv` is not installed.
+  (#399)
+
 - Fixed an issue where iterable Python objects could not be iterated with
   `iter_next()` due to a missing class. (#603)
 

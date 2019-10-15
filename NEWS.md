@@ -3,6 +3,9 @@
 
 Install the development version of reticulate with `remotes::install_github("rstudio/reticulate")`.
 
+- `reticulate` now more consistently normalizes the paths reported by
+  `py_config()`. (#609)
+
 - `reticulate` now provides a mechanism for allowing client packages to declare
   their Python package dependencies. Packages should declare the Python packages
   they require as part of the `reticulate@R` field in their `DESCRIPTION` file.

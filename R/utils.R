@@ -202,3 +202,19 @@ file_same <- function(lhs, rhs) {
   FALSE
   
 }
+
+# normalize a path without following symlinks
+canonical_path <- function(path) {
+  
+  # on windows we normalize the whole path to avoid
+  # short path components leaking in
+  if (is_windows()) {
+    normalizePath(path, winslash = "/", mustWork = FALSE)
+  } else {
+    file.path(
+      normalizePath(dirname(path), winslash = "/", mustWork = FALSE),
+      basename(path)
+    )
+  }
+  
+}

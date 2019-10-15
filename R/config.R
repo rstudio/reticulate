@@ -395,6 +395,11 @@ python_munge_path <- function(python) {
 
 python_config <- function(python, required_module, python_versions, forced = NULL) {
 
+  # normalize and remove duplicates
+  python <- canonical_path(python)
+  python_versions <- canonical_path(python_versions)
+  python_versions <- unique(python_versions)
+  
   # update and restore PATH when done
   oldpath <- python_munge_path(python)
   on.exit(Sys.setenv(PATH = oldpath), add = TRUE)
@@ -454,12 +459,13 @@ python_config <- function(python, required_module, python_versions, forced = NUL
   }
 
   # determine PYTHONHOME
+  pythonhome <- NULL
   if (!is.null(config$PREFIX)) {
-    pythonhome <- config$PREFIX
-    if (!is_windows())
-      pythonhome <- paste(pythonhome, config$EXEC_PREFIX, sep = ":")
-  } else {
-    pythonhome <- NULL
+    pythonhome <- canonical_path(config$PREFIX)
+    if (!is_windows()) {
+      exec_prefix <- canonical_path(config$EXEC_PREFIX)
+      pythonhome <- paste(pythonhome, exec_prefix, sep = ":")
+    }
   }
 
 
@@ -469,11 +475,13 @@ python_config <- function(python, required_module, python_versions, forced = NUL
   }
 
   # check for numpy
-  if (!is.null(config$NumpyPath))
-    numpy <- list(path = config$NumpyPath,
-                  version = as_numeric_version(config$NumpyVersion))
-  else
-    numpy <- NULL
+  numpy <- NULL
+  if (!is.null(config$NumpyPath)) {
+    numpy <- list(
+      path = canonical_path(config$NumpyPath),
+      version = as_numeric_version(config$NumpyVersion)
+    )
+  }
 
   # check to see if this is a Python virtualenv
   root <- dirname(dirname(python))

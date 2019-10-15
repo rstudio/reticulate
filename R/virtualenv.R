@@ -84,8 +84,7 @@ virtualenv_create <- function(envname = NULL, python = NULL) {
 
   # upgrade pip and friends after creating the environment
   # (since the version bundled with virtualenv / venv may be stale)
-  pip <- virtualenv_pip(path)
-  pip_install(pip, c("pip", "wheel", "setuptools"))
+  pip_install(python, c("pip", "wheel", "setuptools"))
 
   invisible(path)
 }
@@ -115,15 +114,15 @@ virtualenv_install <- function(envname = NULL,
   writeLines(paste("Using virtual environment", shQuote(name), "..."))
 
   # ensure that pip + friends are up-to-date / recent enough
-  pip <- virtualenv_pip(path)
-  if (pip_version(pip) < "8.1") {
-    pip_install(pip, "pip")
-    pip_install(pip, "wheel")
-    pip_install(pip, "setuptools")
+  python <- virtualenv_python(envname)
+  if (pip_version(python) < "8.1") {
+    pip_install(python, "pip")
+    pip_install(python, "wheel")
+    pip_install(python, "setuptools")
   }
 
   # now install the requested package
-  pip_install(pip, packages, ignore_installed = ignore_installed)
+  pip_install(python, packages, ignore_installed = ignore_installed)
 }
 
 
@@ -171,8 +170,8 @@ virtualenv_remove <- function(envname = NULL, packages = NULL, confirm = interac
     }
   }
 
-  pip <- virtualenv_pip(path)
-  pip_uninstall(pip, packages)
+  python <- virtualenv_python(envname)
+  pip_uninstall(python, packages)
   invisible(NULL)
 }
 

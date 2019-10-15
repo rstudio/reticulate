@@ -155,18 +155,21 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
   # look for r-reticulate environment in miniconda
   # if the environment doesn't exist, and the user hasn't requested a separate
   # environment, then we'll prompt for installation of miniconda
-  envpath <- miniconda_envpath("r-reticulate")
-  ok <- file.exists(envpath) && condaenv_exists(envpath, conda = miniconda_conda())
-  if (ok) {
-    python_versions <- c(python_versions, python_binary_path(envpath))
-  } else {
+  miniconda <- miniconda_conda()
+  if (!file.exists(miniconda)) {
     install <- interactive() && length(python_versions) == 0 && miniconda_installable()
-    if (install) {
+    if (install)
       miniconda_install_prompt()
-      ok <- file.exists(envpath) && condaenv_exists(envpath, conda = miniconda_conda())
-      if (file.exists(envpath) && condaenv_exists(envpath, conda = miniconda_conda()))
-        python_versions <- c(python_versions, python_binary_path(envpath))
-    }
+  }
+  
+  if (file.exists(miniconda)) {
+    envname <- "r-reticulate"
+    envpath <- miniconda_envpath(envname)
+    if (!file.exists(envpath))
+      conda_create(envname, packages = c("python", "numpy"), conda = miniconda)
+    miniconda_python <- conda_python(envname, conda = miniconda)
+    config <- python_config(miniconda_python, NULL, miniconda_python)
+    return(config)
   }
   
   # look for conda environments

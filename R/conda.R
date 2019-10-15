@@ -383,3 +383,37 @@ conda_args <- function(action, envname = NULL, ...) {
 is_condaenv <- function(dir) {
   file.exists(file.path(dir, "conda-meta"))
 }
+
+conda_list_packages <- function(envname = NULL, conda = "auto", no_pip = TRUE) {
+  
+  conda <- conda_binary(conda)
+  envname <- condaenv_resolve(envname)
+
+  # create the environment
+  args <- c("list")
+  if (grepl("[/\\]", envname)) {
+    args <- c(args, "--prefix", envname)
+  } else {
+    args <- c(args, "--name", envname)
+  }
+  
+  if (no_pip)
+    args <- c(args, "--no-pip")
+  
+  args <- c(args, "--json")
+  
+  output <- system2(conda, shQuote(args), stdout = TRUE)
+  status <- attr(output, "status") %||% 0L
+  if (status != 0L) {
+    fmt <- "error listing conda environment [status code %i]"
+    stopf(fmt, status)
+  }
+  
+  parsed <- jsonlite::fromJSON(output)
+  data.frame(
+    package = parsed$name,
+    version = parsed$version,
+    stringsAsFactors = FALSE
+  )
+  
+}

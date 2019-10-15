@@ -88,6 +88,19 @@ order to use your package, and then things will then work as any other R package
 would. In particular, users are otherwise insulated from details as to how
 `reticulate` works.
 
+In some cases, a user may try to load your package after Python has already been
+initialized. To ensure that `reticulate` can still configure the active Python
+environment, you can include the code:
+
+```R
+.onLoad <- function(libname, pkgname) {
+  reticulate::configure_environment(pkgname)
+}
+```
+
+This will instruct `reticulate` to immediately try to configure the active
+Python environment, installing any required Python packages as necessary.
+
 
 ## Working Well with Others
 

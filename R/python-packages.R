@@ -24,7 +24,7 @@
 #' are installed after the Python session is initialized (when appropriate).
 #' 
 #' @export
-configure_environment <- function() {
+configure_environment <- function(package = NULL) {
   
   if (!is_python_initialized())
     return(FALSE)
@@ -37,7 +37,9 @@ configure_environment <- function() {
     return(FALSE)
 
   # find Python requirements  
-  reqs <- python_package_requirements()
+  reqs <- python_package_requirements(package)
+  if (length(reqs) == 0)
+    return(FALSE)
   
   # get package requirements
   pkgreqs <- unlist(lapply(reqs, `[[`, "packages"), recursive = FALSE, use.names = FALSE)
@@ -78,15 +80,11 @@ configure_environment <- function() {
   pip_packages   <- pip_requested_packages
   if (length(pip_packages) || length(conda_packages)) {
     
-    message("One or more Python packages need to be installed -- please wait ...")
-    
     if (length(pip_packages))
       py_install(pip_packages, pip = TRUE)
     
     if (length(conda_packages))
       py_install(conda_packages, pip = FALSE)
-    
-    message("Done!")
     
   }
   
@@ -94,9 +92,9 @@ configure_environment <- function() {
   TRUE
 }
 
-python_package_requirements <- function() {
+python_package_requirements <- function(packages = NULL) {
   
-  packages <- loadedNamespaces()
+  packages <- packages %||% loadedNamespaces()
   names(packages) <- packages
   reqs <- lapply(packages, function(package) {
     tryCatch(

@@ -36,6 +36,15 @@ python_module_version <- function(python, module) {
   numeric_version(output)
 }
 
+python_modules <- function(python) {
+  args <- c("-m", "pip", "freeze")
+  output <- system2(python, args, stdout = TRUE)
+  splat <- strsplit(output, "==", fixed = TRUE)
+  modules <- vapply(splat, `[[`, 1L, FUN.VALUE = character(1))
+  versions <- vapply(splat, `[[`, 2L, FUN.VALUE = character(1))
+  data.frame(module = modules, version = versions, stringsAsFactors = FALSE)
+}
+
 # given the path to a Python binary, try to ascertain its type
 python_info <- function(python) {
   

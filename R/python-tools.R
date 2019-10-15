@@ -36,7 +36,7 @@ python_module_version <- function(python, module) {
   numeric_version(output)
 }
 
-python_modules <- function(python) {
+python_packages <- function(python) {
   args <- c("-m", "pip", "freeze")
   output <- system2(python, args, stdout = TRUE)
   splat <- strsplit(output, "==", fixed = TRUE)

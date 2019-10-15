@@ -6,15 +6,21 @@ configure_environment <- function() {
   home <- miniconda_path()
   if (substring(config$python, 1, nchar(home)) != home)
     return(FALSE)
+
+  # find Python requirements  
+  reqs <- python_package_requirements()
   
-  # find package requirements
-  pkgreqs <- python_package_requirements()
-  reqs <- unlist(pkgreqs, recursive = FALSE, use.names = FALSE)
-  packages <- vapply(reqs, `[[`, "package", FUN.VALUE = character(1))
-  pip <- vapply(reqs, function(req) req[["pip"]] %||% FALSE, FUN.VALUE = logical(1))
+  # get package requirements
+  pkgreqs <- if (is.list(reqs[["packages"]]))
+    unlist(reqs[["packages"]], recursive = FALSE, use.names = FALSE)
+  else
+    reqs[["packages"]]
+    
+  packages <- vapply(pkgreqs, `[[`, "package", FUN.VALUE = character(1))
+  pip <- vapply(pkgreqs, function(req) req[["pip"]] %||% FALSE, FUN.VALUE = logical(1))
   
   # list installed modules
-  modules <- python_modules(python = config$python)
+  modules <- python_packages(python = config$python)
   
   # install them if necessary
   # TODO: we should compare requested versions and upgrade as needed

@@ -3,6 +3,13 @@
 
 Install the development version of reticulate with `remotes::install_github("rstudio/reticulate")`.
 
+- `reticulate` now provides a mechanism for allowing client packages to declare
+  their Python package dependencies. Packages should declare the Python packages
+  they require as part of the `reticulate@R` field in their `DESCRIPTION` file.
+  Currently, this only activated when using Miniconda; as the assumption is that
+  users will otherwise prefer to manually manage their Python environments.
+  Please see `vignette("python_dependencies")` for more details.
+  
 - `reticulate` will now prompt the user to create and use a
   [Miniconda](https://docs.conda.io/en/latest/miniconda.html) environment
   when no other suitable Python environment has already been requested. This

@@ -1,0 +1,117 @@
+---
+title: "Managing an R Package's Python Dependencies"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{python_dependencies}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+If you're writing an R package that uses `reticulate` as an interface to a
+Python session, you likely also need to install one or more Python packages on
+the user's machine for your package to function. In addition, you'd likely
+prefer to insulate users from details around how Python + `reticulate` are
+configured as much as possible. This vignette documents a few approaches for
+accomplishing these goals.
+
+
+## Manual Configuration
+
+Previously, packages like [tensorflow](https://tensorflow.rstudio.com)
+accomplished this by providing helper functions (e.g.
+`tensorflow::install_tensorflow()`), and documenting that users
+should call this function to prepare the environment. For example:
+
+```R
+library(tensorflow)
+install_tensorflow()
+# use tensorflow
+```
+
+The biggest downside with this approach is that it requires users to manually
+download and install an appropriate version of Python. In addition, if the user
+has _not_ downloaded an appropriate version of Python, then the version
+discovered on the user's system may not conform with the requirements imposed by
+the `tensorflow` package -- leading to more trouble.
+
+Fixing this often requires instructing the user to install Python, and then use
+`reticulate` APIs (e.g. `reticulate::use_python()` and other tools) to find
+and use an appropriate Python version + environment. This is, understandably,
+more cognitive overhead than you might want to impose on users of your package.
+
+
+## Automatic Configuration
+
+With newer versions of `reticulate`, it's possible for client packages to
+declare their Python dependencies directly in the `DESCRIPTION` file, with
+the use of the `reticulate@R` field. For example, if we had a package `rscipy`
+that acted as an interface to the [SciPy](https://www.scipy.org) Python package,
+we might use the following `DESCRIPTION`:
+
+```
+Package: rscipy
+Title: An R Interface to scipy
+Version: 1.0.0
+Description: Provides an R interface to the Python package scipy.
+reticulate@R: list(
+    packages = list(
+        c(package = "scipy", pip = TRUE)
+    )
+    )
+< ... other fields ...>
+```
+
+With this, `reticulate` will take care of automatically configuring a Python
+environment for the user when the `rscipy` package is loaded and used. In
+particular, after the `rscipy` package is loaded, the following will occur:
+
+1. Unless the user has explicitly instructed `reticulate` to use an existing
+   Python environment, `reticulate` prompt the user to download and install
+   [Miniconda](https://docs.conda.io/en/latest/miniconda.html) (if necessary).
+
+2. After this, when the Python session is initialized by `reticulate`, all
+   declared dependencies of loaded packages in `reticulate@R` will be
+   discovered.
+
+3. These dependencies will then be installed into an appropriate Conda
+   environment, as provided by the Miniconda installation.
+
+In effect, users have to pay a one-time, mostly-automated initialization cost in
+order to use your package, and then things will then work as any other R package
+would. In particular, users are otherwise insulated from details as to how
+`reticulate` works.
+
+
+## Working Well with Others
+
+With automatic configuration, `reticulate` wants to encourage a world wherein
+different R packages wrapping Python packages can live together in the same
+Python environment. In essence, we would like to minimize the number of
+conflicts that could arise through different R packages having incompatible
+Python dependencies.
+
+To that effect, `reticulate` will (by default) track an older version of Python
+than the current release, giving Python packages time to adapt as is required.
+Python 2 will not be supported.
+
+Tools for breaking these rules are not yet implemented, but will be provided
+as the need arises.
+
+
+## Format
+
+Declared Python package dependencies should have the following format:
+
+- **package**: The name of the Python package.
+
+- **pip**: Whether this package should be retrieved from the
+  [PyPI](https://pypi.org) with `pip`, or (if `FALSE`) from the Anaconda
+  repositories.
+

@@ -4,7 +4,7 @@
 \alias{configure_environment}
 \title{Configure a Python Environment}
 \usage{
-configure_environment()
+configure_environment(package = NULL)
 }
 \description{
 Configure a Python environment, satisfying the Python dependencies of any
@@ -19,7 +19,7 @@ Python environment. For example:\preformatted{.onLoad <- function(libname, pkgna
 }
 
 If the Python session has not yet been initialized, or if the user is not
-using the default Miniconda Python installation, this will be a no-op.
+using the default Miniconda Python installation, no action will be taken.
 Otherwise, \code{reticulate} will take this as a signal to install any required
 Python dependencies into the user's Python environment.
 

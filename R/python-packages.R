@@ -10,7 +10,7 @@
 #' 
 #' ```
 #' .onLoad <- function(libname, pkgname) {
-#'   reticulate::configure_environment()
+#'   reticulate::configure_environment(pkgname)
 #' }
 #' ```
 #' 
@@ -23,6 +23,10 @@
 #' `reticulate` will automatically ensure your required Python dependencies
 #' are installed after the Python session is initialized (when appropriate).
 #' 
+#' @param package The name of a package to configure. When `NULL`, `reticulate`
+#'   will instead look at all loaded packages and discover their associated
+#'   Python requirements.
+#'
 #' @export
 configure_environment <- function(package = NULL) {
   

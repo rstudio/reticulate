@@ -6,6 +6,11 @@
 \usage{
 configure_environment(package = NULL)
 }
+\arguments{
+\item{package}{The name of a package to configure. When \code{NULL}, \code{reticulate}
+will instead look at all loaded packages and discover their associated
+Python requirements.}
+}
 \description{
 Configure a Python environment, satisfying the Python dependencies of any
 loaded \R packages.
@@ -14,7 +19,7 @@ loaded \R packages.
 Normally, this function should only be used by package authors, who want
 to ensure that their package dependencies are installed in the active
 Python environment. For example:\preformatted{.onLoad <- function(libname, pkgname) \{
-  reticulate::configure_environment()
+  reticulate::configure_environment(pkgname)
 \}
 }
 

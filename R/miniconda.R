@@ -51,7 +51,7 @@ install_miniconda <- function(path = miniconda_path(),
   
   # create r-reticulate environment
   conda <- miniconda_conda(path)
-  python <- Sys.getenv("RETICULATE_MINICONDA_PYTHON", unset = "python=3.6")
+  python <- miniconda_python_package()
   conda_create("r-reticulate", packages = c(python, "numpy"), conda = conda)
   
   messagef("* Miniconda has been successfully installed at %s.", shQuote(path))
@@ -256,4 +256,23 @@ miniconda_install_prompt <- function() {
     
   }
   
+}
+
+# the default environment path to use for miniconda
+miniconda_python_envpath <- function() {
+  
+  Sys.getenv(
+    "RETICULATE_MINICONDA_PYTHON_ENVPATH",
+    unset = miniconda_envpath("r-reticulate")
+  )
+  
+}
+
+# the version of python to use in the environment
+miniconda_python_version <- function() {
+  Sys.getenv("RETICULATE_MINICONDA_PYTHON_VERSION", unset = "3.6")
+}
+
+miniconda_python_package <- function() {
+  paste("python", miniconda_python_version(), sep = "=")
 }

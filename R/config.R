@@ -157,19 +157,33 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
   # environment, then we'll prompt for installation of miniconda
   miniconda <- miniconda_conda()
   if (!file.exists(miniconda)) {
-    install <- interactive() && length(python_versions) == 0 && miniconda_installable()
-    if (install)
+    
+    can_install_miniconda <-
+      interactive() &&
+      length(python_versions) == 0 &&
+      miniconda_installable()
+    
+    if (can_install_miniconda)
       miniconda_install_prompt()
+    
   }
   
+  # if the earlier branch installed miniconda, it may exist now -- if so,
+  # try to activate it
   if (file.exists(miniconda)) {
-    envname <- "r-reticulate"
-    envpath <- miniconda_envpath(envname)
-    if (!file.exists(envpath))
-      conda_create(envname, packages = c("python", "numpy"), conda = miniconda)
-    miniconda_python <- conda_python(envname, conda = miniconda)
+    
+    # create the conda environment if necessary
+    envpath <- miniconda_python_envpath()
+    if (!file.exists(envpath)) {
+      python <- miniconda_python_package()
+      conda_create(envpath, packages = c(python, "numpy"), conda = miniconda)
+    }
+    
+    # bind to it
+    miniconda_python <- conda_python(envpath, conda = miniconda)
     config <- python_config(miniconda_python, NULL, miniconda_python)
     return(config)
+    
   }
   
   # look for conda environments

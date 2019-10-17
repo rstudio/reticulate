@@ -3,6 +3,8 @@
 
 Install the development version of reticulate with `remotes::install_github("rstudio/reticulate")`.
 
+- `input()` and `raw_input()` now work as expected within `repl_python()`. (#610)
+
 - `reticulate` now more consistently normalizes the paths reported by
   `py_config()`. (#609)
 

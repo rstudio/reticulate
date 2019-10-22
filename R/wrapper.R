@@ -1,7 +1,7 @@
 
 #' Scaffold R wrappers for Python functions
 #'
-#' @param python_function Fully qualfied name of Python function or class
+#' @param python_function Fully qualified name of Python function or class
 #'   constructor (e.g. `tf$layers$average_pooling1d`)
 #' @param r_prefix Prefix to add to generated R function name
 #' @param r_function Name of R function to generate (defaults to name of Python

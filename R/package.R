@@ -52,6 +52,9 @@ ensure_python_initialized <- function(required_module = NULL) {
     # remap output streams to R output handlers
     remap_output_streams()
     
+    # inject hooks
+    py_inject_hooks()
+    
     # install required packages
     configure_environment()
 

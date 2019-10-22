@@ -1415,3 +1415,29 @@ py_inject_r <- function(envir) {
   py_run_string("r = R()")
 
 }
+
+py_inject_hooks <- function() {
+  
+  builtins <- import_builtins(convert = TRUE)
+  
+  input <- function(prompt) {
+    
+    response <- tryCatch(
+      readline(prompt),
+      interrupt = identity
+    )
+    
+    if (inherits(response, "interrupt"))
+      stop("KeyboardInterrupt", call. = FALSE)
+    
+    r_to_py(response)
+    
+  }
+  
+  # override input function
+  if (interactive()) {
+    name <- if (is_python3()) "input" else "raw_input"
+    builtins[[name]] <- input
+  }
+  
+}

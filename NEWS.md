@@ -3,7 +3,9 @@
 
 Install the development version of reticulate with `remotes::install_github("rstudio/reticulate")`.
 
-- `input()` and `raw_input()` now work as expected within `repl_python()`. (#610)
+- reticulate now provides R hooks for Python's `input()` and `raw_input()`
+  functions. It should now be possible to read user input from Python scripts
+  loaded by reticulate. (#610)
 
 - `reticulate` now more consistently normalizes the paths reported by
   `py_config()`. (#609)

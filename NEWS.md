@@ -3,6 +3,10 @@
 
 Install the development version of reticulate with `remotes::install_github("rstudio/reticulate")`.
 
+- reticulate will now attempt to bind to `python3` rather than `python`,
+  when no other version of Python has been explicitly requested by
+  e.g. `use_python()`.
+  
 - reticulate now provides R hooks for Python's `input()` and `raw_input()`
   functions. It should now be possible to read user input from Python scripts
   loaded by reticulate. (#610)

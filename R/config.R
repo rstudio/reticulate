@@ -212,16 +212,16 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
     python_versions <- c(python_versions, py_versions_windows()$executable_path)
   } else {
     python_versions <- c(python_versions,
-                         "/usr/bin/python",
-                         "/usr/local/bin/python",
-                         "/opt/python/bin/python",
-                         "/opt/local/python/bin/python",
                          "/usr/bin/python3",
                          "/usr/local/bin/python3",
                          "/opt/python/bin/python3",
                          "/opt/local/python/bin/python3",
-                         path.expand("~/anaconda/bin/python"),
+                         "/usr/bin/python",
+                         "/usr/local/bin/python",
+                         "/opt/python/bin/python",
+                         "/opt/local/python/bin/python",
                          path.expand("~/anaconda3/bin/python")
+                         path.expand("~/anaconda/bin/python"),
     )
   }
 

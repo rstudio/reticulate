@@ -161,6 +161,7 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
     can_install_miniconda <-
       interactive() &&
       length(python_versions) == 0 &&
+      miniconda_enabled() &&
       miniconda_installable()
     
     if (can_install_miniconda)

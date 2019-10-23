@@ -6,7 +6,7 @@ py_install_method_detect <- function(envname, conda = "auto") {
     return("virtualenv")
   
   # check and prompt for miniconda
-  if (miniconda_installable() && !miniconda_exists())
+  if (miniconda_enabled() && miniconda_installable() && !miniconda_exists())
     miniconda_install_prompt()
 
   # try to find an existing condaenv

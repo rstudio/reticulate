@@ -276,3 +276,13 @@ miniconda_python_version <- function() {
 miniconda_python_package <- function() {
   paste("python", miniconda_python_version(), sep = "=")
 }
+
+miniconda_enabled <- function() {
+  
+  enabled <- Sys.getenv("RETICULATE_MINICONDA_ENABLED", unset = "TRUE")
+  if (tolower(enabled) %in% c("false", "0"))
+    return(FALSE)
+  
+  miniconda_installable()
+  
+}

@@ -151,7 +151,21 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
     module_python_envs <- python_virtualenvs[python_virtualenvs$name %in% envnames, ]
     python_versions <- c(python_versions, module_python_envs$python)
   }
+  
+  # look for conda environments
+  python_condaenvs <- python_conda_versions()
+  r_reticulate_python_envs <- python_condaenvs[python_condaenvs$name == "r-reticulate", ]
+  python_versions <- c(python_versions, r_reticulate_python_envs$python)
+  
+  # next look in conda envs that have a required module derived name
+  if (!is.null(required_module)) {
+    # filter by required module
+    envnames <- c(required_module, paste0("r-", required_module), use_environment)
+    module_python_envs <- python_condaenvs[python_condaenvs$name %in% envnames, ]
+    python_versions <- c(python_versions, module_python_envs$python)
+  }
 
+  
   # look for r-reticulate environment in miniconda
   # if the environment doesn't exist, and the user hasn't requested a separate
   # environment, then we'll prompt for installation of miniconda
@@ -187,24 +201,11 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
     
   }
   
-  # look for conda environments
-  python_condaenvs <- python_conda_versions()
-  r_reticulate_python_envs <- python_condaenvs[python_condaenvs$name == "r-reticulate", ]
-  python_versions <- c(python_versions, r_reticulate_python_envs$python)
-  
-  # next look in virtual environments that have a required module derived name
-  if (!is.null(required_module)) {
-    # filter by required module
-    envnames <- c(required_module, paste0("r-", required_module), use_environment)
-    module_python_envs <- python_condaenvs[python_condaenvs$name %in% envnames, ]
-    python_versions <- c(python_versions, module_python_envs$python)
-  }
-
   # join virtualenv, condaenv environments together
   python_envs <- rbind(python_virtualenvs, python_condaenvs)
   
   # look on system path
-  python <- as.character(Sys.which("python"))
+  python <- as.character(Sys.which("python3"))
   if (nzchar(python))
     python_versions <- c(python_versions, python)
 

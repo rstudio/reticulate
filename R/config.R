@@ -221,8 +221,8 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
                          "/usr/local/bin/python",
                          "/opt/python/bin/python",
                          "/opt/local/python/bin/python",
-                         path.expand("~/anaconda3/bin/python")
-                         path.expand("~/anaconda/bin/python"),
+                         path.expand("~/anaconda3/bin/python"),
+                         path.expand("~/anaconda/bin/python")
     )
   }
 

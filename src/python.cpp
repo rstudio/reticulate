@@ -2207,3 +2207,91 @@ SEXP py_eval_impl(const std::string& code, bool convert = true) {
   return result;
 
 }
+
+// [[Rcpp::export]]
+SEXP py_convert_pandas_df(PyObjectRef obj) {
+  
+  // pd.DataFrame.items() iterates over (column name, Series) pairs
+  PyObjectPtr items(PyObject_CallMethod(obj, "items", NULL));
+
+  List list;
+  
+  while (true) {
+
+    // get next tuple
+    PyObjectPtr tuple(PyIter_Next(items));
+    if (tuple.is_null()) {
+      if (PyErr_Occurred())
+        stop(py_fetch_error());
+      else
+        break;
+    }
+    
+    // access Series in slot 1
+    PyObjectPtr series(PySequence_GetItem(tuple, 1));
+    
+    // and extract dtype
+    PyObjectPtr dtype(PyObject_GetAttrString(series, "dtype"));
+    PyObjectPtr dtype_str(PyObject_GetAttrString(dtype, "name"));
+    
+    // as well as values
+    PyObjectPtr values(PyObject_GetAttrString(series, "values"));
+    
+    SEXP sexp;
+
+    // special treatment for pd.Categorical
+    if (as_std_string(dtype_str) == "category") {
+      
+      // get actual values and convert to R
+      PyObjectPtr codes_(PyObject_GetAttrString(
+        PyObject_GetAttrString(
+          PyObject_GetAttrString(series, "cat"),
+          "codes"),
+        "values"));
+      SEXP codes = py_to_r(codes_, true);
+      
+      // get levels and convert to R
+      PyObjectPtr levels_(PyObject_GetAttrString(
+        PyObject_GetAttrString(dtype, "categories"),
+        "values"));
+      SEXP levels = py_to_r(levels_, true);
+      
+      // get "ordered" attribute
+      PyObjectPtr ordered_(PyObject_GetAttrString(dtype, "ordered"));
+      SEXP ordered = py_to_r(ordered_, true);
+   
+      // populate integer vector to hold factor values
+      int* codes_int = INTEGER(codes);
+      int n = Rf_length(codes);
+      IntegerVector factor(n);
+      // values need to start at 1
+      for (int i = 0; i < n; ++i) {
+        factor[i] = codes_int[i] + 1;
+      }
+
+      // populate character vector to hold levels
+      n = Rf_length(levels);
+      CharacterVector levels_chr(n);
+      for (int i = 0; i < n; ++i) {
+        levels_chr[i] = STRING_ELT(levels, i);
+      }
+
+      factor.attr("class") = "factor";
+      factor.attr("levels") = levels_chr;
+      if (*(LOGICAL(ordered)) == 1) factor.attr("ordered") = ordered;
+      
+      sexp = factor;
+    
+    // default case
+    } else {
+      
+      sexp = py_to_r(values, obj.convert());
+      
+    }
+    
+    list.push_back(sexp);
+  }
+
+  return list;
+
+}

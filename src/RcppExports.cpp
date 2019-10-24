@@ -498,6 +498,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// py_convert_pandas_df
+SEXP py_convert_pandas_df(PyObjectRef obj);
+RcppExport SEXP _reticulate_py_convert_pandas_df(SEXP objSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< PyObjectRef >::type obj(objSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_convert_pandas_df(obj));
+    return rcpp_result_gen;
+END_RCPP
+}
 // readline
 SEXP readline(const std::string& prompt);
 RcppExport SEXP _reticulate_readline(SEXP promptSEXP) {
@@ -554,6 +565,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_reticulate_py_run_string_impl", (DL_FUNC) &_reticulate_py_run_string_impl, 3},
     {"_reticulate_py_run_file_impl", (DL_FUNC) &_reticulate_py_run_file_impl, 3},
     {"_reticulate_py_eval_impl", (DL_FUNC) &_reticulate_py_eval_impl, 2},
+    {"_reticulate_py_convert_pandas_df", (DL_FUNC) &_reticulate_py_convert_pandas_df, 1},
     {"_reticulate_readline", (DL_FUNC) &_reticulate_readline, 1},
     {NULL, NULL, 0}
 };

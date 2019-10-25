@@ -2295,8 +2295,12 @@ SEXP py_convert_pandas_df(PyObjectRef df) {
     // access Series in slot 1
     PyObjectPtr series(PySequence_GetItem(tuple, 1));
     Py_IncRef(series);
+    
+    // delegate to py_convert_pandas_series
     PyObjectRef series_ref(series, df.convert());
+    
     RObject R_obj = py_convert_pandas_series(series_ref);
+    
     Py_DecRef(series);
     
     list.push_back(R_obj);

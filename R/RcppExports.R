@@ -201,8 +201,12 @@ py_eval_impl <- function(code, convert = TRUE) {
     .Call(`_reticulate_py_eval_impl`, code, convert)
 }
 
-py_convert_pandas_df <- function(obj) {
-    .Call(`_reticulate_py_convert_pandas_df`, obj)
+py_convert_pandas_series <- function(series) {
+    .Call(`_reticulate_py_convert_pandas_series`, series)
+}
+
+py_convert_pandas_df <- function(df) {
+    .Call(`_reticulate_py_convert_pandas_df`, df)
 }
 
 readline <- function(prompt) {

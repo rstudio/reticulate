@@ -2211,10 +2211,12 @@ SEXP py_eval_impl(const std::string& code, bool convert = true) {
 // [[Rcpp::export]]
 SEXP py_convert_pandas_df(PyObjectRef obj) {
   
-  // pd.DataFrame.items() iterates over (column name, Series) pairs
+  // pd.DataFrame.items() returns an Iterator over (column name, Series) pairs
   PyObjectPtr items(PyObject_CallMethod(obj, "items", NULL));
+  if (! PyObject_HasAttrString(items, "__next__"))
+    stop("Cannot iterate over object");
 
-  List list;
+  std::vector<RObject> list;
   
   while (true) {
 
@@ -2232,66 +2234,66 @@ SEXP py_convert_pandas_df(PyObjectRef obj) {
     
     // and extract dtype
     PyObjectPtr dtype(PyObject_GetAttrString(series, "dtype"));
-    PyObjectPtr dtype_str(PyObject_GetAttrString(dtype, "name"));
+    PyObjectPtr name(PyObject_GetAttrString(dtype, "name"));
     
     // as well as values
     PyObjectPtr values(PyObject_GetAttrString(series, "values"));
     
-    SEXP sexp;
+    RObject R_obj;
 
     // special treatment for pd.Categorical
-    if (as_std_string(dtype_str) == "category") {
+    if (as_std_string(name) == "category") {
       
       // get actual values and convert to R
-      PyObjectPtr codes_(PyObject_GetAttrString(
-        PyObject_GetAttrString(
-          PyObject_GetAttrString(series, "cat"),
-          "codes"),
-        "values"));
-      SEXP codes = py_to_r(codes_, true);
+      PyObjectPtr cat(PyObject_GetAttrString(series, "cat"));
+      PyObjectPtr codes(PyObject_GetAttrString(cat, "codes"));
+      PyObjectPtr code_values(PyObject_GetAttrString(codes, "values"));
+      RObject R_values = py_to_r(code_values, true);
       
       // get levels and convert to R
-      PyObjectPtr levels_(PyObject_GetAttrString(
-        PyObject_GetAttrString(dtype, "categories"),
-        "values"));
-      SEXP levels = py_to_r(levels_, true);
+      PyObjectPtr categories(PyObject_GetAttrString(dtype, "categories"));
+      PyObjectPtr category_values(PyObject_GetAttrString(categories, "values"));
+      RObject R_levels = py_to_r(category_values, true);
       
       // get "ordered" attribute
-      PyObjectPtr ordered_(PyObject_GetAttrString(dtype, "ordered"));
-      SEXP ordered = py_to_r(ordered_, true);
+      PyObjectPtr ordered(PyObject_GetAttrString(dtype, "ordered"));
+      //RObject ordered = py_to_r(ordered_, true);
    
       // populate integer vector to hold factor values
-      int* codes_int = INTEGER(codes);
-      int n = Rf_length(codes);
+      int* codes_int = INTEGER(R_values);
+      int n = Rf_length(R_values);
       IntegerVector factor(n);
       // values need to start at 1
       for (int i = 0; i < n; ++i) {
         factor[i] = codes_int[i] + 1;
       }
-
+      
       // populate character vector to hold levels
-      n = Rf_length(levels);
-      CharacterVector levels_chr(n);
+      n = Rf_length(R_levels);
+      CharacterVector factor_levels(n);
       for (int i = 0; i < n; ++i) {
-        levels_chr[i] = STRING_ELT(levels, i);
+        factor_levels[i] = STRING_ELT(R_levels, i);
       }
 
       factor.attr("class") = "factor";
-      factor.attr("levels") = levels_chr;
-      if (*(LOGICAL(ordered)) == 1) factor.attr("ordered") = ordered;
+      factor.attr("levels") = factor_levels;
+      if (PyObject_IsTrue(ordered)) factor.attr("ordered") = true;
       
-      sexp = factor;
+      R_obj = factor;
     
     // default case
     } else {
       
-      sexp = py_to_r(values, obj.convert());
+      R_obj = py_to_r(values, obj.convert());
       
     }
     
-    list.push_back(sexp);
+    list.push_back(R_obj);
   }
 
-  return list;
+  List rList(list.size());
+  for (size_t i = 0; i < list.size(); i++)
+    rList[i] = list[i];
+  return rList;
 
 }

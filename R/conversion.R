@@ -294,6 +294,7 @@ py_to_r.pandas.core.frame.DataFrame <- function(x) {
 
   # extract numpy arrays associated with each column
   columns <- x$columns$values
+  
   # delegate to c++
   converted <- py_convert_pandas_df(x)
   names(converted) <- py_to_r(x$columns$format())

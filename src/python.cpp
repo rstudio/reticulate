@@ -2240,7 +2240,7 @@ SEXP py_convert_pandas_series(PyObjectRef series) {
     
     // populate integer vector to hold factor values
     int* codes_int = INTEGER(R_values);
-    int n = Rf_length(R_values);
+    int n = Rf_xlength(R_values);
     IntegerVector factor(n);
     // values need to start at 1
     for (int i = 0; i < n; ++i) {
@@ -2248,7 +2248,7 @@ SEXP py_convert_pandas_series(PyObjectRef series) {
     }
     
     // populate character vector to hold levels
-    n = Rf_length(R_levels);
+    n = Rf_xlength(R_levels);
     CharacterVector factor_levels(n);
     for (int i = 0; i < n; ++i) {
       factor_levels[i] = STRING_ELT(R_levels, i);
@@ -2276,7 +2276,7 @@ SEXP py_convert_pandas_df(PyObjectRef df) {
   
   // pd.DataFrame.items() returns an Iterator over (column name, Series) pairs
   PyObjectPtr items(PyObject_CallMethod(df, "items", NULL));
-  if (! PyObject_HasAttrString(items, "__next__"))
+  if (! (PyObject_HasAttrString(items, "__next__") || PyObject_HasAttrString(items, "next")))
     stop("Cannot iterate over object");
 
   std::vector<RObject> list;
@@ -2306,9 +2306,7 @@ SEXP py_convert_pandas_df(PyObjectRef df) {
     list.push_back(R_obj);
   }
 
-  List rList(list.size());
-  for (size_t i = 0; i < list.size(); i++)
-    rList[i] = list[i];
+  List rList(list.begin(), list.end());
   return rList;
 
 }

@@ -2248,11 +2248,8 @@ SEXP py_convert_pandas_series(PyObjectRef series) {
     }
     
     // populate character vector to hold levels
-    n = Rf_xlength(R_levels);
-    CharacterVector factor_levels(n);
-    for (int i = 0; i < n; ++i) {
-      factor_levels[i] = STRING_ELT(R_levels, i);
-    }
+    CharacterVector factor_levels(R_levels);
+    factor_levels.attr("dim") = R_NilValue;
     
     factor.attr("class") = "factor";
     factor.attr("levels") = factor_levels;
@@ -2294,15 +2291,10 @@ SEXP py_convert_pandas_df(PyObjectRef df) {
     
     // access Series in slot 1
     PyObjectPtr series(PySequence_GetItem(tuple, 1));
-    Py_IncRef(series);
-    
     // delegate to py_convert_pandas_series
     PyObjectRef series_ref(series, df.convert());
-    
     RObject R_obj = py_convert_pandas_series(series_ref);
-    
-    Py_DecRef(series);
-    
+
     list.push_back(R_obj);
   }
 

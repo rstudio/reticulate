@@ -2215,6 +2215,7 @@ SEXP py_convert_pandas_series(PyObjectRef series) {
   PyObjectPtr dtype(PyObject_GetAttrString(series, "dtype"));
   PyObjectPtr name(PyObject_GetAttrString(dtype, "name"));
   
+  
   // as well as values
   PyObjectPtr values(PyObject_GetAttrString(series, "values"));
   
@@ -2292,7 +2293,7 @@ SEXP py_convert_pandas_df(PyObjectRef df) {
     // access Series in slot 1
     PyObjectPtr series(PySequence_GetItem(tuple, 1));
     // delegate to py_convert_pandas_series
-    PyObjectRef series_ref(series, df.convert());
+    PyObjectRef series_ref(series.detach(), df.convert());
     RObject R_obj = py_convert_pandas_series(series_ref);
 
     list.push_back(R_obj);

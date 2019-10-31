@@ -21,13 +21,12 @@ prefer to insulate users from details around how Python + `reticulate` are
 configured as much as possible. This vignette documents a few approaches for
 accomplishing these goals.
 
-
 ## Manual Configuration
 
 Previously, packages like [tensorflow](https://tensorflow.rstudio.com)
 accomplished this by providing helper functions (e.g.
-`tensorflow::install_tensorflow()`), and documenting that users
-should call this function to prepare the environment. For example:
+`tensorflow::install_tensorflow()`), and documenting that users should call this
+function to prepare the environment. For example:
 
 ```R
 library(tensorflow)
@@ -42,29 +41,32 @@ discovered on the user's system may not conform with the requirements imposed by
 the `tensorflow` package -- leading to more trouble.
 
 Fixing this often requires instructing the user to install Python, and then use
-`reticulate` APIs (e.g. `reticulate::use_python()` and other tools) to find
-and use an appropriate Python version + environment. This is, understandably,
-more cognitive overhead than you might want to impose on users of your package.
+`reticulate` APIs (e.g. `reticulate::use_python()` and other tools) to find and
+use an appropriate Python version + environment. This is, understandably, more
+cognitive overhead than you might want to impose on users of your package.
 
-Another huge problem with manual configuration is that if different R packages use different default Python environments, then those packages can't ever be loaded in the same R session (since there can only be one active Python environment at a time within an R session).
+Another huge problem with manual configuration is that if different R packages
+use different default Python environments, then those packages can't ever be
+loaded in the same R session (since there can only be one active Python
+environment at a time within an R session).
 
 ## Automatic Configuration
 
 With newer versions of `reticulate`, it's possible for client packages to
-declare their Python dependencies directly in the `DESCRIPTION` file, with
-the use of the `reticulate@R` field. 
+declare their Python dependencies directly in the `DESCRIPTION` file, with the
+use of the `reticulate@R` field.
 
 With automatic configuration, `reticulate` wants to encourage a world wherein
 different R packages wrapping Python packages can live together in the same
-Python environment / R session. In essence, we would like to minimize the number of
-conflicts that could arise through different R packages having incompatible
+Python environment / R session. In essence, we would like to minimize the number
+of conflicts that could arise through different R packages having incompatible
 Python dependencies.
 
 ### Using reticulate@R
 
-For example, if we had a package `rscipy`
-that acted as an interface to the [SciPy](https://www.scipy.org) Python package,
-we might use the following `DESCRIPTION`:
+For example, if we had a package `rscipy` that acted as an interface to the
+[SciPy](https://www.scipy.org) Python package, we might use the following
+`DESCRIPTION`:
 
 ```
 Package: rscipy
@@ -82,7 +84,9 @@ reticulate@R: list(
 ### Installation 
 
 With this, `reticulate` will take care of automatically configuring a Python
-environment for the user when the `rscipy` package is loaded and used (i.e. it's no longer necessary to provide the user with a special `install_tensorflow()` type function). 
+environment for the user when the `rscipy` package is loaded and used (i.e. it's
+no longer necessary to provide the user with a special `install_tensorflow()`
+type function).
 
 Specifically, after the `rscipy` package is loaded, the following will occur:
 
@@ -97,14 +101,19 @@ Specifically, after the `rscipy` package is loaded, the following will occur:
 3. These dependencies will then be installed into an appropriate Conda
    environment, as provided by the Miniconda installation.
 
-In this case, the end user workflow will be exactly as with an R package that has no Python dependencies:
+In this case, the end user workflow will be exactly as with an R package that
+has no Python dependencies:
 
 ```r
 library(rscipy)
 # use the package
 ```
 
-If the user has no compatible version of Python available on their system, they will be prompted to install Miniconda. If they do have Python already, then the required Python packages (in this case `scypy`) will be installed in the standard shared environment for R sessions (typically a virtualenv or condaenv named "r-reticulate").
+If the user has no compatible version of Python available on their system, they
+will be prompted to install Miniconda. If they do have Python already, then the
+required Python packages (in this case `scypy`) will be installed in the
+standard shared environment for R sessions (typically a virtualenv or condaenv
+named "r-reticulate").
 
 In effect, users have to pay a one-time, mostly-automated initialization cost in
 order to use your package, and then things will then work as any other R package
@@ -126,13 +135,16 @@ environment, you can include the code:
 This will instruct `reticulate` to immediately try to configure the active
 Python environment, installing any required Python packages as necessary.
 
-
 ## Versions
 
-The goal of these mechanisms is to allow easy interoperability between R packages that have Python dependencies, as well as to minimize specialized version/configuration steps for end-users. To that end, `reticulate` will (by default) track an older version of Python than the current release, giving Python packages time to adapt as is required.Python 2 will not be supported.
+The goal of these mechanisms is to allow easy interoperability between R
+packages that have Python dependencies, as well as to minimize specialized
+version/configuration steps for end-users. To that end, `reticulate` will (by
+default) track an older version of Python than the current release, giving
+Python packages time to adapt as is required.Python 2 will not be supported.
 
-Tools for breaking these rules are not yet implemented, but will be provided
-as the need arises.
+Tools for breaking these rules are not yet implemented, but will be provided as
+the need arises.
 
 ## Format
 
@@ -144,7 +156,8 @@ Declared Python package dependencies should have the following format:
   [PyPI](https://pypi.org) with `pip`, or (if `FALSE`) from the Anaconda
   repositories.
 
-For example, we could change the `reticulate@R` directive from above to specify that `scipy` be installed from PyPI:
+For example, we could change the `reticulate@R` directive from above to specify
+that `scipy` be installed from PyPI:
 
 ```
 reticulate@R: list(
@@ -153,3 +166,4 @@ reticulate@R: list(
   )
 )
 ```
+

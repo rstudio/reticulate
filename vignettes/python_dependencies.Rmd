@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-If you're writing an R package \textbf{raw text} that uses `reticulate` as an interface to a
+If you're writing an R package that uses `reticulate` as an interface to a
 Python session, you likely also need to install one or more Python packages on
 the user's machine for your package to function. In addition, you'd likely
 prefer to insulate users from details around how Python + `reticulate` are

@@ -125,3 +125,27 @@ test_that("single-row data.frames with rownames can be converted", {
   expect_equal(c(before), c(after))
 
 })
+
+test_that("Time zones are respected if available", {
+  skip_if_no_pandas()
+  
+  pd <- import("pandas", convert = FALSE)
+  
+  before <- pd$DataFrame(list('TZ' = pd$Series(
+    c(
+      pd$Timestamp('20130102003020', tz = 'US/Pacific'),
+      pd$Timestamp('20130102003020', tz = 'CET'),
+      pd$Timestamp('20130102003020', tz = 'UTC'),
+      pd$Timestamp('20130102003020', tz = 'Hongkong')
+    )
+  )))
+  
+  converted <- py_to_r(before)
+  after <- r_to_py(converted)
+  
+  # check if both are the same in *local* timezone
+  expect_equal(py_to_r(before), py_to_r(after))
+  
+})
+
+

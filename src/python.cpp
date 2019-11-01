@@ -2215,10 +2215,6 @@ SEXP py_convert_pandas_series(PyObjectRef series) {
   PyObjectPtr dtype(PyObject_GetAttrString(series, "dtype"));
   PyObjectPtr name(PyObject_GetAttrString(dtype, "name"));
   
-  
-  // as well as values
-  PyObjectPtr values(PyObject_GetAttrString(series, "values"));
-  
   RObject R_obj;
   
   // special treatment for pd.Categorical
@@ -2258,9 +2254,49 @@ SEXP py_convert_pandas_series(PyObjectRef series) {
     
     R_obj = factor;
     
-    // default case
+  // special treatment for pd.TimeStamp
+  // if available, time zone information will be respected,
+  // but values returned to R will be in UTC
+  } else if (as_std_string(name) == "datetime64[ns]" ||
+    // if a time zone is present, dtype is "object"
+    PyObject_HasAttrString(series, "dt")) {
+
+    // pd.Series.items() returns an iterator over (index, value) pairs
+    PyObjectPtr items(PyObject_CallMethod(series, "items", NULL));
+    
+    std::vector<double> posixct;
+    
+    while (true) {
+      
+      // get next tuple
+      PyObjectPtr tuple(PyIter_Next(items));
+      if (tuple.is_null()) {
+        if (PyErr_Occurred())
+          stop(py_fetch_error());
+        else
+          break;
+      }
+    
+     // access value in slot 1
+     PyObjectPtr values(PySequence_GetItem(tuple, 1));
+     // convert to POSIX timestamp, taking into account time zone (if set)
+     PyObjectPtr timestamp(PyObject_CallMethod(values, "timestamp", NULL));
+     
+     Datetime R_timestamp = py_to_r(timestamp, true);
+     posixct.push_back(R_timestamp);
+    }
+    
+    DatetimeVector R_posixct(posixct.size());
+    for (int i = 0; i < posixct.size(); ++i) {
+      R_posixct[i] = posixct[i];
+    }
+    
+    return R_posixct;
+    
+  // default case
   } else {
     
+    PyObjectPtr values(PyObject_GetAttrString(series, "values"));
     R_obj = py_to_r(values, series.convert());
     
   }
@@ -2272,7 +2308,7 @@ SEXP py_convert_pandas_series(PyObjectRef series) {
 // [[Rcpp::export]]
 SEXP py_convert_pandas_df(PyObjectRef df) {
   
-  // pd.DataFrame.items() returns an Iterator over (column name, Series) pairs
+  // pd.DataFrame.items() returns an iterator over (column name, Series) pairs
   PyObjectPtr items(PyObject_CallMethod(df, "items", NULL));
   if (! (PyObject_HasAttrString(items, "__next__") || PyObject_HasAttrString(items, "next")))
     stop("Cannot iterate over object");

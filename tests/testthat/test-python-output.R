@@ -37,4 +37,11 @@ test_that("Python loggers work with py_capture_output", {
   
   expect_equal(output, "info\n\n")
   
+  l <- logging$getLogger("test.logger2")
+  l$addHandler(logging$StreamHandler())
+  l$setLevel("INFO")
+  output <- py_capture_output(l$info("info"))
+  
+  expect_equal(output, "info\n\n")
+  
 })

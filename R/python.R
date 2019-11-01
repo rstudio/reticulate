@@ -1144,8 +1144,10 @@ py_capture_output <- function(expr, type = c("stdout", "stderr")) {
   output_tools <- import("rpytools.output")
   
   # scope output capture
-  output_tools$start_capture("stdout" %in% type, "stderr" %in% type)
-  on.exit(output_tools$end_capture(), add = TRUE)
+  capture_stdout <- "stdout" %in% type
+  capture_stderr <- "stderr" %in% type
+  output_tools$start_capture(capture_stdout, capture_stderr)
+  on.exit(output_tools$end_capture(capture_stdout, capture_stderr), add = TRUE)
 
   # evaluate the expression
   force(expr)

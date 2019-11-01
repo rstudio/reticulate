@@ -14,7 +14,7 @@ pip_version <- function(python) {
 }
 
 
-pip_install <- function(python, packages, ignore_installed = TRUE) {
+pip_install <- function(python, packages, ignore_installed = FALSE) {
 
   # construct command line arguments
   args <- c("-m", "pip", "install", "--upgrade")
@@ -57,8 +57,9 @@ pip_freeze <- function(python) {
   packages <- vapply(splat, `[[`, 1L, FUN.VALUE = character(1))
   versions <- vapply(splat, `[[`, 2L, FUN.VALUE = character(1))
   data.frame(
-    package = packages,
-    version = versions,
+    package     = packages,
+    version     = versions,
+    requirement = paste(packages, versions, sep = "=="),
     stringsAsFactors = FALSE
   )
   

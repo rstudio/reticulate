@@ -75,7 +75,7 @@ Version: 1.0.0
 Description: Provides an R interface to the Python package scipy.
 reticulate@R: list(
   packages = list(
-    c(package = "scipy")
+    list(package = "scipy")
   )
 )
 < ... other fields ...>

@@ -156,7 +156,7 @@ conda_install <- function(envname = NULL,
                           packages,
                           forge = TRUE,
                           pip = FALSE,
-                          pip_ignore_installed = TRUE,
+                          pip_ignore_installed = FALSE,
                           conda = "auto",
                           python_version = NULL,
                           ...)
@@ -191,16 +191,7 @@ conda_install <- function(envname = NULL,
 
   if (pip) {
     # use pip package manager
-    condaenv_bin <- function(bin) path.expand(file.path(dirname(conda), bin))
-    cmd <- sprintf("%s%s %s && pip install --upgrade %s %s%s",
-                   ifelse(is_windows(), "", ifelse(is_osx(), "source ", "/bin/bash -c \"source ")),
-                   shQuote(path.expand(condaenv_bin("activate"))),
-                   envname,
-                   ifelse(pip_ignore_installed, "--ignore-installed", ""),
-                   paste(shQuote(packages), collapse = " "),
-                   ifelse(is_windows(), "", ifelse(is_osx(), "", "\"")))
-    result <- system(cmd)
-
+    pip_install(python, packages, ignore_installed = pip_ignore_installed)
   } else {
     # use conda
     args <- conda_args("install", envname)
@@ -410,9 +401,11 @@ conda_list_packages <- function(envname = NULL, conda = "auto", no_pip = TRUE) {
   }
   
   parsed <- jsonlite::fromJSON(output)
+  
   data.frame(
-    package = parsed$name,
-    version = parsed$version,
+    package     = parsed$name,
+    version     = parsed$version,
+    requirement = paste(parsed$name, parsed$version, sep = "="),
     stringsAsFactors = FALSE
   )
   

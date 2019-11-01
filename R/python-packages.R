@@ -45,53 +45,78 @@ configure_environment <- function(package = NULL) {
   if (length(reqs) == 0)
     return(FALSE)
   
-  # get package requirements
-  pkgreqs <- unlist(lapply(reqs, `[[`, "packages"), recursive = FALSE, use.names = FALSE)
-  packages <- vapply(pkgreqs, `[[`, "package", FUN.VALUE = character(1))
+  pkgreqs <- unlist(
+    lapply(reqs, `[[`, "packages"),
+    recursive = FALSE,
+    use.names = FALSE
+  )
   
-  pip <- vapply(pkgreqs, function(req) {
-    as.logical(req[["pip"]] %||% FALSE)
-  }, FUN.VALUE = logical(1))
+  pip_installed_packages <- NULL
+  conda_installed_packages <- NULL
   
-  # collect packages required from pip, conda
-  pip_requested_packages <- packages[pip]
-  if (length(pip_requested_packages)) {
-    pip_installed_packages <- pip_freeze(python = python)
-    pip_requested_packages <- setdiff(
-      pip_requested_packages,
-      tolower(pip_installed_packages$package)
-    )
+  pip_packages <- character()
+  conda_packages <- character()
+  
+  for (req in pkgreqs) {
+    
+    pip <- req$pip %||% TRUE
+    components <- c(req$package, req$version)
+    
+    if (pip) {
+      
+      # read installed packages lazily
+      if (is.null(pip_installed_packages)) {
+        pip_installed_packages <- pip_freeze(python = python)
+      }
+      
+      # construct requirement string
+      requirement <- paste(components, collapse = "==")
+      
+      # check to see if we satisfy this requirement already
+      satisfied <-
+        requirement %in% pip_installed_packages$requirement %||%
+        requirement %in% pip_installed_packages$package
+      
+      if (satisfied)
+        next
+        
+      pip_packages[[length(pip_packages) + 1]] <- requirement
+      
+    } else {
+      
+      # read installed packages lazily
+      envpath <- dirname(dirname(python))
+      conda <- miniconda_conda()
+      
+      if (is.null(conda_installed_packages)) {
+        conda_installed_packages <- conda_list_packages(
+          envname = envpath,
+          conda = conda
+        )
+      }
+      
+      # construct requirement string
+      requirement <- paste(components, collapse = "=")
+      
+      # check to see if we satisfy this requirement already
+      satisfied <-
+        requirement %in% conda_installed_packages$requirement %||%
+        requirement %in% conda_installed_packages$package
+      
+      if (satisfied)
+        next
+      
+      conda_packages[[length(conda_packages + 1)]] <- requirement
+    
+    }
+    
   }
   
-  conda_requested_packages <- packages[!pip]
-  if (length(conda_requested_packages)) {
-    
-    envpath <- dirname(dirname(python))
-    conda <- miniconda_conda()
-    conda_installed_packages <- conda_list_packages(
-      envname = envpath,
-      conda = conda
-    )
-    
-    conda_requested_packages <- setdiff(
-      conda_requested_packages,
-      tolower(conda_installed_packages$package)
-    )
-    
-  }
-  
-  conda_packages <- conda_requested_packages
-  pip_packages   <- pip_requested_packages
-  if (length(pip_packages) || length(conda_packages)) {
-    
-    if (length(pip_packages))
+  if (length(pip_packages))
       py_install(pip_packages, pip = TRUE)
     
-    if (length(conda_packages))
-      py_install(conda_packages, pip = FALSE)
-    
-  }
-  
+  if (length(conda_packages))
+    py_install(conda_packages, pip = FALSE)
   
   TRUE
 }

@@ -1210,57 +1210,46 @@ py_eval <- function(code, convert = TRUE) {
 }
 
 py_callable_as_function <- function(callable, convert) {
-  f <- function(...) {
-    # Cannot use list(...), as we replace the formals() later.
-    call <- sys.call()
-    call[[1]] <- as.name('list')
-    dots <- py_resolve_dots(eval.parent(call))
+  
+  force(callable)
+  force(convert)
+  
+  function(...) {
+    
+    dots <- py_resolve_dots(list(...))
     result <- py_call_impl(callable, dots$args, dots$keywords)
-    if (convert) {
+    
+    if (convert)
       result <- py_to_r(result)
-      if (is.null(result))
-        invisible(result)
-      else
-        result
-    }
-    else {
+      
+    if (is.null(result))
+      invisible(result)
+    else
       result
-    }
+    
   }
-  attr(f, 'get_formals_error') <- tryCatch({
-    sig <- py_get_formals(callable, convert)
-    if (!is.null(sig))
-      formals(f) <- sig
-    NULL
-  }, error = function(e) e)
-  f
+  
+}
+
+py_resolve_formals <- function(callback) {
+  
+  object <- attr(callback, "py_object")
+  if (!inherits(object, "python.builtin.object"))
+    return(NULL)
+  
+  tryCatch(py_get_formals(object), error = function(e) NULL)
+  
 }
 
 py_resolve_dots <- function(dots) {
-  args <- list()
-  keywords <- list()
-  names <- names(dots)
-  if (!is.null(names)) {
-    for (i in 1:length(dots)) {
-      name <- names[[i]]
-      if (nzchar(name))
-        if (is.null(dots[[i]]))
-          keywords[name] <- list(NULL)
-        else
-          keywords[[name]] <- dots[[i]]
-        else
-          if (is.null(dots[[i]]))
-            args[length(args) + 1] <- list(NULL)
-          else
-            args[[length(args) + 1]] <- dots[[i]]
-    }
-  } else {
-    args <- dots
-  }
-  list(
-    args = args,
-    keywords = keywords
-  )
+  
+  nms <- names(dots)
+  if (is.null(nms))
+    return(list(args = dots, keywords = list()))
+  
+  named <- nzchar(nms)
+  list(args = dots[!named], keywords = dots[named])
+  
 }
 
 

@@ -943,7 +943,7 @@ SEXP py_to_r(PyObject* x, bool convert) {
 }
 
 // [[Rcpp::export]]
-SEXP py_get_formals(PyObjectRef func, bool convert) {
+SEXP py_get_formals(PyObjectRef func) {
   PyObjectPtr inspect(py_import("inspect"));
   if (inspect.is_null()) stop(py_fetch_error());
   PyObjectPtr get_signature(PyObject_GetAttrString(inspect.get(), "signature"));

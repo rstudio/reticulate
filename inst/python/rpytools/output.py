@@ -1,33 +1,65 @@
 
 import sys
-try:
-  from StringIO import StringIO
-except ImportError:
-  from io import StringIO
+import io
 
-def start_stdout_capture():
-  restore = sys.stdout
-  sys.stdout = StringIO()
-  return restore
+_capture_stdout = io.StringIO()
+_capture_stderr = io.StringIO()
+_stdout  = None
+_stderr  = None
 
-def end_stdout_capture(restore):
-  output = sys.stdout.getvalue()
-  sys.stdout.close()
-  sys.stdout = restore
-  return output
+def start_capture(capture_stdout, capture_stderr):
+  
+  global _stdout
+  global _stderr
+  
+  if capture_stdout:
+    _stdout = sys.stdout
+    sys.stdout = _capture_stdout
+    
+  if capture_stderr:
+    _stderr = sys.stderr
+    sys.stderr = _capture_stderr
 
-def start_stderr_capture():
-  restore = sys.stderr
-  sys.stderr = StringIO()
-  return restore
-
-def end_stderr_capture(restore):
-  output = sys.stderr.getvalue()
-  sys.stderr.close()
-  sys.stderr = restore
-  return output
-
-
+def end_capture():
+  
+  global _stdout
+  global _stderr
+  
+  if _stdout is not None:
+    _capture_stdout.seek(0)
+    _capture_stdout.truncate()
+    sys.stdout = _stdout
+    _stdout = None
+    
+  if _stderr is not None:
+    _capture_stderr.seek(0)
+    _capture_stderr.truncate()
+    sys.stderr = _stderr
+    _stderr = None
+  
+def collect_output():
+  
+  global _stdout
+  global _stderr
+  
+  # collect outputs into array
+  outputs = []
+  if _stdout is not None:
+    stdout = _capture_stdout.getvalue()
+    if stdout:
+      outputs.append(stdout)
+      
+  if _stderr is not None:
+    stderr = _capture_stderr.getvalue()
+    if stderr:
+      outputs.append(stderr)
+    
+  # ensure trailing newline
+  outputs.append('')
+  
+  # join outputs
+  return '\n'.join(outputs)
+  
 class OutputRemap(object):
   
   def __init__(self, target, handler, tty = True):

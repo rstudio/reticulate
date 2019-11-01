@@ -3,6 +3,9 @@
 
 Install the development version of reticulate with `remotes::install_github("rstudio/reticulate")`.
 
+- Python loggers are now better behaved in the Python chunks of R Markdown
+  documents. (#386)
+
 - reticulate will now attempt to bind to `python3` rather than `python`,
   when no other version of Python has been explicitly requested by
   e.g. `use_python()`.

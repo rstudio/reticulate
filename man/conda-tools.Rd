@@ -22,7 +22,7 @@ conda_install(
   packages,
   forge = TRUE,
   pip = FALSE,
-  pip_ignore_installed = TRUE,
+  pip_ignore_installed = FALSE,
   conda = "auto",
   python_version = NULL,
   ...

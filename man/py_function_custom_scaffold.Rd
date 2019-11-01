@@ -16,7 +16,7 @@ py_function_custom_scaffold(
 )
 }
 \arguments{
-\item{python_function}{Fully qualfied name of Python function or class
+\item{python_function}{Fully qualified name of Python function or class
 constructor (e.g. \code{tf$layers$average_pooling1d})}
 
 \item{r_function}{Name of R function to generate (defaults to name of Python

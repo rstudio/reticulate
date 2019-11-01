@@ -190,7 +190,7 @@ conda_install <- function(envname = NULL,
   }
 
   if (pip) {
-    # use pip package manager
+    # use pip
     pip_install(python, packages, ignore_installed = pip_ignore_installed)
   } else {
     # use conda

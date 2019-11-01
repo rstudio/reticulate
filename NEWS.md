@@ -3,6 +3,9 @@
 
 Install the development version of reticulate with `remotes::install_github("rstudio/reticulate")`.
 
+- Pandas DataFrames with a large number of columns should now be converted to
+  R data.frames more quickly. (#620, @skeydan)
+
 - Python loggers are now better behaved in the Python chunks of R Markdown
   documents. (#386)
 

@@ -1142,49 +1142,19 @@ py_capture_output <- function(expr, type = c("stdout", "stderr")) {
 
   # get output tools helper functions
   output_tools <- import("rpytools.output")
-
-  # handle stdout
-  restore_stdout <- NULL
-  if ("stdout" %in% type) {
-    restore_stdout <- output_tools$start_stdout_capture()
-    on.exit({
-      if (!is.null(restore_stdout))
-        output_tools$end_stdout_capture(restore_stdout)
-    }, add = TRUE)
-  }
-
-  # handle stderr
-  restore_stderr <- NULL
-  if ("stderr" %in% type) {
-    restore_stderr <- output_tools$start_stderr_capture()
-    on.exit({
-      if (!is.null(restore_stderr))
-        output_tools$end_stderr_capture(restore_stderr)
-    }, add = TRUE)
-  }
+  
+  # scope output capture
+  capture_stdout <- "stdout" %in% type
+  capture_stderr <- "stderr" %in% type
+  output_tools$start_capture(capture_stdout, capture_stderr)
+  on.exit(output_tools$end_capture(capture_stdout, capture_stderr), add = TRUE)
 
   # evaluate the expression
   force(expr)
 
-  # collect the output
-  output <- ""
-  if (!is.null(restore_stdout)) {
-    std_out <- output_tools$end_stdout_capture(restore_stdout)
-    output <- paste0(output, std_out)
-    if (nzchar(std_out))
-      output <- paste0(output, "\n")
-    restore_stdout <- NULL
-  }
-  if (!is.null(restore_stderr)) {
-    std_err <- output_tools$end_stderr_capture(restore_stderr)
-    output <- paste0(output, std_err)
-    if (nzchar(std_err))
-      output <- paste0(output, "\n")
-    restore_stderr <- NULL
-  }
-
-  # return the output
-  output
+  # collect output
+  output_tools$collect_output()
+  
 }
 
 py_flush_output <- function() {

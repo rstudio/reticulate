@@ -2187,12 +2187,12 @@ SEXP py_run_file_impl(const std::string& file,
 SEXP py_eval_impl(const std::string& code, bool convert = true) {
 
   // compile the code
-  // TBD: find a check that works
   PyObjectPtr compiledCode;
-  if (FALSE)
-    compiledCode(Py_CompileString(code.c_str(), "reticulate_eval", Py_eval_input));
+  if (Py_CompileStringExFlags != nullptr) 
+    compiledCode.assign(Py_CompileStringExFlags(code.c_str(), "reticulate_eval", Py_eval_input, NULL, 0));
   else 
-    compiledCode(Py_CompileStringExFlags(code.c_str(), "reticulate_eval", Py_eval_input, NULL, 0));
+    compiledCode.assign(Py_CompileString(code.c_str(), "reticulate_eval", Py_eval_input));
+  
   
   if (compiledCode.is_null())
     stop(py_fetch_error());

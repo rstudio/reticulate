@@ -209,6 +209,10 @@ py_convert_pandas_df <- function(df) {
     .Call(`_reticulate_py_convert_pandas_df`, df)
 }
 
+r_convert_dataframe <- function(dataframe, convert) {
+    .Call(`_reticulate_r_convert_dataframe`, dataframe, convert)
+}
+
 readline <- function(prompt) {
     .Call(`_reticulate_readline`, prompt)
 }

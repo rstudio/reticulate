@@ -33,6 +33,7 @@ std::string s_numpy_load_error;
 bool haveNumPy() {
   return s_numpy_load_error.empty();
 }
+
 bool requireNumPy() {
   if (!haveNumPy())
     stop("Required version of NumPy not available: " + s_numpy_load_error);
@@ -1018,9 +1019,15 @@ SEXP py_get_formals(PyObjectRef func) {
   return formals;
 }
 
+PyObject* r_to_py_cpp(RObject x, bool convert);
+
 PyObject* r_to_py(RObject x, bool convert) {
 
-  // get a static reference to the R version of r_to_py
+  // if the object bit is not set, we can skip R dispatch
+  if (OBJECT(x) == 0)
+    return r_to_py_cpp(x, convert);
+  
+  // get a reference to the R version of r_to_py
   Rcpp::Environment pkgEnv = Rcpp::Environment::namespace_env("reticulate");
   Rcpp::Function r_to_py_fn = pkgEnv["r_to_py"];
 
@@ -1029,7 +1036,7 @@ PyObject* r_to_py(RObject x, bool convert) {
   PyObjectRef ref(r_to_py_fn(x, convert));
 
   // get the underlying Python object and call Py_IncRef before returning it
-  // this allows this function to provide the same memory sematnics as the
+  // this allows this function to provide the same memory semantics as the
   // previous C++ version of r_to_py (which is now r_to_py_cpp), which always
   // calls Py_IncRef on Python objects before returning them
   PyObject* obj = ref.get();
@@ -2337,5 +2344,57 @@ SEXP py_convert_pandas_df(PyObjectRef df) {
 
   List rList(list.begin(), list.end());
   return rList;
+
+}
+
+// [[Rcpp::export]]
+PyObjectRef r_convert_dataframe(RObject dataframe, bool convert) {
+  
+  /*
+  columns <- lapply(x, function(column) {
+    if (is.factor(column)) {
+      pd$Categorical(as.character(column),
+                     categories = as.list(levels(column)),
+                     ordered = inherits(column, "ordered"))
+    } else if (is.numeric(column) || is.character(column)) {
+      np_array(column)
+    } else if (inherits(column, "POSIXt")) {
+      np_array(as.numeric(column) * 1E9, dtype = "datetime64[ns]")
+    } else {
+      r_to_py(column)
+    }
+  })
+  */
+  
+  CharacterVector names = dataframe.attr("names");
+  
+  PyObjectPtr dict(PyDict_New());
+  for (R_xlen_t i = 0, n = Rf_xlength(dataframe); i < n; i++)
+  {
+    RObject column = VECTOR_ELT(dataframe, i);
+    
+    if (column.inherits("factor")) {
+      
+    }
+    bool forceDims = OBJECT(column) == 0 && !column.hasAttribute("dim");
+    RObject dim = R_NilValue;
+    if (forceDims) {
+      R_xlen_t n = Rf_xlength(column);
+      dim = column.attr("dim");
+      column.attr("dim") = IntegerVector::create(n);
+    }
+    
+    PyObjectPtr value(r_to_py(column, convert));
+    
+    if (forceDims) {
+      column.attr("dim") = dim;
+    }
+    
+    int status = PyDict_SetItemString(dict, names[i], value);
+    if (status != 0)
+      stop(py_fetch_error());
+  }
+  
+  return py_ref(dict.detach(), convert);
 
 }

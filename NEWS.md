@@ -3,6 +3,8 @@
 
 Install the development version of reticulate with `remotes::install_github("rstudio/reticulate")`.
 
+- reticulate is now compatible with Python 3.9. (#630, @skeydan)
+
 - Pandas DataFrames with a large number of columns should now be converted to
   R data.frames more quickly. (#620, @skeydan)
 

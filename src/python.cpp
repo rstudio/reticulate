@@ -2187,10 +2187,16 @@ SEXP py_run_file_impl(const std::string& file,
 SEXP py_eval_impl(const std::string& code, bool convert = true) {
 
   // compile the code
-  PyObjectPtr compiledCode(Py_CompileString(code.c_str(), "reticulate_eval", Py_eval_input));
+  PyObjectPtr compiledCode;
+  if (Py_CompileStringExFlags != NULL) 
+    compiledCode.assign(Py_CompileStringExFlags(code.c_str(), "reticulate_eval", Py_eval_input, NULL, 0));
+  else 
+    compiledCode.assign(Py_CompileString(code.c_str(), "reticulate_eval", Py_eval_input));
+  
+  
   if (compiledCode.is_null())
     stop(py_fetch_error());
-
+  
   // execute the code
   PyObject* main = PyImport_AddModule("__main__");
   PyObject* dict = PyModule_GetDict(main);

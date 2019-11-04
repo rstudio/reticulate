@@ -201,7 +201,6 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
   LOAD_PYTHON_SYMBOL(PyByteArray_AsString)
   LOAD_PYTHON_SYMBOL(PyCallable_Check)
   LOAD_PYTHON_SYMBOL(PyRun_StringFlags)
-  LOAD_PYTHON_SYMBOL(Py_CompileString)
   LOAD_PYTHON_SYMBOL(PyEval_EvalCode)
   LOAD_PYTHON_SYMBOL(PyModule_GetDict)
   LOAD_PYTHON_SYMBOL(PyImport_AddModule)
@@ -245,7 +244,7 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
   LOAD_PYTHON_SYMBOL(PyObject_CallMethod)
   LOAD_PYTHON_SYMBOL(PySequence_GetItem)
   LOAD_PYTHON_SYMBOL(PyObject_IsTrue)
-
+  
   // PyUnicode_AsEncodedString may have several different names depending on the Python
   // version and the UCS build type
   std::vector<std::string> names;
@@ -278,6 +277,7 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
     LOAD_PYTHON_SYMBOL(PyUnicode_FromString)
     LOAD_PYTHON_SYMBOL_AS(PyLong_AsLong, PyInt_AsLong)
     LOAD_PYTHON_SYMBOL_AS(PyLong_FromLong, PyInt_FromLong)
+    LOAD_PYTHON_SYMBOL(Py_CompileStringExFlags)
   } else {
     if (is64bit) {
       LOAD_PYTHON_SYMBOL_AS(Py_InitModule4_64, Py_InitModule4)
@@ -293,13 +293,14 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
     LOAD_PYTHON_SYMBOL(PyInt_AsLong)
     LOAD_PYTHON_SYMBOL(PyInt_FromLong)
     LOAD_PYTHON_SYMBOL(PyCObject_AsVoidPtr)
+    LOAD_PYTHON_SYMBOL(Py_CompileString)
   }
   LOAD_PYTHON_SYMBOL(PyCapsule_New)
   LOAD_PYTHON_SYMBOL(PyCapsule_GetPointer)
   LOAD_PYTHON_SYMBOL(PyCapsule_SetContext)
   LOAD_PYTHON_SYMBOL(PyCapsule_GetContext)
   LOAD_PYTHON_SYMBOL(Py_BuildValue)
-
+  
   return true;
 }
 

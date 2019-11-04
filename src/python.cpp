@@ -2188,7 +2188,7 @@ SEXP py_eval_impl(const std::string& code, bool convert = true) {
 
   // compile the code
   PyObjectPtr compiledCode;
-  if (Py_CompileStringExFlags != nullptr) 
+  if (Py_CompileStringExFlags != NULL) 
     compiledCode.assign(Py_CompileStringExFlags(code.c_str(), "reticulate_eval", Py_eval_input, NULL, 0));
   else 
     compiledCode.assign(Py_CompileString(code.c_str(), "reticulate_eval", Py_eval_input));

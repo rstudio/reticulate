@@ -2287,7 +2287,7 @@ SEXP py_convert_pandas_series(PyObjectRef series) {
     }
     
     DatetimeVector R_posixct(posixct.size());
-    for (int i = 0; i < posixct.size(); ++i) {
+    for (std::size_t i = 0; i < posixct.size(); ++i) {
       R_posixct[i] = posixct[i];
     }
     

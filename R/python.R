@@ -63,18 +63,18 @@ import <- function(module, as = NULL, convert = TRUE, delay_load = FALSE) {
 
     # import the module
     hookName <- paste("reticulate", module, "load", sep = "::")
-    module <- py_module_import(module, convert = convert)
+    imported <- py_module_import(module, convert = convert)
 
     # run load hooks
     hooks <- getHook(hookName)
     for (hook in hooks)
-      tryCatch(hook(module), error = warning)
+      tryCatch(hook(imported), error = warning)
 
     # remove hooks (we only want to run on first import)
     setHook(hookName, list(), "replace")
 
     # return imported module
-    module
+    imported
   }
 
   # delay load case (wait until first access)

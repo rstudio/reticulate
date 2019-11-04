@@ -114,6 +114,10 @@ typedef struct PyModuleDef{
   freefunc m_free;
 } PyModuleDef;
 
+typedef struct PyCompilerFlags{
+  int cf_flags;  
+  int cf_feature_version; 
+} PyCompilerFlags;
 
 LIBPYTHON_EXTERN PyTypeObject* PyFunction_Type;
 LIBPYTHON_EXTERN PyTypeObject* PyModule_Type;
@@ -310,7 +314,9 @@ LIBPYTHON_EXTERN void (*PySys_WriteStderr)(const char *format, ...);
 LIBPYTHON_EXTERN PyObject* (*PyObject_CallMethod)(PyObject *o, const char *name, const char *format, ...);
 LIBPYTHON_EXTERN PyObject* (*PySequence_GetItem)(PyObject *o, Py_ssize_t i);
 LIBPYTHON_EXTERN int (*PyObject_IsTrue)(PyObject *o);
-  
+
+LIBPYTHON_EXTERN PyObject* (*Py_CompileStringExFlags)(const char *str, const char *filename, int start, PyCompilerFlags *flags, int optimize);
+
 #define PyObject_TypeCheck(o, tp) ((PyTypeObject*)Py_TYPE(o) == (tp)) || PyType_IsSubtype((PyTypeObject*)Py_TYPE(o), (tp))
 
 #define PyType_Check(o) PyObject_TypeCheck(o, PyType_Type)
@@ -690,5 +696,4 @@ LIBPYTHON_EXTERN PyThreadState* (*PyThreadState_Next)(PyThreadState*);
 } // namespace libpython
 
 #endif
-
 

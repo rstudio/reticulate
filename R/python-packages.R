@@ -77,7 +77,7 @@ configure_environment <- function(package = NULL) {
       
       # check to see if we satisfy this requirement already
       satisfied <-
-        requirement %in% pip_installed_packages$requirement %||%
+        requirement %in% pip_installed_packages$requirement ||
         requirement %in% pip_installed_packages$package
       
       if (satisfied)
@@ -103,7 +103,7 @@ configure_environment <- function(package = NULL) {
       
       # check to see if we satisfy this requirement already
       satisfied <-
-        requirement %in% conda_installed_packages$requirement %||%
+        requirement %in% conda_installed_packages$requirement ||
         requirement %in% conda_installed_packages$package
       
       if (satisfied)

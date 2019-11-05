@@ -79,7 +79,7 @@ reticulate@R:
       list(package = "scipy")
     )
   )
-< ... other fields ...>
+< ... other fields ... >
 ```
 
 ### Installation 
@@ -153,8 +153,13 @@ Declared Python package dependencies should have the following format:
 
 - **package**: The name of the Python package.
 
-- **version**: The version of the package that should be installed.
-  When left unspecified, the latest-available version will be installed.
+- **version**: The version of the package that should be installed. When left
+  unspecified, the latest-available version will be installed. This should only
+  be set in exceptional cases -- for example, if the most recently-released
+  version of a Python package breaks compatibility with your package (or other
+  Python packages) in a fundamental way. If multiple R packages request
+  different versions of a particular Python package, `reticulate` will signal a
+  warning.
 
 - **pip**: Whether this package should be retrieved from the
   [PyPI](https://pypi.org) with `pip`, or (if `FALSE`) from the Anaconda

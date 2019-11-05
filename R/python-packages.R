@@ -51,6 +51,9 @@ configure_environment <- function(package = NULL) {
     use.names = FALSE
   )
   
+  # split into packages to be installed with pip vs. conda
+  # we'll diff the requested packages against the currently-installed
+  # packages and only install packages which truly need to be updated
   pip_installed_packages <- NULL
   conda_installed_packages <- NULL
   
@@ -112,11 +115,20 @@ configure_environment <- function(package = NULL) {
     
   }
   
-  if (length(pip_packages))
+  if (length(pip_packages) || length(conda_packages)) {
+    
+    fmt <- "Configuring package '%s': please wait ..."
+    messagef(fmt, package)
+    
+    if (length(pip_packages))
       py_install(pip_packages, pip = TRUE)
     
-  if (length(conda_packages))
-    py_install(conda_packages, pip = FALSE)
+    if (length(conda_packages))
+      py_install(conda_packages, pip = FALSE)
+    
+    message("Done!")
+    
+  }
   
   TRUE
 }

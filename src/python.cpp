@@ -2375,22 +2375,6 @@ SEXP py_convert_pandas_df(PyObjectRef df) {
 // [[Rcpp::export]]
 PyObjectRef r_convert_dataframe(RObject dataframe, bool convert) {
   
-  /*
-  columns <- lapply(x, function(column) {
-    if (is.factor(column)) {
-      pd$Categorical(as.character(column),
-                     categories = as.list(levels(column)),
-                     ordered = inherits(column, "ordered"))
-    } else if (is.numeric(column) || is.character(column)) {
-      np_array(column)
-    } else if (inherits(column, "POSIXt")) {
-      np_array(as.numeric(column) * 1E9, dtype = "datetime64[ns]")
-    } else {
-      r_to_py(column)
-    }
-  })
-  */
-  
   Function r_convert_dataframe_column =
     Environment::namespace_env("reticulate")["r_convert_dataframe_column"];
   

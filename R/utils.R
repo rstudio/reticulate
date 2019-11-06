@@ -218,3 +218,10 @@ canonical_path <- function(path) {
   }
   
 }
+
+enumerate <- function(x, f, ...) {
+  n <- names(x)
+  lapply(seq_along(x), function(i) {
+    f(n[[i]], x[[i]], ...)
+  })
+}

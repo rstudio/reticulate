@@ -27,8 +27,10 @@
 #'   will instead look at all loaded packages and discover their associated
 #'   Python requirements.
 #'
+#' @param force Boolean; force configuration of the associated environment?
+#'
 #' @export
-configure_environment <- function(package = NULL) {
+configure_environment <- function(package = NULL, force = TRUE) {
   
   if (!is_python_initialized())
     return(FALSE)
@@ -37,7 +39,7 @@ configure_environment <- function(package = NULL) {
   config <- py_config()
   python <- config$python
   home <- miniconda_path()
-  if (substring(config$python, 1, nchar(home)) != home)
+  if (!force && substring(config$python, 1, nchar(home)) != home)
     return(FALSE)
 
   # find Python requirements  
@@ -51,6 +53,40 @@ configure_environment <- function(package = NULL) {
     use.names = FALSE
   )
   
+  # check for incompatible package requests
+  df <- do.call(rbind.data.frame, pkgreqs)
+  splat <- split(df, df$package)
+  pkgreqs <- enumerate(splat, function(pkg, requests) {
+    
+    rownames(requests) <- NULL
+    
+    # check for explicit requests by version
+    explicit <- requests[!is.na(requests$version), ]
+    if (nrow(explicit) == 0)
+      return(requests[1, ])
+    
+    # check for single explicit version request
+    n <- length(unique(requests$version))
+    if (n == 1)
+      return(explicit[1, ])
+    
+    # otherwise warn and sort
+    explicit <- explicit[order(explicit$version, decreasing = TRUE), ]
+    output <- capture.output(format(explicit))
+    
+    fmt <- "WARNING: incompatible requirements for package '%s' detected!"
+    messagef(fmt, pkg)
+    
+    output <- capture.output(format(requests))
+    message(paste(output, collapse = "\n"))
+    selected <- explicit[1, ]
+    
+    fmt <- "WARNING: %s [%s] will be used."
+    messagef(fmt, selected$package, selected$version)
+    selected
+    
+  })
+  
   # split into packages to be installed with pip vs. conda
   # we'll diff the requested packages against the currently-installed
   # packages and only install packages which truly need to be updated
@@ -62,8 +98,15 @@ configure_environment <- function(package = NULL) {
   
   for (req in pkgreqs) {
     
-    pip <- req$pip %||% TRUE
-    components <- c(req$package, req$version)
+    pip <- req$pip
+    if (is.null(pip) || is.na(pip))
+      pip <- TRUE
+    
+    version <- req$version
+    if (is.null(version) || is.na(version))
+      version <- NULL
+    
+    components <- c(req$package, version)
     
     if (pip) {
       
@@ -157,6 +200,26 @@ python_package_requirements_find <- function(package) {
   if (is.null(entry))
     return(NULL)
   
-  eval(parse(text = entry), envir = baseenv())
+  spec <- eval(parse(text = entry), envir = baseenv())
+  
+  fields <- c("package", "version", "pip")
+  spec$packages <- lapply(spec$packages, function(req) {
+    
+    if (is.null(req$package)) {
+      warning("invalid spec provided by package '%s'", package)
+      return(NULL)
+    }
+    
+    data.frame(
+      source  = package,
+      package = as.character(req[["package"]]),
+      version = as.character(req[["version"]] %||% NA),
+      pip     = as.logical(req[["pip"]] %||% NA),
+      stringsAsFactors = FALSE
+    )
+    
+  })
+  
+  spec
   
 }

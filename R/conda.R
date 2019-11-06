@@ -189,25 +189,25 @@ conda_install <- function(envname = NULL,
     }
   }
 
-  if (pip) {
-    # use pip
-    pip_install(python, packages, ignore_installed = pip_ignore_installed)
-  } else {
-    # use conda
-    args <- conda_args("install", envname)
-    if (forge)
-      args <- c(args, "-c", "conda-forge")
-    args <- c(args, python_package, packages)
-    result <- system2(conda, shQuote(args))
-  }
-
+  # delegate to pip if requested
+  if (pip)
+    return(pip_install(python, packages))
+    
+  # otherwise, use conda
+  args <- conda_args("install", envname)
+  if (forge)
+    args <- c(args, "-c", "conda-forge")
+  args <- c(args, python_package, packages)
+  result <- system2(conda, shQuote(args))
+  
   # check for errors
   if (result != 0L) {
-    stop("Error ", result, " occurred installing packages into conda environment ",
-         envname, call. = FALSE)
+    fmt <- "one or more Python packages failed to install [error code %i]"
+    stopf(fmt, result)
   }
 
-  invisible(NULL)
+  
+  invisible(packages)
 }
 
 

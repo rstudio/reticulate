@@ -1021,7 +1021,7 @@ SEXP py_get_formals(PyObjectRef func) {
 
 bool is_convertible_to_numpy(RObject x) {
   
-  if (!requireNumPy())
+  if (!haveNumPy())
     return false;
   
   int type = TYPEOF(x);

@@ -94,4 +94,36 @@ class Calendar:
   expect_equal(a$time, "15:54")
 })
 
+test_that("Can define and instantiate empty classes", {
+  skip_if_no_python()
+  
+  Hi <- PyClass("Hi")
+  x <- Hi()
+  x$name <- "Hi"
+  
+  expect_s3_class(x, "python.builtin.Hi")
+  expect_equal(x$name, "Hi")
+})
+
+test_that("Methods can access enclosed env", {
+  skip_if_no_python()
+  
+  Hi <- PyClass("Hi", list(
+    say_a = function(self) {
+      a
+    }
+  ))
+  
+  x <- Hi()
+  
+  a <- 1
+  expect_equal(x$say_a(), 1)
+  a <- 2
+  expect_equal(x$say_a(), 2)
+})
+
+
+
+
+
 

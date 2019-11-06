@@ -22,7 +22,7 @@ inject_super <- function(fun) {
 #' @param classname Name of the class. The class name is useful for S3 method
 #'  dispatch.
 #' @param defs A named list of class definitions - functions, attributes, etc.
-#' @param inherit A list of Python class objects. Usually theese objects have
+#' @param inherit A list of Python class objects. Usually these objects have
 #'  the `python.builtin.type` S3 class.
 #'  
 #' @examples 

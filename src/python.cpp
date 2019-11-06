@@ -1039,14 +1039,17 @@ PyObject* r_to_py_numpy(RObject x, bool convert) {
   int type = x.sexp_type();
   SEXP sexp = x.get__();
   
-  IntegerVector dimAttrib = x.hasAttribute("dim")
+  // figure out dimensions for resulting array
+  IntegerVector dimensions = x.hasAttribute("dim")
     ? x.attr("dim")
     : IntegerVector::create(Rf_xlength(x));
   
-  int nd = dimAttrib.length();
+  int nd = dimensions.length();
   std::vector<npy_intp> dims(nd);
-  for (int i = 0; i<nd; i++)
-    dims[i] = dimAttrib[i];
+  for (int i = 0; i < nd; i++)
+    dims[i] = dimensions[i];
+  
+  // get pointer + type for underlying data
   int typenum;
   void* data;
   if (type == INTSXP) {

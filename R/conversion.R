@@ -523,3 +523,22 @@ py_to_r.scipy.sparse.coo.coo_matrix <- function(x) {
       x = as.vector(as_r_value(x$data)),
       Dim = dim(x))
 }
+
+
+
+r_convert_dataframe_column <- function(column, convert) {
+  
+  pd <- import("pandas", convert = FALSE)
+  if (is.factor(column)) {
+    pd$Categorical(as.character(column),
+                   categories = as.list(levels(column)),
+                   ordered = inherits(column, "ordered"))
+  } else if (is.numeric(column) || is.character(column)) {
+    np_array(column)
+  } else if (inherits(column, "POSIXt")) {
+    np_array(as.numeric(column) * 1E9, dtype = "datetime64[ns]")
+  } else {
+    r_to_py(column)
+  }
+  
+}

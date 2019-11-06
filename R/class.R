@@ -8,7 +8,7 @@ inject_super <- function(fun) {
   e$super <- function() {
     bt <- reticulate::import_builtins()
     # self is an argument passed to fun
-    self <- get("self", envir = parent.frame()) 
+    self <- get("self", envir = parent.frame(), inherits = FALSE) 
     bt$super(self$`__class__`, self)
   }
   

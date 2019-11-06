@@ -1,5 +1,5 @@
 inject_super <- function(fun) {
-  # for each function `fun` we need to place a `super` function in it's
+  # for each function `fun` we need to place a `super` function in its
   # search path, and this `super` function must be able to access
   # the `self` argument passed to `fun`.
   

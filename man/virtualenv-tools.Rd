@@ -14,7 +14,7 @@ virtualenv_list()
 
 virtualenv_create(envname = NULL, python = NULL)
 
-virtualenv_install(envname = NULL, packages, ignore_installed = TRUE, ...)
+virtualenv_install(envname = NULL, packages, ignore_installed = FALSE, ...)
 
 virtualenv_remove(envname = NULL, packages = NULL, confirm = interactive())
 

@@ -73,12 +73,13 @@ Package: rscipy
 Title: An R Interface to scipy
 Version: 1.0.0
 Description: Provides an R interface to the Python package scipy.
-reticulate@R: list(
-  packages = list(
-    c(package = "scipy")
+reticulate@R:
+  list(
+    packages = list(
+      list(package = "scipy")
+    )
   )
-)
-< ... other fields ...>
+< ... other fields ... >
 ```
 
 ### Installation 
@@ -111,9 +112,9 @@ library(rscipy)
 
 If the user has no compatible version of Python available on their system, they
 will be prompted to install Miniconda. If they do have Python already, then the
-required Python packages (in this case `scypy`) will be installed in the
-standard shared environment for R sessions (typically a virtualenv or condaenv
-named "r-reticulate").
+required Python packages (in this case `scipy`) will be installed in the
+standard shared environment for R sessions (typically a virtual environment, or
+a Conda environment named "r-reticulate").
 
 In effect, users have to pay a one-time, mostly-automated initialization cost in
 order to use your package, and then things will then work as any other R package
@@ -141,7 +142,7 @@ The goal of these mechanisms is to allow easy interoperability between R
 packages that have Python dependencies, as well as to minimize specialized
 version/configuration steps for end-users. To that end, `reticulate` will (by
 default) track an older version of Python than the current release, giving
-Python packages time to adapt as is required.Python 2 will not be supported.
+Python packages time to adapt as is required. Python 2 will not be supported.
 
 Tools for breaking these rules are not yet implemented, but will be provided as
 the need arises.
@@ -152,18 +153,27 @@ Declared Python package dependencies should have the following format:
 
 - **package**: The name of the Python package.
 
+- **version**: The version of the package that should be installed. When left
+  unspecified, the latest-available version will be installed. This should only
+  be set in exceptional cases -- for example, if the most recently-released
+  version of a Python package breaks compatibility with your package (or other
+  Python packages) in a fundamental way. If multiple R packages request
+  different versions of a particular Python package, `reticulate` will signal a
+  warning.
+
 - **pip**: Whether this package should be retrieved from the
   [PyPI](https://pypi.org) with `pip`, or (if `FALSE`) from the Anaconda
   repositories.
 
 For example, we could change the `reticulate@R` directive from above to specify
-that `scipy` be installed from PyPI:
+that `scipy [1.3.0]` be installed from PyPI (with `pip`):
 
 ```
-reticulate@R: list(
-  packages = list(
-    c(package = "scipy", pip = TRUE)
+reticulate@R:
+  list(
+    packages = list(
+      list(package = "scipy", version = "1.3.0", pip = TRUE)
+    )
   )
-)
 ```
 

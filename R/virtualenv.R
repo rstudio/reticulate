@@ -96,7 +96,7 @@ virtualenv_create <- function(envname = NULL, python = NULL) {
 #' @export
 virtualenv_install <- function(envname = NULL,
                                packages,
-                               ignore_installed = TRUE,
+                               ignore_installed = FALSE,
                                ...)
 {
   # create virtual environment on demand

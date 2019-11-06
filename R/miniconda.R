@@ -176,7 +176,8 @@ miniconda_conda <- function(path = miniconda_path()) {
   file.path(path, exe)
 }
 
-miniconda_envpath <- function(env, path = miniconda_path()) {
+miniconda_envpath <- function(env = NULL, path = miniconda_path()) {
+  env <- env %||% Sys.getenv("RETICULATE_MINICONDA_ENVNAME", unset = "r-reticulate")
   file.path(path, "envs", env)
 }
 
@@ -263,7 +264,7 @@ miniconda_python_envpath <- function() {
   
   Sys.getenv(
     "RETICULATE_MINICONDA_PYTHON_ENVPATH",
-    unset = miniconda_envpath("r-reticulate")
+    unset = miniconda_envpath()
   )
   
 }

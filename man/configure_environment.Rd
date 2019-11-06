@@ -4,12 +4,14 @@
 \alias{configure_environment}
 \title{Configure a Python Environment}
 \usage{
-configure_environment(package = NULL)
+configure_environment(package = NULL, force = TRUE)
 }
 \arguments{
 \item{package}{The name of a package to configure. When \code{NULL}, \code{reticulate}
 will instead look at all loaded packages and discover their associated
 Python requirements.}
+
+\item{force}{Boolean; force configuration of the associated environment?}
 }
 \description{
 Configure a Python environment, satisfying the Python dependencies of any

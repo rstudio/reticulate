@@ -10,7 +10,7 @@ py_function_wrapper(python_function, r_prefix = NULL, r_function = NULL)
 py_function_docs(python_function)
 }
 \arguments{
-\item{python_function}{Fully qualfied name of Python function or class
+\item{python_function}{Fully qualified name of Python function or class
 constructor (e.g. \code{tf$layers$average_pooling1d})}
 
 \item{r_prefix}{Prefix to add to generated R function name}

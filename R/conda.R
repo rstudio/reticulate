@@ -156,7 +156,7 @@ conda_install <- function(envname = NULL,
                           packages,
                           forge = TRUE,
                           pip = FALSE,
-                          pip_ignore_installed = TRUE,
+                          pip_ignore_installed = FALSE,
                           conda = "auto",
                           python_version = NULL,
                           ...)
@@ -189,34 +189,25 @@ conda_install <- function(envname = NULL,
     }
   }
 
-  if (pip) {
-    # use pip package manager
-    condaenv_bin <- function(bin) path.expand(file.path(dirname(conda), bin))
-    cmd <- sprintf("%s%s %s && pip install --upgrade %s %s%s",
-                   ifelse(is_windows(), "", ifelse(is_osx(), "source ", "/bin/bash -c \"source ")),
-                   shQuote(path.expand(condaenv_bin("activate"))),
-                   envname,
-                   ifelse(pip_ignore_installed, "--ignore-installed", ""),
-                   paste(shQuote(packages), collapse = " "),
-                   ifelse(is_windows(), "", ifelse(is_osx(), "", "\"")))
-    result <- system(cmd)
-
-  } else {
-    # use conda
-    args <- conda_args("install", envname)
-    if (forge)
-      args <- c(args, "-c", "conda-forge")
-    args <- c(args, python_package, packages)
-    result <- system2(conda, shQuote(args))
-  }
-
+  # delegate to pip if requested
+  if (pip)
+    return(pip_install(python, packages))
+    
+  # otherwise, use conda
+  args <- conda_args("install", envname)
+  if (forge)
+    args <- c(args, "-c", "conda-forge")
+  args <- c(args, python_package, packages)
+  result <- system2(conda, shQuote(args))
+  
   # check for errors
   if (result != 0L) {
-    stop("Error ", result, " occurred installing packages into conda environment ",
-         envname, call. = FALSE)
+    fmt <- "one or more Python packages failed to install [error code %i]"
+    stopf(fmt, result)
   }
 
-  invisible(NULL)
+  
+  invisible(packages)
 }
 
 
@@ -410,9 +401,11 @@ conda_list_packages <- function(envname = NULL, conda = "auto", no_pip = TRUE) {
   }
   
   parsed <- jsonlite::fromJSON(output)
+  
   data.frame(
-    package = parsed$name,
-    version = parsed$version,
+    package     = parsed$name,
+    version     = parsed$version,
+    requirement = paste(parsed$name, parsed$version, sep = "="),
     stringsAsFactors = FALSE
   )
   

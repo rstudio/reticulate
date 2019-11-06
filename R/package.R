@@ -147,7 +147,9 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
       return()
 
     # if we loaded one of the requested versions, everything is ok
-    if (config$python %in% requested_versions)
+    actual <- normalizePath(config$python, winslash = "/", mustWork = FALSE)
+    requested <- normalizePath(requested_versions, winslash = "/", mustWork = FALSE)
+    if (actual %in% requested)
       return()
 
     # otherwise, warn that we were unable to honor their request

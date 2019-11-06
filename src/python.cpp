@@ -33,6 +33,7 @@ std::string s_numpy_load_error;
 bool haveNumPy() {
   return s_numpy_load_error.empty();
 }
+
 bool requireNumPy() {
   if (!haveNumPy())
     stop("Required version of NumPy not available: " + s_numpy_load_error);
@@ -1018,9 +1019,133 @@ SEXP py_get_formals(PyObjectRef func) {
   return formals;
 }
 
+bool is_convertible_to_numpy(RObject x) {
+  
+  if (!haveNumPy())
+    return false;
+  
+  int type = TYPEOF(x);
+  
+  return
+    type == INTSXP  ||
+    type == REALSXP ||
+    type == LGLSXP  ||
+    type == CPLXSXP ||
+    type == STRSXP;
+}
+
+PyObject* r_to_py_numpy(RObject x, bool convert) {
+  
+  int type = x.sexp_type();
+  SEXP sexp = x.get__();
+  
+  // figure out dimensions for resulting array
+  IntegerVector dimensions = x.hasAttribute("dim")
+    ? x.attr("dim")
+    : IntegerVector::create(Rf_xlength(x));
+  
+  int nd = dimensions.length();
+  std::vector<npy_intp> dims(nd);
+  for (int i = 0; i < nd; i++)
+    dims[i] = dimensions[i];
+  
+  // get pointer + type for underlying data
+  int typenum;
+  void* data;
+  if (type == INTSXP) {
+    if (sizeof(long) == 4)
+      typenum = NPY_LONG;
+    else
+      typenum = NPY_INT;
+    data = &(INTEGER(sexp)[0]);
+  } else if (type == REALSXP) {
+    typenum = NPY_DOUBLE;
+    data = &(REAL(sexp)[0]);
+  } else if (type == LGLSXP) {
+    typenum = NPY_BOOL;
+    data = &(LOGICAL(sexp)[0]);
+  } else if (type == CPLXSXP) {
+    typenum = NPY_CDOUBLE;
+    data = &(COMPLEX(sexp)[0]);
+  } else if (type == STRSXP) {
+    typenum = NPY_OBJECT;
+    data = NULL;
+  } else {
+    stop("Matrix type cannot be converted to python (only integer, "
+           "numeric, complex, logical, and character matrixes can be "
+           "converted");
+  }
+  
+  int flags = NPY_ARRAY_FARRAY_RO;
+  
+  // because R logical vectors are just ints under the
+  // hood, we need to explicitly construct a boolean
+  // vector for our Python array. note that the created
+  // array will own the data so we do not free it after
+  if (typenum == NPY_BOOL) {
+    R_xlen_t n = XLENGTH(sexp);
+    bool* converted = (bool*) PyArray_malloc(n * sizeof(bool));
+    for (R_xlen_t i = 0; i < n; i++)
+      converted[i] = LOGICAL(sexp)[i];
+    data = converted;
+    flags |= NPY_ARRAY_OWNDATA;
+  }
+  
+  // create the matrix
+  PyObject* array = PyArray_New(&PyArray_Type,
+                                nd,
+                                &(dims[0]),
+                                typenum,
+                                NULL,
+                                data,
+                                0,
+                                flags,
+                                NULL);
+  
+  // check for error
+  if (array == NULL)
+    stop(py_fetch_error());
+  
+  // if this is a character vector we need to convert and set the elements,
+  // otherwise the memory is shared with the underlying R vector
+  if (type == STRSXP) {
+    void** pData = (void**)PyArray_DATA((PyArrayObject*)array);
+    R_xlen_t len = Rf_xlength(x);
+    for (R_xlen_t i = 0; i<len; i++) {
+      PyObject* pyStr = as_python_str(STRING_ELT(x, i));
+      pData[i] = pyStr;
+    }
+    
+  } else {
+    // wrap the R object in a capsule that's tied to the lifetime of the matrix
+    // (so the R doesn't deallocate the memory while python is still pointing to it)
+    PyObjectPtr capsule(r_object_capsule(x));
+    
+    // set base object using correct version of the API (detach since this
+    // effectively steals a reference to the provided base object)
+    if (PyArray_GetNDArrayCFeatureVersion() >= NPY_1_7_API_VERSION) {
+      int res = PyArray_SetBaseObject((PyArrayObject *)array, capsule.detach());
+      if (res != 0)
+        stop(py_fetch_error());
+    } else {
+      PyArray_BASE(array) = capsule.detach();
+    }
+  }
+  
+  // return it
+  return array;
+  
+}
+
+PyObject* r_to_py_cpp(RObject x, bool convert);
+
 PyObject* r_to_py(RObject x, bool convert) {
 
-  // get a static reference to the R version of r_to_py
+  // if the object bit is not set, we can skip R dispatch
+  if (OBJECT(x) == 0)
+    return r_to_py_cpp(x, convert);
+  
+  // get a reference to the R version of r_to_py
   Rcpp::Environment pkgEnv = Rcpp::Environment::namespace_env("reticulate");
   Rcpp::Function r_to_py_fn = pkgEnv["r_to_py"];
 
@@ -1029,7 +1154,7 @@ PyObject* r_to_py(RObject x, bool convert) {
   PyObjectRef ref(r_to_py_fn(x, convert));
 
   // get the underlying Python object and call Py_IncRef before returning it
-  // this allows this function to provide the same memory sematnics as the
+  // this allows this function to provide the same memory semantics as the
   // previous C++ version of r_to_py (which is now r_to_py_cpp), which always
   // calls Py_IncRef on Python objects before returning them
   PyObject* obj = ref.get();
@@ -1068,97 +1193,7 @@ PyObject* r_to_py_cpp(RObject x, bool convert) {
 
   // convert arrays and matrixes to numpy (throw error if numpy not available)
   } else if (x.hasAttribute("dim") && requireNumPy()) {
-
-    IntegerVector dimAttrib = x.attr("dim");
-    int nd = dimAttrib.length();
-    std::vector<npy_intp> dims(nd);
-    for (int i = 0; i<nd; i++)
-      dims[i] = dimAttrib[i];
-    int typenum;
-    void* data;
-    if (type == INTSXP) {
-      if (sizeof(long) == 4)
-        typenum = NPY_LONG;
-      else
-        typenum = NPY_INT;
-      data = &(INTEGER(sexp)[0]);
-    } else if (type == REALSXP) {
-      typenum = NPY_DOUBLE;
-      data = &(REAL(sexp)[0]);
-    } else if (type == LGLSXP) {
-      typenum = NPY_BOOL;
-      data = &(LOGICAL(sexp)[0]);
-    } else if (type == CPLXSXP) {
-      typenum = NPY_CDOUBLE;
-      data = &(COMPLEX(sexp)[0]);
-    } else if (type == STRSXP) {
-      typenum = NPY_OBJECT;
-      data = NULL;
-    } else {
-      stop("Matrix type cannot be converted to python (only integer, "
-           "numeric, complex, logical, and character matrixes can be "
-           "converted");
-    }
-
-    int flags = NPY_ARRAY_FARRAY_RO;
-
-    // because R logical vectors are just ints under the
-    // hood, we need to explicitly construct a boolean
-    // vector for our Python array. note that the created
-    // array will own the data so we do not free it after
-    if (typenum == NPY_BOOL) {
-      R_xlen_t n = XLENGTH(sexp);
-      bool* converted = (bool*) PyArray_malloc(n * sizeof(bool));
-      for (R_xlen_t i = 0; i < n; i++)
-        converted[i] = LOGICAL(sexp)[i];
-      data = converted;
-      flags |= NPY_ARRAY_OWNDATA;
-    }
-
-    // create the matrix
-    PyObject* array = PyArray_New(&PyArray_Type,
-                                   nd,
-                                   &(dims[0]),
-                                   typenum,
-                                   NULL,
-                                   data,
-                                   0,
-                                   flags,
-                                   NULL);
-
-    // check for error
-    if (array == NULL)
-      stop(py_fetch_error());
-
-    // if this is a character vector we need to convert and set the elements,
-    // otherwise the memory is shared with the underlying R vector
-    if (type == STRSXP) {
-      void** pData = (void**)PyArray_DATA((PyArrayObject*)array);
-      R_xlen_t len = Rf_xlength(x);
-      for (R_xlen_t i = 0; i<len; i++) {
-        PyObject* pyStr = as_python_str(STRING_ELT(x, i));
-        pData[i] = pyStr;
-      }
-
-    } else {
-      // wrap the R object in a capsule that's tied to the lifetime of the matrix
-      // (so the R doesn't deallocate the memory while python is still pointing to it)
-      PyObjectPtr capsule(r_object_capsule(x));
-
-      // set base object using correct version of the API (detach since this
-      // effectively steals a reference to the provided base object)
-      if (PyArray_GetNDArrayCFeatureVersion() >= NPY_1_7_API_VERSION) {
-        int res = PyArray_SetBaseObject((PyArrayObject *)array, capsule.detach());
-        if (res != 0)
-          stop(py_fetch_error());
-      } else {
-        PyArray_BASE(array) = capsule.detach();
-      }
-    }
-
-    // return it
-    return array;
-
+    return r_to_py_numpy(x, convert);
   // integer (pass length 1 vectors as scalars, otherwise pass list)
   } else if (type == INTSXP) {
     if (LENGTH(sexp) == 1) {
@@ -2343,5 +2378,40 @@ SEXP py_convert_pandas_df(PyObjectRef df) {
 
   List rList(list.begin(), list.end());
   return rList;
+
+}
+
+// [[Rcpp::export]]
+PyObjectRef r_convert_dataframe(RObject dataframe, bool convert) {
+  
+  Function r_convert_dataframe_column =
+    Environment::namespace_env("reticulate")["r_convert_dataframe_column"];
+  
+  PyObjectPtr dict(PyDict_New());
+  
+  CharacterVector names = dataframe.attr("names");
+  for (R_xlen_t i = 0, n = Rf_xlength(dataframe); i < n; i++)
+  {
+    RObject column = VECTOR_ELT(dataframe, i);
+    
+    int status = 0;
+    if (OBJECT(column) == 0) {
+      if (is_convertible_to_numpy(column)) {
+        PyObjectPtr value(r_to_py_numpy(column, convert));
+        status = PyDict_SetItemString(dict, names[i], value);
+      } else {
+        PyObjectPtr value(r_to_py_cpp(column, convert));
+        status = PyDict_SetItemString(dict, names[i], value);
+      }
+    } else {
+      PyObjectRef ref(r_convert_dataframe_column(column, convert));
+      status = PyDict_SetItemString(dict, names[i], ref.get());
+    }
+    
+    if (status != 0)
+      stop(py_fetch_error());
+  }
+  
+  return py_ref(dict.detach(), convert);
 
 }

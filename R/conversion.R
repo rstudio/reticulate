@@ -253,20 +253,8 @@ r_to_py.data.frame <- function(x, convert = FALSE) {
   pd <- import("pandas", convert = FALSE)
 
   # manually convert each column to associated Python vector type
-  columns <- lapply(x, function(column) {
-    if (is.factor(column)) {
-      pd$Categorical(as.character(column),
-                     categories = as.list(levels(column)),
-                     ordered = inherits(column, "ordered"))
-    } else if (is.numeric(column) || is.character(column)) {
-      np_array(column)
-    } else if (inherits(column, "POSIXt")) {
-      np_array(as.numeric(column) * 1E9, dtype = "datetime64[ns]")
-    } else {
-      r_to_py(column)
-    }
-  })
-
+  columns <- r_convert_dataframe(x, convert = convert)
+  
   # generate DataFrame from dictionary
   pdf <- pd$DataFrame$from_dict(columns)
 
@@ -534,4 +522,23 @@ py_to_r.scipy.sparse.coo.coo_matrix <- function(x) {
       j = as.integer(as_r_value(x$col)),
       x = as.vector(as_r_value(x$data)),
       Dim = dim(x))
+}
+
+
+
+r_convert_dataframe_column <- function(column, convert) {
+  
+  pd <- import("pandas", convert = FALSE)
+  if (is.factor(column)) {
+    pd$Categorical(as.character(column),
+                   categories = as.list(levels(column)),
+                   ordered = inherits(column, "ordered"))
+  } else if (is.numeric(column) || is.character(column)) {
+    np_array(column)
+  } else if (inherits(column, "POSIXt")) {
+    np_array(as.numeric(column) * 1E9, dtype = "datetime64[ns]")
+  } else {
+    r_to_py(column)
+  }
+  
 }

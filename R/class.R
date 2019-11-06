@@ -1,23 +1,48 @@
 inject_super <- function(fun) {
-  e <- new.env()
+  # for each function `fun` we need to place a `super` function in it's
+  # search path, and this `super` function must be able to access
+  # the `self` argument passed to `fun`.
+  
+  e <- new.env(parent = environment(fun))
+  
   e$super <- function() {
     bt <- reticulate::import_builtins()
-    self <- as.list(parent.frame())$self
+    # self is an argument passed to fun
+    self <- get("self", envir = parent.frame()) 
     bt$super(self$`__class__`, self)
   }
-  environment(e$super) <- environment(fun)
-  environment(fun) <- e
+  
+  environment(fun) <- e # so fun can access `super`
+  
   fun
 }
 
 #' Create a python class
 #' 
-#' @param classname The classname
-#' @param defs The definitions 
-#' @param inherit List of python classes
+#' @param classname Name of the class. The class name is useful for S3 method
+#'  dispatch.
+#' @param defs A named list of class definitions - functions, attributes, etc.
+#' @param inherit A list of Python class objects. Usually theese objects have
+#'  the `python.builtin.type` S3 class.
+#'  
+#' @examples 
+#' \dontrun{
+#' Hi <- PyClass("Hi", list(
+#'   name = NULL,
+#'   `__init__` = function(self, name) {
+#'     self$name <- name
+#'     NULL
+#'   },
+#'   say_hi = function(self) {
+#'     paste0("Hi ", self$name)
+#'   }
+#' ))
+#' 
+#' a <- Hi("World")
+#' }
 #'
 #' @export
-PyClass <- function(classname, defs, inherit = NULL) {
+PyClass <- function(classname, defs = list(), inherit = NULL) {
   bt <- reticulate::import_builtins()
   
   if (inherits(inherit, "python.builtin.object"))

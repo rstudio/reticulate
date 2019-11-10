@@ -84,6 +84,7 @@ virtualenv_create <- function(envname = NULL, python = NULL) {
 
   # upgrade pip and friends after creating the environment
   # (since the version bundled with virtualenv / venv may be stale)
+  python <- virtualenv_python(envname)
   pip_install(python, c("pip", "wheel", "setuptools"))
 
   invisible(path)

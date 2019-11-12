@@ -1,9 +1,14 @@
 
+# NOTE: indirection required here for Python 2.7 support
+# TypeError: unicode argument expected, got 'str'
 import sys
-import io
+if sys.version_info < (3, 0):
+  from io import BytesIO as StringIO
+else:
+  from io import StringIO
 
-_capture_stdout = io.StringIO()
-_capture_stderr = io.StringIO()
+_capture_stdout = StringIO()
+_capture_stderr = StringIO()
 _stdout = None
 _stderr = None
 

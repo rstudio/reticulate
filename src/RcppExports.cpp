@@ -531,6 +531,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// r_convert_date
+PyObjectRef r_convert_date(Date date, bool convert);
+RcppExport SEXP _reticulate_r_convert_date(SEXP dateSEXP, SEXP convertSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Date >::type date(dateSEXP);
+    Rcpp::traits::input_parameter< bool >::type convert(convertSEXP);
+    rcpp_result_gen = Rcpp::wrap(r_convert_date(date, convert));
+    return rcpp_result_gen;
+END_RCPP
+}
 // readline
 SEXP readline(const std::string& prompt);
 RcppExport SEXP _reticulate_readline(SEXP promptSEXP) {
@@ -590,6 +602,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_reticulate_py_convert_pandas_series", (DL_FUNC) &_reticulate_py_convert_pandas_series, 1},
     {"_reticulate_py_convert_pandas_df", (DL_FUNC) &_reticulate_py_convert_pandas_df, 1},
     {"_reticulate_r_convert_dataframe", (DL_FUNC) &_reticulate_r_convert_dataframe, 2},
+    {"_reticulate_r_convert_date", (DL_FUNC) &_reticulate_r_convert_date, 2},
     {"_reticulate_readline", (DL_FUNC) &_reticulate_readline, 1},
     {NULL, NULL, 0}
 };

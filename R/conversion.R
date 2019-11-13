@@ -159,20 +159,7 @@ py_to_r.datetime.datetime <- function(x) {
 
 #' @export
 r_to_py.Date <- function(x, convert = FALSE) {
-
-  datetime <- import("datetime", convert = FALSE)
-  items <- lapply(x, function(item) {
-    iso <- strsplit(format(item), "-", fixed = TRUE)[[1]]
-    year <- as.integer(iso[[1]])
-    month <- as.integer(iso[[2]])
-    day <- as.integer(iso[[3]])
-    datetime$date(year, month, day)
-  })
-
-  if (length(items) == 1)
-    items[[1]]
-  else
-    r_to_py_impl(items, convert)
+  r_convert_date(x, convert)
 }
 
 #' @export

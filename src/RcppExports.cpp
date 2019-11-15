@@ -532,14 +532,14 @@ BEGIN_RCPP
 END_RCPP
 }
 // r_convert_date
-PyObjectRef r_convert_date(Date date, bool convert);
-RcppExport SEXP _reticulate_r_convert_date(SEXP dateSEXP, SEXP convertSEXP) {
+PyObjectRef r_convert_date(DateVector date_vector, bool convert);
+RcppExport SEXP _reticulate_r_convert_date(SEXP date_vectorSEXP, SEXP convertSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Date >::type date(dateSEXP);
+    Rcpp::traits::input_parameter< DateVector >::type date_vector(date_vectorSEXP);
     Rcpp::traits::input_parameter< bool >::type convert(convertSEXP);
-    rcpp_result_gen = Rcpp::wrap(r_convert_date(date, convert));
+    rcpp_result_gen = Rcpp::wrap(r_convert_date(date_vector, convert));
     return rcpp_result_gen;
 END_RCPP
 }

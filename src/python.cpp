@@ -9,8 +9,6 @@ using namespace Rcpp;
 #include "event_loop.h"
 #include "tinythread.h"
 
-#include "datetime.h"
-
 #include <fstream>
 #include <time.h>
 
@@ -1704,9 +1702,7 @@ void py_initialize(const std::string& python,
 
   // poll for events while executing python code
   event_loop::initialize();
-  
-  // create static variable PyDateTimeAPI used by macros in datetime.h
-  PyDateTime_IMPORT;
+
 }
 
 // [[Rcpp::export]]
@@ -2424,7 +2420,11 @@ PyObjectRef r_convert_dataframe(RObject dataframe, bool convert) {
 // [[Rcpp::export]]
 PyObjectRef r_convert_date(Date date, bool convert) {
   
-  PyObject* py_date = PyDate_FromDate(date.getYear(), date.getMonth(), date.getDay());
+  PyObject* datetime = PyImport_ImportModule("datetime");
+  PyObject* py_date = PyObject_CallMethod(
+    datetime, "date", "iii", date.getYear(), date.getMonth(), date.getDay());
+  if (py_date == NULL) {
+    stop(py_fetch_error());
+  }
   return py_ref(py_date, convert);
-  
 }

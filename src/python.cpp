@@ -2426,7 +2426,7 @@ PyObjectRef r_convert_date(DateVector date_vector, bool convert) {
   if (date_vector.size() == 1) {
     
     Date date = date_vector[0];
-    PyObjectPtr py_date(PyObject_CallMethod(
+    PyObject* py_date(PyObject_CallMethod(
         datetime, "date", "iii",
         static_cast<int>(date.getYear()),
         static_cast<int>(date.getMonth()),
@@ -2442,7 +2442,7 @@ PyObjectRef r_convert_date(DateVector date_vector, bool convert) {
     PyObjectPtr list(PyList_New(date_vector.size()));
     for (int i = 0; i < date_vector.size(); ++i) {
       Date date = date_vector[i];
-      PyObjectPtr py_date(PyObject_CallMethod(
+      PyObject* py_date(PyObject_CallMethod(
           datetime, "date", "iii",
           static_cast<int>(date.getYear()),
           static_cast<int>(date.getMonth()),

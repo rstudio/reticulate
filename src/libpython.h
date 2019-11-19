@@ -119,6 +119,8 @@ typedef struct PyCompilerFlags{
   int cf_feature_version; 
 } PyCompilerFlags;
 
+typedef Py_ssize_t Py_hash_t;
+
 LIBPYTHON_EXTERN PyTypeObject* PyFunction_Type;
 LIBPYTHON_EXTERN PyTypeObject* PyModule_Type;
 LIBPYTHON_EXTERN PyTypeObject* PyType_Type;
@@ -317,6 +319,8 @@ LIBPYTHON_EXTERN int (*PyObject_IsTrue)(PyObject *o);
 
 LIBPYTHON_EXTERN PyObject* (*Py_CompileStringExFlags)(const char *str, const char *filename, int start, PyCompilerFlags *flags, int optimize);
 
+LIBPYTHON_EXTERN void* (*PyCapsule_Import)(const char *name, int no_block);
+  
 #define PyObject_TypeCheck(o, tp) ((PyTypeObject*)Py_TYPE(o) == (tp)) || PyType_IsSubtype((PyTypeObject*)Py_TYPE(o), (tp))
 
 #define PyType_Check(o) PyObject_TypeCheck(o, PyType_Type)

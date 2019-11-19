@@ -1702,6 +1702,7 @@ void py_initialize(const std::string& python,
 
   // poll for events while executing python code
   event_loop::initialize();
+
 }
 
 // [[Rcpp::export]]
@@ -2414,4 +2415,46 @@ PyObjectRef r_convert_dataframe(RObject dataframe, bool convert) {
   
   return py_ref(dict.detach(), convert);
 
+}
+
+// [[Rcpp::export]]
+PyObjectRef r_convert_date(DateVector date_vector, bool convert) {
+  
+  PyObjectPtr datetime(PyImport_ImportModule("datetime"));
+  
+  // scalar
+  if (date_vector.size() == 1) {
+    
+    Date date = date_vector[0];
+    PyObject* py_date(PyObject_CallMethod(
+        datetime, "date", "iii",
+        static_cast<int>(date.getYear()),
+        static_cast<int>(date.getMonth()),
+        static_cast<int>(date.getDay())));
+    if (py_date == NULL) {
+      stop(py_fetch_error());
+    }
+    return py_ref(py_date, convert);
+    
+  // vector  
+  } else {
+    
+    PyObjectPtr list(PyList_New(date_vector.size()));
+    for (int i = 0; i < date_vector.size(); ++i) {
+      Date date = date_vector[i];
+      PyObject* py_date(PyObject_CallMethod(
+          datetime, "date", "iii",
+          static_cast<int>(date.getYear()),
+          static_cast<int>(date.getMonth()),
+          static_cast<int>(date.getDay())));
+      if (py_date == NULL) {
+        stop(py_fetch_error());
+      }
+      int res = PyList_SetItem(list, i, py_date);
+      if (res != 0)
+        stop(py_fetch_error());
+    }
+    return py_ref(list.detach(), convert);
+  }
+  
 }

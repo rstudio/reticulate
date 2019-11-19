@@ -70,7 +70,7 @@ use_condaenv <- function(condaenv = NULL, conda = "auto", required = FALSE) {
 
   # check for condaenv supplied by path
   condaenv <- condaenv_resolve(condaenv)
-  if (grepl("[/\\]", condaenv, fixed = TRUE) && is_condaenv(condaenv)) {
+  if (grepl("[/\\]", condaenv) && is_condaenv(condaenv)) {
     python <- conda_python(condaenv)
     use_python(python, required = required)
     return(invisible(NULL))

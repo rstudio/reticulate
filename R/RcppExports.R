@@ -113,12 +113,20 @@ py_has_attr_impl <- function(x, name) {
     .Call(`_reticulate_py_has_attr_impl`, x, name)
 }
 
-py_get_attr_impl <- function(x, name, silent = FALSE) {
-    .Call(`_reticulate_py_get_attr_impl`, x, name, silent)
+py_get_attr_impl <- function(x, key, silent = FALSE) {
+    .Call(`_reticulate_py_get_attr_impl`, x, key, silent)
+}
+
+py_get_item_impl <- function(x, key, silent = FALSE) {
+    .Call(`_reticulate_py_get_item_impl`, x, key, silent)
 }
 
 py_set_attr_impl <- function(x, name, value) {
     invisible(.Call(`_reticulate_py_set_attr_impl`, x, name, value))
+}
+
+py_set_item_impl <- function(x, key, val) {
+    invisible(.Call(`_reticulate_py_set_item_impl`, x, key, val))
 }
 
 py_get_attribute_types <- function(x, attributes) {
@@ -145,8 +153,8 @@ py_dict_get_item <- function(dict, key) {
     .Call(`_reticulate_py_dict_get_item`, dict, key)
 }
 
-py_dict_set_item <- function(dict, item, value) {
-    invisible(.Call(`_reticulate_py_dict_set_item`, dict, item, value))
+py_dict_set_item <- function(dict, key, val) {
+    invisible(.Call(`_reticulate_py_dict_set_item`, dict, key, val))
 }
 
 py_dict_length <- function(dict) {

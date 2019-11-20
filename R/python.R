@@ -901,17 +901,13 @@ py_get_item <- function(x, key, silent = FALSE) {
   ensure_python_initialized()
   if (py_is_module_proxy(x))
     py_resolve_module_proxy(x)
-
-  if (!py_has_attr(x, "__getitem__"))
-    stop("Python object has no '__getitem__' method", call. = FALSE)
-  getitem <- py_to_r(py_get_attr(x, "__getitem__", silent = FALSE))
-
-  item <- if (silent)
-    tryCatch(getitem(key), error = function(e) NULL)
-  else
-    getitem(key)
-
-  item
+  
+  if (silent) {
+    tryCatch(py_get_item_impl(x, key), error = function(e) NULL)
+  } else {
+    py_get_item_impl(x, key, silent)
+  }
+  
 }
 
 #' Set an item for a Python object
@@ -933,12 +929,7 @@ py_set_item <- function(x, name, value) {
   ensure_python_initialized()
   if (py_is_module_proxy(x))
     py_resolve_module_proxy(x)
-
-  if (!py_has_attr(x, "__setitem__"))
-    stop("Python object has no '__setitem__' method", call. = FALSE)
-  setitem <- py_to_r(py_get_attr(x, "__setitem__", silent = FALSE))
-
-  setitem(name, value)
+  py_set_item_impl(x, name, value)
   invisible(x)
 }
 

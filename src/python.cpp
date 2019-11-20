@@ -90,15 +90,17 @@ PyObject* r_object_capsule(SEXP object) {
 
 
 // helper class for ensuring decref of PyObject in the current scope
-template<typename T>
+template <typename T>
 class PyPtr {
+  
 public:
+  
   // attach on creation, decref on destruction
   PyPtr() : object_(NULL) {}
   explicit PyPtr(T* object) : object_(object) {}
   virtual ~PyPtr() {
     if (object_ != NULL)
-      Py_DecRef((PyObject*)object_);
+      Py_DecRef((PyObject*) object_);
   }
 
   operator T*() const { return object_; }
@@ -574,15 +576,6 @@ int scalar_list_type(PyObject* x) {
   return scalarType;
 }
 
-// convert a tuple to a character vector
-CharacterVector py_tuple_to_character(PyObject* tuple) {
-  Py_ssize_t len = PyTuple_Size(tuple);
-  CharacterVector vec(len);
-  for (Py_ssize_t i = 0; i<len; i++)
-    vec[i] = as_utf8_r_string(PyTuple_GetItem(tuple, i));
-  return vec;
-}
-
 void set_string_element(SEXP rArray, int i, PyObject* pyStr) {
   std::string str = as_std_string(pyStr);
   cetype_t ce = PyUnicode_Check(pyStr) ? CE_UTF8 : CE_NATIVE;
@@ -945,6 +938,7 @@ SEXP py_to_r(PyObject* x, bool convert) {
 
 // [[Rcpp::export]]
 SEXP py_get_formals(PyObjectRef func) {
+  
   PyObjectPtr inspect(py_import("inspect"));
   if (inspect.is_null()) stop(py_fetch_error());
   PyObjectPtr get_signature(PyObject_GetAttrString(inspect.get(), "signature"));
@@ -1017,6 +1011,7 @@ SEXP py_get_formals(PyObjectRef func) {
   }
 
   return formals;
+  
 }
 
 bool is_convertible_to_numpy(RObject x) {
@@ -1836,36 +1831,71 @@ bool py_has_attr_impl(PyObjectRef x, const std::string& name) {
     return PyObject_HasAttrString(x, name.c_str());
 }
 
-// [[Rcpp::export]]
-PyObjectRef py_get_attr_impl(PyObjectRef x, const std::string& name, bool silent = false) {
+namespace {
 
-  PyObject* attr = PyObject_GetAttrString(x, name.c_str());
-
-  if (attr == NULL) {
-
-    std::string err = py_fetch_error();
-
-    if (!silent) {
-      // error if we aren't silent
-      stop(err);
-    } else {
-      // otherwise set it to PyNone
-      attr = Py_None;
-      Py_IncRef(attr);
-    }
+PyObjectRef py_get_common(PyObject* object,
+                          bool convert,
+                          bool silent)
+{
+  // if we have an object, return it
+  if (object != NULL)
+    return py_ref(object, convert);
+  
+  // if we're silent, return Py_None
+  if (silent) {
+    Py_IncRef(Py_None);
+    return py_ref(Py_None, convert);
   }
+  
+  // otherwise, throw an R error
+  stop(py_fetch_error());
+  
+}
+  
+} // end anonymous namespace
 
-  return py_ref(attr, x.convert());
+// [[Rcpp::export]]
+PyObjectRef py_get_attr_impl(PyObjectRef x,
+                             const std::string& key,
+                             bool silent = false)
+{
+  PyObject* attr = PyObject_GetAttrString(x, key.c_str());
+  return py_get_common(attr, x.convert(), silent);
 }
 
 // [[Rcpp::export]]
-void py_set_attr_impl(PyObjectRef x, const std::string& name, RObject value) {
+PyObjectRef py_get_item_impl(PyObjectRef x,
+                             RObject key,
+                             bool silent = false)
+{
+  PyObjectPtr py_key(r_to_py(key, x.convert()));
+  PyObject* item = PyObject_GetItem(x, py_key);
+  return py_get_common(item, x.convert(), silent);
+}
+
+// [[Rcpp::export]]
+void py_set_attr_impl(PyObjectRef x,
+                      const std::string& name,
+                      RObject value)
+{
   PyObjectPtr converted(r_to_py(value, x.convert()));
   int res = PyObject_SetAttrString(x, name.c_str(), converted);
   if (res != 0)
     stop(py_fetch_error());
 }
 
+// [[Rcpp::export]]
+void py_set_item_impl(PyObjectRef x,
+                      RObject key,
+                      RObject val)
+{
+  PyObjectPtr py_key(r_to_py(key, x.convert()));
+  PyObjectPtr py_val(r_to_py(val, x.convert()));
+  
+  int res = PyObject_SetItem(x, py_key, py_val);
+  if (res != 0)
+    stop(py_fetch_error());
+}
 
 
 // [[Rcpp::export]]
@@ -1965,22 +1995,31 @@ SEXP py_call_impl(PyObjectRef x, List args = R_NilValue, List keywords = R_NilVa
   return py_ref(res.detach(), x.convert());
 }
 
-
 // [[Rcpp::export]]
 PyObjectRef py_dict_impl(const List& keys, const List& items, bool convert) {
+  
   PyObject* dict = PyDict_New();
-  for (R_xlen_t i = 0; i<keys.length(); i++) {
+  
+  for (R_xlen_t i = 0; i < keys.length(); i++) {
     PyObjectPtr key(r_to_py(keys.at(i), convert));
-    PyObjectPtr item(r_to_py(items.at(i), convert));
-    PyDict_SetItem(dict, key, item);
+    PyObjectPtr val(r_to_py(items.at(i), convert));
+    PyDict_SetItem(dict, key, val);
   }
+  
   return py_ref(dict, convert);
+  
 }
 
 
 // [[Rcpp::export]]
 SEXP py_dict_get_item(PyObjectRef dict, RObject key) {
+  
+  if (!PyDict_Check(dict))
+    return py_get_item_impl(dict, key, false);
+  
   PyObjectPtr pyKey(r_to_py(key, dict.convert()));
+  
+  // NOTE: returns borrowed reference
   PyObject* item = PyDict_GetItem(dict, pyKey);
   if (item != NULL) {
     Py_IncRef(item);
@@ -1989,38 +2028,63 @@ SEXP py_dict_get_item(PyObjectRef dict, RObject key) {
     Py_IncRef(Py_None);
     return py_ref(Py_None, false);
   }
+  
 }
 
 // [[Rcpp::export]]
-void py_dict_set_item(PyObjectRef dict, RObject item, RObject value) {
-  PyObjectPtr pyItem(r_to_py(item, dict.convert()));
-  PyObjectPtr pyValue(r_to_py(value, dict.convert()));
-  PyDict_SetItem(dict, pyItem, pyValue);
+void py_dict_set_item(PyObjectRef dict, RObject key, RObject val) {
+  
+  if (!PyDict_Check(dict))
+    return py_set_item_impl(dict, key, val);
+  
+  PyObjectPtr py_key(r_to_py(key, dict.convert()));
+  PyObjectPtr py_val(r_to_py(val, dict.convert()));
+  PyDict_SetItem(dict, py_key, py_val);
+  
 }
 
 // [[Rcpp::export]]
 int py_dict_length(PyObjectRef dict) {
+  
+  if (!PyDict_Check(dict))
+    return PyObject_Size(dict);
+  
   return PyDict_Size(dict);
+  
 }
 
 // [[Rcpp::export]]
 PyObjectRef py_dict_get_keys(PyObjectRef dict) {
-  return py_ref(PyDict_Keys(dict), dict.convert());
+  
+  PyObject* keys = PyDict_Keys(dict);
+  if (keys == NULL) {
+    keys = PyObject_CallMethod(dict, "keys", NULL);
+    if (keys == NULL)
+      stop(py_fetch_error());
+  }
+  
+  return py_ref(keys, dict.convert());
+  
 }
 
 // [[Rcpp::export]]
 CharacterVector py_dict_get_keys_as_str(PyObjectRef dict) {
 
-  // get the keys and check their length
-  PyObjectPtr pyKeys(PyDict_Keys(dict));
-  Py_ssize_t len = PyList_Size(pyKeys);
-
+  // get the dictionary keys
+  PyObjectPtr py_keys(PyDict_Keys(dict));
+  if (py_keys == NULL) {
+    py_keys.assign(PyObject_CallMethod(dict, "keys", NULL));
+    if (py_keys == NULL)
+      stop(py_fetch_error());
+  }
+  
   // allocate keys to return
+  Py_ssize_t len = PyList_Size(py_keys);
   CharacterVector keys(len);
 
   // get the keys as strings
-  for (Py_ssize_t i = 0; i<len; i++) {
-    PyObject* item = PyList_GetItem(pyKeys, i);
+  for (Py_ssize_t i = 0; i < len; i++) {
+    PyObject* item = PyList_GetItem(py_keys, i);
     if (is_python_str(item)) {
       keys[i] = as_utf8_r_string(item);
     } else {
@@ -2038,20 +2102,28 @@ CharacterVector py_dict_get_keys_as_str(PyObjectRef dict) {
 
 // [[Rcpp::export]]
 PyObjectRef py_tuple(const List& items, bool convert) {
+  
   PyObject* tuple = PyTuple_New(items.length());
-  for (R_xlen_t i = 0; i<items.length(); i++) {
+  for (R_xlen_t i = 0; i < items.length(); i++) {
     PyObject* item = r_to_py(items.at(i), convert);
     // NOTE: reference to arg is "stolen" by the tuple
     int res = PyTuple_SetItem(tuple, i, item);
     if (res != 0)
       stop(py_fetch_error());
   }
+  
   return py_ref(tuple, convert);
+  
 }
 
 // [[Rcpp::export]]
 int py_tuple_length(PyObjectRef tuple) {
+  
+  if (!PyTuple_Check(tuple))
+    return PyObject_Size(tuple);
+  
   return PyTuple_Size(tuple);
+  
 }
 
 

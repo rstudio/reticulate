@@ -901,11 +901,12 @@ py_get_item <- function(x, key, silent = FALSE) {
   ensure_python_initialized()
   if (py_is_module_proxy(x))
     py_resolve_module_proxy(x)
-  
+ 
+  # NOTE: for backwards compatibility, we make sure to return an R NULL on error 
   if (silent) {
-    tryCatch(py_get_item_impl(x, key), error = function(e) NULL)
+    tryCatch(py_get_item_impl(x, key, FALSE), error = function(e) NULL)
   } else {
-    py_get_item_impl(x, key, silent)
+    py_get_item_impl(x, key, TRUE)
   }
   
 }

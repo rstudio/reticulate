@@ -2053,30 +2053,35 @@ int py_dict_length(PyObjectRef dict) {
   
 }
 
-// [[Rcpp::export]]
-PyObjectRef py_dict_get_keys(PyObjectRef dict) {
+namespace {
+
+PyObject* py_dict_get_keys_impl(PyObject* dict) {
   
   PyObject* keys = PyDict_Keys(dict);
+  
   if (keys == NULL) {
     keys = PyObject_CallMethod(dict, "keys", NULL);
     if (keys == NULL)
       stop(py_fetch_error());
   }
   
-  return py_ref(keys, dict.convert());
+  return keys;
   
+}
+
+} // end anonymous namespace
+
+// [[Rcpp::export]]
+PyObjectRef py_dict_get_keys(PyObjectRef dict) {
+  PyObject* keys = py_dict_get_keys_impl(dict);
+  return py_ref(keys, dict.convert());
 }
 
 // [[Rcpp::export]]
 CharacterVector py_dict_get_keys_as_str(PyObjectRef dict) {
 
   // get the dictionary keys
-  PyObjectPtr py_keys(PyDict_Keys(dict));
-  if (py_keys == NULL) {
-    py_keys.assign(PyObject_CallMethod(dict, "keys", NULL));
-    if (py_keys == NULL)
-      stop(py_fetch_error());
-  }
+  PyObjectPtr py_keys(py_dict_get_keys_impl(dict));
   
   // allocate keys to return
   Py_ssize_t len = PyList_Size(py_keys);
@@ -2103,8 +2108,9 @@ CharacterVector py_dict_get_keys_as_str(PyObjectRef dict) {
 // [[Rcpp::export]]
 PyObjectRef py_tuple(const List& items, bool convert) {
   
-  PyObject* tuple = PyTuple_New(items.length());
-  for (R_xlen_t i = 0; i < items.length(); i++) {
+  R_xlen_t n = items.length();
+  PyObject* tuple = PyTuple_New(n);
+  for (R_xlen_t i = 0; i < n; i++) {
     PyObject* item = r_to_py(items.at(i), convert);
     // NOTE: reference to arg is "stolen" by the tuple
     int res = PyTuple_SetItem(tuple, i, item);

@@ -221,8 +221,8 @@ r_convert_dataframe <- function(dataframe, convert) {
     .Call(`_reticulate_r_convert_dataframe`, dataframe, convert)
 }
 
-r_convert_date <- function(date_vector, convert) {
-    .Call(`_reticulate_r_convert_date`, date_vector, convert)
+r_convert_date <- function(dates, convert) {
+    .Call(`_reticulate_r_convert_date`, dates, convert)
 }
 
 readline <- function(prompt) {

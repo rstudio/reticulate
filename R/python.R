@@ -906,7 +906,7 @@ py_get_item <- function(x, key, silent = FALSE) {
   if (silent) {
     tryCatch(py_get_item_impl(x, key, FALSE), error = function(e) NULL)
   } else {
-    py_get_item_impl(x, key, TRUE)
+    py_get_item_impl(x, key, FALSE)
   }
   
 }

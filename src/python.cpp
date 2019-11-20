@@ -2489,44 +2489,45 @@ PyObjectRef r_convert_dataframe(RObject dataframe, bool convert) {
 
 }
 
+namespace {
+
+PyObject* r_convert_date_impl(PyObject* datetime,
+                              Date date)
+{
+  PyObjectPtr py_date(PyObject_CallMethod(
+      datetime, "date", "iii",
+      static_cast<int>(date.getYear()),
+      static_cast<int>(date.getMonth()),
+      static_cast<int>(date.getDay())));
+  
+  if (py_date == NULL)
+    stop(py_fetch_error());
+  
+  return py_date.detach();
+}
+
+} // end anonymous namespace
+
 // [[Rcpp::export]]
-PyObjectRef r_convert_date(DateVector date_vector, bool convert) {
+PyObjectRef r_convert_date(DateVector dates, bool convert) {
   
   PyObjectPtr datetime(PyImport_ImportModule("datetime"));
   
-  // scalar
-  if (date_vector.size() == 1) {
-    
-    Date date = date_vector[0];
-    PyObject* py_date(PyObject_CallMethod(
-        datetime, "date", "iii",
-        static_cast<int>(date.getYear()),
-        static_cast<int>(date.getMonth()),
-        static_cast<int>(date.getDay())));
-    if (py_date == NULL) {
-      stop(py_fetch_error());
-    }
-    return py_ref(py_date, convert);
-    
-  // vector  
-  } else {
-    
-    PyObjectPtr list(PyList_New(date_vector.size()));
-    for (int i = 0; i < date_vector.size(); ++i) {
-      Date date = date_vector[i];
-      PyObject* py_date(PyObject_CallMethod(
-          datetime, "date", "iii",
-          static_cast<int>(date.getYear()),
-          static_cast<int>(date.getMonth()),
-          static_cast<int>(date.getDay())));
-      if (py_date == NULL) {
-        stop(py_fetch_error());
-      }
-      int res = PyList_SetItem(list, i, py_date);
-      if (res != 0)
-        stop(py_fetch_error());
-    }
-    return py_ref(list.detach(), convert);
+  // short path for n == 1
+  R_xlen_t n = dates.size();
+  if (n == 1) {
+    Date date = dates[0];
+    return py_ref(r_convert_date_impl(datetime, date), convert);
   }
+  
+  // regular path for n > 1
+  PyObjectPtr list(PyList_New(n));
+  
+  for (R_xlen_t i = 0; i < n; ++i) {
+    Date date = dates[i];
+    PyList_SetItem(list, i, r_convert_date_impl(datetime, date));
+  }
+  
+  return py_ref(list.detach(), convert);
   
 }

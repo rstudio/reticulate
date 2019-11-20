@@ -2060,6 +2060,7 @@ PyObject* py_dict_get_keys_impl(PyObject* dict) {
   PyObject* keys = PyDict_Keys(dict);
   
   if (keys == NULL) {
+    PyErr_Clear();
     keys = PyObject_CallMethod(dict, "keys", NULL);
     if (keys == NULL)
       stop(py_fetch_error());

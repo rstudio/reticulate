@@ -2083,25 +2083,40 @@ CharacterVector py_dict_get_keys_as_str(PyObjectRef dict) {
   // get the dictionary keys
   PyObjectPtr py_keys(py_dict_get_keys_impl(dict));
   
-  // allocate keys to return
-  Py_ssize_t len = PyList_Size(py_keys);
-  CharacterVector keys(len);
+  // iterate over keys and convert to string
+  std::vector<std::string> keys;
 
-  // get the keys as strings
-  for (Py_ssize_t i = 0; i < len; i++) {
-    PyObject* item = PyList_GetItem(py_keys, i);
+  PyObjectPtr it(PyObject_GetIter(py_keys));
+  if (it == NULL)
+    stop(py_fetch_error());
+  
+  for (PyObject* item = PyIter_Next(it);
+       item != NULL;
+       item = PyIter_Next(it))
+  {
+    // decref on scope exit
+    PyObjectPtr scope(item);
+    
+    // check for python string and use directly
     if (is_python_str(item)) {
-      keys[i] = as_utf8_r_string(item);
-    } else {
-      PyObjectPtr str(PyObject_Str(item));
-      if (str.is_null())
-        stop(py_fetch_error());
-      keys[i] = as_utf8_r_string(str);
+      keys.push_back(as_utf8_r_string(item));
+      continue;
     }
+    
+    // if we don't have a python string, try to create one
+    PyObjectPtr str(PyObject_Str(item));
+    if (str.is_null())
+      stop(py_fetch_error());
+    
+    keys.push_back(as_utf8_r_string(str));
+    
   }
-
-  // return
-  return keys;
+  
+  if (PyErr_Occurred())
+    stop(py_fetch_error());
+  
+  return CharacterVector(keys.begin(), keys.end());
+  
 }
 
 

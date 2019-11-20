@@ -1980,8 +1980,23 @@ PyObjectRef py_dict_impl(const List& keys, const List& items, bool convert) {
 
 // [[Rcpp::export]]
 SEXP py_dict_get_item(PyObjectRef dict, RObject key) {
-  PyObjectPtr pyKey(r_to_py(key, dict.convert()));
+  
+  PyObject* pyKey(r_to_py(key, dict.convert()));
   PyObject* item = PyDict_GetItem(dict, pyKey);
+  
+  // some weird subclasses of Dict might only allow for __getitem__ access
+  // e.g. TensorFlow's _DictWrapper(TrackableDataStructure, wrapt.ObjectProxy)
+  if (item == NULL) {
+    if(!PyDict_Check(dict)) {
+      if (PyObject_HasAttrString(dict, "__getitem__")) {
+        item = PyObject_CallMethod(dict, "__getitem__", "O", pyKey);
+      } else {
+        stop("Object is not a dict, and neither does it have a __getitem__ method: \n" +
+          as_std_string(PyObject_Str(dict)));
+      }
+    }
+  }  
+  
   if (item != NULL) {
     Py_IncRef(item);
     return py_ref(item, dict.convert());

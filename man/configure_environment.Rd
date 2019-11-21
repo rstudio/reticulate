@@ -30,6 +30,12 @@ using the default Miniconda Python installation, no action will be taken.
 Otherwise, \code{reticulate} will take this as a signal to install any required
 Python dependencies into the user's Python environment.
 
+If you'd like to disable \code{reticulate}'s auto-configure behavior altogether,
+you can set the environment variable:\preformatted{RETICULATE_AUTOCONFIGURE = FALSE
+}
+
+e.g. in your \verb{~/.Renviron} or similar.
+
 Note that, in the case where the Python session has not yet been initialized,
 \code{reticulate} will automatically ensure your required Python dependencies
 are installed after the Python session is initialized (when appropriate).

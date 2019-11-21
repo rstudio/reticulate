@@ -19,6 +19,15 @@
 #' Otherwise, `reticulate` will take this as a signal to install any required
 #' Python dependencies into the user's Python environment.
 #' 
+#' If you'd like to disable `reticulate`'s auto-configure behavior altogether,
+#' you can set the environment variable:
+#' 
+#' ```
+#' RETICULATE_AUTOCONFIGURE = FALSE
+#' ```
+#' 
+#' e.g. in your `~/.Renviron` or similar.
+#' 
 #' Note that, in the case where the Python session has not yet been initialized,
 #' `reticulate` will automatically ensure your required Python dependencies
 #' are installed after the Python session is initialized (when appropriate).
@@ -33,6 +42,11 @@
 configure_environment <- function(package = NULL, force = TRUE) {
   
   if (!is_python_initialized())
+    return(FALSE)
+  
+  # allow users to opt out
+  enabled <- Sys.getenv("RETICULATE_AUTOCONFIGURE", unset = "TRUE")
+  if (enabled %in% c("FALSE", "False", "0"))
     return(FALSE)
   
   # only done if we're using miniconda for now

@@ -145,18 +145,19 @@ void initialize_type_objects(bool python3);
 
 #define Py_TYPE(ob) (((PyObject*)(ob))->ob_type)
 
-#define PyUnicode_Check(o) (Py_TYPE(o) == Py_TYPE(Py_Unicode))
-#define PyString_Check(o) (Py_TYPE(o) == Py_TYPE(Py_String))
-#define PyInt_Check(o)  (Py_TYPE(o) == Py_TYPE(Py_Int))
-#define PyLong_Check(o)  (Py_TYPE(o) == Py_TYPE(Py_Long))
-#define PyBool_Check(o) ((o == Py_False) | (o == Py_True))
-#define PyDict_Check(o) (Py_TYPE(o) == Py_TYPE(Py_Dict))
-#define PyFloat_Check(o) (Py_TYPE(o) == Py_TYPE(Py_Float))
-#define PyFunction_Check(op) ((PyTypeObject*)(Py_TYPE(op)) == PyFunction_Type)
-#define PyTuple_Check(o) (Py_TYPE(o) == Py_TYPE(Py_Tuple))
-#define PyList_Check(o) (Py_TYPE(o) == Py_TYPE(Py_List))
-#define PyComplex_Check(o) (Py_TYPE(o) == Py_TYPE(Py_Complex))
+#define PyUnicode_Check(o)   (Py_TYPE(o) == Py_TYPE(Py_Unicode))
+#define PyString_Check(o)    (Py_TYPE(o) == Py_TYPE(Py_String))
+#define PyInt_Check(o)       (Py_TYPE(o) == Py_TYPE(Py_Int))
+#define PyLong_Check(o)      (Py_TYPE(o) == Py_TYPE(Py_Long))
+#define PyDict_Check(o)      (Py_TYPE(o) == Py_TYPE(Py_Dict))
+#define PyFloat_Check(o)     (Py_TYPE(o) == Py_TYPE(Py_Float))
+#define PyTuple_Check(o)     (Py_TYPE(o) == Py_TYPE(Py_Tuple))
+#define PyList_Check(o)      (Py_TYPE(o) == Py_TYPE(Py_List))
+#define PyComplex_Check(o)   (Py_TYPE(o) == Py_TYPE(Py_Complex))
 #define PyByteArray_Check(o) (Py_TYPE(o) == Py_TYPE(Py_ByteArray))
+
+#define PyBool_Check(o)      ((o == Py_False) || (o == Py_True))
+#define PyFunction_Check(op) ((PyTypeObject*)(Py_TYPE(op)) == PyFunction_Type)
 
 LIBPYTHON_EXTERN void (*Py_Initialize)();
 LIBPYTHON_EXTERN int (*Py_IsInitialized)();
@@ -201,9 +202,18 @@ LIBPYTHON_EXTERN PyObject* (*PyObject_Call)(PyObject *callable_object,
 LIBPYTHON_EXTERN PyObject* (*PyObject_CallFunctionObjArgs)(PyObject *callable,
            ...);
 
+LIBPYTHON_EXTERN Py_ssize_t (*PyObject_Size)(PyObject*);
+LIBPYTHON_EXTERN PyObject* (*PyObject_GetAttr)(PyObject*, PyObject*);
+LIBPYTHON_EXTERN int (*PyObject_HasAttr)(PyObject*, PyObject*);
+LIBPYTHON_EXTERN int (*PyObject_SetAttr)(PyObject*, PyObject*, PyObject*);
+
 LIBPYTHON_EXTERN PyObject* (*PyObject_GetAttrString)(PyObject*, const char *);
 LIBPYTHON_EXTERN int (*PyObject_HasAttrString)(PyObject*, const char *);
 LIBPYTHON_EXTERN int (*PyObject_SetAttrString)(PyObject*, const char *, PyObject*);
+
+LIBPYTHON_EXTERN PyObject* (*PyObject_GetItem)(PyObject*, PyObject*);
+LIBPYTHON_EXTERN int (*PyObject_SetItem)(PyObject*, PyObject*, PyObject*);
+LIBPYTHON_EXTERN int (*PyObject_DelItem)(PyObject*, PyObject*);
 
 LIBPYTHON_EXTERN Py_ssize_t (*PyTuple_Size)(PyObject *);
 LIBPYTHON_EXTERN PyObject* (*PyTuple_GetItem)(PyObject *, Py_ssize_t);

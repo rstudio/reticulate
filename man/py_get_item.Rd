@@ -22,7 +22,8 @@ item indexed by \code{key} on an object \code{x}. The object's
 \verb{__getitem__} method will be called.
 }
 \seealso{
-Other item-related APIs: \code{\link{py_del_item}()},
-  \code{\link{py_set_item}()}
+Other item-related APIs: 
+\code{\link{py_del_item}()},
+\code{\link{py_set_item}()}
 }
 \concept{item-related APIs}

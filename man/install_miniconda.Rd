@@ -20,7 +20,8 @@ Download the \href{https://docs.conda.io/en/latest/miniconda.html}{Miniconda}
 installer, and use it to install Miniconda.
 }
 \seealso{
-Other miniconda: \code{\link{miniconda_path}()},
-  \code{\link{miniconda_update}()}
+Other miniconda: 
+\code{\link{miniconda_path}()},
+\code{\link{miniconda_update}()}
 }
 \concept{miniconda}

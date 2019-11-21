@@ -55,7 +55,10 @@ PyClass <- function(classname, defs = list(), inherit = NULL) {
   
   defs <- lapply(defs, function(x) {
     if (inherits(x, "function")) {
-      x <- inject_super(x)
+      f <- inject_super(x)
+      x <- function(...) {
+        do.call(f, lapply(list(...), py_to_r))
+      }
     }
     x
   })

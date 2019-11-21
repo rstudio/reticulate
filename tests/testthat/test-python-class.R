@@ -1,4 +1,4 @@
-context("classes")
+context("PyClass")
 
 test_that("Can create a Python class and call methods", {
   skip_if_no_python()
@@ -121,6 +121,38 @@ test_that("Methods can access enclosed env", {
   a <- 2
   expect_equal(x$say_a(), 2)
 })
+
+test_that("Can directly access variables from a class", {
+  
+  skip_if_no_python()
+  
+  bt <- import_builtins()
+  
+  Hi <- PyClass("Hi", list(
+    `__init__` = function(self, a) {
+      self$a <- a
+      self$x <- bt$isinstance # Have a python that can't be 
+                              # converted to an R type
+      NULL
+    },
+    add_2 = function(self) {
+      self$a + 2
+    },
+    get_class = function(self) {
+      class(self$a)
+    },
+    add_n = function(self, n) {
+      self$a + n
+    }
+  ))
+  
+  x <- Hi(a = 2)
+  expect_equal(x$add_2(), 4)
+  expect_equal(x$a, 2)
+  expect_equal(x$get_class(), "numeric")
+  expect_equal(x$add_n(10), 12)
+})
+
 
 
 

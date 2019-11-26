@@ -153,6 +153,65 @@ test_that("Can directly access variables from a class", {
   expect_equal(x$add_n(10), 12)
 })
 
+test_that("Properties are automatically converted in inherited classes", {
+  skip_if_no_python()
+  
+  bt <- import_builtins(convert = FALSE)
+  p <- py_run_string("
+class Base:
+  def __init__ (self, x):
+    self.x = 1
+", convert = FALSE)
+  
+  Hi <- PyClass("Hi", inherit = p$Base, list(
+    `__init__` = function(self, a, ...) {
+      self$a <- a
+      self$k <- bt$isinstance # Have a python that can't be
+                              # converted to an R type
+      super()$`__init__`(...)
+    },
+    add_2 = function(self) {
+      self$a + 2
+    },
+    get_class = function(self) {
+      class(self$a)
+    },
+    add_n = function(self, n) {
+      self$a + n
+    }
+  ))
+  
+  x <- Hi(a = 2, x = 1)
+  expect_equal(x$add_2(), 4)
+  expect_equal(x$a, 2)
+  expect_equal(x$get_class(), "numeric")
+  expect_equal(x$add_n(10), 12)
+})
+
+test_that("self is not converted when there's a py_to_r method for it", {
+  skip_if_no_python()
+  
+  bt <- import_builtins(convert = FALSE)
+  
+  Base <- PyClass("Base")
+  
+  Hi <- PyClass("Hi", inherit = Base, list(
+    `__init__` = function(self, a) {
+      self$a <- a
+      NULL
+    },
+    add_2 = function(self) {
+      self$a + 2
+    }
+  ))
+  
+  py_to_r.python.builtin.Base <- function(x) {
+    "base"
+  }
+  
+  x <- Hi(2)
+  expect_equal(x, "base")
+})
 
 
 

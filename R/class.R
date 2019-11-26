@@ -57,7 +57,11 @@ PyClass <- function(classname, defs = list(), inherit = NULL) {
     if (inherits(x, "function")) {
       f <- inject_super(x)
       x <- function(...) {
-        do.call(f, lapply(list(...), py_to_r))
+        args <- list(...)
+        # enable convertion scope for `self`
+        # the first argument is always `self`.and we don't want to convert it.
+        assign("convert", TRUE, envir = as.environment(args[[1]])) 
+        do.call(f, append(args[1], lapply(args[-1], py_to_r)))
       }
     }
     x

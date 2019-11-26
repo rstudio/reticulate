@@ -59,9 +59,9 @@ PyClass <- function(classname, defs = list(), inherit = NULL) {
       x <- function(...) {
         args <- list(...)
         # enable convertion scope for `self`
-        # the first argument is always `self`.
+        # the first argument is always `self`.and we don't want to convert it.
         assign("convert", TRUE, envir = as.environment(args[[1]])) 
-        do.call(f, lapply(args, py_to_r))
+        do.call(f, append(args[1], lapply(args[-1], py_to_r)))
       }
     }
     x

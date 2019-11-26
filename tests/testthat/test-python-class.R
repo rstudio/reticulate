@@ -188,6 +188,32 @@ class Base:
   expect_equal(x$add_n(10), 12)
 })
 
+test_that("self is not converted when there's a py_to_r method for it", {
+  skip_if_no_python()
+  
+  bt <- import_builtins(convert = FALSE)
+  
+  Base <- PyClass("Base")
+  
+  Hi <- PyClass("Hi", inherit = Base, list(
+    `__init__` = function(self, a) {
+      self$a <- a
+      NULL
+    },
+    add_2 = function(self) {
+      self$a + 2
+    }
+  ))
+  
+  py_to_r.python.builtin.Base <- function(x) {
+    "base"
+  }
+  
+  x <- Hi(2)
+  expect_equal(x, "base")
+})
+
+
 
 
 

@@ -192,7 +192,6 @@ test_that("self is not converted when there's a py_to_r method for it", {
   skip_if_no_python()
   
   bt <- import_builtins(convert = FALSE)
-  
   Base <- PyClass("Base")
   
   Hi <- PyClass("Hi", inherit = Base, list(
@@ -205,12 +204,14 @@ test_that("self is not converted when there's a py_to_r method for it", {
     }
   ))
   
-  py_to_r.python.builtin.Base <- function(x) {
+  assign("py_to_r.python.builtin.Base", value = function(x) {
     "base"
-  }
+  }, envir = .GlobalEnv)
   
   x <- Hi(2)
   expect_equal(x, "base")
+  
+  rm(py_to_r.python.builtin.Base, envir = .GlobalEnv)
 })
 
 

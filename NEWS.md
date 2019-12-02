@@ -3,6 +3,9 @@
 
 Install the development version of reticulate with `remotes::install_github("rstudio/reticulate")`.
 
+- `reticulate` now scans for Conda installations within the ~/opt folder,
+  as per the updated installers distributed for macOS. (#661)
+
 - Python classes can now be defined directly from R using the `PyClass()`
   function. (#635; @dfalbel)
 
@@ -17,7 +20,7 @@ Install the development version of reticulate with `remotes::install_github("rst
 - reticulate will now attempt to bind to `python3` rather than `python`,
   when no other version of Python has been explicitly requested by
   e.g. `use_python()`.
-  
+
 - reticulate now provides R hooks for Python's `input()` and `raw_input()`
   functions. It should now be possible to read user input from Python scripts
   loaded by reticulate. (#610)
@@ -31,7 +34,7 @@ Install the development version of reticulate with `remotes::install_github("rst
   Currently, this only activated when using Miniconda; as the assumption is that
   users will otherwise prefer to manually manage their Python environments.
   Please see `vignette("python_dependencies")` for more details.
-  
+
 - `reticulate` will now prompt the user to create and use a
   [Miniconda](https://docs.conda.io/en/latest/miniconda.html) environment
   when no other suitable Python environment has already been requested. This

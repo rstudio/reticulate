@@ -292,6 +292,14 @@ find_conda <- function() {
   if (!nzchar(conda)) {
     conda_locations <- c(
       miniconda_conda(),
+      path.expand("~/opt/anaconda/bin/conda"),
+      path.expand("~/opt/anaconda2/bin/conda"),
+      path.expand("~/opt/anaconda3/bin/conda"),
+      path.expand("~/opt/anaconda4/bin/conda"),
+      path.expand("~/opt/miniconda/bin/conda"),
+      path.expand("~/opt/miniconda2/bin/conda"),
+      path.expand("~/opt/miniconda3/bin/conda"),
+      path.expand("~/opt/miniconda4/bin/conda"),
       path.expand("~/anaconda/bin/conda"),
       path.expand("~/anaconda2/bin/conda"),
       path.expand("~/anaconda3/bin/conda"),

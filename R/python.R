@@ -440,9 +440,15 @@ as.environment.python.builtin.object <- function(x) {
     }
   }
 
+  idx <- grepl(pattern, names)
+  names <- names[idx]
+  types <- types[idx]
+
   if (length(names) > 0) {
     # set types
-    attr(names, "types") <- types
+    oidx <- order(names)
+    names <- names[oidx]
+    attr(names, "types") <- types[oidx]
 
     # specify a help_handler
     attr(names, "helpHandler") <- "reticulate:::help_handler"

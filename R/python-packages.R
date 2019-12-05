@@ -210,7 +210,7 @@ python_package_requirements_find <- function(package) {
   descpath <- system.file("DESCRIPTION", package = package)
   desc <- read.dcf(descpath, all = TRUE)
   
-  entry <- desc[["reticulate@R"]]
+  entry <- desc[["Config/reticulate"]]
   if (is.null(entry))
     return(NULL)
   

@@ -2,6 +2,7 @@
 ^\.Rproj\.user$
 ^docs$
 ^images$
+^internal$
 ^issues$
 ^log$
 ^pkgdown$

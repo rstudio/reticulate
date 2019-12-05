@@ -202,7 +202,7 @@ py_function_custom_scaffold <- function(
     cat(text, sep = "\n")
   }
 
-  wrapper_output <- utils::capture.output(
+  wrapper_output <- capture.output(
     {
       docs <- reticulate::py_function_docs(python_function)
       docs <- process_docs_fn(docs)

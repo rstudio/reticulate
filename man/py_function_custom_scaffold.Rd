@@ -50,3 +50,35 @@ from execution of \code{python_function} is assigned to a variable called
 \code{python_function_result} that can also be processed by \code{postprocess_fn}
 before writing the closing curly braces for the generated wrapper function.
 }
+\examples{
+\dontrun{
+
+library(tensorflow)
+library(stringr)
+
+# Example of a `process_param_fn` to cast parameters with default values
+# that contains "L" to integers
+process_int_param_fn <- function(param, docs) {
+  # Extract the list of parameters that have integer values as default
+  int_params <- gsub(
+    " = [-]?[0-9]+L",
+    "",
+    str_extract_all(docs$signature, "[A-z]+ = [-]?[0-9]+L")[[1]])
+  # Explicitly cast parameter in the list obtained above to integer
+  if (param \%in\% int_params) {
+    param <- paste0("as.integer(", param, ")")
+  }
+  param
+}
+
+# Note that since the default value of parameter `k` is `1L`. It is wrapped
+# by `as.integer()` to ensure it's casted to integer before sending it to `tf$nn$top_k`
+# for execution. We then print out the python function result.
+py_function_custom_scaffold(
+  "tf$nn$top_k",
+  r_function = "top_k",
+  process_param_fn = process_int_param_fn,
+  postprocess_fn = function() { "print(python_function_result)" })
+
+}
+}

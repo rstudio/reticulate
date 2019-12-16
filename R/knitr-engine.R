@@ -214,6 +214,7 @@ eng_python_matplotlib_show <- function(plt, options) {
   dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
   plt$savefig(path, dpi = options$dpi)
   plt$clf()
+  path <- normalizePath(path, winslash = "/", mustWork = FALSE)
   knitr::include_graphics(path)
 }
 

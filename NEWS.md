@@ -3,6 +3,9 @@
 
 Install the development version of reticulate with `remotes::install_github("rstudio/reticulate")`.
 
+- Fixed an issue where `rmarkdown::render()` could fail when including
+  matplotlib plots when `knit_root_dir` is set. (#645)
+
 - `reticulate` now scans for Conda installations within the ~/opt folder,
   as per the updated installers distributed for macOS. (#661)
 

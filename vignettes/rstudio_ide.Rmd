@@ -15,7 +15,7 @@ knitr::opts_chunk$set(eval = FALSE)
 
 ## Overview
 
-The current [RStudio v1.2 preview release](https://www.rstudio.com/rstudio/download/preview/) includes experimental support for the reticulate package, including:
+[RStudio v1.2](https://rstudio.com/products/rstudio/download/) brings support for the reticulate package, including:
 
 1) Support for executing reticulated Python chunks within [R Notebooks](https://rmarkdown.rstudio.com/r_notebooks.html).
 
@@ -33,7 +33,7 @@ There are many IDEs available for doing data science with Python including [Jupy
 
 ## Installation
 
-You can download the RStudio v1.2 preview release here: <https://www.rstudio.com/rstudio/download/preview/>.
+You can download the latest RStudio release here: <https://rstudio.com/products/rstudio/download/>.
 
 All of the features described below require that you have previously installed the reticulate package, which you can do as follows:
 

@@ -24,6 +24,7 @@ expect_formals <- function(given, expected) {
 }
 
 test_that("Python signatures convert properly", {
+  skip_on_cran()
   expect_formals('a', alist(a = ))
   expect_formals('a, b=1', alist(a = , b = NULL))
   expect_formals('a, *, b=1', alist(a = , ... = , b = NULL))
@@ -34,11 +35,14 @@ test_that("Python signatures convert properly", {
 })
 
 test_that("Errors from e.g. builtins are not propagated", {
+  skip_on_cran()
   print <- import_builtins()$print
   expect_error(py_get_formals(print))
 })
 
 test_that("The inspect.Parameter signature converts properly", {
+  skip_on_cran()
+  
   # Parameter.empty usually signifies no default parameter,
   # but for args 3 and 4 here, it *is* the default parameter.
   Parameter <- import("inspect")$Parameter
@@ -50,6 +54,8 @@ test_that("The inspect.Parameter signature converts properly", {
 })
 
 test_that("Parameters are not matched by prefix", {
+  skip_on_cran()
+  
   f_r <- function(long = NULL, ...) list(long, list(...))
   f_py <- py_eval('lambda long=None, **kw: (long, kw)')
   expect_identical(formals(f_r), py_get_formals(f_py))

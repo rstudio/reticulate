@@ -1,7 +1,5 @@
 
-## reticulate 1.14 (UNDER DEVELOPMENT)
-
-Install the development version of reticulate with `remotes::install_github("rstudio/reticulate")`.
+## reticulate 1.14
 
 - Fixed an issue where `rmarkdown::render()` could fail when including
   matplotlib plots when `knit_root_dir` is set. (#645)
@@ -65,7 +63,7 @@ Install the development version of reticulate with `remotes::install_github("rst
 - Properly check for NULL keyword arguments in `call_r_function()`.
   (#562, @dfalbel)
 
-## reticulate 1.13 (CRAN)
+## reticulate 1.13
 
 - Fixed an issue where subsetting with `[.python.builtin.object` could
   fail when `convert = TRUE` is set on the associated Python object.

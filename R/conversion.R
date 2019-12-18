@@ -379,6 +379,7 @@ dim.pandas.core.frame.DataFrame <- function(x) {
 }
 
 # Scipy sparse matrices
+#' @importFrom Matrix Matrix
 
 #' @export
 dim.scipy.sparse.base.spmatrix <- function(x) {

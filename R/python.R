@@ -1161,11 +1161,14 @@ py_flush_output <- function() {
     return()
 
   sys <- import("sys", convert = TRUE)
-  sys$stdout$flush()
-  sys$stderr$flush()
+  
+  if (!is.null(sys$stdout) && is.function(sys$stdout$flush))
+    sys$stdout$flush()
+  
+  if (!is.null(sys$stderr) && is.function(sys$stderr$flush))
+    sys$stderr$flush()
 
 }
-
 
 
 

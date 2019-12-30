@@ -210,25 +210,34 @@ eng_python_initialize <- function(options, context, envir) {
 
 eng_python_matplotlib_show <- function(plt, options) {
   
-  # work within the knitr 'base dir', to ensure that figures are
-  # generated in the same location where R figures might normally
-  # be generated
-  #
-  # https://github.com/rstudio/reticulate/issues/645
-  dir <- knitr::opts_knit$get("output.dir")
-  if (is.character(dir)) {
-    dir.create(dir, recursive = TRUE)
-    owd <- setwd(dir)
-    on.exit(setwd(owd), add = TRUE)
-  }
+  # we need to work in either base.dir or output.dir, depending
+  # on which of the two has been requested by the user. (note
+  # that output.dir should always be set)
+  dir <-
+    knitr::opts_knit$get("base.dir") %||%
+    knitr::opts_knit$get("output.dir")
+
+  # move to the requested directory
+  dir.create(dir, recursive = TRUE, showWarnings = FALSE)
+  owd <- setwd(dir)
+  on.exit(setwd(owd), add = TRUE)
   
+  # construct plot path
   plot_counter <- yoink("knitr", "plot_counter")
-  path <- knitr::fig_path(options$dev, number = plot_counter())
+  path <- knitr::fig_path(
+    suffix = options$dev,
+    options = options,
+    number = plot_counter()
+  )
+  
+  # save the current figure
   dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
   plt$savefig(path, dpi = options$dpi)
   plt$clf()
-  knitr::include_graphics(path)
   
+  # include the requested path
+  knitr::include_graphics(path)
+
 }
 
 eng_python_initialize_matplotlib <- function(options, context, envir) {

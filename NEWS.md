@@ -1,6 +1,11 @@
 
 ## reticulate 1.15 (UNDER DEVELOPMENT)
 
+- Fixed an issue where matplotlib plots would be included using absolute
+  paths, which fails in non-standalone documents rendered to HTML. (#669)
+
+- Fixed an issue where `reticulate` would attempt to flush a non-existent
+  stdout / stderr stream. (#584)
 
 ## reticulate 1.14
 

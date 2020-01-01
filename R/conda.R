@@ -243,11 +243,11 @@ conda_binary <- function(conda = "auto") {
   }
 
   # validate existence
-  if (!file.exists(conda))
-    stop("Specified conda binary '", conda, "' does not exist.", call. = FALSE)
+  # if (!file.exists(conda))
+  stop("Specified conda binary '", conda, "' does not exist.", call. = FALSE)
 
   # return conda
-  conda
+  # conda
 }
 
 

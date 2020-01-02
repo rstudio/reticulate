@@ -180,7 +180,8 @@ should_configure <- function() {
   
   # allow users to opt out
   configure_ok <- Sys.getenv("RETICULATE_AUTOCONFIGURE", unset = "TRUE")
-  configure_ok <- if (configure_ok %in% c("FALSE", "False", "0")) FALSE else TRUE
+  if (configure_ok %in% c("FALSE", "False", "0"))
+    return(FALSE)
   
   # only done if we're using miniconda for now
   config <- py_config()
@@ -188,6 +189,6 @@ should_configure <- function() {
   home <- miniconda_path()
   is_miniconda <- substring(config$python, 1, nchar(home)) == home
   
-  configure_ok && is_miniconda
+  is_miniconda
   
 }

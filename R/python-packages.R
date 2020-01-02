@@ -39,7 +39,7 @@
 #' @param force Boolean; force configuration of the associated environment?
 #'
 #' @export
-configure_environment <- function(package = NULL, force = TRUE) {
+configure_environment <- function(package = NULL, force = FALSE) {
   
   if (!is_python_initialized())
     return(FALSE)

@@ -116,12 +116,9 @@ virtualenv_install <- function(envname = NULL,
 
   # ensure that pip + friends are up-to-date / recent enough
   python <- virtualenv_python(envname)
-  if (pip_version(python) < "8.1") {
-    pip_install(python, "pip")
-    pip_install(python, "wheel")
-    pip_install(python, "setuptools")
-  }
-
+  if (pip_version(python) < "8.1")
+    pip_install(python, c("pip", "wheel", "setuptools"))
+  
   # now install the requested package
   pip_install(python, packages, ignore_installed = ignore_installed)
 }
@@ -192,7 +189,8 @@ virtualenv_root <- function() {
 #' @export
 virtualenv_python <- function(envname = NULL) {
   path <- virtualenv_path(envname)
-  path.expand(file.path(path, "bin/python"))
+  suffix <- if (is_windows()) "Scripts/python.exe" else "bin/python"
+  path.expand(file.path(path, suffix))
 }
 
 
@@ -205,7 +203,14 @@ virtualenv_exists <- function(envname = NULL) {
     return(FALSE)
 
   # check for expected files for virtualenv / venv
-  files <- c("bin/activate_this.py", "bin/pyvenv.cfg", "pyvenv.cfg")
+  subdir <- if (is_windows()) "Scripts" else "bin"
+  
+  files <- c(
+    file.path(subdir, "activate_this.py"),
+    file.path(subdir, "pyvenv.cfg"),
+    "pyvenv.cfg"
+  )
+  
   any(file.exists(file.path(path, files)))
 
 }
@@ -224,7 +229,8 @@ virtualenv_path <- function(envname = NULL) {
 
 virtualenv_pip <- function(envname) {
   path <- virtualenv_path(envname)
-  file.path(path, "bin/pip")
+  suffix <- if (is_windows()) "Scripts/pip.exe" else "bin/python"
+  path.expand(file.path(path, suffix))
 }
 
 

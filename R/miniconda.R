@@ -117,7 +117,9 @@ miniconda_installer_run <- function(installer, path) {
     dir.create(path, recursive = TRUE, showWarnings = FALSE)
     c(
       "/InstallationType=JustMe",
+      "/AddToPath=0",
       "/RegisterPython=0",
+      "/NoRegistry=1",
       "/S",
       paste("/D", utils::shortPathName(path), sep = "=")
     )

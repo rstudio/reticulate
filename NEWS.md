@@ -1,6 +1,9 @@
 
 ## reticulate 1.15 (UNDER DEVELOPMENT)
 
+- `reticulate::install_miniconda()` no longer attempts to modify the
+  system PATH or registry when installing Miniconda. (#681)
+
 - `reticulate::conda_install()` gains the `channel` argument, allowing
   custom Conda channels to be used when installing Python packages.
   (#443)

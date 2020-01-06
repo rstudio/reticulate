@@ -1,6 +1,9 @@
 
 ## reticulate 1.15 (UNDER DEVELOPMENT)
 
+- `reticulate::configure_environment()` can now be used to configure a
+  non-Miniconda Python environment. (#682; @skeydan)
+
 - Fixed an issue where matplotlib plots would be included using absolute
   paths, which fails in non-standalone documents rendered to HTML. (#669)
 

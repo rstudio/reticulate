@@ -214,7 +214,32 @@ test_that("self is not converted when there's a py_to_r method for it", {
   rm(py_to_r.python.builtin.Base, envir = .GlobalEnv)
 })
 
-
+test_that("can call super from an ingerited class", {
+  
+  Base1 <- PyClass("Base1", list(`__init__` = function(self, a) {
+    self$a <- a
+  }))
+  
+  Base2 <- PyClass("Base2", list(`__init__` = function(self, a, b) {
+    self$b <- b
+    super()$`__init__`(a)
+  }), inherit = Base1)
+  
+  Inhe <- PyClass("Inhe", inherit = Base2, list(
+    `__init__` = function(self, a, b, c) {
+      self$c <- c
+      super()$`__init__`(a, b)
+      NULL
+    }
+  ))
+  
+  x <- Inhe(10, 20, 30)
+  
+  
+  expect_equal(x$a, 10)
+  expect_equal(x$b, 20)
+  expect_equal(x$c, 30)
+})
 
 
 

@@ -141,11 +141,13 @@ conda_remove <- function(envname, packages = NULL, conda = "auto") {
 }
 
 #' @param forge Include the [Conda Forge](https://conda-forge.org/) repository.
-#' @param pip_ignore_installed Ignore installed versions when using pip. This is `TRUE` by default
-#'   so that specific package versions can be installed even if they are downgrades. The `FALSE`
-#'   option is useful for situations where you don't want a pip install to attempt an overwrite
-#'   of a conda binary package (e.g. SciPy on Windows which is very difficult to install via
-#'   pip due to compilation requirements).
+#' @param channel An optional character vector of Conda channels to include.
+#' @param pip_ignore_installed Ignore installed versions when using pip. This is
+#'   `TRUE` by default so that specific package versions can be installed even
+#'   if they are downgrades. The `FALSE` option is useful for situations where
+#'   you don't want a pip install to attempt an overwrite of a conda binary
+#'   package (e.g. SciPy on Windows which is very difficult to install via pip
+#'   due to compilation requirements).
 #'
 #' @rdname conda-tools
 #'
@@ -155,6 +157,7 @@ conda_remove <- function(envname, packages = NULL, conda = "auto") {
 conda_install <- function(envname = NULL,
                           packages,
                           forge = TRUE,
+                          channel = character(),
                           pip = FALSE,
                           pip_ignore_installed = FALSE,
                           conda = "auto",
@@ -197,8 +200,14 @@ conda_install <- function(envname = NULL,
     
   # otherwise, use conda
   args <- conda_args("install", envname)
+  
+  # add user-requested channels
   if (forge)
-    args <- c(args, "-c", "conda-forge")
+    channel <- c("conda-forge", setdiff(channel, "conda-forge"))
+  
+  for (ch in channel)
+    args <- c(args, "-c", ch)
+    
   args <- c(args, python_package, packages)
   result <- system2(conda, shQuote(args))
   

@@ -21,6 +21,7 @@ conda_install(
   envname = NULL,
   packages,
   forge = TRUE,
+  channel = NULL,
   pip = FALSE,
   pip_ignore_installed = FALSE,
   conda = "auto",
@@ -44,13 +45,16 @@ PATH and other conventional install locations).}
 
 \item{forge}{Include the \href{https://conda-forge.org/}{Conda Forge} repository.}
 
+\item{channel}{An optional character vector of Conda channels to include.}
+
 \item{pip}{\code{TRUE} to use pip (defaults to \code{FALSE})}
 
-\item{pip_ignore_installed}{Ignore installed versions when using pip. This is \code{TRUE} by default
-so that specific package versions can be installed even if they are downgrades. The \code{FALSE}
-option is useful for situations where you don't want a pip install to attempt an overwrite
-of a conda binary package (e.g. SciPy on Windows which is very difficult to install via
-pip due to compilation requirements).}
+\item{pip_ignore_installed}{Ignore installed versions when using pip. This is
+\code{TRUE} by default so that specific package versions can be installed even
+if they are downgrades. The \code{FALSE} option is useful for situations where
+you don't want a pip install to attempt an overwrite of a conda binary
+package (e.g. SciPy on Windows which is very difficult to install via pip
+due to compilation requirements).}
 
 \item{...}{Optional arguments, reserved for future expansion.}
 }

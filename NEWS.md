@@ -1,6 +1,10 @@
 
 ## reticulate 1.15 (UNDER DEVELOPMENT)
 
+- `reticulate::conda_install()` gains the `channel` argument, allowing
+  custom Conda channels to be used when installing Python packages.
+  (#443)
+
 - `reticulate::configure_environment()` can now be used to configure a
   non-Miniconda Python environment. (#682; @skeydan)
 

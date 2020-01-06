@@ -202,16 +202,7 @@ virtualenv_exists <- function(envname = NULL) {
   if (inherits(path, "error"))
     return(FALSE)
 
-  # check for expected files for virtualenv / venv
-  subdir <- if (is_windows()) "Scripts" else "bin"
-  
-  files <- c(
-    file.path(subdir, "activate_this.py"),
-    file.path(subdir, "pyvenv.cfg"),
-    "pyvenv.cfg"
-  )
-  
-  any(file.exists(file.path(path, files)))
+  is_virtualenv(path)
 
 }
 
@@ -333,6 +324,17 @@ virtualenv_module <- function(python) {
 
 
 is_virtualenv <- function(dir) {
-  files <- c("bin/activate_this.py", "bin/pyvenv.cfg", "pyvenv.cfg")
-  any(file.exists(file.path(dir, files)))
+  
+  # check for expected files for virtualenv / venv
+  subdir <- if (is_windows()) "Scripts" else "bin"
+  
+  files <- c(
+    file.path(subdir, "activate_this.py"),
+    file.path(subdir, "pyvenv.cfg"),
+    "pyvenv.cfg"
+  )
+  
+  paths <- file.path(dir, files)
+  any(file.exists(paths))
+  
 }

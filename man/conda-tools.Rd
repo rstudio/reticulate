@@ -21,7 +21,7 @@ conda_install(
   envname = NULL,
   packages,
   forge = TRUE,
-  channel = NULL,
+  channel = character(),
   pip = FALSE,
   pip_ignore_installed = FALSE,
   conda = "auto",

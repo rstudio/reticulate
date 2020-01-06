@@ -56,7 +56,7 @@ ensure_python_initialized <- function(required_module = NULL) {
     py_inject_hooks()
     
     # install required packages
-    configure_environment()
+    if (should_configure()) configure_environment()
 
   }
 }
@@ -176,4 +176,19 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
 }
 
 
-
+should_configure <- function() {
+  
+  # allow users to opt out
+  configure_ok <- Sys.getenv("RETICULATE_AUTOCONFIGURE", unset = "TRUE")
+  if (configure_ok %in% c("FALSE", "False", "0"))
+    return(FALSE)
+  
+  # only done if we're using miniconda for now
+  config <- py_config()
+  python <- config$python
+  home <- miniconda_path()
+  is_miniconda <- substring(config$python, 1, nchar(home)) == home
+  
+  is_miniconda
+  
+}

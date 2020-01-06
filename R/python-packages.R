@@ -36,26 +36,12 @@
 #'   will instead look at all loaded packages and discover their associated
 #'   Python requirements.
 #'
-#' @param force Boolean; force configuration of the associated environment?
-#'
 #' @export
-configure_environment <- function(package = NULL, force = TRUE) {
+configure_environment <- function(package = NULL) {
   
   if (!is_python_initialized())
     return(FALSE)
   
-  # allow users to opt out
-  enabled <- Sys.getenv("RETICULATE_AUTOCONFIGURE", unset = "TRUE")
-  if (enabled %in% c("FALSE", "False", "0"))
-    return(FALSE)
-  
-  # only done if we're using miniconda for now
-  config <- py_config()
-  python <- config$python
-  home <- miniconda_path()
-  if (!force && substring(config$python, 1, nchar(home)) != home)
-    return(FALSE)
-
   # find Python requirements  
   reqs <- python_package_requirements(package)
   if (length(reqs) == 0)

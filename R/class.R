@@ -2,18 +2,19 @@ inject_super <- function(fun) {
   # for each function `fun` we need to place a `super` function in its
   # search path, and this `super` function must be able to access
   # the `self` argument passed to `fun`.
-  
+
   e <- new.env(parent = environment(fun))
   
   e$super <- function() {
     bt <- reticulate::import_builtins()
     # self is an argument passed to fun
-    self <- get("self", envir = parent.frame(), inherits = FALSE) 
-    bt$super(self$`__class__`, self)
+    self <- get("self", envir = parent.frame(), inherits = FALSE)
+    class_ <- get("__class__", envir = e, inherits = FALSE)
+    bt$super(class_, self)
   }
-  
+
   environment(fun) <- e # so fun can access `super`
-  
+
   fun
 }
 
@@ -63,13 +64,23 @@ PyClass <- function(classname, defs = list(), inherit = NULL) {
         assign("convert", TRUE, envir = as.environment(args[[1]])) 
         do.call(f, append(args[1], lapply(args[-1], py_to_r)))
       }
+      attr(x, "__env__") <- environment(f)
     }
     x
   })
   
-  bt$type(
+  type <- bt$type(
     classname, inherit, 
     do.call(reticulate::dict, defs)
   )
+  
+  # we add a reference to the type here. so it can be accessed without needing
+  # to find the type from self.
+  lapply(defs, function(x) {
+    if(!is.null(e <- attr(x, "__env__"))) {
+      e$`__class__` <- type
+    }
+  })
+  
+  type
 }
-

@@ -1,6 +1,11 @@
 
 ## reticulate 1.15 (UNDER DEVELOPMENT)
 
+- `reticulate` now automatically flushes output written to Python's
+  stdout / stderr, as a top-level task added by `addTaskCallback()`.
+  This behavior is controlled with the `options(reticulate.autoflush)`
+  option. (#685)
+
 - `reticulate::install_miniconda()` no longer attempts to modify the
   system PATH or registry when installing Miniconda. (#681)
 

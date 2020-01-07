@@ -18,10 +18,6 @@ inject_super <- function(fun) {
   fun
 }
 
-enable_convert_scope <- function(f) {
-  
-}
-
 #' Create a python class
 #' 
 #' @param classname Name of the class. The class name is useful for S3 method
@@ -78,7 +74,7 @@ PyClass <- function(classname, defs = list(), inherit = NULL) {
     do.call(reticulate::dict, defs)
   )
   
-  # we add a reference to the type here. so it can be acessed without needing
+  # we add a reference to the type here. so it can be accessed without needing
   # to find the type from self.
   lapply(defs, function(x) {
     if(!is.null(e <- attr(x, "__env__"))) {
@@ -88,4 +84,3 @@ PyClass <- function(classname, defs = list(), inherit = NULL) {
   
   type
 }
-

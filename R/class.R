@@ -18,19 +18,8 @@ inject_super <- function(fun) {
   fun
 }
 
-#' Enable the convertion scope so `self` fields can be accessed
-#' without the need to call `py_to_r`.
-#' 
-#' @param f a method/function of a Python class
-#' 
 enable_convert_scope <- function(f) {
-  function(...) {
-    args <- list(...)
-    # enable convertion scope for `self`
-    # the first argument is always `self`.and we don't want to convert it.
-    assign("convert", TRUE, envir = as.environment(args[[1]])) 
-    do.call(f, append(args[1], lapply(args[-1], py_to_r)))
-  }
+  
 }
 
 #' Create a python class
@@ -72,7 +61,13 @@ PyClass <- function(classname, defs = list(), inherit = NULL) {
   defs <- lapply(defs, function(x) {
     if (inherits(x, "function")) {
       f <- inject_super(x)
-      x <- enable_convert_scope(f)
+      x <- function(...) {
+        args <- list(...)
+        # enable convertion scope for `self`
+        # the first argument is always `self`.and we don't want to convert it.
+        assign("convert", TRUE, envir = as.environment(args[[1]])) 
+        do.call(f, append(args[1], lapply(args[-1], py_to_r)))
+      }
       attr(x, "__env__") <- environment(f)
     }
     x

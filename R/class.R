@@ -18,7 +18,7 @@ inject_super <- function(fun) {
   fun
 }
 
-#' Enable the convertion scope so `self` fields can be accessed
+#' Enable the conversion scope so `self` fields can be accessed
 #' without the need to call `py_to_r`.
 #' 
 #' @param f a method/function of a Python class
@@ -83,7 +83,7 @@ PyClass <- function(classname, defs = list(), inherit = NULL) {
     do.call(reticulate::dict, defs)
   )
   
-  # we add a reference to the type here. so it can be acessed without needing
+  # we add a reference to the type here. so it can be accessed without needing
   # to find the type from self.
   lapply(defs, function(x) {
     if(!is.null(e <- attr(x, "__env__"))) {
@@ -93,4 +93,3 @@ PyClass <- function(classname, defs = list(), inherit = NULL) {
   
   type
 }
-

@@ -43,9 +43,13 @@ PATH and other conventional install locations).}
 
 \item{packages}{Character vector with package names to install or remove.}
 
-\item{forge}{Include the \href{https://conda-forge.org/}{Conda Forge} repository.}
+\item{forge}{Boolean; include the \href{https://conda-forge.org/}{Conda Forge}
+repository?}
 
-\item{channel}{An optional character vector of Conda channels to include.}
+\item{channel}{An optional character vector of Conda channels to include.
+When specified, the \code{forge} argument is ignored. If you need to
+specify multiple channels, including the Conda Forge, you can use
+\verb{c("conda-forge", <other channels>)}.}
 
 \item{pip}{\code{TRUE} to use pip (defaults to \code{FALSE})}
 

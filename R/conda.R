@@ -140,8 +140,14 @@ conda_remove <- function(envname, packages = NULL, conda = "auto") {
   }
 }
 
-#' @param forge Include the [Conda Forge](https://conda-forge.org/) repository.
+#' @param forge Boolean; include the [Conda Forge](https://conda-forge.org/)
+#'   repository?
+#'   
 #' @param channel An optional character vector of Conda channels to include.
+#'   When specified, the `forge` argument is ignored. If you need to
+#'   specify multiple channels, including the Conda Forge, you can use
+#'   `c("conda-forge", <other channels>)`.
+#'
 #' @param pip_ignore_installed Ignore installed versions when using pip. This is
 #'   `TRUE` by default so that specific package versions can be installed even
 #'   if they are downgrades. The `FALSE` option is useful for situations where
@@ -202,10 +208,12 @@ conda_install <- function(envname = NULL,
   args <- conda_args("install", envname)
   
   # add user-requested channels
-  if (forge)
-    channel <- c("conda-forge", setdiff(channel, "conda-forge"))
+  channels <- if (length(channel))
+    channel
+  else if (forge)
+    "conda-forge"
   
-  for (ch in channel)
+  for (ch in channels)
     args <- c(args, "-c", ch)
     
   args <- c(args, python_package, packages)

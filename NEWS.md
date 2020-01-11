@@ -1,6 +1,11 @@
 
 ## reticulate 1.15 (UNDER DEVELOPMENT)
 
+- `reticulate::configure_environment()` now only allows environment
+  configuration within interactive R sessions, and ensures that the
+  version of Python that has been initialized by Python is indeed
+  associated with a virtual environment or Conda environment.
+
 - `reticulate` now automatically flushes output written to Python's
   stdout / stderr, as a top-level task added by `addTaskCallback()`.
   This behavior is controlled with the `options(reticulate.autoflush)`

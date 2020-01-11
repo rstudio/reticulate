@@ -35,11 +35,23 @@
 #' @param package The name of a package to configure. When `NULL`, `reticulate`
 #'   will instead look at all loaded packages and discover their associated
 #'   Python requirements.
-#'
+#'   
 #' @export
 configure_environment <- function(package = NULL) {
   
   if (!is_python_initialized())
+    return(FALSE)
+  
+  # allow users to opt out
+  configure_ok <- Sys.getenv("RETICULATE_AUTOCONFIGURE", unset = "TRUE")
+  if (configure_ok %in% c("FALSE", "False", "0"))
+    return(FALSE)
+  
+  # disallow environment configuration when not using a Python environment
+  config <- py_config()
+  root <- dirname(dirname(config$python))
+  ok <- is_virtualenv(root) || is_condaenv(root)
+  if (!ok)
     return(FALSE)
   
   # find Python requirements  

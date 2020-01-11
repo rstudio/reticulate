@@ -4,12 +4,17 @@
 \alias{configure_environment}
 \title{Configure a Python Environment}
 \usage{
-configure_environment(package = NULL)
+configure_environment(package = NULL, force = FALSE)
 }
 \arguments{
 \item{package}{The name of a package to configure. When \code{NULL}, \code{reticulate}
 will instead look at all loaded packages and discover their associated
 Python requirements.}
+
+\item{force}{Boolean; force configuration of the Python environment? Note
+that \code{configure_environment()} is a no-op within non-interactive \R
+sessions. Use this if you require automatic environment configuration, e.g.
+when testing a package on a continuous integration service.}
 }
 \description{
 Configure a Python environment, satisfying the Python dependencies of any

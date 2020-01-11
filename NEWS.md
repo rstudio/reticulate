@@ -1,6 +1,12 @@
 
 ## reticulate 1.15 (UNDER DEVELOPMENT)
 
+- `reticulate` now throws an error if a package attempts to initialize
+  Python within `.onLoad()` or `.onAttach()`. R packages must ensure that
+  Python is initialized only on-demand by the user, and not forced by the
+  package itself. This was documented in `vignette("python_packages")`,
+  but is now enforced explicitly by `reticulate`.
+  
 - `reticulate` now automatically flushes output written to Python's
   stdout / stderr, as a top-level task added by `addTaskCallback()`.
   This behavior is controlled with the `options(reticulate.autoflush)`

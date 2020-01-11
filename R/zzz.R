@@ -13,7 +13,7 @@
 "py"
 
 .onLoad <- function(libname, pkgname) {
-  
+ 
   main <- NULL
   makeActiveBinding("py", env = asNamespace(pkgname), function() {
 
@@ -59,4 +59,3 @@
   if (is_python_initialized())
     py_finalize()
 }
-

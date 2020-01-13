@@ -2436,7 +2436,16 @@ SEXP py_convert_pandas_series(PyObjectRef series) {
      // convert to POSIX timestamp, taking into account time zone (if set)
      PyObjectPtr timestamp(PyObject_CallMethod(values, "timestamp", NULL));
      
-     Datetime R_timestamp = py_to_r(timestamp, true);
+     Datetime R_timestamp;
+     
+     // NaT will have thrown "NaTType does not support timestamp"
+     if (PyErr_Occurred()) {
+       R_timestamp = R_NaN;
+       PyErr_Clear();
+     } else {
+       R_timestamp = py_to_r(timestamp, true);
+     }
+     
      posixct.push_back(R_timestamp);
     }
     

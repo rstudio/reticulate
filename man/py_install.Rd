@@ -4,15 +4,8 @@
 \alias{py_install}
 \title{Install Python packages}
 \usage{
-py_install(
-  packages,
-  envname = NULL,
-  method = c("auto", "virtualenv", "conda"),
-  conda = "auto",
-  python_version = NULL,
-  pip = FALSE,
-  ...
-)
+py_install(packages, envname = NULL, method = c("auto", "virtualenv",
+  "conda"), conda = "auto", python_version = NULL, pip = FALSE, ...)
 }
 \arguments{
 \item{packages}{A vector of Python packages to install.}

@@ -4,7 +4,8 @@
 \alias{as.character.python.builtin.bytes}
 \title{Convert Python bytes to an R character vector}
 \usage{
-\method{as.character}{python.builtin.bytes}(x, encoding = "utf-8", errors = "strict", ...)
+\method{as.character}{python.builtin.bytes}(x, encoding = "utf-8",
+  errors = "strict", ...)
 }
 \arguments{
 \item{x}{object to be coerced or tested.}

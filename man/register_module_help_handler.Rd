@@ -9,7 +9,7 @@ register_module_help_handler(module, handler)
 \arguments{
 \item{module}{Name of a root Python module}
 
-\item{handler}{Handler function: \verb{function(name, subtopic = NULL)}. The name
+\item{handler}{Handler function: \code{function(name, subtopic = NULL)}. The name
 will be the fully qualfied name of a Python object (module, function, or
 class). The \code{subtopic} is optional and is currently used only for methods
 within classes.}

@@ -1,6 +1,9 @@
 
 ## reticulate 1.15 (UNDER DEVELOPMENT)
 
+- `reticulate` gains the `py_ellipsis()` function, used to access
+  the Python `Ellipsis` builtin. (#700, @skeydan)
+
 - `reticulate` now automatically flushes output written to Python's
   stdout / stderr, as a top-level task added by `addTaskCallback()`.
   This behavior is controlled with the `options(reticulate.autoflush)`

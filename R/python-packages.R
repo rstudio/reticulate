@@ -36,10 +36,35 @@
 #'   will instead look at all loaded packages and discover their associated
 #'   Python requirements.
 #'
+#' @param force Boolean; force configuration of the Python environment? Note
+#'   that `configure_environment()` is a no-op within non-interactive \R
+#'   sessions. Use this if you require automatic environment configuration, e.g.
+#'   when testing a package on a continuous integration service.
+#'
 #' @export
-configure_environment <- function(package = NULL) {
+configure_environment <- function(package = NULL, force = FALSE) {
   
+  # no-op when Python has not yet been initialized
   if (!is_python_initialized())
+    return(FALSE)
+  
+  # allow opt-out through envvar
+  auto <- Sys.getenv("RETICULATE_AUTOCONFIGURE", unset = "TRUE")
+  if (auto %in% c("FALSE", "False", "0"))
+    return(FALSE)
+  
+  # disallow in non-interactive R sessions unless forced
+  # (even if force is set, do not allow unless user has explicitly
+  # promised they're not on CRAN)
+  ok <- interactive() || (force && identical(Sys.getenv("NOT_CRAN"), "true"))
+  if (!ok)
+    return(FALSE)
+  
+  # disallow environment configuration when not using a Python environment
+  config <- py_config()
+  root <- dirname(dirname(config$python))
+  ok <- is_virtualenv(root) || is_condaenv(root)
+  if (!ok)
     return(FALSE)
   
   # find Python requirements  

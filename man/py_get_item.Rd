@@ -19,11 +19,10 @@ throw an error.}
 Retrieve an item from a Python object, similar to how
 \code{x[name]} might be used in Python code to access an
 item indexed by \code{key} on an object \code{x}. The object's
-\verb{__getitem__} method will be called.
+\code{__getitem__} method will be called.
 }
 \seealso{
-Other item-related APIs: 
-\code{\link{py_del_item}()},
-\code{\link{py_set_item}()}
+Other item-related APIs: \code{\link{py_del_item}},
+  \code{\link{py_set_item}}
 }
 \concept{item-related APIs}

@@ -5,7 +5,8 @@
 \alias{py_function_docs}
 \title{Scaffold R wrappers for Python functions}
 \usage{
-py_function_wrapper(python_function, r_prefix = NULL, r_function = NULL)
+py_function_wrapper(python_function, r_prefix = NULL,
+  r_function = NULL)
 
 py_function_docs(python_function)
 }

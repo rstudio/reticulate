@@ -3,6 +3,7 @@
 \docType{package}
 \name{reticulate}
 \alias{reticulate}
+\alias{reticulate-package}
 \title{R Interface to Python}
 \description{
 R interface to Python modules, classes, and functions. When calling into

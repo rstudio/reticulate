@@ -17,17 +17,9 @@ conda_create(envname = NULL, packages = "python", conda = "auto")
 
 conda_remove(envname, packages = NULL, conda = "auto")
 
-conda_install(
-  envname = NULL,
-  packages,
-  forge = TRUE,
-  channel = character(),
-  pip = FALSE,
-  pip_ignore_installed = FALSE,
-  conda = "auto",
-  python_version = NULL,
-  ...
-)
+conda_install(envname = NULL, packages, forge = TRUE,
+  channel = character(), pip = FALSE, pip_ignore_installed = FALSE,
+  conda = "auto", python_version = NULL, ...)
 
 conda_binary(conda = "auto")
 
@@ -49,7 +41,7 @@ repository?}
 \item{channel}{An optional character vector of Conda channels to include.
 When specified, the \code{forge} argument is ignored. If you need to
 specify multiple channels, including the Conda Forge, you can use
-\verb{c("conda-forge", <other channels>)}.}
+\code{c("conda-forge", <other channels>)}.}
 
 \item{pip}{\code{TRUE} to use pip (defaults to \code{FALSE})}
 

@@ -1210,6 +1210,14 @@ py_eval <- function(code, convert = TRUE) {
   py_eval_impl(code, convert)
 }
 
+#' The builtin constant Ellipsis
+#' 
+#' @export
+py_ellipsis <- function() {
+  builtins <- import_builtins(convert = FALSE)
+  builtins$Ellipsis
+}
+
 py_callable_as_function <- function(callable, convert) {
   
   force(callable)

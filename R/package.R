@@ -170,6 +170,11 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
     }
 
   })
+  
+  # notify front-end (if any) that Python has been initialized
+  callback <- getOption("reticulate.initialized")
+  if (is.function(callback))
+    callback()
 
   # return config
   config

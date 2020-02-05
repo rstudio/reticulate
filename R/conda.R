@@ -242,6 +242,8 @@ conda_binary <- function(conda = "auto") {
     conda <- conda[[1]]
   }
 
+  conda <- normalizePath(conda, winslash = "/", mustWork = FALSE)
+  
   # if the user has requested a conda binary in the 'condabin' folder,
   # try to find and use its sibling in the 'bin' folder instead as
   # we rely on other tools typically bundled in the 'bin' folder

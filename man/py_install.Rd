@@ -4,8 +4,15 @@
 \alias{py_install}
 \title{Install Python packages}
 \usage{
-py_install(packages, envname = NULL, method = c("auto", "virtualenv",
-  "conda"), conda = "auto", python_version = NULL, pip = FALSE, ...)
+py_install(
+  packages,
+  envname = NULL,
+  method = c("auto", "virtualenv", "conda"),
+  conda = "auto",
+  python_version = NULL,
+  pip = FALSE,
+  ...
+)
 }
 \arguments{
 \item{packages}{A vector of Python packages to install.}
@@ -20,8 +27,8 @@ method that will work in the local environment. Change the default to force
 a specific installation method. Note that the "virtualenv" method is not
 available on Windows.}
 
-\item{conda}{Path to conda executable (or "auto" to find conda using the
-PATH and other conventional install locations).}
+\item{conda}{The path to a \code{conda} executable. Use \code{"auto"} to allow \code{reticulate} to
+automatically find an appropriate \code{conda} binary. See \strong{Finding Conda} for more details.}
 
 \item{python_version}{The requested Python version. Ignored when attempting
 to install with a Python virtual environment.}

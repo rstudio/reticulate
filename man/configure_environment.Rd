@@ -23,9 +23,9 @@ loaded \R packages.
 \details{
 Normally, this function should only be used by package authors, who want
 to ensure that their package dependencies are installed in the active
-Python environment. For example:\preformatted{.onLoad <- function(libname, pkgname) {
+Python environment. For example:\preformatted{.onLoad <- function(libname, pkgname) \{
   reticulate::configure_environment(pkgname)
-}
+\}
 }
 
 If the Python session has not yet been initialized, or if the user is not
@@ -37,7 +37,7 @@ If you'd like to disable \code{reticulate}'s auto-configure behavior altogether,
 you can set the environment variable:\preformatted{RETICULATE_AUTOCONFIGURE = FALSE
 }
 
-e.g. in your \code{~/.Renviron} or similar.
+e.g. in your \verb{~/.Renviron} or similar.
 
 Note that, in the case where the Python session has not yet been initialized,
 \code{reticulate} will automatically ensure your required Python dependencies

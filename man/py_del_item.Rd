@@ -16,10 +16,11 @@ The (mutated) object \code{x}, invisibly.
 }
 \description{
 Delete an item associated with a Python object, as
-through its \code{__delitem__} method.
+through its \verb{__delitem__} method.
 }
 \seealso{
-Other item-related APIs: \code{\link{py_get_item}},
-  \code{\link{py_set_item}}
+Other item-related APIs: 
+\code{\link{py_get_item}()},
+\code{\link{py_set_item}()}
 }
 \concept{item-related APIs}

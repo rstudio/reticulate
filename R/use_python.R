@@ -80,14 +80,29 @@ use_condaenv <- function(condaenv = NULL, conda = "auto", required = FALSE) {
   conda_envs <- conda_list(conda)
 
   # look for one with that name
-  conda_env_python <- subset(conda_envs, conda_envs$name == condaenv)$python
-  if (length(conda_env_python) == 0 && required)
-    stop("Unable to locate conda environment '", condaenv, "'.")
-
-  if (!is.null(condaenv))
-    use_python(conda_env_python[[1]], required = required)
+  matches <- which(conda_envs$name == condaenv)
+  
+  # if we had no matches, then either fail or return early as appropriate
+  if (length(matches) == 0) {
+    if (required)
+      stop("Unable to locate conda environment '", condaenv, "'.")
+    return(invisible(NULL))
+  }
+  
+  # check for multiple matches (this could happen if the user has multiple
+  # Conda installations, or multiple environment paths)
+  envs <- conda_envs[matches, ]
+  if (nrow(envs) > 1) {
+    output <- paste(capture.output(print(envs)), collapse = "\n")
+    warning("multiple Conda environments found; the first-listed will be chosen.\n", output)
+  }
+  
+  # we now have a copy of Python to use -- add it to the list
+  python <- envs$python[[1]]
+  use_python(python, required = required)
 
   invisible(NULL)
+  
 }
 
 #' @rdname use_python

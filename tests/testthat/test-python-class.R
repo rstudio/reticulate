@@ -49,7 +49,7 @@ test_that("Can inherit from a Python class", {
   skip_if_no_python()
   
   py <- reticulate::py_run_string("
-class Person:
+class Person(object):
   def __init__ (self, name):
     self.name = name
 ")
@@ -72,11 +72,11 @@ test_that("Can inherit from multiple Python classes", {
   skip_if_no_python()
   
   py <- reticulate::py_run_string("
-class Clock:
+class Clock(object):
   def __init__ (self, time):
     self.time = time
     
-class Calendar:
+class Calendar(object):
   def __init__ (self, date):
     self.date = date
 ")
@@ -158,7 +158,7 @@ test_that("Properties are automatically converted in inherited classes", {
   
   bt <- import_builtins(convert = FALSE)
   p <- py_run_string("
-class Base:
+class Base(object):
   def __init__ (self, x):
     self.x = 1
 ", convert = FALSE)

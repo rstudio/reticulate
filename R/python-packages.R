@@ -67,7 +67,7 @@ configure_environment <- function(package = NULL, force = FALSE) {
   if (!ok)
     return(FALSE)
   
-  # find Python requirements  
+  # find Python requirements
   reqs <- python_package_requirements(package)
   if (length(reqs) == 0)
     return(FALSE)
@@ -137,7 +137,7 @@ configure_environment <- function(package = NULL, force = FALSE) {
       
       # read installed packages lazily
       if (is.null(pip_installed_packages)) {
-        pip_installed_packages <- pip_freeze(python = python)
+        pip_installed_packages <- pip_freeze(python = config$python)
       }
       
       # construct requirement string
@@ -156,7 +156,7 @@ configure_environment <- function(package = NULL, force = FALSE) {
     } else {
       
       # read installed packages lazily
-      envpath <- dirname(dirname(python))
+      envpath <- dirname(dirname(config$python))
       conda <- miniconda_conda()
       
       if (is.null(conda_installed_packages)) {

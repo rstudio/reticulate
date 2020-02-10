@@ -319,7 +319,7 @@ conda_python <- function(envname = NULL, conda = "auto") {
 find_conda <- function() {
   
   # allow specification of conda executable
-  conda <- getOption("reticulate.conda")
+  conda <- getOption("reticulate.conda_binary")
   if (!is.null(conda))
     return(conda)
   

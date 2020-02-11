@@ -1,6 +1,9 @@
 
 ## reticulate 1.15 (UNDER DEVELOPMENT)
 
+- `reticulate` now searches for Conda binaries in /opt/anaconda and
+  /opt/miniconda. (#713)
+
 - The `conda` executable used by `reticulate` can now be configured using an R
   option. Use `options(reticulate.conda_binary = <...>)` to force `reticulate`
   to use a particular `conda` executable.

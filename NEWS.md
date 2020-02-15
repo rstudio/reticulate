@@ -1,7 +1,100 @@
 
-## reticulate 1.14 (UNDER DEVELOPMENT)
+## reticulate 1.15 (UNDER DEVELOPMENT)
 
-Install the development version of reticulate with `remotes::install_github("rstudio/reticulate")`.
+- `reticulate` now searches for Conda binaries in /opt/anaconda and
+  /opt/miniconda. (#713)
+
+- The `conda` executable used by `reticulate` can now be configured using an R
+  option. Use `options(reticulate.conda_binary = <...>)` to force `reticulate`
+  to use a particular `conda` executable.
+
+- `reticulate::use_condaenv()` better handles cases where no
+  matching environment could be found. (#687)
+  
+- `reticulate` gains the `py_ellipsis()` function, used to access
+  the Python `Ellipsis` builtin. (#700, @skeydan)
+
+- `reticulate::configure_environment()` now only allows environment
+  configuration within interactive R sessions, and ensures that the
+  version of Python that has been initialized by Python is indeed
+  associated with a virtual environment or Conda environment.
+  Use `reticulate::configure_environment(force = TRUE)` to force
+  environment configuration within non-interactive R sessions.
+
+- `reticulate` now automatically flushes output written to Python's
+  stdout / stderr, as a top-level task added by `addTaskCallback()`.
+  This behavior is controlled with the `options(reticulate.autoflush)`
+  option. (#685)
+
+- `reticulate::install_miniconda()` no longer attempts to modify the
+  system PATH or registry when installing Miniconda. (#681)
+
+- `reticulate::conda_install()` gains the `channel` argument, allowing
+  custom Conda channels to be used when installing Python packages.
+  (#443)
+
+- `reticulate::configure_environment()` can now be used to configure a
+  non-Miniconda Python environment. (#682; @skeydan)
+
+- Fixed an issue where matplotlib plots would be included using absolute
+  paths, which fails in non-standalone documents rendered to HTML. (#669)
+
+- Fixed an issue where `reticulate` would attempt to flush a non-existent
+  stdout / stderr stream. (#584)
+
+## reticulate 1.14
+
+- Fixed an issue where `rmarkdown::render()` could fail when including
+  matplotlib plots when `knit_root_dir` is set. (#645)
+
+- `reticulate` now scans for Conda installations within the ~/opt folder,
+  as per the updated installers distributed for macOS. (#661)
+
+- Python classes can now be defined directly from R using the `PyClass()`
+  function. (#635; @dfalbel)
+
+- reticulate is now compatible with Python 3.9. (#630, @skeydan)
+
+- Pandas DataFrames with a large number of columns should now be converted to
+  R data.frames more quickly. (#620, @skeydan)
+
+- Python loggers are now better behaved in the Python chunks of R Markdown
+  documents. (#386)
+
+- reticulate will now attempt to bind to `python3` rather than `python`,
+  when no other version of Python has been explicitly requested by
+  e.g. `use_python()`.
+
+- reticulate now provides R hooks for Python's `input()` and `raw_input()`
+  functions. It should now be possible to read user input from Python scripts
+  loaded by reticulate. (#610)
+
+- `reticulate` now more consistently normalizes the paths reported by
+  `py_config()`. (#609)
+
+- `reticulate` now provides a mechanism for allowing client packages to declare
+  their Python package dependencies. Packages should declare the Python packages
+  they require as part of the `Config/reticulate` field in their `DESCRIPTION` file.
+  Currently, this only activated when using Miniconda; as the assumption is that
+  users will otherwise prefer to manually manage their Python environments.
+  Please see `vignette("python_dependencies")` for more details.
+
+- `reticulate` will now prompt the user to create and use a
+  [Miniconda](https://docs.conda.io/en/latest/miniconda.html) environment
+  when no other suitable Python environment has already been requested. This
+  should help ease some of the trouble in setting up a Python environment on
+  different platforms. The installer code was contributed by @hafen, from the
+  [rminiconda](https://github.com/hafen/rminiconda) package.
+
+- Fixed an issue where `virtualenv_create(..., python = "<python>")` could
+  fail to use the requested version of Python when `venv` is not installed.
+  (#399)
+
+- Fixed an issue where iterable Python objects could not be iterated with
+  `iter_next()` due to a missing class. (#603)
+
+- Fixed an issue where Conda environments could be mis-detected as
+  virtual environments.
 
 - R functions wrapping Python functions now inherit the formal arguments
   as specified by Python, making autocompletion more reliable.
@@ -13,7 +106,7 @@ Install the development version of reticulate with `remotes::install_github("rst
 - Properly check for NULL keyword arguments in `call_r_function()`.
   (#562, @dfalbel)
 
-## reticulate 1.13 (CRAN)
+## reticulate 1.13
 
 - Fixed an issue where subsetting with `[.python.builtin.object` could
   fail when `convert = TRUE` is set on the associated Python object.

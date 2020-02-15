@@ -1,7 +1,5 @@
 context("envs")
 
-source("helper-utils.R")
-
 test_that("conda utility functions work as expected", {
   skip_if_no_test_environments()
 

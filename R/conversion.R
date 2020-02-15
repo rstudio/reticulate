@@ -159,20 +159,7 @@ py_to_r.datetime.datetime <- function(x) {
 
 #' @export
 r_to_py.Date <- function(x, convert = FALSE) {
-
-  datetime <- import("datetime", convert = FALSE)
-  items <- lapply(x, function(item) {
-    iso <- strsplit(format(item), "-", fixed = TRUE)[[1]]
-    year <- as.integer(iso[[1]])
-    month <- as.integer(iso[[2]])
-    day <- as.integer(iso[[3]])
-    datetime$date(year, month, day)
-  })
-
-  if (length(items) == 1)
-    items[[1]]
-  else
-    r_to_py_impl(items, convert)
+  r_convert_date(x, convert)
 }
 
 #' @export
@@ -253,20 +240,8 @@ r_to_py.data.frame <- function(x, convert = FALSE) {
   pd <- import("pandas", convert = FALSE)
 
   # manually convert each column to associated Python vector type
-  columns <- lapply(x, function(column) {
-    if (is.factor(column)) {
-      pd$Categorical(as.character(column),
-                     categories = as.list(levels(column)),
-                     ordered = inherits(column, "ordered"))
-    } else if (is.numeric(column) || is.character(column)) {
-      np_array(column)
-    } else if (inherits(column, "POSIXt")) {
-      np_array(as.numeric(column) * 1E9, dtype = "datetime64[ns]")
-    } else {
-      r_to_py(column)
-    }
-  })
-
+  columns <- r_convert_dataframe(x, convert = convert)
+  
   # generate DataFrame from dictionary
   pdf <- pd$DataFrame$from_dict(columns)
 
@@ -294,10 +269,9 @@ py_to_r.pandas.core.frame.DataFrame <- function(x) {
 
   # extract numpy arrays associated with each column
   columns <- x$columns$values
-  converted <- lapply(seq_along(columns) - 1L, function(i) {
-    column <- columns[[i]]
-    py_to_r(py_get_item(x, column)$values)
-  })
+  
+  # delegate to c++
+  converted <- py_convert_pandas_df(x)
   names(converted) <- py_to_r(x$columns$format())
 
   # clean up converted objects
@@ -405,6 +379,7 @@ dim.pandas.core.frame.DataFrame <- function(x) {
 }
 
 # Scipy sparse matrices
+#' @importFrom Matrix Matrix
 
 #' @export
 dim.scipy.sparse.base.spmatrix <- function(x) {
@@ -535,4 +510,23 @@ py_to_r.scipy.sparse.coo.coo_matrix <- function(x) {
       j = as.integer(as_r_value(x$col)),
       x = as.vector(as_r_value(x$data)),
       Dim = dim(x))
+}
+
+
+
+r_convert_dataframe_column <- function(column, convert) {
+  
+  pd <- import("pandas", convert = FALSE)
+  if (is.factor(column)) {
+    pd$Categorical(as.character(column),
+                   categories = as.list(levels(column)),
+                   ordered = inherits(column, "ordered"))
+  } else if (is.numeric(column) || is.character(column)) {
+    np_array(column)
+  } else if (inherits(column, "POSIXt")) {
+    np_array(as.numeric(column) * 1E9, dtype = "datetime64[ns]")
+  } else {
+    r_to_py(column)
+  }
+  
 }

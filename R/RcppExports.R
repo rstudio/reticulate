@@ -34,8 +34,8 @@ py_is_callable <- function(x) {
     .Call(`_reticulate_py_is_callable`, x)
 }
 
-py_get_formals <- function(func, convert) {
-    .Call(`_reticulate_py_get_formals`, func, convert)
+py_get_formals <- function(func) {
+    .Call(`_reticulate_py_get_formals`, func)
 }
 
 r_to_py_impl <- function(object, convert) {
@@ -113,12 +113,20 @@ py_has_attr_impl <- function(x, name) {
     .Call(`_reticulate_py_has_attr_impl`, x, name)
 }
 
-py_get_attr_impl <- function(x, name, silent = FALSE) {
-    .Call(`_reticulate_py_get_attr_impl`, x, name, silent)
+py_get_attr_impl <- function(x, key, silent = FALSE) {
+    .Call(`_reticulate_py_get_attr_impl`, x, key, silent)
+}
+
+py_get_item_impl <- function(x, key, silent = FALSE) {
+    .Call(`_reticulate_py_get_item_impl`, x, key, silent)
 }
 
 py_set_attr_impl <- function(x, name, value) {
     invisible(.Call(`_reticulate_py_set_attr_impl`, x, name, value))
+}
+
+py_set_item_impl <- function(x, key, val) {
+    invisible(.Call(`_reticulate_py_set_item_impl`, x, key, val))
 }
 
 py_get_attribute_types <- function(x, attributes) {
@@ -145,8 +153,8 @@ py_dict_get_item <- function(dict, key) {
     .Call(`_reticulate_py_dict_get_item`, dict, key)
 }
 
-py_dict_set_item <- function(dict, item, value) {
-    invisible(.Call(`_reticulate_py_dict_set_item`, dict, item, value))
+py_dict_set_item <- function(dict, key, val) {
+    invisible(.Call(`_reticulate_py_dict_set_item`, dict, key, val))
 }
 
 py_dict_length <- function(dict) {
@@ -199,6 +207,22 @@ py_run_file_impl <- function(file, local = FALSE, convert = TRUE) {
 
 py_eval_impl <- function(code, convert = TRUE) {
     .Call(`_reticulate_py_eval_impl`, code, convert)
+}
+
+py_convert_pandas_series <- function(series) {
+    .Call(`_reticulate_py_convert_pandas_series`, series)
+}
+
+py_convert_pandas_df <- function(df) {
+    .Call(`_reticulate_py_convert_pandas_df`, df)
+}
+
+r_convert_dataframe <- function(dataframe, convert) {
+    .Call(`_reticulate_r_convert_dataframe`, dataframe, convert)
+}
+
+r_convert_date <- function(dates, convert) {
+    .Call(`_reticulate_r_convert_date`, dates, convert)
 }
 
 readline <- function(prompt) {

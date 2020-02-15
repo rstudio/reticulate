@@ -69,14 +69,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // py_get_formals
-SEXP py_get_formals(PyObjectRef func, bool convert);
-RcppExport SEXP _reticulate_py_get_formals(SEXP funcSEXP, SEXP convertSEXP) {
+SEXP py_get_formals(PyObjectRef func);
+RcppExport SEXP _reticulate_py_get_formals(SEXP funcSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< PyObjectRef >::type func(funcSEXP);
-    Rcpp::traits::input_parameter< bool >::type convert(convertSEXP);
-    rcpp_result_gen = Rcpp::wrap(py_get_formals(func, convert));
+    rcpp_result_gen = Rcpp::wrap(py_get_formals(func));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -238,15 +237,28 @@ BEGIN_RCPP
 END_RCPP
 }
 // py_get_attr_impl
-PyObjectRef py_get_attr_impl(PyObjectRef x, const std::string& name, bool silent);
-RcppExport SEXP _reticulate_py_get_attr_impl(SEXP xSEXP, SEXP nameSEXP, SEXP silentSEXP) {
+PyObjectRef py_get_attr_impl(PyObjectRef x, const std::string& key, bool silent);
+RcppExport SEXP _reticulate_py_get_attr_impl(SEXP xSEXP, SEXP keySEXP, SEXP silentSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< PyObjectRef >::type x(xSEXP);
-    Rcpp::traits::input_parameter< const std::string& >::type name(nameSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type key(keySEXP);
     Rcpp::traits::input_parameter< bool >::type silent(silentSEXP);
-    rcpp_result_gen = Rcpp::wrap(py_get_attr_impl(x, name, silent));
+    rcpp_result_gen = Rcpp::wrap(py_get_attr_impl(x, key, silent));
+    return rcpp_result_gen;
+END_RCPP
+}
+// py_get_item_impl
+PyObjectRef py_get_item_impl(PyObjectRef x, RObject key, bool silent);
+RcppExport SEXP _reticulate_py_get_item_impl(SEXP xSEXP, SEXP keySEXP, SEXP silentSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< PyObjectRef >::type x(xSEXP);
+    Rcpp::traits::input_parameter< RObject >::type key(keySEXP);
+    Rcpp::traits::input_parameter< bool >::type silent(silentSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_get_item_impl(x, key, silent));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -259,6 +271,18 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const std::string& >::type name(nameSEXP);
     Rcpp::traits::input_parameter< RObject >::type value(valueSEXP);
     py_set_attr_impl(x, name, value);
+    return R_NilValue;
+END_RCPP
+}
+// py_set_item_impl
+void py_set_item_impl(PyObjectRef x, RObject key, RObject val);
+RcppExport SEXP _reticulate_py_set_item_impl(SEXP xSEXP, SEXP keySEXP, SEXP valSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< PyObjectRef >::type x(xSEXP);
+    Rcpp::traits::input_parameter< RObject >::type key(keySEXP);
+    Rcpp::traits::input_parameter< RObject >::type val(valSEXP);
+    py_set_item_impl(x, key, val);
     return R_NilValue;
 END_RCPP
 }
@@ -336,14 +360,14 @@ BEGIN_RCPP
 END_RCPP
 }
 // py_dict_set_item
-void py_dict_set_item(PyObjectRef dict, RObject item, RObject value);
-RcppExport SEXP _reticulate_py_dict_set_item(SEXP dictSEXP, SEXP itemSEXP, SEXP valueSEXP) {
+void py_dict_set_item(PyObjectRef dict, RObject key, RObject val);
+RcppExport SEXP _reticulate_py_dict_set_item(SEXP dictSEXP, SEXP keySEXP, SEXP valSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< PyObjectRef >::type dict(dictSEXP);
-    Rcpp::traits::input_parameter< RObject >::type item(itemSEXP);
-    Rcpp::traits::input_parameter< RObject >::type value(valueSEXP);
-    py_dict_set_item(dict, item, value);
+    Rcpp::traits::input_parameter< RObject >::type key(keySEXP);
+    Rcpp::traits::input_parameter< RObject >::type val(valSEXP);
+    py_dict_set_item(dict, key, val);
     return R_NilValue;
 END_RCPP
 }
@@ -498,6 +522,52 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// py_convert_pandas_series
+SEXP py_convert_pandas_series(PyObjectRef series);
+RcppExport SEXP _reticulate_py_convert_pandas_series(SEXP seriesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< PyObjectRef >::type series(seriesSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_convert_pandas_series(series));
+    return rcpp_result_gen;
+END_RCPP
+}
+// py_convert_pandas_df
+SEXP py_convert_pandas_df(PyObjectRef df);
+RcppExport SEXP _reticulate_py_convert_pandas_df(SEXP dfSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< PyObjectRef >::type df(dfSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_convert_pandas_df(df));
+    return rcpp_result_gen;
+END_RCPP
+}
+// r_convert_dataframe
+PyObjectRef r_convert_dataframe(RObject dataframe, bool convert);
+RcppExport SEXP _reticulate_r_convert_dataframe(SEXP dataframeSEXP, SEXP convertSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< RObject >::type dataframe(dataframeSEXP);
+    Rcpp::traits::input_parameter< bool >::type convert(convertSEXP);
+    rcpp_result_gen = Rcpp::wrap(r_convert_dataframe(dataframe, convert));
+    return rcpp_result_gen;
+END_RCPP
+}
+// r_convert_date
+PyObjectRef r_convert_date(DateVector dates, bool convert);
+RcppExport SEXP _reticulate_r_convert_date(SEXP datesSEXP, SEXP convertSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< DateVector >::type dates(datesSEXP);
+    Rcpp::traits::input_parameter< bool >::type convert(convertSEXP);
+    rcpp_result_gen = Rcpp::wrap(r_convert_date(dates, convert));
+    return rcpp_result_gen;
+END_RCPP
+}
 // readline
 SEXP readline(const std::string& prompt);
 RcppExport SEXP _reticulate_readline(SEXP promptSEXP) {
@@ -517,7 +587,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_reticulate_py_last_error", (DL_FUNC) &_reticulate_py_last_error, 0},
     {"_reticulate_py_clear_last_error", (DL_FUNC) &_reticulate_py_clear_last_error, 0},
     {"_reticulate_py_is_callable", (DL_FUNC) &_reticulate_py_is_callable, 1},
-    {"_reticulate_py_get_formals", (DL_FUNC) &_reticulate_py_get_formals, 2},
+    {"_reticulate_py_get_formals", (DL_FUNC) &_reticulate_py_get_formals, 1},
     {"_reticulate_r_to_py_impl", (DL_FUNC) &_reticulate_r_to_py_impl, 2},
     {"_reticulate_py_activate_virtualenv", (DL_FUNC) &_reticulate_py_activate_virtualenv, 1},
     {"_reticulate_py_initialize", (DL_FUNC) &_reticulate_py_initialize, 7},
@@ -533,7 +603,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_reticulate_py_list_attributes_impl", (DL_FUNC) &_reticulate_py_list_attributes_impl, 1},
     {"_reticulate_py_has_attr_impl", (DL_FUNC) &_reticulate_py_has_attr_impl, 2},
     {"_reticulate_py_get_attr_impl", (DL_FUNC) &_reticulate_py_get_attr_impl, 3},
+    {"_reticulate_py_get_item_impl", (DL_FUNC) &_reticulate_py_get_item_impl, 3},
     {"_reticulate_py_set_attr_impl", (DL_FUNC) &_reticulate_py_set_attr_impl, 3},
+    {"_reticulate_py_set_item_impl", (DL_FUNC) &_reticulate_py_set_item_impl, 3},
     {"_reticulate_py_get_attribute_types", (DL_FUNC) &_reticulate_py_get_attribute_types, 2},
     {"_reticulate_py_ref_to_r_with_convert", (DL_FUNC) &_reticulate_py_ref_to_r_with_convert, 2},
     {"_reticulate_py_ref_to_r", (DL_FUNC) &_reticulate_py_ref_to_r, 1},
@@ -554,6 +626,10 @@ static const R_CallMethodDef CallEntries[] = {
     {"_reticulate_py_run_string_impl", (DL_FUNC) &_reticulate_py_run_string_impl, 3},
     {"_reticulate_py_run_file_impl", (DL_FUNC) &_reticulate_py_run_file_impl, 3},
     {"_reticulate_py_eval_impl", (DL_FUNC) &_reticulate_py_eval_impl, 2},
+    {"_reticulate_py_convert_pandas_series", (DL_FUNC) &_reticulate_py_convert_pandas_series, 1},
+    {"_reticulate_py_convert_pandas_df", (DL_FUNC) &_reticulate_py_convert_pandas_df, 1},
+    {"_reticulate_r_convert_dataframe", (DL_FUNC) &_reticulate_r_convert_dataframe, 2},
+    {"_reticulate_r_convert_date", (DL_FUNC) &_reticulate_r_convert_date, 2},
     {"_reticulate_readline", (DL_FUNC) &_reticulate_readline, 1},
     {NULL, NULL, 0}
 };

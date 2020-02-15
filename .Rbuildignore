@@ -2,10 +2,12 @@
 ^\.Rproj\.user$
 ^docs$
 ^images$
+^internal$
 ^issues$
 ^log$
 ^pkgdown$
 ^revdep$
+^tags$
 README.[R]?md
 README.html
 index.Rmd

@@ -114,6 +114,12 @@ typedef struct PyModuleDef{
   freefunc m_free;
 } PyModuleDef;
 
+typedef struct PyCompilerFlags{
+  int cf_flags;  
+  int cf_feature_version; 
+} PyCompilerFlags;
+
+typedef Py_ssize_t Py_hash_t;
 
 LIBPYTHON_EXTERN PyTypeObject* PyFunction_Type;
 LIBPYTHON_EXTERN PyTypeObject* PyModule_Type;
@@ -139,18 +145,19 @@ void initialize_type_objects(bool python3);
 
 #define Py_TYPE(ob) (((PyObject*)(ob))->ob_type)
 
-#define PyUnicode_Check(o) (Py_TYPE(o) == Py_TYPE(Py_Unicode))
-#define PyString_Check(o) (Py_TYPE(o) == Py_TYPE(Py_String))
-#define PyInt_Check(o)  (Py_TYPE(o) == Py_TYPE(Py_Int))
-#define PyLong_Check(o)  (Py_TYPE(o) == Py_TYPE(Py_Long))
-#define PyBool_Check(o) ((o == Py_False) | (o == Py_True))
-#define PyDict_Check(o) (Py_TYPE(o) == Py_TYPE(Py_Dict))
-#define PyFloat_Check(o) (Py_TYPE(o) == Py_TYPE(Py_Float))
-#define PyFunction_Check(op) ((PyTypeObject*)(Py_TYPE(op)) == PyFunction_Type)
-#define PyTuple_Check(o) (Py_TYPE(o) == Py_TYPE(Py_Tuple))
-#define PyList_Check(o) (Py_TYPE(o) == Py_TYPE(Py_List))
-#define PyComplex_Check(o) (Py_TYPE(o) == Py_TYPE(Py_Complex))
+#define PyUnicode_Check(o)   (Py_TYPE(o) == Py_TYPE(Py_Unicode))
+#define PyString_Check(o)    (Py_TYPE(o) == Py_TYPE(Py_String))
+#define PyInt_Check(o)       (Py_TYPE(o) == Py_TYPE(Py_Int))
+#define PyLong_Check(o)      (Py_TYPE(o) == Py_TYPE(Py_Long))
+#define PyDict_Check(o)      (Py_TYPE(o) == Py_TYPE(Py_Dict))
+#define PyFloat_Check(o)     (Py_TYPE(o) == Py_TYPE(Py_Float))
+#define PyTuple_Check(o)     (Py_TYPE(o) == Py_TYPE(Py_Tuple))
+#define PyList_Check(o)      (Py_TYPE(o) == Py_TYPE(Py_List))
+#define PyComplex_Check(o)   (Py_TYPE(o) == Py_TYPE(Py_Complex))
 #define PyByteArray_Check(o) (Py_TYPE(o) == Py_TYPE(Py_ByteArray))
+
+#define PyBool_Check(o)      ((o == Py_False) || (o == Py_True))
+#define PyFunction_Check(op) ((PyTypeObject*)(Py_TYPE(op)) == PyFunction_Type)
 
 LIBPYTHON_EXTERN void (*Py_Initialize)();
 LIBPYTHON_EXTERN int (*Py_IsInitialized)();
@@ -195,9 +202,18 @@ LIBPYTHON_EXTERN PyObject* (*PyObject_Call)(PyObject *callable_object,
 LIBPYTHON_EXTERN PyObject* (*PyObject_CallFunctionObjArgs)(PyObject *callable,
            ...);
 
+LIBPYTHON_EXTERN Py_ssize_t (*PyObject_Size)(PyObject*);
+LIBPYTHON_EXTERN PyObject* (*PyObject_GetAttr)(PyObject*, PyObject*);
+LIBPYTHON_EXTERN int (*PyObject_HasAttr)(PyObject*, PyObject*);
+LIBPYTHON_EXTERN int (*PyObject_SetAttr)(PyObject*, PyObject*, PyObject*);
+
 LIBPYTHON_EXTERN PyObject* (*PyObject_GetAttrString)(PyObject*, const char *);
 LIBPYTHON_EXTERN int (*PyObject_HasAttrString)(PyObject*, const char *);
 LIBPYTHON_EXTERN int (*PyObject_SetAttrString)(PyObject*, const char *, PyObject*);
+
+LIBPYTHON_EXTERN PyObject* (*PyObject_GetItem)(PyObject*, PyObject*);
+LIBPYTHON_EXTERN int (*PyObject_SetItem)(PyObject*, PyObject*, PyObject*);
+LIBPYTHON_EXTERN int (*PyObject_DelItem)(PyObject*, PyObject*);
 
 LIBPYTHON_EXTERN Py_ssize_t (*PyTuple_Size)(PyObject *);
 LIBPYTHON_EXTERN PyObject* (*PyTuple_GetItem)(PyObject *, Py_ssize_t);
@@ -313,6 +329,14 @@ LIBPYTHON_EXTERN void (*PySys_SetArgv_v3)(int, wchar_t **);
 
 LIBPYTHON_EXTERN void (*PySys_WriteStderr)(const char *format, ...);
 
+LIBPYTHON_EXTERN PyObject* (*PyObject_CallMethod)(PyObject *o, const char *name, const char *format, ...);
+LIBPYTHON_EXTERN PyObject* (*PySequence_GetItem)(PyObject *o, Py_ssize_t i);
+LIBPYTHON_EXTERN int (*PyObject_IsTrue)(PyObject *o);
+
+LIBPYTHON_EXTERN PyObject* (*Py_CompileStringExFlags)(const char *str, const char *filename, int start, PyCompilerFlags *flags, int optimize);
+
+LIBPYTHON_EXTERN void* (*PyCapsule_Import)(const char *name, int no_block);
+  
 #define PyObject_TypeCheck(o, tp) ((PyTypeObject*)Py_TYPE(o) == (tp)) || PyType_IsSubtype((PyTypeObject*)Py_TYPE(o), (tp))
 
 #define PyType_Check(o) PyObject_TypeCheck(o, PyType_Type)
@@ -693,5 +717,4 @@ LIBPYTHON_EXTERN PyThreadState* (*PyThreadState_Next)(PyThreadState*);
 } // namespace libpython
 
 #endif
-
 

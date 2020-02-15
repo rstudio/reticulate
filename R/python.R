@@ -63,18 +63,18 @@ import <- function(module, as = NULL, convert = TRUE, delay_load = FALSE) {
 
     # import the module
     hookName <- paste("reticulate", module, "load", sep = "::")
-    module <- py_module_import(module, convert = convert)
+    imported <- py_module_import(module, convert = convert)
 
     # run load hooks
     hooks <- getHook(hookName)
     for (hook in hooks)
-      tryCatch(hook(module), error = warning)
+      tryCatch(hook(imported), error = warning)
 
     # remove hooks (we only want to run on first import)
     setHook(hookName, list(), "replace")
 
     # return imported module
-    module
+    imported
   }
 
   # delay load case (wait until first access)
@@ -440,9 +440,15 @@ as.environment.python.builtin.object <- function(x) {
     }
   }
 
+  idx <- grepl(pattern, names)
+  names <- names[idx]
+  types <- types[idx]
+
   if (length(names) > 0) {
     # set types
-    attr(names, "types") <- types
+    oidx <- order(names)
+    names <- names[oidx]
+    attr(names, "types") <- types[oidx]
 
     # specify a help_handler
     attr(names, "helpHandler") <- "reticulate:::help_handler"
@@ -776,13 +782,15 @@ iterate <- function(it, f = base::identity, simplify = TRUE) {
 #' @rdname iterate
 #' @export
 iter_next <- function(it, completed = NULL) {
-
-  # check for iterator
-  if (!inherits(it, "python.builtin.iterator"))
-    stop("iterator function called with non-iterator argument", call. = FALSE)
-
-  # call iterator
+  
+  # TODO: would like to use PyIter_Check() but that is only implemented
+  # as a macro in Python 2.x and requires copying more headers
+  iterable <- py_has_attr(it, "__next__") || py_has_attr(it, "next")
+  if (!iterable)
+    stop("object is not iterable", call. = FALSE)
+  
   py_iter_next(it, completed)
+  
 }
 
 
@@ -899,17 +907,14 @@ py_get_item <- function(x, key, silent = FALSE) {
   ensure_python_initialized()
   if (py_is_module_proxy(x))
     py_resolve_module_proxy(x)
-
-  if (!py_has_attr(x, "__getitem__"))
-    stop("Python object has no '__getitem__' method", call. = FALSE)
-  getitem <- py_to_r(py_get_attr(x, "__getitem__", silent = FALSE))
-
-  item <- if (silent)
-    tryCatch(getitem(key), error = function(e) NULL)
-  else
-    getitem(key)
-
-  item
+ 
+  # NOTE: for backwards compatibility, we make sure to return an R NULL on error 
+  if (silent) {
+    tryCatch(py_get_item_impl(x, key, FALSE), error = function(e) NULL)
+  } else {
+    py_get_item_impl(x, key, FALSE)
+  }
+  
 }
 
 #' Set an item for a Python object
@@ -931,12 +936,7 @@ py_set_item <- function(x, name, value) {
   ensure_python_initialized()
   if (py_is_module_proxy(x))
     py_resolve_module_proxy(x)
-
-  if (!py_has_attr(x, "__setitem__"))
-    stop("Python object has no '__setitem__' method", call. = FALSE)
-  setitem <- py_to_r(py_get_attr(x, "__setitem__", silent = FALSE))
-
-  setitem(name, value)
+  py_set_item_impl(x, name, value)
   invisible(x)
 }
 
@@ -1140,49 +1140,19 @@ py_capture_output <- function(expr, type = c("stdout", "stderr")) {
 
   # get output tools helper functions
   output_tools <- import("rpytools.output")
-
-  # handle stdout
-  restore_stdout <- NULL
-  if ("stdout" %in% type) {
-    restore_stdout <- output_tools$start_stdout_capture()
-    on.exit({
-      if (!is.null(restore_stdout))
-        output_tools$end_stdout_capture(restore_stdout)
-    }, add = TRUE)
-  }
-
-  # handle stderr
-  restore_stderr <- NULL
-  if ("stderr" %in% type) {
-    restore_stderr <- output_tools$start_stderr_capture()
-    on.exit({
-      if (!is.null(restore_stderr))
-        output_tools$end_stderr_capture(restore_stderr)
-    }, add = TRUE)
-  }
+  
+  # scope output capture
+  capture_stdout <- "stdout" %in% type
+  capture_stderr <- "stderr" %in% type
+  output_tools$start_capture(capture_stdout, capture_stderr)
+  on.exit(output_tools$end_capture(capture_stdout, capture_stderr), add = TRUE)
 
   # evaluate the expression
   force(expr)
 
-  # collect the output
-  output <- ""
-  if (!is.null(restore_stdout)) {
-    std_out <- output_tools$end_stdout_capture(restore_stdout)
-    output <- paste0(output, std_out)
-    if (nzchar(std_out))
-      output <- paste0(output, "\n")
-    restore_stdout <- NULL
-  }
-  if (!is.null(restore_stderr)) {
-    std_err <- output_tools$end_stderr_capture(restore_stderr)
-    output <- paste0(output, std_err)
-    if (nzchar(std_err))
-      output <- paste0(output, "\n")
-    restore_stderr <- NULL
-  }
-
-  # return the output
-  output
+  # collect output
+  output_tools$collect_output()
+  
 }
 
 py_flush_output <- function() {
@@ -1191,11 +1161,14 @@ py_flush_output <- function() {
     return()
 
   sys <- import("sys", convert = TRUE)
-  sys$stdout$flush()
-  sys$stderr$flush()
+  
+  if (!is.null(sys$stdout) && is.function(sys$stdout$flush))
+    sys$stdout$flush()
+  
+  if (!is.null(sys$stderr) && is.function(sys$stderr$flush))
+    sys$stderr$flush()
 
 }
-
 
 
 
@@ -1237,58 +1210,55 @@ py_eval <- function(code, convert = TRUE) {
   py_eval_impl(code, convert)
 }
 
+#' The builtin constant Ellipsis
+#' 
+#' @export
+py_ellipsis <- function() {
+  builtins <- import_builtins(convert = FALSE)
+  builtins$Ellipsis
+}
+
 py_callable_as_function <- function(callable, convert) {
-  f <- function(...) {
-    # Cannot use list(...), as we replace the formals() later.
-    call <- sys.call()
-    call[[1]] <- as.name('list')
-    dots <- py_resolve_dots(eval.parent(call))
+  
+  force(callable)
+  force(convert)
+  
+  function(...) {
+    
+    dots <- py_resolve_dots(list(...))
     result <- py_call_impl(callable, dots$args, dots$keywords)
-    if (convert) {
+    
+    if (convert)
       result <- py_to_r(result)
-      if (is.null(result))
-        invisible(result)
-      else
-        result
-    }
-    else {
+      
+    if (is.null(result))
+      invisible(result)
+    else
       result
-    }
+    
   }
-  attr(f, 'get_formals_error') <- tryCatch({
-    sig <- py_get_formals(callable, convert)
-    if (!is.null(sig))
-      formals(f) <- sig
-    NULL
-  }, error = function(e) e)
-  f
+  
+}
+
+py_resolve_formals <- function(callback) {
+  
+  object <- attr(callback, "py_object")
+  if (!inherits(object, "python.builtin.object"))
+    return(NULL)
+  
+  tryCatch(py_get_formals(object), error = function(e) NULL)
+  
 }
 
 py_resolve_dots <- function(dots) {
-  args <- list()
-  keywords <- list()
-  names <- names(dots)
-  if (!is.null(names)) {
-    for (i in 1:length(dots)) {
-      name <- names[[i]]
-      if (nzchar(name))
-        if (is.null(dots[[i]]))
-          keywords[name] <- list(NULL)
-        else
-          keywords[[name]] <- dots[[i]]
-        else
-          if (is.null(dots[[i]]))
-            args[length(args) + 1] <- list(NULL)
-          else
-            args[[length(args) + 1]] <- dots[[i]]
-    }
-  } else {
-    args <- dots
-  }
-  list(
-    args = args,
-    keywords = keywords
-  )
+  
+  nms <- names(dots)
+  if (is.null(nms))
+    return(list(args = dots, keywords = list()))
+  
+  named <- nzchar(nms)
+  list(args = dots[!named], keywords = dots[named])
+  
 }
 
 
@@ -1412,4 +1382,30 @@ py_inject_r <- function(envir) {
   # now define the R object
   py_run_string("r = R()")
 
+}
+
+py_inject_hooks <- function() {
+  
+  builtins <- import_builtins(convert = TRUE)
+  
+  input <- function(prompt) {
+    
+    response <- tryCatch(
+      readline(prompt),
+      interrupt = identity
+    )
+    
+    if (inherits(response, "interrupt"))
+      stop("KeyboardInterrupt", call. = FALSE)
+    
+    r_to_py(response)
+    
+  }
+  
+  # override input function
+  if (interactive()) {
+    name <- if (is_python3()) "input" else "raw_input"
+    builtins[[name]] <- input
+  }
+  
 }

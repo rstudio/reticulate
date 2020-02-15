@@ -1,20 +1,4 @@
 
-# prefer Python 3 if available
-if (is.na(Sys.getenv("RETICULATE_PYTHON", unset = NA))) {
-  python <- Sys.which("python3")
-  if (nzchar(python))
-    use_python(python, required = TRUE)
-}
-
-# import some modules used by the tests
-if (py_available(initialize = TRUE)) {
-  test <- import("rpytools.test")
-  inspect <- import("inspect")
-  sys <- import("sys")
-  builtins <- import_builtins(convert = FALSE)
-}
-
-# helper to skip tests if python is not avaialable
 skip_if_no_python <- function() {
   if (!py_available(initialize = TRUE))
     skip("Python bindings not available for testing")
@@ -47,7 +31,7 @@ skip_if_no_scipy <- function() {
   if (!py_module_available("scipy"))
     skip("scipy not available for testing")
   scipy <- import("scipy")
-  if (reticulate:::clean_version(scipy$`__version__`) < "1.0")
+  if (clean_version(scipy$`__version__`) < "1.0")
     skip("scipy version is less than v1.0")
 }
 

@@ -3,26 +3,36 @@
 #' R functions for managing Python [conda
 #' environments](https://conda.io/docs/user-guide/tasks/manage-environments.html).
 #'
-#' @param envname Name of conda environment
+#' @param envname The name of, or path to, a conda environment.
 #'
-#' @param conda Path to conda executable (or "auto" to find conda using the
-#'   PATH and other conventional install locations).
+#' @param conda The path to a `conda` executable. Use `"auto"` to allow `reticulate` to
+#'   automatically find an appropriate `conda` binary. See **Finding Conda** for more details.
 #'
-#' @param packages Character vector with package names to install or remove.
+#' @param packages A character vector, indicating package names which should be installed or removed.
 #'
-#' @param pip `TRUE` to use pip (defaults to `FALSE`)
+#' @param pip Boolean; use `pip` when downloading or installing packages? Defaults to `FALSE`.
 #'
 #' @param ... Optional arguments, reserved for future expansion.
 #'
 #' @return `conda_list()` returns a data frame with the names and paths to the
 #'   respective python binaries of available environments. `conda_create()`
-#'   returns the Path to the python binary of the created environment.
+#'   returns the path to the python binary of the created environment.
 #'   `conda_binary()` returns the location of the main conda binary or `NULL`
 #'   if none can be found.
 #'
 #' @name conda-tools
 #'
 #' @importFrom jsonlite fromJSON
+#' 
+#' @section Finding Conda:
+#' 
+#' When `conda = "auto"`, `reticulate` will attempt to automatically find an
+#' Anaconda / Miniconda installation and use that. `reticulate` will search the
+#' following locations:
+#' 
+#' 1. The location specified by the `reticulate.conda_binary` \R option;
+#' 2. The program `PATH`;
+#' 3. A set of pre-defined locations where Conda is typically installed.
 #'
 #' @export
 conda_list <- function(conda = "auto") {
@@ -140,12 +150,20 @@ conda_remove <- function(envname, packages = NULL, conda = "auto") {
   }
 }
 
-#' @param forge Include the [Conda Forge](https://conda-forge.org/) repository.
-#' @param pip_ignore_installed Ignore installed versions when using pip. This is `TRUE` by default
-#'   so that specific package versions can be installed even if they are downgrades. The `FALSE`
-#'   option is useful for situations where you don't want a pip install to attempt an overwrite
-#'   of a conda binary package (e.g. SciPy on Windows which is very difficult to install via
-#'   pip due to compilation requirements).
+#' @param forge Boolean; include the [Conda Forge](https://conda-forge.org/)
+#'   repository?
+#'   
+#' @param channel An optional character vector of Conda channels to include.
+#'   When specified, the `forge` argument is ignored. If you need to
+#'   specify multiple channels, including the Conda Forge, you can use
+#'   `c("conda-forge", <other channels>)`.
+#'
+#' @param pip_ignore_installed Ignore installed versions when using pip. This is
+#'   `TRUE` by default so that specific package versions can be installed even
+#'   if they are downgrades. The `FALSE` option is useful for situations where
+#'   you don't want a pip install to attempt an overwrite of a conda binary
+#'   package (e.g. SciPy on Windows which is very difficult to install via pip
+#'   due to compilation requirements).
 #'
 #' @rdname conda-tools
 #'
@@ -155,8 +173,9 @@ conda_remove <- function(envname, packages = NULL, conda = "auto") {
 conda_install <- function(envname = NULL,
                           packages,
                           forge = TRUE,
+                          channel = character(),
                           pip = FALSE,
-                          pip_ignore_installed = TRUE,
+                          pip_ignore_installed = FALSE,
                           conda = "auto",
                           python_version = NULL,
                           ...)
@@ -168,17 +187,19 @@ conda_install <- function(envname = NULL,
   envname <- condaenv_resolve(envname)
 
   # honor request for specific Python
-  python_package <- NULL
+  python_package <- "python"
   if (!is.null(python_version))
-    python_package <- paste("python", python_version, sep = "=")
+    python_package <- paste(python_package, python_version, sep = "=")
 
   # check if the environment exists, and create it on demand if needed.
   # if the environment does already exist, but a version of Python was
   # requested, attempt to install that in the existing environment
   # (effectively re-creating it if the Python version differs)
-  python <- tryCatch(conda_python(envname = envname, conda = conda), error = identity)
+  python <- tryCatch(conda_python(envname = envname, conda = conda), error = identity)  
+  
   if (inherits(python, "error") || !file.exists(python)) {
     conda_create(envname, packages = python_package, conda = conda)
+    python <- conda_python(envname = envname, conda = conda)
   } else if (!is.null(python_package)) {
     args <- conda_args("install", envname, python_package)
     status <- system2(conda, shQuote(args))
@@ -189,34 +210,33 @@ conda_install <- function(envname = NULL,
     }
   }
 
-  if (pip) {
-    # use pip package manager
-    condaenv_bin <- function(bin) path.expand(file.path(dirname(conda), bin))
-    cmd <- sprintf("%s%s %s && pip install --upgrade %s %s%s",
-                   ifelse(is_windows(), "", ifelse(is_osx(), "source ", "/bin/bash -c \"source ")),
-                   shQuote(path.expand(condaenv_bin("activate"))),
-                   envname,
-                   ifelse(pip_ignore_installed, "--ignore-installed", ""),
-                   paste(shQuote(packages), collapse = " "),
-                   ifelse(is_windows(), "", ifelse(is_osx(), "", "\"")))
-    result <- system(cmd)
-
-  } else {
-    # use conda
-    args <- conda_args("install", envname)
-    if (forge)
-      args <- c(args, "-c", "conda-forge")
-    args <- c(args, python_package, packages)
-    result <- system2(conda, shQuote(args))
-  }
-
+  # delegate to pip if requested
+  if (pip)
+    return(pip_install(python, packages))
+    
+  # otherwise, use conda
+  args <- conda_args("install", envname)
+  
+  # add user-requested channels
+  channels <- if (length(channel))
+    channel
+  else if (forge)
+    "conda-forge"
+  
+  for (ch in channels)
+    args <- c(args, "-c", ch)
+    
+  args <- c(args, python_package, packages)
+  result <- system2(conda, shQuote(args))
+  
   # check for errors
   if (result != 0L) {
-    stop("Error ", result, " occurred installing packages into conda environment ",
-         envname, call. = FALSE)
+    fmt <- "one or more Python packages failed to install [error code %i]"
+    stopf(fmt, result)
   }
 
-  invisible(NULL)
+  
+  invisible(packages)
 }
 
 
@@ -232,6 +252,8 @@ conda_binary <- function(conda = "auto") {
     conda <- conda[[1]]
   }
 
+  conda <- normalizePath(conda, winslash = "/", mustWork = FALSE)
+  
   # if the user has requested a conda binary in the 'condabin' folder,
   # try to find and use its sibling in the 'bin' folder instead as
   # we rely on other tools typically bundled in the 'bin' folder
@@ -295,47 +317,79 @@ conda_python <- function(envname = NULL, conda = "auto") {
 
 
 find_conda <- function() {
+  
+  # allow specification of conda executable
+  conda <- getOption("reticulate.conda_binary")
+  if (!is.null(conda))
+    return(conda)
+  
+  # if there is a conda executable on the PATH, use it
   conda <- Sys.which("conda")
-  if (!nzchar(conda)) {
-    conda_locations <- c(
-      path.expand("~/anaconda/bin/conda"),
-      path.expand("~/anaconda2/bin/conda"),
-      path.expand("~/anaconda3/bin/conda"),
-      path.expand("~/anaconda4/bin/conda"),
-      path.expand("~/miniconda/bin/conda"),
-      path.expand("~/miniconda2/bin/conda"),
-      path.expand("~/miniconda3/bin/conda"),
-      path.expand("~/miniconda4/bin/conda"),
-      path.expand("/anaconda/bin/conda"),
-      path.expand("/anaconda2/bin/conda"),
-      path.expand("/anaconda3/bin/conda"),
-      path.expand("/anaconda4/bin/conda"),
-      path.expand("/miniconda/bin/conda"),
-      path.expand("/miniconda2/bin/conda"),
-      path.expand("/miniconda3/bin/conda"),
-      path.expand("/miniconda4/bin/conda")
-    )
-    if (is_windows()) {
-      anaconda_versions <- windows_registry_anaconda_versions()
-      anaconda_versions <- subset(anaconda_versions, anaconda_versions$arch == .Platform$r_arch)
-      if (nrow(anaconda_versions) > 0) {
-        conda_scripts <- utils::shortPathName(
-          file.path(anaconda_versions$install_path, "Scripts", "conda.exe")
-        )
-        conda_bats <- utils::shortPathName(
-          file.path(anaconda_versions$install_path, "condabin", "conda.bat")
-        )
-        conda_locations <- c(conda_locations, conda_bats, conda_scripts)
-      }
+  if (nzchar(conda))
+    return(conda)
+  
+  # otherwise, search common locations for conda
+  # TODO: these won't work on Windows as conda is often installed
+  # at e.g. 'condabin/conda.bat' or similar!
+  conda_locations <- c(
+    miniconda_conda(),
+    path.expand("~/opt/anaconda/bin/conda"),
+    path.expand("~/opt/anaconda2/bin/conda"),
+    path.expand("~/opt/anaconda3/bin/conda"),
+    path.expand("~/opt/anaconda4/bin/conda"),
+    path.expand("~/opt/miniconda/bin/conda"),
+    path.expand("~/opt/miniconda2/bin/conda"),
+    path.expand("~/opt/miniconda3/bin/conda"),
+    path.expand("~/opt/miniconda4/bin/conda"),
+    path.expand("~/anaconda/bin/conda"),
+    path.expand("~/anaconda2/bin/conda"),
+    path.expand("~/anaconda3/bin/conda"),
+    path.expand("~/anaconda4/bin/conda"),
+    path.expand("~/miniconda/bin/conda"),
+    path.expand("~/miniconda2/bin/conda"),
+    path.expand("~/miniconda3/bin/conda"),
+    path.expand("~/miniconda4/bin/conda"),
+    path.expand("/opt/anaconda/bin/conda"),
+    path.expand("/opt/anaconda2/bin/conda"),
+    path.expand("/opt/anaconda3/bin/conda"),
+    path.expand("/opt/anaconda4/bin/conda"),
+    path.expand("/opt/miniconda/bin/conda"),
+    path.expand("/opt/miniconda2/bin/conda"),
+    path.expand("/opt/miniconda3/bin/conda"),
+    path.expand("/opt/miniconda4/bin/conda"),
+    path.expand("/anaconda/bin/conda"),
+    path.expand("/anaconda2/bin/conda"),
+    path.expand("/anaconda3/bin/conda"),
+    path.expand("/anaconda4/bin/conda"),
+    path.expand("/miniconda/bin/conda"),
+    path.expand("/miniconda2/bin/conda"),
+    path.expand("/miniconda3/bin/conda"),
+    path.expand("/miniconda4/bin/conda")
+  )
+  
+  # on Windows, check the registry for a compatible version of Anaconda
+  if (is_windows()) {
+    anaconda_versions <- windows_registry_anaconda_versions()
+    anaconda_versions <- subset(anaconda_versions, anaconda_versions$arch == .Platform$r_arch)
+    if (nrow(anaconda_versions) > 0) {
+      conda_scripts <- utils::shortPathName(
+        file.path(anaconda_versions$install_path, "Scripts", "conda.exe")
+      )
+      conda_bats <- utils::shortPathName(
+        file.path(anaconda_versions$install_path, "condabin", "conda.bat")
+      )
+      conda_locations <- c(conda_locations, conda_bats, conda_scripts)
     }
-    conda_locations <- conda_locations[file.exists(conda_locations)]
-    if (length(conda_locations) > 0)
-      conda_locations
-    else
-      NULL
-  } else {
-    conda
   }
+  
+  # keep only conda locations that exist
+  conda_locations <- conda_locations[file.exists(conda_locations)]
+  if (length(conda_locations))
+    return(conda_locations)
+  
+  # explicitly return NULL when no conda found
+  NULL
+  
 }
 
 condaenv_resolve <- function(envname = NULL) {
@@ -381,4 +435,40 @@ conda_args <- function(action, envname = NULL, ...) {
 
 is_condaenv <- function(dir) {
   file.exists(file.path(dir, "conda-meta"))
+}
+
+conda_list_packages <- function(envname = NULL, conda = "auto", no_pip = TRUE) {
+  
+  conda <- conda_binary(conda)
+  envname <- condaenv_resolve(envname)
+
+  # create the environment
+  args <- c("list")
+  if (grepl("[/\\]", envname)) {
+    args <- c(args, "--prefix", envname)
+  } else {
+    args <- c(args, "--name", envname)
+  }
+  
+  if (no_pip)
+    args <- c(args, "--no-pip")
+  
+  args <- c(args, "--json")
+  
+  output <- system2(conda, shQuote(args), stdout = TRUE)
+  status <- attr(output, "status") %||% 0L
+  if (status != 0L) {
+    fmt <- "error listing conda environment [status code %i]"
+    stopf(fmt, status)
+  }
+  
+  parsed <- jsonlite::fromJSON(output)
+  
+  data.frame(
+    package     = parsed$name,
+    version     = parsed$version,
+    requirement = paste(parsed$name, parsed$version, sep = "="),
+    stringsAsFactors = FALSE
+  )
+  
 }

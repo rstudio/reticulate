@@ -311,7 +311,7 @@ This example opens a file and ensures that it is automatically closed at the end
 
 ## Iterators
 
-If a Python API returns an [iterator or generator](http://anandology.com/python-practice-book/iterators.html) you can interact with it using the `iterate()` function. The `iterate()` function can be used to apply an R function to each item yielded by the iterator:
+If a Python API returns an iterator or a generator, you can interact with it using the `iterate()` function. The `iterate()` function can be used to apply an R function to each item yielded by the iterator:
 
 ```{r}
 iterate(iter, print)

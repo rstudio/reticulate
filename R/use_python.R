@@ -21,10 +21,8 @@ use_python <- function(python, required = FALSE) {
   # if required == TRUE and python is already initialized then confirm that we
   # are using the correct version
   if (required && is_python_initialized()) {
-    normalize <- function(path) {
-      normalizePath(normalize_python_path(path)$path, winslash = "/")
-    }
-    if (!identical(normalize(py_config()$python), normalize(python))) {
+    
+    if (!file_same(py_config()$python, python)) {
 
       fmt <- paste(
         "ERROR: The requested version of Python ('%s') cannot be used, as",
@@ -72,7 +70,7 @@ use_condaenv <- function(condaenv = NULL, conda = "auto", required = FALSE) {
 
   # check for condaenv supplied by path
   condaenv <- condaenv_resolve(condaenv)
-  if (grepl("[/\\]", condaenv, fixed = TRUE) && is_condaenv(condaenv)) {
+  if (grepl("[/\\]", condaenv) && is_condaenv(condaenv)) {
     python <- conda_python(condaenv)
     use_python(python, required = required)
     return(invisible(NULL))
@@ -82,12 +80,52 @@ use_condaenv <- function(condaenv = NULL, conda = "auto", required = FALSE) {
   conda_envs <- conda_list(conda)
 
   # look for one with that name
-  conda_env_python <- subset(conda_envs, conda_envs$name == condaenv)$python
-  if (length(conda_env_python) == 0 && required)
-    stop("Unable to locate conda environment '", condaenv, "'.")
-
-  if (!is.null(condaenv))
-    use_python(conda_env_python, required = required)
+  matches <- which(conda_envs$name == condaenv)
+  
+  # if we had no matches, then either fail or return early as appropriate
+  if (length(matches) == 0) {
+    if (required)
+      stop("Unable to locate conda environment '", condaenv, "'.")
+    return(invisible(NULL))
+  }
+  
+  # check for multiple matches (this could happen if the user has multiple
+  # Conda installations, or multiple environment paths)
+  envs <- conda_envs[matches, ]
+  if (nrow(envs) > 1) {
+    output <- paste(capture.output(print(envs)), collapse = "\n")
+    warning("multiple Conda environments found; the first-listed will be chosen.\n", output)
+  }
+  
+  # we now have a copy of Python to use -- add it to the list
+  python <- envs$python[[1]]
+  use_python(python, required = required)
 
   invisible(NULL)
+  
+}
+
+#' @rdname use_python
+#' @export
+use_miniconda <- function(condaenv = NULL, required = FALSE) {
+  
+  # check that Miniconda is installed
+  if (!miniconda_exists()) {
+    
+    msg <- paste(
+      "Miniconda is not installed.",
+      "Use reticulate::install_miniconda() to install Miniconda.",
+      sep = "\n"
+    )
+    stop(msg)
+    
+  }
+  
+  # use it
+  use_condaenv(
+    condaenv = condaenv,
+    conda = miniconda_conda(),
+    required = required
+  )
+  
 }

@@ -129,6 +129,14 @@ test_that("single-row data.frames with rownames can be converted", {
 test_that("Large ints are handled correctly", {
   skip_if_no_pandas()
   require(bit64)
+
+  options(reticulate.long_as_bit64=TRUE)
+  options(reticulate.ulong_as_bit64=TRUE)
+  A <- data.frame(val=c(as.integer64("1567447722123456785"), as.integer64("1567447722123456786")))
+  expect_equal(A, py_to_r(r_to_py(A)))
+
+  options(reticulate.long_as_bit64=F)
+  options(reticulate.ulong_as_bit64=F)
   A <- data.frame(val=c(as.integer64("1567447722123456785"), as.integer64("1567447722123456786")))
   expect_equal(A, py_to_r(r_to_py(A)))
 })

@@ -282,6 +282,12 @@ LIBPYTHON_EXTERN PyObject* (*PyInt_FromLong)(long);
 LIBPYTHON_EXTERN long (*PyInt_AsLong)(PyObject *);
 LIBPYTHON_EXTERN PyObject* (*PyLong_FromLong)(long);
 LIBPYTHON_EXTERN long (*PyLong_AsLong)(PyObject *);
+LIBPYTHON_EXTERN PyObject* (*PyLong_FromUnsignedLong)(long);
+LIBPYTHON_EXTERN unsigned long (*PyLong_AsUnsignedLong)(PyObject *);
+LIBPYTHON_EXTERN long (*PyLong_AsLongAndOverflow)(PyObject *, int*);
+LIBPYTHON_EXTERN PyObject* (*PyInt_FromUnsignedLong)(long);
+LIBPYTHON_EXTERN unsigned long (*PyInt_AsUnsignedLong)(PyObject *);
+LIBPYTHON_EXTERN long (*PyInt_AsLongAndOverflow)(PyObject *, int*);
 
 LIBPYTHON_EXTERN PyObject* (*PyBool_FromLong)(long);
 
@@ -360,6 +366,7 @@ typedef struct tagPyArrayObject {
 
 typedef unsigned char npy_bool;
 typedef long npy_long;
+typedef unsigned long npy_ulong;
 typedef double npy_double;
 typedef struct { double real, imag; } npy_cdouble;
 typedef npy_cdouble npy_complex128;

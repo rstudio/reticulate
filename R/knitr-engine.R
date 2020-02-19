@@ -93,7 +93,11 @@ eng_python <- function(options) {
 
   # iterate over top-level nodes and extract line numbers
   lines <- vapply(parsed$body, function(node) {
-    node$lineno
+    if(py_has_attr(node, 'decorator_list') && length(node$decorator_list)) {
+      node$decorator_list[[1]]$lineno
+    } else {
+      node$lineno
+    }
   }, integer(1))
 
   # it's possible for multiple statements to live on the

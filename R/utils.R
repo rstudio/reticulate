@@ -97,7 +97,7 @@ new_stack <- function() {
 
 }
 
-py_compile_eval <- function(code) {
+py_compile_eval <- function(code, compile_mode="single") {
 
   builtins <- import_builtins(convert = TRUE)
   sys <- import("sys", convert = TRUE)
@@ -116,9 +116,9 @@ py_compile_eval <- function(code) {
   # newline follows the code to be submitted
   code <- sub("\\s*$", "\n", code)
 
-  # compile and eval the code -- using 'single' here ensures that Python
-  # auto-prints statements as they are evaluated
-  compiled <- builtins$compile(code, '<string>', 'single')
+  # compile and eval the code -- use 'single' to auto-print statements
+  # as they are evaluated, or 'exec' to avoid auto-print
+  compiled <- builtins$compile(code, '<string>', compile_mode)
   output <- py_capture_output(builtins$eval(compiled, globals, locals))
 
   # save the value that was produced

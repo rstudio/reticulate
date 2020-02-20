@@ -1,6 +1,9 @@
 
 ## reticulate 1.15 (UNDER DEVELOPMENT)
 
+- Lines ending with a semi-colon are no longer auto-printed in the
+  `reticulate` REPL. (#717, @jsfalk)
+
 - `reticulate` now searches for Conda binaries in /opt/anaconda and
   /opt/miniconda. (#713)
 

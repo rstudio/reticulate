@@ -7,6 +7,32 @@
   package itself. This was documented in `vignette("python_packages")`,
   but is now enforced explicitly by `reticulate`.
   
+- Fixed an issue where calling `input()` from Python with no prompt
+  would fail. (#728)
+
+- Lines ending with a semi-colon are no longer auto-printed in the
+  `reticulate` REPL. (#717, @jsfalk)
+
+- `reticulate` now searches for Conda binaries in /opt/anaconda and
+  /opt/miniconda. (#713)
+
+- The `conda` executable used by `reticulate` can now be configured using an R
+  option. Use `options(reticulate.conda_binary = <...>)` to force `reticulate`
+  to use a particular `conda` executable.
+
+- `reticulate::use_condaenv()` better handles cases where no
+  matching environment could be found. (#687)
+  
+- `reticulate` gains the `py_ellipsis()` function, used to access
+  the Python `Ellipsis` builtin. (#700, @skeydan)
+
+- `reticulate::configure_environment()` now only allows environment
+  configuration within interactive R sessions, and ensures that the
+  version of Python that has been initialized by Python is indeed
+  associated with a virtual environment or Conda environment.
+  Use `reticulate::configure_environment(force = TRUE)` to force
+  environment configuration within non-interactive R sessions.
+
 - `reticulate` now automatically flushes output written to Python's
   stdout / stderr, as a top-level task added by `addTaskCallback()`.
   This behavior is controlled with the `options(reticulate.autoflush)`

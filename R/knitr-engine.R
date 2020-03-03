@@ -93,7 +93,11 @@ eng_python <- function(options) {
 
   # iterate over top-level nodes and extract line numbers
   lines <- vapply(parsed$body, function(node) {
-    node$lineno
+    if(py_has_attr(node, 'decorator_list') && length(node$decorator_list)) {
+      node$decorator_list[[1]]$lineno
+    } else {
+      node$lineno
+    }
   }, integer(1))
 
   # it's possible for multiple statements to live on the
@@ -138,11 +142,15 @@ eng_python <- function(options) {
     # save last value
     last_value <- py_last_value()
 
+    # use trailing semicolon to suppress output of return value
+    suppress <- grepl(";\\s*$", snippet)
+    compile_mode <- if(suppress) "exec" else "single"
+
     # run code and capture output
     captured <- if (capture_errors)
-      tryCatch(py_compile_eval(snippet), error = identity)
+      tryCatch(py_compile_eval(snippet, compile_mode), error = identity)
     else
-      py_compile_eval(snippet)
+      py_compile_eval(snippet, compile_mode)
 
     # handle matplotlib output
     captured <- eng_python_matplotlib_handle_output(captured, last_value, i == length(ranges))

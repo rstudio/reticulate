@@ -56,7 +56,7 @@ ensure_python_initialized <- function(required_module = NULL) {
     py_inject_hooks()
     
     # install required packages
-    if (should_configure()) configure_environment()
+    configure_environment()
 
   }
 }
@@ -173,11 +173,15 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
     }
 
   })
+  
+  # notify front-end (if any) that Python has been initialized
+  callback <- getOption("reticulate.initialized")
+  if (is.function(callback))
+    callback()
 
   # return config
   config
 }
-
 
 should_configure <- function() {
   

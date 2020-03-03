@@ -36,12 +36,12 @@ conda_version(conda = "auto")
 conda_python(envname = NULL, conda = "auto")
 }
 \arguments{
-\item{conda}{Path to conda executable (or "auto" to find conda using the
-PATH and other conventional install locations).}
+\item{conda}{The path to a \code{conda} executable. Use \code{"auto"} to allow \code{reticulate} to
+automatically find an appropriate \code{conda} binary. See \strong{Finding Conda} for more details.}
 
-\item{envname}{Name of conda environment}
+\item{envname}{The name of, or path to, a conda environment.}
 
-\item{packages}{Character vector with package names to install or remove.}
+\item{packages}{A character vector, indicating package names which should be installed or removed.}
 
 \item{forge}{Boolean; include the \href{https://conda-forge.org/}{Conda Forge}
 repository?}
@@ -51,7 +51,7 @@ When specified, the \code{forge} argument is ignored. If you need to
 specify multiple channels, including the Conda Forge, you can use
 \verb{c("conda-forge", <other channels>)}.}
 
-\item{pip}{\code{TRUE} to use pip (defaults to \code{FALSE})}
+\item{pip}{Boolean; use \code{pip} when downloading or installing packages? Defaults to \code{FALSE}.}
 
 \item{pip_ignore_installed}{Ignore installed versions when using pip. This is
 \code{TRUE} by default so that specific package versions can be installed even
@@ -65,11 +65,24 @@ due to compilation requirements).}
 \value{
 \code{conda_list()} returns a data frame with the names and paths to the
 respective python binaries of available environments. \code{conda_create()}
-returns the Path to the python binary of the created environment.
+returns the path to the python binary of the created environment.
 \code{conda_binary()} returns the location of the main conda binary or \code{NULL}
 if none can be found.
 }
 \description{
 R functions for managing Python \href{https://conda.io/docs/user-guide/tasks/manage-environments.html}{conda environments}.
 }
+\section{Finding Conda}{
+
+
+When \code{conda = "auto"}, \code{reticulate} will attempt to automatically find an
+Anaconda / Miniconda installation and use that. \code{reticulate} will search the
+following locations:
+\enumerate{
+\item The location specified by the \code{reticulate.conda_binary} \R option;
+\item The program \code{PATH};
+\item A set of pre-defined locations where Conda is typically installed.
+}
+}
+
 \keyword{internal}

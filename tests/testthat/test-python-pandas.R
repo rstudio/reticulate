@@ -148,4 +148,23 @@ test_that("Time zones are respected if available", {
   
 })
 
+test_that("NaT is converted to NA", {
+  skip_if_no_pandas()
+  
+  pd <- import("pandas", convert = FALSE)
+  np <- import("numpy")
+  
+  before <- pd$DataFrame(pd$Series(
+    c(
+      pd$Timestamp(NULL),
+      pd$Timestamp(np$nan)
+    )
+  ))
+  
+  converted <- py_to_r(before)
+  after <- r_to_py(converted)
+
+  expect_equal(py_to_r(before), py_to_r(after))
+  
+})
 

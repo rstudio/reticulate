@@ -1388,7 +1388,7 @@ py_inject_hooks <- function() {
   
   builtins <- import_builtins(convert = TRUE)
   
-  input <- function(prompt) {
+  input <- function(prompt = "") {
     
     response <- tryCatch(
       readline(prompt),

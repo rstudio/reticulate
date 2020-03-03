@@ -1,6 +1,9 @@
 
 ## reticulate 1.15 (UNDER DEVELOPMENT)
 
+- Fixed an issue where calling `input()` from Python with no prompt
+  would fail. (#728)
+
 - Lines ending with a semi-colon are no longer auto-printed in the
   `reticulate` REPL. (#717, @jsfalk)
 

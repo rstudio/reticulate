@@ -63,6 +63,9 @@ ensure_python_initialized <- function(required_module = NULL) {
 
 initialize_python <- function(required_module = NULL, use_environment = NULL) {
 
+  # disallow initialization of Python within .onLoad()
+  check_forbidden_initialization()
+  
   # provide hint to install Miniconda if no Python is found
   python_not_found <- function(msg) {
     hint <- "Use reticulate::install_miniconda() if you'd like to install a Miniconda Python environment."
@@ -178,4 +181,70 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
 
   # return config
   config
+}
+
+should_configure <- function() {
+  
+  # allow users to opt out
+  configure_ok <- Sys.getenv("RETICULATE_AUTOCONFIGURE", unset = "TRUE")
+  if (configure_ok %in% c("FALSE", "False", "0"))
+    return(FALSE)
+  
+  # only done if we're using miniconda for now
+  config <- py_config()
+  python <- config$python
+  home <- miniconda_path()
+  is_miniconda <- substring(config$python, 1, nchar(home)) == home
+  
+  is_miniconda
+  
+}
+
+check_forbidden_initialization <- function() {
+  
+  if (is_python_initialized())
+    return(FALSE)
+  
+  override <- getOption(
+    "reticulate.allow.package.initialization",
+    default = FALSE
+  )
+  
+  if (identical(override, TRUE))
+    return(FALSE)
+  
+  calls <- sys.calls()
+  frames <- sys.frames()
+  
+  for (i in seq_along(calls)) {
+  
+    call <- calls[[i]]
+    frame <- frames[[i]]
+    if (!identical(call[[1]], as.name("runHook")))
+      next
+    
+    bad <-
+      identical(call[[2]], ".onLoad") ||
+      identical(call[[2]], ".onAttach")
+    
+    if (!bad)
+      next
+    
+    pkgname <- tryCatch(
+        get("pkgname", envir = frame),
+        error = function(e) "<unknown>"
+      )
+      
+    fmt <- paste(
+      "package '%s' attempted to initialize Python in %s().",
+      "Packages should not initialize Python themselves; rather, Python should",
+      "be loaded on-demand as requested by the user of the package. Please see",
+      "vignette(\"python_packages\", package = \"reticulate\") for more details."
+    )
+    
+    msg <- sprintf(fmt, pkgname, call[[2]])
+    stop(msg)
+    
+  }
+  
 }

@@ -239,7 +239,7 @@ check_forbidden_initialization <- function() {
       "package '%s' attempted to initialize Python in %s().",
       "Packages should not initialize Python themselves; rather, Python should",
       "be loaded on-demand as requested by the user of the package. Please see",
-      "vignette(\"python_packages\", package = \"reticulate\") for more details."
+      "vignette(\"python_dependencies\", package = \"reticulate\") for more details."
     )
     
     msg <- sprintf(fmt, pkgname, call[[2]])

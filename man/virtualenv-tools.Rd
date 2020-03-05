@@ -14,7 +14,13 @@ virtualenv_list()
 
 virtualenv_create(envname = NULL, python = NULL)
 
-virtualenv_install(envname = NULL, packages, ignore_installed = FALSE, ...)
+virtualenv_install(
+  envname = NULL,
+  packages,
+  ignore_installed = FALSE,
+  pip_options = character(),
+  ...
+)
 
 virtualenv_remove(envname = NULL, packages = NULL, confirm = interactive())
 
@@ -40,6 +46,9 @@ the current session will be used.}
 requested packages? (This should normally be \code{TRUE}, so that pre-installed
 packages available in the site libraries are ignored and hence packages
 are installed into the virtual environment.)}
+
+\item{pip_options}{An optional character vector of additional command line
+arguments to be passed to \code{pip}.}
 
 \item{...}{Optional arguments; currently ignored for future expansion.}
 

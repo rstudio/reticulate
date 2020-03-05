@@ -14,12 +14,13 @@ pip_version <- function(python) {
 }
 
 
-pip_install <- function(python, packages, ignore_installed = FALSE) {
+pip_install <- function(python, packages, pip_options = character(), ignore_installed = FALSE) {
 
   # construct command line arguments
   args <- c("-m", "pip", "install", "--upgrade")
   if (ignore_installed)
     args <- c(args, "--ignore-installed")
+  args <- c(args, pip_options)
   args <- c(args, packages)
 
   # run it

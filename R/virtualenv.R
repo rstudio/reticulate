@@ -23,6 +23,9 @@
 #'   packages available in the site libraries are ignored and hence packages
 #'   are installed into the virtual environment.)
 #'
+#' @param pip_options An optional character vector of additional command line
+#'   arguments to be passed to `pip`.
+#'
 #' @param confirm Boolean; confirm before removing packages or virtual
 #'   environments?
 #'
@@ -98,6 +101,7 @@ virtualenv_create <- function(envname = NULL, python = NULL) {
 virtualenv_install <- function(envname = NULL,
                                packages,
                                ignore_installed = FALSE,
+                               pip_options = character(),
                                ...)
 {
   # create virtual environment on demand
@@ -120,7 +124,8 @@ virtualenv_install <- function(envname = NULL,
     pip_install(python, c("pip", "wheel", "setuptools"))
   
   # now install the requested package
-  pip_install(python, packages, ignore_installed = ignore_installed)
+  pip_install(python, packages, ignore_installed = ignore_installed,
+              pip_options = pip_options)
 }
 
 

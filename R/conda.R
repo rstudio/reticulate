@@ -164,6 +164,9 @@ conda_remove <- function(envname, packages = NULL, conda = "auto") {
 #'   you don't want a pip install to attempt an overwrite of a conda binary
 #'   package (e.g. SciPy on Windows which is very difficult to install via pip
 #'   due to compilation requirements).
+#'   
+#' @param pip_options An optional character vector of additional command line
+#'   arguments to be passed to `pip` if `pip` is used.
 #'
 #' @rdname conda-tools
 #'
@@ -175,6 +178,7 @@ conda_install <- function(envname = NULL,
                           forge = TRUE,
                           channel = character(),
                           pip = FALSE,
+                          pip_options = character(),
                           pip_ignore_installed = FALSE,
                           conda = "auto",
                           python_version = NULL,
@@ -212,8 +216,8 @@ conda_install <- function(envname = NULL,
 
   # delegate to pip if requested
   if (pip)
-    return(pip_install(python, packages))
-    
+    return(pip_install(python, packages, pip_options = pip_options))
+  
   # otherwise, use conda
   args <- conda_args("install", envname)
   

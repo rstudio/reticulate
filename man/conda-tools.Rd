@@ -23,6 +23,7 @@ conda_install(
   forge = TRUE,
   channel = character(),
   pip = FALSE,
+  pip_options = character(),
   pip_ignore_installed = FALSE,
   conda = "auto",
   python_version = NULL,
@@ -52,6 +53,9 @@ specify multiple channels, including the Conda Forge, you can use
 \verb{c("conda-forge", <other channels>)}.}
 
 \item{pip}{Boolean; use \code{pip} when downloading or installing packages? Defaults to \code{FALSE}.}
+
+\item{pip_options}{An optional character vector of additional command line
+arguments to be passed to \code{pip} if \code{pip} is used.}
 
 \item{pip_ignore_installed}{Ignore installed versions when using pip. This is
 \code{TRUE} by default so that specific package versions can be installed even

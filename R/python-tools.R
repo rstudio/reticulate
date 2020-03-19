@@ -35,6 +35,7 @@ python_module_version <- function(python, module) {
   output <- system2(python, args, stdout = TRUE, stderr = FALSE)
   numeric_version(output)
 }
+
 # given the path to a Python binary, try to ascertain its type
 python_info <- function(python) {
   

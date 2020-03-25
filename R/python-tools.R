@@ -47,7 +47,9 @@ python_info <- function(python) {
     # check for virtual environment files
     virtualenv <-
       file.exists(file.path(path, "pyvenv.cfg")) ||
-      file.exists(file.path(path, ".Python"))
+      file.exists(file.path(path, ".Python")) ||
+      file.exists(file.path(path, "Scripts/activate")) ||
+      file.exists(file.path(path, "Scripts/activate.bat"))
 
     if (virtualenv) {
       suffix <- if (is_windows()) "Scripts/python.exe" else "bin/python"

@@ -243,7 +243,7 @@ check_forbidden_initialization <- function() {
     )
     
     msg <- sprintf(fmt, pkgname, call[[2]])
-    stop(msg)
+    warning(msg)
     
   }
   

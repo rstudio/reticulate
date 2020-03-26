@@ -8,7 +8,8 @@ install_miniconda(path = miniconda_path(), update = TRUE, force = FALSE)
 }
 \arguments{
 \item{path}{The path in which Miniconda will be installed. Note that the
-installer does not support paths containing spaces.}
+installer does not support paths containing spaces. See \link{miniconda_path}
+for more details on the default path used by \code{reticulate}.}
 
 \item{update}{Boolean; update to the latest version of Miniconda after install?}
 

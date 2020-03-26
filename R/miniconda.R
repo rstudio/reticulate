@@ -5,7 +5,8 @@
 #' installer, and use it to install Miniconda.
 #'
 #' @param path The path in which Miniconda will be installed. Note that the
-#'   installer does not support paths containing spaces.
+#'   installer does not support paths containing spaces. See [miniconda_path]
+#'   for more details on the default path used by `reticulate`.
 #' 
 #' @param update Boolean; update to the latest version of Miniconda after install?
 #' 
@@ -143,7 +144,9 @@ miniconda_installer_run <- function(installer, path) {
 
 #' Path to Miniconda
 #' 
-#' The path to the Miniconda installation to use.
+#' The path to the Miniconda installation to use. By default, an OS-specific
+#' path is used. If you'd like to instead set your own path, you can set the
+#' `RETICULATE_MINICONDA_PATH` environment variable.
 #' 
 #' @family miniconda
 #' 

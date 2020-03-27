@@ -101,7 +101,7 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
   # set as appropriate)
   if (nzchar(config$virtualenv))
     Sys.setenv(VIRTUAL_ENV = config$virtualenv)
-
+  
   # set R_SESSION_INITIALIZED flag (used by rpy2)
   curr_session_env <- Sys.getenv("R_SESSION_INITIALIZED", unset = NA)
   Sys.setenv(R_SESSION_INITIALIZED = sprintf('PID=%s:NAME="reticulate"', Sys.getpid()))

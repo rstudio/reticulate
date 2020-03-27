@@ -404,6 +404,16 @@ python_munge_path <- function(python) {
     if (file.exists(python_library_bin))
       python_dirs <- c(python_dirs, normalizePath(python_library_bin))
   }
+  
+  # fix rpath for anaconda libmkl
+  if (is_osx()) {
+    libmkl <- file.path(python_home, "../lib/libmkl_intel_thread.dylib")
+    if (file.exists(libmkl)) {
+      libmkl <- normalizePath(libmkl)
+      args <- c("-add_rpath", shQuote(dirname(libmkl)), libmkl)
+      system2("install_name_tool", args, stdout = FALSE, stderr = FALSE)
+    }
+  }
 
   path_prepend(python_dirs)
 

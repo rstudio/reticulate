@@ -64,7 +64,10 @@ ensure_python_initialized <- function(required_module = NULL) {
 initialize_python <- function(required_module = NULL, use_environment = NULL) {
 
   # disallow initialization of Python within .onLoad()
-  check_forbidden_initialization()
+  
+  # NOTE: disabled for this release of reticulate as there are too many packages
+  # already forcing initialization of Python on load
+  # check_forbidden_initialization()
   
   # provide hint to install Miniconda if no Python is found
   python_not_found <- function(msg) {
@@ -181,23 +184,6 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
 
   # return config
   config
-}
-
-should_configure <- function() {
-  
-  # allow users to opt out
-  configure_ok <- Sys.getenv("RETICULATE_AUTOCONFIGURE", unset = "TRUE")
-  if (configure_ok %in% c("FALSE", "False", "0"))
-    return(FALSE)
-  
-  # only done if we're using miniconda for now
-  config <- py_config()
-  python <- config$python
-  home <- miniconda_path()
-  is_miniconda <- substring(config$python, 1, nchar(home)) == home
-  
-  is_miniconda
-  
 }
 
 check_forbidden_initialization <- function() {

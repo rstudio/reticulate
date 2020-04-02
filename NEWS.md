@@ -4,14 +4,8 @@
 ## reticulate 1.15
 
 - `reticulate` now ensures SciPy `csr_matrix` objects are sorted before
-  attempting to conver them to their R equivalent. (#738, @paulofelipe)
+  attempting to convert them to their R equivalent. (#738, @paulofelipe)
 
-- `reticulate` now throws an error if a package attempts to initialize
-  Python within `.onLoad()` or `.onAttach()`. R packages must ensure that
-  Python is initialized only on-demand by the user, and not forced by the
-  package itself. This was documented in `vignette("python_packages")`,
-  but is now enforced explicitly by `reticulate`.
-  
 - Fixed an issue where calling `input()` from Python with no prompt
   would fail. (#728)
 

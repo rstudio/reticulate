@@ -1,5 +1,5 @@
 
-## reticulate 1.15 (UNDER DEVELOPMENT)
+## reticulate 1.15
 
 - `reticulate` now ensures SciPy `csr_matrix` objects are sorted before
   attempting to conver them to their R equivalent. (#738, @paulofelipe)

@@ -1,4 +1,6 @@
 
+## reticulate 1.16 (UNDER DEVELOPMENT)
+
 ## reticulate 1.15
 
 - `reticulate` now ensures SciPy `csr_matrix` objects are sorted before

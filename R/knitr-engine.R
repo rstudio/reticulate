@@ -144,7 +144,7 @@ eng_python <- function(options) {
 
     # use trailing semicolon to suppress output of return value
     suppress <- grepl(";\\s*$", snippet)
-    compile_mode <- if(suppress) "exec" else "single"
+    compile_mode <- if (suppress) "exec" else "single"
 
     # run code and capture output
     captured <- if (capture_errors)

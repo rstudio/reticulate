@@ -97,7 +97,7 @@ new_stack <- function() {
 
 }
 
-py_compile_eval <- function(code, compile_mode="single") {
+py_compile_eval <- function(code, compile_mode = "single") {
 
   builtins <- import_builtins(convert = TRUE)
   sys <- import("sys", convert = TRUE)

@@ -129,7 +129,7 @@
 <div id="python-version" class="section level4">
 <h4 class="hasAnchor">
 <a href="#python-version" class="anchor"></a>Python version</h4>
-<p>By default, reticulate uses the version of Python found on your <code>PATH</code> (i.e.Â <code><a href="https://rdrr.io/r/base/Sys.which.html">Sys.which("python")</a></code>).</p>
+<p>By default, reticulate uses the version of Python found on your <code>PATH</code> (i.e. <code><a href="https://rdrr.io/r/base/Sys.which.html">Sys.which("python")</a></code>).</p>
 <p>The <code><a href="reference/use_python.html">use_python()</a></code> function enables you to specify an alternate version, for example:</p>
 <div class="sourceCode" id="cb2"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">reticulate</span>)
 <span class="fu"><a href="reference/use_python.html">use_python</a></span>(<span class="st">"/usr/local/bin/python"</span>)</pre></div>
@@ -147,10 +147,10 @@
 <h4 class="hasAnchor">
 <a href="#calling-python" class="anchor"></a>Calling Python</h4>
 <p>There are a variety of ways to integrate Python code into your R projects:</p>
-<p>1) <a href="#python-in-r-markdown">Python in R Markdown</a> â A new Python language engine for R Markdown that supports bi-directional communication between R and Python (R chunks can access Python objects and vice-versa).</p>
-<p>2) <a href="#importing-python-modules">Importing Python modules</a> â The <code><a href="reference/import.html">import()</a></code> function enables you to import any Python module and call itâs functions directly from R.</p>
-<p>3) <a href="#sourcing-python-scripts">Sourcing Python scripts</a> â The <code><a href="reference/source_python.html">source_python()</a></code> function enables you to source a Python script the same way you would <code><a href="https://rdrr.io/r/base/source.html">source()</a></code> an R script (Python functions and objects defined within the script become directly available to the R session).</p>
-<p>4) <a href="#python-repl">Python REPL</a> â The <code><a href="reference/repl_python.html">repl_python()</a></code> function creates an interactive Python console within R. Objects you create within Python are available to your R session (and vice-versa).</p>
+<p>1) <a href="#python-in-r-markdown">Python in R Markdown</a> — A new Python language engine for R Markdown that supports bi-directional communication between R and Python (R chunks can access Python objects and vice-versa).</p>
+<p>2) <a href="#importing-python-modules">Importing Python modules</a> — The <code><a href="reference/import.html">import()</a></code> function enables you to import any Python module and call it’s functions directly from R.</p>
+<p>3) <a href="#sourcing-python-scripts">Sourcing Python scripts</a> — The <code><a href="reference/source_python.html">source_python()</a></code> function enables you to source a Python script the same way you would <code><a href="https://rdrr.io/r/base/source.html">source()</a></code> an R script (Python functions and objects defined within the script become directly available to the R session).</p>
+<p>4) <a href="#python-repl">Python REPL</a> — The <code><a href="reference/repl_python.html">repl_python()</a></code> function creates an interactive Python console within R. Objects you create within Python are available to your R session (and vice-versa).</p>
 <p>Each of these techniques is explained in more detail below.</p>
 </div>
 </div>
@@ -160,8 +160,8 @@
 <p>The <strong>reticulate</strong> package includes a Python engine for <a href="http://rmarkdown.rstudio.com">R Markdown</a> with the following features:</p>
 <p>1) Run Python chunks in a single Python session embedded within your R session (shared variables/state between Python chunks)</p>
 <p>2) Printing of Python output, including graphical output from <a href="https://matplotlib.org/">matplotlib</a>.</p>
-<p>3) Access to objects created within Python chunks from R using the <code>py</code> object (e.g.Â <code>py$x</code> would access an <code>x</code> variable created within Python from R).</p>
-<p>4) Access to objects created within R chunks from Python using the <code>r</code> object (e.g.Â <code>r.x</code> would access to <code>x</code> variable created within R from Python)</p>
+<p>3) Access to objects created within Python chunks from R using the <code>py</code> object (e.g. <code>py$x</code> would access an <code>x</code> variable created within Python from R).</p>
+<p>4) Access to objects created within R chunks from Python using the <code>r</code> object (e.g. <code>r.x</code> would access to <code>x</code> variable created within R from Python)</p>
 <div style="clear: both;">
 </div>
 <p>Built in conversion for many Python object types is provided, including <a href="http://www.numpy.org/">NumPy</a> arrays and <a href="https://pandas.pydata.org/">Pandas</a> data frames. From example, you can use Pandas to read and manipulate data then easily plot the Pandas data frame using <a href="http://ggplot2.org/">ggplot2</a>:</p>
@@ -213,7 +213,7 @@
 <p>If you want to work with Python interactively you can call the <code><a href="reference/repl_python.html">repl_python()</a></code> function, which provides a Python REPL embedded within your R session. Objects created within the Python REPL can be accessed from R using the <code>py</code> object exported from reticulate. For example:</p>
 <p><img src="images/python_repl.png"></p>
 <p>Enter <code>exit</code> within the Python REPL to return to the R prompt.</p>
-<p>Note that Python code can also access objects from within the R session using the <code>r</code> object (e.g.Â <code>r.flights</code>). See the <code><a href="reference/repl_python.html">repl_python()</a></code> documentation for additional details on using the embedded Python REPL.</p>
+<p>Note that Python code can also access objects from within the R session using the <code>r</code> object (e.g. <code>r.flights</code>). See the <code><a href="reference/repl_python.html">repl_python()</a></code> documentation for additional details on using the embedded Python REPL.</p>
 </div>
 <div id="type-conversions" class="section level2">
 <h2 class="hasAnchor">
@@ -283,12 +283,12 @@
 <a href="#learning-more" class="anchor"></a>Learning more</h2>
 <p>The following articles cover the various aspects of using <strong>reticulate</strong>:</p>
 <ul>
-<li><p><a href="https://rstudio.github.io/reticulate/articles/calling_python.html">Calling Python from R</a> â Describes the various ways to access Python objects from R as well as functions available for more advanced interactions and conversion behavior.</p></li>
-<li><p><a href="https://rstudio.github.io/reticulate/articles/r_markdown.html">R Markdown Python Engine</a> â Provides details on using Python chunks within R Markdown documents, including how call Python code from R chunks and vice-versa.</p></li>
-<li><p><a href="https://rstudio.github.io/reticulate/articles/versions.html">Python Version Configuration</a> â Describes facilities for determining which version of Python is used by reticulate within an R session.</p></li>
-<li><p><a href="https://rstudio.github.io/reticulate/articles/python_packages.html">Installing Python Packages</a> â Documentation on installing Python packages from PyPI or Conda, and managing package installations using virtualenvs and Conda environments.</p></li>
-<li><p><a href="https://rstudio.github.io/reticulate/articles/package.html">Using reticulate in an R Package</a> â Guidelines and best practices for using reticulate in an R package.</p></li>
-<li><p><a href="https://rstudio.github.io/reticulate/articles/arrays.html">Arrays in R and Python</a> â Advanced discussion of the differences between arrays in R and Python and the implications for conversion and interoperability.</p></li>
+<li><p><a href="https://rstudio.github.io/reticulate/articles/calling_python.html">Calling Python from R</a> — Describes the various ways to access Python objects from R as well as functions available for more advanced interactions and conversion behavior.</p></li>
+<li><p><a href="https://rstudio.github.io/reticulate/articles/r_markdown.html">R Markdown Python Engine</a> — Provides details on using Python chunks within R Markdown documents, including how call Python code from R chunks and vice-versa.</p></li>
+<li><p><a href="https://rstudio.github.io/reticulate/articles/versions.html">Python Version Configuration</a> — Describes facilities for determining which version of Python is used by reticulate within an R session.</p></li>
+<li><p><a href="https://rstudio.github.io/reticulate/articles/python_packages.html">Installing Python Packages</a> — Documentation on installing Python packages from PyPI or Conda, and managing package installations using virtualenvs and Conda environments.</p></li>
+<li><p><a href="https://rstudio.github.io/reticulate/articles/package.html">Using reticulate in an R Package</a> — Guidelines and best practices for using reticulate in an R package.</p></li>
+<li><p><a href="https://rstudio.github.io/reticulate/articles/arrays.html">Arrays in R and Python</a> — Advanced discussion of the differences between arrays in R and Python and the implications for conversion and interoperability.</p></li>
 </ul>
 </div>
 <div id="why-reticulate" class="section level2">
@@ -296,7 +296,7 @@
 <a href="#why-reticulate" class="anchor"></a>Why reticulate?</h2>
 <p>From the <a href="https://en.wikipedia.org/wiki/Reticulated_python">Wikipedia</a> article on the reticulated python:</p>
 <blockquote>
-<p>The reticulated python is a species of python found in Southeast Asia. They are the worldâs longest snakes and longest reptilesâ¦The specific name, reticulatus, is Latin meaning ânet-likeâ, or reticulated, and is a reference to the complex colour pattern.</p>
+<p>The reticulated python is a species of python found in Southeast Asia. They are the world’s longest snakes and longest reptiles…The specific name, reticulatus, is Latin meaning “net-like”, or reticulated, and is a reference to the complex colour pattern.</p>
 </blockquote>
 <p>From the <a href="https://www.merriam-webster.com/dictionary/reticulate">Merriam-Webster</a> definition of reticulate:</p>
 <blockquote>

@@ -1,12 +1,14 @@
-pandoc: 2.3.1
-pkgdown: 1.1.0
+pandoc: 2.9.2.1
+pkgdown: 1.5.0
 pkgdown_sha: ~
 articles:
   arrays: arrays.html
   calling_python: calling_python.html
   package: package.html
+  python_dependencies: python_dependencies.html
   python_packages: python_packages.html
   r_markdown: r_markdown.html
   rstudio_ide: rstudio_ide.html
   versions: versions.html
+last_built: 2020-04-08T19:37Z
 

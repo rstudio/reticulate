@@ -86,6 +86,9 @@ reference:
       - py_get_attr
       - py_set_attr
       - py_list_attributes
+      - py_get_item
+      - py_set_item
+      - py_del_item
       - py_call
       - py_to_r
       - r_to_py
@@ -99,11 +102,19 @@ reference:
       - py_help
       - py_func
       - py_main_thread_func
+      - py_ellipsis
+      - PyClass
 
   - title: "Package Installation"
     contents:
       - py_install
+      - configure_environment
       - virtualenv-tools
       - conda-tools
 
-
+  - title: "Miniconda"
+    contents:
+      - install_miniconda
+      - miniconda_path
+      - miniconda_update
+        

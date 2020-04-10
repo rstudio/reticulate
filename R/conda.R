@@ -486,6 +486,7 @@ conda_list_packages <- function(envname = NULL, conda = "auto", no_pip = TRUE) {
     package     = parsed$name,
     version     = parsed$version,
     requirement = paste(parsed$name, parsed$version, sep = "="),
+    channel     = parsed$channel,
     stringsAsFactors = FALSE
   )
   

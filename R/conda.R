@@ -106,7 +106,11 @@ conda_list <- function(conda = "auto") {
 
 #' @rdname conda-tools
 #' @export
-conda_create <- function(envname = NULL, packages = "python", conda = "auto") {
+conda_create <- function(envname = NULL,
+                         packages = "python",
+                         forge = TRUE,
+                         channel = character(),
+                         conda = "auto") {
 
   # resolve conda binary
   conda <- conda_binary(conda)
@@ -116,6 +120,16 @@ conda_create <- function(envname = NULL, packages = "python", conda = "auto") {
 
   # create the environment
   args <- conda_args("create", envname, packages)
+
+  # add user-requested channels
+  channels <- if (length(channel))
+    channel
+  else if (forge)
+    "conda-forge"
+
+  for (ch in channels)
+    args <- c(args, "-c", ch)
+
   result <- system2(conda, shQuote(args))
   if (result != 0L) {
     stop("Error ", result, " occurred creating conda environment ", envname,

@@ -13,7 +13,13 @@
 \usage{
 conda_list(conda = "auto")
 
-conda_create(envname = NULL, packages = "python", conda = "auto")
+conda_create(
+  envname = NULL,
+  packages = "python",
+  forge = TRUE,
+  channel = character(),
+  conda = "auto"
+)
 
 conda_remove(envname, packages = NULL, conda = "auto")
 

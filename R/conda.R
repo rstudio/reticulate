@@ -103,8 +103,18 @@ conda_list <- function(conda = "auto") {
 }
 
 
-
+#' @param forge Boolean; include the [Conda Forge](https://conda-forge.org/)
+#'   repository?
+#'
+#' @param channel An optional character vector of Conda channels to include.
+#'   When specified, the `forge` argument is ignored. If you need to
+#'   specify multiple channels, including the Conda Forge, you can use
+#'   `c("conda-forge", <other channels>)`.
+#'
 #' @rdname conda-tools
+#'
+#' @keywords internal
+#'
 #' @export
 conda_create <- function(envname = NULL,
                          packages = "python",

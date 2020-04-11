@@ -30,7 +30,10 @@ test_that("conda utility functions work as expected", {
 test_that("virtualenv utility functions work as expected", {
   skip_if_no_test_environments()
 
-  virtualenv_remove('reticulate-testthat', confirm = FALSE)
+  expect_error(
+    virtualenv_remove('reticulate-testthat', confirm = FALSE),
+    'Virtual environment \'reticulate-testthat\' does not exist.'
+  )
 
   virtualenv_create('reticulate-testthat')
   virtualenv_remove('reticulate-testthat', confirm = FALSE)

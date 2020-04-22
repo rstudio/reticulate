@@ -103,10 +103,24 @@ conda_list <- function(conda = "auto") {
 }
 
 
-
+#' @param forge Boolean; include the [Conda Forge](https://conda-forge.org/)
+#'   repository?
+#'
+#' @param channel An optional character vector of Conda channels to include.
+#'   When specified, the `forge` argument is ignored. If you need to
+#'   specify multiple channels, including the Conda Forge, you can use
+#'   `c("conda-forge", <other channels>)`.
+#'
 #' @rdname conda-tools
+#'
+#' @keywords internal
+#'
 #' @export
-conda_create <- function(envname = NULL, packages = "python", conda = "auto") {
+conda_create <- function(envname = NULL,
+                         packages = "python",
+                         forge = TRUE,
+                         channel = character(),
+                         conda = "auto") {
 
   # resolve conda binary
   conda <- conda_binary(conda)
@@ -116,6 +130,16 @@ conda_create <- function(envname = NULL, packages = "python", conda = "auto") {
 
   # create the environment
   args <- conda_args("create", envname, packages)
+
+  # add user-requested channels
+  channels <- if (length(channel))
+    channel
+  else if (forge)
+    "conda-forge"
+
+  for (ch in channels)
+    args <- c(args, "-c", ch)
+
   result <- system2(conda, shQuote(args))
   if (result != 0L) {
     stop("Error ", result, " occurred creating conda environment ", envname,
@@ -472,6 +496,7 @@ conda_list_packages <- function(envname = NULL, conda = "auto", no_pip = TRUE) {
     package     = parsed$name,
     version     = parsed$version,
     requirement = paste(parsed$name, parsed$version, sep = "="),
+    channel     = parsed$channel,
     stringsAsFactors = FALSE
   )
   

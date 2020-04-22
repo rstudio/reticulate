@@ -1,6 +1,9 @@
 
 ## reticulate 1.16 (UNDER DEVELOPMENT)
 
+- `conda_create()` gains the `forge` and `channel` arguments,
+  analogous to those already in `conda_install()`. (#752, @jtilly)
+
 ## reticulate 1.15
 
 - `reticulate` now ensures SciPy `csr_matrix` objects are sorted before

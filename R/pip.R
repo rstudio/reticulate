@@ -6,13 +6,18 @@ pip_version <- function(python) {
     return(numeric_version("0.0"))
 
   # otherwise, ask pip what version it is
-  output <- system2(python, c("-m", "pip", "--version"), stdout = TRUE)
-  parts <- strsplit(output, "\\s+")[[1]]
-  version <- parts[[2]]
+  command <- "import sys; import pip; sys.stdout.write(pip.__version__)"
+  version <- system2(python, c("-c", shQuote(command)), stdout = TRUE, stderr = TRUE)
+  
+  # remove any beta components from version string
+  idx <- regexpr("[[:alpha:]]", version)
+  if (idx != -1)
+    version <- substring(version, 1, idx - 1)
+
+  # construct numeric version  
   numeric_version(version)
 
 }
-
 
 pip_install <- function(python, packages, pip_options = character(), ignore_installed = FALSE) {
 

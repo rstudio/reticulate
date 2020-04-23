@@ -1,6 +1,9 @@
 
 ## reticulate 1.16 (UNDER DEVELOPMENT)
 
+- `reticulate` now properly handles the version strings returned by beta
+  versions of `pip`. (#757)
+
 - `conda_create()` gains the `forge` and `channel` arguments,
   analogous to those already in `conda_install()`. (#752, @jtilly)
 

@@ -79,22 +79,15 @@ py_install <- function(packages,
   # then install into that same environment
   if (is.null(envname)) {
     
-    python <- if (is_python_initialized())
-      .globals$py_config$python
-    else if (length(.globals$required_python_version))
-      .globals$required_python_version[[1]]
-    else
-      NULL
+   ensure_python_initialized()
     
-    if (!is.null(python)) {
-      info <- python_info(python)
-      envname <- info$root
-      method <- info$type
-      if (method == "conda")
-        conda <- conda_binary(info$root)
-    }
-    
-  }
+   python <- .globals$py_config$python
+   info <- python_info(python)
+   envname <- info$root
+   method <- info$type
+   if (method == "conda")
+     conda <- conda_binary(info$root)
+   }
   
   # resolve 'auto' method
   method <- match.arg(method)

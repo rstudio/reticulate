@@ -83,6 +83,8 @@ py_install <- function(packages,
       .globals$py_config$python
     else if (length(.globals$required_python_version))
       .globals$required_python_version[[1]]
+    else if (length(p <- py_discover_config()$python))
+      p
     else
       NULL
     

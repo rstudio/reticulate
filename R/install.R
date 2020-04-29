@@ -79,9 +79,9 @@ py_install <- function(packages,
   # then install into that same environment
   if (is.null(envname)) {
     
-   ensure_python_initialized()
+   config <- py_discover_config()
     
-   python <- .globals$py_config$python
+   python <- config$python
    info <- python_info(python)
    envname <- info$root
    method <- info$type

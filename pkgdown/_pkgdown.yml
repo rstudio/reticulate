@@ -26,6 +26,8 @@ navbar:
           href: articles/arrays.html
         - text: "Using reticulate in an R Package"
           href: articles/package.html
+        - text: "Managing an R Package's Python Dependencies"
+          href: articles/python_dependencies.html
         - text: "---"
         - text: "Tools"
         - text: "RStudio IDE Tools for reticulate"

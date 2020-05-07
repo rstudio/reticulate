@@ -313,9 +313,9 @@ py_to_r.pandas.core.frame.DataFrame <- function(x) {
       # check for a range index from 0 -> n. in such a case, we don't need
       # to copy or translate the index. note that we need to translate from
       # Python's 0-based indexing to R's one-based indexing
-      start <- py_to_r(index[["_start"]])
-      stop  <- py_to_r(index[["_stop"]])
-      step  <- py_to_r(index[["_step"]])
+      start <- py_to_r(index[["start"]])
+      stop  <- py_to_r(index[["stop"]])
+      step  <- py_to_r(index[["step"]])
       if (start != 0 || stop != nrow(df) || step != 1) {
         values <- tryCatch(py_to_r(index$values), error = identity)
         if (is.numeric(values)) {

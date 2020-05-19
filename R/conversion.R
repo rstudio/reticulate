@@ -266,6 +266,7 @@ py_to_r.pandas.core.frame.DataFrame <- function(x) {
   disable_conversion_scope(x)
 
   np <- import("numpy", convert = TRUE)
+  pandas <- import("pandas", convert = TRUE)
 
   # extract numpy arrays associated with each column
   columns <- x$columns$values
@@ -312,10 +313,23 @@ py_to_r.pandas.core.frame.DataFrame <- function(x) {
     {
       # check for a range index from 0 -> n. in such a case, we don't need
       # to copy or translate the index. note that we need to translate from
-      # Python's 0-based indexing to R's one-based indexing
-      start <- py_to_r(index[["_start"]])
-      stop  <- py_to_r(index[["_stop"]])
-      step  <- py_to_r(index[["_step"]])
+      # Python's 0-based indexing to R's one-based indexing.
+      #
+      # NOTE: `_start` and friends were deprecated with Pandas 0.25.0,
+      # with non-private versions preferred for access instead
+      if (reticulate::py_has_attr(index, "start"))
+      {
+        start <- py_to_r(index[["start"]])
+        stop  <- py_to_r(index[["stop"]])
+        step  <- py_to_r(index[["step"]])
+      }
+      else
+      {
+        start <- py_to_r(index[["_start"]])
+        stop  <- py_to_r(index[["_stop"]])
+        step  <- py_to_r(index[["_step"]])
+      }
+      
       if (start != 0 || stop != nrow(df) || step != 1) {
         values <- tryCatch(py_to_r(index$values), error = identity)
         if (is.numeric(values)) {

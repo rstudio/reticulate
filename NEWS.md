@@ -1,6 +1,9 @@
 
 ## reticulate 1.16 (UNDER DEVELOPMENT)
 
+- Conversion of Pandas DataFrames to R no longer emits deprecation
+  warnings with pandas >= 0.25.0. (#762)
+  
 - `reticulate` now properly handles the version strings returned by beta
   versions of `pip`. (#757)
 

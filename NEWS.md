@@ -1,6 +1,9 @@
 
 ## reticulate 1.16 (UNDER DEVELOPMENT)
 
+- TinyThread now calls `Rf_error()` rather than `std::terminate()`
+  when an internal error occurs.
+
 - Conversion of Pandas DataFrames to R no longer emits deprecation
   warnings with pandas >= 0.25.0. (#762)
   

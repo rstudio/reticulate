@@ -24,6 +24,8 @@ freely, subject to the following restrictions:
 #ifndef _TINYTHREAD_H_
 #define _TINYTHREAD_H_
 
+extern "C" void Rf_error(const char* fmt, ...);
+
 /// @file
 /// @mainpage TinyThread++ API Reference
 ///
@@ -865,7 +867,7 @@ inline void * thread::wrapper_function(void * aArg)
   {
     // Uncaught exceptions will terminate the application (default behavior
     // according to C++11)
-    std::terminate();
+    Rf_error("exception in %s\n", __func__);
   }
 
   // The thread is no longer executing
@@ -911,8 +913,8 @@ inline thread::thread(void (*aFunction)(void *), void * aArg)
 
 inline thread::~thread()
 {
-  if(joinable())
-    std::terminate();
+  if (joinable())
+    Rf_error("destructor called on joinable thread");
 }
 
 inline void thread::join()

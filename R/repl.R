@@ -229,9 +229,7 @@ repl_python <- function(
 
       # submit previous code
       pasted <- paste(previous, collapse = "\n")
-      output <- tryCatch(py_compile_eval(pasted), error = handle_error)
-      if (is.character(output) && nzchar(output))
-        cat(output, sep = "")
+      tryCatch(py_compile_eval(pasted, capture = FALSE), error = handle_error)
 
       # now, handle the newest line of code submitted
       buffer$set(contents)
@@ -246,9 +244,7 @@ repl_python <- function(
     # otherwise, we should have received a code output object
     # so we can just run the code submitted thus far
     buffer$clear()
-    output <- tryCatch(py_compile_eval(code), error = handle_error)
-    if (is.character(output) && nzchar(output))
-      cat(output, sep = "")
+    tryCatch(py_compile_eval(code, capture = FALSE), error = handle_error)
 
   }
 
@@ -302,4 +298,3 @@ repl_python <- function(
 py_repl_active <- function() {
   .globals$py_repl_active
 }
-

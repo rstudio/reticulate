@@ -97,7 +97,7 @@ new_stack <- function() {
 
 }
 
-py_compile_eval <- function(code, compile_mode = "single") {
+py_compile_eval <- function(code, compile_mode = "single", capture = TRUE) {
 
   builtins <- import_builtins(convert = TRUE)
   sys <- import("sys", convert = TRUE)
@@ -119,13 +119,18 @@ py_compile_eval <- function(code, compile_mode = "single") {
   # compile and eval the code -- use 'single' to auto-print statements
   # as they are evaluated, or 'exec' to avoid auto-print
   compiled <- builtins$compile(code, '<string>', compile_mode)
-  output <- py_capture_output(builtins$eval(compiled, globals, locals))
+  if (capture) {
+    output <- py_capture_output(builtins$eval(compiled, globals, locals))
+  } else {
+    builtins$eval(compiled, globals, locals)
+    output <- NULL
+  }
 
   # save the value that was produced
   .globals$py_last_value <- py_last_value()
 
   # py_capture_output can append an extra trailing newline, so remove it
-  if (grepl("\n{2,}$", output))
+  if (!is.null(output) && grepl("\n{2,}$", output))
     output <- sub("\n$", "", output)
 
   # and return
@@ -180,32 +185,32 @@ path_prepend <- function(entries) {
 # to a heuristic (note: false positives are possible but we can accept
 # those in the contexts where this function is used)
 file_same <- function(lhs, rhs) {
-  
+
   # check if paths are identical as-is
   if (identical(lhs, rhs))
     return(TRUE)
-  
+
   # check if paths are identical after normalization
   lhs <- normalizePath(lhs, winslash = "/", mustWork = FALSE)
   rhs <- normalizePath(rhs, winslash = "/", mustWork = FALSE)
   if (identical(lhs, rhs))
     return(TRUE)
-  
+
   # check if file info is the same
   lhsi <- c(file.info(lhs, extra_cols = FALSE))
   rhsi <- c(file.info(rhs, extra_cols = FALSE))
   fields <- c("size", "isdir", "mode", "mtime", "ctime")
   if (identical(lhsi[fields], rhsi[fields]))
     return(TRUE)
-  
+
   # checks failed; return FALSE
   FALSE
-  
+
 }
 
 # normalize a path without following symlinks
 canonical_path <- function(path) {
-  
+
   # on windows we normalize the whole path to avoid
   # short path components leaking in
   if (is_windows()) {
@@ -216,7 +221,7 @@ canonical_path <- function(path) {
       basename(path)
     )
   }
-  
+
 }
 
 enumerate <- function(x, f, ...) {

@@ -1516,8 +1516,8 @@ extern "C" PyObject* call_python_function_on_main_thread(
       break;
 
     // otherwise sleep for wait_ms
-    using namespace tthread;
-    this_thread::sleep_for(chrono::milliseconds(wait_ms));
+    
+    tthread::this_thread::sleep_for(tthread::chrono::milliseconds(wait_ms));
 
     // increment total wait time and print a warning every 60 seconds
     waited_ms += wait_ms;
@@ -1599,7 +1599,7 @@ void trace_print(int threadId, PyFrameObject *frame) {
 }
 
 void trace_thread_main(void* aArg) {
-  using namespace tthread;
+  
 
   int* tracems = (int*)aArg;
 
@@ -1616,7 +1616,7 @@ void trace_thread_main(void* aArg) {
 
     PyGILState_Release(gstate);
 
-    this_thread::sleep_for(chrono::milliseconds(*tracems));
+    tthread::this_thread::sleep_for(tthread::chrono::milliseconds(*tracems));
   }
 }
 

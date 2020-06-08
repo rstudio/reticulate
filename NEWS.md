@@ -1,6 +1,10 @@
 
 ## reticulate 1.17 (UNRELEASED)
 
+- `reticulate` now explicitly qualifies symbols used from TinyThread
+  with `tthread::`, to avoid issues with symbol conflicts during
+  compilation. (#773)
+  
 ## reticulate 1.16
 
 - TinyThread now calls `Rf_error()` rather than `std::terminate()`

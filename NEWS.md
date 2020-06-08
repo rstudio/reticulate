@@ -1,6 +1,9 @@
 
 ## reticulate 1.17 (UNRELEASED)
 
+- `reticulate:::pip_freeze()` now better handles `pip` direct references.
+  (#775)
+
 - Fixed an issue where output generated from `repl_python()` would
   be buffered until the whole submitted command had completed.
   (#739, @randy3k)

@@ -1,4 +1,6 @@
 
+## reticulate 1.17 (UNRELEASED)
+
 ## reticulate 1.16
 
 - TinyThread now calls `Rf_error()` rather than `std::terminate()`

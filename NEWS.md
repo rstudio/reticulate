@@ -1,6 +1,10 @@
 
 ## reticulate 1.17 (UNRELEASED)
 
+- Fixed an issue where output generated from `repl_python()` would
+  be buffered until the whole submitted command had completed.
+  (#739, @randy3k)
+
 - `reticulate` now explicitly qualifies symbols used from TinyThread
   with `tthread::`, to avoid issues with symbol conflicts during
   compilation. (#773)

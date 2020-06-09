@@ -1,6 +1,8 @@
 
 ## reticulate 1.17 (UNRELEASED)
 
+- Fix unsafe usages of `Rprintf()` and `REprintf()`.
+
 - `reticulate::py_install()` better respects the `method` argument, when
   `py_install()` is called without an explicit environment name. (#777)
   

@@ -1,6 +1,9 @@
 
 ## reticulate 1.17 (UNRELEASED)
 
+- `reticulate` now avoids presenting a Miniconda prompt for interactive
+  sessions during R session initialization.
+
 - Fix unsafe usages of `Rprintf()` and `REprintf()`.
 
 - `reticulate::py_install()` better respects the `method` argument, when

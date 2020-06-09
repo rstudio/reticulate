@@ -230,3 +230,19 @@ enumerate <- function(x, f, ...) {
     f(n[[i]], x[[i]], ...)
   })
 }
+
+is_interactive <- function() {
+  
+  # detect case where RStudio is being used, but reticulate is being
+  # executed as part of a user's .Rprofile (for example). in this case,
+  # we aren't really interactive as we are unable to respond to readline
+  # requests, and so we want to avoid miniconda prompts
+  rstudio <- !is.na(Sys.getenv("RSTUDIO", unset = NA))
+  gui <- .Platform$GUI
+  if (rstudio && !identical(gui, "RStudio"))
+    return(FALSE)
+  
+  # otherwise, use base implementation
+  interactive()
+  
+}

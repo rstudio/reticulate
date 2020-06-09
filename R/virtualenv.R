@@ -133,10 +133,13 @@ virtualenv_install <- function(envname = NULL,
 #' @inheritParams virtualenv-tools
 #' @rdname virtualenv-tools
 #' @export
-virtualenv_remove <- function(envname = NULL, packages = NULL, confirm = interactive()) {
-
+virtualenv_remove <- function(envname = NULL,
+                              packages = NULL,
+                              confirm = interactive())
+{
   path <- virtualenv_path(envname)
   name <- if (is.null(envname)) path else envname
+  confirm <- confirm && is_interactive()
 
   if (!virtualenv_exists(path)) {
     fmt <- "Virtual environment '%s' does not exist."

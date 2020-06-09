@@ -173,7 +173,7 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
   if (!file.exists(miniconda)) {
     
     can_install_miniconda <-
-      interactive() &&
+      is_interactive() &&
       length(python_versions) == 0 &&
       miniconda_enabled() &&
       miniconda_installable()

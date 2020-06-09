@@ -223,7 +223,7 @@ miniconda_installable <- function() {
 
 miniconda_install_prompt <- function() {
   
-  if (!interactive())
+  if (!is_interactive())
     return(FALSE)
   
   text <- paste(

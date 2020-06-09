@@ -1,6 +1,9 @@
 
 ## reticulate 1.17 (UNRELEASED)
 
+- `reticulate::py_install()` better respects the `method` argument, when
+  `py_install()` is called without an explicit environment name. (#777)
+  
 - `reticulate:::pip_freeze()` now better handles `pip` direct references.
   (#775)
 

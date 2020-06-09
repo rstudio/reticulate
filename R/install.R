@@ -85,15 +85,17 @@ py_install <- function(packages,
       .globals$required_python_version[[1]]
     else if (length(p <- py_discover_config()$python))
       p
-    else
-      NULL
     
     if (!is.null(python)) {
+      
+      # form path to environment
       info <- python_info(python)
       envname <- info$root
-      method <- info$type
-      if (method == "conda")
+      
+      # update conda binary path if required
+      if (identical(conda, "auto") && identical(info$type, "conda"))
         conda <- conda_binary(info$root)
+      
     }
     
   }
@@ -102,12 +104,6 @@ py_install <- function(packages,
   method <- match.arg(method)
   if (method == "auto")
     method <- py_install_method_detect(envname = envname, conda = conda)
-
-  # validate method
-  if (identical(method, "virtualenv") && is_windows()) {
-    stop("Installing Python packages into a virtualenv is not supported on Windows",
-         call. = FALSE)
-  }
 
   # perform the install
   switch(

@@ -31,7 +31,7 @@
 #' following locations:
 #' 
 #' 1. The location specified by the `reticulate.conda_binary` \R option;
-#' 2. The `miniconda_path()` location if it exists.
+#' 2. The [miniconda_path()] location (if it exists);
 #' 3. The program `PATH`;
 #' 4. A set of pre-defined locations where Conda is typically installed.
 #'

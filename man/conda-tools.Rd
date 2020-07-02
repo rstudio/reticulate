@@ -90,6 +90,7 @@ Anaconda / Miniconda installation and use that. \code{reticulate} will search th
 following locations:
 \enumerate{
 \item The location specified by the \code{reticulate.conda_binary} \R option;
+\item The \code{\link[=miniconda_path]{miniconda_path()}} location (if it exists);
 \item The program \code{PATH};
 \item A set of pre-defined locations where Conda is typically installed.
 }

@@ -31,8 +31,9 @@
 #' following locations:
 #' 
 #' 1. The location specified by the `reticulate.conda_binary` \R option;
-#' 2. The program `PATH`;
-#' 3. A set of pre-defined locations where Conda is typically installed.
+#' 2. The [miniconda_path()] location (if it exists);
+#' 3. The program `PATH`;
+#' 4. A set of pre-defined locations where Conda is typically installed.
 #'
 #' @export
 conda_list <- function(conda = "auto") {
@@ -350,6 +351,10 @@ find_conda <- function() {
   conda <- getOption("reticulate.conda_binary")
   if (!is.null(conda))
     return(conda)
+  
+  # if miniconda is installed, use it
+  if (miniconda_exists())
+    return(miniconda_conda())
   
   # if there is a conda executable on the PATH, use it
   conda <- Sys.which("conda")

@@ -20,6 +20,9 @@
   with `tthread::`, to avoid issues with symbol conflicts during
   compilation. (#773)
   
+- Prefer Miniconda installation over system path's conda when looking
+  for conda. (#790)
+  
 ## reticulate 1.16
 
 - TinyThread now calls `Rf_error()` rather than `std::terminate()`

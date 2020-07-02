@@ -354,7 +354,7 @@ find_conda <- function() {
   
   # if miniconda is installed, use it
   if (miniconda_exists())
-    conda <- miniconda_conda()
+    return(miniconda_conda())
   
   # if there is a conda executable on the PATH, use it
   conda <- Sys.which("conda")

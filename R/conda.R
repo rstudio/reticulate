@@ -515,7 +515,7 @@ conda_list_packages <- function(envname = NULL, conda = "auto", no_pip = TRUE) {
 }
 
 conda_installed <- function() {
-  condabin <- tryCatch(conda_binary(conda = conda), error = identity)
+  condabin <- tryCatch(conda_binary(), error = identity)
   if (inherits(condabin, "error"))
     return(FALSE)
   else

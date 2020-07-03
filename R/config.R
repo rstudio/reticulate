@@ -155,7 +155,7 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
   # the user might have a conda installation but no environment.
   # in this case we should create the r-reticulate env
   # we use the same python version as we would install with miniconda.
-  if (length(conda_binary()) > 0 && nrow(conda_list()) == 0) {
+  if (conda_installed() && nrow(conda_list()) == 0) {
     python <- miniconda_python_package()
     conda_create("r-reticulate", packages = c(python, "numpy"), conda = conda_binary())
   }

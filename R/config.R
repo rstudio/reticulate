@@ -172,7 +172,6 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
     module_python_envs <- python_condaenvs[python_condaenvs$name %in% envnames, ]
     python_versions <- c(python_versions, module_python_envs$python)
   }
-
   
   # look for r-reticulate environment in miniconda
   # if the environment doesn't exist, and the user hasn't requested a separate
@@ -341,6 +340,10 @@ python_conda_versions <- function() {
                   "/miniconda2/envs",
                   "/miniconda3/envs",
                   "/miniconda4/envs",
+                  "~/opt/anaconda/envs",
+                  "~/opt/anaconda2/envs",
+                  "~/opt/anaconda3/envs",
+                  "~/opt/anaconda4/envs",
                   "~")
     
     python_env_binaries <- python_environments(env_dirs)

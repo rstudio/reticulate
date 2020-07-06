@@ -164,7 +164,6 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
     module_python_envs <- python_condaenvs[python_condaenvs$name %in% envnames, ]
     python_versions <- c(python_versions, module_python_envs$python)
   }
-
   
   # look for r-reticulate environment in miniconda
   # if the environment doesn't exist, and the user hasn't requested a separate
@@ -199,6 +198,20 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
     config <- python_config(miniconda_python, NULL, miniconda_python)
     return(config)
     
+  }
+  
+  # the user might have opted out for miniconda but could still have a 
+  # conda isntallation. In this case, we should the r-reticulate env
+  # we use the same python version as we would install with miniconda.
+  if (conda_installed() && nrow(conda_list()) == 0) {
+    python <- miniconda_python_package()
+    conda_create("r-reticulate", packages = c(python, "numpy"), conda = conda_binary())
+    
+    # gather python conda versions one again as they might exist now that
+    # we created the environment
+    python_condaenvs <- python_conda_versions()
+    r_reticulate_python_envs <- python_condaenvs[python_condaenvs$name == "r-reticulate", ]
+    python_versions <- c(python_versions, r_reticulate_python_envs$python)
   }
   
   # join virtualenv, condaenv environments together
@@ -333,6 +346,10 @@ python_conda_versions <- function() {
                   "/miniconda2/envs",
                   "/miniconda3/envs",
                   "/miniconda4/envs",
+                  "~/opt/anaconda/envs",
+                  "~/opt/anaconda2/envs",
+                  "~/opt/anaconda3/envs",
+                  "~/opt/anaconda4/envs",
                   "~")
     
     python_env_binaries <- python_environments(env_dirs)

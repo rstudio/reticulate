@@ -51,6 +51,9 @@ python_info <- function(python) {
       file.exists(file.path(path, "Scripts/activate")) ||
       file.exists(file.path(path, "Scripts/activate.bat"))
 
+    if (is_windows())
+      virtualenv <- virtualenv && (!file.exists("condabin/conda"))
+    
     if (virtualenv) {
       suffix <- if (is_windows()) "Scripts/python.exe" else "bin/python"
       python <- file.path(path, suffix)

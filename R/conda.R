@@ -66,11 +66,22 @@ conda_list <- function(conda = "auto") {
   # strip out anaconda cloud prefix (not valid json)
   if (length(conda_envs) > 0 && grepl("Anaconda Cloud", conda_envs[[1]], fixed = TRUE))
     conda_envs <- conda_envs[-1]
+  
+  # parse conda info
+  info <- fromJSON(conda_envs)
 
   # convert to json
-  conda_envs <- fromJSON(conda_envs)$envs
+  conda_envs <- info$envs
   conda_envs <- Filter(file.exists, conda_envs)
-
+  
+  # normalize and remove duplicates (seems necessary on Windows as Anaconda
+  # may report both short-path and long-path versions of the same environment)
+  conda_envs <- unique(normalizePath(conda_envs))
+  
+  # remove root conda environment as it shouldnnt count as environment and
+  # it is not correct to install packages into it.
+  conda_envs <- conda_envs[!conda_envs == normalizePath(info$root_prefix)]
+  
   # return an empty data.frame when no envs are found
   if (length(conda_envs) == 0L) {
     return(data.frame(
@@ -79,10 +90,6 @@ conda_list <- function(conda = "auto") {
       stringsAsFactors = FALSE)
     )
   }
-
-  # normalize and remove duplicates (seems necessary on Windows as Anaconda
-  # may report both short-path and long-path versions of the same environment)
-  conda_envs <- unique(normalizePath(conda_envs))
 
   # build data frame
   name <- character()
@@ -505,4 +512,12 @@ conda_list_packages <- function(envname = NULL, conda = "auto", no_pip = TRUE) {
     stringsAsFactors = FALSE
   )
   
+}
+
+conda_installed <- function() {
+  condabin <- tryCatch(conda_binary(), error = identity)
+  if (inherits(condabin, "error"))
+    return(FALSE)
+  else
+    return(TRUE)
 }

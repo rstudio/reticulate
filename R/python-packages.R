@@ -157,7 +157,7 @@ configure_environment <- function(package = NULL, force = FALSE) {
       
       # read installed packages lazily
       envpath <- dirname(dirname(config$python))
-      conda <- miniconda_conda()
+      conda <- conda_binary()
       
       if (is.null(conda_installed_packages)) {
         conda_installed_packages <- conda_list_packages(
@@ -177,7 +177,7 @@ configure_environment <- function(package = NULL, force = FALSE) {
       if (satisfied)
         next
       
-      conda_packages[[length(conda_packages + 1)]] <- requirement
+      conda_packages[[length(conda_packages) + 1]] <- requirement
     
     }
     

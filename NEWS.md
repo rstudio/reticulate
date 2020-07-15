@@ -1,6 +1,16 @@
 
 ## reticulate 1.17 (UNRELEASED)
 
+- `reticulate::virtualenv_create()` gains the `packages` argument, allowing one
+  to choose a set of packages to be installed (via `pip install`) after the
+  virtual environment has been created.
+
+- `reticulate::virtualenv_create()` gains the `system_site_packages` argument,
+  allowing one to control whether the `--system-site-packages` flag is passed
+  along when creating a new virtual environment. The default value can be
+  customized via the `"reticulate.virtualenv.system_site_packages"` option. and
+  now defaults to `FALSE` when unset.
+
 - Fixed an issue where `reticulate::configure_environment()` would fail
   when attempting to configure an Anaconda environment. (#794)
 

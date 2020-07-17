@@ -41,7 +41,7 @@
 #'
 #' @param system_site_packages Boolean; create new virtual environments with
 #'   the `--system-site-packages` flag, thereby allowing those virtual
-#'   environments to access the system's site packages.
+#'   environments to access the system's site packages. Defaults to `FALSE`.
 #'
 #' @param ... Optional arguments; currently ignored for future expansion.
 #'

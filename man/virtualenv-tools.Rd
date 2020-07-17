@@ -46,13 +46,15 @@ used instead.}
 virtual environment. When \code{NULL}, the Python interpreter associated with
 the current session will be used.}
 
-\item{packages}{A set of Python packages to install (via \code{pip}) into the
-virtual environment, after it has been created. By default, the \code{"numpy"}
-package will be installed.}
+\item{packages}{A set of Python packages to install (via \verb{pip install}) into
+the virtual environment, after it has been created. By default, the
+\code{"numpy"} package will be installed, and the \code{pip}, \code{setuptools} and
+\code{wheel} packages will be updated. Set this to \code{FALSE} to avoid installing
+any packages after the virtual environment has been created.}
 
 \item{system_site_packages}{Boolean; create new virtual environments with
 the \code{--system-site-packages} flag, thereby allowing those virtual
-environments to access the system's site packages?}
+environments to access the system's site packages. Defaults to \code{FALSE}.}
 
 \item{ignore_installed}{Boolean; ignore previously-installed versions of the
 requested packages? (This should normally be \code{TRUE}, so that pre-installed

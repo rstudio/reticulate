@@ -33,6 +33,16 @@
 #'   virtual environment. When `NULL`, the Python interpreter associated with
 #'   the current session will be used.
 #'
+#' @param packages A set of Python packages to install (via `pip install`) into
+#'   the virtual environment, after it has been created. By default, the
+#'   `"numpy"` package will be installed, and the `pip`, `setuptools` and
+#'   `wheel` packages will be updated. Set this to `FALSE` to avoid installing
+#'   any packages after the virtual environment has been created.
+#'
+#' @param system_site_packages Boolean; create new virtual environments with
+#'   the `--system-site-packages` flag, thereby allowing those virtual
+#'   environments to access the system's site packages. Defaults to `FALSE`.
+#'
 #' @param ... Optional arguments; currently ignored for future expansion.
 #'
 #' @name virtualenv-tools
@@ -53,8 +63,12 @@ virtualenv_list <- function() {
 #' @inheritParams virtualenv-tools
 #' @rdname virtualenv-tools
 #' @export
-virtualenv_create <- function(envname = NULL, python = NULL) {
-
+virtualenv_create <- function(
+  envname = NULL,
+  python = NULL,
+  packages = "numpy",
+  system_site_packages = getOption("reticulate.virtualenv.system_site_packages", default = FALSE))
+{
   path <- virtualenv_path(envname)
   name <- if (is.null(envname)) path else envname
 
@@ -67,29 +81,42 @@ virtualenv_create <- function(envname = NULL, python = NULL) {
   python <- virtualenv_default_python(python)
   module <- virtualenv_module(python)
 
-  writeLines(paste("Creating virtual environment", shQuote(name), "..."))
-  writeLines(paste("Using python:", python))
-
   # use it to create the virtual environment (note that 'virtualenv'
   # requires us to request the specific Python binary we wish to use when
   # creating the environment)
   args <- c("-m", module)
   if (module == "virtualenv")
     args <- c(args, "-p", shQuote(python))
-  args <- c(args, "--system-site-packages", shQuote(path.expand(path)))
+  
+  # add --system-site-packages if requested
+  if (system_site_packages)
+    args <- c(args, "--system-site-packages")
+  
+  # add the path where the environment will be created
+  args <- c(args, shQuote(path.expand(path)))
+  
+  writef("Using Python: %s", python)
+  printf("Creating virtual environment %s ... ", shQuote(name))
   
   result <- system2(python, args)
   if (result != 0L) {
+    writef("FAILED")
     fmt <- "Error creating virtual environment '%s' [error code %d]"
-    msg <- sprintf(fmt, name, result)
-    stop(msg, call. = FALSE)
+    stopf(fmt, name, result)
   }
+  
+  writef("Done!")
 
   # upgrade pip and friends after creating the environment
   # (since the version bundled with virtualenv / venv may be stale)
-  python <- virtualenv_python(envname)
-  pip_install(python, c("pip", "wheel", "setuptools"))
-
+  if (!identical(packages, FALSE)) {
+    python <- virtualenv_python(envname)
+    packages <- unique(c("pip", "wheel", "setuptools", packages))
+    writef("Installing packages: %s", paste(shQuote(packages), collapse = ", "))
+    pip_install(python, packages)
+  }
+  
+  writef("Virtual environment '%s' successfully created.", name)
   invisible(path)
 }
 
@@ -124,7 +151,9 @@ virtualenv_install <- function(envname = NULL,
     pip_install(python, c("pip", "wheel", "setuptools"))
   
   # now install the requested package
-  pip_install(python, packages, ignore_installed = ignore_installed,
+  pip_install(python,
+              packages,
+              ignore_installed = ignore_installed,
               pip_options = pip_options)
 }
 

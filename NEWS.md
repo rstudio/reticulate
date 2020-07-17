@@ -8,7 +8,7 @@
 - `reticulate::virtualenv_create()` gains the `system_site_packages` argument,
   allowing one to control whether the `--system-site-packages` flag is passed
   along when creating a new virtual environment. The default value can be
-  customized via the `"reticulate.virtualenv.system_site_packages"` option. and
+  customized via the `"reticulate.virtualenv.system_site_packages"` option and
   now defaults to `FALSE` when unset.
 
 - Fixed an issue where `reticulate::configure_environment()` would fail
@@ -644,4 +644,3 @@
 ## reticulate 0.7
 
 - Initial CRAN release
-

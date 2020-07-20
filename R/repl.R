@@ -56,13 +56,8 @@ repl_python <- function(
   }
 
   # import other required modules for the REPL
-  builtins <- import_builtins(convert = FALSE)
   sys <- import("sys", convert = TRUE)
   codeop <- import("codeop", convert = TRUE)
-
-  # grab references to the locals, globals of the main module
-  locals <- py_run_string("locals()")
-  globals <- py_run_string("globals()")
 
   # check to see if the current environment supports history
   # (check for case where working directory not writable)
@@ -123,6 +118,17 @@ repl_python <- function(
   }
 
   repl <- function() {
+    
+    # flush stdout, stderr on each REPL iteration
+    on.exit({
+      
+      if (!is.null(sys$stdout) && !is.null(sys$stdout$flush))
+        sys$stdout$flush()
+      
+      if (!is.null(sys$stderr) && !is.null(sys$stderr$flush))
+        sys$stderr$flush()
+      
+    }, add = TRUE)
 
     # read user input
     prompt <- if (buffer$empty()) ">>> " else "... "

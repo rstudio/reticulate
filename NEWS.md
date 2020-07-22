@@ -1,6 +1,11 @@
 
 ## reticulate 1.17 (UNRELEASED)
 
+- `reticulate` now sets `PYTHONPATH` before loading Python, to ensure modules
+  are looked up in the same locations where a regular Python interpreter would
+  find them on load. This should fix issues where `reticulate` was unable to
+  bind to a Python virtual environment in some cases.
+  
 - `reticulate::virtualenv_create()` gains the `packages` argument, allowing one
   to choose a set of packages to be installed (via `pip install`) after the
   virtual environment has been created.

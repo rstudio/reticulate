@@ -117,10 +117,13 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
     
     # set PYTHONPATH (required to load virtual environments in some cases?)
     oldpythonpath <- Sys.getenv("PYTHONPATH")
-    newpythonpath <- paste(
-      config$pythonpath,
-      system.file("python", package = "reticulate"),
-      sep = .Platform$path.sep
+    newpythonpath <- Sys.getenv(
+      "RETICULATE_PYTHONPATH",
+      unset = paste(
+        config$pythonpath,
+        system.file("python", package = "reticulate"),
+        sep = .Platform$path.sep
+      )
     )
     
     Sys.setenv(PYTHONPATH = newpythonpath)

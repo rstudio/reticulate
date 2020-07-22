@@ -267,7 +267,7 @@ virtualenv_default_python <- function(python = NULL) {
 
   # if the user has supplied a verison of python already, use it
   if (!is.null(python))
-    return(python)
+    return(path.expand(python))
 
   # check for some pre-defined Python sources (prefer Python 3)
   pythons <- c(

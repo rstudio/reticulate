@@ -453,15 +453,23 @@ python_config <- function(python, required_module, python_versions, forced = NUL
     on.exit(Sys.unsetenv("RETICULATE_REQUIRED_MODULE"), add = TRUE)
   }
 
+  # execute config script
   config_script <- system.file("config/config.py", package = "reticulate")
-  # It seems that Windows in R3.6 returns the configuration from the python file only in stderr and not in stdout
-  config <- system2(command = python, args = paste0('"', config_script, '"'), stdout = TRUE, stderr = FALSE)
+  config <- system2(
+    command = python,
+    args    = shQuote(config_script),
+    stdout  = TRUE,
+    stderr  = FALSE
+  )
+  
+  # check for error
   status <- attr(config, "status")
   if (!is.null(status)) {
     errmsg <- attr(config, "errmsg")
     stop("Error ", status, " occurred running ", python, " ", errmsg)
   }
 
+  # read output as dcf
   config_connection <- textConnection(config)
   on.exit(close(config_connection))
   config <- read.dcf(config_connection, all = TRUE)
@@ -503,14 +511,13 @@ python_config <- function(python, required_module, python_versions, forced = NUL
 
   # determine PYTHONHOME
   pythonhome <- NULL
-  if (!is.null(config$PREFIX)) {
-    pythonhome <- canonical_path(config$PREFIX)
+  if (!is.null(config$Prefix)) {
+    pythonhome <- canonical_path(config$Prefix)
     if (!is_windows()) {
-      exec_prefix <- canonical_path(config$EXEC_PREFIX)
+      exec_prefix <- canonical_path(config$ExecPrefix)
       pythonhome <- paste(pythonhome, exec_prefix, sep = ":")
     }
   }
-
 
   as_numeric_version <- function(version) {
     version <- clean_version(version)
@@ -544,23 +551,30 @@ python_config <- function(python, required_module, python_versions, forced = NUL
   required_module_path <- config$RequiredModulePath
 
   # return config info
-  structure(class = "py_config", list(
-    python = python,
-    libpython = libpython[1],
-    pythonhome = pythonhome,
-    virtualenv = virtualenv,
-    virtualenv_activate = virtualenv_activate,
-    version_string = version_string,
-    version = version,
-    architecture = architecture,
-    anaconda = anaconda,
-    numpy = numpy,
-    required_module = required_module,
+  info <- list(
+    python               = python,
+    libpython            = libpython[1],
+    pythonhome           = pythonhome,
+    pythonpath           = config$PythonPath,
+    prefix               = config$Prefix,
+    exec_prefix          = config$ExecPrefix,
+    base_exec_prefix     = config$BaseExecPrefix,
+    virtualenv           = virtualenv,
+    virtualenv_activate  = virtualenv_activate,
+    version_string       = version_string,
+    version              = version,
+    architecture         = architecture,
+    anaconda             = anaconda,
+    numpy                = numpy,
+    required_module      = required_module,
     required_module_path = required_module_path,
-    available = FALSE,
-    python_versions = python_versions,
-    forced = forced
-  ))
+    available            = FALSE,
+    python_versions      = python_versions,
+    forced               = forced
+  )
+  
+  class(info) <- "py_config"
+  info
 
 }
 

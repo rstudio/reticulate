@@ -540,7 +540,7 @@ python_config <- function(python, required_module, python_versions, forced = NUL
       pattern <- sprintf("^libpython%sd?m?%s", version, ext)
       candidates <- list.files(src, pattern = pattern, full.names = TRUE)
       if (length(candidates)) {
-        libpython <- candidate
+        libpython <- candidates
         break
       }
       

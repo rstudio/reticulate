@@ -482,12 +482,29 @@ python_config <- function(python, required_module, python_versions, forced = NUL
 
   # determine the location of libpython (see also # https://github.com/JuliaPy/PyCall.jl/blob/master/deps/build.jl)
   if (is_windows()) {
-    # note that 'prefix' has the binary location and 'py_version_nodot` has the suffix`
-    python_libdir <- dirname(python)
-    python_dll <- paste0("python", gsub(".", "", version, fixed = TRUE), ".dll")
-    libpython <- file.path(python_libdir, python_dll)
-    if (!file.exists(libpython))
-      libpython <- python_dll
+    
+    # construct DLL name
+    dll <- sprintf("python%s.dll", gsub(".", "", version, fixed = TRUE))
+    
+    # default to just using dll as libpython path (implies lookup on PATH)
+    libpython <- dll
+    
+    # search for python DLL in one of the declared prefixes
+    roots <- c(
+      dirname(python),
+      config$Prefix,
+      config$ExecPrefix,
+      config$BaseExecPrefix
+    )
+    
+    for (root in roots) {
+      candidate <- file.path(root, dll)
+      if (file.exists(candidate)) {
+        libpython <- canonical_path(candidate)
+        break
+      }
+    }
+    
   } else {
     # (note that the LIBRARY variable has the name of the static library)
     python_libdir_config <- function(var) {

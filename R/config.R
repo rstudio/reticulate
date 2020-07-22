@@ -506,6 +506,7 @@ python_config <- function(python, required_module, python_versions, forced = NUL
     }
     
   } else {
+    
     # (note that the LIBRARY variable has the name of the static library)
     python_libdir_config <- function(var) {
       python_libdir <- config[[var]]
@@ -513,16 +514,36 @@ python_config <- function(python, required_module, python_versions, forced = NUL
       pattern <- paste0("^libpython", version, "d?m?", ext)
       libpython <- list.files(python_libdir, pattern = pattern, full.names = TRUE)
     }
-    for (libsrc in c("LIBPL", "LIBDIR")) {
-      if (!is.null(config[[libsrc]])) {
-        libpython <- python_libdir_config(libsrc)
-        if (length(libpython))
-          break
-        else
-          libpython <- NULL
-      } else {
-        libpython <- NULL
+    
+    # default to NULL
+    libpython <- NULL
+
+    # check multiple library directories
+    # (necessary for virtualenvs that don't copy over the shared library)
+    libsrcs <- c("LIBPL", "LIBDIR", "Prefix", "ExecPrefix", "BaseExecPrefix")
+    for (libsrc in libsrcs) {
+      
+      # skip null entries in config
+      src <- config[[libsrc]]
+      if (is.null(src))
+        next
+      
+      # get appropriate libpython extension for platform
+      ext <- switch(
+        Sys.info()[["sysname"]],
+        Darwin  = ".dylib",
+        Windows = ".dll",
+        ".so"
+      )
+      
+      # try to resolve libpython in this location
+      pattern <- sprintf("^libpython%sd?m?%s", version, ext)
+      candidates <- list.files(src, pattern = pattern, full.names = TRUE)
+      if (length(candidates)) {
+        libpython <- candidate
+        break
       }
+      
     }
   }
 

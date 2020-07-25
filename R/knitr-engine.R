@@ -265,10 +265,14 @@ eng_python_initialize_matplotlib <- function(options, context, envir) {
     # need to switch backends; otherwise, we can simply request to use a
     # specific one when the backend is initialized later
     sys <- import("sys", convert = FALSE)
-    if ("matplotlib.backends" %in% names(sys$modules))
+    if ("matplotlib.backends" %in% names(sys$modules)) {
       matplotlib$pyplot$switch_backend("agg")
-    else
-      matplotlib$use("agg", warn = FALSE, force = TRUE)
+    } else {
+      version <- numeric_version(matplotlib$`__version__`)
+      if (version < "3.3.0")
+        matplotlib$use("agg", warn = FALSE, force = TRUE)
+      else
+        matplotlib$use("agg", force = TRUE)
   }
 
   # double-check that we can load 'pyplot' (this can fail if matplotlib

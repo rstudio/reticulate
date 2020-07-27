@@ -273,6 +273,7 @@ eng_python_initialize_matplotlib <- function(options, context, envir) {
         matplotlib$use("agg", warn = FALSE, force = TRUE)
       else
         matplotlib$use("agg", force = TRUE)
+    }
   }
 
   # double-check that we can load 'pyplot' (this can fail if matplotlib

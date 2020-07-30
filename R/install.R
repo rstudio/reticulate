@@ -94,7 +94,7 @@ py_install <- function(packages,
       
       # update conda binary path if required
       if (identical(conda, "auto") && identical(info$type, "conda"))
-        conda <- conda_binary(info$root)
+        conda <- info$conda %||% find_conda()
       
     }
     

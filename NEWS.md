@@ -1,6 +1,11 @@
 
 ## reticulate 1.17 (UNRELEASED)
 
+- `reticulate` now attempts to resolve the conda binary used to create the
+  associated Conda environment in calls to `py_install()`. This should fix use
+  cases where Conda environments are placed outside of the Conda installation
+  itself.
+
 - `reticulate` now sets `PYTHONPATH` before loading Python, to ensure modules
   are looked up in the same locations where a regular Python interpreter would
   find them on load. This should fix issues where `reticulate` was unable to

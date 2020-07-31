@@ -20,7 +20,7 @@
 source_python <- function(file, envir = parent.frame(), convert = TRUE) {
 
   # Download file content from URL to a local tempory file
-  if (!file.exists(file) && isTRUE(grepl("http", file))) {
+  if (!file.exists(file) && isTRUE(grepl("^https?://", file))) {
     tmpfile <- tempfile(fileext = ".py")
     utils::download.file(url = file, destfile = tmpfile, quiet = TRUE)
     file <- tmpfile

@@ -1,143 +1,4 @@
 
-#' Import a Python module
-#'
-#' Import the specified Python module for calling from R.
-#'
-#' @param module Module name
-#' @param as Alias for module name (affects names of R classes). Note that
-#'  this is an advanced parameter that should generally only be used
-#'  in package development (since it affects the S3 name of the imported
-#'  class and can therefore interfere with S3 method dispatching).
-#' @param path Path to import from
-#' @param convert `TRUE` to automatically convert Python objects to their R
-#'   equivalent. If you pass `FALSE` you can do manual conversion using the
-#'   [py_to_r()] function.
-#' @param delay_load `TRUE` to delay loading the module until it is first used.
-#'   `FALSE` to load the module immediately. If a function is provided then it
-#'   will be called once the module is loaded. If a list containing `on_load()`
-#'   and `on_error(e)` elements is provided then `on_load()` will be called on
-#'   successful load and `on_error(e)` if an error occurs.
-#'
-#' @details The `import_from_path` function imports a Python module from an
-#'   arbitrary filesystem path (the directory of the specified python script is
-#'   automatically added to the `sys.path`).
-#'
-#' @return A Python module
-#'
-#' @examples
-#' \dontrun{
-#' main <- import_main()
-#' sys <- import("sys")
-#' }
-#'
-#' @export
-import <- function(module, as = NULL, convert = TRUE, delay_load = FALSE) {
-
-  # if there is an as argument then register a filter for it
-  if (!is.null(as)) {
-    register_class_filter(function(classes) {
-      sub(paste0("^", module), as, classes)
-    })
-  }
-
-  # resolve delay load
-  delay_load_environment <- NULL
-  delay_load_priority <- 0
-  delay_load_functions <- NULL
-  if (is.function(delay_load)) {
-    delay_load_functions <- list(on_load = delay_load)
-    delay_load <- TRUE
-  } else if (is.list(delay_load)) {
-    delay_load_environment <- delay_load$environment
-    delay_load_functions <- delay_load
-    if (!is.null(delay_load$priority))
-      delay_load_priority <- delay_load$priority
-    delay_load <- TRUE
-  }
-
-  # normal case (load immediately)
-  if (!delay_load || is_python_initialized()) {
-    # ensure that python is initialized (pass top level module as
-    # a hint as to which version of python to choose)
-    ensure_python_initialized(required_module = module)
-
-    # import the module
-    hookName <- paste("reticulate", module, "load", sep = "::")
-    imported <- py_module_import(module, convert = convert)
-
-    # run load hooks
-    hooks <- getHook(hookName)
-    for (hook in hooks)
-      tryCatch(hook(imported), error = warning)
-
-    # remove hooks (we only want to run on first import)
-    setHook(hookName, list(), "replace")
-
-    # return imported module
-    imported
-  }
-
-  # delay load case (wait until first access)
-  else {
-    if (is.null(.globals$delay_load_module) || (delay_load_priority > .globals$delay_load_priority)) {
-      .globals$delay_load_module <- module
-      .globals$delay_load_environment <- delay_load_environment
-      .globals$delay_load_priority <- delay_load_priority
-    }
-    module_proxy <- new.env(parent = emptyenv())
-    module_proxy$module <- module
-    module_proxy$convert <- convert
-    if (!is.null(delay_load_functions)) {
-      module_proxy$get_module <- delay_load_functions$get_module
-      module_proxy$on_load <- delay_load_functions$on_load
-      module_proxy$on_error <- delay_load_functions$on_error
-    }
-    attr(module_proxy, "class") <- c("python.builtin.module",
-                                     "python.builtin.object")
-    module_proxy
-  }
-}
-
-
-#' @rdname import
-#' @export
-import_main <- function(convert = TRUE) {
-  ensure_python_initialized()
-  import("__main__", convert = convert)
-}
-
-#' @rdname import
-#' @export
-import_builtins <- function(convert = TRUE) {
-  ensure_python_initialized()
-  if (is_python3())
-    import("builtins", convert = convert)
-  else
-    import("__builtin__", convert = convert)
-}
-
-
-#' @rdname import
-#' @export
-import_from_path <- function(module, path = ".", convert = TRUE) {
-
-  # normalize path
-  path <- normalizePath(path)
-
-  # add the path to sys.path if it isn't already there
-  sys <- import("sys", convert = FALSE)
-  if (!path %in% py_to_r(sys$path))
-    sys$path$append(path)
-
-  # import
-  import(module, convert = convert)
-}
-
-
-
-
-
-
 #' @export
 print.python.builtin.object <- function(x, ...) {
   str(x, ...)
@@ -150,7 +11,7 @@ str.python.builtin.object <- function(object, ...) {
   if (!py_available() || py_is_null_xptr(object))
     cat("<pointer: 0x0>\n")
   else
-    cat(py_str(object), "\n", sep="")
+    cat(py_str(object), "\n", sep = "")
 }
 
 #' @export
@@ -1293,17 +1154,23 @@ py_resolve_module_proxy <- function(proxy) {
   module <- get("module", envir = proxy)
 
   # load and error handlers
+  before_load <- collect_value("before_load")
   on_load <- collect_value("on_load")
   on_error <- collect_value("on_error")
+  
+  # execute before load handler
+  if (is.function(before_load))
+    before_load()
 
-  # perform the import -- capture error and ammend it with
+  # perform the import -- capture error and amend it with
   # python configuration information if we have it
   result <- tryCatch(import(module), error = clear_error_handler())
   if (inherits(result, "error")) {
     if (!is.null(on_error)) {
 
       # call custom error handler
-      on_error(result)
+      if (is.function(on_error))
+        on_error(result)
 
       # error handler can and should call `stop`, this is just a failsafe
       stop("Error loading Python module ", module, call. = FALSE)
@@ -1324,8 +1191,8 @@ py_resolve_module_proxy <- function(proxy) {
   .globals$delay_load_environment <- NULL
   .globals$delay_load_priority <- 0
 
-  # call on_load if specifed
-  if (!is.null(on_load))
+  # call on_load if provided
+  if (is.function(on_load))
     on_load()
 }
 

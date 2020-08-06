@@ -13,9 +13,9 @@ source_python(file, envir = parent.frame(), convert = TRUE)
 \code{parent.frame()} or \code{globalenv()}). Specify \code{NULL} to not assign Python
 objects.}
 
-\item{convert}{\code{TRUE} to automatically convert Python objects to their R
-equivalent. If you pass \code{FALSE} you can do manual conversion using the
-\code{\link[=py_to_r]{py_to_r()}} function.}
+\item{convert}{Boolean; should Python objects be automatically converted
+to their \R equivalent? If set to \code{FALSE}, you can still manually convert
+Python objects to \R via the \code{\link[=py_to_r]{py_to_r()}} function.}
 }
 \description{
 Evaluate a Python script within the Python main module, then make all public

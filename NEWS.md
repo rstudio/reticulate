@@ -1,6 +1,14 @@
 
 ## reticulate 1.17 (UNRELEASED)
 
+- `reticulate::import_from_path()` now accepts the `delay_load` parameter,
+  allowing modules which should be loaded from a pre-specified path
+  to be lazy-loaded.
+
+- Fixed an issue where `reticulate` load hooks (normally defined via
+  `setHook("reticulate::<module>::load", ...)`) would segfault if those
+  hooks attempted to load the hooked module.
+
 - `reticulate` now attempts to resolve the conda binary used to create the
   associated Conda environment in calls to `py_install()`. This should fix use
   cases where Conda environments are placed outside of the Conda installation
@@ -43,8 +51,8 @@
   with `tthread::`, to avoid issues with symbol conflicts during
   compilation. (#773)
   
-- Prefer Miniconda installation over system path's conda when looking
-  for conda. (#790)
+- `reticulate` will now prefer an existing Miniconda installation over
+  a `conda` binary on the PATH, when looking for Conda. (#790)
   
 ## reticulate 1.16
 

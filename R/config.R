@@ -68,9 +68,10 @@ py_numpy_available <- function(initialize = FALSE) {
 
 #' Check if a Python module is available on this system.
 #'
-#' @param module Name of module
+#' @param module The name of the module.
 #'
-#' @return Logical indicating whether module is available
+#' @return `TRUE` if the module is available and can be loaded;
+#'   `FALSE` otherwise.
 #'
 #' @export
 py_module_available <- function(module) {

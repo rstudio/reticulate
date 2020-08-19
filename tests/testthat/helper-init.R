@@ -4,21 +4,14 @@ test_that <- function(desc, code) {
   # don't run tests on CRAN
   testthat::skip_on_cran()
   
-  # delegate to test_that
+  # delegate to testthat
   call <- sys.call()
   call[[1L]] <- quote(testthat::test_that)
   eval(call, envir = parent.frame())
   
 }
 
-py_tests_initialize <- function() {
-  
-  # prefer Python 3 if available
-  if (is.na(Sys.getenv("RETICULATE_PYTHON", unset = NA))) {
-    python <- Sys.which("python3")
-    if (nzchar(python))
-      use_python(python, required = TRUE)
-  }
+context <- function(label) {
   
   # import some modules used by the tests
   if (py_available(initialize = TRUE)) {
@@ -30,9 +23,24 @@ py_tests_initialize <- function() {
       builtins = import_builtins(convert = FALSE)
     )
     
-    envir <- globalenv()
-    list2env(modules, envir = envir)
+    list2env(modules, envir = parent.frame())
     
+  }
+  
+  # delegate to testthat
+  call <- sys.call()
+  call[[1L]] <- quote(testthat::context)
+  eval(call, envir = parent.frame())
+  
+}
+
+py_tests_initialize <- function() {
+  
+  # prefer Python 3 if available
+  if (is.na(Sys.getenv("RETICULATE_PYTHON", unset = NA))) {
+    python <- Sys.which("python3")
+    if (nzchar(python))
+      use_python(python, required = TRUE)
   }
   
 }

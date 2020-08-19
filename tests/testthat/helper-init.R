@@ -13,6 +13,17 @@ test_that <- function(desc, code) {
 
 context <- function(label) {
   
+  # prefer Python 3 if available
+  if (!py_available(initialize = FALSE)) {
+    
+    if (is.na(Sys.getenv("RETICULATE_PYTHON", unset = NA))) {
+      python <- Sys.which("python3")
+      if (nzchar(python))
+        use_python(python, required = TRUE)
+    }
+    
+  }
+  
   # import some modules used by the tests
   if (py_available(initialize = TRUE)) {
     
@@ -31,16 +42,5 @@ context <- function(label) {
   call <- sys.call()
   call[[1L]] <- quote(testthat::context)
   eval(call, envir = parent.frame())
-  
-}
-
-py_tests_initialize <- function() {
-  
-  # prefer Python 3 if available
-  if (is.na(Sys.getenv("RETICULATE_PYTHON", unset = NA))) {
-    python <- Sys.which("python3")
-    if (nzchar(python))
-      use_python(python, required = TRUE)
-  }
   
 }

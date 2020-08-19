@@ -1,4 +1,13 @@
 
+# prefer Python 3 if available
+if (!py_available(initialize = FALSE) &&
+    is.na(Sys.getenv("RETICULATE_PYTHON", unset = NA)))
+{
+  python <- Sys.which("python3")
+  if (nzchar(python))
+    use_python(python, required = TRUE)
+}
+
 test_that <- function(desc, code) {
 
   # don't run tests on CRAN
@@ -12,17 +21,6 @@ test_that <- function(desc, code) {
 }
 
 context <- function(label) {
-  
-  # prefer Python 3 if available
-  if (!py_available(initialize = FALSE)) {
-    
-    if (is.na(Sys.getenv("RETICULATE_PYTHON", unset = NA))) {
-      python <- Sys.which("python3")
-      if (nzchar(python))
-        use_python(python, required = TRUE)
-    }
-    
-  }
   
   # import some modules used by the tests
   if (py_available(initialize = TRUE)) {

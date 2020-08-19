@@ -1,6 +1,10 @@
 
 ## reticulate 1.17 (UNRELEASED)
 
+- `reticulate` now uses the `importhook` module to hook loaded modules. This
+  should allow `reticulate` to more properly detect when certain Python modules
+  are loaded, and take action in response to their load.
+
 - `reticulate::import_from_path()` now accepts the `delay_load` parameter,
   allowing modules which should be loaded from a pre-specified path
   to be lazy-loaded.

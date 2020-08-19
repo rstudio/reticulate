@@ -1275,4 +1275,28 @@ py_inject_hooks <- function() {
     builtins[[name]] <- input
   }
   
+  # register module import callback if version of python is sufficient
+  if (numeric_version(.globals$py_config$version) > "3.2") {
+    loader <- import("rpytools.loader")
+    loader$initialize(py_module_loaded)
+  }
+  
+}
+
+py_module_loaded <- function(module) {
+  
+  # retrieve module name
+  moduleName <- module$`__spec__`$name
+  if (is.null(moduleName))
+    return()
+  
+  # retrieve and clear list of hooks
+  hookName <- paste("reticulate", moduleName, "load", sep = "::")
+  hooks <- getHook(hookName)
+  setHook(hookName, NULL, action = "replace")
+  
+  # run hooks
+  for (hook in hooks)
+    tryCatch(hook(), error = warning)
+  
 }

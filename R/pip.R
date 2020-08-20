@@ -62,28 +62,19 @@ pip_freeze <- function(python) {
   output <- system2(python, args, stdout = TRUE)
   
   # match explicit version requests + direct references
-  pattern <- paste0(
-    "^\\s*",        # leading optional spaces
-    "([^\\s=@]+)",  # package name
-    "\\s*",         # optional spaces
-    "(==|@)",       # separator
-    "\\s*",         # optional spaces
-    "([^\\s]+)",    # version or path
-    "\\s*$"         # the rest
-  )
+  matches <- strsplit(output, "(==|@)")
   
-  # get matches
-  m <- regexec(pattern, output, perl = TRUE)
-  matches <- regmatches(output, m)
+  # keep original output string
+  matches <- .mapply(c, list(matches, output), MoreArgs = NULL)
   
   # drop unmatched lines
   n <- vapply(matches, length, FUN.VALUE = numeric(1))
-  matches <- matches[n > 0]
+  matches <- matches[n == 3]
   
   # build output columns
-  packages    <- vapply(matches, `[[`, 2L, FUN.VALUE = character(1))
-  versions    <- vapply(matches, `[[`, 4L, FUN.VALUE = character(1))
-  requirement <- vapply(matches, `[[`, 1L, FUN.VALUE = character(1))
+  packages    <- vapply(matches, `[[`, 1L, FUN.VALUE = character(1))
+  versions    <- vapply(matches, `[[`, 2L, FUN.VALUE = character(1))
+  requirement <- vapply(matches, `[[`, 3L, FUN.VALUE = character(1))
   
   # return as data.frame
   data.frame(

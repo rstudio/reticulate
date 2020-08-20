@@ -105,28 +105,14 @@ import <- function(module, as = NULL, convert = TRUE, delay_load = FALSE) {
   
   # normal case (load immediately)
   if (!delay_load || is_python_initialized()) {
+    
     # ensure that python is initialized (pass top level module as
     # a hint as to which version of python to choose)
     ensure_python_initialized(required_module = module)
     
     # import the module
-    hookName <- paste("reticulate", module, "load", sep = "::")
-    imported <- py_module_import(module, convert = convert)
-    
-    # retrieve load hooks
-    hooks <- getHook(hookName)
-    
-    # remove hooks (we only want to run on first import, and
-    # we need to do this before running the hooks as the load
-    # hooks may want to re-import the module)
-    setHook(hookName, list(), "replace")
-    
-    # run load hooks
-    for (hook in hooks)
-      tryCatch(hook(imported), error = warning)
-    
-    # return imported module
-    imported
+    py_module_import(module, convert = convert)
+
   }
   
   # delay load case (wait until first access)

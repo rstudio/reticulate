@@ -19,7 +19,9 @@ Authors@R: c(
   person("Ryan", "Hafen", role = c("ctb", "cph"),
          email = "rhafen@gmail.com"),
   person("Marcus", "Geelnard", role = c("ctb", "cph"),
-         comment = "TinyThread library, http://tinythreadpp.bitsnbites.eu/")
+         comment = "TinyThread library, http://tinythreadpp.bitsnbites.eu/"),
+  person("Brett", "Langdon", role = c("ctb", "cph"),
+         comment = "Author of importhook Python module, https://pypi.org/project/importhook/")
   )
 Description: Interface to 'Python' modules, classes, and functions. When calling
     into 'Python', R data types are automatically converted to their equivalent 'Python'

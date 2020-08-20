@@ -27,7 +27,7 @@ def hook_finder(finder):
     def wrap_find_spec(find_spec):
         @functools.wraps(find_spec)
         def wrapper(fullname, path, target=None):
-            logger.debug(f'{finder_name}.find_spec(fullname={fullname}, path={path}, target={target})')
+            # logger.debug(f'{finder_name}.find_spec(fullname={fullname}, path={path}, target={target})')
             spec = find_spec(fullname, path, target=target)
             if spec is not None:
                 spec.loader = HookLoader(spec.loader)
@@ -37,7 +37,7 @@ def hook_finder(finder):
     def wrap_find_loader(find_loader):
         @functools.wraps(find_loader)
         def wrapper(fullname, path):
-            logger.debug(f'{finder_name}.find_loader(fullname={fullname}, path={path})')
+            # logger.debug(f'{finder_name}.find_loader(fullname={fullname}, path={path})')
             loader = find_loader(fullname, path)
             return HookLoader(loader)
         return wrapper

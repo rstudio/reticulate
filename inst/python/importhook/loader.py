@@ -49,14 +49,14 @@ class HookLoader(Loader):
         raise AttributeError
 
     def create_module(self, *args, **kwargs):
-        logger.debug(f'{self.__class__.__name__}.create_module(*args={args}, **kwargs={kwargs})')
+        # logger.debug(f'{self.__class__.__name__}.create_module(*args={args}, **kwargs={kwargs})')
         if not hasattr(self.loader, 'create_module'):
             return None
 
         return self.loader.create_module(*args, **kwargs)
 
     def find_module(self, name, *args, **kwargs):
-        logger.debug(f'{self.__class__.__name__}.find_module(name={name}, *args={args}, **kwargs={kwargs})')
+        # logger.debug(f'{self.__class__.__name__}.find_module(name={name}, *args={args}, **kwargs={kwargs})')
         if not hasattr(self.loader, 'find_module'):
             return None
 
@@ -67,7 +67,7 @@ class HookLoader(Loader):
         return module
 
     def load_module(self, name, *args, **kwargs):
-        logger.debug(f'{self.__class__.__name__}.load_module(name={name}, *args={args}, **kwargs={kwargs})')
+        # logger.debug(f'{self.__class__.__name__}.load_module(name={name}, *args={args}, **kwargs={kwargs})')
         if not hasattr(self.loader, 'load_module'):
             return None
 
@@ -78,7 +78,7 @@ class HookLoader(Loader):
         return module
 
     def exec_module(self, module, *args, **kwargs):
-        logger.debug(f'{self.__class__.__name__}.exec_module(module={module}, *args={args}, **kwargs={kwargs})')
+        # logger.debug(f'{self.__class__.__name__}.exec_module(module={module}, *args={args}, **kwargs={kwargs})')
         if not hasattr(self.loader, 'exec_module'):
             return None
 

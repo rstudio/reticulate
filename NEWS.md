@@ -1,6 +1,8 @@
 
 ## reticulate 1.17 (UNRELEASED)
 
+- `reticulate` no longer calls `utils::loadhistory()` after each REPL iteration.
+
 - `reticulate` now uses the `importhook` module to hook loaded modules. This
   should allow `reticulate` to more properly detect when certain Python modules
   are loaded, and take action in response to their load. Note that this feature

@@ -195,10 +195,8 @@ repl_python <- function(
     }
 
     # update history file
-    if (use_history) {
-      write(contents, file = histfile, append = TRUE)
-      utils::loadhistory(histfile)
-    }
+    if (use_history)
+      cat(contents, file = histfile, sep = "\n", append = TRUE)
 
     # trim whitespace if the buffer is empty (this effectively allows leading
     # whitespace in top-level Python commands)

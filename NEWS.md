@@ -1,6 +1,9 @@
 
 ## reticulate 1.17 (UNRELEASED)
 
+- `reticulate` is now better at capturing Python logger streams (those that
+  write to stdout or stderr) when `py_capture_output()` is set. (#825)
+
 - `reticulate` no longer calls `utils::loadhistory()` after each REPL iteration.
 
 - `reticulate` now uses the `importhook` module to hook loaded modules. This

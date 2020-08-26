@@ -1285,21 +1285,8 @@ py_inject_hooks <- function() {
 
 py_module_loaded <- function(module) {
   
-  # TODO: figure out why we might sometimes receive a closure rather
-  # than the associated module object here?
-  if (is.function(module)) {
-    object <- attr(module, "py_object", exact = TRUE)
-    if (is.environment(object))
-      module <- object
-  }
-  
-  # retrieve module name
-  moduleName <- module$`__spec__`$name
-  if (is.null(moduleName))
-    return()
-  
   # retrieve and clear list of hooks
-  hookName <- paste("reticulate", moduleName, "load", sep = "::")
+  hookName <- paste("reticulate", module, "load", sep = "::")
   hooks <- getHook(hookName)
   setHook(hookName, NULL, action = "replace")
   

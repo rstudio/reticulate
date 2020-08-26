@@ -6,10 +6,7 @@
 
 - `reticulate` no longer calls `utils::loadhistory()` after each REPL iteration.
 
-- `reticulate` now uses the `importhook` module to hook loaded modules. This
-  should allow `reticulate` to more properly detect when certain Python modules
-  are loaded, and take action in response to their load. Note that this feature
-  is only supported with Python 3.3 or newer.
+- `reticulate` now better detects when Python modules are loaded.
 
 - `reticulate::import_from_path()` now accepts the `delay_load` parameter,
   allowing modules which should be loaded from a pre-specified path

@@ -125,18 +125,21 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
         sep = .Platform$path.sep
       )
     )
-    
-    Sys.setenv(PYTHONPATH = newpythonpath)
-    on.exit(Sys.setenv(PYTHONPATH = oldpythonpath), add = TRUE)
-    
-    # initialize Python
-    py_initialize(config$python,
-                  config$libpython,
-                  config$pythonhome,
-                  config$virtualenv_activate,
-                  config$version >= "3.0",
-                  interactive(),
-                  numpy_load_error)
+ 
+    local({
+      # set PYTHONPATH while we initialize
+      Sys.setenv(PYTHONPATH = newpythonpath)
+      on.exit(Sys.setenv(PYTHONPATH = oldpythonpath), add = TRUE)
+      
+      # initialize Python
+      py_initialize(config$python,
+                    config$libpython,
+                    config$pythonhome,
+                    config$virtualenv_activate,
+                    config$version >= "3.0",
+                    interactive(),
+                    numpy_load_error)
+    })
     
     },
     

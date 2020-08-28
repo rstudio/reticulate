@@ -128,9 +128,9 @@ test_that("single-row data.frames with rownames can be converted", {
 
 test_that("Time zones are respected if available", {
   skip_if_no_pandas()
-  
+
   pd <- import("pandas", convert = FALSE)
-  
+
   before <- pd$DataFrame(list('TZ' = pd$Series(
     c(
       pd$Timestamp('20130102003020', tz = 'US/Pacific'),
@@ -139,32 +139,46 @@ test_that("Time zones are respected if available", {
       pd$Timestamp('20130102003020', tz = 'Hongkong')
     )
   )))
-  
+
   converted <- py_to_r(before)
   after <- r_to_py(converted)
-  
+
   # check if both are the same in *local* timezone
   expect_equal(py_to_r(before), py_to_r(after))
-  
+
 })
 
 test_that("NaT is converted to NA", {
   skip_if_no_pandas()
-  
+
   pd <- import("pandas", convert = FALSE)
   np <- import("numpy")
-  
+
   before <- pd$DataFrame(pd$Series(
     c(
       pd$Timestamp(NULL),
       pd$Timestamp(np$nan)
     )
   ))
-  
+
   converted <- py_to_r(before)
   after <- r_to_py(converted)
 
   expect_equal(py_to_r(before), py_to_r(after))
-  
+
 })
 
+test_that("Large ints are handled correctly", {
+  skip_if_no_pandas()
+  require(bit64)
+
+  options(reticulate.long_as_bit64=TRUE)
+  options(reticulate.ulong_as_bit64=TRUE)
+  A <- data.frame(val=c(as.integer64("1567447722123456785"), as.integer64("1567447722123456786")))
+  expect_equal(A, py_to_r(r_to_py(A)))
+
+  options(reticulate.long_as_bit64=F)
+  options(reticulate.ulong_as_bit64=F)
+  A <- data.frame(val=c(as.integer64("1567447722123456785"), as.integer64("1567447722123456786")))
+  expect_equal(A, py_to_r(r_to_py(A)))
+})

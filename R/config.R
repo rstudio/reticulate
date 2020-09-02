@@ -456,6 +456,7 @@ python_config <- function(python, required_module, python_versions, forced = NUL
     if (file.exists(libpath)) {
       oldlibpath <- Sys.getenv("LD_LIBRARY_PATH", unset = NA)
       newlibpath <- paste(libpath, oldlibpath, sep = ":")
+      Sys.setenv(LD_LIBRARY_PATH = newlibpath)
       on.exit({
         if (is.na(oldlibpath))
           Sys.unsetenv("LD_LIBRARY_PATH")

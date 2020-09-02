@@ -1,6 +1,8 @@
 
 ## reticulate 1.17 (UNRELEASED)
 
+- `reticulate` now sets `LD_LIBRARY_PATH` when discovering Python. (#836)
+
 - `reticulate` is now better at capturing Python logger streams (those that
   write to stdout or stderr) when `py_capture_output()` is set. (#825)
 

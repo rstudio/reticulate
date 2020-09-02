@@ -447,6 +447,23 @@ python_config <- function(python, required_module, python_versions, forced = NUL
   # update and restore PATH when done
   oldpath <- python_munge_path(python)
   on.exit(Sys.setenv(PATH = oldpath), add = TRUE)
+  
+  # set LD_LIBRARY_PATH on Linux as well, just to make sure Python libraries
+  # can be resolved if necessary (also need to guard against users who munge
+  # LD_LIBRARY_PATH in a way that breaks dynamic lookup of Python libraries)
+  if (is_linux()) {
+    libpath <- file.path(dirname(dirname(python)), "lib")
+    if (file.exists(libpath)) {
+      oldlibpath <- Sys.getenv("LD_LIBRARY_PATH", unset = NA)
+      newlibpath <- paste(libpath, oldlibpath, sep = ":")
+      on.exit({
+        if (is.na(oldlibpath))
+          Sys.unsetenv("LD_LIBRARY_PATH")
+        else
+          Sys.setenv(LD_LIBRARY_PATH = oldlibpath)
+      }, add = TRUE)
+    }
+  }
 
   # collect configuration information
   if (!is.null(required_module)) {

@@ -29,8 +29,8 @@ def _override_logger_streams(capture_stdout, old_stdout, new_stdout,
       if capture_stdout and stream is old_stdout:
         handler.stream = new_stdout
         
-        if capture_stderr and stream is old_stderr:
-          handler.stream = new_stderr
+      if capture_stderr and stream is old_stderr:
+        handler.stream = new_stderr
   
   # capture loggers registered with the default manager
   loggers = getattr(logging.Logger.manager, 'loggerDict', {})

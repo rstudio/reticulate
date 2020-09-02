@@ -16,23 +16,38 @@ def _override_logger_streams(capture_stdout, old_stdout, new_stdout,
                              capture_stderr, old_stderr, new_stderr):
   import logging
   
+  # capture root handlers
   root = getattr(logging, 'root', None)
-  if root is None:
-    return
+  if root is not None:
+    handlers = getattr(root, 'handlers', [])
+    for handler in handlers:
+      
+      stream = getattr(handler, 'stream', None)
+      if stream is None:
+        continue
+      
+      if capture_stdout and stream is old_stdout:
+        handler.stream = new_stdout
+        
+        if capture_stderr and stream is old_stderr:
+          handler.stream = new_stderr
   
-  handlers = getattr(root, 'handlers', [])
-  for handler in handlers:
-    
-    stream = getattr(handler, 'stream', None)
-    if stream is None:
-      continue
-    
-    if capture_stdout and stream is old_stdout:
-      handler.stream = new_stdout
-    
-    if capture_stderr and stream is old_stderr:
-      handler.stream = new_stderr
-
+  # capture loggers registered with the default manager
+  loggers = getattr(logging.Logger.manager, 'loggerDict', {})
+  for logger in loggers.values():
+    handlers = getattr(logger, 'handlers', [])
+    for handler in handlers:
+      
+      stream = getattr(handler, 'stream', None)
+      if stream is None:
+        continue
+      
+      if capture_stdout and handler.stream is old_stdout:
+        handler.stream = new_stdout
+        
+      if capture_stderr and handler.stream is old_stderr:
+        handler.stream = new_stderr
+          
 def start_capture(capture_stdout, capture_stderr):
   
   global _stdout

@@ -198,7 +198,7 @@ conda_remove <- function(envname, packages = NULL, conda = "auto") {
 #'   due to compilation requirements).
 #'   
 #' @param pip_options An optional character vector of additional command line
-#'   arguments to be passed to `pip` if `pip` is used.
+#'   arguments to be passed to `pip`. Only relevant when `pip = TRUE`.
 #'
 #' @rdname conda-tools
 #'
@@ -222,21 +222,29 @@ conda_install <- function(envname = NULL,
   # resolve environment name
   envname <- condaenv_resolve(envname)
 
-  # honor request for specific Python
-  python_package <- "python"
-  if (!is.null(python_version))
-    python_package <- paste(python_package, python_version, sep = "=")
+  # honor request for specific version of Python package
+  python_package <- if (is.null(python_version))
+    "python"
+  else
+    sprintf("python=%s", python_version)
 
-  # check if the environment exists, and create it on demand if needed.
-  # if the environment does already exist, but a version of Python was
-  # requested, attempt to install that in the existing environment
-  # (effectively re-creating it if the Python version differs)
-  python <- tryCatch(conda_python(envname = envname, conda = conda), error = identity)  
+  # check to see if we already have a valid Python installation for
+  # this conda environment
+  python <- tryCatch(
+    conda_python(envname = envname, conda = conda),
+    error = identity
+  )
   
+  # if this conda environment doesn't seem to exist, auto-create it
   if (inherits(python, "error") || !file.exists(python)) {
     conda_create(envname, packages = python_package, conda = conda)
     python <- conda_python(envname = envname, conda = conda)
-  } else if (!is.null(python_package)) {
+  }
+  
+  # if the user has requested a specific version of Python, ensure that
+  # version of Python is installed into the requested environment
+  # (should be no-op if that copy of Python already installed)
+  if (!is.null(python_version)) {
     args <- conda_args("install", envname, python_package)
     status <- system2(conda, shQuote(args))
     if (status != 0L) {
@@ -247,8 +255,18 @@ conda_install <- function(envname = NULL,
   }
 
   # delegate to pip if requested
-  if (pip)
-    return(pip_install(python, packages, pip_options = pip_options))
+  if (pip) {
+    
+    pip_install(
+      python = python,
+      packages = packages,
+      pip_options = pip_options,
+      ignore_installed = pip_ignore_installed
+    )
+    
+    return(result)
+    
+  }
   
   # otherwise, use conda
   args <- conda_args("install", envname)

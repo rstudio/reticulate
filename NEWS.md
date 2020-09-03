@@ -1,6 +1,12 @@
 
 ## reticulate 1.17 (UNRELEASED)
 
+- Fixed an issue where the `pip_ignore_installed` argument in `conda_install()`
+  was silently being ignored.
+
+- Fixed an issue where `reticulate::conda_install()` could re-install Python
+  into an environment when not explicitly requested by the user.
+  
 - `reticulate` now sets `LD_LIBRARY_PATH` when discovering Python. (#836)
 
 - `reticulate` is now better at capturing Python logger streams (those that

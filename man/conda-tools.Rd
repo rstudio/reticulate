@@ -61,7 +61,7 @@ specify multiple channels, including the Conda Forge, you can use
 \item{pip}{Boolean; use \code{pip} when downloading or installing packages? Defaults to \code{FALSE}.}
 
 \item{pip_options}{An optional character vector of additional command line
-arguments to be passed to \code{pip} if \code{pip} is used.}
+arguments to be passed to \code{pip}. Only relevant when \code{pip = TRUE}.}
 
 \item{pip_ignore_installed}{Ignore installed versions when using pip. This is
 \code{TRUE} by default so that specific package versions can be installed even

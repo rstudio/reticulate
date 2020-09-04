@@ -257,7 +257,7 @@ conda_install <- function(envname = NULL,
   # delegate to pip if requested
   if (pip) {
     
-    pip_install(
+    result <- pip_install(
       python = python,
       packages = packages,
       pip_options = pip_options,

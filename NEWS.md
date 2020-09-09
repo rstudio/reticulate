@@ -1,6 +1,9 @@
 
 ## reticulate 1.17 (UNRELEASED)
 
+- Fixed an issue where R `data.frame`s with non-ASCII column names could not
+  be converted to Pandas DataFrames. (#834)
+
 - Fixed an issue where the `pip_ignore_installed` argument in `conda_install()`
   was silently being ignored.
 

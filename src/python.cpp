@@ -2516,18 +2516,23 @@ PyObjectRef r_convert_dataframe(RObject dataframe, bool convert) {
   {
     RObject column = VECTOR_ELT(dataframe, i);
     
+    // ensure name is converted to appropriate encoding
+    const char* name = is_python3()
+      ? Rf_translateCharUTF8(names[i])
+      : Rf_translateChar(names[i]);
+    
     int status = 0;
     if (OBJECT(column) == 0) {
       if (is_convertible_to_numpy(column)) {
         PyObjectPtr value(r_to_py_numpy(column, convert));
-        status = PyDict_SetItemString(dict, names[i], value);
+        status = PyDict_SetItemString(dict, name, value);
       } else {
         PyObjectPtr value(r_to_py_cpp(column, convert));
-        status = PyDict_SetItemString(dict, names[i], value);
+        status = PyDict_SetItemString(dict, name, value);
       }
     } else {
       PyObjectRef ref(r_convert_dataframe_column(column, convert));
-      status = PyDict_SetItemString(dict, names[i], ref.get());
+      status = PyDict_SetItemString(dict, name, ref.get());
     }
     
     if (status != 0)

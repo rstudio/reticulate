@@ -125,7 +125,7 @@ Markdown](http://rmarkdown.rstudio.com) with the following features:
 
 Built in conversion for many Python object types is provided, including
 [NumPy](http://www.numpy.org/) arrays and
-[Pandas](https://pandas.pydata.org/) data frames. From example, you can
+[Pandas](https://pandas.pydata.org/) data frames. For example, you can
 use Pandas to read and manipulate data then easily plot the Pandas data
 frame using [ggplot2](http://ggplot2.org/):
 

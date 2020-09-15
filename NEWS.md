@@ -1,6 +1,9 @@
 
 ## reticulate 1.17 (UNRELEASED)
 
+- Fixed an issue where numeric (rather than integer) dimensions could cause
+  issues when converting SciPy sparse matrices to their R counterparts. (#844)
+
 - Fixed an issue where R `data.frame`s with non-ASCII column names could not
   be converted to Pandas DataFrames. (#834)
 

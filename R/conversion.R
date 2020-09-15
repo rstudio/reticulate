@@ -450,11 +450,15 @@ r_to_py.dgCMatrix <- function(x, convert = FALSE) {
 #' @export
 py_to_r.scipy.sparse.csc.csc_matrix <- function(x) {
   disable_conversion_scope(x)
-  new("dgCMatrix",
+  
+  new(
+    "dgCMatrix",
     i = as.integer(as_r_value(x$indices)),
     p = as.integer(as_r_value(x$indptr)),
     x = as.vector(as_r_value(x$data)),
-    Dim = dim(x))
+    Dim = as.integer(dim(x))
+  )
+  
 }
 
 # Conversion between `Matrix::dgRMatrix` and `scipy.sparse.csr.csr_matrix`.
@@ -484,12 +488,16 @@ r_to_py.dgRMatrix <- function(x, convert = FALSE) {
 #' @export
 py_to_r.scipy.sparse.csr.csr_matrix <- function(x) {
   disable_conversion_scope(x)
+  
   x <- x$sorted_indices()    
-  methods::new("dgRMatrix",
-      j = as.integer(as_r_value(x$indices)),
-      p = as.integer(as_r_value(x$indptr)),
-      x = as.vector(as_r_value(x$data)),
-      Dim = dim(x))
+  new(
+    "dgRMatrix",
+    j = as.integer(as_r_value(x$indices)),
+    p = as.integer(as_r_value(x$indptr)),
+    x = as.vector(as_r_value(x$data)),
+    Dim = as.integer(dim(x))
+  )
+  
 }
 
 # Conversion between `Matrix::dgTMatrix` and `scipy.sparse.coo.coo_matrix`.
@@ -520,11 +528,15 @@ r_to_py.dgTMatrix <- function(x, convert = FALSE) {
 #' @export
 py_to_r.scipy.sparse.coo.coo_matrix <- function(x) {
   disable_conversion_scope(x)
-  new("dgTMatrix",
-      i = as.integer(as_r_value(x$row)),
-      j = as.integer(as_r_value(x$col)),
-      x = as.vector(as_r_value(x$data)),
-      Dim = dim(x))
+  
+  new(
+    "dgTMatrix",
+    i = as.integer(as_r_value(x$row)),
+    j = as.integer(as_r_value(x$col)),
+    x = as.vector(as_r_value(x$data)),
+    Dim = as.integer(dim(x))
+  )
+  
 }
 
 

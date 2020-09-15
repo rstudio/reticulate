@@ -54,3 +54,21 @@ test_that("R datetimes can be passed to Python functions", {
   date <- Sys.Date()
   expect_equal(date, main$identity(Sys.Date()))
 })
+
+test_that("timezone information is not lost during conversion", {
+  
+  datetime <- import("datetime", convert = FALSE)
+  
+  pdt <- datetime$datetime(
+    year   = 2020L,
+    month  = 8L,
+    day    = 24L,
+    tzinfo = datetime$timezone$utc
+  )
+  
+  rdt <- py_to_r(pdt)
+  
+  tzone <- attr(rdt, "tzone", exact = TRUE)
+  expect_identical(tzone, "UTC")
+  
+})

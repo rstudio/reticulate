@@ -13,6 +13,9 @@ test_that <- function(desc, code) {
   # don't run tests on CRAN
   testthat::skip_on_cran()
   
+  # skip if we don't have python
+  skip_if_no_python()
+  
   # delegate to testthat
   call <- sys.call()
   call[[1L]] <- quote(testthat::test_that)

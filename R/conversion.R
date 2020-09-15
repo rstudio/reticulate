@@ -152,7 +152,8 @@ py_to_r.datetime.datetime <- function(x) {
   time <- import("time", convert = TRUE)
   posix <- time$mktime(x$timetuple())
   posix <- posix + as.numeric(as_r_value(x$microsecond)) * 1E-6
-  as.POSIXct(posix, origin = "1970-01-01")
+  tz <- as_r_value(x$tzname())
+  as.POSIXct(posix, origin = "1970-01-01", tz = tz)
 }
 
 

@@ -1,6 +1,9 @@
 
 ## reticulate 1.17 (UNRELEASED)
 
+- Fixed an issue where timezone information could be lost when converting
+  Python datetime objects to R. (#829)
+
 - Fixed an issue where numeric (rather than integer) dimensions could cause
   issues when converting SciPy sparse matrices to their R counterparts. (#844)
 

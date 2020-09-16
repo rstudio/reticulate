@@ -149,11 +149,23 @@ r_to_py.POSIXt <- function(x, convert = FALSE) {
 #' @export
 py_to_r.datetime.datetime <- function(x) {
   disable_conversion_scope(x)
+  
+  # convert to POSIX time
   time <- import("time", convert = TRUE)
   posix <- time$mktime(x$timetuple())
-  posix <- posix + as.numeric(as_r_value(x$microsecond)) * 1E-6
-  tz <- as_r_value(x$tzname())
-  as.POSIXct(posix, origin = "1970-01-01", tz = tz)
+  
+  # include microseconds as well
+  ms <- as_r_value(x$microsecond)
+  posix <- posix + as.numeric(ms) * 1E-6
+  
+  # preserve timezone if available (handle UTC explicitly)
+  tzname <- as_r_value(x$tzname())
+  if (tzname %in% c("UTC", "UTC+00:00"))
+    return(as.POSIXct(posix, origin = "1970-01-01", tz = "UTC"))
+  
+  # treat other times as local / system times
+  as.POSIXct(posix, origin = "1970-01-01", tz = "UTC")
+  
 }
 
 

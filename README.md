@@ -76,7 +76,7 @@ for additional details.
 
 #### Calling Python
 
-There are a variety of ways to integrate Python code into your R
+There are many ways to integrate Python code into your R
 projects:
 
 1)  [Python in R Markdown](#python-in-r-markdown) — A new Python

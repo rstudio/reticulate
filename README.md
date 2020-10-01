@@ -1,5 +1,5 @@
 
-# R Interface to Python
+# R Interface To Python
 
 [![CRAN\_Status\_Badge](https://www.r-pkg.org/badges/version/reticulate)](https://cran.r-project.org/package=reticulate)
 [![Travis-CI Build
@@ -29,7 +29,7 @@ that uses Python for some of your work or a member of data science team
 that uses both languages, reticulate can dramatically streamline your
 workflow\!
 
-### Getting started
+### Getting Started
 
 #### Installation
 
@@ -39,7 +39,7 @@ Install the **reticulate** package from CRAN as follows:
 install.packages("reticulate")
 ```
 
-#### Python version
+#### Python Version
 
 By default, reticulate uses the version of Python found on your `PATH`
 (i.e. `Sys.which("python")`).
@@ -65,7 +65,7 @@ See the article on [Python Version
 Configuration](https://rstudio.github.io/reticulate/articles/versions.html)
 for additional details.
 
-#### Python packages
+#### Python Packages
 
 You can install any required Python packages using standard shell tools
 like `pip` and `conda`. Alternately, reticulate includes a set of
@@ -100,7 +100,7 @@ projects:
 
 Each of these techniques is explained in more detail below.
 
-## Python in R Markdown
+## Python In R Markdown
 
 The **reticulate** package includes a Python engine for [R
 Markdown](http://rmarkdown.rstudio.com) with the following features:
@@ -138,7 +138,7 @@ See the [R Markdown Python
 Engine](https://rstudio.github.io/reticulate/articles/r_markdown.html)
 documentation for additional details.
 
-## Importing Python modules
+## Importing Python Modules
 
 You can use the `import()` function to import any Python module and call
 it from R. For example, this code imports the Python `os` module and
@@ -172,7 +172,7 @@ See [Calling Python from
 R](https://rstudio.github.io/reticulate/articles/calling_python.html)
 for additional details on interacting with Python objects from within R.
 
-## Sourcing Python scripts
+## Sourcing Python Scripts
 
 You can source any Python script just as you would source an R script
 using the `source_python()` function. For example, if you had the
@@ -217,7 +217,7 @@ Note that Python code can also access objects from within the R session
 using the `r` object (e.g. `r.flights`). See the `repl_python()`
 documentation for additional details on using the embedded Python REPL.
 
-## Type conversions
+## Type Conversions
 
 When calling into Python, R data types are automatically converted to
 their equivalent Python types. When values are returned from Python to R
@@ -239,7 +239,7 @@ If a Python object of a custom class is returned then an R reference to
 that object is returned. You can call methods and access properties of
 the object just as if it was an instance of an R reference class.
 
-## Learning more
+## Learning More
 
 The following articles cover the various aspects of using
 **reticulate**:
@@ -277,7 +277,7 @@ The following articles cover the various aspects of using
     Advanced discussion of the differences between arrays in R and
     Python and the implications for conversion and interoperability.
 
-## Why reticulate?
+## Why Reticulate?
 
 From the [Wikipedia](https://en.wikipedia.org/wiki/Reticulated_python)
 article on the reticulated python:

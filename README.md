@@ -13,7 +13,7 @@ for:
 
 <img src="images/reticulated_python.png" width=200 align=right style="margin-left: 15px;" alt="reticulated python"/>
 
-  - Calling Python from R in a variety of ways including R Markdown,
+  - Python from R can be called in a variety of ways including R Markdown,
     sourcing Python scripts, importing Python modules, and using Python
     interactively within an R session.
 
@@ -25,7 +25,7 @@ for:
 
 Reticulate embeds a Python session within your R session, enabling
 seamless, high-performance interoperability. If you are an R developer
-that uses Python for some of your work or a member of data science team
+that uses Python or a member of data science team
 that uses both languages, reticulate can dramatically streamline your
 workflow\!
 
@@ -297,4 +297,4 @@ definition of reticulate:
 > interbreeding populations.
 
 The package enables you to *reticulate* Python code into R, creating a
-new breed of project that weaves together the two languages.
+new dimension of project that weaves together the two languages.

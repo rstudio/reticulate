@@ -74,7 +74,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.15</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.16-9001</span>
       </span>
     </div>
 
@@ -110,6 +110,9 @@
     </li>
     <li>
       <a href="../articles/package.html">Using reticulate in an R Package</a>
+    </li>
+    <li>
+      <a href="../articles/python_dependencies.html">Managing an R Package's Python Dependencies</a>
     </li>
     <li class="divider"></li>
     <li class="dropdown-header">Tools</li>
@@ -154,11 +157,11 @@
     <p>Execute code within the the <code>__main__</code> Python module.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>py_run_string</span>(<span class='no'>code</span>, <span class='kw'>local</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>convert</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
+    <pre class="usage"><span class='fu'>py_run_string</span><span class='op'>(</span><span class='va'>code</span>, local <span class='op'>=</span> <span class='cn'>FALSE</span>, convert <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
 
-<span class='fu'>py_run_file</span>(<span class='no'>file</span>, <span class='kw'>local</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>convert</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
+<span class='fu'>py_run_file</span><span class='op'>(</span><span class='va'>file</span>, local <span class='op'>=</span> <span class='cn'>FALSE</span>, convert <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>
 
-<span class='fu'>py_eval</span>(<span class='no'>code</span>, <span class='kw'>convert</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
+<span class='fu'>py_eval</span><span class='op'>(</span><span class='va'>code</span>, convert <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -174,9 +177,9 @@
     </tr>
     <tr>
       <th>convert</th>
-      <td><p><code>TRUE</code> to automatically convert Python objects to their R
-equivalent. If you pass <code>FALSE</code> you can do manual conversion using the
-<code><a href='r-py-conversion.html'>py_to_r()</a></code> function.</p></td>
+      <td><p>Boolean; should Python objects be automatically converted
+to their <span style="R">R</span> equivalent? If set to <code>FALSE</code>, you can still manually convert
+Python objects to <span style="R">R</span> via the <code><a href='r-py-conversion.html'>py_to_r()</a></code> function.</p></td>
     </tr>
     <tr>
       <th>file</th>
@@ -205,7 +208,7 @@ the code execution.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

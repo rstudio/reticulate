@@ -74,7 +74,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.15</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.16-9001</span>
       </span>
     </div>
 
@@ -110,6 +110,9 @@
     </li>
     <li>
       <a href="../articles/package.html">Using reticulate in an R Package</a>
+    </li>
+    <li>
+      <a href="../articles/python_dependencies.html">Managing an R Package's Python Dependencies</a>
     </li>
     <li class="divider"></li>
     <li class="dropdown-header">Tools</li>
@@ -154,7 +157,7 @@
     <p>Create a Python iterator from an R function</p>
     </div>
 
-    <pre class="usage"><span class='fu'>py_iterator</span>(<span class='no'>fn</span>, <span class='kw'>completed</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>py_iterator</span><span class='op'>(</span><span class='va'>fn</span>, completed <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -180,15 +183,16 @@ protocol. In Python, values are returned using the <code>yield</code> keyword. I
 values are simply returned from the function.</p>
 <p>In Python, the <code>yield</code> keyword enables successive iterations to use the state
 of previous iterations. In R, this can be done by returning a function that
-mutates its enclosing environment via the <code>&lt;&lt;-</code> operator. For example:<div class="r"></p><pre>sequence_generator &lt;- function(start) {
-  value &lt;- start
-  function() {
-    value &lt;&lt;- value + 1
-    value
-  }
-}
+mutates its enclosing environment via the <code>&lt;&lt;-</code> operator. For example:<div class="r"></p><pre><span class='va'>sequence_generator</span> <span class='op'>&lt;-</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>start</span><span class='op'>)</span> <span class='op'>{</span>
+  <span class='va'>value</span> <span class='op'>&lt;-</span> <span class='va'>start</span>
+  <span class='kw'>function</span><span class='op'>(</span><span class='op'>)</span> <span class='op'>{</span>
+    <span class='va'>value</span> <span class='op'>&lt;&lt;-</span> <span class='va'>value</span> <span class='op'>+</span> <span class='fl'>1</span>
+    <span class='va'>value</span>
+  <span class='op'>}</span>
+<span class='op'>}</span>
 </pre><p></div></p>
-<p>Then create an iterator using <code>py_iterator()</code>:<div class="r"></p><pre><span class='no'>g</span> <span class='kw'>&amp;</span><span class='no'>lt</span>;- <span class='fu'>py_iterator</span>(<span class='fu'>sequence_generator</span>(<span class='fl'>10</span>))</pre><p></div></p>
+<p>Then create an iterator using <code>py_iterator()</code>:<div class="r"></p><pre><span class='va'>g</span> <span class='op'>&lt;-</span> <span class='fu'>py_iterator</span><span class='op'>(</span><span class='fu'>sequence_generator</span><span class='op'>(</span><span class='fl'>10</span><span class='op'>)</span><span class='op'>)</span>
+</pre><p></div></p>
     <h2 class="hasAnchor" id="ending-iteration"><a class="anchor" href="#ending-iteration"></a>Ending Iteration</h2>
 
     
@@ -198,16 +202,16 @@ mutates its enclosing environment via the <code>&lt;&lt;-</code> operator. For e
 end of the iteration. In R however, <code>return</code> is used to yield values, so
 the end of iteration is indicated by a special return value (<code>NULL</code> by
 default, however this can be changed using the <code>completed</code> parameter). For
-example:<div class="r"></p><pre>sequence_generator &lt;-function(start) {
-  value &lt;- start
-  function() {
-    value &lt;&lt;- value + 1
-    if (value &lt; 100)
-      value
-    else
-      NULL
-  }
-}
+example:<div class="r"></p><pre><span class='va'>sequence_generator</span> <span class='op'>&lt;-</span><span class='kw'>function</span><span class='op'>(</span><span class='va'>start</span><span class='op'>)</span> <span class='op'>{</span>
+  <span class='va'>value</span> <span class='op'>&lt;-</span> <span class='va'>start</span>
+  <span class='kw'>function</span><span class='op'>(</span><span class='op'>)</span> <span class='op'>{</span>
+    <span class='va'>value</span> <span class='op'>&lt;&lt;-</span> <span class='va'>value</span> <span class='op'>+</span> <span class='fl'>1</span>
+    <span class='kw'>if</span> <span class='op'>(</span><span class='va'>value</span> <span class='op'>&lt;</span> <span class='fl'>100</span><span class='op'>)</span>
+      <span class='va'>value</span>
+    <span class='kw'>else</span>
+      <span class='cn'>NULL</span>
+  <span class='op'>}</span>
+<span class='op'>}</span>
 </pre><p></div></p>
     <h2 class="hasAnchor" id="threading"><a class="anchor" href="#threading"></a>Threading</h2>
 
@@ -236,7 +240,7 @@ generator is run on a background thread.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

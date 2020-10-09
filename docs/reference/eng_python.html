@@ -77,7 +77,7 @@ Python chunk can be used by later Python chunks." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.15</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.16-9001</span>
       </span>
     </div>
 
@@ -113,6 +113,9 @@ Python chunk can be used by later Python chunks." />
     </li>
     <li>
       <a href="../articles/package.html">Using reticulate in an R Package</a>
+    </li>
+    <li>
+      <a href="../articles/python_dependencies.html">Managing an R Package's Python Dependencies</a>
     </li>
     <li class="divider"></li>
     <li class="dropdown-header">Tools</li>
@@ -160,7 +163,7 @@ between Python chunks in a document -- that is, variables defined by one
 Python chunk can be used by later Python chunks.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>eng_python</span>(<span class='no'>options</span>)</pre>
+    <pre class="usage"><span class='fu'>eng_python</span><span class='op'>(</span><span class='va'>options</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -173,7 +176,8 @@ Python chunk can be used by later Python chunks.</p>
 
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>The engine can be activated by setting (for example)</p><pre><span class='kw pkg'>knitr</span><span class='kw ns'>::</span><span class='no'><a href='https://rdrr.io/pkg/knitr/man/knit_engines.html'>knit_engines</a></span>$<span class='fu'>set</span>(<span class='kw'>python</span> <span class='kw'>=</span> <span class='kw pkg'>reticulate</span><span class='kw ns'>::</span><span class='no'>eng_python</span>)</pre>
+    <p>The engine can be activated by setting (for example)</p><pre><span class='fu'>knitr</span><span class='fu'>::</span><span class='va'><a href='https://rdrr.io/pkg/knitr/man/knit_engines.html'>knit_engines</a></span><span class='op'>$</span><span class='fu'>set</span><span class='op'>(</span>python <span class='op'>=</span> <span class='fu'>reticulate</span><span class='fu'>::</span><span class='va'>eng_python</span><span class='op'>)</span>
+</pre>
 
 <p>Typically, this will be set within a document's setup chunk, or by the
 environment requesting that Python chunks be processed by this engine.
@@ -195,7 +199,7 @@ default when executing Python chunks within an R Markdown document.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

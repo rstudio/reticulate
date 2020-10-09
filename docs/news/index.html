@@ -73,7 +73,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.15</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.16-9001</span>
       </span>
     </div>
 
@@ -109,6 +109,9 @@
     </li>
     <li>
       <a href="../articles/package.html">Using reticulate in an R Package</a>
+    </li>
+    <li>
+      <a href="../articles/python_dependencies.html">Managing an R Package's Python Dependencies</a>
     </li>
     <li class="divider"></li>
     <li class="dropdown-header">Tools</li>
@@ -148,6 +151,46 @@
       <small>Source: <a href='https://github.com/rstudio/reticulate/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
+    <div id="reticulate-117-unreleased" class="section level2">
+<h2 class="hasAnchor">
+<a href="#reticulate-117-unreleased" class="anchor"></a>reticulate 1.17 (UNRELEASED)</h2>
+<ul>
+<li><p>Removed <code>py_function_docs()</code>, <code>py_function_wrapper()</code>, and <code>py_function_custom_scaffold()</code> from <code>reticulate</code> as they have been migrated to the <a href="https://github.com/terrytangyuan/scaffolder">scaffolder package</a>. (<a href='https://github.com/rstudio/reticulate/issues/864'>#864</a>)</p></li>
+<li><p>Fixed an issue where timezone information could be lost when converting Python datetime objects to R. (<a href='https://github.com/rstudio/reticulate/issues/829'>#829</a>)</p></li>
+<li><p>Fixed an issue where numeric (rather than integer) dimensions could cause issues when converting SciPy sparse matrices to their R counterparts. (<a href='https://github.com/rstudio/reticulate/issues/844'>#844</a>)</p></li>
+<li><p>Fixed an issue where R <code>data.frame</code>s with non-ASCII column names could not be converted to Pandas DataFrames. (<a href='https://github.com/rstudio/reticulate/issues/834'>#834</a>)</p></li>
+<li><p>Fixed an issue where the <code>pip_ignore_installed</code> argument in <code><a href="../reference/conda-tools.html">conda_install()</a></code> was silently being ignored.</p></li>
+<li><p>Fixed an issue where <code><a href="../reference/conda-tools.html">reticulate::conda_install()</a></code> could re-install Python into an environment when not explicitly requested by the user.</p></li>
+<li><p><code>reticulate</code> now sets <code>LD_LIBRARY_PATH</code> when discovering Python. (<a href='https://github.com/rstudio/reticulate/issues/836'>#836</a>)</p></li>
+<li><p><code>reticulate</code> is now better at capturing Python logger streams (those that write to stdout or stderr) when <code><a href="../reference/py_capture_output.html">py_capture_output()</a></code> is set. (<a href='https://github.com/rstudio/reticulate/issues/825'>#825</a>)</p></li>
+<li><p><code>reticulate</code> no longer calls <code><a href="https://rdrr.io/r/utils/savehistory.html">utils::loadhistory()</a></code> after each REPL iteration.</p></li>
+<li><p><code>reticulate</code> now better detects when Python modules are loaded.</p></li>
+<li><p><code><a href="../reference/import.html">reticulate::import_from_path()</a></code> now accepts the <code>delay_load</code> parameter, allowing modules which should be loaded from a pre-specified path to be lazy-loaded.</p></li>
+<li><p>Fixed an issue where <code>reticulate</code> load hooks (normally defined via <code><a href="https://rdrr.io/r/base/userhooks.html">setHook("reticulate::&lt;module&gt;::load", ...)</a></code>) would segfault if those hooks attempted to load the hooked module.</p></li>
+<li><p><code>reticulate</code> now attempts to resolve the conda binary used to create the associated Conda environment in calls to <code><a href="../reference/py_install.html">py_install()</a></code>. This should fix use cases where Conda environments are placed outside of the Conda installation itself.</p></li>
+<li><p><code>reticulate</code> now sets <code>PYTHONPATH</code> before loading Python, to ensure modules are looked up in the same locations where a regular Python interpreter would find them on load. This should fix issues where <code>reticulate</code> was unable to bind to a Python virtual environment in some cases.</p></li>
+<li><p><code><a href="../reference/virtualenv-tools.html">reticulate::virtualenv_create()</a></code> gains the <code>packages</code> argument, allowing one to choose a set of packages to be installed (via <code>pip install</code>) after the virtual environment has been created.</p></li>
+<li><p><code><a href="../reference/virtualenv-tools.html">reticulate::virtualenv_create()</a></code> gains the <code>system_site_packages</code> argument, allowing one to control whether the <code>--system-site-packages</code> flag is passed along when creating a new virtual environment. The default value can be customized via the <code>"reticulate.virtualenv.system_site_packages"</code> option and now defaults to <code>FALSE</code> when unset.</p></li>
+<li><p>Fixed an issue where <code><a href="../reference/configure_environment.html">reticulate::configure_environment()</a></code> would fail when attempting to configure an Anaconda environment. (<a href='https://github.com/rstudio/reticulate/issues/794'>#794</a>)</p></li>
+<li><p><code>reticulate</code> now avoids presenting a Miniconda prompt for interactive sessions during R session initialization.</p></li>
+<li><p>Fixed unsafe usages of <code>Rprintf()</code> and <code>REprintf()</code>.</p></li>
+<li><p><code><a href="../reference/py_install.html">reticulate::py_install()</a></code> better respects the <code>method</code> argument, when <code><a href="../reference/py_install.html">py_install()</a></code> is called without an explicit environment name. (<a href='https://github.com/rstudio/reticulate/issues/777'>#777</a>)</p></li>
+<li><p><code>reticulate:::pip_freeze()</code> now better handles <code>pip</code> direct references. (<a href='https://github.com/rstudio/reticulate/issues/775'>#775</a>)</p></li>
+<li><p>Fixed an issue where output generated from <code><a href="../reference/repl_python.html">repl_python()</a></code> would be buffered until the whole submitted command had completed. (<a href='https://github.com/rstudio/reticulate/issues/739'>#739</a>, <a href='https://github.com/randy3k'>@randy3k</a>)</p></li>
+<li><p><code>reticulate</code> now explicitly qualifies symbols used from TinyThread with <code>tthread::</code>, to avoid issues with symbol conflicts during compilation. (<a href='https://github.com/rstudio/reticulate/issues/773'>#773</a>)</p></li>
+<li><p><code>reticulate</code> will now prefer an existing Miniconda installation over a <code>conda</code> binary on the PATH, when looking for Conda. (<a href='https://github.com/rstudio/reticulate/issues/790'>#790</a>)</p></li>
+</ul>
+</div>
+    <div id="reticulate-116" class="section level2">
+<h2 class="hasAnchor">
+<a href="#reticulate-116" class="anchor"></a>reticulate 1.16</h2>
+<ul>
+<li><p>TinyThread now calls <code>Rf_error()</code> rather than <code>std::terminate()</code> when an internal error occurs.</p></li>
+<li><p>Conversion of Pandas DataFrames to R no longer emits deprecation warnings with pandas &gt;= 0.25.0. (<a href='https://github.com/rstudio/reticulate/issues/762'>#762</a>)</p></li>
+<li><p><code>reticulate</code> now properly handles the version strings returned by beta versions of <code>pip</code>. (<a href='https://github.com/rstudio/reticulate/issues/757'>#757</a>)</p></li>
+<li><p><code><a href="../reference/conda-tools.html">conda_create()</a></code> gains the <code>forge</code> and <code>channel</code> arguments, analogous to those already in <code><a href="../reference/conda-tools.html">conda_install()</a></code>. (<a href='https://github.com/rstudio/reticulate/issues/752'>#752</a>, <a href='https://github.com/jtilly'>@jtilly</a>)</p></li>
+</ul>
+</div>
     <div id="reticulate-115" class="section level2">
 <h2 class="hasAnchor">
 <a href="#reticulate-115" class="anchor"></a>reticulate 1.15</h2>
@@ -439,7 +482,7 @@
 <ul>
 <li><p>Add <code><a href="../reference/import.html">import_from_path()</a></code> function for importing Python modules from the filesystem.</p></li>
 <li><p>Add <code><a href="../reference/py_discover_config.html">py_discover_config()</a></code> function to determine which versions of Python will be discovered and which one will be used by reticulate.</p></li>
-<li><p>Add <code><a href="../reference/py_function_wrapper.html">py_function_docs()</a></code> amd <code><a href="../reference/py_function_wrapper.html">py_function_wrapper()</a></code> utility functions for scaffolding R wrappers for Python functions.</p></li>
+<li><p>Add <code>py_function_docs()</code> amd <code>py_function_wrapper()</code> utility functions for scaffolding R wrappers for Python functions.</p></li>
 <li><p>Add <code><a href="../reference/py_last_error.html">py_last_error()</a></code> function for retreiving last Python error.</p></li>
 <li><p>Convert 0-dimension NumPy arrays (scalars) to single element R vectors</p></li>
 <li><p>Convert “callable” Python objects to R functions</p></li>
@@ -494,7 +537,7 @@ primitive R functions (don’t check environment inheritance chain when looking 
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

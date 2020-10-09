@@ -75,7 +75,7 @@ loaded R packages." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.15</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.16-9001</span>
       </span>
     </div>
 
@@ -111,6 +111,9 @@ loaded R packages." />
     </li>
     <li>
       <a href="../articles/package.html">Using reticulate in an R Package</a>
+    </li>
+    <li>
+      <a href="../articles/python_dependencies.html">Managing an R Package's Python Dependencies</a>
     </li>
     <li class="divider"></li>
     <li class="dropdown-header">Tools</li>
@@ -156,7 +159,7 @@ loaded R packages." />
 loaded <span style="R">R</span> packages.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>configure_environment</span>(<span class='kw'>package</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>force</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+    <pre class="usage"><span class='fu'>configure_environment</span><span class='op'>(</span>package <span class='op'>=</span> <span class='cn'>NULL</span>, force <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -180,16 +183,18 @@ when testing a package on a continuous integration service.</p></td>
 
     <p>Normally, this function should only be used by package authors, who want
 to ensure that their package dependencies are installed in the active
-Python environment. For example:</p><pre><span class='no'>.onLoad</span> <span class='kw'>&amp;</span><span class='no'>lt</span>;- <span class='kw'>function</span>(<span class='no'>libname</span>, <span class='no'>pkgname</span>) {
-  <span class='kw pkg'>reticulate</span><span class='kw ns'>::</span><span class='fu'>configure_environment</span>(<span class='no'>pkgname</span>)
-}</pre>
+Python environment. For example:</p><pre><span class='va'>.onLoad</span> <span class='op'>&lt;-</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>libname</span>, <span class='va'>pkgname</span><span class='op'>)</span> <span class='op'>{</span>
+  <span class='fu'>reticulate</span><span class='fu'>::</span><span class='fu'>configure_environment</span><span class='op'>(</span><span class='va'>pkgname</span><span class='op'>)</span>
+<span class='op'>}</span>
+</pre>
 
 <p>If the Python session has not yet been initialized, or if the user is not
 using the default Miniconda Python installation, no action will be taken.
 Otherwise, <code>reticulate</code> will take this as a signal to install any required
 Python dependencies into the user's Python environment.</p>
 <p>If you'd like to disable <code>reticulate</code>'s auto-configure behavior altogether,
-you can set the environment variable:</p><pre><span class='no'>RETICULATE_AUTOCONFIGURE</span> <span class='kw'>=</span> <span class='fl'>FALSE</span></pre>
+you can set the environment variable:</p><pre><span class='va'>RETICULATE_AUTOCONFIGURE</span> <span class='op'>=</span> <span class='cn'>FALSE</span>
+</pre>
 
 <p>e.g. in your <code>~/.Renviron</code> or similar.</p>
 <p>Note that, in the case where the Python session has not yet been initialized,
@@ -211,7 +216,7 @@ are installed after the Python session is initialized (when appropriate).</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

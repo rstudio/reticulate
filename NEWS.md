@@ -1,6 +1,10 @@
 
 ## reticulate 1.17 (UNRELEASED)
 
+- Removed `py_function_docs()`, `py_function_wrapper()`, and
+  `py_function_custom_scaffold()` from `reticulate` as they
+  have been migrated to the [scaffolder package](https://github.com/terrytangyuan/scaffolder). (#864)
+
 - Fixed an issue where timezone information could be lost when converting
   Python datetime objects to R. (#829)
 

@@ -1275,8 +1275,9 @@ py_inject_hooks <- function() {
     builtins[[name]] <- input
   }
   
-  # register module import callback if version of python is sufficient
-  if (numeric_version(.globals$py_config$version) > "3.2") {
+  # register module import callback
+  useImportHook <- getOption("reticulate.useImportHook", default = TRUE)
+  if (useImportHook) {
     loader <- import("rpytools.loader")
     loader$initialize(py_module_loaded)
   }

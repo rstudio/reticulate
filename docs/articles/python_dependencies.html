@@ -32,7 +32,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.15</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.16-9001</span>
       </span>
     </div>
 
@@ -69,6 +69,9 @@
     <li>
       <a href="../articles/package.html">Using reticulate in an R Package</a>
     </li>
+    <li>
+      <a href="../articles/python_dependencies.html">Managing an R Package's Python Dependencies</a>
+    </li>
     <li class="divider">
     <li class="dropdown-header">Tools</li>
     <li>
@@ -100,7 +103,7 @@
 
       
 
-      </header><script src="python_dependencies_files/header-attrs-2.1/header-attrs.js"></script><div class="row">
+      </header><script src="python_dependencies_files/jquery-1.11.3/jquery.min.js"></script><script src="python_dependencies_files/elevate-section-attrs-2.0/elevate-section-attrs.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Managing an R Package’s Python Dependencies</h1>
@@ -118,9 +121,10 @@
 <h2 class="hasAnchor">
 <a href="#manual-configuration" class="anchor"></a>Manual Configuration</h2>
 <p>Previously, packages like <a href="https://tensorflow.rstudio.com">tensorflow</a> accomplished this by providing helper functions (e.g. <code><a href="https://rdrr.io/pkg/tensorflow/man/install_tensorflow.html">tensorflow::install_tensorflow()</a></code>), and documenting that users should call this function to prepare the environment. For example:</p>
-<div class="sourceCode" id="cb1"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">tensorflow</span>)
-<span class="fu"><a href="https://rdrr.io/pkg/tensorflow/man/install_tensorflow.html">install_tensorflow</a></span>()
-<span class="co"># use tensorflow</span></pre></body></html></div>
+<div class="sourceCode" id="cb1"><pre class="downlit">
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/rstudio/tensorflow">tensorflow</a></span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/pkg/tensorflow/man/install_tensorflow.html">install_tensorflow</a></span><span class="op">(</span><span class="op">)</span>
+<span class="co"># use tensorflow</span></pre></div>
 <p>The biggest downside with this approach is that it requires users to manually download and install an appropriate version of Python. In addition, if the user has <em>not</em> downloaded an appropriate version of Python, then the version discovered on the user’s system may not conform with the requirements imposed by the <code>tensorflow</code> package – leading to more trouble.</p>
 <p>Fixing this often requires instructing the user to install Python, and then use <code>reticulate</code> APIs (e.g. <code><a href="../reference/use_python.html">reticulate::use_python()</a></code> and other tools) to find and use an appropriate Python version + environment. This is, understandably, more cognitive overhead than you might want to impose on users of your package.</p>
 <p>Another huge problem with manual configuration is that if different R packages use different default Python environments, then those packages can’t ever be loaded in the same R session (since there can only be one active Python environment at a time within an R session).</p>
@@ -157,8 +161,9 @@ Config/reticulate:
 <li><p>These dependencies will then be installed into an appropriate Conda environment, as provided by the Miniconda installation.</p></li>
 </ol>
 <p>In this case, the end user workflow will be exactly as with an R package that has no Python dependencies:</p>
-<div class="sourceCode" id="cb3"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">rscipy</span>)
-<span class="co"># use the package</span></pre></body></html></div>
+<div class="sourceCode" id="cb3"><pre class="downlit">
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">rscipy</span><span class="op">)</span>
+<span class="co"># use the package</span></pre></div>
 <p>If the user has no compatible version of Python available on their system, they will be prompted to install Miniconda. If they do have Python already, then the required Python packages (in this case <code>scipy</code>) will be installed in the standard shared environment for R sessions (typically a virtual environment, or a Conda environment named “r-reticulate”).</p>
 <p>In effect, users have to pay a one-time, mostly-automated initialization cost in order to use your package, and then things will then work as any other R package would. In particular, users are otherwise insulated from details as to how <code>reticulate</code> works.</p>
 </div>
@@ -166,9 +171,10 @@ Config/reticulate:
 <h3 class="hasAnchor">
 <a href="#onload-configuration" class="anchor"></a>.onLoad Configuration</h3>
 <p>In some cases, a user may try to load your package after Python has already been initialized. To ensure that <code>reticulate</code> can still configure the active Python environment, you can include the code:</p>
-<div class="sourceCode" id="cb4"><html><body><pre class="r"><span class="no">.onLoad</span> <span class="kw">&lt;-</span> <span class="kw">function</span>(<span class="no">libname</span>, <span class="no">pkgname</span>) {
-  <span class="kw pkg">reticulate</span><span class="kw ns">::</span><span class="fu"><a href="../reference/configure_environment.html">configure_environment</a></span>(<span class="no">pkgname</span>)
-}</pre></body></html></div>
+<div class="sourceCode" id="cb4"><pre class="downlit">
+<span class="va">.onLoad</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">libname</span>, <span class="va">pkgname</span><span class="op">)</span> <span class="op">{</span>
+  <span class="fu">reticulate</span><span class="fu">::</span><span class="fu"><a href="../reference/configure_environment.html">configure_environment</a></span><span class="op">(</span><span class="va">pkgname</span><span class="op">)</span>
+<span class="op">}</span></pre></div>
 <p>This will instruct <code>reticulate</code> to immediately try to configure the active Python environment, installing any required Python packages as necessary.</p>
 </div>
 </div>
@@ -212,7 +218,7 @@ Config/reticulate:
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.6.1.</p>
 </div>
 
       </footer>

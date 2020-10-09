@@ -1,5 +1,5 @@
-pandoc: 2.9.2.1
-pkgdown: 1.5.0
+pandoc: '2.9'
+pkgdown: 1.6.1
 pkgdown_sha: ~
 articles:
   arrays: arrays.html
@@ -10,5 +10,5 @@ articles:
   r_markdown: r_markdown.html
   rstudio_ide: rstudio_ide.html
   versions: versions.html
-last_built: 2020-04-08T21:30Z
+last_built: 2020-10-09T00:53Z
 

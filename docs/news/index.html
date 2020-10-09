@@ -155,6 +155,7 @@
 <h2 class="hasAnchor">
 <a href="#reticulate-117-unreleased" class="anchor"></a>reticulate 1.17 (UNRELEASED)</h2>
 <ul>
+<li><p>The function <code><a href="../reference/py_help_handler.html">py_help_handler()</a></code> has now been exported, to be used by front-ends and other tools which need to provide help for Python objects in different contexts. (<a href='https://github.com/rstudio/reticulate/issues/864'>#864</a>)</p></li>
 <li><p>Removed <code>py_function_docs()</code>, <code>py_function_wrapper()</code>, and <code>py_function_custom_scaffold()</code> from <code>reticulate</code> as they have been migrated to the <a href="https://github.com/terrytangyuan/scaffolder">scaffolder package</a>. (<a href='https://github.com/rstudio/reticulate/issues/864'>#864</a>)</p></li>
 <li><p>Fixed an issue where timezone information could be lost when converting Python datetime objects to R. (<a href='https://github.com/rstudio/reticulate/issues/829'>#829</a>)</p></li>
 <li><p>Fixed an issue where numeric (rather than integer) dimensions could cause issues when converting SciPy sparse matrices to their R counterparts. (<a href='https://github.com/rstudio/reticulate/issues/844'>#844</a>)</p></li>

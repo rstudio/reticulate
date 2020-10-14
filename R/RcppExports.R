@@ -30,6 +30,10 @@ py_clear_last_error <- function() {
     invisible(.Call(`_reticulate_py_clear_last_error`))
 }
 
+py_none_impl <- function() {
+    .Call(`_reticulate_py_none_impl`)
+}
+
 py_is_callable <- function(x) {
     .Call(`_reticulate_py_is_callable`, x)
 }
@@ -123,6 +127,10 @@ py_get_item_impl <- function(x, key, silent = FALSE) {
 
 py_set_attr_impl <- function(x, name, value) {
     invisible(.Call(`_reticulate_py_set_attr_impl`, x, name, value))
+}
+
+py_del_attr_impl <- function(x, name) {
+    invisible(.Call(`_reticulate_py_del_attr_impl`, x, name))
 }
 
 py_set_item_impl <- function(x, key, val) {

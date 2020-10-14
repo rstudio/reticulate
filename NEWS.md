@@ -1,6 +1,9 @@
 
 ## reticulate 1.17 (UNRELEASED)
 
+- `reticulate` no longer injects the `r` helper object into the main
+  module if another variable called `r` has already been defined.
+
 - The function `py_help_handler()` has now been exported, to be used by
   front-ends and other tools which need to provide help for Python objects
   in different contexts. (#864)

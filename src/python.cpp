@@ -589,6 +589,12 @@ bool py_is_callable(PyObject* x) {
 }
 
 // [[Rcpp::export]]
+PyObjectRef py_none_impl() {
+  Py_IncRef(Py_None);
+  return py_ref(Py_None, false);
+}
+
+// [[Rcpp::export]]
 bool py_is_callable(PyObjectRef x) {
   if (x.is_null_xptr())
     return false;
@@ -1898,6 +1904,15 @@ void py_set_attr_impl(PyObjectRef x,
 {
   PyObjectPtr converted(r_to_py(value, x.convert()));
   int res = PyObject_SetAttrString(x, name.c_str(), converted);
+  if (res != 0)
+    stop(py_fetch_error());
+}
+
+// [[Rcpp::export]]
+void py_del_attr_impl(PyObjectRef x,
+                      const std::string& name)
+{
+  int res = PyObject_SetAttrString(x, name.c_str(), NULL);
   if (res != 0)
     stop(py_fetch_error());
 }

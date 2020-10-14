@@ -57,6 +57,16 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
+// py_none_impl
+PyObjectRef py_none_impl();
+RcppExport SEXP _reticulate_py_none_impl() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(py_none_impl());
+    return rcpp_result_gen;
+END_RCPP
+}
 // py_is_callable
 bool py_is_callable(PyObjectRef x);
 RcppExport SEXP _reticulate_py_is_callable(SEXP xSEXP) {
@@ -271,6 +281,17 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const std::string& >::type name(nameSEXP);
     Rcpp::traits::input_parameter< RObject >::type value(valueSEXP);
     py_set_attr_impl(x, name, value);
+    return R_NilValue;
+END_RCPP
+}
+// py_del_attr_impl
+void py_del_attr_impl(PyObjectRef x, const std::string& name);
+RcppExport SEXP _reticulate_py_del_attr_impl(SEXP xSEXP, SEXP nameSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< PyObjectRef >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type name(nameSEXP);
+    py_del_attr_impl(x, name);
     return R_NilValue;
 END_RCPP
 }
@@ -586,6 +607,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_reticulate_is_python3", (DL_FUNC) &_reticulate_is_python3, 0},
     {"_reticulate_py_last_error", (DL_FUNC) &_reticulate_py_last_error, 0},
     {"_reticulate_py_clear_last_error", (DL_FUNC) &_reticulate_py_clear_last_error, 0},
+    {"_reticulate_py_none_impl", (DL_FUNC) &_reticulate_py_none_impl, 0},
     {"_reticulate_py_is_callable", (DL_FUNC) &_reticulate_py_is_callable, 1},
     {"_reticulate_py_get_formals", (DL_FUNC) &_reticulate_py_get_formals, 1},
     {"_reticulate_r_to_py_impl", (DL_FUNC) &_reticulate_r_to_py_impl, 2},
@@ -605,6 +627,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_reticulate_py_get_attr_impl", (DL_FUNC) &_reticulate_py_get_attr_impl, 3},
     {"_reticulate_py_get_item_impl", (DL_FUNC) &_reticulate_py_get_item_impl, 3},
     {"_reticulate_py_set_attr_impl", (DL_FUNC) &_reticulate_py_set_attr_impl, 3},
+    {"_reticulate_py_del_attr_impl", (DL_FUNC) &_reticulate_py_del_attr_impl, 2},
     {"_reticulate_py_set_item_impl", (DL_FUNC) &_reticulate_py_set_item_impl, 3},
     {"_reticulate_py_get_attribute_types", (DL_FUNC) &_reticulate_py_get_attribute_types, 2},
     {"_reticulate_py_ref_to_r_with_convert", (DL_FUNC) &_reticulate_py_ref_to_r_with_convert, 2},

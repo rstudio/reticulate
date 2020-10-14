@@ -731,6 +731,29 @@ py_set_attr <- function(x, name, value) {
   py_set_attr_impl(x, name, value)
 }
 
+#' The Python None object
+#' 
+#' Get a reference to the Python `None` object.
+#' 
+#' @export
+py_none <- function() {
+  ensure_python_initialized()
+  py_none_impl()
+}
+
+#' Delete an attribute of a Python object
+#' 
+#' @param x A Python object.
+#' @param name The attribute name.
+#' 
+#' @export
+py_del_attr <- function(x, name) {
+  ensure_python_initialized()
+  if (py_is_module_proxy(x))
+    py_resolve_module_proxy(x)
+  py_del_attr_impl(x, name)
+}
+
 #' List all attributes of a Python object
 #'
 #'
@@ -1218,6 +1241,11 @@ py_filter_classes <- function(classes) {
 
 py_inject_r <- function(envir) {
 
+  # don't inject 'r' if there's already an 'r' object defined
+  main <- import_main(convert = FALSE)
+  if (py_has_attr(main, "r"))
+    return(FALSE)
+  
   # define our 'R' class
   py_run_string("class R(object): pass")
 
@@ -1248,6 +1276,12 @@ py_inject_r <- function(envir) {
 
   # now define the R object
   py_run_string("r = R()")
+  
+  # remove the 'R' class object
+  py_del_attr(main, "R")
+  
+  # indicate success
+  TRUE
 
 }
 

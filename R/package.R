@@ -260,11 +260,12 @@ check_forbidden_install <- function(label) {
   if (!is.na(envvar))
     return(if (envvar) TRUE else FALSE)
   
-  # if this is being called as part of R CMD check, then fail
+  # if this is being called as part of R CMD check, then warn
+  # (error in future versions)
   if (is_r_cmd_check()) {
     fmt <- "cannot install %s during R CMD check"
     msg <- sprintf(fmt, label)
-    stop(msg)
+    warning(msg)
   }
   
 }

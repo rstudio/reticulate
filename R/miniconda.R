@@ -29,13 +29,7 @@ install_miniconda <- function(path = miniconda_path(),
   
   # download the installer
   url <- miniconda_installer_url()
-  installer <- file.path(tempdir(), basename(url))
-  messagef("* Downloading %s ...", shQuote(url))
-  status <- download.file(url, destfile = installer, mode = "wb")
-  if (!file.exists(installer)) {
-    fmt <- "download of Miniconda installer failed [status = %i]"
-    stopf(fmt, status)
-  }
+  installer <- miniconda_installer_download(url)
   
   # run the installer
   message("* Installing Miniconda -- please wait a moment ...")
@@ -112,6 +106,27 @@ miniconda_installer_url <- function(version = "3") {
   
 }
 
+miniconda_installer_download <- function(url) {
+  
+  # reuse an already-existing installer
+  installer <- file.path(tempdir(), basename(url))
+  if (file.exists(installer))
+    return(installer)
+  
+  # doesn't exist; try to download it
+  messagef("* Downloading %s ...", shQuote(url))
+  status <- download.file(url, destfile = installer, mode = "wb")
+  if (!file.exists(installer)) {
+    fmt <- "download of Miniconda installer failed [status = %i]"
+    stopf(fmt, status)
+  }
+ 
+  # download successful; provide file path 
+  installer
+  
+}
+  
+
 miniconda_installer_run <- function(installer, path) {
   
   args <- if (is_windows()) {
@@ -134,6 +149,27 @@ miniconda_installer_run <- function(installer, path) {
   }
   
   Sys.chmod(installer, mode = "0755")
+  
+  # work around rpath issues on macOS
+  #
+  # dyld: Library not loaded: @rpath/libz.1.dylib
+  # Referenced from: /Users/kevinushey/Library/r-miniconda/conda.exe
+  #   Reason: image not found
+  #
+  # https://github.com/rstudio/reticulate/issues/874
+  if (is_osx()) {
+    
+    old <- Sys.getenv("DYLD_FALLBACK_LIBRARY_PATH")
+    new <- if (nzchar(old))
+      paste(old, "/usr/lib", sep = ":")
+    else
+      "/usr/lib"
+    
+    Sys.setenv(DYLD_FALLBACK_LIBRARY_PATH = new)
+    on.exit(Sys.setenv(DYLD_FALLBACK_LIBRARY_PATH = old), add = TRUE)
+    
+  }
+  
   status <- system2(installer, args)
   if (status != 0)
     stopf("miniconda installation failed [exit code %i]", status)

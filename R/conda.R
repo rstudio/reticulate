@@ -216,6 +216,8 @@ conda_install <- function(envname = NULL,
                           python_version = NULL,
                           ...)
 {
+  check_forbidden_install("Python packages")
+  
   # resolve conda binary
   conda <- conda_binary(conda)
 

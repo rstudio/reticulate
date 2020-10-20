@@ -246,3 +246,20 @@ is_interactive <- function() {
   interactive()
   
 }
+
+is_r_cmd_check <- function() {
+  
+  # if NOT_CRAN is set, this is likely devtools::check() -- allow it
+  not_cran <- Sys.getenv("NOT_CRAN", unset = NA)
+  if (identical(not_cran, "true"))
+    return(FALSE)
+  
+  # if _R_CHECK_PACKAGE_NAME_ is set, then we must be running R CMD check
+  package_name <- Sys.getenv("_R_CHECK_PACKAGE_NAME_", unset = NA)
+  if (!is.na(package_name))
+    return(TRUE)
+  
+  # does not appear to be R CMD check
+  FALSE
+  
+}

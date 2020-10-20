@@ -74,6 +74,8 @@ py_install <- function(packages,
                        pip = FALSE,
                        ...)
 {
+  check_forbidden_install("Python packages")
+  
   # if no environment name was provided,
   # but python has already been initialized,
   # then install into that same environment

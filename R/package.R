@@ -252,3 +252,19 @@ check_forbidden_initialization <- function() {
   }
   
 }
+
+check_forbidden_install <- function(label) {
+  
+  # escape hatch for users who know, or claim to know, what they're doing
+  envvar <- Sys.getenv("_RETICULATE_I_KNOW_WHAT_IM_DOING_", unset = NA)
+  if (!is.na(envvar))
+    return(if (envvar) TRUE else FALSE)
+  
+  # if this is being called as part of R CMD check, then fail
+  if (is_r_cmd_check()) {
+    fmt <- "cannot install %s during R CMD check"
+    msg <- sprintf(fmt, label)
+    stop(msg)
+  }
+  
+}

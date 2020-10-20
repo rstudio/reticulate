@@ -1,6 +1,9 @@
 
 ## reticulate 1.17 (UNRELEASED)
 
+- `reticulate` now checks for and disallows installation of Python packages
+  during `R CMD check`.
+
 - `reticulate` no longer injects the `r` helper object into the main
   module if another variable called `r` has already been defined.
 

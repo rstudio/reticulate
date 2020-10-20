@@ -131,6 +131,8 @@ virtualenv_install <- function(envname = NULL,
                                pip_options = character(),
                                ...)
 {
+  check_forbidden_install("Python packages")
+  
   # create virtual environment on demand
   path <- virtualenv_path(envname)
   if (!file.exists(path))

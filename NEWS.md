@@ -1,5 +1,5 @@
 
-## reticulate 1.17 (UNRELEASED)
+## reticulate 1.17
 
 - `reticulate` now checks for and disallows installation of Python packages
   during `R CMD check`.

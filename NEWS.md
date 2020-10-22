@@ -1,4 +1,6 @@
 
+## reticulate 1.18 (UNRELEASED)
+
 ## reticulate 1.17
 
 - `reticulate` now checks for and disallows installation of Python packages

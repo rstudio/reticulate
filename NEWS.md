@@ -1,6 +1,9 @@
 
 ## reticulate 1.18 (UNRELEASED)
 
+- Fixed an issue where `python_config()` could throw an error when attempting
+  to query information about a Python 2.6 installation.
+
 ## reticulate 1.17
 
 - `reticulate` now checks for and disallows installation of Python packages

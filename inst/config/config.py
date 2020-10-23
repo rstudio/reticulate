@@ -3,6 +3,13 @@ import platform
 import sys
 import os
 
+# The 'sysconfig' module is only available with Python 2.7 and newer, but
+# an equivalent module in 'distutils' is available for Python 2.6.
+if sys.version < '2.7':
+  from distutils import sysconfig
+else:
+  import sysconfig
+
 # The 'imp' module is deprecated since Python 3.4, and the use of
 # 'importlib' is recommended instead.
 if sys.version < '3.4':
@@ -33,16 +40,9 @@ config = {
   "ExecPrefix"       : getattr(sys, "exec_prefix", ""),
   "BaseExecPrefix"   : getattr(sys, "base_exec_prefix", ""),
   "PythonPath"       : pathsep.join(sys.path[1:]),
+  "LIBPL"            : sysconfig.get_config_var("LIBPL"),
+  "LIBDIR"           : sysconfig.get_config_var("LIBDIR")
 }
-
-# Use sysconfig to read LIBPL, LIBDIR if set
-# (note that sysconfig may not available on Python 2.6 and older)
-try:
-  import sysconfig
-  config["LIBPL"]  = sysconfig.get_config_var("LIBPL")
-  config["LIBDIR"] = sysconfig.get_config_var("LIBDIR")
-except:
-  pass
 
 # Read numpy configuration (if available)
 try:

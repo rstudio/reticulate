@@ -1,4 +1,6 @@
 
+## reticulate 1.19 (UNRELEASED)
+
 ## reticulate 1.18
 
 - Fixed an issue where `python_config()` could throw an error when attempting

@@ -1,6 +1,9 @@
 
 ## reticulate 1.19 (UNRELEASED)
 
+- Fixed an issue where Python's auto-loader hooks could fail when binding
+  to a Python 2.7 installation.
+
 ## reticulate 1.18
 
 - Fixed an issue where `python_config()` could throw an error when attempting

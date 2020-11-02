@@ -3,10 +3,13 @@
 # https://stackoverflow.com/questions/40623889/post-import-hooks-in-python-3
 def initialize(callback):
   
+  # NOTE: we try to import '__builtin__' first as 'builtins' is real
+  # module provided by Python 2.x but it doesn't actually provide the
+  # __import__ function definition!
   try:
-    import builtins  # python3.x
-  except ImportError:
     import __builtin__ as builtins  # python2.x
+  except ImportError:
+    import builtins  # python3.x
 
   import sys
 

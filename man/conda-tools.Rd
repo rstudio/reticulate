@@ -63,12 +63,12 @@ specify multiple channels, including the Conda Forge, you can use
 \item{pip_options}{An optional character vector of additional command line
 arguments to be passed to \code{pip}. Only relevant when \code{pip = TRUE}.}
 
-\item{pip_ignore_installed}{Ignore installed versions when using pip. This is
-\code{TRUE} by default so that specific package versions can be installed even
-if they are downgrades. The \code{FALSE} option is useful for situations where
-you don't want a pip install to attempt an overwrite of a conda binary
-package (e.g. SciPy on Windows which is very difficult to install via pip
-due to compilation requirements).}
+\item{pip_ignore_installed}{Ignore installed versions when using pip
+(defaults to \code{FALSE}). Set this to \code{TRUE} so that specific package versions
+can be installed even if they are downgrades. The \code{FALSE} option is useful
+for situations where you don't want a pip install to attempt an overwrite of
+a conda binary package (e.g. SciPy on Windows which is very difficult to
+install via pip due to compilation requirements).}
 
 \item{...}{Optional arguments, reserved for future expansion.}
 }

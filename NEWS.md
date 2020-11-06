@@ -1,6 +1,9 @@
 
 ## reticulate 1.19 (UNRELEASED)
 
+- `conda_install()` now allows version specifications for the `python_version`
+  argument; e.g. `conda_install(python_version = ">=3.6")`. (#880)
+
 - Fixed an issue where `conda_install()` failed to pass along `forge` and
   `channel` in calls to `conda_create()`. (#878)
 

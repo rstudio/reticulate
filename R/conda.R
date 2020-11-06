@@ -227,6 +227,8 @@ conda_install <- function(envname = NULL,
   # honor request for specific version of Python package
   python_package <- if (is.null(python_version))
     "python"
+  else if (grepl("[><=]", python_version))
+    paste0("python", python_version)
   else
     sprintf("python=%s", python_version)
 

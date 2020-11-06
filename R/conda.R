@@ -239,8 +239,17 @@ conda_install <- function(envname = NULL,
   
   # if this conda environment doesn't seem to exist, auto-create it
   if (inherits(python, "error") || !file.exists(python)) {
-    conda_create(envname, packages = python_package, conda = conda)
+    
+    conda_create(
+      envname = envname,
+      packages = python_package,
+      forge = forge,
+      channel = channel,
+      conda = conda
+    )
+    
     python <- conda_python(envname = envname, conda = conda)
+    
   }
   
   # if the user has requested a specific version of Python, ensure that

@@ -1,6 +1,9 @@
 
 ## reticulate 1.19 (UNRELEASED)
 
+- Fixed an issue where `conda_install()` failed to pass along `forge` and
+  `channel` in calls to `conda_create()`. (#878)
+
 - Fixed an issue where Python's auto-loader hooks could fail when binding
   to a Python 2.7 installation.
 

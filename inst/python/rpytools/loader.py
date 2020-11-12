@@ -1,4 +1,8 @@
 
+import threading
+
+_imported_packages = []
+
 # adapted from:
 # https://stackoverflow.com/questions/40623889/post-import-hooks-in-python-3
 def initialize(callback):
@@ -27,8 +31,17 @@ def initialize(callback):
       level=level
     )
 
+    # if we haven't already imported this package, push
+    # it onto the imported package list
     if not already_imported:
-      callback(name)
+      _imported_packages.append(name)
+      
+    # NOTE: Python code running on a separate thread might need to import
+    # modules; if this occurs then we need to ensure that our R callback
+    # is invoked only on the main thread
+    if isinstance(threading.current_thread(), threading._MainThread):
+      [callback(package) for package in _imported_packages]
+      _imported_packages.clear()
     
     return module
 

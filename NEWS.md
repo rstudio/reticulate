@@ -1,6 +1,9 @@
 
 ## reticulate 1.19 (UNRELEASED)
 
+- Fixed an issue where Python modules loaded on a separate thread could cause
+  a crash. (#885)
+
 - `conda_install()` now allows version specifications for the `python_version`
   argument; e.g. `conda_install(python_version = ">=3.6")`. (#880)
 

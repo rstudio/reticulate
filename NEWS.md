@@ -1,6 +1,9 @@
 
 ## reticulate 1.19 (UNRELEASED)
 
+- Fixed an issue where `reticulate` invoked its `reticulate.initialized` hook
+  too early.
+
 - Fixed an issue where Python modules loaded on a separate thread could cause
   a crash. (#885)
 

@@ -34,6 +34,7 @@ is_python_initialized <- function() {
 ensure_python_initialized <- function(required_module = NULL) {
 
   if (!is_python_initialized()) {
+    
     # give delay load modules priority
     use_environment <- NULL
     if (!is.null(.globals$delay_load_module)) {
@@ -57,6 +58,11 @@ ensure_python_initialized <- function(required_module = NULL) {
     
     # install required packages
     configure_environment()
+    
+    # notify front-end (if any) that Python has been initialized
+    callback <- getOption("reticulate.initialized")
+    if (is.function(callback))
+      callback()
 
   }
 }
@@ -195,11 +201,6 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
 
   })
   
-  # notify front-end (if any) that Python has been initialized
-  callback <- getOption("reticulate.initialized")
-  if (is.function(callback))
-    callback()
-
   # return config
   config
 }

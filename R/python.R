@@ -1320,6 +1320,11 @@ py_inject_hooks <- function() {
 
 py_module_loaded <- function(module) {
   
+  # log module loading if requested
+  if (getOption("reticulate.logModuleLoad", default = FALSE)) {
+    writeLines(sprintf("Loaded module '%s'", module))
+  }
+  
   # retrieve and clear list of hooks
   hookName <- paste("reticulate", module, "load", sep = "::")
   hooks <- getHook(hookName)

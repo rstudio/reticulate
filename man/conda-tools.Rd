@@ -43,12 +43,15 @@ conda_version(conda = "auto")
 conda_python(envname = NULL, conda = "auto")
 }
 \arguments{
-\item{conda}{The path to a \code{conda} executable. Use \code{"auto"} to allow \code{reticulate} to
-automatically find an appropriate \code{conda} binary. See \strong{Finding Conda} for more details.}
+\item{conda}{The path to a \code{conda} executable. Use \code{"auto"} to allow
+\code{reticulate} to automatically find an appropriate \code{conda} binary. See
+\strong{Finding Conda} for more details.}
 
 \item{envname}{The name of, or path to, a conda environment.}
 
-\item{packages}{A character vector, indicating package names which should be installed or removed.}
+\item{packages}{A character vector, indicating package names which should be
+installed or removed. Use \verb{python=<version>} to request the installation
+of a specific version of Python.}
 
 \item{forge}{Boolean; include the \href{https://conda-forge.org/}{Conda Forge}
 repository?}
@@ -58,7 +61,8 @@ When specified, the \code{forge} argument is ignored. If you need to
 specify multiple channels, including the Conda Forge, you can use
 \verb{c("conda-forge", <other channels>)}.}
 
-\item{pip}{Boolean; use \code{pip} when downloading or installing packages? Defaults to \code{FALSE}.}
+\item{pip}{Boolean; use \code{pip} when downloading or installing packages?
+Defaults to \code{FALSE}.}
 
 \item{pip_options}{An optional character vector of additional command line
 arguments to be passed to \code{pip}. Only relevant when \code{pip = TRUE}.}

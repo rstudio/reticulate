@@ -5,12 +5,16 @@
 #'
 #' @param envname The name of, or path to, a conda environment.
 #'
-#' @param conda The path to a `conda` executable. Use `"auto"` to allow `reticulate` to
-#'   automatically find an appropriate `conda` binary. See **Finding Conda** for more details.
+#' @param conda The path to a `conda` executable. Use `"auto"` to allow
+#'   `reticulate` to automatically find an appropriate `conda` binary. See
+#'   **Finding Conda** for more details.
 #'
-#' @param packages A character vector, indicating package names which should be installed or removed.
+#' @param packages A character vector, indicating package names which should be
+#'   installed or removed. Use `python=<version>` to request the installation
+#'   of a specific version of Python.
 #'
-#' @param pip Boolean; use `pip` when downloading or installing packages? Defaults to `FALSE`.
+#' @param pip Boolean; use `pip` when downloading or installing packages?
+#'   Defaults to `FALSE`.
 #'
 #' @param ... Optional arguments, reserved for future expansion.
 #'
@@ -226,7 +230,7 @@ conda_install <- function(envname = NULL,
 
   # honor request for specific version of Python package
   python_package <- if (is.null(python_version))
-    "python"
+    NULL
   else if (grepl("[><=]", python_version))
     paste0("python", python_version)
   else
@@ -244,7 +248,7 @@ conda_install <- function(envname = NULL,
     
     conda_create(
       envname = envname,
-      packages = python_package,
+      packages = python_package %||% "python",
       forge = forge,
       channel = channel,
       conda = conda

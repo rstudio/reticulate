@@ -1,6 +1,10 @@
 
 ## reticulate 1.19 (UNRELEASED)
 
+- Fixed an issue where `reticulate::conda_install()` would attempt to
+  re-install the default Python package, potentially upgrading or downgrading
+  the version of Python used in an environment.
+
 - Fixed an issue where `reticulate` invoked its `reticulate.initialized` hook
   too early.
 

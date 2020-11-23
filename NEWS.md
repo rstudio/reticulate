@@ -1,6 +1,10 @@
 
 ## reticulate 1.19 (UNRELEASED)
 
+- `conda_create()` gains the `python_version` argument, making it easier to
+  request that Conda environments are created with a pre-specified version
+  of Python. (#766)
+
 - Fixed an issue where `reticulate::conda_install()` would attempt to
   re-install the default Python package, potentially upgrading or downgrading
   the version of Python used in an environment.

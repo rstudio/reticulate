@@ -15,10 +15,11 @@ conda_list(conda = "auto")
 
 conda_create(
   envname = NULL,
-  packages = "python",
+  packages = NULL,
   forge = TRUE,
   channel = character(),
-  conda = "auto"
+  conda = "auto",
+  python_version = NULL
 )
 
 conda_remove(envname, packages = NULL, conda = "auto")
@@ -60,6 +61,14 @@ repository?}
 When specified, the \code{forge} argument is ignored. If you need to
 specify multiple channels, including the Conda Forge, you can use
 \verb{c("conda-forge", <other channels>)}.}
+
+\item{python_version}{The version of Python to be used in this Conda
+environment. The associated Python package from Conda will be requested
+as \code{python={python_version}}. When \code{NULL}, the default \code{python} package
+will be used instead. For example, use \code{python_version = "3.6"} to request
+that the Conda environment be created with a copy of Python 3.6. This
+argument will be ignored if \code{python} is specified as part of the \code{packages}
+argument, for backwards compatibility.}
 
 \item{pip}{Boolean; use \code{pip} when downloading or installing packages?
 Defaults to \code{FALSE}.}

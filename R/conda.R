@@ -122,6 +122,14 @@ conda_list <- function(conda = "auto") {
 #'   When specified, the `forge` argument is ignored. If you need to
 #'   specify multiple channels, including the Conda Forge, you can use
 #'   `c("conda-forge", <other channels>)`.
+#'   
+#' @param python_version The version of Python to be used in this Conda
+#'   environment. The associated Python package from Conda will be requested
+#'   as `python={python_version}`. When `NULL`, the default `python` package
+#'   will be used instead. For example, use `python_version = "3.6"` to request
+#'   that the Conda environment be created with a copy of Python 3.6. This
+#'   argument will be ignored if `python` is specified as part of the `packages`
+#'   argument, for backwards compatibility.
 #'
 #' @rdname conda-tools
 #'
@@ -129,16 +137,27 @@ conda_list <- function(conda = "auto") {
 #'
 #' @export
 conda_create <- function(envname = NULL,
-                         packages = "python",
+                         packages = NULL,
                          forge = TRUE,
                          channel = character(),
-                         conda = "auto") {
+                         conda = "auto",
+                         python_version = NULL)
+{
 
   # resolve conda binary
   conda <- conda_binary(conda)
 
   # resolve environment name
   envname <- condaenv_resolve(envname)
+  
+  # resolve packages argument
+  if (!any(grepl("^python", packages))) {
+    python_package <- if (is.null(python_version))
+      "python"
+    else
+      sprintf("python=%s", python_version)
+    packages <- c(python_package, packages)
+  }
 
   # create the environment
   args <- conda_args("create", envname, packages)

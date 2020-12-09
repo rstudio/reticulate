@@ -36,11 +36,15 @@ Python can access objects available in the R environment.
 ```{r}
 x <- 1:5
 y <- 6:10
+
+# TODO: workaround for testthat failures for now
+assign("x", x, envir = globalenv())
+assign("y", y, envir = globalenv())
 ```
 
 ```{python}
-print (r.x)
-print (r['y'])
+print(r.x)
+print(r['y'])
 
 r.hello = "World"
 r['answer'] = 42
@@ -130,4 +134,12 @@ Expressions that generate plots should be shown.
 import numpy as np, pandas as pd
 a = np.random.normal(size=1000)
 pd.Series(a).hist()
+```
+
+Ensure that outputs with `results = "hold"` are held to the end.
+
+```{python, results="hold"}
+print(1)
+print(2)
+print(3)
 ```

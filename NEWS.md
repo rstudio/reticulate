@@ -1,6 +1,10 @@
 
 ## reticulate 1.19 (UNRELEASED)
 
+- The `reticulate` Python engine now supports the `results = "hold"` knitr
+  chunk option. When set, any generated outputs are "held" and then displayed
+  after the associated chunk's source code. (#530)
+
 - `conda_create()` gains the `python_version` argument, making it easier to
   request that Conda environments are created with a pre-specified version
   of Python. (#766)

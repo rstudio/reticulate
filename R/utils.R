@@ -104,8 +104,8 @@ py_compile_eval <- function(code, compile_mode = "single", capture = TRUE) {
 
   # allow 'globals' and 'locals' to both point at main module, so that
   # evaluated code updates references there as well
-  globals <- py_eval("globals()", convert = FALSE)
-  locals <- globals
+  main <- import_main(convert = FALSE)
+  globals <- locals <- py_get_attr(main, "__dict__")
 
   # Python's command compiler complains if the only thing you submit
   # is a comment, so detect that case first

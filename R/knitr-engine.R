@@ -121,6 +121,9 @@ eng_python <- function(options) {
 
   # actual outputs to be returned to knitr
   outputs <- list()
+  
+  # 'held' outputs, to be appended at the end (for results = "hold")
+  held_outputs <- list()
 
   # synchronize state R -> Python
   eng_python_synchronize_before()
@@ -158,7 +161,7 @@ eng_python <- function(options) {
     if (length(context$pending_plots) || !identical(captured, "")) {
 
       # append pending source to outputs (respecting 'echo' option)
-      if (!identical(options$echo, FALSE)) {
+      if (!identical(options$echo, FALSE) && !identical(options$results, "hold")) {
         extracted <- extract(code, c(pending_source_index, range[2]))
         output <- structure(list(src = extracted), class = "source")
         outputs[[length(outputs) + 1]] <- output
@@ -167,14 +170,29 @@ eng_python <- function(options) {
       # append captured outputs (respecting 'include' option)
       if (isTRUE(options$include)) {
 
-        # append captured output
-        if (!identical(captured, ""))
-          outputs[[length(outputs) + 1]] <- captured
-
-        # append captured images / figures
-        for (plot in context$pending_plots)
-          outputs[[length(outputs) + 1]] <- plot
-        context$pending_plots <- list()
+        if (identical(options$results, "hold")) {
+          
+          # append captured output
+          if (!identical(captured, ""))
+            held_outputs[[length(held_outputs) + 1]] <- captured
+          
+          # append captured images / figures
+          for (plot in context$pending_plots)
+            held_outputs[[length(held_outputs) + 1]] <- plot
+          context$pending_plots <- list()
+          
+        } else {
+          
+          # append captured output
+          if (!identical(captured, ""))
+            outputs[[length(outputs) + 1]] <- captured
+          
+          # append captured images / figures
+          for (plot in context$pending_plots)
+            outputs[[length(outputs) + 1]] <- plot
+          context$pending_plots <- list()
+          
+        }
 
       }
 
@@ -191,13 +209,52 @@ eng_python <- function(options) {
   }
 
   # if we have leftover input, add that now
-  if (!had_error && !identical(options$echo, FALSE) && pending_source_index <= n) {
+  has_leftovers <-
+    !had_error &&
+    !identical(options$echo, FALSE) &&
+    !identical(options$results, "hold") &&
+    pending_source_index <= n
+  
+  if (has_leftovers) {
     leftover <- extract(code, c(pending_source_index, n))
     outputs[[length(outputs) + 1]] <- structure(
       list(src = leftover),
       class = "source"
     )
   }
+  
+  # if we were using held outputs, we just inject the source in now
+  if (identical(options$results, "hold")) {
+    output <- structure(list(src = code), class = "source")
+    outputs[[length(outputs) + 1]] <- output
+  }
+  
+  # if we had held outputs, add those in now (merging text output as appropriate)
+  text_output <- character()
+  
+  for (i in seq_along(held_outputs)) {
+    
+    if (is.character(held_outputs[[i]])) {
+      
+      # merge text output and save for later
+      text_output <- c(text_output, held_outputs[[i]])
+      
+    } else {
+      
+      # add in pending text output
+      if (length(text_output)) {
+        outputs[[length(outputs) + 1]] <- paste(text_output, collapse = "")
+        text_output <- character()
+      }
+      
+      # add in this piece of output
+      outputs[[length(outputs) + 1]] <- held_outputs[[i]]
+    }
+  }
+  
+  # if we have any leftover held output, add in now
+  if (length(text_output))
+    outputs[[length(outputs) + 1]] <- paste(text_output, collapse = "")
 
   eng_python_synchronize_after()
 
@@ -342,7 +399,7 @@ eng_python_validate_options <- function(options) {
       options[[option]] <- TRUE
     }
   }
-
+  
   options
 }
 

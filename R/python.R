@@ -1239,7 +1239,7 @@ py_filter_classes <- function(classes) {
   classes
 }
 
-py_inject_r <- function(envir) {
+py_inject_r <- function() {
 
   # don't inject 'r' if there's already an 'r' object defined
   main <- import_main(convert = FALSE)
@@ -1253,19 +1253,15 @@ py_inject_r <- function(envir) {
   main <- import_main(convert = FALSE)
   R <- main$R
 
-  # extract active knit environment
-  if (is.null(envir)) {
-    .knitEnv <- yoink("knitr", ".knitEnv")
-    envir <- .knitEnv$knit_global
-  }
-
   # define the getters, setters we'll attach to the Python class
   getter <- function(self, code) {
+    envir <- py_resolve_envir()
     object <- eval(parse(text = as_r_value(code)), envir = envir)
     r_to_py(object, convert = is.function(object))
   }
 
   setter <- function(self, name, value) {
+    envir <- py_resolve_envir()
     envir[[as_r_value(name)]] <<- as_r_value(value)
   }
 
@@ -1283,6 +1279,19 @@ py_inject_r <- function(envir) {
   # indicate success
   TRUE
 
+}
+
+py_resolve_envir <- function() {
+  
+  envir <- getOption("reticulate.engine.environment")
+  
+  if (is.null(envir)) {
+    .knitEnv <- yoink("knitr", ".knitEnv")
+    envir <- .knitEnv$knit_global
+  }
+  
+  envir %||% globalenv()
+  
 }
 
 py_inject_hooks <- function() {

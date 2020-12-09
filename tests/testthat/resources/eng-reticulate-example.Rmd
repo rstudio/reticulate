@@ -36,10 +36,6 @@ Python can access objects available in the R environment.
 ```{r}
 x <- 1:5
 y <- 6:10
-
-# TODO: workaround for testthat failures for now
-assign("x", x, envir = globalenv())
-assign("y", y, envir = globalenv())
 ```
 
 ```{python}

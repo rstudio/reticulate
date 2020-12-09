@@ -51,7 +51,7 @@ ensure_python_initialized <- function(required_module = NULL) {
     remap_output_streams()
     
     # generate 'R' helper object
-    py_inject_r(envir = globalenv())
+    py_inject_r()
     
     # inject hooks
     py_inject_hooks()

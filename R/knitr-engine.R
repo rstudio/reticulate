@@ -373,7 +373,7 @@ eng_python_initialize_matplotlib <- function(options, context, envir) {
 
 # synchronize objects R -> Python
 eng_python_synchronize_before <- function() {
-  py_inject_r(envir = getOption("reticulate.engine.environment"))
+  py_inject_r()
 }
 
 # synchronize objects Python -> R

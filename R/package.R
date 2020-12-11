@@ -281,7 +281,7 @@ py_set_qt_qpa_platform_plugin_path <- function(config) {
     return(FALSE)
   
   # get python homes (note that multiple homes may be specified)
-  homes <- strsplit(config$pythonhome, "[:;]")[[1]]
+  homes <- strsplit(config$pythonhome, ";", fixed = TRUE)[[1]]
   for (home in homes) {
 
     # build some candidate paths to the plugins directory    
@@ -295,9 +295,12 @@ py_set_qt_qpa_platform_plugin_path <- function(config) {
     if (length(paths) == 0)
       next
     
-    # we found a path; set the environment variable and return
+    # we found a path; use it
+    path <- normalizePath(paths[[1]], winslash = "/", mustWork = TRUE)
+    path <- gsub("/", "\\\\", path, fixed = TRUE)
+    
     fmt <- "import os; os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = '%s'"
-    cmd <- sprintf(fmt, normalizePath(paths[[1]], winslash = "\\", mustWork = FALSE))
+    cmd <- sprintf(fmt, path)
     py_run_string_impl(cmd)
     
     # return TRUE to indicate success

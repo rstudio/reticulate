@@ -1,6 +1,10 @@
 
 ## reticulate 1.19 (UNRELEASED)
 
+- `reticulate` now attempts to set the `QT_QPA_PLATFORM_PLUGIN_PATH`
+  environment variable when initializing a Conda installation of Python,
+  when that associated plugins directory exists. (#586)
+  
 - The `reticulate` Python engine now supports the `results = "hold"` knitr
   chunk option. When set, any generated outputs are "held" and then displayed
   after the associated chunk's source code. (#530)

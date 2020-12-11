@@ -69,12 +69,6 @@ ensure_python_initialized <- function(required_module = NULL) {
 
 initialize_python <- function(required_module = NULL, use_environment = NULL) {
 
-  # disallow initialization of Python within .onLoad()
-  
-  # NOTE: disabled for this release of reticulate as there are too many packages
-  # already forcing initialization of Python on load
-  # check_forbidden_initialization()
-  
   # provide hint to install Miniconda if no Python is found
   python_not_found <- function(msg) {
     hint <- "Use reticulate::install_miniconda() if you'd like to install a Miniconda Python environment."
@@ -133,6 +127,7 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
     )
  
     local({
+      
       # set PYTHONPATH while we initialize
       Sys.setenv(PYTHONPATH = newpythonpath)
       on.exit(Sys.setenv(PYTHONPATH = oldpythonpath), add = TRUE)
@@ -145,6 +140,7 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
                     config$version >= "3.0",
                     interactive(),
                     numpy_load_error)
+      
     })
     
     },
@@ -166,7 +162,11 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
 
   # ensure modules can be imported from the current working directory
   py_run_string_impl("import sys; sys.path.insert(0, '')")
-
+  
+  # if this is a conda installation, set QT_QPA_PLATFORM_PLUGIN_PATH
+  # https://github.com/rstudio/reticulate/issues/586
+  py_set_qt_qpa_platform_plugin_path(config)
+  
   # notify the user if the loaded version of Python isn't the same
   # as the requested version of python
   local({
@@ -270,6 +270,42 @@ check_forbidden_install <- function(label) {
     return(TRUE)
   }
   
+  FALSE
+  
+}
+
+py_set_qt_qpa_platform_plugin_path <- function(config) {
+  
+  # only done on Windows since that's where we see all the issues
+  if (!is_windows())
+    return(FALSE)
+  
+  # get python homes (note that multiple homes may be specified)
+  homes <- strsplit(config$pythonhome, "[:;]")[[1]]
+  for (home in homes) {
+
+    # build some candidate paths to the plugins directory    
+    candidates <- c(
+      file.path(home, "Library/plugins/platforms"),
+      file.path(home, "../../Library/plugins/platforms")
+    )
+    
+    # check and see if any of these exist
+    paths <- candidates[file.exists(candidates)]
+    if (length(paths) == 0)
+      next
+    
+    # we found a path; set the environment variable and return
+    fmt <- "import os; os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = '%s'"
+    cmd <- sprintf(fmt, normalizePath(paths[[1]], winslash = "\\", mustWork = FALSE))
+    py_run_string_impl(cmd)
+    
+    # return TRUE to indicate success
+    return(TRUE)
+    
+  }
+  
+  # failed to find folder; nothing to do
   FALSE
   
 }

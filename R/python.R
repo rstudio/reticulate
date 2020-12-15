@@ -286,7 +286,7 @@ as.environment.python.builtin.object <- function(x) {
     names <- sort(names, decreasing = FALSE)
 
     # get the types
-    types <- py_suppress_warnings(py_get_attribute_types(x, names))
+    types <- py_suppress_warnings(py_get_attr_types(x, names))
   }
 
 
@@ -770,7 +770,16 @@ py_list_attributes <- function(x) {
   attrs
 }
 
-
+py_get_attr_types <- function(x,
+                              names,
+                              resolve_properties = FALSE)
+{
+  ensure_python_initialized()
+  if (py_is_module_proxy(x))
+    py_resolve_module_proxy(x)
+  
+  py_get_attr_types_impl(x, names, resolve_properties)
+}
 
 #' Get an item from a Python object
 #'

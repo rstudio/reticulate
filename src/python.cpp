@@ -1932,20 +1932,36 @@ void py_set_item_impl(PyObjectRef x,
 
 
 // [[Rcpp::export]]
-IntegerVector py_get_attribute_types(
+IntegerVector py_get_attr_types_impl(
     PyObjectRef x,
-    const std::vector<std::string>& attributes) {
-
+    const std::vector<std::string>& attrs,
+    bool resolve_properties)
+{
   const int UNKNOWN     =  0;
   const int VECTOR      =  1;
   const int ARRAY       =  2;
   const int LIST        =  4;
   const int ENVIRONMENT =  5;
   const int FUNCTION    =  6;
+  
+  PyObjectRef type = py_get_attr_impl(x, "__class__");
 
-  IntegerVector types(attributes.size());
-  for (size_t i = 0; i<attributes.size(); i++) {
-    PyObjectRef attr = py_get_attr_impl(x, attributes[i], true);
+  std::size_t n = attrs.size();
+  IntegerVector types = no_init(n);
+  for (std::size_t i = 0; i < n; i++) {
+    
+    // check if this is a property; if so, avoid resolving it unless
+    // requested as this could imply running arbitrary Python code
+    const std::string& name = attrs[i];
+    if (!resolve_properties) {
+      PyObjectRef attr = py_get_attr_impl(type, name, true);
+      if (PyObject_TypeCheck(attr, PyProperty_Type)) {
+        types[i] = UNKNOWN;
+        continue;
+      }
+    }
+    
+    PyObjectRef attr = py_get_attr_impl(x, name, true);
     if (attr.get() == Py_None)
       types[i] = UNKNOWN;
     else if (PyType_Check(attr))

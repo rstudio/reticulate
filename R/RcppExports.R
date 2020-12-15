@@ -137,8 +137,8 @@ py_set_item_impl <- function(x, key, val) {
     invisible(.Call(`_reticulate_py_set_item_impl`, x, key, val))
 }
 
-py_get_attribute_types <- function(x, attributes) {
-    .Call(`_reticulate_py_get_attribute_types`, x, attributes)
+py_get_attr_types_impl <- function(x, attrs, resolve_properties) {
+    .Call(`_reticulate_py_get_attr_types_impl`, x, attrs, resolve_properties)
 }
 
 py_ref_to_r_with_convert <- function(x, convert) {

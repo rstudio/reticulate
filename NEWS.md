@@ -1,6 +1,9 @@
 
 ## reticulate 1.19 (UNRELEASED)
 
+- `reticulate` now avoids invoking property methods when inferring the type
+  for Python class members, for auto-completion systems. (#907)
+
 - `reticulate` now attempts to set the `QT_QPA_PLATFORM_PLUGIN_PATH`
   environment variable when initializing a Conda installation of Python,
   when that associated plugins directory exists. (#586)

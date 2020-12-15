@@ -307,15 +307,16 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
-// py_get_attribute_types
-IntegerVector py_get_attribute_types(PyObjectRef x, const std::vector<std::string>& attributes);
-RcppExport SEXP _reticulate_py_get_attribute_types(SEXP xSEXP, SEXP attributesSEXP) {
+// py_get_attr_types_impl
+IntegerVector py_get_attr_types_impl(PyObjectRef x, const std::vector<std::string>& attrs, bool resolve_properties);
+RcppExport SEXP _reticulate_py_get_attr_types_impl(SEXP xSEXP, SEXP attrsSEXP, SEXP resolve_propertiesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< PyObjectRef >::type x(xSEXP);
-    Rcpp::traits::input_parameter< const std::vector<std::string>& >::type attributes(attributesSEXP);
-    rcpp_result_gen = Rcpp::wrap(py_get_attribute_types(x, attributes));
+    Rcpp::traits::input_parameter< const std::vector<std::string>& >::type attrs(attrsSEXP);
+    Rcpp::traits::input_parameter< bool >::type resolve_properties(resolve_propertiesSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_get_attr_types_impl(x, attrs, resolve_properties));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -629,7 +630,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_reticulate_py_set_attr_impl", (DL_FUNC) &_reticulate_py_set_attr_impl, 3},
     {"_reticulate_py_del_attr_impl", (DL_FUNC) &_reticulate_py_del_attr_impl, 2},
     {"_reticulate_py_set_item_impl", (DL_FUNC) &_reticulate_py_set_item_impl, 3},
-    {"_reticulate_py_get_attribute_types", (DL_FUNC) &_reticulate_py_get_attribute_types, 2},
+    {"_reticulate_py_get_attr_types_impl", (DL_FUNC) &_reticulate_py_get_attr_types_impl, 3},
     {"_reticulate_py_ref_to_r_with_convert", (DL_FUNC) &_reticulate_py_ref_to_r_with_convert, 2},
     {"_reticulate_py_ref_to_r", (DL_FUNC) &_reticulate_py_ref_to_r, 1},
     {"_reticulate_py_call_impl", (DL_FUNC) &_reticulate_py_call_impl, 3},

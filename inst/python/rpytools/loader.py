@@ -41,7 +41,7 @@ def initialize(callback):
     # is invoked only on the main thread
     if isinstance(threading.current_thread(), threading._MainThread):
       [callback(package) for package in _imported_packages]
-      _imported_packages[:] = []
+      del _imported_packages[:]
     
     return module
 

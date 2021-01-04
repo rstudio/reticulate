@@ -36,28 +36,37 @@ python_module_version <- function(python, module) {
   numeric_version(output)
 }
 
-# given the path to a Python binary, try to ascertain its type
+# given the path to a Python binary associated with a Python virtual environment
+# or a Python Conda environment, try to ascertain its type
 python_info <- function(python) {
   
   path <- dirname(python)
   parent <- dirname(path)
   
+  prefix <- if (is_windows()) "Scripts" else "bin"
+  
   while (path != parent) {
     
     # check for virtual environment files
-    virtualenv <-
-      file.exists(file.path(path, "pyvenv.cfg")) ||
-      file.exists(file.path(path, ".Python")) ||
-      file.exists(file.path(path, "Scripts/activate")) ||
-      file.exists(file.path(path, "Scripts/activate.bat"))
-
-    if (is_windows())
-      virtualenv <- virtualenv && (!file.exists("condabin/conda"))
+    files <- c(
+      "pyvenv.cfg",                          # created by venv
+      file.path(prefix, "activate_this.py")  # created by virtualenv
+    )
+    
+    paths <- file.path(path, files)
+    virtualenv <- any(file.exists(paths))
+    
+    # extra check that we aren't in a conda environment for Windows
+    if (is_windows()) {
+      condapath <- file.path(path, "condabin/conda")
+      if (file.exists(condapath))
+        virtualenv <- FALSE
+    }
     
     if (virtualenv)
       return(python_info_virtualenv(path))
 
-    # check for conda-meta
+    # check for conda environment files
     condaenv <-
       file.exists(file.path(path, "conda-meta")) &&
       !file.exists(file.path(path, "condabin"))

@@ -2,9 +2,16 @@
 title: "Using reticulate's Python Engine with knitr"
 ---
 
-```{r setup, include = FALSE}
+```{r setup, include=FALSE}
+
+# load reticulate and set up engine
 library(reticulate)
 knitr::knit_engines$set(python = eng_python)
+
+# use rlang error handler
+if (requireNamespace("rlang", quietly = TRUE))
+  options(error = rlang::entrace)
+
 ```
 
 Python variables live across chunk boundaries.

@@ -1271,7 +1271,9 @@ py_inject_r <- function() {
 
   setter <- function(self, name, value) {
     envir <- py_resolve_envir()
-    envir[[as_r_value(name)]] <<- as_r_value(value)
+    name  <- as_r_value(name)
+    value <- as_r_value(value)
+    assign(name, value, envir = envir)
   }
 
   py_set_attr(R, "__getattr__", getter)

@@ -140,7 +140,7 @@ py_compile_eval <- function(code, compile_mode = "single", capture = TRUE) {
 py_last_value <- function() {
   tryCatch(
     py_eval("_", convert = FALSE),
-    error = function(e) r_to_py(NULL)
+    error = function(e) py_none()
   )
 }
 
@@ -261,5 +261,54 @@ is_r_cmd_check <- function() {
   
   # does not appear to be R CMD check
   FALSE
+  
+}
+
+stack <- function(mode = "list") {
+  
+  .data <- list()
+  storage.mode(.data) <- mode
+  
+  object <- list(
+    
+    push = function(...) {
+      dots <- list(...)
+      for (data in dots) {
+        if (is.null(data))
+          .data[length(.data) + 1] <<- list(NULL)
+        else
+          .data[[length(.data) + 1]] <<- data
+      }
+    },
+    
+    pop = function() {
+      item <- .data[[length(.data)]]
+      length(.data) <<- length(.data) - 1
+      item
+    },
+    
+    peek = function() {
+      .data[[length(.data)]]
+    },
+    
+    contains = function(data) {
+      data %in% .data
+    },
+    
+    empty = function() {
+      length(.data) == 0
+    },
+    
+    clear = function() {
+      .data <<- list()
+    },
+    
+    data = function() {
+      .data
+    }
+    
+  )
+  
+  object
   
 }

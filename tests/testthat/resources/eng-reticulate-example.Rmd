@@ -3,15 +3,18 @@ title: "Using reticulate's Python Engine with knitr"
 ---
 
 ```{r setup, include=FALSE}
-
 # load reticulate and set up engine
 library(reticulate)
 knitr::knit_engines$set(python = eng_python)
 
+# use specific environment if available
+python <- "~/.virtualenvs/python-3.7.7-venv/bin/python"
+if (file.exists(python))
+  reticulate::use_python(python, required = TRUE)
+
 # use rlang error handler
 if (requireNamespace("rlang", quietly = TRUE))
   options(error = rlang::entrace)
-
 ```
 
 Python variables live across chunk boundaries.
@@ -145,4 +148,15 @@ Ensure that outputs with `results = "hold"` are held to the end.
 print(1)
 print(2)
 print(3)
+```
+
+plotly plots should be auto-printed and displayed.
+
+```{python}
+import plotly.express as px
+fig = px.scatter(x=[1, 2, 3], y=[5, 4, 6])
+```
+
+```{python}
+fig
 ```

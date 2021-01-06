@@ -1,6 +1,10 @@
 
 ## reticulate 1.19 (UNRELEASED)
 
+- `reticulate` now supports the rendering of [plotly](https://plotly.com/)
+  plots and [Altair](https://altair-viz.github.io/) charts in rendered
+  R Markdown documents. (#711)
+
 - `reticulate` now avoids invoking property methods when inferring the type
   for Python class members, for auto-completion systems. (#907)
 

@@ -1294,13 +1294,25 @@ py_inject_r <- function() {
 
 py_resolve_envir <- function() {
   
+  # if an environment has been set, use it
   envir <- getOption("reticulate.engine.environment")
+  if (is.environment(envir))
+    return(envir)
   
-  if (is.null(envir)) {
+  # if we're running in a knitr document, use the knit env
+  if ("knitr" %in% loadedNamespaces()) {
     .knitEnv <- yoink("knitr", ".knitEnv")
     envir <- .knitEnv$knit_global
+    if (is.environment(envir))
+      return(envir)
   }
   
+  # if we're running in a testthat test, use the rlang reported envir
+  envir <- getOption("rlang_trace_top_env")
+  if (is.environment(envir))
+    return(envir)
+  
+  # otherwise, default to the global environment
   envir %||% globalenv()
   
 }

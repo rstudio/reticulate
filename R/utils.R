@@ -74,7 +74,7 @@ disable_conversion_scope <- function(object) {
   TRUE
 }
 
-new_stack <- function() {
+stack <- function() {
 
   (function() {
 

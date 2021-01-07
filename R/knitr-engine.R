@@ -66,10 +66,13 @@ eng_python <- function(options) {
   # environment tracking the labels assigned to newly-created altair charts
   context$altair_ids <- new.env(parent = emptyenv())
   
+  # a list of pending plots / outputs
+  context$pending_plots <- stack()
+  
   eng_python_initialize(
-    options,
+    options = options,
     context = context,
-    envir = environment()
+    envir   = environment()
   )
 
   # helper function for extracting range of code, dropping blank lines
@@ -359,9 +362,6 @@ eng_python_initialize_matplotlib <- function(options, context, envir) {
   # is installed but is initialized to a backend missing some required components)
   if (!py_module_available("matplotlib.pyplot"))
     return()
-
-  # initialize pending_plots list
-  context$pending_plots <- stack()
 
   plt <- import("matplotlib.pyplot", convert = FALSE)
 

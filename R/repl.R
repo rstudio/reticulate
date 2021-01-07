@@ -94,7 +94,7 @@ repl_python <- function(
   #
   # we return an environment of functions bound in a local environment
   # so that hook can manipulate the buffer if required
-  buffer <- stack()
+  buffer <- stack(mode = "character")
 
   # command compiler (used to check if we've received a complete piece
   # of Python input)

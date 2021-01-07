@@ -74,29 +74,6 @@ disable_conversion_scope <- function(object) {
   TRUE
 }
 
-stack <- function() {
-
-  (function() {
-
-    .data <- list()
-
-    methods <- list(
-      clear  = function() { .data <<- character() },
-      data   = function() { .data },
-      empty  = function() { length(.data) == 0 },
-      length = function() { length(.data) },
-      push   = function(line) { .data[[length(.data) + 1]] <<- line },
-      peek   = function() { .data[[length(.data)]] },
-      pop    = function() { .data <<- utils::head(.data, n = -1) },
-      set    = function(data) { .data <<- data }
-    )
-
-    list2env(methods)
-
-  })()
-
-}
-
 py_compile_eval <- function(code, compile_mode = "single", capture = TRUE) {
 
   builtins <- import_builtins(convert = TRUE)

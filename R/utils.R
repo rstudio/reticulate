@@ -243,8 +243,7 @@ is_r_cmd_check <- function() {
 
 stack <- function(mode = "list") {
   
-  .data <- list()
-  storage.mode(.data) <- mode
+  .data <- vector(mode)
   
   object <- list(
     

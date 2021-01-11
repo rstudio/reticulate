@@ -7,7 +7,7 @@
 source_python(file, envir = parent.frame(), convert = TRUE)
 }
 \arguments{
-\item{file}{Source file}
+\item{file}{The Python script to be executed.}
 
 \item{envir}{The environment to assign Python objects into (for example,
 \code{parent.frame()} or \code{globalenv()}). Specify \code{NULL} to not assign Python

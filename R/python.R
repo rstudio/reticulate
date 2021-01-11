@@ -1067,17 +1067,20 @@ py_flush_output <- function() {
 
 #' Run Python code
 #'
-#' Execute code within the the \code{__main__} Python module.
+#' Execute code within the scope of the \code{__main__} Python module.
 #'
 #' @inheritParams import
-#' @param code Code to execute
-#' @param file Source file
-#' @param local Whether to create objects in a local/private namespace (if
-#'   `FALSE`, objects are created within the main module).
+#' 
+#' @param code The Python code to be executed.
+#' @param file The Python script to be executed.
+#' @param local Boolean; should Python objects be created as part of
+#'   a local / private dictionary? If `FALSE`, objects will be created within
+#'   the scope of the Python main module.
 #'
-#' @return For `py_eval()`, the result of evaluating the expression; For
-#'   `py_run_string()` and `py_run_file()`, the dictionary associated with
-#'   the code execution.
+#' @return A Python dictionary of objects. When `local` is `FALSE`, this
+#'   dictionary captures the state of the Python main module after running
+#'   the provided code. Otherwise, only the variables defined and used are
+#'   captured.
 #'
 #' @name py_run
 #'
@@ -1096,7 +1099,43 @@ py_run_file <- function(file, local = FALSE, convert = TRUE) {
   invisible(py_run_file_impl(file, local, convert))
 }
 
-#' @rdname py_run
+#' Evaluate a Python Expression
+#' 
+#' Evaluate a single Python expression, in a way analogous to the Python
+#' `eval()` built-in function.
+#' 
+#' @param code A single Python expression.
+#' @param convert Boolean; automatically convert Python objects to R?
+#' 
+#' @return The result produced by evaluating `code`, converted to an `R`
+#'   object when `convert` is set to `TRUE`.
+#' 
+#' @section Caveats:
+#' 
+#' `py_eval()` only supports evaluation of 'simple' Python expressions.
+#' Other expressions (e.g. assignments) will fail; e.g.
+#' 
+#' ```
+#' > py_eval("x = 1")
+#' Error in py_eval_impl(code, convert) : 
+#'   SyntaxError: invalid syntax (reticulate_eval, line 1)
+#' ```
+#' 
+#' and this mirrors what one would see in a regular Python interpreter:
+#' 
+#' ```
+#' >>> eval("x = 1")
+#' Traceback (most recent call last):
+#'   File "<stdin>", line 1, in <module>
+#'   File "<string>", line 1
+#' x = 1
+#' ^
+#'   SyntaxError: invalid syntax
+#' ```
+#' 
+#' The [py_run_string()] method can be used if the evaluation of arbitrary
+#' Python code is required.
+#' 
 #' @export
 py_eval <- function(code, convert = TRUE) {
   ensure_python_initialized()

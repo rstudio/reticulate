@@ -168,7 +168,6 @@ eng_python <- function(options) {
     captured <- eng_python_autoprint(
       captured   = captured,
       options    = options,
-      show       = i == length(ranges),
       context    = context
     )
 
@@ -512,7 +511,7 @@ eng_python_altair_chart_id <- function(options, ids) {
   
 }
 
-eng_python_autoprint <- function(captured, options, show, context) {
+eng_python_autoprint <- function(captured, options, context) {
 
   # bail if no new value was produced by interpreter
   value <- py_last_value()
@@ -533,11 +532,8 @@ eng_python_autoprint <- function(captured, options, show, context) {
     
     # handle matplotlib output. note that the default hook installed by
     # reticulate will update the 'pending_plots' item
-    if (show) {
-      plt <- import("matplotlib.pyplot", convert = TRUE)
-      plt$show()
-    }
-    
+    plt <- import("matplotlib.pyplot", convert = TRUE)
+    plt$show()
     return("")
     
   } else if (isHtml && py_has_attr(value, "_repr_html_")) {

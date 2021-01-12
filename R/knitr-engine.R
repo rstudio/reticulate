@@ -24,7 +24,7 @@ eng_python <- function(options) {
   
   # check for unsupported knitr options
   options <- eng_python_validate_options(options)
-
+  
   # when 'eval = FALSE', we can just return the source code verbatim
   # (skip any other per-chunk work)
   if (identical(options$eval, FALSE)) {
@@ -102,7 +102,7 @@ eng_python <- function(options) {
 
   # iterate over top-level nodes and extract line numbers
   lines <- vapply(parsed$body, function(node) {
-    if(py_has_attr(node, 'decorator_list') && length(node$decorator_list)) {
+    if (py_has_attr(node, "decorator_list") && length(node$decorator_list)) {
       node$decorator_list[[1]]$lineno
     } else {
       node$lineno
@@ -294,8 +294,8 @@ eng_python_initialize <- function(options, context, envir) {
     use_python(options$engine.path[[1]])
 
   ensure_python_initialized()
+  eng_python_initialize_hooks(options, context, envir)
 
-  eng_python_initialize_matplotlib(options, context, envir)
 }
 
 eng_python_matplotlib_show <- function(plt, options) {
@@ -330,11 +330,42 @@ eng_python_matplotlib_show <- function(plt, options) {
 
 }
 
+eng_python_initialize_hooks <- function(options, context, envir) {
+  
+  # set up hooks for matplotlib modules
+  matplotlib_modules <- c(
+    "matplotlib.pyplot",
+    "matplotlib.pylab"
+  )
+  
+  for (module in matplotlib_modules) {
+    py_register_load_hook(module, function(...) {
+      eng_python_initialize_matplotlib(options, context, envir)
+    })
+  }
+  
+  # set up hooks for plotly modules
+  plotly_modules <- c(
+    "plotly.io",
+    "plotlyjs"
+  )
+  
+  for (module in plotly_modules) {
+    py_register_load_hook(module, function(...) {
+      eng_python_initialize_plotly(options, context, envir)
+    })
+  }
+  
+}
+
 eng_python_initialize_matplotlib <- function(options, context, envir) {
 
-  if (!py_module_available("matplotlib"))
-    return()
-
+  # mark initialization done
+  if (identical(.globals$matplotlib_initialized, TRUE))
+    return(TRUE)
+  
+  .globals$matplotlib_initialized <- TRUE
+  
   # attempt to enforce a non-Qt matplotlib backend. this is especially important
   # with RStudio Desktop as attempting to use a Qt backend will cause issues due
   # to mismatched Qt versions between RStudio and Anaconda environments, and
@@ -393,6 +424,21 @@ eng_python_initialize_matplotlib <- function(options, context, envir) {
 
 }
 
+eng_python_initialize_plotly <- function(options, context, envir) {
+  
+  # mark initialization done
+  if (identical(.globals$plotly_initialized, TRUE))
+    return(TRUE)
+  
+  .globals$plotly_initialized <- TRUE
+  
+  # override the figure 'show' method to just return the plot object itself
+  # the auto-printer will then handle rendering the image as appropriate
+  io <- import("plotly.io", convert = FALSE)
+  io$show <- function(self, ...) self
+  
+}
+
 # synchronize objects R -> Python
 eng_python_synchronize_before <- function() {
   py_inject_r()
@@ -436,6 +482,10 @@ eng_python_is_matplotlib_output <- function(value) {
 
 }
 
+eng_python_is_plotly_plot <- function(value) {
+  inherits(value, "plotly.basedatatypes.BaseFigure")
+}
+
 eng_python_is_altair_chart <- function(value) {
   
   # support different API versions, assuming that the class name
@@ -475,6 +525,9 @@ eng_python_autoprint <- function(captured, options, show, context) {
     if (identical(contents, "__reticulate_placeholder__"))
       return(captured)
   }
+  
+  # check if output format is html
+  isHtml <- knitr::is_html_output()
 
   if (eng_python_is_matplotlib_output(value)) {
     
@@ -487,38 +540,57 @@ eng_python_autoprint <- function(captured, options, show, context) {
     
     return("")
     
-  } else if (py_has_attr(value, "_repr_html_")) {
+  } else if (isHtml && py_has_attr(value, "_repr_html_")) {
     
-    # handle plotly output; similarly to above we'll create a plot object
-    # and add that to the context$pending_plots
     data <- as_r_value(value$`_repr_html_`())
     context$pending_plots$push(knitr::raw_html(data))
     return("")
     
-  } else if (eng_python_is_altair_chart(value)) {
+  } else if (eng_python_is_plotly_plot(value) &&
+             py_module_available("psutil") &&
+             py_module_available("kaleido")) {
     
-    browser()
+    ext <- options$fig.ext %||% "png"
+    path <- tempfile("plotly-image-", fileext = paste0(".", ext))
+    value$write_image(
+      file   = path,
+      width  = options$out.width.px,
+      height = options$out.height.px
+    )
+    graphic <- knitr::include_graphics(path)
+    context$pending_plots$push(graphic)
+    return("")
+    
+  } else if (eng_python_is_altair_chart(value)) {
     
     # set width if it's not already set
     width <- value$width
     if (inherits(width, "altair.utils.schemapi.UndefinedType")) {
-      width <- options$out.width.px %||% 810L
+      width <- options$altair.fig.width %||% options$out.width.px %||% 810L
       value <- value$properties(width = width)
     }
     
     # set height if it's not already set
     height <- value$height
     if (inherits(height, "altair.utils.schemapi.UndefinedType")) {
-      height <- options$out.height.px %||% 400
+      height <- options$altair.fig.height %||% options$out.height.px %||% 400L
       value <- value$properties(height = height)
     }
     
     # set a unique id (used for div container for figure)
     id <- eng_python_altair_chart_id(options, context$altair_ids)
     
-    # convert to HTML
-    data <- as_r_value(value$to_html(output_div = id))
-    context$pending_plots$push(knitr::raw_html(data))
+    # convert to HTML or PNG as appropriate
+    if (isHtml) {
+      data <- as_r_value(value$to_html(output_div = id))
+      context$pending_plots$push(knitr::raw_html(data))
+    } else {
+      ext <- options$fig.ext %||% "png"
+      path <- tempfile("altair-chart-", fileext = paste0(".", ext))
+      value$save(path)
+      context$pending_plots$push(knitr::include_graphics(path))
+    }
+    
     return("")
     
   } else if (py_has_attr(value, "to_html")) {

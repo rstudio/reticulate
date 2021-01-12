@@ -1384,12 +1384,12 @@ py_inject_hooks <- function() {
   useImportHook <- getOption("reticulate.useImportHook", default = is_python3())
   if (useImportHook) {
     loader <- import("rpytools.loader")
-    loader$initialize(py_module_loaded)
+    loader$initialize(py_module_onload)
   }
   
 }
 
-py_module_loaded <- function(module) {
+py_module_onload <- function(module) {
   
   # log module loading if requested
   if (getOption("reticulate.logModuleLoad", default = FALSE)) {
@@ -1404,5 +1404,23 @@ py_module_loaded <- function(module) {
   # run hooks
   for (hook in hooks)
     tryCatch(hook(), error = warning)
+  
+}
+
+py_module_loaded <- function(module) {
+  sys <- import("sys", convert = TRUE)
+  modules <- sys$modules
+  module %in% names(modules)
+}
+
+py_register_load_hook <- function(module, hook) {
+  
+  # if the module is already loaded, just run the hook
+  if (py_module_loaded(module))
+    return(hook())
+  
+  # otherwise, register the hook to be run on next load
+  name <- paste("reticulate", module, "load", sep = "::")
+  setHook(name, hook)
   
 }

@@ -25,7 +25,6 @@ NULL
 .globals$class_filters <- list()
 .globals$py_repl_active <- FALSE
 
-
 is_python_initialized <- function() {
   !is.null(.globals$py_config)
 }

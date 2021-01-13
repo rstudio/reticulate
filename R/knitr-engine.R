@@ -1,3 +1,6 @@
+
+.engine_context <- new.env(parent = emptyenv())
+
 #' A reticulate Engine for Knitr
 #'
 #' This provides a `reticulate` engine for `knitr`, suitable for usage when
@@ -61,19 +64,13 @@ eng_python <- function(options) {
     }
   }
 
-  context <- new.env(parent = emptyenv())
-  
   # environment tracking the labels assigned to newly-created altair charts
-  context$altair_ids <- new.env(parent = emptyenv())
+  .engine_context$altair_ids <- new.env(parent = emptyenv())
   
   # a list of pending plots / outputs
-  context$pending_plots <- stack()
+  .engine_context$pending_plots <- stack()
   
-  eng_python_initialize(
-    options = options,
-    context = context,
-    envir   = environment()
-  )
+  eng_python_initialize(options = options, envir = environment())
 
   # helper function for extracting range of code, dropping blank lines
   extract <- function(code, range) {
@@ -166,14 +163,13 @@ eng_python <- function(options) {
 
     # handle matplotlib output
     captured <- eng_python_autoprint(
-      captured   = captured,
-      options    = options,
-      context    = context
+      captured = captured,
+      options  = options
     )
 
     # emit outputs if we have any
     has_outputs <-
-      !context$pending_plots$empty() ||
+      !.engine_context$pending_plots$empty() ||
       !identical(captured, "")
     
     if (has_outputs) {
@@ -195,10 +191,10 @@ eng_python <- function(options) {
             held_outputs$push(captured)
           
           # append captured images / figures
-          plots <- context$pending_plots$data()
+          plots <- .engine_context$pending_plots$data()
           for (plot in plots)
             held_outputs$push(plot)
-          context$pending_plots$clear()
+          .engine_context$pending_plots$clear()
           
         } else {
           
@@ -207,10 +203,10 @@ eng_python <- function(options) {
             outputs$push(captured)
           
           # append captured images / figures
-          plots <- context$pending_plots$data()
+          plots <- .engine_context$pending_plots$data()
           for (plot in plots)
             outputs$push(plot)
-          context$pending_plots$clear()
+          .engine_context$pending_plots$clear()
           
         }
 
@@ -287,17 +283,17 @@ eng_python <- function(options) {
 
 }
 
-eng_python_initialize <- function(options, context, envir) {
+eng_python_initialize <- function(options, envir) {
 
   if (is.character(options$engine.path))
     use_python(options$engine.path[[1]])
 
   ensure_python_initialized()
-  eng_python_initialize_hooks(options, context, envir)
+  eng_python_initialize_hooks(options, envir)
 
 }
 
-eng_python_matplotlib_show <- function(plt, options) {
+eng_python_knit_figure_path <- function(options, suffix = NULL) {
   
   # we need to work in either base.dir or output.dir, depending
   # on which of the two has been requested by the user. (note
@@ -305,7 +301,7 @@ eng_python_matplotlib_show <- function(plt, options) {
   dir <-
     knitr::opts_knit$get("base.dir") %||%
     knitr::opts_knit$get("output.dir")
-
+  
   # move to the requested directory
   dir.create(dir, recursive = TRUE, showWarnings = FALSE)
   owd <- setwd(dir)
@@ -313,11 +309,25 @@ eng_python_matplotlib_show <- function(plt, options) {
   
   # construct plot path
   plot_counter <- yoink("knitr", "plot_counter")
+  number <- plot_counter()
   path <- knitr::fig_path(
-    suffix = options$dev,
+    suffix  = suffix %||% options$dev,
     options = options,
-    number = plot_counter()
+    number  = number
   )
+  
+  # ensure parent path exists
+  dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
+  
+  # return path
+  path
+  
+}
+
+eng_python_matplotlib_show <- function(plt, options) {
+  
+  # get figure path
+  path <- eng_python_knit_figure_path(options)
   
   # save the current figure
   dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
@@ -329,7 +339,7 @@ eng_python_matplotlib_show <- function(plt, options) {
 
 }
 
-eng_python_initialize_hooks <- function(options, context, envir) {
+eng_python_initialize_hooks <- function(options, envir) {
   
   # set up hooks for matplotlib modules
   matplotlib_modules <- c(
@@ -340,7 +350,7 @@ eng_python_initialize_hooks <- function(options, context, envir) {
   
   for (module in matplotlib_modules) {
     py_register_load_hook(module, function(...) {
-      eng_python_initialize_matplotlib(options, context, envir)
+      eng_python_initialize_matplotlib(options, envir)
     })
   }
   
@@ -352,13 +362,13 @@ eng_python_initialize_hooks <- function(options, context, envir) {
   
   for (module in plotly_modules) {
     py_register_load_hook(module, function(...) {
-      eng_python_initialize_plotly(options, context, envir)
+      eng_python_initialize_plotly(options, envir)
     })
   }
   
 }
 
-eng_python_initialize_matplotlib <- function(options, context, envir) {
+eng_python_initialize_matplotlib <- function(options, envir) {
 
   # mark initialization done
   if (identical(.globals$matplotlib_initialized, TRUE))
@@ -396,14 +406,7 @@ eng_python_initialize_matplotlib <- function(options, context, envir) {
 
   plt <- import("matplotlib.pyplot", convert = FALSE)
 
-  # rudely steal 'plot_counter' (used by default 'show()' implementation below)
-  # and then reset the counter when we're done
-  plot_counter <- yoink("knitr", "plot_counter")
-  defer(plot_counter(reset = TRUE), envir = envir)
-
-  # save + restore old show hook
-  show <- plt$show
-  defer(plt$show <- show, envir = envir)
+  # override show implementation
   plt$show <- function(...) {
 
     # call hook to generate plot
@@ -411,7 +414,7 @@ eng_python_initialize_matplotlib <- function(options, context, envir) {
     graphic <- hook(plt, options)
 
     # update set of pending plots
-    context$pending_plots$push(graphic)
+    .engine_context$pending_plots$push(graphic)
 
     # return None to ensure no printing of output here (just inclusion of
     # plot as a side effect)
@@ -424,7 +427,7 @@ eng_python_initialize_matplotlib <- function(options, context, envir) {
 
 }
 
-eng_python_initialize_plotly <- function(options, context, envir) {
+eng_python_initialize_plotly <- function(options, envir) {
   
   # mark initialization done
   if (identical(.globals$plotly_initialized, TRUE))
@@ -516,7 +519,7 @@ eng_python_altair_chart_id <- function(options, ids) {
   
 }
 
-eng_python_autoprint <- function(captured, options, context) {
+eng_python_autoprint <- function(captured, options) {
 
   # bail if no new value was produced by interpreter
   value <- py_last_value()
@@ -543,31 +546,29 @@ eng_python_autoprint <- function(captured, options, context) {
     
   } else if (eng_python_is_seaborn_output(value)) {
     
-    ext <- options$fig.ext %||% "png"
-    path <- tempfile("seaborn-graphics-", fileext = paste0(".", ext))
+    # get figure path
+    path <- eng_python_knit_figure_path(options)
     value$savefig(path)
-    context$pending_plots$push(knitr::include_graphics(path))
+    .engine_context$pending_plots$push(knitr::include_graphics(path))
     return("")
     
   } else if (isHtml && py_has_attr(value, "_repr_html_")) {
     
     data <- as_r_value(value$`_repr_html_`())
-    context$pending_plots$push(knitr::raw_html(data))
+    .engine_context$pending_plots$push(knitr::raw_html(data))
     return("")
     
   } else if (eng_python_is_plotly_plot(value) &&
              py_module_available("psutil") &&
              py_module_available("kaleido")) {
     
-    ext <- options$fig.ext %||% "png"
-    path <- tempfile("plotly-image-", fileext = paste0(".", ext))
+    path <- eng_python_knit_figure_path(options)
     value$write_image(
       file   = path,
       width  = options$out.width.px,
       height = options$out.height.px
     )
-    graphic <- knitr::include_graphics(path)
-    context$pending_plots$push(graphic)
+    .engine_context$pending_plots$push(knitr::include_graphics(path))
     return("")
     
   } else if (eng_python_is_altair_chart(value)) {
@@ -587,17 +588,16 @@ eng_python_autoprint <- function(captured, options, context) {
     }
     
     # set a unique id (used for div container for figure)
-    id <- eng_python_altair_chart_id(options, context$altair_ids)
+    id <- eng_python_altair_chart_id(options, .engine_context$altair_ids)
     
     # convert to HTML or PNG as appropriate
     if (isHtml) {
       data <- as_r_value(value$to_html(output_div = id))
-      context$pending_plots$push(knitr::raw_html(data))
+      .engine_context$pending_plots$push(knitr::raw_html(data))
     } else {
-      ext <- options$fig.ext %||% "png"
-      path <- tempfile("altair-chart-", fileext = paste0(".", ext))
+      path <- eng_python_knit_figure_path(options)
       value$save(path)
-      context$pending_plots$push(knitr::include_graphics(path))
+      .engine_context$pending_plots$push(knitr::include_graphics(path))
     }
     
     return("")
@@ -605,7 +605,7 @@ eng_python_autoprint <- function(captured, options, context) {
   } else if (py_has_attr(value, "to_html")) {
     
     data <- as_r_value(value$to_html())
-    context$pending_plots$push(knitr::raw_html(data))
+    .engine_context$pending_plots$push(knitr::raw_html(data))
     return("")
     
   } else {

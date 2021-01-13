@@ -333,6 +333,7 @@ eng_python_initialize_hooks <- function(options, context, envir) {
   
   # set up hooks for matplotlib modules
   matplotlib_modules <- c(
+    "matplotlib.artist",
     "matplotlib.pyplot",
     "matplotlib.pylab"
   )

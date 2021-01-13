@@ -8,6 +8,7 @@
 \alias{virtualenv_remove}
 \alias{virtualenv_root}
 \alias{virtualenv_python}
+\alias{virtualenv_exists}
 \title{Interface to Python Virtual Environments}
 \usage{
 virtualenv_list()
@@ -33,6 +34,8 @@ virtualenv_remove(envname = NULL, packages = NULL, confirm = interactive())
 virtualenv_root()
 
 virtualenv_python(envname = NULL)
+
+virtualenv_exists(envname = NULL)
 }
 \arguments{
 \item{envname}{The name of, or path to, a Python virtual environment. If

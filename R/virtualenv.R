@@ -232,8 +232,9 @@ virtualenv_python <- function(envname = NULL) {
   path.expand(file.path(path, suffix))
 }
 
-
-
+#' @inheritParams virtualenv-tools
+#' @rdname virtualenv-tools
+#' @export
 virtualenv_exists <- function(envname = NULL) {
 
   # try to resolve path

@@ -481,6 +481,10 @@ eng_python_is_matplotlib_output <- function(value) {
 
 }
 
+eng_python_is_seaborn_output <- function(value) {
+  inherits(value, "seaborn.axisgrid.Grid")
+}
+
 eng_python_is_plotly_plot <- function(value) {
   inherits(value, "plotly.basedatatypes.BaseFigure")
 }
@@ -534,6 +538,14 @@ eng_python_autoprint <- function(captured, options, context) {
     # reticulate will update the 'pending_plots' item
     plt <- import("matplotlib.pyplot", convert = TRUE)
     plt$show()
+    return("")
+    
+  } else if (eng_python_is_seaborn_output(value)) {
+    
+    ext <- options$fig.ext %||% "png"
+    path <- tempfile("seaborn-graphics-", fileext = paste0(".", ext))
+    value$savefig(path)
+    context$pending_plots$push(knitr::include_graphics(path))
     return("")
     
   } else if (isHtml && py_has_attr(value, "_repr_html_")) {

@@ -6,15 +6,13 @@
 #' with the `virtualenv_root` function). You can change the default location by
 #' defining defining the `WORKON_HOME` environment variable.
 #'
-#' Virtual environment functions are not supported on Windows (the use of
-#' [conda environments][conda-tools] is recommended on Windows).
-#'
 #' @param envname The name of, or path to, a Python virtual environment. If
 #'   this name contains any slashes, the name will be interpreted as a path;
 #'   if the name does not contain slashes, it will be treated as a virtual
 #'   environment within `virtualenv_root()`. When `NULL`, the virtual environment
 #'   as specified by the `RETICULATE_PYTHON_ENV` environment variable will be
-#'   used instead.
+#'   used instead. To refer to a virtual environment in the current working
+#'   directory, you can prefix the path with `./<name>`.
 #'
 #' @param packages A character vector with package names to install or remove.
 #'
@@ -41,24 +39,14 @@
 #'
 #' @param system_site_packages Boolean; create new virtual environments with
 #'   the `--system-site-packages` flag, thereby allowing those virtual
-#'   environments to access the system's site packages. Defaults to `FALSE`.
+#'   environments to access the system's site packages? Defaults to `FALSE`.
 #'
-#' @param ... Optional arguments; currently ignored for future expansion.
+#' @param ... Optional arguments; currently ignored and reserved for future expansion.
 #'
 #' @name virtualenv-tools
 NULL
 
 
-
-#' @inheritParams virtualenv-tools
-#' @rdname virtualenv-tools
-#' @export
-virtualenv_list <- function() {
-  root <- virtualenv_root()
-  if (!file.exists(root))
-    return(character())
-  list.files(root)
-}
 
 #' @inheritParams virtualenv-tools
 #' @rdname virtualenv-tools
@@ -212,6 +200,15 @@ virtualenv_remove <- function(envname = NULL,
   invisible(NULL)
 }
 
+#' @inheritParams virtualenv-tools
+#' @rdname virtualenv-tools
+#' @export
+virtualenv_list <- function() {
+  root <- virtualenv_root()
+  if (!file.exists(root))
+    return(character())
+  list.files(root)
+}
 
 
 #' @inheritParams virtualenv-tools

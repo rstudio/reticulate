@@ -2,17 +2,15 @@
 % Please edit documentation in R/virtualenv.R
 \name{virtualenv-tools}
 \alias{virtualenv-tools}
-\alias{virtualenv_list}
 \alias{virtualenv_create}
 \alias{virtualenv_install}
 \alias{virtualenv_remove}
+\alias{virtualenv_list}
 \alias{virtualenv_root}
 \alias{virtualenv_python}
 \alias{virtualenv_exists}
 \title{Interface to Python Virtual Environments}
 \usage{
-virtualenv_list()
-
 virtualenv_create(
   envname = NULL,
   python = NULL,
@@ -31,6 +29,8 @@ virtualenv_install(
 
 virtualenv_remove(envname = NULL, packages = NULL, confirm = interactive())
 
+virtualenv_list()
+
 virtualenv_root()
 
 virtualenv_python(envname = NULL)
@@ -43,7 +43,8 @@ this name contains any slashes, the name will be interpreted as a path;
 if the name does not contain slashes, it will be treated as a virtual
 environment within \code{virtualenv_root()}. When \code{NULL}, the virtual environment
 as specified by the \code{RETICULATE_PYTHON_ENV} environment variable will be
-used instead.}
+used instead. To refer to a virtual environment in the current working
+directory, you can prefix the path with \verb{./<name>}.}
 
 \item{python}{The path to a Python interpreter, to be used with the created
 virtual environment. When \code{NULL}, the Python interpreter associated with
@@ -57,7 +58,7 @@ any packages after the virtual environment has been created.}
 
 \item{system_site_packages}{Boolean; create new virtual environments with
 the \code{--system-site-packages} flag, thereby allowing those virtual
-environments to access the system's site packages. Defaults to \code{FALSE}.}
+environments to access the system's site packages? Defaults to \code{FALSE}.}
 
 \item{ignore_installed}{Boolean; ignore previously-installed versions of the
 requested packages? (This should normally be \code{TRUE}, so that pre-installed
@@ -67,7 +68,7 @@ are installed into the virtual environment.)}
 \item{pip_options}{An optional character vector of additional command line
 arguments to be passed to \code{pip}.}
 
-\item{...}{Optional arguments; currently ignored for future expansion.}
+\item{...}{Optional arguments; currently ignored and reserved for future expansion.}
 
 \item{confirm}{Boolean; confirm before removing packages or virtual
 environments?}
@@ -79,7 +80,4 @@ R functions for managing Python \href{https://virtualenv.pypa.io/en/stable/}{vir
 Virtual environments are by default located at \verb{~/.virtualenvs} (accessed
 with the \code{virtualenv_root} function). You can change the default location by
 defining defining the \code{WORKON_HOME} environment variable.
-
-Virtual environment functions are not supported on Windows (the use of
-\link[=conda-tools]{conda environments} is recommended on Windows).
 }

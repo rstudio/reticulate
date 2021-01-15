@@ -1,6 +1,9 @@
 
 ## reticulate 1.19 (UNRELEASED)
 
+- `py_to_r.datetime.datetime` no longer errs when `tzname` is `NULL`, and
+  instead assumes the time is formated for `UTC`. (#876)
+
 - `reticulate` now supports the rendering of [plotly](https://plotly.com/)
   plots and [Altair](https://altair-viz.github.io/) charts in rendered
   R Markdown documents. (#711)

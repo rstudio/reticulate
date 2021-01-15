@@ -158,12 +158,7 @@ py_to_r.datetime.datetime <- function(x) {
   ms <- as_r_value(x$microsecond)
   posix <- posix + as.numeric(ms) * 1E-6
   
-  # preserve timezone if available (handle UTC explicitly)
-  tzname <- as_r_value(x$tzname())
-  if (tzname %in% c("UTC", "UTC+00:00"))
-    return(as.POSIXct(posix, origin = "1970-01-01", tz = "UTC"))
-  
-  # treat other times as local / system times
+  # TODO: handle non-UTC timezones?
   as.POSIXct(posix, origin = "1970-01-01", tz = "UTC")
   
 }

@@ -164,7 +164,8 @@ eng_python <- function(options) {
     # handle matplotlib output
     captured <- eng_python_autoprint(
       captured = captured,
-      options  = options
+      options  = options,
+      autoshow = i == length(ranges)
     )
 
     # emit outputs if we have any
@@ -380,7 +381,8 @@ eng_python_initialize_matplotlib <- function(options, envir) {
   # with RStudio Desktop as attempting to use a Qt backend will cause issues due
   # to mismatched Qt versions between RStudio and Anaconda environments, and
   # will cause crashes when attempting to generate plots
-  if (is_rstudio_desktop()) {
+  testthat <- Sys.getenv("TESTTHAT", unset = NA)
+  if (is_rstudio_desktop() || identical(testthat, "true")) {
 
     matplotlib <- import("matplotlib", convert = TRUE)
 
@@ -519,7 +521,7 @@ eng_python_altair_chart_id <- function(options, ids) {
   
 }
 
-eng_python_autoprint <- function(captured, options) {
+eng_python_autoprint <- function(captured, options, autoshow) {
 
   # bail if no new value was produced by interpreter
   value <- py_last_value()
@@ -536,7 +538,7 @@ eng_python_autoprint <- function(captured, options) {
   # check if output format is html
   isHtml <- knitr::is_html_output()
 
-  if (eng_python_is_matplotlib_output(value)) {
+  if (eng_python_is_matplotlib_output(value) && autoshow) {
     
     # handle matplotlib output. note that the default hook installed by
     # reticulate will update the 'pending_plots' item

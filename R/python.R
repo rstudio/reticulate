@@ -1383,7 +1383,7 @@ py_inject_hooks <- function() {
   # register module import callback
   useImportHook <- getOption("reticulate.useImportHook", default = is_python3())
   if (useImportHook) {
-    loader <- import("rpytools.loader")
+    loader <- import("rpytools.loader", convert = TRUE)
     loader$initialize(py_module_onload)
   }
   

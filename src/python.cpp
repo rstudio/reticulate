@@ -4,6 +4,7 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 
+#include "signals.h"
 #include "reticulate_types.h"
 
 #include "event_loop.h"
@@ -492,10 +493,19 @@ std::string py_fetch_error() {
 
   // clear last error
   s_lastError.clear();
-
-  // determine error
-  PyObject *excType , *excValue , *excTraceback;
-  PyErr_Fetch(&excType , &excValue , &excTraceback);
+  
+  // check for interrupt -- we do this because, depending on where
+  // the interrupt is handled by Python, the associated error can
+  // be something entirely separate from a regular interrupt
+  if (reticulate::signals::getPythonInterruptsPending()) {
+    PyErr_Clear();
+    reticulate::signals::setPythonInterruptsPending(false);
+    throw Rcpp::internal::InterruptedException();
+  }
+  
+  // read and normalize error, exception
+  PyObject *excType, *excValue, *excTraceback;
+  PyErr_Fetch(&excType, &excValue, &excTraceback);
   PyErr_NormalizeException(&excType, &excValue, &excTraceback);
   
   // create object pointers (so they're freed on scope exit)
@@ -512,10 +522,6 @@ std::string py_fetch_error() {
   
   // get exception type
   std::string type = py_fetch_error_type(pExcType);
-  
-  // handle keyboard interrupts up-front
-  if (type == "KeyboardInterrupt")
-    throw Rcpp::internal::InterruptedException();
   
   // set type if we had it
   if (!type.empty()) {
@@ -536,9 +542,12 @@ std::string py_fetch_error() {
   s_lastError.setTraceback(traceback);
   
   if (traceback_enabled()) {
-    oss << "\n\nDetailed traceback:\n";
-    for (std::size_t i = 0, n = traceback.size(); i < n; i++)
-      oss << traceback[i];
+    std::size_t n = traceback.size();
+    if (n > 0) {
+      oss << "\n\nDetailed traceback:\n";
+      for (std::size_t i = 0; i < n; i++)
+        oss << traceback[i];
+    }
   }
   
   // get final error string

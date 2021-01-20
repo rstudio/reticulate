@@ -20,6 +20,21 @@ extern "C" int UserBreak;
 namespace reticulate {
 namespace signals {
 
+namespace {
+
+// boolean check if the Python interrupt handler was fired
+bool s_interrupted;
+
+} // end anonymous namespace
+
+bool getPythonInterruptsPending() {
+  return s_interrupted;
+}
+
+void setPythonInterruptsPending(bool value) {
+  s_interrupted = value;
+}
+
 void setInterruptsPending(bool value) {
   
 #ifndef _WIN32
@@ -37,6 +52,9 @@ void interruptHandler(int signum) {
   
   // set Python interrupts pending
   libpython::PyErr_SetInterrupt();
+  
+  // mark internal flag
+  s_interrupted = true;
   
 }
 

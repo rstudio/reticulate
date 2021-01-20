@@ -14,9 +14,14 @@
 virtualenv_create(
   envname = NULL,
   python = NULL,
+  ...,
   packages = "numpy",
+  module = getOption("reticulate.virtualenv.module"),
   system_site_packages = getOption("reticulate.virtualenv.system_site_packages",
-    default = FALSE)
+    default = FALSE),
+  pip_version = getOption("reticulate.virtualenv.pip_version", default = NULL),
+  setuptools_version = getOption("reticulate.virtualenv.setuptools_version", default =
+    NULL)
 )
 
 virtualenv_install(
@@ -50,15 +55,30 @@ directory, you can prefix the path with \verb{./<name>}.}
 virtual environment. When \code{NULL}, the Python interpreter associated with
 the current session will be used.}
 
+\item{...}{Optional arguments; currently ignored and reserved for future expansion.}
+
 \item{packages}{A set of Python packages to install (via \verb{pip install}) into
 the virtual environment, after it has been created. By default, the
 \code{"numpy"} package will be installed, and the \code{pip}, \code{setuptools} and
 \code{wheel} packages will be updated. Set this to \code{FALSE} to avoid installing
 any packages after the virtual environment has been created.}
 
+\item{module}{The Python module to be used when creating the virtual
+environment -- typically, \code{virtualenv} or \code{venv}. When \code{NULL} (the default),
+\code{venv} will be used if available with Python >= 3.6; otherwise, the
+\code{virtualenv} module will be used.}
+
 \item{system_site_packages}{Boolean; create new virtual environments with
 the \code{--system-site-packages} flag, thereby allowing those virtual
 environments to access the system's site packages? Defaults to \code{FALSE}.}
+
+\item{pip_version}{The version of \code{pip} to be installed in the virtual
+environment. Relevant only when \code{module == "virtualenv"}. Set this to
+\code{FALSE} to disable installation of \code{pip} altogether.}
+
+\item{setuptools_version}{The version of \code{setuptools} to be installed in
+the virtual environment. Relevant only when \code{module == "virtualenv"}.
+Set this to \code{FALSE} to disable installation of \code{setuptools} altogether.}
 
 \item{ignore_installed}{Boolean; ignore previously-installed versions of the
 requested packages? (This should normally be \code{TRUE}, so that pre-installed
@@ -67,8 +87,6 @@ are installed into the virtual environment.)}
 
 \item{pip_options}{An optional character vector of additional command line
 arguments to be passed to \code{pip}.}
-
-\item{...}{Optional arguments; currently ignored and reserved for future expansion.}
 
 \item{confirm}{Boolean; confirm before removing packages or virtual
 environments?}

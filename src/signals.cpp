@@ -85,6 +85,9 @@ BOOL CALLBACK consoleCtrlHandler(DWORD type)
   case CTRL_C_EVENT:
   case CTRL_BREAK_EVENT:
     interruptHandler(2);
+    return true;
+  default:
+    return false;
   }
 }
 

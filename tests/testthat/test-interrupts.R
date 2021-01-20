@@ -3,15 +3,19 @@ test_that("Running Python scripts can be interrupted", {
   
   skip_on_os("windows")
   
-  time <- import("time")
+  # import time module
+  time <- import("time", convert = TRUE)
   
   # interrupt this process in a couple seconds
   system(paste("sleep 1 && kill -s INT", Sys.getpid()), wait = FALSE)
   
   # tell Python to sleep
   before <- Sys.time()
-  time$sleep(10)
+  interrupted <- tryCatch(time$sleep(5), interrupt = identity)
   after <- Sys.time()
+  
+  # check that we caught an interrupt
+  expect_s3_class(interrupted, "interrupt")
   
   # check that we took a small amount of time
   diff <- difftime(after, before, units = "secs")

@@ -93,10 +93,18 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
   }
 
   # check numpy version and provide a load error message if we don't satisfy it
-  if (is.null(config$numpy) || config$numpy$version < "1.6")
-    numpy_load_error <- "installation of Numpy >= 1.6 not found"
-  else
-    numpy_load_error <- ""
+  numpy_load_error <- tryCatch(
+    
+    expr = {
+      if (is.null(config$numpy) || config$numpy$version < "1.6")
+        "installation of Numpy >= 1.6 not found"
+      else
+        ""
+    },
+    
+    error = function(e) "<unknown>"
+    
+  )
 
   # if we're a virtual environment then set VIRTUAL_ENV (need to
   # set this before initializing Python so that module paths are
@@ -161,6 +169,9 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
 
   # ensure modules can be imported from the current working directory
   py_run_string_impl("import sys; sys.path.insert(0, '')")
+  
+  # register interrupt handler
+  initialize_interrupt_handler()
   
   # if this is a conda installation, set QT_QPA_PLATFORM_PLUGIN_PATH
   # https://github.com/rstudio/reticulate/issues/586

@@ -32,13 +32,17 @@
 #' @param quiet Boolean; print a startup banner when launching the REPL? If
 #'   `TRUE`, the banner will be suppressed.
 #'
+#' @param input Python code to be run within the REPL. Setting this can be
+#'   useful if you'd like to drive the Python REPL programmatically.
+#'
 #' @seealso [py], for accessing objects created using the Python REPL.
 #'
 #' @importFrom utils packageVersion
 #' @export
 repl_python <- function(
-  module = NULL,
-  quiet = getOption("reticulate.repl.quiet", default = FALSE))
+  module  = NULL,
+  quiet   = getOption("reticulate.repl.quiet", default = FALSE),
+  input   = NULL)
 {
   # load module if requested
   if (is.character(module))
@@ -54,6 +58,10 @@ repl_python <- function(
   if (is.function(teardown)) {
     on.exit(teardown(), add = TRUE)
   }
+  
+  # split provided code on newlines
+  if (!is.null(input))
+    input <- unlist(strsplit(input, "\n", fixed = TRUE))
 
   # import other required modules for the REPL
   sys <- import("sys", convert = TRUE)
@@ -130,9 +138,18 @@ repl_python <- function(
       
     }, add = TRUE)
 
-    # read user input
+    # read input (either from user or from code)
     prompt <- if (buffer$empty()) ">>> " else "... "
-    contents <- readline(prompt = prompt)
+    if (is.null(input)) {
+      contents <- readline(prompt = prompt)
+    } else if (length(input)) {
+      contents <- input[[1L]]
+      input <<- tail(input, n = -1L)
+      writeLines(paste(prompt, contents), con = stdout())
+    } else {
+      quit_requested <<- TRUE
+      return()
+    }
 
     # NULL implies the user sent EOF -- time to leave
     if (is.null(contents)) {
@@ -290,6 +307,7 @@ repl_python <- function(
       break
 
     repl()
+    
   }
 
 }

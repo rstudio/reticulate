@@ -247,6 +247,10 @@ stack <- function(mode = "list") {
   
   object <- list(
     
+    set = function(data) {
+      .data <<- data
+    },
+    
     push = function(...) {
       dots <- list(...)
       for (data in dots) {

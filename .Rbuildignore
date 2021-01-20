@@ -6,6 +6,7 @@
 ^internal$
 ^issues$
 ^log$
+^logs$
 ^pkgdown$
 ^revdep$
 ^tags$

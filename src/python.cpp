@@ -442,6 +442,50 @@ void py_clear_last_error() {
 }
 
 
+std::string py_fetch_error_type(const PyObjectPtr& pExcType) {
+  
+  if (pExcType.is_null())
+    return std::string();
+  
+  PyObjectPtr pStr(PyObject_GetAttrString(pExcType, "__name__"));
+  return as_std_string(pStr);
+  
+}
+
+std::string py_fetch_error_value(const PyObjectPtr& pExcValue) {
+  
+  if (pExcValue.is_null())
+    return std::string();
+  
+  PyObjectPtr pStr(PyObject_Str(pExcValue));
+  return as_std_string(pStr);
+  
+}
+
+void py_fetch_error_traceback(PyObject* excTraceback,
+                              std::vector<std::string>* pTraceback)
+{
+  if (excTraceback == nullptr)
+    return;
+  
+  // invoke 'traceback.format_tb(<traceback>)'
+  PyObjectPtr module(py_import("traceback"));
+  if (module.is_null())
+    return;
+  
+  PyObjectPtr format_tb(PyObject_GetAttrString(module, "format_tb"));
+  if (format_tb.is_null())
+    return;
+  
+  PyObjectPtr tb(PyObject_CallFunctionObjArgs(format_tb, excTraceback, NULL));
+  if (tb.is_null())
+    return;
+  
+  // get the traceback
+  for (Py_ssize_t i = 0, n = PyList_Size(tb); i < n; i++)
+    pTraceback->push_back(as_std_string(PyList_GetItem(tb, i)));
+  
+}
 
 // get a string representing the last python error
 std::string py_fetch_error() {
@@ -450,80 +494,56 @@ std::string py_fetch_error() {
   s_lastError.clear();
 
   // determine error
-  std::string error;
   PyObject *excType , *excValue , *excTraceback;
   PyErr_Fetch(&excType , &excValue , &excTraceback);
   PyErr_NormalizeException(&excType, &excValue, &excTraceback);
+  
+  // create object pointers (so they're freed on scope exit)
   PyObjectPtr pExcType(excType);
   PyObjectPtr pExcValue(excValue);
   PyObjectPtr pExcTraceback(excTraceback);
-
-  if (!pExcType.is_null() || !pExcValue.is_null()) {
-    std::ostringstream ostr;
-    if (!pExcType.is_null()) {
-      PyObjectPtr pStr(PyObject_GetAttrString(pExcType, "__name__"));
-      std::string type = as_std_string(pStr);
-
-      // check for keyboard interrupt
-      if (type == "KeyboardInterrupt")
-        throw Rcpp::internal::InterruptedException();
-
-      // store in last error
-      s_lastError.setType(type);
-
-      // print
-      ostr << type << ": ";
-    }
-    if (!pExcValue.is_null()) {
-      PyObjectPtr pStr(PyObject_Str(pExcValue));
-      std::string value = as_std_string(pStr);
-
-      // store in last error
-      s_lastError.setValue(value);
-
-      // print
-      ostr << value;
-    }
-
-    // check for traceback
-    if (!pExcTraceback.is_null()) {
-      // call into python for traceback
-      PyObjectPtr module(py_import("traceback"));
-      if (!module.is_null()) {
-        PyObjectPtr func(PyObject_GetAttrString(module, "format_tb"));
-        if (!func.is_null()) {
-          PyObjectPtr tb(PyObject_CallFunctionObjArgs(func, excTraceback, NULL));
-          if (!tb.is_null()) {
-
-            // get the traceback
-            std::vector<std::string> traceback;
-            Py_ssize_t len = PyList_Size(tb);
-            for (Py_ssize_t i = 0; i<len; i++)
-              traceback.push_back(as_std_string(PyList_GetItem(tb, i)));
-
-            // store in last error
-            s_lastError.setTraceback(traceback);
-
-            // print if enabled
-            if (traceback_enabled()) {
-              ostr << std::endl << std::endl << "Detailed traceback: " << std::endl;
-              size_t len = traceback.size();
-              for (size_t i = 0; i<len; i++)
-                ostr << traceback[i];
-            }
-          }
-        }
-      }
-    }
-
-    error = ostr.str();
-
-    // set error message
-    s_lastError.setMessage(error);
-
-  } else {
-    error = "<unknown error>";
+  
+  // if we don't have any error information, return early
+  if (pExcType.is_null() && pExcValue.is_null())
+    return "<unknown error>";
+  
+  // build error text
+  std::ostringstream oss;
+  
+  // get exception type
+  std::string type = py_fetch_error_type(pExcType);
+  
+  // handle keyboard interrupts up-front
+  if (type == "KeyboardInterrupt")
+    throw Rcpp::internal::InterruptedException();
+  
+  // set type if we had it
+  if (!type.empty()) {
+    s_lastError.setType(type);
+    oss << type << ": ";
   }
+  
+  // get exception value
+  std::string value = py_fetch_error_value(pExcValue);
+  if (!value.empty()) {
+    s_lastError.setValue(value);
+    oss << value;
+  }
+  
+  // retrieve Python traceback
+  std::vector<std::string> traceback;
+  py_fetch_error_traceback(excTraceback, &traceback);
+  s_lastError.setTraceback(traceback);
+  
+  if (traceback_enabled()) {
+    oss << "\n\nDetailed traceback:\n";
+    for (std::size_t i = 0, n = traceback.size(); i < n; i++)
+      oss << traceback[i];
+  }
+  
+  // get final error string
+  std::string error = oss.str();
+  s_lastError.setMessage(error);
 
   // return error
   return error;
@@ -1718,7 +1738,7 @@ void py_initialize(const std::string& python,
   int tracems = ::atoi(tracems_env.c_str());
   if (tracems > 0)
     trace_thread_init(tracems);
-
+  
   // poll for events while executing python code
   event_loop::initialize();
 
@@ -2615,4 +2635,9 @@ PyObjectRef r_convert_date(DateVector dates, bool convert) {
   
   return py_ref(list.detach(), convert);
   
+}
+
+// [[Rcpp::export]]
+void py_set_interrupt_impl() {
+  PyErr_SetInterrupt();
 }

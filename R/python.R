@@ -1424,3 +1424,7 @@ py_register_load_hook <- function(module, hook) {
   setHook(name, hook)
   
 }
+
+py_set_interrupt <- function() {
+  py_set_interrupt_impl()
+}

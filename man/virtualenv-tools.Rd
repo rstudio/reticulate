@@ -21,7 +21,8 @@ virtualenv_create(
     default = FALSE),
   pip_version = getOption("reticulate.virtualenv.pip_version", default = NULL),
   setuptools_version = getOption("reticulate.virtualenv.setuptools_version", default =
-    NULL)
+    NULL),
+  extra = getOption("reticulat.evirtualenv.extra", default = NULL)
 )
 
 virtualenv_install(
@@ -79,6 +80,9 @@ environment. Relevant only when \code{module == "virtualenv"}. Set this to
 \item{setuptools_version}{The version of \code{setuptools} to be installed in
 the virtual environment. Relevant only when \code{module == "virtualenv"}.
 Set this to \code{FALSE} to disable installation of \code{setuptools} altogether.}
+
+\item{extra}{An optional set of extra command line arguments to be passed.
+Arguments should be quoted via \code{shQuote()} when necessary.}
 
 \item{ignore_installed}{Boolean; ignore previously-installed versions of the
 requested packages? (This should normally be \code{TRUE}, so that pre-installed

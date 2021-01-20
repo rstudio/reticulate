@@ -54,6 +54,9 @@
 #'   the virtual environment. Relevant only when `module == "virtualenv"`.
 #'   Set this to `FALSE` to disable installation of `setuptools` altogether.
 #'
+#' @param extra An optional set of extra command line arguments to be passed.
+#'   Arguments should be quoted via `shQuote()` when necessary.
+#'
 #' @param ... Optional arguments; currently ignored and reserved for future expansion.
 #'
 #' @name virtualenv-tools
@@ -72,7 +75,8 @@ virtualenv_create <- function(
   module               = getOption("reticulate.virtualenv.module"),
   system_site_packages = getOption("reticulate.virtualenv.system_site_packages", default = FALSE),
   pip_version          = getOption("reticulate.virtualenv.pip_version", default = NULL),
-  setuptools_version   = getOption("reticulate.virtualenv.setuptools_version", default = NULL))
+  setuptools_version   = getOption("reticulate.virtualenv.setuptools_version", default = NULL),
+  extra                = getOption("reticulat.evirtualenv.extra", default = NULL))
 {
   path <- virtualenv_path(envname)
   name <- if (is.null(envname)) path else envname
@@ -113,6 +117,8 @@ virtualenv_create <- function(
   if (system_site_packages)
     args <- c(args, "--system-site-packages")
   
+  # add in any other arguments provided by the user
+  args <- c(args, extra)
   
   # add the path where the environment will be created
   args <- c(args, shQuote(path.expand(path)))

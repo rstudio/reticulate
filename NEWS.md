@@ -3,7 +3,8 @@
 
 - `virtualenv_create()` gains the `pip_version` and `setuptools_version`
   arguments, allowing users to control the versions of `pip` and `setuptools`
-  used when initializing the virtual environment.
+  used when initializing the virtual environment. The `extra` argument can
+  also now be used to pass arbitrary command line arguments when necessary.
 
 - `virtualenv_create()` gains the `module` argument, used to control whether
   `virtualenv` or `venv` is used to create the requested virtual environment.

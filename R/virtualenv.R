@@ -37,9 +37,25 @@
 #'   `wheel` packages will be updated. Set this to `FALSE` to avoid installing
 #'   any packages after the virtual environment has been created.
 #'
+#' @param module The Python module to be used when creating the virtual
+#'   environment -- typically, `virtualenv` or `venv`. When `NULL` (the default),
+#'   `venv` will be used if available with Python >= 3.6; otherwise, the
+#'   `virtualenv` module will be used.
+#'
 #' @param system_site_packages Boolean; create new virtual environments with
 #'   the `--system-site-packages` flag, thereby allowing those virtual
 #'   environments to access the system's site packages? Defaults to `FALSE`.
+#'   
+#' @param pip_version The version of `pip` to be installed in the virtual
+#'   environment. Relevant only when `module == "virtualenv"`. Set this to
+#'   `FALSE` to disable installation of `pip` altogether.
+#'   
+#' @param setuptools_version The version of `setuptools` to be installed in
+#'   the virtual environment. Relevant only when `module == "virtualenv"`.
+#'   Set this to `FALSE` to disable installation of `setuptools` altogether.
+#'
+#' @param extra An optional set of extra command line arguments to be passed.
+#'   Arguments should be quoted via `shQuote()` when necessary.
 #'
 #' @param ... Optional arguments; currently ignored and reserved for future expansion.
 #'
@@ -53,9 +69,14 @@ NULL
 #' @export
 virtualenv_create <- function(
   envname = NULL,
-  python = NULL,
-  packages = "numpy",
-  system_site_packages = getOption("reticulate.virtualenv.system_site_packages", default = FALSE))
+  python  = NULL,
+  ...,
+  packages             = "numpy",
+  module               = getOption("reticulate.virtualenv.module"),
+  system_site_packages = getOption("reticulate.virtualenv.system_site_packages", default = FALSE),
+  pip_version          = getOption("reticulate.virtualenv.pip_version", default = NULL),
+  setuptools_version   = getOption("reticulate.virtualenv.setuptools_version", default = NULL),
+  extra                = getOption("reticulat.evirtualenv.extra", default = NULL))
 {
   path <- virtualenv_path(envname)
   name <- if (is.null(envname)) path else envname
@@ -67,18 +88,37 @@ virtualenv_create <- function(
   }
 
   python <- virtualenv_default_python(python)
-  module <- virtualenv_module(python)
+  module <- module %||% virtualenv_module(python)
 
-  # use it to create the virtual environment (note that 'virtualenv'
-  # requires us to request the specific Python binary we wish to use when
-  # creating the environment)
+  # use it to create the virtual environment
+  # (note that 'virtualenv' requires us to request the specific Python binary
+  # we wish to use when creating the environment)
   args <- c("-m", module)
-  if (module == "virtualenv")
+  if (module == "virtualenv") {
+    
+    # request the specific version of Python
     args <- c(args, "-p", shQuote(python))
+    
+    # request specific version of pip
+    if (identical(pip_version, FALSE))
+      args <- c(args, "--no-pip")
+    else if (!is.null(pip_version))
+      args <- c(args, "--pip", shQuote(pip_version))
+    
+    # request specific version of setuptools
+    if (identical(setuptools_version, FALSE))
+      args <- c(args, "--no-setuptools")
+    else if (!is.null(setuptools_version))
+      args <- c(args, "--setuptools", shQuote(setuptools_version))
+    
+  }
   
   # add --system-site-packages if requested
   if (system_site_packages)
     args <- c(args, "--system-site-packages")
+  
+  # add in any other arguments provided by the user
+  args <- c(args, extra)
   
   # add the path where the environment will be created
   args <- c(args, shQuote(path.expand(path)))

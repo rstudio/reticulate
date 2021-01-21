@@ -26,3 +26,4 @@ vignettes/images/repl_python.png
 vignettes/images/source_python.png
 vignettes/images/code_completion.png
 vignettes/images/help.png
+^\.github$

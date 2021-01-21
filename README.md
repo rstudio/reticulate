@@ -1,11 +1,9 @@
 
 # R Interface to Python
 
-[![CRAN\_Status\_Badge](https://www.r-pkg.org/badges/version/reticulate)](https://cran.r-project.org/package=reticulate)
-[![Travis-CI Build
-Status](https://travis-ci.org/rstudio/reticulate.svg?branch=master)](https://travis-ci.com/github/rstudio/reticulate)
-[![Appveyor Build
-Status](https://ci.appveyor.com/api/projects/status/github/rstudio/reticulate?svg=true)](https://ci.appveyor.com/project/rstudio/reticulate)
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/rstudio/reticulate/workflows/R-CMD-check/badge.svg)](https://github.com/rstudio/reticulate/actions)
+<!-- badges: end -->
 
 The **reticulate** package provides a comprehensive set of tools for
 interoperability between Python and R. The package includes facilities

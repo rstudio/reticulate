@@ -23,19 +23,27 @@ namespace signals {
 namespace {
 
 // boolean check if the Python interrupt handler was fired
-bool s_interrupted;
+bool s_pythonInterrupted;
 
 } // end anonymous namespace
 
 bool getPythonInterruptsPending() {
-  return s_interrupted;
+  return s_pythonInterrupted;
 }
 
 void setPythonInterruptsPending(bool value) {
-  s_interrupted = value;
+  s_pythonInterrupted = value;
 }
 
-void setInterruptsPending(bool value) {
+bool getRInterruptsPending() {
+#ifndef _WIN32
+  return R_interrupts_pending != 0;
+#else
+  return UserBreak != 0;
+#endif
+}
+
+void setRInterruptsPending(bool value) {
   
 #ifndef _WIN32
   R_interrupts_pending = value ? 1 : 0;
@@ -48,13 +56,13 @@ void setInterruptsPending(bool value) {
 void interruptHandler(int signum) {
   
   // set R interrupts pending
-  setInterruptsPending(true);
+  setRInterruptsPending(true);
   
   // set Python interrupts pending
   libpython::PyErr_SetInterrupt();
   
   // mark internal flag
-  s_interrupted = true;
+  s_pythonInterrupted = true;
   
 }
 

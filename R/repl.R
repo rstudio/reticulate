@@ -124,6 +124,12 @@ repl_python <- function(
     }
     failed
   }
+  
+  handle_interrupt <- function(condition) {
+    # swallow interrupts -- don't allow interrupted Python code to
+    # exit the REPL; we should only exit when an interrupt is sent
+    # when no Python code is executing
+  }
 
   repl <- function() {
     
@@ -250,7 +256,12 @@ repl_python <- function(
 
       # submit previous code
       pasted <- paste(previous, collapse = "\n")
-      tryCatch(py_compile_eval(pasted, capture = FALSE), error = handle_error)
+      
+      tryCatch(
+        py_compile_eval(pasted, capture = FALSE),
+        error = handle_error,
+        interrupt = handle_interrupt
+      )
 
       # now, handle the newest line of code submitted
       buffer$set(contents)
@@ -265,7 +276,12 @@ repl_python <- function(
     # otherwise, we should have received a code output object
     # so we can just run the code submitted thus far
     buffer$clear()
-    tryCatch(py_compile_eval(code, capture = FALSE), error = handle_error)
+    
+    tryCatch(
+      py_compile_eval(code, capture = FALSE),
+      error = handle_error,
+      interrupt = handle_interrupt
+    )
 
   }
 

@@ -102,7 +102,7 @@ BOOL CALLBACK consoleCtrlHandler(DWORD type)
 void registerInterruptHandlerWin32() {
   
   // accept Ctrl + C interrupts
-  ::SetConsoleCtrlHandler(nullptr, FALSE);
+  ::SetConsoleCtrlHandler(NULL, FALSE);
   
   // remove an old registration, if any
   ::SetConsoleCtrlHandler(consoleCtrlHandler, FALSE);

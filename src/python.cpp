@@ -466,7 +466,7 @@ std::string py_fetch_error_value(const PyObjectPtr& pExcValue) {
 void py_fetch_error_traceback(PyObject* excTraceback,
                               std::vector<std::string>* pTraceback)
 {
-  if (excTraceback == nullptr)
+  if (excTraceback == NULL)
     return;
   
   // invoke 'traceback.format_tb(<traceback>)'

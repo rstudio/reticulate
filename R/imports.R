@@ -1,3 +1,3 @@
 
-#' @importFrom utils capture.output tail
+#' @importFrom utils capture.output download.file tail
 NULL

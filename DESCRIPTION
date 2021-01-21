@@ -34,13 +34,14 @@ LazyData: true
 Depends:
     R (>= 3.0)
 Imports:
+    Matrix,
+    Rcpp (>= 0.12.7),
     graphics,
     jsonlite,
-    Matrix,
     methods,
     rappdirs,
-    Rcpp (>= 0.12.7),
-    utils
+    utils,
+    withr
 Suggests:
     callr,
     knitr,

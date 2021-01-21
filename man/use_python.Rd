@@ -5,7 +5,8 @@
 \alias{use_virtualenv}
 \alias{use_condaenv}
 \alias{use_miniconda}
-\title{Configure which version of Python to use}
+\alias{use_python_version}
+\title{Use Python}
 \usage{
 use_python(python, required = FALSE)
 
@@ -14,21 +15,33 @@ use_virtualenv(virtualenv = NULL, required = FALSE)
 use_condaenv(condaenv = NULL, conda = "auto", required = FALSE)
 
 use_miniconda(condaenv = NULL, required = FALSE)
+
+use_python_version(version, required = FALSE)
 }
 \arguments{
-\item{python}{Path to Python binary}
+\item{python}{The path to a Python binary.}
 
-\item{required}{Is this version of Python required? If \code{TRUE} then an error
-occurs if it's not located. Otherwise, the version is taken as a hint only
-and scanning for other versions will still proceed.}
+\item{required}{Is the requested copy of Python required? If \code{TRUE}, an error will be
+emitted if the requested copy of Python does not exist. Otherwise, the
+request is taken as a hint only, and scanning for other versions will still
+proceed.}
 
-\item{virtualenv}{Directory of Python virtualenv}
+\item{virtualenv}{Either the name of, or the path to, a Python virtual environment.}
 
-\item{condaenv}{Name of Conda environment}
+\item{condaenv}{Then name of the Conda environment to use.}
 
-\item{conda}{Conda executable. Default is \code{"auto"}, which checks the \code{PATH}
-as well as other standard locations for Anaconda installations.}
+\item{conda}{The path to a \code{conda} executable. By default, \code{reticulate} will check the
+\code{PATH}, as well as other standard locations for Anaconda installations.}
+
+\item{version}{The version of Python to use. \code{reticulate} will search for versions of
+Python as installed by the \code{\link[=install_python]{install_python()}} helper function.}
 }
 \description{
-Configure which version of Python to use
+Control which copy of Python \code{reticulate} will use when it initializes
+its Python bindings.
+}
+\details{
+The \code{RETICULATE_PYTHON} environment variable can also be used to control
+which copy of Python \code{reticulate} chooses to bind to. When set, this will
+silently override any other requests to use a particular copy of Python.
 }

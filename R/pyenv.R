@@ -4,10 +4,28 @@ pyenv_root <- function() {
   file.path(root, "pyenv")
 }
 
+pyenv_python <- function(version) {
+  
+  root <- pyenv_root()
+  
+  path <- if (is_windows()) {
+    file.path(root, "pyenv-win/versions", version, "python.exe")
+  } else {
+    file.path(root, "versions", version, "bin/python")
+  }
+  
+  path
+  
+}
+
 pyenv_list <- function(pyenv = NULL) {
   
   # resolve pyenv
-  pyenv <- pyenv %||% pyenv_find()
+  pyenv <- normalizePath(
+    pyenv %||% pyenv_find(),
+    winslash = "/",
+    mustWork = TRUE
+  )
   
   # request list of Python packages
   output <- system2(pyenv, c("install", "--list"), stdout = TRUE, stderr = TRUE)
@@ -19,6 +37,11 @@ pyenv_list <- function(pyenv = NULL) {
 }
 
 pyenv_find <- function() {
+  pyenv <- pyenv_find_impl()
+  normalizePath(pyenv, winslash = "/", mustWork = TRUE)
+}
+
+pyenv_find_impl <- function() {
   
   # check for pyenv binary specified via option
   pyenv <- getOption("reticulate.pyenv", default = NULL)
@@ -30,19 +53,78 @@ pyenv_find <- function() {
   if (nzchar(pyenv))
     return(pyenv)
   
+  # form stem path to pyenv binary (it differs between pyenv and pyenv-win)
+  stem <- if (is_windows()) "pyenv-win/bin/pyenv" else "bin/pyenv"
+  
   # check for a binary in the PYENV_ROOT folder
   root <- Sys.getenv("PYENV_ROOT", unset = "~/.pyenv")
-  pyenv <- file.path(root, "bin/pyenv")
+  pyenv <- file.path(root, stem)
   if (file.exists(pyenv))
     return(pyenv)
   
   # check for reticulate's own pyenv
   root <- pyenv_root()
-  pyenv <- file.path(root, "bin/pyenv")
+  pyenv <- file.path(root, stem)
   if (file.exists(pyenv))
     return(pyenv)
   
   # all else fails, try to manually install pyenv
+  if (is_windows())
+    pyenv_bootstrap_windows()
+  else
+    pyenv_bootstrap_unix()
+  
+}
+
+pyenv_install <- function(version, force, pyenv = NULL) {
+  
+  pyenv <- normalizePath(
+    pyenv %||% pyenv_find(),
+    winslash = "/",
+    mustWork = TRUE
+  )
+  
+  # set options
+  withr::local_envvar(PYTHON_CONFIGURE_OPTS = "--enable-shared")
+  
+  # build install arguments
+  force <- if (force)
+    "--force"
+  else if (!is_windows())
+    "--skip-existing"
+  
+  args <- c("install", force, version)
+  system2(pyenv, args)
+  
+}
+
+pyenv_bootstrap_windows <- function() {
+  
+  # get path to pyenv
+  root <- normalizePath(
+    pyenv_root(),
+    winslash = "/",
+    mustWork = FALSE
+  )
+  
+  # clone if necessary
+  if (!file.exists(root)) {
+    url <- "https://github.com/pyenv-win/pyenv-win"
+    system2("git", c("clone", shQuote(url), shQuote(root)))
+  }
+  
+  # ensure up-to-date
+  owd <- setwd(root)
+  on.exit(setwd(owd), add = TRUE)
+  system("git pull")
+  
+  # return path to pyenv binary
+  file.path(root, "pyenv-win/bin/pyenv")
+  
+}
+
+pyenv_bootstrap_unix <- function() {
+  
   # move to tempdir
   owd <- setwd(tempdir())
   on.exit(setwd(owd), add = TRUE)
@@ -65,23 +147,5 @@ pyenv_find <- function() {
   
   # return pyenv path
   pyenv
-  
-}
-
-pyenv_install <- function(version, force, pyenv = NULL) {
-  
-  pyenv <- pyenv %||% pyenv_find()
-  
-  # set options
-  withr::local_envvar(PYTHON_CONFIGURE_OPTS = "--enable-shared")
-  
-  # build install arguments
-  args <- c(
-    "install",
-    if (force) "--force" else "--skip-existing",
-    version
-  )
-  
-  system2(pyenv, args)
   
 }

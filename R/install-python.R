@@ -18,11 +18,7 @@ install_python <- function(version,
                            list = FALSE,
                            force = FALSE)
 {
-  # for Windows, we install official binaries
-  if (is_windows())
-    return(install_python_windows(version))
-  
-  # check for pyenv on PATH; if it does not exist then install it
+  # resolve pyenv path
   pyenv <- pyenv_find()
   if (!file.exists(pyenv))
     stop("could not locate 'pyenv' binary")
@@ -36,9 +32,3 @@ install_python <- function(version,
   
 }
 
-install_python_windows <- function(version) {
-  
-  fmt <- "https://www.python.org/ftp/python/%s/python-%s-amd64.exe"
-  url <- sprintf(fmt, version, version)
-  # TODO
-}

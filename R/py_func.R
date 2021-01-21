@@ -1,7 +1,7 @@
 get_signature <- function(sigs) {
   sig_names <- names(sigs)
   signature_strings <- lapply(sig_names, function(k) {
-    if (identical(sigs[[k]], quote(expr =)))
+    if (identical(sigs[[k]], quote(expr = )))
       # arg without default
       k
     else {

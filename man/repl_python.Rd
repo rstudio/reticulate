@@ -6,7 +6,8 @@
 \usage{
 repl_python(
   module = NULL,
-  quiet = getOption("reticulate.repl.quiet", default = FALSE)
+  quiet = getOption("reticulate.repl.quiet", default = FALSE),
+  input = NULL
 )
 }
 \arguments{
@@ -15,6 +16,9 @@ the REPL is launched.}
 
 \item{quiet}{Boolean; print a startup banner when launching the REPL? If
 \code{TRUE}, the banner will be suppressed.}
+
+\item{input}{Python code to be run within the REPL. Setting this can be
+useful if you'd like to drive the Python REPL programmatically.}
 }
 \description{
 This function provides a Python REPL in the \R session, which can be used

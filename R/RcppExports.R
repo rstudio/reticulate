@@ -233,7 +233,15 @@ r_convert_date <- function(dates, convert) {
     .Call(`_reticulate_r_convert_date`, dates, convert)
 }
 
+py_set_interrupt_impl <- function() {
+    invisible(.Call(`_reticulate_py_set_interrupt_impl`))
+}
+
 readline <- function(prompt) {
     .Call(`_reticulate_readline`, prompt)
+}
+
+initialize_interrupt_handler <- function() {
+    invisible(.Call(`_reticulate_initialize_interrupt_handler`))
 }
 

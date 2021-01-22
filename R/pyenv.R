@@ -9,23 +9,36 @@ pyenv_python <- function(version) {
   if (is.null(version))
     return(NULL)
   
-  pyenv <- pyenv_find()
-  prefix <- system2(pyenv, c("prefix", version), stdout = TRUE, stderr = TRUE)
+  # on Windows, Python will be installed as part of the pyenv installation
+  prefix <- if (is_windows()) {
+    pyenv <- pyenv_find()
+    file.path(pyenv, "../../versions", version)
+  } else {
+    root <- Sys.getenv("PYENV_ROOT", unset = "~/.pyenv")
+    file.path(root, "versions", version)
+  }
+  
   if (!file.exists(prefix)) {
     
     fmt <- paste(
-      "python %s is not installed",
-      "try installing it with install_python(version = %s)",
-      sep = " -- "
+      "Python %s does not appear to be installed.",
+      "Try installing it with install_python(version = %s).",
+      "(Path: %s)",
+      sep = "\n"
     )
     
-    msg <- sprintf(fmt, shQuote(version), shQuote(version))
+    msg <- sprintf(fmt, shQuote(version), shQuote(version), shQuote(prefix))
     stop(msg)
     
   }
   
   stem <- if (is_windows()) "python.exe" else "bin/python"
-  file.path(prefix, stem)
+  
+  normalizePath(
+    file.path(prefix, stem),
+    winslash = "/",
+    mustWork = TRUE
+  )
   
 }
 

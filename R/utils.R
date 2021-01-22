@@ -174,8 +174,8 @@ file_same <- function(lhs, rhs) {
     return(TRUE)
 
   # check if file info is the same
-  lhsi <- c(file.info(lhs, extra_cols = FALSE))
-  rhsi <- c(file.info(rhs, extra_cols = FALSE))
+  lhsi <- suppressWarnings(c(file.info(lhs, extra_cols = FALSE)))
+  rhsi <- suppressWarnings(c(file.info(rhs, extra_cols = FALSE)))
   fields <- c("size", "isdir", "mode", "mtime", "ctime")
   if (identical(lhsi[fields], rhsi[fields]))
     return(TRUE)

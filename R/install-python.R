@@ -37,7 +37,9 @@ install_python <- function(version,
     return(pyenv_list(pyenv = pyenv))
   
   # install the requested package
-  pyenv_install(version, force, pyenv = pyenv)
+  status <- pyenv_install(version, force, pyenv = pyenv)
+  if (!identical(status, 0L))
+    stopf("installation of Python %s failed", version)
   
   # ensure that virtualenv is installed for older versions of Python
   python <- pyenv_python(version = version)

@@ -25,7 +25,9 @@ test_that("Python stderr stream can be captured", {
 })
 
 test_that("Python loggers work with py_capture_output", {
-  skip_if_no_python()
+  
+  skip_if(py_version() < "3.2")
+  skip_on_os("windows")
   
   output <- py_capture_output({
     logging <- import("logging")

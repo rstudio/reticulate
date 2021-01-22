@@ -5,16 +5,27 @@ pyenv_root <- function() {
 }
 
 pyenv_python <- function(version) {
+
+  if (is.null(version))
+    return(NULL)
   
-  root <- pyenv_root()
-  
-  path <- if (is_windows()) {
-    file.path(root, "pyenv-win/versions", version, "python.exe")
-  } else {
-    file.path(root, "versions", version, "bin/python")
+  pyenv <- pyenv_find()
+  prefix <- system2(pyenv, c("prefix", version), stdout = TRUE, stderr = TRUE)
+  if (!file.exists(prefix)) {
+    
+    fmt <- paste(
+      "python %s is not installed",
+      "try installing it with install_python(version = %s)",
+      sep = " -- "
+    )
+    
+    msg <- sprintf(fmt, shQuote(version), shQuote(version))
+    stop(msg)
+    
   }
   
-  path
+  stem <- if (is_windows()) "python.exe" else "bin/python"
+  file.path(prefix, stem)
   
 }
 
@@ -138,7 +149,8 @@ pyenv_bootstrap_unix <- function() {
   Sys.chmod(name, mode = "0755")
   
   # set root directory
-  withr::local_envvar(PYENV_ROOT = pyenv_root())
+  root <- pyenv_root()
+  withr::local_envvar(PYENV_ROOT = root)
   
   # run the script
   writeLines("Installing pyenv ...")
@@ -146,6 +158,6 @@ pyenv_bootstrap_unix <- function() {
   writeLines("Done!")
   
   # return pyenv path
-  pyenv
+  file.path(root, "bin/pyenv")
   
 }

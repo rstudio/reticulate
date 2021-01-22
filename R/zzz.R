@@ -53,6 +53,23 @@
     
   })
   
+  # on macOS, set the OPENBLAS environment variable if possible, as otherwise
+  # numpy will complain that we're using the broken Accelerate BLAS
+  #
+  # https://github.com/numpy/numpy/issues/15947
+  #
+  # also set OMP_NUM_THREADS to avoid issues with mixing different OpenMP
+  # run-times into the same process
+  if (Sys.info()[["sysname"]] == "Darwin") {
+    openblas <- Sys.getenv("OPENBLAS", unset = NA)
+    if (is.na(openblas) && file.exists("/usr/local/opt/openblas")) {
+      Sys.setenv(OPENBLAS = "/usr/local/opt/openblas")
+      threads <- Sys.getenv("OMP_NUM_THREADS", unset = NA)
+      if (is.na(threads))
+        Sys.setenv(OMP_NUM_THREADS = "1")
+    }
+  }
+  
 }
 
 .onUnload <- function(libpath) {

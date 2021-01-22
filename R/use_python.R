@@ -1,14 +1,35 @@
 
-#' Configure which version of Python to use
+#' Use Python
 #'
-#' @param python Path to Python binary
-#' @param virtualenv Directory of Python virtualenv
-#' @param condaenv Name of Conda environment
-#' @param conda Conda executable. Default is `"auto"`, which checks the `PATH`
-#'   as well as other standard locations for Anaconda installations.
-#' @param required Is this version of Python required? If `TRUE` then an error
-#'   occurs if it's not located. Otherwise, the version is taken as a hint only
-#'   and scanning for other versions will still proceed.
+#' Control which copy of Python `reticulate` will use when it initializes
+#' its Python bindings.
+#' 
+#' The `RETICULATE_PYTHON` environment variable can also be used to control
+#' which copy of Python `reticulate` chooses to bind to. When set, this will
+#' silently override any other requests to use a particular copy of Python.
+#' 
+#' @param python
+#'   The path to a Python binary.
+#' 
+#' @param version
+#'   The version of Python to use. `reticulate` will search for versions of
+#'   Python as installed by the [install_python()] helper function.
+#'
+#' @param virtualenv
+#'   Either the name of, or the path to, a Python virtual environment.
+#'   
+#' @param condaenv
+#'   Then name of the Conda environment to use.
+#' 
+#' @param conda
+#'   The path to a `conda` executable. By default, `reticulate` will check the
+#'   `PATH`, as well as other standard locations for Anaconda installations.
+#'   
+#' @param required
+#'   Is the requested copy of Python required? If `TRUE`, an error will be
+#'   emitted if the requested copy of Python does not exist. Otherwise, the
+#'   request is taken as a hint only, and scanning for other versions will still
+#'   proceed.
 #'
 #' @importFrom utils file_test
 #'
@@ -128,4 +149,11 @@ use_miniconda <- function(condaenv = NULL, required = FALSE) {
     required = required
   )
   
+}
+
+#' @rdname use_python
+#' @export
+use_python_version <- function(version, required = FALSE) {
+  path <- pyenv_python(version)
+  use_python(path, required = required)
 }

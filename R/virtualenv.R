@@ -30,6 +30,10 @@
 #' @param python The path to a Python interpreter, to be used with the created
 #'   virtual environment. When `NULL`, the Python interpreter associated with
 #'   the current session will be used.
+#'   
+#' @param version The version of Python to be used with the newly-created
+#'   virtual environment. Python installations as installed via
+#'   [install_python()] will be used.
 #'
 #' @param packages A set of Python packages to install (via `pip install`) into
 #'   the virtual environment, after it has been created. By default, the
@@ -71,6 +75,7 @@ virtualenv_create <- function(
   envname = NULL,
   python  = NULL,
   ...,
+  version              = NULL,
   packages             = "numpy",
   module               = getOption("reticulate.virtualenv.module"),
   system_site_packages = getOption("reticulate.virtualenv.system_site_packages", default = FALSE),
@@ -87,6 +92,7 @@ virtualenv_create <- function(
     return(invisible(path))
   }
 
+  python <- python %||% pyenv_python(version)
   python <- virtualenv_default_python(python)
   module <- module %||% virtualenv_module(python)
 

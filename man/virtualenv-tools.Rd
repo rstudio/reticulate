@@ -15,6 +15,7 @@ virtualenv_create(
   envname = NULL,
   python = NULL,
   ...,
+  version = NULL,
   packages = "numpy",
   module = getOption("reticulate.virtualenv.module"),
   system_site_packages = getOption("reticulate.virtualenv.system_site_packages",
@@ -57,6 +58,10 @@ virtual environment. When \code{NULL}, the Python interpreter associated with
 the current session will be used.}
 
 \item{...}{Optional arguments; currently ignored and reserved for future expansion.}
+
+\item{version}{The version of Python to be used with the newly-created
+virtual environment. Python installations as installed via
+\code{\link[=install_python]{install_python()}} will be used.}
 
 \item{packages}{A set of Python packages to install (via \verb{pip install}) into
 the virtual environment, after it has been created. By default, the

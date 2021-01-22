@@ -7,9 +7,14 @@
 py_config()
 }
 \value{
-Python configuration object; Logical indicating whether Python
-bindings are available
+Information about the version of Python in use, as an \R list with
+class \code{"py_config"}.
 }
 \description{
-Information on Python and Numpy versions detected
+Retrieve information about the version of Python currently being used by
+\code{reticulate}.
+}
+\details{
+If Python has not yet been initialized, then calling \code{py_config()} will force
+the initialization of Python. See \code{\link[=py_discover_config]{py_discover_config()}} for more details.
 }

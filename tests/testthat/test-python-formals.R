@@ -24,7 +24,9 @@ expect_formals <- function(given, expected) {
 }
 
 test_that("Python signatures convert properly", {
-  skip_on_cran()
+  
+  skip_if(py_version() < "3.3")
+  
   expect_formals('a', alist(a = ))
   expect_formals('a, b=1', alist(a = , b = NULL))
   expect_formals('a, *, b=1', alist(a = , ... = , b = NULL))
@@ -32,29 +34,37 @@ test_that("Python signatures convert properly", {
   expect_formals('a, b=1, **kw', alist(a = , b = NULL, ... = ))
   expect_formals('a, *args, **kw', alist(a = , ... = ))
   expect_formals('a, *args, b=1, **kw', alist(a = , ... = , b = NULL))
+  
 })
 
 test_that("Errors from e.g. builtins are not propagated", {
-  skip_on_cran()
+  
+  skip_if(py_version() < "3.3")
+  
   print <- import_builtins()$print
   expect_error(py_get_formals(print))
+  
 })
 
 test_that("The inspect.Parameter signature converts properly", {
-  skip_on_cran()
+  
+  skip_if(py_version() < "3.3")
   
   # Parameter.empty usually signifies no default parameter,
   # but for args 3 and 4 here, it *is* the default parameter.
-  Parameter <- import("inspect")$Parameter
+  inspect <- import("inspect", convert = TRUE)
+  Parameter <- inspect$Parameter
   fmls <- py_get_formals(Parameter)
   expect_formals(fmls, alist(
     name = , kind = , ... = ,
     default = NULL, annotation = NULL
   ))
+  
 })
 
 test_that("Parameters are not matched by prefix", {
-  skip_on_cran()
+  
+  skip_if(py_version() < "3.3")
   
   f_r <- function(long = NULL, ...) list(long, list(...))
   f_py <- py_eval('lambda long=None, **kw: (long, kw)')
@@ -64,4 +74,5 @@ test_that("Parameters are not matched by prefix", {
   expect_identical(f_r(l = 2L), list(2L, list()))
   # Python functions behave as expected:
   expect_identical(f_py(l = 2L), list(NULL, list(l = 2L)))
+  
 })

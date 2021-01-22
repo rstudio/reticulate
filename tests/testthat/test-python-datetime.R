@@ -58,6 +58,8 @@ test_that("R datetimes can be passed to Python functions", {
 test_that("timezone information is not lost during conversion", {
   
   datetime <- import("datetime", convert = FALSE)
+  if (!py_has_attr(datetime, "timezone"))
+    skip("datetime.timezone is not available")
   
   pdt <- datetime$datetime(
     year   = 2020L,

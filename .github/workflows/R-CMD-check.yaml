@@ -66,11 +66,12 @@ jobs:
 
       - name: Install Python dependencies
         if: runner.os == 'Linux'
-        run:
-          sudo apt install python-numpy
-          sudo apt install python-scipy
-          sudo apt install python-virtualenv
-          sudo apt install python3-venv
+        run: |
+          sudo apt-get update
+          sudo apt-get upgrade
+          sudo apt-get install python3-virtualenv
+          sudo apt-get install python3-venv
+        shell: /bin/bash {0}
 
       - name: Install dependencies
         run: |

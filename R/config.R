@@ -2,10 +2,14 @@
 
 #' Python configuration
 #'
-#' Information on Python and Numpy versions detected
+#' Retrieve information about the version of Python currently being used by
+#' `reticulate`.
+#' 
+#' If Python has not yet been initialized, then calling `py_config()` will force
+#' the initialization of Python. See [py_discover_config()] for more details.
 #'
-#' @return Python configuration object; Logical indicating whether Python
-#'   bindings are available
+#' @return Information about the version of Python in use, as an \R list with
+#'   class `"py_config"`.
 #'
 #' @export
 py_config <- function() {
@@ -13,6 +17,23 @@ py_config <- function() {
   .globals$py_config
 }
 
+#' Python version
+#' 
+#' Get the version of Python currently being used by `reticulate`.
+#' 
+#' @return The version of Python currently used, or `NULL` if Python has
+#'   not yet been initialized by `reticulate`.
+#' 
+#' @export
+py_version <- function() {
+  
+  if (!py_available(initialize = FALSE))
+    return(NULL)
+  
+  config <- py_config()
+  numeric_version(config$version)
+  
+}
 
 #' Build Python configuration error message
 #'

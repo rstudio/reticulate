@@ -68,7 +68,7 @@ jobs:
         if: runner.os == 'Linux'
         run:
           sudo apt-get update
-          sudp apt-get upgrade
+          sudo apt-get upgrade
           sudo apt-get install python3-virtualenv
           sudo apt-get install python3-venv
 

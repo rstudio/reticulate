@@ -17,7 +17,7 @@ test_that("imported module can be customized via delay_load", {
       delay_load = list(get_module = function() { "sys" })
     )
     
-    is.character(sys$byteorder)
+    as.character(sys$byteorder)
     
   })
   

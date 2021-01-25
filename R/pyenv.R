@@ -56,7 +56,10 @@ pyenv_list <- function(pyenv = NULL) {
   
   # clean up output
   versions <- tail(output, n = -1L)
-  gsub("^\\s*", "", versions)
+  cleaned <- gsub("^\\s*", "", versions)
+  
+  # only include CPython interpreters for now
+  grep("^[[:digit:]]", cleaned, value = TRUE)
   
 }
 

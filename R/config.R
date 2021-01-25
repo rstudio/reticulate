@@ -35,6 +35,35 @@ py_version <- function() {
   
 }
 
+#' Python executable
+#' 
+#' Get the path to the Python executable associated with the instance currently
+#' being used by `reticulate`.
+#' 
+#' This can occasionally be useful if you'd like to interact with Python (or its
+#' modules) via a subprocess; for example you might choose to install a package
+#' with `pip`:
+#' 
+#' ```
+#' system2(py_exe(), c("-m", "pip", "install", "numpy"))
+#' ```
+#' 
+#' and so you can also have greater control over how these modules are invoked.
+#' 
+#' @return The path to the associated Python executable, or `NULL` if Python
+#'   has not yet been initialized.
+#'   
+#' @export
+py_exe <- function() {
+  
+  if (!py_available(initialize = FALSE))
+    return(NULL)
+  
+  config <- py_config()
+  config$python
+  
+}
+
 #' Build Python configuration error message
 #'
 #' @param prefix Error message prefix

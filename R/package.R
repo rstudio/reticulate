@@ -115,6 +115,13 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
   # set R_SESSION_INITIALIZED flag (used by rpy2)
   curr_session_env <- Sys.getenv("R_SESSION_INITIALIZED", unset = NA)
   Sys.setenv(R_SESSION_INITIALIZED = sprintf('PID=%s:NAME="reticulate"', Sys.getpid()))
+  
+  # prefer utf-8 encoding on Windows in RStudio
+  if (is_rstudio()) {
+    encoding <- Sys.getenv("PYTHONIOENCODING", unset = NA)
+    if (is.na(encoding))
+      Sys.setenv(PYTHONIOENCODING = "utf-8")
+  }
 
   # munge PATH for python (needed so libraries can be found in some cases)
   oldpath <- python_munge_path(config$python)

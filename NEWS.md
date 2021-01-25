@@ -1,6 +1,10 @@
 
 ## reticulate 1.19 (UNRELEASED)
 
+- `reticulate` now sets the `PYTHONIOENCODING` environment variable to UTF-8
+  when running within RStudio. This should allow UTF-8 input and output to be
+  handled more appropriately.
+
 - `reticulate` gains the `install_python()` function, used to install different
   versions of Python via [pyenv](https://github.com/pyenv/pyenv)
   ([pyenv-windows](https://github.com/pyenv-win/pyenv-win) on Windows).

@@ -143,7 +143,7 @@ repl_python <- function(
         sys$stderr$flush()
       
     }, add = TRUE)
-
+    
     # read input (either from user or from code)
     prompt <- if (buffer$empty()) ">>> " else "... "
     if (is.null(input)) {
@@ -183,6 +183,24 @@ repl_python <- function(
       # a TRUE return implies the hook handled this input
       if (isTRUE(status))
         return()
+    }
+    
+    # run hook provided by front-end, to notify that we're now busy
+    hook <- getOption("reticulate.repl.busy")
+    if (is.function(hook)) {
+      
+      # run once now to indicate we're about to run
+      status <- tryCatch(hook(TRUE), error = identity)
+      if (inherits(status, "error"))
+        warning(status)
+      
+      # run again on exit to indicate we're done
+      on.exit({
+        status <- tryCatch(hook(FALSE), error = identity)
+        if (inherits(status, "error"))
+          warning(status)
+      }, add = TRUE)
+      
     }
 
     # special handling for top-level commands (when buffer is empty)

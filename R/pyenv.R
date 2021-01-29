@@ -1,7 +1,9 @@
 
 pyenv_root <- function() {
   root <- rappdirs::user_data_dir("r-reticulate")
-  file.path(root, "pyenv")
+  dir.create(root, showWarnings = FALSE, recursive = TRUE)
+  norm <- normalizePath(root, winslash = "/", mustWork = TRUE)
+  file.path(norm, "pyenv")
 }
 
 pyenv_python <- function(version) {
@@ -23,11 +25,10 @@ pyenv_python <- function(version) {
     fmt <- paste(
       "Python %s does not appear to be installed.",
       "Try installing it with install_python(version = %s).",
-      "(Path: %s)",
       sep = "\n"
     )
     
-    msg <- sprintf(fmt, shQuote(version), shQuote(version), shQuote(prefix))
+    msg <- sprintf(fmt, version, shQuote(version))
     stop(msg)
     
   }
@@ -96,10 +97,7 @@ pyenv_find_impl <- function() {
     return(pyenv)
   
   # all else fails, try to manually install pyenv
-  if (is_windows())
-    pyenv_bootstrap_windows()
-  else
-    pyenv_bootstrap_unix()
+  pyenv_bootstrap()
   
 }
 
@@ -123,6 +121,13 @@ pyenv_install <- function(version, force, pyenv = NULL) {
   args <- c("install", force, version)
   system2(pyenv, args)
   
+}
+
+pyenv_bootstrap <- function() {
+  if (is_windows())
+    pyenv_bootstrap_windows()
+  else
+    pyenv_bootstrap_unix()
 }
 
 pyenv_bootstrap_windows <- function() {
@@ -152,6 +157,9 @@ pyenv_bootstrap_windows <- function() {
 
 pyenv_bootstrap_unix <- function() {
   
+  if (!nzchar(Sys.which("git")))
+    stop("bootstrapping of pyenv requires git to be installed")
+  
   # move to tempdir
   owd <- setwd(tempdir())
   on.exit(setwd(owd), add = TRUE)
@@ -169,9 +177,11 @@ pyenv_bootstrap_unix <- function() {
   withr::local_envvar(PYENV_ROOT = root)
   
   # run the script
-  writeLines("Installing pyenv ...")
-  system("./pyenv-installer")
-  writeLines("Done!")
+  message("Installing pyenv ...")
+  status <- system("./pyenv-installer", intern = TRUE)
+  if (!identical(status, 0L))
+    stop("installation of pyenv failed")
+  message("Done! pyenv successfully installed.")
   
   # return pyenv path
   file.path(root, "bin/pyenv")

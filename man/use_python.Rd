@@ -53,7 +53,7 @@ The \code{RETICULATE_PYTHON} environment variable can also be used to control
 which copy of Python \code{reticulate} chooses to bind to. It should be set to
 the path to a Python interpreter, and that interpreter can either be:
 \itemize{
-\item A standalone system interprter,
+\item A standalone system interpreter,
 \item Part of a virtual environment,
 \item Part of a Conda environment.
 }
@@ -76,7 +76,8 @@ By default, requests are \emph{advisory}, and may be ignored for a number of rea
 }
 
 In general, if you explicitly want to use a particular version of Python, it
-is recommended to set \code{required = TRUE}.
+is recommended to set \code{required = TRUE}, or explicitly set the
+\code{RETICULATE_PYTHON} environment variable.
 
 Note that the requests for a particular version of Python via \code{use_python()}
 and friends only persist for the active session; they must be re-run in each

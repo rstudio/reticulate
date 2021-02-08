@@ -15,7 +15,7 @@
 #' which copy of Python `reticulate` chooses to bind to. It should be set to
 #' the path to a Python interpreter, and that interpreter can either be:
 #' 
-#' - A standalone system interprter,
+#' - A standalone system interpreter,
 #' - Part of a virtual environment,
 #' - Part of a Conda environment.
 #' 
@@ -34,7 +34,8 @@
 #' - The request has been overridden via `use_python(..., required = TRUE)`.
 #' 
 #' In general, if you explicitly want to use a particular version of Python, it
-#' is recommended to set `required = TRUE`.
+#' is recommended to set `required = TRUE`, or explicitly set the
+#' `RETICULATE_PYTHON` environment variable.
 #' 
 #' Note that the requests for a particular version of Python via `use_python()`
 #' and friends only persist for the active session; they must be re-run in each

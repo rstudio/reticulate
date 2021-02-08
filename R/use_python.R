@@ -1,12 +1,44 @@
 
 #' Use Python
 #'
-#' Control which copy of Python `reticulate` will use when it initializes
-#' its Python bindings.
+#' Select the version of Python to be used by `reticulate`.
+#' 
+#' The `reticulate` package initializes its Python bindings lazily -- that is,
+#' it does not initialize its Python bindings until an API that explicitly
+#' requires Python to be loaded is called. This allows users and package authors
+#' to request particular versions of Python by calling `use_python()` or one of
+#' the other helper functions documented in this help file.
+#' 
+#' @section RETICULATE_PYTHON:
 #' 
 #' The `RETICULATE_PYTHON` environment variable can also be used to control
-#' which copy of Python `reticulate` chooses to bind to. When set, this will
-#' silently override any other requests to use a particular copy of Python.
+#' which copy of Python `reticulate` chooses to bind to. It should be set to
+#' the path to a Python interpreter, and that interpreter can either be:
+#' 
+#' - A standalone system interprter,
+#' - Part of a virtual environment,
+#' - Part of a Conda environment.
+#' 
+#' When set, this will override any other requests to use a particular copy of
+#' Python. Setting this in `~/.Renviron` (or optionally, a project `.Renviron`)
+#' can be a useful way of forcing `reticulate` to use a particular version of
+#' Python.
+#' 
+#' @section Caveats:
+#' 
+#' By default, requests are _advisory_, and may be ignored for a number of reasons:
+#' 
+#' - The requested copy of Python cannot be initialized,
+#' - The requested copy of Python does not have an installation of `numpy` available,
+#' - Another call to `use_python()` has requested a different version of Python,
+#' - The request has been overridden via `use_python(..., required = TRUE)`.
+#' 
+#' In general, if you explicitly want to use a particular version of Python, it
+#' is recommended to set `required = TRUE`.
+#' 
+#' Note that the requests for a particular version of Python via `use_python()`
+#' and friends only persist for the active session; they must be re-run in each
+#' new \R session as appropriate.
 #' 
 #' @param python
 #'   The path to a Python binary.
@@ -19,7 +51,7 @@
 #'   Either the name of, or the path to, a Python virtual environment.
 #'   
 #' @param condaenv
-#'   Then name of the Conda environment to use.
+#'   The name of the Conda environment to use.
 #' 
 #' @param conda
 #'   The path to a `conda` executable. By default, `reticulate` will check the
@@ -66,6 +98,12 @@ use_python <- function(python, required = FALSE) {
   .globals$use_python_versions <- unique(c(.globals$use_python_versions, python))
 }
 
+#' @rdname use_python
+#' @export
+use_python_version <- function(version, required = FALSE) {
+  path <- pyenv_python(version)
+  use_python(path, required = required)
+}
 
 #' @rdname use_python
 #' @export
@@ -149,11 +187,4 @@ use_miniconda <- function(condaenv = NULL, required = FALSE) {
     required = required
   )
   
-}
-
-#' @rdname use_python
-#' @export
-use_python_version <- function(version, required = FALSE) {
-  path <- pyenv_python(version)
-  use_python(path, required = required)
 }

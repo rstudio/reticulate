@@ -123,13 +123,20 @@ configure_environment <- function(package = NULL, force = FALSE) {
   
   for (req in pkgreqs) {
     
+    # if no 'pip' requirement was specified, assume pip
     pip <- req$pip
     if (is.null(pip) || is.na(pip))
       pip <- TRUE
     
+    # if this is a virtual environment, we cannot use conda
+    if (nzchar(config$virtualenv %||% ""))
+      pip <- TRUE
+    
+    # normalize version request
     version <- req$version
     if (is.null(version) || is.na(version))
       version <- NULL
+    
     
     components <- c(req$package, version)
     

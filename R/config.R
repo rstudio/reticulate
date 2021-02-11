@@ -185,6 +185,17 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
     config <- python_config(python_version, required_module, python_version, forced = "use_python function")
     return(config)
   }
+  
+  # if RETICULATE_PYTHON_FALLBACK is specified then use it
+  reticulate_env <- Sys.getenv("RETICULATE_PYTHON_FALLBACK", unset = NA)
+  if (!is.na(reticulate_env)) {
+    python_version <- normalize_python_path(reticulate_env)
+    if (!python_version$exists)
+      stop("Python specified in RETICULATE_PYTHON_FALLBACK (", reticulate_env, ") does not exist")
+    python_version <- python_version$path
+    config <- python_config(python_version, required_module, python_version, forced = "RETICULATE_PYTHON_FALLBACK")
+    return(config)
+  }
 
   # create a list of possible python versions to bind to
   # (start with versions specified via environment variable or use_* function)

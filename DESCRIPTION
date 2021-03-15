@@ -39,6 +39,7 @@ Imports:
     graphics,
     jsonlite,
     methods,
+    png,
     rappdirs,
     utils,
     withr

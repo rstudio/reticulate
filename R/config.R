@@ -145,18 +145,18 @@ py_module_available <- function(module) {
 #' @export
 py_discover_config <- function(required_module = NULL, use_environment = NULL) {
 
-  # check if python symbols can be found in the main process
+  # check if python symbols can already be found in the current process
   main_process_info <- main_process_python_info()
   if (!is.null(main_process_info)) {
     python_version <- normalize_python_path(main_process_info$python)$path
     config <- python_config(
-        python_version,
-        required_module,
-        python_version,
-        forced = "the current process")
+      python_version,
+      required_module,
+      python_version,
+      forced = "the current process"
+    )
     return(config)
   }
-
 
   # if PYTHON_SESSION_INITIALIZED is specified then use it without scanning
   # further (this is a "hard" requirement because an embedding process may
@@ -573,11 +573,11 @@ python_config <- function(python, required_module, python_versions, forced = NUL
   anaconda <- grepl("continuum", tolower(version_string)) || grepl("anaconda", tolower(version_string))
   architecture <- config$Architecture
 
-  # determine the location of libpython (see also # https://github.com/JuliaPy/PyCall.jl/blob/master/deps/build.jl)
-
+  # determine the location of libpython
+  # see also: https://github.com/JuliaPy/PyCall.jl/blob/master/deps/build.jl
   main_process_info <- main_process_python_info()
   if (!is.null(main_process_info)) {
-    # either we have the main process libpython or NA in case of PIE executable
+    # either we have the main process libpython, or NA in case of PIE executable
     libpython <- main_process_info$libpython
   } else if (is_windows()) {
     

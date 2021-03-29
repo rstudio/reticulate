@@ -1721,60 +1721,91 @@ void trace_thread_init(int tracems) {
   ptrace_thread = new tthread::thread(trace_thread_main, &tracems);
 }
 
+namespace {
 
-int symbols_not_found = 0;
-
-// check if the main process contains python symbols
-// return the library path if found.
-// [[Rcpp::export]]
-SEXP main_process_python_info() {
 #ifdef _WIN32
-  // assume that the symbols are not loaded into the current process
+
+SEXP main_process_python_info_win32() {
+  // NYI
   return R_NilValue;
+}
+
 #else
 
+SEXP main_process_python_info_unix() {
+  
+  // bail early if we already know that Python symbols are not available
+  // (initialize as true to first assume symbols are available)
+  static bool py_symbols_available = true;
+  if (!py_symbols_available)
+    return R_NilValue;
+  
+  // attempt to load some required Python symbols
   void* pLib = NULL;
-  pLib = ::dlopen(NULL, RTLD_NOW|RTLD_GLOBAL);
+  pLib = ::dlopen(NULL, RTLD_NOW | RTLD_GLOBAL);
+  
   if (Py_IsInitialized == NULL)
     loadSymbol(pLib, "Py_IsInitialized", (void**) &Py_IsInitialized);
+  
   if (Py_GetVersion == NULL)
     loadSymbol(pLib, "Py_GetVersion", (void**) &Py_GetVersion);
+  
   ::dlclose(pLib);
-
-  if (!symbols_not_found) {
-    symbols_not_found = Py_IsInitialized == NULL && Py_GetVersion == NULL;
-  }
-
-  if (symbols_not_found) {
+  
+  // check and see if loading of these symbols failed
+  if (Py_IsInitialized == NULL || Py_GetVersion == NULL) {
+    py_symbols_available = false;
     return R_NilValue;
-  } else {
-    Dl_info dinfo;
-    if (dladdr((void*) Py_IsInitialized, &dinfo) == 0) {
-      return R_NilValue;
-    } else {
-      List info;
-      std::string python_path;
-      if (Py_GetVersion()[0] >= '3') {
-        loadSymbol(pLib, "Py_GetProgramFullPath", (void**) &Py_GetProgramFullPath);
-        const std::wstring wide_python_path(Py_GetProgramFullPath());
-        python_path = to_string(wide_python_path);
-        info["python"] = python_path;
-      } else {
-        loadSymbol(pLib, "Py_GetProgramFullPath", (void**) &Py_GetProgramFullPath_v2);
-        python_path = Py_GetProgramFullPath_v2();
-        info["python"] = python_path;
-      }
-      if (strcmp(python_path.c_str(), dinfo.dli_fname) == 0) {
-        // if the library is the same as the executable, it's probably a PIE.
-        // Any consequent dlopen on the PIE may fail, return NA to indicate this.
-        info["libpython"] = Rf_ScalarString(R_NaString);
-      } else {
-        info["libpython"] = dinfo.dli_fname;
-      }
-      return info;
-    }
   }
+  
+  // retrieve DLL info
+  Dl_info dinfo;
+  if (dladdr((void*) Py_IsInitialized, &dinfo) == 0) {
+    py_symbols_available = false;
+    return R_NilValue;
+  }
+  
+  List info;
+  
+  // read Python program path
+  std::string python_path;
+  if (Py_GetVersion()[0] >= '3') {
+    loadSymbol(pLib, "Py_GetProgramFullPath", (void**) &Py_GetProgramFullPath);
+    const std::wstring wide_python_path(Py_GetProgramFullPath());
+    python_path = to_string(wide_python_path);
+    info["python"] = python_path;
+  } else {
+    loadSymbol(pLib, "Py_GetProgramFullPath", (void**) &Py_GetProgramFullPath_v2);
+    python_path = Py_GetProgramFullPath_v2();
+    info["python"] = python_path;
+  }
+  
+  // read libpython file path
+  if (strcmp(python_path.c_str(), dinfo.dli_fname) == 0) {
+    // if the library is the same as the executable, it's probably a PIE.
+    // Any consequent dlopen on the PIE may fail, return NA to indicate this.
+    info["libpython"] = Rf_ScalarString(R_NaString);
+  } else {
+    info["libpython"] = dinfo.dli_fname;
+  }
+  
+  return info;
+  
+}
+
 #endif
+
+} // end anonymous namespace
+
+// [[Rcpp::export]]
+SEXP main_process_python_info() {
+  
+#ifdef _WIN32
+  return main_process_python_info_win32();
+#else
+  return main_process_python_info_unix();
+#endif
+  
 }
 
 

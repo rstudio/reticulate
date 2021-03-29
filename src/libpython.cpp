@@ -271,7 +271,6 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
 
   if (python3) {
     LOAD_PYTHON_SYMBOL(Py_GetProgramFullPath)
-    LOAD_PYTHON_SYMBOL(PyModule_Create2)
 
     // Debug versions of Python will provide PyModule_Create2TraceRefs,
     // while release versions will provide PyModule_Create

@@ -81,6 +81,9 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
   # find configuration
   config <- py_discover_config(required_module, use_environment)
 
+  # check if R is embedded in an python environment
+  py_embedded <- !is.null(main_process_python_info())
+
   # check for basic python prerequsities
   if (is.null(config)) {
     python_not_found("Installation of Python not found, Python bindings not loaded.")
@@ -173,6 +176,13 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
 
   # set available flag indicating we have py bindings
   config$available <- TRUE
+
+  if (py_embedded) {
+    # we need to insert path to rpytools directly for embedded R
+    py_run_string_impl(paste0("import sys; sys.path.append('",
+                         system.file("python", package = "reticulate"),
+                         "')"))
+  }
 
   # ensure modules can be imported from the current working directory
   py_run_string_impl("import sys; sys.path.insert(0, '')")

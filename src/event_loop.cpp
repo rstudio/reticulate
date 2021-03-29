@@ -36,7 +36,7 @@
 using namespace libpython;
 
 #include "tinythread.h"
-using namespace tthread;
+
 
 #include <Rinternals.h>
 
@@ -61,12 +61,12 @@ public:
   EventPollingSignal() : pollingRequested_(true) {}
 
   void requestPolling() {
-    lock_guard<mutex> lock(mutex_);
+    tthread::lock_guard<tthread::mutex> lock(mutex_);
     pollingRequested_ = true;
   }
 
   bool collectRequest() {
-    lock_guard<mutex> lock(mutex_);
+    tthread::lock_guard<tthread::mutex> lock(mutex_);
     bool requested = pollingRequested_;
     pollingRequested_ = false;
     return requested;
@@ -76,7 +76,7 @@ private:
   EventPollingSignal(const EventPollingSignal& other);
   EventPollingSignal& operator=(const EventPollingSignal&);
 private:
-  mutex mutex_;
+  tthread::mutex mutex_;
   bool pollingRequested_;
 };
 
@@ -96,7 +96,7 @@ void eventPollingWorker(void *) {
   while(true) {
 
     // Throttle via sleep
-    this_thread::sleep_for(chrono::milliseconds(250));
+    tthread::this_thread::sleep_for(tthread::chrono::milliseconds(250));
 
     // Schedule polling on the main thread if the interpeter is still running
     // Note that Py_AddPendingCall is documented to be callable from a background
@@ -148,7 +148,7 @@ void checkUserInterrupt(void*) {
 
 // Initialize event loop polling background thread
 void initialize() {
-  thread t(eventPollingWorker, NULL);
+  tthread::thread t(eventPollingWorker, NULL);
   t.detach();
 }
 

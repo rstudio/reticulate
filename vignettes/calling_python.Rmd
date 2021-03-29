@@ -214,7 +214,7 @@ Note the use of the 0-based index as well as the `L` to indicate t that the valu
 
 ## Arrays
 
-R matrices and arrays are converted automatically to and from [NumPy](http://www.numpy.org/) arrays. 
+R matrices and arrays are converted automatically to and from [NumPy](https://numpy.org/) arrays. 
 
 When converting from R to NumPy, the NumPy array is mapped directly to the underlying memory of the R array (no copy is made). In this case, the NumPy array uses a column-based in memory layout that is compatible with R (i.e. Fortran style rather than C style). When converting from NumPy to R, R receives a column-ordered copy of the NumPy array. 
 
@@ -311,7 +311,7 @@ This example opens a file and ensures that it is automatically closed at the end
 
 ## Iterators
 
-If a Python API returns an [iterator or generator](http://anandology.com/python-practice-book/iterators.html) you can interact with it using the `iterate()` function. The `iterate()` function can be used to apply an R function to each item yielded by the iterator:
+If a Python API returns an iterator or a generator, you can interact with it using the `iterate()` function. The `iterate()` function can be used to apply an R function to each item yielded by the iterator:
 
 ```{r}
 iterate(iter, print)

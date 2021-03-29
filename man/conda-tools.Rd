@@ -13,45 +13,100 @@
 \usage{
 conda_list(conda = "auto")
 
-conda_create(envname, packages = "python", conda = "auto")
+conda_create(
+  envname = NULL,
+  packages = NULL,
+  forge = TRUE,
+  channel = character(),
+  conda = "auto",
+  python_version = NULL
+)
 
 conda_remove(envname, packages = NULL, conda = "auto")
 
-conda_install(envname, packages, forge = TRUE, pip = FALSE,
-  pip_ignore_installed = TRUE, conda = "auto")
+conda_install(
+  envname = NULL,
+  packages,
+  forge = TRUE,
+  channel = character(),
+  pip = FALSE,
+  pip_options = character(),
+  pip_ignore_installed = FALSE,
+  conda = "auto",
+  python_version = NULL,
+  ...
+)
 
 conda_binary(conda = "auto")
 
 conda_version(conda = "auto")
 
-conda_python(envname, conda = "auto")
+conda_python(envname = NULL, conda = "auto")
 }
 \arguments{
-\item{conda}{Path to conda executable (or "auto" to find conda using the
-PATH and other conventional install locations).}
+\item{conda}{The path to a \code{conda} executable. Use \code{"auto"} to allow
+\code{reticulate} to automatically find an appropriate \code{conda} binary. See
+\strong{Finding Conda} for more details.}
 
-\item{envname}{Name of conda environment}
+\item{envname}{The name of, or path to, a conda environment.}
 
-\item{packages}{Character vector with package names to install or remove.}
+\item{packages}{A character vector, indicating package names which should be
+installed or removed. Use \verb{python=<version>} to request the installation
+of a specific version of Python.}
 
-\item{forge}{Include the \href{https://conda-forge.org/}{Conda Forge} repository.}
+\item{forge}{Boolean; include the \href{https://conda-forge.org/}{Conda Forge}
+repository?}
 
-\item{pip}{\code{TRUE} to use pip (defaults to \code{FALSE})}
+\item{channel}{An optional character vector of Conda channels to include.
+When specified, the \code{forge} argument is ignored. If you need to
+specify multiple channels, including the Conda Forge, you can use
+\verb{c("conda-forge", <other channels>)}.}
 
-\item{pip_ignore_installed}{Ignore installed versions when using pip. This is \code{TRUE} by default
-so that specific package versions can be installed even if they are downgrades. The \code{FALSE}
-option is useful for situations where you don't want a pip install to attempt an overwrite
-of a conda binary package (e.g. SciPy on Windows which is very difficult to install via
-pip due to compilation requirements).}
+\item{python_version}{The version of Python to be used in this Conda
+environment. The associated Python package from Conda will be requested
+as \code{python={python_version}}. When \code{NULL}, the default \code{python} package
+will be used instead. For example, use \code{python_version = "3.6"} to request
+that the Conda environment be created with a copy of Python 3.6. This
+argument will be ignored if \code{python} is specified as part of the \code{packages}
+argument, for backwards compatibility.}
+
+\item{pip}{Boolean; use \code{pip} when downloading or installing packages?
+Defaults to \code{FALSE}.}
+
+\item{pip_options}{An optional character vector of additional command line
+arguments to be passed to \code{pip}. Only relevant when \code{pip = TRUE}.}
+
+\item{pip_ignore_installed}{Ignore installed versions when using pip
+(defaults to \code{FALSE}). Set this to \code{TRUE} so that specific package versions
+can be installed even if they are downgrades. The \code{FALSE} option is useful
+for situations where you don't want a pip install to attempt an overwrite of
+a conda binary package (e.g. SciPy on Windows which is very difficult to
+install via pip due to compilation requirements).}
+
+\item{...}{Optional arguments, reserved for future expansion.}
 }
 \value{
 \code{conda_list()} returns a data frame with the names and paths to the
 respective python binaries of available environments. \code{conda_create()}
-returns the Path to the python binary of the created environment.
+returns the path to the python binary of the created environment.
 \code{conda_binary()} returns the location of the main conda binary or \code{NULL}
 if none can be found.
 }
 \description{
 R functions for managing Python \href{https://conda.io/docs/user-guide/tasks/manage-environments.html}{conda environments}.
 }
+\section{Finding Conda}{
+
+
+When \code{conda = "auto"}, \code{reticulate} will attempt to automatically find an
+Anaconda / Miniconda installation and use that. \code{reticulate} will search the
+following locations:
+\enumerate{
+\item The location specified by the \code{reticulate.conda_binary} \R option;
+\item The \code{\link[=miniconda_path]{miniconda_path()}} location (if it exists);
+\item The program \code{PATH};
+\item A set of pre-defined locations where Conda is typically installed.
+}
+}
+
 \keyword{internal}

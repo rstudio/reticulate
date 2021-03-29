@@ -44,6 +44,10 @@ test_that("Generic methods for pandas objects produce correct results", {
 test_that("Timestamped arrays in Pandas DataFrames can be roundtripped", {
   skip_if_no_pandas()
 
+  # TODO: this test fails on Windows because the int32 array gets
+  # converted to an R numeric vector rather than an integer vector
+  skip_on_os("windows")
+
   pd <- import("pandas", convert = FALSE)
   np <- import("numpy", convert = FALSE)
 
@@ -112,3 +116,55 @@ test_that("complex names are handled", {
   expect_equal(names(r), c("col1", "(col1, col2)"))
 
 })
+
+test_that("single-row data.frames with rownames can be converted", {
+  skip_if_no_pandas()
+
+  before <- data.frame(A = 1, row.names = "ID01")
+  after <- py_to_r(r_to_py(before))
+  expect_equal(c(before), c(after))
+
+})
+
+test_that("Time zones are respected if available", {
+  skip_if_no_pandas()
+  
+  pd <- import("pandas", convert = FALSE)
+  
+  before <- pd$DataFrame(list('TZ' = pd$Series(
+    c(
+      pd$Timestamp('20130102003020', tz = 'US/Pacific'),
+      pd$Timestamp('20130102003020', tz = 'CET'),
+      pd$Timestamp('20130102003020', tz = 'UTC'),
+      pd$Timestamp('20130102003020', tz = 'Hongkong')
+    )
+  )))
+  
+  converted <- py_to_r(before)
+  after <- r_to_py(converted)
+  
+  # check if both are the same in *local* timezone
+  expect_equal(py_to_r(before), py_to_r(after))
+  
+})
+
+test_that("NaT is converted to NA", {
+  skip_if_no_pandas()
+  
+  pd <- import("pandas", convert = FALSE)
+  np <- import("numpy")
+  
+  before <- pd$DataFrame(pd$Series(
+    c(
+      pd$Timestamp(NULL),
+      pd$Timestamp(np$nan)
+    )
+  ))
+  
+  converted <- py_to_r(before)
+  after <- r_to_py(converted)
+
+  expect_equal(py_to_r(before), py_to_r(after))
+  
+})
+

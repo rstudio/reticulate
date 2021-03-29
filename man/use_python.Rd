@@ -2,30 +2,85 @@
 % Please edit documentation in R/use_python.R
 \name{use_python}
 \alias{use_python}
+\alias{use_python_version}
 \alias{use_virtualenv}
 \alias{use_condaenv}
-\title{Configure which version of Python to use}
+\alias{use_miniconda}
+\title{Use Python}
 \usage{
 use_python(python, required = FALSE)
 
-use_virtualenv(virtualenv, required = FALSE)
+use_python_version(version, required = FALSE)
 
-use_condaenv(condaenv, conda = "auto", required = FALSE)
+use_virtualenv(virtualenv = NULL, required = FALSE)
+
+use_condaenv(condaenv = NULL, conda = "auto", required = FALSE)
+
+use_miniconda(condaenv = NULL, required = FALSE)
 }
 \arguments{
-\item{python}{Path to Python binary}
+\item{python}{The path to a Python binary.}
 
-\item{required}{Is this version of Python required? If \code{TRUE} then an error
-occurs if it's not located. Otherwise, the version is taken as a hint only
-and scanning for other versions will still proceed.}
+\item{required}{Is the requested copy of Python required? If \code{TRUE}, an error will be
+emitted if the requested copy of Python does not exist. Otherwise, the
+request is taken as a hint only, and scanning for other versions will still
+proceed.}
 
-\item{virtualenv}{Directory of Python virtualenv}
+\item{version}{The version of Python to use. \code{reticulate} will search for versions of
+Python as installed by the \code{\link[=install_python]{install_python()}} helper function.}
 
-\item{condaenv}{Name of Conda environment}
+\item{virtualenv}{Either the name of, or the path to, a Python virtual environment.}
 
-\item{conda}{Conda executable. Default is \code{"auto"}, which checks the \code{PATH}
-as well as other standard locations for Anaconda installations.}
+\item{condaenv}{The name of the Conda environment to use.}
+
+\item{conda}{The path to a \code{conda} executable. By default, \code{reticulate} will check the
+\code{PATH}, as well as other standard locations for Anaconda installations.}
 }
 \description{
-Configure which version of Python to use
+Select the version of Python to be used by \code{reticulate}.
 }
+\details{
+The \code{reticulate} package initializes its Python bindings lazily -- that is,
+it does not initialize its Python bindings until an API that explicitly
+requires Python to be loaded is called. This allows users and package authors
+to request particular versions of Python by calling \code{use_python()} or one of
+the other helper functions documented in this help file.
+}
+\section{RETICULATE_PYTHON}{
+
+
+The \code{RETICULATE_PYTHON} environment variable can also be used to control
+which copy of Python \code{reticulate} chooses to bind to. It should be set to
+the path to a Python interpreter, and that interpreter can either be:
+\itemize{
+\item A standalone system interpreter,
+\item Part of a virtual environment,
+\item Part of a Conda environment.
+}
+
+When set, this will override any other requests to use a particular copy of
+Python. Setting this in \verb{~/.Renviron} (or optionally, a project \code{.Renviron})
+can be a useful way of forcing \code{reticulate} to use a particular version of
+Python.
+}
+
+\section{Caveats}{
+
+
+By default, requests are \emph{advisory}, and may be ignored for a number of reasons:
+\itemize{
+\item The requested copy of Python cannot be initialized,
+\item The requested copy of Python does not have an installation of \code{numpy} available,
+\item Another call to \code{use_python()} has requested a different version of Python,
+\item The request has been overridden via \code{use_python(..., required = TRUE)}.
+}
+
+In general, if you explicitly want to use a particular version of Python, it
+is recommended to set \code{required = TRUE}, or explicitly set the
+\code{RETICULATE_PYTHON} environment variable.
+
+Note that the requests for a particular version of Python via \code{use_python()}
+and friends only persist for the active session; they must be re-run in each
+new \R session as appropriate.
+}
+

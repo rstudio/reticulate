@@ -1,51 +1,67 @@
 
+import platform
 import sys
 import os
-import platform
+
+# The 'sysconfig' module is only available with Python 2.7 and newer, but
+# an equivalent module in 'distutils' is available for Python 2.6.
+if sys.version < '2.7':
+  from distutils import sysconfig
+else:
+  import sysconfig
 
 # The 'imp' module is deprecated since Python 3.4, and the use of
 # 'importlib' is recommended instead.
 if sys.version < '3.4':
   import imp
   def module_path(name):
+    if name in sys.builtin_module_names:
+      return "[builtin module]"
     spec = imp.find_module(name)
     return spec[1]
 else:
   from importlib import util
   def module_path(name):
+    if name in sys.builtin_module_names:
+      return "[builtin module]"
     spec = util.find_spec(name)
     origin = spec.origin
     return origin[:origin.rfind('/')]
 
-sys.stdout.write('Version: ' + str(sys.version).replace('\n', ' '))
-sys.stdout.write('\nVersionNumber: ' + str(sys.version_info[0]) + '.' + str(sys.version_info[1]))
+# Get appropriate path-entry separator for platform
+pathsep = ";" if os.name == "nt" else ":"
 
-try:
-  import sysconfig
-  if not platform.system() == 'Windows':
-    sys.stdout.write('\nLIBPL: ' + sysconfig.get_config_vars('LIBPL')[0])
-    sys.stdout.write('\nLIBDIR: ' + sysconfig.get_config_vars('LIBDIR')[0])
-  sys.stdout.write('\nPREFIX: ' + sysconfig.get_config_vars('prefix')[0])
-  sys.stdout.write('\nEXEC_PREFIX: ' + sysconfig.get_config_vars('exec_prefix')[0])
-except Exception:
-  pass
+# Read default configuration values
+config = {
+  "Architecture"     : platform.architecture()[0],
+  "Version"          : str(sys.version).replace("\n", " "),
+  "VersionNumber"    : str(sys.version_info[0]) + "." + str(sys.version_info[1]),
+  "Prefix"           : getattr(sys, "prefix", ""),
+  "ExecPrefix"       : getattr(sys, "exec_prefix", ""),
+  "BaseExecPrefix"   : getattr(sys, "base_exec_prefix", ""),
+  "PythonPath"       : pathsep.join(sys.path[1:]),
+  "LIBPL"            : sysconfig.get_config_var("LIBPL"),
+  "LIBDIR"           : sysconfig.get_config_var("LIBDIR")
+}
 
-sys.stdout.write("\nArchitecture: "  + platform.architecture()[0])
-
+# Read numpy configuration (if available)
 try:
   import numpy
-  sys.stdout.write('\nNumpyPath: ' + str(numpy.__path__[0]))
-  sys.stdout.write('\nNumpyVersion: ' + str(numpy.__version__))
-except Exception:
+  config["NumpyPath"]    = str(numpy.__path__[0])
+  config["NumpyVersion"] = str(numpy.__version__)
+except:
   pass
 
+# Read required module information (if requested)
+try:
+  required_module = os.environ["RETICULATE_REQUIRED_MODULE"]
+  if required_module is not None and len(required_module) > 0:
+    config["RequiredModule"] = required_module
+    config["RequiredModulePath"] = module_path(required_module)
+except:
+  pass
 
-if "RETICULATE_REQUIRED_MODULE" in os.environ:
-  required_module = os.environ.get("RETICULATE_REQUIRED_MODULE")
-  try:
-    sys.stdout.write('\nRequiredModule: ' + required_module)
-    sys.stdout.write('\nRequiredModulePath: ' + str(module_path(required_module)))
-  except Exception:
-    pass
-
-
+# Write configuration to stdout
+lines = [str(key) + ": " + str(val) for (key, val) in config.items()]
+text = "\n".join(lines)
+sys.stdout.write(text)

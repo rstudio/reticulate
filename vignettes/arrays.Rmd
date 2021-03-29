@@ -94,8 +94,8 @@ array coordinates to address indices is:
 See the following notes for a general formula for row- and column-order
 coordinate to address mapping, but note the use of zero-based indexing.
 
-- https://en.wikipedia.org/wiki/Row-_and_column-major_order#Address_calculation_in_general
-- https://docs.scipy.org/doc/numpy/reference/arrays.ndarray.html
+- <https://en.wikipedia.org/wiki/Row-_and_column-major_order#Address_calculation_in_general>
+- <https://numpy.org/doc/stable/reference/arrays.ndarray.html>
 
 
 ## Python
@@ -352,8 +352,9 @@ y[, , 1]
 ```
 
 The NumPy `take()` function is equivalent in this example to the Python
-notation  `x[:, :, 0]`; that is, entries with third dimension index = 0.  (See
-https://docs.scipy.org/doc/numpy/reference/generated/numpy.take.html.)
+notation  `x[:, :, 0]`; that is, entries with third dimension index = 0.
+See <https://numpy.org/doc/stable/reference/generated/numpy.take.html>
+for more information.
 
 The corresponding R notation, `y[, , 1]`, returns the same thing in this
 example: a 4x3 matrix.

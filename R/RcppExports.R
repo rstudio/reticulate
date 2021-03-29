@@ -30,8 +30,16 @@ py_clear_last_error <- function() {
     invisible(.Call(`_reticulate_py_clear_last_error`))
 }
 
+py_none_impl <- function() {
+    .Call(`_reticulate_py_none_impl`)
+}
+
 py_is_callable <- function(x) {
     .Call(`_reticulate_py_is_callable`, x)
+}
+
+py_get_formals <- function(func) {
+    .Call(`_reticulate_py_get_formals`, func)
 }
 
 r_to_py_impl <- function(object, convert) {
@@ -113,16 +121,28 @@ py_has_attr_impl <- function(x, name) {
     .Call(`_reticulate_py_has_attr_impl`, x, name)
 }
 
-py_get_attr_impl <- function(x, name, silent = FALSE) {
-    .Call(`_reticulate_py_get_attr_impl`, x, name, silent)
+py_get_attr_impl <- function(x, key, silent = FALSE) {
+    .Call(`_reticulate_py_get_attr_impl`, x, key, silent)
+}
+
+py_get_item_impl <- function(x, key, silent = FALSE) {
+    .Call(`_reticulate_py_get_item_impl`, x, key, silent)
 }
 
 py_set_attr_impl <- function(x, name, value) {
     invisible(.Call(`_reticulate_py_set_attr_impl`, x, name, value))
 }
 
-py_get_attribute_types <- function(x, attributes) {
-    .Call(`_reticulate_py_get_attribute_types`, x, attributes)
+py_del_attr_impl <- function(x, name) {
+    invisible(.Call(`_reticulate_py_del_attr_impl`, x, name))
+}
+
+py_set_item_impl <- function(x, key, val) {
+    invisible(.Call(`_reticulate_py_set_item_impl`, x, key, val))
+}
+
+py_get_attr_types_impl <- function(x, attrs, resolve_properties) {
+    .Call(`_reticulate_py_get_attr_types_impl`, x, attrs, resolve_properties)
 }
 
 py_ref_to_r_with_convert <- function(x, convert) {
@@ -145,12 +165,16 @@ py_dict_get_item <- function(dict, key) {
     .Call(`_reticulate_py_dict_get_item`, dict, key)
 }
 
-py_dict_set_item <- function(dict, item, value) {
-    invisible(.Call(`_reticulate_py_dict_set_item`, dict, item, value))
+py_dict_set_item <- function(dict, key, val) {
+    invisible(.Call(`_reticulate_py_dict_set_item`, dict, key, val))
 }
 
 py_dict_length <- function(dict) {
     .Call(`_reticulate_py_dict_length`, dict)
+}
+
+py_dict_get_keys <- function(dict) {
+    .Call(`_reticulate_py_dict_get_keys`, dict)
 }
 
 py_dict_get_keys_as_str <- function(dict) {
@@ -197,7 +221,31 @@ py_eval_impl <- function(code, convert = TRUE) {
     .Call(`_reticulate_py_eval_impl`, code, convert)
 }
 
+py_convert_pandas_series <- function(series) {
+    .Call(`_reticulate_py_convert_pandas_series`, series)
+}
+
+py_convert_pandas_df <- function(df) {
+    .Call(`_reticulate_py_convert_pandas_df`, df)
+}
+
+r_convert_dataframe <- function(dataframe, convert) {
+    .Call(`_reticulate_r_convert_dataframe`, dataframe, convert)
+}
+
+r_convert_date <- function(dates, convert) {
+    .Call(`_reticulate_r_convert_date`, dates, convert)
+}
+
+py_set_interrupt_impl <- function() {
+    invisible(.Call(`_reticulate_py_set_interrupt_impl`))
+}
+
 readline <- function(prompt) {
     .Call(`_reticulate_readline`, prompt)
+}
+
+initialize_interrupt_handler <- function() {
+    invisible(.Call(`_reticulate_initialize_interrupt_handler`))
 }
 

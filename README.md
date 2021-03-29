@@ -1,11 +1,9 @@
 
 # R Interface to Python
 
-[![CRAN\_Status\_Badge](https://www.r-pkg.org/badges/version/reticulate)](https://cran.r-project.org/package=reticulate)
-[![Travis-CI Build
-Status](https://travis-ci.org/rstudio/reticulate.svg?branch=master)](https://travis-ci.org/rstudio/reticulate)
-[![Appveyor Build
-Status](https://ci.appveyor.com/api/projects/status/github/rstudio/reticulate?svg=true)](https://ci.appveyor.com/project/rstudio/reticulate)
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/rstudio/reticulate/workflows/R-CMD-check/badge.svg)](https://github.com/rstudio/reticulate/actions)
+<!-- badges: end -->
 
 The **reticulate** package provides a comprehensive set of tools for
 interoperability between Python and R. The package includes facilities
@@ -103,7 +101,7 @@ Each of these techniques is explained in more detail below.
 ## Python in R Markdown
 
 The **reticulate** package includes a Python engine for [R
-Markdown](http://rmarkdown.rstudio.com) with the following features:
+Markdown](https://rmarkdown.rstudio.com/) with the following features:
 
 1)  Run Python chunks in a single Python session embedded within your R
     session (shared variables/state between Python chunks)
@@ -124,10 +122,10 @@ Markdown](http://rmarkdown.rstudio.com) with the following features:
 </div>
 
 Built in conversion for many Python object types is provided, including
-[NumPy](http://www.numpy.org/) arrays and
-[Pandas](https://pandas.pydata.org/) data frames. From example, you can
+[NumPy](https://numpy.org/) arrays and
+[Pandas](https://pandas.pydata.org/) data frames. For example, you can
 use Pandas to read and manipulate data then easily plot the Pandas data
-frame using [ggplot2](http://ggplot2.org/):
+frame using [ggplot2](https://ggplot2.tidyverse.org/):
 
 ![](images/rmarkdown_engine_zoomed.png)
 

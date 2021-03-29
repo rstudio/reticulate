@@ -35,9 +35,30 @@ register_help_topics <- function(type = c("module", "class"), topics) {
     assign(name, topics[[name]], envir = envir)
 }
 
+#' Provide help for Python objects
+#' 
+#' This is an internal method to be used by front-ends which need to provide
+#' help text / information for Python objects in different contexts.
+#' 
+#' @keywords internal
+#' @export
+py_help_handler <- function(type = c("completion", "parameter", "url"),
+                            topic,
+                            source,
+                            ...)
+{
+  help_handler(type, topic, source, ...)
+}
+
 # Generic help_handler returned from .DollarNames -- dispatches to various
-# other help handler functions
-help_handler <- function(type = c("completion", "parameter", "url"), topic, source, ...) {
+# other help handler functions.
+#
+# NOTE: this routine is used by RStudio's autocompletion system
+help_handler <- function(type = c("completion", "parameter", "url"),
+                         topic,
+                         source,
+                         ...)
+{
   type <- match.arg(type)
   if (type == "completion") {
     help_completion_handler.python.builtin.object(topic, source)

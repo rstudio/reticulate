@@ -1,9 +1,15 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^derby\.log$
 ^docs$
-^issues$
-^pkgdown$
 ^images$
+^internal$
+^issues$
+^log$
+^logs$
+^pkgdown$
+^revdep$
+^tags$
 README.[R]?md
 README.html
 index.Rmd
@@ -12,7 +18,6 @@ LICENSE
 .travis.yml
 ^_pkgdown\.yml$
 ^appveyor\.yml$
-^pkgdown$
 vignettes/rstudio_ide.Rmd
 vignettes/rstudio_ide.html
 vignettes/images/rmarkdown_reticulate.png
@@ -21,3 +26,4 @@ vignettes/images/repl_python.png
 vignettes/images/source_python.png
 vignettes/images/code_completion.png
 vignettes/images/help.png
+^\.github$

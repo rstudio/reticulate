@@ -1,11 +1,11 @@
 Package: reticulate
 Type: Package
 Title: Interface to 'Python'
-Version: 1.10.0.9004
+Version: 1.18-9007
 Authors@R: c(
-  person("JJ", "Allaire", role = c("aut", "cre"), email = "jj@rstudio.com"),
-  person("Kevin", "Ushey", role = c("aut"),
+  person("Kevin", "Ushey", role = c("aut", "cre"),
          email = "kevin@rstudio.com"),
+  person("JJ", "Allaire", role = c("aut"), email = "jj@rstudio.com"),
   person("RStudio", role = c("cph", "fnd")),
   person("Yuan", "Tang", role = c("aut", "cph"),
          email = "terrytangyuan@gmail.com",
@@ -14,6 +14,10 @@ Authors@R: c(
          email = "edd@debian.org"),
   person("Bryan", "Lewis", role = c("ctb", "cph"),
          email = "blewis@illposed.net"),
+  person("Sigrid", "Keydana", role = c("ctb"),
+         email = "sigrid@rstudio.com"),
+  person("Ryan", "Hafen", role = c("ctb", "cph"),
+         email = "rhafen@gmail.com"),
   person("Marcus", "Geelnard", role = c("ctb", "cph"),
          comment = "TinyThread library, http://tinythreadpp.bitsnbites.eu/")
   )
@@ -30,17 +34,21 @@ LazyData: true
 Depends:
     R (>= 3.0)
 Imports:
-    utils,
+    Matrix,
+    Rcpp (>= 0.12.7),
     graphics,
     jsonlite,
-    Rcpp (>= 0.12.7),
-    Matrix
+    methods,
+    png,
+    rappdirs,
+    utils,
+    withr
 Suggests:
-    testthat,
-    knitr,
     callr,
-    rmarkdown
+    knitr,
+    rmarkdown,
+    testthat
 LinkingTo: Rcpp
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.1
 Roxygen: list(markdown = TRUE)
 VignetteBuilder: knitr

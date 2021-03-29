@@ -4,8 +4,11 @@
 \alias{repl_python}
 \title{Run a Python REPL}
 \usage{
-repl_python(module = NULL, quiet = getOption("reticulate.repl.quiet",
-  default = FALSE))
+repl_python(
+  module = NULL,
+  quiet = getOption("reticulate.repl.quiet", default = FALSE),
+  input = NULL
+)
 }
 \arguments{
 \item{module}{An (optional) Python module to be imported before
@@ -13,6 +16,9 @@ the REPL is launched.}
 
 \item{quiet}{Boolean; print a startup banner when launching the REPL? If
 \code{TRUE}, the banner will be suppressed.}
+
+\item{input}{Python code to be run within the REPL. Setting this can be
+useful if you'd like to drive the Python REPL programmatically.}
 }
 \description{
 This function provides a Python REPL in the \R session, which can be used

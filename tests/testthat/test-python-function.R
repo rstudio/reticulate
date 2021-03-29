@@ -17,4 +17,3 @@ test_that("Python callables can be called by R", {
   callable <- test$create_callable()
   expect_equal(callable(10), 10)
 })
-

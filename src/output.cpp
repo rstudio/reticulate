@@ -5,14 +5,14 @@ using namespace Rcpp;
 
 // [[Rcpp::export]]
 int write_stdout(std::string text) {
-  Rprintf(text.c_str());
+  Rprintf("%s", text.c_str());
   return text.length();
 }
 
 
 // [[Rcpp::export]]
 int write_stderr(std::string text) {
-  REprintf(text.c_str());
+  REprintf("%s", text.c_str());
   return text.length();
 }
 

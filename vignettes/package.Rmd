@@ -45,11 +45,12 @@ Using the `delay_load` flag has two important benefits:
 
 Without the `delay_load`, Python would be loaded immediately and the user's call to `use_virtualenv` would have no effect.
 
+
 ## Installing Python Dependencies
 
 Your R package likely depends on the installation of one or more Python packages. As a convenience to your users, you may want to provide a high-level R function to allow users to install these Python packages. It's furthermore beneficial if multiple R packages that depend on Python packages install their dependencies in the same Python environment (so that they can be easily used together). 
 
-The `py_install()` function provides a high-level interface for installing one or more Python packages. The packages will be by default be installed within a virtualenv or Conda environment named "r-reticulate". For example:
+The `py_install()` function provides a high-level interface for installing one or more Python packages. The packages will by default be installed within a virtualenv or Conda environment named "r-reticulate". For example:
 
 ```r
 library(reticulate)
@@ -65,6 +66,7 @@ install_scipy <- function(method = "auto", conda = "auto") {
 ```
 
 While reticulate is capable of binding to [any Python environment](calling_python.html#python-version) available on a system, it's much more straightforward for users if there is a common environment used by R packages with convenient high-level functions provided for installation. We therefore strongly recommend that R package developers use the approach described here.
+
 
 ## Checking and Testing on CRAN
 
@@ -101,6 +103,7 @@ There are two things you should do to ensure your package is well behaved on CRA
     })
     ```
 
+
 ## Implementing S3 Methods
 
 Python objects exposed by **reticulate** carry their Python classes into R, so it's possible to write S3 methods to customize e.g. the `str` or `print` behavior for a given class (note that it's not typically necessary that you do this since the default `str` and `print` methods call `PyObject_Str`, which typically provides an acceptable default behavior).
@@ -109,7 +112,7 @@ If you do decide to implement custom S3 methods for a Python class it's importan
 
 By default when you attempt to interact with a Python object from a previous session (a `NULL` R `externalptr`) an error is thrown. If you want to do something more customized in your S3 method you can use the `py_is_null_xptr()` function. For example:
 
-```{r}
+```{r eval=FALSE}
 method.MyModule.MyPythonClass <- function(x, y, ...) {
   if (py_is_null_xptr(x))
     # whatever is appropriate
@@ -122,7 +125,7 @@ Note that this check isn't required, as by default an R error will occur. If it'
 
 The **reticulate** package exports a `py_str` generic method which is called from the `str` method only after doing appropriate validation (if the object is NULL then `<pointer: 0x0>` is returned). You can implement the `py_str` method as follows:
 
-```{r}
+```{r eval=FALSE}
 #' @importFrom reticulate py_str
 #' @export 
 py_str.MyModule.MyPythonClass <- function(object, ...) {
@@ -131,6 +134,7 @@ py_str.MyModule.MyPythonClass <- function(object, ...) {
 ```
 
 The `print` and `summary` methods for Python objects both call the `str` method by default, so if you implement `py_str()` you will automatically inherit implementations for those methods.
+
 
 ### Converting between R and Python
 
@@ -144,6 +148,49 @@ The `print` and `summary` methods for Python objects both call the `str` method 
 - Python `datetime` objects.
 
 If you see that **reticulate** is missing support for conversion of one or more objects from these packages, please [let us know](https://github.com/rstudio/reticulate/issues) and we'll try to implement the missing converter. For Python packages not in this set, you can provide conversion operators in your own extension package.
+
+
+### Writing your own `r_to_py()` methods
+
+`r_to_py()` accepts a `convert` argument, which controls how objects generated
+from the created Python object are converted. To illustrate, consider the
+difference between these two cases:
+
+```{r}
+library(reticulate)
+
+# [convert = TRUE] => convert Python objects to R when appropriate
+sys <- import("sys", convert = TRUE)
+class(sys$path)
+# [1] "character"
+
+# [convert = FALSE] => always return Python objects
+sys <- import("sys", convert = FALSE)
+class(sys$path)
+# [1] "python.builtin.list" "python.builtin.object"
+```
+
+This is accomplished through the use of a `convert` flag, which is set on the
+Python object wrappers used by `reticulate`. Therefore, if you're writing a
+method `r_to_py.foo()` for an object of class `foo`, you should take care to
+preserve the `convert` flag on the generated object. This is typically done by:
+
+1. Passing `convert` along to the appropriate lower-level `r_to_py()` method;
+
+2. Explicitly setting the `convert` attribute on the returned Python object.
+
+As an example of the second:
+
+```{r eval=FALSE}
+# suppose 'make_python_object()' creates a Python object
+# from R objects of class 'my_r_object'.
+r_to_py.my_r_object <- function(x, convert) {
+  object <- make_python_object(x)
+  assign("convert", convert, envir = object)
+  object
+}
+```
+
 
 ## Using Travis-CI
 

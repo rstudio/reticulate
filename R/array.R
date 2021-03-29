@@ -17,12 +17,19 @@ np_array <- function(data, dtype = NULL, order = "C") {
   # convert to numpy if required
   if (!inherits(data, "numpy.ndarray")) {
 
+    # check if this object has object bit set (skip dispatch
+    # if we know it's unnecessary)
+    isobj <- is.object(data)
+    
     # convert non-array to array
     if (!is.array(data))
       data <- as.array(data)
 
     # do the conversion (will result in Fortran column ordering)
-    data <- r_to_py(data)
+    data <- if (isobj)
+      r_to_py(data, convert = FALSE)
+    else
+      r_to_py_impl(data, convert = FALSE)
   }
 
   # if we don't yet have a dtype then use the converted type

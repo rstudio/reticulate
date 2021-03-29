@@ -16,9 +16,9 @@ knitr::opts_chunk$set(eval = FALSE)
 
 ## Overview
 
-The **reticulate** package includes a Python engine for [R Markdown](http://rmarkdown.rstudio.com) that enables easy interoperabilty between Python and R chunks. 
+The **reticulate** package includes a Python engine for [R Markdown](https://rmarkdown.rstudio.com/) that enables easy interoperability between Python and R chunks. 
 
-Python chunks behave very similar to R chunks (including graphical output from matplotlib) and the two languages have full access each other's objects. Built in conversion for many Python object types is provided, including [NumPy](http://www.numpy.org/) arrays and [Pandas](https://pandas.pydata.org/) data frames. 
+Python chunks behave very similar to R chunks (including graphical output from matplotlib) and the two languages have full access each other's objects. Built in conversion for many Python object types is provided, including [NumPy](https://numpy.org/) arrays and [Pandas](https://pandas.pydata.org/) data frames. 
 
 If you are using knitr version 1.18 or higher, then the reticulate Python engine will be enabled by default whenever reticulate is installed and no further setup is required. If you are running an earlier version of knitr or want to disable the use of the reticulate engine see the [Engine Setup] section below.
 
@@ -40,7 +40,7 @@ Here's an R Markdown document that demonstrates this:
 
 ![](images/python_chunks.png){.screenshot width="98%"}
 
-Note that the [RStudio v1.2 preview release](https://www.rstudio.com/rstudio/download/preview/) includes support for using reticulate to execute Python chunks within R Notebooks. See the [RStudio IDE Tools for reticulate](https://rstudio.github.io/reticulate/articles/rstudio_ide.html) article for additional details.
+[RStudio v1.2](https://rstudio.com/products/rstudio/download/) or greater for reticulate IDE support.
 
 ## Calling Python from R
 

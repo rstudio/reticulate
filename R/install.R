@@ -1,18 +1,61 @@
 
+py_install_method_detect <- function(envname, conda = "auto") {
 
+  # try to find an existing virtualenv
+  if (!is_windows() && virtualenv_exists(envname))
+    return("virtualenv")
+  
+  # check and prompt for miniconda
+  if (miniconda_enabled() && miniconda_installable() && !miniconda_exists())
+    miniconda_install_prompt()
+
+  # try to find an existing condaenv
+  if (condaenv_exists(envname, conda = conda))
+    return("conda")
+
+  # check to see if virtualenv or venv is available
+  python <- virtualenv_default_python()
+  if (!is_windows() && (python_has_module(python, "virtualenv") || python_has_module(python, "venv")))
+    return("virtualenv")
+
+  # check to see if conda is available
+  conda <- tryCatch(conda_binary(conda = conda), error = identity)
+  if (!inherits(conda, "error"))
+    return("conda")
+  
+  if (is_windows())
+    stop("No conda installation detected.", call. = FALSE)
+
+  # default to virtualenv
+  "virtualenv"
+
+}
 
 #' Install Python packages
 #'
-#' Install Python packages into a virtualenv or conda env.
+#' Install Python packages into a virtual environment or Conda environment.
 #'
 #' @inheritParams conda_install
 #'
-#' @param packages Character vector with package names to install
-#' @param envname Name of environment to install packages into
+#' @param packages A vector of Python packages to install.
+#' 
+#' @param envname The name, or full path, of the environment in which Python
+#'   packages are to be installed. When `NULL` (the default), the active
+#'   environment as set by the `RETICULATE_PYTHON_ENV` variable will be used;
+#'   if that is unset, then the `r-reticulate` environment will be used.
+#'
 #' @param method Installation method. By default, "auto" automatically finds a
 #'   method that will work in the local environment. Change the default to force
 #'   a specific installation method. Note that the "virtualenv" method is not
 #'   available on Windows.
+#'
+#' @param python_version The requested Python version. Ignored when attempting
+#'   to install with a Python virtual environment.
+#'
+#' @param pip Boolean; use `pip` for package installation? This is only relevant
+#'   when Conda environments are used, as otherwise packages will be installed
+#'   from the Conda repositories.
+#'
 #' @param ... Additional arguments passed to [conda_install()]
 #'   or [virtualenv_install()].
 #'
@@ -23,140 +66,71 @@
 #' @seealso [conda-tools], [virtualenv-tools]
 #'
 #' @export
-py_install <- function(
-  packages,
-  envname = "r-reticulate",
-  method = c("auto", "virtualenv", "conda"),
-  conda = "auto",
-  ...) {
-
-  # validate method
-  if (identical(method, "virtualenv") && is_windows()) {
-    stop("Installing Python packages into a virtualenv is not supported on Windows",
-         call. = FALSE)
-  }
-
-  # find out which methods we can try
-  method_available <- function(name) method %in% c("auto", name)
-  virtualenv_available <- method_available("virtualenv")
-  conda_available <- method_available("conda")
-
-  # resolve and look for conda
-  conda <- tryCatch(conda_binary(conda), error = function(e) NULL)
-  have_conda <- conda_available && !is.null(conda)
-
-  # mac and linux
-  if (is_unix()) {
-
-    # check for explicit conda method
-    if (identical(method, "conda")) {
-
-      # validate that we have conda
-      if (!have_conda)
-        stop("Conda installation failed (no conda binary found)\n", call. = FALSE)
-
-      # do install
-      conda_install(envname, packages = packages, conda = conda, ...)
-
-    } else {
-
-      # find system python binary
-      pyver <- ""
-      python <- python_unix_binary("python")
-      if (is.null(python)) {
-        # try for python3 if we are on linux
-        if (is_linux()) {
-          python <- python_unix_binary("python3")
-          if (is.null(python))
-            stop("Unable to locate Python on this system.", call. = FALSE)
-          pyver <- "3"
-        }
-      }
-      # find other required tools
-      pip <-python_unix_binary(paste0("pip", pyver))
-      have_pip <- !is.null(pip)
-      virtualenv <- python_unix_binary("virtualenv")
-      have_virtualenv <- virtualenv_available && !is.null(virtualenv)
-
-      # if we don't have pip and virtualenv then try for conda if it's allowed
-      if ((!have_pip || !have_virtualenv) && have_conda) {
-
-        conda_install(envname, packages = packages, conda = conda, ...)
-
-      # otherwise this is either an "auto" installation w/o working conda
-      # or it's an explicit "virtualenv" installation
-      } else {
-
-        # validate that we have the required tools for the method
-        install_commands <- NULL
-        if (is_osx()) {
-          if (!have_pip)
-            install_commands <- c(install_commands, "$ sudo /usr/bin/easy_install pip")
-          if (!have_virtualenv) {
-            if (is.null(pip))
-              pip <- "/usr/local/bin/pip"
-            install_commands <- c(install_commands, sprintf("$ sudo %s install --upgrade virtualenv", pip))
-          }
-          if (!is.null(install_commands))
-            install_commands <- paste(install_commands, collapse = "\n")
-        } else if (is_ubuntu()) {
-          if (!have_pip) {
-            install_commands <- c(install_commands, paste0("$ sudo apt-get install python", pyver ,"-pip"))
-            pip <- paste0("/usr/bin/pip", pyver)
-          }
-          if (!have_virtualenv) {
-            if (identical(pyver, "3"))
-              install_commands <- c(install_commands, paste("$ sudo", pip, "install virtualenv"))
-            else
-              install_commands <- c(install_commands, "$ sudo apt-get install python-virtualenv")
-          }
-          if (!is.null(install_commands))
-            install_commands <- paste(install_commands, collapse = "\n")
-        } else {
-          if (!have_pip)
-            install_commands <- c(install_commands, "pip")
-          if (!have_virtualenv)
-            install_commands <- c(install_commands, "virtualenv")
-          if (!is.null(install_commands)) {
-            install_commands <- paste("Please install the following Python packages before proceeding:",
-                                      paste(install_commands, collapse = ", "))
-          }
-        }
-        if (!is.null(install_commands)) {
-
-          # if these are terminal commands then add special preface
-          if (grepl("^\\$ ", install_commands)) {
-            install_commands <- paste0(
-              "Execute the following at a terminal to install the prerequisites:\n\n",
-              install_commands
-            )
-          }
-
-          stop("Prerequisites for installing Python packages not available.\n\n",
-               install_commands, "\n\n", call. = FALSE)
-        }
-
-        # do the install
-        virtualenv_install(envname, packages, ...)
-      }
+py_install <- function(packages,
+                       envname = NULL,
+                       method = c("auto", "virtualenv", "conda"),
+                       conda = "auto",
+                       python_version = NULL,
+                       pip = FALSE,
+                       ...)
+{
+  check_forbidden_install("Python packages")
+  
+  # if no environment name was provided,
+  # but python has already been initialized,
+  # then install into that same environment
+  if (is.null(envname)) {
+    
+    python <- if (is_python_initialized())
+      .globals$py_config$python
+    else if (length(.globals$required_python_version))
+      .globals$required_python_version[[1]]
+    else if (length(p <- py_discover_config()$python))
+      p
+    
+    if (!is.null(python)) {
+      
+      # form path to environment
+      info <- python_info(python)
+      envname <- info$root
+      
+      # update conda binary path if required
+      if (identical(conda, "auto") && identical(info$type, "conda"))
+        conda <- info$conda %||% find_conda()
+      
     }
-
-  # windows installation
-  } else {
-
-    # validate that we have conda
-    if (!have_conda) {
-      stop("Windows Conda installation failed (no conda binary found)\n\n",
-           "Install Anaconda 3.x for Windows (https://www.anaconda.com/download/#windows)\n",
-           "before proceeding",
-           call. = FALSE)
-    }
-
-    # do the install
-    conda_install(envname, packages, conda = conda, ...)
+    
   }
+  
+  # resolve 'auto' method
+  method <- match.arg(method)
+  if (method == "auto")
+    method <- py_install_method_detect(envname = envname, conda = conda)
 
-  cat("\nInstallation complete.\n\n")
+  # perform the install
+  switch(
+    
+    method,
+    
+    virtualenv = virtualenv_install(
+      envname = envname,
+      packages = packages,
+      ...
+    ),
+    
+    conda = conda_install(
+      envname,
+      packages = packages,
+      conda = conda,
+      python_version = python_version,
+      pip = pip,
+      ...
+    ),
+    
+    stop("unrecognized installation method '", method, "'")
+    
+  )
 
   invisible(NULL)
+
 }

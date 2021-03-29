@@ -54,3 +54,18 @@ test_that("$, [ operators behave as expected", {
   expect_true(d['apple'] == 42)
 
 })
+
+test_that("ordered dictionaries with non-string keys can be converted", {
+  skip_if_no_python()
+
+  builtins <- import_builtins(convert = FALSE)
+  collections <- import("collections", convert = FALSE)
+
+  t <- builtins$tuple(list(42))
+  od <- collections$OrderedDict(list())
+  od[[t]] <- 42
+
+  result <- py_to_r(od)
+  expect_identical(result, list("(42.0,)" = 42))
+
+})

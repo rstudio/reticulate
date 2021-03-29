@@ -1,12 +1,5 @@
 context("helper handlers")
 
-test_that("Function arguments from builtin functions can be extracted", {
-  os <- import("os")
-  output <- help_formals_handler.python.builtin.object("chmod", os)
-  expected <- list(formals = c("path", "mode"), helpHandler = "reticulate:::help_handler")
-  expect_identical(output, expected)
-})
-
 test_that("Documentations in Sphinx style can be extracted correctly for help handlers", {
   skip_if_no_docutils()
 
@@ -46,6 +39,7 @@ Just a placeholder here.
 })
 
 test_that("Documentations in Google style can be extracted correctly for help handlers", {
+  skip_if_no_docutils()
 
   docs <- "
 Initialize the model.

@@ -65,7 +65,7 @@ py_iterator <- function(fn, completed = NULL) {
   # validation
   if (!is.function(fn))
     stop("fn must be an R function")
-  if (length(formals(fn) != 0))
+  if (length(formals(fn)))
     stop("fn must be an R function with no arguments")
 
   # wrap the function in an error handler

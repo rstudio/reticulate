@@ -32,13 +32,17 @@
 #' @param quiet Boolean; print a startup banner when launching the REPL? If
 #'   `TRUE`, the banner will be suppressed.
 #'
+#' @param input Python code to be run within the REPL. Setting this can be
+#'   useful if you'd like to drive the Python REPL programmatically.
+#'
 #' @seealso [py], for accessing objects created using the Python REPL.
 #'
 #' @importFrom utils packageVersion
 #' @export
 repl_python <- function(
-  module = NULL,
-  quiet = getOption("reticulate.repl.quiet", default = FALSE))
+  module  = NULL,
+  quiet   = getOption("reticulate.repl.quiet", default = FALSE),
+  input   = NULL)
 {
   # load module if requested
   if (is.character(module))
@@ -54,15 +58,14 @@ repl_python <- function(
   if (is.function(teardown)) {
     on.exit(teardown(), add = TRUE)
   }
+  
+  # split provided code on newlines
+  if (!is.null(input))
+    input <- unlist(strsplit(input, "\n", fixed = TRUE))
 
   # import other required modules for the REPL
-  builtins <- import_builtins(convert = FALSE)
   sys <- import("sys", convert = TRUE)
   codeop <- import("codeop", convert = TRUE)
-
-  # grab references to the locals, globals of the main module
-  locals <- py_run_string("locals()")
-  globals <- py_run_string("globals()")
 
   # check to see if the current environment supports history
   # (check for case where working directory not writable)
@@ -99,7 +102,7 @@ repl_python <- function(
   #
   # we return an environment of functions bound in a local environment
   # so that hook can manipulate the buffer if required
-  buffer <- new_stack()
+  buffer <- stack(mode = "character")
 
   # command compiler (used to check if we've received a complete piece
   # of Python input)
@@ -121,12 +124,38 @@ repl_python <- function(
     }
     failed
   }
+  
+  handle_interrupt <- function(condition) {
+    # swallow interrupts -- don't allow interrupted Python code to
+    # exit the REPL; we should only exit when an interrupt is sent
+    # when no Python code is executing
+  }
 
   repl <- function() {
-
-    # read user input
+    
+    # flush stdout, stderr on each REPL iteration
+    on.exit({
+      
+      if (!is.null(sys$stdout) && !is.null(sys$stdout$flush))
+        sys$stdout$flush()
+      
+      if (!is.null(sys$stderr) && !is.null(sys$stderr$flush))
+        sys$stderr$flush()
+      
+    }, add = TRUE)
+    
+    # read input (either from user or from code)
     prompt <- if (buffer$empty()) ">>> " else "... "
-    contents <- readline(prompt = prompt)
+    if (is.null(input)) {
+      contents <- readline(prompt = prompt)
+    } else if (length(input)) {
+      contents <- input[[1L]]
+      input <<- tail(input, n = -1L)
+      writeLines(paste(prompt, contents), con = stdout())
+    } else {
+      quit_requested <<- TRUE
+      return()
+    }
 
     # NULL implies the user sent EOF -- time to leave
     if (is.null(contents)) {
@@ -154,6 +183,24 @@ repl_python <- function(
       # a TRUE return implies the hook handled this input
       if (isTRUE(status))
         return()
+    }
+    
+    # run hook provided by front-end, to notify that we're now busy
+    hook <- getOption("reticulate.repl.busy")
+    if (is.function(hook)) {
+      
+      # run once now to indicate we're about to run
+      status <- tryCatch(hook(TRUE), error = identity)
+      if (inherits(status, "error"))
+        warning(status)
+      
+      # run again on exit to indicate we're done
+      on.exit({
+        status <- tryCatch(hook(FALSE), error = identity)
+        if (inherits(status, "error"))
+          warning(status)
+      }, add = TRUE)
+      
     }
 
     # special handling for top-level commands (when buffer is empty)
@@ -189,10 +236,8 @@ repl_python <- function(
     }
 
     # update history file
-    if (use_history) {
-      write(contents, file = histfile, append = TRUE)
-      utils::loadhistory(histfile)
-    }
+    if (use_history)
+      cat(contents, file = histfile, sep = "\n", append = TRUE)
 
     # trim whitespace if the buffer is empty (this effectively allows leading
     # whitespace in top-level Python commands)
@@ -229,9 +274,12 @@ repl_python <- function(
 
       # submit previous code
       pasted <- paste(previous, collapse = "\n")
-      output <- tryCatch(py_compile_eval(pasted), error = handle_error)
-      if (is.character(output) && nzchar(output))
-        cat(output, sep = "")
+      
+      tryCatch(
+        py_compile_eval(pasted, capture = FALSE),
+        error = handle_error,
+        interrupt = handle_interrupt
+      )
 
       # now, handle the newest line of code submitted
       buffer$set(contents)
@@ -246,9 +294,12 @@ repl_python <- function(
     # otherwise, we should have received a code output object
     # so we can just run the code submitted thus far
     buffer$clear()
-    output <- tryCatch(py_compile_eval(code), error = handle_error)
-    if (is.character(output) && nzchar(output))
-      cat(output, sep = "")
+    
+    tryCatch(
+      py_compile_eval(code, capture = FALSE),
+      error = handle_error,
+      interrupt = handle_interrupt
+    )
 
   }
 
@@ -290,6 +341,7 @@ repl_python <- function(
       break
 
     repl()
+    
   }
 
 }
@@ -302,4 +354,3 @@ repl_python <- function(
 py_repl_active <- function() {
   .globals$py_repl_active
 }
-

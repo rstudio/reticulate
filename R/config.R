@@ -145,6 +145,19 @@ py_module_available <- function(module) {
 #' @export
 py_discover_config <- function(required_module = NULL, use_environment = NULL) {
 
+  # check if python symbols can be found in the main process
+  main_process_info <- main_process_python_info()
+  if (!is.null(main_process_info)) {
+    python_version <- normalize_python_path(main_process_info$python)$path
+    config <- python_config(
+        python_version,
+        required_module,
+        python_version,
+        forced = "the current process")
+    return(config)
+  }
+
+
   # if PYTHON_SESSION_INITIALIZED is specified then use it without scanning
   # further (this is a "hard" requirement because an embedding process may
   # set this to indicate that the python interpreter is already loaded)
@@ -561,7 +574,12 @@ python_config <- function(python, required_module, python_versions, forced = NUL
   architecture <- config$Architecture
 
   # determine the location of libpython (see also # https://github.com/JuliaPy/PyCall.jl/blob/master/deps/build.jl)
-  if (is_windows()) {
+
+  main_process_info <- main_process_python_info()
+  if (!is.null(main_process_info)) {
+    # either we have the main process libpython or NA in case of PIE executable
+    libpython <- main_process_info$libpython
+  } else if (is_windows()) {
     
     # construct DLL name
     dll <- sprintf("python%s.dll", gsub(".", "", version, fixed = TRUE))
@@ -701,7 +719,7 @@ str.py_config <- function(object, ...) {
   x <- object
   out <- ""
   out <- paste0(out, "python:         ", x$python, "\n")
-  out <- paste0(out, "libpython:      ", ifelse(is.null(x$libpython), "[NOT FOUND]", x$libpython), ifelse(is_windows() || is.null(x$libpython) || file.exists(x$libpython), "", "[NOT FOUND]"), "\n")
+  out <- paste0(out, "libpython:      ", ifelse(is.null(x$libpython), "[NOT FOUND]", x$libpython), ifelse(is_windows() || is.null(x$libpython) || is.na(x$libpython) || file.exists(x$libpython), "", "[NOT FOUND]"), "\n")
   out <- paste0(out, "pythonhome:     ", ifelse(is.null(x$pythonhome), "[NOT FOUND]", x$pythonhome), "\n")
   if (nzchar(x$virtualenv_activate))
     out <- paste0(out, "virtualenv:     ", x$virtualenv_activate, "\n")
@@ -1002,5 +1020,3 @@ py_session_initialized_binary <- function() {
   # return
   python_binary
 }
-
-

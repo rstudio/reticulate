@@ -111,6 +111,16 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
+// main_process_python_info
+SEXP main_process_python_info();
+RcppExport SEXP _reticulate_main_process_python_info() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(main_process_python_info());
+    return rcpp_result_gen;
+END_RCPP
+}
 // py_initialize
 void py_initialize(const std::string& python, const std::string& libpython, const std::string& pythonhome, const std::string& virtualenv_activate, bool python3, bool interactive, const std::string& numpy_load_error);
 RcppExport SEXP _reticulate_py_initialize(SEXP pythonSEXP, SEXP libpythonSEXP, SEXP pythonhomeSEXP, SEXP virtualenv_activateSEXP, SEXP python3SEXP, SEXP interactiveSEXP, SEXP numpy_load_errorSEXP) {
@@ -631,6 +641,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_reticulate_py_get_formals", (DL_FUNC) &_reticulate_py_get_formals, 1},
     {"_reticulate_r_to_py_impl", (DL_FUNC) &_reticulate_r_to_py_impl, 2},
     {"_reticulate_py_activate_virtualenv", (DL_FUNC) &_reticulate_py_activate_virtualenv, 1},
+    {"_reticulate_main_process_python_info", (DL_FUNC) &_reticulate_main_process_python_info, 0},
     {"_reticulate_py_initialize", (DL_FUNC) &_reticulate_py_initialize, 7},
     {"_reticulate_py_finalize", (DL_FUNC) &_reticulate_py_finalize, 0},
     {"_reticulate_py_is_none", (DL_FUNC) &_reticulate_py_is_none, 1},

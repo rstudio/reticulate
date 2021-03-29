@@ -50,6 +50,10 @@ py_activate_virtualenv <- function(script) {
     invisible(.Call(`_reticulate_py_activate_virtualenv`, script))
 }
 
+main_process_python_info <- function() {
+    .Call(`_reticulate_main_process_python_info`)
+}
+
 py_initialize <- function(python, libpython, pythonhome, virtualenv_activate, python3, interactive, numpy_load_error) {
     invisible(.Call(`_reticulate_py_initialize`, python, libpython, pythonhome, virtualenv_activate, python3, interactive, numpy_load_error))
 }

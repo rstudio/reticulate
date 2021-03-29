@@ -162,6 +162,10 @@ void initialize_type_objects(bool python3);
 
 LIBPYTHON_EXTERN void (*Py_Initialize)();
 LIBPYTHON_EXTERN int (*Py_IsInitialized)();
+LIBPYTHON_EXTERN const char* (*Py_GetVersion)();
+LIBPYTHON_EXTERN char* (*Py_GetProgramFullPath_v2)();
+LIBPYTHON_EXTERN wchar_t* (*Py_GetProgramFullPath)();
+
 
 LIBPYTHON_EXTERN int (*Py_AddPendingCall)(int (*func)(void *), void *arg);
 LIBPYTHON_EXTERN void (*PyErr_SetInterrupt)();
@@ -712,4 +716,3 @@ LIBPYTHON_EXTERN PyThreadState* (*PyThreadState_Next)(PyThreadState*);
 } // namespace libpython
 
 #endif
-

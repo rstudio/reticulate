@@ -13,6 +13,13 @@ using namespace Rcpp;
 #include <fstream>
 #include <time.h>
 
+#ifndef _WIN32
+#include <dlfcn.h>
+#else
+#define WIN32_LEAN_AND_MEAN 1
+#include <windows.h>
+#endif
+
 using namespace libpython;
 
 // track whether we are using python 3 (set during py_initialize)
@@ -27,6 +34,17 @@ bool is_python3() {
 bool s_isInteractive = false;
 bool is_interactive() {
   return s_isInteractive;
+}
+
+// a simplified version of loadSymbol adopted from libpython.cpp
+void loadSymbol(void* pLib, const std::string& name, void** ppSymbol)
+{
+  *ppSymbol = NULL;
+#ifdef _WIN32
+  *ppSymbol = (void*)::GetProcAddress((HINSTANCE)pLib, name.c_str());
+#else
+  *ppSymbol = ::dlsym(pLib, name.c_str());
+#endif
 }
 
 // track whether we have required numpy
@@ -67,6 +85,17 @@ std::wstring to_wstring(const std::string& str) {
   ws.resize(std::mbstowcs(&ws[0], str.c_str(), str.size()));
   return ws;
 }
+
+// helper to convert std::wstring to std::string
+std::string to_string(const std::wstring& ws) {
+  int maxnchar = ws.size() * 4;
+  char *buffer = (char*) malloc(sizeof(char) * maxnchar);
+  int nchar = wcstombs(buffer, ws.c_str(), maxnchar);
+  std::string s(buffer, nchar);
+  free(buffer);
+  return s;
+}
+
 
 // forward declare error handling utility
 std::string py_fetch_error();
@@ -1691,6 +1720,63 @@ tthread::thread* ptrace_thread;
 void trace_thread_init(int tracems) {
   ptrace_thread = new tthread::thread(trace_thread_main, &tracems);
 }
+
+
+int symbols_not_found = 0;
+
+// check if the main process contains python symbols
+// return the library path if found.
+// [[Rcpp::export]]
+SEXP main_process_python_info() {
+#ifdef _WIN32
+  // assume that the symbols are not loaded into the current process
+  return R_NilValue;
+#else
+
+  void* pLib = NULL;
+  pLib = ::dlopen(NULL, RTLD_NOW|RTLD_GLOBAL);
+  if (Py_IsInitialized == NULL)
+    loadSymbol(pLib, "Py_IsInitialized", (void**) &Py_IsInitialized);
+  if (Py_GetVersion == NULL)
+    loadSymbol(pLib, "Py_GetVersion", (void**) &Py_GetVersion);
+  ::dlclose(pLib);
+
+  if (!symbols_not_found) {
+    symbols_not_found = Py_IsInitialized == NULL && Py_GetVersion == NULL;
+  }
+
+  if (symbols_not_found) {
+    return R_NilValue;
+  } else {
+    Dl_info dinfo;
+    if (dladdr((void*) Py_IsInitialized, &dinfo) == 0) {
+      return R_NilValue;
+    } else {
+      List info;
+      std::string python_path;
+      if (Py_GetVersion()[0] >= '3') {
+        loadSymbol(pLib, "Py_GetProgramFullPath", (void**) &Py_GetProgramFullPath);
+        const std::wstring wide_python_path(Py_GetProgramFullPath());
+        python_path = to_string(wide_python_path);
+        info["python"] = python_path;
+      } else {
+        loadSymbol(pLib, "Py_GetProgramFullPath", (void**) &Py_GetProgramFullPath_v2);
+        python_path = Py_GetProgramFullPath_v2();
+        info["python"] = python_path;
+      }
+      if (strcmp(python_path.c_str(), dinfo.dli_fname) == 0) {
+        // if the library is the same as the executable, it's probably a PIE.
+        // Any consequent dlopen on the PIE may fail, return NA to indicate this.
+        info["libpython"] = Rf_ScalarString(R_NaString);
+      } else {
+        info["libpython"] = dinfo.dli_fname;
+      }
+      return info;
+    }
+  }
+#endif
+}
+
 
 // [[Rcpp::export]]
 void py_initialize(const std::string& python,

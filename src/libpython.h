@@ -336,7 +336,8 @@ LIBPYTHON_EXTERN int (*PyObject_IsTrue)(PyObject *o);
 LIBPYTHON_EXTERN PyObject* (*Py_CompileStringExFlags)(const char *str, const char *filename, int start, PyCompilerFlags *flags, int optimize);
 
 LIBPYTHON_EXTERN void* (*PyCapsule_Import)(const char *name, int no_block);
-  
+
+LIBPYTHON_EXTERN PyObject* (*PyObject_Type)(PyObject* o);
 #define PyObject_TypeCheck(o, tp) ((PyTypeObject*)Py_TYPE(o) == (tp)) || PyType_IsSubtype((PyTypeObject*)Py_TYPE(o), (tp))
 
 #define PyType_Check(o) PyObject_TypeCheck(o, PyType_Type)

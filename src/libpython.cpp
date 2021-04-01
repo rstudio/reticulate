@@ -182,6 +182,7 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
   LOAD_PYTHON_SYMBOL(Py_IncRef)
   LOAD_PYTHON_SYMBOL(Py_DecRef)
   LOAD_PYTHON_SYMBOL(PyObject_Size)
+  LOAD_PYTHON_SYMBOL(PyObject_Type);
   LOAD_PYTHON_SYMBOL(PyObject_GetAttr)
   LOAD_PYTHON_SYMBOL(PyObject_HasAttr)
   LOAD_PYTHON_SYMBOL(PyObject_SetAttr)

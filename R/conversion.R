@@ -131,6 +131,7 @@ py_to_r.numpy.ndarray <- function(x) {
 
   # no special handler found; delegate to next method
   NextMethod()
+  
 }
 
 
@@ -214,7 +215,21 @@ py_to_r.pandas.core.categorical.Categorical <- function(x) {
 py_to_r.pandas.core.arrays.categorical.Categorical <-
   py_to_r.pandas.core.categorical.Categorical
 
-py_object_shape <- function(object) unlist(as_r_value(object$shape))
+#' @export
+py_to_r.pandas._libs.missing.NAType <- function(x) {
+  disable_conversion_scope(x)
+  NA
+}
+
+#' @export
+py_to_r.pandas._libs.missing.C_NAType <- function(x) {
+  disable_conversion_scope(x)
+  NA
+}
+
+py_object_shape <- function(object) {
+  unlist(as_r_value(object$shape))
+}
 
 #' @export
 summary.pandas.core.series.Series <- function(object, ...) {

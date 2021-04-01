@@ -1,6 +1,9 @@
 
 ## reticulate 1.19 (UNRELEASED)
 
+- `reticulate` now supports converting `pandas.NA` objects into R `NA` objects.
+  (#950)
+  
 - `reticulate` now sets the `PYTHONIOENCODING` environment variable to UTF-8
   when running within RStudio. This should allow UTF-8 input and output to be
   handled more appropriately.

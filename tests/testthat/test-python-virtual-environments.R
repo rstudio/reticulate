@@ -3,7 +3,7 @@ context("virtual environments")
 test_that("reticulate can bind to virtual environments created with venv", {
   skip_if_no_python()
   skip_on_cran()
-  skip_on_windows()
+  skip_on_os("windows")
 
   Sys.unsetenv("RETICULATE_PYTHON")
   Sys.unsetenv("RETICULATE_PYTHON_ENV")

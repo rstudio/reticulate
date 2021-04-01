@@ -41,7 +41,7 @@ void loadSymbol(void* pLib, const std::string& name, void** ppSymbol)
 {
   *ppSymbol = NULL;
 #ifdef _WIN32
-  *ppSymbol = (void*)::GetProcAddress((HINSTANCE)pLib, name.c_str());
+  *ppSymbol = (void*) ::GetProcAddress((HINSTANCE)pLib, name.c_str());
 #else
   *ppSymbol = ::dlsym(pLib, name.c_str());
 #endif
@@ -58,12 +58,14 @@ bool requireNumPy() {
     stop("Required version of NumPy not available: " + s_numpy_load_error);
   return true;
 }
+
 bool isPyArray(PyObject* object) {
   if (!haveNumPy())
     return false;
   else
     return PyArray_Check(object);
 }
+
 bool isPyArrayScalar(PyObject* object) {
   if (!haveNumPy())
     return false;
@@ -101,23 +103,44 @@ std::string to_string(const std::wstring& ws) {
 std::string py_fetch_error();
 
 // wrap an R object in a longer-lived python object "capsule"
-
-SEXP r_object_from_capsule(PyObject* capsule) {
-  SEXP object = (SEXP)PyCapsule_GetPointer(capsule, NULL);
+SEXP py_capsule_read(PyObject* capsule) {
+  
+  SEXP object = (SEXP) PyCapsule_GetPointer(capsule, NULL);
   if (object == NULL)
     stop(py_fetch_error());
+  
   return object;
+  
 }
 
-void free_r_object_capsule(PyObject* capsule) {
-  ::R_ReleaseObject(r_object_from_capsule(capsule));
+void py_capsule_free(PyObject* capsule) {
+  
+  SEXP object = py_capsule_read(capsule);
+  if (object != R_NilValue)
+    R_ReleaseObject(object);
+  
 }
 
-PyObject* r_object_capsule(SEXP object) {
-  ::R_PreserveObject(object);
-  return PyCapsule_New((void*)object, NULL, free_r_object_capsule);
+PyObject* py_capsule_new(SEXP object) {
+  
+  if (object != R_NilValue)
+    ::R_PreserveObject(object);
+  
+  return PyCapsule_New(
+    (void*) object,
+    NULL,
+    py_capsule_free);
+  
 }
 
+PyObject* py_get_attr(PyObject* object, const std::string& name) {
+  
+  if (PyObject_HasAttrString(object, name.c_str()))
+    return PyObject_GetAttrString(object, name.c_str());
+  else
+    return NULL;
+  
+}
 
 // helper class for ensuring decref of PyObject in the current scope
 template <typename T>
@@ -126,28 +149,51 @@ class PyPtr {
 public:
   
   // attach on creation, decref on destruction
-  PyPtr() : object_(NULL) {}
-  explicit PyPtr(T* object) : object_(object) {}
-  virtual ~PyPtr() {
+  PyPtr()
+    : object_(NULL)
+  {
+  }
+  
+  explicit PyPtr(T* object)
+    : object_(object)
+  {
+  }
+  
+  virtual ~PyPtr()
+  {
     if (object_ != NULL)
       Py_DecRef((PyObject*) object_);
   }
 
-  operator T*() const { return object_; }
+  operator T*() const
+  {
+    return object_;
+  }
 
-  T* get() const { return object_; }
+  T* get() const
+  {
+    return object_;
+  }
 
-  void assign(T* object) { object_ = object; }
+  void assign(T* object)
+  {
+    object_ = object;
+  }
 
-  T* detach() {
+  T* detach()
+  {
     T* object = object_;
     object_ = NULL;
     return object;
   }
 
-  bool is_null() const { return object_ == NULL; }
-
+  bool is_null() const
+  {
+    return object_ == NULL;
+  }
+  
 private:
+  
   // prevent copying
   PyPtr(const PyPtr&);
   PyPtr& operator=(const PyPtr&);
@@ -344,6 +390,8 @@ std::vector<std::string> py_class_names(PyObject* object) {
   
   // class
   PyObjectPtr classPtr(PyObject_GetAttrString(object, "__class__"));
+  if (classPtr.is_null())
+    stop(py_fetch_error());
   
   // call inspect.getmro to get the class and it's bases in
   // method resolution order
@@ -374,18 +422,6 @@ std::vector<std::string> py_class_names(PyObject* object) {
   
 }
 
-bool py_inherits(PyObject* object, const std::string& className) {
-  
-  std::vector<std::string> classNames = py_class_names(object);
-  
-  for (int i = 0, n = classNames.size(); i < n; i++)
-    if (classNames[i] == className)
-      return true;
-    
-  return false;
-  
-}
-
 // wrap a PyObject
 PyObjectRef py_ref(PyObject* object,
                    bool convert,
@@ -406,29 +442,26 @@ PyObjectRef py_ref(PyObject* object,
 
   // register R classes
   if (PyObject_HasAttrString(object, "__class__")) {
-    
     std::vector<std::string> classNames = py_class_names(object);
-    for (int i = 0, n = classNames.size(); i < n; i++)
-      attrClass.push_back(classNames[i]);
-    
+    attrClass.insert(attrClass.end(), classNames.begin(), classNames.end());
   }
 
   // add python.builtin.object if we don't already have it
-  if (std::find(attrClass.begin(), attrClass.end(), "python.builtin.object")
-                                                      == attrClass.end()) {
+  if (std::find(attrClass.begin(), attrClass.end(), "python.builtin.object") == attrClass.end()) {
     attrClass.push_back("python.builtin.object");
   }
 
   // apply class filter
   Rcpp::Environment pkgEnv = Rcpp::Environment::namespace_env("reticulate");
   Rcpp::Function py_filter_classes = pkgEnv["py_filter_classes"];
-  attrClass = as<std::vector<std::string> >(py_filter_classes(attrClass));
-
+  attrClass = as< std::vector<std::string> >(py_filter_classes(attrClass));
+  
   // set classes
   ref.attr("class") = attrClass;
 
   // return ref
   return ref;
+  
 }
 
 bool option_is_true(const std::string& name) {
@@ -684,7 +717,7 @@ void set_string_element(SEXP rArray, int i, PyObject* pyStr) {
 bool py_equal(PyObject* x, const std::string& str) {
   
   PyObjectPtr pyStr(as_python_str(str));
-  if (pyStr == NULL)
+  if (pyStr.is_null())
     stop(py_fetch_error());
   
   return PyObject_RichCompareBool(x, pyStr, Py_EQ) == 1;
@@ -694,13 +727,12 @@ bool py_equal(PyObject* x, const std::string& str) {
 bool is_pandas_na(PyObject* x) {
   
   // retrieve class object
-  PyObjectPtr pyClass(PyObject_GetAttrString(x, "__class__"));
-  if (pyClass == NULL)
+  PyObjectPtr pyClass(py_get_attr(x, "__class__"));
+  if (pyClass.is_null())
     return false;
   
-  // retrieve module name
-  PyObjectPtr pyModule(PyObject_GetAttrString(pyClass, "__module__"));
-  if (pyModule == NULL)
+  PyObjectPtr pyModule(py_get_attr(pyClass, "__module__"));
+  if (pyModule.is_null())
     return false;
   
   // check for expected module name
@@ -708,12 +740,13 @@ bool is_pandas_na(PyObject* x) {
     return false;
   
   // retrieve class name
-  PyObjectPtr pyName(PyObject_GetAttrString(pyClass, "__name__"));
-  if (pyName == NULL)
+  PyObjectPtr pyName(py_get_attr(pyClass, "__name__"));
+  if (pyName.is_null())
     return false;
   
   // check for expected names
-  return py_equal(pyName, "NAType") || py_equal(pyName, "C_NaType");
+  return py_equal(pyName, "NAType") ||
+         py_equal(pyName, "C_NAType");
   
 }
 
@@ -863,7 +896,7 @@ SEXP py_to_r(PyObject* x, bool convert) {
     RObject rArray = R_NilValue;
 
     // get the array
-    PyArrayObject* array = (PyArrayObject*)x;
+    PyArrayObject* array = (PyArrayObject*) x;
 
     // get the dimensions -- treat 0-dim array (numpy scalar) as
     // a 1-dim for converstion to R (will end up with a single
@@ -885,7 +918,7 @@ SEXP py_to_r(PyObject* x, bool convert) {
     // cast it to a fortran array (PyArray_CastToType steals the descr)
     // (note that we will decref the copied array below)
     PyArray_Descr* descr = PyArray_DescrFromType(typenum);
-    array = (PyArrayObject*)PyArray_CastToType(array, descr, NPY_ARRAY_FARRAY);
+    array = (PyArrayObject*) PyArray_CastToType(array, descr, NPY_ARRAY_FARRAY);
     if (array == NULL)
       stop(py_fetch_error());
 
@@ -1069,7 +1102,7 @@ SEXP py_to_r(PyObject* x, bool convert) {
   // iterator/generator
   else if (PyObject_HasAttrString(x, "__iter__") &&
            (PyObject_HasAttrString(x, "next") ||
-           PyObject_HasAttrString(x, "__next__"))) {
+            PyObject_HasAttrString(x, "__next__"))) {
 
     // return it raw but add a class so we can create S3 methods for it
     Py_IncRef(x);
@@ -1078,11 +1111,14 @@ SEXP py_to_r(PyObject* x, bool convert) {
 
   // bytearray
   else if (PyByteArray_Check(x)) {
-    if (PyByteArray_Size(x) > 0)
-      return Rcpp::RawVector(PyByteArray_AsString(x),
-                             PyByteArray_AsString(x) + PyByteArray_Size(x));
-    else
-      return Rcpp::RawVector();
+    
+    if (PyByteArray_Size(x) == 0)
+      return RawVector();
+      
+    return RawVector(
+      PyByteArray_AsString(x),
+      PyByteArray_AsString(x) + PyByteArray_Size(x));
+    
   }
   
   // pandas array
@@ -1306,7 +1342,7 @@ PyObject* r_to_py_numpy(RObject x, bool convert) {
   } else {
     // wrap the R object in a capsule that's tied to the lifetime of the matrix
     // (so the R doesn't deallocate the memory while python is still pointing to it)
-    PyObjectPtr capsule(r_object_capsule(x));
+    PyObjectPtr capsule(py_capsule_new(x));
     
     // set base object using correct version of the API (detach since this
     // effectively steals a reference to the provided base object)
@@ -1356,14 +1392,20 @@ static void free_r_extptr_capsule(PyObject* capsule) {
   SEXP sexp = (SEXP)PyCapsule_GetContext(capsule);
   ::R_ReleaseObject(sexp);
 }
+
 static PyObject* r_extptr_capsule(SEXP sexp) {
+  
   // underlying pointer
   void* ptr = R_ExternalPtrAddr(sexp);
-  if (ptr == NULL) stop("Invalid pointer");
+  if (ptr == NULL)
+    stop("Invalid pointer");
+  
   ::R_PreserveObject(sexp);
+  
   PyObject* capsule = PyCapsule_New(ptr, NULL, free_r_extptr_capsule);
   PyCapsule_SetContext(capsule, (void*)sexp);
   return capsule;
+  
 }
 
 // convert an R object to a python object (the returned object
@@ -1373,124 +1415,157 @@ PyObject* r_to_py_cpp(RObject x, bool convert) {
   int type = x.sexp_type();
   SEXP sexp = x.get__();
 
-  // NULL becomes python None (Py_IncRef since PyTuple_SetItem
-  // will steal the passed reference)
+  // NULL becomes python None
+  // (Py_IncRef since PyTuple_SetItem will steal the passed reference)
   if (x.isNULL()) {
     Py_IncRef(Py_None);
     return Py_None;
+  }
 
   // use py_object attribute if we have it
-  } else if (x.hasAttribute("py_object")) {
+  if (x.hasAttribute("py_object")) {
     Rcpp::RObject py_object = x.attr("py_object");
     PyObjectRef obj = as<PyObjectRef>(py_object);
     Py_IncRef(obj.get());
     return obj.get();
+  }
 
   // pass python objects straight through (Py_IncRef since returning this
   // creates a new reference from the caller)
-  } else if (x.inherits("python.builtin.object")) {
+  if (x.inherits("python.builtin.object")) {
     PyObjectRef obj = as<PyObjectRef>(sexp);
     Py_IncRef(obj.get());
     return obj.get();
-
+  }
+  
   // convert arrays and matrixes to numpy (throw error if numpy not available)
-  } else if (x.hasAttribute("dim") && requireNumPy()) {
+  if (x.hasAttribute("dim") && requireNumPy()) {
     return r_to_py_numpy(x, convert);
+  }
+  
   // integer (pass length 1 vectors as scalars, otherwise pass list)
-  } else if (type == INTSXP) {
+  if (type == INTSXP) {
+    
+    // handle scalars
     if (LENGTH(sexp) == 1) {
       int value = INTEGER(sexp)[0];
       return PyInt_FromLong(value);
-    } else {
-      PyObjectPtr list(PyList_New(LENGTH(sexp)));
-      for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
-        int value = INTEGER(sexp)[i];
-        // NOTE: reference to added value is "stolen" by the list
-        int res = PyList_SetItem(list, i, PyInt_FromLong(value));
-        if (res != 0)
-          stop(py_fetch_error());
-      }
-      return list.detach();
     }
+    
+    PyObjectPtr list(PyList_New(LENGTH(sexp)));
+    for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
+      int value = INTEGER(sexp)[i];
+      // NOTE: reference to added value is "stolen" by the list
+      int res = PyList_SetItem(list, i, PyInt_FromLong(value));
+      if (res != 0)
+        stop(py_fetch_error());
+    }
+    
+    return list.detach();
+    
+  }
 
   // numeric (pass length 1 vectors as scalars, otherwise pass list)
-  } else if (type == REALSXP) {
+  if (type == REALSXP) {
+    
+    // handle scalars
     if (LENGTH(sexp) == 1) {
       double value = REAL(sexp)[0];
       return PyFloat_FromDouble(value);
-    } else {
-      PyObjectPtr list(PyList_New(LENGTH(sexp)));
-      for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
-        double value = REAL(sexp)[i];
-        // NOTE: reference to added value is "stolen" by the list
-        int res = PyList_SetItem(list, i, PyFloat_FromDouble(value));
-        if (res != 0)
-          stop(py_fetch_error());
-      }
-      return list.detach();
     }
+    
+    PyObjectPtr list(PyList_New(LENGTH(sexp)));
+    for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
+      double value = REAL(sexp)[i];
+      // NOTE: reference to added value is "stolen" by the list
+      int res = PyList_SetItem(list, i, PyFloat_FromDouble(value));
+      if (res != 0)
+        stop(py_fetch_error());
+    }
+    
+    return list.detach();
+    
+  }
 
   // complex (pass length 1 vectors as scalars, otherwise pass list)
-  } else if (type == CPLXSXP) {
+  if (type == CPLXSXP) {
+    
+    // handle scalars
     if (LENGTH(sexp) == 1) {
       Rcomplex cplx = COMPLEX(sexp)[0];
       return PyComplex_FromDoubles(cplx.r, cplx.i);
-    } else {
-      PyObjectPtr list(PyList_New(LENGTH(sexp)));
-      for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
-        Rcomplex cplx = COMPLEX(sexp)[i];
-        // NOTE: reference to added value is "stolen" by the list
-        int res = PyList_SetItem(list, i, PyComplex_FromDoubles(cplx.r,
-                                                                      cplx.i));
-        if (res != 0)
-          stop(py_fetch_error());
-      }
-      return list.detach();
     }
+    
+    PyObjectPtr list(PyList_New(LENGTH(sexp)));
+    for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
+      Rcomplex cplx = COMPLEX(sexp)[i];
+      // NOTE: reference to added value is "stolen" by the list
+      int res = PyList_SetItem(list, i, PyComplex_FromDoubles(cplx.r, cplx.i));
+      if (res != 0)
+        stop(py_fetch_error());
+    }
+    
+    return list.detach();
+    
+  }
 
   // logical (pass length 1 vectors as scalars, otherwise pass list)
-  } else if (type == LGLSXP) {
+  if (type == LGLSXP) {
+    
+    // handle scalars
     if (LENGTH(sexp) == 1) {
       int value = LOGICAL(sexp)[0];
       return PyBool_FromLong(value);
-    } else {
-      PyObjectPtr list(PyList_New(LENGTH(sexp)));
-      for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
-        int value = LOGICAL(sexp)[i];
-        // NOTE: reference to added value is "stolen" by the list
-        int res = PyList_SetItem(list, i, PyBool_FromLong(value));
-        if (res != 0)
-          stop(py_fetch_error());
-      }
-      return list.detach();
+    } 
+    
+    PyObjectPtr list(PyList_New(LENGTH(sexp)));
+    for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
+      int value = LOGICAL(sexp)[i];
+      // NOTE: reference to added value is "stolen" by the list
+      int res = PyList_SetItem(list, i, PyBool_FromLong(value));
+      if (res != 0)
+        stop(py_fetch_error());
     }
+    
+    return list.detach();
+    
+  }
 
   // character (pass length 1 vectors as scalars, otherwise pass list)
-  } else if (type == STRSXP) {
+  if (type == STRSXP) {
+    
+    // handle scalars
     if (LENGTH(sexp) == 1) {
       return as_python_str(STRING_ELT(sexp, 0));
-    } else {
-      PyObjectPtr list(PyList_New(LENGTH(sexp)));
-      for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
-        // NOTE: reference to added value is "stolen" by the list
-        int res = PyList_SetItem(list, i, as_python_str(STRING_ELT(sexp, i)));
-        if (res != 0)
-          stop(py_fetch_error());
-      }
-      return list.detach();
+    } 
+    
+    PyObjectPtr list(PyList_New(LENGTH(sexp)));
+    for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
+      // NOTE: reference to added value is "stolen" by the list
+      int res = PyList_SetItem(list, i, as_python_str(STRING_ELT(sexp, i)));
+      if (res != 0)
+        stop(py_fetch_error());
     }
-
+    
+    return list.detach();
+  }
+  
   // bytes
-  } else if (type == RAWSXP) {
+  if (type == RAWSXP) {
 
     Rcpp::RawVector raw(sexp);
-    if (raw.size() > 0)
-      return PyByteArray_FromStringAndSize((const char*)&raw[0], raw.size());
-    else
+    if (raw.size() == 0)
       return PyByteArray_FromStringAndSize(NULL, 0);
+    
+    return PyByteArray_FromStringAndSize(
+      (const char*) RAW(raw),
+      raw.size());
+  
+  }
 
   // list
-  } else if (type == VECSXP) {
+  if (type == VECSXP) {
+    
     // create a dict for names
     if (x.hasAttribute("names")) {
       PyObjectPtr dict(PyDict_New());
@@ -1503,53 +1578,67 @@ PyObject* r_to_py_cpp(RObject x, bool convert) {
         if (res != 0)
           stop(py_fetch_error());
       }
+      
       return dict.detach();
-    // create a list if there are no names
-    } else {
-      PyObjectPtr list(PyList_New(LENGTH(sexp)));
-      for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
-        PyObject* item = r_to_py(RObject(VECTOR_ELT(sexp, i)), convert);
-        // NOTE: reference to added value is "stolen" by the list
-        int res = PyList_SetItem(list, i, item);
-        if (res != 0)
-          stop(py_fetch_error());
-      }
-      return list.detach();
+      
     }
-  } else if (type == CLOSXP) {
+    
+    // create a list if there are no names
+    PyObjectPtr list(PyList_New(LENGTH(sexp)));
+    for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
+      PyObject* item = r_to_py(RObject(VECTOR_ELT(sexp, i)), convert);
+      // NOTE: reference to added value is "stolen" by the list
+      int res = PyList_SetItem(list, i, item);
+      if (res != 0)
+        stop(py_fetch_error());
+    }
+    
+    return list.detach();
+    
+  }
+  
+  if (type == CLOSXP) {
 
     // create an R object capsule for the R function
-    PyObjectPtr capsule(r_object_capsule(x));
+    PyObjectPtr capsule(py_capsule_new(x));
     PyCapsule_SetContext(capsule, (void*)convert);
 
     // check for a py_function_name attribute
-    PyObjectPtr pyFunctionName(r_to_py(x.attr("py_function_name"),
-                                       convert));
+    PyObjectPtr pyFunctionName(r_to_py(x.attr("py_function_name"), convert));
 
     // create the python wrapper function
     PyObjectPtr module(py_import("rpytools.call"));
-    if (module == NULL)
+    if (module.is_null())
       stop(py_fetch_error());
+    
     PyObjectPtr func(PyObject_GetAttrString(module, "make_python_function"));
-    if (func == NULL)
+    if (func.is_null())
       stop(py_fetch_error());
-    PyObjectPtr wrapper(PyObject_CallFunctionObjArgs(func,
-                                                     capsule.get(),
-                                                     pyFunctionName.get(),
-                                                     NULL));
-    if (wrapper == NULL)
+    
+    PyObjectPtr wrapper(
+        PyObject_CallFunctionObjArgs(
+          func,
+          capsule.get(),
+          pyFunctionName.get(),
+          NULL));
+    
+    if (wrapper.is_null())
       stop(py_fetch_error());
 
     // return the wrapper
     return wrapper.detach();
+    
+  }
 
   // externalptr
-  } else if (type == EXTPTRSXP) {
+  if (type == EXTPTRSXP) {
     return r_extptr_capsule(sexp);
-  } else {
-    Rcpp::print(sexp);
-    stop("Unable to convert R object to Python type");
   }
+  
+  // unhandled type
+  Rcpp::print(sexp);
+  stop("Unable to convert R object to Python type");
+
 }
 
 // [[Rcpp::export]]
@@ -1565,7 +1654,7 @@ extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* k
 {
   // the first argument is always the capsule containing the R function to call
   PyObject* capsule = PyTuple_GetItem(args, 0);
-  RObject rFunction = r_object_from_capsule(capsule);
+  RObject rFunction = py_capsule_read(capsule);
 
   bool convert = (bool)PyCapsule_GetContext(capsule);
 
@@ -1573,11 +1662,11 @@ extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* k
   PyObjectPtr funcArgs(PyTuple_GetSlice(args, 1, PyTuple_Size(args)));
   List rArgs;
   if (convert) {
-    rArgs = ::py_to_r(funcArgs, convert);
+    rArgs = py_to_r(funcArgs, convert);
   } else {
     Py_ssize_t len = PyTuple_Size(funcArgs);
     for (Py_ssize_t index = 0; index<len; index++) {
-      PyObject* item = PyTuple_GetItem(funcArgs, index);
+      PyObject* item = PyTuple_GetItem(funcArgs, index); // borrowed
       Py_IncRef(item);
       rArgs.push_back(py_ref(item, convert));
     }
@@ -1587,17 +1676,23 @@ extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* k
   List rKeywords;
 
   if (keywords != NULL) {
+    
     if (convert) {
-      rKeywords = ::py_to_r(keywords, convert);
+      rKeywords = py_to_r(keywords, convert);
     } else {
+      
       PyObject *key, *value;
       Py_ssize_t pos = 0;
+      
+      // NOTE: PyDict_Next uses borrowed references,
+      // so anything we return should be Py_IncRef'd
       while (PyDict_Next(keywords, &pos, &key, &value)) {
         PyObjectPtr str(PyObject_Str(key));
         Py_IncRef(value);
         rKeywords[as_std_string(str)] = py_ref(value, convert);
       }
     }
+    
   }
 
   // combine positional and keyword arguments
@@ -2044,13 +2139,17 @@ bool py_compare_impl(PyObjectRef a, PyObjectRef b, const std::string& op) {
 CharacterVector py_str_impl(PyObjectRef x) {
 
   if (!is_python_str(x)) {
+    
     PyObjectPtr str(PyObject_Str(x));
     if (str.is_null())
       stop(py_fetch_error());
+    
     return CharacterVector::create(as_utf8_r_string(str));
-  } else {
-    return CharacterVector::create(as_utf8_r_string(x));
-  }
+    
+  } 
+  
+  return CharacterVector::create(as_utf8_r_string(x));
+  
 }
 
 // [[Rcpp::export]]
@@ -2139,7 +2238,7 @@ PyObjectRef py_get_common(PyObject* object,
   if (object != NULL)
     return py_ref(object, convert);
   
-  // if we're silent, return Py_None
+  // if we're silent, return new reference to Py_None
   if (silent) {
     Py_IncRef(Py_None);
     return py_ref(Py_None, convert);
@@ -2344,13 +2443,13 @@ SEXP py_dict_get_item(PyObjectRef dict, RObject key) {
   
   // NOTE: returns borrowed reference
   PyObject* item = PyDict_GetItem(dict, pyKey);
-  if (item != NULL) {
-    Py_IncRef(item);
-    return py_ref(item, dict.convert());
-  } else {
+  if (item == NULL) {
     Py_IncRef(Py_None);
     return py_ref(Py_None, false);
   }
+  
+  Py_IncRef(item);
+  return py_ref(item, dict.convert());
   
 }
 
@@ -2411,7 +2510,7 @@ CharacterVector py_dict_get_keys_as_str(PyObjectRef dict) {
   std::vector<std::string> keys;
 
   PyObjectPtr it(PyObject_GetIter(py_keys));
-  if (it == NULL)
+  if (it.is_null())
     stop(py_fetch_error());
   
   for (PyObject* item = PyIter_Next(it);
@@ -2474,10 +2573,13 @@ int py_tuple_length(PyObjectRef tuple) {
 
 // [[Rcpp::export]]
 PyObjectRef py_module_import(const std::string& module, bool convert) {
+  
   PyObject* pModule = py_import(module);
   if (pModule == NULL)
     stop(py_fetch_error());
+  
   return py_ref(pModule, convert);
+  
 }
 
 // [[Rcpp::export]]
@@ -2592,19 +2694,32 @@ SEXP py_run_string_impl(const std::string& code,
                         bool local = false,
                         bool convert = true)
 {
-  // run string
+  // get main module. note that PyModule_GetDict returns
+  // a borrowed reference and so if we're returning a reference
+  // to that dictionary (with local = false) then we need to
+  // Py_IncRef it
   PyObject* main = PyImport_AddModule("__main__");
   PyObject* main_dict = PyModule_GetDict(main);
+  
+  // use separate dictionary for locals if requested
   PyObject* local_dict = NULL;
-  PyObjectPtr local_dict_ptr;
+  
   if (local) {
-    local_dict_ptr.assign(PyDict_New());
+    PyObjectPtr local_dict_ptr(PyDict_New());
     local_dict = local_dict_ptr.get();
   } else {
     local_dict = main_dict;
   }
-  PyObjectPtr res(PyRun_StringFlags(code.c_str(), Py_file_input,
-                                    main_dict, local_dict, NULL));
+  
+  // run the requested code
+  PyObjectPtr res(
+      PyRun_StringFlags(
+        code.c_str(),
+        Py_file_input,
+        main_dict,
+        local_dict,
+        NULL));
+  
   if (res.is_null())
     stop(py_fetch_error());
 

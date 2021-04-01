@@ -19,6 +19,7 @@ test_that("Can create a Python class and call methods", {
   
   expect_equal(a$say_hi(), "Hi World")
   expect_equal(b$say_hi(), "Hi R")
+  
 })
 
 test_that("Can inherit from another class created in R", {

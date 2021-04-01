@@ -44,43 +44,62 @@ inject_super <- function(fun) {
 #'
 #' @export
 PyClass <- function(classname, defs = list(), inherit = NULL) {
-  bt <- reticulate::import_builtins()
+  
+  builtins <- import_builtins(convert = TRUE)
   
   if (inherits(inherit, "python.builtin.object"))
     inherit <- list(inherit)
   
-  if (is.list(inherit))
-    inherit <- do.call(reticulate::tuple, inherit)
-  else
-    inherit <- tuple()
+  bases <- case(
+    
+    length(inherit) == 0  ~ tuple(),
+    is.list(inherit)      ~ do.call(tuple, inherit),
+    is.character(inherit) ~ do.call(tuple, as.list(inherit)),
+    
+    ~ stop("unexpected 'inherit' argument")
+    
+  )
   
   defs <- lapply(defs, function(x) {
-    if (inherits(x, "function")) {
-      f <- inject_super(x)
-      x <- function(...) {
-        args <- list(...)
-        # enable convertion scope for `self`
-        # the first argument is always `self`.and we don't want to convert it.
-        assign("convert", TRUE, envir = as.environment(args[[1]])) 
-        do.call(f, append(args[1], lapply(args[-1], py_to_r)))
-      }
-      attr(x, "__env__") <- environment(f)
+    
+    # nothing to be done for non-functions
+    if (!is.function(x))
+      return(x)
+    
+    # otherwise, create a new version of the function with 'super' injected
+    f <- inject_super(x)
+    
+    x <- function(...) {
+      # enable conversion scope for `self`
+      # the first argument is always `self`.and we don't want to convert it.
+      args <- list(...)
+      assign("convert", TRUE, envir = as.environment(args[[1]])) 
+      do.call(f, append(args[1], lapply(args[-1], py_to_r)))
     }
+    
+    attr(x, "__env__") <- environment(f)
     x
+    
   })
   
-  type <- bt$type(
-    classname, inherit, 
+  type <- builtins$type(
+    classname,
+    bases,
     do.call(reticulate::dict, defs)
   )
   
   # we add a reference to the type here. so it can be accessed without needing
   # to find the type from self.
   lapply(defs, function(x) {
-    if(!is.null(e <- attr(x, "__env__"))) {
-      e$`__class__` <- type
-    }
+    
+    envir <- attr(x, "__env__")
+    if (!is.environment(envir))
+      return()
+    
+    envir$`__class__` <- type
+    
   })
   
   type
+  
 }

@@ -554,6 +554,10 @@ eng_python_autoprint <- function(captured, options, autoshow) {
     .engine_context$pending_plots$push(knitr::include_graphics(path))
     return("")
     
+  } else if (inherits(value, "pandas.core.frame.DataFrame")) {
+    
+    return(captured)
+    
   } else if (isHtml && py_has_attr(value, "_repr_html_")) {
     
     data <- as_r_value(value$`_repr_html_`())

@@ -8,6 +8,8 @@ if (!py_available(initialize = FALSE) &&
     use_python(python, required = TRUE)
 }
 
+print(py_config())
+
 test_that <- function(desc, code) {
 
   # don't run tests on CRAN

@@ -1,6 +1,7 @@
 
 # prefer Python 3 if available
-if (!py_available(initialize = FALSE) &&
+if (!is_windows() &&
+    !py_available(initialize = FALSE) &&
     is.na(Sys.getenv("RETICULATE_PYTHON", unset = NA)))
 {
   python <- Sys.which("python3")
@@ -8,5 +9,7 @@ if (!py_available(initialize = FALSE) &&
     use_python(python, required = TRUE)
 }
 
-print(py_config())
+# TODO: Install Python on CI for Windows
+if (!is_windows())
+    print(py_config())
 

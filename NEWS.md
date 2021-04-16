@@ -1,6 +1,9 @@
 
 ## reticulate 1.19 (UNRELEASED)
 
+* `reticulate` now better handles Pandas categorical variables containing
+  `NA` values. (#942)
+
 - `reticulate` now supports converting `pandas.NA` objects into R `NA` objects.
   (#950)
   

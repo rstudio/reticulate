@@ -184,3 +184,14 @@ df = pd.DataFrame({'a': [1, 2, 3], 'b': [10, 20, pd.NA]})
   expect_true(is.na(pdNA))
   
 })
+
+test_that("categorical NAs are handled", {
+  skip_if_no_pandas()
+  
+  df <- data.frame(x = factor("a", NA))
+  pdf <- r_to_py(df)
+  rdf <- py_to_r(pdf)
+  attr(rdf, "pandas.index") <- NULL
+  expect_equal(df, rdf)
+  
+})

@@ -2810,12 +2810,15 @@ SEXP py_convert_pandas_series(PyObjectRef series) {
     //RObject ordered = py_to_r(ordered_, true);
     
     // populate integer vector to hold factor values
+    // note that we need to convert 0->1 indexing, and handle NAs
     int* codes_int = INTEGER(R_values);
     int n = Rf_xlength(R_values);
-    IntegerVector factor(n);
+    
     // values need to start at 1
+    IntegerVector factor(n);
     for (int i = 0; i < n; ++i) {
-      factor[i] = codes_int[i] + 1;
+      int code = codes_int[i];
+      factor[i] = code == -1 ? NA_INTEGER : code + 1;
     }
     
     // populate character vector to hold levels
@@ -2868,6 +2871,7 @@ SEXP py_convert_pandas_series(PyObjectRef series) {
      }
      
      posixct.push_back(R_timestamp);
+
     }
     
     DatetimeVector R_posixct(posixct.size());
@@ -2918,10 +2922,10 @@ SEXP py_convert_pandas_df(PyObjectRef df) {
     RObject R_obj = py_convert_pandas_series(series_ref);
 
     list.push_back(R_obj);
+    
   }
 
-  List rList(list.begin(), list.end());
-  return rList;
+  return List(list.begin(), list.end());
 
 }
 

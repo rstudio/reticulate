@@ -245,7 +245,7 @@ readline <- function(prompt) {
     .Call(`_reticulate_readline`, prompt)
 }
 
-initialize_interrupt_handler <- function() {
-    invisible(.Call(`_reticulate_initialize_interrupt_handler`))
+py_interrupt_handler <- function(signum) {
+    invisible(.Call(`_reticulate_py_interrupt_handler`, signum))
 }
 

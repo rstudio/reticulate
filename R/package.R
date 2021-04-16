@@ -46,6 +46,10 @@ ensure_python_initialized <- function(required_module = NULL) {
 
     .globals$py_config <- initialize_python(required_module, use_environment)
 
+    # register interrupt handler
+    signals <- import("rpytools.signals", convert = TRUE)
+    signals$initialize(py_interrupt_handler)
+    
     # remap output streams to R output handlers
     remap_output_streams()
 
@@ -178,17 +182,18 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
   config$available <- TRUE
 
   if (py_embedded) {
+    
     # we need to insert path to rpytools directly for embedded R
-    py_run_string_impl(paste0("import sys; sys.path.append('",
-                         system.file("python", package = "reticulate"),
-                         "')"))
+    path <- system.file("python", package = "reticulate")
+    fmt <- "import sys; sys.path.append(%s)"
+    cmd <- sprintf(fmt, shQuote(path))
+    
+    py_run_string_impl(cmd)
+    
   }
 
   # ensure modules can be imported from the current working directory
   py_run_string_impl("import sys; sys.path.insert(0, '')")
-
-  # register interrupt handler
-  initialize_interrupt_handler()
 
   # if this is a conda installation, set QT_QPA_PLATFORM_PLUGIN_PATH
   # https://github.com/rstudio/reticulate/issues/586

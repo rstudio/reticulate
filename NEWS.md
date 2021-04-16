@@ -1,6 +1,9 @@
 
 ## reticulate 1.19 (UNRELEASED)
 
+* Fixed an issue where `reticulate`'s interrupt handlers could cause issues
+  with newer versions of Python.
+
 * `reticulate` now better handles Pandas categorical variables containing
   `NA` values. (#942)
 

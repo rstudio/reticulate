@@ -4,6 +4,7 @@
 .RData
 .Ruserdata
 .DS_Store
+docs/
 log/
 src/*.o
 src/*.so

@@ -1,5 +1,5 @@
 
-## reticulate 1.19 (UNRELEASED)
+## reticulate 1.19
 
 * Fixed an issue where `reticulate`'s interrupt handlers could cause issues
   with newer versions of Python.

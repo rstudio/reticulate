@@ -40,7 +40,7 @@ Here's an R Markdown document that demonstrates this:
 
 ![](images/python_chunks.png){.screenshot width="98%"}
 
-[RStudio v1.2](https://rstudio.com/products/rstudio/download/) or greater for reticulate IDE support.
+[RStudio v1.2](https://www.rstudio.com/products/rstudio/download/) or greater for reticulate IDE support.
 
 ## Calling Python from R
 

@@ -453,11 +453,7 @@ eng_python_synchronize_before <- function() {
 eng_python_synchronize_after <- function() {}
 
 eng_python_wrap <- function(outputs, options) {
-  # TODO: development version of knitr supplies new 'engine_output()'
-  # interface -- use that when it's on CRAN
-  # https://github.com/yihui/knitr/commit/71bfd8796d485ed7bb9db0920acdf02464b3df9a
-  wrap <- yoink("knitr", "wrap")
-  wrap(outputs, options)
+  knitr::engine_output(options, out = outputs)
 }
 
 eng_python_validate_options <- function(options) {

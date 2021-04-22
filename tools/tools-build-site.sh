@@ -1,4 +1,6 @@
 
+# Rebuilds the reticulate pkgdown website, using a particular
+# version of reticulate (which should be tagged on release).
 set -eux
 
 : "${TMPDIR:=/tmp}"
@@ -22,13 +24,15 @@ R -s -e 'pkgdown::build_site()'
 cd ..
 
 cd site
-rm -rf *
+rm -rf ./*
 cd ..
 
 cp -R reticulate/docs/ site/
+cp -R reticulate/images site/images
 
 cd site
 rm reference/Rplot*
+touch .nojekyll
 git add -A
 git commit -m "Build site for reticulate: ${VERSION}"
 git push -u
@@ -36,3 +40,4 @@ cd ..
 
 cd ..
 rm -rf reticulate-deploy
+

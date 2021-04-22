@@ -1,44 +1,9 @@
 
+url: https://rstudio.github.io/reticulate
+
 template:
   params:
     bootswatch: flatly
-
-navbar:
-  title: "reticulate"
-  type: inverse
-  left:
-    - text: "Home"
-      href: index.html
-    - text: "Articles"
-      menu:
-        - text: Using
-        - text: "Calling Python from R"
-          href: articles/calling_python.html
-        - text: "R Markdown Python Engine"
-          href: articles/r_markdown.html
-        - text: "Python Version Configuration"
-          href: articles/versions.html
-        - text: "Installing Python Packages"
-          href: articles/python_packages.html
-        - text: "---"
-        - text: Advanced
-        - text: "Arrays in R and Python"
-          href: articles/arrays.html
-        - text: "Using reticulate in an R Package"
-          href: articles/package.html
-        - text: "Managing an R Package's Python Dependencies"
-          href: articles/python_dependencies.html
-        - text: "---"
-        - text: "Tools"
-        - text: "RStudio IDE Tools for reticulate"
-          href: articles/rstudio_ide.html
-    - text: "Reference"
-      href: reference/index.html
-    - text: "News"
-      href: news/index.html
-  right:
-   - icon: fa-github
-     href: https://github.com/rstudio/reticulate
 
 reference:
 

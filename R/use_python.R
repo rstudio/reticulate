@@ -41,6 +41,15 @@
 #' and friends only persist for the active session; they must be re-run in each
 #' new \R session as appropriate.
 #' 
+#' If `use_python()` (or one of the other `use_*()` functions) are called
+#' multiple times, the most recently-requested version of Python will be
+#' used. Note that any request to `use_python()` will always be overridden
+#' by the `RETICULATE_PYTHON` environment variable, if set.
+#' 
+#' The [py_config()] function will also provide a short note describing why
+#' `reticulate` chose to select the version of Python that was ultimately
+#' activated.
+#' 
 #' @param python
 #'   The path to a Python binary.
 #' 

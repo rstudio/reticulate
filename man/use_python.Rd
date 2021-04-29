@@ -82,5 +82,14 @@ is recommended to set \code{required = TRUE}, or explicitly set the
 Note that the requests for a particular version of Python via \code{use_python()}
 and friends only persist for the active session; they must be re-run in each
 new \R session as appropriate.
+
+If \code{use_python()} (or one of the other \verb{use_*()} functions) are called
+multiple times, the most recently-requested version of Python will be
+used. Note that any request to \code{use_python()} will always be overridden
+by the \code{RETICULATE_PYTHON} environment variable, if set.
+
+The \code{\link[=py_config]{py_config()}} function will also provide a short note describing why
+\code{reticulate} chose to select the version of Python that was ultimately
+activated.
 }
 

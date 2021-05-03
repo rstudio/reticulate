@@ -1,5 +1,7 @@
 
-## reticulate 1.20  (UNRELEASED)
+## reticulate 1.20
+
+* Fixed an issue causing tests to fail on CRAN's M1mac machine.
 
 ## reticulate 1.19
 

@@ -8,5 +8,3 @@ if (!is_windows() &&
   if (nzchar(python))
     use_python(python, required = TRUE)
 }
-
-tryCatch(print(py_config()), error = message)

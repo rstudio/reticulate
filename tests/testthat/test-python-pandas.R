@@ -171,15 +171,17 @@ test_that("NaT is converted to NA", {
 test_that("pandas NAs are converted to R NAs", {
   skip_if_no_pandas()
   
-  pd <- import("pandas", convert = FALSE)
-  
-  py_run_string("
+  code <- "
 import pandas as pd
 df = pd.DataFrame({'a': [1, 2, 3], 'b': [10, 20, pd.NA]})
-")
+"
   
-  expect_true(is.na(py$df$b[3]))
+  locals <- py_run_string(code, local = TRUE, convert = TRUE)
   
+  df <- locals$df
+  expect_true(is.na(df$b[[3]]))
+  
+  pd <- import("pandas", convert = FALSE)
   pdNA <- py_to_r(py_get_attr(pd, "NA"))
   expect_true(is.na(pdNA))
   

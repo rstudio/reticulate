@@ -1,16 +1,19 @@
 
 ## reticulate 1.21  (UNRELEASED)
 
+- Fixed an issue where `reticulate::py_run_string(..., local = TRUE)` failed
+  to return the dictionary of defined Python objects in some cases.
+
 ## reticulate 1.20
 
-* Fixed an issue causing tests to fail on CRAN's M1mac machine.
+- Fixed an issue causing tests to fail on CRAN's M1mac machine.
 
 ## reticulate 1.19
 
-* Fixed an issue where `reticulate`'s interrupt handlers could cause issues
+- Fixed an issue where `reticulate`'s interrupt handlers could cause issues
   with newer versions of Python.
 
-* `reticulate` now better handles Pandas categorical variables containing
+- `reticulate` now better handles Pandas categorical variables containing
   `NA` values. (#942)
 
 - `reticulate` now supports converting `pandas.NA` objects into R `NA` objects.

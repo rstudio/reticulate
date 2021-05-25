@@ -1,6 +1,14 @@
 
 ## reticulate 1.21  (UNRELEASED)
 
+- `reticulate` can now use the version of Python configured in projects using
+  [pipenv](https://pypi.org/project/pipenv/). If the project contains a
+  `Pipfile` at the root directory (as understood by `here::here()`), then
+  `reticulate` will invoke `pipenv --venv` to determine the path to the
+  Python virtual environment associated with the project. Note that the
+  `RETICULATE_PYTHON` environment variable, as well as usages of
+  `use_python(..., force = TRUE)`, will still take precedence. (#1006)
+  
 - Fixed an issue where `reticulate::py_run_string(..., local = TRUE)` failed
   to return the dictionary of defined Python objects in some cases.
 

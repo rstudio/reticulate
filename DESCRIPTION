@@ -36,6 +36,7 @@ Imports:
     Matrix,
     Rcpp (>= 0.12.7),
     graphics,
+    here,
     jsonlite,
     methods,
     png,

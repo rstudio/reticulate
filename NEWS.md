@@ -1,6 +1,10 @@
 
 ## reticulate 1.21  (UNRELEASED)
 
+- Fixed an issue where matplotlib plots were incorrectly overwritten when
+  multiple Python chunks in the same R Markdown document included plot output.
+  (#1010)
+
 - `reticulate` can now use the version of Python configured in projects using
   [pipenv](https://pypi.org/project/pipenv/). If the project contains a
   `Pipfile` at the root directory (as understood by `here::here()`), then

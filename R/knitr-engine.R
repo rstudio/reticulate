@@ -411,6 +411,9 @@ eng_python_initialize_matplotlib <- function(options, envir) {
   # override show implementation
   plt$show <- function(...) {
 
+    # get current chunk options
+    options <- knitr::opts_current$get()
+    
     # call hook to generate plot
     hook <- getOption("reticulate.engine.matplotlib.show", eng_python_matplotlib_show)
     graphic <- hook(plt, options)

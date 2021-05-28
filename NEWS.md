@@ -1,6 +1,8 @@
 
 ## reticulate 1.21  (UNRELEASED)
 
+- The miniconda auto-installer now supports aarch64 Linux machines. (#1012)
+
 - Fixed an issue where matplotlib plots were incorrectly overwritten when
   multiple Python chunks in the same R Markdown document included plot output.
   (#1010)

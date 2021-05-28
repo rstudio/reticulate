@@ -93,7 +93,9 @@ install_miniconda_preflight <- function(path, force) {
 miniconda_installer_url <- function(version = "3") {
   
   base <- "https://repo.anaconda.com/miniconda"
-  arch <- ifelse(.Machine$sizeof.pointer == 8, "x86_64", "x86")
+  
+  info <- as.list(Sys.info())
+  arch <- miniconda_installer_arch()
   version <- as.character(version)
   name <- if (is_windows())
     sprintf("Miniconda%s-latest-Windows-%s.exe", version, arch)
@@ -105,6 +107,23 @@ miniconda_installer_url <- function(version = "3") {
     stopf("unsupported platform %s", shQuote(Sys.info()[["sysname"]]))
   
   file.path(base, name)
+  
+}
+
+miniconda_installer_arch <- function() {
+  
+  # allow user override
+  arch <- getOption("reticulate.miniconda.arch")
+  if (!is.null(arch))
+    return(arch)
+  
+  # arm64 on macOS is not yet supported
+  info <- as.list(Sys.info())
+  if (info$machine == "i386")
+    return("x86")
+  
+  # otherwise, use arch as-is
+  info$machine
   
 }
 

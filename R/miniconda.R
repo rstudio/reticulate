@@ -121,6 +121,9 @@ miniconda_installer_arch <- function() {
   info <- as.list(Sys.info())
   if (info$machine == "i386")
     return("x86")
+  # miniconda url use x86_64 not x86-64 for Windows
+  if (info$machine == "x86-64")
+    return("x86_64")
   
   # otherwise, use arch as-is
   info$machine

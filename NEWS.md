@@ -1,6 +1,9 @@
 
 ## reticulate 1.21  (UNRELEASED)
 
+- The `reticulate` Python REPL no longer exits when a top-level interrupt
+  is sent (e.g. via Ctrl + C).
+
 - The miniconda auto-installer now supports aarch64 Linux machines. (#1012)
 
 - Fixed an issue where matplotlib plots were incorrectly overwritten when

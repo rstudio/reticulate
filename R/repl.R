@@ -320,7 +320,8 @@ repl_python <- function(
 
     fmt <- c(
       "Python %s (%s)",
-      "Reticulate %s REPL -- A Python interpreter in R."
+      "Reticulate %s REPL -- A Python interpreter in R.",
+      "Enter 'exit' or 'quit' to exit the REPL and return to R."
     )
 
     msg <- sprintf(
@@ -340,7 +341,7 @@ repl_python <- function(
     if (quit_requested)
       break
 
-    repl()
+    tryCatch(repl(), interrupt = identity)
     
   }
 

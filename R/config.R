@@ -577,7 +577,7 @@ python_config <- function(python,
 
   # read output as dcf
   config_connection <- textConnection(config)
-  on.exit(close(config_connection))
+  on.exit(close(config_connection), add = TRUE)
   config <- read.dcf(config_connection, all = TRUE)
 
   # get the full textual version and the numeric version, check for anaconda

@@ -1,6 +1,9 @@
 
 ## reticulate 1.21  (UNRELEASED)
 
+- Fixed an issue where attempting to bind `reticulate` to `/usr/bin/python3`
+  on macOS could fail if Xcode was not installed. (#1017)
+
 - The `reticulate` Python REPL no longer exits when a top-level interrupt
   is sent (e.g. via Ctrl + C).
 

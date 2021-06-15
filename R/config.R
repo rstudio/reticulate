@@ -522,10 +522,10 @@ python_munge_path <- function(python) {
 }
 
 python_config <- function(python,
-                          required_module,
+                          required_module = NULL,
                           python_versions = python,
-                          forced = NULL) {
-
+                          forced = NULL)
+{
   # normalize and remove duplicates
   python <- canonical_path(python)
   python_versions <- canonical_path(python_versions)
@@ -698,6 +698,14 @@ python_config <- function(python,
 
   # check for required module
   required_module_path <- config$RequiredModulePath
+  
+  # fix up libpython for macOS command line tools
+  if (is_osx() && length(libpython)) {
+    old <- "/Applications/Xcode.app/Contents/Developer"
+    new <- "/Library/Developer/CommandLineTools"
+    if (grepl(new, config$PythonPath, fixed = TRUE))
+      libpython <- gsub(old, new, libpython, fixed = TRUE)
+  }
 
   # return config info
   info <- list(
@@ -724,27 +732,36 @@ python_config <- function(python,
   
   class(info) <- "py_config"
   info
-
 }
 
 #' @export
 str.py_config <- function(object, ...) {
-  x <- object
+  NextMethod()
+}
+
+#' @export
+format.py_config <- function(x, ...) {
+  
   out <- ""
   out <- paste0(out, "python:         ", x$python, "\n")
   out <- paste0(out, "libpython:      ", ifelse(is.null(x$libpython), "[NOT FOUND]", x$libpython), ifelse(is_windows() || is.null(x$libpython) || is.na(x$libpython) || file.exists(x$libpython), "", "[NOT FOUND]"), "\n")
   out <- paste0(out, "pythonhome:     ", ifelse(is.null(x$pythonhome), "[NOT FOUND]", x$pythonhome), "\n")
+  
   if (nzchar(x$virtualenv_activate))
     out <- paste0(out, "virtualenv:     ", x$virtualenv_activate, "\n")
+  
   out <- paste0(out, "version:        ", x$version_string, "\n")
+  
   if (is_windows())
     out <- paste0(out, "Architecture:   ", x$architecture, "\n")
+  
   if (!is.null(x$numpy)) {
     out <- paste0(out, "numpy:          ", x$numpy$path, "\n")
     out <- paste0(out, "numpy_version:  ", as.character(x$numpy$version), "\n")
   } else {
     out <- paste0(out, "numpy:           [NOT FOUND]\n")
   }
+  
   if (!is.null(x$required_module)) {
     out <- paste0(out, sprintf("%-16s", paste0(x$required_module, ":")))
     if (!is.null(x$required_module_path))
@@ -752,20 +769,23 @@ str.py_config <- function(object, ...) {
     else
       out <- paste0(out, "[NOT FOUND]\n")
   }
+  
   if (!is.null(x$forced)) {
     out <- paste0(out, "\nNOTE: Python version was forced by ", x$forced, "\n")
   }
+  
   if (length(x$python_versions) > 1) {
     out <- paste0(out, "\npython versions found: \n")
     python_versions <- paste0(" ", x$python_versions, collapse = "\n")
     out <- paste0(out, python_versions, sep = "\n")
   }
+  
   out
 }
 
 #' @export
 print.py_config <- function(x, ...) {
-  cat(str(x))
+  cat(format(x))
 }
 
 

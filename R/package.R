@@ -132,7 +132,20 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
 
   # munge PATH for python (needed so libraries can be found in some cases)
   oldpath <- python_munge_path(config$python)
-
+  
+  # on macOS, we need to do some gymnastics to ensure that Anaconda
+  # libraries can be properly discovered (and this will only work in RStudio)
+  if (is_osx()) local({
+    
+    symlink <- Sys.getenv("RSTUDIO_FALLBACK_LIBRARY_PATH", unset = NA)
+    if (is.na(symlink))
+      return()
+    
+    target <- dirname(config$libpython)
+    file.symlink(target, symlink)
+    
+  })
+  
   # initialize python
   tryCatch({
 

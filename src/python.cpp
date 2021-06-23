@@ -598,10 +598,9 @@ std::string py_fetch_error() {
   //
   // if a Python interrupt is generated and handled, then we also want
   // to disable the R-level interrupt
-  if (reticulate::signals::getPythonInterruptsPending()) {
+  if (reticulate::signals::getInterruptsPending()) {
     PyErr_Clear();
-    reticulate::signals::setRInterruptsPending(false);
-    reticulate::signals::setPythonInterruptsPending(false);
+    reticulate::signals::setInterruptsPending(false);
     throw Rcpp::internal::InterruptedException();
   }
   
@@ -2089,7 +2088,7 @@ void py_initialize(const std::string& python,
     trace_thread_init(tracems);
   
   // poll for events while executing python code
-  event_loop::initialize();
+  reticulate::event_loop::initialize();
 
 }
 

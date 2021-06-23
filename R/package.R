@@ -52,10 +52,6 @@ ensure_python_initialized <- function(required_module = NULL) {
     # perform initialization
     .globals$py_config <- initialize_python(required_module, use_environment)
 
-    # register interrupt handler
-    signals <- import("rpytools.signals", convert = TRUE)
-    signals$initialize(py_interrupt_handler)
-    
     # remap output streams to R output handlers
     remap_output_streams()
 
@@ -67,6 +63,13 @@ ensure_python_initialized <- function(required_module = NULL) {
 
     # install required packages
     configure_environment()
+    
+    # set up a Python signal handler
+    signals <- import("rpytools.signals")
+    signals$initialize()
+    
+    # register C-level interrupt handler
+    py_register_interrupt_handler()
 
     # notify front-end (if any) that Python has been initialized
     callback <- getOption("reticulate.python.afterInitialized")

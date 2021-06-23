@@ -29,8 +29,12 @@ using namespace libpython;
 
 #include "tinythread.h"
 
-#include <R.h>
-#include <Rinternals.h>
+#include <R_ext/Boolean.h>
+
+extern "C" {
+extern void R_ProcessEvents();
+extern Rboolean R_ToplevelExec(void (*func)(void*), void*);
+}
 
 namespace reticulate {
 namespace event_loop {

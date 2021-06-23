@@ -44,6 +44,12 @@ ensure_python_initialized <- function(required_module = NULL) {
       .globals$delay_load_priority <- 0
     }
 
+    # notify front-end (if any) that Python is about to be initialized
+    callback <- getOption("reticulate.python.beforeInitialized")
+    if (is.function(callback))
+      callback()
+
+    # perform initialization
     .globals$py_config <- initialize_python(required_module, use_environment)
 
     # register interrupt handler
@@ -63,7 +69,10 @@ ensure_python_initialized <- function(required_module = NULL) {
     configure_environment()
 
     # notify front-end (if any) that Python has been initialized
-    callback <- getOption("reticulate.initialized")
+    callback <- getOption("reticulate.python.afterInitialized")
+    if (is.null(callback))
+      callback <- getOption("reticulate.initialized")
+
     if (is.function(callback))
       callback()
 

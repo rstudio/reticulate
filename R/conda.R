@@ -82,10 +82,6 @@ conda_list <- function(conda = "auto") {
   # may report both short-path and long-path versions of the same environment)
   conda_envs <- unique(normalizePath(conda_envs))
   
-  # remove root conda environment as it shouldnnt count as environment and
-  # it is not correct to install packages into it.
-  conda_envs <- conda_envs[!conda_envs == normalizePath(info$root_prefix)]
-  
   # return an empty data.frame when no envs are found
   if (length(conda_envs) == 0L) {
     return(data.frame(

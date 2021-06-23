@@ -12,11 +12,13 @@
 using namespace libpython;
 
 // flag indicating whether R interrupts are pending
+extern "C" {
 #ifndef _WIN32
-extern "C" int R_interrupts_pending;
+extern int R_interrupts_pending;
 #else
-extern "C" int UserBreak;
+extern __declspec(dllimport) int UserBreak;
 #endif
+}
 
 namespace reticulate {
 namespace signals {

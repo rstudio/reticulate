@@ -8,6 +8,8 @@ namespace signals {
 bool getInterruptsPending();
 void setInterruptsPending(bool value);
 
+void registerInterruptHandler();
+
 } // end namespace signals
 } // end namespace reticulate
 

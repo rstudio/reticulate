@@ -1,6 +1,6 @@
 
-#ifndef RETICULATE_H
-#define RETICULATE_H
+#ifndef RETICULATE_COMMON_H
+#define RETICULATE_COMMON_H
 
 #include <R_ext/Boolean.h>
 
@@ -27,4 +27,4 @@ extern void R_ProcessEvents();
 extern void Rprintf(const char*, ...);  
 }
 
-#endif /* RETICULATE_H */
+#endif /* RETICULATE_COMMON_H */

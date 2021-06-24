@@ -1,6 +1,8 @@
-#include <Rcpp.h>
-using namespace Rcpp;
 
+#include <R.h>
+#include <Rinternals.h>
+
+#include <string>
 #define READLINE_BUFFER_SIZE (8192)
 extern "C" int R_ReadConsole(const char*, unsigned char*, int, int);
 

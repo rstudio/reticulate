@@ -1,6 +1,6 @@
 
-#ifndef __LIBPYTHON_HPP__
-#define __LIBPYTHON_HPP__
+#ifndef RETICULATE_LIBPYTHON_H
+#define RETICULATE_LIBPYTHON_H
 
 #include <string>
 #include <ostream>
@@ -15,6 +15,7 @@
 #define _PYTHON_API_VERSION 1013
 #define _PYTHON3_ABI_VERSION 3
 
+namespace reticulate {
 namespace libpython {
 
 #if _WIN32 || _WIN64
@@ -718,5 +719,6 @@ LIBPYTHON_EXTERN PyThreadState* (*PyThreadState_Next)(PyThreadState*);
 /* End PyFrameObject */
 
 } // namespace libpython
+} // namespace reticulate
 
-#endif
+#endif /* RETICULATE_LIBPYTHON_H */

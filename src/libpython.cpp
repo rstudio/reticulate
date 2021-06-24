@@ -14,6 +14,7 @@
 #include <iostream>
 #include <sstream>
 
+namespace reticulate {
 namespace libpython {
 
 namespace {
@@ -384,3 +385,5 @@ bool import_numpy_api(bool python3, std::string* pError) {
 
 
 } // namespace libpython
+} // namespace reticulate
+

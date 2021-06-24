@@ -1,7 +1,6 @@
 
 #include "signals.h"
-
-#include "reticulate.h"
+#include "common.h"
 
 #ifndef _WIN32
 # include <string.h>
@@ -11,7 +10,7 @@
 #endif
 
 #include "libpython.h"
-using namespace libpython;
+using namespace reticulate::libpython;
 
 extern "C" {
 

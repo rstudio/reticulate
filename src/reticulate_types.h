@@ -1,8 +1,9 @@
-#ifndef __RETICULATE_TYPES__
-#define __RETICULATE_TYPES__
+
+#ifndef RETICULATE_TYPES_H
+#define RETICULATE_TYPES_H
 
 #include "libpython.h"
-using namespace libpython;
+using namespace reticulate::libpython;
 
 #include <Rcpp.h>
 
@@ -73,4 +74,4 @@ public:
 
 };
 
-#endif // __RETICULATE_TYPES__
+#endif // RETICULATE_TYPES_H

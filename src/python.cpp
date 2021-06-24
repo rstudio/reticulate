@@ -20,7 +20,7 @@ using namespace Rcpp;
 #include <windows.h>
 #endif
 
-using namespace libpython;
+using namespace reticulate::libpython;
 
 // track whether we are using python 3 (set during py_initialize)
 bool s_isPython3 = false;

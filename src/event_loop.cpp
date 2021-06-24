@@ -23,11 +23,10 @@
 //
 
 #include "event_loop.h"
-
-#include "reticulate.h"
+#include "common.h"
 
 #include "libpython.h"
-using namespace libpython;
+using namespace reticulate::libpython;
 
 #include "signals.h"
 #include "tinythread.h"

@@ -2,9 +2,8 @@
 #ifndef RETICULATE_H
 #define RETICULATE_H
 
-#ifndef DBG
-# define DBG Rprintf
-#endif
+#define DBG(fmt, ...)
+// #define DBG(fmt, ...) Rprintf("[DEBUG] (%s:%d): " fmt "\n", __FILE__, __LINE__, ##__VA_ARGS__)
 
 #ifndef LibExtern
 # ifdef _WIN32

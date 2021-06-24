@@ -5,6 +5,9 @@
 namespace reticulate {
 namespace signals {
 
+bool getPythonInterruptsPending();
+void setPythonInterruptsPending(bool value);
+
 bool getInterruptsPending();
 void setInterruptsPending(bool value);
 
@@ -31,7 +34,7 @@ public:
   ~InterruptsSuspendedScope()
   {
     setInterruptsPending(pending_ || getInterruptsPending());
-    setInterruptsSuspended(suspended_ || getInterruptsSuspended());
+    setInterruptsSuspended(suspended_);
   }
 
 private:

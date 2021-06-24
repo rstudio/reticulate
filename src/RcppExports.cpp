@@ -629,6 +629,24 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
+// py_clear_interrupt
+void py_clear_interrupt();
+RcppExport SEXP _reticulate_py_clear_interrupt() {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    py_clear_interrupt();
+    return R_NilValue;
+END_RCPP
+}
+// py_clear_error
+void py_clear_error();
+RcppExport SEXP _reticulate_py_clear_error() {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    py_clear_error();
+    return R_NilValue;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_reticulate_write_stdout", (DL_FUNC) &_reticulate_write_stdout, 1},
@@ -686,6 +704,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_reticulate_py_set_interrupt_impl", (DL_FUNC) &_reticulate_py_set_interrupt_impl, 0},
     {"_reticulate_readline", (DL_FUNC) &_reticulate_readline, 1},
     {"_reticulate_py_register_interrupt_handler", (DL_FUNC) &_reticulate_py_register_interrupt_handler, 0},
+    {"_reticulate_py_clear_interrupt", (DL_FUNC) &_reticulate_py_clear_interrupt, 0},
+    {"_reticulate_py_clear_error", (DL_FUNC) &_reticulate_py_clear_error, 0},
     {NULL, NULL, 0}
 };
 

@@ -23,11 +23,10 @@
 #
 # See https://github.com/python/cpython/blob/bd4ab8e73906a4f12d5353f567228b7c7497baf7/Modules/signalmodule.c#L1715-L1737
 # for more details.
-import signal
-import sys
+from signal import signal, SIGINT
 
 def _signal_handler(sig, frame):
   raise KeyboardInterrupt
   
 def initialize():
-  signal.signal(signal.SIGINT, _signal_handler)
+  signal(SIGINT, _signal_handler)

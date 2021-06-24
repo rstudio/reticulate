@@ -64,15 +64,6 @@ ensure_python_initialized <- function(required_module = NULL) {
     # install required packages
     configure_environment()
     
-    # set up a Python signal handler
-    if (!is_windows()) {
-      signals <- import("rpytools.signals")
-      signals$initialize()
-    }
-    
-    # register C-level interrupt handler
-    py_register_interrupt_handler()
-
     # notify front-end (if any) that Python has been initialized
     callback <- getOption("reticulate.python.afterInitialized")
     if (is.null(callback))
@@ -80,6 +71,13 @@ ensure_python_initialized <- function(required_module = NULL) {
 
     if (is.function(callback))
       callback()
+
+    # set up a Python signal handler
+    signals <- import("rpytools.signals")
+    signals$initialize()
+    
+    # register C-level interrupt handler
+    py_register_interrupt_handler()
 
   }
 }

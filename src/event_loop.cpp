@@ -50,63 +50,33 @@ namespace event_loop {
 
 namespace {
 
-// Class that is used to signal the need to poll for events between
-// threads. The function called by the Python interpreter during execution
-// (pollForEvents) always calls requestPolling to keep polling alive. The
-// background thread periodically attempts to "collect" this request and if
-// successful re-schedules the pollForEvents function using
-// Py_AddPendingCall. This allows us to prevent the background thread from
-// continually scheduling pollForEvents even when the Python interpreter is
-// not running (because once pollForEvents is no longer being called by the
-// Python interpreter no additional calls to pollForEvents will be
-// scheduled)
-class EventPollingSignal {
-public:
-  EventPollingSignal() : pollingRequested_(true) {}
-
-  void requestPolling() {
-    tthread::lock_guard<tthread::mutex> lock(mutex_);
-    pollingRequested_ = true;
-  }
-
-  bool collectRequest() {
-    tthread::lock_guard<tthread::mutex> lock(mutex_);
-    bool requested = pollingRequested_;
-    pollingRequested_ = false;
-    return requested;
-  }
-
-private:
-  EventPollingSignal(const EventPollingSignal& other);
-  EventPollingSignal& operator=(const EventPollingSignal&);
-private:
-  tthread::mutex mutex_;
-  bool pollingRequested_;
-};
-
-EventPollingSignal s_pollingSignal;
+// Tracks whether we've requested Python to poll on the main thread.
+volatile sig_atomic_t s_pollingRequested;
 
 // Forward declarations
 int pollForEvents(void*);
 
 // Background thread which re-schedules pollForEvents on the main Python
-// interpreter thread every 250ms so long as the Python interpeter is still
-// running (when it stops running it will stop calling pollForEvents and
+// interpreter thread so long as the Python interpeter is still running
+// (when it stops running it will stop calling pollForEvents and
 // the polling signal will not be set).
 void eventPollingWorker(void *) {
   
   while (true) {
 
     // Throttle via sleep
-    tthread::this_thread::sleep_for(tthread::chrono::milliseconds(250));
+    tthread::this_thread::sleep_for(tthread::chrono::milliseconds(200));
 
     // Schedule polling on the main thread if the interpeter is still running
     // Note that Py_AddPendingCall is documented to be callable from a background
     // thread: "This function doesn’t need a current thread state to run, and it
     // doesn’t need the global interpreter lock."
     // (see: https://docs.python.org/3/c-api/init.html#c.Py_AddPendingCall)
-    if (s_pollingSignal.collectRequest())
+    if (s_pollingRequested == 0)
+    {
+      s_pollingRequested = 1;
       Py_AddPendingCall(pollForEvents, NULL);
+    }
 
   }
   
@@ -124,17 +94,17 @@ void processEvents(void* data) {
 // the scheduling of the function by using a background thread + a sleep timer.
 int pollForEvents(void*) {
 
-  DBG("Polling for events.\n");
+  DBG("Polling for events.");
+  
+  // Request that the background thread schedule us to be called again
+  // (this is delegated to a background thread so that these requests
+  // can be throttled)
+  s_pollingRequested = 0;
   
   // Process events. We wrap this in R_ToplevelExec just to avoid jumps.
   // Suspend interrupts here so we don't inadvertently handle them.
   reticulate::signals::InterruptsSuspendedScope scope;
   R_ToplevelExec(processEvents, NULL);
-  
-  // Request that the background thread schedule us to be called again
-  // (this is delegated to a background thread so that these requests
-  // can be throttled)
-  s_pollingSignal.requestPolling();
   
   // Success!
   return 0;

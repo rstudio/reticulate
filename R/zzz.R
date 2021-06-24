@@ -70,6 +70,20 @@
     }
   }
   
+  # set a global interrupt handler so that we can clear the Python
+  # error state when an interrupt is handled by R
+  interrupt <- getOption("interrupt")
+  if (is.function(interrupt)) {
+    options(interrupt = function() {
+      py_clear_interrupt()
+      interrupt()
+    })
+  } else {
+    options(interrupt = function() {
+      py_clear_interrupt()
+    })
+  }
+  
 }
 
 .onUnload <- function(libpath) {

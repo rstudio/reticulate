@@ -591,18 +591,14 @@ std::string py_fetch_error() {
 
   // clear last error
   s_lastError.clear();
-  
-  // // check for interrupt -- we do this because, depending on where
-  // // the interrupt is handled by Python, the associated error can
-  // // be something entirely separate from a regular interrupt.
-  // //
-  // // if a Python interrupt is generated and handled, then we also want
-  // // to disable the R-level interrupt
-  // if (reticulate::signals::getInterruptsPending()) {
-  //   PyErr_Clear();
-  //   reticulate::signals::setInterruptsPending(false);
-  //   throw Rcpp::internal::InterruptedException();
-  // }
+
+  // check whether this error was signaled via an interrupt
+  if (reticulate::signals::getPythonInterruptsPending()) {
+    PyErr_Clear();
+    reticulate::signals::setPythonInterruptsPending(false);
+    reticulate::signals::setInterruptsPending(false);
+    throw Rcpp::internal::InterruptedException();
+  }
   
   // read and normalize error, exception
   PyObject *excType, *excValue, *excTraceback;

@@ -249,10 +249,6 @@ py_register_interrupt_handler <- function() {
     invisible(.Call(`_reticulate_py_register_interrupt_handler`))
 }
 
-py_clear_interrupt <- function() {
-    invisible(.Call(`_reticulate_py_clear_interrupt`))
-}
-
 py_clear_error <- function() {
     invisible(.Call(`_reticulate_py_clear_error`))
 }

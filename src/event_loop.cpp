@@ -32,19 +32,6 @@ using namespace libpython;
 #include "signals.h"
 #include "tinythread.h"
 
-#include <R_ext/Boolean.h>
-
-#ifdef _WIN32
-# define LibExtern __declspec(dllimport) extern
-#else
-# define LibExtern extern
-#endif
-
-extern "C" {
-extern void R_ProcessEvents();
-extern Rboolean R_ToplevelExec(void (*func)(void*), void*);
-}
-
 namespace reticulate {
 namespace event_loop {
 
@@ -67,7 +54,7 @@ void eventPollingWorker(void *) {
     // Throttle via sleep
     tthread::this_thread::sleep_for(tthread::chrono::milliseconds(200));
 
-    // Schedule polling on the main thread if the interpeter is still running
+    // Schedule polling on the main thread if the interpeter is still running.
     // Note that Py_AddPendingCall is documented to be callable from a background
     // thread: "This function doesn’t need a current thread state to run, and it
     // doesn’t need the global interpreter lock."
@@ -101,10 +88,12 @@ int pollForEvents(void*) {
   // can be throttled)
   s_pollingRequested = 0;
   
-  // Process events. We wrap this in R_ToplevelExec just to avoid jumps.
-  // Suspend interrupts here so we don't inadvertently handle them.
-  reticulate::signals::InterruptsSuspendedScope scope;
-  R_ToplevelExec(processEvents, NULL);
+  {
+    // Process events. We wrap this in R_ToplevelExec just to avoid jumps.
+    // Suspend interrupts here so we don't inadvertently handle them.
+    reticulate::signals::InterruptsSuspendedScope scope;
+    R_ToplevelExec(processEvents, NULL);
+  }
   
   // Success!
   return 0;

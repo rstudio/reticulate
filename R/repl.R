@@ -129,7 +129,6 @@ repl_python <- function(
     # swallow interrupts -- don't allow interrupted Python code to
     # exit the REPL; we should only exit when an interrupt is sent
     # when no Python code is executing
-    py_clear_interrupt()
   }
 
   repl <- function() {
@@ -342,12 +341,7 @@ repl_python <- function(
     if (quit_requested)
       break
 
-    tryCatch(
-      repl(),
-      interrupt = function(e) {
-        py_clear_interrupt()
-      }
-    )
+    tryCatch(repl(), interrupt = identity)
     
   }
 

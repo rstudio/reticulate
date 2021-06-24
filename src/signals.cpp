@@ -164,12 +164,6 @@ void py_register_interrupt_handler() {
 }
 
 // [[Rcpp::export]]
-void py_clear_interrupt() {
-  DBG("Clearing Python interrupts.");
-  reticulate::signals::setPythonInterruptsPending(false);
-}
-
-// [[Rcpp::export]]
 void py_clear_error() {
   DBG("Clearing Python errors.");
   PyErr_Clear();

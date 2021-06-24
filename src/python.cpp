@@ -592,11 +592,16 @@ std::string py_fetch_error() {
   // clear last error
   s_lastError.clear();
 
-  // check whether this error was signaled via an interrupt
+  // check whether this error was signaled via an interrupt.
+  // the intention here is to catch cases where reticulate is running
+  // Python code, an interrupt is signaled and caught by that code,
+  // and then the associated error is returned. in such a case, we
+  // want to forward that interrupt back to R so that the user is then
+  // returned back to the top level.
   if (reticulate::signals::getPythonInterruptsPending()) {
     PyErr_Clear();
-    reticulate::signals::setPythonInterruptsPending(false);
     reticulate::signals::setInterruptsPending(false);
+    reticulate::signals::setPythonInterruptsPending(false);
     throw Rcpp::internal::InterruptedException();
   }
   

@@ -14,5 +14,6 @@ py_module_available(module)
 \code{FALSE} otherwise.
 }
 \description{
-Check if a Python module is available on this system.
+Note that this function will also attempt to initialize Python
+before checking if the requested module is available.
 }

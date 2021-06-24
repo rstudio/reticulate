@@ -1,9 +1,5 @@
 
-# I know what you're thinking. Why does this exist? It looks like we're
-# just installing a signal handler that does the same thing as the "default"
-# Python SIGINT signal handler, so why not just rely on the default behavior?
-#
-# To answer your question, because:
+# We register a custom Python signal handler here for the following reasons.
 #
 #  1. We are running R and Python together within the same process.
 #     Interrupts should be handled by whichever process appears to
@@ -17,12 +13,11 @@
 #  3. However, newer versions of Python get upset if the default
 #     signal handler is tripped by a custom signal handler.
 #
-# The solution, then, is to provide a custom signal handler that behaves
-# the same as the default signal handler, since the aforementioned code
-# will then no longer complain when that handler is found and invoked.
+#  4. However, we cannot easily tell whether R or Python is at the foreground.
+#     To resolve this, we allow _both_ Python and R to "wake up" and prepare
+#     to handle the interrupt, but allow Python to bail out in the signal
+#     handler if it sees that R handled the interrupt first.
 #
-# See https://github.com/python/cpython/blob/bd4ab8e73906a4f12d5353f567228b7c7497baf7/Modules/signalmodule.c#L1715-L1737
-# for more details.
 from signal import signal, SIGINT
 
 # The "are interrupts pending?" callback. The intention here is that, when
@@ -44,12 +39,11 @@ def _signal_handler(sig, frame):
   global _callback
   pending = _callback(False)
   
+  # If interrupts are pending, now's our chance to handle it.
   # Now that Python is getting a chance to handle interrupts,
   # we can tell R to unset the interrupts pending flag.
-  _callback(True)
-  
-  # If interrupts are pending, now's our chance to handle it.
   if pending:
+    _callback(True)
     raise KeyboardInterrupt
   
 def initialize(callback):

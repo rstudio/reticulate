@@ -620,14 +620,33 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// py_interrupt_handler
-void py_interrupt_handler(int signum);
-RcppExport SEXP _reticulate_py_interrupt_handler(SEXP signumSEXP) {
+// py_register_interrupt_handler
+void py_register_interrupt_handler();
+RcppExport SEXP _reticulate_py_register_interrupt_handler() {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type signum(signumSEXP);
-    py_interrupt_handler(signum);
+    py_register_interrupt_handler();
     return R_NilValue;
+END_RCPP
+}
+// py_clear_error
+void py_clear_error();
+RcppExport SEXP _reticulate_py_clear_error() {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    py_clear_error();
+    return R_NilValue;
+END_RCPP
+}
+// py_interrupts_pending
+bool py_interrupts_pending(bool reset);
+RcppExport SEXP _reticulate_py_interrupts_pending(SEXP resetSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< bool >::type reset(resetSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_interrupts_pending(reset));
+    return rcpp_result_gen;
 END_RCPP
 }
 
@@ -686,7 +705,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_reticulate_r_convert_date", (DL_FUNC) &_reticulate_r_convert_date, 2},
     {"_reticulate_py_set_interrupt_impl", (DL_FUNC) &_reticulate_py_set_interrupt_impl, 0},
     {"_reticulate_readline", (DL_FUNC) &_reticulate_readline, 1},
-    {"_reticulate_py_interrupt_handler", (DL_FUNC) &_reticulate_py_interrupt_handler, 1},
+    {"_reticulate_py_register_interrupt_handler", (DL_FUNC) &_reticulate_py_register_interrupt_handler, 0},
+    {"_reticulate_py_clear_error", (DL_FUNC) &_reticulate_py_clear_error, 0},
+    {"_reticulate_py_interrupts_pending", (DL_FUNC) &_reticulate_py_interrupts_pending, 1},
     {NULL, NULL, 0}
 };
 

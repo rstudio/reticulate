@@ -5,14 +5,42 @@
 namespace reticulate {
 namespace signals {
 
-// Python interrupt state
 bool getPythonInterruptsPending();
 void setPythonInterruptsPending(bool value);
 
-// R interrupts state
-bool getRInterruptsPending();
-void setRInterruptsPending(bool value);
+bool getInterruptsPending();
+void setInterruptsPending(bool value);
 
+bool getInterruptsSuspended();
+void setInterruptsSuspended(bool value);
+
+void registerInterruptHandler();
+
+// NOTE: We also manage the interrupts pending flag here since calls to
+// R_ProcessEvents (on Windows) will check UserBreak without respecting
+// the R_interrupts_suspended flag.
+class InterruptsSuspendedScope
+{
+public:
+  
+  InterruptsSuspendedScope()
+    : pending_(getInterruptsPending()),
+      suspended_(getInterruptsSuspended())
+  {
+    setInterruptsPending(false);
+    setInterruptsSuspended(true);
+  }
+  
+  ~InterruptsSuspendedScope()
+  {
+    setInterruptsPending(pending_ || getInterruptsPending());
+    setInterruptsSuspended(suspended_);
+  }
+
+private:
+  int pending_;
+  int suspended_;
+};
 
 } // end namespace signals
 } // end namespace reticulate

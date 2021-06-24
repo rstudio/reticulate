@@ -93,31 +93,38 @@ py_config_error_message <- function(prefix) {
 #'
 #' @export
 py_available <- function(initialize = FALSE) {
+  
   if (is_python_initialized())
+    return(.globals$py_config$available)
+  
+  if (!initialize)
+    return(FALSE)
+  
+  tryCatch({
+    ensure_python_initialized()
     .globals$py_config$available
-  else if (initialize) {
-    tryCatch({
-      ensure_python_initialized()
-      .globals$py_config$available
-    }, error = function(e) FALSE)
-  } else {
-    FALSE
-  }
+  }, error = function(e) FALSE)
+  
 }
 
 
 #' @rdname py_available
 #' @export
 py_numpy_available <- function(initialize = FALSE) {
+  
   if (!py_available(initialize = initialize))
-    FALSE
-  else
-    py_numpy_available_impl()
+    return(FALSE)
+  
+  py_numpy_available_impl()
+    
 }
 
 
 #' Check if a Python module is available on this system.
 #'
+#' Note that this function will also attempt to initialize Python
+#' before checking if the requested module is available.
+#' 
 #' @param module The name of the module.
 #'
 #' @return `TRUE` if the module is available and can be loaded;

@@ -591,17 +591,12 @@ std::string py_fetch_error() {
 
   // clear last error
   s_lastError.clear();
-  
-  // check for interrupt -- we do this because, depending on where
-  // the interrupt is handled by Python, the associated error can
-  // be something entirely separate from a regular interrupt.
-  //
-  // if a Python interrupt is generated and handled, then we also want
-  // to disable the R-level interrupt
+
+  // check whether this error was signaled via an interrupt
   if (reticulate::signals::getPythonInterruptsPending()) {
     PyErr_Clear();
-    reticulate::signals::setRInterruptsPending(false);
     reticulate::signals::setPythonInterruptsPending(false);
+    reticulate::signals::setInterruptsPending(false);
     throw Rcpp::internal::InterruptedException();
   }
   
@@ -2089,7 +2084,7 @@ void py_initialize(const std::string& python,
     trace_thread_init(tracems);
   
   // poll for events while executing python code
-  event_loop::initialize();
+  reticulate::event_loop::initialize();
 
 }
 
@@ -3016,3 +3011,4 @@ PyObjectRef r_convert_date(DateVector dates, bool convert) {
 void py_set_interrupt_impl() {
   PyErr_SetInterrupt();
 }
+

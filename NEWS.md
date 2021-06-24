@@ -1,6 +1,8 @@
 
 ## reticulate 1.21  (UNRELEASED)
 
+- Further refined interrupt handling.
+
 - Fixed an issue where attempting to bind `reticulate` to `/usr/bin/python3`
   on macOS could fail if Xcode was not installed. (#1017)
 

@@ -52,10 +52,6 @@ ensure_python_initialized <- function(required_module = NULL) {
     # perform initialization
     .globals$py_config <- initialize_python(required_module, use_environment)
 
-    # register interrupt handler
-    signals <- import("rpytools.signals", convert = TRUE)
-    signals$initialize(py_interrupt_handler)
-    
     # remap output streams to R output handlers
     remap_output_streams()
 
@@ -67,7 +63,7 @@ ensure_python_initialized <- function(required_module = NULL) {
 
     # install required packages
     configure_environment()
-
+    
     # notify front-end (if any) that Python has been initialized
     callback <- getOption("reticulate.python.afterInitialized")
     if (is.null(callback))
@@ -75,6 +71,13 @@ ensure_python_initialized <- function(required_module = NULL) {
 
     if (is.function(callback))
       callback()
+
+    # set up a Python signal handler
+    signals <- import("rpytools.signals")
+    signals$initialize(py_interrupts_pending)
+    
+    # register C-level interrupt handler
+    py_register_interrupt_handler()
 
   }
 }
@@ -149,6 +152,9 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
     symlink <- Sys.getenv("RSTUDIO_FALLBACK_LIBRARY_PATH", unset = NA)
     if (is.na(symlink))
       return()
+    
+    if (file.exists(symlink))
+      unlink(symlink)
     
     target <- dirname(config$libpython)
     file.symlink(target, symlink)

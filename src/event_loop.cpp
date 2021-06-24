@@ -31,15 +31,41 @@ using namespace libpython;
 
 #include <R_ext/Boolean.h>
 
+#ifdef _WIN32
+# define LibExtern __declspec(dllimport) extern
+#else
+# define LibExtern extern
+#endif
+
 extern "C" {
 extern void R_ProcessEvents();
 extern Rboolean R_ToplevelExec(void (*func)(void*), void*);
+LibExtern int R_interrupts_suspended;
 }
 
 namespace reticulate {
 namespace event_loop {
 
 namespace {
+
+class InterruptsSuspendedScope
+{
+public:
+  
+  InterruptsSuspendedScope()
+    : suspended_(R_interrupts_suspended)
+  {
+    R_interrupts_suspended = 1;
+  }
+  
+  ~InterruptsSuspendedScope()
+  {
+    R_interrupts_suspended = suspended_;
+  }
+  
+private:
+  int suspended_;
+};
 
 // Class that is used to signal the need to poll for events between
 // threads. The function called by the Python interpreter during execution
@@ -116,6 +142,8 @@ void processEvents(void* data) {
 int pollForEvents(void*) {
 
   // Process events. We wrap this in R_ToplevelExec just to avoid jumps.
+  // Suspend interrupts here so we don't inadvertently handle them.
+  InterruptsSuspendedScope scope;
   R_ToplevelExec(processEvents, NULL);
   
   // Request that the background thread schedule us to be called again

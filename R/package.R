@@ -65,8 +65,10 @@ ensure_python_initialized <- function(required_module = NULL) {
     configure_environment()
     
     # set up a Python signal handler
-    signals <- import("rpytools.signals")
-    signals$initialize()
+    if (!is_windows()) {
+      signals <- import("rpytools.signals")
+      signals$initialize()
+    }
     
     # register C-level interrupt handler
     py_register_interrupt_handler()

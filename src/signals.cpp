@@ -16,7 +16,7 @@ extern "C" {
 #ifndef _WIN32
 extern int R_interrupts_pending;
 #else
-extern __declspec(dllimport) int UserBreak;
+__declspec(dllimport) extern int UserBreak;
 #endif
 }
 
@@ -65,9 +65,7 @@ void interruptHandler(int signum) {
   setInterruptsPending(true);
   
   // add pending call (to be used to handle interrupt if appropriate)
-  PyGILState_STATE state = PyGILState_Ensure();
   Py_AddPendingCall(pyInterruptCallback, NULL);
-  PyGILState_Release(state);
   
 }
 

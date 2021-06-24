@@ -169,6 +169,7 @@ LIBPYTHON_EXTERN wchar_t* (*Py_GetProgramFullPath)();
 
 LIBPYTHON_EXTERN int (*Py_AddPendingCall)(int (*func)(void *), void *arg);
 LIBPYTHON_EXTERN void (*PyErr_SetInterrupt)();
+LIBPYTHON_EXTERN void (*PyErr_CheckSignals)();
 
 LIBPYTHON_EXTERN PyObject* (*Py_InitModule4)(const char *name, PyMethodDef *methods,
            const char *doc, PyObject *self,

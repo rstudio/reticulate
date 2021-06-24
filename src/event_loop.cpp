@@ -24,9 +24,12 @@
 
 #include "event_loop.h"
 
+#include "reticulate.h"
+
 #include "libpython.h"
 using namespace libpython;
 
+#include "signals.h"
 #include "tinythread.h"
 
 #include <R_ext/Boolean.h>
@@ -40,32 +43,12 @@ using namespace libpython;
 extern "C" {
 extern void R_ProcessEvents();
 extern Rboolean R_ToplevelExec(void (*func)(void*), void*);
-LibExtern int R_interrupts_suspended;
 }
 
 namespace reticulate {
 namespace event_loop {
 
 namespace {
-
-class InterruptsSuspendedScope
-{
-public:
-  
-  InterruptsSuspendedScope()
-    : suspended_(R_interrupts_suspended)
-  {
-    R_interrupts_suspended = 1;
-  }
-  
-  ~InterruptsSuspendedScope()
-  {
-    R_interrupts_suspended = suspended_;
-  }
-  
-private:
-  int suspended_;
-};
 
 // Class that is used to signal the need to poll for events between
 // threads. The function called by the Python interpreter during execution
@@ -141,9 +124,11 @@ void processEvents(void* data) {
 // the scheduling of the function by using a background thread + a sleep timer.
 int pollForEvents(void*) {
 
+  DBG("Polling for events.\n");
+  
   // Process events. We wrap this in R_ToplevelExec just to avoid jumps.
   // Suspend interrupts here so we don't inadvertently handle them.
-  InterruptsSuspendedScope scope;
+  reticulate::signals::InterruptsSuspendedScope scope;
   R_ToplevelExec(processEvents, NULL);
   
   // Request that the background thread schedule us to be called again

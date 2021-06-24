@@ -1,6 +1,8 @@
 
 #include "signals.h"
 
+#include "reticulate.h"
+
 #ifndef _WIN32
 # include <string.h>
 # include <signal.h>
@@ -11,13 +13,20 @@
 #include "libpython.h"
 using namespace libpython;
 
-// flag indicating whether R interrupts are pending
 extern "C" {
+  
+// flag indicating whether R interrupts are pending
 #ifndef _WIN32
 extern int R_interrupts_pending;
 #else
-__declspec(dllimport) extern int UserBreak;
+LibExtern int UserBreak;
 #endif
+
+// flag indicating if interrupts are suspended
+// note that R doesn't use this on Windows when checking
+// for interrupts in R_ProcessEvents
+LibExtern int R_interrupts_suspended;
+
 }
 
 namespace reticulate {
@@ -25,16 +34,26 @@ namespace signals {
 
 namespace {
 
+// flag indicating whether a callback is registered
+volatile sig_atomic_t s_interruptCallbackRegistered;
+
 // callback added via Py_AddPendingCall which handles R interrupts
 int pyInterruptCallback(void* data)
 {
+  s_interruptCallbackRegistered = 0;
+  
+  DBG("Invoking interrupt callback.\n");
+  
   // if an R interrupt was signaled, but the Python interpreter
   // got to it first, then let Python handle the interrupt instead
   if (getInterruptsPending())
   {
+    DBG("Interrupting Python!\n");
+    
     setInterruptsPending(false);
     PyErr_SetInterrupt();
   }
+  
   
   return 0;
 }
@@ -59,13 +78,27 @@ void setInterruptsPending(bool value) {
   
 }
 
+bool getInterruptsSuspended() {
+  return R_interrupts_suspended != 0;
+}
+
+void setInterruptsSuspended(bool value) {
+  R_interrupts_suspended = value ? 1 : 0;
+}
+
 void interruptHandler(int signum) {
+  
+  DBG("Invoking interrupt handler.\n");
   
   // set R interrupts pending
   setInterruptsPending(true);
   
   // add pending call (to be used to handle interrupt if appropriate)
-  Py_AddPendingCall(pyInterruptCallback, NULL);
+  if (s_interruptCallbackRegistered == 0)
+  {
+    s_interruptCallbackRegistered = 1;
+    Py_AddPendingCall(pyInterruptCallback, NULL);
+  }
   
 }
 
@@ -96,21 +129,14 @@ BOOL CALLBACK consoleCtrlHandler(DWORD type)
   case CTRL_C_EVENT:
   case CTRL_BREAK_EVENT:
     interruptHandler(2);
-    return true;
+    return TRUE;
   default:
-    return false;
+    return FALSE;
   }
 }
 
 void registerInterruptHandlerWin32() {
 
-  // accept Ctrl + C interrupts
-  ::SetConsoleCtrlHandler(NULL, FALSE);
-
-  // remove an old registration, if any
-  ::SetConsoleCtrlHandler(consoleCtrlHandler, FALSE);
-
-  // and register the handler
   ::SetConsoleCtrlHandler(consoleCtrlHandler, TRUE);
 
 }

@@ -3011,3 +3011,4 @@ PyObjectRef r_convert_date(DateVector dates, bool convert) {
 void py_set_interrupt_impl() {
   PyErr_SetInterrupt();
 }
+

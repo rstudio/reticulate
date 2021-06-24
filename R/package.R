@@ -74,7 +74,7 @@ ensure_python_initialized <- function(required_module = NULL) {
 
     # set up a Python signal handler
     signals <- import("rpytools.signals")
-    signals$initialize()
+    signals$initialize(py_interrupts_pending)
     
     # register C-level interrupt handler
     py_register_interrupt_handler()
@@ -152,6 +152,9 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
     symlink <- Sys.getenv("RSTUDIO_FALLBACK_LIBRARY_PATH", unset = NA)
     if (is.na(symlink))
       return()
+    
+    if (file.exists(symlink))
+      unlink(symlink)
     
     target <- dirname(config$libpython)
     file.symlink(target, symlink)

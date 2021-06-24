@@ -257,3 +257,7 @@ py_clear_error <- function() {
     invisible(.Call(`_reticulate_py_clear_error`))
 }
 
+py_interrupts_pending <- function(reset) {
+    .Call(`_reticulate_py_interrupts_pending`, reset)
+}
+

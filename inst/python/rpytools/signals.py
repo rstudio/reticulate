@@ -25,8 +25,39 @@
 # for more details.
 from signal import signal, SIGINT
 
+# The "are interrupts pending?" callback. The intention here is that, when
+# an interrupt is signaled, both R and Python will then "race" to see who
+# can handle the interrupt first. To that end, we want Python to also respect
+# the interrupt flag set by R. If the Python interrupt handler gets a chance to
+# run _after_ the interrupt has been handled by R, then we want to just ignore
+# that interrupt. However, if Python sees it _before_ R, then Python should
+# handle the interrupt, and tell R the interrupt was handled (so R doesn't
+# try to also handle it).
+#
+# It's not yet clear to me whether this is the correct strategy for cases
+# where R and Python are calling back to each other recursively.
+_callback = None
+
 def _signal_handler(sig, frame):
-  raise KeyboardInterrupt
   
-def initialize():
+  # Ask R whether interrupts are pending.
+  global _callback
+  pending = _callback(False)
+  
+  # Now that Python is getting a chance to handle interrupts,
+  # we can tell R to unset the interrupts pending flag.
+  _callback(True)
+  
+  # If interrupts are pending, now's our chance to handle it.
+  if pending:
+    raise KeyboardInterrupt
+  
+def initialize(callback):
+
+  # Initialize our callback.  
+  global _callback
+  _callback = callback
+  
+  # Set our signal handler.
   signal(SIGINT, _signal_handler)
+  

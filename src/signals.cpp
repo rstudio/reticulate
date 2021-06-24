@@ -14,7 +14,7 @@
 using namespace libpython;
 
 extern "C" {
-  
+
 // flag indicating whether R interrupts are pending
 #ifndef _WIN32
 extern int R_interrupts_pending;
@@ -70,47 +70,43 @@ void setInterruptsSuspended(bool value) {
   R_interrupts_suspended = value ? 1 : 0;
 }
 
-namespace {
-
-volatile sig_atomic_t s_pyInterruptHandlerRegistered;
-
-int pyInterruptHandler(void*) {
-  
-  DBG("Running Python interrupt handler.");
-  s_pyInterruptHandlerRegistered = 0;
-  
-  if (s_pyInterruptsPending != 0)
-  {
-    DBG("Python interrupts are pending; setting interrupt.");
-    s_pyInterruptsPending = 0;
-    PyErr_SetInterrupt();
-  }
-  else
-  {
-    DBG("No Python interrupts pending.");
-  }
-  
-  return 0;
-}
-
-} // end anonymous namespace
+// namespace {
+// 
+// volatile sig_atomic_t s_pyInterruptHandlerRegistered;
+// 
+// int pyInterruptHandler(void*) {
+//   
+//   DBG("Running Python interrupt handler.");
+//   s_pyInterruptHandlerRegistered = 0;
+//   
+//   if (s_pyInterruptsPending != 0)
+//   {
+//     DBG("Python interrupts are pending; setting interrupt.");
+//     s_pyInterruptsPending = 0;
+//     PyErr_SetInterrupt();
+//   }
+//   else
+//   {
+//     DBG("No Python interrupts pending.");
+//   }
+//   
+//   return 0;
+// }
+// 
+// } // end anonymous namespace
 
 void interruptHandler(int signum) {
   
   DBG("Invoking interrupt handler.");
   
-  // set R interrupts pending
-  setInterruptsPending(true);
-
   // set internal flag for Python interrupts
   setPythonInterruptsPending(true);
   
-  // register interrupt callback  
-  if (s_pyInterruptHandlerRegistered == 0)
-  {
-    s_pyInterruptHandlerRegistered = 1;
-    Py_AddPendingCall(pyInterruptHandler, NULL);
-  }
+  // set R interrupts pending
+  setInterruptsPending(true);
+
+  // tell Python to interrupt
+  PyErr_SetInterrupt();
   
 }
 
@@ -177,4 +173,19 @@ void py_clear_interrupt() {
 void py_clear_error() {
   DBG("Clearing Python errors.");
   PyErr_Clear();
+}
+
+// [[Rcpp::export]]
+bool py_interrupts_pending(bool reset) {
+  
+  if (reticulate::signals::getInterruptsSuspended())
+    return false;
+  
+  if (reset) {
+    reticulate::signals::setInterruptsPending(false);
+    return false;
+  }
+  
+  return reticulate::signals::getInterruptsPending();
+  
 }

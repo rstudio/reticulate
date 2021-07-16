@@ -400,6 +400,32 @@ conda_python <- function(envname = NULL, conda = "auto") {
     stop("conda environment ", envname, " not found")
 }
 
+conda_dll_paths <- function(envname = NULL, conda = "auto") {
+  
+  # resolve envname
+  envname <- condaenv_resolve(envname)
+  
+  # for fully-qualified paths, we return empty string
+  if (grepl("[/\\\\]", envname)) {
+      return("")
+  }
+  
+  # otherwise, list conda environments and try to find it
+  conda_envs <- conda_list(conda = conda)
+  env <- subset(conda_envs, conda_envs$name == envname)
+  if (nrow(env) > 0) {
+    prefix <- dirname(env$python[[1]])
+    dll_paths <- c(
+        normalizePath(file.path(prefix, "Library/mingw-w64/bin"), winslash="\\", mustWork = FALSE),
+        normalizePath(file.path(prefix, "Library/usr/bin"), winslash="\\", mustWork = FALSE),
+        normalizePath(file.path(prefix, "Library/bin"), winslash="\\", mustWork = FALSE),
+        normalizePath(file.path(prefix, "Scripts"), winslash="\\", mustWork = FALSE),
+        normalizePath(file.path(prefix, "bin"), winslash="\\", mustWork = FALSE)
+    )
+    paste(dll_paths, collapse = ";")
+  } else
+    stop("conda environment ", envname, " not found")
+}
 
 
 find_conda <- function() {

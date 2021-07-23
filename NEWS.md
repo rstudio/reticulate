@@ -25,6 +25,9 @@
   
 - Fixed an issue where `reticulate::py_run_string(..., local = TRUE)` failed
   to return the dictionary of defined Python objects in some cases.
+  
+- Added `reticulate.onPyInit` package hook.
+
 
 ## reticulate 1.20
 

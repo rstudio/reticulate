@@ -79,6 +79,18 @@ ensure_python_initialized <- function(required_module = NULL) {
     # register C-level interrupt handler
     py_register_interrupt_handler()
 
+    # call init hooks
+    call_init_hooks()
+  }
+}
+
+
+call_init_hooks <- function() {
+  for (fun in get_hooks_list("reticulate.onPyInit")) {
+    if (is.character(fun)) {
+      fun <- get(fun)
+    }
+    fun()
   }
 }
 

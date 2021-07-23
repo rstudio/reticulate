@@ -292,3 +292,11 @@ stack <- function(mode = "list") {
   object
   
 }
+
+get_hooks_list <- function(name) {
+  hooks <- getHook(name)
+  if (!is.list(hooks))
+    hooks <- list(hooks)								
+  hooks
+}
+

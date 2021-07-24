@@ -144,6 +144,19 @@ use_condaenv <- function(condaenv = NULL, conda = "auto", required = FALSE) {
     use_python(python, required = required)
     return(invisible(NULL))
   }
+  
+  # if the user has requested the 'base' environment, then just activate
+  # the conda installation associated with the conda binary found
+  # 
+  # TODO: what if there are multiple conda installations? users could still
+  # use 'use_python()' explicitly to target a specific install
+  conda <- conda_binary(conda)
+  if (identical(condaenv, "base")) {
+    bin <- dirname(conda)
+    suffix <- if (is_windows()) "../python.exe" else "python"
+    python <- file.path(bin, suffix)
+    return(use_python(python, required = required))
+  }
 
   # list all conda environments
   conda_envs <- conda_list(conda)

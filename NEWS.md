@@ -1,6 +1,14 @@
 
 ## reticulate 1.21  (UNRELEASED)
 
+- `use_condaenv("base")` can now be used to activate the base Anaconda
+  environment.
+
+- `reticulate` will now execute any hooks registered via
+  `setHook("reticulate.onPyInit", <...>)` after Python has been initialized.
+  This can be useful for packages that need to take some action after
+  `reticulate` has initialized Python.
+
 - Further refined interrupt handling.
 
 - Fixed an issue where attempting to bind `reticulate` to `/usr/bin/python3`
@@ -26,9 +34,6 @@
 - Fixed an issue where `reticulate::py_run_string(..., local = TRUE)` failed
   to return the dictionary of defined Python objects in some cases.
   
-- Added `reticulate.onPyInit` package hook.
-
-
 ## reticulate 1.20
 
 - Fixed an issue causing tests to fail on CRAN's M1mac machine.

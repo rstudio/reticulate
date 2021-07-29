@@ -23,7 +23,7 @@ virtualenv_create(
   pip_version = getOption("reticulate.virtualenv.pip_version", default = NULL),
   setuptools_version = getOption("reticulate.virtualenv.setuptools_version", default =
     NULL),
-  extra = getOption("reticulat.evirtualenv.extra", default = NULL)
+  extra = getOption("reticulate.virtualenv.extra", default = NULL)
 )
 
 virtualenv_install(

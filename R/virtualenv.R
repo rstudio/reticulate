@@ -81,7 +81,7 @@ virtualenv_create <- function(
   system_site_packages = getOption("reticulate.virtualenv.system_site_packages", default = FALSE),
   pip_version          = getOption("reticulate.virtualenv.pip_version", default = NULL),
   setuptools_version   = getOption("reticulate.virtualenv.setuptools_version", default = NULL),
-  extra                = getOption("reticulat.evirtualenv.extra", default = NULL))
+  extra                = getOption("reticulate.virtualenv.extra", default = NULL))
 {
   path <- virtualenv_path(envname)
   name <- if (is.null(envname)) path else envname

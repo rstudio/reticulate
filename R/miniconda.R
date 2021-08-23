@@ -92,10 +92,9 @@ install_miniconda_preflight <- function(path, force) {
 
 miniconda_installer_url <- function(version = "3") {
   
-  url <- getOption("reticulate.miniconda.url", default = NULL)
-  if( !is.null(url) ){
-    return( url )
-  }
+  url <- getOption("reticulate.miniconda.url")
+  if (!is.null(url))
+    return(url)
   
   base <- "https://repo.anaconda.com/miniconda"
   

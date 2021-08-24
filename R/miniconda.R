@@ -35,7 +35,7 @@ install_miniconda <- function(path = miniconda_path(),
   
   # run the installer
   message("* Installing Miniconda -- please wait a moment ...")
-  miniconda_installer_run(installer, path)
+  miniconda_installer_run(installer, update, path)
   
   # validate the install succeeded
   ok <- miniconda_exists(path) && miniconda_test(path)
@@ -125,6 +125,7 @@ miniconda_installer_arch <- function() {
   info <- as.list(Sys.info())
   if (info$machine == "i386")
     return("x86")
+  
   # miniconda url use x86_64 not x86-64 for Windows
   if (info$machine == "x86-64")
     return("x86_64")
@@ -155,7 +156,7 @@ miniconda_installer_download <- function(url) {
 }
   
 
-miniconda_installer_run <- function(installer, path) {
+miniconda_installer_run <- function(installer, update, path) {
   
   args <- if (is_windows()) {
     dir.create(path, recursive = TRUE, showWarnings = FALSE)
@@ -169,9 +170,7 @@ miniconda_installer_run <- function(installer, path) {
     )
     
   } else if (is_unix()) {
-    
-    c("-b", "-p", shQuote(path))
-    
+    c("-b", if (update) "-u", "-p", shQuote(path))
   } else {
     stopf("unsupported platform %s", shQuote(Sys.info()[["sysname"]]))
   }

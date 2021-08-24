@@ -1,7 +1,7 @@
 
 test_that("Running Python scripts can be interrupted", {
   
-  skip_on_os("windows")
+  skip_on_cran()
   
   # import time module
   time <- import("time", convert = TRUE)

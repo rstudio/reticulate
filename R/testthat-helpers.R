@@ -2,7 +2,9 @@
 test_that <- function(desc, code) {
   
   # don't run tests on CRAN
-  testthat::skip_on_cran()
+  enabled <- Sys.getenv("RETICULATE_TESTS_ENABLED", unset = "FALSE")
+  if (enabled %in% "FALSE")
+    testthat::skip_on_cran()
   
   # skip if we don't have python
   skip_if_no_python()

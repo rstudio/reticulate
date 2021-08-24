@@ -46,6 +46,7 @@ Imports:
 Suggests:
     callr,
     knitr,
+    rlang,
     rmarkdown,
     testthat
 LinkingTo: Rcpp

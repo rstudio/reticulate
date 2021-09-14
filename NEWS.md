@@ -1,5 +1,5 @@
 
-## reticulate 1.21  (UNRELEASED)
+## reticulate 1.21
 
 - `use_condaenv("base")` can now be used to activate the base Anaconda
   environment.

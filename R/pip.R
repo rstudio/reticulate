@@ -28,19 +28,8 @@ pip_install <- function(python, packages, pip_options = character(), ignore_inst
   args <- c(args, pip_options)
   args <- c(args, packages)
 
-  # if windows, add conda paths to ensure SSL dlls get picked up
-  old_path <- Sys.getenv("PATH")
-  dll_paths <- conda_dll_paths()
-  if (is_windows() && (dll_paths != ""))
-    Sys.setenv(PATH = paste(dll_paths, old_path, sep = ";"))
-  
   # run it
   result <- system2(python, args)
-  
-  ## Set old path back
-  if (is_windows() && (dll_paths != ""))
-    Sys.setenv(PATH = old_path)
-
   if (result != 0L) {
     pkglist <- paste(shQuote(packages), collapse = ", ")
     msg <- paste("Error installing package(s):", pkglist)

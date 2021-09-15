@@ -1,6 +1,9 @@
 
 ## reticulate 1.22  (UNRELEASED)
 
+- Fixed a regression that caused `reticulate::conda_install(pip = TRUE)`
+  to fail. (#1052)
+
 ## reticulate 1.21
 
 - `use_condaenv("base")` can now be used to activate the base Anaconda

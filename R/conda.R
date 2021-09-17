@@ -286,15 +286,28 @@ conda_install <- function(envname = NULL,
     }
   }
 
+  
   # delegate to pip if requested
   if (pip) {
+    conda_env_PATH_additions <- normalizePath(file.path(dirname(python), c(
+      "",
+      "Library/mingw-w64/bin",
+      "Library/usr/bin",
+      "Library/bin",
+      "Scripts",
+      "bin")
+      ), mustWork = FALSE)
     
-    result <- pip_install(
-      python = python,
-      packages = packages,
-      pip_options = pip_options,
-      ignore_installed = pip_ignore_installed
-    )
+    withr::with_path(conda_env_PATH_additions, {
+      
+      result <- pip_install(
+        python = python,
+        packages = packages,
+        pip_options = pip_options,
+        ignore_installed = pip_ignore_installed
+      )
+      
+    })
     
     return(result)
     

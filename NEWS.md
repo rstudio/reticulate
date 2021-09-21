@@ -1,5 +1,7 @@
 
-## reticulate 1.22  (UNRELEASED)
+## reticulate 1.23  (UNRELEASED)
+
+## reticulate 1.22
 
 - Fixed a regression that caused `reticulate::conda_install(pip = TRUE)`
   to fail. (#1052)

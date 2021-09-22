@@ -1,6 +1,9 @@
 
 ## reticulate 1.23  (UNRELEASED)
 
+- Fixed an issue that caused `reticulate::conda_install(pip = TRUE)`
+  to fail on windows. (#1053, @t-kalinowski)
+
 ## reticulate 1.22
 
 - Fixed a regression that caused `reticulate::conda_install(pip = TRUE)`

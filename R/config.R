@@ -495,6 +495,22 @@ python_munge_path <- function(python) {
   # https://github.com/rstudio/reticulate/issues/367
   python_home <- dirname(python)
   python_dirs <- c(normalizePath(python_home))
+  
+  info <- python_info(python)
+  
+  if(info$type == "conda" &&
+     numeric_conda_version(info$conda) >= "4.9") {
+    
+    new_path <- conda_run("python",
+      c("-c", shQuote("import os; print(os.environ['PATH'])")),
+      conda = info$conda, envname = info$root,
+      stdout = TRUE)
+    
+    old_path <- Sys.getenv("PATH")
+    Sys.setenv("PATH" = new_path)
+    return(old_path)
+  }
+  
   if (is_windows()) {
 
     # include the Scripts path, as well

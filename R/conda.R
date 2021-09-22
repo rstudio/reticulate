@@ -286,28 +286,17 @@ conda_install <- function(envname = NULL,
     }
   }
 
-  
   # delegate to pip if requested
   if (pip) {
-    conda_env_PATH_additions <- normalizePath(file.path(dirname(python), c(
-      "",
-      "Library/mingw-w64/bin",
-      "Library/usr/bin",
-      "Library/bin",
-      "Scripts",
-      "bin")
-      ), mustWork = FALSE)
     
-    withr::with_path(conda_env_PATH_additions, {
-      
-      result <- pip_install(
-        python = python,
-        packages = packages,
-        pip_options = pip_options,
-        ignore_installed = pip_ignore_installed
-      )
-      
-    })
+    result <- pip_install(
+      python = python,
+      packages = packages,
+      pip_options = pip_options,
+      ignore_installed = pip_ignore_installed,
+      conda = conda,
+      envname = envname
+    )
     
     return(result)
     
@@ -385,6 +374,14 @@ conda_version <- function(conda = "auto") {
   conda_bin <- conda_binary(conda)
   system2(conda_bin, "--version", stdout = TRUE)
 }
+
+
+numeric_conda_version <- function(conda = "auto") {
+  v <- conda_version(conda)
+  v <- sub("(conda) ([0-9.]+)", "\\2", v)
+  numeric_version(v)
+}
+
 
 #' @rdname conda-tools
 #' @export
@@ -583,4 +580,25 @@ conda_installed <- function() {
     return(FALSE)
   else
     return(TRUE)
+}
+
+
+conda_run <- function(cmd, args = c(), conda = "auto", envname = NULL,
+                      run_args = c("--no-capture-output"), ...) {
+
+  conda <- conda_binary(conda)
+  envname <- condaenv_resolve(envname)
+
+  if(numeric_conda_version(conda) < "4.9")
+    stopf(
+"`conda_run()` requires conda version >= 4.9.
+Run `miniconda_update('%s')` to update conda.", conda)
+
+  if(grepl("[/\\]", envname))
+    in_env <- c("--prefix", envname)
+  else
+    in_env <- c("--name", envname)
+
+  system2(conda, c("run", in_env, run_args,
+                   shQuote(cmd), args), ...)
 }

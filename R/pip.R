@@ -19,17 +19,34 @@ pip_version <- function(python) {
 
 }
 
-pip_install <- function(python, packages, pip_options = character(), ignore_installed = FALSE) {
+pip_install <- function(python, packages, pip_options = character(), ignore_installed = FALSE,
+                        conda = "auto", envname = NULL) {
+
 
   # construct command line arguments
   args <- c("-m", "pip", "install", "--upgrade")
   if (ignore_installed)
     args <- c(args, "--ignore-installed")
   args <- c(args, pip_options)
+
+  # quote in case of version constraints like 'Pillow<8.3'
+  # but don't double quote if already quoted
+  packages <- shQuote(gsub("[\"']", "", packages))
   args <- c(args, packages)
 
-  # run it
-  result <- system2(python, args)
+  # figure out if we should go though conda_run()
+  if(conda == "auto") {
+    info <- python_info(python)
+    if(info$type != "conda" || numeric_conda_version(info$conda) < "4.9")
+      conda <- NULL
+  }
+
+  result <- if(is.null(conda) || isFALSE(conda))
+    system2(python, args)
+  else
+    conda_run(python, args, conda = conda, envname = envname)
+
+
   if (result != 0L) {
     pkglist <- paste(shQuote(packages), collapse = ", ")
     msg <- paste("Error installing package(s):", pkglist)

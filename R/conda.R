@@ -595,7 +595,7 @@ conda_run <- function(cmd, args = c(), conda = "auto", envname = NULL,
 Run `miniconda_update('%s')` to update conda.", conda)
 
   if(grepl("[/\\]", envname))
-    in_env <- c("--prefix", envname)
+    in_env <- c("--prefix", shQuote(normalizePath(envname)))
   else
     in_env <- c("--name", envname)
 

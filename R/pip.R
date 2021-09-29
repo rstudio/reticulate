@@ -35,13 +35,13 @@ pip_install <- function(python, packages, pip_options = character(), ignore_inst
   args <- c(args, packages)
 
   # figure out if we should go though conda_run()
-  if(conda == "auto") {
+  if (conda == "auto") {
     info <- python_info(python)
     if(info$type != "conda" || numeric_conda_version(info$conda) < "4.9")
       conda <- NULL
   }
 
-  result <- if(is.null(conda) || isFALSE(conda))
+  result <- if (is.null(conda) || isFALSE(conda))
     system2(python, args)
   else
     conda_run(python, args, conda = conda, envname = envname)

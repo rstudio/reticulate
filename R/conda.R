@@ -589,7 +589,7 @@ conda_run <- function(cmd, args = c(), conda = "auto", envname = NULL,
   conda <- conda_binary(conda)
   envname <- condaenv_resolve(envname)
 
-  if(numeric_conda_version(conda) < "4.9")
+  if (numeric_conda_version(conda) < "4.9")
     stopf(
 "`conda_run()` requires conda version >= 4.9.
 Run `miniconda_update('%s')` to update conda.", conda)

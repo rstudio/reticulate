@@ -376,9 +376,25 @@ conda_version <- function(conda = "auto") {
 }
 
 
-numeric_conda_version <- function(conda = "auto") {
-  v <- conda_version(conda)
-  v <- sub("(conda) ([0-9.]+)", "\\2", v)
+numeric_conda_version <- function(conda = "auto", version_string = conda_version(conda)) {
+  # some plausible version strings: 
+  # "conda 4.6.0"                 
+  # "conda 4.6.0b0"               
+  # "conda 4.6.0rc1"              
+  # "conda 4.6.0rc1.post3+64bde06"
+  v <- version_string 
+  v <- sub("^conda ", "", v) # drop hardcoded prefix
+  
+  # https://github.com/conda/conda/blob/c1579681d1468af3d1b4af3083bed33f8391e861/conda/_vendor/auxlib/packaging.py#L142
+  # if dev version string: "{0}.post{1}+{2}".format(version, post_commit, hash)
+  v <- sub("\\.post(\\d)\\+.+$", ".\\1", v)
+
+  # substitute rc|beta|alpha|whatever suffix with .
+  v <- sub("[A-Za-z]+", ".", v) 
+  
+  if(endsWith(v, "."))
+    v <- paste0(v, "9000")
+  
   numeric_version(v)
 }
 

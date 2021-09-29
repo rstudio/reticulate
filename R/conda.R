@@ -392,7 +392,7 @@ numeric_conda_version <- function(conda = "auto", version_string = conda_version
   # substitute rc|beta|alpha|whatever suffix with .
   v <- sub("[A-Za-z]+", ".", v) 
   
-  if(endsWith(v, "."))
+  if (grepl("\\.$", v))
     v <- paste0(v, "9000")
   
   numeric_version(v)

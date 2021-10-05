@@ -293,7 +293,9 @@ conda_install <- function(envname = NULL,
       python = python,
       packages = packages,
       pip_options = pip_options,
-      ignore_installed = pip_ignore_installed
+      ignore_installed = pip_ignore_installed,
+      conda = conda,
+      envname = envname
     )
     
     return(result)
@@ -372,6 +374,30 @@ conda_version <- function(conda = "auto") {
   conda_bin <- conda_binary(conda)
   system2(conda_bin, "--version", stdout = TRUE)
 }
+
+
+numeric_conda_version <- function(conda = "auto", version_string = conda_version(conda)) {
+  # some plausible version strings: 
+  # "conda 4.6.0"                 
+  # "conda 4.6.0b0"               
+  # "conda 4.6.0rc1"              
+  # "conda 4.6.0rc1.post3+64bde06"
+  v <- version_string 
+  v <- sub("^conda ", "", v) # drop hardcoded prefix
+  
+  # https://github.com/conda/conda/blob/c1579681d1468af3d1b4af3083bed33f8391e861/conda/_vendor/auxlib/packaging.py#L142
+  # if dev version string: "{0}.post{1}+{2}".format(version, post_commit, hash)
+  v <- sub("\\.post(\\d)\\+.+$", ".\\1", v)
+
+  # substitute rc|beta|alpha|whatever suffix with .
+  v <- sub("[A-Za-z]+", ".", v) 
+  
+  if (grepl("\\.$", v))
+    v <- paste0(v, "9000")
+  
+  numeric_version(v)
+}
+
 
 #' @rdname conda-tools
 #' @export
@@ -570,4 +596,25 @@ conda_installed <- function() {
     return(FALSE)
   else
     return(TRUE)
+}
+
+
+conda_run <- function(cmd, args = c(), conda = "auto", envname = NULL,
+                      run_args = c("--no-capture-output"), ...) {
+
+  conda <- conda_binary(conda)
+  envname <- condaenv_resolve(envname)
+
+  if (numeric_conda_version(conda) < "4.9")
+    stopf(
+"`conda_run()` requires conda version >= 4.9.
+Run `miniconda_update('%s')` to update conda.", conda)
+
+  if(grepl("[/\\]", envname))
+    in_env <- c("--prefix", shQuote(normalizePath(envname)))
+  else
+    in_env <- c("--name", envname)
+
+  system2(conda, c("run", in_env, run_args,
+                   shQuote(cmd), args), ...)
 }

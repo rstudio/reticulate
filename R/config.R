@@ -495,6 +495,32 @@ python_munge_path <- function(python) {
   # https://github.com/rstudio/reticulate/issues/367
   python_home <- dirname(python)
   python_dirs <- c(normalizePath(python_home))
+  
+  # fix rpath for anaconda libmkl
+  if (is_osx()) {
+    libmkl <- file.path(python_home, "../lib/libmkl_intel_thread.dylib")
+    if (file.exists(libmkl)) {
+      libmkl <- normalizePath(libmkl)
+      args <- c("-add_rpath", shQuote(dirname(libmkl)), libmkl)
+      system2("install_name_tool", args, stdout = FALSE, stderr = FALSE)
+    }
+  }
+  
+  info <- python_info(python)
+  
+  if(info$type == "conda" &&
+     numeric_conda_version(info$conda) >= "4.9") {
+    
+    new_path <- conda_run("python",
+      c("-c", shQuote("import os; print(os.environ['PATH'])")),
+      conda = info$conda, envname = info$root,
+      stdout = TRUE)
+    
+    old_path <- Sys.getenv("PATH")
+    Sys.setenv("PATH" = new_path)
+    return(old_path)
+  }
+  
   if (is_windows()) {
 
     # include the Scripts path, as well
@@ -514,15 +540,6 @@ python_munge_path <- function(python) {
       python_dirs <- c(python_dirs, normalizePath(python_library_bin))
   }
   
-  # fix rpath for anaconda libmkl
-  if (is_osx()) {
-    libmkl <- file.path(python_home, "../lib/libmkl_intel_thread.dylib")
-    if (file.exists(libmkl)) {
-      libmkl <- normalizePath(libmkl)
-      args <- c("-add_rpath", shQuote(dirname(libmkl)), libmkl)
-      system2("install_name_tool", args, stdout = FALSE, stderr = FALSE)
-    }
-  }
 
   path_prepend(python_dirs)
 

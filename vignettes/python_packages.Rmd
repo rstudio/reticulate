@@ -41,6 +41,11 @@ library(reticulate)
 py_install("pandas")
 ```
 
+```r
+library(reticulate)
+py_install("pip install git+https://github.com/scipy/scipy.git", pip = TRUE)
+```
+
 This provides a straightforward high-level interface to package installation and helps encourage the use of a common default environment ("r-reticulate") across the installation of distinct Python packages.
 
 There are also functions available for directly managing both Conda and virtualenvs for situations where you want more control over how packages are installed. These functions are covered in the sections below.

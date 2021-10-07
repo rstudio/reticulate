@@ -41,7 +41,7 @@ pip_install <- function(python, packages, pip_options = character(), ignore_inst
       conda <- NULL
   }
 
-  result <- if (is.null(conda) || isFALSE(conda))
+  result <- if (is.null(conda) || identical(conda, FALSE))
     system2(python, args)
   else
     conda_run(python, args, conda = conda, envname = envname)

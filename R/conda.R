@@ -618,3 +618,55 @@ Run `miniconda_update('%s')` to update conda.", conda)
   system2(conda, c("run", in_env, run_args,
                    shQuote(cmd), args), ...)
 }
+
+# executes a cmd with a conda env active, implemented directly to avoid using `conda run`
+# https://github.com/conda/conda/issues/10972
+conda_run2 <- function(...) {
+  if(is_windows())
+    conda_run2_windows(...)
+  else
+    conda_run2_nix(...)
+}
+
+conda_run2_windows <- function(cmd, args = c(), conda = "auto", envname = NULL) {
+  conda <- normalizePath(conda_binary(conda))
+  
+  if(identical(envname, "base"))
+    envname <- file.path(dirname(conda), "../..")
+  else
+    envname <- condaenv_resolve(envname)
+  
+  if(grepl("[/\\]", envname))
+    envname <- normalizePath(envname)
+  
+  fi <- tempfile(fileext = ".bat")
+  on.exit(unlink(fi))
+  writeLines(c(
+    paste("CALL", shQuote(conda), "activate", shQuote(envname)),
+    paste(shQuote(cmd), paste(args, collapse = " "))
+  ), fi)
+
+  shell(fi)
+}
+
+conda_run2_nix <- function(cmd, args = c(), conda = "auto", envname = NULL) {
+  conda <- normalizePath(conda_binary(conda))
+  activate <- normalizePath(file.path(dirname(conda), "activate"))
+  
+  if(!identical(envname, "base")) {
+    envname <- condaenv_resolve(envname)
+    if (grepl("[/\\]", envname))
+      envname <- normalizePath(envname)
+  }
+  
+  fi <- tempfile(fileext = ".sh")
+  on.exit(unlink(fi))
+  writeLines(c(
+    paste(".", activate),
+    if(!identical(envname, "base"))
+      paste("conda activate", shQuote(envname)),
+    'echo "Activated conda python: $(which python)"',
+    paste(shQuote(cmd), paste(args, collapse = " "))
+  ), fi)
+  system2(Sys.which("sh"), fi)
+}

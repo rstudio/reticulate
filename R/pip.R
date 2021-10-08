@@ -22,7 +22,6 @@ pip_version <- function(python) {
 pip_install <- function(python, packages, pip_options = character(), ignore_installed = FALSE,
                         conda = "auto", envname = NULL) {
 
-
   # construct command line arguments
   args <- c("-m", "pip", "install", "--upgrade")
   if (ignore_installed)
@@ -44,7 +43,7 @@ pip_install <- function(python, packages, pip_options = character(), ignore_inst
   result <- if (is.null(conda) || identical(conda, FALSE))
     system2(python, args)
   else
-    conda_run(python, args, conda = conda, envname = envname)
+    conda_run2(python, args, conda = conda, envname = envname)
 
 
   if (result != 0L) {

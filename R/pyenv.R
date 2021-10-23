@@ -165,7 +165,7 @@ pyenv_bootstrap_unix <- function() {
   on.exit(setwd(owd), add = TRUE)
   
   # download the installer
-  url <- "https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer"
+  url <- "https://github.com/pyenv/pyenv-installer/raw/main/bin/pyenv-installer"
   name <- basename(url)
   download.file(url, destfile = name, mode = "wb")
   

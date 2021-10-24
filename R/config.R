@@ -199,6 +199,15 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
     
   }
   
+  # if we're working within a project that containers a pyproject.toml, then
+  # check if that project uses poetry as a tool.
+  # if so, use the copy of Python associated with the poetry project
+  if (is_poetry_project()) {
+    python <- poetry_python()
+    config = python_config(python, required_module, forced = "poetry")
+    return(config)
+  } 
+  
   # if we're working within a project that contains a Pipfile, then
   # use the copy of Python associated with that pipenv
   pipfile <- pipenv_pipfile_path()

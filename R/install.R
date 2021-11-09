@@ -59,6 +59,15 @@ py_install_method_detect <- function(envname, conda = "auto") {
 #' @param ... Additional arguments passed to [conda_install()]
 #'   or [virtualenv_install()].
 #'
+#' @param pip_ignore_installed,ignore_installed Boolean; whether pip should
+#'   ignore previously installed versions of the requested packages. Setting
+#'   this to `TRUE` causes pip to install the latest versions of all
+#'   dependencies into the requested environment. This ensure that no
+#'   dependencies are satisfied by a package that exists either in the site
+#'   library or was previously installed from a different--potentially
+#'   incompatible--distribution channel. (`ignore_installed` is an alias for
+#'   `pip_ignore_installed`, `pip_ignore_installed` takes precedence).
+#'
 #' @details On Linux and OS X the "virtualenv" method will be used by default
 #'   ("conda" will be used if virtualenv isn't available). On Windows, the
 #'   "conda" method is always used.
@@ -72,7 +81,10 @@ py_install <- function(packages,
                        conda = "auto",
                        python_version = NULL,
                        pip = FALSE,
-                       ...)
+                       ...,
+                       pip_ignore_installed = ignore_installed,
+                       ignore_installed = FALSE
+                       )
 {
   check_forbidden_install("Python packages")
   
@@ -115,6 +127,7 @@ py_install <- function(packages,
     virtualenv = virtualenv_install(
       envname = envname,
       packages = packages,
+      ignore_installed = pip_ignore_installed,
       ...
     ),
     
@@ -124,6 +137,7 @@ py_install <- function(packages,
       conda = conda,
       python_version = python_version,
       pip = pip,
+      pip_ignore_installed = pip_ignore_installed,
       ...
     ),
     

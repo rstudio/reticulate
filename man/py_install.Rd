@@ -11,7 +11,9 @@ py_install(
   conda = "auto",
   python_version = NULL,
   pip = FALSE,
-  ...
+  ...,
+  pip_ignore_installed = ignore_installed,
+  ignore_installed = FALSE
 )
 }
 \arguments{
@@ -40,6 +42,15 @@ from the Conda repositories.}
 
 \item{...}{Additional arguments passed to \code{\link[=conda_install]{conda_install()}}
 or \code{\link[=virtualenv_install]{virtualenv_install()}}.}
+
+\item{pip_ignore_installed, ignore_installed}{Boolean; whether pip should
+ignore previously installed versions of the requested packages. Setting
+this to \code{TRUE} causes pip to install the latest versions of all
+dependencies into the requested environment. This ensure that no
+dependencies are satisfied by a package that exists either in the site
+library or was previously installed from a different--potentially
+incompatible--distribution channel. (\code{ignore_installed} is an alias for
+\code{pip_ignore_installed}, \code{pip_ignore_installed} takes precedence).}
 }
 \description{
 Install Python packages into a virtual environment or Conda environment.

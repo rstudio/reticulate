@@ -427,7 +427,6 @@ conda_python <- function(envname = NULL, conda = "auto") {
 }
 
 
-
 find_conda <- function() {
   
   # allow specification of conda executable
@@ -445,56 +444,39 @@ find_conda <- function() {
     return(conda)
   
   # otherwise, search common locations for conda
-  # TODO: these won't work on Windows as conda is often installed
-  # at e.g. 'condabin/conda.bat' or similar!
-  conda_locations <- c(
-    miniconda_conda(),
-    path.expand("~/opt/anaconda/bin/conda"),
-    path.expand("~/opt/anaconda2/bin/conda"),
-    path.expand("~/opt/anaconda3/bin/conda"),
-    path.expand("~/opt/anaconda4/bin/conda"),
-    path.expand("~/opt/miniconda/bin/conda"),
-    path.expand("~/opt/miniconda2/bin/conda"),
-    path.expand("~/opt/miniconda3/bin/conda"),
-    path.expand("~/opt/miniconda4/bin/conda"),
-    path.expand("~/anaconda/bin/conda"),
-    path.expand("~/anaconda2/bin/conda"),
-    path.expand("~/anaconda3/bin/conda"),
-    path.expand("~/anaconda4/bin/conda"),
-    path.expand("~/miniconda/bin/conda"),
-    path.expand("~/miniconda2/bin/conda"),
-    path.expand("~/miniconda3/bin/conda"),
-    path.expand("~/miniconda4/bin/conda"),
-    path.expand("/opt/anaconda/bin/conda"),
-    path.expand("/opt/anaconda2/bin/conda"),
-    path.expand("/opt/anaconda3/bin/conda"),
-    path.expand("/opt/anaconda4/bin/conda"),
-    path.expand("/opt/miniconda/bin/conda"),
-    path.expand("/opt/miniconda2/bin/conda"),
-    path.expand("/opt/miniconda3/bin/conda"),
-    path.expand("/opt/miniconda4/bin/conda"),
-    path.expand("/anaconda/bin/conda"),
-    path.expand("/anaconda2/bin/conda"),
-    path.expand("/anaconda3/bin/conda"),
-    path.expand("/anaconda4/bin/conda"),
-    path.expand("/miniconda/bin/conda"),
-    path.expand("/miniconda2/bin/conda"),
-    path.expand("/miniconda3/bin/conda"),
-    path.expand("/miniconda4/bin/conda")
-  )
+  prefixes <- c("~/opt/", "~/", "/opt/", "/")
+  names <- c("anaconda", "miniconda", "miniforge")
+  versions <- c("", "2", "3", "4")
+  combos <- expand.grid(versions, names, prefixes, KEEP.OUT.ATTRS = FALSE, stringsAsFactors = FALSE)
+  combos <- combos[rev(seq_along(combos))]
+  conda_locations <- unlist(.mapply(paste0, combos, NULL))
   
+  # find the potential conda binary path in each case
+  conda_locations <- if (is_windows()) {
+    paste0(conda_locations, "/condabin/conda.bat")
+  } else {
+    paste0(conda_locations, "/bin/conda")
+  }
+  
+  # ensure we expand tilde prefixes
+  conda_locations <- path.expand(conda_locations)
+    
   # on Windows, check the registry for a compatible version of Anaconda
   if (is_windows()) {
     anaconda_versions <- windows_registry_anaconda_versions()
     anaconda_versions <- subset(anaconda_versions, anaconda_versions$arch == .Platform$r_arch)
     if (nrow(anaconda_versions) > 0) {
+      
       conda_scripts <- utils::shortPathName(
         file.path(anaconda_versions$install_path, "Scripts", "conda.exe")
       )
       conda_bats <- utils::shortPathName(
         file.path(anaconda_versions$install_path, "condabin", "conda.bat")
       )
-      conda_locations <- c(conda_locations, conda_bats, conda_scripts)
+      
+      # prefer versions found in the registry to those found in default locations
+      conda_locations <- c(conda_bats, conda_scripts, conda_locations)
+      
     }
   }
   

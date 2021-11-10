@@ -1,6 +1,9 @@
 
 ## reticulate 1.23  (UNRELEASED)
 
+- `reticulate::find_conda()` will now locate miniforge Conda installations
+  located within the default install locations.
+
 - Fixed an issue that caused `reticulate::conda_install(pip = TRUE)`
   to fail on windows. (#1053, @t-kalinowski)
 

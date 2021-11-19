@@ -130,11 +130,6 @@ miniconda_installer_arch <- function() {
   if (!is.null(arch))
     return(arch)
   
-  # arm64 on macOS is not yet supported
-  info <- as.list(Sys.info())
-  if (info$machine == "i386")
-    return("x86")
-  
   # miniconda url use x86_64 not x86-64 for Windows
   if (info$machine == "x86-64")
     return("x86_64")
@@ -229,9 +224,19 @@ miniconda_path <- function() {
 
 miniconda_path_default <- function() {
   
-  if (is_osx())
-    return(path.expand("~/Library/r-miniconda"))
+  if (is_osx()) {
+    
+    # on macOS, use different path for arm64 miniconda
+    path <- if (Sys.info()[["machine"]] == "arm64")
+      "~/Library/r-miniconda-arm64"
+    else
+      "~/Library/r-miniconda"
+    
+    return(path.expand(path))
+    
+  }
   
+  # otherwise, use rappdirs default
   root <- normalizePath(rappdirs::user_data_dir(), winslash = "/", mustWork = FALSE)
   file.path(root, "r-miniconda")
   

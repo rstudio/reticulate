@@ -1,6 +1,14 @@
 
 ## reticulate 1.23  (UNRELEASED)
 
+- `reticulate::conda_create()` gains the `environment` argument, used when
+  creating a new conda environment based on an exported environment definition
+  (e.g. `environment.yml` or `environment.json`).
+  
+- `reticulate` gains the function, `conda_export()`, for exporting a conda
+  environment definition as YAML. Environments are exported as via the
+  `conda env export` command. (#779)
+  
 - `reticulate::find_conda()` will now locate miniforge Conda installations
   located within the default install locations.
 

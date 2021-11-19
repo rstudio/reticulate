@@ -63,7 +63,9 @@ py_install_method_detect <- function(envname, conda = "auto") {
 #'   ("conda" will be used if virtualenv isn't available). On Windows, the
 #'   "conda" method is always used.
 #'
-#' @seealso [conda-tools], [virtualenv-tools]
+#' @seealso
+#'   [conda_install()], for installing packages into conda environments.
+#'   [virtualenv_install()], for installing packages into virtual environments.
 #'
 #' @export
 py_install <- function(packages,

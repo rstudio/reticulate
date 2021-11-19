@@ -29,7 +29,8 @@ available on Windows.}
 
 \item{conda}{The path to a \code{conda} executable. Use \code{"auto"} to allow
 \code{reticulate} to automatically find an appropriate \code{conda} binary. See
-\strong{Finding Conda} for more details.}
+\code{\link[=conda_binary]{conda_binary()}} for more details on how \code{reticulate} tries to resolve
+the \code{conda} executable.}
 
 \item{python_version}{The requested Python version. Ignored when attempting
 to install with a Python virtual environment.}
@@ -50,5 +51,6 @@ On Linux and OS X the "virtualenv" method will be used by default
 "conda" method is always used.
 }
 \seealso{
-\link{conda-tools}, \link{virtualenv-tools}
+\code{\link[=conda_install]{conda_install()}}, for installing packages into conda environments.
+\code{\link[=virtualenv_install]{virtualenv_install()}}, for installing packages into virtual environments.
 }

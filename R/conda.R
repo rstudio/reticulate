@@ -153,16 +153,15 @@ conda_create <- function(envname = NULL,
                          conda = "auto",
                          python_version = NULL)
 {
-
   # resolve conda binary
   conda <- conda_binary(conda)
 
-  # resolve environment name
-  envname <- condaenv_resolve(envname)
-  
   # if environment is provided, use it directly
   if (!is.null(environment))
     return(conda_create_env(envname, environment, conda))
+  
+  # resolve environment name
+  envname <- condaenv_resolve(envname)
   
   # resolve packages argument
   if (!any(grepl("^python", packages))) {
@@ -200,14 +199,18 @@ conda_create <- function(envname = NULL,
 
   # return the path to the python binary
   conda_python(envname = envname, conda = conda)
-
 }
 
 conda_create_env <- function(envname, environment, conda) {
+ 
+  if (!is.null(envname))
+    envname <- condaenv_resolve(envname)
   
   args <- c(
     "env", "create", "--quiet",
-    if (grepl("/", envname))
+    if (is.null(envname))
+      c()
+    else if (grepl("/", envname))
       c("--prefix", shQuote(envname))
     else
       c("--name", shQuote(envname)),

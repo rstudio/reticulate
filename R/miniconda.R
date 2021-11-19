@@ -96,6 +96,15 @@ miniconda_installer_url <- function(version = "3") {
   if (!is.null(url))
     return(url)
   
+  # TODO: miniconda does not yet have arm64 binaries for macOS,
+  # so we'll just use miniforge instead
+  info <- as.list(Sys.info())
+  if (info$sysname == "Darwin" && info$machine == "arm64") {
+    base <- "https://github.com/conda-forge/miniforge/releases/latest/download"
+    name <- "Miniforge3-MacOSX-arm64.sh"
+    return(file.path(base, name))
+  }
+
   base <- "https://repo.anaconda.com/miniconda"
   
   info <- as.list(Sys.info())

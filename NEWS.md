@@ -1,6 +1,10 @@
 
 ## reticulate 1.23  (UNRELEASED)
 
+- `reticulate::install_miniconda()` now prefers installing the latest
+  arm64 builds of miniforge. See https://conda-forge.org/blog/posts/2020-10-29-macos-arm64/
+  for more details.
+
 - `reticulate::conda_create()` gains the `environment` argument, used when
   creating a new conda environment based on an exported environment definition
   (e.g. `environment.yml` or `environment.json`).

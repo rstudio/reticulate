@@ -1,6 +1,11 @@
 
 ## reticulate 1.23  (UNRELEASED)
 
+- `reticulate` now provides support for Python environments managed by
+  [poetry](https://python-poetry.org/). For projects containing a
+  `pyproject.toml` file, `reticulate` will attempt to find and use the virtual
+  environment managed by Poetry for that project. (#1031)
+  
 - `reticulate::install_miniconda()` now prefers installing the latest
   arm64 builds of miniforge. See https://conda-forge.org/blog/posts/2020-10-29-macos-arm64/
   for more details.

@@ -7,7 +7,10 @@ pipenv_pipfile_path <- function() {
     return(pipfile)
   
   # try default
-  tryCatch(here::here("Pipfile"), error = function(e) "")
+  tryCatch(
+    here::here("Pipfile"),
+    error = function(e) ""
+  )
   
 }
 

@@ -108,7 +108,7 @@ miniconda_installer_url <- function(version = "3") {
   base <- "https://repo.anaconda.com/miniconda"
   
   info <- as.list(Sys.info())
-  arch <- miniconda_installer_arch()
+  arch <- miniconda_installer_arch(info)
   version <- as.character(version)
   name <- if (is_windows())
     sprintf("Miniconda%s-latest-Windows-%s.exe", version, arch)
@@ -123,7 +123,7 @@ miniconda_installer_url <- function(version = "3") {
   
 }
 
-miniconda_installer_arch <- function() {
+miniconda_installer_arch <- function(info) {
   
   # allow user override
   arch <- getOption("reticulate.miniconda.arch")

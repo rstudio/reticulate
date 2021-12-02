@@ -523,19 +523,22 @@ python_munge_path <- function(python) {
     }
   }
   
-  info <- python_info(python)
-  
-  if(info$type == "conda" &&
-     numeric_conda_version(info$conda) >= "4.9") {
+  # TODO: this will err if we're using a 'system' python
+  info <- tryCatch(python_info(python), error = identity)
+  if (info$type == "conda" && numeric_conda_version(info$conda) >= "4.9") {
     
-    new_path <- conda_run("python",
+    new_path <- conda_run(
+      "python",
       c("-c", shQuote("import os; print(os.environ['PATH'])")),
-      conda = info$conda, envname = info$root,
-      stdout = TRUE)
+      conda = info$conda,
+      envname = info$root,
+      stdout = TRUE
+    )
     
     old_path <- Sys.getenv("PATH")
     Sys.setenv("PATH" = new_path)
     return(old_path)
+    
   }
   
   if (is_windows()) {

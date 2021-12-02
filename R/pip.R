@@ -19,9 +19,13 @@ pip_version <- function(python) {
 
 }
 
-pip_install <- function(python, packages, pip_options = character(), ignore_installed = FALSE,
-                        conda = "auto", envname = NULL) {
-
+pip_install <- function(python,
+                        packages,
+                        pip_options = character(),
+                        ignore_installed = FALSE,
+                        conda = "auto",
+                        envname = NULL)
+{
   # construct command line arguments
   args <- c("-m", "pip", "install", "--upgrade")
   if (ignore_installed)
@@ -53,7 +57,6 @@ pip_install <- function(python, packages, pip_options = character(), ignore_inst
   }
 
   invisible(packages)
-
 }
 
 pip_uninstall <- function(python, packages) {

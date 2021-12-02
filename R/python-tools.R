@@ -43,7 +43,10 @@ python_info <- function(python) {
   path <- dirname(python)
   parent <- dirname(path)
   
+  # NOTE: we check for both 'python' and 'python3' because certain python
+  # installations might install one version of the binary but not the other
   prefix <- if (is_windows()) "Scripts" else "bin"
+  suffixes <- if (is_windows()) "python.exe" else c("python", "python3")
   
   while (path != parent) {
     
@@ -73,6 +76,12 @@ python_info <- function(python) {
 
     if (condaenv)
       return(python_info_condaenv(path))
+    
+    # check for python binary (implies a system install)
+    pythons <- file.path(path, prefix, suffixes)
+    for (python in pythons)
+      if (file.exists(python))
+          return(python_info_system(path, python))
     
     # recurse
     parent <- path
@@ -143,5 +152,15 @@ python_info_condaenv_find <- function(path) {
   conda <- file.path(dirname(script), exe)
   
   normalizePath(conda, winslash = "/", mustWork = FALSE)
+  
+}
+
+python_info_system <- function(path, python) {
+  
+  list(
+    python = python,
+    type   = "system",
+    root   = path
+  )
   
 }

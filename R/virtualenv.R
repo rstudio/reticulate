@@ -330,7 +330,11 @@ virtualenv_default_python <- function(python = NULL) {
       next
 
     # get list of required modules
-    suppressWarnings({version <- tryCatch(python_version(python), error = identity)})
+    version <- tryCatch(
+      suppressWarnings(python_version(python)),
+      error = identity
+    )
+    
     if (inherits(version, "error"))
       next
 

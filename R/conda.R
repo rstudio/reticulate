@@ -95,21 +95,14 @@ conda_list <- function(conda = "auto") {
   }
 
   # build data frame
-  name <- character()
-  python <- character()
-  for (conda_env in conda_envs) {
-    name <- c(name, basename(conda_env))
-    conda_env_dir <- conda_env
-    if (!is_windows())
-      conda_env_dir <- file.path(conda_env_dir, "bin")
-    conda_env_python <- file.path(conda_env_dir, "python")
-    if (is_windows()) {
-      conda_env_python <- paste0(conda_env_python, ".exe")
-      conda_env_python <- normalizePath(conda_env_python)
-    }
-    python <- c(python, conda_env_python)
+  name <- basename(conda_envs)
+  
+  suffix <- if (is_windows()) "python.exe" else "bin/python"
+  python <- paste(conda_envs, suffix, sep = "/")
 
-  }
+  # handle base environment specially
+  prefix <- info$root_prefix %||% ""
+  name[conda_envs == prefix] <- "base"
   
   data.frame(
     name = name,
@@ -606,10 +599,15 @@ conda_python <- function(envname = NULL, conda = "auto") {
   # otherwise, list conda environments and try to find it
   conda_envs <- conda_list(conda = conda)
   env <- subset(conda_envs, conda_envs$name == envname)
-  if (nrow(env) > 0)
-    path.expand(env$python[[1]])
-  else
-    stop("conda environment ", envname, " not found")
+  if (nrow(env) == 0)
+    stop("conda environment '", envname, "' not found")
+  
+  # NOTE: it's possible to have multiple environments with the same name;
+  # e.g. because the user might've installed multiple copies of Anaconda
+  # (e.g. both miniconda and miniforge). we should think about having a way
+  # of disambiguating this, but for now just pick the first one
+  path.expand(env$python[[1L]])
+    
 }
 
 

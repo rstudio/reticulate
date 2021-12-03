@@ -332,23 +332,8 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
     python_versions <- c(python_versions, python)
 
   # provide other common locations
-  if (is_windows()) {
-    python_versions <- c(python_versions, py_versions_windows()$executable_path)
-  } else {
-    python_versions <- c(python_versions,
-                         "/usr/bin/python3",
-                         "/usr/local/bin/python3",
-                         "/opt/python/bin/python3",
-                         "/opt/local/python/bin/python3",
-                         "/usr/bin/python",
-                         "/usr/local/bin/python",
-                         "/opt/python/bin/python",
-                         "/opt/local/python/bin/python",
-                         path.expand("~/anaconda3/bin/python"),
-                         path.expand("~/anaconda/bin/python")
-    )
-  }
-
+  python_versions <- c(python_versions, py_discover_config_fallbacks())
+  
   # next add all known virtual environments
   python_versions <- c(python_versions, python_envs$python)
 
@@ -393,6 +378,45 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
     return(python_config(python_versions[[1]], required_module, python_versions))
   else
     return(NULL)
+}
+
+py_discover_config_fallbacks <- function() {
+  
+  # prefer conda python if available
+  conda <- find_conda()
+  if (!is.null(conda) && file.exists(conda)) {
+    
+    python <- tryCatch(
+      conda_python(envname = "base", conda = conda),
+      error = identity
+    )
+    
+    if (!inherits(python, "error") && file.exists(python))
+      return(python)
+  }
+  
+  # on Windows, try looking in the registry
+  if (is_windows())
+    return(py_versions_windows()$executable_path)
+  
+  # otherwise, just search some default locations
+  prefixes <- c(
+    "/opt/local/python",
+    "/opt/python",
+    "/usr/local",
+    "/usr"
+  )
+  
+  suffixes <- c("bin/python3", "bin/python")
+  grid <- expand.grid(
+    prefix = prefixes,
+    suffix = suffixes,
+    KEEP.OUT.ATTRS = FALSE,
+    stringsAsFactors = FALSE
+  )
+  
+  paste(grid$prefix, grid$suffix, sep = "/")
+  
 }
 
 

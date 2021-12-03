@@ -6,8 +6,8 @@
   `pyproject.toml` file, `reticulate` will attempt to find and use the virtual
   environment managed by Poetry for that project. (#1031)
   
-- `reticulate::install_miniconda()` default python version for the default 
-  `r-reticulte` miniconda environment changes from 3.6 to 3.8.
+- The default version of Python used for the `r-reticulate` Miniconda environment 
+  installed via `reticulate::install_miniconda()` has changed from 3.6 to 3.8.
   
 - `reticulate::install_miniconda()` now prefers installing the latest
   arm64 builds of miniforge. See https://conda-forge.org/blog/posts/2020-10-29-macos-arm64/

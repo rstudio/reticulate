@@ -1,6 +1,9 @@
 
 #include "libpython.h"
 
+#define RCPP_NO_MODULES
+#define RCPP_NO_SUGAR
+
 #include <Rcpp.h>
 using namespace Rcpp;
 

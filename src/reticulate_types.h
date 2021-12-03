@@ -5,6 +5,8 @@
 #include "libpython.h"
 using namespace reticulate::libpython;
 
+#define RCPP_NO_MODULES
+#define RCPP_NO_SUGAR
 #include <Rcpp.h>
 
 inline void python_object_finalize(SEXP object) {

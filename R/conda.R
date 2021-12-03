@@ -101,8 +101,13 @@ conda_list <- function(conda = "auto") {
   python <- paste(conda_envs, suffix, sep = "/")
 
   # handle base environment specially
+  # (compare normalized paths for Windows's sake)
   prefix <- info$root_prefix %||% ""
-  name[conda_envs == prefix] <- "base"
+  isbase <-
+    normalizePath(prefix, winslash = "/", mustWork = FALSE) ==
+    normalizePath(conda_envs, winslash = "/", mustWork = FALSE)
+  
+  name[isbase] <- "base"
   
   data.frame(
     name = name,

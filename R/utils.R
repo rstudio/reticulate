@@ -300,3 +300,6 @@ get_hooks_list <- function(name) {
   hooks
 }
 
+deparse1 <- function(expr, width.cutoff = 500L) {
+  paste(deparse(expr, width.cutoff), collapse = " ")
+}

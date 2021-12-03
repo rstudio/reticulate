@@ -166,6 +166,24 @@ virtualenv_install <- function(envname = NULL,
                                ...)
 {
   check_forbidden_install("Python packages")
+ 
+  # check that 'packages' argument was supplied
+  if (missing(packages)) {
+    if (!is.null(envname)) {
+      
+      fmt <- paste(
+        "argument \"packages\" is missing, with no default",
+        "- did you mean 'conda_install(<envname>, %1$s)'?",
+        "- use 'py_install(%1$s)' to install into the active Python environment",
+        sep = "\n"
+      )
+      
+      stopf(fmt, deparse1(substitute(envname)), call. = FALSE)
+      
+    } else {
+      packages
+    }
+  }
   
   # create virtual environment on demand
   path <- virtualenv_path(envname)

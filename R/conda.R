@@ -758,17 +758,21 @@ conda_run <- function(cmd, args = c(), conda = "auto", envname = NULL,
                       run_args = c("--no-capture-output"), ...) {
 
   conda <- conda_binary(conda)
-  envname <- condaenv_resolve(envname)
+  if(!identical(envname, "base"))
+    envname <- condaenv_resolve(envname)
 
   if (numeric_conda_version(conda) < "4.9")
     stopf(
 "`conda_run()` requires conda version >= 4.9.
 Run `miniconda_update('%s')` to update conda.", conda)
 
-  if(grepl("[/\\]", envname))
+  if(envname == "base") 
+    in_env <- ""
+  else if(grepl("[/\\]", envname))
     in_env <- c("--prefix", shQuote(normalizePath(envname)))
   else
     in_env <- c("--name", envname)
+  
 
   system2(conda, c("run", in_env, run_args,
                    shQuote(cmd), args), ...)
@@ -826,3 +830,9 @@ conda_run2_nix <- function(cmd, args = c(), conda = "auto", envname = NULL) {
   system2(Sys.which("sh"), fi)
 }
 
+
+conda_info <- function(conda = "auto") {
+  conda <- normalizePath(conda_binary(conda))
+  json <- system2(conda, c("info", "--json"), stdout = TRUE)
+  jsonlite::parse_json(json, simplifyVector = TRUE)
+}

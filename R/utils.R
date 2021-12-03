@@ -303,3 +303,11 @@ get_hooks_list <- function(name) {
 deparse1 <- function(expr, width.cutoff = 500L) {
   paste(deparse(expr, width.cutoff), collapse = " ")
 }
+
+isTRUE <- function(x) {
+  is.logical(x) && length(x) == 1L && !is.na(x) && x
+}
+
+isFALSE <- function(x) {
+  is.logical(x) && length(x) == 1L && !is.na(x) && !x
+}

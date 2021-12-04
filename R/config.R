@@ -144,8 +144,9 @@ py_module_available <- function(module) {
 #'
 #' @param required_module A optional module name that must be available
 #'   in order for a version of Python to be used.
+#'
 #' @param use_environment An optional virtual/conda environment name
-#'   to prefer in the search
+#'   to prefer in the search.
 #'
 #' @return Python configuration object.
 #'
@@ -201,20 +202,9 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
 
   # if we're working within a project that contains a pyproject.toml file,
   # then use the copy of Python associated with the poetry environment
-  projfile <- poetry_project_path()
-  if (file.exists(projfile)) {
-
-    # validate that 'poetry' is available
-    poetry <- poetry_binary_path()
-    if (!file.exists(poetry)) {
-      warning("This project contains a 'pyproject.toml' file, but 'poetry' is not available")
-    } else {
-      python <- poetry_python_path(dirname(projfile))
-      config <- python_config(python, required_module, forced = "Poetry")
-      return(config)
-    }
-
-  }
+  config <- poetry_config(required_module)
+  if (!is.null(config))
+    return(config)
 
   # if we're working within a project that contains a Pipfile, then
   # use the copy of Python associated with that pipenv

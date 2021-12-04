@@ -1,7 +1,52 @@
 
-poetry_binary_path <- function() {
+poetry_config <- function(required_module) {
   
-  poetry <- getOption("reticulate.poetry.path")
+  # check for project file
+  project <- poetry_project()
+  projfile <- file.path(project, "pyproject.toml")
+  if (!file.exists(projfile))
+    return(NULL)
+
+  # try to read it
+  toml <- tryCatch(
+    RcppTOML::parseTOML(projfile),
+    error = identity
+  )
+  
+  if (inherits(toml, "error")) {
+    warning("This project contains a 'pyproject.toml' file, but it could not be parsed")
+    stop(toml)
+  }
+  
+  # check that it has a 'tool.poetry' section
+  info <- tryCatch(toml[[c("tool", "poetry")]], error = identity)
+  if (inherits(info, "error"))
+    return(NULL)
+  
+  # validate that 'poetry' is available
+  poetry <- poetry_exe()
+  if (!file.exists(poetry)) {
+    
+    msg <- heredoc("
+      This project appears to use Poetry for Python dependency maangement.
+      However, the 'poetry' command line tool is not available.
+      reticulate will be unable to activate this project.
+      Please ensure that 'poetry' is available on the PATH.
+    ")
+    
+    warning(msg)
+    return(NULL)
+    
+  }
+  
+  python <- poetry_python(project)
+  python_config(python, required_module, forced = "Poetry")
+  
+}
+
+poetry_exe <- function() {
+  
+  poetry <- getOption("reticulate.poetry.exe")
   if (!is.null(poetry))
     return(poetry)
   
@@ -9,7 +54,7 @@ poetry_binary_path <- function() {
   
 }
 
-poetry_project_path <- function() {
+poetry_project <- function() {
   
   # check option
   project <- getOption("reticulate.poetry.project")
@@ -17,14 +62,14 @@ poetry_project_path <- function() {
     return(project)
     
   # try default
-  tryCatch(
-    here::here("pyproject.toml"),
+  projfile <- tryCatch(
+    dirname(here::here("pyproject.toml")),
     error = function(e) ""
   )
     
 }
 
-poetry_python_path <- function(project) {
+poetry_python <- function(project) {
   
   # move to project directory
   owd <- setwd(project)

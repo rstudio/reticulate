@@ -4,7 +4,7 @@
 \alias{conda_python}
 \title{Get Python Path in Conda Environment}
 \usage{
-conda_python(envname = NULL, conda = "auto")
+conda_python(envname = NULL, conda = "auto", all = FALSE)
 }
 \arguments{
 \item{envname}{The name of, or path to, a conda environment.}
@@ -13,10 +13,17 @@ conda_python(envname = NULL, conda = "auto")
 \code{reticulate} to automatically find an appropriate \code{conda} binary. See
 \code{\link[=conda_binary]{conda_binary()}} for more details on how \code{reticulate} tries to resolve
 the \code{conda} executable.}
+
+\item{all}{Boolean; should all conda environments with the requested name
+be returned? By default, only the first matching environment is returned.}
 }
 \description{
 Find the path to the \code{python} executable associated with a particular
 conda environment.
+}
+\details{
+Use \code{envname = "base"} to request the "base" environment associated with
+a Conda installation.
 }
 \seealso{
 Other conda tools: 

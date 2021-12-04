@@ -581,12 +581,20 @@ numeric_conda_version <- function(conda = "auto", version_string = conda_version
 #' Find the path to the `python` executable associated with a particular
 #' conda environment.
 #' 
+#' Use `envname = "base"` to request the "base" environment associated with
+#' a Conda installation.
+#' 
 #' @inheritParams conda-params
+#' 
+#' @param all Boolean; should all conda environments with the requested name
+#'   be returned? By default, only the first matching environment is returned.
 #' 
 #' @family conda tools
 #' @export
-conda_python <- function(envname = NULL, conda = "auto") {
-
+conda_python <- function(envname = NULL,
+                         conda = "auto",
+                         all = FALSE)
+{
   # resolve envname
   envname <- condaenv_resolve(envname)
 
@@ -611,8 +619,8 @@ conda_python <- function(envname = NULL, conda = "auto") {
   # e.g. because the user might've installed multiple copies of Anaconda
   # (e.g. both miniconda and miniforge). we should think about having a way
   # of disambiguating this, but for now just pick the first one
-  path.expand(env$python[[1L]])
-    
+  python <- if (all) env$python else env$python[[1L]]
+  path.expand(python)
 }
 
 

@@ -386,13 +386,14 @@ py_discover_config_fallbacks <- function() {
   conda <- find_conda()
   if (!is.null(conda) && file.exists(conda)) {
     
-    python <- tryCatch(
-      conda_python(envname = "base", conda = conda),
+    pythons <- tryCatch(
+      conda_python(envname = "base", conda = conda, all = TRUE),
       error = identity
     )
     
-    if (!inherits(python, "error") && file.exists(python))
-      return(python)
+    if (is.character(pythons))
+      return(pythons)
+    
   }
   
   # on Windows, try looking in the registry

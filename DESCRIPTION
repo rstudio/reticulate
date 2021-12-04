@@ -35,6 +35,7 @@ Depends:
 Imports:
     Matrix,
     Rcpp (>= 0.12.7),
+    RcppTOML,
     graphics,
     here,
     jsonlite,

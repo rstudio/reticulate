@@ -311,3 +311,45 @@ isTRUE <- function(x) {
 isFALSE <- function(x) {
   is.logical(x) && length(x) == 1L && !is.na(x) && !x
 }
+
+home <- function() {
+  path.expand("~")
+}
+
+aliased_path <- function(path) {
+  
+  home <- home()
+  if (!nzchar(home))
+    return(path)
+  
+  home <- chartr("\\", "/", home)
+  path <- chartr("\\", "/", path)
+  
+  match <- regexpr(home, path, fixed = TRUE, useBytes = TRUE)
+  path[match == 1] <- file.path("~", substring(path[match == 1], nchar(home) + 2L))
+  
+  path
+  
+}
+
+pretty_path <- function(path) {
+  encodeString(aliased_path(path), quote = '"')
+}
+
+heredoc <- function(text) {
+  
+  # remove leading, trailing whitespace
+  trimmed <- gsub("^\\s*\\n|\\n\\s*$", "", text)
+  
+  # split into lines
+  lines <- strsplit(trimmed, "\n", fixed = TRUE)[[1L]]
+  
+  # compute common indent
+  indent <- regexpr("[^[:space:]]", lines)
+  common <- min(setdiff(indent, -1L))
+  
+  # remove common indent
+  paste(substring(lines, common), collapse = "\n")
+  
+}
+

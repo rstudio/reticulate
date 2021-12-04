@@ -82,8 +82,17 @@ install_miniconda_preflight <- function(path, force) {
     return(invisible(TRUE))
   
   # check for a miniconda installation
-  if (miniconda_exists(path))
-    stopf("Miniconda is already installed at %s", shQuote(path))
+  if (miniconda_exists(path)) {
+    
+    fmt <- paste(
+      "Miniconda is already installed at path %s.",
+      "- Use `reticulate::install_miniconda(force = TRUE)` to overwrite the previous installation.",
+      sep = "\n"
+    )
+    
+    stopf(fmt, encodeString(aliased_path(path), quote = '"'))
+    
+  }
   
   # ok to proceed
   invisible(TRUE)

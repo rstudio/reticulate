@@ -117,6 +117,37 @@ conda_list <- function(conda = "auto") {
   
 }
 
+#' Clone a Conda Environment
+#' 
+#' @param clone The environment to be cloned.
+conda_clone <- function(envname, ..., clone = "base", conda = "auto") {
+  
+  # resolve conda binary
+  conda <- conda_binary(conda)
+  
+  # resolve environment name
+  envname <- condaenv_resolve(envname)
+  
+  # create the environment
+  args <- conda_args("create", envname)
+  
+  # be quiet
+  args <- c(args, "--quiet")
+  
+  # add cloned environment
+  args <- c(args, "--clone", clone)
+  
+  # invoke conda
+  result <- system2(conda, shQuote(args))
+  if (result != 0L) {
+    fmt <- "Error creating conda environment '%s' [exit code %i]"
+    stopf(fmt, envname, result, call. = FALSE)
+  }
+  
+  # return the path to the python binary
+  conda_python(envname = envname, conda = conda)
+  
+}
 
 #' Create a Conda Environment
 #' 

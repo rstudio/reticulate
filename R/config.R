@@ -215,7 +215,8 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
     return(config)
   }
 
-  # next look for a required python version (e.g. use_python("/usr/bin/python", required = TRUE))
+  # next look for a required python version
+  # (e.g. use_python("/usr/bin/python", required = TRUE))
   required_version <- .globals$required_python_version
   if (!is.null(required_version)) {
     python_version <- normalize_python_path(required_version)$path
@@ -348,6 +349,23 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
 
     # get the config
     config <- python_config(python_version, required_module, python_versions)
+    
+    # if this is a conda python installation, then create an r-reticulate
+    # environment and use that instead
+    initenv <-
+      identical(getOption("reticulate.conda.autoclone", FALSE), TRUE) &&
+      identical(getOption("reticulate.python.initializing"), TRUE) &&
+      identical(config$conda, TRUE)
+    
+    if (initenv) {
+      fmt <- "* Found conda installation at %s; creating 'r-reticulate' environment ..."
+      messagef(fmt, pretty_path(config$prefix))
+      conda_clone("r-reticulate")
+      conda_install("r-reticulate", packages = "numpy")
+      python <- conda_python("r-reticulate")
+      config <- python_config(python, required_module, python_versions)
+      return(config)
+    }
 
     # if we have a required module ensure it's satisfied.
     # also check architecture (can be an issue on windows)
@@ -652,7 +670,8 @@ python_config <- function(python,
   # get the full textual version and the numeric version, check for anaconda
   version_string <- config$Version
   version <- config$VersionNumber
-  anaconda <- grepl("continuum", tolower(version_string)) || grepl("anaconda", tolower(version_string))
+  conda <- grepl("conda", version_string, ignore.case = TRUE)
+  anaconda <- grepl("anaconda|continuum", version_string, ignore.case = TRUE)
   architecture <- config$Architecture
 
   # determine the location of libpython
@@ -791,6 +810,7 @@ python_config <- function(python,
     version              = version,
     architecture         = architecture,
     anaconda             = anaconda,
+    conda                = conda,
     numpy                = numpy,
     required_module      = required_module,
     required_module_path = required_module_path,

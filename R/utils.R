@@ -209,7 +209,7 @@ enumerate <- function(x, f, ...) {
 }
 
 is_interactive <- function() {
-  
+
   # detect case where RStudio is being used, but reticulate is being
   # executed as part of a user's .Rprofile (for example). in this case,
   # we aren't really interactive as we are unable to respond to readline
@@ -218,39 +218,39 @@ is_interactive <- function() {
   gui <- .Platform$GUI
   if (rstudio && !identical(gui, "RStudio"))
     return(FALSE)
-  
+
   # otherwise, use base implementation
   interactive()
-  
+
 }
 
 is_r_cmd_check <- function() {
-  
+
   # if NOT_CRAN is set, this is likely devtools::check() -- allow it
   not_cran <- Sys.getenv("NOT_CRAN", unset = NA)
   if (identical(not_cran, "true"))
     return(FALSE)
-  
+
   # if _R_CHECK_PACKAGE_NAME_ is set, then we must be running R CMD check
   package_name <- Sys.getenv("_R_CHECK_PACKAGE_NAME_", unset = NA)
   if (!is.na(package_name))
     return(TRUE)
-  
+
   # does not appear to be R CMD check
   FALSE
-  
+
 }
 
 stack <- function(mode = "list") {
-  
+
   .data <- vector(mode)
-  
+
   object <- list(
-    
+
     set = function(data) {
       .data <<- data
     },
-    
+
     push = function(...) {
       dots <- list(...)
       for (data in dots) {
@@ -260,43 +260,43 @@ stack <- function(mode = "list") {
           .data[[length(.data) + 1]] <<- data
       }
     },
-    
+
     pop = function() {
       item <- .data[[length(.data)]]
       length(.data) <<- length(.data) - 1
       item
     },
-    
+
     peek = function() {
       .data[[length(.data)]]
     },
-    
+
     contains = function(data) {
       data %in% .data
     },
-    
+
     empty = function() {
       length(.data) == 0
     },
-    
+
     clear = function() {
       .data <<- list()
     },
-    
+
     data = function() {
       .data
     }
-    
+
   )
-  
+
   object
-  
+
 }
 
 get_hooks_list <- function(name) {
   hooks <- getHook(name)
   if (!is.list(hooks))
-    hooks <- list(hooks)								
+    hooks <- list(hooks)
   hooks
 }
 
@@ -317,19 +317,19 @@ home <- function() {
 }
 
 aliased_path <- function(path) {
-  
+
   home <- home()
   if (!nzchar(home))
     return(path)
-  
+
   home <- chartr("\\", "/", home)
   path <- chartr("\\", "/", path)
-  
+
   match <- regexpr(home, path, fixed = TRUE, useBytes = TRUE)
   path[match == 1] <- file.path("~", substring(path[match == 1], nchar(home) + 2L))
-  
+
   path
-  
+
 }
 
 pretty_path <- function(path) {
@@ -337,19 +337,22 @@ pretty_path <- function(path) {
 }
 
 heredoc <- function(text) {
-  
+
   # remove leading, trailing whitespace
   trimmed <- gsub("^\\s*\\n|\\n\\s*$", "", text)
-  
+
   # split into lines
   lines <- strsplit(trimmed, "\n", fixed = TRUE)[[1L]]
-  
+
   # compute common indent
   indent <- regexpr("[^[:space:]]", lines)
   common <- min(setdiff(indent, -1L))
-  
+
   # remove common indent
   paste(substring(lines, common), collapse = "\n")
-  
+
 }
 
+dir.exists <- function(paths) {
+  utils::file_test("-d", paths)
+}

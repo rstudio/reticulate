@@ -1,30 +1,41 @@
 
+pipenv_config <- function(required_module) {
+
+  pipfile <- pipenv_pipfile_path()
+  if (!file.exists(pipfile))
+    return(NULL)
+
+  python <- pipenv_python()
+  python_config(python, required_module, forced = "Pipfile")
+
+}
+
 pipenv_pipfile_path <- function() {
-  
+
   # check option
   pipfile <- getOption("reticulate.pipenv.pipfile")
   if (!is.null(pipfile))
     return(pipfile)
-  
+
   # try default
   tryCatch(
     here::here("Pipfile"),
     error = function(e) ""
   )
-  
+
 }
 
 pipenv_python <- function() {
-  
+
   # validate that pipenv is available on the PATH
   if (!nzchar(Sys.which("pipenv")))
     stop("'pipenv' is not available")
-  
+
   # move to root directory
   root <- here::here()
   owd <- setwd(root)
   on.exit(setwd(owd), add = TRUE)
-  
+
   # ask pipenv what the environment path is
   envpath <- system("pipenv --venv", intern = TRUE)
   status <- attr(envpath, "status") %||% 0L
@@ -32,8 +43,8 @@ pipenv_python <- function() {
     fmt <- "'pipenv --venv' had status %i"
     stopf(fmt, status)
   }
-  
+
   # get path to python
   virtualenv_python(envpath)
-  
+
 }

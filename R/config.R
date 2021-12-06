@@ -202,18 +202,15 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
 
   # if we're working within a project that contains a pyproject.toml file,
   # then use the copy of Python associated with the poetry environment
-  config <- poetry_config(required_module)
-  if (!is.null(config))
+  config <- tryCatch(poetry_config(required_module), error = identity)
+  if (!inherits(config, "error") && !is.null(config))
     return(config)
 
   # if we're working within a project that contains a Pipfile, then
   # use the copy of Python associated with that pipenv
-  pipfile <- pipenv_pipfile_path()
-  if (file.exists(pipfile)) {
-    python <- pipenv_python()
-    config <- python_config(python, required_module, forced = "Pipfile")
+  config <- tryCatch(pipenv_config(required_module), error = identity)
+  if (!inherits(config, "error") && !is.null(config))
     return(config)
-  }
 
   # next look for a required python version
   # (e.g. use_python("/usr/bin/python", required = TRUE))

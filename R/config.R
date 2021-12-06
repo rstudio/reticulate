@@ -324,7 +324,7 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
 
   # provide other common locations
   python_versions <- c(python_versions, py_discover_config_fallbacks())
-  
+
   # next add all known virtual environments
   python_versions <- c(python_versions, python_envs$python)
 
@@ -349,14 +349,14 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
 
     # get the config
     config <- python_config(python_version, required_module, python_versions)
-    
+
     # if this is a conda python installation, then create an r-reticulate
     # environment and use that instead
     initenv <-
       identical(getOption("reticulate.conda.autoclone", FALSE), TRUE) &&
       identical(getOption("reticulate.python.initializing"), TRUE) &&
       identical(config$conda, TRUE)
-    
+
     if (initenv) {
       fmt <- "* Found conda installation at %s; creating 'r-reticulate' environment ..."
       messagef(fmt, pretty_path(config$prefix))
@@ -389,25 +389,25 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
 }
 
 py_discover_config_fallbacks <- function() {
-  
+
   # prefer conda python if available
   conda <- find_conda()
   if (!is.null(conda) && file.exists(conda)) {
-    
+
     pythons <- tryCatch(
       conda_python(envname = "base", conda = conda, all = TRUE),
       error = identity
     )
-    
+
     if (is.character(pythons))
       return(pythons)
-    
+
   }
-  
+
   # on Windows, try looking in the registry
   if (is_windows())
     return(py_versions_windows()$executable_path)
-  
+
   # otherwise, just search some default locations
   prefixes <- c(
     "/opt/local/python",
@@ -415,7 +415,7 @@ py_discover_config_fallbacks <- function() {
     "/usr/local",
     "/usr"
   )
-  
+
   suffixes <- c("bin/python3", "bin/python")
   grid <- expand.grid(
     prefix = prefixes,
@@ -423,9 +423,9 @@ py_discover_config_fallbacks <- function() {
     KEEP.OUT.ATTRS = FALSE,
     stringsAsFactors = FALSE
   )
-  
+
   paste(grid$prefix, grid$suffix, sep = "/")
-  
+
 }
 
 
@@ -1016,7 +1016,7 @@ read_python_versions_from_registry <- function(hive, key,type=key) {
                 arch <- NA
               }
             } else { # type == "PythonCore"
-              matches <- regexec("^(\\d)\\.(\\d)(?:-(32|64))?$", version)
+              matches <- regexec("^(\\d+)\\.(\\d+)(?:-(32|64))?$", version)
               matches <- regmatches(version, matches)[[1]]
               if (length(matches) == 4) {
                 version <- paste(matches[[2]], matches[[3]], sep = ".")

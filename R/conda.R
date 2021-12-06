@@ -540,6 +540,9 @@ conda_binary <- function(conda = "auto") {
 
   conda <- normalizePath(conda, winslash = "/", mustWork = FALSE)
   
+  if(!grepl("^conda", basename(conda)))
+    stop("Supplied path is not a conda binary: ", sQuote(conda, FALSE))
+  
   # if the user has requested a conda binary in the 'condabin' folder,
   # try to find and use its sibling in the 'bin' folder instead as
   # we rely on other tools typically bundled in the 'bin' folder
@@ -891,4 +894,38 @@ conda_info <- function(conda = "auto") {
   conda <- normalizePath(conda_binary(conda))
   json <- system2(conda, c("info", "--json"), stdout = TRUE)
   jsonlite::parse_json(json, simplifyVector = TRUE)
+}
+
+is_conda_python <- function(python) {
+  root <- if (is_windows())
+    dirname(python)
+  else
+    dirname(dirname(python))
+  
+  file.exists(file.path(root, "conda-meta"))
+}
+
+
+get_python_conda_info <- function(python) {
+  stopifnot(is_conda_python(python))
+  
+  root <- if (is_windows()) 
+    dirname(python)
+  else
+    dirname(dirname(python))
+  
+  if(dir.exists(file.path(root, "condabin"))) {
+    # base conda env
+    conda <- if(is_windows())
+      file.path(root, "condabin/conda.bat")
+    else
+      file.path(root, "bin/conda")
+  } else {
+    # not base env, parse conda-meta history to find the conda binary
+    # that created it
+    conda <- python_info_condaenv_find(root)
+  }
+  
+  list(conda = normalizePath(conda, winslash = "/", mustWork = TRUE),
+       root = normalizePath(root, winslash = "/", mustWork = TRUE))
 }

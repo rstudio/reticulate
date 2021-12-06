@@ -95,21 +95,19 @@ conda_list <- function(conda = "auto") {
   }
 
   # build data frame
-  name <- character()
-  python <- character()
-  for (conda_env in conda_envs) {
-    name <- c(name, basename(conda_env))
-    conda_env_dir <- conda_env
-    if (!is_windows())
-      conda_env_dir <- file.path(conda_env_dir, "bin")
-    conda_env_python <- file.path(conda_env_dir, "python")
-    if (is_windows()) {
-      conda_env_python <- paste0(conda_env_python, ".exe")
-      conda_env_python <- normalizePath(conda_env_python)
-    }
-    python <- c(python, conda_env_python)
+  name <- basename(conda_envs)
+  
+  suffix <- if (is_windows()) "python.exe" else "bin/python"
+  python <- paste(conda_envs, suffix, sep = "/")
 
-  }
+  # handle base environment specially
+  # (compare normalized paths for Windows's sake)
+  prefix <- info$root_prefix %||% ""
+  isbase <-
+    normalizePath(prefix, winslash = "/", mustWork = FALSE) ==
+    normalizePath(conda_envs, winslash = "/", mustWork = FALSE)
+  
+  name[isbase] <- "base"
   
   data.frame(
     name = name,
@@ -119,6 +117,37 @@ conda_list <- function(conda = "auto") {
   
 }
 
+#' Clone a Conda Environment
+#' 
+#' @param clone The environment to be cloned.
+conda_clone <- function(envname, ..., clone = "base", conda = "auto") {
+  
+  # resolve conda binary
+  conda <- conda_binary(conda)
+  
+  # resolve environment name
+  envname <- condaenv_resolve(envname)
+  
+  # create the environment
+  args <- conda_args("create", envname)
+  
+  # be quiet
+  args <- c(args, "--quiet")
+  
+  # add cloned environment
+  args <- c(args, "--clone", clone)
+  
+  # invoke conda
+  result <- system2(conda, shQuote(args))
+  if (result != 0L) {
+    fmt <- "Error creating conda environment '%s' [exit code %i]"
+    stopf(fmt, envname, result, call. = FALSE)
+  }
+  
+  # return the path to the python binary
+  conda_python(envname = envname, conda = conda)
+  
+}
 
 #' Create a Conda Environment
 #' 
@@ -583,12 +612,20 @@ numeric_conda_version <- function(conda = "auto", version_string = conda_version
 #' Find the path to the `python` executable associated with a particular
 #' conda environment.
 #' 
+#' Use `envname = "base"` to request the "base" environment associated with
+#' a Conda installation.
+#' 
 #' @inheritParams conda-params
+#' 
+#' @param all Boolean; should all conda environments with the requested name
+#'   be returned? By default, only the first matching environment is returned.
 #' 
 #' @family conda tools
 #' @export
-conda_python <- function(envname = NULL, conda = "auto") {
-
+conda_python <- function(envname = NULL,
+                         conda = "auto",
+                         all = FALSE)
+{
   # resolve envname
   envname <- condaenv_resolve(envname)
 
@@ -606,10 +643,15 @@ conda_python <- function(envname = NULL, conda = "auto") {
   # otherwise, list conda environments and try to find it
   conda_envs <- conda_list(conda = conda)
   env <- subset(conda_envs, conda_envs$name == envname)
-  if (nrow(env) > 0)
-    path.expand(env$python[[1]])
-  else
-    stop("conda environment ", envname, " not found")
+  if (nrow(env) == 0)
+    stop("conda environment '", envname, "' not found")
+  
+  # NOTE: it's possible to have multiple environments with the same name;
+  # e.g. because the user might've installed multiple copies of Anaconda
+  # (e.g. both miniconda and miniforge). we should think about having a way
+  # of disambiguating this, but for now just pick the first one
+  python <- if (all) env$python else env$python[[1L]]
+  path.expand(python)
 }
 
 

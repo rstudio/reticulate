@@ -30,11 +30,11 @@ install_miniconda <- function(path = miniconda_path(),
   install_miniconda_preflight(path, force)
   
   # download the installer
+  message("* Installing Miniconda -- please wait a moment ...")
   url <- miniconda_installer_url()
   installer <- miniconda_installer_download(url)
   
   # run the installer
-  message("* Installing Miniconda -- please wait a moment ...")
   miniconda_installer_run(installer, update, path)
   
   # validate the install succeeded
@@ -51,7 +51,7 @@ install_miniconda <- function(path = miniconda_path(),
   python <- miniconda_python_package()
   conda_create("r-reticulate", packages = c(python, "numpy"), conda = conda)
   
-  messagef("* Miniconda has been successfully installed at %s.", shQuote(path))
+  messagef("* Miniconda has been successfully installed at %s.", pretty_path(path))
   path
   
 }
@@ -82,8 +82,17 @@ install_miniconda_preflight <- function(path, force) {
     return(invisible(TRUE))
   
   # check for a miniconda installation
-  if (miniconda_exists(path))
-    stopf("Miniconda is already installed at %s", shQuote(path))
+  if (miniconda_exists(path)) {
+    
+    fmt <- paste(
+      "Miniconda is already installed at path %s.",
+      "- Use `reticulate::install_miniconda(force = TRUE)` to overwrite the previous installation.",
+      sep = "\n"
+    )
+    
+    stopf(fmt, pretty_path(path))
+    
+  }
   
   # ok to proceed
   invisible(TRUE)

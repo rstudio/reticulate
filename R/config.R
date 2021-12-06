@@ -513,31 +513,25 @@ python_munge_path <- function(python) {
     }
   }
 
-  info <- tryCatch(
-    python_info(python),
-    # python_info() throws error for non-envs.
-    # if requested python is a system / base conda installation.
-    # Still use conda_run() to munge path
-    error = function(e) {
-      conda <- tryCatch(conda_binary(python), error = function(e) NULL)
-      if (is.null(conda) || !file.exists(conda)) return(list())
-      list(python = python, type = "conda",
-           root = "base", conda = conda)
-    })
 
-  if(isTRUE(info$type == "conda") && numeric_conda_version(info$conda) >= "4.9") {
 
-    new_path <- conda_run(
-      "python",
-      c("-c", shQuote("import os; print(os.environ['PATH'])")),
-      conda = info$conda,
-      envname = info$root,
-      stdout = TRUE
-    )
+  if (is_conda_python(python)) {
+    conda_info <- get_python_conda_info(python)
 
-    old_path <- Sys.getenv("PATH")
-    Sys.setenv("PATH" = new_path)
-    return(old_path)
+    if (numeric_conda_version(conda_info$conda) >= "4.9") {
+
+      new_path <- conda_run(
+        "python",
+        c("-c", shQuote("import os; print(os.environ['PATH'])")),
+        conda = conda_info$conda,
+        envname = conda_info$root,
+        stdout = TRUE
+      )
+
+      old_path <- Sys.getenv("PATH")
+      Sys.setenv("PATH" = new_path)
+      return(old_path)
+    }
 
   }
 

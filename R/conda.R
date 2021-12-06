@@ -850,3 +850,37 @@ conda_info <- function(conda = "auto") {
   json <- system2(conda, c("info", "--json"), stdout = TRUE)
   jsonlite::parse_json(json, simplifyVector = TRUE)
 }
+
+is_conda_python <- function(python) {
+  root <- if (is_windows())
+    dirname(python)
+  else
+    dirname(dirname(python))
+  
+  file.exists(file.path(root, "conda-meta"))
+}
+
+
+get_python_conda_info <- function(python) {
+  stopifnot(is_conda_python(python))
+  
+  root <- if (is_windows()) 
+    dirname(python)
+  else
+    dirname(dirname(python))
+  
+  if(dir.exists(file.path(root, "condabin"))) {
+    # base conda env
+    conda <- if(is_windows())
+      file.path(root, "condabin/conda.bat")
+    else
+      file.path(root, "bin/conda")
+  } else {
+    # not base env, parse conda-meta history to find the conda binary
+    # that created it
+    conda <- python_info_condaenv_find(root)
+  }
+  
+  list(conda = normalizePath(conda, winslash = "/", mustWork = TRUE),
+       root = normalizePath(root, winslash = "/", mustWork = TRUE))
+}

@@ -175,6 +175,22 @@ import_from_path <- function(module,
 
 import_from_path_delayed <- function(module, path, convert, delay_load) {
   
+  # resolve delay_load
+  # single function, maps to on_load
+  if (is.function(delay_load)) {
+    delay_load <- list(on_load = delay_load)
+  }
+  
+  # TRUE translates to an empty list of hooks
+  if (identical(delay_load, TRUE)) {
+    delay_load <- list()
+  }
+  
+  # anything else not a list is an error
+  if (!is.list(delay_load)) {
+    stop("delay_load should be a boolean, a single function, or a list of functions.")
+  }
+  
   .before_load <- delay_load$before_load %||% function() {}
   .on_load     <- delay_load$on_load %||% function() {}
   .on_error    <- delay_load$on_error %||% function(error) {}

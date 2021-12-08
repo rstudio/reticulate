@@ -119,7 +119,13 @@ conda_list <- function(conda = "auto") {
 
 #' Clone a Conda Environment
 #'
+#' @inheritParams conda-params
+#'
 #' @param clone The environment to be cloned.
+#'
+#' @param ... Optional arguments, currently unused.
+#'
+#' @export
 conda_clone <- function(envname, ..., clone = "base", conda = "auto") {
 
   # resolve conda binary

@@ -23,7 +23,7 @@
 #' @export
 py_save_object <- function(object, filename, pickle = "pickle", ...) {
 
-  filename <- normalizePath(filename, winslash = "/", mustWork = TRUE)
+  filename <- normalizePath(filename, winslash = "/", mustWork = FALSE)
 
   builtins <- import_builtins()
   pickle <- import(pickle, convert = TRUE)
@@ -38,7 +38,7 @@ py_save_object <- function(object, filename, pickle = "pickle", ...) {
 #' @export
 py_load_object <- function(filename, pickle = "pickle", ...) {
 
-  filename <- normalizePath(filename, winslash = "/", mustWork = TRUE)
+  filename <- normalizePath(filename, winslash = "/", mustWork = FALSE)
 
   builtins <- import_builtins()
   pickle <- import(pickle, convert = TRUE)

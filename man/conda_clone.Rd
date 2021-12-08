@@ -7,7 +7,16 @@
 conda_clone(envname, ..., clone = "base", conda = "auto")
 }
 \arguments{
+\item{envname}{The name of, or path to, a conda environment.}
+
+\item{...}{Optional arguments, currently unused.}
+
 \item{clone}{The environment to be cloned.}
+
+\item{conda}{The path to a \code{conda} executable. Use \code{"auto"} to allow
+\code{reticulate} to automatically find an appropriate \code{conda} binary. See
+\code{\link[=conda_binary]{conda_binary()}} for more details on how \code{reticulate} tries to resolve
+the \code{conda} executable.}
 }
 \description{
 Clone a Conda Environment

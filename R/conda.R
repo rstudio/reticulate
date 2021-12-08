@@ -698,6 +698,11 @@ find_conda <- function() {
     paste0(conda_locations, "/bin/conda")
   }
 
+  # look for caskroom version (why does it live in a 'base' subdir?)
+  caskroom_conda <- "/opt/homebrew/Caskroom/miniforge/base/bin/conda"
+  if (file.exists(caskroom_conda))
+    conda_locations <- c(conda_locations, caskroom_conda)
+
   # ensure we expand tilde prefixes
   conda_locations <- path.expand(conda_locations)
 

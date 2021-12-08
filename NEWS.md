@@ -1,6 +1,8 @@
 
 ## reticulate 1.23  (UNRELEASED)
 
+- The development branch for `reticulate` has moved to the "main" branch.
+
 - `reticulate` now provides support for Python environments managed by
   [poetry](https://python-poetry.org/). For projects containing a
   `pyproject.toml` file, `reticulate` will attempt to find and use the virtual

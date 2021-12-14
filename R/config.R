@@ -388,7 +388,7 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
 py_discover_config_fallbacks <- function() {
 
   # prefer conda python if available
-  conda <- find_conda()
+  conda <- find_conda()[[1L]]
   if (!is.null(conda) && file.exists(conda)) {
 
     pythons <- tryCatch(

@@ -46,10 +46,11 @@
 #'  - `%conda ...` executes a conda command in the active conda environment
 #'  - `%pip ...` executes pip for the active python.
 #'  - `%load`, `%loadpy`, `%run` executes a python file.
-#'  - `%system` executes a system command and capture output
+#'  - `%system`, `!!` executes a system command and capture output
 #'  - `%env`: read current environment variables.
 #'    - `%env name`: read environment variable 'name'.
 #'    - `%env name=val`, `%env name val`: set environment variable 'name' to 'val'.
+#'       `val` elements in `{}` are interpolated using f-strings (required Python >= 3.6).
 #'  - `%cd <dir>` change working directory.
 #'     - `%cd -`: change to previous working directory.
 #'     - `%cd -3`: change to 3rd most recent working directory.
@@ -525,14 +526,16 @@ invoke_magic <- function(command) {
       return(val)
     }
 
-    new_val <- list(args[[2]])
-    nm <- names(new_val) <- args[[1]]
-    do.call(Sys.setenv, val)
-    cat(sprintf("env: %s=%s\n", nm, new_val))
-    return(invisible(val))
-    # not implemented, $var expansion on new_val. The easiest way would be to
-    # let glue::glue() do the heavy lifting for {} interpolation, but
-    # we'd need to add the dependency and still be missing $ bashisms.
+    new_val <- args[[2]]
+    if(grepl("\\{.*\\}", new_val) && py_version() >= "3.6") {
+      #interpolate as f-strings
+      new_val <- py_eval(sprintf('f"%s"', new_val))
+    }
+    names(new_val) <- args[[1]]
+    do.call(Sys.setenv, as.list(new_val))
+    cat(sprintf("env: %s=%s\n", names(new_val), new_val))
+    return(invisible(new_val))
+    # not implemented: bash-style $var expansion
   }
 
   if(cmd %in% c("load", "loadpy", "run")) {

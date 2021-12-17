@@ -44,11 +44,12 @@ Magics start with a \verb{\%} prefix. Supported magics include:
 \item \verb{\%conda ...} executes a conda command in the active conda environment
 \item \verb{\%pip ...} executes pip for the active python.
 \item \verb{\%load}, \verb{\%loadpy}, \verb{\%run} executes a python file.
-\item \verb{\%system} executes a system command and capture output
+\item \verb{\%system}, \verb{!!} executes a system command and capture output
 \item \verb{\%env}: read current environment variables.
 \itemize{
 \item \verb{\%env name}: read environment variable 'name'.
 \item \verb{\%env name=val}, \verb{\%env name val}: set environment variable 'name' to 'val'.
+\code{val} elements in \code{{}} are interpolated using f-strings (required Python >= 3.6).
 }
 \item \verb{\%cd <dir>} change working directory.
 \itemize{
@@ -82,8 +83,6 @@ py$dictionary
 #
 # $beta
 # [1] 2
-
-
 
 }
 

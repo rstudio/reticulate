@@ -356,3 +356,23 @@ heredoc <- function(text) {
 dir.exists <- function(paths) {
   utils::file_test("-d", paths)
 }
+
+str_split1_on_first <- function(x, pattern, ...) {
+  stopifnot(length(x) == 1, is.character(x))
+  regmatches(x, regexpr(pattern, x, ...), invert = TRUE)[[1L]]
+}
+
+str_drop_prefix <- function(x, prefix) {
+  if(is.character(prefix)) {
+    if(!startsWith(x, prefix))
+      return(x)
+    prefix <- nchar(prefix)
+  }
+  substr(x, as.integer(prefix)+1L, nchar(x))
+}
+
+startsWith <- function (x, prefix) {
+  if (!is.character(x) || !is.character(prefix))
+    stop("non-character object(s)")
+  suppressWarnings(substr(x, 1L, nchar(prefix)) == prefix)
+}

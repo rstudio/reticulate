@@ -856,7 +856,9 @@ conda_run2 <- function(...) {
     conda_run2_nix(...)
 }
 
-conda_run2_windows <- function(cmd, args = c(), conda = "auto", envname = NULL) {
+conda_run2_windows <-
+  function(cmd, args = c(), conda = "auto", envname = NULL,
+           cmd_line = paste(shQuote(cmd), paste(args, collapse = " "))) {
   conda <- normalizePath(conda_binary(conda))
 
   if(identical(envname, "base"))
@@ -871,13 +873,15 @@ conda_run2_windows <- function(cmd, args = c(), conda = "auto", envname = NULL) 
   on.exit(unlink(fi))
   writeLines(c(
     paste("CALL", shQuote(conda), "activate", shQuote(envname)),
-    paste(shQuote(cmd), paste(args, collapse = " "))
+    cmd_line
   ), fi)
 
   shell(fi)
 }
 
-conda_run2_nix <- function(cmd, args = c(), conda = "auto", envname = NULL) {
+conda_run2_nix <-
+  function(cmd, args = c(), conda = "auto", envname = NULL,
+           cmd_line = paste(shQuote(cmd), paste(args, collapse = " "))) {
   conda <- normalizePath(conda_binary(conda))
   activate <- normalizePath(file.path(dirname(conda), "activate"))
 
@@ -894,7 +898,7 @@ conda_run2_nix <- function(cmd, args = c(), conda = "auto", envname = NULL) {
     if(!identical(envname, "base"))
       paste("conda activate", shQuote(envname)),
     'echo "Activated conda python: $(which python)"',
-    paste(shQuote(cmd), paste(args, collapse = " "))
+    cmd_line
   ), fi)
   system2(Sys.which("sh"), fi)
 }

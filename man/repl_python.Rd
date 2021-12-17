@@ -31,6 +31,42 @@ When working with R and Python scripts interactively, one can activate
 the Python REPL with \code{repl_python()}, run Python code, and later run \code{exit}
 to return to the \R console.
 }
+\section{Magics}{
+ A handful of magics are supported in \code{repl_python()}:
+
+Lines prefixed with \code{!} are executed as system commands:
+\itemize{
+\item \code{!cmd --arg1 --arg2}: Execute arbitrary system commands
+}
+
+Magics start with a \verb{\%} prefix. Supported magics include:
+\itemize{
+\item \verb{\%conda ...} executes a conda command in the active conda environment
+\item \verb{\%pip ...} executes pip for the active python.
+\item \verb{\%load}, \verb{\%loadpy}, \verb{\%run} executes a python file.
+\item \verb{\%system} executes a system command and capture output
+\item \verb{\%env}: read current environment variables.
+\itemize{
+\item \verb{\%env name}: read environment variable 'name'.
+\item \verb{\%env name=val}, \verb{\%env name val}: set environment variable 'name' to 'val'.
+}
+\item \verb{\%cd <dir>} change working directory.
+\itemize{
+\item \verb{\%cd -}: change to previous working directory.
+\item \verb{\%cd -3}: change to 3rd most recent working directory.
+\item \verb{\%cd -foo/bar}: change to most recent working directory matching \code{"foo/bar"} regex.
+}
+\item \verb{\%pwd}: print current working directory.
+\item \verb{\%dhist}: print working directory history.
+}
+
+Additionally, the output of magic commands can be captured in a variable, e.g.:
+\itemize{
+\item \code{x = !ls}
+\item \verb{x = \%pip freeze}
+}
+}
+
 \examples{
 \dontrun{
 
@@ -46,6 +82,8 @@ py$dictionary
 #
 # $beta
 # [1] 2
+
+
 
 }
 

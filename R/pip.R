@@ -8,13 +8,13 @@ pip_version <- function(python) {
   # otherwise, ask pip what version it is
   command <- "import sys; import pip; sys.stdout.write(pip.__version__)"
   version <- system2(python, c("-c", shQuote(command)), stdout = TRUE, stderr = TRUE)
-  
+
   # remove any beta components from version string
   idx <- regexpr("[[:alpha:]]", version)
   if (idx != -1)
     version <- substring(version, 1, idx - 1)
 
-  # construct numeric version  
+  # construct numeric version
   numeric_version(version)
 
 }
@@ -40,7 +40,7 @@ pip_install <- function(python,
   # figure out if we should go though conda_run()
   if (conda == "auto") {
     info <- python_info(python)
-    if(info$type != "conda" || numeric_conda_version(info$conda) < "4.9")
+    if (info$type != "conda" || numeric_conda_version(info$conda) < "4.9")
       conda <- NULL
   }
 
@@ -75,26 +75,26 @@ pip_uninstall <- function(python, packages) {
 }
 
 pip_freeze <- function(python) {
-  
+
   # run pip freeze to list dependencies
   args <- c("-m", "pip", "freeze")
   output <- system2(python, args, stdout = TRUE)
-  
+
   # match explicit version requests + direct references
   matches <- strsplit(output, "(==|@)")
-  
+
   # keep original output string
   matches <- .mapply(c, list(matches, output), MoreArgs = NULL)
-  
+
   # drop unmatched lines
   n <- vapply(matches, length, FUN.VALUE = numeric(1))
   matches <- matches[n == 3]
-  
+
   # build output columns
   packages    <- vapply(matches, `[[`, 1L, FUN.VALUE = character(1))
   versions    <- vapply(matches, `[[`, 2L, FUN.VALUE = character(1))
   requirement <- vapply(matches, `[[`, 3L, FUN.VALUE = character(1))
-  
+
   # return as data.frame
   data.frame(
     package     = packages,
@@ -102,5 +102,5 @@ pip_freeze <- function(python) {
     requirement = requirement,
     stringsAsFactors = FALSE
   )
-  
+
 }

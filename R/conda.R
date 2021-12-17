@@ -546,7 +546,7 @@ conda_binary <- function(conda = "auto") {
 
   conda <- normalizePath(conda, winslash = "/", mustWork = FALSE)
   if (!grepl("^conda", basename(conda)))
-    stop("Supplied path is not a conda binary: ", sQuote(conda, FALSE))
+    stop("Supplied path is not a conda binary: ", sQuote(conda))
 
   # if the user has requested a conda binary in the 'condabin' folder,
   # try to find and use its sibling in the 'bin' folder instead as
@@ -838,7 +838,7 @@ conda_run <- function(cmd, args = c(), conda = "auto", envname = NULL,
 Run `miniconda_update('%s')` to update conda.", conda)
 
 
-  if(grepl("[/\\]", envname))
+  if (grepl("[/\\]", envname))
     in_env <- c("--prefix", shQuote(normalizePath(envname)))
   else
     in_env <- c("--name", envname)
@@ -850,7 +850,7 @@ Run `miniconda_update('%s')` to update conda.", conda)
 # executes a cmd with a conda env active, implemented directly to avoid using `conda run`
 # https://github.com/conda/conda/issues/10972
 conda_run2 <- function(...) {
-  if(is_windows())
+  if (is_windows())
     conda_run2_windows(...)
   else
     conda_run2_nix(...)
@@ -859,12 +859,12 @@ conda_run2 <- function(...) {
 conda_run2_windows <- function(cmd, args = c(), conda = "auto", envname = NULL) {
   conda <- normalizePath(conda_binary(conda))
 
-  if(identical(envname, "base"))
+  if (identical(envname, "base"))
     envname <- file.path(dirname(conda), "../..")
   else
     envname <- condaenv_resolve(envname)
 
-  if(grepl("[/\\]", envname))
+  if (grepl("[/\\]", envname))
     envname <- normalizePath(envname)
 
   fi <- tempfile(fileext = ".bat")
@@ -881,7 +881,7 @@ conda_run2_nix <- function(cmd, args = c(), conda = "auto", envname = NULL) {
   conda <- normalizePath(conda_binary(conda))
   activate <- normalizePath(file.path(dirname(conda), "activate"))
 
-  if(!identical(envname, "base")) {
+  if (!identical(envname, "base")) {
     envname <- condaenv_resolve(envname)
     if (grepl("[/\\]", envname))
       envname <- normalizePath(envname)
@@ -891,7 +891,7 @@ conda_run2_nix <- function(cmd, args = c(), conda = "auto", envname = NULL) {
   on.exit(unlink(fi))
   writeLines(c(
     paste(".", activate),
-    if(!identical(envname, "base"))
+    if (!identical(envname, "base"))
       paste("conda activate", shQuote(envname)),
     'echo "Activated conda python: $(which python)"',
     paste(shQuote(cmd), paste(args, collapse = " "))

@@ -572,3 +572,46 @@ invoke_magic <- function(command) {
 }
 
 
+
+#' IPython console
+#'
+#' Launch IPython console app.
+#'
+#' See https://ipython.readthedocs.io/ for features.
+#'
+#' @keywords internal
+ipython <- function() {
+  ensure_python_initialized("IPython")
+
+  # set flag for frontend
+  .globals$py_repl_active <- TRUE
+  on.exit({
+    .globals$py_repl_active <- FALSE
+  }, add = TRUE)
+
+  # don't pollute R history w/ python commands
+  # (IPython keeps track of it's own history)
+  use_history <-
+    !"--vanilla" %in% commandArgs() &&
+    !"--no-save" %in% commandArgs() &&
+    !is.null(getwd()) &&
+    tryCatch(
+      { utils::savehistory(tempfile()); TRUE },
+      error = function(e) FALSE
+    )
+
+  if (use_history) {
+    # if we have history, save and then restore the current
+    # R history
+    utils::savehistory()
+    on.exit(utils::loadhistory(), add = TRUE)
+  }
+
+  # Not implemented,
+  #  - custom startup banner
+  # RStudio IDE support for:
+  #  - image display
+  #  - composition of multi-line code blocks
+
+  import("rpytools.ipython")$start_ipython()
+}

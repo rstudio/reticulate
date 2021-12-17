@@ -82,7 +82,7 @@ repl_python <- function(
   if (is.function(teardown)) {
     on.exit(teardown(), add = TRUE)
   }
-  
+
   # split provided code on newlines
   if (!is.null(input))
     input <- unlist(strsplit(input, "\n", fixed = TRUE))
@@ -148,7 +148,7 @@ repl_python <- function(
     }
     failed
   }
-  
+
   handle_interrupt <- function(condition) {
     # swallow interrupts -- don't allow interrupted Python code to
     # exit the REPL; we should only exit when an interrupt is sent
@@ -156,18 +156,18 @@ repl_python <- function(
   }
 
   repl <- function() {
-    
+
     # flush stdout, stderr on each REPL iteration
     on.exit({
-      
+
       if (!is.null(sys$stdout) && !is.null(sys$stdout$flush))
         sys$stdout$flush()
-      
+
       if (!is.null(sys$stderr) && !is.null(sys$stderr$flush))
         sys$stderr$flush()
-      
+
     }, add = TRUE)
-    
+
     # read input (either from user or from code)
     prompt <- if (buffer$empty()) ">>> " else "... "
     if (is.null(input)) {
@@ -208,23 +208,23 @@ repl_python <- function(
       if (isTRUE(status))
         return()
     }
-    
+
     # run hook provided by front-end, to notify that we're now busy
     hook <- getOption("reticulate.repl.busy")
     if (is.function(hook)) {
-      
+
       # run once now to indicate we're about to run
       status <- tryCatch(hook(TRUE), error = identity)
       if (inherits(status, "error"))
         warning(status)
-      
+
       # run again on exit to indicate we're done
       on.exit({
         status <- tryCatch(hook(FALSE), error = identity)
         if (inherits(status, "error"))
           warning(status)
       }, add = TRUE)
-      
+
     }
 
     # special handling for top-level commands (when buffer is empty)
@@ -329,7 +329,7 @@ repl_python <- function(
 
       # submit previous code
       pasted <- paste(previous, collapse = "\n")
-      
+
       tryCatch(
         py_compile_eval(pasted, capture = FALSE),
         error = handle_error,
@@ -349,7 +349,7 @@ repl_python <- function(
     # otherwise, we should have received a code output object
     # so we can just run the code submitted thus far
     buffer$clear()
-    
+
     tryCatch(
       py_compile_eval(code, capture = FALSE),
       error = handle_error,
@@ -397,7 +397,7 @@ repl_python <- function(
       break
 
     tryCatch(repl(), interrupt = identity)
-    
+
   }
 
 }

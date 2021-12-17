@@ -1,5 +1,6 @@
 
-
+#' conda-params
+#'
 #' @param envname The name of, or path to, a conda environment.
 #'
 #' @param conda The path to a `conda` executable. Use `"auto"` to allow
@@ -15,8 +16,18 @@
 #'   specify multiple channels, including the conda Forge, you can use
 #'   `c("conda-forge", <other channels>)`.
 #'
+#' @param packages A character vector, indicating package names which should be
+#'   installed or removed. Use `python=<version>` to request the installation
+#'   of a specific version of Python.
+#'
+#' @param ... Optional arguments, reserved for future expansion.
+#'
 #' @name conda-params
 NULL
+
+
+
+
 
 #' List Conda Environments
 #'

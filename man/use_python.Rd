@@ -8,15 +8,15 @@
 \alias{use_miniconda}
 \title{Use Python}
 \usage{
-use_python(python, required = FALSE)
+use_python(python, required = NULL)
 
-use_python_version(version, required = FALSE)
+use_python_version(version, required = NULL)
 
-use_virtualenv(virtualenv = NULL, required = FALSE)
+use_virtualenv(virtualenv = NULL, required = NULL)
 
-use_condaenv(condaenv = NULL, conda = "auto", required = FALSE)
+use_condaenv(condaenv = NULL, conda = "auto", required = NULL)
 
-use_miniconda(condaenv = NULL, required = FALSE)
+use_miniconda(condaenv = NULL, required = NULL)
 }
 \arguments{
 \item{python}{The path to a Python binary.}
@@ -66,18 +66,6 @@ Python.
 
 \section{Caveats}{
 
-
-By default, requests are \emph{advisory}, and may be ignored for a number of reasons:
-\itemize{
-\item The requested copy of Python cannot be initialized,
-\item The requested copy of Python does not have an installation of \code{numpy} available,
-\item Another call to \code{use_python()} has requested a different version of Python,
-\item The request has been overridden via \code{use_python(..., required = TRUE)}.
-}
-
-In general, if you explicitly want to use a particular version of Python, it
-is recommended to set \code{required = TRUE}, or explicitly set the
-\code{RETICULATE_PYTHON} environment variable.
 
 Note that the requests for a particular version of Python via \code{use_python()}
 and friends only persist for the active session; they must be re-run in each

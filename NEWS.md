@@ -3,6 +3,10 @@
 
 - The development branch for `reticulate` has moved to the "main" branch.
 
+- `reticulate::use_python()` and friends now assume `required = TRUE` by
+  default. For backwards compatibility, when `use_python()` is called
+  as part of a package load hook, the default value will instead be `FALSE`.
+
 - `reticulate` now provides support for Python environments managed by
   [poetry](https://python-poetry.org/). For projects containing a
   `pyproject.toml` file, `reticulate` will attempt to find and use the virtual

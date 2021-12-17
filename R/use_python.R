@@ -217,6 +217,7 @@ use_python_required <- function() {
   for (call in calls) {
 
     match <-
+      length(call) >= 2 &&
       identical(call[[1L]], as.name("runHook")) &&
       identical(call[[2L]], ".onLoad")
 

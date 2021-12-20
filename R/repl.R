@@ -447,7 +447,7 @@ invoke_magic <- function(command) {
      hist <- get_dhist()
 
     if(length(args) != 1)
-       stop("%cd magic takes 1 arguments, received: ", command)
+       stop("%cd magic takes 1 argument, received: ", command)
 
      dir <- gsub("[\"']", "", args)
      # strings auto complete as fs locations in RStudio IDE, so as a convenience
@@ -509,7 +509,8 @@ invoke_magic <- function(command) {
                         conda = info$conda,
                         envname = info$root))
     } else {
-      system2(py_exe(), shQuote(c("-m", "pip", args)))
+      args <- shQuote(strsplit(args, "\\s+")[[1]])
+      system2(py_exe(), c("-m", "pip", args))
     }
     return()
   }
@@ -553,7 +554,10 @@ invoke_magic <- function(command) {
   }
 
   if(cmd %in% c("system", "sx")) {
-    return(system(args, intern = TRUE))
+    if(is_windows())
+      return(shell(args, intern = TRUE))
+    else
+      return(system(args, intern = TRUE))
   }
 
   stop("Magic not implemented: ", command)

@@ -1,5 +1,13 @@
 context("objects")
 
+test_that("the length of a Python object can be computed", {
+  skip_if_no_python()
+
+  m <- py_eval("[1, 2, 3]", convert = FALSE)
+  expect_equal(length(m), 3L)
+
+})
+
 test_that("python objects with a __setitem__ method can be used", {
   skip_if_no_python()
 

@@ -3,6 +3,9 @@
 
 - The development branch for `reticulate` has moved to the "main" branch.
 
+- `reticulate` gains `reticulate::miniconda_uninstall()`, for uninstalling
+  the reticulate-managed version of Miniconda. (#1077)
+
 - `reticulate::use_python()` and friends now assume `required = TRUE` by
   default. For backwards compatibility, when `use_python()` is called
   as part of a package load hook, the default value will instead be `FALSE`.

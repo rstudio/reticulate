@@ -24,6 +24,6 @@ using the copies of Python installed by \code{\link[=install_python]{install_pyt
 version <- "3.8.7"
 install_python(version = version)
 virtualenv_create("my-environment", python_version = version)
-use_virtualenv("my-environment", required = TRUE)
+use_virtualenv("my-environment")
 }
 }

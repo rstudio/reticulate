@@ -7,11 +7,9 @@
 install_miniconda(path = miniconda_path(), update = TRUE, force = FALSE)
 }
 \arguments{
-\item{path}{The path in which Miniconda will be installed. Note that the
-installer does not support paths containing spaces. See \link{miniconda_path}
-for more details on the default path used by \code{reticulate}.}
-
-\item{update}{Boolean; update to the latest version of Miniconda after install?}
+\item{path}{The location where Miniconda is (or should be) installed. Note
+that the Miniconda installer does not support paths containing spaces. See
+\link{miniconda_path} for more details on the default path used by \code{reticulate}.}
 
 \item{force}{Boolean; force re-installation if Miniconda is already installed
 at the requested path?}
@@ -20,9 +18,13 @@ at the requested path?}
 Download the \href{https://docs.conda.io/en/latest/miniconda.html}{Miniconda}
 installer, and use it to install Miniconda.
 }
+\details{
+For arm64 builds of R on macOS, \code{install_miniconda()} will use
+binaries from \href{https://github.com/conda-forge/miniforge}{miniforge} instead.
+}
 \seealso{
-Other miniconda: 
-\code{\link{miniconda_path}()},
+Other Miniconda tools: 
+\code{\link{miniconda_uninstall}()},
 \code{\link{miniconda_update}()}
 }
-\concept{miniconda}
+\concept{Miniconda tools}

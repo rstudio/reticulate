@@ -11,6 +11,9 @@ install_miniconda(path = miniconda_path(), update = TRUE, force = FALSE)
 that the Miniconda installer does not support paths containing spaces. See
 \link{miniconda_path} for more details on the default path used by \code{reticulate}.}
 
+\item{update}{Boolean; update to the latest version of Miniconda after
+installation?}
+
 \item{force}{Boolean; force re-installation if Miniconda is already installed
 at the requested path?}
 }

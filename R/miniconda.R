@@ -16,6 +16,9 @@ NULL
 #'
 #' @inheritParams miniconda-params
 #'
+#' @param update Boolean; update to the latest version of Miniconda after
+#'   installation?
+#'
 #' @param force Boolean; force re-installation if Miniconda is already installed
 #'   at the requested path?
 #'

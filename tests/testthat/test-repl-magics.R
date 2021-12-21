@@ -26,9 +26,9 @@ test_that("repl_python() magics", {
     "z = %pwd"
   ))
 
-  expect_equal(py$x, owd)
-  expect_equal(py$y, dirname(owd))
-  expect_equal(py$z, owd)
+  expect_equal(py_eval("x"), owd)
+  expect_equal(py_eval("y"), dirname(owd))
+  expect_equal(py_eval("z"), owd)
 
   repl_python(input = c(
     "x = %env FOOVAR",
@@ -38,12 +38,12 @@ test_that("repl_python() magics", {
     "z = %env FOOVAR"
     ))
 
-  expect_equal(py$x, "")
-  expect_equal(py$y, "baz")
-  expect_equal(py$z, "foo")
+  expect_equal(py_eval("x"), "")
+  expect_equal(py_eval("y"), "baz")
+  expect_equal(py_eval("z"), "foo")
   Sys.unsetenv("FOOVAR")
 
   repl_python(input = "x = !ls")
-  expect_equal(py$x, system("ls", intern = TRUE))
+  expect_equal(py_eval("x"), system("ls", intern = TRUE))
 
 })

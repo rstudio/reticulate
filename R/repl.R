@@ -59,9 +59,8 @@
 #'  - `%pwd`: print current working directory.
 #'  - `%dhist`: print working directory history.
 #'
-#' Additionally, the output of magic commands can be captured in a variable, e.g.:
+#' Additionally, the output of system commands can be captured in a variable, e.g.:
 #'  - `x = !ls`
-#'  - `x = %pip freeze`
 #'
 #'  where `x` will be a list of strings, consisting of
 #'  stdout output split in `"\n"` (stderr is not captured).
@@ -467,7 +466,7 @@ invoke_magic <- function(command) {
 
     if (startsWith(args, "-")) {
       if (args == "-") {
-        dir <- hist$peek()
+        dir <- hist[-2L]
       } else if (grepl("-[0-9]+$", args)) {
         dir <- hist[as.integer(args)]
       } else {

@@ -255,35 +255,38 @@ repl_python <- function(
         return()
       }
 
-      # expand any "!!" as system commands that capture output
-      trimmed <- gsub("!!", "%system ", trimmed)
+      if (getOption("reticulate.repl.use_magics", TRUE)) {
 
-      # user intends to capture output from system command in var
-      # e.g.:   x = !ls
-      if (grepl("^[[:alnum:]_.]\\s*=\\s*!", trimmed))
-        trimmed <- sub("=\\s*!", "= %system ", trimmed)
+        # expand any "!!" as system commands that capture output
+        trimmed <- gsub("!!", "%system ", trimmed)
 
-      # magic
-      if (grepl("^%", trimmed)) {
-        py$`_` <- .globals$py_last_value <- invoke_magic(trimmed)
-        return()
-      }
+        # user intends to capture output from system command in var
+        # e.g.:   x = !ls
+        if (grepl("^[[:alnum:]_.]\\s*=\\s*!", trimmed))
+          trimmed <- sub("=\\s*!", "= %system ", trimmed)
 
-      # system
-      if (grepl("^!", trimmed)) {
-        system(str_drop_prefix(trimmed, "!"))
-        return()
-      }
+        # magic
+        if (grepl("^%", trimmed)) {
+          py$`_` <- .globals$py_last_value <- invoke_magic(trimmed)
+          return()
+        }
 
-      # capture output from magic command in var
-      #   # e.g.:   x = %env USER
-      if (grepl("^[[:alnum:]_.]\\s*=\\s*%", trimmed)) {
-        s <- str_split1_on_first(trimmed, "\\s*=\\s*")
-        target <- s[[1]]
-        magic <- str_drop_prefix(s[2L], "%")
-        py$`_` <- .globals$py_last_value <- invoke_magic(magic)
-        py_run_string(sprintf("%s = _", target), local = FALSE, convert = FALSE)
-        return()
+        # system
+        if (grepl("^!", trimmed)) {
+          system(str_drop_prefix(trimmed, "!"))
+          return()
+        }
+
+        # capture output from magic command in var
+        #   # e.g.:   x = %env USER
+        if (grepl("^[[:alnum:]_.]\\s*=\\s*%", trimmed)) {
+          s <- str_split1_on_first(trimmed, "\\s*=\\s*")
+          target <- s[[1]]
+          magic <- str_drop_prefix(s[2L], "%")
+          py$`_` <- .globals$py_last_value <- invoke_magic(magic)
+          py_run_string(sprintf("%s = _", target), local = FALSE, convert = FALSE)
+          return()
+        }
       }
 
       # if the user submitted a blank line at the top level,

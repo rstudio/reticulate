@@ -3023,7 +3023,7 @@ void py_set_interrupt_impl() {
 // [[Rcpp::export]]
 SEXP py_list_length(PyObjectRef x) {
   Py_ssize_t value = PyList_Size(x);
-  if (value < INT_MAX)
+  if (value <= static_cast<Py_ssize_t>(INT_MAX))
     return Rf_ScalarInteger((int) value);
   else
     return Rf_ScalarReal((double) value);
@@ -3032,7 +3032,7 @@ SEXP py_list_length(PyObjectRef x) {
 // [[Rcpp::export]]
 SEXP py_len_impl(PyObjectRef x) {
   Py_ssize_t value = PyObject_Size(x);
-  if (value < INT_MAX)
+  if (value <= static_cast<Py_ssize_t>(INT_MAX))
     return Rf_ScalarInteger((int) value);
   else
     return Rf_ScalarReal((double) value);

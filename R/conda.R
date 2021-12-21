@@ -592,6 +592,28 @@ conda_version <- function(conda = "auto") {
 }
 
 
+#' Update Conda
+#'
+#' Update to the latest-available version of `conda`. Equivalent to calling:
+#'
+#' ```
+#' conda update --prefix $(conda info --base) conda
+#' ```
+#' @inheritParams conda-params
+#' @export
+conda_update <- function(conda = "auto") {
+
+  # resolve conda
+  conda <- conda_binary(conda)
+
+  # compute base path
+  prefix <- system2(conda, c("info", "--base"), stdout = TRUE)
+
+  # attempt update
+  system2(conda, c("update", "--prefix", shQuote(prefix), "--yes", "conda"))
+
+}
+
 numeric_conda_version <- function(conda = "auto", version_string = conda_version(conda)) {
   # some plausible version strings:
   # "conda 4.6.0"

@@ -3,6 +3,9 @@
 
 - The development branch for `reticulate` has moved to the "main" branch.
 
+- `reticulate` gains `reticulate::conda_update()`, for updating the
+  version of `conda` in a particular `conda` installation.
+
 - `reticulate` gains `reticulate::miniconda_uninstall()`, for uninstalling
   the reticulate-managed version of Miniconda. (#1077)
 

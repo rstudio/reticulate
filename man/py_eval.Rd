@@ -24,7 +24,7 @@ Evaluate a single Python expression, in a way analogous to the Python
 
 \code{py_eval()} only supports evaluation of 'simple' Python expressions.
 Other expressions (e.g. assignments) will fail; e.g.\preformatted{> py_eval("x = 1")
-Error in py_eval_impl(code, convert) : 
+Error in py_eval_impl(code, convert) :
   SyntaxError: invalid syntax (reticulate_eval, line 1)
 }
 

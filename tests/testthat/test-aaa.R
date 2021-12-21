@@ -5,6 +5,6 @@ if (!is_windows() &&
     is.na(Sys.getenv("RETICULATE_PYTHON", unset = NA)))
 {
   python <- Sys.which("python3")
-  if (nzchar(python))
+  if (nzchar(python) && python != "/usr/bin/python3")
     use_python(python, required = TRUE)
 }

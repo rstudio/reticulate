@@ -257,24 +257,24 @@ repl_python <- function(
 
       # user intends to capture output from system command in var
       # e.g.:   x = !ls
-      if(grepl("^[[:alnum:]_.]\\s*=\\s*!", trimmed))
+      if (grepl("^[[:alnum:]_.]\\s*=\\s*!", trimmed))
         trimmed <- sub("=\\s*!", "= %system ", trimmed)
 
       # magic
-      if(grepl("^%", trimmed)) {
+      if (grepl("^%", trimmed)) {
         py$`_` <- .globals$py_last_value <- invoke_magic(trimmed)
         return()
       }
 
       # system
-      if(grepl("^!", trimmed)) {
+      if (grepl("^!", trimmed)) {
         system(str_drop_prefix(trimmed, "!"))
         return()
       }
 
       # capture output from magic command in var
       #   # e.g.:   x = %env USER
-      if(grepl("^[[:alnum:]_.]\\s*=\\s*%", trimmed)) {
+      if (grepl("^[[:alnum:]_.]\\s*=\\s*%", trimmed)) {
         s <- str_split1_on_first(trimmed, "\\s*=\\s*")
         target <- s[[1]]
         magic <- str_drop_prefix(s[2L], "%")
@@ -422,9 +422,9 @@ invoke_magic <- function(command) {
   args <- m[-1]
 
 
-  if(cmd == "pwd") {
-    if(length(args))
-      stop("%pwd magic takes not arguments, received: ", command)
+  if (cmd == "pwd") {
+    if (length(args))
+      stop("%pwd magic takes no arguments, received: ", command)
     dir <- getwd()
     cat(dir, "\n")
     return(invisible(dir))
@@ -435,7 +435,7 @@ invoke_magic <- function(command) {
   # also, this can only track changes made from `repl_python()`.
   get_dhist <- function() {
     dh <- .globals$magics_state$wd_history
-    if(is.null(dh)) {
+    if (is.null(dh)) {
       .globals$magics_state <- new.env(parent = emptyenv())
       dh <- import("collections")$deque(list(getwd()), 200L)
       .globals$magics_state$wd_history <- dh
@@ -443,10 +443,10 @@ invoke_magic <- function(command) {
     dh
   }
 
-  if(cmd == "cd") {
+  if (cmd == "cd") {
      hist <- get_dhist()
 
-    if(length(args) != 1)
+    if (length(args) != 1)
        stop("%cd magic takes 1 argument, received: ", command)
 
      dir <- gsub("[\"']", "", args)
@@ -461,8 +461,8 @@ invoke_magic <- function(command) {
        invisible(old_wd)
      }
 
-    if(startsWith(args, "-")) {
-      if(args == "-") {
+    if (startsWith(args, "-")) {
+      if (args == "-") {
         dir <- hist$peek()
       } else if (grepl("-[0-9]+$", args)) {
         dir <- hist[as.integer(args)]
@@ -470,10 +470,10 @@ invoke_magic <- function(command) {
         # partial matching by regex
         hist <- import_builtins()$list(hist)
         re <- str_drop_prefix(args, "-")
-        if(is_windows())
+        if (is_windows())
           re <- gsub("[/]", "\\", re, fixed = TRUE)
         dir <- grep(re, hist, perl = TRUE, value = TRUE)
-        if(!length(dir))
+        if (!length(dir))
           stop("No matching directory found in history for ", dQuote(re), ".",
                "\nSee history with %dhist")
 
@@ -486,7 +486,7 @@ invoke_magic <- function(command) {
     return(setwd2(dir))
   }
 
-  if(cmd == "dhist") {
+  if (cmd == "dhist") {
     hist <- get_dhist()
     hist <- import_builtins()$list(hist)
     cat("Directory history:\n- ")
@@ -495,15 +495,15 @@ invoke_magic <- function(command) {
     return(invisible(hist))
   }
 
-  if(cmd == "conda") {
+  if (cmd == "conda") {
     info <- get_python_conda_info(py_exe())
     return(conda_run2(cmd_line = paste("conda", args),
                       conda = info$conda,
                       envname = info$root))
   }
 
-  if(cmd == "pip") {
-    if(is_conda_python(py_exe())) {
+  if (cmd == "pip") {
+    if (is_conda_python(py_exe())) {
       info <- get_python_conda_info(py_exe())
       return(conda_run2(cmd_line = paste("pip", args),
                         conda = info$conda,
@@ -515,12 +515,12 @@ invoke_magic <- function(command) {
     return()
   }
 
-  if(cmd == "env") {
+  if (cmd == "env") {
 
-    if(!length(args))
+    if (!length(args))
       return(print(Sys.getenv()))
 
-    if(grepl("=|\\s", args)) # user setting var
+    if (grepl("=|\\s", args)) # user setting var
       args <- str_split1_on_first(args, "=|\\s+")
     else {
       print(val <- Sys.getenv(args))
@@ -528,7 +528,7 @@ invoke_magic <- function(command) {
     }
 
     new_val <- args[[2]]
-    if(grepl("\\{.*\\}", new_val) && py_version() >= "3.6") {
+    if (grepl("\\{.*\\}", new_val) && py_version() >= "3.6") {
       #interpolate as f-strings
       new_val <- py_eval(sprintf('f"%s"', new_val))
     }
@@ -539,7 +539,7 @@ invoke_magic <- function(command) {
     # not implemented: bash-style $var expansion
   }
 
-  if(cmd %in% c("load", "loadpy", "run")) {
+  if (cmd %in% c("load", "loadpy", "run")) {
     # only supports sourcing a python file in __main__
     # not implemented:
     # -r line ranges, -s specific symbols,
@@ -547,14 +547,14 @@ invoke_magic <- function(command) {
     # reexecution of namespace objects annotated by ipython shell with original source
     # ipython extensions
     file <- gsub("[\"']", "", args)
-    if(!file.exists(file))
+    if (!file.exists(file))
       stop("Python file not found: ", file)
     py_run_file(file, local = FALSE, convert = FALSE)
     return()
   }
 
-  if(cmd %in% c("system", "sx")) {
-    if(is_windows())
+  if (cmd %in% c("system", "sx")) {
+    if (is_windows())
       return(shell(args, intern = TRUE))
     else
       return(system(args, intern = TRUE))

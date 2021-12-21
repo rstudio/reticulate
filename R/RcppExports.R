@@ -241,6 +241,10 @@ py_set_interrupt_impl <- function() {
     invisible(.Call(`_reticulate_py_set_interrupt_impl`))
 }
 
+py_list_length <- function(x) {
+    .Call(`_reticulate_py_list_length`, x)
+}
+
 py_len_impl <- function(x) {
     .Call(`_reticulate_py_len_impl`, x)
 }

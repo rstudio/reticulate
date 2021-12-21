@@ -7,10 +7,10 @@
 py_len(x)
 }
 \arguments{
-\item{x}{Python object}
+\item{x}{A Python object.}
 }
 \value{
-Length as integer
+The length of the object, as a numeric value.
 }
 \description{
 Get the length of a Python object (equivalent to the Python \code{len()}

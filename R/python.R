@@ -499,9 +499,13 @@ py_len <- function(x) {
 
 #' @export
 length.python.builtin.list <- function(x) {
-  py_len(x)
+  py_list_length(x)
 }
 
+#' @export
+length.python.builtin.object <- function(x) {
+  py_len(x)
+}
 
 #' Convert to Python Unicode Object
 #'

@@ -53,9 +53,10 @@ Magics start with a \verb{\%} prefix. Supported magics include:
 }
 \item \verb{\%cd <dir>} change working directory.
 \itemize{
-\item \verb{\%cd -}: change to previous working directory.
-\item \verb{\%cd -3}: change to 3rd most recent working directory.
-\item \verb{\%cd -foo/bar}: change to most recent working directory matching \code{"foo/bar"} regex.
+\item \verb{\%cd -}: change to previous working directory (as set by \verb{\%cd}).
+\item \verb{\%cd -3}: change to 3rd most recent working directory (as set by \verb{\%cd}).
+\item \verb{\%cd -foo/bar}: change to most recent working directory matching \code{"foo/bar"} regex
+(in history of directories set via \verb{\%cd}).
 }
 \item \verb{\%pwd}: print current working directory.
 \item \verb{\%dhist}: print working directory history.
@@ -66,6 +67,9 @@ Additionally, the output of magic commands can be captured in a variable, e.g.:
 \item \code{x = !ls}
 \item \verb{x = \%pip freeze}
 }
+
+where \code{x} will be a list of strings, consisting of
+stdout output split in \code{"\\n"} (stderr is not captured).
 }
 
 \examples{

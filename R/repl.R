@@ -52,15 +52,19 @@
 #'    - `%env name=val`, `%env name val`: set environment variable 'name' to 'val'.
 #'       `val` elements in `{}` are interpolated using f-strings (required Python >= 3.6).
 #'  - `%cd <dir>` change working directory.
-#'     - `%cd -`: change to previous working directory.
-#'     - `%cd -3`: change to 3rd most recent working directory.
-#'     - `%cd -foo/bar`: change to most recent working directory matching `"foo/bar"` regex.
+#'     - `%cd -`: change to previous working directory (as set by `%cd`).
+#'     - `%cd -3`: change to 3rd most recent working directory (as set by `%cd`).
+#'     - `%cd -foo/bar`: change to most recent working directory matching `"foo/bar"` regex
+#'       (in history of directories set via `%cd`).
 #'  - `%pwd`: print current working directory.
 #'  - `%dhist`: print working directory history.
 #'
 #' Additionally, the output of magic commands can be captured in a variable, e.g.:
 #'  - `x = !ls`
 #'  - `x = %pip freeze`
+#'
+#'  where `x` will be a list of strings, consisting of
+#'  stdout output split in `"\n"` (stderr is not captured).
 #'
 #' @importFrom utils packageVersion
 #' @export
@@ -557,7 +561,7 @@ invoke_magic <- function(command) {
     if (is_windows())
       return(shell(args, intern = TRUE))
     else
-      return(system(args, intern = TRUE))
+      return(as.list(system(args, intern = TRUE)))
   }
 
   stop("Magic not implemented: ", command)

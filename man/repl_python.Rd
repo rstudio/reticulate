@@ -62,10 +62,9 @@ Magics start with a \verb{\%} prefix. Supported magics include:
 \item \verb{\%dhist}: print working directory history.
 }
 
-Additionally, the output of magic commands can be captured in a variable, e.g.:
+Additionally, the output of system commands can be captured in a variable, e.g.:
 \itemize{
 \item \code{x = !ls}
-\item \verb{x = \%pip freeze}
 }
 
 where \code{x} will be a list of strings, consisting of

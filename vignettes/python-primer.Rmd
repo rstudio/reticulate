@@ -1,12 +1,13 @@
 ---
 title: "Primer on Python for R Users"
+author: "Tomasz Kalinowski"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Primer on Python for R Users}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
-editor_options: 
-  markdown: 
+editor_options:
+  markdown:
     wrap: 72
 ---
 
@@ -23,17 +24,20 @@ library(reticulate)
 
 ## Primer on Python for R users
 
-R is the common language of statistics and data analysis, but it is not
-the only language on the scene. You may find yourself occasionally
+R is the preferred language of statistics and data analysis, but it is
+not the only language on the scene. You may find yourself occasionally
 wanting to read and understand some Python, or even port some Python to
 R. This guide is designed to enable you to do these tasks as quickly as
 possible. As you'll see, R and Python are similar enough that it's
 possible to do these tasks, without necessarily learning all of Python.
+We start with the basics of container types and work up to the mechanics
+of classes, dunders, the iterator protocol, the context protocol, and
+more!
 
 ### Whitespace
 
-Whitespace matters in Python. In R you groups expressions into a code
-block with `{}`, in Python you do that by making the expressions share
+Whitespace matters in Python. In R, expressions are grouped into a code
+block with `{}`. In Python, that is done by making the expressions share
 an indentation level. For example, an expression with an R code block
 might be:
 
@@ -52,6 +56,10 @@ if True:
   print("This is another expression.")
 
 ```
+
+Python accepts tabs or spaces as the indentation spacer, but the rules
+get tricky when they're mixed. Most style guides suggest (and IDE's
+default to) using spaces only.
 
 ### Container Types
 
@@ -72,7 +80,7 @@ which both symbols point to is modified in place.
 
 ```{python}
 x = [1, 2, 3]
-y = x
+y = x    # `y` and `x` now refer to the same list!
 x.append(4)
 print("x is", x)
 print("y is", y)
@@ -188,7 +196,7 @@ c
 (You can access similar unpacking behavior from R using
 `` zeallot::`%<-%` ``).
 
-Tuple unpacking can occur in multiple contexts, such as iteration:
+Tuple unpacking can occur in a variety of contexts, such as iteration:
 
 ```{python}
 xx = (("a", 1),
@@ -196,7 +204,6 @@ xx = (("a", 1),
 for x1, x2 in xx:
   print("x1 = ", x1)
   print("x2 = ", x2)
-
 ```
 
 If you attempt to unpack a container to the wrong number of symbols,
@@ -220,14 +227,22 @@ a
 the_rest
 ```
 
+You can also unpack nested structures:
+
+```{python}
+x = ((1, 2), (3, 4))
+(a, b), (c, d) = x
+```
+
 #### Dictionaries
 
-Dictionaries are most similar to R's named lists. They are a container
+Dictionaries are most similar to R environments. They are a container
 where you can retrieve items by name, though in Python the name (called
 a *key* in Python's parlance) does not need to be a string like in R. It
 can be any Python object with a `hash()` method (meaning, it can be
 almost any Python object). They can be created using syntax like
-`{key: value}`. Like Python lists, they are modified in place.
+`{key: value}`. Like Python lists, they are modified in place. Note,
+`r_to_py()` converts R named lists to dictionaries.
 
 ```{python}
 d = {"key1": 1,
@@ -239,10 +254,10 @@ d["key3"] = 3
 d2 # modified in place!
 ```
 
-Unlike R's named lists, you cannot index into a dictionary with an
-integer to get an item at a specific index position. Dictionaries are
-*unordered* containers. (However---beginning with Python 3.7,
-dictionaries do preserve the item insertion order).
+Like R environments (and unlike R's named lists), you cannot index into
+a dictionary with an integer to get an item at a specific index
+position. Dictionaries are *unordered* containers. (However---beginning
+with Python 3.7, dictionaries do preserve the item insertion order).
 
 ```{python, error = TRUE}
 d = {"key1": 1, "key2": 2}
@@ -250,8 +265,9 @@ d[1] # error
 ```
 
 A container that closest matches the semantics of R's named list is the
-`OrderedDict`, but that's relatively uncommon in Python code so we don't
-cover it further.
+[`OrderedDict`](https://docs.python.org/3/library/collections.html#collections.OrderedDict),
+but that's relatively uncommon in Python code so we don't cover it
+further.
 
 #### Sets
 
@@ -381,6 +397,19 @@ my_function()
 my_function("Friend")
 ```
 
+Unlike R functions, the last value in a function is not automatically
+returned. Python requires an explicit return statement.
+
+```{python}
+def fn():
+  1
+print(fn())
+
+def fn():
+  return 1
+print(fn())
+```
+
 (Note for advanced R users: Python has no equivalent of R's argument
 "promises". Function argument default values are evaluated once, when
 the function is constructed. This can be surprising if you define a
@@ -424,7 +453,6 @@ my_func(*args)
 
 kwargs = {"a": 1, "b": 2, "c": 3}
 my_func(**kwargs)
-
 ```
 
 ### Defining Classes with `class`
@@ -516,8 +544,9 @@ A few things to note:
 -   the `class` statement takes a code block that is defined by a common
     indentation level. The code block has the same exact semantics as
     any other expression that takes a code block, like `if` and `def`.
-    The body of the class is evaluated once, when the class constructor
-    is first being created.
+    The body of the class is evaluated only **once**, when the class
+    constructor is first being created. Beware that any objects defined
+    here, are shared by all instances of the class!
 
 -   `__init__` is just a normal function, defined with `def` like any
     other function. Except it's inside the class body.
@@ -627,9 +656,15 @@ next(it)
 
 ### Decorators
 
-Decorators are just functions that take a function as an argument and
-then return a function. Any function can be invoked as a decorator with
-the `@` syntax, which is just sugar for this simple action:
+```{python}
+def foo():
+  yield 1
+```
+
+Decorators are just functions that take a function as an argument, and
+then typically returns another function. Any function can be invoked as
+a decorator with the `@` syntax, which is just sugar for this simple
+action:
 
 ```{python}
 def my_decorator(func):
@@ -698,87 +733,15 @@ finishes.
 Iteration is deeply baked into the Python language, and R users may be
 surprised by how things in Python are iterable, iterators, or powered by
 the iterator protocol under the hood. For example, the built-in `map()`
-$$equivalent to R's `lapply()`$$ yields an iterator, not a list.
+(equivalent to R's `lapply()`) yields an iterator, not a list.
 Similarly, a tuple comprehension like `(elem for elem in x)` produces an
-iterator. Most features dealing with files are iterators, and so on. Any
-time you find an iterator inconvenient, you can materialize all the
+iterator. Most features dealing with files are iterators, and so on.
+
+Any time you find an iterator inconvenient, you can materialize all the
 elements into a list using the Python built-in `list()`, or
-`reticulate::iterate()` in R.
-
-### Integers and Floats
-
-R users generally don't need to be aware of the difference between
-integers and floating point numbers, but that's not the case in Python.
-If this is your first exposure to numeric data types, here are the
-essentials:
-
--   integer types can only represent whole numbers like `1` or `2`, not
-    floating point numbers like `1.2`.
-
--   floating-point types can represent any number, but with some degree
-    of imprecision.
-
-In R, writing a bare literal number like `12` produces a floating point
-type, whereas in Python, it produces an integer. You can produce an
-integer literal in R by appending an `L`, as in `12L`. Many Python
-functions expect integers, and will error when provided a float.
-
-For example, say we have a Python function that expects an integer:
-
-```{python}
-def a_strict_Python_function(x):
-  assert isinstance(x, int), "x is not an int"
-  print("Yay! x was an int")
-```
-
-When calling it from R, you must be sure to call it with an integer:
-
-```{r}
-library(reticulate)
-py$a_strict_Python_function(3) |> try()    # error
-py$a_strict_Python_function(3L)            # success
-py$a_strict_Python_function(as.integer(3)) # success
-```
-
-### What about R vectors?
-
-R is a language designed for numerical computing first. Vector data
-types are baked deep into the R language, to the point that the language
-doesn't even distinguish scalars from vectors. By comparison, numerical
-computing features in Python are generally provided by third party
-packages (*modules*, in Python parlance). The closest equivalent to an R
-numeric vector is a numpy array, or sometimes, a Python list of numerics
-(some Pythonistas might argue for `array.array()` here, but that's so
-rarely encountered in actual Python code we don't mention it further).
-Teaching the NumPy interface is beyond the scope of this tutorial, but
-it's worth pointing out some potential tripping hazards for users
-accustomed to R arrays:
-
--   When indexing into multidimensional numpy arrays, trailing
-    dimensions can be omitted and are implicitly treated as missing. The
-    consequence is that iterating over arrays means iterating over the
-    first dimension. For example, this iterates over the rows of a
-    matrix.
-
-```{python}
-import numpy as np
-m = np.arange(12).reshape((3,4))
-m
-m[0]    # first row
-m[0, :] # also first row
-
-for row in m:
-  print(row)
-```
-
--   Many numpy operations modify the array in place! This is surprising
-    to R users, who are used to the convenience and safety of R's
-    copy-on-modify semantics. Unfortunately, there is no simple scheme
-    or naming convention you can rely on to quickly determine if a
-    particular method modifies in-place or creates a new array copy. The
-    only reliable way is to consult the
-    [documentation](https://numpy.org/doc/stable/reference/index.html#reference),
-    and conduct small experiments at the `reticulate::python_repl()`.
+`reticulate::iterate()` in R. Also, if you like the readability of
+`for`, you can utilize similar semantics to Python's `for` using
+`coro::loop()`.
 
 ### `import` and Modules
 
@@ -792,7 +755,7 @@ import numpy
 ```
 
 This statement has Python go out to the file system, find an installed
-Python module named 'numpy', load it (commonly meaning: evaluate it's
+Python module named 'numpy', load it (commonly meaning: evaluate its
 `__init__.py` file and construct a `module` type), and bind it to the
 symbol `numpy`.
 
@@ -865,6 +828,85 @@ there is the naming convention that intended-to-be-internal symbols are
 prefixed with a single leading underscore. (Two leading underscores
 invoke an advanced language feature called "name mangling", which is
 outside the scope of this introduction).
+
+### Integers and Floats
+
+R users generally don't need to be aware of the difference between
+integers and floating point numbers, but that's not the case in Python.
+If this is your first exposure to numeric data types, here are the
+essentials:
+
+-   integer types can only represent whole numbers like `1` or `2`, not
+    floating point numbers like `1.2`.
+
+-   floating-point types can represent any number, but with some degree
+    of imprecision.
+
+In R, writing a bare literal number like `12` produces a floating point
+type, whereas in Python, it produces an integer. You can produce an
+integer literal in R by appending an `L`, as in `12L`. Many Python
+functions expect integers, and will error when provided a float.
+
+For example, say we have a Python function that expects an integer:
+
+```{python}
+def a_strict_Python_function(x):
+  assert isinstance(x, int), "x is not an int"
+  print("Yay! x was an int")
+```
+
+When calling it from R, you must be sure to call it with an integer:
+
+```{r, error = TRUE}
+library(reticulate)
+py$a_strict_Python_function(3)             # error
+py$a_strict_Python_function(3L)            # success
+py$a_strict_Python_function(as.integer(3)) # success
+```
+
+### What about R vectors?
+
+R is a language designed for numerical computing first. Numeric vector
+data types are baked deep into the R language, to the point that the
+language doesn't even distinguish scalars from vectors. By comparison,
+numerical computing features in Python are generally provided by third
+party packages (*modules*, in Python parlance).
+
+In Python, the `numpy` module is used most commonly used to handle
+contiguous arrays of data. The closest equivalent to an R numeric vector
+is a numpy array, or sometimes, a Python list of scalar numbers (some
+Pythonistas might argue for `array.array()` here, but that's so rarely
+encountered in actual Python code we don't mention it further)
+
+Teaching the NumPy interface is beyond the scope of this tutorial, but
+it's worth pointing out some potential tripping hazards for users
+accustomed to R arrays:
+
+-   When indexing into multidimensional numpy arrays, trailing
+    dimensions can be omitted and are implicitly treated as missing. The
+    consequence is that iterating over arrays means iterating over the
+    first dimension. For example, this iterates over the rows of a
+    matrix.
+
+```{python}
+import numpy as np
+m = np.arange(12).reshape((3,4))
+m
+m[0]    # first row
+m[0, :] # also first row
+
+for row in m:
+  print(row)
+```
+
+-   Many numpy operations modify the array in place! This is surprising
+    to R users, who are used to the convenience and safety of R's
+    copy-on-modify semantics. Unfortunately, there is no simple scheme
+    or naming convention you can rely on to quickly determine if a
+    particular method modifies in-place or creates a new array copy. The
+    only reliable way is to consult the
+    [documentation](https://numpy.org/doc/stable/reference/index.html#reference),
+    and conduct small experiments at the `reticulate::python_repl()`.
 
 ### `with` and context management
 

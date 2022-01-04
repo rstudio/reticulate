@@ -25,10 +25,10 @@ library(reticulate)
 
 ## Primer on Python for R users
 
-R is the preferred language of statistics and data analysis, but it is
-not the only language on the scene. You may find yourself occasionally
-wanting to read and understand some Python, or even port some Python to
-R. This guide is designed to enable you to do these tasks as quickly as
+R is commonly used for statistics and data analysis, but it is not the
+only language on the scene. You may find yourself occasionally wanting
+to read and understand some Python, or even port some Python to R. This
+guide is designed to enable you to do these tasks as quickly as
 possible. As you'll see, R and Python are similar enough that it's
 possible to do these tasks, without necessarily learning all of Python.
 We start with the basics of container types and work up to the mechanics

@@ -761,7 +761,7 @@ symbol `numpy`.
 
 The closest equivalent to this in R might be:
 
-```{r}
+```{r, eval = FALSE}
 dplyr <- loadNamespace("dplyr")
 ```
 

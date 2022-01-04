@@ -14,7 +14,8 @@ editor_options:
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  eval = reticulate::py_numpy_available(initialize = TRUE)
 )
 ```
 

@@ -129,8 +129,8 @@ x[-3]
 ```
 
 You can slice ranges of lists using the `:` inside brackets. Note that
-the slice syntax is *not* inclusive of the end of the slice range. You
-can optionally also specify a stride.
+the slice syntax is ***not*** inclusive of the end of the slice range.
+You can optionally also specify a stride.
 
 ```{python}
 x = [1, 2, 3, 4, 5, 6]
@@ -547,7 +547,7 @@ A few things to note:
     any other expression that takes a code block, like `if` and `def`.
     The body of the class is evaluated only **once**, when the class
     constructor is first being created. Beware that any objects defined
-    here, are shared by all instances of the class!
+    here are shared by all instances of the class!
 
 -   `__init__` is just a normal function, defined with `def` like any
     other function. Except it's inside the class body.
@@ -570,13 +570,13 @@ decorated with something like `@classmethod` or `@staticmethod`).
 ```{python, error = TRUE}
 class MyClass:
   def a_method(self):
-    print("self.a_method() was called with", self)
+    print("MyClass.a_method() was called with", self)
 
-inst = MyClass()
-inst.a_method()
+instance = MyClass()
+instance.a_method()
 
 MyClass.a_method()     # error, missing required argument `self`
-MyClass.a_method(inst) # identical to inst.a_method()
+MyClass.a_method(instance) # identical to instance.a_method()
 ```
 
 Other dunder's worth knowing about are:
@@ -596,7 +596,7 @@ Other dunder's worth knowing about are:
     `as.logical()` in R, but returning only a scalar, not a vector).
 
 -   `__repr__`, `__str__`, functions invoked for formatting and pretty
-    printing (equivalent to `format()` and `print()` S3 generics in R.
+    printing (akin to `format()`, `dput()`, and `print()` methods in R).
 
 -   `__enter__` and `__exit__`: functions invoked by `with`.
 
@@ -877,7 +877,7 @@ In Python, the `numpy` module is used most commonly used to handle
 contiguous arrays of data. The closest equivalent to an R numeric vector
 is a numpy array, or sometimes, a Python list of scalar numbers (some
 Pythonistas might argue for `array.array()` here, but that's so rarely
-encountered in actual Python code we don't mention it further)
+encountered in actual Python code we don't mention it further).
 
 Teaching the NumPy interface is beyond the scope of this tutorial, but
 it's worth pointing out some potential tripping hazards for users
@@ -907,7 +907,7 @@ for row in m:
     particular method modifies in-place or creates a new array copy. The
     only reliable way is to consult the
     [documentation](https://numpy.org/doc/stable/reference/index.html#reference),
-    and conduct small experiments at the `reticulate::python_repl()`.
+    and conduct small experiments at the `reticulate::repl_python()`.
 
 ### `with` and context management
 
@@ -958,6 +958,6 @@ excellent and comprehensive (but does require a time commitment to get
 value out of it) <https://docs.Python.org/3/tutorial/index.html>
 
 Finally, don't forget to solidify your understanding by conducting small
-experiments at the `reticulate::python_repl()`.
+experiments at the `reticulate::repl_python()`.
 
 Thank you for reading!

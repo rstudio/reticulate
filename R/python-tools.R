@@ -85,7 +85,7 @@ python_info <- function(python) {
       for (suffix in suffixes) {
         bin <- paste(c(path, prefix, suffix), collapse = "/")
         if (file.exists(bin))
-          return(python_info_system(path, bin))
+          return(python_info_system(dirname(bin), bin))
       }
     }
 

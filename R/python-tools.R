@@ -44,16 +44,19 @@ python_info <- function(python) {
   parent <- dirname(path)
 
   # NOTE: we check for both 'python' and 'python3' because certain python
-  # installations might install one version of the binary but not the other
-  prefix <- if (is_windows()) "Scripts" else "bin"
+  # installations might install one version of the binary but not the other.
+  #
+  # Some installations might not place Python within a 'Scripts' or 'bin'
+  # sub-directory, so look in the root directory too.
+  prefixes <- list(NULL, if (is_windows()) "Scripts" else "bin")
   suffixes <- if (is_windows()) "python.exe" else c("python", "python3")
 
   while (path != parent) {
 
     # check for virtual environment files
     files <- c(
-      "pyvenv.cfg",                          # created by venv
-      file.path(prefix, "activate_this.py")  # created by virtualenv
+      "pyvenv.cfg",                                  # created by venv
+      file.path(prefixes[[2L]], "activate_this.py")  # created by virtualenv
     )
 
     paths <- file.path(path, files)
@@ -78,10 +81,13 @@ python_info <- function(python) {
       return(python_info_condaenv(path))
 
     # check for python binary (implies a system install)
-    bins <- file.path(path, prefix, suffixes)
-    for (bin in bins)
-      if (file.exists(bin))
+    for (prefix in prefixes) {
+      for (suffix in suffixes) {
+        bin <- paste(c(path, prefix, suffix), collapse = "/")
+        if (file.exists(bin))
           return(python_info_system(path, bin))
+      }
+    }
 
     # recurse
     parent <- path

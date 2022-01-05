@@ -3031,9 +3031,15 @@ SEXP py_list_length(PyObjectRef x) {
 
 // [[Rcpp::export]]
 SEXP py_len_impl(PyObjectRef x) {
+
+  // TODO: do we want to allow errors here?
   Py_ssize_t value = PyObject_Size(x);
+  if (PyErr_Occurred())
+    stop(py_fetch_error());
+
   if (value <= static_cast<Py_ssize_t>(INT_MAX))
     return Rf_ScalarInteger((int) value);
   else
     return Rf_ScalarReal((double) value);
+
 }

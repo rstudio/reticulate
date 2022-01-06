@@ -609,8 +609,13 @@ conda_update <- function(conda = "auto") {
   # compute base path
   prefix <- system2(conda, c("info", "--base"), stdout = TRUE)
 
+  # figure out if this is anaconda or 'plain' conda
+  json <- system2(conda, c("list", "--prefix", shQuote(prefix), "--json"), stdout = TRUE)
+  envlist <- jsonlite::fromJSON(json)
+  name <- if ("anaconda" %in% envlist$name) "anaconda" else "conda"
+
   # attempt update
-  system2(conda, c("update", "--prefix", shQuote(prefix), "--yes", "conda"))
+  system2(conda, c("update", "--prefix", shQuote(prefix), "--yes", name))
 
 }
 

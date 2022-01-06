@@ -1,5 +1,8 @@
 
-## reticulate 1.23  (UNRELEASED)
+# reticulate 1.23
+
+- `reticulate` now supports conversion of Python [datatable](https://github.com/h2oai/datatable)
+  objects. (#1081)
 
 - `repl_python()` gains support for invoking select magic and system commands
   like `!ls` and `%cd <dir>`. See `?repl_python()` for details and examples.
@@ -42,12 +45,14 @@
 - Fixed an issue that caused `reticulate::conda_install(pip = TRUE)`
   to fail on windows. (#1053, @t-kalinowski)
 
-## reticulate 1.22
+
+# reticulate 1.22
 
 - Fixed a regression that caused `reticulate::conda_install(pip = TRUE)`
   to fail. (#1052)
 
-## reticulate 1.21
+
+# reticulate 1.21
 
 - `use_condaenv("base")` can now be used to activate the base Anaconda
   environment.
@@ -82,11 +87,13 @@
 - Fixed an issue where `reticulate::py_run_string(..., local = TRUE)` failed
   to return the dictionary of defined Python objects in some cases.
 
-## reticulate 1.20
+
+# reticulate 1.20
 
 - Fixed an issue causing tests to fail on CRAN's M1mac machine.
 
-## reticulate 1.19
+
+# reticulate 1.19
 
 - Fixed an issue where `reticulate`'s interrupt handlers could cause issues
   with newer versions of Python.
@@ -158,12 +165,14 @@
 - Fixed an issue where Python's auto-loader hooks could fail when binding
   to a Python 2.7 installation.
 
-## reticulate 1.18
+
+# reticulate 1.18
 
 - Fixed an issue where `python_config()` could throw an error when attempting
   to query information about a Python 2.6 installation.
 
-## reticulate 1.17
+
+# reticulate 1.17
 
 - `reticulate` now checks for and disallows installation of Python packages
   during `R CMD check`.
@@ -252,7 +261,8 @@
 - `reticulate` will now prefer an existing Miniconda installation over
   a `conda` binary on the PATH, when looking for Conda. (#790)
 
-## reticulate 1.16
+
+# reticulate 1.16
 
 - TinyThread now calls `Rf_error()` rather than `std::terminate()`
   when an internal error occurs.
@@ -266,7 +276,8 @@
 - `conda_create()` gains the `forge` and `channel` arguments,
   analogous to those already in `conda_install()`. (#752, @jtilly)
 
-## reticulate 1.15
+
+# reticulate 1.15
 
 - `reticulate` now ensures SciPy `csr_matrix` objects are sorted before
   attempting to convert them to their R equivalent. (#738, @paulofelipe)
@@ -318,7 +329,8 @@
 - Fixed an issue where `reticulate` would attempt to flush a non-existent
   stdout / stderr stream. (#584)
 
-## reticulate 1.14
+
+# reticulate 1.14
 
 - Fixed an issue where `rmarkdown::render()` could fail when including
   matplotlib plots when `knit_root_dir` is set. (#645)
@@ -382,7 +394,8 @@
 - Properly check for NULL keyword arguments in `call_r_function()`.
   (#562, @dfalbel)
 
-## reticulate 1.13
+
+# reticulate 1.13
 
 - Fixed an issue where subsetting with `[.python.builtin.object` could
   fail when `convert = TRUE` is set on the associated Python object.
@@ -425,7 +438,8 @@
 - Fixed an issue where reticulate could crash after a failed attempt
   to load NumPy. (#497, @ecoughlan)
 
-## reticulate 1.12
+
+# reticulate 1.12
 
 - Fixed an issue where Python objects within Python lists would not be
   converted to R objects as expected.
@@ -440,11 +454,13 @@
 
 - Fixed an issue where R Dates could not be passed to Python functions. (#458)
 
-## reticulate 1.11.1
+
+# reticulate 1.11.1
 
 - Fixed a failing virtual environment test on CRAN.
 
-## reticulate 1.11
+
+# reticulate 1.11
 
 - Fixed an issue where attempts to activate virtual environments created with
   virtualenv 16.4.1 would fail. (#437)
@@ -504,9 +520,11 @@
 - Add `py_main_thread_func()` for providing R callbacks to Python libraries that may
   invoke the function on a Python background thread.
 
-- Add `py_to_r` S3 methods for Scipy sparse matrices: CSR to dgRMatrix, COO to dgTMatrix, and for all other sparse matrices, conversion via CSC/dgCMatrix.
+- Add `py_to_r` S3 methods for Scipy sparse matrices: CSR to dgRMatrix, COO to
+  dgTMatrix, and for all other sparse matrices, conversion via CSC/dgCMatrix.
 
-## reticulate 1.10
+
+# reticulate 1.10
 
 - Output is now properly displayed when using the `reticulate` REPL with
   Windows + Python 2.7.
@@ -528,7 +546,7 @@
   python binary associated with an environment.
 
 
-## reticulate 1.9
+# reticulate 1.9
 
 - Detect python 3 in environments where there is no python 2 (e.g. Ubuntu 18.04)
 
@@ -543,7 +561,7 @@
 - Close text connection used for reading Python configuration probe
 
 
-## reticulate 1.8
+# reticulate 1.8
 
 - `source_python()` now flushes stdout and stderr after running the associated
   Python script, to ensure that `print()`-ed output is output to the console.
@@ -564,7 +582,7 @@
 - Improve default `str()` output for Python objects (print `__dict__` if available)
 
 
-## reticulate 1.7
+# reticulate 1.7
 
 - Improved filtering of non-numeric characters in Python / NumPy versions.
 
@@ -583,7 +601,7 @@
 - Removed `delay_load` parameter from `import_from_path()`
 
 
-## reticulate 1.6
+# reticulate 1.6
 
 - `repl_python()` function implementing a lightweight Python REPL in R.
 
@@ -610,7 +628,7 @@
 - Added functions for managing Python virtual environments (virtualenv)
 
 
-## reticulate 1.5
+# reticulate 1.5
 
 - Remove implicit documentation extraction for Python classes
 
@@ -620,7 +638,7 @@
   environments.
 
 
-## reticulate 1.4
+# reticulate 1.4
 
 - Support for `RETICULATE_DUMP_STACK_TRACE` environment variable which can be set to
   the number of milliseconds in which to output into stderr the call stacks
@@ -635,13 +653,13 @@
 - Implement `eval`, `echo`, and `include` knitr chunk options for Python engine
 
 
-## reticulate 1.3.1
+# reticulate 1.3.1
 
 - Bugfix: ensure single-line Python chunks that produce no output still
   have source code emitted.
 
 
-## reticulate 1.3
+# reticulate 1.3
 
 - Use existing instance of Python when reticulate is loaded within an
   embedded Python environment (e.g. rpy2, rice, etc.)
@@ -691,7 +709,7 @@
 - Implement `isatty` when providing custom Python output streams
 
 
-## reticulate 1.2
+# reticulate 1.2
 
 - Add `np_array` function for creating NumPy arrays and converting the data type,
   dimensions, and in-memory ordering of existing NumPy arrays.
@@ -714,7 +732,7 @@
 - Add `pip_ignore_installed` option to `conda_install` function.
 
 
-## reticulate 1.1
+# reticulate 1.1
 
 - Allow `dict()` function to accept keys with mixed alpha/numeric characters
 
@@ -726,7 +744,7 @@
 - Provide virtual/conda env hint mechanism for delay loaded imports
 
 
-## reticulate 1.0
+# reticulate 1.0
 
 - Search WORKON_HOME (used by virtualenv_wrapper) for Python environments
 
@@ -752,7 +770,7 @@
 - Ensure that existing warning filters aren't reset by py_suppress_warnings
 
 
-## reticulate 0.9
+# reticulate 0.9
 
 - Detect older versions of Anaconda during registry scanning.
 
@@ -776,7 +794,7 @@
   from python.builtin.object as keys.
 
 
-## reticulate 0.8
+# reticulate 0.8
 
 - Add `import_from_path()` function for importing Python modules from
   the filesystem.
@@ -857,6 +875,6 @@
 - Propagate `convert` parameter for modules with `delay_load`
 
 
-## reticulate 0.7
+# reticulate 0.7
 
 - Initial CRAN release

@@ -131,7 +131,7 @@ py_to_r.numpy.ndarray <- function(x) {
 
   # no special handler found; delegate to next method
   NextMethod()
-  
+
 }
 
 
@@ -150,18 +150,18 @@ r_to_py.POSIXt <- function(x, convert = FALSE) {
 #' @export
 py_to_r.datetime.datetime <- function(x) {
   disable_conversion_scope(x)
-  
+
   # convert to POSIX time
   time <- import("time", convert = TRUE)
   posix <- time$mktime(x$timetuple())
-  
+
   # include microseconds as well
   ms <- as_r_value(x$microsecond)
   posix <- posix + as.numeric(ms) * 1E-6
-  
+
   # TODO: handle non-UTC timezones?
   as.POSIXct(posix, origin = "1970-01-01", tz = "UTC")
-  
+
 }
 
 
@@ -264,7 +264,7 @@ r_to_py.data.frame <- function(x, convert = FALSE) {
 
   # manually convert each column to associated Python vector type
   columns <- r_convert_dataframe(x, convert = convert)
-  
+
   # generate DataFrame from dictionary
   pdf <- pd$DataFrame$from_dict(columns)
 
@@ -285,6 +285,14 @@ r_to_py.data.frame <- function(x, convert = FALSE) {
 }
 
 #' @export
+py_to_r.datatable.Frame <- function(x) {
+  disable_conversion_scope(x)
+
+  # TODO: it would be nice to avoid the extra conversion to pandas
+  py_to_r(x$to_pandas())
+}
+
+#' @export
 py_to_r.pandas.core.frame.DataFrame <- function(x) {
   disable_conversion_scope(x)
 
@@ -293,7 +301,7 @@ py_to_r.pandas.core.frame.DataFrame <- function(x) {
 
   # extract numpy arrays associated with each column
   columns <- x$columns$values
-  
+
   # delegate to c++
   converted <- py_convert_pandas_df(x)
   names(converted) <- py_to_r(x$columns$format())
@@ -352,7 +360,7 @@ py_to_r.pandas.core.frame.DataFrame <- function(x) {
         stop  <- py_to_r(index[["_stop"]])
         step  <- py_to_r(index[["_step"]])
       }
-      
+
       if (start != 0 || stop != nrow(df) || step != 1) {
         values <- tryCatch(py_to_r(index$values), error = identity)
         if (is.numeric(values)) {
@@ -473,7 +481,7 @@ r_to_py.dgCMatrix <- function(x, convert = FALSE) {
 #' @export
 py_to_r.scipy.sparse.csc.csc_matrix <- function(x) {
   disable_conversion_scope(x)
-  
+
   new(
     "dgCMatrix",
     i = as.integer(as_r_value(x$indices)),
@@ -481,7 +489,7 @@ py_to_r.scipy.sparse.csc.csc_matrix <- function(x) {
     x = as.vector(as_r_value(x$data)),
     Dim = as.integer(dim(x))
   )
-  
+
 }
 
 # Conversion between `Matrix::dgRMatrix` and `scipy.sparse.csr.csr_matrix`.
@@ -511,8 +519,8 @@ r_to_py.dgRMatrix <- function(x, convert = FALSE) {
 #' @export
 py_to_r.scipy.sparse.csr.csr_matrix <- function(x) {
   disable_conversion_scope(x)
-  
-  x <- x$sorted_indices()    
+
+  x <- x$sorted_indices()
   new(
     "dgRMatrix",
     j = as.integer(as_r_value(x$indices)),
@@ -520,7 +528,7 @@ py_to_r.scipy.sparse.csr.csr_matrix <- function(x) {
     x = as.vector(as_r_value(x$data)),
     Dim = as.integer(dim(x))
   )
-  
+
 }
 
 # Conversion between `Matrix::dgTMatrix` and `scipy.sparse.coo.coo_matrix`.
@@ -551,7 +559,7 @@ r_to_py.dgTMatrix <- function(x, convert = FALSE) {
 #' @export
 py_to_r.scipy.sparse.coo.coo_matrix <- function(x) {
   disable_conversion_scope(x)
-  
+
   new(
     "dgTMatrix",
     i = as.integer(as_r_value(x$row)),
@@ -559,13 +567,13 @@ py_to_r.scipy.sparse.coo.coo_matrix <- function(x) {
     x = as.vector(as_r_value(x$data)),
     Dim = as.integer(dim(x))
   )
-  
+
 }
 
 
 
 r_convert_dataframe_column <- function(column, convert) {
-  
+
   pd <- import("pandas", convert = FALSE)
   if (is.factor(column)) {
     pd$Categorical(as.character(column),
@@ -578,5 +586,5 @@ r_convert_dataframe_column <- function(column, convert) {
   } else {
     r_to_py(column)
   }
-  
+
 }

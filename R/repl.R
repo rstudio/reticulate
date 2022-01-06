@@ -37,6 +37,34 @@
 #'
 #' @seealso [py], for accessing objects created using the Python REPL.
 #'
+#' @section Magics: A handful of magics are supported in `repl_python()`:
+#'
+#' Lines prefixed with `!` are executed as system commands:
+#'  - `!cmd --arg1 --arg2`: Execute arbitrary system commands
+#'
+#' Magics start with a `%` prefix. Supported magics include:
+#'  - `%conda ...` executes a conda command in the active conda environment
+#'  - `%pip ...` executes pip for the active python.
+#'  - `%load`, `%loadpy`, `%run` executes a python file.
+#'  - `%system`, `!!` executes a system command and capture output
+#'  - `%env`: read current environment variables.
+#'    - `%env name`: read environment variable 'name'.
+#'    - `%env name=val`, `%env name val`: set environment variable 'name' to 'val'.
+#'       `val` elements in `{}` are interpolated using f-strings (required Python >= 3.6).
+#'  - `%cd <dir>` change working directory.
+#'     - `%cd -`: change to previous working directory (as set by `%cd`).
+#'     - `%cd -3`: change to 3rd most recent working directory (as set by `%cd`).
+#'     - `%cd -foo/bar`: change to most recent working directory matching `"foo/bar"` regex
+#'       (in history of directories set via `%cd`).
+#'  - `%pwd`: print current working directory.
+#'  - `%dhist`: print working directory history.
+#'
+#' Additionally, the output of system commands can be captured in a variable, e.g.:
+#'  - `x = !ls`
+#'
+#'  where `x` will be a list of strings, consisting of
+#'  stdout output split in `"\n"` (stderr is not captured).
+#'
 #' @importFrom utils packageVersion
 #' @export
 repl_python <- function(
@@ -58,7 +86,7 @@ repl_python <- function(
   if (is.function(teardown)) {
     on.exit(teardown(), add = TRUE)
   }
-  
+
   # split provided code on newlines
   if (!is.null(input))
     input <- unlist(strsplit(input, "\n", fixed = TRUE))
@@ -124,7 +152,7 @@ repl_python <- function(
     }
     failed
   }
-  
+
   handle_interrupt <- function(condition) {
     # swallow interrupts -- don't allow interrupted Python code to
     # exit the REPL; we should only exit when an interrupt is sent
@@ -132,18 +160,18 @@ repl_python <- function(
   }
 
   repl <- function() {
-    
+
     # flush stdout, stderr on each REPL iteration
     on.exit({
-      
+
       if (!is.null(sys$stdout) && !is.null(sys$stdout$flush))
         sys$stdout$flush()
-      
+
       if (!is.null(sys$stderr) && !is.null(sys$stderr$flush))
         sys$stderr$flush()
-      
+
     }, add = TRUE)
-    
+
     # read input (either from user or from code)
     prompt <- if (buffer$empty()) ">>> " else "... "
     if (is.null(input)) {
@@ -184,23 +212,23 @@ repl_python <- function(
       if (isTRUE(status))
         return()
     }
-    
+
     # run hook provided by front-end, to notify that we're now busy
     hook <- getOption("reticulate.repl.busy")
     if (is.function(hook)) {
-      
+
       # run once now to indicate we're about to run
       status <- tryCatch(hook(TRUE), error = identity)
       if (inherits(status, "error"))
         warning(status)
-      
+
       # run again on exit to indicate we're done
       on.exit({
         status <- tryCatch(hook(FALSE), error = identity)
         if (inherits(status, "error"))
           warning(status)
       }, add = TRUE)
-      
+
     }
 
     # special handling for top-level commands (when buffer is empty)
@@ -225,6 +253,40 @@ repl_python <- function(
         code <- sprintf("help(\"%s\")", replaced)
         py_run_string(code)
         return()
+      }
+
+      if (getOption("reticulate.repl.use_magics", TRUE)) {
+
+        # expand any "!!" as system commands that capture output
+        trimmed <- gsub("!!", "%system ", trimmed)
+
+        # user intends to capture output from system command in var
+        # e.g.:   x = !ls
+        if (grepl("^[[:alnum:]_.]\\s*=\\s*!", trimmed))
+          trimmed <- sub("=\\s*!", "= %system ", trimmed)
+
+        # magic
+        if (grepl("^%", trimmed)) {
+          py$`_` <- .globals$py_last_value <- invoke_magic(trimmed)
+          return()
+        }
+
+        # system
+        if (grepl("^!", trimmed)) {
+          system(str_drop_prefix(trimmed, "!"))
+          return()
+        }
+
+        # capture output from magic command in var
+        #   # e.g.:   x = %env USER
+        if (grepl("^[[:alnum:]_.]\\s*=\\s*%", trimmed)) {
+          s <- str_split1_on_first(trimmed, "\\s*=\\s*")
+          target <- s[[1]]
+          magic <- str_drop_prefix(s[2L], "%")
+          py$`_` <- .globals$py_last_value <- invoke_magic(magic)
+          py_run_string(sprintf("%s = _", target), local = FALSE, convert = FALSE)
+          return()
+        }
       }
 
       # if the user submitted a blank line at the top level,
@@ -274,7 +336,7 @@ repl_python <- function(
 
       # submit previous code
       pasted <- paste(previous, collapse = "\n")
-      
+
       tryCatch(
         py_compile_eval(pasted, capture = FALSE),
         error = handle_error,
@@ -294,7 +356,7 @@ repl_python <- function(
     # otherwise, we should have received a code output object
     # so we can just run the code submitted thus far
     buffer$clear()
-    
+
     tryCatch(
       py_compile_eval(code, capture = FALSE),
       error = handle_error,
@@ -342,7 +404,7 @@ repl_python <- function(
       break
 
     tryCatch(repl(), interrupt = identity)
-    
+
   }
 
 }
@@ -355,3 +417,156 @@ repl_python <- function(
 py_repl_active <- function() {
   .globals$py_repl_active
 }
+
+
+invoke_magic <- function(command) {
+  stopifnot(is.character(command), length(command) == 1)
+  command <- str_drop_prefix(command, "%")
+
+  m <- str_split1_on_first(command, "\\s+")
+  cmd <- m[1]
+  args <- m[-1]
+
+
+  if (cmd == "pwd") {
+    if (length(args))
+      stop("%pwd magic takes no arguments, received: ", command)
+    dir <- getwd()
+    cat(dir, "\n")
+    return(invisible(dir))
+  }
+
+  # in IPython, this is stored in __main__._dh as a python list
+  # we avoid polluting `__main__` and also lazily create the history,
+  # also, this can only track changes made from `repl_python()`.
+  get_dhist <- function() {
+    dh <- .globals$magics_state$wd_history
+    if (is.null(dh)) {
+      .globals$magics_state <- new.env(parent = emptyenv())
+      dh <- import("collections")$deque(list(getwd()), 200L)
+      .globals$magics_state$wd_history <- dh
+    }
+    dh
+  }
+
+  if (cmd == "cd") {
+     hist <- get_dhist()
+
+    if (length(args) != 1)
+       stop("%cd magic takes 1 argument, received: ", command)
+
+     dir <- gsub("[\"']", "", args)
+     # strings auto complete as fs locations in RStudio IDE, so as a convenience
+     # we accept quoted file paths and unquote them here.
+
+     setwd2 <- function(dir) {
+       old_wd <- setwd(dir)
+       new_wd <- getwd()
+       cat(new_wd, "\n", sep = "")
+       hist$append(new_wd)
+       invisible(old_wd)
+     }
+
+    if (startsWith(args, "-")) {
+      if (args == "-") {
+        dir <- hist[-2L]
+      } else if (grepl("-[0-9]+$", args)) {
+        dir <- hist[as.integer(args)]
+      } else {
+        # partial matching by regex
+        hist <- import_builtins()$list(hist)
+        re <- str_drop_prefix(args, "-")
+        if (is_windows())
+          re <- gsub("[/]", "\\", re, fixed = TRUE)
+        dir <- grep(re, hist, perl = TRUE, value = TRUE)
+        if (!length(dir))
+          stop("No matching directory found in history for ", dQuote(re), ".",
+               "\nSee history with %dhist")
+
+        dir <- dir[[length(dir)]] # pick most recent match
+      }
+      # not implemented, -b bookmarks, -q quiet
+    } else
+      dir <- args
+
+    return(setwd2(dir))
+  }
+
+  if (cmd == "dhist") {
+    hist <- get_dhist()
+    hist <- import_builtins()$list(hist)
+    cat("Directory history:\n- ")
+    cat(hist, sep = "\n- ")
+    cat("\n")
+    return(invisible(hist))
+  }
+
+  if (cmd == "conda") {
+    info <- get_python_conda_info(py_exe())
+    return(conda_run2(cmd_line = paste("conda", args),
+                      conda = info$conda,
+                      envname = info$root))
+  }
+
+  if (cmd == "pip") {
+    if (is_conda_python(py_exe())) {
+      info <- get_python_conda_info(py_exe())
+      return(conda_run2(cmd_line = paste("pip", args),
+                        conda = info$conda,
+                        envname = info$root))
+    } else {
+      args <- shQuote(strsplit(args, "\\s+")[[1]])
+      system2(py_exe(), c("-m", "pip", args))
+    }
+    return()
+  }
+
+  if (cmd == "env") {
+
+    if (!length(args))
+      return(print(Sys.getenv()))
+
+    if (grepl("=|\\s", args)) # user setting var
+      args <- str_split1_on_first(args, "=|\\s+")
+    else {
+      print(val <- Sys.getenv(args))
+      return(val)
+    }
+
+    new_val <- args[[2]]
+    if (grepl("\\{.*\\}", new_val) && py_version() >= "3.6") {
+      #interpolate as f-strings
+      new_val <- py_eval(sprintf('f"%s"', new_val))
+    }
+    names(new_val) <- args[[1]]
+    do.call(Sys.setenv, as.list(new_val))
+    cat(sprintf("env: %s=%s\n", names(new_val), new_val))
+    return(invisible(new_val))
+    # not implemented: bash-style $var expansion
+  }
+
+  if (cmd %in% c("load", "loadpy", "run")) {
+    # only supports sourcing a python file in __main__
+    # not implemented:
+    # -r line ranges, -s specific symbols,
+    # reexecution of symbols from history,
+    # reexecution of namespace objects annotated by ipython shell with original source
+    # ipython extensions
+    file <- gsub("[\"']", "", args)
+    if (!file.exists(file))
+      stop("Python file not found: ", file)
+    py_run_file(file, local = FALSE, convert = FALSE)
+    return()
+  }
+
+  if (cmd %in% c("system", "sx")) {
+    if (is_windows())
+      return(shell(args, intern = TRUE))
+    else
+      return(as.list(system(args, intern = TRUE)))
+  }
+
+  stop("Magic not implemented: ", command)
+}
+
+

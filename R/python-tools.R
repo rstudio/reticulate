@@ -36,11 +36,12 @@ python_module_version <- function(python, module) {
   numeric_version(output)
 }
 
-# given the path to a Python binary associated with a Python virtual environment
-# or a Python Conda environment, try to ascertain its type
-python_info <- function(python) {
+# given the path to a python binary, or an environment path,
+# try to find the path to the associated python binary, and
+# figure out if it's a virtualenv, conda environment, or none
+python_info <- function(path) {
 
-  path <- dirname(python)
+  path <- path.expand(path)
   parent <- dirname(path)
 
   # NOTE: we check for both 'python' and 'python3' because certain python
@@ -50,6 +51,9 @@ python_info <- function(python) {
   # sub-directory, so look in the root directory too.
   prefixes <- list(NULL, if (is_windows()) "Scripts" else "bin")
   suffixes <- if (is_windows()) "python.exe" else c("python", "python3")
+
+  # placeholder for a discovered system python
+  systemPython <- NULL
 
   while (path != parent) {
 
@@ -62,30 +66,33 @@ python_info <- function(python) {
     paths <- file.path(path, files)
     virtualenv <- any(file.exists(paths))
 
-    # extra check that we aren't in a conda environment for Windows
-    if (is_windows()) {
-      condapath <- file.path(path, "condabin/conda")
-      if (file.exists(condapath))
-        virtualenv <- FALSE
-    }
+    # extra check that we aren't in a conda environment
+    condapath <- file.path(path, "condabin/conda")
+    if (file.exists(condapath))
+      virtualenv <- FALSE
 
     if (virtualenv)
       return(python_info_virtualenv(path))
 
     # check for conda environment files
-    condaenv <-
-      file.exists(file.path(path, "conda-meta")) &&
-      !file.exists(file.path(path, "condabin"))
-
+    condaenv <- file.exists(file.path(path, "conda-meta"))
     if (condaenv)
       return(python_info_condaenv(path))
 
     # check for python binary (implies a system install)
-    for (prefix in prefixes) {
-      for (suffix in suffixes) {
-        bin <- paste(c(path, prefix, suffix), collapse = "/")
-        if (file.exists(bin))
-          return(python_info_system(dirname(bin), bin))
+    # we don't return immediately here because we might find
+    # as we traverse upwards that some of the expected virtualenv
+    # or condaenv files exist, so we just save the path and use
+    # it later if appropriate
+    if (is.null(systemPython)) {
+      for (prefix in prefixes) {
+        for (suffix in suffixes) {
+          bin <- paste(c(path, prefix, suffix), collapse = "/")
+          if (file.exists(bin)) {
+            systemPython <- bin
+            break
+          }
+        }
       }
     }
 
@@ -94,6 +101,10 @@ python_info <- function(python) {
     path <- dirname(path)
 
   }
+
+  # if we found a system python, use that as the fallback
+  if (!is.null(systemPython))
+    return(python_info_system(dirname(systemPython), systemPython))
 
   stopf("could not find a Python environment for %s", python)
 
@@ -134,6 +145,12 @@ python_info_condaenv <- function(path) {
 
 python_info_condaenv_find <- function(path) {
 
+  # first, check if we have a condabin
+  exe <- if (is_windows()) "conda.exe" else "conda"
+  conda <- file.path(path, "condabin", exe)
+  if (file.exists(conda))
+    return(conda)
+
   # read history file
   histpath <- file.path(path, "conda-meta/history")
   if (!file.exists(histpath))
@@ -154,9 +171,7 @@ python_info_condaenv_find <- function(path) {
 
   # on Windows, a wrapper script is recorded in the history,
   # so instead attempt to find the real conda binary
-  exe <- if (is_windows()) "conda.exe" else "conda"
   conda <- file.path(dirname(script), exe)
-
   normalizePath(conda, winslash = "/", mustWork = FALSE)
 
 }

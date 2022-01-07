@@ -92,10 +92,25 @@ use_python <- function(python, required = NULL) {
     }
   }
 
+  # validate that this copy of python has libpython available
+  if (required) {
+    config <- python_config(python)
+    if (is.null(config$libpython)) {
+
+      fmt <- heredoc("
+        '%s' was not built with a shared library.
+        reticulate can only bind to copies of Python built with '--enable-shared'.
+      ")
+
+      stopf(fmt, python)
+    }
+  }
+
   if (required)
     .globals$required_python_version <- python
 
   .globals$use_python_versions <- unique(c(.globals$use_python_versions, python))
+
 }
 
 #' @rdname use_python

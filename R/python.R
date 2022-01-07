@@ -493,7 +493,7 @@ py_len <- function(x) {
     return(0L)
 
   # delegate to C++
-  py_len_impl(x)
+  py_len_impl(x, NULL)
 
 }
 
@@ -504,7 +504,20 @@ length.python.builtin.list <- function(x) {
 
 #' @export
 length.python.builtin.object <- function(x) {
-  py_len(x)
+
+  # return 0 if Python not yet available
+  if (py_is_null_xptr(x) || !py_available())
+    return(0L)
+
+  # Not all Python objects have a defined length, but almost all objects in R
+  # do. To reflect this behavior, we treat Python's 'None' as a zero-length
+  # object (similar to R's NULL), and treat any other objects without a
+  # `__len__` method as though they were scalar objects.
+  if (inherits(x, "python.builtin.NoneType"))
+    return(0L)
+  else
+    py_len_impl(x, 1L)
+
 }
 
 #' Convert to Python Unicode Object

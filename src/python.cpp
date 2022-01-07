@@ -3034,10 +3034,12 @@ SEXP py_len_impl(PyObjectRef x, SEXP defaultValue) {
 
   Py_ssize_t value = PyObject_Size(x);
   if (PyErr_Occurred()) {
-    if (defaultValue == R_NilValue)
+    if (defaultValue == R_NilValue) {
       stop(py_fetch_error());
-    else
+    } else {
+      PyErr_Clear();
       return defaultValue;
+    }
   }
 
   if (value <= static_cast<Py_ssize_t>(INT_MAX))

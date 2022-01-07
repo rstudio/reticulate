@@ -513,10 +513,11 @@ length.python.builtin.object <- function(x) {
   # do. To reflect this behavior, we treat Python's 'None' as a zero-length
   # object (similar to R's NULL), and treat any other objects without a
   # `__len__` method as though they were scalar objects.
-  if (inherits(x, "python.builtin.NoneType"))
+  types <- c("python.builtin.NoneType", "python.builtin.NotImplementedType")
+  if (inherits(x, types))
     return(0L)
-  else
-    py_len_impl(x, 1L)
+
+  py_len_impl(x, 1L)
 
 }
 

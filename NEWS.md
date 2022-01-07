@@ -1,6 +1,10 @@
 
 # reticulate 1.23
 
+- `reticulate` gains the function `py_list_packages()`, and can be used to
+  list the Python modules available and installed in a particular Python
+  environment. (#933)
+  
 - `reticulate` now supports conversion of Python [datatable](https://github.com/h2oai/datatable)
   objects. (#1081)
 

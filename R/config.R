@@ -37,8 +37,9 @@ py_version <- function() {
 
 #' Python executable
 #'
-#' Get the path to the Python executable associated with the instance currently
-#' being used by `reticulate`.
+#' Get the path to the Python executable that `reticulate` has been configured
+#' to use. If Python has already been initialized, then `reticulate` will
+#' choose the currently-active copy of Python.
 #'
 #' This can occasionally be useful if you'd like to interact with Python (or its
 #' modules) via a subprocess; for example you might choose to install a package
@@ -50,19 +51,21 @@ py_version <- function() {
 #'
 #' and so you can also have greater control over how these modules are invoked.
 #'
-#' @return The path to the associated Python executable, or `NULL` if Python
-#'   has not yet been initialized.
+#' @return The path to the Python executable `reticulate` has been configured
+#'   to use.
 #'
 #' @export
 py_exe <- function() {
 
-  if (!py_available(initialize = FALSE))
-    return(NULL)
+  # if python has already been initialized, use that
+  if (!is.null(.globals$py_config))
+    return(.globals$py_config$python)
 
-  config <- py_config()
-  config$python
+  # otherwise, guess what version of python we'd use
+  py_discover_config()$python
 
 }
+
 
 #' Build Python configuration error message
 #'

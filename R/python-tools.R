@@ -106,7 +106,7 @@ python_info <- function(path) {
   if (!is.null(systemPython))
     return(python_info_system(dirname(systemPython), systemPython))
 
-  stopf("could not find a Python environment for %s", python)
+  stopf("could not find a Python environment for %s", path)
 
 }
 

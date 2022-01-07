@@ -782,6 +782,19 @@ condaenv_resolve <- function(envname = NULL) {
 
 }
 
+condaenv_path <- function(envname = NULL) {
+
+  python_environment_resolve(
+    envname = envname,
+    resolve = function(name) {
+      python <- conda_python(envname)
+      info <- python_info(python)
+      info$root
+    }
+  )
+
+}
+
 condaenv_exists <- function(envname = NULL, conda = "auto") {
 
   # check that conda is installed

@@ -7,12 +7,13 @@
 py_exe()
 }
 \value{
-The path to the associated Python executable, or \code{NULL} if Python
-has not yet been initialized.
+The path to the Python executable \code{reticulate} has been configured
+to use.
 }
 \description{
-Get the path to the Python executable associated with the instance currently
-being used by \code{reticulate}.
+Get the path to the Python executable that \code{reticulate} has been configured
+to use. If Python has already been initialized, then \code{reticulate} will
+choose the currently-active copy of Python.
 }
 \details{
 This can occasionally be useful if you'd like to interact with Python (or its

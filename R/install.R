@@ -4,7 +4,7 @@ py_install_method_detect <- function(envname, conda = "auto") {
   # try to find an existing virtualenv
   if (virtualenv_exists(envname))
     return("virtualenv")
-  
+
   # check and prompt for miniconda
   if (miniconda_enabled() && miniconda_installable() && !miniconda_exists())
     miniconda_install_prompt()
@@ -22,7 +22,7 @@ py_install_method_detect <- function(envname, conda = "auto") {
   conda <- tryCatch(conda_binary(conda = conda), error = identity)
   if (!inherits(conda, "error"))
     return("conda")
-  
+
   # default to virtualenv
   "virtualenv"
 
@@ -35,7 +35,7 @@ py_install_method_detect <- function(envname, conda = "auto") {
 #' @inheritParams conda_install
 #'
 #' @param packages A vector of Python packages to install.
-#' 
+#'
 #' @param envname The name, or full path, of the environment in which Python
 #'   packages are to be installed. When `NULL` (the default), the active
 #'   environment as set by the `RETICULATE_PYTHON_ENV` variable will be used;
@@ -86,39 +86,31 @@ py_install <- function(packages,
                        )
 {
   check_forbidden_install("Python packages")
-  
-  # if no environment name was provided,
-  # but python has already been initialized,
-  # then install into that same environment
+
+  # if 'envname' was not provided, use the 'active' version of Python
   if (is.null(envname)) {
-    
-    python <- if (is_python_initialized())
-      .globals$py_config$python
-    else if (length(.globals$required_python_version))
-      .globals$required_python_version[[1]]
-    else if (length(p <- py_discover_config()$python))
-      p
-    
+
+    python <- tryCatch(py_exe(), error = function(e) NULL)
     if (!is.null(python)) {
-      
+
       # form path to environment
       info <- python_info(python)
       envname <- info$root
-      
+
       # update installation method
       if (identical(info$type, "virtualenv"))
         method <- "virtualenv"
       else if (identical(info$type, "conda"))
         method <- "conda"
-      
+
       # update conda binary path if required
       if (identical(conda, "auto") && identical(info$type, "conda"))
         conda <- info$conda %||% find_conda()[[1L]]
-      
+
     }
-    
+
   }
-  
+
   # resolve 'auto' method
   method <- match.arg(method)
   if (method == "auto")
@@ -126,16 +118,16 @@ py_install <- function(packages,
 
   # perform the install
   switch(
-    
+
     method,
-    
+
     virtualenv = virtualenv_install(
       envname = envname,
       packages = packages,
       ignore_installed = pip_ignore_installed,
       ...
     ),
-    
+
     conda = conda_install(
       envname,
       packages = packages,
@@ -145,11 +137,101 @@ py_install <- function(packages,
       pip_ignore_installed = pip_ignore_installed,
       ...
     ),
-    
+
     stop("unrecognized installation method '", method, "'")
-    
+
   )
 
   invisible(NULL)
 
+}
+
+# given the name of, or path to, a Python virtual environment,
+# try to resolve the path to the python executable associated
+# with that environment
+py_resolve <- function(envname = NULL,
+                       type = c("auto", "virtualenv", "conda"))
+{
+  # if envname was not supplied, then use the 'default' python
+  if (is.null(envname))
+    return(py_exe())
+
+  # if envname was supplied, try to resolve the environment path
+  envpath <- if (type == "virtualenv") {
+
+    envpath <- virtualenv_path(envname)
+    if (!file.exists(envpath))
+      stopf("Python virtual environment '%s' does not exist", envname)
+    envpath
+
+  } else if (type == "conda") {
+
+    envpath <- condaenv_path(envname)
+    if (!file.exists(envpath))
+      stopf("Python conda environment '%s' does not exist", envname)
+    envpath
+
+  } else if (type == "auto") local({
+
+    envpath <- virtualenv_path(envname)
+    if (file.exists(envpath))
+      return(envpath)
+
+    envpath <- condaenv_path(envname)
+    if (file.exists(envpath))
+      return(envpath)
+
+    stopf("Python environment '%s' does not exist", envname)
+
+  })
+
+  # resolve the path to python
+  info <- python_info(envpath)
+  info$python
+
+}
+
+
+#' List installed Python packages
+#'
+#' List the Python packages that are installed in the requested Python
+#' environment.
+#'
+#' When `envname` is `NULL`, `reticulate` will use the "default" version
+#' of Python, as reported by [py_exe()]. This implies that you
+#' can call `py_list_packages()` without arguments in order to list
+#' the installed Python packages in the version of Python currently
+#' used by `reticulate`.
+#'
+#' @param envname The name of, or path to, a Python virtual environment.
+#'   Ignored when `python` is non-`NULL`.
+#'
+#' @param type The virtual environment type. Useful if you have both
+#'   virtual environments and Conda environments of the same name on
+#'   your system, and you need to disambiguate them.
+#'
+#' @param python The path to a Python executable.
+#'
+#' @returns An \R data.frame, with columns:
+#'
+#' \describe{
+#' \item{`package`}{The package name.}
+#' \item{`version`}{The package version.}
+#' \item{`requirement`}{The package requirement.}
+#' \item{`channel`}{(Conda only) The channel associated with this package.}
+#' }
+#'
+#' @export
+py_list_packages <- function(envname = NULL,
+                             type = c("auto", "virtualenv", "conda"),
+                             python = NULL)
+{
+  type <- match.arg(type)
+  python <- python %||% py_resolve(envname, type)
+
+  info <- python_info(python)
+  if (info$type == "conda")
+    return(conda_list_packages(info$root))
+
+  pip_freeze(python)
 }

@@ -787,7 +787,7 @@ condaenv_path <- function(envname = NULL) {
   python_environment_resolve(
     envname = envname,
     resolve = function(name) {
-      python <- conda_python(envname)
+      python <- conda_python(name)
       info <- python_info(python)
       info$root
     }

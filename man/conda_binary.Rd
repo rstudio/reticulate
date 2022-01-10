@@ -43,7 +43,7 @@ This can be useful if your conda installation lives in a location that
 }
 
 \seealso{
-Other conda tools: 
+Other conda-tools: 
 \code{\link{conda_create}()},
 \code{\link{conda_export}()},
 \code{\link{conda_install}()},
@@ -52,4 +52,4 @@ Other conda tools:
 \code{\link{conda_remove}()},
 \code{\link{conda_version}()}
 }
-\concept{conda tools}
+\concept{conda-tools}

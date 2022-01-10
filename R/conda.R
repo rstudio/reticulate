@@ -50,7 +50,7 @@ NULL
 #'   environment, and `python` giving the path to the Python binary associated
 #'   with that environment.
 #'
-#' @family conda tools
+#' @family conda-tools
 #' @export
 conda_list <- function(conda = "auto") {
 
@@ -188,7 +188,7 @@ conda_clone <- function(envname, ..., clone = "base", conda = "auto") {
 #' @return The path to the Python binary associated with the newly-created
 #'   conda environment.
 #'
-#' @family conda tools
+#' @family conda-tools
 #' @export
 conda_create <- function(envname = NULL,
                          packages = NULL,
@@ -291,7 +291,7 @@ conda_create_env <- function(envname, environment, conda) {
 #'
 #' @return The path to the exported environment definition, invisibly.
 #'
-#' @family conda tools
+#' @family conda-tools
 #' @export
 conda_export <- function(envname,
                          file = if (json) "environment.json" else "environment.yml",
@@ -342,7 +342,7 @@ conda_export <- function(envname,
 #'   to be removed from the conda environment. When `NULL` (the default),
 #'   everything in the associated environment will be removed.
 #'
-#' @family conda tools
+#' @family conda-tools
 #' @export
 conda_remove <- function(envname,
                          packages = NULL,
@@ -391,7 +391,7 @@ conda_remove <- function(envname,
 #'   you'd like to change the version of Python associated with a particular
 #'   conda environment.
 #'
-#' @family conda tools
+#' @family conda-tools
 #' @export
 conda_install <- function(envname = NULL,
                           packages,
@@ -543,7 +543,7 @@ conda_install <- function(envname = NULL,
 #'
 #' @inheritParams conda-params
 #'
-#' @family conda tools
+#' @family conda-tools
 #' @export
 conda_binary <- function(conda = "auto") {
 
@@ -595,7 +595,7 @@ conda_exe <- conda_binary
 #'
 #' @inheritParams conda-params
 #'
-#' @family conda tools
+#' @family conda-tools
 #' @export
 conda_version <- function(conda = "auto") {
   conda_bin <- conda_binary(conda)
@@ -666,7 +666,7 @@ numeric_conda_version <- function(conda = "auto", version_string = conda_version
 #' @param all Boolean; should all conda environments with the requested name
 #'   be returned? By default, only the first matching environment is returned.
 #'
-#' @family conda tools
+#' @family conda-tools
 #' @export
 conda_python <- function(envname = NULL,
                          conda = "auto",

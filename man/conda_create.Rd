@@ -58,7 +58,7 @@ conda environment.
 Create a new conda environment.
 }
 \seealso{
-Other conda tools: 
+Other conda-tools: 
 \code{\link{conda_binary}()},
 \code{\link{conda_export}()},
 \code{\link{conda_install}()},
@@ -67,4 +67,4 @@ Other conda tools:
 \code{\link{conda_remove}()},
 \code{\link{conda_version}()}
 }
-\concept{conda tools}
+\concept{conda-tools}

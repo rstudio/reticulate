@@ -36,7 +36,7 @@ or JSON. The resulting environment file can be used by \code{\link[=conda_create
 to create a "clone" of the exported conda environment.
 }
 \seealso{
-Other conda tools: 
+Other conda-tools: 
 \code{\link{conda_binary}()},
 \code{\link{conda_create}()},
 \code{\link{conda_install}()},
@@ -45,4 +45,4 @@ Other conda tools:
 \code{\link{conda_remove}()},
 \code{\link{conda_version}()}
 }
-\concept{conda tools}
+\concept{conda-tools}

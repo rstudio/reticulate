@@ -61,7 +61,7 @@ Install a package into a conda environment. Packages can be installed either
 from the conda repositories, or via \code{pip}.
 }
 \seealso{
-Other conda tools: 
+Other conda-tools: 
 \code{\link{conda_binary}()},
 \code{\link{conda_create}()},
 \code{\link{conda_export}()},
@@ -70,4 +70,4 @@ Other conda tools:
 \code{\link{conda_remove}()},
 \code{\link{conda_version}()}
 }
-\concept{conda tools}
+\concept{conda-tools}

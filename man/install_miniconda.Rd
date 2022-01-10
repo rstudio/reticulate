@@ -26,8 +26,8 @@ For arm64 builds of R on macOS, \code{install_miniconda()} will use
 binaries from \href{https://github.com/conda-forge/miniforge}{miniforge} instead.
 }
 \seealso{
-Other Miniconda tools: 
+Other miniconda-tools: 
 \code{\link{miniconda_uninstall}()},
 \code{\link{miniconda_update}()}
 }
-\concept{Miniconda tools}
+\concept{miniconda-tools}

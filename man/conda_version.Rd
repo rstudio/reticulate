@@ -16,7 +16,7 @@ the \code{conda} executable.}
 Retrieve the current version of conda, as reported by \code{conda --version}.
 }
 \seealso{
-Other conda tools: 
+Other conda-tools: 
 \code{\link{conda_binary}()},
 \code{\link{conda_create}()},
 \code{\link{conda_export}()},
@@ -25,4 +25,4 @@ Other conda tools:
 \code{\link{conda_python}()},
 \code{\link{conda_remove}()}
 }
-\concept{conda tools}
+\concept{conda-tools}

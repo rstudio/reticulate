@@ -22,7 +22,7 @@ NULL
 #' @param force Boolean; force re-installation if Miniconda is already installed
 #'   at the requested path?
 #'
-#' @family Miniconda tools
+#' @family miniconda-tools
 #' @export
 install_miniconda <- function(path = miniconda_path(),
                               update = TRUE,
@@ -70,7 +70,7 @@ install_miniconda <- function(path = miniconda_path(),
 #'
 #' @inheritParams miniconda-params
 #'
-#' @family Miniconda tools
+#' @family miniconda-tools
 #' @export
 miniconda_update <- function(path = miniconda_path()) {
   conda <- miniconda_conda(path)
@@ -83,7 +83,7 @@ miniconda_update <- function(path = miniconda_path()) {
 #'
 #' @param path The path in which Miniconda is installed.
 #'
-#' @family Miniconda tools
+#' @family miniconda-tools
 #' @export
 miniconda_uninstall <- function(path = miniconda_path()) {
   unlink(path, recursive = TRUE)

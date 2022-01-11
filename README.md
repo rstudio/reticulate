@@ -271,6 +271,10 @@ The following articles cover the various aspects of using
     Advanced discussion of the differences between arrays in R and
     Python and the implications for conversion and interoperability.
 
+-   [Python
+    Primer](https://rstudio.github.io/reticulate/articles/python_primer.html)
+    — Introduction to Python for R users.
+
 ## Why reticulate?
 
 From the [Wikipedia](https://en.wikipedia.org/wiki/Reticulated_python)

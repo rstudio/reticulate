@@ -9,7 +9,7 @@ The **reticulate** package provides a comprehensive set of tools for
 interoperability between Python and R. The package includes facilities
 for:
 
-<img src="images/reticulated_python.png" width=200 align=right style="margin-left: 15px;" alt="reticulated python"/>
+<img src="man/figures/reticulated_python.png" width=200 align=right style="margin-left: 15px;" alt="reticulated python"/>
 
   - Calling Python from R in a variety of ways including R Markdown,
     sourcing Python scripts, importing Python modules, and using Python
@@ -127,7 +127,7 @@ Built in conversion for many Python object types is provided, including
 use Pandas to read and manipulate data then easily plot the Pandas data
 frame using [ggplot2](https://ggplot2.tidyverse.org/):
 
-![](images/rmarkdown_engine_zoomed.png)
+![](man/figures/rmarkdown_engine_zoomed.png)
 
 Note that the reticulate Python engine is enabled by default within R
 Markdown whenever reticulate is installed.
@@ -148,14 +148,14 @@ os <- import("os")
 os$listdir(".")
 ```
 
-``` 
- [1] ".git"             ".gitignore"       ".Rbuildignore"    ".RData"          
- [5] ".Rhistory"        ".Rproj.user"      ".travis.yml"      "appveyor.yml"    
- [9] "DESCRIPTION"      "docs"             "external"         "index.html"      
-[13] "index.Rmd"        "inst"             "issues"           "LICENSE"         
-[17] "man"              "NAMESPACE"        "NEWS.md"          "pkgdown"         
-[21] "R"                "README.md"        "reticulate.Rproj" "src"             
-[25] "tests"            "vignettes"      
+```
+ [1] ".git"             ".gitignore"       ".Rbuildignore"    ".RData"
+ [5] ".Rhistory"        ".Rproj.user"      ".travis.yml"      "appveyor.yml"
+ [9] "DESCRIPTION"      "docs"             "external"         "index.html"
+[13] "index.Rmd"        "inst"             "issues"           "LICENSE"
+[17] "man"              "NAMESPACE"        "NEWS.md"          "pkgdown"
+[21] "R"                "README.md"        "reticulate.Rproj" "src"
+[25] "tests"            "vignettes"
 ```
 
 Functions and other data within Python modules and classes can be
@@ -164,7 +164,7 @@ with an R list, environment, or reference class).
 
 Imported Python modules support code completion and inline help:
 
-![](images/reticulate_completion.png)
+![](man/figures/reticulate_completion.png)
 
 See [Calling Python from
 R](https://rstudio.github.io/reticulate/articles/calling_python.html)
@@ -207,7 +207,7 @@ If you want to work with Python interactively you can call the
 your R session. Objects created within the Python REPL can be accessed
 from R using the `py` object exported from reticulate. For example:
 
-![](images/python_repl.png)
+![](man/figures/python_repl.png)
 
 Enter `exit` within the Python REPL to return to the R prompt.
 

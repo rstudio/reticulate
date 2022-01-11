@@ -2,7 +2,7 @@
 title: "Managing an R Package's Python Dependencies"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{python_dependencies}
+  %\VignetteIndexEntry{Managing an R Package's Python Dependencies}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

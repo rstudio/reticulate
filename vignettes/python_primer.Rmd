@@ -1,6 +1,5 @@
 ---
 title: "Primer on Python for R Users"
-author: "Tomasz Kalinowski"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Primer on Python for R Users}
@@ -25,15 +24,13 @@ library(reticulate)
 
 ## Primer on Python for R users
 
-R is commonly used for statistics and data analysis, but it is not the
-only language on the scene. You may find yourself occasionally wanting
-to read and understand some Python, or even port some Python to R. This
-guide is designed to enable you to do these tasks as quickly as
-possible. As you'll see, R and Python are similar enough that it's
-possible to do these tasks, without necessarily learning all of Python.
-We start with the basics of container types and work up to the mechanics
-of classes, dunders, the iterator protocol, the context protocol, and
-more!
+You may find yourself wanting to read and understand some Python, or
+even port some Python to R. This guide is designed to enable you to do
+these tasks as quickly as possible. As you'll see, R and Python are
+similar enough that this is possible without necessarily learning all of
+Python. We start with the basics of container types and work up to the
+mechanics of classes, dunders, the iterator protocol, the context
+protocol, and more!
 
 ### Whitespace
 
@@ -65,10 +62,10 @@ default to) using spaces only.
 ### Container Types
 
 In R, the `list()` is a container you can use to organize R objects. R's
-`list()` is feature packed, and there is actually no single direct
-equivalent in Python that supports all the same features. Instead there
-are (at least) 4 different Python container types you need to be aware
-of: lists, dictionaries, tuples, and sets.
+`list()` is feature packed, and there is no single direct equivalent in
+Python that supports all the same features. Instead there are (at least)
+4 different Python container types you need to be aware of: lists,
+dictionaries, tuples, and sets.
 
 #### Lists
 
@@ -94,8 +91,8 @@ slow and best avoided. But because Python's list are modified in place
 efficient to grow Python lists in place.
 
 Some syntactic sugar around Python lists you might encounter is the
-usage of `+` and `*` with lists. These are concatenation operators, akin
-to R's `c()`.
+usage of `+` and `*` with lists. These are concatenation and replication
+operators, akin to R's `c()` and `rep()`.
 
 ```{python}
 x = [1]
@@ -149,10 +146,10 @@ have the same modify-in-place methods like `append()`. They are
 typically constructed using bare `()`, but parentheses are not strictly
 required, and you may see an implicit tuple being defined just from a
 comma separated series of expressions. Because parentheses can also be
-used to group expressions to define order of operations in expressions
-like `(x + 3) * 4`, a special syntax is required to define tuples of
-length 1: a trailing comma. Tuples are most commonly encountered in
-functions that take a variable number of arguments.
+used to specify order of operations in expressions like `(x + 3) * 4`, a
+special syntax is required to define tuples of length 1: a trailing
+comma. Tuples are most commonly encountered in functions that take a
+variable number of arguments.
 
 ```{python}
 x = (1, 2) # tuple of length 2
@@ -182,7 +179,7 @@ len(x)
 
 Tuples are the container that powers the *packing* and *unpacking*
 semantics in Python. Python provides the convenience of allowing you to
-assign multiple symbols in one expression.
+assign multiple symbols in one expression. This is called *unpacking*.
 
 For example:
 
@@ -242,7 +239,7 @@ where you can retrieve items by name, though in Python the name (called
 a *key* in Python's parlance) does not need to be a string like in R. It
 can be any Python object with a `hash()` method (meaning, it can be
 almost any Python object). They can be created using syntax like
-`{key: value}`. Like Python lists, they are modified in place. Note,
+`{key: value}`. Like Python lists, they are modified in place. Note that
 `r_to_py()` converts R named lists to dictionaries.
 
 ```{python}
@@ -273,8 +270,8 @@ further.
 #### Sets
 
 Sets are a container that can be used to efficiently track unique items
-or deduplicate lists. They are constructed using `{val1, val2}` (unlike
-a dictionary, without `:`). Think of them as dictionary where you only
+or deduplicate lists. They are constructed using `{val1, val2}` (like a
+dictionary, but without `:`). Think of them as dictionary where you only
 use the keys. Sets have many efficient methods for membership
 operations, like `intersection()`, `issubset()`, `union()` and so on.
 
@@ -465,9 +462,9 @@ equivalents to the object-oriented style of Python `class`'s.
 
 In Python, however, understanding the basics of how `class` objects work
 is requisite knowledge, because `class`'s are how you organize and find
-methods in Python. (In contrast to R's S3 approach, where methods are
-found by dispatching from a generic). Fortunately, the basics of
-`class`'s are accessible.
+methods in Python. (In contrast to R's approach, where methods are found
+by dispatching from a generic). Fortunately, the basics of `class`'s are
+accessible.
 
 Don't be intimidated if this is your first exposure to object oriented
 programming. We'll start by building up a simple Python class for
@@ -492,7 +489,8 @@ defining `MyClass`, you can interact with it, and see that it has type
 `'type'`. Calling `MyClass()` creates a new object **instance** of the
 class, which has type `'MyClass'` (ignore the `__main__.` prefix for
 now). The instance prints with its memory address, which is a strong
-hint that it's common to be managing many instances of a class.
+hint that it's common to be managing many instances of a class, and that
+the instance is mutable (modified-in-place by default).
 
 In the first example, we defined an empty `class`, but when we inspect
 it we see that it already comes with a bunch of attributes (`dir()` in
@@ -600,11 +598,12 @@ Other dunder's worth knowing about are:
 
 -   `__enter__` and `__exit__`: functions invoked by `with`.
 
--   Many builtin Python functions are just sugar for invoking the
-    dunder. For example: calling `repr(x)` is identical to
-    `x.__repr__()`. Other builtins that are just sugar for invoking the
-    dunder are `next()`, `iter()`, `str()`, `list()`, `dict()`,
-    `bool()`, `dir()` and more!
+-   Many [built-in](https://docs.python.org/3/library/functions.html)
+    Python functions are just sugar for invoking the dunder. For
+    example: calling `repr(x)` is identical to `x.__repr__()`. Other
+    builtins that are just sugar for invoking the dunder are `next()`,
+    `iter()`, `str()`, `list()`, `dict()`, `bool()`, `dir()`, `hash()`
+    and more!
 
 #### Iterators, revisited
 
@@ -654,36 +653,6 @@ next(it)
 next(it)
 next(it)
 ```
-
-### Decorators
-
-```{python}
-def foo():
-  yield 1
-```
-
-Decorators are just functions that take a function as an argument, and
-then typically returns another function. Any function can be invoked as
-a decorator with the `@` syntax, which is just sugar for this simple
-action:
-
-```{python}
-def my_decorator(func):
-  func.x = "a decorator modified this function by adding an attribute `x`"
-  return func
-
-def my_function(): pass
-my_function = my_decorator(my_function)
-
-# @ is just fancy syntax for the above two lines
-@my_decorator
-def my_function(): pass
-```
-
-One decorator you might encounter frequently is:
-
--   `@property`, which automatically calls a class method when the
-    attribute is accessed (similar to `makeActiveBinding()` in R).
 
 ### Defining Generators with `yield`.
 
@@ -817,14 +786,16 @@ abs2 is numpy.abs
 
 If you're looking for the Python equivalent of R's `library()`, which
 makes all of a package's exported symbols available, it might be using
-`import` with a `*` wildcard (though it's relatively uncommon to do so):
+`import` with a `*` wildcard, though it's relatively uncommon to do so.
+The `*` wildcard will expand to include all the symbols in module, or
+all the symbols listed in `__all__`, if it is defined.
 
 ```{python}
 from numpy import *
 ```
 
 Python doesn't make a distinction like R does between package exported
-and unexported symbols. In Python, all module symbols are equal, though
+and internal symbols. In Python, all module symbols are equal, though
 there is the naming convention that intended-to-be-internal symbols are
 prefixed with a single leading underscore. (Two leading underscores
 invoke an advanced language feature called "name mangling", which is
@@ -870,16 +841,16 @@ py$a_strict_Python_function(as.integer(3)) # success
 R is a language designed for numerical computing first. Numeric vector
 data types are baked deep into the R language, to the point that the
 language doesn't even distinguish scalars from vectors. By comparison,
-numerical computing features in Python are generally provided by third
-party packages (*modules*, in Python parlance).
+numerical computing capabilities in Python are generally provided by
+third party packages (*modules*, in Python parlance).
 
-In Python, the `numpy` module is used most commonly used to handle
-contiguous arrays of data. The closest equivalent to an R numeric vector
-is a numpy array, or sometimes, a Python list of scalar numbers (some
-Pythonistas might argue for `array.array()` here, but that's so rarely
-encountered in actual Python code we don't mention it further).
+In Python, the `numpy` module is most commonly used to handle contiguous
+arrays of data. The closest equivalent to an R numeric vector is a numpy
+array, or sometimes, a list of scalar numbers (some Pythonistas might
+argue for `array.array()` here, but that's so rarely encountered in
+actual Python code we don't mention it further).
 
-Teaching the NumPy interface is beyond the scope of this tutorial, but
+Teaching the NumPy interface is beyond the scope of this primer, but
 it's worth pointing out some potential tripping hazards for users
 accustomed to R arrays:
 
@@ -893,8 +864,8 @@ accustomed to R arrays:
 import numpy as np
 m = np.arange(12).reshape((3,4))
 m
-m[0]    # first row
-m[0, :] # also first row
+m[0, :] # first row
+m[0]    # also first row
 
 for row in m:
   print(row)
@@ -908,6 +879,31 @@ for row in m:
     only reliable way is to consult the
     [documentation](https://numpy.org/doc/stable/reference/index.html#reference),
     and conduct small experiments at the `reticulate::repl_python()`.
+
+### Decorators
+
+Decorators are just functions that take a function as an argument, and
+then typically returns another function. Any function can be invoked as
+a decorator with the `@` syntax, which is just sugar for this simple
+action:
+
+```{python}
+def my_decorator(func):
+  func.x = "a decorator modified this function by adding an attribute `x`"
+  return func
+
+def my_function(): pass
+my_function = my_decorator(my_function)
+
+# @ is just fancy syntax for the above two lines
+@my_decorator
+def my_function(): pass
+```
+
+One decorator you might encounter frequently is:
+
+-   `@property`, which automatically calls a class method when the
+    attribute is accessed (similar to `makeActiveBinding()` in R).
 
 ### `with` and context management
 

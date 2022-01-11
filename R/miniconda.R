@@ -3,6 +3,8 @@
 #'   that the Miniconda installer does not support paths containing spaces. See
 #'   [miniconda_path] for more details on the default path used by `reticulate`.
 #'
+#' @title miniconda-params
+#' @keywords internal
 #' @name miniconda-params
 NULL
 
@@ -21,6 +23,10 @@ NULL
 #'
 #' @param force Boolean; force re-installation if Miniconda is already installed
 #'   at the requested path?
+#'
+#' @note If you encounter binary incompatibilities between R and Miniconda, a
+#'   scripted build and installation of Python from sources can be performed by
+#'   [`install_python()`]
 #'
 #' @family miniconda-tools
 #' @export

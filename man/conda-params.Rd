@@ -28,3 +28,4 @@ of a specific version of Python.}
 \description{
 conda-params
 }
+\keyword{internal}

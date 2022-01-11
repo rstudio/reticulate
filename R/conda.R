@@ -22,6 +22,7 @@
 #'
 #' @param ... Optional arguments, reserved for future expansion.
 #'
+#' @keywords internal
 #' @name conda-params
 NULL
 

@@ -9,23 +9,6 @@
 #' the Python REPL with `repl_python()`, run Python code, and later run `exit`
 #' to return to the \R console.
 #'
-#' @examples \dontrun{
-#'
-#' # enter the Python REPL, create a dictionary, and exit
-#' repl_python()
-#' dictionary = {'alpha': 1, 'beta': 2}
-#' exit
-#'
-#' # access the created dictionary from R
-#' py$dictionary
-#' # $alpha
-#' # [1] 1
-#' #
-#' # $beta
-#' # [1] 2
-#'
-#' }
-#'
 #' @param module An (optional) Python module to be imported before
 #'   the REPL is launched.
 #'
@@ -64,6 +47,25 @@
 #'
 #'  where `x` will be a list of strings, consisting of
 #'  stdout output split in `"\n"` (stderr is not captured).
+#'
+#'
+#' @section Example:
+#' ````
+#'
+#' # enter the Python REPL, create a dictionary, and exit
+#' repl_python()
+#' dictionary = {'alpha': 1, 'beta': 2}
+#' exit
+#'
+#' # access the created dictionary from R
+#' py$dictionary
+#' # $alpha
+#' # [1] 1
+#' #
+#' # $beta
+#' # [1] 2
+#'
+#' ````
 #'
 #' @importFrom utils packageVersion
 #' @export

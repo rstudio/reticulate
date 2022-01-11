@@ -3,6 +3,8 @@
 #'   that the Miniconda installer does not support paths containing spaces. See
 #'   [miniconda_path] for more details on the default path used by `reticulate`.
 #'
+#' @title miniconda-params
+#' @keywords internal
 #' @name miniconda-params
 NULL
 

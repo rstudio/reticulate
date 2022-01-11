@@ -71,12 +71,11 @@ where \code{x} will be a list of strings, consisting of
 stdout output split in \code{"\\n"} (stderr is not captured).
 }
 
-\examples{
-\dontrun{
-
+\section{Example}{
+\preformatted{
 # enter the Python REPL, create a dictionary, and exit
 repl_python()
-dictionary = {'alpha': 1, 'beta': 2}
+dictionary = \{'alpha': 1, 'beta': 2\}
 exit
 
 # access the created dictionary from R
@@ -88,8 +87,8 @@ py$dictionary
 # [1] 2
 
 }
-
 }
+
 \seealso{
 \link{py}, for accessing objects created using the Python REPL.
 }

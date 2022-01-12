@@ -4,15 +4,25 @@
 \alias{py_len}
 \title{Length of Python object}
 \usage{
-py_len(x)
+py_len(x, default = NULL)
 }
 \arguments{
 \item{x}{A Python object.}
+
+\item{default}{The default length value to return, in the case that
+the associated Python object has no \verb{__len__} method.}
 }
 \value{
 The length of the object, as a numeric value.
 }
 \description{
-Get the length of a Python object (equivalent to the Python \code{len()}
-built in function).
+Get the length of a Python object. This is equivalent to calling
+the Python builtin \code{len()} function on the object.
+}
+\details{
+Not all Python objects have a defined length. For objects without a defined
+length, calling \code{py_len()} will throw an error. If you'd like to instead
+infer a default length in such cases, you can set the \code{default} argument
+to e.g. \code{1L}, to treat Python objects without a \verb{__len__} method as having
+length one.
 }

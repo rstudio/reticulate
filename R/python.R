@@ -519,19 +519,14 @@ length.python.builtin.object <- function(x) {
   if (py_is_null_xptr(x) || !py_available())
     return(0L)
 
-  # treat Python's None type as a zero-length object;
-  # similar to R's own NULL
-  if (inherits(x, "python.builtin.NoneType"))
-    return(0L)
-
   # otherwise, try to invoke the object's __len__ method
   n <- py_len_impl(x, NA)
   if (!is.na(n))
-    return(n)
+    return(as.numeric(n))
 
   # if the object didn't have a __len__ method, try instead
   # to invoke its __bool__ method
-  py_bool(x)
+  as.integer(py_bool(x))
 
 }
 

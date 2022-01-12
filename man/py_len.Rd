@@ -10,7 +10,8 @@ py_len(x, default = NULL)
 \item{x}{A Python object.}
 
 \item{default}{The default length value to return, in the case that
-the associated Python object has no \verb{__len__} method.}
+the associated Python object has no \verb{__len__} method. When \code{NULL}
+(the default), an error is emitted instead.}
 }
 \value{
 The length of the object, as a numeric value.

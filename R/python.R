@@ -490,7 +490,8 @@ length.python.builtin.tuple <- function(x) {
 #' @param x A Python object.
 #'
 #' @param default The default length value to return, in the case that
-#'   the associated Python object has no `__len__` method.
+#'   the associated Python object has no `__len__` method. When `NULL`
+#'   (the default), an error is emitted instead.
 #'
 #' @return The length of the object, as a numeric value.
 #'

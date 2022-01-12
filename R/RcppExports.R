@@ -245,8 +245,8 @@ py_list_length <- function(x) {
     .Call(`_reticulate_py_list_length`, x)
 }
 
-py_len_impl <- function(x) {
-    .Call(`_reticulate_py_len_impl`, x)
+py_len_impl <- function(x, defaultValue) {
+    .Call(`_reticulate_py_len_impl`, x, defaultValue)
 }
 
 readline <- function(prompt) {

@@ -478,22 +478,32 @@ length.python.builtin.tuple <- function(x) {
 
 #' Length of Python object
 #'
-#' Get the length of a Python object (equivalent to the Python `len()`
-#' built in function).
+#' Get the length of a Python object. This is equivalent to calling
+#' the Python builtin `len()` function on the object.
+#'
+#' Not all Python objects have a defined length. For objects without a defined
+#' length, calling `py_len()` will throw an error. If you'd like to instead
+#' infer a default length in such cases, you can set the `default` argument
+#' to e.g. `1L`, to treat Python objects without a `__len__` method as having
+#' length one.
 #'
 #' @param x A Python object.
+#'
+#' @param default The default length value to return, in the case that
+#'   the associated Python object has no `__len__` method. When `NULL`
+#'   (the default), an error is emitted instead.
 #'
 #' @return The length of the object, as a numeric value.
 #'
 #' @export
-py_len <- function(x) {
+py_len <- function(x, default = NULL) {
 
   # return 0 if Python not yet available
   if (py_is_null_xptr(x) || !py_available())
     return(0L)
 
   # delegate to C++
-  py_len_impl(x)
+  py_len_impl(x, default)
 
 }
 
@@ -504,7 +514,15 @@ length.python.builtin.list <- function(x) {
 
 #' @export
 length.python.builtin.object <- function(x) {
-  py_len(x)
+
+  # return 0 if Python not yet available
+  if (py_is_null_xptr(x) || !py_available())
+    return(0L)
+
+  # TODO: for now, we declare that all python objects have length 1,
+  # but consider calling the associated `__len__` method in the future
+  1L
+
 }
 
 #' Convert to Python Unicode Object

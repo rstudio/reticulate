@@ -3030,12 +3030,17 @@ SEXP py_list_length(PyObjectRef x) {
 }
 
 // [[Rcpp::export]]
-SEXP py_len_impl(PyObjectRef x) {
+SEXP py_len_impl(PyObjectRef x, SEXP defaultValue) {
 
-  // TODO: do we want to allow errors here?
   Py_ssize_t value = PyObject_Size(x);
-  if (PyErr_Occurred())
-    stop(py_fetch_error());
+  if (PyErr_Occurred()) {
+    if (defaultValue == R_NilValue) {
+      stop(py_fetch_error());
+    } else {
+      PyErr_Clear();
+      return defaultValue;
+    }
+  }
 
   if (value <= static_cast<Py_ssize_t>(INT_MAX))
     return Rf_ScalarInteger((int) value);

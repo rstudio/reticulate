@@ -519,9 +519,14 @@ length.python.builtin.object <- function(x) {
   if (py_is_null_xptr(x) || !py_available())
     return(0L)
 
-  # TODO: for now, we declare that all python objects have length 1,
-  # but consider calling the associated `__len__` method in the future
-  1L
+  # treat Python's None type as a zero-length object;
+  # similar to R's own NULL
+  if (inherits(x, "python.builtin.NoneType"))
+    return(0L)
+
+  # otherwise, try to invoke the object's __len__ method,
+  # but default to a length of 1 if no such object exists
+  py_len_impl(x, 1L)
 
 }
 

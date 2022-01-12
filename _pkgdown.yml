@@ -5,6 +5,9 @@ template:
   params:
     bootswatch: flatly
 
+development:
+  mode: auto
+
 reference:
 
   - title: "Python Execution"

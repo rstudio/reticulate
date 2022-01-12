@@ -1,0 +1,18 @@
+pandoc: 2.14.2
+pkgdown: 2.0.1
+pkgdown_sha: ~
+articles:
+  arrays: arrays.html
+  calling_python: calling_python.html
+  package: package.html
+  python_dependencies: python_dependencies.html
+  python_packages: python_packages.html
+  python_primer: python_primer.html
+  r_markdown: r_markdown.html
+  rstudio_ide: rstudio_ide.html
+  versions: versions.html
+last_built: 2022-01-12T23:58Z
+urls:
+  reference: https://rstudio.github.io/reticulate/reference
+  article: https://rstudio.github.io/reticulate/articles
+

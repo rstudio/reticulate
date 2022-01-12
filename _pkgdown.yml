@@ -1,9 +1,16 @@
-
-url: https://rstudio.github.io/reticulate
+url: https://t-kalinowski.github.io/reticulate/
+# url: https://rstudio.github.io/reticulate
 
 template:
   params:
     bootswatch: flatly
+
+# template:
+#   bootstrap: 5
+
+
+development:
+  mode: auto
 
 reference:
 

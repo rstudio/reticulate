@@ -637,6 +637,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// py_bool
+SEXP py_bool(PyObjectRef x);
+RcppExport SEXP _reticulate_py_bool(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< PyObjectRef >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_bool(x));
+    return rcpp_result_gen;
+END_RCPP
+}
 // readline
 SEXP readline(const std::string& prompt);
 RcppExport SEXP _reticulate_readline(SEXP promptSEXP) {
@@ -734,6 +745,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_reticulate_py_set_interrupt_impl", (DL_FUNC) &_reticulate_py_set_interrupt_impl, 0},
     {"_reticulate_py_list_length", (DL_FUNC) &_reticulate_py_list_length, 1},
     {"_reticulate_py_len_impl", (DL_FUNC) &_reticulate_py_len_impl, 2},
+    {"_reticulate_py_bool", (DL_FUNC) &_reticulate_py_bool, 1},
     {"_reticulate_readline", (DL_FUNC) &_reticulate_readline, 1},
     {"_reticulate_py_register_interrupt_handler", (DL_FUNC) &_reticulate_py_register_interrupt_handler, 0},
     {"_reticulate_py_clear_error", (DL_FUNC) &_reticulate_py_clear_error, 0},

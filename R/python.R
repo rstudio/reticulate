@@ -524,9 +524,14 @@ length.python.builtin.object <- function(x) {
   if (inherits(x, "python.builtin.NoneType"))
     return(0L)
 
-  # otherwise, try to invoke the object's __len__ method,
-  # but default to a length of 1 if no such object exists
-  py_len_impl(x, 1L)
+  # otherwise, try to invoke the object's __len__ method
+  n <- py_len_impl(x, NA)
+  if (!is.na(n))
+    return(n)
+
+  # if the object didn't have a __len__ method, try instead
+  # to invoke its __bool__ method
+  py_bool(x)
 
 }
 

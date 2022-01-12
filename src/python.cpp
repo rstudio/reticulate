@@ -3048,3 +3048,18 @@ SEXP py_len_impl(PyObjectRef x, SEXP defaultValue) {
     return Rf_ScalarReal((double) value);
 
 }
+
+// [[Rcpp::export]]
+SEXP py_bool(PyObjectRef x) {
+
+  // invoke __bool__ method
+  PyObjectPtr result(PyObject_CallMethod(x, "__bool__", NULL));
+  if (PyErr_Occurred()) {
+    PyErr_Clear();
+    return Rf_ScalarLogical(0);
+  }
+
+  // check whether it's the True value
+  return Rf_ScalarLogical(result == Py_True);
+
+}

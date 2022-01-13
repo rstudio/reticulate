@@ -1,6 +1,9 @@
 
 # reticulate 1.23
 
+- All python objects gain a `length()` method, that returns either `py_len(x)`, or
+  if that fails, `as.integer(py_bool(x))`
+
 - `conda_create()` default for `python_version` changed from
   `NULL` to `miniconda_python_version()` (presently, 3.8)
 

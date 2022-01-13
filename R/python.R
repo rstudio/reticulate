@@ -520,15 +520,15 @@ length.python.builtin.object <- function(x) {
     return(0L)
 
   # otherwise, try to invoke the object's __len__ method
-  n <- py_len_impl(x, NA)
-  if (!is.na(n))
-    return(as.numeric(n))
+  n <- py_len_impl(x, NA_integer_)
+  if (is.na(n))
+    # if the object didn't have a __len__ method, or __len__ raised an
+    # Exception, try instead to invoke its __bool__ method
+    return(as.integer(py_bool(x)))
 
-  # if the object didn't have a __len__ method, try instead
-  # to invoke its __bool__ method
-  as.integer(py_bool(x))
-
+  n
 }
+
 
 #' Python Truthiness
 #'

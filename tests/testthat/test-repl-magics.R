@@ -79,48 +79,57 @@ test_that("%system, !", {
 
 test_that("%pip", {
 
+  skip_if_no_test_environments()
   local_quiet_repl()
 
-  virtualenv_create("test-pip-repl-magic")
+  env_path <- virtualenv_create("test-pip-repl-magic")
 
-  expect_true(callr::r(function() {
+  expect_true(callr::r(function(env_path) {
     Sys.unsetenv("RETICULATE_PYTHON")
     library(reticulate)
 
-    use_virtualenv("test-pip-repl-magic", required = TRUE)
+    use_virtualenv(env_path, required = TRUE)
 
     repl_python(input = "%pip install requests")
     import("requests")
     TRUE
-  }))
+  }, args = list(env_path = env_path)))
 
-  virtualenv_remove("test-pip-repl-magic")
-
+  virtualenv_remove(env_path, confirm = FALSE)
+  # unlink(env_path, recursive = TRUE)
 
 })
 
 
 test_that("%conda", {
 
+  skip_if_no_test_environments()
+  skip_if_no_conda()
   local_quiet_repl()
 
   capture.output({
-    conda_create("test-conda-repl-magic")
+    python <- conda_create("test-conda-repl-magic")
   })
 
-  expect_true(callr::r(function() {
+  expect_true(callr::r(function(python) {
     Sys.unsetenv("RETICULATE_PYTHON")
     library(reticulate)
 
-    use_condaenv("test-conda-repl-magic", required = TRUE)
+    use_condaenv(python, required = TRUE)
 
-    repl_python(input = "%conda install requests")
-    import("requests")
+    # TODO: pass through interactive response from the user for prompts like:
+    # Proceed ([y]/n)?
+    repl_python(input = "%conda install -y rsa")
+    import("rsa")
     TRUE
-  }, stdout = tempfile("conda output")))
+  },
+  stdout = tempfile("conda output"),
+  args = list(python = python)))
 
   capture.output({
     conda_remove("test-conda-repl-magic")
   })
 
+  # info <- get("get_python_conda_info",asNamespace("reticulate"))(python)
+  # unlink(info$root, recursive = TRUE)
 })

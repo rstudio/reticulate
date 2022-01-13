@@ -1,6 +1,7 @@
 context("envs")
 
 test_that("conda utility functions work as expected", {
+  # TODO: reenable these tests
   skip_if_no_test_environments()
 
   binary <- conda_binary()

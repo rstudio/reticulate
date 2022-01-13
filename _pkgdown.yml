@@ -71,6 +71,7 @@ reference:
       - py_is_null_xptr
       - py_id
       - py_len
+      - py_bool
       - py_str
       - py_unicode
       - py_set_seed

@@ -3,6 +3,10 @@ context("scipy sparse matrix")
 library(methods)
 library(Matrix)
 
+# https://github.com/r-lib/testthat/issues/1556
+if (!inherits("t", "standardGeneric"))
+  setGeneric("t")
+
 check_matrix_conversion <- function(r_matrix, python_matrix) {
   # check that the conversion to python works
   expect_true(all(py_to_r(python_matrix$toarray()) == as.matrix(r_matrix)))
@@ -112,14 +116,6 @@ test_that("Conversion between Scipy sparse matrices without specific conversion 
 test_that("Conversion between R sparse matrices without specific conversion functions works", {
   skip_on_cran()
   skip_if_no_scipy()
-
-  # TODO
-  # test-python-scipy-sparse-matrix.R:122: error: Conversion between R sparse matrices without specific conversion functions works
-  # argument is not a matrix
-  # 1: t(x) at /Users/kevinushey/r/pkg/reticulate/tests/testthat/test-python-scipy-sparse-matrix.R:122
-  # 2: t.default(x)
-  skip_on_os("mac")
-  skip("Test is currently failing, needs fixing")
 
   N <- 1000
 

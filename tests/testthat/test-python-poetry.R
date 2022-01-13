@@ -5,6 +5,9 @@ test_that("reticulate uses the Poetry-configured version of Python", {
   if (!nzchar(Sys.which("poetry")))
     skip("poetry is not installed")
 
+  # unset RETICULATE_PYTHON in this scope
+  withr::local_envvar(RETICULATE_PYTHON = NULL)
+
   # move to temporary directory
   project <- tempfile("poetry-")
   dir.create(project)

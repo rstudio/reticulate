@@ -504,7 +504,6 @@ py_len <- function(x, default = NULL) {
 
   # delegate to C++
   py_len_impl(x, default)
-
 }
 
 #' @export
@@ -524,7 +523,7 @@ length.python.builtin.object <- function(x) {
   if (is.na(n))
     # if the object didn't have a __len__ method, or __len__ raised an
     # Exception, try instead to invoke its __bool__ method
-    return(as.integer(py_bool(x)))
+    return(as.integer(py_bool_impl(x)))
 
   n
 }
@@ -535,16 +534,22 @@ length.python.builtin.object <- function(x) {
 #' Equivalent to `bool(x)` in Python, or `not not x`.
 #'
 #' If the Python object defines a `__bool__` method, then that is invoked.
-#' Otherwise, if the object defines a `__len__` method, then `TRUE` is returned
-#' if the length is nonzero. If neither
-#' `__len__` nor `__bool__` are defined, then the Python object is considered
-#' `TRUE`.
+#' Otherwise, if the object defines a `__len__` method, then `TRUE` is
+#' returned if the length is nonzero. If neither `__len__` nor `__bool__`
+#' are defined, then the Python object is considered `TRUE`.
 #'
 #' @param x, A python object.
 #'
-#' @return An R scalar logical: `TRUE` or `FALSE`
+#' @return An R scalar logical: `TRUE` or `FALSE`, or `NULL` if `x` is a
+#'   null pointer or Python is not initialized.
 #' @export
-py_bool <- py_bool # needed for roxygen to include it in NAMESPACE
+py_bool <- function(x) {
+  if (py_is_null_xptr(x) || !py_available())
+    NULL
+  else
+    py_bool_impl(x)
+}
+
 
 #' Convert to Python Unicode Object
 #'

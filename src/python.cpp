@@ -3051,7 +3051,7 @@ SEXP py_len_impl(PyObjectRef x, SEXP defaultValue) {
 }
 
 // [[Rcpp::export]]
-SEXP py_bool(PyObjectRef x) {
+SEXP py_bool_impl(PyObjectRef x) {
 
   // evaluate Python `not not x`
   int result = PyObject_IsTrue(x);

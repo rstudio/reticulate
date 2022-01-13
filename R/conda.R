@@ -964,7 +964,8 @@ conda_info <- function(conda = "auto") {
 
 is_conda_python <- function(python) {
   root <- if (is_windows())
-    dirname(python) else
+    dirname(python)
+  else
     dirname(dirname(python))
 
   file.exists(file.path(root, "conda-meta"))

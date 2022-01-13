@@ -249,8 +249,8 @@ py_len_impl <- function(x, defaultValue) {
     .Call(`_reticulate_py_len_impl`, x, defaultValue)
 }
 
-py_bool <- function(x) {
-    .Call(`_reticulate_py_bool`, x)
+py_bool_impl <- function(x) {
+    .Call(`_reticulate_py_bool_impl`, x)
 }
 
 readline <- function(prompt) {

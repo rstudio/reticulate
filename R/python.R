@@ -540,7 +540,9 @@ length.python.builtin.object <- function(x) {
 #' `__len__` nor `__bool__` are defined, then the python object is considered
 #' `TRUE`.
 #'
-#' @return An R scalar logical, `TRUE` or `FALSE`
+#' @param x, A python object.
+#'
+#' @return An R scalar logical: `TRUE` or `FALSE`
 #' @export
 py_bool <- py_bool # needed for roxygen to include it in NAMESPACE
 

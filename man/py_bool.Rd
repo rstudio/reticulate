@@ -6,8 +6,11 @@
 \usage{
 py_bool(x)
 }
+\arguments{
+\item{x, }{A python object.}
+}
 \value{
-An R scalar logical, \code{TRUE} or \code{FALSE}
+An R scalar logical: \code{TRUE} or \code{FALSE}
 }
 \description{
 Equivalent to \code{bool(x)} in Python, or \verb{non not x}.

@@ -536,16 +536,16 @@ length.python.builtin.object <- function(x) {
 #' If the Python object defines a `__bool__` method, then that is invoked.
 #' Otherwise, if the object defines a `__len__` method, then `TRUE` is
 #' returned if the length is nonzero. If neither `__len__` nor `__bool__`
-#' are defined, then the Python object is considered `TRUE`.
+#' are defined, then the Python object is considered `TRUE`. If `x`
 #'
 #' @param x, A python object.
 #'
-#' @return An R scalar logical: `TRUE` or `FALSE`, or `NULL` if `x` is a
-#'   null pointer or Python is not initialized.
+#' @return An R scalar logical: `TRUE` or `FALSE`. If `x` is a
+#'   null pointer or Python is not initialized, `FALSE` is returned.
 #' @export
 py_bool <- function(x) {
   if (py_is_null_xptr(x) || !py_available())
-    NULL
+    FALSE
   else
     py_bool_impl(x)
 }

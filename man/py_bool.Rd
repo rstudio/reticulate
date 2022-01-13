@@ -10,8 +10,8 @@ py_bool(x)
 \item{x, }{A python object.}
 }
 \value{
-An R scalar logical: \code{TRUE} or \code{FALSE}, or \code{NULL} if \code{x} is a
-null pointer or Python is not initialized.
+An R scalar logical: \code{TRUE} or \code{FALSE}. If \code{x} is a
+null pointer or Python is not initialized, \code{FALSE} is returned.
 }
 \description{
 Equivalent to \code{bool(x)} in Python, or \verb{not not x}.
@@ -20,5 +20,5 @@ Equivalent to \code{bool(x)} in Python, or \verb{not not x}.
 If the Python object defines a \verb{__bool__} method, then that is invoked.
 Otherwise, if the object defines a \verb{__len__} method, then \code{TRUE} is
 returned if the length is nonzero. If neither \verb{__len__} nor \verb{__bool__}
-are defined, then the Python object is considered \code{TRUE}.
+are defined, then the Python object is considered \code{TRUE}. If \code{x}
 }

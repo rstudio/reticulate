@@ -198,7 +198,7 @@ conda_create <- function(envname = NULL,
                          channel = character(),
                          environment = NULL,
                          conda = "auto",
-                         python_version = NULL)
+                         python_version = miniconda_python_version())
 {
   # resolve conda binary
   conda <- conda_binary(conda)

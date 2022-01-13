@@ -12,7 +12,7 @@ conda_create(
   channel = character(),
   environment = NULL,
   conda = "auto",
-  python_version = NULL
+  python_version = miniconda_python_version()
 )
 }
 \arguments{

@@ -1,10 +1,20 @@
 
 # reticulate 1.23
 
+- `use_condaenv()` gains the ability to accept an absolute path to a python binary for `envname`.
+
+- All python objects gain a `length()` method, that returns either `py_len(x)`, or
+  if that fails, `as.integer(py_bool(x))`.
+
+- `conda_create()` default for `python_version` changed from
+  `NULL` to `miniconda_python_version()` (presently, 3.8).
+
+- New function `py_bool()`, for evaluating Python "truthiness" of an object.
+
 - `reticulate` gains the function `py_list_packages()`, and can be used to
   list the Python modules available and installed in a particular Python
   environment. (#933)
-  
+
 - `reticulate` now supports conversion of Python [datatable](https://github.com/h2oai/datatable)
   objects. (#1081)
 

@@ -147,6 +147,17 @@ use_condaenv <- function(condaenv = NULL, conda = "auto", required = NULL) {
 
   required <- required %||% use_python_required()
 
+  if (grepl("[/\\]", condaenv) &&
+      grepl("^python[0-9.]*(exe)?", basename(condaenv))) {
+    # path to python binary provided
+    python <- condaenv
+    if (!is_conda_python(python))
+      warning("path supplied to use_condaenv() is not a conda python:\n\t",
+              path)
+    use_python(python, required = required)
+    return(invisible(NULL))
+  }
+
   # check for condaenv supplied by path
   condaenv <- condaenv_resolve(condaenv)
   if (grepl("[/\\]", condaenv) && is_condaenv(condaenv)) {

@@ -504,7 +504,6 @@ py_len <- function(x, default = NULL) {
 
   # delegate to C++
   py_len_impl(x, default)
-
 }
 
 #' @export
@@ -520,15 +519,37 @@ length.python.builtin.object <- function(x) {
     return(0L)
 
   # otherwise, try to invoke the object's __len__ method
-  n <- py_len_impl(x, NA)
-  if (!is.na(n))
-    return(as.numeric(n))
+  n <- py_len_impl(x, NA_integer_)
+  if (is.na(n))
+    # if the object didn't have a __len__ method, or __len__ raised an
+    # Exception, try instead to invoke its __bool__ method
+    return(as.integer(py_bool_impl(x)))
 
-  # if the object didn't have a __len__ method, try instead
-  # to invoke its __bool__ method
-  as.integer(py_bool(x))
-
+  n
 }
+
+
+#' Python Truthiness
+#'
+#' Equivalent to `bool(x)` in Python, or `not not x`.
+#'
+#' If the Python object defines a `__bool__` method, then that is invoked.
+#' Otherwise, if the object defines a `__len__` method, then `TRUE` is
+#' returned if the length is nonzero. If neither `__len__` nor `__bool__`
+#' are defined, then the Python object is considered `TRUE`. If `x`
+#'
+#' @param x, A python object.
+#'
+#' @return An R scalar logical: `TRUE` or `FALSE`. If `x` is a
+#'   null pointer or Python is not initialized, `FALSE` is returned.
+#' @export
+py_bool <- function(x) {
+  if (py_is_null_xptr(x) || !py_available())
+    FALSE
+  else
+    py_bool_impl(x)
+}
+
 
 #' Convert to Python Unicode Object
 #'

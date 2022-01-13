@@ -1,5 +1,6 @@
 context("scipy sparse matrix")
 
+library(methods)
 library(Matrix)
 
 # https://github.com/r-lib/testthat/issues/1556
@@ -117,6 +118,7 @@ test_that("Conversion between R sparse matrices without specific conversion func
   skip_if_no_scipy()
 
   N <- 1000
+
   x <- sparseMatrix(
     i = sample(N, N),
     j = sample(N, N),

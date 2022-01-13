@@ -83,7 +83,11 @@
 
     <div class="section level2">
 <h2 class="page-header" data-toc-text="1.23" id="reticulate-123">reticulate 1.23<a class="anchor" aria-label="anchor" href="#reticulate-123"></a></h2>
-<ul><li><p><code>reticulate</code> gains the function <code><a href="../reference/py_list_packages.html">py_list_packages()</a></code>, and can be used to list the Python modules available and installed in a particular Python environment. (<a href="https://github.com/rstudio/reticulate/issues/933" class="external-link">#933</a>)</p></li>
+<ul><li><p><code><a href="../reference/use_python.html">use_condaenv()</a></code> gains the ability to accept an absolute path to a python binary for <code>envname</code>.</p></li>
+<li><p>All python objects gain a <code><a href="https://rdrr.io/r/base/length.html" class="external-link">length()</a></code> method, that returns either <code>py_len(x)</code>, or if that fails, <code>as.integer(py_bool(x))</code>.</p></li>
+<li><p><code><a href="../reference/conda_create.html">conda_create()</a></code> default for <code>python_version</code> changed from <code>NULL</code> to <code>miniconda_python_version()</code> (presently, 3.8).</p></li>
+<li><p>New function <code><a href="../reference/py_bool.html">py_bool()</a></code>, for evaluating Python “truthiness” of an object.</p></li>
+<li><p><code>reticulate</code> gains the function <code><a href="../reference/py_list_packages.html">py_list_packages()</a></code>, and can be used to list the Python modules available and installed in a particular Python environment. (<a href="https://github.com/rstudio/reticulate/issues/933" class="external-link">#933</a>)</p></li>
 <li><p><code>reticulate</code> now supports conversion of Python <a href="https://github.com/h2oai/datatable" class="external-link">datatable</a> objects. (<a href="https://github.com/rstudio/reticulate/issues/1081" class="external-link">#1081</a>)</p></li>
 <li><p><code><a href="../reference/repl_python.html">repl_python()</a></code> gains support for invoking select magic and system commands like <code>!ls</code> and <code>%cd &lt;dir&gt;</code>. See <code>?repl_python()</code> for details and examples.</p></li>
 <li><p>The development branch for <code>reticulate</code> has moved to the “main” branch.</p></li>

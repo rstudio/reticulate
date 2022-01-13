@@ -172,9 +172,7 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
     if (is.na(symlink))
       return()
 
-    if (file.exists(symlink))
-      unlink(symlink)
-
+    unlink(symlink)
     target <- dirname(config$libpython)
     file.symlink(target, symlink)
 

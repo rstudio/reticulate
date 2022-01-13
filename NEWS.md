@@ -1,6 +1,9 @@
 
 # reticulate 1.23
 
+- `conda_create()` default for `python_version` changed from
+  `NULL` to `miniconda_python_version()` (presently, 3.8)
+
 - New function `py_bool()`, for evaluating Python "truthiness" of an object.
 
 - `reticulate` gains the function `py_list_packages()`, and can be used to

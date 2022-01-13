@@ -3052,14 +3052,14 @@ SEXP py_len_impl(PyObjectRef x, SEXP defaultValue) {
 // [[Rcpp::export]]
 SEXP py_bool(PyObjectRef x) {
 
-  // invoke __bool__ method
-  PyObjectPtr result(PyObject_CallMethod(x, "__bool__", NULL));
-  if (PyErr_Occurred()) {
-    PyErr_Clear();
-    return Rf_ScalarLogical(0);
+  // evaluate Python `not not x`
+  int result = PyObject_IsTrue(x);
+
+  if (result == -1) {
+  // Should only happen if the object has a `__bool__` method that
+  // intentionally throws an exception.
+    stop(py_fetch_error());
   }
 
-  // check whether it's the True value
-  return Rf_ScalarLogical(result == Py_True);
-
+  return Rf_ScalarLogical(result);
 }

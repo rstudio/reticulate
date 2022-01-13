@@ -530,6 +530,20 @@ length.python.builtin.object <- function(x) {
 
 }
 
+#' Python Truthiness
+#'
+#' Equivalent to `bool(x)` in Python, or `non not x`.
+#'
+#' If the python objects defines a `__bool__` method, then that is invoked.
+#' Otherwise, if the object defines a `__len__` method, then `TRUE` is returned
+#' if the length is nonzero. If neither
+#' `__len__` nor `__bool__` are defined, then the python object is considered
+#' `TRUE`.
+#'
+#' @return An R scalar logical, `TRUE` or `FALSE`
+#' @export
+py_bool <- py_bool # needed for roxygen to include it in NAMESPACE
+
 #' Convert to Python Unicode Object
 #'
 #' @param str Single element character vector to convert

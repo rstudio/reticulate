@@ -1,6 +1,4 @@
 
-#' conda-params
-#'
 #' @param envname The name of, or path to, a conda environment.
 #'
 #' @param conda The path to a `conda` executable. Use `"auto"` to allow

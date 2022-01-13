@@ -130,7 +130,7 @@ skip_if_no_conda <- function() {
   skip_on_cran()
   skip_if_no_python()
 
-  if(is.null(tryCatch(reticulate::conda_binary(), error = function(e) NULL)))
+  if (is.null(tryCatch(reticulate::conda_binary(), error = function(e) NULL)))
     skip("conda not available for testing")
 
 }

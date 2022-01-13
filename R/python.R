@@ -532,12 +532,12 @@ length.python.builtin.object <- function(x) {
 
 #' Python Truthiness
 #'
-#' Equivalent to `bool(x)` in Python, or `non not x`.
+#' Equivalent to `bool(x)` in Python, or `not not x`.
 #'
-#' If the python objects defines a `__bool__` method, then that is invoked.
+#' If the Python object defines a `__bool__` method, then that is invoked.
 #' Otherwise, if the object defines a `__len__` method, then `TRUE` is returned
 #' if the length is nonzero. If neither
-#' `__len__` nor `__bool__` are defined, then the python object is considered
+#' `__len__` nor `__bool__` are defined, then the Python object is considered
 #' `TRUE`.
 #'
 #' @param x, A python object.

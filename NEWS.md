@@ -1,11 +1,13 @@
 
 # reticulate 1.23
 
+- `use_condaenv()` gains the ability to accept an absolute path to a python binary for `envname`.
+
 - All python objects gain a `length()` method, that returns either `py_len(x)`, or
-  if that fails, `as.integer(py_bool(x))`
+  if that fails, `as.integer(py_bool(x))`.
 
 - `conda_create()` default for `python_version` changed from
-  `NULL` to `miniconda_python_version()` (presently, 3.8)
+  `NULL` to `miniconda_python_version()` (presently, 3.8).
 
 - New function `py_bool()`, for evaluating Python "truthiness" of an object.
 

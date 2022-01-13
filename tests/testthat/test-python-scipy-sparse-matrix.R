@@ -2,6 +2,10 @@ context("scipy sparse matrix")
 
 library(Matrix)
 
+# https://github.com/r-lib/testthat/issues/1556
+if (!inherits("t", "standardGeneric"))
+  setGeneric("t")
+
 check_matrix_conversion <- function(r_matrix, python_matrix) {
   # check that the conversion to python works
   expect_true(all(py_to_r(python_matrix$toarray()) == as.matrix(r_matrix)))

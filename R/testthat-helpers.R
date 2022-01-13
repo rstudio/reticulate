@@ -18,9 +18,22 @@ test_that <- function(desc, code) {
 
 context <- function(label) {
 
-  # import some modules used by the tests
-  if (py_available(initialize = TRUE)) {
+  # one-time initialization
+  if (!py_available(initialize = FALSE)) {
 
+    config <- tryCatch(py_config(), error = identity)
+    if (inherits(config, "error"))
+      options(reticulate.python.disabled = TRUE)
+
+    writeLines("\n\n# Python config ----")
+    print(config)
+    writeLines("")
+
+  }
+
+  if (py_available(initialize = FALSE)) {
+
+    # import some modules used by the tests
     modules <- list(
       test     = import("rpytools.test"),
       inspect  = import("inspect"),
@@ -48,8 +61,13 @@ skip_on_cran <- function() {
 }
 
 skip_if_no_python <- function() {
+
+  if (identical(getOption("reticulate.python.disabled"), TRUE))
+    skip("Python bindings not available for testing")
+
   if (!py_available(initialize = TRUE))
     skip("Python bindings not available for testing")
+
 }
 
 skip_if_no_numpy <- function() {

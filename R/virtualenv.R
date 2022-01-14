@@ -3,8 +3,8 @@
 #' R functions for managing Python [virtual environments](https://virtualenv.pypa.io/en/stable/).
 #'
 #' Virtual environments are by default located at `~/.virtualenvs` (accessed
-#' with the `virtualenv_root` function). You can change the default location by
-#' defining defining the `WORKON_HOME` environment variable.
+#' with the `virtualenv_root()` function). You can change the default location by
+#' defining the `WORKON_HOME` environment variable.
 #'
 #' @param envname The name of, or path to, a Python virtual environment. If
 #'   this name contains any slashes, the name will be interpreted as a path;

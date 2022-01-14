@@ -379,3 +379,8 @@ startsWith <- function(x, prefix) {
     stop("non-character object(s)")
   suppressWarnings(substr(x, 1L, nchar(prefix)) == prefix)
 }
+
+debuglog <- function(fmt, ...) {
+  msg <- sprintf(fmt, ...)
+  cat(msg, file = "/tmp/reticulate.log", sep = "\n", append = TRUE)
+}

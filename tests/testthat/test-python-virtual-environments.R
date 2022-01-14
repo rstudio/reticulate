@@ -1,12 +1,16 @@
 context("virtual environments")
 
 test_that("reticulate can bind to virtual environments created with venv", {
+
   skip_if_no_python()
   skip_on_cran()
   skip_on_os("windows")
 
   Sys.unsetenv("RETICULATE_PYTHON")
   Sys.unsetenv("RETICULATE_PYTHON_ENV")
+
+  # ensure cacert.pem goes to right folder
+  withr::local_envvar(TMPDIR = tempdir())
 
   # find Python 3 binary for testing
   python3 <- Sys.which("python3")

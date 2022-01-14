@@ -2,8 +2,12 @@ context("pipenv")
 
 test_that("reticulate uses the pipenv-configured version of Python", {
 
+  skip_on_cran()
   if (!nzchar(Sys.which("pipenv")))
     skip("pipenv is not installed")
+
+  # use R session directory for tempdir
+  withr::local_envvar(TMPDIR = tempdir())
 
   # move to temporary directory
   project <- tempfile("pipenv-")

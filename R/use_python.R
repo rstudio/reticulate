@@ -153,7 +153,7 @@ use_condaenv <- function(condaenv = NULL, conda = "auto", required = NULL) {
     python <- condaenv
     if (!is_conda_python(python))
       warning("path supplied to use_condaenv() is not a conda python:\n\t",
-              path)
+              python)
     use_python(python, required = required)
     return(invisible(NULL))
   }

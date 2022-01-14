@@ -1,4 +1,6 @@
 
+# reticulate 1.24  (UNRELEASED)
+
 # reticulate 1.23
 
 - `use_condaenv()` gains the ability to accept an absolute path to a python binary for `envname`.

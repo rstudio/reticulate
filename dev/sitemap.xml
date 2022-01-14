@@ -52,34 +52,7 @@
     <loc>https://rstudio.github.io/reticulate/reference/as.character.python.builtin.bytes.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/reticulate/reference/conda_binary.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/conda_clone.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/conda_create.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/conda_export.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/conda_install.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/conda_list.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/conda_python.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/conda_remove.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/conda_update.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/conda_version.html</loc>
+    <loc>https://rstudio.github.io/reticulate/reference/conda-tools.html</loc>
   </url>
   <url>
     <loc>https://rstudio.github.io/reticulate/reference/configure_environment.html</loc>

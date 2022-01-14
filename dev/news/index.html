@@ -85,20 +85,20 @@
 <h2 class="page-header" data-toc-text="1.23" id="reticulate-123">reticulate 1.23<a class="anchor" aria-label="anchor" href="#reticulate-123"></a></h2>
 <ul><li><p><code><a href="../reference/use_python.html">use_condaenv()</a></code> gains the ability to accept an absolute path to a python binary for <code>envname</code>.</p></li>
 <li><p>All python objects gain a <code><a href="https://rdrr.io/r/base/length.html" class="external-link">length()</a></code> method, that returns either <code>py_len(x)</code>, or if that fails, <code>as.integer(py_bool(x))</code>.</p></li>
-<li><p><code><a href="../reference/conda_create.html">conda_create()</a></code> default for <code>python_version</code> changed from <code>NULL</code> to <code>miniconda_python_version()</code> (presently, 3.8).</p></li>
+<li><p><code><a href="../reference/conda-tools.html">conda_create()</a></code> default for <code>python_version</code> changed from <code>NULL</code> to <code>miniconda_python_version()</code> (presently, 3.8).</p></li>
 <li><p>New function <code><a href="../reference/py_bool.html">py_bool()</a></code>, for evaluating Python “truthiness” of an object.</p></li>
 <li><p><code>reticulate</code> gains the function <code><a href="../reference/py_list_packages.html">py_list_packages()</a></code>, and can be used to list the Python modules available and installed in a particular Python environment. (<a href="https://github.com/rstudio/reticulate/issues/933" class="external-link">#933</a>)</p></li>
 <li><p><code>reticulate</code> now supports conversion of Python <a href="https://github.com/h2oai/datatable" class="external-link">datatable</a> objects. (<a href="https://github.com/rstudio/reticulate/issues/1081" class="external-link">#1081</a>)</p></li>
 <li><p><code><a href="../reference/repl_python.html">repl_python()</a></code> gains support for invoking select magic and system commands like <code>!ls</code> and <code>%cd &lt;dir&gt;</code>. See <code>?repl_python()</code> for details and examples.</p></li>
 <li><p>The development branch for <code>reticulate</code> has moved to the “main” branch.</p></li>
-<li><p><code>reticulate</code> gains <code><a href="../reference/conda_update.html">reticulate::conda_update()</a></code>, for updating the version of <code>conda</code> in a particular <code>conda</code> installation.</p></li>
+<li><p><code>reticulate</code> gains <code><a href="../reference/conda-tools.html">reticulate::conda_update()</a></code>, for updating the version of <code>conda</code> in a particular <code>conda</code> installation.</p></li>
 <li><p><code>reticulate</code> gains <code><a href="../reference/miniconda_uninstall.html">reticulate::miniconda_uninstall()</a></code>, for uninstalling the reticulate-managed version of Miniconda. (<a href="https://github.com/rstudio/reticulate/issues/1077" class="external-link">#1077</a>)</p></li>
 <li><p><code><a href="../reference/use_python.html">reticulate::use_python()</a></code> and friends now assume <code>required = TRUE</code> by default. For backwards compatibility, when <code><a href="../reference/use_python.html">use_python()</a></code> is called as part of a package load hook, the default value will instead be <code>FALSE</code>.</p></li>
 <li><p><code>reticulate</code> now provides support for Python environments managed by <a href="https://python-poetry.org/" class="external-link">poetry</a>. For projects containing a <code>pyproject.toml</code> file, <code>reticulate</code> will attempt to find and use the virtual environment managed by Poetry for that project. (<a href="https://github.com/rstudio/reticulate/issues/1031" class="external-link">#1031</a>)</p></li>
 <li><p>The default version of Python used for the <code>r-reticulate</code> Miniconda environment installed via <code><a href="../reference/install_miniconda.html">reticulate::install_miniconda()</a></code> has changed from 3.6 to 3.8.</p></li>
 <li><p><code><a href="../reference/install_miniconda.html">reticulate::install_miniconda()</a></code> now prefers installing the latest arm64 builds of miniforge. See <a href="https://conda-forge.org/blog/posts/2020-10-29-macos-arm64/" class="external-link uri">https://conda-forge.org/blog/posts/2020-10-29-macos-arm64/</a> for more details.</p></li>
-<li><p><code><a href="../reference/conda_create.html">reticulate::conda_create()</a></code> gains the <code>environment</code> argument, used when creating a new conda environment based on an exported environment definition (e.g. <code>environment.yml</code> or <code>environment.json</code>).</p></li>
-<li><p><code>reticulate</code> gains the function, <code><a href="../reference/conda_export.html">conda_export()</a></code>, for exporting a conda environment definition as YAML. Environments are exported as via the <code>conda env export</code> command. (<a href="https://github.com/rstudio/reticulate/issues/779" class="external-link">#779</a>)</p></li>
+<li><p><code><a href="../reference/conda-tools.html">reticulate::conda_create()</a></code> gains the <code>environment</code> argument, used when creating a new conda environment based on an exported environment definition (e.g. <code>environment.yml</code> or <code>environment.json</code>).</p></li>
+<li><p><code>reticulate</code> gains the function, <code><a href="../reference/conda-tools.html">conda_export()</a></code>, for exporting a conda environment definition as YAML. Environments are exported as via the <code>conda env export</code> command. (<a href="https://github.com/rstudio/reticulate/issues/779" class="external-link">#779</a>)</p></li>
 <li><p><code>reticulate::find_conda()</code> will now locate miniforge Conda installations located within the default install locations.</p></li>
 <li><p>Fixed an issue that caused <code>reticulate::conda_install(pip = TRUE)</code> to fail on windows. (<a href="https://github.com/rstudio/reticulate/issues/1053" class="external-link">#1053</a>, <a href="https://github.com/t-kalinowski" class="external-link">@t-kalinowski</a>)</p></li>
 </ul></div>
@@ -137,12 +137,12 @@
 <li><p><code>reticulate</code> now avoids invoking property methods when inferring the type for Python class members, for auto-completion systems. (<a href="https://github.com/rstudio/reticulate/issues/907" class="external-link">#907</a>)</p></li>
 <li><p><code>reticulate</code> now attempts to set the <code>QT_QPA_PLATFORM_PLUGIN_PATH</code> environment variable when initializing a Conda installation of Python, when that associated plugins directory exists. (<a href="https://github.com/rstudio/reticulate/issues/586" class="external-link">#586</a>)</p></li>
 <li><p>The <code>reticulate</code> Python engine now supports the <code>results = "hold"</code> knitr chunk option. When set, any generated outputs are “held” and then displayed after the associated chunk’s source code. (<a href="https://github.com/rstudio/reticulate/issues/530" class="external-link">#530</a>)</p></li>
-<li><p><code><a href="../reference/conda_create.html">conda_create()</a></code> gains the <code>python_version</code> argument, making it easier to request that Conda environments are created with a pre-specified version of Python. (<a href="https://github.com/rstudio/reticulate/issues/766" class="external-link">#766</a>)</p></li>
-<li><p>Fixed an issue where <code><a href="../reference/conda_install.html">reticulate::conda_install()</a></code> would attempt to re-install the default Python package, potentially upgrading or downgrading the version of Python used in an environment.</p></li>
+<li><p><code><a href="../reference/conda-tools.html">conda_create()</a></code> gains the <code>python_version</code> argument, making it easier to request that Conda environments are created with a pre-specified version of Python. (<a href="https://github.com/rstudio/reticulate/issues/766" class="external-link">#766</a>)</p></li>
+<li><p>Fixed an issue where <code><a href="../reference/conda-tools.html">reticulate::conda_install()</a></code> would attempt to re-install the default Python package, potentially upgrading or downgrading the version of Python used in an environment.</p></li>
 <li><p>Fixed an issue where <code>reticulate</code> invoked its <code>reticulate.initialized</code> hook too early.</p></li>
 <li><p>Fixed an issue where Python modules loaded on a separate thread could cause a crash. (<a href="https://github.com/rstudio/reticulate/issues/885" class="external-link">#885</a>)</p></li>
-<li><p><code><a href="../reference/conda_install.html">conda_install()</a></code> now allows version specifications for the <code>python_version</code> argument; e.g. <code>conda_install(python_version = "&gt;=3.6")</code>. (<a href="https://github.com/rstudio/reticulate/issues/880" class="external-link">#880</a>)</p></li>
-<li><p>Fixed an issue where <code><a href="../reference/conda_install.html">conda_install()</a></code> failed to pass along <code>forge</code> and <code>channel</code> in calls to <code><a href="../reference/conda_create.html">conda_create()</a></code>. (<a href="https://github.com/rstudio/reticulate/issues/878" class="external-link">#878</a>)</p></li>
+<li><p><code><a href="../reference/conda-tools.html">conda_install()</a></code> now allows version specifications for the <code>python_version</code> argument; e.g. <code>conda_install(python_version = "&gt;=3.6")</code>. (<a href="https://github.com/rstudio/reticulate/issues/880" class="external-link">#880</a>)</p></li>
+<li><p>Fixed an issue where <code><a href="../reference/conda-tools.html">conda_install()</a></code> failed to pass along <code>forge</code> and <code>channel</code> in calls to <code><a href="../reference/conda-tools.html">conda_create()</a></code>. (<a href="https://github.com/rstudio/reticulate/issues/878" class="external-link">#878</a>)</p></li>
 <li><p>Fixed an issue where Python’s auto-loader hooks could fail when binding to a Python 2.7 installation.</p></li>
 </ul></div>
     <div class="section level2">
@@ -157,8 +157,8 @@
 <li><p>Fixed an issue where timezone information could be lost when converting Python datetime objects to R. (<a href="https://github.com/rstudio/reticulate/issues/829" class="external-link">#829</a>)</p></li>
 <li><p>Fixed an issue where numeric (rather than integer) dimensions could cause issues when converting SciPy sparse matrices to their R counterparts. (<a href="https://github.com/rstudio/reticulate/issues/844" class="external-link">#844</a>)</p></li>
 <li><p>Fixed an issue where R <code>data.frame</code>s with non-ASCII column names could not be converted to Pandas DataFrames. (<a href="https://github.com/rstudio/reticulate/issues/834" class="external-link">#834</a>)</p></li>
-<li><p>Fixed an issue where the <code>pip_ignore_installed</code> argument in <code><a href="../reference/conda_install.html">conda_install()</a></code> was silently being ignored.</p></li>
-<li><p>Fixed an issue where <code><a href="../reference/conda_install.html">reticulate::conda_install()</a></code> could re-install Python into an environment when not explicitly requested by the user.</p></li>
+<li><p>Fixed an issue where the <code>pip_ignore_installed</code> argument in <code><a href="../reference/conda-tools.html">conda_install()</a></code> was silently being ignored.</p></li>
+<li><p>Fixed an issue where <code><a href="../reference/conda-tools.html">reticulate::conda_install()</a></code> could re-install Python into an environment when not explicitly requested by the user.</p></li>
 <li><p><code>reticulate</code> now sets <code>LD_LIBRARY_PATH</code> when discovering Python. (<a href="https://github.com/rstudio/reticulate/issues/836" class="external-link">#836</a>)</p></li>
 <li><p><code>reticulate</code> is now better at capturing Python logger streams (those that write to stdout or stderr) when <code><a href="../reference/py_capture_output.html">py_capture_output()</a></code> is set. (<a href="https://github.com/rstudio/reticulate/issues/825" class="external-link">#825</a>)</p></li>
 <li><p><code>reticulate</code> no longer calls <code><a href="https://rdrr.io/r/utils/savehistory.html" class="external-link">utils::loadhistory()</a></code> after each REPL iteration.</p></li>
@@ -183,7 +183,7 @@
 <ul><li><p>TinyThread now calls <code>Rf_error()</code> rather than <code>std::terminate()</code> when an internal error occurs.</p></li>
 <li><p>Conversion of Pandas DataFrames to R no longer emits deprecation warnings with pandas &gt;= 0.25.0. (<a href="https://github.com/rstudio/reticulate/issues/762" class="external-link">#762</a>)</p></li>
 <li><p><code>reticulate</code> now properly handles the version strings returned by beta versions of <code>pip</code>. (<a href="https://github.com/rstudio/reticulate/issues/757" class="external-link">#757</a>)</p></li>
-<li><p><code><a href="../reference/conda_create.html">conda_create()</a></code> gains the <code>forge</code> and <code>channel</code> arguments, analogous to those already in <code><a href="../reference/conda_install.html">conda_install()</a></code>. (<a href="https://github.com/rstudio/reticulate/issues/752" class="external-link">#752</a>, <a href="https://github.com/jtilly" class="external-link">@jtilly</a>)</p></li>
+<li><p><code><a href="../reference/conda-tools.html">conda_create()</a></code> gains the <code>forge</code> and <code>channel</code> arguments, analogous to those already in <code><a href="../reference/conda-tools.html">conda_install()</a></code>. (<a href="https://github.com/rstudio/reticulate/issues/752" class="external-link">#752</a>, <a href="https://github.com/jtilly" class="external-link">@jtilly</a>)</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="1.15" id="reticulate-115">reticulate 1.15<small>2020-04-02</small><a class="anchor" aria-label="anchor" href="#reticulate-115"></a></h2>
@@ -197,7 +197,7 @@
 <li><p><code><a href="../reference/configure_environment.html">reticulate::configure_environment()</a></code> now only allows environment configuration within interactive R sessions, and ensures that the version of Python that has been initialized by Python is indeed associated with a virtual environment or Conda environment. Use <code>reticulate::configure_environment(force = TRUE)</code> to force environment configuration within non-interactive R sessions.</p></li>
 <li><p><code>reticulate</code> now automatically flushes output written to Python’s stdout / stderr, as a top-level task added by <code><a href="https://rdrr.io/r/base/taskCallback.html" class="external-link">addTaskCallback()</a></code>. This behavior is controlled with the <code>options(reticulate.autoflush)</code> option. (<a href="https://github.com/rstudio/reticulate/issues/685" class="external-link">#685</a>)</p></li>
 <li><p><code><a href="../reference/install_miniconda.html">reticulate::install_miniconda()</a></code> no longer attempts to modify the system PATH or registry when installing Miniconda. (<a href="https://github.com/rstudio/reticulate/issues/681" class="external-link">#681</a>)</p></li>
-<li><p><code><a href="../reference/conda_install.html">reticulate::conda_install()</a></code> gains the <code>channel</code> argument, allowing custom Conda channels to be used when installing Python packages. (<a href="https://github.com/rstudio/reticulate/issues/443" class="external-link">#443</a>)</p></li>
+<li><p><code><a href="../reference/conda-tools.html">reticulate::conda_install()</a></code> gains the <code>channel</code> argument, allowing custom Conda channels to be used when installing Python packages. (<a href="https://github.com/rstudio/reticulate/issues/443" class="external-link">#443</a>)</p></li>
 <li><p><code><a href="../reference/configure_environment.html">reticulate::configure_environment()</a></code> can now be used to configure a non-Miniconda Python environment. (<a href="https://github.com/rstudio/reticulate/issues/682" class="external-link">#682</a>; <a href="https://github.com/skeydan" class="external-link">@skeydan</a>)</p></li>
 <li><p>Fixed an issue where matplotlib plots would be included using absolute paths, which fails in non-standalone documents rendered to HTML. (<a href="https://github.com/rstudio/reticulate/issues/669" class="external-link">#669</a>)</p></li>
 <li><p>Fixed an issue where <code>reticulate</code> would attempt to flush a non-existent stdout / stderr stream. (<a href="https://github.com/rstudio/reticulate/issues/584" class="external-link">#584</a>)</p></li>
@@ -281,7 +281,7 @@
 <li><p>Only update pip in <code><a href="../reference/virtualenv-tools.html">virtualenv_install()</a></code> when version is &lt; 8.1</p></li>
 <li><p>Support converting Python <code>OrderedDict</code> to R</p></li>
 <li><p>Support for iterating all types of Python iterable</p></li>
-<li><p>Add <code><a href="../reference/conda_python.html">conda_python()</a></code> and <code><a href="../reference/virtualenv-tools.html">virtualenv_python()</a></code> functions for finding the python binary associated with an environment.</p></li>
+<li><p>Add <code><a href="../reference/conda-tools.html">conda_python()</a></code> and <code><a href="../reference/virtualenv-tools.html">virtualenv_python()</a></code> functions for finding the python binary associated with an environment.</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="1.9" id="reticulate-19">reticulate 1.9<small>2018-07-06</small><a class="anchor" aria-label="anchor" href="#reticulate-19"></a></h2>
@@ -309,7 +309,7 @@
 <li><p><code><a href="../reference/source_python.html">source_python()</a></code> can now source a Python script from a URL into R environments.</p></li>
 <li><p>Always run <code><a href="../reference/source_python.html">source_python()</a></code> in the main Python module.</p></li>
 <li><p><code><a href="../reference/py_install.html">py_install()</a></code> function for installing Python packages into virtualenvs and conda envs</p></li>
-<li><p>Automatically create conda environment for <code><a href="../reference/conda_install.html">conda_install()</a></code></p></li>
+<li><p>Automatically create conda environment for <code><a href="../reference/conda-tools.html">conda_install()</a></code></p></li>
 <li><p>Removed <code>delay_load</code> parameter from <code><a href="../reference/import.html">import_from_path()</a></code></p></li>
 </ul></div>
     <div class="section level2">
@@ -323,7 +323,7 @@
 <li><p>Ensure that <code>use_*</code> python version is satsified when using <code><a href="../reference/eng_python.html">eng_python()</a></code></p></li>
 <li><p>Forward <code>required</code> argument from <code><a href="../reference/use_python.html">use_virtualenv()</a></code> and <code><a href="../reference/use_python.html">use_condaenv()</a></code></p></li>
 <li><p>Fix leak which occurred when assigning R objects into Python containers</p></li>
-<li><p>Add support for Conda Forge (enabled by default) to <code><a href="../reference/conda_install.html">conda_install()</a></code></p></li>
+<li><p>Add support for Conda Forge (enabled by default) to <code><a href="../reference/conda-tools.html">conda_install()</a></code></p></li>
 <li><p>Added functions for managing Python virtual environments (virtualenv)</p></li>
 </ul></div>
     <div class="section level2">
@@ -382,7 +382,7 @@
     <div class="section level2">
 <h2 class="page-header" data-toc-text="1.1" id="reticulate-11">reticulate 1.1<small>2017-08-26</small><a class="anchor" aria-label="anchor" href="#reticulate-11"></a></h2>
 <ul><li><p>Allow <code><a href="../reference/dict.html">dict()</a></code> function to accept keys with mixed alpha/numeric characters</p></li>
-<li><p>Use <code><a href="../reference/conda_list.html">conda_list()</a></code> to discover conda environments on Windows (slower but much more reliable than scanning the filesystem)</p></li>
+<li><p>Use <code><a href="../reference/conda-tools.html">conda_list()</a></code> to discover conda environments on Windows (slower but much more reliable than scanning the filesystem)</p></li>
 <li><p>Add interface for registering F1 help handlers for Python modules</p></li>
 <li><p>Provide virtual/conda env hint mechanism for delay loaded imports</p></li>
 </ul></div>
@@ -410,7 +410,7 @@
 <li><p>Add iter_next function for element-by-element access to iterators</p></li>
 <li><p>Eliminate special print method for iterators/generators</p></li>
 <li><p>Added <code><a href="../reference/py_help.html">py_help()</a></code> function for printing documentation on Python objects</p></li>
-<li><p>Added <code><a href="../reference/conda_version.html">conda_version()</a></code> function.</p></li>
+<li><p>Added <code><a href="../reference/conda-tools.html">conda_version()</a></code> function.</p></li>
 <li><p>Search <code><a href="../reference/dict.html">dict()</a></code> parent frames for symbols; only use symbols which inherit from python.builtin.object as keys.</p></li>
 </ul></div>
     <div class="section level2">

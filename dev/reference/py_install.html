@@ -116,9 +116,8 @@ a specific installation method. Note that the "virtualenv" method is not
 available on Windows.</p></dd>
 <dt>conda</dt>
 <dd><p>The path to a <code>conda</code> executable. Use <code>"auto"</code> to allow
-<code>reticulate</code> to automatically find an appropriate <code>conda</code> binary. See
-<code><a href="conda_binary.html">conda_binary()</a></code> for more details on how <code>reticulate</code> tries to resolve
-the <code>conda</code> executable.</p></dd>
+<code>reticulate</code> to automatically find an appropriate <code>conda</code> binary.
+See <strong>Finding Conda</strong> and <code><a href="conda-tools.html">conda_binary()</a></code> for more details.</p></dd>
 <dt>python_version</dt>
 <dd><p>The requested Python version. Ignored when attempting
 to install with a Python virtual environment.</p></dd>
@@ -127,7 +126,7 @@ to install with a Python virtual environment.</p></dd>
 when Conda environments are used, as otherwise packages will be installed
 from the Conda repositories.</p></dd>
 <dt>...</dt>
-<dd><p>Additional arguments passed to <code><a href="conda_install.html">conda_install()</a></code>
+<dd><p>Additional arguments passed to <code><a href="conda-tools.html">conda_install()</a></code>
 or <code><a href="virtualenv-tools.html">virtualenv_install()</a></code>.</p></dd>
 <dt>pip_ignore_installed, ignore_installed</dt>
 <dd><p>Boolean; whether pip should
@@ -147,7 +146,7 @@ incompatible--distribution channel. (<code>ignore_installed</code> is an alias f
     </div>
     <div id="see-also">
     <h2>See also</h2>
-    <div class="dont-index"><p><code><a href="conda_install.html">conda_install()</a></code>, for installing packages into conda environments.
+    <div class="dont-index"><p><code><a href="conda-tools.html">conda_install()</a></code>, for installing packages into conda environments.
 <code><a href="virtualenv-tools.html">virtualenv_install()</a></code>, for installing packages into virtual environments.</p></div>
     </div>
 

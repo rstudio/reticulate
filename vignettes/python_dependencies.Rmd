@@ -65,7 +65,7 @@ Python dependencies.
 ### Using Config/reticulate
 
 For example, if we had a package `rscipy` that acted as an interface to the
-[SciPy](https://www.scipy.org) Python package, we might use the following
+[SciPy](https://scipy.org) Python package, we might use the following
 `DESCRIPTION`:
 
 ```

@@ -26,8 +26,8 @@ Description: Interface to 'Python' modules, classes, and functions. When calling
     types. When values are returned from 'Python' to R they are converted back to R
     types. Compatible with all versions of 'Python' >= 2.7.
 License: Apache License 2.0
-URL: https://github.com/rstudio/reticulate,
-    https://rstudio.github.io/reticulate
+URL: https://rstudio.github.io/reticulate/,
+    https://github.com/rstudio/reticulate
 BugReports: https://github.com/rstudio/reticulate/issues
 SystemRequirements: Python (>= 2.7.0)
 Encoding: UTF-8

@@ -12,7 +12,7 @@
 \item{encoding}{Encoding to use for conversion (defaults to utf-8)}
 
 \item{errors}{Policy for handling conversion errors. Default is 'strict'
-which raises an error. Other possible values are 'ignore' and 'replace'}
+which raises an error. Other possible values are 'ignore' and 'replace'.}
 
 \item{...}{further arguments passed to or from other methods.}
 }

@@ -30,9 +30,8 @@ a specific installation method. Note that the "virtualenv" method is not
 available on Windows.}
 
 \item{conda}{The path to a \code{conda} executable. Use \code{"auto"} to allow
-\code{reticulate} to automatically find an appropriate \code{conda} binary. See
-\code{\link[=conda_binary]{conda_binary()}} for more details on how \code{reticulate} tries to resolve
-the \code{conda} executable.}
+\code{reticulate} to automatically find an appropriate \code{conda} binary.
+See \strong{Finding Conda} and \code{\link[=conda_binary]{conda_binary()}} for more details.}
 
 \item{python_version}{The requested Python version. Ignored when attempting
 to install with a Python virtual environment.}

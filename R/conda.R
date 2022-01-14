@@ -1,55 +1,101 @@
 
+#' Conda Tools
+#'
+#' Tools for managing Python `conda` environments.
+#'
 #' @param envname The name of, or path to, a conda environment.
 #'
 #' @param conda The path to a `conda` executable. Use `"auto"` to allow
-#'   `reticulate` to automatically find an appropriate `conda` binary. See
-#'   [conda_binary()] for more details on how `reticulate` tries to resolve
-#'   the `conda` executable.
+#'   `reticulate` to automatically find an appropriate `conda` binary.
+#'   See **Finding Conda** and [conda_binary()] for more details.
 #'
 #' @param forge Boolean; include the [conda-forge](https://conda-forge.org/)
 #'   repository?
 #'
 #' @param channel An optional character vector of conda channels to include.
 #'   When specified, the `forge` argument is ignored. If you need to
-#'   specify multiple channels, including the conda Forge, you can use
+#'   specify multiple channels, including the conda forge, you can use
 #'   `c("conda-forge", <other channels>)`.
 #'
 #' @param packages A character vector, indicating package names which should be
 #'   installed or removed. Use `python=<version>` to request the installation
 #'   of a specific version of Python.
 #'
+#' @param environment The path to an environment definition, generated via
+#'   (for example) [conda_export()], or via `conda env export`. When provided,
+#'   the conda environment will be created using this environment definition,
+#'   and other arguments will be ignored.
+#'
+#' @param python_version The version of Python to be used in this conda
+#'   environment. The associated Python package from conda will be requested
+#'   as `python={python_version}`. When `NULL`, the default `python` package
+#'   will be used instead. For example, use `python_version = "3.6"` to request
+#'   that the conda environment be created with a copy of Python 3.6. This
+#'   argument will be ignored if `python` is specified as part of the `packages`
+#'   argument, for backwards compatibility.
+#'
+#' @param file The path where the conda environment definition will be written.
+#'
+#' @param json Boolean; should the environment definition be written as JSON?
+#'   By default, conda exports environmentas as YAML.
+#'
+#' @param pip Boolean; use `pip` for package installation? By default, packages
+#'   are installed from the active conda channels.
+#'
+#' @param pip_ignore_installed Ignore already-installed versions when using pip?
+#'   (defaults to `FALSE`). Set this to `TRUE` so that specific package versions
+#'   can be installed even if they are downgrades. The `FALSE` option is useful
+#'   for situations where you don't want a pip install to attempt an overwrite of
+#'   a conda binary package (e.g. SciPy on Windows which is very difficult to
+#'   install via pip due to compilation requirements).
+#'
+#' @param pip_options An optional character vector of additional command line
+#'   arguments to be passed to `pip`. Only relevant when `pip = TRUE`.
+#'
+#' @param python_version The version of Python to be installed. Set this if
+#'   you'd like to change the version of Python associated with a particular
+#'   conda environment.
+#'
+#' @param clone The name of the conda environment to be cloned.
+#'
+#' @param all Boolean; report all instances of Python found?
+#'
 #' @param ... Optional arguments, reserved for future expansion.
 #'
-#' @keywords internal
-#' @name conda-params
+#'
+#' @section Finding Conda:
+#'
+#' Most of `reticulate`'s conda APIs accept a `conda` parameter, used to control
+#' the `conda` binary used in their operation. When `conda = "auto"`,
+#' `reticulate` will attempt to automatically find a conda installation.
+#' The following locations are searched, in order:
+#'
+#' 1. The location specified by the `reticulate.conda_binary` \R option,
+#' 2. The location specified by the `RETICULATE_CONDA` environment variable,
+#' 3. The [miniconda_path()] location (if it exists),
+#' 4. The program `PATH`,
+#' 5. A set of pre-defined locations where conda is typically installed.
+#'
+#' To force `reticulate` to use a particular `conda` binary, we recommend
+#' setting:
+#'
+#' ```
+#' options(reticulate.conda_binary = "/path/to/conda")
+#' ```
+#'
+#' This can be useful if your conda installation lives in a location that
+#' `reticulate` is unable to automatically discover.
+#'
+#' @name conda-tools
 NULL
 
 
-
-
-
-#' List Conda Environments
+#' @returns
+#'   `conda_list()` returns an \R `data.frame`, with `name` giving the name of
+#'   the associated environment, and `python` giving the path to the Python
+#'   binary associated with that environment.
 #'
-#' List all of the available conda environments on the system.
-#'
-#' Environments available are listed as by:
-#'
-#' ```
-#' conda info --json
-#' ```
-#'
-#'
-#' Note that this function will report _all_ available conda environments
-#' on the system, even those associated with a different conda installation
-#' than the requested `conda` binary.
-#'
-#' @inheritParams conda-params
-#'
-#' @return An \R `data.frame`, with `name` giving the name of the associated
-#'   environment, and `python` giving the path to the Python binary associated
-#'   with that environment.
-#'
-#' @family conda-tools
+#' @rdname conda-tools
 #' @export
 conda_list <- function(conda = "auto") {
 
@@ -127,67 +173,11 @@ conda_list <- function(conda = "auto") {
 
 }
 
-#' Clone a Conda Environment
+#' @returns
+#'   `conda_create()` returns the path to the Python binary associated with the
+#'   newly-created conda environment.
 #'
-#' @inheritParams conda-params
-#'
-#' @param clone The environment to be cloned.
-#'
-#' @param ... Optional arguments, currently unused.
-#'
-#' @export
-conda_clone <- function(envname, ..., clone = "base", conda = "auto") {
-
-  # resolve conda binary
-  conda <- conda_binary(conda)
-
-  # resolve environment name
-  envname <- condaenv_resolve(envname)
-
-  # create the environment
-  args <- conda_args("create", envname)
-
-  # be quiet
-  args <- c(args, "--quiet")
-
-  # add cloned environment
-  args <- c(args, "--clone", clone)
-
-  # invoke conda
-  result <- system2(conda, shQuote(args))
-  if (result != 0L) {
-    fmt <- "Error creating conda environment '%s' [exit code %i]"
-    stopf(fmt, envname, result, call. = FALSE)
-  }
-
-  # return the path to the python binary
-  conda_python(envname = envname, conda = conda)
-
-}
-
-#' Create a Conda Environment
-#'
-#' Create a new conda environment.
-#'
-#' @inheritParams conda-params
-#'
-#' @param environment The path to an environment definition, generated via
-#'   (for example) [conda_export()], or via `conda env export`. When provided,
-#'   the conda environment will be created using this environment definition,
-#'   and other arguments will be ignored.
-#'
-#' @param python_version The version of Python to be used in this conda
-#'   environment. The associated Python package from conda will be requested
-#'   as `python={python_version}`. When `NULL`, the default `python` package
-#'   will be used instead. For example, use `python_version = "3.6"` to request
-#'   that the conda environment be created with a copy of Python 3.6. This
-#'   argument will be ignored if `python` is specified as part of the `packages`
-#'   argument, for backwards compatibility.
-#'
-#' @return The path to the Python binary associated with the newly-created
-#'   conda environment.
-#'
-#' @family conda-tools
+#' @rdname conda-tools
 #' @export
 conda_create <- function(envname = NULL,
                          packages = NULL,
@@ -273,24 +263,46 @@ conda_create_env <- function(envname, environment, conda) {
 
 }
 
-#' Export a Conda Environment
+#' @returns
+#'   `conda_clone()` returns the path to Python within the newly-created
+#'   conda environment.
 #'
-#' Export a conda environment definition, either as YAML (the default)
-#' or JSON. The resulting environment file can be used by [conda_create()]
-#' to create a "clone" of the exported conda environment.
+#' @rdname conda-tools
+#' @export
+conda_clone <- function(envname, ..., clone = "base", conda = "auto") {
+
+  # resolve conda binary
+  conda <- conda_binary(conda)
+
+  # resolve environment name
+  envname <- condaenv_resolve(envname)
+
+  # create the environment
+  args <- conda_args("create", envname)
+
+  # be quiet
+  args <- c(args, "--quiet")
+
+  # add cloned environment
+  args <- c(args, "--clone", clone)
+
+  # invoke conda
+  result <- system2(conda, shQuote(args))
+  if (result != 0L) {
+    fmt <- "Error creating conda environment '%s' [exit code %i]"
+    stopf(fmt, envname, result, call. = FALSE)
+  }
+
+  # return the path to the python binary
+  conda_python(envname = envname, conda = conda)
+
+}
+
+#' @returns
+#'   `conda_export()` returns the path to the exported environment definition,
+#'   invisibly.
 #'
-#' @inheritParams conda-params
-#'
-#' @param file The path where the conda environment definition will be written.
-#'
-#' @param json Boolean; should the environment definition be written as JSON?
-#'   By default, conda exports environmentas as YAML.
-#'
-#' @param ... Optional arguments, currently ignored.
-#'
-#' @return The path to the exported environment definition, invisibly.
-#'
-#' @family conda-tools
+#' @rdname conda-tools
 #' @export
 conda_export <- function(envname,
                          file = if (json) "environment.json" else "environment.yml",
@@ -329,19 +341,7 @@ conda_export <- function(envname,
   invisible(file)
 }
 
-#' Remove Packages from a Conda Environment
-#'
-#' Use this function to remove some subset of packages from an existing
-#' conda environment, or (when `packages` is `NULL`) remove all packages
-#' from the requested conda environment.
-#'
-#' @inheritParams conda-params
-#'
-#' @param packages An optional character vector, giving the names of packages
-#'   to be removed from the conda environment. When `NULL` (the default),
-#'   everything in the associated environment will be removed.
-#'
-#' @family conda-tools
+#' @rdname conda-tools
 #' @export
 conda_remove <- function(envname,
                          packages = NULL,
@@ -366,31 +366,7 @@ conda_remove <- function(envname,
   }
 }
 
-#' Install a Package in a Conda Environment
-#'
-#' Install a package into a conda environment. Packages can be installed either
-#' from the conda repositories, or via `pip`.
-#'
-#' @inheritParams conda-params
-#'
-#' @param pip Boolean; use `pip` for package installation? By default, packages
-#'   are installed from the active conda channels.
-#'
-#' @param pip_ignore_installed Ignore already-installed versions when using pip?
-#'   (defaults to `FALSE`). Set this to `TRUE` so that specific package versions
-#'   can be installed even if they are downgrades. The `FALSE` option is useful
-#'   for situations where you don't want a pip install to attempt an overwrite of
-#'   a conda binary package (e.g. SciPy on Windows which is very difficult to
-#'   install via pip due to compilation requirements).
-#'
-#' @param pip_options An optional character vector of additional command line
-#'   arguments to be passed to `pip`. Only relevant when `pip = TRUE`.
-#'
-#' @param python_version The version of Python to be installed. Set this if
-#'   you'd like to change the version of Python associated with a particular
-#'   conda environment.
-#'
-#' @family conda-tools
+#' @rdname conda-tools
 #' @export
 conda_install <- function(envname = NULL,
                           packages,
@@ -512,37 +488,7 @@ conda_install <- function(envname = NULL,
   invisible(packages)
 }
 
-#' Find a Conda Executable
-#'
-#' Locate a conda installation on the machine, and find the associated path to
-#' the `conda` executable within that installation.
-#'
-#' @section Finding Conda:
-#'
-#' Most of `reticulate`'s conda APIs accept a `conda` parameter, used to control
-#' the `conda` binary used in their operation. When `conda = "auto"`,
-#' `reticulate` will attempt to automatically find a conda installation.
-#' The following locations are searched, in order:
-#'
-#' 1. The location specified by the `reticulate.conda_binary` \R option,
-#' 2. The location specified by the `RETICULATE_CONDA` environment variable,
-#' 3. The [miniconda_path()] location (if it exists),
-#' 4. The program `PATH`,
-#' 5. A set of pre-defined locations where conda is typically installed.
-#'
-#' To force `reticulate` to use a particular `conda` binary, we recommend
-#' setting:
-#'
-#' ```
-#' options(reticulate.conda_binary = "/path/to/conda")
-#' ```
-#'
-#' This can be useful if your conda installation lives in a location that
-#' `reticulate` is unable to automatically discover.
-#'
-#' @inheritParams conda-params
-#'
-#' @family conda-tools
+#' @rdname conda-tools
 #' @export
 conda_binary <- function(conda = "auto") {
 
@@ -583,18 +529,12 @@ conda_binary <- function(conda = "auto") {
   conda
 }
 
-#' @rdname conda_binary
+#' @rdname conda-tools
 #' @export
 conda_exe <- conda_binary
 
 
-#' Retrieve the Conda Version
-#'
-#' Retrieve the current version of conda, as reported by `conda --version`.
-#'
-#' @inheritParams conda-params
-#'
-#' @family conda-tools
+#' @rdname conda-tools
 #' @export
 conda_version <- function(conda = "auto") {
   conda_bin <- conda_binary(conda)
@@ -602,14 +542,7 @@ conda_version <- function(conda = "auto") {
 }
 
 
-#' Update Conda
-#'
-#' Update to the latest-available version of `conda`. Equivalent to calling:
-#'
-#' ```
-#' conda update --prefix $(conda info --base) conda
-#' ```
-#' @inheritParams conda-params
+#' @rdname conda-tools
 #' @export
 conda_update <- function(conda = "auto") {
 
@@ -652,20 +585,7 @@ numeric_conda_version <- function(conda = "auto", version_string = conda_version
 }
 
 
-#' Get Python Path in Conda Environment
-#'
-#' Find the path to the `python` executable associated with a particular
-#' conda environment.
-#'
-#' Use `envname = "base"` to request the "base" environment associated with
-#' a Conda installation.
-#'
-#' @inheritParams conda-params
-#'
-#' @param all Boolean; should all conda environments with the requested name
-#'   be returned? By default, only the first matching environment is returned.
-#'
-#' @family conda-tools
+#' @rdname conda-tools
 #' @export
 conda_python <- function(envname = NULL,
                          conda = "auto",

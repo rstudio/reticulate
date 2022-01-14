@@ -87,10 +87,10 @@ reference:
   - title: "Package Installation"
     contents:
       - py_install
-      - configure_environment
       - py_list_packages
+      - configure_environment
       - virtualenv-tools
-      - starts_with("conda_")
+      - conda-tools
 
   - title: "Miniconda"
     contents:

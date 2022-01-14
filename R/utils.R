@@ -363,15 +363,18 @@ str_split1_on_first <- function(x, pattern, ...) {
 }
 
 str_drop_prefix <- function(x, prefix) {
-  if(is.character(prefix)) {
-    if(!startsWith(x, prefix))
+
+  if (is.character(prefix)) {
+    if (!startsWith(x, prefix))
       return(x)
     prefix <- nchar(prefix)
   }
-  substr(x, as.integer(prefix)+1L, nchar(x))
+
+  substr(x, as.integer(prefix) + 1L, nchar(x))
+
 }
 
-startsWith <- function (x, prefix) {
+startsWith <- function(x, prefix) {
   if (!is.character(x) || !is.character(prefix))
     stop("non-character object(s)")
   suppressWarnings(substr(x, 1L, nchar(prefix)) == prefix)

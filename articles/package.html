@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.19</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.23</span>
       </span>
     </div>
 
@@ -63,6 +63,9 @@
     </li>
     <li>
       <a href="../articles/python_packages.html">Installing Python Packages</a>
+    </li>
+    <li>
+      <a href="../articles/python_primer.html">Primer on Python for R Users</a>
     </li>
     <li>
       <a href="../articles/r_markdown.html">R Markdown Python Engine</a>
@@ -96,22 +99,22 @@
 
       
 
-      </header><script src="package_files/header-attrs-2.7/header-attrs.js"></script><div class="row">
+      </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Using reticulate in an R Package</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/rstudio/reticulate/blob/master/vignettes/package.Rmd" class="external-link"><code>vignettes/package.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/rstudio/reticulate/blob/HEAD/vignettes/package.Rmd" class="external-link"><code>vignettes/package.Rmd</code></a></small>
       <div class="hidden name"><code>package.Rmd</code></div>
 
     </div>
 
     
     
-<div id="delay-loading-python-modules" class="section level2">
-<h2 class="hasAnchor">
-<a href="#delay-loading-python-modules" class="anchor" aria-hidden="true"></a>Delay Loading Python Modules</h2>
+<div class="section level2">
+<h2 id="delay-loading-python-modules">Delay Loading Python Modules<a class="anchor" aria-label="anchor" href="#delay-loading-python-modules"></a>
+</h2>
 <p>If you write an R package that wraps one or more Python packages, it’s likely that you’ll be importing Python modules within the <code>.onLoad</code> method of your package so that you can have convenient access to them within the rest of the package source code.</p>
 <p>When you do this, you should use the <code>delay_load</code> flag to the <code><a href="../reference/import.html">import()</a></code> function, for example:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
@@ -135,13 +138,13 @@
 </ol>
 <p>Without the <code>delay_load</code>, Python would be loaded immediately and the user’s call to <code>use_virtualenv</code> would have no effect.</p>
 </div>
-<div id="installing-python-dependencies" class="section level2">
-<h2 class="hasAnchor">
-<a href="#installing-python-dependencies" class="anchor" aria-hidden="true"></a>Installing Python Dependencies</h2>
+<div class="section level2">
+<h2 id="installing-python-dependencies">Installing Python Dependencies<a class="anchor" aria-label="anchor" href="#installing-python-dependencies"></a>
+</h2>
 <p>Your R package likely depends on the installation of one or more Python packages. As a convenience to your users, you may want to provide a high-level R function to allow users to install these Python packages. It’s furthermore beneficial if multiple R packages that depend on Python packages install their dependencies in the same Python environment (so that they can be easily used together).</p>
 <p>The <code><a href="../reference/py_install.html">py_install()</a></code> function provides a high-level interface for installing one or more Python packages. The packages will by default be installed within a virtualenv or Conda environment named “r-reticulate”. For example:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/rstudio/reticulate" class="external-link">reticulate</a></span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span>
 <span class="fu"><a href="../reference/py_install.html">py_install</a></span><span class="op">(</span><span class="st">"scipy"</span><span class="op">)</span></code></pre></div>
 <p>You can document the use of this function along with your package or alternatively provide a wrapper function for <code><a href="../reference/py_install.html">py_install()</a></code>. For example:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
@@ -150,9 +153,9 @@
 <span class="op">}</span></code></pre></div>
 <p>While reticulate is capable of binding to <a href="calling_python.html#python-version">any Python environment</a> available on a system, it’s much more straightforward for users if there is a common environment used by R packages with convenient high-level functions provided for installation. We therefore strongly recommend that R package developers use the approach described here.</p>
 </div>
-<div id="checking-and-testing-on-cran" class="section level2">
-<h2 class="hasAnchor">
-<a href="#checking-and-testing-on-cran" class="anchor" aria-hidden="true"></a>Checking and Testing on CRAN</h2>
+<div class="section level2">
+<h2 id="checking-and-testing-on-cran">Checking and Testing on CRAN<a class="anchor" aria-label="anchor" href="#checking-and-testing-on-cran"></a>
+</h2>
 <p>If you use <strong>reticulate</strong> in another R package you need to account for the fact that when your package is submitted to CRAN, the CRAN test servers may not have Python, NumPy, or whatever other Python modules you are wrapping in your package. If you don’t do this then your package may fail to load and/or pass its tests when run on CRAN.</p>
 <p>There are two things you should do to ensure your package is well behaved on CRAN:</p>
 <ol style="list-style-type: decimal">
@@ -185,9 +188,9 @@
 </li>
 </ol>
 </div>
-<div id="implementing-s3-methods" class="section level2">
-<h2 class="hasAnchor">
-<a href="#implementing-s3-methods" class="anchor" aria-hidden="true"></a>Implementing S3 Methods</h2>
+<div class="section level2">
+<h2 id="implementing-s3-methods">Implementing S3 Methods<a class="anchor" aria-label="anchor" href="#implementing-s3-methods"></a>
+</h2>
 <p>Python objects exposed by <strong>reticulate</strong> carry their Python classes into R, so it’s possible to write S3 methods to customize e.g. the <code>str</code> or <code>print</code> behavior for a given class (note that it’s not typically necessary that you do this since the default <code>str</code> and <code>print</code> methods call <code>PyObject_Str</code>, which typically provides an acceptable default behavior).</p>
 <p>If you do decide to implement custom S3 methods for a Python class it’s important to keep in mind that when an R session ends the connection to Python objects is lost, so when the .RData saved from one R session is restored in a subsequent R session the Python objects are effectively lost (technically they become <code>NULL</code> R <code>externalptr</code> objects).</p>
 <p>By default when you attempt to interact with a Python object from a previous session (a <code>NULL</code> R <code>externalptr</code>) an error is thrown. If you want to do something more customized in your S3 method you can use the <code><a href="../reference/py_is_null_xptr.html">py_is_null_xptr()</a></code> function. For example:</p>
@@ -206,9 +209,9 @@
   <span class="co"># interact with the object to generate the string</span>
 <span class="op">}</span></code></pre></div>
 <p>The <code>print</code> and <code>summary</code> methods for Python objects both call the <code>str</code> method by default, so if you implement <code><a href="../reference/py_str.html">py_str()</a></code> you will automatically inherit implementations for those methods.</p>
-<div id="converting-between-r-and-python" class="section level3">
-<h3 class="hasAnchor">
-<a href="#converting-between-r-and-python" class="anchor" aria-hidden="true"></a>Converting between R and Python</h3>
+<div class="section level3">
+<h3 id="converting-between-r-and-python">Converting between R and Python<a class="anchor" aria-label="anchor" href="#converting-between-r-and-python"></a>
+</h3>
 <p><strong>reticulate</strong> provides the generics <code><a href="../reference/r-py-conversion.html">r_to_py()</a></code> for converting R objects into Python objects, and <code><a href="../reference/r-py-conversion.html">py_to_r()</a></code> for converting Python objects back into R objects. Package authors can provide methods for these generics to convert Python and R objects otherwise not handled by <strong>reticulate</strong>.</p>
 <p><strong>reticulate</strong> provides conversion operators for some of the most commonly used Python objects, including:</p>
 <ul>
@@ -219,12 +222,12 @@
 </ul>
 <p>If you see that <strong>reticulate</strong> is missing support for conversion of one or more objects from these packages, please <a href="https://github.com/rstudio/reticulate/issues" class="external-link">let us know</a> and we’ll try to implement the missing converter. For Python packages not in this set, you can provide conversion operators in your own extension package.</p>
 </div>
-<div id="writing-your-own-r_to_py-methods" class="section level3">
-<h3 class="hasAnchor">
-<a href="#writing-your-own-r_to_py-methods" class="anchor" aria-hidden="true"></a>Writing your own <code>r_to_py()</code> methods</h3>
+<div class="section level3">
+<h3 id="writing-your-own-r_to_py-methods">Writing your own <code>r_to_py()</code> methods<a class="anchor" aria-label="anchor" href="#writing-your-own-r_to_py-methods"></a>
+</h3>
 <p><code><a href="../reference/r-py-conversion.html">r_to_py()</a></code> accepts a <code>convert</code> argument, which controls how objects generated from the created Python object are converted. To illustrate, consider the difference between these two cases:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/rstudio/reticulate" class="external-link">reticulate</a></span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span>
 
 <span class="co"># [convert = TRUE] =&gt; convert Python objects to R when appropriate</span>
 <span class="va">sys</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/import.html">import</a></span><span class="op">(</span><span class="st">"sys"</span>, convert <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
@@ -251,9 +254,9 @@
 <span class="op">}</span></code></pre></div>
 </div>
 </div>
-<div id="using-travis-ci" class="section level2">
-<h2 class="hasAnchor">
-<a href="#using-travis-ci" class="anchor" aria-hidden="true"></a>Using Travis-CI</h2>
+<div class="section level2">
+<h2 id="using-travis-ci">Using Travis-CI<a class="anchor" aria-label="anchor" href="#using-travis-ci"></a>
+</h2>
 <p><a href="https://travis-ci.org/" class="external-link">Travis-CI</a> is a commonly used platform for continuous integration and testing of R packages. Making it work with <strong>reticulate</strong> is pretty simple - all you need to do is add a <code>before_install</code> section to a standard R <code>.travis.yml</code> file that asks Travis to guarantee the testing machine has <code>numpy</code> (which <strong>reticulate</strong> depends on) and any Python modules you’re interacting with that don’t ship with the language itself:</p>
 <pre><code>before_install:
   - pip install numpy any_other_dependencies go_here</code></pre>
@@ -272,12 +275,12 @@
 
       <footer><div class="copyright">
   <p></p>
-<p>Developed by Kevin Ushey, JJ Allaire, <a href="https://www.rstudio.com" class="external-link external-link"><img src="https://www.tidyverse.org/rstudio-logo.svg" alt="RStudio" height="24"></a>, Yuan Tang.</p>
+<p>Developed by Kevin Ushey, JJ Allaire, <a href="https://www.rstudio.com" class="external-link"><img src="https://www.tidyverse.org/rstudio-logo.svg" alt="RStudio" width="72"></a>, Yuan Tang.</p>
 </div>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link external-link">pkgdown</a> 1.6.1.9001.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
 </div>
 
       </footer>

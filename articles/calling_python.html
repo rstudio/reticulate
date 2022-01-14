@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.19</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.23</span>
       </span>
     </div>
 
@@ -63,6 +63,9 @@
     </li>
     <li>
       <a href="../articles/python_packages.html">Installing Python Packages</a>
+    </li>
+    <li>
+      <a href="../articles/python_primer.html">Primer on Python for R Users</a>
     </li>
     <li>
       <a href="../articles/r_markdown.html">R Markdown Python Engine</a>
@@ -96,25 +99,25 @@
 
       
 
-      </header><script src="calling_python_files/header-attrs-2.7/header-attrs.js"></script><div class="row">
+      </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Calling Python from R</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/rstudio/reticulate/blob/master/vignettes/calling_python.Rmd" class="external-link"><code>vignettes/calling_python.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/rstudio/reticulate/blob/HEAD/vignettes/calling_python.Rmd" class="external-link"><code>vignettes/calling_python.Rmd</code></a></small>
       <div class="hidden name"><code>calling_python.Rmd</code></div>
 
     </div>
 
     
     
-<div id="overview" class="section level2">
-<h2 class="hasAnchor">
-<a href="#overview" class="anchor" aria-hidden="true"></a>Overview</h2>
+<div class="section level2">
+<h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
+</h2>
 <p>The <strong>reticulate</strong> package provides an R interface to Python modules, classes, and functions. For example, this code imports the Python <code>os</code> module and calls some functions within it:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/rstudio/reticulate" class="external-link">reticulate</a></span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span>
 <span class="va">os</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/import.html">import</a></span><span class="op">(</span><span class="st">"os"</span><span class="op">)</span>
 <span class="va">os</span><span class="op">$</span><span class="fu">listdir</span><span class="op">(</span><span class="st">"."</span><span class="op">)</span></code></pre></div>
 <pre><code> [1] ".git"             ".gitignore"       ".Rbuildignore"    ".RData"          
@@ -124,30 +127,30 @@
 [17] "man"              "NAMESPACE"        "NEWS.md"          "pkgdown"         
 [21] "R"                "README.md"        "reticulate.Rproj" "src"             
 [25] "tests"            "vignettes"      </code></pre>
-<p>Functions and other data within Python modules and classes can be accessed via the <code><a href="https://rdrr.io/r/base/Extract.html" class="external-link">$</a></code> operator (analogous to the way you would interact with an R list, environment, or reference class).</p>
+<p>Functions and other data within Python modules and classes can be accessed via the <code>$</code> operator (analogous to the way you would interact with an R list, environment, or reference class).</p>
 <p>The <strong>reticulate</strong> package is compatible with all versions of Python &gt;= 2.7. Integration with NumPy is optional and requires NumPy &gt;= 1.6.</p>
 </div>
-<div id="python-version" class="section level2">
-<h2 class="hasAnchor">
-<a href="#python-version" class="anchor" aria-hidden="true"></a>Python Version</h2>
-<p>By default, reticulate uses the version of Python found on your <code>PATH</code> (i.e. <code><a href="https://rdrr.io/r/base/Sys.which.html" class="external-link">Sys.which("python")</a></code>). The <code><a href="../reference/use_python.html">use_python()</a></code> function enables you to specify an alternate version, for example:</p>
+<div class="section level2">
+<h2 id="python-version">Python Version<a class="anchor" aria-label="anchor" href="#python-version"></a>
+</h2>
+<p>By default, reticulate uses the version of Python found on your <code>PATH</code> (i.e. <code>Sys.which("python")</code>). The <code><a href="../reference/use_python.html">use_python()</a></code> function enables you to specify an alternate version, for example:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/rstudio/reticulate" class="external-link">reticulate</a></span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span>
 <span class="fu"><a href="../reference/use_python.html">use_python</a></span><span class="op">(</span><span class="st">"/usr/local/bin/python"</span><span class="op">)</span></code></pre></div>
 <p>The <code><a href="../reference/use_python.html">use_virtualenv()</a></code> and <code><a href="../reference/use_python.html">use_condaenv()</a></code> functions enable you to specify versions of Python in virtual or conda environments, for example:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/rstudio/reticulate" class="external-link">reticulate</a></span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span>
 <span class="fu"><a href="../reference/use_python.html">use_virtualenv</a></span><span class="op">(</span><span class="st">"myenv"</span><span class="op">)</span></code></pre></div>
 <p>See the article on <a href="versions.html">Python Version Configuration</a> for additional details.</p>
 </div>
-<div id="python-packages" class="section level2">
-<h2 class="hasAnchor">
-<a href="#python-packages" class="anchor" aria-hidden="true"></a>Python Packages</h2>
+<div class="section level2">
+<h2 id="python-packages">Python Packages<a class="anchor" aria-label="anchor" href="#python-packages"></a>
+</h2>
 <p>You can install any required Python packages using standard shell tools like <code>pip</code> and <code>conda</code>. Alternately, reticulate includes a set of functions for managing and installing packages within virtualenvs and Conda environments. See the article on <a href="https://rstudio.github.io/reticulate/articles/python_packages.html">Installing Python Packages</a> for additional details.</p>
 </div>
-<div id="type-conversions" class="section level2">
-<h2 class="hasAnchor">
-<a href="#type-conversions" class="anchor" aria-hidden="true"></a>Type Conversions</h2>
+<div class="section level2">
+<h2 id="type-conversions">Type Conversions<a class="anchor" aria-label="anchor" href="#type-conversions"></a>
+</h2>
 <p>When calling into Python, R data types are automatically converted to their equivalent Python types. When values are returned from Python to R they are converted back to R types. Types are converted as follows:</p>
 <table class="table">
 <thead><tr class="header">
@@ -167,30 +170,30 @@
 <td>Multi-element vector</td>
 <td>List</td>
 <td>
-<code><a href="https://rdrr.io/r/base/c.html" class="external-link">c(1.0, 2.0, 3.0)</a></code>, <code><a href="https://rdrr.io/r/base/c.html" class="external-link">c(1L, 2L, 3L)</a></code>
+<code>c(1.0, 2.0, 3.0)</code>, <code>c(1L, 2L, 3L)</code>
 </td>
 </tr>
 <tr class="odd">
 <td>List of multiple types</td>
 <td>Tuple</td>
-<td><code><a href="https://rdrr.io/r/base/list.html" class="external-link">list(1L, TRUE, "foo")</a></code></td>
+<td><code>list(1L, TRUE, "foo")</code></td>
 </tr>
 <tr class="even">
 <td>Named list</td>
 <td>Dict</td>
 <td>
-<code><a href="https://rdrr.io/r/base/list.html" class="external-link">list(a = 1L, b = 2.0)</a></code>, <code><a href="../reference/dict.html">dict(x = x_data)</a></code>
+<code>list(a = 1L, b = 2.0)</code>, <code>dict(x = x_data)</code>
 </td>
 </tr>
 <tr class="odd">
 <td>Matrix/Array</td>
 <td>NumPy ndarray</td>
-<td><code><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix(c(1,2,3,4), nrow = 2, ncol = 2)</a></code></td>
+<td><code>matrix(c(1,2,3,4), nrow = 2, ncol = 2)</code></td>
 </tr>
 <tr class="even">
 <td>Data Frame</td>
 <td>Pandas DataFrame</td>
-<td><code><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame(x = c(1,2,3), y = c("a", "b", "c"))</a></code></td>
+<td><code>data.frame(x = c(1,2,3), y = c("a", "b", "c"))</code></td>
 </tr>
 <tr class="odd">
 <td>Function</td>
@@ -200,7 +203,7 @@
 <tr class="even">
 <td>Raw</td>
 <td>Python bytearray</td>
-<td><code><a href="https://rdrr.io/r/base/raw.html" class="external-link">as.raw(c(1:10))</a></code></td>
+<td><code>as.raw(c(1:10))</code></td>
 </tr>
 <tr class="odd">
 <td>NULL, TRUE, FALSE</td>
@@ -213,9 +216,9 @@
 </table>
 <p>If a Python object of a custom class is returned then an R reference to that object is returned. You can call methods and access properties of the object just as if it was an instance of an R reference class.</p>
 </div>
-<div id="importing-modules" class="section level2">
-<h2 class="hasAnchor">
-<a href="#importing-modules" class="anchor" aria-hidden="true"></a>Importing Modules</h2>
+<div class="section level2">
+<h2 id="importing-modules">Importing Modules<a class="anchor" aria-label="anchor" href="#importing-modules"></a>
+</h2>
 <p>The <code><a href="../reference/import.html">import()</a></code> function can be used to import any Python module. For example:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">difflib</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/import.html">import</a></span><span class="op">(</span><span class="st">"difflib"</span><span class="op">)</span>
@@ -231,9 +234,9 @@
 <span class="va">builtins</span><span class="op">$</span><span class="fu">print</span><span class="op">(</span><span class="st">'foo'</span><span class="op">)</span></code></pre></div>
 <p>The main module is generally useful if you have executed Python code from a file or string and want to get access to its results (see the section below for more details).</p>
 </div>
-<div id="sourcing-scripts" class="section level2">
-<h2 class="hasAnchor">
-<a href="#sourcing-scripts" class="anchor" aria-hidden="true"></a>Sourcing Scripts</h2>
+<div class="section level2">
+<h2 id="sourcing-scripts">Sourcing Scripts<a class="anchor" aria-label="anchor" href="#sourcing-scripts"></a>
+</h2>
 <p>The <code><a href="../reference/source_python.html">source_python()</a></code> function will source a Python script and make the objects it creates available within an R environment (by default the calling environment). For example, consider the following Python script:</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> add(x, y):</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> x <span class="op">+</span> y</span></code></pre></div>
@@ -243,12 +246,12 @@
 <span class="fu">add</span><span class="op">(</span><span class="fl">5</span>, <span class="fl">10</span><span class="op">)</span></code></pre></div>
 <pre><code>[1] 15</code></pre>
 </div>
-<div id="executing-code" class="section level2">
-<h2 class="hasAnchor">
-<a href="#executing-code" class="anchor" aria-hidden="true"></a>Executing Code</h2>
+<div class="section level2">
+<h2 id="executing-code">Executing Code<a class="anchor" aria-label="anchor" href="#executing-code"></a>
+</h2>
 <p>You can execute Python code within the main module using the <code>py_run_file</code> and <code>py_run_string</code> functions. You can then access any objects created using the <code>py</code> object exported by reticulate:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/rstudio/reticulate" class="external-link">reticulate</a></span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span>
 
 <span class="fu"><a href="../reference/py_run.html">py_run_file</a></span><span class="op">(</span><span class="st">"script.py"</span><span class="op">)</span>
 
@@ -257,9 +260,9 @@
 <span class="co"># access the python main module via the 'py' object</span>
 <span class="va">py</span><span class="op">$</span><span class="va">x</span></code></pre></div>
 </div>
-<div id="object-conversion" class="section level2">
-<h2 class="hasAnchor">
-<a href="#object-conversion" class="anchor" aria-hidden="true"></a>Object Conversion</h2>
+<div class="section level2">
+<h2 id="object-conversion">Object Conversion<a class="anchor" aria-label="anchor" href="#object-conversion"></a>
+</h2>
 <p>By default when Python objects are returned to R they are converted to their equivalent R types. However, if you’d rather make conversion from Python to R explicit and deal in native Python objects by default you can pass <code>convert = FALSE</code> to the <code>import</code> function. In this case Python to R conversion will be disabled for the module returned from <code>import</code>. For example:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># import numpy and specify no automatic Python to R conversion</span>
@@ -273,17 +276,17 @@
 <span class="fu"><a href="../reference/r-py-conversion.html">py_to_r</a></span><span class="op">(</span><span class="va">sum</span><span class="op">)</span></code></pre></div>
 <p>As illustrated above, if you need access to an R object at end of your computations you can call the <code><a href="../reference/r-py-conversion.html">py_to_r()</a></code> function explicitly.</p>
 </div>
-<div id="getting-help" class="section level2">
-<h2 class="hasAnchor">
-<a href="#getting-help" class="anchor" aria-hidden="true"></a>Getting Help</h2>
+<div class="section level2">
+<h2 id="getting-help">Getting Help<a class="anchor" aria-label="anchor" href="#getting-help"></a>
+</h2>
 <p>You can print documentation on any Python object using the <code><a href="../reference/py_help.html">py_help()</a></code> function. For example:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">os</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/import.html">import</a></span><span class="op">(</span><span class="st">"os"</span><span class="op">)</span>
 <span class="fu"><a href="../reference/py_help.html">py_help</a></span><span class="op">(</span><span class="va">os</span><span class="op">$</span><span class="va">chdir</span><span class="op">)</span></code></pre></div>
 </div>
-<div id="lists-tuples-and-dictionaries" class="section level2">
-<h2 class="hasAnchor">
-<a href="#lists-tuples-and-dictionaries" class="anchor" aria-hidden="true"></a>Lists, Tuples, and Dictionaries</h2>
+<div class="section level2">
+<h2 id="lists-tuples-and-dictionaries">Lists, Tuples, and Dictionaries<a class="anchor" aria-label="anchor" href="#lists-tuples-and-dictionaries"></a>
+</h2>
 <p>The automatic conversion of R types to Python types works well in most cases, but occasionally you will need to be more explicit on the R side to provide Python the type it expects.</p>
 <p>For example, if a Python API requires a list and you pass a single element R vector it will be converted to a Python scalar. To overcome this simply use the R <code>list</code> function explicitly:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
@@ -296,9 +299,9 @@
 <code class="sourceCode R"><span class="fu"><a href="../reference/dict.html">dict</a></span><span class="op">(</span>foo <span class="op">=</span> <span class="st">"bar"</span>, index <span class="op">=</span> <span class="fl">42L</span><span class="op">)</span></code></pre></div>
 <p>This might be useful if you need to pass a dictionary that uses a more complex object (as opposed to a string) as its key.</p>
 </div>
-<div id="numeric-types-and-indexes" class="section level2">
-<h2 class="hasAnchor">
-<a href="#numeric-types-and-indexes" class="anchor" aria-hidden="true"></a>Numeric Types and Indexes</h2>
+<div class="section level2">
+<h2 id="numeric-types-and-indexes">Numeric Types and Indexes<a class="anchor" aria-label="anchor" href="#numeric-types-and-indexes"></a>
+</h2>
 <p>R and Python have different default numeric types. If you write <code>42</code> in R it is considered a floating point number whereas <code>42</code> in Python is considered an integer.</p>
 <p>This means that when a Python API expects an integer, you need to be sure to use the <code>L</code> suffix within R. For example, if the <code>foo</code> function requires an integer as its <code>index</code> argument you would do this:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
@@ -311,9 +314,9 @@
 <code class="sourceCode R"><span class="va">items</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="fl">0L</span><span class="op">)</span></code></pre></div>
 <p>Note the use of the 0-based index as well as the <code>L</code> to indicate t that the value is an integer.</p>
 </div>
-<div id="arrays" class="section level2">
-<h2 class="hasAnchor">
-<a href="#arrays" class="anchor" aria-hidden="true"></a>Arrays</h2>
+<div class="section level2">
+<h2 id="arrays">Arrays<a class="anchor" aria-label="anchor" href="#arrays"></a>
+</h2>
 <p>R matrices and arrays are converted automatically to and from <a href="https://numpy.org/" class="external-link">NumPy</a> arrays.</p>
 <p>When converting from R to NumPy, the NumPy array is mapped directly to the underlying memory of the R array (no copy is made). In this case, the NumPy array uses a column-based in memory layout that is compatible with R (i.e. Fortran style rather than C style). When converting from NumPy to R, R receives a column-ordered copy of the NumPy array.</p>
 <p>You can also manually convert R arrays to NumPy using the <code><a href="../reference/np_array.html">np_array()</a></code> function. For example, you might do this if you needed to create a NumPy array with C rather than Fortran style in-memory layout (for higher performance in row-oriented computations) or if you wanted to control the data type of the NumPy array more explicitly. Here are some example uses of <code><a href="../reference/np_array.html">np_array()</a></code>:</p>
@@ -323,9 +326,9 @@
 <p>Reasoning about arrays which use distinct in-memory orders can be tricky. The <a href="arrays.html">Arrays in R and Python</a> article provides additional details.</p>
 <p>Also, always remember that when calling NumPy methods array indices are 0 rather than 1 based and require the <code>L</code> suffix to indicate they are integers.</p>
 </div>
-<div id="data-frames" class="section level2">
-<h2 class="hasAnchor">
-<a href="#data-frames" class="anchor" aria-hidden="true"></a>Data Frames</h2>
+<div class="section level2">
+<h2 id="data-frames">Data Frames<a class="anchor" aria-label="anchor" href="#data-frames"></a>
+</h2>
 <p>R data frames can be automatically converted to and from <a href="https://pandas.pydata.org/" class="external-link">Pandas</a> DataFrames. By default, columns are converted using the same rules governing R array &lt;-&gt; NumPy array conversion, but a couple extensions are provided:</p>
 <table class="table">
 <thead><tr class="header">
@@ -346,18 +349,18 @@
 </table>
 <p>If the R data frame has row names, the generated Pandas DataFrame will be re-indexed using those row names (and vice versa). Special handling is also available for a <code>DatetimeIndex</code> associated with a Pandas DataFrame; however, because R only supports character vectors for row names they are converted to character first.</p>
 </div>
-<div id="sparse-matrices" class="section level2">
-<h2 class="hasAnchor">
-<a href="#sparse-matrices" class="anchor" aria-hidden="true"></a>Sparse Matrices</h2>
+<div class="section level2">
+<h2 id="sparse-matrices">Sparse Matrices<a class="anchor" aria-label="anchor" href="#sparse-matrices"></a>
+</h2>
 <p>Sparse matrices created by <a href="https://CRAN.R-project.org/package=Matrix" class="external-link">Matrix R package</a> can be converted <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.csc_matrix.html" class="external-link">Scipy CSC matrix</a>, and vice versa. This is often useful when you want to pass sparse matrices to Python functions that accepts Scipy CSC matrix to take advantage of this format, such as efficient column slicing and fast matrix vector products.</p>
 <p>For example, we first create a sparse matrix using <code><a href="https://rdrr.io/pkg/Matrix/man/sparseMatrix.html" class="external-link">Matrix::sparseMatrix()</a></code>:</p>
-<pre><code><a href="http://Matrix.R-forge.R-project.org/" class="external-link">library(Matrix)
-N &lt;- 5
-dgc_matrix &lt;- sparseMatrix(
-  i = sample(N, N),
-  j = sample(N, N),
-  x = runif(N),
-  dims = c(N, N))</a></code></pre>
+<pre><code><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://Matrix.R-forge.R-project.org/" class="external-link">Matrix</a></span><span class="op">)</span>
+<span class="va">N</span> <span class="op">&lt;-</span> <span class="fl">5</span>
+<span class="va">dgc_matrix</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Matrix/man/sparseMatrix.html" class="external-link">sparseMatrix</a></span><span class="op">(</span>
+  i <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="va">N</span>, <span class="va">N</span><span class="op">)</span>,
+  j <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="va">N</span>, <span class="va">N</span><span class="op">)</span>,
+  x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="va">N</span><span class="op">)</span>,
+  dims <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">N</span>, <span class="va">N</span><span class="op">)</span><span class="op">)</span></code></pre>
 <p>The sparse matrix looks like this:</p>
 <pre><code>&gt; dgc_matrix
 5 x 5 sparse Matrix of class "dgCMatrix"
@@ -386,20 +389,20 @@ dgc_matrix &lt;- sparseMatrix(
 [4,] .         .          0.01777771 .         .        
 [5,] .         0.05885743 .          .         .        </code></pre>
 </div>
-<div id="with-contexts" class="section level2">
-<h2 class="hasAnchor">
-<a href="#with-contexts" class="anchor" aria-hidden="true"></a>With Contexts</h2>
+<div class="section level2">
+<h2 id="with-contexts">With Contexts<a class="anchor" aria-label="anchor" href="#with-contexts"></a>
+</h2>
 <p>The R <code>with</code> generic function can be used to interact with Python context manager objects (in Python you use the <code>with</code> keyword to do the same). For example:</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">py</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/import.html">import_builtins</a></span><span class="op">(</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="va">py</span><span class="op">$</span><span class="fu">open</span><span class="op">(</span><span class="st">"output.txt"</span>, <span class="st">"w"</span><span class="op">)</span> <span class="op">%as%</span> <span class="va">file</span>, <span class="op">{</span>
+<span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="va">py</span><span class="op">$</span><span class="fu">open</span><span class="op">(</span><span class="st">"output.txt"</span>, <span class="st">"w"</span><span class="op">)</span> <span class="op"><a href="../reference/with-as-operator.html">%as%</a></span> <span class="va">file</span>, <span class="op">{</span>
   <span class="va">file</span><span class="op">$</span><span class="fu">write</span><span class="op">(</span><span class="st">"Hello, there!"</span><span class="op">)</span>
 <span class="op">}</span><span class="op">)</span></code></pre></div>
-<p>This example opens a file and ensures that it is automatically closed at the end of the with block. Note the use of the <code><a href="../reference/with-as-operator.html">%as%</a></code> operator to alias the object created by the context manager.</p>
+<p>This example opens a file and ensures that it is automatically closed at the end of the with block. Note the use of the <code>%as%</code> operator to alias the object created by the context manager.</p>
 </div>
-<div id="iterators" class="section level2">
-<h2 class="hasAnchor">
-<a href="#iterators" class="anchor" aria-hidden="true"></a>Iterators</h2>
+<div class="section level2">
+<h2 id="iterators">Iterators<a class="anchor" aria-label="anchor" href="#iterators"></a>
+</h2>
 <p>If a Python API returns an iterator or a generator, you can interact with it using the <code><a href="../reference/iterate.html">iterate()</a></code> function. The <code><a href="../reference/iterate.html">iterate()</a></code> function can be used to apply an R function to each item yielded by the iterator:</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/iterate.html">iterate</a></span><span class="op">(</span><span class="va">iter</span>, <span class="va">print</span><span class="op">)</span></code></pre></div>
@@ -410,9 +413,9 @@ dgc_matrix &lt;- sparseMatrix(
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">a</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/iterate.html">iterate</a></span><span class="op">(</span><span class="va">iter</span><span class="op">)</span> <span class="co"># results are not empty</span>
 <span class="va">b</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/iterate.html">iterate</a></span><span class="op">(</span><span class="va">iter</span><span class="op">)</span> <span class="co"># results are empty since items have already been drained</span></code></pre></div>
-<div id="element-level-iteration" class="section level3">
-<h3 class="hasAnchor">
-<a href="#element-level-iteration" class="anchor" aria-hidden="true"></a>Element Level Iteration</h3>
+<div class="section level3">
+<h3 id="element-level-iteration">Element Level Iteration<a class="anchor" aria-label="anchor" href="#element-level-iteration"></a>
+</h3>
 <p>You can also iterate on an element-by-element basis using the <code><a href="../reference/iterate.html">iter_next()</a></code> function. For example:</p>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw">while</span> <span class="op">(</span><span class="cn">TRUE</span><span class="op">)</span> <span class="op">{</span>
@@ -429,9 +432,9 @@ dgc_matrix &lt;- sparseMatrix(
 <span class="op">}</span></code></pre></div>
 <p>Note that some iterators/generators in Python are infinite. In that case the caller will need custom logic to determine when to terminate the loop.</p>
 </div>
-<div id="generators" class="section level3">
-<h3 class="hasAnchor">
-<a href="#generators" class="anchor" aria-hidden="true"></a>Generators</h3>
+<div class="section level3">
+<h3 id="generators">Generators<a class="anchor" aria-label="anchor" href="#generators"></a>
+</h3>
 <p>Python <a href="https://wiki.python.org/moin/Generators" class="external-link">generators</a> are functions that implement the Python iterator protocol. Similarly, the reticulate <code>generator()</code> function enables you to create a Python iterator from an R function.</p>
 <p>In Python, generators produce values using the <code>yield</code> keyword. In R, values are simply returned from the function. One benefit of the <code>yield</code> keyword is that it enables successive iterations to use the state of previous iterations. In R, this can be done by returning a function that mutates its enclosing environment via the &lt;&lt;- operator. For example:</p>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
@@ -458,15 +461,15 @@ dgc_matrix &lt;- sparseMatrix(
       <span class="cn">NULL</span>
   <span class="op">}</span>
 <span class="op">}</span></code></pre></div>
-<p>Note that you can change the value that indicates the end of the iteration using the <code>completed</code> parameter (e.g. <code><a href="../reference/py_iterator.html">py_iterator(func, completed = NA)</a></code>).</p>
+<p>Note that you can change the value that indicates the end of the iteration using the <code>completed</code> parameter (e.g. <code>py_iterator(func, completed = NA)</code>).</p>
 </div>
 </div>
-<div id="functions" class="section level2">
-<h2 class="hasAnchor">
-<a href="#functions" class="anchor" aria-hidden="true"></a>Functions</h2>
-<div id="signatures" class="section level3">
-<h3 class="hasAnchor">
-<a href="#signatures" class="anchor" aria-hidden="true"></a>Signatures</h3>
+<div class="section level2">
+<h2 id="functions">Functions<a class="anchor" aria-label="anchor" href="#functions"></a>
+</h2>
+<div class="section level3">
+<h3 id="signatures">Signatures<a class="anchor" aria-label="anchor" href="#signatures"></a>
+</h3>
 <p>By default R functions are converted to Python with a generic signature (<code>function(...)</code>), where there’s neither keyword argument nor default values for arguments.</p>
 <p>For example, below we apply <code><a href="../reference/r-py-conversion.html">r_to_py()</a></code> to an R function and then we use <a href="https://docs.python.org/3/library/inspect.html" class="external-link">inspect Python module</a> to get the converted function’s argument spec. You can see that the signature of the wrapped function looks different than the original R function’s signature.</p>
 <div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> inspect <span class="ot">&lt;-</span> <span class="fu">import</span>(<span class="st">"inspect"</span>)</span>
@@ -480,21 +483,21 @@ dgc_matrix &lt;- sparseMatrix(
 <span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ArgSpec</span>(<span class="at">args=</span>[<span class="st">'a'</span>, <span class="st">'b'</span>], <span class="at">varargs=</span>None, <span class="at">keywords=</span>None, <span class="at">defaults=</span>(<span class="fl">1.5</span>,))</span></code></pre></div>
 <p>Note that the signature of the R function must not contain esoteric Python-incompatible constructs. For example, we cannot have R function with signature like <code>function(a = 1, b)</code> since Python function requires that arguments without default values appear before arguments with default values.</p>
 </div>
-<div id="background-threads" class="section level3">
-<h3 class="hasAnchor">
-<a href="#background-threads" class="anchor" aria-hidden="true"></a>Background Threads</h3>
+<div class="section level3">
+<h3 id="background-threads">Background Threads<a class="anchor" aria-label="anchor" href="#background-threads"></a>
+</h3>
 <p>In some cases Python libraries will invoke callbacks on a Python background thread. Since R code must run on the main thread, this won’t work by default when you pass an R function as a callback.</p>
 <p>To work around this, you can use <code><a href="../reference/py_main_thread_func.html">py_main_thread_func()</a></code>, which will provide a special wrapper for your R function that ensures it will only be called on the main thread.</p>
 </div>
 </div>
-<div id="advanced" class="section level2">
-<h2 class="hasAnchor">
-<a href="#advanced" class="anchor" aria-hidden="true"></a>Advanced</h2>
+<div class="section level2">
+<h2 id="advanced">Advanced<a class="anchor" aria-label="anchor" href="#advanced"></a>
+</h2>
 <p>There are several more advanced functions available that are useful principally when creating high level R interfaces for Python libraries.</p>
-<div id="python-objects" class="section level3">
-<h3 class="hasAnchor">
-<a href="#python-objects" class="anchor" aria-hidden="true"></a>Python Objects</h3>
-<p>Typically interacting with Python objects from R involves using the <code><a href="https://rdrr.io/r/base/Extract.html" class="external-link">$</a></code> operator to access whatever properties for functions of the object you need. When using the <code><a href="https://rdrr.io/r/base/Extract.html" class="external-link">$</a></code>, Python objects are automatically converted to their R equivalents when possible. The following functions enable you to interact with Python objects at a lower level (e.g. no conversion to R is done unless you explicitly call the <code>py_to_r</code> function):</p>
+<div class="section level3">
+<h3 id="python-objects">Python Objects<a class="anchor" aria-label="anchor" href="#python-objects"></a>
+</h3>
+<p>Typically interacting with Python objects from R involves using the <code>$</code> operator to access whatever properties for functions of the object you need. When using the <code>$</code>, Python objects are automatically converted to their R equivalents when possible. The following functions enable you to interact with Python objects at a lower level (e.g. no conversion to R is done unless you explicitly call the <code>py_to_r</code> function):</p>
 <table class="table">
 <thead><tr class="header">
 <th>Function</th>
@@ -536,9 +539,9 @@ dgc_matrix &lt;- sparseMatrix(
 </tbody>
 </table>
 </div>
-<div id="pickle" class="section level3">
-<h3 class="hasAnchor">
-<a href="#pickle" class="anchor" aria-hidden="true"></a>Pickle</h3>
+<div class="section level3">
+<h3 id="pickle">Pickle<a class="anchor" aria-label="anchor" href="#pickle"></a>
+</h3>
 <p>You can save and load Python objects (via pickle) using the <code>py_save_object</code> and <code>py_load_object</code> functions:</p>
 <table class="table">
 <thead><tr class="header">
@@ -557,9 +560,9 @@ dgc_matrix &lt;- sparseMatrix(
 </tbody>
 </table>
 </div>
-<div id="configuration" class="section level3">
-<h3 class="hasAnchor">
-<a href="#configuration" class="anchor" aria-hidden="true"></a>Configuration</h3>
+<div class="section level3">
+<h3 id="configuration">Configuration<a class="anchor" aria-label="anchor" href="#configuration"></a>
+</h3>
 <p>The following functions enable you to query for information about the Python configuration available on the current system.</p>
 <table class="table">
 <colgroup>
@@ -590,9 +593,9 @@ dgc_matrix &lt;- sparseMatrix(
 </tbody>
 </table>
 </div>
-<div id="output-control" class="section level3">
-<h3 class="hasAnchor">
-<a href="#output-control" class="anchor" aria-hidden="true"></a>Output Control</h3>
+<div class="section level3">
+<h3 id="output-control">Output Control<a class="anchor" aria-label="anchor" href="#output-control"></a>
+</h3>
 <p>These functions enable you to capture or suppress output from Python:</p>
 <table class="table">
 <colgroup>
@@ -615,9 +618,9 @@ dgc_matrix &lt;- sparseMatrix(
 </tbody>
 </table>
 </div>
-<div id="miscellaneous" class="section level3">
-<h3 class="hasAnchor">
-<a href="#miscellaneous" class="anchor" aria-hidden="true"></a>Miscellaneous</h3>
+<div class="section level3">
+<h3 id="miscellaneous">Miscellaneous<a class="anchor" aria-label="anchor" href="#miscellaneous"></a>
+</h3>
 <p>The functions provide miscellaneous other lower-level capabilities:</p>
 <table class="table">
 <colgroup>
@@ -657,9 +660,9 @@ dgc_matrix &lt;- sparseMatrix(
 </table>
 </div>
 </div>
-<div id="learning-more" class="section level2">
-<h2 class="hasAnchor">
-<a href="#learning-more" class="anchor" aria-hidden="true"></a>Learning More</h2>
+<div class="section level2">
+<h2 id="learning-more">Learning More<a class="anchor" aria-label="anchor" href="#learning-more"></a>
+</h2>
 <p>The following articles cover additional aspects of using <strong>reticulate</strong>:</p>
 <ul>
 <li><p><a href="r_markdown.html">R Markdown Python Engine</a></p></li>
@@ -683,12 +686,12 @@ dgc_matrix &lt;- sparseMatrix(
 
       <footer><div class="copyright">
   <p></p>
-<p>Developed by Kevin Ushey, JJ Allaire, <a href="https://www.rstudio.com" class="external-link external-link"><img src="https://www.tidyverse.org/rstudio-logo.svg" alt="RStudio" height="24"></a>, Yuan Tang.</p>
+<p>Developed by Kevin Ushey, JJ Allaire, <a href="https://www.rstudio.com" class="external-link"><img src="https://www.tidyverse.org/rstudio-logo.svg" alt="RStudio" width="72"></a>, Yuan Tang.</p>
 </div>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link external-link">pkgdown</a> 1.6.1.9001.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
 </div>
 
       </footer>

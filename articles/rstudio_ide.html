@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.19</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.23</span>
       </span>
     </div>
 
@@ -63,6 +63,9 @@
     </li>
     <li>
       <a href="../articles/python_packages.html">Installing Python Packages</a>
+    </li>
+    <li>
+      <a href="../articles/python_primer.html">Primer on Python for R Users</a>
     </li>
     <li>
       <a href="../articles/r_markdown.html">R Markdown Python Engine</a>
@@ -96,22 +99,22 @@
 
       
 
-      </header><script src="rstudio_ide_files/header-attrs-2.7/header-attrs.js"></script><div class="row">
+      </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>RStudio IDE Tools for reticulate</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/rstudio/reticulate/blob/master/vignettes/rstudio_ide.Rmd" class="external-link"><code>vignettes/rstudio_ide.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/rstudio/reticulate/blob/HEAD/vignettes/rstudio_ide.Rmd" class="external-link"><code>vignettes/rstudio_ide.Rmd</code></a></small>
       <div class="hidden name"><code>rstudio_ide.Rmd</code></div>
 
     </div>
 
     
     
-<div id="overview" class="section level2">
-<h2 class="hasAnchor">
-<a href="#overview" class="anchor" aria-hidden="true"></a>Overview</h2>
+<div class="section level2">
+<h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
+</h2>
 <p><a href="https://rstudio.com/products/rstudio/download/" class="external-link">RStudio v1.2</a> brings support for the reticulate package, including:</p>
 <ol style="list-style-type: decimal">
 <li><p>Support for executing reticulated Python chunks within <a href="https://rmarkdown.rstudio.com/r_notebooks.html" class="external-link">R Notebooks</a>.</p></li>
@@ -123,42 +126,42 @@
 <p>A note about the philosophy behind Python tools within RStudio: these tools are not intended for standalone Python work but rather explicitly aimed at the <em>integration of Python into R projects</em> (and as such are closely tied to the reticulate package).</p>
 <p>There are many IDEs available for doing data science with Python including <a href="https://github.com/jupyterlab/jupyterlab" class="external-link">JupyterLab</a>, <a href="https://www.yhat.com/products/rodeo" class="external-link">Rodeo</a>, <a href="https://github.com/spyder-ide/spyder" class="external-link">Spyder</a>, and <a href="https://code.visualstudio.com/docs/languages/python" class="external-link">Visual Studio Code</a>, and we strongly recommend using one of them for Python-only projects. However, if you are using reticulated Python within an R project then RStudio provides a set of tools that we think you will find extremely helpful.</p>
 </div>
-<div id="installation" class="section level2">
-<h2 class="hasAnchor">
-<a href="#installation" class="anchor" aria-hidden="true"></a>Installation</h2>
+<div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
 <p>You can download the latest RStudio release here: <a href="https://rstudio.com/products/rstudio/download/" class="external-link uri">https://rstudio.com/products/rstudio/download/</a>.</p>
 <p>All of the features described below require that you have previously installed the reticulate package, which you can do as follows:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"reticulate"</span><span class="op">)</span></code></pre></div>
 </div>
-<div id="r-notebooks" class="section level2">
-<h2 class="hasAnchor">
-<a href="#r-notebooks" class="anchor" aria-hidden="true"></a>R Notebooks</h2>
+<div class="section level2">
+<h2 id="r-notebooks">R Notebooks<a class="anchor" aria-label="anchor" href="#r-notebooks"></a>
+</h2>
 <p>R Notebooks have been enhanced to support executing Python chunks using the reticulate Python engine. For example:</p>
 <p><img src="images/rmarkdown_reticulate.png" class="screenshot" style="width:98.0%"></p>
-<div id="matplotlib" class="section level3">
-<h3 class="hasAnchor">
-<a href="#matplotlib" class="anchor" aria-hidden="true"></a>matplotlib</h3>
+<div class="section level3">
+<h3 id="matplotlib">matplotlib<a class="anchor" aria-label="anchor" href="#matplotlib"></a>
+</h3>
 <p>R Notebooks can also display matplotlib plots inline when they are printed from Python chunks:</p>
 <p><img src="images/rmarkdown_reticulate_matplotlib.png" class="screenshot" style="width:98.0%"></p>
 </div>
 </div>
-<div id="line-by-line-execution" class="section level2">
-<h2 class="hasAnchor">
-<a href="#line-by-line-execution" class="anchor" aria-hidden="true"></a>Line-by-Line Execution</h2>
+<div class="section level2">
+<h2 id="line-by-line-execution">Line-by-Line Execution<a class="anchor" aria-label="anchor" href="#line-by-line-execution"></a>
+</h2>
 <p>You can execute code from Python scripts line-by-line using the <strong>Run</strong> button (or Control+Enter) in the same way as you execute R code line-by-line. RStudio will automatically switch into reticulate’s <code><a href="../reference/repl_python.html">repl_python()</a></code> mode whenever you execute lines from a Python script:</p>
 <p><img src="images/repl_python.png" class="screenshot" style="width:98.0%"></p>
 <p>Type <code>exit</code> from the Python REPL to exit back into R (RStudio will also automatically switch back to R mode whenever you execute code from an R script).</p>
 </div>
-<div id="sourcing-scripts" class="section level2">
-<h2 class="hasAnchor">
-<a href="#sourcing-scripts" class="anchor" aria-hidden="true"></a>Sourcing Scripts</h2>
+<div class="section level2">
+<h2 id="sourcing-scripts">Sourcing Scripts<a class="anchor" aria-label="anchor" href="#sourcing-scripts"></a>
+</h2>
 <p>Click the editor’s <strong>Source Script</strong> button within a Python source file to execute a script using reticulate’s <code><a href="../reference/source_python.html">source_python()</a></code> function:</p>
 <p><img src="images/source_python.png" class="screenshot" style="width:98.0%"></p>
 </div>
-<div id="completion-and-help" class="section level2">
-<h2 class="hasAnchor">
-<a href="#completion-and-help" class="anchor" aria-hidden="true"></a>Completion and Help</h2>
+<div class="section level2">
+<h2 id="completion-and-help">Completion and Help<a class="anchor" aria-label="anchor" href="#completion-and-help"></a>
+</h2>
 <p>RStudio now provides code completion for Python scripts:</p>
 <p><img src="images/code_completion.png" class="screenshot" style="width:98.0%"></p>
 <p>Additionally, pressing the F1 button over a Python symbol will display the help topic for that symbol:</p>
@@ -178,12 +181,12 @@
 
       <footer><div class="copyright">
   <p></p>
-<p>Developed by Kevin Ushey, JJ Allaire, <a href="https://www.rstudio.com" class="external-link external-link"><img src="https://www.tidyverse.org/rstudio-logo.svg" alt="RStudio" height="24"></a>, Yuan Tang.</p>
+<p>Developed by Kevin Ushey, JJ Allaire, <a href="https://www.rstudio.com" class="external-link"><img src="https://www.tidyverse.org/rstudio-logo.svg" alt="RStudio" width="72"></a>, Yuan Tang.</p>
 </div>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link external-link">pkgdown</a> 1.6.1.9001.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
 </div>
 
       </footer>

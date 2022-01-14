@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.19</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.23</span>
       </span>
     </div>
 
@@ -63,6 +63,9 @@
     </li>
     <li>
       <a href="../articles/python_packages.html">Installing Python Packages</a>
+    </li>
+    <li>
+      <a href="../articles/python_primer.html">Primer on Python for R Users</a>
     </li>
     <li>
       <a href="../articles/r_markdown.html">R Markdown Python Engine</a>
@@ -96,58 +99,58 @@
 
       
 
-      </header><script src="r_markdown_files/header-attrs-2.7/header-attrs.js"></script><div class="row">
+      </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>R Markdown Python Engine</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/rstudio/reticulate/blob/master/vignettes/r_markdown.Rmd" class="external-link"><code>vignettes/r_markdown.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/rstudio/reticulate/blob/HEAD/vignettes/r_markdown.Rmd" class="external-link"><code>vignettes/r_markdown.Rmd</code></a></small>
       <div class="hidden name"><code>r_markdown.Rmd</code></div>
 
     </div>
 
     
     
-<div id="overview" class="section level2">
-<h2 class="hasAnchor">
-<a href="#overview" class="anchor" aria-hidden="true"></a>Overview</h2>
+<div class="section level2">
+<h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
+</h2>
 <p>The <strong>reticulate</strong> package includes a Python engine for <a href="https://rmarkdown.rstudio.com/" class="external-link">R Markdown</a> that enables easy interoperability between Python and R chunks.</p>
 <p>Python chunks behave very similar to R chunks (including graphical output from matplotlib) and the two languages have full access each other’s objects. Built in conversion for many Python object types is provided, including <a href="https://numpy.org/" class="external-link">NumPy</a> arrays and <a href="https://pandas.pydata.org/" class="external-link">Pandas</a> data frames.</p>
 <p>If you are using knitr version 1.18 or higher, then the reticulate Python engine will be enabled by default whenever reticulate is installed and no further setup is required. If you are running an earlier version of knitr or want to disable the use of the reticulate engine see the <a href="#engine-setup">Engine Setup</a> section below.</p>
 </div>
-<div id="python-version" class="section level2">
-<h2 class="hasAnchor">
-<a href="#python-version" class="anchor" aria-hidden="true"></a>Python Version</h2>
-<p>By default, reticulate uses the version of Python found on your <code>PATH</code> (i.e. <code><a href="https://rdrr.io/r/base/Sys.which.html" class="external-link">Sys.which("python")</a></code>). If you want to use an alternate version you should add one of the <code><a href="../reference/use_python.html">use_python()</a></code> family of functions to your R Markdown setup chunk, for example:</p>
+<div class="section level2">
+<h2 id="python-version">Python Version<a class="anchor" aria-label="anchor" href="#python-version"></a>
+</h2>
+<p>By default, reticulate uses the version of Python found on your <code>PATH</code> (i.e. <code>Sys.which("python")</code>). If you want to use an alternate version you should add one of the <code><a href="../reference/use_python.html">use_python()</a></code> family of functions to your R Markdown setup chunk, for example:</p>
 <p><img src="images/python_version.png" class="screenshot" style="width:98.0%"></p>
 <p>See the article on <a href="versions.html">Python Version Configuration</a> for additional details on configuring Python versions (including the use of conda or virtualenv environments).</p>
 </div>
-<div id="python-chunks" class="section level2">
-<h2 class="hasAnchor">
-<a href="#python-chunks" class="anchor" aria-hidden="true"></a>Python Chunks</h2>
+<div class="section level2">
+<h2 id="python-chunks">Python Chunks<a class="anchor" aria-label="anchor" href="#python-chunks"></a>
+</h2>
 <p>Python code chunks work exactly like R code chunks: Python code is executed and any print or graphical (matplotlib) output is included within the document.</p>
 <p>Python chunks all execute within a single Python session so have access to all objects created in previous chunks. Chunk options like <code>echo</code>, <code>include</code>, etc. all work as expected.</p>
 <p>Here’s an R Markdown document that demonstrates this:</p>
 <p><img src="images/python_chunks.png" class="screenshot" style="width:98.0%"></p>
 <p><a href="https://www.rstudio.com/products/rstudio/download/" class="external-link">RStudio v1.2</a> or greater for reticulate IDE support.</p>
 </div>
-<div id="calling-python-from-r" class="section level2">
-<h2 class="hasAnchor">
-<a href="#calling-python-from-r" class="anchor" aria-hidden="true"></a>Calling Python from R</h2>
+<div class="section level2">
+<h2 id="calling-python-from-r">Calling Python from R<a class="anchor" aria-label="anchor" href="#calling-python-from-r"></a>
+</h2>
 <p>All objects created within Python chunks are available to R using the <code>py</code> object exported by the reticulate package. For example, the following code demonstrates reading and filtering a CSV file using Pandas then plotting the resulting data frame using ggplot2:</p>
 <p><img src="images/rmarkdown_engine_zoomed.png" class="screenshot" style="width:98.0%"></p>
 <p>See the <a href="calling_python.html">Calling Python from R</a> article for additional details on how to interact with Python types from within R</p>
 </div>
-<div id="calling-r-from-python" class="section level2">
-<h2 class="hasAnchor">
-<a href="#calling-r-from-python" class="anchor" aria-hidden="true"></a>Calling R from Python</h2>
+<div class="section level2">
+<h2 id="calling-r-from-python">Calling R from Python<a class="anchor" aria-label="anchor" href="#calling-r-from-python"></a>
+</h2>
 <p>You can analagously access R objects within Python chunks via the <code>r</code> object. For example:</p>
 <p><img src="images/r_from_python.png" class="screenshot" style="width:98.0%"></p>
 </div>
-<div id="engine-setup" class="section level2">
-<h2 class="hasAnchor">
-<a href="#engine-setup" class="anchor" aria-hidden="true"></a>Engine Setup</h2>
+<div class="section level2">
+<h2 id="engine-setup">Engine Setup<a class="anchor" aria-label="anchor" href="#engine-setup"></a>
+</h2>
 <p>If you are using a version of knitr prior to 1.18 then add this code to your setup chunk to enable the reticulate Python engine:</p>
 <p><img src="images/reticulate_enable.png" class="screenshot" style="width:98.0%"></p>
 <p>If you do not wish to use the reticulate Python engine then set the <code>python.reticulate</code> chunk option to <code>FALSE</code>:</p>
@@ -167,12 +170,12 @@
 
       <footer><div class="copyright">
   <p></p>
-<p>Developed by Kevin Ushey, JJ Allaire, <a href="https://www.rstudio.com" class="external-link external-link"><img src="https://www.tidyverse.org/rstudio-logo.svg" alt="RStudio" height="24"></a>, Yuan Tang.</p>
+<p>Developed by Kevin Ushey, JJ Allaire, <a href="https://www.rstudio.com" class="external-link"><img src="https://www.tidyverse.org/rstudio-logo.svg" alt="RStudio" width="72"></a>, Yuan Tang.</p>
 </div>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link external-link">pkgdown</a> 1.6.1.9001.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
 </div>
 
       </footer>

@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.19</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.23</span>
       </span>
     </div>
 
@@ -63,6 +63,9 @@
     </li>
     <li>
       <a href="../articles/python_packages.html">Installing Python Packages</a>
+    </li>
+    <li>
+      <a href="../articles/python_primer.html">Primer on Python for R Users</a>
     </li>
     <li>
       <a href="../articles/r_markdown.html">R Markdown Python Engine</a>
@@ -96,13 +99,13 @@
 
       
 
-      </header><script src="arrays_files/header-attrs-2.7/header-attrs.js"></script><div class="row">
+      </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Arrays in R and Python</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/rstudio/reticulate/blob/master/vignettes/arrays.Rmd" class="external-link"><code>vignettes/arrays.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/rstudio/reticulate/blob/HEAD/vignettes/arrays.Rmd" class="external-link"><code>vignettes/arrays.Rmd</code></a></small>
       <div class="hidden name"><code>arrays.Rmd</code></div>
 
     </div>
@@ -110,9 +113,9 @@
     
     
 <p>Dense data are stored contiguously in memory, addressed by a single index (the memory address). Array memory ordering schemes translate that single index into multiple indices corresponding to the array coordinates. For example, matrices have two indices: rows and columns. Three-d arrays have three, and so on.</p>
-<div id="column-major-order" class="section level2">
-<h2 class="hasAnchor">
-<a href="#column-major-order" class="anchor" aria-hidden="true"></a>Column-major order</h2>
+<div class="section level2">
+<h2 id="column-major-order">Column-major order<a class="anchor" aria-label="anchor" href="#column-major-order"></a>
+</h2>
 <p><em>Column-major</em> order is used by Fortran, Matlab, R, and most underlying core linear algebra libraries (BLAS). Sequential address locations are translated into array coordinates <em>i, j, k, …</em> so that the first array coordinates vary most rapidly with address, the next array coordinates less rapidly, and so on. For instance, four address locations 1, 2, 3, 4 are translated into a two by two matrix coordinate system <em>(i, j)</em> as:</p>
 <pre><code>address   i  j
   1       1  1
@@ -132,9 +135,9 @@
   8       2  2  2</code></pre>
 <p>Consider the 3-d case shown above. Given array dimensions <em>d<sub>1</sub>=2, d<sub>2</sub>=2, d<sub>3</sub>=2</em>, a formula that takes 1-based coordinates <em>i, j, k</em> and returns address location <em>a</em> is <br><em>a = i + (j - 1) * d<sub>1</sub> + (k - 1) * d<sub>2</sub> * d<sub>1</sub></em>.</p>
 </div>
-<div id="row-major-order" class="section level2">
-<h2 class="hasAnchor">
-<a href="#row-major-order" class="anchor" aria-hidden="true"></a>Row-major order</h2>
+<div class="section level2">
+<h2 id="row-major-order">Row-major order<a class="anchor" aria-label="anchor" href="#row-major-order"></a>
+</h2>
 <p>Row-major ordering is a different translation between sequential address indices and array coordinates, instead laying sequential data in memory across rows in matrices. Row-major ordering is sometimes called “C” style ordering and column-major ordering “Fortran” style. Python/NumPy refers to the orderings in array flags as C_CONTIGUOUS and F_CONTIGUOUS, respectively. For instance address locations 1, 2, 3, 4 are translated into a 2x2 matrix coordinate system <em>(i, j)</em> as:</p>
 <pre><code>address   i  j
   1       1  1
@@ -158,14 +161,14 @@
 <li><a href="https://numpy.org/doc/stable/reference/arrays.ndarray.html" class="external-link uri">https://numpy.org/doc/stable/reference/arrays.ndarray.html</a></li>
 </ul>
 </div>
-<div id="python" class="section level2">
-<h2 class="hasAnchor">
-<a href="#python" class="anchor" aria-hidden="true"></a>Python</h2>
+<div class="section level2">
+<h2 id="python">Python<a class="anchor" aria-label="anchor" href="#python"></a>
+</h2>
 <p>The Python NumPy library is very general. It can use <em>either</em> row-major or column-major ordered arrays, but it defaults to row-major ordering. NumPy also supports sophisticated <em>views</em> of data with custom strides across non-contiguous regions of memory.</p>
 </div>
-<div id="displaying-arrays" class="section level2">
-<h2 class="hasAnchor">
-<a href="#displaying-arrays" class="anchor" aria-hidden="true"></a>Displaying arrays</h2>
+<div class="section level2">
+<h2 id="displaying-arrays">Displaying arrays<a class="anchor" aria-label="anchor" href="#displaying-arrays"></a>
+</h2>
 <p>R displays array data with unambiguously-labeled coordinate indices. Python doesn’t show this and displays n-d array data in different order than R (making matters somewhat confusing for R users). Consider the following example that creates and displays identical 4x3x2 arrays in R and Python:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">24</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span>,<span class="fl">3</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span>
@@ -235,9 +238,9 @@
 <span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co">##  ALIGNED : True</span></span>
 <span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="co">##  UPDATEIFCOPY : False</span></span></code></pre></div>
 </div>
-<div id="reticulate-with-care" class="section level2">
-<h2 class="hasAnchor">
-<a href="#reticulate-with-care" class="anchor" aria-hidden="true"></a>Reticulate with care</h2>
+<div class="section level2">
+<h2 id="reticulate-with-care">Reticulate with care<a class="anchor" aria-label="anchor" href="#reticulate-with-care"></a>
+</h2>
 <p>The reticulate package lets us easily mix R and Python code and data. Recall that R represents all dense arrays in column-major order but Python/NumPy can represent dense arrays much more generally. That difference warrants attention and can easily lead to confusion!</p>
 <p>Remember the following things when working with R and Python arrays, especially <em>n</em>-d arrays with <em>n &gt; 2</em>.</p>
 <ol style="list-style-type: decimal">
@@ -255,7 +258,7 @@
 <p>Point number 3. introduces the most potential confusion. Let’s look at some examples to explore these points.</p>
 <p>The following example creates a 2x2x2 array in Python using native NumPy row-major ordering and imports it into R. Despite the fact that they print out differently, they are in fact the same.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/rstudio/reticulate" class="external-link">reticulate</a></span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span>
 <span class="va">np</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/import.html">import</a></span><span class="op">(</span><span class="st">"numpy"</span>, convert<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span>
 <span class="op">(</span><span class="va">x</span> <span class="op">&lt;-</span> <span class="va">np</span><span class="op">$</span><span class="fu">arange</span><span class="op">(</span><span class="fl">1</span>, <span class="fl">9</span><span class="op">)</span><span class="op">$</span><span class="fu">reshape</span><span class="op">(</span><span class="fl">2L</span>, <span class="fl">2L</span>, <span class="fl">2L</span><span class="op">)</span><span class="op">)</span>
 
@@ -294,9 +297,9 @@
 <span class="co">## [1,]    1    2</span>
 <span class="co">## [2,]    3    4</span></code></pre></div>
 <p>Note that this is the same as the first block printed in the Python output above! These arrays really are the same in Python and R, respectively. Their apparent differences are merely a result of printing.</p>
-<div id="another-example" class="section level3">
-<h3 class="hasAnchor">
-<a href="#another-example" class="anchor" aria-hidden="true"></a>Another example</h3>
+<div class="section level3">
+<h3 id="another-example">Another example<a class="anchor" aria-label="anchor" href="#another-example"></a>
+</h3>
 <p>Let’s look at this again with another example, this time with an array with different lengths along each dimension to make things even more clear (hopefully). Consider the following 4x3x2 array constructed in Python in row-major order:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">np</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/import.html">import</a></span><span class="op">(</span><span class="st">"numpy"</span>, convert<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span>
@@ -354,9 +357,9 @@
 <p>Despite different internal memory ordering, and particularly despite awkward differences in printing arrays, the arrays are the same and are indexed the same way in each language respectively.</p>
 </div>
 </div>
-<div id="what-about-going-from-r-column-major-arrays-to-python" class="section level2">
-<h2 class="hasAnchor">
-<a href="#what-about-going-from-r-column-major-arrays-to-python" class="anchor" aria-hidden="true"></a>What about going from R column-major arrays to Python?</h2>
+<div class="section level2">
+<h2 id="what-about-going-from-r-column-major-arrays-to-python">What about going from R column-major arrays to Python?<a class="anchor" aria-label="anchor" href="#what-about-going-from-r-column-major-arrays-to-python"></a>
+</h2>
 <p>The previous examples focused on row-major arrays natively constructed in Python. Let’s see what happens when we start with column-major arrays from R and work with them in Python.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="op">(</span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">24</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">3</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>  <span class="co"># In R</span>
@@ -428,9 +431,9 @@
 <span class="co">## [3,]    3    7   11</span>
 <span class="co">## [4,]    4    8   12</span></code></pre></div>
 <p><em><strong>The upshot is that arrays created by either R or Python are indexed exactly the same in either language.</strong></em></p>
-<div id="but-the-array-i-created-in-r-ends-up-transposed-compared-to-ones-i-create-in-python" class="section level3">
-<h3 class="hasAnchor">
-<a href="#but-the-array-i-created-in-r-ends-up-transposed-compared-to-ones-i-create-in-python" class="anchor" aria-hidden="true"></a>But the array I created in R ends up transposed compared to ones I create in Python?</h3>
+<div class="section level3">
+<h3 id="but-the-array-i-created-in-r-ends-up-transposed-compared-to-ones-i-create-in-python">But the array I created in R ends up transposed compared to ones I create in Python?<a class="anchor" aria-label="anchor" href="#but-the-array-i-created-in-r-ends-up-transposed-compared-to-ones-i-create-in-python"></a>
+</h3>
 <p>Right. That’s just a simple consequence of the default column-major and row-major formats used in R and NumPy respectively. You are always free to use R’s column-major format directly in Python, for example using the “F” flag below (for Fortran):</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">np</span><span class="op">$</span><span class="fu">reshape</span><span class="op">(</span><span class="va">np</span><span class="op">$</span><span class="fu">arange</span><span class="op">(</span><span class="fl">1</span>, <span class="fl">25</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4L</span>, <span class="fl">3L</span>, <span class="fl">2L</span><span class="op">)</span>, <span class="st">"F"</span><span class="op">)</span>
@@ -480,9 +483,9 @@
 <span class="co">##   [ 0.  0.]]]</span></code></pre></div>
 <p>The above NumPy arrays are the same, their element-wise difference is zero.</p>
 </div>
-<div id="reshaping-arrays" class="section level3">
-<h3 class="hasAnchor">
-<a href="#reshaping-arrays" class="anchor" aria-hidden="true"></a>Reshaping arrays</h3>
+<div class="section level3">
+<h3 id="reshaping-arrays">Reshaping arrays<a class="anchor" aria-label="anchor" href="#reshaping-arrays"></a>
+</h3>
 <p>In R you would typically reshape an array using the <code>dim&lt;-()</code> function. For example:</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1000</span>, <span class="fl">28</span>, <span class="fl">28</span><span class="op">)</span></code></pre></div>
@@ -510,14 +513,14 @@
 <span class="co"># [2,]    2    4</span></code></pre></div>
 </div>
 </div>
-<div id="other-differences-warranting-caution" class="section level2">
-<h2 class="hasAnchor">
-<a href="#other-differences-warranting-caution" class="anchor" aria-hidden="true"></a>Other differences warranting caution</h2>
+<div class="section level2">
+<h2 id="other-differences-warranting-caution">Other differences warranting caution<a class="anchor" aria-label="anchor" href="#other-differences-warranting-caution"></a>
+</h2>
 <p>It’s worth noting that analogs of R’s <code><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply()</a></code> function in Python behave differently. The following excellent Mathesaurus reference <a href="http://mathesaurus.sourceforge.net/r-numpy.html" class="external-link uri">http://mathesaurus.sourceforge.net/r-numpy.html</a> applies well to matrices and vectors, but is misleading for <em>n</em>-d arrays with <em>n &gt; 2</em>.</p>
-<p>In particular, Mathesaurus says that if <em>a</em> is a <em>matrix</em>, then the sum of each column in Python may be computed by <code>a.sum(0)</code>, and in R (among other possible ways) by <code><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply(a, 2, sum)</a></code>. Although correct for matrices, this is in general not quite right. A more precise R analog of NumPy’s <code>a.sum(0)</code> is <code><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply(a, seq_along(dim(a))[-1], sum)</a></code>. In other words, <code>a.sum(0)</code> means sum over the first dimension, returning an array of the same dimensions as <em>a</em> but with the first dimension removed.</p>
+<p>In particular, Mathesaurus says that if <em>a</em> is a <em>matrix</em>, then the sum of each column in Python may be computed by <code>a.sum(0)</code>, and in R (among other possible ways) by <code>apply(a, 2, sum)</code>. Although correct for matrices, this is in general not quite right. A more precise R analog of NumPy’s <code>a.sum(0)</code> is <code>apply(a, seq_along(dim(a))[-1], sum)</code>. In other words, <code>a.sum(0)</code> means sum over the first dimension, returning an array of the same dimensions as <em>a</em> but with the first dimension removed.</p>
 <p>It’s easy to be confused by this, so let’s see an example using a 4x3x2 array, first in Python:</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/rstudio/reticulate" class="external-link">reticulate</a></span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span>
 <span class="va">np</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/import.html">import</a></span><span class="op">(</span><span class="st">"numpy"</span>, convert<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span>
 <span class="va">x</span>  <span class="op">&lt;-</span> <span class="va">np</span><span class="op">$</span><span class="fu">arange</span><span class="op">(</span><span class="fl">1</span>, <span class="fl">25</span><span class="op">)</span><span class="op">$</span><span class="fu">reshape</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4L</span>, <span class="fl">3L</span>, <span class="fl">2L</span><span class="op">)</span><span class="op">)</span>
 <span class="va">x</span><span class="op">$</span><span class="fu">sum</span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>   <span class="co"># N. B. a 3x2 matrix!</span>
@@ -543,12 +546,12 @@
 
 <span class="co">## [1]  21  57  93 129</span></code></pre></div>
 </div>
-<div id="addressing-an-issue-that-came-up" class="section level1">
-<h1 class="hasAnchor">
-<a href="#addressing-an-issue-that-came-up" class="anchor" aria-hidden="true"></a>Addressing an issue that came up</h1>
+<div class="section level1">
+<h1 id="addressing-an-issue-that-came-up">Addressing an issue that came up<a class="anchor" aria-label="anchor" href="#addressing-an-issue-that-came-up"></a>
+</h1>
 <p>These notes were prepared in response to a tensorflow issue now in the reticulate package <a href="https://github.com/rstudio/reticulate/issues/9" class="external-link uri">https://github.com/rstudio/reticulate/issues/9</a>. The issue directly gets to a common source of confusion with n-d arrays in R and Python and how they are printed and stored. A lightly-edited reproduction of the reference Python code in the issue appears below.</p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">tensorflow</span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/rstudio/tensorflow" class="external-link">tensorflow</a></span><span class="op">)</span>
 <span class="va">np</span>   <span class="op">&lt;-</span> <span class="fu"><a href="../reference/import.html">import</a></span><span class="op">(</span><span class="st">"numpy"</span>, convert<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span>
 <span class="va">a</span>    <span class="op">&lt;-</span> <span class="va">np</span><span class="op">$</span><span class="fu">arange</span><span class="op">(</span><span class="fl">1</span>, <span class="fl">9</span><span class="op">)</span><span class="op">$</span><span class="fu">reshape</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2L</span>, <span class="fl">2L</span>, <span class="fl">2L</span><span class="op">)</span><span class="op">)</span>
 <span class="va">b</span>    <span class="op">&lt;-</span> <span class="va">np</span><span class="op">$</span><span class="fu">arange</span><span class="op">(</span><span class="fl">1</span>, <span class="fl">5</span><span class="op">)</span><span class="op">$</span><span class="fu">reshape</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2L</span>, <span class="fl">2L</span>, <span class="fl">1L</span><span class="op">)</span><span class="op">)</span>
@@ -630,12 +633,12 @@
 
       <footer><div class="copyright">
   <p></p>
-<p>Developed by Kevin Ushey, JJ Allaire, <a href="https://www.rstudio.com" class="external-link external-link"><img src="https://www.tidyverse.org/rstudio-logo.svg" alt="RStudio" height="24"></a>, Yuan Tang.</p>
+<p>Developed by Kevin Ushey, JJ Allaire, <a href="https://www.rstudio.com" class="external-link"><img src="https://www.tidyverse.org/rstudio-logo.svg" alt="RStudio" width="72"></a>, Yuan Tang.</p>
 </div>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link external-link">pkgdown</a> 1.6.1.9001.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
 </div>
 
       </footer>

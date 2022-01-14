@@ -36,7 +36,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">reticulate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.19</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.23</span>
       </span>
     </div>
 
@@ -68,6 +68,9 @@
       <a href="articles/python_packages.html">Installing Python Packages</a>
     </li>
     <li>
+      <a href="articles/python_primer.html">Primer on Python for R Users</a>
+    </li>
+    <li>
       <a href="articles/r_markdown.html">R Markdown Python Engine</a>
     </li>
     <li>
@@ -84,7 +87,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/rstudio/reticulate/">
+  <a href="https://github.com/rstudio/reticulate/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
      
   </a>
@@ -101,51 +104,52 @@
 
       </header><div class="row">
   <div class="contents col-md-9">
-<div id="r-interface-to-python" class="section level1">
-<div class="page-header"><h1 class="hasAnchor">
-<a href="#r-interface-to-python" class="anchor" aria-hidden="true"></a>R Interface to Python</h1></div>
+<div class="section level1">
+<div class="page-header"><h1 id="r-interface-to-python">R Interface to Python<a class="anchor" aria-label="anchor" href="#r-interface-to-python"></a>
+</h1></div>
 <!-- badges: start -->
 
+<!-- badges: end -->
 <p>The <strong>reticulate</strong> package provides a comprehensive set of tools for interoperability between Python and R. The package includes facilities for:</p>
-<p><img src="images/reticulated_python.png" width="200" align="right" style="margin-left: 15px;" alt="reticulated python"></p>
+<p><img src="reference/figures/reticulated_python.png" alt="reticulated python" width="200" align="right" style="margin-left: 15px;"></p>
 <ul>
 <li><p>Calling Python from R in a variety of ways including R Markdown, sourcing Python scripts, importing Python modules, and using Python interactively within an R session.</p></li>
 <li><p>Translation between R and Python objects (for example, between R and Pandas data frames, or between R matrices and NumPy arrays).</p></li>
 <li><p>Flexible binding to different versions of Python including virtual environments and Conda environments.</p></li>
 </ul>
 <p>Reticulate embeds a Python session within your R session, enabling seamless, high-performance interoperability. If you are an R developer that uses Python for some of your work or a member of data science team that uses both languages, reticulate can dramatically streamline your workflow!</p>
-<div id="getting-started" class="section level3">
-<h3 class="hasAnchor">
-<a href="#getting-started" class="anchor" aria-hidden="true"></a>Getting started</h3>
-<div id="installation" class="section level4">
-<h4 class="hasAnchor">
-<a href="#installation" class="anchor" aria-hidden="true"></a>Installation</h4>
+<div class="section level3">
+<h3 id="getting-started">Getting started<a class="anchor" aria-label="anchor" href="#getting-started"></a>
+</h3>
+<div class="section level4">
+<h4 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h4>
 <p>Install the <strong>reticulate</strong> package from CRAN as follows:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"reticulate"</span><span class="op">)</span></code></pre></div>
 </div>
-<div id="python-version" class="section level4">
-<h4 class="hasAnchor">
-<a href="#python-version" class="anchor" aria-hidden="true"></a>Python version</h4>
-<p>By default, reticulate uses the version of Python found on your <code>PATH</code> (i.e. <code><a href="https://rdrr.io/r/base/Sys.which.html" class="external-link">Sys.which("python")</a></code>).</p>
+<div class="section level4">
+<h4 id="python-version">Python version<a class="anchor" aria-label="anchor" href="#python-version"></a>
+</h4>
+<p>By default, reticulate uses the version of Python found on your <code>PATH</code> (i.e. <code>Sys.which("python")</code>).</p>
 <p>The <code><a href="reference/use_python.html">use_python()</a></code> function enables you to specify an alternate version, for example:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/rstudio/reticulate" class="external-link">reticulate</a></span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span>
 <span class="fu"><a href="reference/use_python.html">use_python</a></span><span class="op">(</span><span class="st">"/usr/local/bin/python"</span><span class="op">)</span></code></pre></div>
 <p>The <code><a href="reference/use_python.html">use_virtualenv()</a></code> and <code><a href="reference/use_python.html">use_condaenv()</a></code> functions enable you to specify versions of Python in virtual or Conda environments, for example:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/rstudio/reticulate" class="external-link">reticulate</a></span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span>
 <span class="fu"><a href="reference/use_python.html">use_virtualenv</a></span><span class="op">(</span><span class="st">"myenv"</span><span class="op">)</span></code></pre></div>
 <p>See the article on <a href="https://rstudio.github.io/reticulate/articles/versions.html">Python Version Configuration</a> for additional details.</p>
 </div>
-<div id="python-packages" class="section level4">
-<h4 class="hasAnchor">
-<a href="#python-packages" class="anchor" aria-hidden="true"></a>Python packages</h4>
+<div class="section level4">
+<h4 id="python-packages">Python packages<a class="anchor" aria-label="anchor" href="#python-packages"></a>
+</h4>
 <p>You can install any required Python packages using standard shell tools like <code>pip</code> and <code>conda</code>. Alternately, reticulate includes a set of functions for managing and installing packages within virtualenvs and Conda environments. See the article on <a href="https://rstudio.github.io/reticulate/articles/python_packages.html">Installing Python Packages</a> for additional details.</p>
 </div>
-<div id="calling-python" class="section level4">
-<h4 class="hasAnchor">
-<a href="#calling-python" class="anchor" aria-hidden="true"></a>Calling Python</h4>
+<div class="section level4">
+<h4 id="calling-python">Calling Python<a class="anchor" aria-label="anchor" href="#calling-python"></a>
+</h4>
 <p>There are a variety of ways to integrate Python code into your R projects:</p>
 <ol style="list-style-type: decimal">
 <li><p><a href="#python-in-r-markdown">Python in R Markdown</a> — A new Python language engine for R Markdown that supports bi-directional communication between R and Python (R chunks can access Python objects and vice-versa).</p></li>
@@ -156,9 +160,9 @@
 <p>Each of these techniques is explained in more detail below.</p>
 </div>
 </div>
-<div id="python-in-r-markdown" class="section level2">
-<h2 class="hasAnchor">
-<a href="#python-in-r-markdown" class="anchor" aria-hidden="true"></a>Python in R Markdown</h2>
+<div class="section level2">
+<h2 id="python-in-r-markdown">Python in R Markdown<a class="anchor" aria-label="anchor" href="#python-in-r-markdown"></a>
+</h2>
 <p>The <strong>reticulate</strong> package includes a Python engine for <a href="https://rmarkdown.rstudio.com/" class="external-link">R Markdown</a> with the following features:</p>
 <ol style="list-style-type: decimal">
 <li><p>Run Python chunks in a single Python session embedded within your R session (shared variables/state between Python chunks)</p></li>
@@ -166,37 +170,34 @@
 <li><p>Access to objects created within Python chunks from R using the <code>py</code> object (e.g. <code>py$x</code> would access an <code>x</code> variable created within Python from R).</p></li>
 <li><p>Access to objects created within R chunks from Python using the <code>r</code> object (e.g. <code>r.x</code> would access to <code>x</code> variable created within R from Python)</p></li>
 </ol>
-<div style="clear: both;">
-
-</div>
 <p>Built in conversion for many Python object types is provided, including <a href="https://numpy.org/" class="external-link">NumPy</a> arrays and <a href="https://pandas.pydata.org/" class="external-link">Pandas</a> data frames. For example, you can use Pandas to read and manipulate data then easily plot the Pandas data frame using <a href="https://ggplot2.tidyverse.org/" class="external-link">ggplot2</a>:</p>
-<p><img src="images/rmarkdown_engine_zoomed.png"></p>
+<p><img src="reference/figures/rmarkdown_engine_zoomed.png"></p>
 <p>Note that the reticulate Python engine is enabled by default within R Markdown whenever reticulate is installed.</p>
 <p>See the <a href="https://rstudio.github.io/reticulate/articles/r_markdown.html">R Markdown Python Engine</a> documentation for additional details.</p>
 </div>
-<div id="importing-python-modules" class="section level2">
-<h2 class="hasAnchor">
-<a href="#importing-python-modules" class="anchor" aria-hidden="true"></a>Importing Python modules</h2>
+<div class="section level2">
+<h2 id="importing-python-modules">Importing Python modules<a class="anchor" aria-label="anchor" href="#importing-python-modules"></a>
+</h2>
 <p>You can use the <code><a href="reference/import.html">import()</a></code> function to import any Python module and call it from R. For example, this code imports the Python <code>os</code> module and calls the <code>listdir()</code> function:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/rstudio/reticulate" class="external-link">reticulate</a></span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span>
 <span class="va">os</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/import.html">import</a></span><span class="op">(</span><span class="st">"os"</span><span class="op">)</span>
 <span class="va">os</span><span class="op">$</span><span class="fu">listdir</span><span class="op">(</span><span class="st">"."</span><span class="op">)</span></code></pre></div>
-<pre><code> [1] ".git"             ".gitignore"       ".Rbuildignore"    ".RData"          
- [5] ".Rhistory"        ".Rproj.user"      ".travis.yml"      "appveyor.yml"    
- [9] "DESCRIPTION"      "docs"             "external"         "index.html"      
-[13] "index.Rmd"        "inst"             "issues"           "LICENSE"         
-[17] "man"              "NAMESPACE"        "NEWS.md"          "pkgdown"         
-[21] "R"                "README.md"        "reticulate.Rproj" "src"             
-[25] "tests"            "vignettes"      </code></pre>
-<p>Functions and other data within Python modules and classes can be accessed via the <code><a href="https://rdrr.io/r/base/Extract.html" class="external-link">$</a></code> operator (analogous to the way you would interact with an R list, environment, or reference class).</p>
+<pre class="text"><code> [1] ".git"             ".gitignore"       ".Rbuildignore"    ".RData"
+ [5] ".Rhistory"        ".Rproj.user"      ".travis.yml"      "appveyor.yml"
+ [9] "DESCRIPTION"      "docs"             "external"         "index.html"
+[13] "index.Rmd"        "inst"             "issues"           "LICENSE"
+[17] "man"              "NAMESPACE"        "NEWS.md"          "pkgdown"
+[21] "R"                "README.md"        "reticulate.Rproj" "src"
+[25] "tests"            "vignettes"</code></pre>
+<p>Functions and other data within Python modules and classes can be accessed via the <code>$</code> operator (analogous to the way you would interact with an R list, environment, or reference class).</p>
 <p>Imported Python modules support code completion and inline help:</p>
-<p><img src="images/reticulate_completion.png"></p>
+<p><img src="reference/figures/reticulate_completion.png"></p>
 <p>See <a href="https://rstudio.github.io/reticulate/articles/calling_python.html">Calling Python from R</a> for additional details on interacting with Python objects from within R.</p>
 </div>
-<div id="sourcing-python-scripts" class="section level2">
-<h2 class="hasAnchor">
-<a href="#sourcing-python-scripts" class="anchor" aria-hidden="true"></a>Sourcing Python scripts</h2>
+<div class="section level2">
+<h2 id="sourcing-python-scripts">Sourcing Python scripts<a class="anchor" aria-label="anchor" href="#sourcing-python-scripts"></a>
+</h2>
 <p>You can source any Python script just as you would source an R script using the <code><a href="reference/source_python.html">source_python()</a></code> function. For example, if you had the following Python script <em>flights.py</em>:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> read_flights(<span class="bu">file</span>):</span>
@@ -211,20 +212,20 @@
 <span class="va">flights</span> <span class="op">&lt;-</span> <span class="fu">read_flights</span><span class="op">(</span><span class="st">"flights.csv"</span><span class="op">)</span>
 
 <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span>
-<span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">flights</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">carrier</span>, <span class="va">arr_delay</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_jitter.html" class="external-link">geom_jitter</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
+<span class="fu">ggplot</span><span class="op">(</span><span class="va">flights</span>, <span class="fu">aes</span><span class="op">(</span><span class="va">carrier</span>, <span class="va">arr_delay</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fu">geom_point</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> <span class="fu">geom_jitter</span><span class="op">(</span><span class="op">)</span></code></pre></div>
 <p>See the <code><a href="reference/source_python.html">source_python()</a></code> documentation for additional details on sourcing Python code.</p>
 </div>
-<div id="python-repl" class="section level2">
-<h2 class="hasAnchor">
-<a href="#python-repl" class="anchor" aria-hidden="true"></a>Python REPL</h2>
+<div class="section level2">
+<h2 id="python-repl">Python REPL<a class="anchor" aria-label="anchor" href="#python-repl"></a>
+</h2>
 <p>If you want to work with Python interactively you can call the <code><a href="reference/repl_python.html">repl_python()</a></code> function, which provides a Python REPL embedded within your R session. Objects created within the Python REPL can be accessed from R using the <code>py</code> object exported from reticulate. For example:</p>
-<p><img src="images/python_repl.png"></p>
+<p><img src="reference/figures/python_repl.png"></p>
 <p>Enter <code>exit</code> within the Python REPL to return to the R prompt.</p>
 <p>Note that Python code can also access objects from within the R session using the <code>r</code> object (e.g. <code>r.flights</code>). See the <code><a href="reference/repl_python.html">repl_python()</a></code> documentation for additional details on using the embedded Python REPL.</p>
 </div>
-<div id="type-conversions" class="section level2">
-<h2 class="hasAnchor">
-<a href="#type-conversions" class="anchor" aria-hidden="true"></a>Type conversions</h2>
+<div class="section level2">
+<h2 id="type-conversions">Type conversions<a class="anchor" aria-label="anchor" href="#type-conversions"></a>
+</h2>
 <p>When calling into Python, R data types are automatically converted to their equivalent Python types. When values are returned from Python to R they are converted back to R types. Types are converted as follows:</p>
 <table class="table">
 <thead><tr class="header">
@@ -244,30 +245,30 @@
 <td>Multi-element vector</td>
 <td>List</td>
 <td>
-<code><a href="https://rdrr.io/r/base/c.html" class="external-link">c(1.0, 2.0, 3.0)</a></code>, <code><a href="https://rdrr.io/r/base/c.html" class="external-link">c(1L, 2L, 3L)</a></code>
+<code>c(1.0, 2.0, 3.0)</code>, <code>c(1L, 2L, 3L)</code>
 </td>
 </tr>
 <tr class="odd">
 <td>List of multiple types</td>
 <td>Tuple</td>
-<td><code><a href="https://rdrr.io/r/base/list.html" class="external-link">list(1L, TRUE, "foo")</a></code></td>
+<td><code>list(1L, TRUE, "foo")</code></td>
 </tr>
 <tr class="even">
 <td>Named list</td>
 <td>Dict</td>
 <td>
-<code><a href="https://rdrr.io/r/base/list.html" class="external-link">list(a = 1L, b = 2.0)</a></code>, <code><a href="reference/dict.html">dict(x = x_data)</a></code>
+<code>list(a = 1L, b = 2.0)</code>, <code>dict(x = x_data)</code>
 </td>
 </tr>
 <tr class="odd">
 <td>Matrix/Array</td>
 <td>NumPy ndarray</td>
-<td><code><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix(c(1,2,3,4), nrow = 2, ncol = 2)</a></code></td>
+<td><code>matrix(c(1,2,3,4), nrow = 2, ncol = 2)</code></td>
 </tr>
 <tr class="even">
 <td>Data Frame</td>
 <td>Pandas DataFrame</td>
-<td><code><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame(x = c(1,2,3), y = c("a", "b", "c"))</a></code></td>
+<td><code>data.frame(x = c(1,2,3), y = c("a", "b", "c"))</code></td>
 </tr>
 <tr class="odd">
 <td>Function</td>
@@ -285,9 +286,9 @@
 </table>
 <p>If a Python object of a custom class is returned then an R reference to that object is returned. You can call methods and access properties of the object just as if it was an instance of an R reference class.</p>
 </div>
-<div id="learning-more" class="section level2">
-<h2 class="hasAnchor">
-<a href="#learning-more" class="anchor" aria-hidden="true"></a>Learning more</h2>
+<div class="section level2">
+<h2 id="learning-more">Learning more<a class="anchor" aria-label="anchor" href="#learning-more"></a>
+</h2>
 <p>The following articles cover the various aspects of using <strong>reticulate</strong>:</p>
 <ul>
 <li><p><a href="https://rstudio.github.io/reticulate/articles/calling_python.html">Calling Python from R</a> — Describes the various ways to access Python objects from R as well as functions available for more advanced interactions and conversion behavior.</p></li>
@@ -296,11 +297,12 @@
 <li><p><a href="https://rstudio.github.io/reticulate/articles/python_packages.html">Installing Python Packages</a> — Documentation on installing Python packages from PyPI or Conda, and managing package installations using virtualenvs and Conda environments.</p></li>
 <li><p><a href="https://rstudio.github.io/reticulate/articles/package.html">Using reticulate in an R Package</a> — Guidelines and best practices for using reticulate in an R package.</p></li>
 <li><p><a href="https://rstudio.github.io/reticulate/articles/arrays.html">Arrays in R and Python</a> — Advanced discussion of the differences between arrays in R and Python and the implications for conversion and interoperability.</p></li>
+<li><p><a href="https://rstudio.github.io/reticulate/articles/python_primer.html">Python Primer</a> — Introduction to Python for R users.</p></li>
 </ul>
 </div>
-<div id="why-reticulate" class="section level2">
-<h2 class="hasAnchor">
-<a href="#why-reticulate" class="anchor" aria-hidden="true"></a>Why reticulate?</h2>
+<div class="section level2">
+<h2 id="why-reticulate">Why reticulate?<a class="anchor" aria-label="anchor" href="#why-reticulate"></a>
+</h2>
 <p>From the <a href="https://en.wikipedia.org/wiki/Reticulated_python" class="external-link">Wikipedia</a> article on the reticulated python:</p>
 <blockquote>
 <p>The reticulated python is a species of python found in Southeast Asia. They are the world’s longest snakes and longest reptiles…The specific name, reticulatus, is Latin meaning “net-like”, or reticulated, and is a reference to the complex colour pattern.</p>
@@ -318,12 +320,9 @@
     <div class="links">
 <h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
-<li>Download from CRAN at <br><a href="https://cloud.r-project.org/package=reticulate">https://​cloud.r-project.org/​package=reticulate</a>
-</li>
-<li>Browse source code at <br><a href="https://github.com/rstudio/reticulate/">https://​github.com/​rstudio/​reticulate/​</a>
-</li>
-<li>Report a bug at <br><a href="https://github.com/rstudio/reticulate/issues">https://​github.com/​rstudio/​reticulate/​issues</a>
-</li>
+<li><a href="https://cloud.r-project.org/package=reticulate" class="external-link">View on CRAN</a></li>
+<li><a href="https://github.com/rstudio/reticulate/" class="external-link">Browse source code</a></li>
+<li><a href="https://github.com/rstudio/reticulate/issues" class="external-link">Report a bug</a></li>
 </ul>
 </div>
 
@@ -335,15 +334,22 @@
 </div>
 
 
+<div class="citation">
+<h2 data-toc-skip>Citation</h2>
+<ul class="list-unstyled">
+<li><a href="authors.html#citation">Citing reticulate</a></li>
+</ul>
+</div>
+
 <div class="developers">
 <h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
 <li>Kevin Ushey <br><small class="roles"> Author, maintainer </small>  </li>
 <li>JJ Allaire <br><small class="roles"> Author </small>  </li>
 <li>
-<a href="https://www.rstudio.com"><img src="https://www.tidyverse.org/rstudio-logo.svg" alt="RStudio" height="24"></a> <br><small class="roles"> Copyright holder, funder </small>  </li>
-<li>Yuan Tang <br><small class="roles"> Author, copyright holder </small> <a href="https://orcid.org/0000-0001-5243-233X" target="orcid.widget" aria-label="ORCID"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
-<li><a href="authors.html">More on authors...</a></li>
+<a href="https://www.rstudio.com" class="external-link"><img src="https://www.tidyverse.org/rstudio-logo.svg" alt="RStudio" width="72"></a> <br><small class="roles"> Copyright holder, funder </small>  </li>
+<li>Yuan Tang <br><small class="roles"> Author, copyright holder </small> <a href="https://orcid.org/0000-0001-5243-233X" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a> </li>
+<li><a href="authors.html">More about authors...</a></li>
 </ul>
 </div>
 
@@ -360,16 +366,21 @@
 
       <footer><div class="copyright">
   <p></p>
-<p>Developed by Kevin Ushey, JJ Allaire, <a href="https://www.rstudio.com" class="external-link"><img src="https://www.tidyverse.org/rstudio-logo.svg" alt="RStudio" height="24"></a>, Yuan Tang.</p>
+<p>Developed by Kevin Ushey, JJ Allaire, <a href="https://www.rstudio.com" class="external-link"><img src="https://www.tidyverse.org/rstudio-logo.svg" alt="RStudio" width="72"></a>, Yuan Tang.</p>
 </div>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 1.6.1.9001.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
 </div>
 
       </footer>
 </div>
+
+  
+
+
+  
 
   </body>
 </html>

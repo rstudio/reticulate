@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.19</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.23</span>
       </span>
     </div>
 
@@ -63,6 +63,9 @@
     </li>
     <li>
       <a href="../articles/python_packages.html">Installing Python Packages</a>
+    </li>
+    <li>
+      <a href="../articles/python_primer.html">Primer on Python for R Users</a>
     </li>
     <li>
       <a href="../articles/r_markdown.html">R Markdown Python Engine</a>
@@ -96,37 +99,37 @@
 
       
 
-      </header><script src="versions_files/header-attrs-2.7/header-attrs.js"></script><div class="row">
+      </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Python Version Configuration</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/rstudio/reticulate/blob/master/vignettes/versions.Rmd" class="external-link"><code>vignettes/versions.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/rstudio/reticulate/blob/HEAD/vignettes/versions.Rmd" class="external-link"><code>vignettes/versions.Rmd</code></a></small>
       <div class="hidden name"><code>versions.Rmd</code></div>
 
     </div>
 
     
     
-<div id="locating-python" class="section level2">
-<h2 class="hasAnchor">
-<a href="#locating-python" class="anchor" aria-hidden="true"></a>Locating Python</h2>
+<div class="section level2">
+<h2 id="locating-python">Locating Python<a class="anchor" aria-label="anchor" href="#locating-python"></a>
+</h2>
 <p>It is not uncommon for several version of Python (and several conda or virtualenv environments within a given version) to be available on a given system. The <strong>reticulate</strong> package can bind to any of these versions, and in all cases will attempt to locate a version which includes the first Python package imported via the <code><a href="../reference/import.html">import()</a></code> function. Consider the following code:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/rstudio/reticulate" class="external-link">reticulate</a></span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span>
 <span class="va">scipy</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/import.html">import</a></span><span class="op">(</span><span class="st">"scipy"</span><span class="op">)</span>
 <span class="va">scipy</span><span class="op">$</span><span class="fu">amin</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">3</span>,<span class="fl">5</span>,<span class="fl">7</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p>In this case, the various versions of Python installed on the system will be scanned to see whether one of them includes the “scipy” Python package (the first version found that satisfies this requirement will be used).</p>
 <p>By default, the version of Python found on the system <code>PATH</code> is checked first, and then some other conventional location for Py Python (e.g. <code>/usr/local/bin/python</code>, <code>/opt/local/bin/python</code>, etc.) are checked.</p>
 <p>Note that for reticulate to bind to a version of Python it must be compiled with shared library support (i.e. with the <code>--enable-shared</code> flag).</p>
 </div>
-<div id="providing-hints" class="section level2">
-<h2 class="hasAnchor">
-<a href="#providing-hints" class="anchor" aria-hidden="true"></a>Providing Hints</h2>
+<div class="section level2">
+<h2 id="providing-hints">Providing Hints<a class="anchor" aria-label="anchor" href="#providing-hints"></a>
+</h2>
 <p>There are two ways you can provide hints as to which version of Python should be used:</p>
 <ol style="list-style-type: decimal">
-<li><p>By setting the value of the <code>RETICULATE_PYTHON</code> environment variable to a Python binary. Note that if you set this environment variable, then the specified version of Python will always be used (i.e. this is prescriptive rather than advisory). To set the value of <code>RETICULATE_PYTHON</code>, insert <code><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv(RETICULATE_PYTHON = PATH)</a></code> into your project’s .Rprofile, where <code>PATH</code> is your preferred Python binary.</p></li>
+<li><p>By setting the value of the <code>RETICULATE_PYTHON</code> environment variable to a Python binary. Note that if you set this environment variable, then the specified version of Python will always be used (i.e. this is prescriptive rather than advisory). To set the value of <code>RETICULATE_PYTHON</code>, insert <code>Sys.setenv(RETICULATE_PYTHON = PATH)</code> into your project’s .Rprofile, where <code>PATH</code> is your preferred Python binary.</p></li>
 <li><p>By calling one of the these functions:</p></li>
 </ol>
 <table class="table">
@@ -151,7 +154,7 @@
 </table>
 <p>For example:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/rstudio/reticulate" class="external-link">reticulate</a></span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span>
 <span class="fu"><a href="../reference/use_python.html">use_python</a></span><span class="op">(</span><span class="st">"/usr/local/bin/python"</span><span class="op">)</span>
 <span class="fu"><a href="../reference/use_python.html">use_virtualenv</a></span><span class="op">(</span><span class="st">"~/myenv"</span><span class="op">)</span>
 <span class="fu"><a href="../reference/use_python.html">use_condaenv</a></span><span class="op">(</span><span class="st">"myenv"</span><span class="op">)</span></code></pre></div>
@@ -162,15 +165,15 @@
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/use_python.html">use_virtualenv</a></span><span class="op">(</span><span class="st">"~/myenv"</span>, required <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
 </div>
-<div id="order-of-discovery" class="section level2">
-<h2 class="hasAnchor">
-<a href="#order-of-discovery" class="anchor" aria-hidden="true"></a>Order of Discovery</h2>
+<div class="section level2">
+<h2 id="order-of-discovery">Order of Discovery<a class="anchor" aria-label="anchor" href="#order-of-discovery"></a>
+</h2>
 <p>The order in which versions of Python will be discovered and used is as follows:</p>
 <ol style="list-style-type: decimal">
 <li><p>If specified, at the location referenced by the <code>RETICULATE_PYTHON</code> environment variable.</p></li>
 <li><p>If specified, at the locations referenced by calls to <code><a href="../reference/use_python.html">use_python()</a></code>, <code><a href="../reference/use_python.html">use_virtualenv()</a></code>, and <code><a href="../reference/use_python.html">use_condaenv()</a></code>.</p></li>
 <li>
-<p>Within virtualenvs and conda envs that carry the same name as the first module imported. For example, if you execute <code><a href="../reference/import.html">import("nltk")</a></code> then the following locations (among other similar ones) would be scanned for a version of Python with the <strong>nltk</strong> module installed:</p>
+<p>Within virtualenvs and conda envs that carry the same name as the first module imported. For example, if you execute <code>import("nltk")</code> then the following locations (among other similar ones) would be scanned for a version of Python with the <strong>nltk</strong> module installed:</p>
 <ul>
 <li>$WORKON_HOME/nltk</li>
 <li>~/.virtualenvs/nltk</li>
@@ -183,15 +186,15 @@
 </ol>
 <p>The scanning for and binding to a version of Python typically occurs at the time of the first call to <code><a href="../reference/import.html">import()</a></code> within an R session. As a result, priority will be given to versions of Python that include the module specified within the call to <code><a href="../reference/import.html">import()</a></code> (i.e. versions that don’t include it will be skipped).</p>
 </div>
-<div id="python-packages" class="section level2">
-<h2 class="hasAnchor">
-<a href="#python-packages" class="anchor" aria-hidden="true"></a>Python Packages</h2>
+<div class="section level2">
+<h2 id="python-packages">Python Packages<a class="anchor" aria-label="anchor" href="#python-packages"></a>
+</h2>
 <p>Each version of Python on your system has its own set of packages and as described above reticulate will automatically find a version of Python that contains the first package that you import from R.</p>
 <p>You can learn more about installing Python packages into virtualenvs or Conda environments in the article on <a href="python_packages.html">Installing Python Packages</a>.</p>
 </div>
-<div id="configuration-info" class="section level2">
-<h2 class="hasAnchor">
-<a href="#configuration-info" class="anchor" aria-hidden="true"></a>Configuration Info</h2>
+<div class="section level2">
+<h2 id="configuration-info">Configuration Info<a class="anchor" aria-label="anchor" href="#configuration-info"></a>
+</h2>
 <p>You can use the <code><a href="../reference/py_config.html">py_config()</a></code> function to query for information about the specific version of Python in use as well as a list of other Python versions discovered on the system:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="../reference/py_config.html">py_config</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
@@ -213,12 +216,12 @@
 
       <footer><div class="copyright">
   <p></p>
-<p>Developed by Kevin Ushey, JJ Allaire, <a href="https://www.rstudio.com" class="external-link external-link"><img src="https://www.tidyverse.org/rstudio-logo.svg" alt="RStudio" height="24"></a>, Yuan Tang.</p>
+<p>Developed by Kevin Ushey, JJ Allaire, <a href="https://www.rstudio.com" class="external-link"><img src="https://www.tidyverse.org/rstudio-logo.svg" alt="RStudio" width="72"></a>, Yuan Tang.</p>
 </div>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link external-link">pkgdown</a> 1.6.1.9001.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.1.</p>
 </div>
 
       </footer>

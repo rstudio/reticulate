@@ -1,7 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>https://rstudio.github.io/reticulate/404.html</loc>
+  </url>
+  <url>
+    <loc>https://rstudio.github.io/reticulate/LICENSE-text.html</loc>
+  </url>
+  <url>
+    <loc>https://rstudio.github.io/reticulate/articles/arrays.html</loc>
+  </url>
+  <url>
+    <loc>https://rstudio.github.io/reticulate/articles/calling_python.html</loc>
+  </url>
+  <url>
+    <loc>https://rstudio.github.io/reticulate/articles/index.html</loc>
+  </url>
+  <url>
+    <loc>https://rstudio.github.io/reticulate/articles/package.html</loc>
+  </url>
+  <url>
+    <loc>https://rstudio.github.io/reticulate/articles/python_dependencies.html</loc>
+  </url>
+  <url>
+    <loc>https://rstudio.github.io/reticulate/articles/python_packages.html</loc>
+  </url>
+  <url>
+    <loc>https://rstudio.github.io/reticulate/articles/python_primer.html</loc>
+  </url>
+  <url>
+    <loc>https://rstudio.github.io/reticulate/articles/r_markdown.html</loc>
+  </url>
+  <url>
+    <loc>https://rstudio.github.io/reticulate/articles/rstudio_ide.html</loc>
+  </url>
+  <url>
+    <loc>https://rstudio.github.io/reticulate/articles/versions.html</loc>
+  </url>
+  <url>
+    <loc>https://rstudio.github.io/reticulate/authors.html</loc>
+  </url>
+  <url>
     <loc>https://rstudio.github.io/reticulate/index.html</loc>
+  </url>
+  <url>
+    <loc>https://rstudio.github.io/reticulate/news/index.html</loc>
   </url>
   <url>
     <loc>https://rstudio.github.io/reticulate/reference/PyClass.html</loc>
@@ -28,6 +70,9 @@
     <loc>https://rstudio.github.io/reticulate/reference/import.html</loc>
   </url>
   <url>
+    <loc>https://rstudio.github.io/reticulate/reference/index.html</loc>
+  </url>
+  <url>
     <loc>https://rstudio.github.io/reticulate/reference/install_miniconda.html</loc>
   </url>
   <url>
@@ -37,7 +82,13 @@
     <loc>https://rstudio.github.io/reticulate/reference/iterate.html</loc>
   </url>
   <url>
+    <loc>https://rstudio.github.io/reticulate/reference/miniconda-params.html</loc>
+  </url>
+  <url>
     <loc>https://rstudio.github.io/reticulate/reference/miniconda_path.html</loc>
+  </url>
+  <url>
+    <loc>https://rstudio.github.io/reticulate/reference/miniconda_uninstall.html</loc>
   </url>
   <url>
     <loc>https://rstudio.github.io/reticulate/reference/miniconda_update.html</loc>
@@ -50,6 +101,9 @@
   </url>
   <url>
     <loc>https://rstudio.github.io/reticulate/reference/py_available.html</loc>
+  </url>
+  <url>
+    <loc>https://rstudio.github.io/reticulate/reference/py_bool.html</loc>
   </url>
   <url>
     <loc>https://rstudio.github.io/reticulate/reference/py_call.html</loc>
@@ -125,6 +179,9 @@
   </url>
   <url>
     <loc>https://rstudio.github.io/reticulate/reference/py_list_attributes.html</loc>
+  </url>
+  <url>
+    <loc>https://rstudio.github.io/reticulate/reference/py_list_packages.html</loc>
   </url>
   <url>
     <loc>https://rstudio.github.io/reticulate/reference/py_main_thread_func.html</loc>
@@ -206,29 +263,5 @@
   </url>
   <url>
     <loc>https://rstudio.github.io/reticulate/reference/with.python.builtin.object.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/articles/arrays.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/articles/calling_python.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/articles/package.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/articles/python_dependencies.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/articles/python_packages.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/articles/r_markdown.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/articles/rstudio_ide.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/articles/versions.html</loc>
   </url>
 </urlset>

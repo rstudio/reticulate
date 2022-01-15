@@ -4,15 +4,28 @@
 \alias{install_python}
 \title{Install Python}
 \usage{
-install_python(version, list = FALSE, force = FALSE)
+install_python(
+  version = "3.8",
+  list = FALSE,
+  force = FALSE,
+  create_virtualenv = TRUE,
+  ...
+)
 }
 \arguments{
-\item{version}{The version of Python to install.}
+\item{version}{The version of Python to install. If the patch level is
+ommitted, then the latest patch level is automatically selected.}
 
 \item{list}{Boolean; if set, list the set of available Python versions?}
 
 \item{force}{Boolean; force re-installation even if the requested version
 of Python is already installed?}
+
+\item{create_virtualenv}{Boolean; Automatically create a virtualenv with
+the python installation.}
+
+\item{...}{Passed on to \verb{[virtualenv_create()]} if \code{create_virtualenv} is
+\code{TRUE}}
 }
 \description{
 Download and install Python, using the \href{https://github.com/pyenv/pyenv}{pyenv}.

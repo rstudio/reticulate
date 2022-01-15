@@ -1,6 +1,12 @@
 
 # reticulate 1.24  (UNRELEASED)
 
+- `install_python()` changes:
+  -  gains arguments `create_virtualenv = TRUE, ...`, now creates a virtualenv by default.
+  -  gains the ability to accept python versions with the patch level omitted
+     (The latest patch level is automatically selected).
+  -  new default value: `version = "3.8"`
+
 - `virtualenv_create()` now issues a warning if the requested environment already exists.
 
 # reticulate 1.23

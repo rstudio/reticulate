@@ -27,8 +27,18 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::pkgdown, local::.
+          extra-packages: any::pkgdown, local::., remotes
           needs: website
+
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+
+      - name: Setup r-reticulate env
+        run: |
+          remotes::install_local(dependencies = TRUE, force = TRUE)
+          reticulate::virtualenv_create("r-reticulate", Sys.which("python"))
+        shell: Rscript {0}
 
       - name: Build site
         run: Rscript -e 'pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)'

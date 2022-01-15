@@ -9,9 +9,13 @@
 #'
 #' ```
 #' library(reticulate)
-#' version <- "3.8.7"
-#' install_python(version = version)
-#' virtualenv_create("my-environment", python_version = version)
+#' version <- "3.8"
+#'
+#' install_python(version = version, envname = "my-environment")
+#' # -- or --
+#' python <- install_python(version = version, create_virtualenv = FALSE)
+#' virtualenv_create("my-environment", python = python)
+#'
 #' use_virtualenv("my-environment")
 #' ```
 #'

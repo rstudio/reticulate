@@ -34,9 +34,13 @@ and \href{https://github.com/pyenv-win/pyenv-win}{pyenv-win} projects.
 \details{
 In general, it is recommended that Python virtual environments are created
 using the copies of Python installed by \code{\link[=install_python]{install_python()}}. For example:\preformatted{library(reticulate)
-version <- "3.8.7"
-install_python(version = version)
-virtualenv_create("my-environment", python_version = version)
+version <- "3.8"
+
+install_python(version = version, envname = "my-environment")
+# -- or --
+python <- install_python(version = version, create_virtualenv = FALSE)
+virtualenv_create("my-environment", python = python)
+
 use_virtualenv("my-environment")
 }
 }

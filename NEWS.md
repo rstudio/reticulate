@@ -1,6 +1,8 @@
 
 # reticulate 1.24  (UNRELEASED)
 
+- `virtualenv_create()` now issues a warning if the requested environment already exists.
+
 # reticulate 1.23
 
 - `use_condaenv()` gains the ability to accept an absolute path to a python binary for `envname`.

@@ -87,7 +87,9 @@ virtualenv_create <- function(
 
   # check and see if we already have a virtual environment
   if (virtualenv_exists(path)) {
-    writeLines(paste("virtualenv:", name))
+    warningf(
+      'virtualenv already exists at "%s"\nRun `unlink("%s", recursive = TRUE)` to recreate or supply a different path.',
+      path, path)
     return(invisible(path))
   }
 

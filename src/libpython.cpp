@@ -205,6 +205,7 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
   LOAD_PYTHON_SYMBOL(PyList_SetItem)
   LOAD_PYTHON_SYMBOL(PyErr_Clear)
   LOAD_PYTHON_SYMBOL(PyErr_Fetch)
+  LOAD_PYTHON_SYMBOL(PyErr_Restore)
   LOAD_PYTHON_SYMBOL(PyErr_Occurred)
   LOAD_PYTHON_SYMBOL(PyErr_SetNone)
   LOAD_PYTHON_SYMBOL(PyErr_BadArgument)
@@ -264,7 +265,7 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
   LOAD_PYTHON_SYMBOL(PySequence_GetItem)
   LOAD_PYTHON_SYMBOL(PyObject_IsTrue)
   LOAD_PYTHON_SYMBOL(PyCapsule_Import)
-  
+
   // PyUnicode_AsEncodedString may have several different names depending on the Python
   // version and the UCS build type
   std::vector<std::string> names;
@@ -322,7 +323,7 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
   LOAD_PYTHON_SYMBOL(PyCapsule_SetContext)
   LOAD_PYTHON_SYMBOL(PyCapsule_GetContext)
   LOAD_PYTHON_SYMBOL(Py_BuildValue)
-  
+
   return true;
 }
 

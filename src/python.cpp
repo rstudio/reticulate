@@ -3032,6 +3032,10 @@ SEXP py_list_length(PyObjectRef x) {
 // [[Rcpp::export]]
 SEXP py_len_impl(PyObjectRef x, SEXP defaultValue) {
 
+  PyObject *er_type, *er_value, *er_traceback;
+  if (defaultValue != R_NilValue)
+    PyErr_Fetch(&er_type, &er_value, &er_traceback);
+
   Py_ssize_t value = PyObject_Size(x);
   if (value == -1) {
    // object is missing a `__len__` method, or a `__len__` method that
@@ -3039,7 +3043,7 @@ SEXP py_len_impl(PyObjectRef x, SEXP defaultValue) {
     if (defaultValue == R_NilValue) {
       stop(py_fetch_error());
     } else {
-      PyErr_Clear();
+      PyErr_Restore(er_type, er_value, er_traceback);
       return defaultValue;
     }
   }

@@ -34,7 +34,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.22-9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.23-9000</span>
       </span>
     </div>
 
@@ -145,7 +145,7 @@
 <p>Your R package likely depends on the installation of one or more Python packages. As a convenience to your users, you may want to provide a high-level R function to allow users to install these Python packages. It’s furthermore beneficial if multiple R packages that depend on Python packages install their dependencies in the same Python environment (so that they can be easily used together).</p>
 <p>The <code><a href="../reference/py_install.html">py_install()</a></code> function provides a high-level interface for installing one or more Python packages. The packages will by default be installed within a virtualenv or Conda environment named “r-reticulate”. For example:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/rstudio/reticulate" class="external-link">reticulate</a></span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span>
 <span class="fu"><a href="../reference/py_install.html">py_install</a></span><span class="op">(</span><span class="st">"scipy"</span><span class="op">)</span></code></pre></div>
 <p>You can document the use of this function along with your package or alternatively provide a wrapper function for <code><a href="../reference/py_install.html">py_install()</a></code>. For example:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
@@ -228,7 +228,7 @@
 </h3>
 <p><code><a href="../reference/r-py-conversion.html">r_to_py()</a></code> accepts a <code>convert</code> argument, which controls how objects generated from the created Python object are converted. To illustrate, consider the difference between these two cases:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/rstudio/reticulate" class="external-link">reticulate</a></span><span class="op">)</span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span>
 
 <span class="co"># [convert = TRUE] =&gt; convert Python objects to R when appropriate</span>
 <span class="va">sys</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/import.html">import</a></span><span class="op">(</span><span class="st">"sys"</span>, convert <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>

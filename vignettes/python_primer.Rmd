@@ -14,8 +14,9 @@ editor_options:
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  eval = isTRUE(as.logical(Sys.getenv("NOT_CRAN"))) &&
-    reticulate::py_numpy_available(initialize = TRUE) 
+  eval = 
+    reticulate::py_numpy_available(initialize = TRUE) && 
+    reticulate::py_version() >= "3.8"
 )
 ```
 

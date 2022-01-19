@@ -20,10 +20,6 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
-library(reticulate)
-```
-
 ## Primer on Python for R users
 
 You may find yourself wanting to read and understand some Python, or

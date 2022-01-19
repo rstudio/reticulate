@@ -11,11 +11,12 @@ editor_options:
 ---
 
 ```{r include=FALSE}
+library(reticulate)
 
 # this vignette requires python 3.6 or newer
 eval <- tryCatch({
-  config <- reticulate::py_config()
-  numeric_version(config$version) > "3.6"
+  config <- py_config()
+  numeric_version(config$version) >= "3.6" && py_numpy_available()
 }, error = function(e) FALSE)
 
 knitr::opts_chunk$set(
@@ -23,7 +24,6 @@ knitr::opts_chunk$set(
   comment = "#>",
   eval = eval
 )
-
 ```
 
 ```{r setup}

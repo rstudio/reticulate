@@ -116,8 +116,8 @@ typedef struct PyModuleDef{
 } PyModuleDef;
 
 typedef struct PyCompilerFlags{
-  int cf_flags;  
-  int cf_feature_version; 
+  int cf_flags;
+  int cf_feature_version;
 } PyCompilerFlags;
 
 typedef Py_ssize_t Py_hash_t;
@@ -266,6 +266,7 @@ LIBPYTHON_EXTERN PyObject* (*PyUnicode_FromString)(const char *u);
 
 LIBPYTHON_EXTERN void (*PyErr_Clear)();
 LIBPYTHON_EXTERN void (*PyErr_Fetch)(PyObject **, PyObject **, PyObject **);
+LIBPYTHON_EXTERN void (*PyErr_Restore)(PyObject *, PyObject *, PyObject *);
 LIBPYTHON_EXTERN void (*PyErr_SetNone)(PyObject*);
 LIBPYTHON_EXTERN void (*PyErr_BadArgument)();
 LIBPYTHON_EXTERN PyObject* (*PyErr_Occurred)(void);

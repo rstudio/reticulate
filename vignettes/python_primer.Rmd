@@ -10,11 +10,19 @@ editor_options:
     wrap: 72
 ---
 
-```{r, include = FALSE}
+```{r include=FALSE}
+library(reticulate)
+
+# this vignette requires python 3.8 or newer
+eval <- tryCatch({
+  config <- py_config()
+  numeric_version(config$version) >= "3.8" && py_numpy_available()
+}, error = function(e) FALSE)
+
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  eval = reticulate::py_numpy_available(initialize = TRUE)
+  eval = eval
 )
 ```
 
@@ -52,7 +60,6 @@ The equivalent in Python:
 if True:
   print("This is one expression.")
   print("This is another expression.")
-
 ```
 
 Python accepts tabs or spaces as the indentation spacer, but the rules

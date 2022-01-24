@@ -479,7 +479,7 @@ bool traceback_enabled() {
 }
 
 // fetch and normalize the python exception object
-// save it in R options("reticulate.last_exception")
+// save it in R reticulate:::.globals$py_last_exception
 // Return a short string suitable for Rcpp::stop(),
 // Either the exception message, or a truncated version with
 // user instructions for where to see the full exception.
@@ -511,8 +511,9 @@ std::string py_fetch_error() {
     throw Rcpp::internal::InterruptedException();
   }
 
-  Function options = Environment::base_env().get("options");
-  options(_["reticulate.last_exception"] = py_ref(excValue, false));
+  Environment pkg_globals(
+      Environment::namespace_env("reticulate").get(".globals"));
+  pkg_globals.assign("py_last_exception", py_ref(excValue, false));
 
   // invoke 'traceback.format_exception_only(<traceback>)'
   PyObjectPtr tb_module(py_import("traceback"));

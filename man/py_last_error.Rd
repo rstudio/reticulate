@@ -3,14 +3,15 @@
 \name{py_clear_last_error}
 \alias{py_clear_last_error}
 \alias{py_last_error}
-\title{Get or clear the last Python error encountered}
+\title{Get or (re)set the last Python error encountered.}
 \usage{
 py_clear_last_error()
 
-py_last_error(exception = getOption("reticulate.last_exception"))
+py_last_error(exception)
 }
 \arguments{
-\item{exception}{A python exception object.}
+\item{exception}{A python exception object. If provided, the provided
+exception is set as the last exception.}
 }
 \value{
 For \code{py_last_error()}, \code{NULL} if no error has yet been encountered.
@@ -23,9 +24,32 @@ Otherwise, a named list with entries
 Python. Includes the traceback, type, and value.
 }
 
+And attribute \code{"exception"}, a \code{'python.builtin.Exception'} object.
+
 The named list has \code{class} \code{"py_error"}, and has a default \code{print} method
 that is the equivalent of \code{cat(py_last_error()$message)}.
 }
 \description{
-Get or clear the last Python error encountered
+Get or (re)set the last Python error encountered.
+}
+\examples{
+\dontrun{
+# run python code that might error,
+# without modifying the user-visible python exception
+
+safe_len <- function(x) {
+  last_err <- py_last_error()
+  tryCatch({
+    # this might raise a python exception if x has no `__len__` method.
+    import_builtins()$len(x)
+  }, error = function(e) {
+    # py_last_error() was overwritten, is now "no len method for 'object'"
+    py_last_error(last_err) # restore previous exception
+    -1L
+  })
+}
+
+safe_len(py_eval("object"))
+}
+
 }

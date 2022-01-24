@@ -1490,15 +1490,16 @@ format.python.builtin.traceback <- function(x, ..., limit = NULL) {
 #' @rdname py_last_error
 #' @export
 py_clear_last_error <- function() {
-  options("reticulate.last_exception" = NULL)
+  py_last_error(NULL)
 }
 
-#' Get or clear the last Python error encountered
+#' Get or (re)set the last Python error encountered.
 #'
-#' @param exception A python exception object.
+#' @param exception A python exception object. If provided, the provided
+#'   exception is set as the last exception.
 #'
 #' @return For `py_last_error()`, `NULL` if no error has yet been encountered.
-#'   Otherwise, a named list with entries
+#'   Otherwise, a named list with entries:
 #'
 #'   +  `"type"`: R string, name of the exception class.
 #'
@@ -1509,20 +1510,56 @@ py_clear_last_error <- function() {
 #'   +  `"message"`: The full formatted raised exception, as it would be printed in
 #'   Python. Includes the traceback, type, and value.
 #'
+#' And attribute `"exception"`, a `'python.builtin.Exception'` object.
+#'
 #' The named list has `class` `"py_error"`, and has a default `print` method
 #' that is the equivalent of `cat(py_last_error()$message)`.
 #'
+#' @examples
+#' \dontrun{
+#' # run python code that might error,
+#' # without modifying the user-visible python exception
+#'
+#' safe_len <- function(x) {
+#'   last_err <- py_last_error()
+#'   tryCatch({
+#'     # this might raise a python exception if x has no `__len__` method.
+#'     import_builtins()$len(x)
+#'   }, error = function(e) {
+#'     # py_last_error() was overwritten, is now "no len method for 'object'"
+#'     py_last_error(last_err) # restore previous exception
+#'     -1L
+#'   })
+#' }
+#'
+#' safe_len(py_eval("object"))
+#' }
+#'
 #' @export
-py_last_error <- function(exception = getOption("reticulate.last_exception")) {
-  if(is.null(exception))
+py_last_error <- function(exception) {
+  if(!missing(exception)) {
+    # browser()
+    # set as the last exception
+    if(inherits(exception, "py_error"))
+      exception <- attr(exception, "exception", TRUE)
+
+    if (!is.null(exception) && !inherits(exception, "python.builtin.Exception"))
+      stop("`exception` must be NULL, a `py_error`, or a 'python.builtin.Exception'")
+
+    on.exit(.globals$py_last_exception <- exception)
+    return(invisible(.globals$py_last_exception))
+  }
+
+  e <- .globals$py_last_exception
+
+  if(is.null(e))
     return(NULL)
 
-  if(!py_available() || py_is_null_xptr(exception)) {
-    py_clear_last_error()
+  if(!py_available() || py_is_null_xptr(e)) {
+    .globals$py_last_exception <- NULL
     return(NULL)
   }
 
-  e <- exception
   etype <- py_get_attr_impl(e, "__class__")
   etb <- py_get_attr_impl(e, "__traceback__", TRUE)
   traceback <- import("traceback")
@@ -1530,10 +1567,11 @@ py_last_error <- function(exception = getOption("reticulate.last_exception")) {
   out <- list(
     type = py_get_attr_impl(etype, "__name__", TRUE),
     value = py_str_impl(e),
-    traceback = traceback$format_tb(etb),
+    traceback = if(!is.null(etb)) traceback$format_tb(etb),
     message = paste0(traceback$format_exception(etype, e, etb),
                      collapse = "")
   )
+  attr(out, "exception") <- e
   class(out) <- "py_error"
   out
 }

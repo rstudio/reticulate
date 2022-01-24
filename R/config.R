@@ -602,6 +602,37 @@ python_munge_path <- function(python) {
 
 }
 
+python_config_impl <- function(python) {
+
+  script <- system.file("config/config.py", package = "reticulate")
+  config <- system2(
+    command = python,
+    args    = shQuote(script),
+    stdout  = TRUE,
+    stderr  = FALSE
+  )
+
+  # check for error
+  status <- attr(config, "status")
+  if (!is.null(status)) {
+    errmsg <- attr(config, "errmsg")
+    stop("Error ", status, " occurred running ", python, ": ", errmsg)
+  }
+
+  # on macOS, if we see some variables referencing /Applications/Xcode.app
+  # but that doesn't actually exist, then redirect to default CLT
+  if (is_osx()) {
+    clt <- "/Library/Developer/CommandLineTools"
+    xcode <- "/Applications/Xcode.app/Contents/Developer"
+    if (file.exists(clt))
+      config <- gsub(xcode, clt, config, fixed = TRUE)
+  }
+
+  # return config
+  config
+
+}
+
 python_config <- function(python,
                           required_module = NULL,
                           python_versions = python,
@@ -641,20 +672,7 @@ python_config <- function(python,
   }
 
   # execute config script
-  config_script <- system.file("config/config.py", package = "reticulate")
-  config <- system2(
-    command = python,
-    args    = shQuote(config_script),
-    stdout  = TRUE,
-    stderr  = FALSE
-  )
-
-  # check for error
-  status <- attr(config, "status")
-  if (!is.null(status)) {
-    errmsg <- attr(config, "errmsg")
-    stop("Error ", status, " occurred running ", python, " ", errmsg)
-  }
+  config <- python_config_impl(python)
 
   # read output as dcf
   config_connection <- textConnection(config)
@@ -772,14 +790,6 @@ python_config <- function(python,
 
   # check for required module
   required_module_path <- config$RequiredModulePath
-
-  # fix up libpython for macOS command line tools
-  if (is_osx() && length(libpython)) {
-    old <- "/Applications/Xcode.app/Contents/Developer"
-    new <- "/Library/Developer/CommandLineTools"
-    if (grepl(new, config$PythonPath, fixed = TRUE) && file.exists(new))
-      libpython <- gsub(old, new, libpython, fixed = TRUE)
-  }
 
   # return config info
   info <- list(

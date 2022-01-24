@@ -1,6 +1,9 @@
 
 # reticulate 1.24  (UNRELEASED)
 
+- Fixed an issue where `reticulate` would fail to bind to the system version
+  of Python on macOS if command line tools were installed, but Xcode was not.
+
 # reticulate 1.23
 
 - `use_condaenv()` gains the ability to accept an absolute path to a python binary for `envname`.

@@ -1538,7 +1538,6 @@ py_clear_last_error <- function() {
 #' @export
 py_last_error <- function(exception) {
   if(!missing(exception)) {
-    # browser()
     # set as the last exception
     if(inherits(exception, "py_error"))
       exception <- attr(exception, "exception", TRUE)

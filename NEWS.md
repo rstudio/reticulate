@@ -1,6 +1,17 @@
 
 # reticulate 1.24  (UNRELEASED)
 
+- Exception handling changes (#1142, @t-kalinowski):
+  - R error messages from Python exceptions are now truncated differently to satisfy `getOption("warning.length")`. 
+    A hint to call `reticulate::py_last_error()` is shown if the exception message was truncated.
+
+  -`py_last_error()`:
+    * Return object is now an S3 object 'py_error', includes a default print method.
+    * The python Exception object ('python.builtin.Exception') is available as an R attribute.
+    * Gains the ability to restore a previous exception if provided in a call `py_last_error(previous_error)`
+
+  - Python traceback objects gain a default `format()` S3 method.
+
 # reticulate 1.23
 
 - `use_condaenv()` gains the ability to accept an absolute path to a python binary for `envname`.

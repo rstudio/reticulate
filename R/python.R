@@ -1480,3 +1480,65 @@ py_register_load_hook <- function(module, hook) {
 py_set_interrupt <- function() {
   py_set_interrupt_impl()
 }
+
+#' @export
+format.python.builtin.traceback <- function(x, ..., limit = NULL) {
+  import("traceback")$format_tb(x, limit)
+}
+
+
+#' @rdname py_last_error
+#' @export
+py_clear_last_error <- function() {
+  options("reticulate.last_exception" = NULL)
+}
+
+#' Get or clear the last Python error encountered
+#'
+#' @param exception A python exception object.
+#'
+#' @return For `py_last_error()`, `NULL` if no error has yet been encountered.
+#'   Otherwise, a named list with entries
+#'
+#'   +  `"type"`: R string, name of the exception class.
+#'
+#'   +  `"value"`: R string, formatted exception message.
+#'
+#'   +  `"traceback"`: R character vector, the formatted python traceback,
+#'
+#'   +  `"message"`: The full formatted raised exception, as it would be printed in
+#'   Python. Includes the traceback, type, and value.
+#'
+#' The named list has `class` `"py_error"`, and has a default `print` method
+#' that is the equivalent of `cat(py_last_error()$message)`.
+#'
+#' @export
+py_last_error <- function(exception = getOption("reticulate.last_exception")) {
+  if(is.null(exception))
+    return(NULL)
+
+  if(!py_available() || py_is_null_xptr(exception)) {
+    py_clear_last_error()
+    return(NULL)
+  }
+
+  e <- exception
+  etype <- py_get_attr_impl(e, "__class__")
+  etb <- py_get_attr_impl(e, "__traceback__", TRUE)
+  traceback <- import("traceback")
+
+  out <- list(
+    type = py_get_attr_impl(etype, "__name__", TRUE),
+    value = py_str_impl(e),
+    traceback = traceback$format_tb(etb),
+    message = paste0(traceback$format_exception(etype, e, etb),
+                     collapse = "")
+  )
+  class(out) <- "py_error"
+  out
+}
+
+#' @export
+print.py_error <- function(x, ...) {
+  cat(x$message)
+}

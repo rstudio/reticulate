@@ -273,6 +273,7 @@ LIBPYTHON_EXTERN PyObject* (*PyErr_Occurred)(void);
 LIBPYTHON_EXTERN void (*PyErr_NormalizeException)(PyObject**, PyObject**, PyObject**);
 LIBPYTHON_EXTERN int (*PyErr_GivenExceptionMatches)(PyObject *given, PyObject *exc);
 LIBPYTHON_EXTERN int (*PyErr_ExceptionMatches)(PyObject *exc);
+LIBPYTHON_EXTERN int (*PyException_SetTraceback)(PyObject *ex, PyObject *tb);
 
 LIBPYTHON_EXTERN int (*PyCallable_Check)(PyObject *);
 

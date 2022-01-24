@@ -13,23 +13,6 @@ is_python3 <- function() {
     .Call(`_reticulate_is_python3`)
 }
 
-#' Get or clear the last Python error encountered
-#'
-#' @return For `py_last_error()`, a list with the type, value,
-#' and traceback for the last Python error encountered (can be
-#' `NULL` if no error has yet been encountered).
-#'
-#' @export
-py_last_error <- function() {
-    .Call(`_reticulate_py_last_error`)
-}
-
-#' @rdname py_last_error
-#' @export
-py_clear_last_error <- function() {
-    invisible(.Call(`_reticulate_py_clear_last_error`))
-}
-
 py_none_impl <- function() {
     .Call(`_reticulate_py_none_impl`)
 }

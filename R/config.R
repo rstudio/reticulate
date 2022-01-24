@@ -700,14 +700,6 @@ python_config <- function(python,
 
   } else {
 
-    # (note that the LIBRARY variable has the name of the static library)
-    python_libdir_config <- function(var) {
-      python_libdir <- config[[var]]
-      ext <- switch(Sys.info()[["sysname"]], Darwin = ".dylib", Windows = ".dll", ".so")
-      pattern <- paste0("^libpython", version, "d?m?", ext)
-      libpython <- list.files(python_libdir, pattern = pattern, full.names = TRUE)
-    }
-
     # default to NULL
     libpython <- NULL
 
@@ -785,7 +777,7 @@ python_config <- function(python,
   if (is_osx() && length(libpython)) {
     old <- "/Applications/Xcode.app/Contents/Developer"
     new <- "/Library/Developer/CommandLineTools"
-    if (grepl(new, config$PythonPath, fixed = TRUE))
+    if (grepl(new, config$PythonPath, fixed = TRUE) && file.exists(new))
       libpython <- gsub(old, new, libpython, fixed = TRUE)
   }
 

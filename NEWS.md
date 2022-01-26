@@ -1,4 +1,6 @@
 
+# reticulate 1.25  (UNRELEASED)
+
 # reticulate 1.24
 
 - Fixed an issue where `reticulate` would fail to bind to the system version

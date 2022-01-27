@@ -1537,12 +1537,13 @@ py_clear_last_error <- function() {
 #'
 #' @export
 py_last_error <- function(exception) {
-  if(!missing(exception)) {
+  if (!missing(exception)) {
     # set as the last exception
-    if(inherits(exception, "py_error"))
+    if (inherits(exception, "py_error"))
       exception <- attr(exception, "exception", TRUE)
 
-    if (!is.null(exception) && !inherits(exception, "python.builtin.Exception"))
+    if (!is.null(exception) &&
+        !inherits(exception, "python.builtin.Exception"))
       stop("`exception` must be NULL, a `py_error`, or a 'python.builtin.Exception'")
 
     on.exit(.globals$py_last_exception <- exception)
@@ -1551,10 +1552,10 @@ py_last_error <- function(exception) {
 
   e <- .globals$py_last_exception
 
-  if(is.null(e))
+  if (is.null(e))
     return(NULL)
 
-  if(!py_available() || py_is_null_xptr(e)) {
+  if (!py_available() || py_is_null_xptr(e)) {
     .globals$py_last_exception <- NULL
     return(NULL)
   }
@@ -1566,7 +1567,7 @@ py_last_error <- function(exception) {
   out <- list(
     type = py_get_attr_impl(etype, "__name__", TRUE),
     value = py_str_impl(e),
-    traceback = if(!is.null(etb)) traceback$format_tb(etb),
+    traceback = if (!is.null(etb)) traceback$format_tb(etb),
     message = paste0(traceback$format_exception(etype, e, etb),
                      collapse = "")
   )
@@ -1577,5 +1578,5 @@ py_last_error <- function(exception) {
 
 #' @export
 print.py_error <- function(x, ...) {
-  cat(x$message)
+  cat(x$message, "\n", sep = "")
 }

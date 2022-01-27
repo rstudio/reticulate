@@ -531,12 +531,16 @@ std::string py_fetch_error() {
   // build error text
   std::ostringstream oss;
 
+  // PyList_GetItem() returns a borrowed reference, no need to decref.
   for (Py_ssize_t i = 0, n = PyList_Size(formatted); i < n; i++)
     oss << as_std_string(PyList_GetItem(formatted, i));
 
   std::string error = oss.str();
 
-  int max_msg_len(Rf_asInteger(Rf_GetOption1(Rf_install("warning.length"))));
+  SEXP max_msg_len_s = PROTECT(Rf_GetOption1(Rf_install("warning.length")));
+  int max_msg_len(Rf_asInteger(max_msg_len_s));
+  UNPROTECT(1);
+
   if (error.size() > max_msg_len) {
     // R has a modest byte size limit for error messages, default 1000, user
     // adjustable up to 8170. Error messages beyond the limit are silently

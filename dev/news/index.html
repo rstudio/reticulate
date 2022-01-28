@@ -83,23 +83,22 @@
 
     <div class="section level2">
 <h2 class="page-header" data-toc-text="1.25" id="reticulate-125-unreleased">reticulate 1.25 (UNRELEASED)<a class="anchor" aria-label="anchor" href="#reticulate-125-unreleased"></a></h2>
-</div>
-    <div class="section level2">
-<h2 class="page-header" data-toc-text="1.24" id="reticulate-124">reticulate 1.24<small>2022-01-26</small><a class="anchor" aria-label="anchor" href="#reticulate-124"></a></h2>
-<ul><li><p>Fixed an issue where <code>reticulate</code> would fail to bind to the system version of Python on macOS if command line tools were installed, but Xcode was not.</p></li>
-<li>
-<p>Exception handling changes (<a href="https://github.com/rstudio/reticulate/issues/1142" class="external-link">#1142</a>, <a href="https://github.com/t-kalinowski" class="external-link">@t-kalinowski</a>):</p>
-<ul><li>R error messages from Python exceptions are now truncated differently to satisfy <code>getOption("warning.length")</code>. A hint to call <code><a href="../reference/py_last_error.html">reticulate::py_last_error()</a></code> is shown if the exception message was truncated.</li>
-</ul><p>-<code><a href="../reference/py_last_error.html">py_last_error()</a></code>:</p>
+<ul><li>Exception handling changes (<a href="https://github.com/rstudio/reticulate/issues/1142" class="external-link">#1142</a>, <a href="https://github.com/t-kalinowski" class="external-link">@t-kalinowski</a>):
+<ul><li><p>R error messages from Python exceptions are now truncated differently to satisfy <code>getOption("warning.length")</code>. A hint to call <code><a href="../reference/py_last_error.html">reticulate::py_last_error()</a></code> is shown if the exception message was truncated.</p></li>
+<li><p>Python buffers <code>sys.stderr</code> and <code>sys.stdout</code> are now flushed when Python exceptions are raised.</p></li>
+</ul>
+-<code><a href="../reference/py_last_error.html">py_last_error()</a></code>:
 <ul><li><p>Return object is now an S3 object ‘py_error’, includes a default print method.</p></li>
 <li><p>The python Exception object (‘python.builtin.Exception’) is available as an R attribute.</p></li>
 <li><p>Gains the ability to restore a previous exception if provided in a call <code>py_last_error(previous_error)</code></p></li>
 <li><p>Python traceback objects gain a default <code><a href="https://rdrr.io/r/base/format.html" class="external-link">format()</a></code> S3 method.</p></li>
 </ul></li>
+<li>New maintainer: Tomasz Kalinowski</li>
 </ul></div>
     <div class="section level2">
-<h2 class="page-header" data-toc-text="1.23" id="reticulate-123">reticulate 1.23<small>2022-01-14</small><a class="anchor" aria-label="anchor" href="#reticulate-123"></a></h2>
-<ul><li><p><code><a href="../reference/use_python.html">use_condaenv()</a></code> gains the ability to accept an absolute path to a python binary for <code>envname</code>.</p></li>
+<h2 class="page-header" data-toc-text="1.24" id="reticulate-124">reticulate 1.24<small>2022-01-26</small><a class="anchor" aria-label="anchor" href="#reticulate-124"></a></h2>
+<ul><li><p>Fixed an issue where <code>reticulate</code> would fail to bind to the system version of Python on macOS if command line tools were installed, but Xcode was not. # reticulate 1.23</p></li>
+<li><p><code><a href="../reference/use_python.html">use_condaenv()</a></code> gains the ability to accept an absolute path to a python binary for <code>envname</code>.</p></li>
 <li><p>All python objects gain a <code><a href="https://rdrr.io/r/base/length.html" class="external-link">length()</a></code> method, that returns either <code>py_len(x)</code>, or if that fails, <code>as.integer(py_bool(x))</code>.</p></li>
 <li><p><code><a href="../reference/conda-tools.html">conda_create()</a></code> default for <code>python_version</code> changed from <code>NULL</code> to <code>miniconda_python_version()</code> (presently, 3.8).</p></li>
 <li><p>New function <code><a href="../reference/py_bool.html">py_bool()</a></code>, for evaluating Python “truthiness” of an object.</p></li>

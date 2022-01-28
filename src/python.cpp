@@ -484,11 +484,11 @@ int flush_std_buffers() {
   PyObject *error_type, *error_value, *error_traceback;
   PyErr_Fetch(&error_type, &error_value, &error_traceback);
 
-  PyObject* stdout(PySys_GetObject("stdout"));  // returns borrowed reference
-  if (stdout == NULL)
+  PyObject* sys_stdout(PySys_GetObject("stdout"));  // returns borrowed reference
+  if (sys_stdout == NULL)
     status = -1;
   else
-    tmp = PyObject_CallMethod(stdout, "flush", NULL);
+    tmp = PyObject_CallMethod(sys_stdout, "flush", NULL);
 
   if (tmp == NULL)
     status = -1;
@@ -497,11 +497,11 @@ int flush_std_buffers() {
     tmp = NULL;
   }
 
-  PyObject* stderr(PySys_GetObject("stderr"));  // returns borrowed reference
-  if (stdout == NULL)
+  PyObject* sys_stderr(PySys_GetObject("stderr"));  // returns borrowed reference
+  if (sys_stderr == NULL)
     status = -1;
   else
-    tmp = PyObject_CallMethod(stderr, "flush", NULL);
+    tmp = PyObject_CallMethod(sys_stderr, "flush", NULL);
 
   if (tmp == NULL)
     status = -1;
@@ -572,7 +572,7 @@ std::string py_fetch_error() {
   std::string error = oss.str();
 
   SEXP max_msg_len_s = PROTECT(Rf_GetOption1(Rf_install("warning.length")));
-  int max_msg_len(Rf_asInteger(max_msg_len_s));
+  std::size_t max_msg_len(Rf_asInteger(max_msg_len_s));
   UNPROTECT(1);
 
   if (error.size() > max_msg_len) {

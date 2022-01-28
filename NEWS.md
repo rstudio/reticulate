@@ -1,14 +1,10 @@
-
 # reticulate 1.25  (UNRELEASED)
 
-# reticulate 1.24
-
-- Fixed an issue where `reticulate` would fail to bind to the system version
-  of Python on macOS if command line tools were installed, but Xcode was not.
-
 - Exception handling changes (#1142, @t-kalinowski):
-  - R error messages from Python exceptions are now truncated differently to satisfy `getOption("warning.length")`. 
+  - R error messages from Python exceptions are now truncated differently to satisfy `getOption("warning.length")`.
     A hint to call `reticulate::py_last_error()` is shown if the exception message was truncated.
+
+  - Python buffers `sys.stderr` and `sys.stdout` are now flushed when Python exceptions are raised.
 
   -`py_last_error()`:
     * Return object is now an S3 object 'py_error', includes a default print method.
@@ -17,6 +13,12 @@
 
   - Python traceback objects gain a default `format()` S3 method.
 
+- New maintainer: Tomasz Kalinowski
+
+# reticulate 1.24
+
+- Fixed an issue where `reticulate` would fail to bind to the system version
+  of Python on macOS if command line tools were installed, but Xcode was not.
 # reticulate 1.23
 
 - `use_condaenv()` gains the ability to accept an absolute path to a python

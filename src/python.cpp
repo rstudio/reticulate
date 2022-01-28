@@ -478,6 +478,40 @@ bool traceback_enabled() {
   return as<bool>(func());
 }
 
+int flush_std_buffers() {
+  int status = 0;
+  PyObject* tmp = NULL;
+  PyObject *error_type, *error_value, *error_traceback;
+  PyErr_Fetch(&error_type, &error_value, &error_traceback);
+
+  PyObject* stdout(PySys_GetObject("stdout"));  // returns borrowed reference
+  if (stdout == NULL)
+    status = -1;
+  else
+    tmp = PyObject_CallMethod(stdout, "flush", NULL);
+
+  if (tmp == NULL)
+    status = -1;
+  else {
+    Py_DecRef(tmp);
+    tmp = NULL;
+  }
+
+  PyObject* stderr(PySys_GetObject("stderr"));  // returns borrowed reference
+  if (stdout == NULL)
+    status = -1;
+  else
+    tmp = PyObject_CallMethod(stderr, "flush", NULL);
+
+  if (tmp == NULL)
+    status = -1;
+  else
+    Py_DecRef(tmp);
+
+  PyErr_Restore(error_type, error_value, error_traceback);
+  return status;
+}
+
 // fetch and normalize the python exception object
 // save it in R reticulate:::.globals$py_last_exception
 // Return a short string suitable for Rcpp::stop(),
@@ -566,7 +600,9 @@ std::string py_fetch_error() {
     error = head + trunc + tail + hint;
   }
 
-  // TODO, flush python stdout/stderr here.
+  if(flush_std_buffers() == -1)
+    warning("Error encountered when flushing python buffers sys.stderr and sys.stdout");
+
   return error;
 }
 

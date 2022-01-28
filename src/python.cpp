@@ -478,122 +478,58 @@ bool traceback_enabled() {
   return as<bool>(func());
 }
 
+int flush_std_buffers() {
+  int status = 0;
+  PyObject* tmp = NULL;
+  PyObject *error_type, *error_value, *error_traceback;
+  PyErr_Fetch(&error_type, &error_value, &error_traceback);
 
-class LastError {
+  PyObject* sys_stdout(PySys_GetObject("stdout"));  // returns borrowed reference
+  if (sys_stdout == NULL)
+    status = -1;
+  else
+    tmp = PyObject_CallMethod(sys_stdout, "flush", NULL);
 
-public:
-
-  bool empty() const { return type_.empty(); }
-
-  std::string type() const { return type_; }
-  void setType(const std::string& type) { type_ = type; }
-
-  std::string value() const { return value_; }
-  void setValue(const std::string& value) { value_ = value; }
-
-  std::string message() const { return message_; }
-  void setMessage(const std::string& message) { message_ = message; }
-
-  std::vector<std::string> traceback() const { return traceback_; };
-  void setTraceback(const std::vector<std::string>& traceback) {
-    traceback_ = traceback;
+  if (tmp == NULL)
+    status = -1;
+  else {
+    Py_DecRef(tmp);
+    tmp = NULL;
   }
 
-  void clear() {
-    type_.clear();
-    value_.clear();
-    traceback_.clear();
-    message_.clear();
-  }
+  PyObject* sys_stderr(PySys_GetObject("stderr"));  // returns borrowed reference
+  if (sys_stderr == NULL)
+    status = -1;
+  else
+    tmp = PyObject_CallMethod(sys_stderr, "flush", NULL);
 
-private:
-  std::string type_;
-  std::string value_;
-  std::vector<std::string> traceback_;
-  std::string message_;
-};
+  if (tmp == NULL)
+    status = -1;
+  else
+    Py_DecRef(tmp);
 
-LastError s_lastError;
-
-//' Get or clear the last Python error encountered
-//'
-//' @return For `py_last_error()`, a list with the type, value,
-//' and traceback for the last Python error encountered (can be
-//' `NULL` if no error has yet been encountered).
-//'
-//' @export
-// [[Rcpp::export]]
-SEXP py_last_error() {
-  if (s_lastError.empty()) {
-    return R_NilValue;
-  } else {
-    List lastError;
-    lastError["type"] = s_lastError.type();
-    lastError["value"] = s_lastError.value();
-    lastError["traceback"] = s_lastError.traceback();
-    lastError["message"] = s_lastError.message();
-    return lastError;
-  }
+  PyErr_Restore(error_type, error_value, error_traceback);
+  return status;
 }
 
-//' @rdname py_last_error
-//' @export
-// [[Rcpp::export]]
-void py_clear_last_error() {
-  s_lastError.clear();
-}
-
-
-std::string py_fetch_error_type(const PyObjectPtr& pExcType) {
-
-  if (pExcType.is_null())
-    return std::string();
-
-  PyObjectPtr pStr(PyObject_GetAttrString(pExcType, "__name__"));
-  return as_std_string(pStr);
-
-}
-
-std::string py_fetch_error_value(const PyObjectPtr& pExcValue) {
-
-  if (pExcValue.is_null())
-    return std::string();
-
-  PyObjectPtr pStr(PyObject_Str(pExcValue));
-  return as_std_string(pStr);
-
-}
-
-void py_fetch_error_traceback(PyObject* excTraceback,
-                              std::vector<std::string>* pTraceback)
-{
-  if (excTraceback == NULL)
-    return;
-
-  // invoke 'traceback.format_tb(<traceback>)'
-  PyObjectPtr module(py_import("traceback"));
-  if (module.is_null())
-    return;
-
-  PyObjectPtr format_tb(PyObject_GetAttrString(module, "format_tb"));
-  if (format_tb.is_null())
-    return;
-
-  PyObjectPtr tb(PyObject_CallFunctionObjArgs(format_tb, excTraceback, NULL));
-  if (tb.is_null())
-    return;
-
-  // get the traceback
-  for (Py_ssize_t i = 0, n = PyList_Size(tb); i < n; i++)
-    pTraceback->push_back(as_std_string(PyList_GetItem(tb, i)));
-
-}
-
-// get a string representing the last python error
+// fetch and normalize the python exception object
+// save it in R reticulate:::.globals$py_last_exception
+// Return a short string suitable for Rcpp::stop(),
+// Either the exception message, or a truncated version with
+// user instructions for where to see the full exception.
 std::string py_fetch_error() {
+  PyObject *excType, *excValue, *excTraceback;
+  PyErr_Fetch(&excType, &excValue, &excTraceback);  // we now own the PyObjects
+  PyErr_NormalizeException(&excType, &excValue, &excTraceback);
+  if (excTraceback != NULL) {
+    PyException_SetTraceback(excValue, excTraceback);
+    Py_DecRef(excTraceback);
+  }
 
-  // clear last error
-  s_lastError.clear();
+  // ensure excType is Py_DecRef'd on scope exit
+  // excTraceback is already Py_DecRef'd above
+  // excValue is py_ref()'d or Py_DecRef()'d later
+  PyObjectPtr pExcType(excType);
 
   // check whether this error was signaled via an interrupt.
   // the intention here is to catch cases where reticulate is running
@@ -603,63 +539,70 @@ std::string py_fetch_error() {
   // returned back to the top level.
   if (reticulate::signals::getPythonInterruptsPending()) {
     PyErr_Clear();
+    Py_DecRef(excValue);
     reticulate::signals::setInterruptsPending(false);
     reticulate::signals::setPythonInterruptsPending(false);
     throw Rcpp::internal::InterruptedException();
   }
 
-  // read and normalize error, exception
-  PyObject *excType, *excValue, *excTraceback;
-  PyErr_Fetch(&excType, &excValue, &excTraceback);
-  PyErr_NormalizeException(&excType, &excValue, &excTraceback);
+  Environment pkg_globals(
+      Environment::namespace_env("reticulate").get(".globals"));
+  pkg_globals.assign("py_last_exception", py_ref(excValue, false));
 
-  // create object pointers (so they're freed on scope exit)
-  PyObjectPtr pExcType(excType);
-  PyObjectPtr pExcValue(excValue);
-  PyObjectPtr pExcTraceback(excTraceback);
+  // invoke 'traceback.format_exception_only(<traceback>)'
+  PyObjectPtr tb_module(py_import("traceback"));
+  if (tb_module.is_null())
+    return "<unknown python exception, traceback module not found>";
 
-  // if we don't have any error information, return early
-  if (pExcType.is_null() && pExcValue.is_null())
-    return "<unknown error>";
+  PyObjectPtr format_exception_only(PyObject_GetAttrString(tb_module, "format_exception_only"));
+  if (format_exception_only.is_null())
+    return "<unknown python exception, traceback format fn not found>";
+
+  PyObjectPtr formatted(PyObject_CallFunctionObjArgs(format_exception_only, excType, excValue, NULL));
+  if (formatted.is_null())
+    return "<unknown python exception, traceback format fn returned NULL>";
 
   // build error text
   std::ostringstream oss;
 
-  // get exception type
-  std::string type = py_fetch_error_type(pExcType);
+  // PyList_GetItem() returns a borrowed reference, no need to decref.
+  for (Py_ssize_t i = 0, n = PyList_Size(formatted); i < n; i++)
+    oss << as_std_string(PyList_GetItem(formatted, i));
 
-  // set type if we had it
-  if (!type.empty()) {
-    s_lastError.setType(type);
-    oss << type << ": ";
-  }
-
-  // get exception value
-  std::string value = py_fetch_error_value(pExcValue);
-  if (!value.empty()) {
-    s_lastError.setValue(value);
-    oss << value;
-  }
-
-  // retrieve Python traceback
-  std::vector<std::string> traceback;
-  py_fetch_error_traceback(excTraceback, &traceback);
-  s_lastError.setTraceback(traceback);
-
-  if (traceback_enabled()) {
-    std::size_t n = traceback.size();
-    if (n > 0) {
-      oss << "\n\nDetailed traceback:\n";
-      for (std::size_t i = 0; i < n; i++)
-        oss << traceback[i];
-    }
-  }
-
-  // get final error string
   std::string error = oss.str();
-  s_lastError.setMessage(error);
 
-  // return error
+  SEXP max_msg_len_s = PROTECT(Rf_GetOption1(Rf_install("warning.length")));
+  std::size_t max_msg_len(Rf_asInteger(max_msg_len_s));
+  UNPROTECT(1);
+
+  if (error.size() > max_msg_len) {
+    // R has a modest byte size limit for error messages, default 1000, user
+    // adjustable up to 8170. Error messages beyond the limit are silently
+    // truncated. If the message will be truncated, we truncate it a little
+    // better here and include a useful hint in the error message.
+
+    std::string hint("See `reticulate::py_last_error()` for details");
+    std::string trunc("<... omitted ...>");
+
+    // Tensorflow since ~2.6 has been including a currated traceback as part of
+    // the formatted exception message, with the most user-actionable content
+    // towards the tail. Since the tail is the most useful part of the message,
+    // truncate from the middle of the exception by default, after including the
+    // first line.
+    int over(error.size() - max_msg_len);
+    int first_line_end_pos(error.find("\n"));
+
+    std::string head(error.substr(0, first_line_end_pos + 1));
+    std::string tail(
+        error.substr(over + head.size() + hint.size() + trunc.size() + 20,
+                     std::string::npos));
+    // +20 to accommodate "Error: " and similar accruals from R signal handlers.
+    error = head + trunc + tail + hint;
+  }
+
+  if(flush_std_buffers() == -1)
+    warning("Error encountered when flushing python buffers sys.stderr and sys.stdout");
+
   return error;
 }
 

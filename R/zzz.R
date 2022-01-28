@@ -75,4 +75,5 @@
 .onUnload <- function(libpath) {
   if (is_python_initialized())
     py_finalize()
+  py_clear_last_error()
 }

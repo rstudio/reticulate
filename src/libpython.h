@@ -273,6 +273,7 @@ LIBPYTHON_EXTERN PyObject* (*PyErr_Occurred)(void);
 LIBPYTHON_EXTERN void (*PyErr_NormalizeException)(PyObject**, PyObject**, PyObject**);
 LIBPYTHON_EXTERN int (*PyErr_GivenExceptionMatches)(PyObject *given, PyObject *exc);
 LIBPYTHON_EXTERN int (*PyErr_ExceptionMatches)(PyObject *exc);
+LIBPYTHON_EXTERN int (*PyException_SetTraceback)(PyObject *ex, PyObject *tb);
 
 LIBPYTHON_EXTERN int (*PyCallable_Check)(PyObject *);
 
@@ -333,6 +334,7 @@ LIBPYTHON_EXTERN void (*PySys_SetArgv)(int, char **);
 LIBPYTHON_EXTERN void (*PySys_SetArgv_v3)(int, wchar_t **);
 
 LIBPYTHON_EXTERN void (*PySys_WriteStderr)(const char *format, ...);
+LIBPYTHON_EXTERN PyObject* (*PySys_GetObject)(const char *name);
 
 LIBPYTHON_EXTERN PyObject* (*PyObject_CallMethod)(PyObject *o, const char *name, const char *format, ...);
 LIBPYTHON_EXTERN PyObject* (*PySequence_GetItem)(PyObject *o, Py_ssize_t i);

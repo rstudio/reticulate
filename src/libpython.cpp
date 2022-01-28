@@ -211,6 +211,7 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
   LOAD_PYTHON_SYMBOL(PyErr_BadArgument)
   LOAD_PYTHON_SYMBOL(PyErr_NormalizeException)
   LOAD_PYTHON_SYMBOL(PyErr_ExceptionMatches)
+  LOAD_PYTHON_SYMBOL(PyException_SetTraceback)
   LOAD_PYTHON_SYMBOL(PyErr_GivenExceptionMatches)
   LOAD_PYTHON_SYMBOL(PyObject_Print)
   LOAD_PYTHON_SYMBOL(PyObject_Str)
@@ -256,6 +257,7 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
   LOAD_PYTHON_SYMBOL(PyObject_CallFunctionObjArgs)
   LOAD_PYTHON_SYMBOL(PyType_IsSubtype)
   LOAD_PYTHON_SYMBOL(PySys_WriteStderr)
+  LOAD_PYTHON_SYMBOL(PySys_GetObject)
   LOAD_PYTHON_SYMBOL(PyEval_SetProfile)
   LOAD_PYTHON_SYMBOL(PyGILState_GetThisThreadState)
   LOAD_PYTHON_SYMBOL(PyGILState_Ensure)
@@ -387,4 +389,3 @@ bool import_numpy_api(bool python3, std::string* pError) {
 
 } // namespace libpython
 } // namespace reticulate
-

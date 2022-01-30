@@ -934,7 +934,14 @@ py_id <- function(object) {
 }
 
 
-#' An S3 method for getting the string representation of a Python object
+#' String representation of a python object.
+#'
+#' This is equivalent to calling `str(object)` in Python, and also the same method
+#' invoked by Python's `print()`.
+#'
+#' For historical reasons, this is also an \R S3 method that allows R authors to
+#' customize the the string representation of a Python object from R. New code
+#' is recommended to provide a `format` S3 R method for python objects instead.
 #'
 #' @param object Python object
 #' @param ... Unused
@@ -946,7 +953,7 @@ py_id <- function(object) {
 #' @export
 py_str <- function(object, ...) {
   if (!inherits(object, "python.builtin.object"))
-    py_str.default(object)
+    "<not a python object>"
   else if (py_is_null_xptr(object) || !py_available())
     "<pointer: 0x0>"
   else
@@ -958,12 +965,20 @@ py_str.default <- function(object, ...) {
   "<not a python object>"
 }
 
-
 #' @export
 py_str.python.builtin.object <- function(object, ...) {
+  py_str_impl(object)
+}
 
-  # get default rep
-  str <- py_str_impl(object)
+
+#' @export
+format.python.builtin.object <- function(object, ...) {
+
+  if (py_is_null_xptr(object) || !py_available())
+    return("<pointer: 0x0>")
+
+  # get default rep, potentially user defined S3
+  str <- py_str(object)
 
   # remove e.g. 'object at 0x10d084710'
   str <- gsub(" object at 0x\\w{4,}", "", str)

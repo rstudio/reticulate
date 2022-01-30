@@ -1,7 +1,7 @@
 
 #' @export
 print.python.builtin.object <- function(x, ...) {
-  str(x, ...)
+  writeLines(format(x, ...))
 }
 
 

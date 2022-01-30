@@ -989,8 +989,7 @@ format.python.builtin.object <- function(object, ...) {
 
 #' @export
 py_str.python.builtin.bytearray <- function(object, ...) {
-  builtins <- import_builtins()
-  paste0("python.builtin.bytearray (", builtins$len(object), " bytes)")
+  paste0("python.builtin.bytearray (", py_len_impl(object), " bytes)")
 }
 
 #' @export
@@ -1014,19 +1013,13 @@ py_str.python.builtin.tuple <- function(object, ...) {
 }
 
 py_collection_str <- function(name, object) {
-  len <- py_collection_len(object)
+  len <- py_len_impl(object)
   if (len > 10)
     paste0(name, " (", len, " items)")
   else
     py_str.python.builtin.object(object)
 }
 
-py_collection_len <- function(object) {
-  # do this dance so we can call __len__ on dictionaries (which
-  # otherwise overload the $)
-  len <- py_get_attr(object, "__len__")
-  py_to_r(py_call(len))
-}
 
 #' Suppress Python warnings for an expression
 #'

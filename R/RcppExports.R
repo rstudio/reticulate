@@ -228,7 +228,7 @@ py_list_length <- function(x) {
     .Call(`_reticulate_py_list_length`, x)
 }
 
-py_len_impl <- function(x, defaultValue) {
+py_len_impl <- function(x, defaultValue = NULL) {
     .Call(`_reticulate_py_len_impl`, x, defaultValue)
 }
 

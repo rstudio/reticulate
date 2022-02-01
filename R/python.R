@@ -972,13 +972,13 @@ py_str.python.builtin.object <- function(object, ...) {
 
 
 #' @export
-format.python.builtin.object <- function(object, ...) {
+format.python.builtin.object <- function(x, ...) {
 
-  if (py_is_null_xptr(object) || !py_available())
+  if (py_is_null_xptr(x) || !py_available())
     return("<pointer: 0x0>")
 
   # get default rep, potentially user defined S3
-  str <- py_str(object)
+  str <- py_str(x)
 
   # remove e.g. 'object at 0x10d084710'
   str <- gsub(" object at 0x\\w{4,}", "", str)

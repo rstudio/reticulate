@@ -1,5 +1,10 @@
 # reticulate 1.25  (UNRELEASED)
 
+- `print()` changes (#1148):
+  - The default `print()` method for Python objects now invokes `format()` instead of `str()`.
+  - All Python objects gain a default `format()` method. 
+  - `py_str()` default method no longer strips the object memory address.
+
 - Exception handling changes (#1142, @t-kalinowski):
   - R error messages from Python exceptions are now truncated differently to satisfy `getOption("warning.length")`.
     A hint to call `reticulate::py_last_error()` is shown if the exception message was truncated.

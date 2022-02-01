@@ -2973,7 +2973,7 @@ SEXP py_list_length(PyObjectRef x) {
 }
 
 // [[Rcpp::export]]
-SEXP py_len_impl(PyObjectRef x, SEXP defaultValue) {
+SEXP py_len_impl(PyObjectRef x, SEXP defaultValue = R_NilValue) {
 
   PyObject *er_type, *er_value, *er_traceback;
   if (defaultValue != R_NilValue)

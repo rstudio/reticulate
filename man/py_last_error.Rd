@@ -15,7 +15,7 @@ exception is set as the last exception.}
 }
 \value{
 For \code{py_last_error()}, \code{NULL} if no error has yet been encountered.
-Otherwise, a named list with entries
+Otherwise, a named list with entries:
 \itemize{
 \item \code{"type"}: R string, name of the exception class.
 \item \code{"value"}: R string, formatted exception message.

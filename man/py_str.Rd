@@ -2,7 +2,7 @@
 % Please edit documentation in R/python.R
 \name{py_str}
 \alias{py_str}
-\title{An S3 method for getting the string representation of a Python object}
+\title{String representation of a python object.}
 \usage{
 py_str(object, ...)
 }
@@ -15,8 +15,13 @@ py_str(object, ...)
 Character vector
 }
 \description{
-An S3 method for getting the string representation of a Python object
+This is equivalent to calling \code{str(object)} in Python, and also the same method
+invoked by Python's \code{print()}.
 }
 \details{
+For historical reasons, this is also an \R S3 method that allows R authors to
+customize the the string representation of a Python object from R. New code
+is recommended to provide a \code{format} S3 R method for python objects instead.
+
 The default implementation will call \code{PyObject_Str} on the object.
 }

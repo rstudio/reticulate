@@ -106,8 +106,23 @@ use_python <- function(python, required = NULL) {
     }
   }
 
-  if (required)
+  if (required) {
+    if (!is.null(prior_required_python <-
+                 .globals$required_python_version) &&
+        !isTRUE(canonical_path(prior_required_python) == canonical_path(python)))
+      warningf(
+        'Previous request to `use_python("%s", required = TRUE)` will be ignored. It is superseded by request to `use_python("%s")',
+        prior_required_python, python)
+
     .globals$required_python_version <- python
+
+    if (!is.na(python_w_precedence <-
+               Sys.getenv("RETICULATE_PYTHON", NA)) &&
+        !isTRUE(canonical_path(python_w_precedence) == canonical_path(python)))
+      warningf(
+        'The request to `use_python("%s")` will be ignored because the environment variable RETICULATE_PYTHON is set to "%s"',
+        python, python_w_precedence)
+  }
 
   .globals$use_python_versions <- unique(c(.globals$use_python_versions, python))
 

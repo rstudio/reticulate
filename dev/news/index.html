@@ -83,24 +83,25 @@
 
     <div class="section level2">
 <h2 class="page-header" data-toc-text="1.25" id="reticulate-125-unreleased">reticulate 1.25 (UNRELEASED)<a class="anchor" aria-label="anchor" href="#reticulate-125-unreleased"></a></h2>
-<ul><li>
-<code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> changes (<a href="https://github.com/rstudio/reticulate/issues/1148" class="external-link">#1148</a>):
+<ul><li><p><code>use_python(, required = TRUE)</code> now issues a warning if the request will be ignored.</p></li>
+<li>
+<p><code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> changes (<a href="https://github.com/rstudio/reticulate/issues/1148" class="external-link">#1148</a>):</p>
 <ul><li>The default <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> method for Python objects now invokes <code><a href="https://rdrr.io/r/base/format.html" class="external-link">format()</a></code> instead of <code><a href="https://rdrr.io/r/utils/str.html" class="external-link">str()</a></code>.</li>
 <li>All Python objects gain a default <code><a href="https://rdrr.io/r/base/format.html" class="external-link">format()</a></code> method.</li>
 <li>
 <code><a href="../reference/py_str.html">py_str()</a></code> default method no longer strips the object memory address.</li>
 </ul></li>
-<li>Exception handling changes (<a href="https://github.com/rstudio/reticulate/issues/1142" class="external-link">#1142</a>, <a href="https://github.com/t-kalinowski" class="external-link">@t-kalinowski</a>):
+<li>
+<p>Exception handling changes (<a href="https://github.com/rstudio/reticulate/issues/1142" class="external-link">#1142</a>, <a href="https://github.com/t-kalinowski" class="external-link">@t-kalinowski</a>):</p>
 <ul><li><p>R error messages from Python exceptions are now truncated differently to satisfy <code>getOption("warning.length")</code>. A hint to call <code><a href="../reference/py_last_error.html">reticulate::py_last_error()</a></code> is shown if the exception message was truncated.</p></li>
 <li><p>Python buffers <code>sys.stderr</code> and <code>sys.stdout</code> are now flushed when Python exceptions are raised.</p></li>
-</ul>
--<code><a href="../reference/py_last_error.html">py_last_error()</a></code>:
+</ul><p>-<code><a href="../reference/py_last_error.html">py_last_error()</a></code>:</p>
 <ul><li><p>Return object is now an S3 object ‘py_error’, includes a default print method.</p></li>
 <li><p>The python Exception object (‘python.builtin.Exception’) is available as an R attribute.</p></li>
 <li><p>Gains the ability to restore a previous exception if provided in a call <code>py_last_error(previous_error)</code></p></li>
 <li><p>Python traceback objects gain a default <code><a href="https://rdrr.io/r/base/format.html" class="external-link">format()</a></code> S3 method.</p></li>
 </ul></li>
-<li>New maintainer: Tomasz Kalinowski</li>
+<li><p>New maintainer: Tomasz Kalinowski</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="1.24" id="reticulate-124">reticulate 1.24<small>2022-01-26</small><a class="anchor" aria-label="anchor" href="#reticulate-124"></a></h2>

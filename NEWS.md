@@ -1,5 +1,7 @@
 # reticulate 1.25  (UNRELEASED)
 
+- `use_python(, required = TRUE)` now issues a warning if the request will be ignored.
+
 - `print()` changes (#1148):
   - The default `print()` method for Python objects now invokes `format()` instead of `str()`.
   - All Python objects gain a default `format()` method. 

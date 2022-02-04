@@ -83,7 +83,8 @@
 
     <div class="section level2">
 <h2 class="page-header" data-toc-text="1.25" id="reticulate-125-unreleased">reticulate 1.25 (UNRELEASED)<a class="anchor" aria-label="anchor" href="#reticulate-125-unreleased"></a></h2>
-<ul><li><p><code>use_python(, required = TRUE)</code> now issues a warning if the request will be ignored.</p></li>
+<ul><li><p>Fixed an issue where reticulate would fail to bind to a conda python if spaces were present in the file path to the associated conda binary (<a href="https://github.com/rstudio/reticulate/issues/1154" class="external-link">#1154</a>).</p></li>
+<li><p><code>use_python(, required = TRUE)</code> now issues a warning if the request will be ignored.</p></li>
 <li>
 <p><code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> changes (<a href="https://github.com/rstudio/reticulate/issues/1148" class="external-link">#1148</a>):</p>
 <ul><li>The default <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> method for Python objects now invokes <code><a href="https://rdrr.io/r/base/format.html" class="external-link">format()</a></code> instead of <code><a href="https://rdrr.io/r/utils/str.html" class="external-link">str()</a></code>.</li>

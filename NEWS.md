@@ -1,5 +1,8 @@
 # reticulate 1.25  (UNRELEASED)
 
+- Exception handling changes (#1154, @t-kalinkowski):
+  - `python_info_condaenv_find()` now handles file paths that contain spaces when parsing the `conda-meta/history` log file.
+
 - `use_python(, required = TRUE)` now issues a warning if the request will be ignored.
 
 - `print()` changes (#1148):

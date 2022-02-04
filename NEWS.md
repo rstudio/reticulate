@@ -1,5 +1,8 @@
 # reticulate 1.25  (UNRELEASED)
 
+- Fixed an issue where reticulate would fail to bind to a conda python if 
+  spaces were present in the file path to the associated conda binary (#1154).
+
 - `use_python(, required = TRUE)` now issues a warning if the request will be ignored.
 
 - `print()` changes (#1148):

@@ -12,6 +12,7 @@
   - The default `print()` method for Python objects now invokes `format()` instead of `str()`.
   - All Python objects gain a default `format()` method. 
   - `py_str()` default method no longer strips the object memory address.
+  - The printed object is now returned invisibly, for composability with `%>%`
 
 - Exception handling changes (#1142, @t-kalinowski):
   - R error messages from Python exceptions are now truncated differently to satisfy `getOption("warning.length")`.

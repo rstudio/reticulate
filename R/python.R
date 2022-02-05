@@ -2,6 +2,7 @@
 #' @export
 print.python.builtin.object <- function(x, ...) {
   writeLines(format(x, ...))
+  invisible(x)
 }
 
 

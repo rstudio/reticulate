@@ -798,8 +798,9 @@ conda_installed <- function() {
 
 conda_run <- function(cmd, args = c(), conda = "auto", envname = NULL,
                       run_args = c("--no-capture-output"), ...) {
-  # `conda run` is very unreliable, best avoided,
-  # especially when user doesn't have full permissions
+  # `conda run` is very unreliable, best avoided. known issues:
+  #  - fails if user doesn't have write permissions to conda installation
+  #  - fails if arguments need to be quoted
 
   conda <- conda_binary(conda)
   envname <- condaenv_resolve(envname)
@@ -868,15 +869,22 @@ conda_run2_nix <-
 
   fi <- tempfile(fileext = ".sh")
   on.exit(unlink(fi))
-  writeLines(c(
+
+  commands <- c(
     paste(".", activate),
     if (!identical(envname, "base"))
       paste("conda activate", shQuote(envname)),
-    if (echo)
-      c('echo "Activated conda python: $(which python)"',
-        paste("echo", shQuote(cmd_line))),
     cmd_line
-  ), fi)
+  )
+
+  # set -x is too verbose, includes all the commands made by conda scripts
+  # so we manually echo the top-level commands only
+  if(echo)
+    commands <- as.vector(rbind(
+      paste("echo", shQuote(paste("+", commands))),
+      commands))
+
+  writeLines(commands, fi)
   system2(Sys.which("sh"), fi,
           stdout = if(identical(intern, FALSE)) "" else intern)
 }

@@ -798,6 +798,8 @@ conda_installed <- function() {
 
 conda_run <- function(cmd, args = c(), conda = "auto", envname = NULL,
                       run_args = c("--no-capture-output"), ...) {
+  # `conda run` is very unreliable, best avoided,
+  # especially when user doesn't have full permissions
 
   conda <- conda_binary(conda)
   envname <- condaenv_resolve(envname)
@@ -828,7 +830,8 @@ conda_run2 <- function(...) {
 
 conda_run2_windows <-
   function(cmd, args = c(), conda = "auto", envname = NULL,
-           cmd_line = paste(shQuote(cmd), paste(args, collapse = " "))) {
+           cmd_line = paste(shQuote(cmd), paste(args, collapse = " ")),
+           intern = FALSE, echo = !intern) {
   conda <- normalizePath(conda_binary(conda))
 
   if (identical(envname, "base"))
@@ -842,16 +845,18 @@ conda_run2_windows <-
   fi <- tempfile(fileext = ".bat")
   on.exit(unlink(fi))
   writeLines(c(
+    if(!echo) "@echo off",
     paste("CALL", shQuote(conda), "activate", shQuote(envname)),
     cmd_line
   ), fi)
 
-  shell(fi)
+  shell(fi, intern = TRUE)
 }
 
 conda_run2_nix <-
   function(cmd, args = c(), conda = "auto", envname = NULL,
-           cmd_line = paste(shQuote(cmd), paste(args, collapse = " "))) {
+           cmd_line = paste(shQuote(cmd), paste(args, collapse = " ")),
+           intern = FALSE, echo = !intern) {
   conda <- normalizePath(conda_binary(conda))
   activate <- normalizePath(file.path(dirname(conda), "activate"))
 
@@ -867,10 +872,13 @@ conda_run2_nix <-
     paste(".", activate),
     if (!identical(envname, "base"))
       paste("conda activate", shQuote(envname)),
-    'echo "Activated conda python: $(which python)"',
+    if (echo)
+      c('echo "Activated conda python: $(which python)"',
+        paste("echo", shQuote(cmd_line))),
     cmd_line
   ), fi)
-  system2(Sys.which("sh"), fi)
+  system2(Sys.which("sh"), fi,
+          stdout = if(identical(intern, FALSE)) "" else intern)
 }
 
 

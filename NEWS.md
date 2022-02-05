@@ -1,5 +1,8 @@
 # reticulate 1.25  (UNRELEASED)
 
+- Fixed an issue where reticulate would fail to bind to a conda python
+  if the user didn't have write permissions to the conda installation (#1156).
+
 - Fixed an issue where reticulate would fail to bind to a conda python if 
   spaces were present in the file path to the associated conda binary (#1154).
 

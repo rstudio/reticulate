@@ -115,6 +115,8 @@ py_compile_eval <- function(code, compile_mode = "single", capture = TRUE) {
 }
 
 py_last_value <- function() {
+  ex <- .globals$py_last_exception
+  on.exit(.globals$py_last_exception <- ex)
   tryCatch(
     py_eval("_", convert = FALSE),
     error = function(e) py_none()

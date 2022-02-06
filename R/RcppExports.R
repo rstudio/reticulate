@@ -84,6 +84,12 @@ py_str_impl <- function(x) {
     .Call(`_reticulate_py_str_impl`, x)
 }
 
+#' @export
+#' @rdname py_str
+py_repr <- function(object) {
+    .Call(`_reticulate_py_repr`, object)
+}
+
 py_print <- function(x) {
     invisible(.Call(`_reticulate_py_print`, x))
 }

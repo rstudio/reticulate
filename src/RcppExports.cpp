@@ -188,6 +188,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// py_repr
+SEXP py_repr(PyObjectRef object);
+RcppExport SEXP _reticulate_py_repr(SEXP objectSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< PyObjectRef >::type object(objectSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_repr(object));
+    return rcpp_result_gen;
+END_RCPP
+}
 // py_print
 void py_print(PyObjectRef x);
 RcppExport SEXP _reticulate_py_print(SEXP xSEXP) {
@@ -687,6 +698,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_reticulate_py_is_none", (DL_FUNC) &_reticulate_py_is_none, 1},
     {"_reticulate_py_compare_impl", (DL_FUNC) &_reticulate_py_compare_impl, 3},
     {"_reticulate_py_str_impl", (DL_FUNC) &_reticulate_py_str_impl, 1},
+    {"_reticulate_py_repr", (DL_FUNC) &_reticulate_py_repr, 1},
     {"_reticulate_py_print", (DL_FUNC) &_reticulate_py_print, 1},
     {"_reticulate_py_is_function", (DL_FUNC) &_reticulate_py_is_function, 1},
     {"_reticulate_py_numpy_available_impl", (DL_FUNC) &_reticulate_py_numpy_available_impl, 0},

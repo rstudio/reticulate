@@ -937,12 +937,15 @@ py_id <- function(object) {
 
 #' String representation of a python object.
 #'
-#' This is equivalent to calling `str(object)` in Python, and also the same method
-#' invoked by Python's `print()`.
+#' This is equivalent to calling `str(object)` or `repr(object)` in Python.
 #'
-#' For historical reasons, this is also an \R S3 method that allows R authors to
-#' customize the the string representation of a Python object from R. New code
-#' is recommended to provide a `format` S3 R method for python objects instead.
+#' In Python, calling `print()` invokes `str()`, while auto-printing an object
+#' at the REPL invokes `repr()`.
+#'
+#' For historical reasons, `py_str()` is also an \R S3 method that allows R
+#' authors to customize the the string representation of a Python object from R.
+#' New code is recommended to provide a `format()` and/or `print()` S3 R method
+#' for python objects instead.
 #'
 #' @param object Python object
 #' @param ... Unused

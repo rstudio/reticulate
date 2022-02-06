@@ -2131,6 +2131,24 @@ CharacterVector py_str_impl(PyObjectRef x) {
 
 }
 
+
+//' @export
+//' @rdname py_str
+// [[Rcpp::export]]
+SEXP py_repr(PyObjectRef object) {
+
+  if(py_is_null_xptr(object))
+    return CharacterVector::create(String("<pointer: 0x0>"));
+
+  PyObjectPtr repr(PyObject_Repr(object));
+
+  if (repr.is_null())
+    stop(py_fetch_error());
+
+  return  CharacterVector::create(as_utf8_r_string(repr));
+}
+
+
 // [[Rcpp::export]]
 void py_print(PyObjectRef x) {
   CharacterVector out = py_str_impl(x);

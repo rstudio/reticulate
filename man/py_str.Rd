@@ -21,8 +21,11 @@ Character vector
 This is equivalent to calling \code{str(object)} or \code{repr(object)} in Python.
 }
 \details{
-In Python, calling \code{print()} invokes \code{str()}, while auto-printing an object
-at the REPL invokes \code{repr()}.
+In Python, calling \code{print()} invokes the builtin \code{str()}, while auto-printing
+an object at the REPL invokes the builtin \code{repr()}.
+
+In \R, the default print method for python objects invokes \code{py_repr()}, and
+the default \code{format()} and \code{as.character()} methods invoke \code{py_str()}.
 
 For historical reasons, \code{py_str()} is also an \R S3 method that allows R
 authors to customize the the string representation of a Python object from R.

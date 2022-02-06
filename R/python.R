@@ -1,7 +1,7 @@
 
 #' @export
 print.python.builtin.object <- function(x, ...) {
-  writeLines(format(x, ...))
+  writeLines(py_repr(x))
   invisible(x)
 }
 
@@ -939,8 +939,11 @@ py_id <- function(object) {
 #'
 #' This is equivalent to calling `str(object)` or `repr(object)` in Python.
 #'
-#' In Python, calling `print()` invokes `str()`, while auto-printing an object
-#' at the REPL invokes `repr()`.
+#' In Python, calling `print()` invokes the builtin `str()`, while auto-printing
+#' an object at the REPL invokes the builtin `repr()`.
+#'
+#' In \R, the default print method for python objects invokes `py_repr()`, and
+#' the default `format()` and `as.character()` methods invoke `py_str()`.
 #'
 #' For historical reasons, `py_str()` is also an \R S3 method that allows R
 #' authors to customize the the string representation of a Python object from R.

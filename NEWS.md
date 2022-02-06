@@ -6,13 +6,15 @@
 - Fixed an issue where reticulate would fail to bind to a conda python if 
   spaces were present in the file path to the associated conda binary (#1154).
 
-- `use_python(, required = TRUE)` now issues a warning if the request will be ignored.
+- `use_python(, required = TRUE)` now issues a warning if the request will be ignored (#1150).
 
-- `print()` changes (#1148):
-  - The default `print()` method for Python objects now invokes `format()` instead of `str()`.
-  - All Python objects gain a default `format()` method. 
+- New function `py_repr()` (#1156)
+
+- `print()` and related changes (#1148, #1156):
+  - The default `print()` method for Python objects now invokes `py_repr()` instead of `str()`.
+  - All Python objects gain a default `format()` method that invokes `py_str()`. 
   - `py_str()` default method no longer strips the object memory address.
-  - The printed object is now returned invisibly, for composability with `%>%`
+  - `print()` now returns the printed object invisibly, for composability with `%>%`.
 
 - Exception handling changes (#1142, @t-kalinowski):
   - R error messages from Python exceptions are now truncated differently to satisfy `getOption("warning.length")`.

@@ -1027,6 +1027,22 @@ py_collection_str <- function(name, object) {
     py_str.python.builtin.object(object)
 }
 
+.print.via.format <- function(x, ...) {
+  writeLines(format(x, ...))
+  invisible(x)
+}
+
+#' @export
+print.python.builtin.bytearray <- .print.via.format
+#' @export
+print.python.builtin.tuple <- .print.via.format
+#' @export
+print.python.builtin.module <- .print.via.format
+#' @export
+print.python.builtin.list <- .print.via.format
+#' @export
+print.python.builtin.dict <- .print.via.format
+
 
 #' Suppress Python warnings for an expression
 #'

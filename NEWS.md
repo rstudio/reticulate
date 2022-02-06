@@ -8,9 +8,9 @@
 
 - `use_python(, required = TRUE)` now issues a warning if the request will be ignored (#1150).
 
-- New function `py_repr()` (#1156)
+- New function `py_repr()` (#1157)
 
-- `print()` and related changes (#1148, #1156):
+- `print()` and related changes (#1148, #1157):
   - The default `print()` method for Python objects now invokes `py_repr()` instead of `str()`.
   - All Python objects gain a default `format()` method that invokes `py_str()`. 
   - `py_str()` default method no longer strips the object memory address.

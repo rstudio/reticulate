@@ -467,6 +467,39 @@ PyObjectRef py_ref(PyObject* object,
 
 }
 
+//' Check if a Python object is a null externalptr
+//'
+//' @param x Python object
+//'
+//' @return Logical indicating whether the object is a null externalptr
+//'
+//' @details When Python objects are serialized within a persisted R
+//'  environment (e.g. .RData file) they are deserialized into null
+//'  externalptr objects (since the Python session they were originally
+//'  connected to no longer exists). This function allows you to safely
+//'  check whether whether a Python object is a null externalptr.
+//'
+//'  The `py_validate` function is a convenience function which calls
+//'  `py_is_null_xptr` and throws an error in the case that the xptr
+//'  is `NULL`.
+//'
+//' @export
+// [[Rcpp::export]]
+bool py_is_null_xptr(PyObjectRef x) {
+  return x.is_null_xptr();
+}
+
+//' @rdname py_is_null_xptr
+//' @export
+// [[Rcpp::export]]
+void py_validate_xptr(PyObjectRef x) {
+  if (py_is_null_xptr(x)) {
+    stop("Object is a null externalptr (it may have been disconnected from "
+           " the session where it was created)");
+  }
+}
+
+
 bool option_is_true(const std::string& name) {
   SEXP valueSEXP = Rf_GetOption(Rf_install(name.c_str()), R_BaseEnv);
   return Rf_isLogical(valueSEXP) && (as<bool>(valueSEXP) == true);
@@ -2111,37 +2144,6 @@ bool py_is_function(PyObjectRef x) {
 }
 
 
-//' Check if a Python object is a null externalptr
-//'
-//' @param x Python object
-//'
-//' @return Logical indicating whether the object is a null externalptr
-//'
-//' @details When Python objects are serialized within a persisted R
-//'  environment (e.g. .RData file) they are deserialized into null
-//'  externalptr objects (since the Python session they were originally
-//'  connected to no longer exists). This function allows you to safely
-//'  check whether whether a Python object is a null externalptr.
-//'
-//'  The `py_validate` function is a convenience function which calls
-//'  `py_is_null_xptr` and throws an error in the case that the xptr
-//'  is `NULL`.
-//'
-//' @export
-// [[Rcpp::export]]
-bool py_is_null_xptr(PyObjectRef x) {
-  return x.is_null_xptr();
-}
-
-//' @rdname py_is_null_xptr
-//' @export
-// [[Rcpp::export]]
-void py_validate_xptr(PyObjectRef x) {
-  if (py_is_null_xptr(x)) {
-    stop("Object is a null externalptr (it may have been disconnected from "
-         " the session where it was created)");
-  }
-}
 
 
 // [[Rcpp::export]]

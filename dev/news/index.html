@@ -85,15 +85,16 @@
 <h2 class="page-header" data-toc-text="1.25" id="reticulate-125-unreleased">reticulate 1.25 (UNRELEASED)<a class="anchor" aria-label="anchor" href="#reticulate-125-unreleased"></a></h2>
 <ul><li><p>Fixed an issue where reticulate would fail to bind to a conda python if the user didn’t have write permissions to the conda installation (<a href="https://github.com/rstudio/reticulate/issues/1156" class="external-link">#1156</a>).</p></li>
 <li><p>Fixed an issue where reticulate would fail to bind to a conda python if spaces were present in the file path to the associated conda binary (<a href="https://github.com/rstudio/reticulate/issues/1154" class="external-link">#1154</a>).</p></li>
-<li><p><code>use_python(, required = TRUE)</code> now issues a warning if the request will be ignored.</p></li>
+<li><p><code>use_python(, required = TRUE)</code> now issues a warning if the request will be ignored (<a href="https://github.com/rstudio/reticulate/issues/1150" class="external-link">#1150</a>).</p></li>
+<li><p>New function <code><a href="../reference/py_str.html">py_repr()</a></code> (<a href="https://github.com/rstudio/reticulate/issues/1157" class="external-link">#1157</a>)</p></li>
 <li>
-<p><code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> changes (<a href="https://github.com/rstudio/reticulate/issues/1148" class="external-link">#1148</a>):</p>
-<ul><li>The default <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> method for Python objects now invokes <code><a href="https://rdrr.io/r/base/format.html" class="external-link">format()</a></code> instead of <code><a href="https://rdrr.io/r/utils/str.html" class="external-link">str()</a></code>.</li>
-<li>All Python objects gain a default <code><a href="https://rdrr.io/r/base/format.html" class="external-link">format()</a></code> method.</li>
+<p><code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> and related changes (<a href="https://github.com/rstudio/reticulate/issues/1148" class="external-link">#1148</a>, <a href="https://github.com/rstudio/reticulate/issues/1157" class="external-link">#1157</a>):</p>
+<ul><li>The default <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> method for Python objects now invokes <code><a href="../reference/py_str.html">py_repr()</a></code> instead of <code><a href="https://rdrr.io/r/utils/str.html" class="external-link">str()</a></code>.</li>
+<li>All Python objects gain a default <code><a href="https://rdrr.io/r/base/format.html" class="external-link">format()</a></code> method that invokes <code><a href="../reference/py_str.html">py_str()</a></code>.</li>
 <li>
 <code><a href="../reference/py_str.html">py_str()</a></code> default method no longer strips the object memory address.</li>
-<li>The printed object is now returned invisibly, for composability with <code>%&gt;%</code>
-</li>
+<li>
+<code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> now returns the printed object invisibly, for composability with <code>%&gt;%</code>.</li>
 </ul></li>
 <li>
 <p>Exception handling changes (<a href="https://github.com/rstudio/reticulate/issues/1142" class="external-link">#1142</a>, <a href="https://github.com/t-kalinowski" class="external-link">@t-kalinowski</a>):</p>

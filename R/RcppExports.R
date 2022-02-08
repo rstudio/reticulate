@@ -13,6 +13,33 @@ is_python3 <- function() {
     .Call(`_reticulate_is_python3`)
 }
 
+#' Check if a Python object is a null externalptr
+#'
+#' @param x Python object
+#'
+#' @return Logical indicating whether the object is a null externalptr
+#'
+#' @details When Python objects are serialized within a persisted R
+#'  environment (e.g. .RData file) they are deserialized into null
+#'  externalptr objects (since the Python session they were originally
+#'  connected to no longer exists). This function allows you to safely
+#'  check whether whether a Python object is a null externalptr.
+#'
+#'  The `py_validate` function is a convenience function which calls
+#'  `py_is_null_xptr` and throws an error in the case that the xptr
+#'  is `NULL`.
+#'
+#' @export
+py_is_null_xptr <- function(x) {
+    .Call(`_reticulate_py_is_null_xptr`, x)
+}
+
+#' @rdname py_is_null_xptr
+#' @export
+py_validate_xptr <- function(x) {
+    invisible(.Call(`_reticulate_py_validate_xptr`, x))
+}
+
 py_none_impl <- function() {
     .Call(`_reticulate_py_none_impl`)
 }
@@ -57,39 +84,18 @@ py_str_impl <- function(x) {
     .Call(`_reticulate_py_str_impl`, x)
 }
 
+#' @export
+#' @rdname py_str
+py_repr <- function(object) {
+    .Call(`_reticulate_py_repr`, object)
+}
+
 py_print <- function(x) {
     invisible(.Call(`_reticulate_py_print`, x))
 }
 
 py_is_function <- function(x) {
     .Call(`_reticulate_py_is_function`, x)
-}
-
-#' Check if a Python object is a null externalptr
-#'
-#' @param x Python object
-#'
-#' @return Logical indicating whether the object is a null externalptr
-#'
-#' @details When Python objects are serialized within a persisted R
-#'  environment (e.g. .RData file) they are deserialized into null
-#'  externalptr objects (since the Python session they were originally
-#'  connected to no longer exists). This function allows you to safely
-#'  check whether whether a Python object is a null externalptr.
-#'
-#'  The `py_validate` function is a convenience function which calls
-#'  `py_is_null_xptr` and throws an error in the case that the xptr
-#'  is `NULL`.
-#'
-#' @export
-py_is_null_xptr <- function(x) {
-    .Call(`_reticulate_py_is_null_xptr`, x)
-}
-
-#' @rdname py_is_null_xptr
-#' @export
-py_validate_xptr <- function(x) {
-    invisible(.Call(`_reticulate_py_validate_xptr`, x))
 }
 
 py_numpy_available_impl <- function() {

@@ -1,7 +1,7 @@
 
 #' @export
 print.python.builtin.object <- function(x, ...) {
-  writeLines(format(x, ...))
+  writeLines(py_repr(x))
   invisible(x)
 }
 
@@ -937,12 +937,18 @@ py_id <- function(object) {
 
 #' String representation of a python object.
 #'
-#' This is equivalent to calling `str(object)` in Python, and also the same method
-#' invoked by Python's `print()`.
+#' This is equivalent to calling `str(object)` or `repr(object)` in Python.
 #'
-#' For historical reasons, this is also an \R S3 method that allows R authors to
-#' customize the the string representation of a Python object from R. New code
-#' is recommended to provide a `format` S3 R method for python objects instead.
+#' In Python, calling `print()` invokes the builtin `str()`, while auto-printing
+#' an object at the REPL invokes the builtin `repr()`.
+#'
+#' In \R, the default print method for python objects invokes `py_repr()`, and
+#' the default `format()` and `as.character()` methods invoke `py_str()`.
+#'
+#' For historical reasons, `py_str()` is also an \R S3 method that allows R
+#' authors to customize the the string representation of a Python object from R.
+#' New code is recommended to provide a `format()` and/or `print()` S3 R method
+#' for python objects instead.
 #'
 #' @param object Python object
 #' @param ... Unused
@@ -1020,6 +1026,22 @@ py_collection_str <- function(name, object) {
   else
     py_str.python.builtin.object(object)
 }
+
+.print.via.format <- function(x, ...) {
+  writeLines(format(x, ...))
+  invisible(x)
+}
+
+#' @export
+print.python.builtin.bytearray <- .print.via.format
+#' @export
+print.python.builtin.tuple <- .print.via.format
+#' @export
+print.python.builtin.module <- .print.via.format
+#' @export
+print.python.builtin.list <- .print.via.format
+#' @export
+print.python.builtin.dict <- .print.via.format
 
 
 #' Suppress Python warnings for an expression

@@ -191,6 +191,7 @@ LIBPYTHON_EXTERN void (*Py_DecRef)(PyObject *);
 
 LIBPYTHON_EXTERN int (*PyObject_Print)(PyObject* o, FILE* fp, int flags);
 LIBPYTHON_EXTERN PyObject* (*PyObject_Str)(PyObject *);
+LIBPYTHON_EXTERN PyObject* (*PyObject_Repr)(PyObject *);
 
 LIBPYTHON_EXTERN int (*PyObject_IsInstance)(PyObject *object, PyObject *typeorclass);
 

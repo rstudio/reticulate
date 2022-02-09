@@ -3,7 +3,7 @@ Type: Package
 Title: Interface to 'Python'
 Version: 1.24-9000
 Authors@R: c(
-  person("Tomasz, Kalinowski", role = c("ctb", "cre"),
+  person("Tomasz", "Kalinowski", role = c("ctb", "cre"),
          email = "tomasz@rstudio.com"),
   person("Kevin", "Ushey", role = c("aut"),
          email = "kevin@rstudio.com"),

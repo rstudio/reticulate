@@ -393,3 +393,11 @@ debuglog <- function(fmt, ...) {
   msg <- sprintf(fmt, ...)
   cat(msg, file = "/tmp/reticulate.log", sep = "\n", append = TRUE)
 }
+
+system2t <- function(command, args, ...) {
+  # system2, with a trace
+  # mimic bash's set -x usage of a "+" prefix for now
+  # maybe someday take a dep on {cli} and make it prettier
+  message(paste("+", shQuote(command), paste0(args, collapse = " ")))
+  system2(command, args, ...)
+}

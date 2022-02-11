@@ -45,7 +45,7 @@ pip_install <- function(python,
   }
 
   result <- if (is.null(conda) || identical(conda, FALSE))
-    system2(python, args)
+    system2t(python, args)
   else
     conda_run2(python, args, conda = conda, envname = envname)
 
@@ -63,7 +63,7 @@ pip_uninstall <- function(python, packages) {
 
   # run it
   args <- c("-m", "pip", "uninstall", "--yes", packages)
-  result <- system2(python, args)
+  result <- system2t(python, args)
   if (result != 0L) {
     pkglist <- paste(shQuote(packages), collapse = ", ")
     msg <- paste("Error removing package(s):", pkglist)

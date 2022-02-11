@@ -83,7 +83,9 @@
 
     <div class="section level2">
 <h2 class="page-header" data-toc-text="1.25" id="reticulate-125-unreleased">reticulate 1.25 (UNRELEASED)<a class="anchor" aria-label="anchor" href="#reticulate-125-unreleased"></a></h2>
-<ul><li><p>Fixed an issue where reticulate would fail to bind to a conda python if the user didn’t have write permissions to the conda installation (<a href="https://github.com/rstudio/reticulate/issues/1156" class="external-link">#1156</a>).</p></li>
+<ul><li><p><code><a href="../reference/install_python.html">install_python()</a></code> and <code>create_virtualenv()</code> gain the ability to automatically select the latest patch of a requested Python version. e.g.: <code>install_python("3.8:latest")</code>, <code>create_virtualenv("my-env", version = "3.8:latest")</code></p></li>
+<li><p><code><a href="../reference/install_python.html">install_python()</a></code> <code>version</code> arg gains default value of <code>"3.8:latest"</code>. <code><a href="../reference/install_python.html">install_python()</a></code> can now be called with no arguments.</p></li>
+<li><p>Fixed an issue where reticulate would fail to bind to a conda python if the user didn’t have write permissions to the conda installation (<a href="https://github.com/rstudio/reticulate/issues/1156" class="external-link">#1156</a>).</p></li>
 <li><p>Fixed an issue where reticulate would fail to bind to a conda python if spaces were present in the file path to the associated conda binary (<a href="https://github.com/rstudio/reticulate/issues/1154" class="external-link">#1154</a>).</p></li>
 <li><p><code>use_python(, required = TRUE)</code> now issues a warning if the request will be ignored (<a href="https://github.com/rstudio/reticulate/issues/1150" class="external-link">#1150</a>).</p></li>
 <li><p>New function <code><a href="../reference/py_str.html">py_repr()</a></code> (<a href="https://github.com/rstudio/reticulate/issues/1157" class="external-link">#1157</a>)</p></li>

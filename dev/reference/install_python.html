@@ -89,7 +89,7 @@ and <a href="https://github.com/pyenv-win/pyenv-win" class="external-link">pyenv
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">install_python</span><span class="op">(</span><span class="va">version</span>, list <span class="op">=</span> <span class="cn">FALSE</span>, force <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">install_python</span><span class="op">(</span>version <span class="op">=</span> <span class="st">"3.8:latest"</span>, list <span class="op">=</span> <span class="cn">FALSE</span>, force <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -106,11 +106,21 @@ of Python is already installed?</p></dd>
     <h2>Details</h2>
     <p>In general, it is recommended that Python virtual environments are created
 using the copies of Python installed by <code>install_python()</code>. For example:</p><div class="sourceCode"><pre><code><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span>
-<span class="va">version</span> <span class="op">&lt;-</span> <span class="st">"3.8.7"</span>
-<span class="fu"><a href="../reference/install_python.html">install_python</a></span><span class="op">(</span>version <span class="op">=</span> <span class="va">version</span><span class="op">)</span>
-<span class="fu"><a href="../reference/virtualenv-tools.html">virtualenv_create</a></span><span class="op">(</span><span class="st">"my-environment"</span>, python_version <span class="op">=</span> <span class="va">version</span><span class="op">)</span>
-<span class="fu"><a href="../reference/use_python.html">use_virtualenv</a></span><span class="op">(</span><span class="st">"my-environment"</span><span class="op">)</span></code></pre></div>
+<span class="va">version</span> <span class="op">&lt;-</span> <span class="st">"3.8.10"</span>
+<span class="fu"><a href="../reference/install_python.html">install_python</a></span><span class="op">(</span><span class="va">version</span><span class="op">)</span>
+<span class="fu"><a href="../reference/virtualenv-tools.html">virtualenv_create</a></span><span class="op">(</span><span class="st">"my-environment"</span>, version <span class="op">=</span> <span class="va">version</span><span class="op">)</span>
+<span class="fu"><a href="../reference/use_python.html">use_virtualenv</a></span><span class="op">(</span><span class="st">"my-environment"</span><span class="op">)</span>
 
+<span class="co"># There is also support for a ":latest" suffix to select the latest patch release</span>
+<span class="fu"><a href="../reference/install_python.html">install_python</a></span><span class="op">(</span><span class="st">"3.8:latest"</span><span class="op">)</span> <span class="co"># install latest patch available at python.org</span>
+
+<span class="co"># select the latest 3.8.* patch installed locally</span>
+<span class="fu"><a href="../reference/virtualenv-tools.html">virtualenv_create</a></span><span class="op">(</span><span class="st">"my-environment"</span>, version <span class="op">=</span> <span class="st">"3.8:latest"</span><span class="op">)</span></code></pre></div>
+
+    </div>
+    <div id="note">
+    <h2>Note</h2>
+    <p>On macOS and Linux this will build Python from sources, which may take a few minutes.</p>
     </div>
 
   </div>

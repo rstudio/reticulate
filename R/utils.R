@@ -382,6 +382,13 @@ startsWith <- function(x, prefix) {
   suppressWarnings(substr(x, 1L, nchar(prefix)) == prefix)
 }
 
+endsWith <- function (x, suffix) { # needed for R < 3.3
+  if (!is.character(x) || !is.character(suffix))
+    stop("non-character object(s)")
+  n <- nchar(x)
+  suppressWarnings(substr(x, n - nchar(suffix) + 1L, n) == suffix)
+}
+
 debuglog <- function(fmt, ...) {
   msg <- sprintf(fmt, ...)
   cat(msg, file = "/tmp/reticulate.log", sep = "\n", append = TRUE)

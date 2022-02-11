@@ -1,9 +1,16 @@
 # reticulate 1.25  (UNRELEASED)
 
+- `install_python()` and `create_virtualenv()` gain the ability to automatically
+  select the latest patch of a requested Python version.
+  e.g.: `install_python("3.8:latest")`, `create_virtualenv("my-env", version = "3.8:latest")`
+
+- `install_python()` `version` arg gains default value of `"3.8:latest"`.
+  `install_python()` can now be called with no arguments.
+
 - Fixed an issue where reticulate would fail to bind to a conda python
   if the user didn't have write permissions to the conda installation (#1156).
 
-- Fixed an issue where reticulate would fail to bind to a conda python if 
+- Fixed an issue where reticulate would fail to bind to a conda python if
   spaces were present in the file path to the associated conda binary (#1154).
 
 - `use_python(, required = TRUE)` now issues a warning if the request will be ignored (#1150).
@@ -12,7 +19,7 @@
 
 - `print()` and related changes (#1148, #1157):
   - The default `print()` method for Python objects now invokes `py_repr()` instead of `str()`.
-  - All Python objects gain a default `format()` method that invokes `py_str()`. 
+  - All Python objects gain a default `format()` method that invokes `py_str()`.
   - `py_str()` default method no longer strips the object memory address.
   - `print()` now returns the printed object invisibly, for composability with `%>%`.
 

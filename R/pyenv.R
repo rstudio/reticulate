@@ -6,10 +6,28 @@ pyenv_root <- function() {
   file.path(norm, "pyenv")
 }
 
+
+pyenv_resolve_latest_patch <- function(version, installed = TRUE, pyenv = pyenv_find()) {
+  # if version = "3.8:latest", resolve latest installed
+  # recent versions of pyenv on Mac/Linux can accept a ":latest" suffix on install,
+  # but then we can't easily resolve the latest from what's locally installed.
+  # windows pyenv can't handle :latest at all.
+  # So we do it all in R.
+  stopifnot(endsWith(version, ":latest"))
+  version <- substr(version, 1L, nchar(version) - nchar(":latest"))
+
+  available <- pyenv_list(pyenv, installed)
+  available <- available[startsWith(available, version)]
+  as.character(max(numeric_version(available, strict = FALSE), na.rm = TRUE))
+}
+
 pyenv_python <- function(version) {
 
   if (is.null(version))
     return(NULL)
+
+  if(endsWith(version, ":latest"))
+    version <- pyenv_resolve_latest_patch(version, installed = TRUE)
 
   # on Windows, Python will be installed as part of the pyenv installation
   prefix <- if (is_windows()) {
@@ -43,7 +61,7 @@ pyenv_python <- function(version) {
 
 }
 
-pyenv_list <- function(pyenv = NULL) {
+pyenv_list <- function(pyenv = NULL, installed = FALSE) {
 
   # resolve pyenv
   pyenv <- normalizePath(
@@ -51,6 +69,9 @@ pyenv_list <- function(pyenv = NULL) {
     winslash = "/",
     mustWork = TRUE
   )
+
+  if(installed)
+    return(system2(pyenv, c("versions", "--bare"), stdout = TRUE))
 
   # request list of Python packages
   output <- system2(pyenv, c("install", "--list"), stdout = TRUE, stderr = TRUE)

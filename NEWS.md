@@ -1,5 +1,10 @@
 # reticulate 1.25  (UNRELEASED)
 
+- All commands that create, modify, or delete a Python environment now emit
+  an R message of the system command about to be executed. Affected:
+    virtualenv_{create,install,remove}
+    conda_{create,clone,remove,install,update}
+
 - `install_python()` and `create_virtualenv()` gain the ability to automatically
   select the latest patch of a requested Python version.
   e.g.: `install_python("3.8:latest")`, `create_virtualenv("my-env", version = "3.8:latest")`

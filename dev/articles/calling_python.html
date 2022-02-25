@@ -355,7 +355,7 @@
 </h2>
 <p>Sparse matrices created by <a href="https://CRAN.R-project.org/package=Matrix" class="external-link">Matrix R package</a> can be converted <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.csc_matrix.html" class="external-link">Scipy CSC matrix</a>, and vice versa. This is often useful when you want to pass sparse matrices to Python functions that accepts Scipy CSC matrix to take advantage of this format, such as efficient column slicing and fast matrix vector products.</p>
 <p>For example, we first create a sparse matrix using <code><a href="https://rdrr.io/pkg/Matrix/man/sparseMatrix.html" class="external-link">Matrix::sparseMatrix()</a></code>:</p>
-<pre><code><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://Matrix.R-forge.R-project.org/" class="external-link">Matrix</a></span><span class="op">)</span>
+<pre><code><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://Matrix.R-forge.R-project.org/" class="external-link">Matrix</a></span><span class="op">)</span>
 <span class="va">N</span> <span class="op">&lt;-</span> <span class="fl">5</span>
 <span class="va">dgc_matrix</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Matrix/man/sparseMatrix.html" class="external-link">sparseMatrix</a></span><span class="op">(</span>
   i <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="va">N</span>, <span class="va">N</span><span class="op">)</span>,

@@ -1,9 +1,13 @@
 # reticulate 1.25  (UNRELEASED)
 
-- All commands that create, modify, or delete a Python environment now emit
-  an R message of the system command about to be executed. Affected:
+- Fixed an issue where reticulate would fail to bind to an Anaconda 
+  base environment on Windows. 
+
+- All commands that create, modify, or delete a Python environment now echo
+  the system command about to be executed. Affected:
     virtualenv_{create,install,remove}
     conda_{create,clone,remove,install,update}
+    py_install
 
 - `install_python()` and `create_virtualenv()` gain the ability to automatically
   select the latest patch of a requested Python version.

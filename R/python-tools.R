@@ -151,6 +151,13 @@ python_info_condaenv_find <- function(path) {
   if (file.exists(conda))
     return(conda)
 
+  if (is_windows()) {
+    # in Anaconda base env, conda.exe lives under Scripts
+    conda <- file.path(path, "Scripts", exe)
+    if (file.exists(conda))
+      return(conda)
+  }
+
   # read history file
   histpath <- file.path(path, "conda-meta/history")
   if (!file.exists(histpath))

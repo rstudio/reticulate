@@ -73,6 +73,9 @@ use_python <- function(python, required = NULL) {
   if (required && !file_test("-f", python) && !file_test("-d", python))
     stop("Specified version of python '", python, "' does not exist.")
 
+  # ensure that the python path is normalized as expected
+  python <- normalize_python_path(python)$path
+
   # if required == TRUE and python is already initialized then confirm that we
   # are using the correct version
   if (required && is_python_initialized()) {

@@ -57,6 +57,24 @@ test_that("Conversion between Matrix::dgCMatrix and Scipy sparse CSC matrix work
   check_matrix_conversion(x, result)
 })
 
+test_that("Conversion between a small Matrix::dgCMatrix and Scipy sparse CSC matrix works", {
+  skip_on_cran()
+  skip_if_no_scipy()
+
+  N <- 1
+  x <- sparseMatrix(
+    i = sample(N, N),
+    j = sample(N, N),
+    x = runif(N),
+    dims = c(N, N))
+  result <- r_to_py(x)
+
+  # check that we are testing the right classes
+  expect_true(is(result, "scipy.sparse.csc.csc_matrix"))
+  expect_true(is(py_to_r(result), "dgCMatrix"))
+  check_matrix_conversion(x, result)
+})
+
 test_that("Conversion between Matrix::dgRMatrix and Scipy sparse CSR matrix works", {
   skip_on_cran()
   skip_if_no_scipy()
@@ -76,11 +94,49 @@ test_that("Conversion between Matrix::dgRMatrix and Scipy sparse CSR matrix work
   check_matrix_conversion(x, result)
 })
 
+test_that("Conversion between a small Matrix::dgRMatrix and Scipy sparse CSR matrix works", {
+  skip_on_cran()
+  skip_if_no_scipy()
+
+  N <- 1
+  x <- sparseMatrix(
+    i = sample(N, N),
+    j = sample(N, N),
+    x = runif(N),
+    dims = c(N, N))
+  x <- as(x, "RsparseMatrix")
+  result <- r_to_py(x)
+
+  # check that we are testing the right classes
+  expect_true(is(result, "scipy.sparse.csr.csr_matrix"))
+  expect_true(is(py_to_r(result), "dgRMatrix"))
+  check_matrix_conversion(x, result)
+})
+
 test_that("Conversion between Matrix::dgTMatrix and Scipy sparse COO matrix works", {
   skip_on_cran()
   skip_if_no_scipy()
 
   N <- 1000
+  x <- sparseMatrix(
+    i = sample(N, N),
+    j = sample(N, N),
+    x = runif(N),
+    dims = c(N, N))
+  x <- as(x, "TsparseMatrix")
+  result <- r_to_py(x)
+
+  # check that we are testing the right classes
+  expect_true(is(result, "scipy.sparse.coo.coo_matrix"))
+  expect_true(is(py_to_r(result), "dgTMatrix"))
+  check_matrix_conversion(x, result)
+})
+
+test_that("Conversion between a small Matrix::dgTMatrix and Scipy sparse COO matrix works", {
+  skip_on_cran()
+  skip_if_no_scipy()
+
+  N <- 1
   x <- sparseMatrix(
     i = sample(N, N),
     j = sample(N, N),

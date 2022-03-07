@@ -684,7 +684,7 @@
 
 - Fail when environment not found with `use_condaenv(..., required = TRUE)`
 
-- Ensure that `use_*` python version is satsified when using `eng_python()`
+- Ensure that `use_*` python version is satisfied when using `eng_python()`
 
 - Forward `required` argument from `use_virtualenv()` and `use_condaenv()`
 
@@ -872,7 +872,7 @@
 - Add `py_function_docs()` amd `py_function_wrapper()` utility functions for
   scaffolding R wrappers for Python functions.
 
-- Add `py_last_error()` function for retreiving last Python error.
+- Add `py_last_error()` function for retrieving last Python error.
 
 - Convert 0-dimension NumPy arrays (scalars) to single element R vectors
 
@@ -931,7 +931,7 @@
 
 - Fix `PROTECT`/`UNPROTECT` issue detected by CRAN
 
-- Correct converstion of strings with Unicode characters on Windows
+- Correct conversion of strings with Unicode characters on Windows
 
 - Fix incompatibility with system-wide Python installations on Windows
 

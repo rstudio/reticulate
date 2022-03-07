@@ -37,7 +37,7 @@
 #' @param file The path where the conda environment definition will be written.
 #'
 #' @param json Boolean; should the environment definition be written as JSON?
-#'   By default, conda exports environmentas as YAML.
+#'   By default, conda exports environments as YAML.
 #'
 #' @param pip Boolean; use `pip` for package installation? By default, packages
 #'   are installed from the active conda channels.

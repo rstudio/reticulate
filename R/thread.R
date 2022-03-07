@@ -7,7 +7,7 @@
 #' must run on the main thread, wrapping the R function with `py_main_thread_func()`
 #' will ensure that R code is only executed on the main thread.
 #'
-#' @param f An R function with artibrary arguments
+#' @param f An R function with arbitrary arguments
 #' @return A Python function that delegates to the passed R function, which
 #'  is guaranteed to always be called on the main thread.
 #'

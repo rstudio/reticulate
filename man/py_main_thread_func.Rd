@@ -7,7 +7,7 @@
 py_main_thread_func(f)
 }
 \arguments{
-\item{f}{An R function with artibrary arguments}
+\item{f}{An R function with arbitrary arguments}
 }
 \value{
 A Python function that delegates to the passed R function, which

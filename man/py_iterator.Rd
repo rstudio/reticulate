@@ -60,7 +60,7 @@ example:\if{html}{\out{<div class="sourceCode r">}}\preformatted{sequence_genera
 \section{Threading}{
 
 
-Some Python APIs use generators to parallelize operations by calling the
+Some Python APIs use generators to parallellize operations by calling the
 generator on a background thread and then consuming its results on
 the foreground thread. The \code{py_iterator()} function creates threadsafe
 iterators by ensuring that the R function is always called on the main

@@ -31,7 +31,9 @@ Python as installed by the \code{\link[=install_python]{install_python()}} helpe
 
 \item{virtualenv}{Either the name of, or the path to, a Python virtual environment.}
 
-\item{condaenv}{The name of the Conda environment to use.}
+\item{condaenv}{The conda environment to use. This can be the name, the absolute prefix path
+or the absolute path to the python binary. If the name is ambiguous, the
+first environment is used and a warning is issued.}
 
 \item{conda}{The path to a \code{conda} executable. By default, \code{reticulate} will check the
 \code{PATH}, as well as other standard locations for Anaconda installations.}

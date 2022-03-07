@@ -45,6 +45,8 @@
 
   - Python traceback objects gain a default `format()` S3 method.
 
+- Fixed `py_to_r()` for scipy objects which were deprecated in scipy >= 1.8.0.
+
 - New maintainer: Tomasz Kalinowski
 
 # reticulate 1.24
@@ -931,7 +933,7 @@
 
 - Fix `PROTECT`/`UNPROTECT` issue detected by CRAN
 
-- Correct converstion of strings with Unicode characters on Windows
+- Correct conversion of strings with Unicode characters on Windows
 
 - Fix incompatibility with system-wide Python installations on Windows
 

@@ -464,10 +464,13 @@ r_to_py.dgCMatrix <- function(x, convert = FALSE) {
   sp <- import("scipy.sparse", convert = FALSE)
   csc_x <- sp$csc_matrix(
     tuple(
-      x@x, # Data array of the matrix
-      x@i, # CSC format index array
-      x@p), # CSC format index pointer array
-    shape = dim(x))
+      np_array(x@x), # Data array of the matrix
+      np_array(x@i), # CSC format index array
+      np_array(x@p), # CSC format index pointer array
+      convert = FALSE
+    ),
+    shape = dim(x)
+  )
   if (any(dim(x) != dim(csc_x)))
     stop(
       paste(
@@ -503,10 +506,13 @@ r_to_py.dgRMatrix <- function(x, convert = FALSE) {
   sp <- import("scipy.sparse", convert = FALSE)
   csr_x <- sp$csr_matrix(
     tuple(
-      x@x, # Data array of the matrix
-      x@j, # CSR format index array
-      x@p), # CSR format index pointer array
-    shape = dim(x))
+      np_array(x@x), # Data array of the matrix
+      np_array(x@j), # CSR format index array
+      np_array(x@p), # CSR format index pointer array
+      convert = FALSE
+    ),
+    shape = dim(x)
+  )
   if (any(dim(x) != dim(csr_x)))
     stop(
       paste(
@@ -542,10 +548,16 @@ r_to_py.dgTMatrix <- function(x, convert = FALSE) {
   sp <- import("scipy.sparse", convert = FALSE)
   coo_x <- sp$coo_matrix(
     tuple(
-      x@x, # Data array of the matrix
-      tuple(x@i,
-            x@j)), # COO format coordinate array
-    shape = dim(x))
+      np_array(x@x), # Data array of the matrix
+      tuple(
+        np_array(x@i),
+        np_array(x@j),
+        convert = FALSE
+      ),
+      convert = FALSE
+    ),
+    shape = dim(x)
+  )
   if (any(dim(x) != dim(coo_x)))
     stop(
       paste(
@@ -588,3 +600,17 @@ r_convert_dataframe_column <- function(column, convert) {
   }
 
 }
+
+# workaround for deprecation of packages in scipy 1.8.0
+#' @export
+dim.scipy.sparse._base.spmatrix <- dim.scipy.sparse.base.spmatrix
+#' @export
+length.scipy.sparse._base.spmatrix <- length.scipy.sparse.base.spmatrix
+#' @export
+py_to_r.scipy.sparse._base.spmatrix <- py_to_r.scipy.sparse.base.spmatrix
+#' @export
+py_to_r.scipy.sparse._csc.csc_matrix <- py_to_r.scipy.sparse.csc.csc_matrix
+#' @export
+py_to_r.scipy.sparse._csr.csr_matrix <- py_to_r.scipy.sparse.csr.csr_matrix
+#' @export
+py_to_r.scipy.sparse._coo.coo_matrix <- py_to_r.scipy.sparse.coo.coo_matrix

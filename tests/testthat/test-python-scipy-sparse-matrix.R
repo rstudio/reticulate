@@ -33,7 +33,7 @@ test_that("Conversion to scipy sparse matrix S3 methods behave with null pointer
   result <- readRDS(temp_file)
 
   # check that S3 methods behave with null pointers
-  expect_true(is(result, "scipy.sparse.csc.csc_matrix"))
+  expect_true(is(result, "scipy.sparse.csc.csc_matrix") || is(result, "scipy.sparse._csc.csc_matrix"))
   expect_true(is.null(dim(result)))
   expect_true(length(result) == 0L)
   file.remove(temp_file)
@@ -52,7 +52,25 @@ test_that("Conversion between Matrix::dgCMatrix and Scipy sparse CSC matrix work
   result <- r_to_py(x)
 
   # check that we are testing the right classes
-  expect_true(is(result, "scipy.sparse.csc.csc_matrix"))
+  expect_true(is(result, "scipy.sparse.csc.csc_matrix") || is(result, "scipy.sparse._csc.csc_matrix"))
+  expect_true(is(py_to_r(result), "dgCMatrix"))
+  check_matrix_conversion(x, result)
+})
+
+test_that("Conversion between a small Matrix::dgCMatrix and Scipy sparse CSC matrix works", {
+  skip_on_cran()
+  skip_if_no_scipy()
+
+  N <- 1
+  x <- sparseMatrix(
+    i = sample(N, N),
+    j = sample(N, N),
+    x = runif(N),
+    dims = c(N, N))
+  result <- r_to_py(x)
+
+  # check that we are testing the right classes
+  expect_true(is(result, "scipy.sparse.csc.csc_matrix") || is(result, "scipy.sparse._csc.csc_matrix"))
   expect_true(is(py_to_r(result), "dgCMatrix"))
   check_matrix_conversion(x, result)
 })
@@ -71,7 +89,26 @@ test_that("Conversion between Matrix::dgRMatrix and Scipy sparse CSR matrix work
   result <- r_to_py(x)
 
   # check that we are testing the right classes
-  expect_true(is(result, "scipy.sparse.csr.csr_matrix"))
+  expect_true(is(result, "scipy.sparse.csr.csr_matrix") || is(result, "scipy.sparse._csr.csr_matrix"))
+  expect_true(is(py_to_r(result), "dgRMatrix"))
+  check_matrix_conversion(x, result)
+})
+
+test_that("Conversion between a small Matrix::dgRMatrix and Scipy sparse CSR matrix works", {
+  skip_on_cran()
+  skip_if_no_scipy()
+
+  N <- 1
+  x <- sparseMatrix(
+    i = sample(N, N),
+    j = sample(N, N),
+    x = runif(N),
+    dims = c(N, N))
+  x <- as(x, "RsparseMatrix")
+  result <- r_to_py(x)
+
+  # check that we are testing the right classes
+  expect_true(is(result, "scipy.sparse.csr.csr_matrix") || is(result, "scipy.sparse._csr.csr_matrix"))
   expect_true(is(py_to_r(result), "dgRMatrix"))
   check_matrix_conversion(x, result)
 })
@@ -90,7 +127,26 @@ test_that("Conversion between Matrix::dgTMatrix and Scipy sparse COO matrix work
   result <- r_to_py(x)
 
   # check that we are testing the right classes
-  expect_true(is(result, "scipy.sparse.coo.coo_matrix"))
+  expect_true(is(result, "scipy.sparse.coo.coo_matrix") || is(result, "scipy.sparse._coo.coo_matrix"))
+  expect_true(is(py_to_r(result), "dgTMatrix"))
+  check_matrix_conversion(x, result)
+})
+
+test_that("Conversion between a small Matrix::dgTMatrix and Scipy sparse COO matrix works", {
+  skip_on_cran()
+  skip_if_no_scipy()
+
+  N <- 1
+  x <- sparseMatrix(
+    i = sample(N, N),
+    j = sample(N, N),
+    x = runif(N),
+    dims = c(N, N))
+  x <- as(x, "TsparseMatrix")
+  result <- r_to_py(x)
+
+  # check that we are testing the right classes
+  expect_true(is(result, "scipy.sparse.coo.coo_matrix") || is(result, "scipy.sparse._coo.coo_matrix"))
   expect_true(is(py_to_r(result), "dgTMatrix"))
   check_matrix_conversion(x, result)
 })
@@ -108,7 +164,7 @@ test_that("Conversion between Scipy sparse matrices without specific conversion 
   result <- r_to_py(x)$tolil()
 
   # check that we are testing the right classes
-  expect_true(is(result, "scipy.sparse.lil.lil_matrix"))
+  expect_true(is(result, "scipy.sparse.lil.lil_matrix") || is(result, "scipy.sparse._lil.lil_matrix"))
   expect_true(is(py_to_r(result), "dgCMatrix"))
   check_matrix_conversion(x, result)
 })
@@ -131,6 +187,6 @@ test_that("Conversion between R sparse matrices without specific conversion func
 
   # check that we are testing the right classes
   expect_true(is(x, "dsCMatrix"))
-  expect_true(is(result, "scipy.sparse.csc.csc_matrix"))
+  expect_true(is(result, "scipy.sparse.csc.csc_matrix") || is(result, "scipy.sparse._csc.csc_matrix"))
   check_matrix_conversion(x, result)
 })

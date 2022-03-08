@@ -45,6 +45,11 @@
 
   - Python traceback objects gain a default `format()` S3 method.
 
+- Fixed `py_to_r()` for scipy matrices when scipy >= 1.8.0, since sparse matrices
+    are now deprecated.
+
+- Fixed `r_to_py()` for small scipy matrices.
+
 - New maintainer: Tomasz Kalinowski
 
 # reticulate 1.24

@@ -73,11 +73,11 @@ help_handler <- function(type = c("completion", "parameter", "url"),
 #'
 #' @param module Name of a root Python module
 #' @param handler Handler function: `function(name, subtopic = NULL)`. The name
-#'   will be the fully qualfied name of a Python object (module, function, or
+#'   will be the fully qualified name of a Python object (module, function, or
 #'   class). The `subtopic` is optional and is currently used only for methods
 #'   within classes.
 #'
-#' @details The help handler is passed a fully qualfied module, class, or
+#' @details The help handler is passed a fully qualified module, class, or
 #'   function name (and optional method for classes). It should return a URL for
 #'   a help page (or `""` if no help page is available).
 #'

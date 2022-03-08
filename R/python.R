@@ -376,7 +376,7 @@ plot.numpy.ndarray <- function(x, y, ...) {
 #' @return A Python dictionary
 #'
 #' @note The returned dictionary will not automatically convert its elements
-#'   from Python to R. You can do manual converstion with the [py_to_r()]
+#'   from Python to R. You can do manual conversion with the [py_to_r()]
 #'   function or pass `convert = TRUE` to request automatic conversion.
 #'
 #' @export
@@ -439,7 +439,7 @@ py_dict <- function(keys, values, convert = FALSE) {
 #'
 #' @return A Python tuple
 #' @note The returned tuple will not automatically convert its elements from
-#'   Python to R. You can do manual converstion with the [py_to_r()] function or
+#'   Python to R. You can do manual conversion with the [py_to_r()] function or
 #'   pass `convert = TRUE` to request automatic conversion.
 #'
 #' @export
@@ -561,7 +561,7 @@ py_bool <- function(x) {
 #'   they are 8-bit string objects. This function enables you to
 #'   obtain a Python unicode object from an R character vector
 #'   when running under Python 2 (under Python 3 a standard Python
-#'   string object is returend).
+#'   string object is returned).
 #'
 #' @export
 py_unicode <- function(str) {

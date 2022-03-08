@@ -52,7 +52,7 @@ See the [Calling Python from R](calling_python.html) article for additional deta
 
 ## Calling R from Python
 
-You can analagously access R objects within Python chunks via the `r` object. For example:
+You can analogously access R objects within Python chunks via the `r` object. For example:
 
 ![](images/r_from_python.png){.screenshot width="98%"}
 

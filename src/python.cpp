@@ -878,7 +878,7 @@ SEXP py_to_r(PyObject* x, bool convert) {
     PyArrayObject* array = (PyArrayObject*) x;
 
     // get the dimensions -- treat 0-dim array (numpy scalar) as
-    // a 1-dim for converstion to R (will end up with a single
+    // a 1-dim for conversion to R (will end up with a single
     // element R vector)
     npy_intp len = PyArray_SIZE(array);
     int nd = PyArray_NDIM(array);

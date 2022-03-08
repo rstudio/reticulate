@@ -352,7 +352,7 @@
 <li><p><code><a href="../reference/dict.html">py_dict()</a></code> function to enable creation of dictionaries based on lists of keys and values.</p></li>
 <li><p>Provide default base directory (e.g. ‘~/.virtualenvs’) for environments specified by name in <code><a href="../reference/use_python.html">use_virtualenv()</a></code>.</p></li>
 <li><p>Fail when environment not found with <code>use_condaenv(..., required = TRUE)</code></p></li>
-<li><p>Ensure that <code>use_*</code> python version is satsified when using <code><a href="../reference/eng_python.html">eng_python()</a></code></p></li>
+<li><p>Ensure that <code>use_*</code> python version is satisfied when using <code><a href="../reference/eng_python.html">eng_python()</a></code></p></li>
 <li><p>Forward <code>required</code> argument from <code><a href="../reference/use_python.html">use_virtualenv()</a></code> and <code><a href="../reference/use_python.html">use_condaenv()</a></code></p></li>
 <li><p>Fix leak which occurred when assigning R objects into Python containers</p></li>
 <li><p>Add support for Conda Forge (enabled by default) to <code><a href="../reference/conda-tools.html">conda_install()</a></code></p></li>
@@ -450,7 +450,7 @@
 <ul><li><p>Add <code><a href="../reference/import.html">import_from_path()</a></code> function for importing Python modules from the filesystem.</p></li>
 <li><p>Add <code><a href="../reference/py_discover_config.html">py_discover_config()</a></code> function to determine which versions of Python will be discovered and which one will be used by reticulate.</p></li>
 <li><p>Add <code><a href="../reference/py_function_wrapper.html">py_function_docs()</a></code> amd <code><a href="../reference/py_function_wrapper.html">py_function_wrapper()</a></code> utility functions for scaffolding R wrappers for Python functions.</p></li>
-<li><p>Add <code><a href="../reference/py_last_error.html">py_last_error()</a></code> function for retreiving last Python error.</p></li>
+<li><p>Add <code><a href="../reference/py_last_error.html">py_last_error()</a></code> function for retrieving last Python error.</p></li>
 <li><p>Convert 0-dimension NumPy arrays (scalars) to single element R vectors</p></li>
 <li><p>Convert “callable” Python objects to R functions</p></li>
 <li><p>Automatically add Python bin directory to system PATH for consistent version usage in reticulate and calls to system</p></li>
@@ -473,7 +473,7 @@
 <li><p>Use <code><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl()</a></code> rather than <code><a href="https://rdrr.io/r/base/startsWith.html" class="external-link">endsWith()</a></code> for compatibility with R &lt;= 3.2</p></li>
 <li><p>Use <code>inspect.getmro</code> rather than <code>__bases__</code> for enumerating the base classes of Python objects.</p></li>
 <li><p>Fix <code>PROTECT</code>/<code>UNPROTECT</code> issue detected by CRAN</p></li>
-<li><p>Correct converstion of strings with Unicode characters on Windows</p></li>
+<li><p>Correct conversion of strings with Unicode characters on Windows</p></li>
 <li><p>Fix incompatibility with system-wide Python installations on Windows</p></li>
 <li><p>Fix issue with Python dictionary keys that shared names with primitive R functions (don’t check environment inheritance chain when looking for dictionary key objects by name).</p></li>
 <li><p>Propagate <code>convert</code> parameter for modules with <code>delay_load</code></p></li>

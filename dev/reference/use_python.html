@@ -113,7 +113,9 @@ Python as installed by the <code><a href="install_python.html">install_python()<
 <dt>virtualenv</dt>
 <dd><p>Either the name of, or the path to, a Python virtual environment.</p></dd>
 <dt>condaenv</dt>
-<dd><p>The name of the Conda environment to use.</p></dd>
+<dd><p>The conda environment to use. This can be the name, the absolute prefix path
+or the absolute path to the python binary. If the name is ambiguous, the
+first environment is used and a warning is issued.</p></dd>
 <dt>conda</dt>
 <dd><p>The path to a <code>conda</code> executable. By default, <code>reticulate</code> will check the
 <code>PATH</code>, as well as other standard locations for Anaconda installations.</p></dd>

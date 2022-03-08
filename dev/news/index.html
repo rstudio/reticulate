@@ -110,6 +110,8 @@
 <li><p>Gains the ability to restore a previous exception if provided in a call <code>py_last_error(previous_error)</code></p></li>
 <li><p>Python traceback objects gain a default <code><a href="https://rdrr.io/r/base/format.html" class="external-link">format()</a></code> S3 method.</p></li>
 </ul></li>
+<li><p>Fixed <code><a href="../reference/r-py-conversion.html">py_to_r()</a></code> for scipy matrices when scipy &gt;= 1.8.0, since sparse matrices are now deprecated.</p></li>
+<li><p>Fixed <code><a href="../reference/r-py-conversion.html">r_to_py()</a></code> for small scipy matrices.</p></li>
 <li><p>New maintainer: Tomasz Kalinowski</p></li>
 </ul></div>
     <div class="section level2">

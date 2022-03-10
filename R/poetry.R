@@ -29,7 +29,7 @@ poetry_config <- function(required_module) {
   if (!file.exists(poetry)) {
 
     msg <- heredoc("
-      This project appears to use Poetry for Python dependency maangement.
+      This project appears to use Poetry for Python dependency management.
       However, the 'poetry' command line tool is not available.
       reticulate will be unable to activate this project.
       Please ensure that 'poetry' is available on the PATH.

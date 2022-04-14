@@ -649,12 +649,11 @@ save_python_session <- function(cache_path) {
     if (module$message == "ImportError: No module named dill") return()
     signalCondition(module$message)
   }
-  
-  r_objs_exist <- "all(r_obj in globals() for r_obj in ('r', 'R'))"
-  r_is_R <- "isinstance(r, R)"
-  if (py_eval(r_objs_exist) && py_eval(r_is_R)) {
-    py_run_string("globals().pop('r')")
-    py_run_string("globals().pop('R')")
+
+  r_obj_exists <- "'r' in globals()"
+  r_is_R <- "type(r).__module__ == '__main__' and type(r).__name__ == 'R'"
+  if (py_eval(r_obj_exists) && py_eval(r_is_R)) {
+    py_run_string("del globals()['r']")
   }
   
   module$dump_session(filename = paste0(cache_path, ".pkl"), byref = TRUE)

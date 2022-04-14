@@ -11,4 +11,3 @@ void initialize();
 } // namespace reticulate
 
 #endif // RETICULATE_EVENT_LOOP_H
-

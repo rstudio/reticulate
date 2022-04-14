@@ -28,14 +28,14 @@ public:
   }
 
   PyObject* get() const {
-    
+
     SEXP pyObject = getFromEnvironment("pyobj");
     if (pyObject != R_NilValue) {
       PyObject* obj = (PyObject*)R_ExternalPtrAddr(pyObject);
       if (obj != NULL)
         return obj;
     }
-    
+
     Rcpp::stop("Unable to access object (object is from previous session and is now invalid)");
   }
 

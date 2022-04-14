@@ -22,7 +22,7 @@ void registerInterruptHandler();
 class InterruptsSuspendedScope
 {
 public:
-  
+
   InterruptsSuspendedScope()
     : pending_(getInterruptsPending()),
       suspended_(getInterruptsSuspended())
@@ -30,7 +30,7 @@ public:
     setInterruptsPending(false);
     setInterruptsSuspended(true);
   }
-  
+
   ~InterruptsSuspendedScope()
   {
     setInterruptsPending(pending_ || getInterruptsPending());

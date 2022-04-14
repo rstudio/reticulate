@@ -18,5 +18,3 @@ int write_stderr(std::string text) {
   REprintf("%s", text.c_str());
   return text.length();
 }
-
-

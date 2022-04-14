@@ -29,4 +29,3 @@ SEXP readline(const std::string& prompt)
   UNPROTECT(1);
   return resultSEXP;
 }
-

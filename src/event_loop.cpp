@@ -47,7 +47,7 @@ int pollForEvents(void*);
 // (when it stops running it will stop calling pollForEvents and
 // the polling signal will not be set).
 void eventPollingWorker(void *) {
-  
+
   while (true) {
 
     // Throttle via sleep
@@ -65,7 +65,7 @@ void eventPollingWorker(void *) {
     }
 
   }
-  
+
 }
 
 void processEvents(void* data) {
@@ -81,22 +81,22 @@ void processEvents(void* data) {
 int pollForEvents(void*) {
 
   DBG("Polling for events.");
-  
+
   // Request that the background thread schedule us to be called again
   // (this is delegated to a background thread so that these requests
   // can be throttled)
   s_pollingRequested = 0;
-  
+
   {
     // Process events. We wrap this in R_ToplevelExec just to avoid jumps.
     // Suspend interrupts here so we don't inadvertently handle them.
     reticulate::signals::InterruptsSuspendedScope scope;
     R_ToplevelExec(processEvents, NULL);
   }
-  
+
   // Success!
   return 0;
-  
+
 }
 
 } // anonymous namespace
@@ -109,4 +109,3 @@ void initialize() {
 
 } // namespace event_loop
 } // namespace reticulate
-

@@ -1006,4 +1006,3 @@ inline thread::id this_thread::get_id()
 
 
 #endif // _TINYTHREAD_H_
-

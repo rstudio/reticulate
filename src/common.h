@@ -24,7 +24,7 @@
 extern "C" {
 extern Rboolean R_ToplevelExec(void (*func)(void*), void*);
 extern void R_ProcessEvents();
-extern void Rprintf(const char*, ...);  
+extern void Rprintf(const char*, ...);
 }
 
 #endif /* RETICULATE_COMMON_H */

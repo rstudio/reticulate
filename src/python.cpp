@@ -2068,14 +2068,6 @@ void py_initialize(const std::string& python,
 
   if (is_python3()) {
 
-    // set program name
-    s_python_v3 = to_wstring(python);
-    Py_SetProgramName_v3(const_cast<wchar_t*>(s_python_v3.c_str()));
-
-    // set program home
-    s_pythonhome_v3 = to_wstring(pythonhome);
-    Py_SetPythonHome_v3(const_cast<wchar_t*>(s_pythonhome_v3.c_str()));
-
     if (Py_IsInitialized()) {
       // if R is embedded in a python environment, rpycall has to be loaded as a regular
       // module.
@@ -2084,17 +2076,26 @@ void py_initialize(const std::string& python,
       PyDict_SetItemString(PyImport_GetModuleDict(), "rpycall", initializeRPYCall());
 
     } else {
+
+      // set program name
+      s_python_v3 = to_wstring(python);
+      Py_SetProgramName_v3(const_cast<wchar_t*>(s_python_v3.c_str()));
+
+      // set program home
+      s_pythonhome_v3 = to_wstring(pythonhome);
+      Py_SetPythonHome_v3(const_cast<wchar_t*>(s_pythonhome_v3.c_str()));
+
       // add rpycall module
       PyImport_AppendInittab("rpycall", &initializeRPYCall);
 
       // initialize python
       Py_Initialize();
+      const wchar_t *argv[1] = {s_python_v3.c_str()};
+      PySys_SetArgv_v3(1, const_cast<wchar_t**>(argv));
+
     }
 
-    const wchar_t *argv[1] = {s_python_v3.c_str()};
-    PySys_SetArgv_v3(1, const_cast<wchar_t**>(argv));
-
-  } else {
+  } else { // python2
 
     // set program name
     s_python = python;

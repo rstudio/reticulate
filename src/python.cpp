@@ -51,6 +51,17 @@ void loadSymbol(void* pLib, const std::string& name, void** ppSymbol)
 #endif
 }
 
+class GILScope {
+ private:
+  PyGILState_STATE gstate;
+
+ public:
+  // aquire GIL on creation, release on destruction
+  GILScope() { gstate = PyGILState_Ensure(); }
+
+  ~GILScope() { PyGILState_Release(gstate); }
+};
+
 // track whether we have required numpy
 std::string s_numpy_load_error;
 bool haveNumPy() {
@@ -64,17 +75,17 @@ bool requireNumPy() {
 }
 
 bool isPyArray(PyObject* object) {
-  if (!haveNumPy())
-    return false;
-  else
-    return PyArray_Check(object);
+  if (!haveNumPy()) return false;
+
+  GILScope scope;
+  return PyArray_Check(object);
 }
 
 bool isPyArrayScalar(PyObject* object) {
-  if (!haveNumPy())
-    return false;
-  else
-    return PyArray_CheckScalar(object);
+  if (!haveNumPy()) return false;
+
+  GILScope scope;
+  return PyArray_CheckScalar(object);
 }
 
 // static buffers for Py_SetProgramName / Py_SetPythonHome
@@ -138,6 +149,7 @@ PyObject* py_capsule_new(SEXP object) {
 }
 
 PyObject* py_get_attr(PyObject* object, const std::string& name) {
+  GILScope scope;
 
   if (PyObject_HasAttrString(object, name.c_str()))
     return PyObject_GetAttrString(object, name.c_str());
@@ -165,8 +177,10 @@ public:
 
   virtual ~PyPtr()
   {
-    if (object_ != NULL)
+    if (object_ != NULL) {
+      GILScope scope;
       Py_DecRef((PyObject*) object_);
+    }
   }
 
   operator T*() const
@@ -210,12 +224,14 @@ typedef PyPtr<PyObject> PyObjectPtr;
 typedef PyPtr<PyArray_Descr> PyArray_DescrPtr;
 
 PyObject* PyUnicode_AsBytes(PyObject* str) {
+  GILScope scope;
   return PyUnicode_AsEncodedString(str, "utf-8", "ignore");
 }
 
 PyObject* as_python_str(const std::string& str);
 
 std::string as_std_string(PyObject* str) {
+  GILScope scope;
 
   // conver to bytes if its unicode
   PyObjectPtr pStr;
@@ -238,6 +254,7 @@ std::string as_std_string(PyObject* str) {
 #define as_utf8_r_string(str) Rcpp::String(as_std_string(str))
 
 PyObject* as_python_str(SEXP strSEXP) {
+  GILScope scope;
   if (is_python3()) {
     // python3 doesn't have PyString and all strings are unicode so
     // make sure we get a unicode representation from R
@@ -250,6 +267,7 @@ PyObject* as_python_str(SEXP strSEXP) {
 }
 
 PyObject* as_python_str(const std::string& str) {
+  GILScope scope;
   if (is_python3()) {
     return PyUnicode_FromString(str.c_str());
   } else {
@@ -258,6 +276,7 @@ PyObject* as_python_str(const std::string& str) {
 }
 
 bool has_null_bytes(PyObject* str) {
+  GILScope scope;
   char* buffer;
   int res = PyString_AsStringAndSize(str, &buffer, NULL);
   if (res == -1) {
@@ -321,14 +340,17 @@ int narrow_array_typenum(int typenum) {
 }
 
 int narrow_array_typenum(PyArrayObject* array) {
+  GILScope scope;
   return narrow_array_typenum(PyArray_TYPE(array));
 }
 
 int narrow_array_typenum(PyArray_Descr* descr) {
+  GILScope scope;
   return narrow_array_typenum(descr->type_num);
 }
 
 bool is_numpy_str(PyObject* x) {
+  GILScope scope;
   if (!isPyArrayScalar(x))
     return false; // ndarray or other, not string
 
@@ -338,6 +360,7 @@ bool is_numpy_str(PyObject* x) {
 }
 
 bool is_python_str(PyObject* x) {
+  GILScope scope;
 
   if (PyUnicode_Check(x))
     return true;
@@ -362,11 +385,13 @@ bool py_is_none(PyObject* object) {
 
 // convenience wrapper for PyImport_Import
 PyObject* py_import(const std::string& module) {
+  GILScope scope;
   PyObjectPtr module_str(as_python_str(module));
   return PyImport_Import(module_str);
 }
 
 std::string as_r_class(PyObject* classPtr) {
+  GILScope scope;
 
   PyObjectPtr namePtr(PyObject_GetAttrString(classPtr, "__name__"));
   std::ostringstream ostr;
@@ -391,6 +416,7 @@ std::string as_r_class(PyObject* classPtr) {
 }
 
 std::vector<std::string> py_class_names(PyObject* object) {
+  GILScope scope;
 
   // class
   PyObjectPtr classPtr(PyObject_GetAttrString(object, "__class__"));
@@ -431,6 +457,8 @@ PyObjectRef py_ref(PyObject* object,
                    bool convert,
                    const std::string& extraClass = "")
 {
+  GILScope scope;
+
   // wrap
   PyObjectRef ref(object, convert);
 
@@ -513,6 +541,7 @@ bool traceback_enabled() {
 }
 
 int flush_std_buffers() {
+  GILScope scope;
   int status = 0;
   PyObject* tmp = NULL;
   PyObject *error_type, *error_value, *error_traceback;
@@ -552,6 +581,8 @@ int flush_std_buffers() {
 // Either the exception message, or a truncated version with
 // user instructions for where to see the full exception.
 std::string py_fetch_error() {
+  GILScope scope;
+
   PyObject *excType, *excValue, *excTraceback;
   PyErr_Fetch(&excType, &excValue, &excTraceback);  // we now own the PyObjects
   PyErr_NormalizeException(&excType, &excValue, &excTraceback);
@@ -642,6 +673,7 @@ std::string py_fetch_error() {
 
 // check whether the PyObject can be mapped to an R scalar type
 int r_scalar_type(PyObject* x) {
+  GILScope scope;
 
   if (PyBool_Check(x))
     return LGLSXP;
@@ -668,6 +700,7 @@ int r_scalar_type(PyObject* x) {
 
 // check whether the PyObject is a list of a single R scalar type
 int scalar_list_type(PyObject* x) {
+  GILScope scope;
 
   Py_ssize_t len = PyList_Size(x);
   if (len == 0)
@@ -688,6 +721,7 @@ int scalar_list_type(PyObject* x) {
 }
 
 void set_string_element(SEXP rArray, int i, PyObject* pyStr) {
+  GILScope scope;
   std::string str = as_std_string(pyStr);
   cetype_t ce = PyUnicode_Check(pyStr) ? CE_UTF8 : CE_NATIVE;
   SEXP strSEXP = Rf_mkCharCE(str.c_str(), ce);
@@ -695,6 +729,7 @@ void set_string_element(SEXP rArray, int i, PyObject* pyStr) {
 }
 
 bool py_equal(PyObject* x, const std::string& str) {
+  GILScope scope;
 
   PyObjectPtr pyStr(as_python_str(str));
   if (pyStr.is_null())
@@ -705,6 +740,7 @@ bool py_equal(PyObject* x, const std::string& str) {
 }
 
 bool is_pandas_na(PyObject* x) {
+  GILScope scope;
 
   // retrieve class object
   PyObjectPtr pyClass(py_get_attr(x, "__class__"));
@@ -732,11 +768,13 @@ bool is_pandas_na(PyObject* x) {
 
 
 bool py_is_callable(PyObject* x) {
+  GILScope scope;
   return PyCallable_Check(x) == 1 || PyObject_HasAttrString(x, "__call__");
 }
 
 // [[Rcpp::export]]
 PyObjectRef py_none_impl() {
+  GILScope scope;
   Py_IncRef(Py_None);
   return py_ref(Py_None, false);
 }
@@ -752,6 +790,7 @@ bool py_is_callable(PyObjectRef x) {
 
 // convert a python object to an R object
 SEXP py_to_r(PyObject* x, bool convert) {
+  GILScope scope;
 
   // NULL for Python None
   if (py_is_none(x))
@@ -1118,6 +1157,7 @@ SEXP py_to_r(PyObject* x, bool convert) {
 
 // [[Rcpp::export]]
 SEXP py_get_formals(PyObjectRef func) {
+  GILScope scope;
 
   PyObjectPtr inspect(py_import("inspect"));
   if (inspect.is_null())
@@ -1238,6 +1278,7 @@ bool is_convertible_to_numpy(RObject x) {
 }
 
 PyObject* r_to_py_numpy(RObject x, bool convert) {
+  GILScope scope;
 
   int type = x.sexp_type();
   SEXP sexp = x.get__();
@@ -1343,7 +1384,7 @@ PyObject* r_to_py_numpy(RObject x, bool convert) {
 PyObject* r_to_py_cpp(RObject x, bool convert);
 
 PyObject* r_to_py(RObject x, bool convert) {
-
+  GILScope scope;
   // if the object bit is not set, we can skip R dispatch
   if (OBJECT(x) == 0)
     return r_to_py_cpp(x, convert);
@@ -1369,12 +1410,13 @@ PyObject* r_to_py(RObject x, bool convert) {
 
 // Python capsule wrapping an R's external pointer object
 static void free_r_extptr_capsule(PyObject* capsule) {
+  GILScope scope;
   SEXP sexp = (SEXP)PyCapsule_GetContext(capsule);
   ::R_ReleaseObject(sexp);
 }
 
 static PyObject* r_extptr_capsule(SEXP sexp) {
-
+  GILScope scope;
   // underlying pointer
   void* ptr = R_ExternalPtrAddr(sexp);
   if (ptr == NULL)
@@ -1391,7 +1433,7 @@ static PyObject* r_extptr_capsule(SEXP sexp) {
 // convert an R object to a python object (the returned object
 // will have an active reference count on it)
 PyObject* r_to_py_cpp(RObject x, bool convert) {
-
+  GILScope scope;
   int type = x.sexp_type();
   SEXP sexp = x.get__();
 
@@ -1632,6 +1674,7 @@ PyObjectRef r_to_py_impl(RObject object, bool convert) {
 
 extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* keywords)
 {
+  GILScope scope;
   // the first argument is always the capsule containing the R function to call
   PyObject* capsule = PyTuple_GetItem(args, 0);
   RObject rFunction = py_capsule_read(capsule);
@@ -1709,10 +1752,12 @@ extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* k
 
 struct PythonCall {
   PythonCall(PyObject* func, PyObject* data) : func(func), data(data) {
+    GILScope scope;
     Py_IncRef(func);
     Py_IncRef(data);
   }
   ~PythonCall() {
+    GILScope scope;
     Py_DecRef(func);
     Py_DecRef(data);
   }
@@ -1724,6 +1769,7 @@ private:
 };
 
 int call_python_function(void* data) {
+  GILScope scope;
 
   // cast to call
   PythonCall* call = (PythonCall*)data;
@@ -1745,6 +1791,8 @@ int call_python_function(void* data) {
 
 extern "C" PyObject* call_python_function_on_main_thread(
                 PyObject *self, PyObject* args, PyObject* keywords) {
+
+  GILScope scope;
 
   // arguments are the python function to call and an optional data argument
   // capture them and then incref them so they survive past this call (we'll
@@ -1819,6 +1867,7 @@ static struct PyModuleDef RPYCallModuleDef = {
 };
 
 extern "C" PyObject* initializeRPYCall(void) {
+  GILScope scope;
   return PyModule_Create(&RPYCallModuleDef, _PYTHON3_ABI_VERSION);
 }
 
@@ -1828,6 +1877,8 @@ PyObjectRef py_run_file_impl(const std::string& file);
 // [[Rcpp::export]]
 void py_activate_virtualenv(const std::string& script)
 {
+  GILScope scope;
+
   // get main dict
   PyObject* main = PyImport_AddModule("__main__");
   PyObject* mainDict = PyModule_GetDict(main);
@@ -1852,6 +1903,7 @@ void py_activate_virtualenv(const std::string& script)
 }
 
 void trace_print(int threadId, PyFrameObject *frame) {
+  GILScope scope;
   std::string tracemsg = "";
   while (NULL != frame) {
     std::string filename = as_std_string(frame->f_code->co_filename);
@@ -1938,6 +1990,13 @@ SEXP main_process_python_info_unix() {
 
   List info;
 
+  if (PyGILState_Ensure == NULL)
+    loadSymbol(pLib, "PyGILState_Ensure", (void**)&PyGILState_Ensure);
+
+  if (PyGILState_Release == NULL)
+    loadSymbol(pLib, "PyGILState_Release", (void**)&PyGILState_Release);
+  GILScope scope;
+
   // read Python program path
   std::string python_path;
   if (Py_GetVersion()[0] >= '3') {
@@ -1983,6 +2042,7 @@ SEXP main_process_python_info() {
 // [[Rcpp::export]]
 void py_clear_error() {
   DBG("Clearing Python errors.");
+  GILScope scope;
   PyErr_Clear();
 }
 
@@ -2017,6 +2077,7 @@ void py_initialize(const std::string& python,
     if (Py_IsInitialized()) {
       // if R is embedded in a python environment, rpycall has to be loaded as a regular
       // module.
+      GILScope scope;
       PyImport_AddModule("rpycall");
       PyDict_SetItemString(PyImport_GetModuleDict(), "rpycall", initializeRPYCall());
 
@@ -2054,6 +2115,7 @@ void py_initialize(const std::string& python,
     PySys_SetArgv(1, const_cast<char**>(argv));
   }
 
+  GILScope scope;
   // initialize type objects
   initialize_type_objects(is_python3());
 
@@ -2096,6 +2158,7 @@ bool py_is_none(PyObjectRef x) {
 
 // [[Rcpp::export]]
 bool py_compare_impl(PyObjectRef a, PyObjectRef b, const std::string& op) {
+  GILScope scope;
 
   int opcode;
   if (op == "==")
@@ -2123,6 +2186,7 @@ bool py_compare_impl(PyObjectRef a, PyObjectRef b, const std::string& op) {
 
 // [[Rcpp::export]]
 CharacterVector py_str_impl(PyObjectRef x) {
+  GILScope scope;
 
   if (!is_python_str(x)) {
 
@@ -2143,6 +2207,7 @@ CharacterVector py_str_impl(PyObjectRef x) {
 //' @rdname py_str
 // [[Rcpp::export]]
 SEXP py_repr(PyObjectRef object) {
+  GILScope scope;
 
   if(py_is_null_xptr(object))
     return CharacterVector::create(String("<pointer: 0x0>"));
@@ -2165,6 +2230,7 @@ void py_print(PyObjectRef x) {
 
 // [[Rcpp::export]]
 bool py_is_function(PyObjectRef x) {
+  GILScope scope;
   return PyFunction_Check(x) == 1;
 }
 
@@ -2179,6 +2245,7 @@ bool py_numpy_available_impl() {
 
 // [[Rcpp::export]]
 std::vector<std::string> py_list_attributes_impl(PyObjectRef x) {
+  GILScope scope;
   std::vector<std::string> attributes;
   PyObjectPtr attrs(PyObject_Dir(x));
   if (attrs.is_null())
@@ -2197,8 +2264,8 @@ std::vector<std::string> py_list_attributes_impl(PyObjectRef x) {
 bool py_has_attr_impl(PyObjectRef x, const std::string& name) {
   if (py_is_null_xptr(x))
     return false;
-  else
-    return PyObject_HasAttrString(x, name.c_str());
+  GILScope scope;
+  return PyObject_HasAttrString(x, name.c_str());
 }
 
 namespace {
@@ -2207,6 +2274,7 @@ PyObjectRef py_get_common(PyObject* object,
                           bool convert,
                           bool silent)
 {
+  GILScope scope;
   // if we have an object, return it
   if (object != NULL)
     return py_ref(object, convert);
@@ -2229,6 +2297,7 @@ PyObjectRef py_get_attr_impl(PyObjectRef x,
                              const std::string& key,
                              bool silent = false)
 {
+  GILScope scope;
   PyObject* attr = PyObject_GetAttrString(x, key.c_str());
   return py_get_common(attr, x.convert(), silent);
 }
@@ -2238,6 +2307,7 @@ PyObjectRef py_get_item_impl(PyObjectRef x,
                              RObject key,
                              bool silent = false)
 {
+  GILScope scope;
   PyObjectPtr py_key(r_to_py(key, x.convert()));
   PyObject* item = PyObject_GetItem(x, py_key);
   return py_get_common(item, x.convert(), silent);
@@ -2248,6 +2318,7 @@ void py_set_attr_impl(PyObjectRef x,
                       const std::string& name,
                       RObject value)
 {
+  GILScope scope;
   PyObjectPtr converted(r_to_py(value, x.convert()));
   int res = PyObject_SetAttrString(x, name.c_str(), converted);
   if (res != 0)
@@ -2258,6 +2329,7 @@ void py_set_attr_impl(PyObjectRef x,
 void py_del_attr_impl(PyObjectRef x,
                       const std::string& name)
 {
+  GILScope scope;
   int res = PyObject_SetAttrString(x, name.c_str(), NULL);
   if (res != 0)
     stop(py_fetch_error());
@@ -2268,6 +2340,7 @@ void py_set_item_impl(PyObjectRef x,
                       RObject key,
                       RObject val)
 {
+  GILScope scope;
   PyObjectPtr py_key(r_to_py(key, x.convert()));
   PyObjectPtr py_val(r_to_py(val, x.convert()));
 
@@ -2283,6 +2356,7 @@ IntegerVector py_get_attr_types_impl(
     const std::vector<std::string>& attrs,
     bool resolve_properties)
 {
+  GILScope scope;
   const int UNKNOWN     =  0;
   const int VECTOR      =  1;
   const int ARRAY       =  2;
@@ -2352,6 +2426,7 @@ SEXP py_ref_to_r(PyObjectRef x) {
 
 // [[Rcpp::export]]
 SEXP py_call_impl(PyObjectRef x, List args = R_NilValue, List keywords = R_NilValue) {
+  GILScope scope;
 
   // unnamed arguments
   PyObjectPtr pyArgs(PyTuple_New(args.length()));
@@ -2392,6 +2467,7 @@ SEXP py_call_impl(PyObjectRef x, List args = R_NilValue, List keywords = R_NilVa
 
 // [[Rcpp::export]]
 PyObjectRef py_dict_impl(const List& keys, const List& items, bool convert) {
+  GILScope scope;
 
   PyObject* dict = PyDict_New();
 
@@ -2408,6 +2484,7 @@ PyObjectRef py_dict_impl(const List& keys, const List& items, bool convert) {
 
 // [[Rcpp::export]]
 SEXP py_dict_get_item(PyObjectRef dict, RObject key) {
+  GILScope scope;
 
   if (!PyDict_Check(dict))
     return py_get_item_impl(dict, key, false);
@@ -2428,6 +2505,7 @@ SEXP py_dict_get_item(PyObjectRef dict, RObject key) {
 
 // [[Rcpp::export]]
 void py_dict_set_item(PyObjectRef dict, RObject key, RObject val) {
+  GILScope scope;
 
   if (!PyDict_Check(dict))
     return py_set_item_impl(dict, key, val);
@@ -2440,6 +2518,7 @@ void py_dict_set_item(PyObjectRef dict, RObject key, RObject val) {
 
 // [[Rcpp::export]]
 int py_dict_length(PyObjectRef dict) {
+  GILScope scope;
 
   if (!PyDict_Check(dict))
     return PyObject_Size(dict);
@@ -2451,6 +2530,7 @@ int py_dict_length(PyObjectRef dict) {
 namespace {
 
 PyObject* py_dict_get_keys_impl(PyObject* dict) {
+  GILScope scope;
 
   PyObject* keys = PyDict_Keys(dict);
 
@@ -2469,12 +2549,14 @@ PyObject* py_dict_get_keys_impl(PyObject* dict) {
 
 // [[Rcpp::export]]
 PyObjectRef py_dict_get_keys(PyObjectRef dict) {
+  GILScope scope;
   PyObject* keys = py_dict_get_keys_impl(dict);
   return py_ref(keys, dict.convert());
 }
 
 // [[Rcpp::export]]
 CharacterVector py_dict_get_keys_as_str(PyObjectRef dict) {
+  GILScope scope;
 
   // get the dictionary keys
   PyObjectPtr py_keys(py_dict_get_keys_impl(dict));
@@ -2518,6 +2600,7 @@ CharacterVector py_dict_get_keys_as_str(PyObjectRef dict) {
 
 // [[Rcpp::export]]
 PyObjectRef py_tuple(const List& items, bool convert) {
+  GILScope scope;
 
   R_xlen_t n = items.length();
   PyObject* tuple = PyTuple_New(n);
@@ -2535,6 +2618,7 @@ PyObjectRef py_tuple(const List& items, bool convert) {
 
 // [[Rcpp::export]]
 int py_tuple_length(PyObjectRef tuple) {
+  GILScope scope;
 
   if (!PyTuple_Check(tuple))
     return PyObject_Size(tuple);
@@ -2546,6 +2630,7 @@ int py_tuple_length(PyObjectRef tuple) {
 
 // [[Rcpp::export]]
 PyObjectRef py_module_import(const std::string& module, bool convert) {
+  GILScope scope;
 
   PyObject* pModule = py_import(module);
   if (pModule == NULL)
@@ -2574,6 +2659,7 @@ void py_module_proxy_import(PyObjectRef proxy) {
 
 // [[Rcpp::export]]
 CharacterVector py_list_submodules(const std::string& module) {
+  GILScope scope;
 
   std::vector<std::string> modules;
 
@@ -2599,6 +2685,7 @@ CharacterVector py_list_submodules(const std::string& module) {
 
 // [[Rcpp::export]]
 List py_iterate(PyObjectRef x, Function f) {
+  GILScope scope;
 
   // List to return
   std::vector<RObject> list;
@@ -2639,6 +2726,7 @@ List py_iterate(PyObjectRef x, Function f) {
 
 // [[Rcpp::export]]
 SEXP py_iter_next(PyObjectRef iterator, RObject completed) {
+  GILScope scope;
 
   PyObjectPtr item(PyIter_Next(iterator));
   if (item.is_null()) {
@@ -2667,6 +2755,7 @@ SEXP py_run_string_impl(const std::string& code,
                         bool local = false,
                         bool convert = true)
 {
+  GILScope scope;
   // retrieve reference to main module dictionary
   // note: both PyImport_AddModule() and PyModule_GetDict()
   // return borrowed references
@@ -2707,6 +2796,7 @@ SEXP py_run_file_impl(const std::string& file,
                       bool local = false,
                       bool convert = true)
 {
+  GILScope scope;
   // expand path
   Function pathExpand("path.expand");
   std::string expanded = as<std::string>(pathExpand(file));
@@ -2726,6 +2816,7 @@ SEXP py_run_file_impl(const std::string& file,
 
 // [[Rcpp::export]]
 SEXP py_eval_impl(const std::string& code, bool convert = true) {
+  GILScope scope;
 
   // compile the code
   PyObjectPtr compiledCode;
@@ -2757,6 +2848,7 @@ SEXP py_eval_impl(const std::string& code, bool convert = true) {
 
 // [[Rcpp::export]]
 SEXP py_convert_pandas_series(PyObjectRef series) {
+  GILScope scope;
 
   // extract dtype
   PyObjectPtr dtype(PyObject_GetAttrString(series, "dtype"));
@@ -2868,6 +2960,7 @@ SEXP py_convert_pandas_series(PyObjectRef series) {
 
 // [[Rcpp::export]]
 SEXP py_convert_pandas_df(PyObjectRef df) {
+  GILScope scope;
 
   // pd.DataFrame.items() returns an iterator over (column name, Series) pairs
   PyObjectPtr items(PyObject_CallMethod(df, "items", NULL));
@@ -2904,6 +2997,7 @@ SEXP py_convert_pandas_df(PyObjectRef df) {
 
 // [[Rcpp::export]]
 PyObjectRef r_convert_dataframe(RObject dataframe, bool convert) {
+  GILScope scope;
 
   Function r_convert_dataframe_column =
     Environment::namespace_env("reticulate")["r_convert_dataframe_column"];
@@ -2947,6 +3041,8 @@ namespace {
 PyObject* r_convert_date_impl(PyObject* datetime,
                               Date date)
 {
+  GILScope scope;
+
   PyObjectPtr py_date(PyObject_CallMethod(
       datetime, "date", "iii",
       static_cast<int>(date.getYear()),
@@ -2963,6 +3059,7 @@ PyObject* r_convert_date_impl(PyObject* datetime,
 
 // [[Rcpp::export]]
 PyObjectRef r_convert_date(DateVector dates, bool convert) {
+  GILScope scope;
 
   PyObjectPtr datetime(PyImport_ImportModule("datetime"));
 
@@ -2987,11 +3084,13 @@ PyObjectRef r_convert_date(DateVector dates, bool convert) {
 
 // [[Rcpp::export]]
 void py_set_interrupt_impl() {
+  GILScope scope;
   PyErr_SetInterrupt();
 }
 
 // [[Rcpp::export]]
 SEXP py_list_length(PyObjectRef x) {
+  GILScope scope;
   Py_ssize_t value = PyList_Size(x);
   if (value <= static_cast<Py_ssize_t>(INT_MAX))
     return Rf_ScalarInteger((int) value);
@@ -3001,6 +3100,7 @@ SEXP py_list_length(PyObjectRef x) {
 
 // [[Rcpp::export]]
 SEXP py_len_impl(PyObjectRef x, SEXP defaultValue = R_NilValue) {
+  GILScope scope;
 
   PyObject *er_type, *er_value, *er_traceback;
   if (defaultValue != R_NilValue)
@@ -3026,6 +3126,7 @@ SEXP py_len_impl(PyObjectRef x, SEXP defaultValue = R_NilValue) {
 
 // [[Rcpp::export]]
 SEXP py_bool_impl(PyObjectRef x) {
+  GILScope scope;
 
   // evaluate Python `not not x`
   int result = PyObject_IsTrue(x);

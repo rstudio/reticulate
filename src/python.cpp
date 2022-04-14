@@ -9,6 +9,7 @@ using namespace Rcpp;
 
 #include "signals.h"
 #include "reticulate_types.h"
+#include "common.h"
 
 #include "event_loop.h"
 #include "tinythread.h"
@@ -1978,6 +1979,12 @@ SEXP main_process_python_info() {
 
 }
 
+
+// [[Rcpp::export]]
+void py_clear_error() {
+  DBG("Clearing Python errors.");
+  PyErr_Clear();
+}
 
 // [[Rcpp::export]]
 void py_initialize(const std::string& python,

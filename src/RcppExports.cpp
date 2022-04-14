@@ -128,6 +128,15 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// py_clear_error
+void py_clear_error();
+RcppExport SEXP _reticulate_py_clear_error() {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    py_clear_error();
+    return R_NilValue;
+END_RCPP
+}
 // py_initialize
 void py_initialize(const std::string& python, const std::string& libpython, const std::string& pythonhome, const std::string& virtualenv_activate, bool python3, bool interactive, const std::string& numpy_load_error);
 RcppExport SEXP _reticulate_py_initialize(SEXP pythonSEXP, SEXP libpythonSEXP, SEXP pythonhomeSEXP, SEXP virtualenv_activateSEXP, SEXP python3SEXP, SEXP interactiveSEXP, SEXP numpy_load_errorSEXP) {
@@ -660,15 +669,6 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
-// py_clear_error
-void py_clear_error();
-RcppExport SEXP _reticulate_py_clear_error() {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    py_clear_error();
-    return R_NilValue;
-END_RCPP
-}
 // py_interrupts_pending
 bool py_interrupts_pending(bool reset);
 RcppExport SEXP _reticulate_py_interrupts_pending(SEXP resetSEXP) {
@@ -693,6 +693,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_reticulate_r_to_py_impl", (DL_FUNC) &_reticulate_r_to_py_impl, 2},
     {"_reticulate_py_activate_virtualenv", (DL_FUNC) &_reticulate_py_activate_virtualenv, 1},
     {"_reticulate_main_process_python_info", (DL_FUNC) &_reticulate_main_process_python_info, 0},
+    {"_reticulate_py_clear_error", (DL_FUNC) &_reticulate_py_clear_error, 0},
     {"_reticulate_py_initialize", (DL_FUNC) &_reticulate_py_initialize, 7},
     {"_reticulate_py_finalize", (DL_FUNC) &_reticulate_py_finalize, 0},
     {"_reticulate_py_is_none", (DL_FUNC) &_reticulate_py_is_none, 1},
@@ -739,7 +740,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_reticulate_py_bool_impl", (DL_FUNC) &_reticulate_py_bool_impl, 1},
     {"_reticulate_readline", (DL_FUNC) &_reticulate_readline, 1},
     {"_reticulate_py_register_interrupt_handler", (DL_FUNC) &_reticulate_py_register_interrupt_handler, 0},
-    {"_reticulate_py_clear_error", (DL_FUNC) &_reticulate_py_clear_error, 0},
     {"_reticulate_py_interrupts_pending", (DL_FUNC) &_reticulate_py_interrupts_pending, 1},
     {NULL, NULL, 0}
 };

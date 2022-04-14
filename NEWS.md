@@ -1,7 +1,10 @@
 # reticulate 1.25  (UNRELEASED)
 
-- Fixed an issue where reticulate would fail to bind to an Anaconda 
-  base environment on Windows. 
+- Fixed an issue where reticulate would fail if R was running embedded under rpy2.
+  reticulate now ensures the Python GIL is acquired before calling into Python.
+
+- Fixed an issue where reticulate would fail to bind to an Anaconda
+  base environment on Windows.
 
 - All commands that create, modify, or delete a Python environment now echo
   the system command about to be executed. Affected:

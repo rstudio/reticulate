@@ -2011,9 +2011,11 @@ SEXP main_process_python_info_unix() {
   }
 
   // read libpython file path
-  if (strcmp(python_path.c_str(), dinfo.dli_fname) == 0) {
+  if (strcmp(dinfo.dli_fname, python_path.c_str()) == 0 ||
+      strcmp(dinfo.dli_fname, "python") == 0) {
     // if the library is the same as the executable, it's probably a PIE.
     // Any consequent dlopen on the PIE may fail, return NA to indicate this.
+    // when R is embedded by rpy2, dli_fname can be 'python'
     info["libpython"] = Rf_ScalarString(R_NaString);
   } else {
     info["libpython"] = dinfo.dli_fname;

@@ -688,7 +688,8 @@ cache_eng_python <- function(options) {
     stop(module$message)
   }
 
-  module$load_session(filename = paste0(options$hash, ".pkl"))
+  cache_path <- normalizePath(paste0(options$hash, ".pkl"), mustWork = TRUE)
+  knitr:::in_input_dir(module$load_session(filename = cache_path))
 }
 
 

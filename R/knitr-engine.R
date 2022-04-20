@@ -656,6 +656,7 @@ save_python_session <- function(cache_path) {
     py_run_string("del globals()['r']")
   }
   
+  cache_path <- file.path(knitr::opts_knit$get("output.dir"), cache_path)
   module$dump_session(filename = paste0(cache_path, ".pkl"), byref = TRUE)
 }
 

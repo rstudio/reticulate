@@ -199,7 +199,7 @@ import_from_path_delayed <- function(module, path, convert, delay_load) {
     
     before_load = function() {
       sys <- import("sys", convert = FALSE)
-      sys$path$insert(0, path)
+      sys$path$insert(0L, path)
       .before_load()
     },
     

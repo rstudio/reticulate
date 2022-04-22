@@ -64,6 +64,10 @@ main_process_python_info <- function() {
     .Call(`_reticulate_main_process_python_info`)
 }
 
+py_clear_error <- function() {
+    invisible(.Call(`_reticulate_py_clear_error`))
+}
+
 py_initialize <- function(python, libpython, pythonhome, virtualenv_activate, python3, interactive, numpy_load_error) {
     invisible(.Call(`_reticulate_py_initialize`, python, libpython, pythonhome, virtualenv_activate, python3, interactive, numpy_load_error))
 }
@@ -248,10 +252,6 @@ readline <- function(prompt) {
 
 py_register_interrupt_handler <- function() {
     invisible(.Call(`_reticulate_py_register_interrupt_handler`))
-}
-
-py_clear_error <- function() {
-    invisible(.Call(`_reticulate_py_clear_error`))
 }
 
 py_interrupts_pending <- function(reset) {

@@ -9,6 +9,7 @@ using namespace Rcpp;
 
 #include "signals.h"
 #include "reticulate_types.h"
+#include "common.h"
 
 #include "event_loop.h"
 #include "tinythread.h"
@@ -50,6 +51,7 @@ void loadSymbol(void* pLib, const std::string& name, void** ppSymbol)
 #endif
 }
 
+
 // track whether we have required numpy
 std::string s_numpy_load_error;
 bool haveNumPy() {
@@ -63,17 +65,15 @@ bool requireNumPy() {
 }
 
 bool isPyArray(PyObject* object) {
-  if (!haveNumPy())
-    return false;
-  else
-    return PyArray_Check(object);
+  if (!haveNumPy()) return false;
+
+  return PyArray_Check(object);
 }
 
 bool isPyArrayScalar(PyObject* object) {
-  if (!haveNumPy())
-    return false;
-  else
-    return PyArray_CheckScalar(object);
+  if (!haveNumPy()) return false;
+
+  return PyArray_CheckScalar(object);
 }
 
 // static buffers for Py_SetProgramName / Py_SetPythonHome
@@ -164,8 +164,9 @@ public:
 
   virtual ~PyPtr()
   {
-    if (object_ != NULL)
+    if (object_ != NULL) {
       Py_DecRef((PyObject*) object_);
+    }
   }
 
   operator T*() const
@@ -430,6 +431,7 @@ PyObjectRef py_ref(PyObject* object,
                    bool convert,
                    const std::string& extraClass = "")
 {
+
   // wrap
   PyObjectRef ref(object, convert);
 
@@ -551,6 +553,7 @@ int flush_std_buffers() {
 // Either the exception message, or a truncated version with
 // user instructions for where to see the full exception.
 std::string py_fetch_error() {
+
   PyObject *excType, *excValue, *excTraceback;
   PyErr_Fetch(&excType, &excValue, &excTraceback);  // we now own the PyObjects
   PyErr_NormalizeException(&excType, &excValue, &excTraceback);
@@ -1342,7 +1345,6 @@ PyObject* r_to_py_numpy(RObject x, bool convert) {
 PyObject* r_to_py_cpp(RObject x, bool convert);
 
 PyObject* r_to_py(RObject x, bool convert) {
-
   // if the object bit is not set, we can skip R dispatch
   if (OBJECT(x) == 0)
     return r_to_py_cpp(x, convert);
@@ -1373,7 +1375,6 @@ static void free_r_extptr_capsule(PyObject* capsule) {
 }
 
 static PyObject* r_extptr_capsule(SEXP sexp) {
-
   // underlying pointer
   void* ptr = R_ExternalPtrAddr(sexp);
   if (ptr == NULL)
@@ -1390,7 +1391,6 @@ static PyObject* r_extptr_capsule(SEXP sexp) {
 // convert an R object to a python object (the returned object
 // will have an active reference count on it)
 PyObject* r_to_py_cpp(RObject x, bool convert) {
-
   int type = x.sexp_type();
   SEXP sexp = x.get__();
 
@@ -1745,6 +1745,7 @@ int call_python_function(void* data) {
 extern "C" PyObject* call_python_function_on_main_thread(
                 PyObject *self, PyObject* args, PyObject* keywords) {
 
+
   // arguments are the python function to call and an optional data argument
   // capture them and then incref them so they survive past this call (we'll
   // decref them in the call_python_function callback)
@@ -1827,6 +1828,7 @@ PyObjectRef py_run_file_impl(const std::string& file);
 // [[Rcpp::export]]
 void py_activate_virtualenv(const std::string& script)
 {
+
   // get main dict
   PyObject* main = PyImport_AddModule("__main__");
   PyObject* mainDict = PyModule_GetDict(main);
@@ -1937,6 +1939,14 @@ SEXP main_process_python_info_unix() {
 
   List info;
 
+  if (PyGILState_Ensure == NULL)
+    loadSymbol(pLib, "PyGILState_Ensure", (void**)&PyGILState_Ensure);
+
+  if (PyGILState_Release == NULL)
+    loadSymbol(pLib, "PyGILState_Release", (void**)&PyGILState_Release);
+
+  GILScope scope(true);
+
   // read Python program path
   std::string python_path;
   if (Py_GetVersion()[0] >= '3') {
@@ -1951,9 +1961,11 @@ SEXP main_process_python_info_unix() {
   }
 
   // read libpython file path
-  if (strcmp(python_path.c_str(), dinfo.dli_fname) == 0) {
+  if (strcmp(dinfo.dli_fname, python_path.c_str()) == 0 ||
+      strcmp(dinfo.dli_fname, "python") == 0) {
     // if the library is the same as the executable, it's probably a PIE.
     // Any consequent dlopen on the PIE may fail, return NA to indicate this.
+    // when R is embedded by rpy2, dli_fname can be 'python'
     info["libpython"] = Rf_ScalarString(R_NaString);
   } else {
     info["libpython"] = dinfo.dli_fname;
@@ -1980,6 +1992,14 @@ SEXP main_process_python_info() {
 
 
 // [[Rcpp::export]]
+void py_clear_error() {
+  DBG("Clearing Python errors.");
+  PyErr_Clear();
+}
+
+bool s_is_python_initialized = false;
+
+// [[Rcpp::export]]
 void py_initialize(const std::string& python,
                    const std::string& libpython,
                    const std::string& pythonhome,
@@ -1999,32 +2019,34 @@ void py_initialize(const std::string& python,
 
   if (is_python3()) {
 
-    // set program name
-    s_python_v3 = to_wstring(python);
-    Py_SetProgramName_v3(const_cast<wchar_t*>(s_python_v3.c_str()));
-
-    // set program home
-    s_pythonhome_v3 = to_wstring(pythonhome);
-    Py_SetPythonHome_v3(const_cast<wchar_t*>(s_pythonhome_v3.c_str()));
-
     if (Py_IsInitialized()) {
       // if R is embedded in a python environment, rpycall has to be loaded as a regular
       // module.
+      GILScope scope(true);
       PyImport_AddModule("rpycall");
       PyDict_SetItemString(PyImport_GetModuleDict(), "rpycall", initializeRPYCall());
 
     } else {
+
+      // set program name
+      s_python_v3 = to_wstring(python);
+      Py_SetProgramName_v3(const_cast<wchar_t*>(s_python_v3.c_str()));
+
+      // set program home
+      s_pythonhome_v3 = to_wstring(pythonhome);
+      Py_SetPythonHome_v3(const_cast<wchar_t*>(s_pythonhome_v3.c_str()));
+
       // add rpycall module
       PyImport_AppendInittab("rpycall", &initializeRPYCall);
 
       // initialize python
       Py_Initialize();
+      const wchar_t *argv[1] = {s_python_v3.c_str()};
+      PySys_SetArgv_v3(1, const_cast<wchar_t**>(argv));
+
     }
 
-    const wchar_t *argv[1] = {s_python_v3.c_str()};
-    PySys_SetArgv_v3(1, const_cast<wchar_t**>(argv));
-
-  } else {
+  } else { // python2
 
     // set program name
     s_python = python;
@@ -2046,6 +2068,9 @@ void py_initialize(const std::string& python,
     const char *argv[1] = {s_python.c_str()};
     PySys_SetArgv(1, const_cast<char**>(argv));
   }
+
+  s_is_python_initialized = true;
+  GILScope scope;
 
   // initialize type objects
   initialize_type_objects(is_python3());
@@ -2190,8 +2215,7 @@ std::vector<std::string> py_list_attributes_impl(PyObjectRef x) {
 bool py_has_attr_impl(PyObjectRef x, const std::string& name) {
   if (py_is_null_xptr(x))
     return false;
-  else
-    return PyObject_HasAttrString(x, name.c_str());
+  return PyObject_HasAttrString(x, name.c_str());
 }
 
 namespace {
@@ -2940,6 +2964,7 @@ namespace {
 PyObject* r_convert_date_impl(PyObject* datetime,
                               Date date)
 {
+
   PyObjectPtr py_date(PyObject_CallMethod(
       datetime, "date", "iii",
       static_cast<int>(date.getYear()),

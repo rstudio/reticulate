@@ -93,9 +93,14 @@ py_install <- function(packages,
     python <- tryCatch(py_exe(), error = function(e) NULL)
     if (!is.null(python)) {
 
-      # form path to environment
+      # get information on default version of python
       info <- python_info(python)
-      envname <- info$root
+
+      # if this version of python is associated with a python environment,
+      # then set 'envname' to use that environment
+      type <- info$type %||% "unknown"
+      if (type %in% c("virtualenv", "conda"))
+        envname <- info$root
 
       # update installation method
       if (identical(info$type, "virtualenv"))

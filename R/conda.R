@@ -843,11 +843,21 @@ conda_run2_windows <-
   if (grepl("[/\\]", envname))
     envname <- normalizePath(envname)
 
+  activate.bat <- normalizePath(file.path(dirname(conda), "activate.bat"),
+                                mustWork = FALSE)
+
+  activate_cmd <-
+    if (file.exists(activate.bat)) {
+      paste("CALL", shQuote(activate.bat), shQuote(envname))
+    } else {
+      paste("CALL", shQuote(conda), "activate", shQuote(envname))
+    }
+
   fi <- tempfile(fileext = ".bat")
   on.exit(unlink(fi))
   writeLines(c(
     if(!echo) "@echo off",
-    paste("CALL", shQuote(conda), "activate", shQuote(envname)),
+    activate_cmd,
     cmd_line
   ), fi)
 

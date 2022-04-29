@@ -156,6 +156,15 @@ python_info_condaenv_find <- function(path) {
     conda <- file.path(path, "Scripts", exe)
     if (file.exists(conda))
       return(conda)
+
+    # in ArcGIS env, conda.exe lives in a parent directory
+    if (grepl("arcgispro-py3", path)) {
+      conda <- file.path(path, "../..", "Scripts", exe)
+      conda <- normalizePath(conda, winslash = "/", mustWork = FALSE)
+      if (file.exists(conda))
+        return(conda)
+    }
+
   }
 
   # read history file

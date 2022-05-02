@@ -14,9 +14,9 @@
 
 - `install_python()` and `create_virtualenv()` gain the ability to automatically
   select the latest patch of a requested Python version.
-  e.g.: `install_python("3.8:latest")`, `create_virtualenv("my-env", version = "3.8:latest")`
+  e.g.: `install_python("3.9:latest")`, `create_virtualenv("my-env", version = "3.9:latest")`
 
-- `install_python()` `version` arg gains default value of `"3.8:latest"`.
+- `install_python()` `version` arg gains default value of `"3.9:latest"`.
   `install_python()` can now be called with no arguments.
 
 - Fixed an issue where reticulate would fail to bind to a conda python

@@ -538,7 +538,10 @@ conda_exe <- conda_binary
 #' @export
 conda_version <- function(conda = "auto") {
   conda_bin <- conda_binary(conda)
-  system2(conda_bin, "--version", stdout = TRUE)
+  out <- system2(conda_bin, "--version", stdout = TRUE)
+
+  # mamba --version gives multi-line output, with the conda version on the last line.
+  tail(out, 1)
 }
 
 
@@ -559,7 +562,6 @@ conda_update <- function(conda = "auto") {
 
   # attempt update
   system2t(conda, c("update", "--prefix", shQuote(prefix), "--yes", name))
-
 }
 
 numeric_conda_version <- function(conda = "auto", version_string = conda_version(conda)) {

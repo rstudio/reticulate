@@ -18,7 +18,16 @@ pyenv_resolve_latest_patch <- function(version, installed = TRUE, pyenv = pyenv_
 
   available <- pyenv_list(pyenv, installed)
   available <- available[startsWith(available, version)]
-  as.character(max(numeric_version(available, strict = FALSE), na.rm = TRUE))
+  out <- as.character(max(numeric_version(available, strict = FALSE),
+                          na.rm = TRUE))
+
+  if (!length(out))
+    stop(
+      sprintf("Python release version '%s' not found. ", version),
+      "Run `install_python(list = TRUE)` to see available versions."
+    )
+
+  out
 }
 
 pyenv_python <- function(version) {
@@ -87,7 +96,7 @@ pyenv_list <- function(pyenv = NULL, installed = FALSE) {
 
 pyenv_find <- function() {
   pyenv <- pyenv_find_impl()
-  normalizePath(pyenv, winslash = "/", mustWork = TRUE)
+  canonical_path(pyenv)
 }
 
 pyenv_find_impl <- function() {
@@ -171,9 +180,15 @@ pyenv_bootstrap_windows <- function() {
   on.exit(setwd(owd), add = TRUE)
   system("git pull")
 
-  # return path to pyenv binary
-  file.path(root, "pyenv-win/bin/pyenv")
+  # path to pyenv binary
+  pyenv <- file.path(root, "pyenv-win/bin/pyenv")
 
+  # running 'update' after install on windows is basically required
+  # https://github.com/pyenv-win/pyenv-win/issues/280#issuecomment-1045027625
+  system2(pyenv, "update")
+
+  # return path to pyenv binary
+  pyenv
 }
 
 pyenv_bootstrap_unix <- function() {
@@ -210,3 +225,25 @@ pyenv_bootstrap_unix <- function() {
   path
 
 }
+
+
+pyenv_update <- function(pyenv = pyenv_find()) {
+  if(is_windows())
+    return(system2t(pyenv, "update"))
+
+  # $ git clone https://github.com/pyenv/pyenv-update.git $(pyenv root)/plugins/pyenv-update
+  root <- system2(pyenv, "root", stdout = TRUE)
+  if(!dir.exists(file.path(root, "plugins/pyenv-update")))
+    system2("git", c("clone", "https://github.com/pyenv/pyenv-update.git",
+                      file.path(root, "plugins/pyenv-update")))
+
+  system2t(pyenv, "update")
+}
+
+#export PATH="$HOME/.local/share/r-reticulate/pyenv/bin/:$PATH"
+#eval "$(pyenv init --path)"
+#eval "$(pyenv virtualenv-init -)"
+
+#export PATH="$HOME/.pyenv/bin:$PATH"
+#eval "$(pyenv init --path)"
+#eval "$(pyenv virtualenv-init -)"

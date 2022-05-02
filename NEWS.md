@@ -2,6 +2,9 @@
 
 - Fixed an issue where reticulate would fail if R was running embedded under rpy2.
   reticulate now ensures the Python GIL is acquired before calling into Python.
+  
+- Fixed an issue where reticulate would fail to bind to an ArcGIS Pro conda environment
+  (#1200, @philiporlando).
 
 - Fixed an issue where reticulate would fail to bind to an Anaconda
   base environment on Windows.

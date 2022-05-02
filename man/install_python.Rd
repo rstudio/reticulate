@@ -4,7 +4,7 @@
 \alias{install_python}
 \title{Install Python}
 \usage{
-install_python(version = "3.8:latest", list = FALSE, force = FALSE)
+install_python(version = "3.9:latest", list = FALSE, force = FALSE)
 }
 \arguments{
 \item{version}{The version of Python to install.}
@@ -21,16 +21,16 @@ and \href{https://github.com/pyenv-win/pyenv-win}{pyenv-win} projects.
 \details{
 In general, it is recommended that Python virtual environments are created
 using the copies of Python installed by \code{\link[=install_python]{install_python()}}. For example:\preformatted{library(reticulate)
-version <- "3.8.10"
+version <- "3.9.12"
 install_python(version)
 virtualenv_create("my-environment", version = version)
 use_virtualenv("my-environment")
 
 # There is also support for a ":latest" suffix to select the latest patch release
-install_python("3.8:latest") # install latest patch available at python.org
+install_python("3.9:latest") # install latest patch available at python.org
 
-# select the latest 3.8.* patch installed locally
-virtualenv_create("my-environment", version = "3.8:latest")
+# select the latest 3.9.* patch installed locally
+virtualenv_create("my-environment", version = "3.9:latest")
 }
 }
 \note{

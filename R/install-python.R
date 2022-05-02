@@ -9,16 +9,16 @@
 #'
 #' ```
 #' library(reticulate)
-#' version <- "3.8.10"
+#' version <- "3.9.12"
 #' install_python(version)
 #' virtualenv_create("my-environment", version = version)
 #' use_virtualenv("my-environment")
 #'
 #' # There is also support for a ":latest" suffix to select the latest patch release
-#' install_python("3.8:latest") # install latest patch available at python.org
+#' install_python("3.9:latest") # install latest patch available at python.org
 #'
-#' # select the latest 3.8.* patch installed locally
-#' virtualenv_create("my-environment", version = "3.8:latest")
+#' # select the latest 3.9.* patch installed locally
+#' virtualenv_create("my-environment", version = "3.9:latest")
 #' ```
 #'
 #' @param version The version of Python to install.
@@ -30,7 +30,7 @@
 #'
 #' @note On macOS and Linux this will build Python from sources, which may take a few minutes.
 #' @export
-install_python <- function(version = "3.8:latest",
+install_python <- function(version = "3.9:latest",
                            list = FALSE,
                            force = FALSE)
 {

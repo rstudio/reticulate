@@ -1458,7 +1458,7 @@ py_inject_hooks <- function() {
   }
 
   # override input function
-  if (interactive()) {
+  if (interactive() && was_python_initialized_by_reticulate()) {
     name <- if (is_python3()) "input" else "raw_input"
     builtins[[name]] <- input
   }

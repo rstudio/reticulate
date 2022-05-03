@@ -1998,6 +1998,12 @@ void py_clear_error() {
 }
 
 bool s_is_python_initialized = false;
+bool s_was_python_initialized_by_reticulate = false;
+
+// [[Rcpp::export]]
+bool was_python_initialized_by_reticulate() {
+  return s_was_python_initialized_by_reticulate;
+}
 
 // [[Rcpp::export]]
 void py_initialize(const std::string& python,
@@ -2041,6 +2047,7 @@ void py_initialize(const std::string& python,
 
       // initialize python
       Py_Initialize();
+      s_was_python_initialized_by_reticulate = true;
       const wchar_t *argv[1] = {s_python_v3.c_str()};
       PySys_SetArgv_v3(1, const_cast<wchar_t**>(argv));
 
@@ -2059,6 +2066,7 @@ void py_initialize(const std::string& python,
     if (!Py_IsInitialized()) {
       // initialize python
       Py_Initialize();
+      s_was_python_initialized_by_reticulate = true;
     }
 
     // add rpycall module
@@ -2099,12 +2107,13 @@ void py_initialize(const std::string& python,
 
 // [[Rcpp::export]]
 void py_finalize() {
-
-  // multiple calls to PyFinalize are likely to cause problems so
-  // we comment this out to play better with other packages that include
-  // python embedding code.
-
+  // We shouldn't call PyFinalize() if R is embedded in Python. https://github.com/rpy2/rpy2/issues/872
+  // if(!s_is_python_initialized && !s_was_python_initialized_by_reticulate)
+  //   return;
+  //
   // ::Py_Finalize();
+  // s_is_python_initialized = false;
+  // s_was_python_initialized_by_reticulate = false;
 }
 
 // [[Rcpp::export]]

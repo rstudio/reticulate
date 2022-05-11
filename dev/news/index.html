@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.24-9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.25.0.9000</span>
       </span>
     </div>
 
@@ -81,8 +81,9 @@
       <small>Source: <a href="https://github.com/rstudio/reticulate/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2"><h2 class="page-header" data-toc-text="development version" id="reticulate-development-version">reticulate (development version)<a class="anchor" aria-label="anchor" href="#reticulate-development-version"></a></h2></div>
     <div class="section level2">
-<h2 class="page-header" data-toc-text="1.25" id="reticulate-125-unreleased">reticulate 1.25 (UNRELEASED)<a class="anchor" aria-label="anchor" href="#reticulate-125-unreleased"></a></h2>
+<h2 class="page-header" data-toc-text="1.25" id="reticulate-125">reticulate 1.25<a class="anchor" aria-label="anchor" href="#reticulate-125"></a></h2>
 <ul><li><p>Fixed an issue where reticulate would fail if R was running embedded under rpy2. reticulate now ensures the Python GIL is acquired before calling into Python.</p></li>
 <li><p>Fixed an issue where reticulate would fail to bind to an ArcGIS Pro conda environment (<a href="https://github.com/rstudio/reticulate/issues/1200" class="external-link">#1200</a>, <a href="https://github.com/philiporlando" class="external-link">@philiporlando</a>).</p></li>
 <li><p>Fixed an issue where reticulate would fail to bind to an Anaconda base environment on Windows.</p></li>
@@ -118,8 +119,10 @@
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="1.24" id="reticulate-124">reticulate 1.24<small>2022-01-26</small><a class="anchor" aria-label="anchor" href="#reticulate-124"></a></h2>
-<ul><li><p>Fixed an issue where <code>reticulate</code> would fail to bind to the system version of Python on macOS if command line tools were installed, but Xcode was not. # reticulate 1.23</p></li>
-<li><p><code><a href="../reference/use_python.html">use_condaenv()</a></code> gains the ability to accept an absolute path to a python binary for <code>envname</code>.</p></li>
+<ul><li>Fixed an issue where <code>reticulate</code> would fail to bind to the system version of Python on macOS if command line tools were installed, but Xcode was not.</li></ul></div>
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="1.23" id="reticulate-123">reticulate 1.23<small>2022-01-14</small><a class="anchor" aria-label="anchor" href="#reticulate-123"></a></h2>
+<ul><li><p><code><a href="../reference/use_python.html">use_condaenv()</a></code> gains the ability to accept an absolute path to a python binary for <code>envname</code>.</p></li>
 <li><p>All python objects gain a <code><a href="https://rdrr.io/r/base/length.html" class="external-link">length()</a></code> method, that returns either <code>py_len(x)</code>, or if that fails, <code>as.integer(py_bool(x))</code>.</p></li>
 <li><p><code><a href="../reference/conda-tools.html">conda_create()</a></code> default for <code>python_version</code> changed from <code>NULL</code> to <code>miniconda_python_version()</code> (presently, 3.8).</p></li>
 <li><p>New function <code><a href="../reference/py_bool.html">py_bool()</a></code>, for evaluating Python “truthiness” of an object.</p></li>

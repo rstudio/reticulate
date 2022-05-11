@@ -1,4 +1,4 @@
-# reticulate 1.25  (UNRELEASED)
+# reticulate 1.25 
 
 - Fixed an issue where reticulate would fail if R was running embedded under rpy2.
   reticulate now ensures the Python GIL is acquired before calling into Python.
@@ -62,6 +62,7 @@
 
 - Fixed an issue where `reticulate` would fail to bind to the system version
   of Python on macOS if command line tools were installed, but Xcode was not.
+  
 # reticulate 1.23
 
 - `use_condaenv()` gains the ability to accept an absolute path to a python

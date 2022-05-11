@@ -1,4 +1,4 @@
-# reticulate 1.25  (UNRELEASED)
+# reticulate 1.25 
 
 - Fixed an issue where reticulate would fail if R was running embedded under rpy2.
   reticulate now ensures the Python GIL is acquired before calling into Python.

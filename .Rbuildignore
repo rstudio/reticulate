@@ -32,3 +32,4 @@ README\.html
 ^vignettes/rstudio_ide\.html$
 __pycache__
 ^cran-comments\.md$
+^CRAN-SUBMISSION$

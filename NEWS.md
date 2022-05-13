@@ -1,9 +1,15 @@
 # reticulate (development version)
 
+- Fixed an issue where `conda_install(pip=TRUE)` would install packages into 
+  a user Python library instead of the conda env if the environment variable
+  `PIP_USER=true` was set. `py_install()`, `virtualenv_install()`, and 
+  `conda_install()` now always specify `--no-user` when invoking pip install. (#1209)
+
 # reticulate 1.25 
 
 - Fixed an issue where reticulate would fail if R was running embedded under rpy2.
   reticulate now ensures the Python GIL is acquired before calling into Python.
+  (#1188, #1203)
   
 - Fixed an issue where reticulate would fail to bind to an ArcGIS Pro conda environment
   (#1200, @philiporlando).

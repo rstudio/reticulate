@@ -1,7 +1,7 @@
 
 
 #' Documentation for Python Objects
-#' 
+#'
 #' @param object Object to print documentation for
 #'
 #' @export
@@ -35,9 +35,30 @@ register_help_topics <- function(type = c("module", "class"), topics) {
     assign(name, topics[[name]], envir = envir)
 }
 
+#' Provide help for Python objects
+#' 
+#' This is an internal method to be used by front-ends which need to provide
+#' help text / information for Python objects in different contexts.
+#' 
+#' @keywords internal
+#' @export
+py_help_handler <- function(type = c("completion", "parameter", "url"),
+                            topic,
+                            source,
+                            ...)
+{
+  help_handler(type, topic, source, ...)
+}
+
 # Generic help_handler returned from .DollarNames -- dispatches to various
-# other help handler functions
-help_handler <- function(type = c("completion", "parameter", "url"), topic, source, ...) {
+# other help handler functions.
+#
+# NOTE: this routine is used by RStudio's autocompletion system
+help_handler <- function(type = c("completion", "parameter", "url"),
+                         topic,
+                         source,
+                         ...)
+{
   type <- match.arg(type)
   if (type == "completion") {
     help_completion_handler.python.builtin.object(topic, source)
@@ -52,11 +73,11 @@ help_handler <- function(type = c("completion", "parameter", "url"), topic, sour
 #'
 #' @param module Name of a root Python module
 #' @param handler Handler function: `function(name, subtopic = NULL)`. The name
-#'   will be the fully qualfied name of a Python object (module, function, or
+#'   will be the fully qualified name of a Python object (module, function, or
 #'   class). The `subtopic` is optional and is currently used only for methods
 #'   within classes.
 #'
-#' @details The help handler is passed a fully qualfied module, class, or
+#' @details The help handler is passed a fully qualified module, class, or
 #'   function name (and optional method for classes). It should return a URL for
 #'   a help page (or `""` if no help page is available).
 #'
@@ -73,18 +94,18 @@ help_completion_handler_default <- function(doc) {
     description <- substring(doc, 1, arguments_matches[[1]])
   else
     description <- doc
-  
+
   # collect other sections
   sections <- sections_from_doc(doc)
-  
+
   # try to get return info
   returns <- sections$Returns
-  
+
   # remove arguments and returns
   sections$Args <- NULL
   sections$Arguments <- NULL
   sections$Returns <- NULL
-  
+
   list(
     description = description,
     sections = sections,
@@ -100,10 +121,10 @@ help_completion_handler_sphinx <- function(doc) {
   returns <- gsub(" : ", ": ", returns, fixed = TRUE)
   description <- substring(doc, 1, sphinx_doc_params_matches(doc)[[1]])
   # extract sections other than parameters and returns
-  sections <- lapply(names(doctree$ids), function(name) 
+  sections <- lapply(names(doctree$ids), function(name)
     if (!name %in% c("parameters", "returns")) doctree$ids[[name]])
   sections[sapply(sections, is.null)] <- NULL
-  
+
   list(
     description = description,
     sections = sections,
@@ -133,7 +154,7 @@ help_completion_handler.python.builtin.object <- function(topic, source) {
   # default to no doc
   if (is.null(doc))
     doc <- ""
-  
+
   if (is_sphinx_doc(doc) && is_docutils_available()) {
     extracted <- tryCatch(
       help_completion_handler_sphinx(doc),
@@ -143,22 +164,22 @@ help_completion_handler.python.builtin.object <- function(topic, source) {
   } else {
     extracted <- help_completion_handler_default(doc)
   }
-  
+
   description <- extracted$description
   sections <- extracted$sections
   returns <- extracted$returns
-  
+
   # extract description and details
   matches <- regexpr(pattern ='\n', description, fixed=TRUE)
   if (matches[[1]] != -1) {
     details <- substring(description, matches[[1]] + 1)
     description <- substring(description, 1, matches[[1]] - 1)
   } else {
-    details <- "" 
+    details <- ""
   }
   details <- cleanup_description(details)
   description <- cleanup_description(description)
-  
+
   # try to generate a signature
   signature <- NULL
   target <- help_get_attribute(source, topic)
@@ -257,23 +278,45 @@ help_formals_handler.python.builtin.object <- function(topic, source) {
   # check for module proxy
   if (py_is_module_proxy(source))
     return(NULL)
-  
-  if (py_has_attr(source, topic)) {
-    target <- help_get_attribute(source, topic)
-    if (!is.null(target) && py_is_callable(target)) {
-      help <- import("rpytools.help")
-      args <- help$get_arguments(target)
-      if (!is.null(args)) {
-        return(list(
-          formals = args,
-          helpHandler = "reticulate:::help_handler"
-        ))
-      }
-    }
+
+  # check for attribute
+  if (!py_has_attr(source, topic))
+    return(NULL)
+
+  target <- help_get_attribute(source, topic)
+  if (is.null(target) || !py_is_callable(target))
+    return(NULL)
+
+  # for builtin functions, we need to try parsing the help documentation
+  # (often, the first line provides a function signature)
+  if (inherits(target, "python.builtin.builtin_function_or_method")) {
+    output <- tryCatch({
+      docs <- py_get_attr(target, "__doc__")
+      if (inherits(docs, "python.builtin.object"))
+        docs <- py_to_r(docs)
+      pieces <- strsplit(docs, "\n", fixed = TRUE)[[1]]
+      first <- pieces[[1]]
+      munged <- paste(gsub("[^(]*[(]", "function (", first), "{}")
+      parsed <- parse(text = munged)[[1]]
+      list(
+        formals = names(parsed[[2]]),
+        helpHandler = "reticulate:::help_handler"
+      )
+    }, error = function(e) NULL)
+    return(output)
   }
 
-  # default to NULL if we couldn't get the arguments
-  NULL
+  # otherwise, use rpytools
+  help <- import("rpytools.help")
+  args <- help$get_arguments(target)
+  if (is.null(args))
+    return(NULL)
+
+  list(
+    formals = args,
+    helpHandler = "reticulate:::help_handler"
+  )
+
 }
 
 sphinx_doc_params_matches <- function(doc) {
@@ -301,7 +344,7 @@ arg_descriptions_from_doc_default <- function(args, doc) {
   # extract arguments section of the doc and break into lines
   arguments <- section_from_doc('Arg(s|uments)', doc)
   doc <- strsplit(doc, "\n", fixed = TRUE)[[1]]
-  
+
   sapply(args, function(arg) {
     arg_line <- which(grepl(paste0("^\\s+", arg, ":"), doc))
     if (length(arg_line) > 0) {
@@ -328,9 +371,17 @@ arg_descriptions_from_doc_default <- function(args, doc) {
 arg_descriptions_from_doc_sphinx <- function(doc) {
   doctree <- sphinx_doctree_from_doc(doc)
   params <- doctree$ids$parameters$children[[2]]$children
-  sapply(params, function(param) {
+
+  text <- vapply(params, function(param) {
     param$children[[3]]$astext()
-  })
+  }, character(1))
+
+  nm <- vapply(params, function(param) {
+    param$children[[1]]$astext()
+  }, character(1))
+
+  names(text) <- nm
+  text
 }
 
 # Extract argument descriptions from python docstring
@@ -351,21 +402,21 @@ arg_descriptions_from_doc <- function(args, doc) {
 
 # Extract all sections from the doc
 sections_from_doc <- function(doc) {
-  
+
   # sections to return
   sections <- list()
-  
+
   # grab section headers
   doc <- strsplit(doc, "\n", fixed = TRUE)[[1]]
   section_lines <- which(grepl("^\\w(\\w|\\s)+:", doc))
 
   # for each section
   for (i in section_lines) {
-    
+
     # get the section line and name
     section_line <- i
     section_name <- gsub(":\\s*$", "", doc[[i]])
-    
+
     # collect the sections text
     section_text <- c()
     while((section_line + 1) <= length(doc)) {
@@ -377,11 +428,11 @@ sections_from_doc <- function(doc) {
       else
         break
     }
-    
+
     # add to our list
     sections[[section_name]] <- cleanup_description(section_text)
   }
-  
+
   # return the sections
   sections
 }
@@ -402,7 +453,7 @@ section_from_doc <- function(name, doc) {
       else
         break
     }
-  } 
+  }
   cleanup_description(section)
 }
 
@@ -411,22 +462,22 @@ cleanup_description <- function(description) {
   if (is.null(description)) {
     NULL
   } else {
-    
+
     # remove leading and trailing whitespace
     description <- gsub("^\\s+|\\s+$", "", description)
-    
+
     # convert 2+ whitespace to 1 ws
     description <- gsub("(\\s\\s+)", " ", description)
-    
+
     # convert literals
     description <- gsub("None", "NULL", description)
     description <- gsub("True", "TRUE", description)
     description <- gsub("False", "FALSE", description)
-    
+
     # convert tuple to list
     description <- gsub("tuple", "list", description)
     description <- gsub("list/list", "list", description)
-    
+
     description
   }
 }
@@ -466,7 +517,7 @@ module_help <- function(module, topic) {
   # if so then append topic and return
   if (!is.null(page))
     return(paste(page, topic, sep = "#"))
-  
+
   # do we have a module handler
   main_module <- strsplit(module, ".", fixed = TRUE)[[1]][[1]]
   handler <- .module_help_handlers[[main_module]]
@@ -499,13 +550,13 @@ class_help <- function(class, topic) {
     class <- components[[length(components)]]
     return(paste0(page, "#", class, ".", topic))
   }
-  
+
   # do we have a handler for this module
   main_module <- strsplit(class, ".", fixed = TRUE)[[1]][[1]]
   handler <- .module_help_handlers[[main_module]]
   if (!is.null(handler))
     handler(class, topic)
-  else 
+  else
     ""
 }
 
@@ -514,7 +565,7 @@ help_get_attribute <- function(source, topic) {
   # check for module proxy
   if (py_is_module_proxy(source))
     return(NULL)
-  
+
   # check for sub-module
   if (py_is_module(source) && !py_has_attr(source, topic)) {
     module <- py_get_submodule(source, topic)
@@ -523,7 +574,7 @@ help_get_attribute <- function(source, topic) {
   }
 
   # get attribute w/ no warnings or errors
-  tryCatch(py_suppress_warnings(py_get_attr(source, topic)), 
+  tryCatch(py_suppress_warnings(py_get_attr(source, topic)),
            error = clear_error_handler(NULL))
 }
 
@@ -531,7 +582,5 @@ help_get_attribute <- function(source, topic) {
 .module_help_topics <- new.env(parent = emptyenv())
 .class_help_topics <- new.env(parent = emptyenv())
 .module_help_handlers <- new.env(parent = emptyenv())
-
-
 
 

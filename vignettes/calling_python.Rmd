@@ -72,6 +72,7 @@ When calling into Python, R data types are automatically converted to their equi
 | Matrix/Array | NumPy ndarray  | `matrix(c(1,2,3,4), nrow = 2, ncol = 2)`
 | Data Frame | Pandas DataFrame | ` data.frame(x = c(1,2,3), y = c("a", "b", "c"))`  |
 | Function | Python function | `function(x) x + 1`
+| Raw  | Python bytearray | `as.raw(c(1:10))` |
 | NULL, TRUE, FALSE  | None, True, False  |  `NULL`, `TRUE`, `FALSE`
 
 If a Python object of a custom class is returned then an R reference to that object is returned. You can call methods and access properties of the object just as if it was an instance of an R reference class.
@@ -97,7 +98,7 @@ builtins <- import_builtins()
 builtins$print('foo')
 ```
 
-The main module is generally useful if you have executed Python code from a file or string and want to get access to it's results (see the section below for more details).
+The main module is generally useful if you have executed Python code from a file or string and want to get access to its results (see the section below for more details).
 
 ## Sourcing Scripts
 
@@ -185,13 +186,13 @@ R named lists are converted to Python dictionaries however you can also explicit
 dict(foo = "bar", index = 42L)
 ```
 
-This might be useful if you need to pass a dictionary that uses a more complex object (as opposed to a string) as it's key.
+This might be useful if you need to pass a dictionary that uses a more complex object (as opposed to a string) as its key.
 
 ## Numeric Types and Indexes
 
 R and Python have different default numeric types. If you write `42` in R it is considered a floating point number whereas `42` in Python is considered an integer.
 
-This means that when a Python API expects an integer, you need to be sure to use the `L` suffix within R. For example, if the `foo` function requires an integer as it's `index` argument you would do this:
+This means that when a Python API expects an integer, you need to be sure to use the `L` suffix within R. For example, if the `foo` function requires an integer as its `index` argument you would do this:
 
 ```r
 foo$bar(index = 42L)
@@ -213,7 +214,7 @@ Note the use of the 0-based index as well as the `L` to indicate t that the valu
 
 ## Arrays
 
-R matrices and arrays are converted automatically to and from [NumPy](http://www.numpy.org/) arrays. 
+R matrices and arrays are converted automatically to and from [NumPy](https://numpy.org/) arrays. 
 
 When converting from R to NumPy, the NumPy array is mapped directly to the underlying memory of the R array (no copy is made). In this case, the NumPy array uses a column-based in memory layout that is compatible with R (i.e. Fortran style rather than C style). When converting from NumPy to R, R receives a column-ordered copy of the NumPy array. 
 
@@ -310,7 +311,7 @@ This example opens a file and ensures that it is automatically closed at the end
 
 ## Iterators
 
-If a Python API returns an [iterator or generator](http://anandology.com/python-practice-book/iterators.html) you can interact with it using the `iterate()` function. The `iterate()` function can be used to apply an R function to each item yielded by the iterator:
+If a Python API returns an iterator or a generator, you can interact with it using the `iterate()` function. The `iterate()` function can be used to apply an R function to each item yielded by the iterator:
 
 ```{r}
 iterate(iter, print)
@@ -358,7 +359,7 @@ Note that some iterators/generators in Python are infinite. In that case the cal
 
 Python [generators](https://wiki.python.org/moin/Generators) are functions that implement the Python iterator protocol. Similarly, the reticulate `generator()` function enables you to create a Python iterator from an R function.
 
-In Python, generators produce values using the `yield` keyword. In R, values are simply returned from the function. One benefit of the `yield` keyword is that it enables successive iterations to use the state of previous iterations. In R, this can be done by returning a function that mutates it's enclosing environment via the <<- operator. For example:
+In Python, generators produce values using the `yield` keyword. In R, values are simply returned from the function. One benefit of the `yield` keyword is that it enables successive iterations to use the state of previous iterations. In R, this can be done by returning a function that mutates its enclosing environment via the <<- operator. For example:
 
 ```{r}
 # define a generator function
@@ -393,6 +394,8 @@ Note that you can change the value that indicates the end of the iteration using
 
 ## Functions
 
+### Signatures
+
 By default R functions are converted to Python with a generic signature (`function(...)`), where there's neither keyword argument nor default values for arguments.
 
 For example, below we apply `r_to_py()` to an R function and then we use [inspect Python module](https://docs.python.org/3/library/inspect.html) to get the converted function's argument spec. You can see that the signature of the wrapped function looks different than the original R function's signature.
@@ -416,6 +419,11 @@ ArgSpec(args=['a', 'b'], varargs=None, keywords=None, defaults=(1.5,))
 
 Note that the signature of the R function must not contain esoteric Python-incompatible constructs. For example, we cannot have R function with signature like `function(a = 1, b)` since Python function requires that arguments without default values appear before arguments with default values.
 
+### Background Threads
+
+In some cases Python libraries will invoke callbacks on a Python background thread. Since R code must run on the main thread, this won't work by default when you pass an R function as a callback. 
+
+To work around this, you can use `py_main_thread_func()`, which will provide a special wrapper for your R function that ensures it will only be called on the main thread. 
 
 ## Advanced 
 
@@ -433,8 +441,8 @@ Typically interacting with Python objects from R involves using the `$` operator
 | `py_list_attributes()` | List all attributes of a Python object. |
 | `py_len()` | Length of Python object. |
 | `py_call()` | Call a Python callable object with the specified arguments.  | 
-| `py_to_r()` | Convert a Python object to it's R equivalent |
-| `r_to_py()` | Convert an R object to it's Python equivalent |
+| `py_to_r()` | Convert a Python object to its R equivalent |
+| `r_to_py()` | Convert an R object to its Python equivalent |
 
 ### Pickle
 
@@ -494,5 +502,4 @@ The following articles cover additional aspects of using **reticulate**:
 - [Using reticulate in an R Package](package.html)
 
 - [Arrays in R and Python](arrays.html)
-
 

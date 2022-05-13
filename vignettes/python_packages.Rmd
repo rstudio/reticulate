@@ -18,13 +18,13 @@ knitr::opts_chunk$set(eval = FALSE)
 
 Python packages are typically installed from one of two package repositories:
 
-1) [PyPI](https://pypi.python.org/pypi); or
+1) [PyPI](https://pypi.org/); or
 
 2) [Conda](https://conda.io/docs/) 
 
 Any Python package you install from PyPI or Conda can be used from R with reticulate. 
 
-Each version of Python on your system has it's own set of packages and reticulate will automatically find a version of Python that contains the first package that you import from R. If need be you can also configure reticulate to use a [specific version](versions.html) of Python.
+Each version of Python on your system has its own set of packages and reticulate will automatically find a version of Python that contains the first package that you import from R. If need be you can also configure reticulate to use a [specific version](versions.html) of Python.
 
 ### Python environments
 
@@ -33,8 +33,6 @@ When installing Python packages it's typically a good practice to isolate them w
 The reticulate package includes functions for creating Python environments (either virtualenvs or conda envs) and installing packages within them. Using virtualenvs is supported on Linux and Mac OS X, using Conda environments is supported on all platforms including Windows.
 
 ## Simple Installation
-
-> **NOTE**: The `py_install()` function described below is currently only available in the development version of reticulate. You can install the development version with `devtools::install_github("rstudio/reticulate")`.
 
 The reticulate package includes a `py_install()` function that can be used to install one or more Python packages. The packages will be by default be installed within a virtualenv or Conda environment named "r-reticulate". For example:
 
@@ -113,7 +111,7 @@ virtualenv_install("r-reticulate", "scipy")
 scipy <- import("scipy")
 ```
 
-Note that you may have a given Python package installed in multiple environments, in that case you may want to call the `use_condaenv()` function to ensure that a specific virtualenv is utilized by reticulate:
+Note that you may have a given Python package installed in multiple environments, in that case you may want to call the `use_virtualenv()` function to ensure that a specific virtualenv is utilized by reticulate:
 
 ```{r}
 library(reticulate)
@@ -138,13 +136,4 @@ $ conda install SciPy
 ```
 
 When doing this, be sure to make note of which version of Python your package has been installed within, and call `use_python()` functions as appropriate to ensure that this version is used by reticulate.
-
-
-
-
-
-
-
-
-
 

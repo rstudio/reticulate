@@ -4,32 +4,31 @@
 \alias{py_run}
 \alias{py_run_string}
 \alias{py_run_file}
-\alias{py_eval}
 \title{Run Python code}
 \usage{
 py_run_string(code, local = FALSE, convert = TRUE)
 
 py_run_file(file, local = FALSE, convert = TRUE)
-
-py_eval(code, convert = TRUE)
 }
 \arguments{
-\item{code}{Code to execute}
+\item{code}{The Python code to be executed.}
 
-\item{local}{Whether to create objects in a local/private namespace (if
-\code{FALSE}, objects are created within the main module).}
+\item{local}{Boolean; should Python objects be created as part of
+a local / private dictionary? If \code{FALSE}, objects will be created within
+the scope of the Python main module.}
 
-\item{convert}{\code{TRUE} to automatically convert Python objects to their R
-equivalent. If you pass \code{FALSE} you can do manual conversion using the
-\code{\link[=py_to_r]{py_to_r()}} function.}
+\item{convert}{Boolean; should Python objects be automatically converted
+to their \R equivalent? If set to \code{FALSE}, you can still manually convert
+Python objects to \R via the \code{\link[=py_to_r]{py_to_r()}} function.}
 
-\item{file}{Source file}
+\item{file}{The Python script to be executed.}
 }
 \value{
-For \code{py_eval()}, the result of evaluating the expression; For
-\code{py_run_string()} and \code{py_run_file()}, the dictionary associated with
-the code execution.
+A Python dictionary of objects. When \code{local} is \code{FALSE}, this
+dictionary captures the state of the Python main module after running
+the provided code. Otherwise, only the variables defined and used are
+captured.
 }
 \description{
-Execute code within the the \code{__main__} Python module.
+Execute code within the scope of the \code{__main__} Python module.
 }

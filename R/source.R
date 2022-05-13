@@ -18,17 +18,18 @@
 #' @export
 #' @importFrom utils download.file
 source_python <- function(file, envir = parent.frame(), convert = TRUE) {
-  
+
   # Download file content from URL to a local tempory file
-  if (!file.exists(file) && isTRUE(grepl("http", file))) {
+  if (!file.exists(file) && isTRUE(grepl("^https?://", file))) {
     tmpfile <- tempfile(fileext = ".py")
-    utils::download.file(url = file, destfile = tmpfile)
+    utils::download.file(url = file, destfile = tmpfile, quiet = TRUE)
     file <- tmpfile
     on.exit(unlink(file), add = TRUE)
   }
 
   # source the python script into the main python module
-  dict <- py_run_file(file, local = FALSE, convert = convert)
+  py_run_file(file, local = FALSE, convert = convert)
+  on.exit(py_flush_output(), add = TRUE)
 
   # copy objects from the main python module into the specified R environment
   if (!is.null(envir)) {
@@ -43,7 +44,8 @@ source_python <- function(file, envir = parent.frame(), convert = TRUE) {
         assign(name, value, envir = envir)
     }
   }
- 
+
   # return nothing
   invisible(NULL)
 }
+

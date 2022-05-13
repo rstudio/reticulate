@@ -15,7 +15,7 @@ knitr::opts_chunk$set(eval = FALSE)
 
 ## Overview
 
-The current [daily builds](https://dailies.rstudio.com) of RStudio IDE include experimental support for the reticulate package, including:
+[RStudio v1.2](https://rstudio.com/products/rstudio/download/) brings support for the reticulate package, including:
 
 1) Support for executing reticulated Python chunks within [R Notebooks](https://rmarkdown.rstudio.com/r_notebooks.html).
 
@@ -33,25 +33,9 @@ There are many IDEs available for doing data science with Python including [Jupy
 
 ## Installation
 
-You can download the current daily build of RStudio for various platforms here: 
+You can download the latest RStudio release here: <https://rstudio.com/products/rstudio/download/>.
 
-- [Windows Desktop](https://dailies.rstudio.com/rstudio/oss/windows/)
-
-- [Mac OS X Desktop](https://dailies.rstudio.com/rstudio/oss/mac/)
-
-- [Ubuntu Desktop](https://dailies.rstudio.com/rstudio/oss/ubuntu/amd64/)
-
-- [RedHat Server](https://dailies.rstudio.com/rstudioserver/oss/redhat6/x86_64/)
-
-- [Ubuntu Server](https://dailies.rstudio.com/rstudioserver/oss/ubuntu/amd64/)
-
-- [Other Platforms](https://dailies.rstudio.com)
-
-<div class="alert alert-warning">
-Note that RStudio daily builds are intended for testing purposes, and are not recommended for general use. If you use the daily build to try out the new features please report bugs at <https://github.com/rstudio/rstudio/issues>.
-</div>
-
-Al of the features described below require that you have previously installed the reticulate package, which you can do as follows:
+All of the features described below require that you have previously installed the reticulate package, which you can do as follows:
 
 ```r
 install.packages("reticulate")
@@ -95,8 +79,4 @@ RStudio now provides code completion for Python scripts:
 Additionally, pressing the F1 button over a Python symbol will display the help topic for that symbol:
 
 ![](images/help.png){.screenshot width="98%"}
-
-
-
-
 

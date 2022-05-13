@@ -4,27 +4,56 @@
 \alias{py_install}
 \title{Install Python packages}
 \usage{
-py_install(packages, envname = "r-reticulate", method = c("auto",
-  "virtualenv", "conda"), conda = "auto", ...)
+py_install(
+  packages,
+  envname = NULL,
+  method = c("auto", "virtualenv", "conda"),
+  conda = "auto",
+  python_version = NULL,
+  pip = FALSE,
+  ...,
+  pip_ignore_installed = ignore_installed,
+  ignore_installed = FALSE
+)
 }
 \arguments{
-\item{packages}{Character vector with package names to install}
+\item{packages}{A vector of Python packages to install.}
 
-\item{envname}{Name of environment to install packages into}
+\item{envname}{The name, or full path, of the environment in which Python
+packages are to be installed. When \code{NULL} (the default), the active
+environment as set by the \code{RETICULATE_PYTHON_ENV} variable will be used;
+if that is unset, then the \code{r-reticulate} environment will be used.}
 
 \item{method}{Installation method. By default, "auto" automatically finds a
 method that will work in the local environment. Change the default to force
 a specific installation method. Note that the "virtualenv" method is not
 available on Windows.}
 
-\item{conda}{Path to conda executable (or "auto" to find conda using the
-PATH and other conventional install locations).}
+\item{conda}{The path to a \code{conda} executable. Use \code{"auto"} to allow
+\code{reticulate} to automatically find an appropriate \code{conda} binary.
+See \strong{Finding Conda} and \code{\link[=conda_binary]{conda_binary()}} for more details.}
+
+\item{python_version}{The requested Python version. Ignored when attempting
+to install with a Python virtual environment.}
+
+\item{pip}{Boolean; use \code{pip} for package installation? This is only relevant
+when Conda environments are used, as otherwise packages will be installed
+from the Conda repositories.}
 
 \item{...}{Additional arguments passed to \code{\link[=conda_install]{conda_install()}}
 or \code{\link[=virtualenv_install]{virtualenv_install()}}.}
+
+\item{pip_ignore_installed, ignore_installed}{Boolean; whether pip should
+ignore previously installed versions of the requested packages. Setting
+this to \code{TRUE} causes pip to install the latest versions of all
+dependencies into the requested environment. This ensure that no
+dependencies are satisfied by a package that exists either in the site
+library or was previously installed from a different--potentially
+incompatible--distribution channel. (\code{ignore_installed} is an alias for
+\code{pip_ignore_installed}, \code{pip_ignore_installed} takes precedence).}
 }
 \description{
-Install Python packages into a virtualenv or conda env.
+Install Python packages into a virtual environment or Conda environment.
 }
 \details{
 On Linux and OS X the "virtualenv" method will be used by default
@@ -32,5 +61,6 @@ On Linux and OS X the "virtualenv" method will be used by default
 "conda" method is always used.
 }
 \seealso{
-\link{conda-tools}, \link{virtualenv-tools}
+\code{\link[=conda_install]{conda_install()}}, for installing packages into conda environments.
+\code{\link[=virtualenv_install]{virtualenv_install()}}, for installing packages into virtual environments.
 }

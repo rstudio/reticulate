@@ -3,11 +3,14 @@
 \name{iterate}
 \alias{iterate}
 \alias{iter_next}
+\alias{as_iterator}
 \title{Traverse a Python iterator or generator}
 \usage{
 iterate(it, f = base::identity, simplify = TRUE)
 
 iter_next(it, completed = NULL)
+
+as_iterator(x)
 }
 \arguments{
 \item{it}{Python iterator or generator}
@@ -19,6 +22,8 @@ iter_next(it, completed = NULL)
 
 \item{completed}{Sentinel value to return from \code{iter_next()} if the iteration
 completes (defaults to \code{NULL} but can be any R value you specify).}
+
+\item{x}{Python iterator or iterable}
 }
 \value{
 For \code{iterate()}, A list or vector containing the results of calling

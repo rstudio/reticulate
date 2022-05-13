@@ -1,0 +1,54 @@
+# Workflow derived from https://github.com/r-lib/actions/tree/master/examples
+# Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+name: R-CMD-check
+
+jobs:
+  R-CMD-check:
+    runs-on: ${{ matrix.config.os }}
+
+    name: OS=${{ matrix.config.os }} R=${{ matrix.config.r }} py=${{ matrix.config.python }}
+
+    timeout-minutes: 30
+
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - {os: macOS-latest,   r: 'release', python: '3.8'}
+          - {os: windows-latest, r: 'release', python: '3.8'}
+          - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release', python: '3.8'}
+          - {os: ubuntu-latest,   r: 'oldrel-1', python: '3.8'}
+          - {os: ubuntu-latest,   r: 'release', python: '3.8'}
+          - {os: ubuntu-latest,   r: 'release', python: '3.9'}
+          - {os: ubuntu-latest,   r: 'release', python: '3.10'}
+
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      R_KEEP_PKG_SOURCE: yes
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: r-lib/actions/setup-pandoc@v2
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: ${{ matrix.config.r }}
+          http-user-agent: ${{ matrix.config.http-user-agent }}
+          use-public-rspm: true
+
+      - uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.config.python }}
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: rcmdcheck
+
+      - uses: r-lib/actions/check-r-package@v2

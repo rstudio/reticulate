@@ -13,9 +13,9 @@ py_to_r(x)
 \arguments{
 \item{x}{A Python object.}
 
-\item{convert}{\code{TRUE} to automatically convert Python objects to their R
-equivalent. If you pass \code{FALSE} you can do manual conversion using the
-\code{\link[=py_to_r]{py_to_r()}} function.}
+\item{convert}{Boolean; should Python objects be automatically converted
+to their \R equivalent? If set to \code{FALSE}, you can still manually convert
+Python objects to \R via the \code{\link[=py_to_r]{py_to_r()}} function.}
 }
 \value{
 An \R object, as converted from the Python object.

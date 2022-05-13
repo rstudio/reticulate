@@ -24,7 +24,7 @@ test_that("Iterators are drained of their values by iteration", {
 
 test_that("infinite iterators can be accessed with iter_next", {
   skip_if_no_python()
-  
+
   # create an infinite generator
   main <- py_run_string("
 def infinite_generator():
@@ -34,7 +34,7 @@ def infinite_generator():
     n += 1
 ")
   it <- main$infinite_generator()
-  
+
   # iterate and stop when i is 10
   while(TRUE) {
     i <- iter_next(it)
@@ -52,6 +52,14 @@ test_that("iter_next returns sentinel value when it completes", {
       break
   }
   expect_equal(item, NA)
+})
+
+test_that("python iterables can be iterated", {
+  skip_if_no_python()
+  builtins <- import_builtins(convert = FALSE)
+  range <- builtins$range(1L, 10L)
+  result <- iterate(range)
+  expect_length(result, 9)
 })
 
 sequence_generator <-function(start, completed = NULL) {
@@ -85,10 +93,9 @@ test_that("generator functions are always called on the main thread", {
   expect_equal(test$iterateOnThread(gen), 11L:19L)
 })
 
-
-
-
-
-
-
-
+test_that("can't supply a function with arguments", {
+  expect_error(
+    py_iterator(function(x) x),
+    "no arguments"
+  )
+})

@@ -88,7 +88,7 @@ The scanning for and binding to a version of Python typically occurs at the time
 
 ## Python Packages
 
-Each version of Python on your system has it's own set of packages and as described above reticulate will automatically find a version of Python that contains the first package that you import from R. 
+Each version of Python on your system has its own set of packages and as described above reticulate will automatically find a version of Python that contains the first package that you import from R. 
 
 You can learn more about installing Python packages into virtualenvs or Conda environments in the article on [Installing Python Packages](python_packages.html).
 
@@ -106,6 +106,4 @@ You can also use the `py_discover_config()` function to see what version of Pyth
 ```{r}
 py_discover_config()
 ```
-
-
 

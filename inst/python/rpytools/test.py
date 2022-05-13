@@ -1,5 +1,6 @@
 
 import threading
+import collections
 
 import sys
 is_py2 = sys.version[0] == '2'
@@ -24,6 +25,9 @@ def makeDict():
 def makeTuple():
   return (1.0, 2.0, 3.0)
 
+def makeTupleWithOrderedDict():
+  return (1.0, collections.OrderedDict({'b':777, 'a':22}))
+
 def makeIterator(x):
   return iter(x)
 
@@ -40,9 +44,19 @@ def iterateOnThread(iter):
       results.append(i)
   thread = threading.Thread(target = iteration_worker)
   thread.start()
-  while thread.isAlive():
+  while thread.is_alive():
     thread.join(0.1)
   return results
+
+def invokeOnThread(f, *args, **kwargs):
+  result = []
+  def invoke_worker():
+    result.append(f(*args, **kwargs))
+  thread = threading.Thread(target = invoke_worker)
+  thread.start()
+  while thread.is_alive():
+    thread.join(0.1)
+  return result[0]
 
 
 def reflect(x):

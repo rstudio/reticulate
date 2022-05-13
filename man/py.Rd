@@ -4,8 +4,10 @@
 \name{py}
 \alias{py}
 \title{Interact with the Python Main Module}
-\format{An \R object acting as an interface to the
-Python main module.}
+\format{
+An \R object acting as an interface to the
+Python main module.
+}
 \usage{
 py
 }

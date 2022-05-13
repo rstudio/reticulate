@@ -4,51 +4,154 @@
 \alias{conda-tools}
 \alias{conda_list}
 \alias{conda_create}
+\alias{conda_clone}
+\alias{conda_export}
 \alias{conda_remove}
 \alias{conda_install}
 \alias{conda_binary}
+\alias{conda_exe}
 \alias{conda_version}
-\title{Interface to conda}
+\alias{conda_update}
+\alias{conda_python}
+\title{Conda Tools}
 \usage{
 conda_list(conda = "auto")
 
-conda_create(envname, packages = "python", conda = "auto")
+conda_create(
+  envname = NULL,
+  packages = NULL,
+  ...,
+  forge = TRUE,
+  channel = character(),
+  environment = NULL,
+  conda = "auto",
+  python_version = miniconda_python_version()
+)
+
+conda_clone(envname, ..., clone = "base", conda = "auto")
+
+conda_export(
+  envname,
+  file = if (json) "environment.json" else "environment.yml",
+  json = FALSE,
+  ...,
+  conda = "auto"
+)
 
 conda_remove(envname, packages = NULL, conda = "auto")
 
-conda_install(envname, packages, forge = TRUE, pip = FALSE,
-  pip_ignore_installed = TRUE, conda = "auto")
+conda_install(
+  envname = NULL,
+  packages,
+  forge = TRUE,
+  channel = character(),
+  pip = FALSE,
+  pip_options = character(),
+  pip_ignore_installed = FALSE,
+  conda = "auto",
+  python_version = NULL,
+  ...
+)
 
 conda_binary(conda = "auto")
 
+conda_exe(conda = "auto")
+
 conda_version(conda = "auto")
+
+conda_update(conda = "auto")
+
+conda_python(envname = NULL, conda = "auto", all = FALSE)
 }
 \arguments{
-\item{conda}{Path to conda executable (or "auto" to find conda using the
-PATH and other conventional install locations).}
+\item{conda}{The path to a \code{conda} executable. Use \code{"auto"} to allow
+\code{reticulate} to automatically find an appropriate \code{conda} binary.
+See \strong{Finding Conda} and \code{\link[=conda_binary]{conda_binary()}} for more details.}
 
-\item{envname}{Name of conda environment}
+\item{envname}{The name of, or path to, a conda environment.}
 
-\item{packages}{Character vector with package names to install or remove.}
+\item{packages}{A character vector, indicating package names which should be
+installed or removed. Use \verb{python=<version>} to request the installation
+of a specific version of Python.}
 
-\item{forge}{Include the \href{https://conda-forge.org/}{Conda Forge} repository.}
+\item{...}{Optional arguments, reserved for future expansion.}
 
-\item{pip}{\code{TRUE} to use pip (defaults to \code{FALSE})}
+\item{forge}{Boolean; include the \href{https://conda-forge.org/}{conda-forge}
+repository?}
 
-\item{pip_ignore_installed}{Ignore installed versions when using pip. This is \code{TRUE} by default
-so that specific package versions can be installed even if they are downgrades. The \code{FALSE}
-option is useful for situations where you don't want a pip install to attempt an overwrite
-of a conda binary package (e.g. SciPy on Windows which is very difficult to install via
-pip due to compilation requirements).}
+\item{channel}{An optional character vector of conda channels to include.
+When specified, the \code{forge} argument is ignored. If you need to
+specify multiple channels, including the conda forge, you can use
+\verb{c("conda-forge", <other channels>)}.}
+
+\item{environment}{The path to an environment definition, generated via
+(for example) \code{\link[=conda_export]{conda_export()}}, or via \verb{conda env export}. When provided,
+the conda environment will be created using this environment definition,
+and other arguments will be ignored.}
+
+\item{python_version}{The version of Python to be installed. Set this if
+you'd like to change the version of Python associated with a particular
+conda environment.}
+
+\item{clone}{The name of the conda environment to be cloned.}
+
+\item{file}{The path where the conda environment definition will be written.}
+
+\item{json}{Boolean; should the environment definition be written as JSON?
+By default, conda exports environments as YAML.}
+
+\item{pip}{Boolean; use \code{pip} for package installation? By default, packages
+are installed from the active conda channels.}
+
+\item{pip_options}{An optional character vector of additional command line
+arguments to be passed to \code{pip}. Only relevant when \code{pip = TRUE}.}
+
+\item{pip_ignore_installed}{Ignore already-installed versions when using pip?
+(defaults to \code{FALSE}). Set this to \code{TRUE} so that specific package versions
+can be installed even if they are downgrades. The \code{FALSE} option is useful
+for situations where you don't want a pip install to attempt an overwrite of
+a conda binary package (e.g. SciPy on Windows which is very difficult to
+install via pip due to compilation requirements).}
+
+\item{all}{Boolean; report all instances of Python found?}
 }
 \value{
-\code{conda_list()} returns a data frame with the names and paths to the
-respective python binaries of available environments. \code{conda_create()}
-returns the Path to the python binary of the created environment.
-\code{conda_binary()} returns the location of the main conda binary or \code{NULL}
-if none can be found.
+\code{conda_list()} returns an \R \code{data.frame}, with \code{name} giving the name of
+the associated environment, and \code{python} giving the path to the Python
+binary associated with that environment.
+
+\code{conda_create()} returns the path to the Python binary associated with the
+newly-created conda environment.
+
+\code{conda_clone()} returns the path to Python within the newly-created
+conda environment.
+
+\code{conda_export()} returns the path to the exported environment definition,
+invisibly.
 }
 \description{
-R functions for managing Python \href{https://conda.io/docs/user-guide/tasks/manage-environments.html}{condaenvironments}.
+Tools for managing Python \code{conda} environments.
 }
-\keyword{internal}
+\section{Finding Conda}{
+
+
+Most of \code{reticulate}'s conda APIs accept a \code{conda} parameter, used to control
+the \code{conda} binary used in their operation. When \code{conda = "auto"},
+\code{reticulate} will attempt to automatically find a conda installation.
+The following locations are searched, in order:
+\enumerate{
+\item The location specified by the \code{reticulate.conda_binary} \R option,
+\item The location specified by the \code{RETICULATE_CONDA} environment variable,
+\item The \code{\link[=miniconda_path]{miniconda_path()}} location (if it exists),
+\item The program \code{PATH},
+\item A set of pre-defined locations where conda is typically installed.
+}
+
+To force \code{reticulate} to use a particular \code{conda} binary, we recommend
+setting:\preformatted{options(reticulate.conda_binary = "/path/to/conda")
+}
+
+This can be useful if your conda installation lives in a location that
+\code{reticulate} is unable to automatically discover.
+}
+

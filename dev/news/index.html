@@ -81,10 +81,12 @@
       <small>Source: <a href="https://github.com/rstudio/reticulate/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
-    <div class="section level2"><h2 class="page-header" data-toc-text="development version" id="reticulate-development-version">reticulate (development version)<a class="anchor" aria-label="anchor" href="#reticulate-development-version"></a></h2></div>
     <div class="section level2">
-<h2 class="page-header" data-toc-text="1.25" id="reticulate-125">reticulate 1.25<a class="anchor" aria-label="anchor" href="#reticulate-125"></a></h2>
-<ul><li><p>Fixed an issue where reticulate would fail if R was running embedded under rpy2. reticulate now ensures the Python GIL is acquired before calling into Python.</p></li>
+<h2 class="page-header" data-toc-text="development version" id="reticulate-development-version">reticulate (development version)<a class="anchor" aria-label="anchor" href="#reticulate-development-version"></a></h2>
+<ul><li>Fixed an issue where <code>conda_install(pip=TRUE)</code> would install packages into a user Python library instead of the conda env if the environment variable <code>PIP_USER=true</code> was set. <code><a href="../reference/py_install.html">py_install()</a></code>, <code><a href="../reference/virtualenv-tools.html">virtualenv_install()</a></code>, and <code><a href="../reference/conda-tools.html">conda_install()</a></code> now always specify <code>--no-user</code> when invoking pip install. (<a href="https://github.com/rstudio/reticulate/issues/1209" class="external-link">#1209</a>)</li></ul></div>
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="1.25" id="reticulate-125">reticulate 1.25<small>2022-05-11</small><a class="anchor" aria-label="anchor" href="#reticulate-125"></a></h2>
+<ul><li><p>Fixed an issue where reticulate would fail if R was running embedded under rpy2. reticulate now ensures the Python GIL is acquired before calling into Python. (<a href="https://github.com/rstudio/reticulate/issues/1188" class="external-link">#1188</a>, <a href="https://github.com/rstudio/reticulate/issues/1203" class="external-link">#1203</a>)</p></li>
 <li><p>Fixed an issue where reticulate would fail to bind to an ArcGIS Pro conda environment (<a href="https://github.com/rstudio/reticulate/issues/1200" class="external-link">#1200</a>, <a href="https://github.com/philiporlando" class="external-link">@philiporlando</a>).</p></li>
 <li><p>Fixed an issue where reticulate would fail to bind to an Anaconda base environment on Windows.</p></li>
 <li><p>All commands that create, modify, or delete a Python environment now echo the system command about to be executed. Affected: virtualenv_{create,install,remove} conda_{create,clone,remove,install,update} py_install</p></li>

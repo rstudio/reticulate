@@ -401,3 +401,9 @@ system2t <- function(command, args, ...) {
   message(paste("+", shQuote(command), paste0(args, collapse = " ")))
   system2(command, args, ...)
 }
+
+
+rm_all_reticulate_state <- function() {
+  unlink(rappdirs::user_data_dir("r-reticulate", NULL), recursive = TRUE, force = TRUE)
+  unlink(rappdirs::user_data_dir("r-miniconda", NULL), recursive = TRUE, force = TRUE)
+}

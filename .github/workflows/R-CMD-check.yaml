@@ -50,6 +50,14 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: rcmdcheck
+          extra-packages: rcmdcheck remotes
+
+      - name: setup r-reticulate venv
+        shell: Rscript {0}
+        run: |
+          remotes::install_local()
+          reticulate::virtualenv_create("r-reticulate", Sys.which("python"))
+          reticulate::virtualenv_install("r-reticulate",
+            c("docutils", "pandas", "scipy"))
 
       - uses: r-lib/actions/check-r-package@v2

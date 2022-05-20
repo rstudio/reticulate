@@ -149,7 +149,7 @@ pyenv_install <- function(version, force, pyenv = NULL) {
     "--skip-existing"
 
   args <- c("install", force, version)
-  system2(pyenv, args)
+  system2t(pyenv, args)
 
 }
 

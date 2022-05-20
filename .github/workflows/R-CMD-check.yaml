@@ -23,11 +23,11 @@ jobs:
         config:
           - {os: macOS-latest,   r: 'release', python: '3.8'}
           - {os: windows-latest, r: 'release', python: '3.8'}
-          - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release', python: '3.8'}
-          - {os: ubuntu-latest,   r: 'oldrel-1', python: '3.8'}
           - {os: ubuntu-latest,   r: 'release', python: '3.8'}
           - {os: ubuntu-latest,   r: 'release', python: '3.9'}
           - {os: ubuntu-latest,   r: 'release', python: '3.10'}
+          - {os: ubuntu-latest,   r: 'oldrel-1', python: '3.8'}
+          - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release', python: '3.8'}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -58,6 +58,9 @@ jobs:
           remotes::install_local()
           reticulate::virtualenv_create("r-reticulate", Sys.which("python"))
           reticulate::virtualenv_install("r-reticulate",
-            c("docutils", "pandas", "scipy"))
+            c("docutils", "pandas", "scipy", "matplotlib"))
+          python <- reticulate::virtualenv_python("r-reticulate")
+          writeLines(sprintf("RETICULATE_PYTHON=%s", python),
+                     Sys.getenv("GITHUB_ENV"))
 
       - uses: r-lib/actions/check-r-package@v2

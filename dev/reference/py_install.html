@@ -104,30 +104,44 @@
     <h2>Arguments</h2>
     <dl><dt>packages</dt>
 <dd><p>A vector of Python packages to install.</p></dd>
+
+
 <dt>envname</dt>
 <dd><p>The name, or full path, of the environment in which Python
 packages are to be installed. When <code>NULL</code> (the default), the active
 environment as set by the <code>RETICULATE_PYTHON_ENV</code> variable will be used;
 if that is unset, then the <code>r-reticulate</code> environment will be used.</p></dd>
+
+
 <dt>method</dt>
 <dd><p>Installation method. By default, "auto" automatically finds a
 method that will work in the local environment. Change the default to force
 a specific installation method. Note that the "virtualenv" method is not
 available on Windows.</p></dd>
+
+
 <dt>conda</dt>
 <dd><p>The path to a <code>conda</code> executable. Use <code>"auto"</code> to allow
 <code>reticulate</code> to automatically find an appropriate <code>conda</code> binary.
 See <strong>Finding Conda</strong> and <code><a href="conda-tools.html">conda_binary()</a></code> for more details.</p></dd>
+
+
 <dt>python_version</dt>
 <dd><p>The requested Python version. Ignored when attempting
 to install with a Python virtual environment.</p></dd>
+
+
 <dt>pip</dt>
 <dd><p>Boolean; use <code>pip</code> for package installation? This is only relevant
 when Conda environments are used, as otherwise packages will be installed
 from the Conda repositories.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Additional arguments passed to <code><a href="conda-tools.html">conda_install()</a></code>
 or <code><a href="virtualenv-tools.html">virtualenv_install()</a></code>.</p></dd>
+
+
 <dt>pip_ignore_installed, ignore_installed</dt>
 <dd><p>Boolean; whether pip should
 ignore previously installed versions of the requested packages. Setting
@@ -137,6 +151,7 @@ dependencies are satisfied by a package that exists either in the site
 library or was previously installed from a different--potentially
 incompatible--distribution channel. (<code>ignore_installed</code> is an alias for
 <code>pip_ignore_installed</code>, <code>pip_ignore_installed</code> takes precedence).</p></dd>
+
 </dl></div>
     <div id="details">
     <h2>Details</h2>
@@ -162,7 +177,7 @@ incompatible--distribution channel. (<code>ignore_installed</code> is an alias f
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer></div>

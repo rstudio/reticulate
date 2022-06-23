@@ -96,20 +96,29 @@
     <h2>Arguments</h2>
     <dl><dt>code</dt>
 <dd><p>The Python code to be executed.</p></dd>
+
+
 <dt>local</dt>
 <dd><p>Boolean; should Python objects be created as part of
 a local / private dictionary? If <code>FALSE</code>, objects will be created within
 the scope of the Python main module.</p></dd>
+
+
 <dt>convert</dt>
 <dd><p>Boolean; should Python objects be automatically converted
 to their <span style="R">R</span> equivalent? If set to <code>FALSE</code>, you can still manually convert
 Python objects to <span style="R">R</span> via the <code><a href="r-py-conversion.html">py_to_r()</a></code> function.</p></dd>
+
+
 <dt>file</dt>
 <dd><p>The Python script to be executed.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>A Python dictionary of objects. When <code>local</code> is <code>FALSE</code>, this
+    
+
+<p>A Python dictionary of objects. When <code>local</code> is <code>FALSE</code>, this
 dictionary captures the state of the Python main module after running
 the provided code. Otherwise, only the variables defined and used are
 captured.</p>
@@ -127,7 +136,7 @@ captured.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer></div>

@@ -100,25 +100,36 @@
     <h2>Arguments</h2>
     <dl><dt>module</dt>
 <dd><p>The name of the Python module.</p></dd>
+
+
 <dt>as</dt>
 <dd><p>An alias for module name (affects names of R classes). Note that
 this is an advanced parameter that should generally only be used in package
 development (since it affects the S3 name of the imported class and can
 therefore interfere with S3 method dispatching).</p></dd>
+
+
 <dt>convert</dt>
 <dd><p>Boolean; should Python objects be automatically converted
 to their <span style="R">R</span> equivalent? If set to <code>FALSE</code>, you can still manually convert
 Python objects to <span style="R">R</span> via the <code><a href="r-py-conversion.html">py_to_r()</a></code> function.</p></dd>
+
+
 <dt>delay_load</dt>
 <dd><p>Boolean; delay loading the module until it is first used?
 When <code>FALSE</code>, the module will be loaded immediately. See <strong>Delay Load</strong>
 for advanced usages.</p></dd>
+
+
 <dt>path</dt>
 <dd><p>The path from which the module should be imported.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>An <span style="R">R</span> object wrapping a Python module. Module attributes can be accessed
+    
+
+<p>An <span style="R">R</span> object wrapping a Python module. Module attributes can be accessed
 via the <code>$</code> operator, or via <code><a href="py_get_attr.html">py_get_attr()</a></code>.</p>
     </div>
     <div id="python-built-ins">
@@ -192,7 +203,7 @@ reticulate::import_from_path(&lt;module&gt;, path = path, delay_load = TRUE)
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer></div>

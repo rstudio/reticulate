@@ -98,20 +98,31 @@
     <h2>Arguments</h2>
     <dl><dt>it</dt>
 <dd><p>Python iterator or generator</p></dd>
+
+
 <dt>f</dt>
 <dd><p>Function to apply to each item. By default applies the
 <code>identity</code> function which just reflects back the value of the item.</p></dd>
+
+
 <dt>simplify</dt>
 <dd><p>Should the result be simplified to a vector if possible?</p></dd>
+
+
 <dt>completed</dt>
 <dd><p>Sentinel value to return from <code>iter_next()</code> if the iteration
 completes (defaults to <code>NULL</code> but can be any R value you specify).</p></dd>
+
+
 <dt>x</dt>
 <dd><p>Python iterator or iterable</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>For <code>iterate()</code>, A list or vector containing the results of calling
+    
+
+<p>For <code>iterate()</code>, A list or vector containing the results of calling
 <code>f</code> on each item in <code>x</code> (invisibly); For <code>iter_next()</code>, the next
 value in the iteration (or the sentinel <code>completed</code> value if the iteration
 is complete).</p>
@@ -134,7 +145,7 @@ of type "character", "complex", "double", "integer", or "logical".</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
 </div>
 
       </footer></div>

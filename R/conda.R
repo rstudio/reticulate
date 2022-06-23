@@ -18,8 +18,8 @@
 #'   `c("conda-forge", <other channels>)`.
 #'
 #' @param packages A character vector, indicating package names which should be
-#'   installed or removed. Use `python=<version>` to request the installation
-#'   of a specific version of Python.
+#'   installed or removed. Use \verb{<package>==<version>} to request the installation
+#'   of a specific version of a package.}
 #'
 #' @param environment The path to an environment definition, generated via
 #'   (for example) [conda_export()], or via `conda env export`. When provided,

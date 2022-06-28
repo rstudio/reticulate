@@ -71,7 +71,7 @@ See \strong{Finding Conda} and \code{\link[=conda_binary]{conda_binary()}} for m
 \item{envname}{The name of, or path to, a conda environment.}
 
 \item{packages}{A character vector, indicating package names which should be
-installed or removed. Use \verb{<package>==<version>} to request the installation
+installed or removed. Use  \verb{<package>==<version>} to request the installation
 of a specific version of a package.}
 
 \item{...}{Optional arguments, reserved for future expansion.}
@@ -148,8 +148,10 @@ The following locations are searched, in order:
 }
 
 To force \code{reticulate} to use a particular \code{conda} binary, we recommend
-setting:\preformatted{options(reticulate.conda_binary = "/path/to/conda")
-}
+setting:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{options(reticulate.conda_binary = "/path/to/conda")
+}\if{html}{\out{</div>}}
 
 This can be useful if your conda installation lives in a location that
 \code{reticulate} is unable to automatically discover.

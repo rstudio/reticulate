@@ -20,7 +20,9 @@ and \href{https://github.com/pyenv-win/pyenv-win}{pyenv-win} projects.
 }
 \details{
 In general, it is recommended that Python virtual environments are created
-using the copies of Python installed by \code{\link[=install_python]{install_python()}}. For example:\preformatted{library(reticulate)
+using the copies of Python installed by \code{\link[=install_python]{install_python()}}. For example:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{library(reticulate)
 version <- "3.9.12"
 install_python(version)
 virtualenv_create("my-environment", version = version)
@@ -31,7 +33,7 @@ install_python("3.9:latest") # install latest patch available at python.org
 
 # select the latest 3.9.* patch installed locally
 virtualenv_create("my-environment", version = "3.9:latest")
-}
+}\if{html}{\out{</div>}}
 }
 \note{
 On macOS and Linux this will build Python from sources, which may take a few minutes.

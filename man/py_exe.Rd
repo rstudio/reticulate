@@ -18,8 +18,10 @@ choose the currently-active copy of Python.
 \details{
 This can occasionally be useful if you'd like to interact with Python (or its
 modules) via a subprocess; for example you might choose to install a package
-with \code{pip}:\preformatted{system2(py_exe(), c("-m", "pip", "install", "numpy"))
-}
+with \code{pip}:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{system2(py_exe(), c("-m", "pip", "install", "numpy"))
+}\if{html}{\out{</div>}}
 
 and so you can also have greater control over how these modules are invoked.
 }

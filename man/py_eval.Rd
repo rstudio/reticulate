@@ -23,19 +23,23 @@ Evaluate a single Python expression, in a way analogous to the Python
 
 
 \code{py_eval()} only supports evaluation of 'simple' Python expressions.
-Other expressions (e.g. assignments) will fail; e.g.\preformatted{> py_eval("x = 1")
+Other expressions (e.g. assignments) will fail; e.g.
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{> py_eval("x = 1")
 Error in py_eval_impl(code, convert) :
   SyntaxError: invalid syntax (reticulate_eval, line 1)
-}
+}\if{html}{\out{</div>}}
 
-and this mirrors what one would see in a regular Python interpreter:\preformatted{>>> eval("x = 1")
+and this mirrors what one would see in a regular Python interpreter:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{>>> eval("x = 1")
 Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
   File "<string>", line 1
 x = 1
 ^
   SyntaxError: invalid syntax
-}
+}\if{html}{\out{</div>}}
 
 The \code{\link[=py_run_string]{py_run_string()}} method can be used if the evaluation of arbitrary
 Python code is required.

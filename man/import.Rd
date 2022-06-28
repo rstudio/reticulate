@@ -58,7 +58,9 @@ want to avoid initializing Python before the user has explicitly requested it),
 then passing \code{TRUE} is normally the right choice.
 
 You can also provide a list of named functions, which act as callbacks to be
-run when the module is later loaded. For example:\preformatted{delay_load = list(
+run when the module is later loaded. For example:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{delay_load = list(
   
   # run before the module is loaded
   before_load = function() \{ ... \}
@@ -70,7 +72,7 @@ run when the module is later loaded. For example:\preformatted{delay_load = list
   on_error = function(error) \{ ... \}
   
 )
-}
+}\if{html}{\out{</div>}}
 
 Alternatively, if you supply only a single function, that will be treated as
 an \code{on_load} handler.
@@ -81,9 +83,11 @@ an \code{on_load} handler.
 
 \code{import_from_path()} can be used in you need to import a module from an arbitrary
 filesystem path. This is most commonly used when importing modules bundled with an
-\R package -- for example:\preformatted{path <- system.file("python", package = <package>)
+\R package -- for example:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{path <- system.file("python", package = <package>)
 reticulate::import_from_path(<module>, path = path, delay_load = TRUE)
-}
+}\if{html}{\out{</div>}}
 }
 
 \examples{

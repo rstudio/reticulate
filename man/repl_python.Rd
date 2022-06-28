@@ -72,7 +72,9 @@ stdout output split in \code{"\\n"} (stderr is not captured).
 }
 
 \section{Example}{
-\preformatted{
+
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{
 # enter the Python REPL, create a dictionary, and exit
 repl_python()
 dictionary = \{'alpha': 1, 'beta': 2\}
@@ -86,7 +88,7 @@ py$dictionary
 # $beta
 # [1] 2
 
-}
+}\if{html}{\out{</div>}}
 }
 
 \seealso{

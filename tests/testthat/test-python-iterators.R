@@ -99,3 +99,17 @@ test_that("can't supply a function with arguments", {
     "no arguments"
   )
 })
+
+
+test_that("python objects work in coro::loop()", {
+  testthat::skip_if_not_installed("coro")
+  # skip_if_not(requireNamespace("coro", quietly = TRUE),
+  #             "{coro} not installed")
+
+  loop <- yoink("coro", "loop")
+  i <- 0L
+  loop(for (el in py_eval("range(3)")) {
+    i <- i + el
+  })
+  expect_equal(i, 3L)
+})

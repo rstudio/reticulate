@@ -1,5 +1,7 @@
 # reticulate (development version)
 
+- Python objects gain the ability to be passed to coro::loop()
+
 - Fixed an issue where `conda_install(pip=TRUE)` would install packages into 
   a user Python library instead of the conda env if the environment variable
   `PIP_USER=true` was set. `py_install()`, `virtualenv_install()`, and 

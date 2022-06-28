@@ -614,3 +614,15 @@ py_to_r.scipy.sparse._csc.csc_matrix <- py_to_r.scipy.sparse.csc.csc_matrix
 py_to_r.scipy.sparse._csr.csr_matrix <- py_to_r.scipy.sparse.csr.csr_matrix
 #' @export
 py_to_r.scipy.sparse._coo.coo_matrix <- py_to_r.scipy.sparse.coo.coo_matrix
+
+
+
+
+#' @rawNamespace if(getRversion() >= "3.6.0") S3method(coro::as_iterator, python.builtin.object, as_coro_iterator)
+as_coro_iterator <- function(x) {
+  x <- as_iterator(x)
+  exhausted <- as.symbol(".__exhausted__.")
+  function() iter_next(x, exhausted)
+}
+
+

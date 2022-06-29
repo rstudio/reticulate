@@ -27,12 +27,12 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: any::pkgdown, local::.
+          extra-packages: any::pkgdown, local::., any::downlit>0.4.1
           needs: website
 
       - uses: actions/setup-python@v2
         with:
-          python-version: '3.8'
+          python-version: '3.9'
 
       - name: Setup r-reticulate env
         run: reticulate::virtualenv_create("r-reticulate", Sys.which("python"))

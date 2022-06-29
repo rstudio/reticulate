@@ -1,4 +1,6 @@
 
+# TODO: throw error in py_initialize() if attempting to bind to Python 2, then delete this test helper
+
 # prefer Python 3 if available
 if (!is_windows() &&
     !py_available(initialize = FALSE) &&

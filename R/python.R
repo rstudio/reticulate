@@ -1602,6 +1602,7 @@ py_last_error <- function(exception) {
     message = paste0(traceback$format_exception(etype, e, etb),
                      collapse = "")
   )
+  out <- lapply(out, as_r_value)
   attr(out, "exception") <- e
   class(out) <- "py_error"
   out

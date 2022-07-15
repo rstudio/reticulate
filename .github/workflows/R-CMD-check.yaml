@@ -52,6 +52,9 @@ jobs:
         with:
           python-version: ${{ matrix.config.python }}
 
+      - if: matrix.config.python == '2.7'
+        run: python -m pip install --upgrade --user virtualenv
+
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: rcmdcheck remotes

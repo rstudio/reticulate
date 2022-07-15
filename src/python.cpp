@@ -557,7 +557,7 @@ std::string py_fetch_error() {
   PyObject *excType, *excValue, *excTraceback;
   PyErr_Fetch(&excType, &excValue, &excTraceback);  // we now own the PyObjects
   PyErr_NormalizeException(&excType, &excValue, &excTraceback);
-  if (excTraceback != NULL) {
+  if (excTraceback != NULL && s_isPython3) {
     PyException_SetTraceback(excValue, excTraceback);
     Py_DecRef(excTraceback);
   }
@@ -2017,6 +2017,9 @@ void py_initialize(const std::string& python,
   // set python3 and interactive flags
   s_isPython3 = python3;
   s_isInteractive = interactive;
+
+  if(!s_isPython3)
+    warning("Python 2 reached EOL on January 1, 2020. Python 2 compatability be removed in an upcoming reticulate release.");
 
   // load the library
   std::string err;

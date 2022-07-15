@@ -1,11 +1,17 @@
 # reticulate (development version)
 
+- Fixed issue where reticulate failed to bind to python2. (#1241, #1229)
+
+- A warning is now issued when reticulate binds to python2 that python2 
+  support will be removed in an upcoming reticulate release.
+
 - Fixed an issue where `conda_install(pip=TRUE)` would install packages into 
   a user Python library instead of the conda env if the environment variable
   `PIP_USER=true` was set. `py_install()`, `virtualenv_install()`, and 
   `conda_install()` now always specify `--no-user` when invoking pip install. (#1209)
   
 - Fixed issue where `py_last_error()` would return unconverted Python objects (#1233)
+
 
 # reticulate 1.25 
 

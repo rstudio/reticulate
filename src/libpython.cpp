@@ -184,7 +184,7 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
   LOAD_PYTHON_SYMBOL(Py_IncRef)
   LOAD_PYTHON_SYMBOL(Py_DecRef)
   LOAD_PYTHON_SYMBOL(PyObject_Size)
-  LOAD_PYTHON_SYMBOL(PyObject_Type);
+  LOAD_PYTHON_SYMBOL(PyObject_Type)
   LOAD_PYTHON_SYMBOL(PyObject_GetAttr)
   LOAD_PYTHON_SYMBOL(PyObject_HasAttr)
   LOAD_PYTHON_SYMBOL(PyObject_SetAttr)
@@ -211,7 +211,6 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
   LOAD_PYTHON_SYMBOL(PyErr_BadArgument)
   LOAD_PYTHON_SYMBOL(PyErr_NormalizeException)
   LOAD_PYTHON_SYMBOL(PyErr_ExceptionMatches)
-  LOAD_PYTHON_SYMBOL(PyException_SetTraceback)
   LOAD_PYTHON_SYMBOL(PyErr_GivenExceptionMatches)
   LOAD_PYTHON_SYMBOL(PyObject_Print)
   LOAD_PYTHON_SYMBOL(PyObject_Str)
@@ -279,6 +278,7 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
     return false;
 
   if (python3) {
+    LOAD_PYTHON_SYMBOL(PyException_SetTraceback)
     LOAD_PYTHON_SYMBOL(Py_GetProgramFullPath)
 
     // Debug versions of Python will provide PyModule_Create2TraceRefs,

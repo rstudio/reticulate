@@ -7,6 +7,8 @@
   
 - Fixed issue where `py_last_error()` would return unconverted Python objects (#1233)
 
+- Fixed issue where reticulate failed to bind to python2. (#1241, #1229) 
+
 # reticulate 1.25 
 
 - Fixed an issue where reticulate would fail if R was running embedded under rpy2.

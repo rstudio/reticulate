@@ -557,7 +557,7 @@ std::string py_fetch_error() {
   PyObject *excType, *excValue, *excTraceback;
   PyErr_Fetch(&excType, &excValue, &excTraceback);  // we now own the PyObjects
   PyErr_NormalizeException(&excType, &excValue, &excTraceback);
-  if (excTraceback != NULL) {
+  if (excTraceback != NULL && s_isPython3) {
     PyException_SetTraceback(excValue, excTraceback);
     Py_DecRef(excTraceback);
   }

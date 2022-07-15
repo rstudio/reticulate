@@ -89,7 +89,7 @@ loaded <span style="R">R</span> packages.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">configure_environment</span><span class="op">(</span>package <span class="op">=</span> <span class="cn">NULL</span>, force <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">configure_environment</span><span class="op">(</span>package <span class="op">=</span> <span class="cn">NULL</span>, force <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -111,17 +111,17 @@ when testing a package on a continuous integration service.</p></dd>
     <h2>Details</h2>
     <p>Normally, this function should only be used by package authors, who want
 to ensure that their package dependencies are installed in the active
-Python environment. For example:</p><div class="sourceCode"><pre><code><span class="va">.onLoad</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">libname</span>, <span class="va">pkgname</span><span class="op">)</span> <span class="op">{</span>
-  <span class="fu">reticulate</span><span class="fu">::</span><span class="fu"><a href="../reference/configure_environment.html">configure_environment</a></span><span class="op">(</span><span class="va">pkgname</span><span class="op">)</span>
-<span class="op">}</span></code></pre></div>
-
+Python environment. For example:</p>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>.onLoad <span class="ot">&lt;-</span> <span class="cf">function</span>(libname, pkgname) {</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  reticulate<span class="sc">::</span><span class="fu">configure_environment</span>(pkgname)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>}</span></code></pre><p></p></div>
 <p>If the Python session has not yet been initialized, or if the user is not
 using the default Miniconda Python installation, no action will be taken.
 Otherwise, <code>reticulate</code> will take this as a signal to install any required
 Python dependencies into the user's Python environment.</p>
 <p>If you'd like to disable <code>reticulate</code>'s auto-configure behavior altogether,
-you can set the environment variable:</p><div class="sourceCode"><pre><code><span class="va">RETICULATE_AUTOCONFIGURE</span> <span class="op">=</span> <span class="cn">FALSE</span></code></pre></div>
-
+you can set the environment variable:</p>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>RETICULATE_AUTOCONFIGURE <span class="ot">=</span> <span class="cn">FALSE</span></span></code></pre><p></p></div>
 <p>e.g. in your <code>~/.Renviron</code> or similar.</p>
 <p>Note that, in the case where the Python session has not yet been initialized,
 <code>reticulate</code> will automatically ensure your required Python dependencies
@@ -140,7 +140,7 @@ are installed after the Python session is initialized (when appropriate).</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>

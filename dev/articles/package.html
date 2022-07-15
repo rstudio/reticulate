@@ -119,22 +119,22 @@
 <p>If you write an R package that wraps one or more Python packages, it’s likely that you’ll be importing Python modules within the <code>.onLoad</code> method of your package so that you can have convenient access to them within the rest of the package source code.</p>
 <p>When you do this, you should use the <code>delay_load</code> flag to the <code><a href="../reference/import.html">import()</a></code> function, for example:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># global reference to scipy (will be initialized in .onLoad)</span>
-<span class="va">scipy</span> <span class="op">&lt;-</span> <span class="cn">NULL</span>
-
-<span class="va">.onLoad</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">libname</span>, <span class="va">pkgname</span><span class="op">)</span> <span class="op">{</span>
-  <span class="co"># use superassignment to update global reference to scipy</span>
-  <span class="va">scipy</span> <span class="op">&lt;&lt;-</span> <span class="fu">reticulate</span><span class="fu">::</span><span class="fu"><a href="../reference/import.html">import</a></span><span class="op">(</span><span class="st">"scipy"</span>, delay_load <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-<span class="op">}</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># global reference to scipy (will be initialized in .onLoad)</span></span>
+<span><span class="va">scipy</span> <span class="op">&lt;-</span> <span class="cn">NULL</span></span>
+<span></span>
+<span><span class="va">.onLoad</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">libname</span>, <span class="va">pkgname</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="co"># use superassignment to update global reference to scipy</span></span>
+<span>  <span class="va">scipy</span> <span class="op">&lt;&lt;-</span> <span class="fu">reticulate</span><span class="fu">::</span><span class="fu"><a href="../reference/import.html">import</a></span><span class="op">(</span><span class="st">"scipy"</span>, delay_load <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
 <p>Using the <code>delay_load</code> flag has two important benefits:</p>
 <ol style="list-style-type: decimal">
 <li><p>It allows you to successfully load your package even when Python / Python packages are not installed on the target system (this is particularly important when testing on CRAN build machines).</p></li>
 <li>
 <p>It allows users to specify a desired location for Python before interacting with your package. For example:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">mypackage</span><span class="op">)</span>
-<span class="fu">reticulate</span><span class="fu">::</span><span class="fu"><a href="../reference/use_python.html">use_virtualenv</a></span><span class="op">(</span><span class="st">"~/pythonenvs/userenv"</span><span class="op">)</span>
-<span class="co"># call functions from mypackage</span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">mypackage</span><span class="op">)</span></span>
+<span><span class="fu">reticulate</span><span class="fu">::</span><span class="fu"><a href="../reference/use_python.html">use_virtualenv</a></span><span class="op">(</span><span class="st">"~/pythonenvs/userenv"</span><span class="op">)</span></span>
+<span><span class="co"># call functions from mypackage</span></span></code></pre></div>
 </li>
 </ol>
 <p>Without the <code>delay_load</code>, Python would be loaded immediately and the user’s call to <code>use_virtualenv</code> would have no effect.</p>
@@ -145,13 +145,13 @@
 <p>Your R package likely depends on the installation of one or more Python packages. As a convenience to your users, you may want to provide a high-level R function to allow users to install these Python packages. It’s furthermore beneficial if multiple R packages that depend on Python packages install their dependencies in the same Python environment (so that they can be easily used together).</p>
 <p>The <code><a href="../reference/py_install.html">py_install()</a></code> function provides a high-level interface for installing one or more Python packages. The packages will by default be installed within a virtualenv or Conda environment named “r-reticulate”. For example:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span>
-<span class="fu"><a href="../reference/py_install.html">py_install</a></span><span class="op">(</span><span class="st">"scipy"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/py_install.html">py_install</a></span><span class="op">(</span><span class="st">"scipy"</span><span class="op">)</span></span></code></pre></div>
 <p>You can document the use of this function along with your package or alternatively provide a wrapper function for <code><a href="../reference/py_install.html">py_install()</a></code>. For example:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">install_scipy</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">method</span> <span class="op">=</span> <span class="st">"auto"</span>, <span class="va">conda</span> <span class="op">=</span> <span class="st">"auto"</span><span class="op">)</span> <span class="op">{</span>
-  <span class="fu">reticulate</span><span class="fu">::</span><span class="fu"><a href="../reference/py_install.html">py_install</a></span><span class="op">(</span><span class="st">"scipy"</span>, method <span class="op">=</span> <span class="va">method</span>, conda <span class="op">=</span> <span class="va">conda</span><span class="op">)</span>
-<span class="op">}</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">install_scipy</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">method</span> <span class="op">=</span> <span class="st">"auto"</span>, <span class="va">conda</span> <span class="op">=</span> <span class="st">"auto"</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu">reticulate</span><span class="fu">::</span><span class="fu"><a href="../reference/py_install.html">py_install</a></span><span class="op">(</span><span class="st">"scipy"</span>, method <span class="op">=</span> <span class="va">method</span>, conda <span class="op">=</span> <span class="va">conda</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
 <p>While reticulate is capable of binding to <a href="calling_python.html#python-version">any Python environment</a> available on a system, it’s much more straightforward for users if there is a common environment used by R packages with convenient high-level functions provided for installation. We therefore strongly recommend that R package developers use the approach described here.</p>
 </div>
 <div class="section level2">
@@ -163,29 +163,29 @@
 <li>
 <p>Use the <code>delay_load</code> option (as described above) to ensure that the module (and Python) is loaded only on its first use. For example:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># python 'scipy' module I want to use in my package</span>
-<span class="va">scipy</span> <span class="op">&lt;-</span> <span class="cn">NULL</span>
-
-<span class="va">.onLoad</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">libname</span>, <span class="va">pkgname</span><span class="op">)</span> <span class="op">{</span>
-  <span class="co"># delay load foo module (will only be loaded when accessed via $)</span>
-  <span class="va">scipy</span> <span class="op">&lt;&lt;-</span> <span class="fu"><a href="../reference/import.html">import</a></span><span class="op">(</span><span class="st">"scipy"</span>, delay_load <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-<span class="op">}</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># python 'scipy' module I want to use in my package</span></span>
+<span><span class="va">scipy</span> <span class="op">&lt;-</span> <span class="cn">NULL</span></span>
+<span></span>
+<span><span class="va">.onLoad</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">libname</span>, <span class="va">pkgname</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="co"># delay load foo module (will only be loaded when accessed via $)</span></span>
+<span>  <span class="va">scipy</span> <span class="op">&lt;&lt;-</span> <span class="fu"><a href="../reference/import.html">import</a></span><span class="op">(</span><span class="st">"scipy"</span>, delay_load <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
 </li>
 <li>
 <p>When writing tests, check to see if your module is available and if it isn’t then skip the test. For example, if you are using the <strong>testthat</strong> package, you might do this:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># helper function to skip tests if we don't have the 'foo' module</span>
-<span class="va">skip_if_no_scipy</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span>
-  <span class="va">have_scipy</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/py_module_available.html">py_module_available</a></span><span class="op">(</span><span class="st">"scipy"</span><span class="op">)</span>
-  <span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="va">have_scipy</span><span class="op">)</span>
-    <span class="fu">skip</span><span class="op">(</span><span class="st">"scipy not available for testing"</span><span class="op">)</span>
-<span class="op">}</span>
-
-<span class="co"># then call this function from all of your tests</span>
-<span class="fu">test_that</span><span class="op">(</span><span class="st">"Things work as expected"</span>, <span class="op">{</span>
-  <span class="fu">skip_if_no_scipy</span><span class="op">(</span><span class="op">)</span>
-  <span class="co"># test code here...</span>
-<span class="op">}</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># helper function to skip tests if we don't have the 'foo' module</span></span>
+<span><span class="va">skip_if_no_scipy</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">have_scipy</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/py_module_available.html">py_module_available</a></span><span class="op">(</span><span class="st">"scipy"</span><span class="op">)</span></span>
+<span>  <span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="va">have_scipy</span><span class="op">)</span></span>
+<span>    <span class="fu">skip</span><span class="op">(</span><span class="st">"scipy not available for testing"</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="co"># then call this function from all of your tests</span></span>
+<span><span class="fu">test_that</span><span class="op">(</span><span class="st">"Things work as expected"</span>, <span class="op">{</span></span>
+<span>  <span class="fu">skip_if_no_scipy</span><span class="op">(</span><span class="op">)</span></span>
+<span>  <span class="co"># test code here...</span></span>
+<span><span class="op">}</span><span class="op">)</span></span></code></pre></div>
 </li>
 </ol>
 </div>
@@ -204,11 +204,11 @@
 <p>Note that this check isn’t required, as by default an R error will occur. If it’s desirable to avoid this error for any reason then you can use <code><a href="../reference/py_is_null_xptr.html">py_is_null_xptr()</a></code> to do so.</p>
 <p>The <strong>reticulate</strong> package exports a <code>py_str</code> generic method which is called from the <code>str</code> method only after doing appropriate validation (if the object is NULL then <code>&lt;pointer: 0x0&gt;</code> is returned). You can implement the <code>py_str</code> method as follows:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co">#' @importFrom reticulate py_str</span>
-<span class="co">#' @export </span>
-<span class="va">py_str.MyModule.MyPythonClass</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span>
-  <span class="co"># interact with the object to generate the string</span>
-<span class="op">}</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co">#' @importFrom reticulate py_str</span></span>
+<span><span class="co">#' @export </span></span>
+<span><span class="va">py_str.MyModule.MyPythonClass</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="co"># interact with the object to generate the string</span></span>
+<span><span class="op">}</span></span></code></pre></div>
 <p>The <code>print</code> and <code>summary</code> methods for Python objects both call the <code>str</code> method by default, so if you implement <code><a href="../reference/py_str.html">py_str()</a></code> you will automatically inherit implementations for those methods.</p>
 <div class="section level3">
 <h3 id="converting-between-r-and-python">Converting between R and Python<a class="anchor" aria-label="anchor" href="#converting-between-r-and-python"></a>
@@ -228,17 +228,17 @@
 </h3>
 <p><code><a href="../reference/r-py-conversion.html">r_to_py()</a></code> accepts a <code>convert</code> argument, which controls how objects generated from the created Python object are converted. To illustrate, consider the difference between these two cases:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span>
-
-<span class="co"># [convert = TRUE] =&gt; convert Python objects to R when appropriate</span>
-<span class="va">sys</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/import.html">import</a></span><span class="op">(</span><span class="st">"sys"</span>, convert <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">sys</span><span class="op">$</span><span class="va">path</span><span class="op">)</span>
-<span class="co"># [1] "character"</span>
-
-<span class="co"># [convert = FALSE] =&gt; always return Python objects</span>
-<span class="va">sys</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/import.html">import</a></span><span class="op">(</span><span class="st">"sys"</span>, convert <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">sys</span><span class="op">$</span><span class="va">path</span><span class="op">)</span>
-<span class="co"># [1] "python.builtin.list" "python.builtin.object"</span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># [convert = TRUE] =&gt; convert Python objects to R when appropriate</span></span>
+<span><span class="va">sys</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/import.html">import</a></span><span class="op">(</span><span class="st">"sys"</span>, convert <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">sys</span><span class="op">$</span><span class="va">path</span><span class="op">)</span></span>
+<span><span class="co"># [1] "character"</span></span>
+<span></span>
+<span><span class="co"># [convert = FALSE] =&gt; always return Python objects</span></span>
+<span><span class="va">sys</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/import.html">import</a></span><span class="op">(</span><span class="st">"sys"</span>, convert <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">sys</span><span class="op">$</span><span class="va">path</span><span class="op">)</span></span>
+<span><span class="co"># [1] "python.builtin.list" "python.builtin.object"</span></span></code></pre></div>
 <p>This is accomplished through the use of a <code>convert</code> flag, which is set on the Python object wrappers used by <code>reticulate</code>. Therefore, if you’re writing a method <code>r_to_py.foo()</code> for an object of class <code>foo</code>, you should take care to preserve the <code>convert</code> flag on the generated object. This is typically done by:</p>
 <ol style="list-style-type: decimal">
 <li><p>Passing <code>convert</code> along to the appropriate lower-level <code><a href="../reference/r-py-conversion.html">r_to_py()</a></code> method;</p></li>
@@ -246,13 +246,13 @@
 </ol>
 <p>As an example of the second:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># suppose 'make_python_object()' creates a Python object</span>
-<span class="co"># from R objects of class 'my_r_object'.</span>
-<span class="va">r_to_py.my_r_object</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">convert</span><span class="op">)</span> <span class="op">{</span>
-  <span class="va">object</span> <span class="op">&lt;-</span> <span class="fu">make_python_object</span><span class="op">(</span><span class="va">x</span><span class="op">)</span>
-  <span class="fu"><a href="https://rdrr.io/r/base/assign.html" class="external-link">assign</a></span><span class="op">(</span><span class="st">"convert"</span>, <span class="va">convert</span>, envir <span class="op">=</span> <span class="va">object</span><span class="op">)</span>
-  <span class="va">object</span>
-<span class="op">}</span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># suppose 'make_python_object()' creates a Python object</span></span>
+<span><span class="co"># from R objects of class 'my_r_object'.</span></span>
+<span><span class="va">r_to_py.my_r_object</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">convert</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">object</span> <span class="op">&lt;-</span> <span class="fu">make_python_object</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/assign.html" class="external-link">assign</a></span><span class="op">(</span><span class="st">"convert"</span>, <span class="va">convert</span>, envir <span class="op">=</span> <span class="va">object</span><span class="op">)</span></span>
+<span>  <span class="va">object</span></span>
+<span><span class="op">}</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -281,7 +281,7 @@
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer>

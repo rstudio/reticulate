@@ -87,38 +87,38 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">virtualenv_create</span><span class="op">(</span>
-  envname <span class="op">=</span> <span class="cn">NULL</span>,
-  python <span class="op">=</span> <span class="cn">NULL</span>,
-  <span class="va">...</span>,
-  version <span class="op">=</span> <span class="cn">NULL</span>,
-  packages <span class="op">=</span> <span class="st">"numpy"</span>,
-  module <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"reticulate.virtualenv.module"</span><span class="op">)</span>,
-  system_site_packages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"reticulate.virtualenv.system_site_packages"</span>,
-    default <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>,
-  pip_version <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"reticulate.virtualenv.pip_version"</span>, default <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span>,
-  setuptools_version <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"reticulate.virtualenv.setuptools_version"</span>, default <span class="op">=</span>
-    <span class="cn">NULL</span><span class="op">)</span>,
-  extra <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"reticulate.virtualenv.extra"</span>, default <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span>
-<span class="op">)</span>
-
-<span class="fu">virtualenv_install</span><span class="op">(</span>
-  envname <span class="op">=</span> <span class="cn">NULL</span>,
-  <span class="va">packages</span>,
-  ignore_installed <span class="op">=</span> <span class="cn">FALSE</span>,
-  pip_options <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="op">)</span>,
-  <span class="va">...</span>
-<span class="op">)</span>
-
-<span class="fu">virtualenv_remove</span><span class="op">(</span>envname <span class="op">=</span> <span class="cn">NULL</span>, packages <span class="op">=</span> <span class="cn">NULL</span>, confirm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>
-
-<span class="fu">virtualenv_list</span><span class="op">(</span><span class="op">)</span>
-
-<span class="fu">virtualenv_root</span><span class="op">(</span><span class="op">)</span>
-
-<span class="fu">virtualenv_python</span><span class="op">(</span>envname <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span>
-
-<span class="fu">virtualenv_exists</span><span class="op">(</span>envname <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">virtualenv_create</span><span class="op">(</span></span>
+<span>  envname <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  python <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">...</span>,</span>
+<span>  version <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  packages <span class="op">=</span> <span class="st">"numpy"</span>,</span>
+<span>  module <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"reticulate.virtualenv.module"</span><span class="op">)</span>,</span>
+<span>  system_site_packages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"reticulate.virtualenv.system_site_packages"</span>,</span>
+<span>    default <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>,</span>
+<span>  pip_version <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"reticulate.virtualenv.pip_version"</span>, default <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span>,</span>
+<span>  setuptools_version <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"reticulate.virtualenv.setuptools_version"</span>, default <span class="op">=</span></span>
+<span>    <span class="cn">NULL</span><span class="op">)</span>,</span>
+<span>  extra <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"reticulate.virtualenv.extra"</span>, default <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">virtualenv_install</span><span class="op">(</span></span>
+<span>  envname <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">packages</span>,</span>
+<span>  ignore_installed <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  pip_options <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">virtualenv_remove</span><span class="op">(</span>envname <span class="op">=</span> <span class="cn">NULL</span>, packages <span class="op">=</span> <span class="cn">NULL</span>, confirm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">virtualenv_list</span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">virtualenv_root</span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">virtualenv_python</span><span class="op">(</span>envname <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">virtualenv_exists</span><span class="op">(</span>envname <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -223,7 +223,7 @@ defining the <code>WORKON_HOME</code> environment variable.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>

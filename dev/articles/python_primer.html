@@ -114,7 +114,7 @@
     
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span></span></code></pre></div>
 <div class="section level2">
 <h2 id="primer-on-python-for-r-users">Primer on Python for R users<a class="anchor" aria-label="anchor" href="#primer-on-python-for-r-users"></a>
 </h2>
@@ -124,12 +124,12 @@
 </h3>
 <p>Whitespace matters in Python. In R, expressions are grouped into a code block with <code><a href="https://rdrr.io/r/base/Paren.html" class="external-link">{}</a></code>. In Python, that is done by making the expressions share an indentation level. For example, an expression with an R code block might be:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw">if</span> <span class="op">(</span><span class="cn">TRUE</span><span class="op">)</span> <span class="op">{</span>
-  <span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"This is one expression. \n"</span><span class="op">)</span>
-  <span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"This is another expression. \n"</span><span class="op">)</span>
-<span class="op">}</span>
-<span class="co">#&gt; This is one expression. </span>
-<span class="co">#&gt; This is another expression.</span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">TRUE</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"This is one expression. \n"</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"This is another expression. \n"</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="co">#&gt; This is one expression. </span></span>
+<span><span class="co">#&gt; This is another expression.</span></span></code></pre></div>
 <p>The equivalent in Python:</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="va">True</span>:</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="bu">print</span>(<span class="st">"This is one expression."</span>)</span>
@@ -296,7 +296,7 @@
 <div class="section level4">
 <h4 id="sets">Sets<a class="anchor" aria-label="anchor" href="#sets"></a>
 </h4>
-<p>Sets are a container that can be used to efficiently track unique items or deduplicate lists. They are constructed using <code>{val1, val2}</code> (like a dictionary, but without <code>:</code>). Think of them as dictionary where you only use the keys. Sets have many efficient methods for membership operations, like <code><a href="https://rdrr.io/r/base/sets.html" class="external-link">intersection()</a></code>, <code>issubset()</code>, <code><a href="https://rdrr.io/r/base/sets.html" class="external-link">union()</a></code> and so on.</p>
+<p>Sets are a container that can be used to efficiently track unique items or deduplicate lists. They are constructed using <code>{val1, val2}</code> (like a dictionary, but without <code>:</code>). Think of them as dictionary where you only use the keys. Sets have many efficient methods for membership operations, like <code>intersection()</code>, <code>issubset()</code>, <code><a href="https://rdrr.io/r/base/sets.html" class="external-link">union()</a></code> and so on.</p>
 <div class="sourceCode" id="cb17"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>s <span class="op">=</span> {<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>}</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="bu">type</span>(s)</span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;class 'set'&gt;</span></span>
@@ -323,7 +323,7 @@
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>it</span>
 <span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="co"># call `next` on the iterator until it is exhausted:</span></span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;list_iterator object at 0x7f16eb69a700&gt;</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;list_iterator object at 0x7fa73f87c640&gt;</span></span>
 <span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="bu">next</span>(it)</span>
 <span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1</span></span>
 <span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="bu">next</span>(it)</span>
@@ -334,18 +334,18 @@
 <span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Error in py_call_impl(callable, dots$args, dots$keywords): StopIteration</span></span></code></pre></div>
 <p>In R, you can use reticulate to step through an iterator the same way.</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span>
-<span class="va">l</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/r-py-conversion.html">r_to_py</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span>
-<span class="va">it</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/iterate.html">as_iterator</a></span><span class="op">(</span><span class="va">l</span><span class="op">)</span>
-
-<span class="fu"><a href="../reference/iterate.html">iter_next</a></span><span class="op">(</span><span class="va">it</span><span class="op">)</span>
-<span class="co">#&gt; 1.0</span>
-<span class="fu"><a href="../reference/iterate.html">iter_next</a></span><span class="op">(</span><span class="va">it</span><span class="op">)</span>
-<span class="co">#&gt; 2.0</span>
-<span class="fu"><a href="../reference/iterate.html">iter_next</a></span><span class="op">(</span><span class="va">it</span><span class="op">)</span>
-<span class="co">#&gt; 3.0</span>
-<span class="fu"><a href="../reference/iterate.html">iter_next</a></span><span class="op">(</span><span class="va">it</span>, completed <span class="op">=</span> <span class="st">"StopIteration"</span><span class="op">)</span>
-<span class="co">#&gt; [1] "StopIteration"</span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span></span>
+<span><span class="va">l</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/r-py-conversion.html">r_to_py</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">it</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/iterate.html">as_iterator</a></span><span class="op">(</span><span class="va">l</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/iterate.html">iter_next</a></span><span class="op">(</span><span class="va">it</span><span class="op">)</span></span>
+<span><span class="co">#&gt; 1.0</span></span>
+<span><span class="fu"><a href="../reference/iterate.html">iter_next</a></span><span class="op">(</span><span class="va">it</span><span class="op">)</span></span>
+<span><span class="co">#&gt; 2.0</span></span>
+<span><span class="fu"><a href="../reference/iterate.html">iter_next</a></span><span class="op">(</span><span class="va">it</span><span class="op">)</span></span>
+<span><span class="co">#&gt; 3.0</span></span>
+<span><span class="fu"><a href="../reference/iterate.html">iter_next</a></span><span class="op">(</span><span class="va">it</span>, completed <span class="op">=</span> <span class="st">"StopIteration"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "StopIteration"</span></span></code></pre></div>
 <p>Iterating over dictionaries first requires understanding if you are iterating over the keys, values, or both. Dictionaries have methods that allow you to specify which.</p>
 <div class="sourceCode" id="cb21"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> {<span class="st">"key1"</span>: <span class="dv">1</span>, <span class="st">"key2"</span>: <span class="dv">2</span>}</span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> key <span class="kw">in</span> d:</span>
@@ -393,14 +393,14 @@
 <span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Hello Friend</span></span></code></pre></div>
 <p>The equivalent R snippet would be</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">my_function</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">name</span> <span class="op">=</span> <span class="st">"World"</span><span class="op">)</span> <span class="op">{</span>
-  <span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Hello"</span>, <span class="va">name</span>, <span class="st">"\n"</span><span class="op">)</span>
-<span class="op">}</span>
-
-<span class="fu">my_function</span><span class="op">(</span><span class="op">)</span>
-<span class="co">#&gt; Hello World</span>
-<span class="fu">my_function</span><span class="op">(</span><span class="st">"Friend"</span><span class="op">)</span>
-<span class="co">#&gt; Hello Friend</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">my_function</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">name</span> <span class="op">=</span> <span class="st">"World"</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Hello"</span>, <span class="va">name</span>, <span class="st">"\n"</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="fu">my_function</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Hello World</span></span>
+<span><span class="fu">my_function</span><span class="op">(</span><span class="st">"Friend"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Hello Friend</span></span></code></pre></div>
 <p>Unlike R functions, the last value in a function is not automatically returned. Python requires an explicit return statement.</p>
 <div class="sourceCode" id="cb25"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> fn():</span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span></span>
@@ -455,7 +455,7 @@
 <span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;class 'type'&gt;</span></span>
 <span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>instance <span class="op">=</span> MyClass()</span>
 <span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>instance</span>
-<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;__main__.MyClass object at 0x7f16eb6abc40&gt;</span></span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;__main__.MyClass object at 0x7fa73f8041f0&gt;</span></span>
 <span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a><span class="bu">type</span>(instance)</span>
 <span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;class '__main__.MyClass'&gt;</span></span></code></pre></div>
 <p>Like the <code>def</code> statement, the <code>class</code> statement binds a new callable symbol, <code>MyClass</code>. First note the strong naming convention, classes are typically <code>CamelCase</code>, and functions are typically <code>snake_case</code>. After defining <code>MyClass</code>, you can interact with it, and see that it has type <code>'type'</code>. Calling <code>MyClass()</code> creates a new object <strong>instance</strong> of the class, which has type <code>'MyClass'</code> (ignore the <code>__main__.</code> prefix for now). The instance prints with its memory address, which is a strong hint that it’s common to be managing many instances of a class, and that the instance is mutable (modified-in-place by default).</p>
@@ -477,13 +477,13 @@
 <span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"MyClass is finished being created"</span>)</span>
 <span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; MyClass is finished being created</span></span>
 <span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>instance <span class="op">=</span> MyClass()</span>
-<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;__main__.MyClass object at 0x7f16eb6a17f0&gt; is initializing</span></span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;__main__.MyClass object at 0x7fa73f807a90&gt; is initializing</span></span>
 <span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(instance)</span>
-<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;__main__.MyClass object at 0x7f16eb6a17f0&gt;</span></span>
+<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;__main__.MyClass object at 0x7fa73f807a90&gt;</span></span>
 <span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a>instance2 <span class="op">=</span> MyClass()</span>
-<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;__main__.MyClass object at 0x7f16eb6abc40&gt; is initializing</span></span>
+<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;__main__.MyClass object at 0x7fa73f8041f0&gt; is initializing</span></span>
 <span id="cb31-16"><a href="#cb31-16" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(instance2)</span>
-<span id="cb31-17"><a href="#cb31-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;__main__.MyClass object at 0x7f16eb6abc40&gt;</span></span></code></pre></div>
+<span id="cb31-17"><a href="#cb31-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;__main__.MyClass object at 0x7fa73f8041f0&gt;</span></span></code></pre></div>
 <p>A few things to note:</p>
 <ul>
 <li><p>the <code>class</code> statement takes a code block that is defined by a common indentation level. The code block has the same exact semantics as any other expression that takes a code block, like <code>if</code> and <code>def</code>. The body of the class is evaluated only <strong>once</strong>, when the class constructor is first being created. Beware that any objects defined here are shared by all instances of the class!</p></li>
@@ -498,11 +498,11 @@
 <span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>instance <span class="op">=</span> MyClass()</span>
 <span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>instance.a_method()</span>
-<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; MyClass.a_method() was called with &lt;__main__.MyClass object at 0x7f16eb6b0370&gt;</span></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; MyClass.a_method() was called with &lt;__main__.MyClass object at 0x7fa73f807ac0&gt;</span></span>
 <span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>MyClass.a_method()     <span class="co"># error, missing required argument `self`</span></span>
 <span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Error in py_call_impl(callable, dots$args, dots$keywords): TypeError: a_method() missing 1 required positional argument: 'self'</span></span>
 <span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>MyClass.a_method(instance) <span class="co"># identical to instance.a_method()</span></span>
-<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; MyClass.a_method() was called with &lt;__main__.MyClass object at 0x7f16eb6b0370&gt;</span></span></code></pre></div>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; MyClass.a_method() was called with &lt;__main__.MyClass object at 0x7fa73f807ac0&gt;</span></span></code></pre></div>
 <p>Other dunder’s worth knowing about are:</p>
 <ul>
 <li><p><code>__getitem__</code>: the function invoked when subsetting an instance with <code>[</code> (Equivalent to defining a <code>[</code> S3 method in R.</p></li>
@@ -571,14 +571,14 @@
 <span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a><span class="co"># At first glance it presents like a regular function</span></span>
 <span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>my_generator_constructor</span>
-<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;function my_generator_constructor at 0x7f16eb6ad040&gt;</span></span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;function my_generator_constructor at 0x7fa73f8635e0&gt;</span></span>
 <span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a><span class="bu">type</span>(my_generator_constructor)</span>
 <span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a><span class="co"># But calling it returns something special, a 'generator object'</span></span>
 <span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;class 'function'&gt;</span></span>
 <span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a>my_generator <span class="op">=</span> my_generator_constructor()</span>
 <span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a>my_generator</span>
-<span id="cb34-15"><a href="#cb34-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;generator object my_generator_constructor at 0x7f16e3eac5f0&gt;</span></span>
+<span id="cb34-15"><a href="#cb34-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;generator object my_generator_constructor at 0x7fa738013f90&gt;</span></span>
 <span id="cb34-16"><a href="#cb34-16" aria-hidden="true" tabindex="-1"></a><span class="bu">type</span>(my_generator)</span>
 <span id="cb34-17"><a href="#cb34-17" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb34-18"><a href="#cb34-18" aria-hidden="true" tabindex="-1"></a><span class="co"># The generator object is both an iterable and an iterator</span></span>
@@ -613,20 +613,20 @@
 <p>This statement has Python go out to the file system, find an installed Python module named ‘numpy’, load it (commonly meaning: evaluate its <code>__init__.py</code> file and construct a <code>module</code> type), and bind it to the symbol <code>numpy</code>.</p>
 <p>The closest equivalent to this in R might be:</p>
 <div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">dplyr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">loadNamespace</a></span><span class="op">(</span><span class="st">"dplyr"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">dplyr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">loadNamespace</a></span><span class="op">(</span><span class="st">"dplyr"</span><span class="op">)</span></span></code></pre></div>
 <div class="section level4">
 <h4 id="where-are-modules-found">Where are modules found?<a class="anchor" aria-label="anchor" href="#where-are-modules-found"></a>
 </h4>
 <p>In Python, the file system locations where modules are searched can be accessed (and modified) from the list found at <code>sys.path</code>. This is Python’s equivalent to R’s <code><a href="https://rdrr.io/r/base/libPaths.html" class="external-link">.libPaths()</a></code>. <code>sys.path</code> will typically contain paths to the current working directory, the Python installation which contains the built-in standard library, administrator installed modules, user installed modules, values from environment variables like <code>PYTHONPATH</code>, and any modifications made directly to <code>sys.path</code> by other code in the current Python session (though this is relatively uncommon in practice).</p>
 <div class="sourceCode" id="cb37"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
 <span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>sys.path</span>
-<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ['', '/opt/hostedtoolcache/Python/3.8.12/x64/bin', '/opt/hostedtoolcache/Python/3.8.12/x64/lib/python38.zip', '/opt/hostedtoolcache/Python/3.8.12/x64/lib/python3.8', '/opt/hostedtoolcache/Python/3.8.12/x64/lib/python3.8/lib-dynload', '/home/runner/.virtualenvs/r-reticulate/lib/python3.8/site-packages', '/home/runner/work/_temp/Library/reticulate/python', '/home/runner/.virtualenvs/r-reticulate/lib/python38.zip', '/home/runner/.virtualenvs/r-reticulate/lib/python3.8', '/home/runner/.virtualenvs/r-reticulate/lib/python3.8/lib-dynload']</span></span></code></pre></div>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ['', '/opt/hostedtoolcache/Python/3.9.13/x64/bin', '/opt/hostedtoolcache/Python/3.9.13/x64/lib/python39.zip', '/opt/hostedtoolcache/Python/3.9.13/x64/lib/python3.9', '/opt/hostedtoolcache/Python/3.9.13/x64/lib/python3.9/lib-dynload', '/home/runner/.virtualenvs/r-reticulate/lib/python3.9/site-packages', '/home/runner/work/_temp/Library/reticulate/python', '/home/runner/.virtualenvs/r-reticulate/lib/python39.zip', '/home/runner/.virtualenvs/r-reticulate/lib/python3.9', '/home/runner/.virtualenvs/r-reticulate/lib/python3.9/lib-dynload']</span></span></code></pre></div>
 <p>You can inspect where a module was loaded from by accessing the dunder <code>__path__</code> or <code>__file__</code> (especially useful when troubleshooting installation issues):</p>
 <div class="sourceCode" id="cb38"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> os</span>
 <span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>os.<span class="va">__file__</span></span>
-<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; '/opt/hostedtoolcache/Python/3.8.12/x64/lib/python3.8/os.py'</span></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; '/opt/hostedtoolcache/Python/3.9.13/x64/lib/python3.9/os.py'</span></span>
 <span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>numpy.__path__</span>
-<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ['/home/runner/.virtualenvs/r-reticulate/lib/python3.8/site-packages/numpy']</span></span></code></pre></div>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ['/home/runner/.virtualenvs/r-reticulate/lib/python3.9/site-packages/numpy']</span></span></code></pre></div>
 <p>Once a module is loaded, you can access symbols from the module using <code>.</code> (equivalent to <code>::</code>, or maybe <code>$.environment</code>, in R).</p>
 <div class="sourceCode" id="cb39"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>numpy.<span class="bu">abs</span>(<span class="op">-</span><span class="dv">1</span>)</span>
 <span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1</span></span></code></pre></div>
@@ -661,11 +661,11 @@
 <span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>  <span class="bu">print</span>(<span class="st">"Yay! x was an int"</span>)</span></code></pre></div>
 <p>When calling it from R, you must be sure to call it with an integer:</p>
 <div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span>
-<span class="va">py</span><span class="op">$</span><span class="fu">a_strict_Python_function</span><span class="op">(</span><span class="fl">3</span><span class="op">)</span>             <span class="co"># error</span>
-<span class="co">#&gt; Error in py_call_impl(callable, dots$args, dots$keywords): AssertionError: x is not an int</span>
-<span class="va">py</span><span class="op">$</span><span class="fu">a_strict_Python_function</span><span class="op">(</span><span class="fl">3L</span><span class="op">)</span>            <span class="co"># success</span>
-<span class="va">py</span><span class="op">$</span><span class="fu">a_strict_Python_function</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span><span class="op">)</span> <span class="co"># success</span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span></span>
+<span><span class="va">py</span><span class="op">$</span><span class="fu">a_strict_Python_function</span><span class="op">(</span><span class="fl">3</span><span class="op">)</span>             <span class="co"># error</span></span>
+<span><span class="co">#&gt; Error in py_call_impl(callable, dots$args, dots$keywords): AssertionError: x is not an int</span></span>
+<span><span class="va">py</span><span class="op">$</span><span class="fu">a_strict_Python_function</span><span class="op">(</span><span class="fl">3L</span><span class="op">)</span>            <span class="co"># success</span></span>
+<span><span class="va">py</span><span class="op">$</span><span class="fu">a_strict_Python_function</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span><span class="op">)</span> <span class="co"># success</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="what-about-r-vectors">What about R vectors?<a class="anchor" aria-label="anchor" href="#what-about-r-vectors"></a>
@@ -773,7 +773,7 @@
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.4.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer>

@@ -65,7 +65,7 @@ jobs:
           remotes::install_local()
           reticulate::virtualenv_create("r-reticulate", Sys.which("python"))
           reticulate::virtualenv_install("r-reticulate",
-            c("docutils", "pandas", "scipy", "matplotlib"))
+            c("docutils", "pandas", "scipy", "matplotlib", "plotly"))
           python <- reticulate::virtualenv_python("r-reticulate")
           writeLines(sprintf("RETICULATE_PYTHON=%s", python),
                      Sys.getenv("GITHUB_ENV"))

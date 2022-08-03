@@ -614,7 +614,8 @@ eng_python_autoprint <- function(captured, options, autoshow) {
 
     return("")
 
-  } else if (py_has_attr(value, "to_html")) {
+  } else if (py_has_attr(value, "to_html") &&
+             import("inspect")$ismethod(value$to_html)) {
 
     data <- as_r_value(value$to_html())
     .engine_context$pending_plots$push(knitr::raw_html(data))

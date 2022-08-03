@@ -1,5 +1,9 @@
 # reticulate (development version)
 
+- Fixed an issue where the python knitr engine would error when printing to 
+  html a constructor of class instances with a `_repr_html_` method (e.g., `pandas.DataFrame`)
+  (#1250).
+
 - Fixed issue where reticulate failed to bind to python2. (#1241, #1229)
 
 - A warning is now issued when reticulate binds to python2 that python2 

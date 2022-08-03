@@ -161,3 +161,11 @@ fig = px.scatter(x=[1, 2, 3], y=[5, 4, 6])
 ```{python}
 fig
 ```
+
+`_repr_html_()` methods are not called with unbound `__self__`
+(https://github.com/rstudio/reticulate/issues/1249)
+```{python}
+import pandas as pd
+pt = pd.DataFrame()
+type(pt)
+```

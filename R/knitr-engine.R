@@ -447,7 +447,7 @@ eng_python_initialize_plotly <- function(options, envir) {
 
   renderers <- io$renderers
   if (!py_bool(renderers$default))
-    renderers$default <- "browser"
+    renderers$default <- "plotly_mimetype+notebook"
 
 }
 

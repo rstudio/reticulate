@@ -445,6 +445,10 @@ eng_python_initialize_plotly <- function(options, envir) {
   io <- import("plotly.io", convert = FALSE)
   io$show <- function(self, ...) self
 
+  renderers <- io$renderers
+  if (!py_bool(renderers$default))
+    renderers$default <- "browser"
+
 }
 
 # synchronize objects R -> Python

@@ -1,5 +1,9 @@
 # reticulate (development version)
 
+- `install_python()` now leverages brew for python build dependencies like
+  openssl@1.1 if brew is already installed and on the PATH, substantially speeding up
+  `install_python()` on macOS systems with brew configured.
+
 - Fixed an issue where the python knitr engine would error when printing to
   HTML a constructor of class instances with a `_repr_html_` or `to_html` method
   (e.g., `pandas.DataFrame`; #1249, #1250).

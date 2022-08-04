@@ -3068,3 +3068,19 @@ SEXP py_bool_impl(PyObjectRef x) {
 
   return Rf_ScalarLogical(result);
 }
+
+
+// [[Rcpp::export]]
+SEXP py_has_method(PyObjectRef object, const std::string& name) {
+
+  if (py_is_null_xptr(object))
+    return Rf_ScalarLogical(false);
+
+  if (!PyObject_HasAttrString(object, name.c_str()))
+    return Rf_ScalarLogical(false);
+
+  PyObjectPtr attr(PyObject_GetAttrString(object, name.c_str()));
+  int result = PyMethod_Check(attr);
+
+  return Rf_ScalarLogical(result);
+}

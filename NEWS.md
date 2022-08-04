@@ -1,24 +1,34 @@
 # reticulate (development version)
 
+- Fixed an issue where the python knitr engine would error when printing to
+  HTML a constructor of class instances with a `_repr_html_` or `to_html` method
+  (e.g., `pandas.DataFrame`; #1249, #1250).
+  
+- Fixed an issue where the python knitr engine would error when printing a 
+  plotly figure to an HTML document in some (head-less) linux environments. 
+  Reticulate now automatically sets 
+  `plotly.io.renderers.default = "plotly_mimetype+notebook"` if plotly 
+  fails to infer a more appropriate default renderer target. 
+
 - Fixed issue where reticulate failed to bind to python2. (#1241, #1229)
 
-- A warning is now issued when reticulate binds to python2 that python2 
+- A warning is now issued when reticulate binds to python2 that python2
   support will be removed in an upcoming reticulate release.
 
-- Fixed an issue where `conda_install(pip=TRUE)` would install packages into 
+- Fixed an issue where `conda_install(pip=TRUE)` would install packages into
   a user Python library instead of the conda env if the environment variable
-  `PIP_USER=true` was set. `py_install()`, `virtualenv_install()`, and 
+  `PIP_USER=true` was set. `py_install()`, `virtualenv_install()`, and
   `conda_install()` now always specify `--no-user` when invoking pip install. (#1209)
-  
+
 - Fixed issue where `py_last_error()` would return unconverted Python objects (#1233)
 
 
-# reticulate 1.25 
+# reticulate 1.25
 
 - Fixed an issue where reticulate would fail if R was running embedded under rpy2.
   reticulate now ensures the Python GIL is acquired before calling into Python.
   (#1188, #1203)
-  
+
 - Fixed an issue where reticulate would fail to bind to an ArcGIS Pro conda environment
   (#1200, @philiporlando).
 
@@ -78,7 +88,7 @@
 
 - Fixed an issue where `reticulate` would fail to bind to the system version
   of Python on macOS if command line tools were installed, but Xcode was not.
-  
+
 # reticulate 1.23
 
 - `use_condaenv()` gains the ability to accept an absolute path to a python

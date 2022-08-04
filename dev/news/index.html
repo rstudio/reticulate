@@ -83,7 +83,9 @@
 
     <div class="section level2">
 <h2 class="page-header" data-toc-text="development version" id="reticulate-development-version">reticulate (development version)<a class="anchor" aria-label="anchor" href="#reticulate-development-version"></a></h2>
-<ul><li><p>Fixed issue where reticulate failed to bind to python2. (<a href="https://github.com/rstudio/reticulate/issues/1241" class="external-link">#1241</a>, <a href="https://github.com/rstudio/reticulate/issues/1229" class="external-link">#1229</a>)</p></li>
+<ul><li><p>Fixed an issue where the python knitr engine would error when printing to HTML a constructor of class instances with a <code>_repr_html_</code> or <code>to_html</code> method (e.g., <code>pandas.DataFrame</code>; <a href="https://github.com/rstudio/reticulate/issues/1249" class="external-link">#1249</a>, <a href="https://github.com/rstudio/reticulate/issues/1250" class="external-link">#1250</a>).</p></li>
+<li><p>Fixed an issue where the python knitr engine would error when printing a plotly figure to an HTML document in some (head-less) linux environments. Reticulate now automatically sets <code>plotly.io.renderers.default = "plotly_mimetype+notebook"</code> if plotly fails to infer a more appropriate default renderer target.</p></li>
+<li><p>Fixed issue where reticulate failed to bind to python2. (<a href="https://github.com/rstudio/reticulate/issues/1241" class="external-link">#1241</a>, <a href="https://github.com/rstudio/reticulate/issues/1229" class="external-link">#1229</a>)</p></li>
 <li><p>A warning is now issued when reticulate binds to python2 that python2 support will be removed in an upcoming reticulate release.</p></li>
 <li><p>Fixed an issue where <code>conda_install(pip=TRUE)</code> would install packages into a user Python library instead of the conda env if the environment variable <code>PIP_USER=true</code> was set. <code><a href="../reference/py_install.html">py_install()</a></code>, <code><a href="../reference/virtualenv-tools.html">virtualenv_install()</a></code>, and <code><a href="../reference/conda-tools.html">conda_install()</a></code> now always specify <code>--no-user</code> when invoking pip install. (<a href="https://github.com/rstudio/reticulate/issues/1209" class="external-link">#1209</a>)</p></li>
 <li><p>Fixed issue where <code><a href="../reference/py_last_error.html">py_last_error()</a></code> would return unconverted Python objects (<a href="https://github.com/rstudio/reticulate/issues/1233" class="external-link">#1233</a>)</p></li>
@@ -503,7 +505,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

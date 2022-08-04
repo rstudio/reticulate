@@ -1,8 +1,14 @@
 # reticulate (development version)
 
 - Fixed an issue where the python knitr engine would error when printing to
-  html a constructor of class instances with a `_repr_html_` or `to_html` method
+  HTML a constructor of class instances with a `_repr_html_` or `to_html` method
   (e.g., `pandas.DataFrame`; #1249, #1250).
+  
+- Fixed an issue where the python knitr engine would error when printing a 
+  plotly figure to an HTML document in some (head-less) linux environments. 
+  Reticulate now automatically sets 
+  `plotly.io.renderers.default = "plotly_mimetype+notebook"` if plotly 
+  fails to infer a more appropriate default renderer target. 
 
 - Fixed issue where reticulate failed to bind to python2. (#1241, #1229)
 

@@ -126,6 +126,7 @@ LIBPYTHON_EXTERN PyTypeObject* PyFunction_Type;
 LIBPYTHON_EXTERN PyTypeObject* PyModule_Type;
 LIBPYTHON_EXTERN PyTypeObject* PyType_Type;
 LIBPYTHON_EXTERN PyTypeObject* PyProperty_Type;
+LIBPYTHON_EXTERN PyTypeObject *PyMethod_Type;
 
 LIBPYTHON_EXTERN PyObject* Py_None;
 LIBPYTHON_EXTERN PyObject* Py_Unicode;
@@ -160,6 +161,7 @@ void initialize_type_objects(bool python3);
 
 #define PyBool_Check(o)      ((o == Py_False) || (o == Py_True))
 #define PyFunction_Check(op) ((PyTypeObject*)(Py_TYPE(op)) == PyFunction_Type)
+#define PyMethod_Check(op)   ((PyTypeObject *)(Py_TYPE(op)) == PyMethod_Type)
 
 LIBPYTHON_EXTERN void (*Py_Initialize)();
 LIBPYTHON_EXTERN int (*Py_IsInitialized)();

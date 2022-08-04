@@ -659,6 +659,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// py_has_method
+SEXP py_has_method(PyObjectRef object, const std::string& name);
+RcppExport SEXP _reticulate_py_has_method(SEXP objectSEXP, SEXP nameSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< PyObjectRef >::type object(objectSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type name(nameSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_has_method(object, name));
+    return rcpp_result_gen;
+END_RCPP
+}
 // readline
 SEXP readline(const std::string& prompt);
 RcppExport SEXP _reticulate_readline(SEXP promptSEXP) {
@@ -749,6 +761,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_reticulate_py_list_length", (DL_FUNC) &_reticulate_py_list_length, 1},
     {"_reticulate_py_len_impl", (DL_FUNC) &_reticulate_py_len_impl, 2},
     {"_reticulate_py_bool_impl", (DL_FUNC) &_reticulate_py_bool_impl, 1},
+    {"_reticulate_py_has_method", (DL_FUNC) &_reticulate_py_has_method, 2},
     {"_reticulate_readline", (DL_FUNC) &_reticulate_readline, 1},
     {"_reticulate_py_register_interrupt_handler", (DL_FUNC) &_reticulate_py_register_interrupt_handler, 0},
     {"_reticulate_py_interrupts_pending", (DL_FUNC) &_reticulate_py_interrupts_pending, 1},

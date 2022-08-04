@@ -250,6 +250,10 @@ py_bool_impl <- function(x) {
     .Call(`_reticulate_py_bool_impl`, x)
 }
 
+py_has_method <- function(object, name) {
+    .Call(`_reticulate_py_has_method`, object, name)
+}
+
 readline <- function(prompt) {
     .Call(`_reticulate_readline`, prompt)
 }

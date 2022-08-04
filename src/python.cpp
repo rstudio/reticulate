@@ -3079,9 +3079,8 @@ SEXP py_has_method(PyObjectRef object, const std::string& name) {
   if (!PyObject_HasAttrString(object, name.c_str()))
     return Rf_ScalarLogical(false);
 
-  PyObject* attr(PyObject_GetAttrString(object, name.c_str()));
+  PyObjectPtr attr(PyObject_GetAttrString(object, name.c_str()));
   int result = PyMethod_Check(attr);
-  Py_DecRef(attr);
 
   return Rf_ScalarLogical(result);
 }

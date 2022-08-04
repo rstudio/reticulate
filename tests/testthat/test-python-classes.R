@@ -12,8 +12,11 @@ test_that("Python class members can be called via $", {
 
 
 test_that("py_has_method()", {
+  # in python2, unbound methods are still methods
+  # in python3, only bound, user-defined, functions are methods
+  skip_if(py_version() < 3)
   Fraction <- import("fractions")$Fraction
 
-  expect_false(py_has_method(Fraction, "as_integer_ratio"))
-  expect_true(py_has_method(Fraction(), "as_integer_ratio"))
+  expect_false(py_has_method(Fraction, "conjugate"))
+  expect_true(py_has_method(Fraction(), "conjugate"))
 })

@@ -897,7 +897,7 @@ conda_run2_nix <-
       commands))
 
   writeLines(commands, fi)
-  system2(Sys.which("sh"), fi,
+  system2(Sys.which("bash"), fi,
           stdout = if(identical(intern, FALSE)) "" else intern)
 }
 

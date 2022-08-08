@@ -200,6 +200,12 @@ pyenv_bootstrap_unix <- function() {
   owd <- setwd(tempdir())
   on.exit(setwd(owd), add = TRUE)
 
+  # pyenv python builds are substantially faster on macOS if we pre-install
+  # some dependencies (especially openssl@1.1) as pre-built but "untapped kegs"
+  # (i.e., unlinked to somewhere on the PATH but tucked away under $BREW_ROOT/Cellar).
+  if(nzchar(Sys.which("brew")))
+    system("brew install --only-dependencies pyenv python@3.9")
+
   # download the installer
   url <- "https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer"
   name <- basename(url)

@@ -1,11 +1,11 @@
 # reticulate (development version)
 
-- Fixed an issue where reticulate would fail to bind to a conda environment on macOS or linux
-  if conda installed a non-POSIX compliant activation script into the conda environment. (#1234)
-
 - `install_python()` now leverages brew for python build dependencies like
   openssl@1.1 if brew is already installed and on the PATH, substantially speeding up
   `install_python()` on macOS systems with brew configured.
+
+- Fixed an issue where reticulate would fail to bind to a conda environment on macOS or linux
+  if conda installed a non-POSIX compliant activation script into the conda environment. (#1234)
 
 - Fixed an issue where the python knitr engine would error when printing to
   HTML a constructor of class instances with a `_repr_html_` or `to_html` method

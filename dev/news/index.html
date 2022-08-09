@@ -91,6 +91,7 @@
 <li><p>A warning is now issued when reticulate binds to python2 that python2 support will be removed in an upcoming reticulate release.</p></li>
 <li><p>Fixed an issue where <code>conda_install(pip=TRUE)</code> would install packages into a user Python library instead of the conda env if the environment variable <code>PIP_USER=true</code> was set. <code><a href="../reference/py_install.html">py_install()</a></code>, <code><a href="../reference/virtualenv-tools.html">virtualenv_install()</a></code>, and <code><a href="../reference/conda-tools.html">conda_install()</a></code> now always specify <code>--no-user</code> when invoking pip install. (<a href="https://github.com/rstudio/reticulate/issues/1209" class="external-link">#1209</a>)</p></li>
 <li><p>Fixed issue where <code><a href="../reference/py_last_error.html">py_last_error()</a></code> would return unconverted Python objects (<a href="https://github.com/rstudio/reticulate/issues/1233" class="external-link">#1233</a>)</p></li>
+<li><p>The Knitr engine now supports printing Python objects with <code>_repr_markdown_</code> methods. (via quarto, <a href="https://github.com/quarto-dev/quarto-cli/issues/1501" class="external-link uri">https://github.com/quarto-dev/quarto-cli/issues/1501</a>)</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="1.25" id="reticulate-125">reticulate 1.25<small>2022-05-11</small><a class="anchor" aria-label="anchor" href="#reticulate-125"></a></h2>

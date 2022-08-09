@@ -29,6 +29,9 @@
 
 - Fixed issue where `py_last_error()` would return unconverted Python objects (#1233)
 
+- The Knitr engine now supports printing Python objects with
+  `_repr_markdown_` methods. (via quarto,
+  https://github.com/quarto-dev/quarto-cli/issues/1501)
 
 # reticulate 1.25
 

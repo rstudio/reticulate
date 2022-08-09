@@ -170,3 +170,20 @@ import pandas as pd
 pt = pd.DataFrame()
 type(pt)
 ```
+
+`_repr_markdown_()` methods are supported 
+(https://github.com/quarto-dev/quarto-cli/issues/1501):
+
+```{python}
+from IPython.display import Markdown
+from tabulate import tabulate
+table = [["Sun",696000,1989100000],
+         ["Earth",6371,5973.6],
+         ["Moon",1737,73.5],
+         ["Mars",3390,641.85]]
+Markdown(tabulate(
+  table, 
+  headers=["Planet","R (km)", "mass (x 10^29 kg)"],
+  tablefmt="pipe"
+))
+```

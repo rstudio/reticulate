@@ -618,6 +618,12 @@ eng_python_autoprint <- function(captured, options, autoshow) {
 
     return("")
 
+  } else if (py_has_method(value, "_repr_markdown_")) {
+
+    data <- as_r_value(value$`_repr_markdown_`())
+    .engine_context$pending_plots$push(knitr::asis_output(data))
+    return("")
+
   } else if (py_has_method(value, "to_html")) {
 
     data <- as_r_value(value$to_html())

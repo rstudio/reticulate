@@ -1,5 +1,8 @@
 # reticulate (development version)
 
+- The `reticulate` Python engine no longer halts on error for Python chunks
+  containing parse errors when the `error=TRUE` chunk option is set. (#583)
+
 - `install_python()` now leverages brew for python build dependencies like
   openssl@1.1 if brew is already installed and on the PATH, substantially speeding up
   `install_python()` on macOS systems with brew configured.

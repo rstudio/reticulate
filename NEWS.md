@@ -1,5 +1,8 @@
 # reticulate (development version)
 
+- Fixed an issue where `datetime.datetime` objects with a `tzinfo` attribute
+  was not getting converted to R correctly (#1266).
+
 - The `reticulate` Python engine no longer halts on error for Python chunks
   containing parse errors when the `error=TRUE` chunk option is set. (#583)
 

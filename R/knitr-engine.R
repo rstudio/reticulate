@@ -94,7 +94,16 @@ eng_python <- function(options) {
   parsed <- tryCatch(ast$parse(pasted, "<string>"), error = identity)
   if (inherits(parsed, "error")) {
     error <- reticulate::py_last_error()
-    stop(error$value, call. = FALSE)
+    if (identical(options$error, TRUE)) {
+      outputs <- list(
+        structure(list(src = code), class = "source"),
+        paste(error$value, collapse = "\n")
+      )
+      wrap <- getOption("reticulate.engine.wrap", eng_python_wrap)
+      return(wrap(outputs, options))
+    } else {
+      stop(error$value, call. = FALSE)
+    }
   }
 
   # iterate over top-level nodes and extract line numbers

@@ -187,3 +187,13 @@ Markdown(tabulate(
   tablefmt="pipe"
 ))
 ```
+
+
+Setting option `error=TRUE` also allows parsing errors.
+
+```{python, error=TRUE}
+for i in range(3):
+  print(i)
+    print(i+10)
+```
+

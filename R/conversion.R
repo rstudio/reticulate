@@ -149,6 +149,31 @@ r_to_py.POSIXt <- function(x, convert = FALSE) {
 
 #' @export
 py_to_r.datetime.datetime <- function(x) {
+  if(py_version() >= 3L) {
+    tz <- NULL
+    if (!is.null(x$tzinfo)) {
+
+      # in Python 3.9, there is a new zoneinfo.ZoneInfo class that
+      # accepts Olsonnames, similar to R's tz= semantics.
+      # Try to find the user supplied value in that case.
+      # Note that accessing `ZoneInfo.tzname()` is lossy. Eg.
+      # doing `ZoneInfo("America/New_York").tzname()` returns "EDT", which is
+      # not in R's OlsonNames() database, and also not stable wrt DST status.
+      if(inherits(x$tzinfo, "zoneinfo.ZoneInfo"))
+        tryCatch(tz <- as_r_value(x$tzinfo$key), error = identity)
+
+      if (is.null(tz))
+        tryCatch(tz <- as_r_value(x$tzname()), error = identity)
+    }
+
+    # TODO: if tzname() raised NotImplemented,
+    #   - restore last user facing python exception,
+    #   - have a fallback trying to construct a tz string w/ utcoffset().
+    return(.POSIXct(as_r_value(x$timestamp()), tz = tz))
+  }
+
+  # old python2 compat code.
+  # mangles tzinfo attribute: https://github.com/rstudio/reticulate/issues/1265
   disable_conversion_scope(x)
 
   # convert to POSIX time

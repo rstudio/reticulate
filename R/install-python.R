@@ -28,7 +28,13 @@
 #' @param force Boolean; force re-installation even if the requested version
 #'   of Python is already installed?
 #'
-#' @note On macOS and Linux this will build Python from sources, which may take a few minutes.
+#' @note On macOS and Linux this will build Python from sources, which may
+#'   take a few minutes. Installation will be faster if some build
+#'   dependencies are preinstalled. See
+#'   <https://github.com/pyenv/pyenv/wiki#suggested-build-environment> for
+#'   example commands you can run to pre-install system dependencies
+#'   (requires administrator privileges).
+#'
 #' @export
 install_python <- function(version = "3.9:latest",
                            list = FALSE,

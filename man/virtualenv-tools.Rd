@@ -18,8 +18,8 @@ virtualenv_create(
   version = NULL,
   packages = "numpy",
   module = getOption("reticulate.virtualenv.module"),
-  system_site_packages = getOption("reticulate.virtualenv.system_site_packages",
-    default = FALSE),
+  system_site_packages = getOption("reticulate.virtualenv.system_site_packages", default
+    = FALSE),
   pip_version = getOption("reticulate.virtualenv.pip_version", default = NULL),
   setuptools_version = getOption("reticulate.virtualenv.setuptools_version", default =
     NULL),

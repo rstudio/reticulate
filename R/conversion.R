@@ -475,7 +475,11 @@ py_to_r.scipy.sparse.base.spmatrix <- function(x) {
 #' @importFrom methods as
 #' @export
 r_to_py.sparseMatrix <- function(x, convert = FALSE) {
-  r_to_py(as(x, "dgCMatrix"), convert = convert)
+  x <- if (package_version(as.vector(getNamespaceVersion("Matrix"))) >= "1.4-2")
+    as(as(as(x, "dMatrix"), "generalMatrix"), "CsparseMatrix")
+  else
+    as(x, "dgCMatrix")
+  r_to_py(x, convert = convert)
 }
 
 # Conversion between `Matrix::dgCMatrix` and `scipy.sparse.csc.csc_matrix`.

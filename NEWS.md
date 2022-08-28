@@ -37,8 +37,10 @@
 
 - The Knitr engine now supports printing Python objects with
   `_repr_markdown_` methods. (via quarto-dev/quarto-cli#1501)
-  
+
 - Updated docs for compatibility with HTML5 / R 4.2.
+
+- Updated r_to_py.sparseMatrix() method for compatability with Matrix 1.4-2.
 
 # reticulate 1.25
 

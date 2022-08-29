@@ -243,7 +243,7 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
   }
 
   # ensure modules can be imported from the current working directory
-  py_run_string_impl("import sys; sys.path.insert(0, '')")
+  py_run_string_impl("import sys; sys.path.insert(0, '')", local = TRUE)
 
   # if this is a conda installation, set QT_QPA_PLATFORM_PLUGIN_PATH
   # https://github.com/rstudio/reticulate/issues/586

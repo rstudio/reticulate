@@ -44,6 +44,8 @@
 - `sys.executable` on Windows now correctly reports the path to the Python executable
   instead of the launching R executable. (#1258)
 
+- The `sys` module is no longer automatically imported in __main__ by reticulate.
+
 - Updated docs for compatibility with HTML5 / R 4.2.
 
 - Updated r_to_py.sparseMatrix() method for compatability with Matrix 1.4-2.

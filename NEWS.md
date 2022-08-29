@@ -1,7 +1,7 @@
 # reticulate (development version)
 
 - Fixed an issue where setting `RETICULATE_PYTHON` or `RETICULATE_PYTHON_FALLBACK`
-  on Windows to the pyenv-win `python.bat` shim would result in an error.
+  on Windows to the pyenv-win `python.bat` shim would result in an error (#1263).
 
 - Fixed an issue where `datetime.datetime` objects with a `tzinfo` attribute
   was not getting converted to R correctly (#1266).

@@ -83,7 +83,7 @@
 
     <div class="section level2">
 <h2 class="page-header" data-toc-text="development version" id="reticulate-development-version">reticulate (development version)<a class="anchor" aria-label="anchor" href="#reticulate-development-version"></a></h2>
-<ul><li><p>Fixed an issue where setting <code>RETICULATE_PYTHON</code> or <code>RETICULATE_PYTHON_FALLBACK</code> on Windows to the pyenv-win <code>python.bat</code> shim would result in an error.</p></li>
+<ul><li><p>Fixed an issue where setting <code>RETICULATE_PYTHON</code> or <code>RETICULATE_PYTHON_FALLBACK</code> on Windows to the pyenv-win <code>python.bat</code> shim would result in an error (<a href="https://github.com/rstudio/reticulate/issues/1263" class="external-link">#1263</a>).</p></li>
 <li><p>Fixed an issue where <code>datetime.datetime</code> objects with a <code>tzinfo</code> attribute was not getting converted to R correctly (<a href="https://github.com/rstudio/reticulate/issues/1266" class="external-link">#1266</a>).</p></li>
 <li><p>The <code>reticulate</code> Python engine no longer halts on error for Python chunks containing parse errors when the <code>error=TRUE</code> chunk option is set. (<a href="https://github.com/rstudio/reticulate/issues/583" class="external-link">#583</a>)</p></li>
 <li><p><code><a href="../reference/install_python.html">install_python()</a></code> now leverages brew for python build dependencies like <a href="mailto:openssl@1.1" class="email">openssl@1.1</a> if brew is already installed and on the PATH, substantially speeding up <code><a href="../reference/install_python.html">install_python()</a></code> on macOS systems with brew configured.</p></li>

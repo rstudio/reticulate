@@ -149,7 +149,7 @@ r_to_py.POSIXt <- function(x, convert = FALSE) {
 
 #' @export
 py_to_r.datetime.datetime <- function(x) {
-  if(py_version() >= 3L) {
+  if (py_version() >= 3L) {
     tz <- NULL
     if (!is.null(x$tzinfo)) {
 
@@ -159,7 +159,7 @@ py_to_r.datetime.datetime <- function(x) {
       # Note that accessing `ZoneInfo.tzname()` is lossy. Eg.
       # doing `ZoneInfo("America/New_York").tzname()` returns "EDT", which is
       # not in R's OlsonNames() database, and also not stable wrt DST status.
-      if(inherits(x$tzinfo, "zoneinfo.ZoneInfo"))
+      if (inherits(x$tzinfo, "zoneinfo.ZoneInfo"))
         tryCatch(tz <- as_r_value(x$tzinfo$key), error = identity)
 
       if (is.null(tz))

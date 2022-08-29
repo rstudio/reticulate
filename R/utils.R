@@ -382,7 +382,7 @@ startsWith <- function(x, prefix) {
   suppressWarnings(substr(x, 1L, nchar(prefix)) == prefix)
 }
 
-if(getRversion() < "3.3.0")
+if (getRversion() < "3.3.0")
 endsWith <- function (x, suffix) { # needed for R < 3.3
   if (!is.character(x) || !is.character(suffix))
     stop("non-character object(s)")

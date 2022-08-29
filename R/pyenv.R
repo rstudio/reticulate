@@ -35,7 +35,7 @@ pyenv_python <- function(version) {
   if (is.null(version))
     return(NULL)
 
-  if(endsWith(version, ":latest"))
+  if (endsWith(version, ":latest"))
     version <- pyenv_resolve_latest_patch(version, installed = TRUE)
 
   # on Windows, Python will be installed as part of the pyenv installation
@@ -85,7 +85,7 @@ pyenv_list <- function(pyenv = NULL, installed = FALSE) {
     mustWork = TRUE
   )
 
-  if(installed)
+  if (installed)
     return(system2(pyenv, c("versions", "--bare"), stdout = TRUE))
 
   # request list of Python packages
@@ -209,7 +209,7 @@ pyenv_bootstrap_unix <- function() {
   # pyenv python builds are substantially faster on macOS if we pre-install
   # some dependencies (especially openssl@1.1) as pre-built but "untapped kegs"
   # (i.e., unlinked to somewhere on the PATH but tucked away under $BREW_ROOT/Cellar).
-  if(nzchar(Sys.which("brew")))
+  if (nzchar(Sys.which("brew")))
     system("brew install --only-dependencies pyenv python@3.9")
 
   # download the installer
@@ -240,12 +240,12 @@ pyenv_bootstrap_unix <- function() {
 
 
 pyenv_update <- function(pyenv = pyenv_find()) {
-  if(is_windows())
+  if (is_windows())
     return(system2t(pyenv, "update"))
 
   # $ git clone https://github.com/pyenv/pyenv-update.git $(pyenv root)/plugins/pyenv-update
   root <- system2(pyenv, "root", stdout = TRUE)
-  if(!dir.exists(file.path(root, "plugins/pyenv-update")))
+  if (!dir.exists(file.path(root, "plugins/pyenv-update")))
     system2("git", c("clone", "https://github.com/pyenv/pyenv-update.git",
                       file.path(root, "plugins/pyenv-update")))
 

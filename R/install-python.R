@@ -49,7 +49,7 @@ install_python <- function(version = "3.9:latest",
   if (identical(list, TRUE))
     return(pyenv_list(pyenv = pyenv))
 
-  if(endsWith(version, ":latest"))
+  if (endsWith(version, ":latest"))
     version <-
       pyenv_resolve_latest_patch(version, installed = FALSE, pyenv = pyenv)
 

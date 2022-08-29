@@ -1,6 +1,6 @@
 
 ## CRAN reports we create a
-# if(!exists("~/.virtualenvs"))
+# if (!exists("~/.virtualenvs"))
 #   withr::defer(unlink("~/.virtualenvs", recursive = TRUE), teardown_env())
 
 

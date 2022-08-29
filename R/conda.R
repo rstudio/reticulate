@@ -858,7 +858,7 @@ conda_run2_windows <-
   fi <- tempfile(fileext = ".bat")
   on.exit(unlink(fi))
   writeLines(c(
-    if(!echo) "@echo off",
+    if (!echo) "@echo off",
     activate_cmd,
     cmd_line
   ), fi)
@@ -891,14 +891,14 @@ conda_run2_nix <-
 
   # set -x is too verbose, includes all the commands made by conda scripts
   # so we manually echo the top-level commands only
-  if(echo)
+  if (echo)
     commands <- as.vector(rbind(
       paste("echo", shQuote(paste("+", commands))),
       commands))
 
   writeLines(commands, fi)
   system2(Sys.which("bash"), fi,
-          stdout = if(identical(intern, FALSE)) "" else intern)
+          stdout = if (identical(intern, FALSE)) "" else intern)
 }
 
 

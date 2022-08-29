@@ -84,7 +84,7 @@ test_that("timezone information is not lost during conversion", {
     "2020-08-24T03:04:05+0000")
   # py_to_r(pdt$isoformat(timespec="seconds")))
 
-  if(py_version() >= "3.9") {
+  if (py_version() >= "3.9") {
     zoneinfo <- import("zoneinfo")
     pdt <- datetime$datetime$now(zoneinfo$ZoneInfo("America/New_York"))
     rdt <- py_to_r(pdt)

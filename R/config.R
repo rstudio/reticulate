@@ -955,7 +955,8 @@ normalize_python_path <- function(python) {
       python <- file.path(python, "python")
 
     # append .exe if necessary on windows
-    if (is_windows() && (!grepl("^.*\\.exe$", tolower(python))))
+    # accept .bat for pyenv-win shim
+    if (is_windows() && (!grepl("^.*\\.(exe|bat)$", tolower(python))))
       python <- paste0(python, ".exe")
 
     # return

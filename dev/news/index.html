@@ -95,6 +95,9 @@
 <li><p>Fixed an issue where <code>conda_install(pip=TRUE)</code> would install packages into a user Python library instead of the conda env if the environment variable <code>PIP_USER=true</code> was set. <code><a href="../reference/py_install.html">py_install()</a></code>, <code><a href="../reference/virtualenv-tools.html">virtualenv_install()</a></code>, and <code><a href="../reference/conda-tools.html">conda_install()</a></code> now always specify <code>--no-user</code> when invoking pip install. (<a href="https://github.com/rstudio/reticulate/issues/1209" class="external-link">#1209</a>)</p></li>
 <li><p>Fixed issue where <code><a href="../reference/py_last_error.html">py_last_error()</a></code> would return unconverted Python objects (<a href="https://github.com/rstudio/reticulate/issues/1233" class="external-link">#1233</a>)</p></li>
 <li><p>The Knitr engine now supports printing Python objects with <code>_repr_markdown_</code> methods. (via quarto-dev/quarto-cli#1501)</p></li>
+<li><p><code>sys.executable</code> on Windows now correctly reports the path to the Python executable instead of the launching R executable. (<a href="https://github.com/rstudio/reticulate/issues/1258" class="external-link">#1258</a>)</p></li>
+<li><p>The <code>sys</code> module is no longer automatically imported in <strong>main</strong> by reticulate.</p></li>
+<li><p>Fixed an issue on Windows where reticulate would fail to find Python installations from pyenv installed via scoop.</p></li>
 <li><p>Updated docs for compatibility with HTML5 / R 4.2.</p></li>
 <li><p>Updated r_to_py.sparseMatrix() method for compatability with Matrix 1.4-2.</p></li>
 </ul></div>

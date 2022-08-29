@@ -40,6 +40,13 @@
 
 - The Knitr engine now supports printing Python objects with
   `_repr_markdown_` methods. (via quarto-dev/quarto-cli#1501)
+  
+- `sys.executable` on Windows now correctly reports the path to the Python executable
+  instead of the launching R executable. (#1258)
+
+- The `sys` module is no longer automatically imported in __main__ by reticulate.
+
+- Fixed an issue on Windows where reticulate would fail to find Python installations from pyenv installed via scoop.
 
 - Updated docs for compatibility with HTML5 / R 4.2.
 

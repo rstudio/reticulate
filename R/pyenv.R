@@ -41,6 +41,12 @@ pyenv_python <- function(version) {
   # on Windows, Python will be installed as part of the pyenv installation
   prefix <- if (is_windows()) {
     pyenv <- pyenv_find()
+    if (endsWith(pyenv, ".cmd")) {
+      # check if it's a scoop shim, resolve the actual installation if so
+      if (file.exists(actual_pyenv <-
+                      str_drop_prefix(readLines(pyenv, 1), "@rem ")))
+        pyenv <- actual_pyenv
+    }
     file.path(pyenv, "../../versions", version)
   } else {
     root <- Sys.getenv("PYENV_ROOT", unset = "~/.pyenv")

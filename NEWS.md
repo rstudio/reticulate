@@ -46,6 +46,8 @@
 
 - The `sys` module is no longer automatically imported in __main__ by reticulate.
 
+- Fixed an issue on Windows where reticulate would fail to find Python installations from pyenv installed via scoop.
+
 - Updated docs for compatibility with HTML5 / R 4.2.
 
 - Updated r_to_py.sparseMatrix() method for compatability with Matrix 1.4-2.

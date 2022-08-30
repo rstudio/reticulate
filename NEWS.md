@@ -6,6 +6,9 @@
 - Fixed an issue where `datetime.datetime` objects with a `tzinfo` attribute
   was not getting converted to R correctly (#1266).
 
+- Fixed an issue where pandas `pandas.Categorical(,ordered=True)` Series were
+  not correctly converted to an R ordered factor (#1234).
+
 - The `reticulate` Python engine no longer halts on error for Python chunks
   containing parse errors when the `error=TRUE` chunk option is set. (#583)
 
@@ -40,7 +43,7 @@
 
 - The Knitr engine now supports printing Python objects with
   `_repr_markdown_` methods. (via quarto-dev/quarto-cli#1501)
-  
+
 - `sys.executable` on Windows now correctly reports the path to the Python executable
   instead of the launching R executable. (#1258)
 

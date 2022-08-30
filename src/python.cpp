@@ -2809,7 +2809,7 @@ SEXP py_convert_pandas_series(PyObjectRef series) {
 
     // get "ordered" attribute
     PyObjectPtr ordered(PyObject_GetAttrString(dtype, "ordered"));
-    //RObject ordered = py_to_r(ordered_, true);
+
 
     // populate integer vector to hold factor values
     // note that we need to convert 0->1 indexing, and handle NAs
@@ -2827,9 +2827,11 @@ SEXP py_convert_pandas_series(PyObjectRef series) {
     CharacterVector factor_levels(R_levels);
     factor_levels.attr("dim") = R_NilValue;
 
-    factor.attr("class") = "factor";
     factor.attr("levels") = factor_levels;
-    if (PyObject_IsTrue(ordered)) factor.attr("ordered") = true;
+    if (PyObject_IsTrue(ordered))
+      factor.attr("class") = CharacterVector({"ordered", "factor"});
+    else
+      factor.attr("class") = "factor";
 
     R_obj = factor;
 

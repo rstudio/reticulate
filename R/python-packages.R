@@ -62,7 +62,7 @@ configure_environment <- function(package = NULL, force = FALSE) {
 
   # disallow environment configuration when not using a Python environment
   config <- py_config()
-  root <- dirname(dirname(config$python))
+  root <- config$prefix
   ok <- is_virtualenv(root) || is_condaenv(root)
   if (!ok)
     return(FALSE)

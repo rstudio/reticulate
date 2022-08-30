@@ -48,6 +48,8 @@
 
 - Fixed an issue on Windows where reticulate would fail to find Python installations from pyenv installed via scoop.
 
+- Fixed an issue where `configure_environment()` would error on Windows. (#1247)
+
 - Updated docs for compatibility with HTML5 / R 4.2.
 
 - Updated r_to_py.sparseMatrix() method for compatability with Matrix 1.4-2.

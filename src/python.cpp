@@ -3105,6 +3105,8 @@ SEXP py_id(PyObjectRef object) {
   if (py_is_null_xptr(object))
     return R_NilValue;
 
-  auto id((uintptr_t) object.get());
-  return CharacterVector({std::to_string(id)});
+  std::stringstream id;
+  id << (uintptr_t) object.get();
+
+  return CharacterVector({id.str()});
 }

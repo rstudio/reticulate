@@ -40,11 +40,12 @@ class M:
 
 test_that("py_id() returns unique strings; #1216", {
   skip_if_no_python()
-  library(reticulate)
 
   pypy_id <- py_eval("lambda x: str(id(x))")
   o <- py_eval("object()")
-  expect_identical(pypy_id(o), py_id(o))
+  id <- pypy_id(o)
+  expect_identical(py_id(o), pypy_id(o))
+  expect_identical(py_id(o), id)
 
   expect_false(py_id(py_eval("object()")) == py_id(py_eval("object()")))
   expect_true(py_id(py_eval("object")) == py_id(py_eval("object")))

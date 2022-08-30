@@ -35,3 +35,18 @@ class M:
   expect_equal(m[1], r_to_py("M"))
 
 })
+
+
+
+test_that("py_id() returns unique strings; #1216", {
+  skip_if_no_python()
+
+  pypy_id <- py_eval("lambda x: str(id(x))")
+  o <- py_eval("object()")
+  id <- pypy_id(o)
+  expect_identical(py_id(o), pypy_id(o))
+  expect_identical(py_id(o), id)
+
+  expect_false(py_id(py_eval("object()")) == py_id(py_eval("object()")))
+  expect_true(py_id(py_eval("object")) == py_id(py_eval("object")))
+})

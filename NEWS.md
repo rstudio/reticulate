@@ -1,5 +1,7 @@
 # reticulate (development version)
 
+- `py_id()` now returns a character string, instead of an R integer (#1216).
+
 - Fixed an issue where setting `RETICULATE_PYTHON` or `RETICULATE_PYTHON_FALLBACK`
   on Windows to the pyenv-win `python.bat` shim would result in an error (#1263).
 

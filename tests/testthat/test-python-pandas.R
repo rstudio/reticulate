@@ -197,3 +197,25 @@ test_that("categorical NAs are handled", {
   expect_equal(df, rdf)
 
 })
+
+
+
+test_that("ordered categoricals are handled correctly, #1234", {
+  skip_if_no_pandas()
+
+  p_df <- py_run_string(
+'import pandas as pd
+
+# Create Dataframe with Unordered & Ordered Factors
+df = pd.DataFrame({"FCT": pd.Categorical(["No", "Yes"]),
+                   "ORD": pd.Categorical(["No", "Yes"], ordered=True)})
+', local = TRUE)$df
+
+  r_df <- data.frame("FCT" = factor(c("No", "Yes")),
+                     "ORD" = factor(c("No", "Yes"), ordered = TRUE))
+
+  attr(p_df, "pandas.index") <- NULL
+
+  expect_identical(p_df, r_df)
+
+})

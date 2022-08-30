@@ -3086,3 +3086,25 @@ SEXP py_has_method(PyObjectRef object, const std::string& name) {
 
   return Rf_ScalarLogical(result);
 }
+
+
+//' Unique identifer for Python object
+//'
+//' Get a globally unique identifier for a Python object.
+//'
+//' @note In the current implementation of CPython this is the
+//'  memory address of the object.
+//'
+//' @param object Python object
+//'
+//' @return Unique identifer (as string) or `NULL`
+//'
+//' @export
+// [[Rcpp::export]]
+SEXP py_id(PyObjectRef object) {
+  if (py_is_null_xptr(object))
+    return R_NilValue;
+
+  auto id((uintptr_t) object.get());
+  return CharacterVector({std::to_string(id)});
+}

@@ -77,6 +77,9 @@ py_to_r.python.builtin.list <- function(x) {
 #' @export
 py_to_r.python.builtin.tuple <- py_to_r.python.builtin.list
 
+#' @export
+py_to_r.python.builtin.dict <- py_to_r.python.builtin.list
+
 #' R wrapper for Python objects
 #'
 #' S3 method to create a custom R wrapper for a Python object.

@@ -1,5 +1,8 @@
 # reticulate (development version)
 
+- Fixed an issue where `py_to_r()` would not convert elements of a 
+  dictionary (#1221).
+
 - `py_id()` now returns a character string, instead of an R integer (#1216).
 
 - Fixed an issue where setting `RETICULATE_PYTHON` or `RETICULATE_PYTHON_FALLBACK`

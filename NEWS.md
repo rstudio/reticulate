@@ -1,3 +1,5 @@
+# reticulate (development version)
+
 # reticulate 1.26
 
 - Fixed issue where reticulate failed to bind to python2. (#1241, #1229)

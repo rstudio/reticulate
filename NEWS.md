@@ -1,7 +1,9 @@
 # reticulate (development version)
 
-- Fixed issue where reticulate's knitr engine would attach comments in a 
-  code chunk to the wrong code chunk (#1223). 
+- Fixed issue where reticulate's knitr engine would attach comments in a
+  code chunk to the wrong code chunk (#1223).
+
+- The knitr python engine now respects the `strip.white` option (#1273).
 
 # reticulate 1.26
 
@@ -9,10 +11,10 @@
 
 - A warning is now issued when reticulate binds to python2 that python2
   support will be removed in an upcoming reticulate release.
-  
+
 - `py_id()` now returns a character string, instead of an R integer (#1216).
 
-- Fixed an issue where `py_to_r()` would not convert elements of a 
+- Fixed an issue where `py_to_r()` would not convert elements of a
   dictionary (#1221).
 
 - Fixed an issue where setting `RETICULATE_PYTHON` or `RETICULATE_PYTHON_FALLBACK`

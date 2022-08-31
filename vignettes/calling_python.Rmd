@@ -483,7 +483,7 @@ The functions provide miscellaneous other lower-level capabilities:
 |----------------|------------------------------------------------------------------|
 | `py_set_seed()` | Set Python and NumPy random seeds. |
 | `py_unicode()` | Convert a string to a Python unicode object. |
-| `py_str()` | Get the string representation of Python object. |
+| `py_str()`, `py_repr()` | Get the string representation of Python object. |
 | `py_id()`  | Get a unique identifier for a Python object |
 | `py_is_null_xptr()` | Check whether a Python object is a null externalptr. |
 | `py_validate_xptr()` | Check whether a Python object is a null externalptr and throw an error if it is. |

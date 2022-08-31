@@ -1,9 +1,14 @@
 # reticulate (development version)
 
+- Fixed issue where reticulate failed to bind to python2. (#1241, #1229)
+
+- A warning is now issued when reticulate binds to python2 that python2
+  support will be removed in an upcoming reticulate release.
+  
+- `py_id()` now returns a character string, instead of an R integer (#1216).
+
 - Fixed an issue where `py_to_r()` would not convert elements of a 
   dictionary (#1221).
-
-- `py_id()` now returns a character string, instead of an R integer (#1216).
 
 - Fixed an issue where setting `RETICULATE_PYTHON` or `RETICULATE_PYTHON_FALLBACK`
   on Windows to the pyenv-win `python.bat` shim would result in an error (#1263).
@@ -29,20 +34,12 @@
   (e.g., `pandas.DataFrame`; #1249, #1250).
 
 - Fixed an issue where the python knitr engine would error when printing a
-  plotly figure to an HTML document in some (head-less) linux environments.
-  Reticulate now automatically sets
-  `plotly.io.renderers.default = "plotly_mimetype+notebook"` if plotly
-  fails to infer a more appropriate default renderer target.
-
-- Fixed issue where reticulate failed to bind to python2. (#1241, #1229)
-
-- A warning is now issued when reticulate binds to python2 that python2
-  support will be removed in an upcoming reticulate release.
+  plotly figure to an HTML document in some (head-less) linux environments (#1250).
 
 - Fixed an issue where `conda_install(pip=TRUE)` would install packages into
   a user Python library instead of the conda env if the environment variable
   `PIP_USER=true` was set. `py_install()`, `virtualenv_install()`, and
-  `conda_install()` now always specify `--no-user` when invoking pip install. (#1209)
+  `conda_install()` now always specify `--no-user` when invoking `pip install`. (#1209)
 
 - Fixed issue where `py_last_error()` would return unconverted Python objects (#1233)
 
@@ -52,7 +49,7 @@
 - `sys.executable` on Windows now correctly reports the path to the Python executable
   instead of the launching R executable. (#1258)
 
-- The `sys` module is no longer automatically imported in __main__ by reticulate.
+- The `sys` module is no longer automatically imported in `__main__` by reticulate.
 
 - Fixed an issue on Windows where reticulate would fail to find Python installations from pyenv installed via scoop.
 
@@ -60,7 +57,7 @@
 
 - Updated docs for compatibility with HTML5 / R 4.2.
 
-- Updated r_to_py.sparseMatrix() method for compatability with Matrix 1.4-2.
+- Updated r_to_py.sparseMatrix() method for compatibility with Matrix 1.4-2.
 
 # reticulate 1.25
 

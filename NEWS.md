@@ -1,5 +1,8 @@
 # reticulate (development version)
 
+- Fixed issue where reticulate's knitr engine would attach comments in a 
+  code chunk to the wrong code chunk (#1223). 
+
 # reticulate 1.26
 
 - Fixed issue where reticulate failed to bind to python2. (#1241, #1229)

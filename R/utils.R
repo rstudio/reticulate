@@ -84,9 +84,15 @@ py_compile_eval <- function(code, compile_mode = "single", capture = TRUE) {
   main <- import_main(convert = FALSE)
   globals <- locals <- py_get_attr(main, "__dict__")
 
+
   # Python's command compiler complains if the only thing you submit
   # is a comment, so detect that case first
-  if (grepl("^\\s*#", code))
+  is_comments_only <- local({
+    code <- trimws(strsplit(code, "\n", fixed = TRUE)[[1]])
+    code <- code[nzchar(code)]
+    all(startsWith(code, "#"))
+  })
+  if (is_comments_only)
     return(TRUE)
 
   # Python is picky about trailing whitespace, so ensure only a single
@@ -376,19 +382,37 @@ str_drop_prefix <- function(x, prefix) {
 
 }
 
+if (getRversion() < "3.3.0") {
+
 startsWith <- function(x, prefix) {
   if (!is.character(x) || !is.character(prefix))
     stop("non-character object(s)")
   suppressWarnings(substr(x, 1L, nchar(prefix)) == prefix)
 }
 
-if (getRversion() < "3.3.0")
-endsWith <- function (x, suffix) { # needed for R < 3.3
+endsWith <- function(x, suffix) { # needed for R < 3.3
   if (!is.character(x) || !is.character(suffix))
     stop("non-character object(s)")
   n <- nchar(x)
   suppressWarnings(substr(x, n - nchar(suffix) + 1L, n) == suffix)
 }
+
+trimws <- function (x, which = c("both", "left", "right"),
+                    whitespace = "[ \t\r\n]") {
+  which <- match.arg(which)
+  mysub <- function(re, x)
+    sub(re, "", x, perl = TRUE)
+  switch( which,
+    left = mysub(paste0("^", whitespace, "+"), x),
+    right = mysub(paste0(whitespace, "+$"), x),
+    both = mysub(paste0(whitespace, "+$"),
+                 mysub(paste0("^", whitespace, "+"), x))
+  )
+}
+
+
+}
+
 
 debuglog <- function(fmt, ...) {
   msg <- sprintf(fmt, ...)

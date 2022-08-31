@@ -109,9 +109,9 @@ eng_python <- function(options) {
   # iterate over top-level nodes and extract line numbers
   lines <- vapply(parsed$body, function(node) {
     if (py_has_attr(node, "decorator_list") && length(node$decorator_list)) {
-      node$decorator_list[[1]]$lineno
+      node$decorator_list[[1]]$end_lineno
     } else {
-      node$lineno
+      node$end_lineno  # `end_lineno` attribute was introduced in python3.8
     }
   }, integer(1))
 
@@ -123,8 +123,8 @@ eng_python <- function(options) {
   # convert from lines to ranges (be sure to handle the zero-length case)
   ranges <- list()
   if (length(lines)) {
-    starts <- lines
-    ends <- c(lines[-1] - 1, length(code))
+    starts <- c(1L, ends[-length(ends)] + 1L)
+    ends <- lines
     ranges <- mapply(c, starts, ends, SIMPLIFY = FALSE)
   }
 
@@ -187,6 +187,12 @@ eng_python <- function(options) {
       # append pending source to outputs (respecting 'echo' option)
       if (!identical(options$echo, FALSE) && !identical(options$results, "hold")) {
         extracted <- extract(code, c(pending_source_index, range[2]))
+        if(!identical(options$collapse, TRUE) &&
+           identical(options$strip.white, TRUE)) {
+          extracted <- sub("^\\n+", "", sub("\\n+$", "", extracted))
+          # trimws(whitespace = ) requires R 3.6
+          # extracted <- trimws(extracted, whitespace = "[\n]")
+        }
         output <- structure(list(src = extracted), class = "source")
         outputs$push(output)
       }

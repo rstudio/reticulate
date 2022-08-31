@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.25</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.26</span>
       </span>
     </div>
 
@@ -87,9 +87,9 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">py_clear_last_error</span><span class="op">(</span><span class="op">)</span>
-
-<span class="fu">py_last_error</span><span class="op">(</span><span class="va">exception</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">py_clear_last_error</span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">py_last_error</span><span class="op">(</span><span class="va">exception</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -97,41 +97,48 @@
     <dl><dt>exception</dt>
 <dd><p>A python exception object. If provided, the provided
 exception is set as the last exception.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>For <code>py_last_error()</code>, <code>NULL</code> if no error has yet been encountered.
+    
+
+<p>For <code>py_last_error()</code>, <code>NULL</code> if no error has yet been encountered.
 Otherwise, a named list with entries:</p><ul><li><p><code>"type"</code>: R string, name of the exception class.</p></li>
 <li><p><code>"value"</code>: R string, formatted exception message.</p></li>
 <li><p><code>"traceback"</code>: R character vector, the formatted python traceback,</p></li>
 <li><p><code>"message"</code>: The full formatted raised exception, as it would be printed in
 Python. Includes the traceback, type, and value.</p></li>
-</ul><p>And attribute <code>"exception"</code>, a <code>'python.builtin.Exception'</code> object.
-The named list has <code>class</code><code>"py_error"</code>, and has a default <code>print</code> method
+</ul><p>And attribute <code>"exception"</code>, a <code>'python.builtin.Exception'</code> object.</p>
+
+
+<p>The named list has <code>class</code></p>
+<p></p>
+<p><code>"py_error"</code>, and has a default <code>print</code> method
 that is the equivalent of <code>cat(py_last_error()$message)</code>.</p>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="co"># run python code that might error,</span></span>
-<span class="r-in"><span class="co"># without modifying the user-visible python exception</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="va">safe_len</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in">  <span class="va">last_err</span> <span class="op">&lt;-</span> <span class="fu">py_last_error</span><span class="op">(</span><span class="op">)</span></span>
-<span class="r-in">  <span class="kw"><a href="https://rdrr.io/r/base/conditions.html" class="external-link">tryCatch</a></span><span class="op">(</span><span class="op">{</span></span>
-<span class="r-in">    <span class="co"># this might raise a python exception if x has no `__len__` method.</span></span>
-<span class="r-in">    <span class="fu"><a href="import.html">import_builtins</a></span><span class="op">(</span><span class="op">)</span><span class="op">$</span><span class="fu">len</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
-<span class="r-in">  <span class="op">}</span>, error <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">e</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in">    <span class="co"># py_last_error() was overwritten, is now "no len method for 'object'"</span></span>
-<span class="r-in">    <span class="fu">py_last_error</span><span class="op">(</span><span class="va">last_err</span><span class="op">)</span> <span class="co"># restore previous exception</span></span>
-<span class="r-in">    <span class="op">-</span><span class="fl">1L</span></span>
-<span class="r-in">  <span class="op">}</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="fu">safe_len</span><span class="op">(</span><span class="fu"><a href="py_eval.html">py_eval</a></span><span class="op">(</span><span class="st">"object"</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
-<span class="r-in"></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="co"># run python code that might error,</span></span></span>
+<span class="r-in"><span><span class="co"># without modifying the user-visible python exception</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">safe_len</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="va">last_err</span> <span class="op">&lt;-</span> <span class="fu">py_last_error</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="kw"><a href="https://rdrr.io/r/base/conditions.html" class="external-link">tryCatch</a></span><span class="op">(</span><span class="op">{</span></span></span>
+<span class="r-in"><span>    <span class="co"># this might raise a python exception if x has no `__len__` method.</span></span></span>
+<span class="r-in"><span>    <span class="fu"><a href="import.html">import_builtins</a></span><span class="op">(</span><span class="op">)</span><span class="op">$</span><span class="fu">len</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="op">}</span>, error <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">e</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>    <span class="co"># py_last_error() was overwritten, is now "no len method for 'object'"</span></span></span>
+<span class="r-in"><span>    <span class="fu">py_last_error</span><span class="op">(</span><span class="va">last_err</span><span class="op">)</span> <span class="co"># restore previous exception</span></span></span>
+<span class="r-in"><span>    <span class="op">-</span><span class="fl">1L</span></span></span>
+<span class="r-in"><span>  <span class="op">}</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu">safe_len</span><span class="op">(</span><span class="fu"><a href="py_eval.html">py_eval</a></span><span class="op">(</span><span class="st">"object"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -146,7 +153,7 @@ that is the equivalent of <code>cat(py_last_error()$message)</code>.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

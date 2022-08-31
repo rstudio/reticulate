@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.25</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.26</span>
       </span>
     </div>
 
@@ -87,38 +87,38 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">virtualenv_create</span><span class="op">(</span>
-  envname <span class="op">=</span> <span class="cn">NULL</span>,
-  python <span class="op">=</span> <span class="cn">NULL</span>,
-  <span class="va">...</span>,
-  version <span class="op">=</span> <span class="cn">NULL</span>,
-  packages <span class="op">=</span> <span class="st">"numpy"</span>,
-  module <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"reticulate.virtualenv.module"</span><span class="op">)</span>,
-  system_site_packages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"reticulate.virtualenv.system_site_packages"</span>,
-    default <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>,
-  pip_version <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"reticulate.virtualenv.pip_version"</span>, default <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span>,
-  setuptools_version <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"reticulate.virtualenv.setuptools_version"</span>, default <span class="op">=</span>
-    <span class="cn">NULL</span><span class="op">)</span>,
-  extra <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"reticulate.virtualenv.extra"</span>, default <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span>
-<span class="op">)</span>
-
-<span class="fu">virtualenv_install</span><span class="op">(</span>
-  envname <span class="op">=</span> <span class="cn">NULL</span>,
-  <span class="va">packages</span>,
-  ignore_installed <span class="op">=</span> <span class="cn">FALSE</span>,
-  pip_options <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="op">)</span>,
-  <span class="va">...</span>
-<span class="op">)</span>
-
-<span class="fu">virtualenv_remove</span><span class="op">(</span>envname <span class="op">=</span> <span class="cn">NULL</span>, packages <span class="op">=</span> <span class="cn">NULL</span>, confirm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>
-
-<span class="fu">virtualenv_list</span><span class="op">(</span><span class="op">)</span>
-
-<span class="fu">virtualenv_root</span><span class="op">(</span><span class="op">)</span>
-
-<span class="fu">virtualenv_python</span><span class="op">(</span>envname <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span>
-
-<span class="fu">virtualenv_exists</span><span class="op">(</span>envname <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">virtualenv_create</span><span class="op">(</span></span>
+<span>  envname <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  python <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">...</span>,</span>
+<span>  version <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  packages <span class="op">=</span> <span class="st">"numpy"</span>,</span>
+<span>  module <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"reticulate.virtualenv.module"</span><span class="op">)</span>,</span>
+<span>  system_site_packages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"reticulate.virtualenv.system_site_packages"</span>, default</span>
+<span>    <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>,</span>
+<span>  pip_version <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"reticulate.virtualenv.pip_version"</span>, default <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span>,</span>
+<span>  setuptools_version <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"reticulate.virtualenv.setuptools_version"</span>, default <span class="op">=</span></span>
+<span>    <span class="cn">NULL</span><span class="op">)</span>,</span>
+<span>  extra <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"reticulate.virtualenv.extra"</span>, default <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">virtualenv_install</span><span class="op">(</span></span>
+<span>  envname <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">packages</span>,</span>
+<span>  ignore_installed <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  pip_options <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">virtualenv_remove</span><span class="op">(</span>envname <span class="op">=</span> <span class="cn">NULL</span>, packages <span class="op">=</span> <span class="cn">NULL</span>, confirm <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">virtualenv_list</span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">virtualenv_root</span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">virtualenv_python</span><span class="op">(</span>envname <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">virtualenv_exists</span><span class="op">(</span>envname <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -131,53 +131,78 @@ environment within <code>virtualenv_root()</code>. When <code>NULL</code>, the v
 as specified by the <code>RETICULATE_PYTHON_ENV</code> environment variable will be
 used instead. To refer to a virtual environment in the current working
 directory, you can prefix the path with <code>./&lt;name&gt;</code>.</p></dd>
+
+
 <dt>python</dt>
 <dd><p>The path to a Python interpreter, to be used with the created
 virtual environment. When <code>NULL</code>, the Python interpreter associated with
 the current session will be used.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Optional arguments; currently ignored and reserved for future expansion.</p></dd>
+
+
 <dt>version</dt>
 <dd><p>The version of Python to be used with the newly-created
 virtual environment. Python installations as installed via
 <code><a href="install_python.html">install_python()</a></code> will be used.</p></dd>
+
+
 <dt>packages</dt>
 <dd><p>A set of Python packages to install (via <code>pip install</code>) into
 the virtual environment, after it has been created. By default, the
 <code>"numpy"</code> package will be installed, and the <code>pip</code>, <code>setuptools</code> and
 <code>wheel</code> packages will be updated. Set this to <code>FALSE</code> to avoid installing
 any packages after the virtual environment has been created.</p></dd>
+
+
 <dt>module</dt>
 <dd><p>The Python module to be used when creating the virtual
 environment -- typically, <code>virtualenv</code> or <code>venv</code>. When <code>NULL</code> (the default),
 <code>venv</code> will be used if available with Python &gt;= 3.6; otherwise, the
 <code>virtualenv</code> module will be used.</p></dd>
+
+
 <dt>system_site_packages</dt>
 <dd><p>Boolean; create new virtual environments with
 the <code>--system-site-packages</code> flag, thereby allowing those virtual
 environments to access the system's site packages? Defaults to <code>FALSE</code>.</p></dd>
+
+
 <dt>pip_version</dt>
 <dd><p>The version of <code>pip</code> to be installed in the virtual
 environment. Relevant only when <code>module == "virtualenv"</code>. Set this to
 <code>FALSE</code> to disable installation of <code>pip</code> altogether.</p></dd>
+
+
 <dt>setuptools_version</dt>
 <dd><p>The version of <code>setuptools</code> to be installed in
 the virtual environment. Relevant only when <code>module == "virtualenv"</code>.
 Set this to <code>FALSE</code> to disable installation of <code>setuptools</code> altogether.</p></dd>
+
+
 <dt>extra</dt>
 <dd><p>An optional set of extra command line arguments to be passed.
 Arguments should be quoted via <code><a href="https://rdrr.io/r/base/shQuote.html" class="external-link">shQuote()</a></code> when necessary.</p></dd>
+
+
 <dt>ignore_installed</dt>
 <dd><p>Boolean; ignore previously-installed versions of the
 requested packages? (This should normally be <code>TRUE</code>, so that pre-installed
 packages available in the site libraries are ignored and hence packages
 are installed into the virtual environment.)</p></dd>
+
+
 <dt>pip_options</dt>
 <dd><p>An optional character vector of additional command line
 arguments to be passed to <code>pip</code>.</p></dd>
+
+
 <dt>confirm</dt>
 <dd><p>Boolean; confirm before removing packages or virtual
 environments?</p></dd>
+
 </dl></div>
     <div id="details">
     <h2>Details</h2>
@@ -198,7 +223,7 @@ defining the <code>WORKON_HOME</code> environment variable.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

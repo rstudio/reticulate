@@ -20,7 +20,7 @@ Python chunk can be used by later Python chunks."><!-- mathjax --><script src="h
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.25</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.26</span>
       </span>
     </div>
 
@@ -93,18 +93,19 @@ Python chunk can be used by later Python chunks.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">eng_python</span><span class="op">(</span><span class="va">options</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">eng_python</span><span class="op">(</span><span class="va">options</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>options</dt>
 <dd><p>Chunk options, as provided by <code>knitr</code> during chunk execution.</p></dd>
+
 </dl></div>
     <div id="details">
     <h2>Details</h2>
-    <p>The engine can be activated by setting (for example)</p><div class="sourceCode"><pre><code><span class="fu">knitr</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/knitr/man/knit_engines.html" class="external-link">knit_engines</a></span><span class="op">$</span><span class="fu">set</span><span class="op">(</span>python <span class="op">=</span> <span class="fu">reticulate</span><span class="fu">::</span><span class="va"><a href="../reference/eng_python.html">eng_python</a></span><span class="op">)</span></code></pre></div>
-
+    <p>The engine can be activated by setting (for example)</p>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span>knit_engines<span class="sc">$</span><span class="fu">set</span>(<span class="at">python =</span> reticulate<span class="sc">::</span>eng_python)</span></code></pre><p></p></div>
 <p>Typically, this will be set within a document's setup chunk, or by the
 environment requesting that Python chunks be processed by this engine.
 Note that <code>knitr</code> (since version 1.18) will use the <code>reticulate</code> engine by
@@ -123,7 +124,7 @@ default when executing Python chunks within an R Markdown document.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

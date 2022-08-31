@@ -18,7 +18,7 @@ other Python objects rather than character vectors."><!-- mathjax --><script src
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.25</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.26</span>
       </span>
     </div>
 
@@ -89,9 +89,9 @@ other Python objects rather than character vectors.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">dict</span><span class="op">(</span><span class="va">...</span>, convert <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
-
-<span class="fu">py_dict</span><span class="op">(</span><span class="va">keys</span>, <span class="va">values</span>, convert <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">dict</span><span class="op">(</span><span class="va">...</span>, convert <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">py_dict</span><span class="op">(</span><span class="va">keys</span>, <span class="va">values</span>, convert <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -99,18 +99,27 @@ other Python objects rather than character vectors.</p>
     <dl><dt>...</dt>
 <dd><p>Name/value pairs for dictionary (or a single named list to be
 converted to a dictionary).</p></dd>
+
+
 <dt>convert</dt>
 <dd><p><code>TRUE</code> to automatically convert Python objects to their R
 equivalent. If you pass <code>FALSE</code> you can do manual conversion using the
 <code><a href="r-py-conversion.html">py_to_r()</a></code> function.</p></dd>
+
+
 <dt>keys</dt>
 <dd><p>Keys to dictionary (can be Python objects)</p></dd>
+
+
 <dt>values</dt>
 <dd><p>Values for dictionary</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>A Python dictionary</p>
+    
+
+<p>A Python dictionary</p>
     </div>
     <div id="note">
     <h2>Note</h2>
@@ -131,7 +140,7 @@ function or pass <code>convert = TRUE</code> to request automatic conversion.</p
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

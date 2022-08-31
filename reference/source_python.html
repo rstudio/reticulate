@@ -19,7 +19,7 @@ specified R environment."><!-- mathjax --><script src="https://cdnjs.cloudflare.
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.25</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.26</span>
       </span>
     </div>
 
@@ -91,21 +91,26 @@ specified R environment.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">source_python</span><span class="op">(</span><span class="va">file</span>, envir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sys.parent.html" class="external-link">parent.frame</a></span><span class="op">(</span><span class="op">)</span>, convert <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">source_python</span><span class="op">(</span><span class="va">file</span>, envir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sys.parent.html" class="external-link">parent.frame</a></span><span class="op">(</span><span class="op">)</span>, convert <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>file</dt>
 <dd><p>The Python script to be executed.</p></dd>
+
+
 <dt>envir</dt>
 <dd><p>The environment to assign Python objects into (for example,
 <code><a href="https://rdrr.io/r/base/sys.parent.html" class="external-link">parent.frame()</a></code> or <code><a href="https://rdrr.io/r/base/environment.html" class="external-link">globalenv()</a></code>). Specify <code>NULL</code> to not assign Python
 objects.</p></dd>
+
+
 <dt>convert</dt>
 <dd><p>Boolean; should Python objects be automatically converted
 to their <span style="R">R</span> equivalent? If set to <code>FALSE</code>, you can still manually convert
 Python objects to <span style="R">R</span> via the <code><a href="r-py-conversion.html">py_to_r()</a></code> function.</p></dd>
+
 </dl></div>
     <div id="details">
     <h2>Details</h2>
@@ -125,7 +130,7 @@ parameter.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

@@ -36,7 +36,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">reticulate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.25</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.26</span>
       </span>
     </div>
 
@@ -124,7 +124,7 @@
 </h4>
 <p>Install the <strong>reticulate</strong> package from CRAN as follows:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"reticulate"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"reticulate"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="python-version">Python version<a class="anchor" aria-label="anchor" href="#python-version"></a>
@@ -132,12 +132,12 @@
 <p>By default, reticulate uses the version of Python found on your <code>PATH</code> (i.e. <code>Sys.which("python")</code>).</p>
 <p>The <code><a href="reference/use_python.html">use_python()</a></code> function enables you to specify an alternate version, for example:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span>
-<span class="fu"><a href="reference/use_python.html">use_python</a></span><span class="op">(</span><span class="st">"/usr/local/bin/python"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/use_python.html">use_python</a></span><span class="op">(</span><span class="st">"/usr/local/bin/python"</span><span class="op">)</span></span></code></pre></div>
 <p>The <code><a href="reference/use_python.html">use_virtualenv()</a></code> and <code><a href="reference/use_python.html">use_condaenv()</a></code> functions enable you to specify versions of Python in virtual or Conda environments, for example:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span>
-<span class="fu"><a href="reference/use_python.html">use_virtualenv</a></span><span class="op">(</span><span class="st">"myenv"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/use_python.html">use_virtualenv</a></span><span class="op">(</span><span class="st">"myenv"</span><span class="op">)</span></span></code></pre></div>
 <p>See the article on <a href="https://rstudio.github.io/reticulate/articles/versions.html">Python Version Configuration</a> for additional details.</p>
 </div>
 <div class="section level4">
@@ -178,9 +178,9 @@
 </h2>
 <p>You can use the <code><a href="reference/import.html">import()</a></code> function to import any Python module and call it from R. For example, this code imports the Python <code>os</code> module and calls the <code>listdir()</code> function:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span>
-<span class="va">os</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/import.html">import</a></span><span class="op">(</span><span class="st">"os"</span><span class="op">)</span>
-<span class="va">os</span><span class="op">$</span><span class="fu">listdir</span><span class="op">(</span><span class="st">"."</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span></span>
+<span><span class="va">os</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/import.html">import</a></span><span class="op">(</span><span class="st">"os"</span><span class="op">)</span></span>
+<span><span class="va">os</span><span class="op">$</span><span class="fu">listdir</span><span class="op">(</span><span class="st">"."</span><span class="op">)</span></span></code></pre></div>
 <pre class="text"><code> [1] ".git"             ".gitignore"       ".Rbuildignore"    ".RData"
  [5] ".Rhistory"        ".Rproj.user"      ".travis.yml"      "appveyor.yml"
  [9] "DESCRIPTION"      "docs"             "external"         "index.html"
@@ -206,11 +206,11 @@
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> flights</span></code></pre></div>
 <p>Then you can source the script and call the <code>read_flights()</code> function as follows:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="reference/source_python.html">source_python</a></span><span class="op">(</span><span class="st">"flights.py"</span><span class="op">)</span>
-<span class="va">flights</span> <span class="op">&lt;-</span> <span class="fu">read_flights</span><span class="op">(</span><span class="st">"flights.csv"</span><span class="op">)</span>
-
-<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span>
-<span class="fu">ggplot</span><span class="op">(</span><span class="va">flights</span>, <span class="fu">aes</span><span class="op">(</span><span class="va">carrier</span>, <span class="va">arr_delay</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fu">geom_point</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> <span class="fu">geom_jitter</span><span class="op">(</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="reference/source_python.html">source_python</a></span><span class="op">(</span><span class="st">"flights.py"</span><span class="op">)</span></span>
+<span><span class="va">flights</span> <span class="op">&lt;-</span> <span class="fu">read_flights</span><span class="op">(</span><span class="st">"flights.csv"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
+<span><span class="fu">ggplot</span><span class="op">(</span><span class="va">flights</span>, <span class="fu">aes</span><span class="op">(</span><span class="va">carrier</span>, <span class="va">arr_delay</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fu">geom_point</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> <span class="fu">geom_jitter</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>See the <code><a href="reference/source_python.html">source_python()</a></code> documentation for additional details on sourcing Python code.</p>
 </div>
 <div class="section level2">
@@ -347,12 +347,7 @@
 </ul>
 </div>
 
-<div class="dev-status">
-<h2 data-toc-skip>Dev status</h2>
-<ul class="list-unstyled">
-<li><a href="https://github.com/rstudio/reticulate/actions" class="external-link"><img src="https://github.com/rstudio/reticulate/workflows/R-CMD-check/badge.svg" alt="R-CMD-check"></a></li>
-</ul>
-</div>
+
 
   </div>
 </div>
@@ -365,7 +360,7 @@
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer>

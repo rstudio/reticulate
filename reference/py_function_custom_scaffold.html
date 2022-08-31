@@ -23,7 +23,7 @@ before writing the closing curly braces for the generated wrapper function."><!-
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.25</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.26</span>
       </span>
     </div>
 
@@ -99,16 +99,17 @@ before writing the closing curly braces for the generated wrapper function.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">py_function_custom_scaffold</span><span class="op">(</span>
-  <span class="va">python_function</span>,
-  r_function <span class="op">=</span> <span class="cn">NULL</span>,
-  additional_roxygen_fields <span class="op">=</span> <span class="cn">NULL</span>,
-  process_docs_fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">docs</span><span class="op">)</span> <span class="va">docs</span>,
-  process_param_fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">param</span>, <span class="va">docs</span><span class="op">)</span> <span class="va">param</span>,
-  process_param_doc_fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">param_doc</span>, <span class="va">docs</span><span class="op">)</span> <span class="va">param_doc</span>,
-  postprocess_fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span> <span class="op">}</span>,
-  file_name <span class="op">=</span> <span class="cn">NULL</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">py_function_custom_scaffold</span><span class="op">(</span></span>
+<span>  <span class="va">python_function</span>,</span>
+<span>  r_function <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  additional_roxygen_fields <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  process_docs_fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">docs</span><span class="op">)</span> <span class="va">docs</span>,</span>
+<span>  process_param_fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">param</span>, <span class="va">docs</span><span class="op">)</span> <span class="va">param</span>,</span>
+<span>  process_param_doc_fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">param_doc</span>, <span class="va">docs</span><span class="op">)</span> <span class="va">param_doc</span>,</span>
+<span>  postprocess_fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
+<span> <span class="op">}</span>,</span>
+<span>  file_name <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -116,62 +117,77 @@ before writing the closing curly braces for the generated wrapper function.</p>
     <dl><dt>python_function</dt>
 <dd><p>Fully qualified name of Python function or class
 constructor (e.g. <code>tf$layers$average_pooling1d</code>)</p></dd>
+
+
 <dt>r_function</dt>
 <dd><p>Name of R function to generate (defaults to name of Python
 function if not specified)</p></dd>
+
+
 <dt>additional_roxygen_fields</dt>
 <dd><p>A list of additional roxygen fields to write
 to the roxygen docs, e.g. <code>list(export = "", rdname = "generated-wrappers")</code>.</p></dd>
+
+
 <dt>process_docs_fn</dt>
 <dd><p>A function to process docs obtained from
 <code>reticulate::py_function_docs(python_function)</code>.</p></dd>
+
+
 <dt>process_param_fn</dt>
 <dd><p>A function to process each parameter needed for
 <code>python_funcion</code> before executing <code>python_funcion.</code></p></dd>
+
+
 <dt>process_param_doc_fn</dt>
 <dd><p>A function to process the roxygen docstring for
 each parameter.</p></dd>
+
+
 <dt>postprocess_fn</dt>
 <dd><p>A function to inject any custom code in the form of a
 string before writing the closing curly braces for the generated wrapper
 function.</p></dd>
+
+
 <dt>file_name</dt>
 <dd><p>The file name to write the generated wrapper function to. If
 <code>NULL</code>, the generated wrapper will only be printed out in the console.</p></dd>
+
 </dl></div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/rstudio/tensorflow" class="external-link">tensorflow</a></span><span class="op">)</span></span>
-<span class="r-in"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://stringr.tidyverse.org" class="external-link">stringr</a></span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Example of a `process_param_fn` to cast parameters with default values</span></span>
-<span class="r-in"><span class="co"># that contains "L" to integers</span></span>
-<span class="r-in"><span class="va">process_int_param_fn</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">param</span>, <span class="va">docs</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in">  <span class="co"># Extract the list of parameters that have integer values as default</span></span>
-<span class="r-in">  <span class="va">int_params</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">gsub</a></span><span class="op">(</span></span>
-<span class="r-in">    <span class="st">" = [-]?[0-9]+L"</span>,</span>
-<span class="r-in">    <span class="st">""</span>,</span>
-<span class="r-in">    <span class="fu"><a href="https://stringr.tidyverse.org/reference/str_extract.html" class="external-link">str_extract_all</a></span><span class="op">(</span><span class="va">docs</span><span class="op">$</span><span class="va">signature</span>, <span class="st">"[A-z]+ = [-]?[0-9]+L"</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span>
-<span class="r-in">  <span class="co"># Explicitly cast parameter in the list obtained above to integer</span></span>
-<span class="r-in">  <span class="kw">if</span> <span class="op">(</span><span class="va">param</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">int_params</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in">    <span class="va">param</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"as.integer("</span>, <span class="va">param</span>, <span class="st">")"</span><span class="op">)</span></span>
-<span class="r-in">  <span class="op">}</span></span>
-<span class="r-in">  <span class="va">param</span></span>
-<span class="r-in"><span class="op">}</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Note that since the default value of parameter `k` is `1L`. It is wrapped</span></span>
-<span class="r-in"><span class="co"># by `as.integer()` to ensure it's casted to integer before sending it to `tf$nn$top_k`</span></span>
-<span class="r-in"><span class="co"># for execution. We then print out the python function result.</span></span>
-<span class="r-in"><span class="fu">py_function_custom_scaffold</span><span class="op">(</span></span>
-<span class="r-in">  <span class="st">"tf$nn$top_k"</span>,</span>
-<span class="r-in">  r_function <span class="op">=</span> <span class="st">"top_k"</span>,</span>
-<span class="r-in">  process_param_fn <span class="op">=</span> <span class="va">process_int_param_fn</span>,</span>
-<span class="r-in">  postprocess_fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span> <span class="st">"print(python_function_result)"</span> <span class="op">}</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="op">}</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/rstudio/tensorflow" class="external-link">tensorflow</a></span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://stringr.tidyverse.org" class="external-link">stringr</a></span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Example of a `process_param_fn` to cast parameters with default values</span></span></span>
+<span class="r-in"><span><span class="co"># that contains "L" to integers</span></span></span>
+<span class="r-in"><span><span class="va">process_int_param_fn</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">param</span>, <span class="va">docs</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="co"># Extract the list of parameters that have integer values as default</span></span></span>
+<span class="r-in"><span>  <span class="va">int_params</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">gsub</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="st">" = [-]?[0-9]+L"</span>,</span></span>
+<span class="r-in"><span>    <span class="st">""</span>,</span></span>
+<span class="r-in"><span>    <span class="fu"><a href="https://stringr.tidyverse.org/reference/str_extract.html" class="external-link">str_extract_all</a></span><span class="op">(</span><span class="va">docs</span><span class="op">$</span><span class="va">signature</span>, <span class="st">"[A-z]+ = [-]?[0-9]+L"</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="co"># Explicitly cast parameter in the list obtained above to integer</span></span></span>
+<span class="r-in"><span>  <span class="kw">if</span> <span class="op">(</span><span class="va">param</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">int_params</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>    <span class="va">param</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"as.integer("</span>, <span class="va">param</span>, <span class="st">")"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="op">}</span></span></span>
+<span class="r-in"><span>  <span class="va">param</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Note that since the default value of parameter `k` is `1L`. It is wrapped</span></span></span>
+<span class="r-in"><span><span class="co"># by `as.integer()` to ensure it's casted to integer before sending it to `tf$nn$top_k`</span></span></span>
+<span class="r-in"><span><span class="co"># for execution. We then print out the python function result.</span></span></span>
+<span class="r-in"><span><span class="fu">py_function_custom_scaffold</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="st">"tf$nn$top_k"</span>,</span></span>
+<span class="r-in"><span>  r_function <span class="op">=</span> <span class="st">"top_k"</span>,</span></span>
+<span class="r-in"><span>  process_param_fn <span class="op">=</span> <span class="va">process_int_param_fn</span>,</span></span>
+<span class="r-in"><span>  postprocess_fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span> <span class="st">"print(python_function_result)"</span> <span class="op">}</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -186,7 +202,7 @@ function.</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

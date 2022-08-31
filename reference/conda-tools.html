@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.25</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.26</span>
       </span>
     </div>
 
@@ -87,53 +87,53 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">conda_list</span><span class="op">(</span>conda <span class="op">=</span> <span class="st">"auto"</span><span class="op">)</span>
-
-<span class="fu">conda_create</span><span class="op">(</span>
-  envname <span class="op">=</span> <span class="cn">NULL</span>,
-  packages <span class="op">=</span> <span class="cn">NULL</span>,
-  <span class="va">...</span>,
-  forge <span class="op">=</span> <span class="cn">TRUE</span>,
-  channel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="op">)</span>,
-  environment <span class="op">=</span> <span class="cn">NULL</span>,
-  conda <span class="op">=</span> <span class="st">"auto"</span>,
-  python_version <span class="op">=</span> <span class="fu">miniconda_python_version</span><span class="op">(</span><span class="op">)</span>
-<span class="op">)</span>
-
-<span class="fu">conda_clone</span><span class="op">(</span><span class="va">envname</span>, <span class="va">...</span>, clone <span class="op">=</span> <span class="st">"base"</span>, conda <span class="op">=</span> <span class="st">"auto"</span><span class="op">)</span>
-
-<span class="fu">conda_export</span><span class="op">(</span>
-  <span class="va">envname</span>,
-  file <span class="op">=</span> <span class="kw">if</span> <span class="op">(</span><span class="va">json</span><span class="op">)</span> <span class="st">"environment.json"</span> <span class="kw">else</span> <span class="st">"environment.yml"</span>,
-  json <span class="op">=</span> <span class="cn">FALSE</span>,
-  <span class="va">...</span>,
-  conda <span class="op">=</span> <span class="st">"auto"</span>
-<span class="op">)</span>
-
-<span class="fu">conda_remove</span><span class="op">(</span><span class="va">envname</span>, packages <span class="op">=</span> <span class="cn">NULL</span>, conda <span class="op">=</span> <span class="st">"auto"</span><span class="op">)</span>
-
-<span class="fu">conda_install</span><span class="op">(</span>
-  envname <span class="op">=</span> <span class="cn">NULL</span>,
-  <span class="va">packages</span>,
-  forge <span class="op">=</span> <span class="cn">TRUE</span>,
-  channel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="op">)</span>,
-  pip <span class="op">=</span> <span class="cn">FALSE</span>,
-  pip_options <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="op">)</span>,
-  pip_ignore_installed <span class="op">=</span> <span class="cn">FALSE</span>,
-  conda <span class="op">=</span> <span class="st">"auto"</span>,
-  python_version <span class="op">=</span> <span class="cn">NULL</span>,
-  <span class="va">...</span>
-<span class="op">)</span>
-
-<span class="fu">conda_binary</span><span class="op">(</span>conda <span class="op">=</span> <span class="st">"auto"</span><span class="op">)</span>
-
-<span class="fu">conda_exe</span><span class="op">(</span>conda <span class="op">=</span> <span class="st">"auto"</span><span class="op">)</span>
-
-<span class="fu">conda_version</span><span class="op">(</span>conda <span class="op">=</span> <span class="st">"auto"</span><span class="op">)</span>
-
-<span class="fu">conda_update</span><span class="op">(</span>conda <span class="op">=</span> <span class="st">"auto"</span><span class="op">)</span>
-
-<span class="fu">conda_python</span><span class="op">(</span>envname <span class="op">=</span> <span class="cn">NULL</span>, conda <span class="op">=</span> <span class="st">"auto"</span>, all <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">conda_list</span><span class="op">(</span>conda <span class="op">=</span> <span class="st">"auto"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">conda_create</span><span class="op">(</span></span>
+<span>  envname <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  packages <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">...</span>,</span>
+<span>  forge <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  channel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  environment <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  conda <span class="op">=</span> <span class="st">"auto"</span>,</span>
+<span>  python_version <span class="op">=</span> <span class="fu">miniconda_python_version</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">conda_clone</span><span class="op">(</span><span class="va">envname</span>, <span class="va">...</span>, clone <span class="op">=</span> <span class="st">"base"</span>, conda <span class="op">=</span> <span class="st">"auto"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">conda_export</span><span class="op">(</span></span>
+<span>  <span class="va">envname</span>,</span>
+<span>  file <span class="op">=</span> <span class="kw">if</span> <span class="op">(</span><span class="va">json</span><span class="op">)</span> <span class="st">"environment.json"</span> <span class="kw">else</span> <span class="st">"environment.yml"</span>,</span>
+<span>  json <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  <span class="va">...</span>,</span>
+<span>  conda <span class="op">=</span> <span class="st">"auto"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">conda_remove</span><span class="op">(</span><span class="va">envname</span>, packages <span class="op">=</span> <span class="cn">NULL</span>, conda <span class="op">=</span> <span class="st">"auto"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">conda_install</span><span class="op">(</span></span>
+<span>  envname <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">packages</span>,</span>
+<span>  forge <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  channel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  pip <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  pip_options <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  pip_ignore_installed <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  conda <span class="op">=</span> <span class="st">"auto"</span>,</span>
+<span>  python_version <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">conda_binary</span><span class="op">(</span>conda <span class="op">=</span> <span class="st">"auto"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">conda_exe</span><span class="op">(</span>conda <span class="op">=</span> <span class="st">"auto"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">conda_version</span><span class="op">(</span>conda <span class="op">=</span> <span class="st">"auto"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">conda_update</span><span class="op">(</span>conda <span class="op">=</span> <span class="st">"auto"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">conda_python</span><span class="op">(</span>envname <span class="op">=</span> <span class="cn">NULL</span>, conda <span class="op">=</span> <span class="st">"auto"</span>, all <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -142,44 +142,70 @@
 <dd><p>The path to a <code>conda</code> executable. Use <code>"auto"</code> to allow
 <code>reticulate</code> to automatically find an appropriate <code>conda</code> binary.
 See <strong>Finding Conda</strong> and <code>conda_binary()</code> for more details.</p></dd>
+
+
 <dt>envname</dt>
 <dd><p>The name of, or path to, a conda environment.</p></dd>
+
+
 <dt>packages</dt>
 <dd><p>A character vector, indicating package names which should be
-installed or removed. Use <code>python=&lt;version&gt;</code> to request the installation
-of a specific version of Python.</p></dd>
+installed or removed. Use  <code>&lt;package&gt;==&lt;version&gt;</code> to request the installation
+of a specific version of a package.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Optional arguments, reserved for future expansion.</p></dd>
+
+
 <dt>forge</dt>
 <dd><p>Boolean; include the <a href="https://conda-forge.org/" class="external-link">conda-forge</a>
 repository?</p></dd>
+
+
 <dt>channel</dt>
 <dd><p>An optional character vector of conda channels to include.
 When specified, the <code>forge</code> argument is ignored. If you need to
 specify multiple channels, including the conda forge, you can use
 <code>c("conda-forge", &lt;other channels&gt;)</code>.</p></dd>
+
+
 <dt>environment</dt>
 <dd><p>The path to an environment definition, generated via
 (for example) <code>conda_export()</code>, or via <code>conda env export</code>. When provided,
 the conda environment will be created using this environment definition,
 and other arguments will be ignored.</p></dd>
+
+
 <dt>python_version</dt>
 <dd><p>The version of Python to be installed. Set this if
 you'd like to change the version of Python associated with a particular
 conda environment.</p></dd>
+
+
 <dt>clone</dt>
 <dd><p>The name of the conda environment to be cloned.</p></dd>
+
+
 <dt>file</dt>
 <dd><p>The path where the conda environment definition will be written.</p></dd>
+
+
 <dt>json</dt>
 <dd><p>Boolean; should the environment definition be written as JSON?
 By default, conda exports environments as YAML.</p></dd>
+
+
 <dt>pip</dt>
 <dd><p>Boolean; use <code>pip</code> for package installation? By default, packages
 are installed from the active conda channels.</p></dd>
+
+
 <dt>pip_options</dt>
 <dd><p>An optional character vector of additional command line
 arguments to be passed to <code>pip</code>. Only relevant when <code>pip = TRUE</code>.</p></dd>
+
+
 <dt>pip_ignore_installed</dt>
 <dd><p>Ignore already-installed versions when using pip?
 (defaults to <code>FALSE</code>). Set this to <code>TRUE</code> so that specific package versions
@@ -187,19 +213,32 @@ can be installed even if they are downgrades. The <code>FALSE</code> option is u
 for situations where you don't want a pip install to attempt an overwrite of
 a conda binary package (e.g. SciPy on Windows which is very difficult to
 install via pip due to compilation requirements).</p></dd>
+
+
 <dt>all</dt>
 <dd><p>Boolean; report all instances of Python found?</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p><code>conda_list()</code> returns an <span style="R">R</span><code>data.frame</code>, with <code>name</code> giving the name of
+    
+
+<p><code>conda_list()</code> returns an <span style="R">R</span></p>
+<p></p>
+<p><code>data.frame</code>, with <code>name</code> giving the name of
 the associated environment, and <code>python</code> giving the path to the Python
-binary associated with that environment.
-<code>conda_create()</code> returns the path to the Python binary associated with the
-newly-created conda environment.
-<code>conda_clone()</code> returns the path to Python within the newly-created
-conda environment.
-<code>conda_export()</code> returns the path to the exported environment definition,
+binary associated with that environment.</p>
+
+
+<p><code>conda_create()</code> returns the path to the Python binary associated with the
+newly-created conda environment.</p>
+
+
+<p><code>conda_clone()</code> returns the path to Python within the newly-created
+conda environment.</p>
+
+
+<p><code>conda_export()</code> returns the path to the exported environment definition,
 invisibly.</p>
     </div>
     <div id="finding-conda">
@@ -216,8 +255,8 @@ The following locations are searched, in order:</p><ol><li><p>The location speci
 <li><p>The program <code>PATH</code>,</p></li>
 <li><p>A set of pre-defined locations where conda is typically installed.</p></li>
 </ol><p>To force <code>reticulate</code> to use a particular <code>conda</code> binary, we recommend
-setting:</p><div class="sourceCode"><pre><code><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>reticulate.conda_binary <span class="op">=</span> <span class="st">"/path/to/conda"</span><span class="op">)</span></code></pre></div>
-
+setting:</p>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">reticulate.conda_binary =</span> <span class="st">"/path/to/conda"</span>)</span></code></pre><p></p></div>
 <p>This can be useful if your conda installation lives in a location that
 <code>reticulate</code> is unable to automatically discover.</p>
     </div>
@@ -234,7 +273,7 @@ setting:</p><div class="sourceCode"><pre><code><span class="fu"><a href="https:/
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

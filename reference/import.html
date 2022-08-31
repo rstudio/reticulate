@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.25</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.26</span>
       </span>
     </div>
 
@@ -87,38 +87,49 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">import</span><span class="op">(</span><span class="va">module</span>, as <span class="op">=</span> <span class="cn">NULL</span>, convert <span class="op">=</span> <span class="cn">TRUE</span>, delay_load <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
-
-<span class="fu">import_main</span><span class="op">(</span>convert <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-
-<span class="fu">import_builtins</span><span class="op">(</span>convert <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>
-
-<span class="fu">import_from_path</span><span class="op">(</span><span class="va">module</span>, path <span class="op">=</span> <span class="st">"."</span>, convert <span class="op">=</span> <span class="cn">TRUE</span>, delay_load <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">import</span><span class="op">(</span><span class="va">module</span>, as <span class="op">=</span> <span class="cn">NULL</span>, convert <span class="op">=</span> <span class="cn">TRUE</span>, delay_load <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">import_main</span><span class="op">(</span>convert <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">import_builtins</span><span class="op">(</span>convert <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">import_from_path</span><span class="op">(</span><span class="va">module</span>, path <span class="op">=</span> <span class="st">"."</span>, convert <span class="op">=</span> <span class="cn">TRUE</span>, delay_load <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
     <dl><dt>module</dt>
 <dd><p>The name of the Python module.</p></dd>
+
+
 <dt>as</dt>
 <dd><p>An alias for module name (affects names of R classes). Note that
 this is an advanced parameter that should generally only be used in package
 development (since it affects the S3 name of the imported class and can
 therefore interfere with S3 method dispatching).</p></dd>
+
+
 <dt>convert</dt>
 <dd><p>Boolean; should Python objects be automatically converted
 to their <span style="R">R</span> equivalent? If set to <code>FALSE</code>, you can still manually convert
 Python objects to <span style="R">R</span> via the <code><a href="r-py-conversion.html">py_to_r()</a></code> function.</p></dd>
+
+
 <dt>delay_load</dt>
 <dd><p>Boolean; delay loading the module until it is first used?
 When <code>FALSE</code>, the module will be loaded immediately. See <strong>Delay Load</strong>
 for advanced usages.</p></dd>
+
+
 <dt>path</dt>
 <dd><p>The path from which the module should be imported.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>An <span style="R">R</span> object wrapping a Python module. Module attributes can be accessed
+    
+
+<p>An <span style="R">R</span> object wrapping a Python module. Module attributes can be accessed
 via the <code>$</code> operator, or via <code><a href="py_get_attr.html">py_get_attr()</a></code>.</p>
     </div>
     <div id="python-built-ins">
@@ -141,20 +152,19 @@ ensure your module is lazy-loaded (e.g. because you are a package author and
 want to avoid initializing Python before the user has explicitly requested it),
 then passing <code>TRUE</code> is normally the right choice.</p>
 <p>You can also provide a list of named functions, which act as callbacks to be
-run when the module is later loaded. For example:</p><div class="sourceCode"><pre><code>delay_load = list(
-  
-  # run before the module is loaded
-  before_load = function() { ... }
-  
-  # run immediately after the module is loaded
-  on_load = function() { ... }
-  
-  # run if an error occurs during module import
-  on_error = function(error) { ... }
-  
-)
-</code></pre></div>
-
+run when the module is later loaded. For example:</p>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>delay_load <span class="ot">=</span> <span class="fu">list</span>(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># run before the module is loaded</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">before_load =</span> <span class="cf">function</span>() { ... }</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># run immediately after the module is loaded</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">on_load =</span> <span class="cf">function</span>() { ... }</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># run if an error occurs during module import</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">on_error =</span> <span class="cf">function</span>(error) { ... }</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>)</span></code></pre><p></p></div>
 <p>Alternatively, if you supply only a single function, that will be treated as
 an <code>on_load</code> handler.</p>
     </div>
@@ -165,19 +175,18 @@ an <code>on_load</code> handler.</p>
 
 <p><code>import_from_path()</code> can be used in you need to import a module from an arbitrary
 filesystem path. This is most commonly used when importing modules bundled with an
-<span style="R">R</span> package -- for example:</p><div class="sourceCode"><pre><code>path &lt;- system.file("python", package = &lt;package&gt;)
-reticulate::import_from_path(&lt;module&gt;, path = path, delay_load = TRUE)
-</code></pre></div>
-
+<span style="R">R</span> package -- for example:</p>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>path <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">"python"</span>, <span class="at">package =</span> <span class="sc">&lt;</span>package<span class="sc">&gt;</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>reticulate<span class="sc">::</span><span class="fu">import_from_path</span>(<span class="sc">&lt;</span>module<span class="sc">&gt;</span>, <span class="at">path =</span> path, <span class="at">delay_load =</span> <span class="cn">TRUE</span>)</span></code></pre><p></p></div>
     </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span>
-<span class="r-in"><span class="va">main</span> <span class="op">&lt;-</span> <span class="fu">import_main</span><span class="op">(</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">sys</span> <span class="op">&lt;-</span> <span class="fu">import</span><span class="op">(</span><span class="st">"sys"</span><span class="op">)</span></span>
-<span class="r-in"><span class="op">}</span></span>
-<span class="r-in"></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span><span class="va">main</span> <span class="op">&lt;-</span> <span class="fu">import_main</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">sys</span> <span class="op">&lt;-</span> <span class="fu">import</span><span class="op">(</span><span class="st">"sys"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>
@@ -192,7 +201,7 @@ reticulate::import_from_path(&lt;module&gt;, path = path, delay_load = TRUE)
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

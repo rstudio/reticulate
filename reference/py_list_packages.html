@@ -18,7 +18,7 @@ environment."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/lib
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.25</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.26</span>
       </span>
     </div>
 
@@ -89,11 +89,11 @@ environment.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">py_list_packages</span><span class="op">(</span>
-  envname <span class="op">=</span> <span class="cn">NULL</span>,
-  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"auto"</span>, <span class="st">"virtualenv"</span>, <span class="st">"conda"</span><span class="op">)</span>,
-  python <span class="op">=</span> <span class="cn">NULL</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">py_list_packages</span><span class="op">(</span></span>
+<span>  envname <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"auto"</span>, <span class="st">"virtualenv"</span>, <span class="st">"conda"</span><span class="op">)</span>,</span>
+<span>  python <span class="op">=</span> <span class="cn">NULL</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -101,16 +101,26 @@ environment.</p>
     <dl><dt>envname</dt>
 <dd><p>The name of, or path to, a Python virtual environment.
 Ignored when <code>python</code> is non-<code>NULL</code>.</p></dd>
+
+
 <dt>type</dt>
 <dd><p>The virtual environment type. Useful if you have both
 virtual environments and Conda environments of the same name on
 your system, and you need to disambiguate them.</p></dd>
+
+
 <dt>python</dt>
 <dd><p>The path to a Python executable.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>An <span style="R">R</span> data.frame, with columns:</p><dl><dt><code>package</code></dt>
+    
+
+<p>An <span style="R">R</span> data.frame, with columns:</p>
+
+
+<dl><dt><code>package</code></dt>
 <dd><p>The package name.</p></dd>
 
 <dt><code>version</code></dt>
@@ -145,7 +155,7 @@ used by <code>reticulate</code>.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer></div>

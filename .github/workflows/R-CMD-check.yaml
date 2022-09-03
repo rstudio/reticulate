@@ -1,6 +1,7 @@
 # Workflow derived from https://github.com/r-lib/actions/tree/master/examples
 # Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
 on:
+  workflow_dispatch:
   push:
     branches: [main, master]
   pull_request:
@@ -20,35 +21,54 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {os: macOS-latest,   r: 'release', python: '3.8'}
-          - {os: windows-latest, r: 'release', python: '3.8'}
-          - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release', python: '3.8'}
-          - {os: ubuntu-latest,   r: 'oldrel-1', python: '3.8'}
-          - {os: ubuntu-latest,   r: 'release', python: '3.8'}
-          - {os: ubuntu-latest,   r: 'release', python: '3.9'}
-          - {os: ubuntu-latest,   r: 'release', python: '3.10'}
+          - { os: macOS-latest  , r: 'release', python: '3.8' }
+          - { os: windows-latest, r: 'release', python: '3.8' }
+          - { os: ubuntu-latest , r: 'release', python: '3.8' }
+
+          - { os: ubuntu-latest, r: 'oldrel-1', python: '3.8' }
+          # - { os: ubuntu-latest, r: 'devel'   , python: '3.8', http-user-agent: 'release' }
+
+          - { os: ubuntu-latest, r: 'release', python: '2.7'  }
+          - { os: ubuntu-latest, r: 'release', python: '3.7'  }
+          - { os: ubuntu-latest, r: 'release', python: '3.9'  }
+          - { os: ubuntu-latest, r: 'release', python: '3.10' }
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - uses: r-lib/actions/setup-pandoc@v2
 
       - uses: r-lib/actions/setup-r@v2
         with:
           r-version: ${{ matrix.config.r }}
-          http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
+          # http-user-agent: ${{ matrix.config.http-user-agent }}
 
-      - uses: actions/setup-python@v3
+      - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.config.python }}
 
+      - if: matrix.config.python == '2.7'
+        run: python -m pip install --upgrade --user virtualenv
+
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: rcmdcheck
+          extra-packages: rcmdcheck remotes
+
+      - name: setup r-reticulate venv
+        shell: Rscript {0}
+        run: |
+          remotes::install_local()
+          reticulate::virtualenv_create("r-reticulate", Sys.which("python"))
+          reticulate::virtualenv_install("r-reticulate",
+            c("docutils", "pandas", "scipy", "matplotlib", "ipython",
+              "tabulate", "plotly", "psutil", "kaleido"))
+          python <- reticulate::virtualenv_python("r-reticulate")
+          writeLines(sprintf("RETICULATE_PYTHON=%s", python),
+                     Sys.getenv("GITHUB_ENV"))
 
       - uses: r-lib/actions/check-r-package@v2

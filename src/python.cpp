@@ -557,7 +557,7 @@ std::string py_fetch_error() {
   PyObject *excType, *excValue, *excTraceback;
   PyErr_Fetch(&excType, &excValue, &excTraceback);  // we now own the PyObjects
   PyErr_NormalizeException(&excType, &excValue, &excTraceback);
-  if (excTraceback != NULL) {
+  if (excTraceback != NULL && s_isPython3) {
     PyException_SetTraceback(excValue, excTraceback);
     Py_DecRef(excTraceback);
   }
@@ -2018,6 +2018,9 @@ void py_initialize(const std::string& python,
   s_isPython3 = python3;
   s_isInteractive = interactive;
 
+  if(!s_isPython3)
+    warning("Python 2 reached EOL on January 1, 2020. Python 2 compatability be removed in an upcoming reticulate release.");
+
   // load the library
   std::string err;
   if (!libPython().load(libpython, is_python3(), &err))
@@ -2806,7 +2809,7 @@ SEXP py_convert_pandas_series(PyObjectRef series) {
 
     // get "ordered" attribute
     PyObjectPtr ordered(PyObject_GetAttrString(dtype, "ordered"));
-    //RObject ordered = py_to_r(ordered_, true);
+
 
     // populate integer vector to hold factor values
     // note that we need to convert 0->1 indexing, and handle NAs
@@ -2824,9 +2827,11 @@ SEXP py_convert_pandas_series(PyObjectRef series) {
     CharacterVector factor_levels(R_levels);
     factor_levels.attr("dim") = R_NilValue;
 
-    factor.attr("class") = "factor";
     factor.attr("levels") = factor_levels;
-    if (PyObject_IsTrue(ordered)) factor.attr("ordered") = true;
+    if (PyObject_IsTrue(ordered))
+      factor.attr("class") = CharacterVector({"ordered", "factor"});
+    else
+      factor.attr("class") = "factor";
 
     R_obj = factor;
 
@@ -3064,4 +3069,44 @@ SEXP py_bool_impl(PyObjectRef x) {
   }
 
   return Rf_ScalarLogical(result);
+}
+
+
+// [[Rcpp::export]]
+SEXP py_has_method(PyObjectRef object, const std::string& name) {
+
+  if (py_is_null_xptr(object))
+    return Rf_ScalarLogical(false);
+
+  if (!PyObject_HasAttrString(object, name.c_str()))
+    return Rf_ScalarLogical(false);
+
+  PyObjectPtr attr(PyObject_GetAttrString(object, name.c_str()));
+  int result = PyMethod_Check(attr);
+
+  return Rf_ScalarLogical(result);
+}
+
+
+//' Unique identifer for Python object
+//'
+//' Get a globally unique identifier for a Python object.
+//'
+//' @note In the current implementation of CPython this is the
+//'  memory address of the object.
+//'
+//' @param object Python object
+//'
+//' @return Unique identifer (as string) or `NULL`
+//'
+//' @export
+// [[Rcpp::export]]
+SEXP py_id(PyObjectRef object) {
+  if (py_is_null_xptr(object))
+    return R_NilValue;
+
+  std::stringstream id;
+  id << (uintptr_t) object.get();
+
+  return CharacterVector({id.str()});
 }

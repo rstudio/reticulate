@@ -16,8 +16,10 @@ between Python chunks in a document -- that is, variables defined by one
 Python chunk can be used by later Python chunks.
 }
 \details{
-The engine can be activated by setting (for example)\preformatted{knitr::knit_engines$set(python = reticulate::eng_python)
-}
+The engine can be activated by setting (for example)
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{knitr::knit_engines$set(python = reticulate::eng_python)
+}\if{html}{\out{</div>}}
 
 Typically, this will be set within a document's setup chunk, or by the
 environment requesting that Python chunks be processed by this engine.

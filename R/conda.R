@@ -18,8 +18,8 @@
 #'   `c("conda-forge", <other channels>)`.
 #'
 #' @param packages A character vector, indicating package names which should be
-#'   installed or removed. Use `python=<version>` to request the installation
-#'   of a specific version of Python.
+#'   installed or removed. Use  \verb{<package>==<version>} to request the installation
+#'   of a specific version of a package.
 #'
 #' @param environment The path to an environment definition, generated via
 #'   (for example) [conda_export()], or via `conda env export`. When provided,
@@ -858,7 +858,7 @@ conda_run2_windows <-
   fi <- tempfile(fileext = ".bat")
   on.exit(unlink(fi))
   writeLines(c(
-    if(!echo) "@echo off",
+    if (!echo) "@echo off",
     activate_cmd,
     cmd_line
   ), fi)
@@ -891,14 +891,14 @@ conda_run2_nix <-
 
   # set -x is too verbose, includes all the commands made by conda scripts
   # so we manually echo the top-level commands only
-  if(echo)
+  if (echo)
     commands <- as.vector(rbind(
       paste("echo", shQuote(paste("+", commands))),
       commands))
 
   writeLines(commands, fi)
-  system2(Sys.which("sh"), fi,
-          stdout = if(identical(intern, FALSE)) "" else intern)
+  system2(Sys.which("bash"), fi,
+          stdout = if (identical(intern, FALSE)) "" else intern)
 }
 
 

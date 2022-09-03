@@ -382,6 +382,7 @@ startsWith <- function(x, prefix) {
   suppressWarnings(substr(x, 1L, nchar(prefix)) == prefix)
 }
 
+if (getRversion() < "3.3.0")
 endsWith <- function (x, suffix) { # needed for R < 3.3
   if (!is.character(x) || !is.character(suffix))
     stop("non-character object(s)")
@@ -400,4 +401,10 @@ system2t <- function(command, args, ...) {
   # maybe someday take a dep on {cli} and make it prettier
   message(paste("+", shQuote(command), paste0(args, collapse = " ")))
   system2(command, args, ...)
+}
+
+
+rm_all_reticulate_state <- function() {
+  unlink(rappdirs::user_data_dir("r-reticulate", NULL), recursive = TRUE, force = TRUE)
+  unlink(rappdirs::user_data_dir("r-miniconda", NULL), recursive = TRUE, force = TRUE)
 }

@@ -161,3 +161,39 @@ fig = px.scatter(x=[1, 2, 3], y=[5, 4, 6])
 ```{python}
 fig
 ```
+
+`_repr_html_()` methods are not called with unbound `__self__`
+(https://github.com/rstudio/reticulate/issues/1249)
+
+```{python}
+import pandas as pd
+pt = pd.DataFrame()
+type(pt)
+```
+
+`_repr_markdown_()` methods are supported 
+(https://github.com/quarto-dev/quarto-cli/issues/1501):
+
+```{python}
+from IPython.display import Markdown
+from tabulate import tabulate
+table = [["Sun",696000,1989100000],
+         ["Earth",6371,5973.6],
+         ["Moon",1737,73.5],
+         ["Mars",3390,641.85]]
+Markdown(tabulate(
+  table, 
+  headers=["Planet","R (km)", "mass (x 10^29 kg)"],
+  tablefmt="pipe"
+))
+```
+
+
+Setting option `error=TRUE` also allows parsing errors.
+
+```{python, error=TRUE}
+for i in range(3):
+  print(i)
+    print(i+10)
+```
+

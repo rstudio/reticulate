@@ -250,6 +250,26 @@ py_bool_impl <- function(x) {
     .Call(`_reticulate_py_bool_impl`, x)
 }
 
+py_has_method <- function(object, name) {
+    .Call(`_reticulate_py_has_method`, object, name)
+}
+
+#' Unique identifer for Python object
+#'
+#' Get a globally unique identifier for a Python object.
+#'
+#' @note In the current implementation of CPython this is the
+#'  memory address of the object.
+#'
+#' @param object Python object
+#'
+#' @return Unique identifer (as string) or `NULL`
+#'
+#' @export
+py_id <- function(object) {
+    .Call(`_reticulate_py_id`, object)
+}
+
 readline <- function(prompt) {
     .Call(`_reticulate_readline`, prompt)
 }

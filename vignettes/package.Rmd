@@ -192,12 +192,39 @@ r_to_py.my_r_object <- function(x, convert) {
 ```
 
 
-## Using Travis-CI
+## Using Github Actions
 
-[Travis-CI](https://travis-ci.org/) is a commonly used platform for continuous integration and testing of R packages. Making it work with **reticulate** is pretty simple - all you need to do is add a `before_install` section to a standard R `.travis.yml` file that asks Travis to guarantee the testing machine has `numpy` (which **reticulate** depends on) and any Python modules you're interacting with that don't ship with the language itself:
+[Github Actions](https://github.com/features/actions) are commonly used for continuous integration and testing of R packages. Making it work with **reticulate** is pretty simple - all you need to do is ensure that there is a valid Python installation on the runner, and that reticulate knows to use it. You can do this all with shell commands, or you can use functions in reticulate to do this. Here is an example sequence of `steps` demonstrating how you can do this with reticulate functions:
 
-```
-before_install:
-  - pip install numpy any_other_dependencies go_here
+```yaml
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: release
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: rcmdcheck remotes reticulate
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
+          
+      - name: setup r-reticulate venv
+        shell: Rscript {0}
+        run: |
+          python_packages <- 
+            c("numpy", "any-other-python-packages-you-want-go-here")
+          
+          library(reticulate)
+          virtualenv_create("r-reticulate", Sys.which("python"))
+          virtualenv_install("r-reticulate", python_packages)
+          
+          path_to_python <- virtualenv_python("r-reticulate")
+          writeLines(sprintf("RETICULATE_PYTHON=%s", path_to_python),
+                     Sys.getenv("GITHUB_ENV"))
+                     
+      - uses: r-lib/actions/check-r-package@v2
+
 ```
 

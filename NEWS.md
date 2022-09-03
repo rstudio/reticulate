@@ -1,10 +1,72 @@
 # reticulate (development version)
 
-# reticulate 1.25 
+# reticulate 1.26
+
+- Fixed issue where reticulate failed to bind to python2. (#1241, #1229)
+
+- A warning is now issued when reticulate binds to python2 that python2
+  support will be removed in an upcoming reticulate release.
+  
+- `py_id()` now returns a character string, instead of an R integer (#1216).
+
+- Fixed an issue where `py_to_r()` would not convert elements of a 
+  dictionary (#1221).
+
+- Fixed an issue where setting `RETICULATE_PYTHON` or `RETICULATE_PYTHON_FALLBACK`
+  on Windows to the pyenv-win `python.bat` shim would result in an error (#1263).
+
+- Fixed an issue where `datetime.datetime` objects with a `tzinfo` attribute
+  was not getting converted to R correctly (#1266).
+
+- Fixed an issue where pandas `pandas.Categorical(,ordered=True)` Series were
+  not correctly converted to an R ordered factor (#1234).
+
+- The `reticulate` Python engine no longer halts on error for Python chunks
+  containing parse errors when the `error=TRUE` chunk option is set. (#583)
+
+- `install_python()` now leverages brew for python build dependencies like
+  openssl@1.1 if brew is already installed and on the PATH, substantially speeding up
+  `install_python()` on macOS systems with brew configured.
+
+- Fixed an issue where reticulate would fail to bind to a conda environment on macOS or linux
+  if conda installed a non-POSIX compliant activation script into the conda environment. (#1255)
+
+- Fixed an issue where the python knitr engine would error when printing to
+  HTML a constructor of class instances with a `_repr_html_` or `to_html` method
+  (e.g., `pandas.DataFrame`; #1249, #1250).
+
+- Fixed an issue where the python knitr engine would error when printing a
+  plotly figure to an HTML document in some (head-less) linux environments (#1250).
+
+- Fixed an issue where `conda_install(pip=TRUE)` would install packages into
+  a user Python library instead of the conda env if the environment variable
+  `PIP_USER=true` was set. `py_install()`, `virtualenv_install()`, and
+  `conda_install()` now always specify `--no-user` when invoking `pip install`. (#1209)
+
+- Fixed issue where `py_last_error()` would return unconverted Python objects (#1233)
+
+- The Knitr engine now supports printing Python objects with
+  `_repr_markdown_` methods. (via quarto-dev/quarto-cli#1501)
+
+- `sys.executable` on Windows now correctly reports the path to the Python executable
+  instead of the launching R executable. (#1258)
+
+- The `sys` module is no longer automatically imported in `__main__` by reticulate.
+
+- Fixed an issue on Windows where reticulate would fail to find Python installations from pyenv installed via scoop.
+
+- Fixed an issue where `configure_environment()` would error on Windows. (#1247)
+
+- Updated docs for compatibility with HTML5 / R 4.2.
+
+- Updated r_to_py.sparseMatrix() method for compatibility with Matrix 1.4-2.
+
+# reticulate 1.25
 
 - Fixed an issue where reticulate would fail if R was running embedded under rpy2.
   reticulate now ensures the Python GIL is acquired before calling into Python.
-  
+  (#1188, #1203)
+
 - Fixed an issue where reticulate would fail to bind to an ArcGIS Pro conda environment
   (#1200, @philiporlando).
 
@@ -64,7 +126,7 @@
 
 - Fixed an issue where `reticulate` would fail to bind to the system version
   of Python on macOS if command line tools were installed, but Xcode was not.
-  
+
 # reticulate 1.23
 
 - `use_condaenv()` gains the ability to accept an absolute path to a python

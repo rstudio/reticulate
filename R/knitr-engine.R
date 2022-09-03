@@ -24,10 +24,10 @@
 #'
 #' @export
 eng_python <- function(options) {
-  
+
   # check for unsupported knitr options
   options <- eng_python_validate_options(options)
-  
+
   # when 'eval = FALSE', we can just return the source code verbatim
   # (skip any other per-chunk work)
   if (identical(options$eval, FALSE)) {
@@ -66,10 +66,10 @@ eng_python <- function(options) {
 
   # environment tracking the labels assigned to newly-created altair charts
   .engine_context$altair_ids <- new.env(parent = emptyenv())
-  
+
   # a list of pending plots / outputs
   .engine_context$pending_plots <- stack()
-  
+
   eng_python_initialize(options = options, envir = environment())
 
   # helper function for extracting range of code, dropping blank lines
@@ -94,7 +94,16 @@ eng_python <- function(options) {
   parsed <- tryCatch(ast$parse(pasted, "<string>"), error = identity)
   if (inherits(parsed, "error")) {
     error <- reticulate::py_last_error()
-    stop(error$value, call. = FALSE)
+    if (identical(options$error, TRUE)) {
+      outputs <- list(
+        structure(list(src = code), class = "source"),
+        paste(error$value, collapse = "\n")
+      )
+      wrap <- getOption("reticulate.engine.wrap", eng_python_wrap)
+      return(wrap(outputs, options))
+    } else {
+      stop(error$value, call. = FALSE)
+    }
   }
 
   # iterate over top-level nodes and extract line numbers
@@ -127,7 +136,7 @@ eng_python <- function(options) {
 
   # actual outputs to be returned to knitr
   outputs <- stack()
-  
+
   # 'held' outputs, to be appended at the end (for results = "hold")
   held_outputs <- stack()
 
@@ -150,7 +159,7 @@ eng_python <- function(options) {
 
     # clear the last value object (so we can tell if it was updated)
     py_compile_eval("'__reticulate_placeholder__'")
-    
+
     # use trailing semicolon to suppress output of return value
     suppress <- grepl(";\\s*$", snippet)
     compile_mode <- if (suppress) "exec" else "single"
@@ -172,7 +181,7 @@ eng_python <- function(options) {
     has_outputs <-
       !.engine_context$pending_plots$empty() ||
       !identical(captured, "")
-    
+
     if (has_outputs) {
 
       # append pending source to outputs (respecting 'echo' option)
@@ -186,29 +195,29 @@ eng_python <- function(options) {
       if (isTRUE(options$include)) {
 
         if (identical(options$results, "hold")) {
-          
+
           # append captured output
           if (!identical(captured, ""))
             held_outputs$push(captured)
-          
+
           # append captured images / figures
           plots <- .engine_context$pending_plots$data()
           for (plot in plots)
             held_outputs$push(plot)
           .engine_context$pending_plots$clear()
-          
+
         } else {
-          
+
           # append captured output
           if (!identical(captured, ""))
             outputs$push(captured)
-          
+
           # append captured images / figures
           plots <- .engine_context$pending_plots$data()
           for (plot in plots)
             outputs$push(plot)
           .engine_context$pending_plots$clear()
-          
+
         }
 
       }
@@ -231,50 +240,50 @@ eng_python <- function(options) {
     !identical(options$echo, FALSE) &&
     !identical(options$results, "hold") &&
     pending_source_index <= n
-  
+
   if (has_leftovers) {
     leftover <- extract(code, c(pending_source_index, n))
     output <- structure(list(src = leftover), class = "source")
     outputs$push(output)
   }
-  
+
   # if we were using held outputs, we just inject the source in now
   if (identical(options$results, "hold")) {
     output <- structure(list(src = code), class = "source")
     outputs$push(output)
   }
-  
+
   if(options$cache > 0) {
     save_python_session(options$hash)
   }
-  
+
   # if we had held outputs, add those in now (merging text output as appropriate)
   text_output <- character()
-  
+
   held_outputs <- held_outputs$data()
   for (i in seq_along(held_outputs)) {
-    
+
     output <- held_outputs[[i]]
     if (!is.object(output) && is.character(output)) {
-      
+
       # merge text output and save for later
       text_output <- c(text_output, held_outputs[[i]])
-      
+
     } else {
-      
+
       # add in pending text output
       if (length(text_output)) {
         output <- paste(text_output, collapse = "")
         outputs$push(output)
         text_output <- character()
       }
-      
+
       # add in this piece of output
       outputs$push(held_outputs[[i]])
     }
-    
+
   }
-  
+
   # if we have any leftover held output, add in now
   if (length(text_output)) {
     output <- paste(text_output, collapse = "")
@@ -309,19 +318,19 @@ eng_python_initialize <- function(options, envir) {
 }
 
 eng_python_knit_figure_path <- function(options, suffix = NULL) {
-  
+
   # we need to work in either base.dir or output.dir, depending
   # on which of the two has been requested by the user. (note
   # that output.dir should always be set)
   dir <-
     knitr::opts_knit$get("base.dir") %||%
     knitr::opts_knit$get("output.dir")
-  
+
   # move to the requested directory
   dir.create(dir, recursive = TRUE, showWarnings = FALSE)
   owd <- setwd(dir)
   on.exit(setwd(owd), add = TRUE)
-  
+
   # construct plot path
   plot_counter <- yoink("knitr", "plot_counter")
   number <- plot_counter()
@@ -330,57 +339,57 @@ eng_python_knit_figure_path <- function(options, suffix = NULL) {
     options = options,
     number  = number
   )
-  
+
   # ensure parent path exists
   dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
-  
+
   # return path
   path
-  
+
 }
 
 eng_python_matplotlib_show <- function(plt, options) {
-  
+
   # get figure path
   path <- eng_python_knit_figure_path(options)
-  
+
   # save the current figure
   dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
   plt$savefig(path, dpi = options$dpi)
   plt$clf()
-  
+
   # include the requested path
   knitr::include_graphics(path)
 
 }
 
 eng_python_initialize_hooks <- function(options, envir) {
-  
+
   # set up hooks for matplotlib modules
   matplotlib_modules <- c(
     "matplotlib.artist",
     "matplotlib.pyplot",
     "matplotlib.pylab"
   )
-  
+
   for (module in matplotlib_modules) {
     py_register_load_hook(module, function(...) {
       eng_python_initialize_matplotlib(options, envir)
     })
   }
-  
+
   # set up hooks for plotly modules
   plotly_modules <- c(
     "plotly.io",
     "plotlyjs"
   )
-  
+
   for (module in plotly_modules) {
     py_register_load_hook(module, function(...) {
       eng_python_initialize_plotly(options, envir)
     })
   }
-  
+
 }
 
 eng_python_initialize_matplotlib <- function(options, envir) {
@@ -388,9 +397,9 @@ eng_python_initialize_matplotlib <- function(options, envir) {
   # mark initialization done
   if (identical(.globals$matplotlib_initialized, TRUE))
     return(TRUE)
-  
+
   .globals$matplotlib_initialized <- TRUE
-  
+
   # attempt to enforce a non-Qt matplotlib backend. this is especially important
   # with RStudio Desktop as attempting to use a Qt backend will cause issues due
   # to mismatched Qt versions between RStudio and Anaconda environments, and
@@ -427,7 +436,7 @@ eng_python_initialize_matplotlib <- function(options, envir) {
 
     # get current chunk options
     options <- knitr::opts_current$get()
-    
+
     # call hook to generate plot
     hook <- getOption("reticulate.engine.matplotlib.show", eng_python_matplotlib_show)
     graphic <- hook(plt, options)
@@ -447,18 +456,22 @@ eng_python_initialize_matplotlib <- function(options, envir) {
 }
 
 eng_python_initialize_plotly <- function(options, envir) {
-  
+
   # mark initialization done
   if (identical(.globals$plotly_initialized, TRUE))
     return(TRUE)
-  
+
   .globals$plotly_initialized <- TRUE
-  
+
   # override the figure 'show' method to just return the plot object itself
   # the auto-printer will then handle rendering the image as appropriate
   io <- import("plotly.io", convert = FALSE)
   io$show <- function(self, ...) self
-  
+
+  renderers <- io$renderers
+  if (!py_bool(renderers$default))
+    renderers$default <- "plotly_mimetype+notebook"
+
 }
 
 # synchronize objects R -> Python
@@ -485,7 +498,7 @@ eng_python_validate_options <- function(options) {
       options[[option]] <- TRUE
     }
   }
-  
+
   options
 }
 
@@ -509,17 +522,17 @@ eng_python_is_plotly_plot <- function(value) {
 }
 
 eng_python_is_altair_chart <- function(value) {
-  
+
   # support different API versions, assuming that the class name
   # otherwise remains compatible
   classes <- class(value)
   pattern <- "^altair\\.vegalite\\.v[[:digit:]]+\\.api\\.Chart$"
   any(grepl(pattern, classes))
-  
+
 }
 
 eng_python_altair_chart_id <- function(options, ids) {
-  
+
   label <- options$label
   components <- c(label, "altair-viz")
   if (exists(label, envir = ids)) {
@@ -529,9 +542,9 @@ eng_python_altair_chart_id <- function(options, ids) {
   } else {
     assign(label, 1L, envir = ids)
   }
-  
+
   paste(components, collapse = "-")
-  
+
 }
 
 eng_python_autoprint <- function(captured, options, autoshow) {
@@ -540,19 +553,19 @@ eng_python_autoprint <- function(captured, options, autoshow) {
   value <- py_last_value()
   if (py_is_none(value))
     return(captured)
-  
+
   # ignore placeholder outputs
   if (inherits(value, "python.builtin.str")) {
     contents <- py_to_r(value)
     if (identical(contents, "__reticulate_placeholder__"))
       return(captured)
   }
-  
+
   # check if output format is html
   isHtml <- knitr::is_html_output()
 
   if (eng_python_is_matplotlib_output(value)) {
-    
+
     # by default, we suppress "side-effect" outputs from matplotlib
     # objects; only when 'autoshow' is set will we try to render the
     # associated matplotlib plot
@@ -563,31 +576,31 @@ eng_python_autoprint <- function(captured, options, autoshow) {
       plt <- import("matplotlib.pyplot", convert = TRUE)
       plt$show()
     }
-    
+
     return("")
-    
+
   } else if (eng_python_is_seaborn_output(value)) {
-    
+
     # get figure path
     path <- eng_python_knit_figure_path(options)
     value$savefig(path)
     .engine_context$pending_plots$push(knitr::include_graphics(path))
     return("")
-    
+
   } else if (inherits(value, "pandas.core.frame.DataFrame")) {
-    
+
     return(captured)
-    
-  } else if (isHtml && py_has_attr(value, "_repr_html_")) {
-    
+
+  } else if (isHtml && py_has_method(value, "_repr_html_")) {
+
     data <- as_r_value(value$`_repr_html_`())
     .engine_context$pending_plots$push(knitr::raw_html(data))
     return("")
-    
+
   } else if (eng_python_is_plotly_plot(value) &&
              py_module_available("psutil") &&
              py_module_available("kaleido")) {
-    
+
     path <- eng_python_knit_figure_path(options)
     value$write_image(
       file   = path,
@@ -596,26 +609,26 @@ eng_python_autoprint <- function(captured, options, autoshow) {
     )
     .engine_context$pending_plots$push(knitr::include_graphics(path))
     return("")
-    
+
   } else if (eng_python_is_altair_chart(value)) {
-    
+
     # set width if it's not already set
     width <- value$width
     if (inherits(width, "altair.utils.schemapi.UndefinedType")) {
       width <- options$altair.fig.width %||% options$out.width.px %||% 810L
       value <- value$properties(width = width)
     }
-    
+
     # set height if it's not already set
     height <- value$height
     if (inherits(height, "altair.utils.schemapi.UndefinedType")) {
       height <- options$altair.fig.height %||% options$out.height.px %||% 400L
       value <- value$properties(height = height)
     }
-    
+
     # set a unique id (used for div container for figure)
     id <- eng_python_altair_chart_id(options, .engine_context$altair_ids)
-    
+
     # convert to HTML or PNG as appropriate
     if (isHtml) {
       data <- as_r_value(value$to_html(output_div = id))
@@ -625,20 +638,26 @@ eng_python_autoprint <- function(captured, options, autoshow) {
       value$save(path)
       .engine_context$pending_plots$push(knitr::include_graphics(path))
     }
-    
+
     return("")
-    
-  } else if (py_has_attr(value, "to_html")) {
-    
+
+  } else if (py_has_method(value, "_repr_markdown_")) {
+
+    data <- as_r_value(value$`_repr_markdown_`())
+    .engine_context$pending_plots$push(knitr::asis_output(data))
+    return("")
+
+  } else if (py_has_method(value, "to_html")) {
+
     data <- as_r_value(value$to_html())
     .engine_context$pending_plots$push(knitr::raw_html(data))
     return("")
-    
+
   } else {
-    
+
     # nothing special to do
     return(captured)
-    
+
   }
 
 }

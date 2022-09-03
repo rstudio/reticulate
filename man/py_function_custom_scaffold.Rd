@@ -11,7 +11,8 @@ py_function_custom_scaffold(
   process_docs_fn = function(docs) docs,
   process_param_fn = function(param, docs) param,
   process_param_doc_fn = function(param_doc, docs) param_doc,
-  postprocess_fn = function() { },
+  postprocess_fn = function() {
+ },
   file_name = NULL
 )
 }

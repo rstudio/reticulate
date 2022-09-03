@@ -237,8 +237,13 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
 
   }
 
+  if (is_windows()) {
+    # patch sys.executable to point to python.exe, not Rterm.exe or rsession-utf8.exe, #1258
+    py_run_string_impl("import sys; sys.executable = sys.argv[0]", local = TRUE)
+  }
+
   # ensure modules can be imported from the current working directory
-  py_run_string_impl("import sys; sys.path.insert(0, '')")
+  py_run_string_impl("import sys; sys.path.insert(0, '')", local = TRUE)
 
   # if this is a conda installation, set QT_QPA_PLATFORM_PLUGIN_PATH
   # https://github.com/rstudio/reticulate/issues/586

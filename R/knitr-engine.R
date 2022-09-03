@@ -253,7 +253,7 @@ eng_python <- function(options) {
     outputs$push(output)
   }
 
-  if(options$cache > 0) {
+  if (options$cache > 0) {
     save_python_session(options$hash)
   }
 
@@ -314,7 +314,7 @@ eng_python_initialize <- function(options, envir) {
         stop(module$message)
       }
     }
-  } 
+  }
 }
 
 eng_python_knit_figure_path <- function(options, suffix = NULL) {
@@ -674,31 +674,31 @@ save_python_session <- function(cache_path) {
   if (py_eval(r_obj_exists) && py_eval(r_is_R)) {
     py_run_string("del globals()['r']")
   }
-  
+
   cache_path <- file.path(knitr::opts_knit$get("output.dir"), cache_path)
   module$dump_session(filename = paste0(cache_path, ".pkl"), byref = TRUE)
 }
 
 #' A reticulate cache engine for Knitr
-#' 
+#'
 #' This provides a `reticulate` cache engine for `knitr`. The cache engine
 #' allows `knitr` to save and load Python sessions between cached chunks. The
 #' cache engine depends on the `dill` Python module. Therefore, you must have
 #' `dill` installed in your Python environment.
-#' 
+#'
 #' The engine can be activated by setting (for example)
-#' 
+#'
 #' ```
 #' knitr::cache_engines$set(python = reticulate::cache_eng_python)
 #' ```
-#' 
+#'
 #' Typically, this will be set within a document's setup chunk, or by the
 #' environment requesting that Python chunks be processed by this engine.
-#' 
+#'
 #' @param options
-#'   List of chunk options provided by `knitr` during chunk execution. 
+#'   List of chunk options provided by `knitr` during chunk execution.
 #'   Contains the caching path.
-#'   
+#'
 #' @export
 cache_eng_python <- function(options) {
   module <- tryCatch(import("dill"), error = identity)
@@ -710,5 +710,3 @@ cache_eng_python <- function(options) {
   cache_path <- normalizePath(paste0(options$hash, ".pkl"), mustWork = TRUE)
   knitr:::in_input_dir(module$load_session(filename = cache_path))
 }
-
-

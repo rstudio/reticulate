@@ -756,11 +756,6 @@ python_config <- function(python,
     }
   }
 
-  as_numeric_version <- function(version) {
-    version <- clean_version(version)
-    numeric_version(version)
-  }
-
   # check for numpy
   numpy <- NULL
   if (!is.null(config$NumpyPath)) {
@@ -909,8 +904,9 @@ is_rstudio_desktop <- function() {
   identical(version$mode, "desktop")
 }
 
-clean_version <- function(version) {
-  gsub("\\.$", "", gsub("[A-Za-z_+].*$", "", version))
+as_numeric_version <- function(version) {
+  version <- sub("\\.$", "", sub("[A-Za-z_+].*$", "", version))
+  numeric_version(version)
 }
 
 reticulate_python_versions <- function() {

@@ -253,10 +253,6 @@ eng_python <- function(options) {
     outputs$push(output)
   }
 
-  if (options$cache > 0) {
-    save_python_session(options$hash)
-  }
-
   # if we had held outputs, add those in now (merging text output as appropriate)
   text_output <- character()
 
@@ -305,16 +301,6 @@ eng_python_initialize <- function(options, envir) {
   ensure_python_initialized()
   eng_python_initialize_hooks(options, envir)
 
-  if (options$cache > 0) {
-    module <- tryCatch(import("dill"), error = identity)
-    if (inherits(module, "error")) {
-      if (module$message == "ImportError: No module named dill") {
-        warning("The Python module dill was not found. This module is needed for full cache functionality.")
-      } else {
-        stop(module$message)
-      }
-    }
-  }
 }
 
 eng_python_knit_figure_path <- function(options, suffix = NULL) {
@@ -416,7 +402,7 @@ eng_python_initialize_matplotlib <- function(options, envir) {
     if ("matplotlib.backends" %in% names(sys$modules)) {
       matplotlib$pyplot$switch_backend("agg")
     } else {
-      version <- numeric_version(matplotlib$`__version__`)
+      version <- as_numeric_version(matplotlib$`__version__`)
       if (version < "3.3.0")
         matplotlib$use("agg", warn = FALSE, force = TRUE)
       else
@@ -660,53 +646,4 @@ eng_python_autoprint <- function(captured, options, autoshow) {
 
   }
 
-}
-
-save_python_session <- function(cache_path) {
-  module <- tryCatch(import("dill"), error = identity)
-  if (inherits(module, "error")) {
-    if (module$message == "ImportError: No module named dill") return()
-    signalCondition(module$message)
-  }
-
-  r_obj_exists <- "'r' in globals()"
-  r_is_R <- "type(r).__module__ == '__main__' and type(r).__name__ == 'R'"
-  if (py_eval(r_obj_exists) && py_eval(r_is_R)) {
-    py_run_string("del globals()['r']")
-  }
-
-  cache_path <- file.path(knitr::opts_knit$get("output.dir"), cache_path)
-  module$dump_session(filename = paste0(cache_path, ".pkl"), byref = TRUE)
-}
-
-#' A reticulate cache engine for Knitr
-#'
-#' This provides a `reticulate` cache engine for `knitr`. The cache engine
-#' allows `knitr` to save and load Python sessions between cached chunks. The
-#' cache engine depends on the `dill` Python module. Therefore, you must have
-#' `dill` installed in your Python environment.
-#'
-#' The engine can be activated by setting (for example)
-#'
-#' ```
-#' knitr::cache_engines$set(python = reticulate::cache_eng_python)
-#' ```
-#'
-#' Typically, this will be set within a document's setup chunk, or by the
-#' environment requesting that Python chunks be processed by this engine.
-#'
-#' @param options
-#'   List of chunk options provided by `knitr` during chunk execution.
-#'   Contains the caching path.
-#'
-#' @export
-cache_eng_python <- function(options) {
-  module <- tryCatch(import("dill"), error = identity)
-  if (inherits(module, "error")) {
-    if (module$message == "ImportError: No module named dill") return()
-    stop(module$message)
-  }
-
-  cache_path <- normalizePath(paste0(options$hash, ".pkl"), mustWork = TRUE)
-  knitr:::in_input_dir(module$load_session(filename = cache_path))
 }

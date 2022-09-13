@@ -109,7 +109,7 @@ skip_if_no_scipy <- function() {
     skip("scipy not available for testing")
 
   scipy <- import("scipy")
-  if (clean_version(scipy$`__version__`) < "1.0")
+  if (as_numeric_version(scipy$`__version__`) < "1.0")
     skip("scipy version is less than v1.0")
 
 }

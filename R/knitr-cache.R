@@ -20,7 +20,9 @@
 #'
 #' @export
 cache_eng_python <- (function() {
-  check_cache_available <- function() {
+  check_cache_available <- function(options) {
+    eng_python_initialize(options)
+
     # does the python version is supported by 'dill'?
     if (py_version() < "3.7") {
       warning("Python cache requires Python version >= 3.7")
@@ -48,10 +50,10 @@ cache_eng_python <- (function() {
     TRUE
   }
 
-  cache_available <- function() {
+  cache_available <- function(options) {
     available <- knitr::opts_knit$get("reticulate.cache")
     if (is.null(available)) {
-      available <- check_cache_available()
+      available <- check_cache_available(options)
       knitr::opts_knit$set(reticulate.cache = available)
     }
     available
@@ -66,8 +68,7 @@ cache_eng_python <- (function() {
   }
 
   cache_load <- function(options) {
-    eng_python_initialize(options, envir = environment())
-    if (!cache_available()) return()
+    if (!cache_available(options)) return()
     dill <- import("dill")
     dill$load_module(filename = cache_path(options$hash), module = "__main__")
   }
@@ -81,7 +82,7 @@ cache_eng_python <- (function() {
   }
 
   cache_save <- function(options) {
-    if (!cache_available()) return()
+    if (!cache_available(options)) return()
     dill <- import("dill")
     tryCatch({
       dill$dump_module(cache_path(options$hash), refimported = TRUE, exclude = r_obj_filter())
@@ -95,5 +96,6 @@ cache_eng_python <- (function() {
     unlink(cache_path(glob_path))
   }
 
-  list(exists = cache_exists, load = cache_load, save = cache_save, purge = cache_purge)
+  list(available = cache_available, exists = cache_exists, load = cache_load, save = cache_save,
+       purge = cache_purge)
 })()

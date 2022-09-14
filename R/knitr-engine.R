@@ -70,7 +70,7 @@ eng_python <- function(options) {
   # a list of pending plots / outputs
   .engine_context$pending_plots <- stack()
 
-  eng_python_initialize(options = options, envir = environment())
+  eng_python_initialize(options)
 
   # helper function for extracting range of code, dropping blank lines
   extract <- function(code, range) {
@@ -294,6 +294,7 @@ eng_python <- function(options) {
 }
 
 eng_python_initialize <- function(options, envir) {
+  if (missing(envir)) envir <- environment()
 
   if (is.character(options$engine.path))
     use_python(options$engine.path[[1]])

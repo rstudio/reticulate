@@ -293,8 +293,7 @@ eng_python <- function(options) {
 
 }
 
-eng_python_initialize <- function(options, envir) {
-  if (missing(envir)) envir <- environment()
+eng_python_initialize <- function(options, envir = environment()) {
 
   if (is.character(options$engine.path))
     use_python(options$engine.path[[1]])

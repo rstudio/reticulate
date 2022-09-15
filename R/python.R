@@ -1351,6 +1351,7 @@ py_filter_classes <- function(classes) {
 }
 
 py_inject_r <- function() {
+
   # don't inject 'r' if there's already an 'r' object defined
   main <- import_main(convert = FALSE)
   if (py_has_attr(main, "r"))
@@ -1358,6 +1359,7 @@ py_inject_r <- function() {
 
   builtins <- import_builtins(convert = FALSE)
   if (!py_has_attr(builtins, "__R__")) {
+
     # define our 'R' class
     py_run_string("class R(object): pass")
     R <- main$R

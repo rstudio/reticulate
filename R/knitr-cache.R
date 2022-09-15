@@ -21,33 +21,33 @@
 #' @export
 cache_eng_python <- (function() {
   check_cache_available <- function(options) {
+    MINIMUM_PYTHON_VERSION <- "3.7"
+    MINIMUM_DILL_VERSION <- "0.3.6"
+
     eng_python_initialize(options)
 
     # does the python version is supported by 'dill'?
-    if (py_version() < "3.7") {
-      warning("Python cache requires Python version >= 3.7")
+    if (py_version() < MINIMUM_PYTHON_VERSION) {
+      warning("Python cache requires Python version >= ", MINIMUM_PYTHON_VERSION)
       return(FALSE)
     }
 
-    # is the module 'dill' loadable?
+    # is the module 'dill' loadable and recent enough?
     dill <- tryCatch(import("dill"), error = identity)
-    if (inherits(dill, "error")) {
+    if (!inherits(dill, "error")) {
+      dill_version <- as_numeric_version(dill$`__version__`)
+      if (dill_version >= MINIMUM_DILL_VERSION)
+        return(TRUE)
+    } else {
+      # handle non-import error
       error <- reticulate::py_last_error()
       if (!error$type %in% c("ImportError", "ModuleNotFoundError"))
         stop(error$value, call. = FALSE)
-      warning("The Python module 'dill' was not found, it's required for Python cache")
-      return(FALSE)
     }
 
-    # is the 'dill' version recent enough?
-    dill_version <- as_numeric_version(dill$`__version__`)
-    if (dill_version < "0.3.6") {
-      warning("Python cache requires module dill>=0.3.6")
-      return(FALSE)
-    }
-
-    # Python cache is available
-    TRUE
+    # 'dill' isn't available
+    warning("Python cache requires module dill>=", MINIMUM_DILL_VERSION)
+    FALSE
   }
 
   cache_available <- function(options) {

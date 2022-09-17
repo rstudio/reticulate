@@ -12,9 +12,7 @@ Cache can handle changes to second chunk:
 x = 1
 
 # empty file that flags the chunk was executed
-file = open('py_chunk_executed', 'w')
-file.close()
-del file
+open('py_chunk_executed', 'w').close()
 ```
 
 ```{python, cache = FALSE}

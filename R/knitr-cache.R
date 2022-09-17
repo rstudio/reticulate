@@ -14,10 +14,6 @@
 #' Typically, this will be set within a document's setup chunk, or by the
 #' environment requesting that Python chunks be processed by this engine.
 #'
-#' @param options
-#'   List of chunk options provided by `knitr` during chunk execution.
-#'   Contains the caching path.
-#'
 #' @export
 cache_eng_python <- (function() {
   check_cache_available <- function(options) {

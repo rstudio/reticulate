@@ -1,0 +1,22 @@
+---
+title: "Using reticulate's Python Engine with cache enabled"
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(cache = TRUE)
+```
+
+Cache can handle changes to second chunk:
+
+```{python}
+x = 1
+
+# empty file that flags the chunk was executed
+file = open('py_chunk_executed', 'w')
+file.close()
+del file
+```
+
+```{python, cache = FALSE}
+print(x + 1)
+```

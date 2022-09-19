@@ -9,11 +9,12 @@ test_that("An R Markdown document using reticulate can be rendered with cache fe
   flag_file <- "py_chunk_executed"
   rmd_prefix <- "eng-reticulate-cache"
   rmd_file <- paste(rmd_prefix, "Rmd", sep=".")
+  cache_path <- paste(rmd_prefix, "cache", sep="_")
 
   withr::with_dir("resources", local({
     withr::defer({
       unlink(flag_file)
-      unlink(paste(rmd_prefix, "cache", sep="_"), recursive = TRUE)
+      unlink(cache_path, recursive = TRUE)
     })
 
     # cache file is created
@@ -26,5 +27,13 @@ test_that("An R Markdown document using reticulate can be rendered with cache fe
     output <- rmarkdown::render(rmd_file, quiet = TRUE)
     expect_false(file.exists(flag_file))
     expect_true(file.exists(output))
+
+    # the 'spam' variable should not be cached in the 'cache-vars' block
+    main <- import_main()
+    dill <- import("dill")
+    py_del_attr(main, "spam")
+    session_file <- Sys.glob(paste0(cache_path, "/*/cache-vars_*.pkl"))
+    dill$load_module(session_file)
+    expect_false("spam" %in% names(main))
   }))
 })

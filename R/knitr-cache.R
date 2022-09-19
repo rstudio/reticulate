@@ -16,6 +16,13 @@
 #'
 #' @export
 cache_eng_python <- (function() {
+  closure <- environment()
+  dill <- NULL
+
+  cache_path <- function(path) {
+    paste(path, "pkl", sep=".")
+  }
+
   check_cache_available <- function(options) {
     MINIMUM_PYTHON_VERSION <- "3.7"
     MINIMUM_DILL_VERSION <- "0.3.6"
@@ -29,10 +36,11 @@ cache_eng_python <- (function() {
     }
 
     # is the module 'dill' loadable and recent enough?
-    dill <- tryCatch(import("dill"), error = identity)
+    closure$dill <- tryCatch(import("dill"), error = identity)
     if (!inherits(dill, "error")) {
       dill_version <- as_numeric_version(dill$`__version__`)
       if (dill_version >= MINIMUM_DILL_VERSION)
+        cache_initialize()
         return(TRUE)
     } else {
       # handle non-import error
@@ -47,16 +55,15 @@ cache_eng_python <- (function() {
   }
 
   cache_available <- function(options) {
-    available <- knitr::opts_knit$get("reticulate.cache")
-    if (is.null(available)) {
-      available <- check_cache_available(options)
-      knitr::opts_knit$set(reticulate.cache = available)
-    }
-    available
+    if (is.null(closure$.cache_available))
+      closure$.cache_available <- check_cache_available(options)
+    .cache_available
   }
 
-  cache_path <- function(path) {
-    paste(path, "pkl", sep=".")
+  cache_initialize <- function() {
+    # save imported objects by reference when possible
+    dill.session <- import("dill.session")
+    dill.session[["settings"]][["refimported"]] <- TRUE
   }
 
   cache_exists <- function(options) {
@@ -65,23 +72,31 @@ cache_eng_python <- (function() {
 
   cache_load <- function(options) {
     if (!cache_available(options)) return()
-    dill <- import("dill")
     dill$load_module(filename = cache_path(options$hash), module = "__main__")
   }
 
-  filter <- NULL
   r_obj_filter <- function() {
-    if (is.null(filter)) {
-      filter <<- py_eval("lambda obj: obj.name == 'r' and type(obj.value) is __builtins__.__R__")
+    if (is.null(closure$.r_obj_filter)) {
+      expr <- "lambda obj: obj.name == 'r' and type(obj.value) is __builtins__.__R__"
+      closure$.r_obj_filter <- py_eval(expr)
     }
-    filter
+    .r_obj_filter
   }
 
   cache_save <- function(options) {
     if (!cache_available(options)) return()
-    dill <- import("dill")
+
+    # when only inclusion filters are specified, it works as an allowlist
+    if (!is.null(options$cache.vars)) {
+      exclude <- NULL  # the R object won't be saved unless specified by cache.vars
+      include <- options$cache.vars
+    } else {
+      exclude <- r_obj_filter()
+      include <- NULL
+    }
+
     tryCatch({
-      dill$dump_module(cache_path(options$hash), refimported = TRUE, exclude = r_obj_filter())
+      dill$dump_module(cache_path(options$hash), exclude = exclude, include = include)
     }, error = function(e) {
       cache_purge(options$hash)
       stop(e)

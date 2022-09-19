@@ -38,22 +38,12 @@ eng_python <- function(options) {
     return(wrap(outputs, options))
   }
 
-  engine.path <- if (is.list(options[["engine.path"]]))
-    options[["engine.path"]][["python"]]
-  else
-    options[["engine.path"]]
+  # if the user has requested a custom Python, attempt to honor that request
+  eng_python_initialize(options)
 
-  # if the user has requested a custom Python, attempt
-  # to honor that request (warn if Python already initialized
-  # to a different version)
-  if (is.character(engine.path)) {
-
-    # if Python has not yet been loaded, then try
-    # to load it with the requested version of Python
-    if (!py_available())
-      use_python(engine.path, required = TRUE)
-
-    # double-check that we've loaded the requested Python
+  # double-check that we've loaded the requested Python (warn if Python already
+  # initialized to a different version)
+  if (is.character(engine.path <- get_engine_path(options))) {
     conf <- py_config()
     requestedPython <- normalizePath(engine.path)
     actualPython <- normalizePath(conf$python)
@@ -69,8 +59,6 @@ eng_python <- function(options) {
 
   # a list of pending plots / outputs
   .engine_context$pending_plots <- stack()
-
-  eng_python_initialize(options)
 
   # helper function for extracting range of code, dropping blank lines
   extract <- function(code, range) {
@@ -293,10 +281,21 @@ eng_python <- function(options) {
 
 }
 
+get_engine_path <- function(options) {
+  option <- options[["engine.path"]]
+  engine.path <- if (is.list(option)) option[["python"]] else option
+  if (is.character(engine.path))
+    stopifnot(length(engine.path) == 1L)
+  engine.path
+}
+
 eng_python_initialize <- function(options, envir = environment()) {
 
-  if (is.character(options$engine.path))
-    use_python(options$engine.path[[1]])
+  # if Python has not yet been loaded, then try
+  # to load it with the requested version of Python
+  engine.path <- get_engine_path(options)
+  if (is.character(engine.path) && !py_available())
+    use_python(engine_path, required = TRUE)
 
   ensure_python_initialized()
   eng_python_initialize_hooks(options, envir)

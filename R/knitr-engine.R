@@ -289,7 +289,7 @@ get_engine_path <- function(options) {
   engine.path
 }
 
-eng_python_initialize <- function(options, envir = environment()) {
+eng_python_initialize <- function(options) {
 
   # if Python has not yet been loaded, then try
   # to load it with the requested version of Python
@@ -298,7 +298,7 @@ eng_python_initialize <- function(options, envir = environment()) {
     use_python(engine_path, required = TRUE)
 
   ensure_python_initialized()
-  eng_python_initialize_hooks(options, envir)
+  eng_python_initialize_hooks(options)
 
 }
 
@@ -348,7 +348,7 @@ eng_python_matplotlib_show <- function(plt, options) {
 
 }
 
-eng_python_initialize_hooks <- function(options, envir) {
+eng_python_initialize_hooks <- function(options) {
 
   # set up hooks for matplotlib modules
   matplotlib_modules <- c(
@@ -359,7 +359,7 @@ eng_python_initialize_hooks <- function(options, envir) {
 
   for (module in matplotlib_modules) {
     py_register_load_hook(module, function(...) {
-      eng_python_initialize_matplotlib(options, envir)
+      eng_python_initialize_matplotlib(options)
     })
   }
 
@@ -371,13 +371,13 @@ eng_python_initialize_hooks <- function(options, envir) {
 
   for (module in plotly_modules) {
     py_register_load_hook(module, function(...) {
-      eng_python_initialize_plotly(options, envir)
+      eng_python_initialize_plotly(options)
     })
   }
 
 }
 
-eng_python_initialize_matplotlib <- function(options, envir) {
+eng_python_initialize_matplotlib <- function(options) {
 
   # mark initialization done
   if (identical(.globals$matplotlib_initialized, TRUE))
@@ -440,7 +440,7 @@ eng_python_initialize_matplotlib <- function(options, envir) {
 
 }
 
-eng_python_initialize_plotly <- function(options, envir) {
+eng_python_initialize_plotly <- function(options) {
 
   # mark initialization done
   if (identical(.globals$plotly_initialized, TRUE))

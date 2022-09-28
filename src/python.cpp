@@ -2730,32 +2730,52 @@ SEXP py_run_string_impl(const std::string& code,
 
 }
 
-
 // [[Rcpp::export]]
 SEXP py_run_file_impl(const std::string& file,
                       bool local = false,
-                      bool convert = true)
-{
-  // expand path
-  Function pathExpand("path.expand");
-  std::string expanded = as<std::string>(pathExpand(file));
+                      bool convert = true) {
+  FILE* fp = fopen(file.c_str(), "rb");
+  if (fp == NULL) stop("Unable to open file '%s'", file);
 
-  // read file
-  std::ifstream ifs(expanded.c_str());
-  if (!ifs)
-    stop("Unable to open file '%s' (does it exist?)", file);
-  std::string code((std::istreambuf_iterator<char>(ifs)),
-                   (std::istreambuf_iterator<char>()));
-  if (ifs.fail())
-    stop("Error occurred while reading file '%s'", file);
+  PyObject* main = PyImport_AddModule("__main__");  // borrowed reference
+  PyObject* globals = PyModule_GetDict(main);       // borrowed reference
+  PyObject* locals;
 
-  // execute
-  return py_run_string_impl(code, local, convert);
+  if (local)
+    locals = PyDict_New();  // new reference
+  else {
+    locals = globals;
+    Py_IncRef(locals);
+  }
+
+  PyObjectPtr locals_w_finalizer(locals);  // ensur decref on early return
+
+  if (PyDict_SetItemString(locals, "__file__", as_python_str(file)) < 0)
+    stop(py_fetch_error());
+
+  if (PyDict_SetItemString(locals, "__cached__", Py_None) < 0)
+    stop(py_fetch_error());
+
+  PyObjectPtr res(PyRun_FileEx(fp, file.c_str(), Py_file_input, globals,
+                               locals, 1));  // 1 here closes fp before it returns
+
+  if (res.is_null())
+    stop(py_fetch_error());
+
+  // try delete dunders; mimic PyRun_SimpleFile behavior
+  if (PyDict_DelItemString(locals, "__file__"))   PyErr_Clear();
+  if (PyDict_DelItemString(locals, "__cached__")) PyErr_Clear();
+
+  if (flush_std_buffers() == -1)
+    warning(
+        "Error encountered when flushing python buffers sys.stderr and "
+        "sys.stdout");
+
+  return py_ref(locals_w_finalizer.detach(), convert);
 }
 
 // [[Rcpp::export]]
 SEXP py_eval_impl(const std::string& code, bool convert = true) {
-
   // compile the code
   PyObjectPtr compiledCode;
   if (Py_CompileStringExFlags != NULL)
@@ -2781,7 +2801,6 @@ SEXP py_eval_impl(const std::string& code, bool convert = true) {
     : py_ref(res.detach(), convert);
 
   return result;
-
 }
 
 // [[Rcpp::export]]

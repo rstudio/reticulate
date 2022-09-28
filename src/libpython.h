@@ -283,6 +283,7 @@ LIBPYTHON_EXTERN int (*PyCallable_Check)(PyObject *);
 LIBPYTHON_EXTERN PyObject* (*PyModule_GetDict)(PyObject *);
 LIBPYTHON_EXTERN PyObject* (*PyImport_AddModule)(const char *);
 
+LIBPYTHON_EXTERN PyObject* (*PyRun_FileEx)(FILE*, const char*, int, PyObject*, PyObject*, int);
 LIBPYTHON_EXTERN PyObject* (*PyRun_StringFlags)(const char *, int, PyObject*, PyObject*, void*);
 LIBPYTHON_EXTERN PyObject* (*Py_CompileString)(const char *str, const char *filename, int start);
 LIBPYTHON_EXTERN PyObject* (*PyEval_EvalCode)(PyObject *co, PyObject *globals, PyObject *locals);
@@ -302,6 +303,7 @@ LIBPYTHON_EXTERN int (*PyDict_Contains)(PyObject *mp, PyObject *key);
 LIBPYTHON_EXTERN PyObject* (*PyDict_GetItem)(PyObject *mp, PyObject *key);
 LIBPYTHON_EXTERN int (*PyDict_SetItem)(PyObject *mp, PyObject *key, PyObject *item);
 LIBPYTHON_EXTERN int (*PyDict_SetItemString)(PyObject *dp, const char *key, PyObject *item);
+LIBPYTHON_EXTERN int (*PyDict_DelItemString)(PyObject *dp, const char *key);
 LIBPYTHON_EXTERN int (*PyDict_Next)(
     PyObject *mp, Py_ssize_t *pos, PyObject **key, PyObject **value);
 LIBPYTHON_EXTERN PyObject* (*PyDict_Keys)(PyObject *mp);

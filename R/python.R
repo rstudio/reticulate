@@ -1158,8 +1158,7 @@ py_run_string <- function(code, local = FALSE, convert = TRUE) {
 #' @export
 py_run_file <- function(file, local = FALSE, convert = TRUE) {
   ensure_python_initialized()
-  on.exit(py_flush_output(), add = TRUE)
-  invisible(py_run_file_impl(file, local, convert))
+  invisible(py_run_file_impl(path.expand(file), local, convert))
 }
 
 #' Evaluate a Python Expression

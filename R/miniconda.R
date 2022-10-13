@@ -80,7 +80,8 @@ install_miniconda <- function(path = miniconda_path(),
 #' @export
 miniconda_update <- function(path = miniconda_path()) {
   conda <- miniconda_conda(path)
-  system2(conda, c("update", "--yes", "--name", "base", "conda"))
+  local_conda_paths(conda)
+  system2t(conda, c("update", "--yes", "--name", "base", "conda"))
 }
 
 #' Remove Miniconda

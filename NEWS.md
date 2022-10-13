@@ -2,6 +2,9 @@
 
 - `py_run_file()` now ensures the `__file__` dunder is visible to the
   executing python code. (#1283, #1284)
+  
+- Fixed an issue where `install_miniconda()` and `conda_install()` would error
+  on Windows (#1286, #1287, conda/conda#11795)
 
 # reticulate 1.26
 

@@ -23,12 +23,28 @@ def initialize(callback):
 
   # save the original import implementation
   _import = builtins.__import__
+  
+  def _resolve_module_name(name, globals=None, level=0):
+    
+    if level == 0:
+      return name
+    
+    package = globals.get("__package__")
+    if package is not None:
+      return package
+    
+    spec = globals.get("__spec__")
+    if spec is not None:
+      return spec.parent
 
   # define our import hook
   def _import_hook(name, globals=None, locals=None, fromlist=(), level=0):
     
+    # resolve module name
+    resolved_module_name = _resolve_module_name(name, globals, level)
+      
     # check whether the module has already been imported
-    already_imported = name in sys.modules
+    already_imported = resolved_module_name in sys.modules
     
     # bump the recursion level
     global _recursion_depth
@@ -52,7 +68,7 @@ def initialize(callback):
     # it onto the imported package list
     global _imported_packages
     if not already_imported:
-      _imported_packages.append(name)
+      _imported_packages.append(resolved_module_name)
     
     # check whether we can run our import hooks  
     #

@@ -134,3 +134,13 @@ skip_if_no_conda <- function() {
     skip("conda not available for testing")
 
 }
+
+skip_if_no_matplotlib <- function() {
+
+  skip_on_cran()
+  skip_if_no_python()
+
+  if (!py_module_available("matplotlib"))
+    skip("matplotlib not available for testing")
+
+}

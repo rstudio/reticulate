@@ -9,6 +9,7 @@ knitr::opts_chunk$set(cache = TRUE)
 Cache can handle changes to second chunk:
 
 ```{python}
+# define a variable
 x = 1
 
 # empty file that flags the chunk was executed
@@ -19,18 +20,19 @@ open('py_chunk_executed', 'w').close()
 print(x + 1)
 ```
 
-The `cache.vars` chunk option may be used to select only a subset of variables
-from the global environment to be cached.
+The special "`r` object" is _deleted_ before saving the session, but a custom
+user-defined `r` variable should be kept.
 
-```{python cache-vars, cache.vars = 'x'}
-x = 42
-spam = "Lovely SPAM! Wonderful SPAM!"
+```{python custom-r-obj}
+# overwrites the special 'r' object
+r = 'awesome'
 ```
 
-In a second excution of the document, `spam` should not be present, because it wasn't saved.
+In a second excution of the document, the `r` variable should be loaded from cache.
 
 ```{python, cache = FALSE}
 def print_globals():
+    # avoid 'dictionary changed size during iteration' error
     for name, value in globals().items():
         if not name.startswith('__'):
             print(name, ": ", value, sep="")

@@ -45,7 +45,6 @@ cache_eng_python <- (function() {
     if (!inherits(dill, "error")) {
       dill_version <- as_numeric_version(dill$`__version__`)
       if (dill_version >= MINIMUM_DILL_VERSION)
-        cache_initialize()
         return(TRUE)
     } else {
       # handle non-import error
@@ -65,12 +64,6 @@ cache_eng_python <- (function() {
     .cache_available
   }
 
-  cache_initialize <- function() {
-    # save imported objects by reference when possible
-    dill.session <- import("dill.session")
-    dill.session[["settings"]][["refimported"]] <- TRUE
-  }
-
   cache_exists <- function(options) {
     file.exists(cache_path(options$hash))
   }
@@ -80,28 +73,20 @@ cache_eng_python <- (function() {
     dill$load_module(filename = cache_path(options$hash), module = "__main__")
   }
 
-  r_obj_filter <- function() {
-    if (is.null(closure$.r_obj_filter)) {
-      expr <- "lambda obj: obj.name == 'r' and type(obj.value) is __builtins__.__R__"
-      closure$.r_obj_filter <- py_eval(expr)
-    }
-    .r_obj_filter
-  }
-
   cache_save <- function(options) {
     if (!cache_available(options)) return()
 
-    # when only inclusion filters are specified, it works as an allowlist
-    if (!is.null(options$cache.vars)) {
-      exclude <- NULL  # the R object won't be saved unless specified by cache.vars
-      include <- options$cache.vars
-    } else {
-      exclude <- r_obj_filter()
-      include <- NULL
+    # remove injected 'r' object before saving session (and after executing block)
+    main <- import_main(convert = FALSE)
+    if (py_has_attr(main, "r")) {
+      builtins <- import_builtins(convert = TRUE)
+      if (builtins$isinstance(main$r, builtins[["__R__"]]))
+        py_del_attr(main, "r")
     }
 
     tryCatch({
-      dill$dump_module(cache_path(options$hash), exclude = exclude, include = include)
+      # refimported: save imported objects by reference when possible
+      dill$dump_module(cache_path(options$hash), refimported = TRUE)
     }, error = function(e) {
       cache_purge(options$hash)
       stop(e)

@@ -23,17 +23,18 @@ test_that("An R Markdown document using reticulate can be rendered with cache fe
     expect_true(file.exists(output))
     unlink(c(output, flag_file))
 
-    # cached results should be used
+    # re-run using cache
+    main <- import_main()
+    py_del_attr(main, "r")
     output <- rmarkdown::render(rmd_file, quiet = TRUE)
-    expect_false(file.exists(flag_file))
+
+    # output file is generated with cache
     expect_true(file.exists(output))
 
-    # the 'spam' variable should not be cached in the 'cache-vars' block
-    main <- import_main()
-    dill <- import("dill")
-    py_del_attr(main, "spam")
-    session_file <- Sys.glob(paste0(cache_path, "/*/cache-vars_*.pkl"))
-    dill$load_module(session_file)
-    expect_false("spam" %in% names(main))
+    # the cached results must be used, cached blocks should not run
+    expect_false(file.exists(flag_file))
+
+    # a user-defined 'r' variable should be included with the saved variables
+    expect_true(is.character(main$r))
   }))
 })

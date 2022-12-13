@@ -1,18 +1,23 @@
 #' A reticulate cache engine for Knitr
 #'
-#' This provides a `reticulate` cache engine for `knitr`. The cache engine
-#' allows `knitr` to save and load Python sessions between cached chunks. The
-#' cache engine depends on the `dill` Python module. Therefore, you must have
-#' `dill` installed in your Python environment.
+#' This provides caching of Python variables to the `reticulate` engine for
+#' `knitr`. The cache allows `knitr` to save and load the state of Python
+#' variables between cached chunks.  The cache engine depends on the `dill`
+#' Python module. Therefore, you must have a recent version of `dill` installed
+#' in your Python environment.
 #'
-#' The engine can be activated by setting (for example)
+#' The Python cache is activated the same way as the R cache, by setting the
+#' `cache` chunk option to `TRUE`.  To _deactivate_ the Python cache globally
+#' while keeping the R cache active, one may set the option `reticulate.cache`
+#' to `FALSE`.  For example:
 #'
 #' ```
-#' knitr::cache_engines$set(python = reticulate::cache_eng_python)
+#' knitr::opts_knit$set(reticulate.cache = FALSE)
 #' ```
 #'
-#' Typically, this will be set within a document's setup chunk, or by the
-#' environment requesting that Python chunks be processed by this engine.
+#' @note Different from `knitr`'s R cache, the Python cache is capable of saving
+#' most, but not all types of Python objects.  Some Python objects are
+#' "unpickleable" and will rise an error when attepmted to be saved.
 #'
 #' @export
 cache_eng_python <- (function() {

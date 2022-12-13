@@ -28,7 +28,7 @@ user-defined `r` variable should be kept.
 r = 'awesome'
 ```
 
-In a second excution of the document, the `r` variable should be loaded from cache.
+In a second execution of the document, the `r` variable should be loaded from cache.
 
 ```{python, cache = FALSE}
 def print_globals():

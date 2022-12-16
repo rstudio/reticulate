@@ -57,7 +57,7 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: rcmdcheck remotes
+          extra-packages: rcmdcheck remotes yihui/knitr#2170
 
       - name: setup r-reticulate venv
         shell: Rscript {0}

@@ -295,7 +295,7 @@ eng_python_initialize <- function(options) {
   # to load it with the requested version of Python
   engine.path <- get_engine_path(options)
   if (is.character(engine.path) && !py_available())
-    use_python(engine_path, required = TRUE)
+    use_python(engine.path, required = TRUE)
 
   ensure_python_initialized()
   eng_python_initialize_hooks(options)

@@ -238,11 +238,10 @@ miniconda_installer_run <- function(installer, update, path) {
     status <- system2(installer, args)
   if (is_unix()) {
     ##check for bash
-    bash_available <- system2("bash", "--version")
-    if (bash_available != 0)
-      stopf("bash is not available.")
-    args <- c(installer, args)
-    status <- system2("bash", args)
+    bash_path <- Sys.which("bash")
+    if (bash_path[1] == "")
+      stopf("The miniconda installer requires bash.")
+    status <- system2("bash", c(installer, args))
   }
   if (status != 0)
     stopf("miniconda installation failed [exit code %i]", status)

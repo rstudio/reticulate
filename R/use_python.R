@@ -58,6 +58,9 @@
 #'   The path to a `conda` executable. By default, `reticulate` will check the
 #'   `PATH`, as well as other standard locations for Anaconda installations.
 #'
+#' @param miniconda_path
+#'   The path to miniconda. By default, it is [miniconda_path()].
+#' 
 #' @param required
 #'   Is the requested copy of Python required? If `TRUE`, an error will be
 #'   emitted if the requested copy of Python does not exist. Otherwise, the
@@ -230,12 +233,12 @@ use_condaenv <- function(condaenv = NULL, conda = "auto", required = NULL) {
 
 #' @rdname use_python
 #' @export
-use_miniconda <- function(condaenv = NULL, required = NULL) {
+use_miniconda <- function(condaenv = NULL, required = NULL, miniconda_path = miniconda_path()) {
 
   required <- required %||% use_python_required()
 
   # check that Miniconda is installed
-  if (!miniconda_exists()) {
+  if (!miniconda_exists(path = miniconda_path)) {
 
     msg <- paste(
       "Miniconda is not installed.",
@@ -249,7 +252,7 @@ use_miniconda <- function(condaenv = NULL, required = NULL) {
   # use it
   use_condaenv(
     condaenv = condaenv,
-    conda = miniconda_conda(),
+    conda = miniconda_conda(path = miniconda_path),
     required = required
   )
 

@@ -16,7 +16,11 @@ use_virtualenv(virtualenv = NULL, required = NULL)
 
 use_condaenv(condaenv = NULL, conda = "auto", required = NULL)
 
-use_miniconda(condaenv = NULL, required = NULL)
+use_miniconda(
+  condaenv = NULL,
+  required = NULL,
+  miniconda_path = miniconda_path()
+)
 }
 \arguments{
 \item{python}{The path to a Python binary.}
@@ -37,6 +41,8 @@ first environment is used and a warning is issued.}
 
 \item{conda}{The path to a \code{conda} executable. By default, \code{reticulate} will check the
 \code{PATH}, as well as other standard locations for Anaconda installations.}
+
+\item{miniconda_path}{The path to miniconda. By default, it is \code{\link[=miniconda_path]{miniconda_path()}}.}
 }
 \description{
 Select the version of Python to be used by \code{reticulate}.

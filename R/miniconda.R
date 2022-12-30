@@ -234,8 +234,15 @@ miniconda_installer_run <- function(installer, update, path) {
     on.exit(Sys.setenv(DYLD_FALLBACK_LIBRARY_PATH = old), add = TRUE)
 
   }
-
-  status <- system2(installer, args)
+  if (is_windows())
+    status <- system2(installer, args)
+  if (is_unix()) {
+    ##check for bash
+    bash_path <- Sys.which("bash")
+    if (bash_path[1] == "")
+      stopf("The miniconda installer requires bash.")
+    status <- system2(bash_path[1], c(installer, args))
+  }
   if (status != 0)
     stopf("miniconda installation failed [exit code %i]", status)
 

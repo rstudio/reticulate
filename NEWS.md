@@ -1,5 +1,8 @@
 # reticulate (development version)
 
+- Fixed an issue of the dependency on `bash` for the miniconda
+  installer on Linux and OSX (#1306, conda/conda#10431)
+
 - `py_run_file()` now ensures the `__file__` dunder is visible to the
   executing python code. (#1283, #1284)
   

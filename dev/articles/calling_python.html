@@ -116,7 +116,10 @@
 <div class="section level2">
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
-<p>The <strong>reticulate</strong> package provides an R interface to Python modules, classes, and functions. For example, this code imports the Python <code>os</code> module and calls some functions within it:</p>
+<p>The <strong>reticulate</strong> package provides an R interface to
+Python modules, classes, and functions. For example, this code imports
+the Python <code>os</code> module and calls some functions within
+it:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span></span>
 <span><span class="va">os</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/import.html">import</a></span><span class="op">(</span><span class="st">"os"</span><span class="op">)</span></span>
@@ -128,32 +131,54 @@
 [17] "man"              "NAMESPACE"        "NEWS.md"          "pkgdown"         
 [21] "R"                "README.md"        "reticulate.Rproj" "src"             
 [25] "tests"            "vignettes"      </code></pre>
-<p>Functions and other data within Python modules and classes can be accessed via the <code>$</code> operator (analogous to the way you would interact with an R list, environment, or reference class).</p>
-<p>The <strong>reticulate</strong> package is compatible with all versions of Python &gt;= 2.7. Integration with NumPy is optional and requires NumPy &gt;= 1.6.</p>
+<p>Functions and other data within Python modules and classes can be
+accessed via the <code>$</code> operator (analogous to the way you would
+interact with an R list, environment, or reference class).</p>
+<p>The <strong>reticulate</strong> package is compatible with all
+versions of Python &gt;= 2.7. Integration with NumPy is optional and
+requires NumPy &gt;= 1.6.</p>
 </div>
 <div class="section level2">
 <h2 id="python-version">Python Version<a class="anchor" aria-label="anchor" href="#python-version"></a>
 </h2>
-<p>By default, reticulate uses the version of Python found on your <code>PATH</code> (i.e. <code>Sys.which("python")</code>). The <code><a href="../reference/use_python.html">use_python()</a></code> function enables you to specify an alternate version, for example:</p>
+<p>By default, reticulate uses the version of Python found on your
+<code>PATH</code> (i.e. <code>Sys.which("python")</code>). The
+<code><a href="../reference/use_python.html">use_python()</a></code> function enables you to specify an alternate
+version, for example:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/use_python.html">use_python</a></span><span class="op">(</span><span class="st">"/usr/local/bin/python"</span><span class="op">)</span></span></code></pre></div>
-<p>The <code><a href="../reference/use_python.html">use_virtualenv()</a></code> and <code><a href="../reference/use_python.html">use_condaenv()</a></code> functions enable you to specify versions of Python in virtual or conda environments, for example:</p>
+<p>The <code><a href="../reference/use_python.html">use_virtualenv()</a></code> and <code><a href="../reference/use_python.html">use_condaenv()</a></code>
+functions enable you to specify versions of Python in virtual or conda
+environments, for example:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/use_python.html">use_virtualenv</a></span><span class="op">(</span><span class="st">"myenv"</span><span class="op">)</span></span></code></pre></div>
-<p>See the article on <a href="versions.html">Python Version Configuration</a> for additional details.</p>
+<p>See the article on <a href="versions.html">Python Version
+Configuration</a> for additional details.</p>
 </div>
 <div class="section level2">
 <h2 id="python-packages">Python Packages<a class="anchor" aria-label="anchor" href="#python-packages"></a>
 </h2>
-<p>You can install any required Python packages using standard shell tools like <code>pip</code> and <code>conda</code>. Alternately, reticulate includes a set of functions for managing and installing packages within virtualenvs and Conda environments. See the article on <a href="https://rstudio.github.io/reticulate/articles/python_packages.html">Installing Python Packages</a> for additional details.</p>
+<p>You can install any required Python packages using standard shell
+tools like <code>pip</code> and <code>conda</code>. Alternately,
+reticulate includes a set of functions for managing and installing
+packages within virtualenvs and Conda environments. See the article on
+<a href="https://rstudio.github.io/reticulate/articles/python_packages.html">Installing
+Python Packages</a> for additional details.</p>
 </div>
 <div class="section level2">
 <h2 id="type-conversions">Type Conversions<a class="anchor" aria-label="anchor" href="#type-conversions"></a>
 </h2>
-<p>When calling into Python, R data types are automatically converted to their equivalent Python types. When values are returned from Python to R they are converted back to R types. Types are converted as follows:</p>
+<p>When calling into Python, R data types are automatically converted to
+their equivalent Python types. When values are returned from Python to R
+they are converted back to R types. Types are converted as follows:</p>
 <table class="table">
+<colgroup>
+<col width="33%">
+<col width="33%">
+<col width="33%">
+</colgroup>
 <thead><tr class="header">
 <th>R</th>
 <th>Python</th>
@@ -164,7 +189,8 @@
 <td>Single-element vector</td>
 <td>Scalar</td>
 <td>
-<code>1</code>, <code>1L</code>, <code>TRUE</code>, <code>"foo"</code>
+<code>1</code>, <code>1L</code>, <code>TRUE</code>,
+<code>"foo"</code>
 </td>
 </tr>
 <tr class="even">
@@ -183,7 +209,8 @@
 <td>Named list</td>
 <td>Dict</td>
 <td>
-<code>list(a = 1L, b = 2.0)</code>, <code>dict(x = x_data)</code>
+<code>list(a = 1L, b = 2.0)</code>,
+<code>dict(x = x_data)</code>
 </td>
 </tr>
 <tr class="odd">
@@ -215,33 +242,45 @@
 </tr>
 </tbody>
 </table>
-<p>If a Python object of a custom class is returned then an R reference to that object is returned. You can call methods and access properties of the object just as if it was an instance of an R reference class.</p>
+<p>If a Python object of a custom class is returned then an R reference
+to that object is returned. You can call methods and access properties
+of the object just as if it was an instance of an R reference class.</p>
 </div>
 <div class="section level2">
 <h2 id="importing-modules">Importing Modules<a class="anchor" aria-label="anchor" href="#importing-modules"></a>
 </h2>
-<p>The <code><a href="../reference/import.html">import()</a></code> function can be used to import any Python module. For example:</p>
+<p>The <code><a href="../reference/import.html">import()</a></code> function can be used to import any Python
+module. For example:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">difflib</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/import.html">import</a></span><span class="op">(</span><span class="st">"difflib"</span><span class="op">)</span></span>
 <span><span class="va">difflib</span><span class="op">$</span><span class="fu">ndiff</span><span class="op">(</span><span class="va">foo</span>, <span class="va">bar</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">filecmp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/import.html">import</a></span><span class="op">(</span><span class="st">"filecmp"</span><span class="op">)</span></span>
 <span><span class="va">filecmp</span><span class="op">$</span><span class="fu">cmp</span><span class="op">(</span><span class="va">dir1</span>, <span class="va">dir2</span><span class="op">)</span></span></code></pre></div>
-<p>The <code><a href="../reference/import.html">import_main()</a></code> and <code><a href="../reference/import.html">import_builtins()</a></code> functions give you access to the main module where code is executed by default and the collection of built in Python functions. For example:</p>
+<p>The <code><a href="../reference/import.html">import_main()</a></code> and <code><a href="../reference/import.html">import_builtins()</a></code>
+functions give you access to the main module where code is executed by
+default and the collection of built in Python functions. For
+example:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">main</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/import.html">import_main</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">builtins</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/import.html">import_builtins</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">builtins</span><span class="op">$</span><span class="fu">print</span><span class="op">(</span><span class="st">'foo'</span><span class="op">)</span></span></code></pre></div>
-<p>The main module is generally useful if you have executed Python code from a file or string and want to get access to its results (see the section below for more details).</p>
+<p>The main module is generally useful if you have executed Python code
+from a file or string and want to get access to its results (see the
+section below for more details).</p>
 </div>
 <div class="section level2">
 <h2 id="sourcing-scripts">Sourcing Scripts<a class="anchor" aria-label="anchor" href="#sourcing-scripts"></a>
 </h2>
-<p>The <code><a href="../reference/source_python.html">source_python()</a></code> function will source a Python script and make the objects it creates available within an R environment (by default the calling environment). For example, consider the following Python script:</p>
+<p>The <code><a href="../reference/source_python.html">source_python()</a></code> function will source a Python script
+and make the objects it creates available within an R environment (by
+default the calling environment). For example, consider the following
+Python script:</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> add(x, y):</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> x <span class="op">+</span> y</span></code></pre></div>
-<p>We source it using the <code><a href="../reference/source_python.html">source_python()</a></code> function and then can call the <code>add()</code> function directly from R:</p>
+<p>We source it using the <code><a href="../reference/source_python.html">source_python()</a></code> function and then
+can call the <code>add()</code> function directly from R:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/source_python.html">source_python</a></span><span class="op">(</span><span class="st">'add.py'</span><span class="op">)</span></span>
 <span><span class="fu">add</span><span class="op">(</span><span class="fl">5</span>, <span class="fl">10</span><span class="op">)</span></span></code></pre></div>
@@ -250,7 +289,10 @@
 <div class="section level2">
 <h2 id="executing-code">Executing Code<a class="anchor" aria-label="anchor" href="#executing-code"></a>
 </h2>
-<p>You can execute Python code within the main module using the <code>py_run_file</code> and <code>py_run_string</code> functions. You can then access any objects created using the <code>py</code> object exported by reticulate:</p>
+<p>You can execute Python code within the main module using the
+<code>py_run_file</code> and <code>py_run_string</code> functions. You
+can then access any objects created using the <code>py</code> object
+exported by reticulate:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span></span>
 <span></span>
@@ -264,7 +306,12 @@
 <div class="section level2">
 <h2 id="object-conversion">Object Conversion<a class="anchor" aria-label="anchor" href="#object-conversion"></a>
 </h2>
-<p>By default when Python objects are returned to R they are converted to their equivalent R types. However, if you’d rather make conversion from Python to R explicit and deal in native Python objects by default you can pass <code>convert = FALSE</code> to the <code>import</code> function. In this case Python to R conversion will be disabled for the module returned from <code>import</code>. For example:</p>
+<p>By default when Python objects are returned to R they are converted
+to their equivalent R types. However, if you’d rather make conversion
+from Python to R explicit and deal in native Python objects by default
+you can pass <code>convert = FALSE</code> to the <code>import</code>
+function. In this case Python to R conversion will be disabled for the
+module returned from <code>import</code>. For example:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># import numpy and specify no automatic Python to R conversion</span></span>
 <span><span class="va">np</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/import.html">import</a></span><span class="op">(</span><span class="st">"numpy"</span>, convert <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
@@ -275,12 +322,15 @@
 <span></span>
 <span><span class="co"># convert to R explicitly at the end</span></span>
 <span><span class="fu"><a href="../reference/r-py-conversion.html">py_to_r</a></span><span class="op">(</span><span class="va">sum</span><span class="op">)</span></span></code></pre></div>
-<p>As illustrated above, if you need access to an R object at end of your computations you can call the <code><a href="../reference/r-py-conversion.html">py_to_r()</a></code> function explicitly.</p>
+<p>As illustrated above, if you need access to an R object at end of
+your computations you can call the <code><a href="../reference/r-py-conversion.html">py_to_r()</a></code> function
+explicitly.</p>
 </div>
 <div class="section level2">
 <h2 id="getting-help">Getting Help<a class="anchor" aria-label="anchor" href="#getting-help"></a>
 </h2>
-<p>You can print documentation on any Python object using the <code><a href="../reference/py_help.html">py_help()</a></code> function. For example:</p>
+<p>You can print documentation on any Python object using the
+<code><a href="../reference/py_help.html">py_help()</a></code> function. For example:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">os</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/import.html">import</a></span><span class="op">(</span><span class="st">"os"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/py_help.html">py_help</a></span><span class="op">(</span><span class="va">os</span><span class="op">$</span><span class="va">chdir</span><span class="op">)</span></span></code></pre></div>
@@ -288,49 +338,82 @@
 <div class="section level2">
 <h2 id="lists-tuples-and-dictionaries">Lists, Tuples, and Dictionaries<a class="anchor" aria-label="anchor" href="#lists-tuples-and-dictionaries"></a>
 </h2>
-<p>The automatic conversion of R types to Python types works well in most cases, but occasionally you will need to be more explicit on the R side to provide Python the type it expects.</p>
-<p>For example, if a Python API requires a list and you pass a single element R vector it will be converted to a Python scalar. To overcome this simply use the R <code>list</code> function explicitly:</p>
+<p>The automatic conversion of R types to Python types works well in
+most cases, but occasionally you will need to be more explicit on the R
+side to provide Python the type it expects.</p>
+<p>For example, if a Python API requires a list and you pass a single
+element R vector it will be converted to a Python scalar. To overcome
+this simply use the R <code>list</code> function explicitly:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">foo</span><span class="op">$</span><span class="fu">bar</span><span class="op">(</span>indexes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fl">42L</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>Similarly, a Python API might require a <code>tuple</code> rather than a list. In that case you can use the <code><a href="../reference/tuple.html">tuple()</a></code> function:</p>
+<p>Similarly, a Python API might require a <code>tuple</code> rather
+than a list. In that case you can use the <code><a href="../reference/tuple.html">tuple()</a></code>
+function:</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/tuple.html">tuple</a></span><span class="op">(</span><span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span><span class="op">)</span></span></code></pre></div>
-<p>R named lists are converted to Python dictionaries however you can also explicitly create a Python dictionary using the <code><a href="../reference/dict.html">dict()</a></code> function:</p>
+<p>R named lists are converted to Python dictionaries however you can
+also explicitly create a Python dictionary using the <code><a href="../reference/dict.html">dict()</a></code>
+function:</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/dict.html">dict</a></span><span class="op">(</span>foo <span class="op">=</span> <span class="st">"bar"</span>, index <span class="op">=</span> <span class="fl">42L</span><span class="op">)</span></span></code></pre></div>
-<p>This might be useful if you need to pass a dictionary that uses a more complex object (as opposed to a string) as its key.</p>
+<p>This might be useful if you need to pass a dictionary that uses a
+more complex object (as opposed to a string) as its key.</p>
 </div>
 <div class="section level2">
 <h2 id="numeric-types-and-indexes">Numeric Types and Indexes<a class="anchor" aria-label="anchor" href="#numeric-types-and-indexes"></a>
 </h2>
-<p>R and Python have different default numeric types. If you write <code>42</code> in R it is considered a floating point number whereas <code>42</code> in Python is considered an integer.</p>
-<p>This means that when a Python API expects an integer, you need to be sure to use the <code>L</code> suffix within R. For example, if the <code>foo</code> function requires an integer as its <code>index</code> argument you would do this:</p>
+<p>R and Python have different default numeric types. If you write
+<code>42</code> in R it is considered a floating point number whereas
+<code>42</code> in Python is considered an integer.</p>
+<p>This means that when a Python API expects an integer, you need to be
+sure to use the <code>L</code> suffix within R. For example, if the
+<code>foo</code> function requires an integer as its <code>index</code>
+argument you would do this:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">foo</span><span class="op">$</span><span class="fu">bar</span><span class="op">(</span>index <span class="op">=</span> <span class="fl">42L</span><span class="op">)</span></span></code></pre></div>
-<p>Python collections are addressed using 0-based indices rather than the 1-based indices you might be familiar with from R. So to address the first item of an array in R you would write:</p>
+<p>Python collections are addressed using 0-based indices rather than
+the 1-based indices you might be familiar with from R. So to address the
+first item of an array in R you would write:</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">items</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span></code></pre></div>
-<p>Whereas if you are calling a method in Python via reticulate that takes an index you would write this to address the first item:</p>
+<p>Whereas if you are calling a method in Python via reticulate that
+takes an index you would write this to address the first item:</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">items</span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="fl">0L</span><span class="op">)</span></span></code></pre></div>
-<p>Note the use of the 0-based index as well as the <code>L</code> to indicate t that the value is an integer.</p>
+<p>Note the use of the 0-based index as well as the <code>L</code> to
+indicate t that the value is an integer.</p>
 </div>
 <div class="section level2">
 <h2 id="arrays">Arrays<a class="anchor" aria-label="anchor" href="#arrays"></a>
 </h2>
 <p>R matrices and arrays are converted automatically to and from <a href="https://numpy.org/" class="external-link">NumPy</a> arrays.</p>
-<p>When converting from R to NumPy, the NumPy array is mapped directly to the underlying memory of the R array (no copy is made). In this case, the NumPy array uses a column-based in memory layout that is compatible with R (i.e. Fortran style rather than C style). When converting from NumPy to R, R receives a column-ordered copy of the NumPy array.</p>
-<p>You can also manually convert R arrays to NumPy using the <code><a href="../reference/np_array.html">np_array()</a></code> function. For example, you might do this if you needed to create a NumPy array with C rather than Fortran style in-memory layout (for higher performance in row-oriented computations) or if you wanted to control the data type of the NumPy array more explicitly. Here are some example uses of <code><a href="../reference/np_array.html">np_array()</a></code>:</p>
+<p>When converting from R to NumPy, the NumPy array is mapped directly
+to the underlying memory of the R array (no copy is made). In this case,
+the NumPy array uses a column-based in memory layout that is compatible
+with R (i.e. Fortran style rather than C style). When converting from
+NumPy to R, R receives a column-ordered copy of the NumPy array.</p>
+<p>You can also manually convert R arrays to NumPy using the
+<code><a href="../reference/np_array.html">np_array()</a></code> function. For example, you might do this if you
+needed to create a NumPy array with C rather than Fortran style
+in-memory layout (for higher performance in row-oriented computations)
+or if you wanted to control the data type of the NumPy array more
+explicitly. Here are some example uses of <code><a href="../reference/np_array.html">np_array()</a></code>:</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">a</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/np_array.html">np_array</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">8</span><span class="op">)</span>, dtype <span class="op">=</span> <span class="st">"float16"</span><span class="op">)</span></span>
 <span><span class="va">a</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/np_array.html">np_array</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">8</span><span class="op">)</span>, order <span class="op">=</span> <span class="st">"C"</span><span class="op">)</span></span></code></pre></div>
-<p>Reasoning about arrays which use distinct in-memory orders can be tricky. The <a href="arrays.html">Arrays in R and Python</a> article provides additional details.</p>
-<p>Also, always remember that when calling NumPy methods array indices are 0 rather than 1 based and require the <code>L</code> suffix to indicate they are integers.</p>
+<p>Reasoning about arrays which use distinct in-memory orders can be
+tricky. The <a href="arrays.html">Arrays in R and Python</a> article
+provides additional details.</p>
+<p>Also, always remember that when calling NumPy methods array indices
+are 0 rather than 1 based and require the <code>L</code> suffix to
+indicate they are integers.</p>
 </div>
 <div class="section level2">
 <h2 id="data-frames">Data Frames<a class="anchor" aria-label="anchor" href="#data-frames"></a>
 </h2>
-<p>R data frames can be automatically converted to and from <a href="https://pandas.pydata.org/" class="external-link">Pandas</a> DataFrames. By default, columns are converted using the same rules governing R array &lt;-&gt; NumPy array conversion, but a couple extensions are provided:</p>
+<p>R data frames can be automatically converted to and from <a href="https://pandas.pydata.org/" class="external-link">Pandas</a> DataFrames. By default,
+columns are converted using the same rules governing R array &lt;-&gt;
+NumPy array conversion, but a couple extensions are provided:</p>
 <table class="table">
 <thead><tr class="header">
 <th>R</th>
@@ -348,13 +431,23 @@
 </tr>
 </tbody>
 </table>
-<p>If the R data frame has row names, the generated Pandas DataFrame will be re-indexed using those row names (and vice versa). Special handling is also available for a <code>DatetimeIndex</code> associated with a Pandas DataFrame; however, because R only supports character vectors for row names they are converted to character first.</p>
+<p>If the R data frame has row names, the generated Pandas DataFrame
+will be re-indexed using those row names (and vice versa). Special
+handling is also available for a <code>DatetimeIndex</code> associated
+with a Pandas DataFrame; however, because R only supports character
+vectors for row names they are converted to character first.</p>
 </div>
 <div class="section level2">
 <h2 id="sparse-matrices">Sparse Matrices<a class="anchor" aria-label="anchor" href="#sparse-matrices"></a>
 </h2>
-<p>Sparse matrices created by <a href="https://CRAN.R-project.org/package=Matrix" class="external-link">Matrix R package</a> can be converted <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.csc_matrix.html" class="external-link">Scipy CSC matrix</a>, and vice versa. This is often useful when you want to pass sparse matrices to Python functions that accepts Scipy CSC matrix to take advantage of this format, such as efficient column slicing and fast matrix vector products.</p>
-<p>For example, we first create a sparse matrix using <code><a href="https://rdrr.io/pkg/Matrix/man/sparseMatrix.html" class="external-link">Matrix::sparseMatrix()</a></code>:</p>
+<p>Sparse matrices created by <a href="https://CRAN.R-project.org/package=Matrix" class="external-link">Matrix R package</a>
+can be converted <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.csc_matrix.html" class="external-link">Scipy
+CSC matrix</a>, and vice versa. This is often useful when you want to
+pass sparse matrices to Python functions that accepts Scipy CSC matrix
+to take advantage of this format, such as efficient column slicing and
+fast matrix vector products.</p>
+<p>For example, we first create a sparse matrix using
+<code><a href="https://rdrr.io/pkg/Matrix/man/sparseMatrix.html" class="external-link">Matrix::sparseMatrix()</a></code>:</p>
 <pre><code><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://Matrix.R-forge.R-project.org/" class="external-link">Matrix</a></span><span class="op">)</span></span>
 <span><span class="va">N</span> <span class="op">&lt;-</span> <span class="fl">5</span></span>
 <span><span class="va">dgc_matrix</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Matrix/man/sparseMatrix.html" class="external-link">sparseMatrix</a></span><span class="op">(</span></span>
@@ -371,7 +464,8 @@
 [3,] .         .          .          0.9215908 .        
 [4,] .         .          0.01777771 .         .        
 [5,] .         0.05885743 .          .         . </code></pre>
-<p>Let’s convert it to Scipy CSC matrix using <code><a href="../reference/r-py-conversion.html">r_to_py()</a></code>:</p>
+<p>Let’s convert it to Scipy CSC matrix using
+<code><a href="../reference/r-py-conversion.html">r_to_py()</a></code>:</p>
 <pre><code>&gt; csc_matrix &lt;- r_to_py(x)
 &gt; csc_matrix
   (0, 0)    0.226495201467
@@ -379,8 +473,13 @@
   (3, 2)    0.0177777127828
   (2, 3)    0.921590822982
   (1, 4)    0.392728160601</code></pre>
-<p>Note that the right-hand side contains the non-zero entries of the matrix while the left-hand side represents their locations in the matrix.</p>
-<p>We can also use <code><a href="../reference/r-py-conversion.html">py_to_r()</a></code> to convert the CSC matrix back to <code>Matrix::dgCMatrix</code> representation that can then be manipulated easily in R which is the same as the original sparse matrix that we created earlier using <code><a href="https://rdrr.io/pkg/Matrix/man/sparseMatrix.html" class="external-link">Matrix::sparseMatrix()</a></code>:</p>
+<p>Note that the right-hand side contains the non-zero entries of the
+matrix while the left-hand side represents their locations in the
+matrix.</p>
+<p>We can also use <code><a href="../reference/r-py-conversion.html">py_to_r()</a></code> to convert the CSC matrix back
+to <code>Matrix::dgCMatrix</code> representation that can then be
+manipulated easily in R which is the same as the original sparse matrix
+that we created earlier using <code><a href="https://rdrr.io/pkg/Matrix/man/sparseMatrix.html" class="external-link">Matrix::sparseMatrix()</a></code>:</p>
 <pre><code>&gt; py_to_r(csc_matrix)
 5 x 5 sparse Matrix of class "dgCMatrix"
                                                         
@@ -393,51 +492,74 @@
 <div class="section level2">
 <h2 id="with-contexts">With Contexts<a class="anchor" aria-label="anchor" href="#with-contexts"></a>
 </h2>
-<p>The R <code>with</code> generic function can be used to interact with Python context manager objects (in Python you use the <code>with</code> keyword to do the same). For example:</p>
+<p>The R <code>with</code> generic function can be used to interact with
+Python context manager objects (in Python you use the <code>with</code>
+keyword to do the same). For example:</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">py</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/import.html">import_builtins</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="va">py</span><span class="op">$</span><span class="fu">open</span><span class="op">(</span><span class="st">"output.txt"</span>, <span class="st">"w"</span><span class="op">)</span> <span class="op"><a href="../reference/with-as-operator.html">%as%</a></span> <span class="va">file</span>, <span class="op">{</span></span>
 <span>  <span class="va">file</span><span class="op">$</span><span class="fu">write</span><span class="op">(</span><span class="st">"Hello, there!"</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span></code></pre></div>
-<p>This example opens a file and ensures that it is automatically closed at the end of the with block. Note the use of the <code>%as%</code> operator to alias the object created by the context manager.</p>
+<p>This example opens a file and ensures that it is automatically closed
+at the end of the with block. Note the use of the <code>%as%</code>
+operator to alias the object created by the context manager.</p>
 </div>
 <div class="section level2">
 <h2 id="iterators">Iterators<a class="anchor" aria-label="anchor" href="#iterators"></a>
 </h2>
-<p>If a Python API returns an iterator or a generator, you can interact with it using the <code><a href="../reference/iterate.html">iterate()</a></code> function. The <code><a href="../reference/iterate.html">iterate()</a></code> function can be used to apply an R function to each item yielded by the iterator:</p>
+<p>If a Python API returns an iterator or a generator, you can interact
+with it using the <code><a href="../reference/iterate.html">iterate()</a></code> function. The
+<code><a href="../reference/iterate.html">iterate()</a></code> function can be used to apply an R function to
+each item yielded by the iterator:</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/iterate.html">iterate</a></span><span class="op">(</span><span class="va">iter</span>, <span class="va">print</span><span class="op">)</span></span></code></pre></div>
-<p>If you don’t pass a function to <code>iterate</code> the results will be collected into an R vector:</p>
+<p>If you don’t pass a function to <code>iterate</code> the results will
+be collected into an R vector:</p>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/iterate.html">iterate</a></span><span class="op">(</span><span class="va">iter</span><span class="op">)</span></span></code></pre></div>
-<p>Note that the <code>Iterators</code> will be drained of their values by <code><a href="../reference/iterate.html">iterate()</a></code>:</p>
+<p>Note that the <code>Iterators</code> will be drained of their values
+by <code><a href="../reference/iterate.html">iterate()</a></code>:</p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">a</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/iterate.html">iterate</a></span><span class="op">(</span><span class="va">iter</span><span class="op">)</span> <span class="co"># results are not empty</span></span>
 <span><span class="va">b</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/iterate.html">iterate</a></span><span class="op">(</span><span class="va">iter</span><span class="op">)</span> <span class="co"># results are empty since items have already been drained</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="element-level-iteration">Element Level Iteration<a class="anchor" aria-label="anchor" href="#element-level-iteration"></a>
 </h3>
-<p>You can also iterate on an element-by-element basis using the <code><a href="../reference/iterate.html">iter_next()</a></code> function. For example:</p>
+<p>You can also iterate on an element-by-element basis using the
+<code><a href="../reference/iterate.html">iter_next()</a></code> function. For example:</p>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">while</span> <span class="op">(</span><span class="cn">TRUE</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">item</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/iterate.html">iter_next</a></span><span class="op">(</span><span class="va">iter</span><span class="op">)</span></span>
 <span>  <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">item</span><span class="op">)</span><span class="op">)</span></span>
 <span>    <span class="kw">break</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>By default <code><a href="../reference/iterate.html">iter_next()</a></code> will return <code>NULL</code> when the iteration is complete but you can provide a custom <code>completed</code> value it will be returned instead. For example:</p>
+<p>By default <code><a href="../reference/iterate.html">iter_next()</a></code> will return <code>NULL</code>
+when the iteration is complete but you can provide a custom
+<code>completed</code> value it will be returned instead. For
+example:</p>
 <div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">while</span> <span class="op">(</span><span class="cn">TRUE</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">item</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/iterate.html">iter_next</a></span><span class="op">(</span><span class="va">iter</span>, completed <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span></span>
 <span>  <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">item</span><span class="op">)</span><span class="op">)</span></span>
 <span>    <span class="kw">break</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>Note that some iterators/generators in Python are infinite. In that case the caller will need custom logic to determine when to terminate the loop.</p>
+<p>Note that some iterators/generators in Python are infinite. In that
+case the caller will need custom logic to determine when to terminate
+the loop.</p>
 </div>
 <div class="section level3">
 <h3 id="generators">Generators<a class="anchor" aria-label="anchor" href="#generators"></a>
 </h3>
-<p>Python <a href="https://wiki.python.org/moin/Generators" class="external-link">generators</a> are functions that implement the Python iterator protocol. Similarly, the reticulate <code>generator()</code> function enables you to create a Python iterator from an R function.</p>
-<p>In Python, generators produce values using the <code>yield</code> keyword. In R, values are simply returned from the function. One benefit of the <code>yield</code> keyword is that it enables successive iterations to use the state of previous iterations. In R, this can be done by returning a function that mutates its enclosing environment via the &lt;&lt;- operator. For example:</p>
+<p>Python <a href="https://wiki.python.org/moin/Generators" class="external-link">generators</a> are
+functions that implement the Python iterator protocol. Similarly, the
+reticulate <code>generator()</code> function enables you to create a
+Python iterator from an R function.</p>
+<p>In Python, generators produce values using the <code>yield</code>
+keyword. In R, values are simply returned from the function. One benefit
+of the <code>yield</code> keyword is that it enables successive
+iterations to use the state of previous iterations. In R, this can be
+done by returning a function that mutates its enclosing environment via
+the &lt;&lt;- operator. For example:</p>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># define a generator function</span></span>
 <span><span class="va">sequence_generator</span> <span class="op">&lt;-</span><span class="kw">function</span><span class="op">(</span><span class="va">start</span><span class="op">)</span> <span class="op">{</span></span>
@@ -450,7 +572,8 @@
 <span></span>
 <span><span class="co"># convert the function to a python iterator</span></span>
 <span><span class="va">iter</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/py_iterator.html">py_iterator</a></span><span class="op">(</span><span class="fu">sequence_generator</span><span class="op">(</span><span class="fl">10</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>If you want to indicate the end of the iteration, return <code>NULL</code> from the function:</p>
+<p>If you want to indicate the end of the iteration, return
+<code>NULL</code> from the function:</p>
 <div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sequence_generator</span> <span class="op">&lt;-</span><span class="kw">function</span><span class="op">(</span><span class="va">start</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">value</span> <span class="op">&lt;-</span> <span class="va">start</span></span>
@@ -462,7 +585,9 @@
 <span>      <span class="cn">NULL</span></span>
 <span>  <span class="op">}</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>Note that you can change the value that indicates the end of the iteration using the <code>completed</code> parameter (e.g. <code>py_iterator(func, completed = NA)</code>).</p>
+<p>Note that you can change the value that indicates the end of the
+iteration using the <code>completed</code> parameter
+(e.g. <code>py_iterator(func, completed = NA)</code>).</p>
 </div>
 </div>
 <div class="section level2">
@@ -471,35 +596,68 @@
 <div class="section level3">
 <h3 id="signatures">Signatures<a class="anchor" aria-label="anchor" href="#signatures"></a>
 </h3>
-<p>By default R functions are converted to Python with a generic signature (<code>function(...)</code>), where there’s neither keyword argument nor default values for arguments.</p>
-<p>For example, below we apply <code><a href="../reference/r-py-conversion.html">r_to_py()</a></code> to an R function and then we use <a href="https://docs.python.org/3/library/inspect.html" class="external-link">inspect Python module</a> to get the converted function’s argument spec. You can see that the signature of the wrapped function looks different than the original R function’s signature.</p>
+<p>By default R functions are converted to Python with a generic
+signature (<code>function(...)</code>), where there’s neither keyword
+argument nor default values for arguments.</p>
+<p>For example, below we apply <code><a href="../reference/r-py-conversion.html">r_to_py()</a></code> to an R function
+and then we use <a href="https://docs.python.org/3/library/inspect.html" class="external-link">inspect Python
+module</a> to get the converted function’s argument spec. You can see
+that the signature of the wrapped function looks different than the
+original R function’s signature.</p>
 <div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> inspect <span class="ot">&lt;-</span> <span class="fu">import</span>(<span class="st">"inspect"</span>)</span>
 <span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> converted_func <span class="ot">&lt;-</span> <span class="fu">r_to_py</span>(<span class="cf">function</span>(a, <span class="at">b =</span> <span class="fl">1.5</span>) {})</span>
 <span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> inspect<span class="sc">$</span><span class="fu">getargspec</span>(converted_func)</span>
 <span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ArgSpec</span>(<span class="at">args=</span>[], <span class="at">varargs=</span><span class="st">'args'</span>, <span class="at">keywords=</span><span class="st">'kwargs'</span>, <span class="at">defaults=</span>None)</span></code></pre></div>
-<p>This default conversion typically works fine, however some Python libraries have strict checking on the function signatures of user provided callbacks. In these cases the generic <code>function(...)</code> signature will fail this checking.</p>
-<p>For these cases you can use <code><a href="../reference/py_func.html">py_func()</a></code> to wrap the R function so that the wrapped function has exactly the same signature as that of the original R function, e.g. one argument <code>a</code> without default value and another argument <code>b</code> with default value 1.5.</p>
+<p>This default conversion typically works fine, however some Python
+libraries have strict checking on the function signatures of user
+provided callbacks. In these cases the generic
+<code>function(...)</code> signature will fail this checking.</p>
+<p>For these cases you can use <code><a href="../reference/py_func.html">py_func()</a></code> to wrap the R
+function so that the wrapped function has exactly the same signature as
+that of the original R function, e.g. one argument <code>a</code>
+without default value and another argument <code>b</code> with default
+value 1.5.</p>
 <div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> wrapped_func <span class="ot">&lt;-</span> <span class="fu">py_func</span>(<span class="cf">function</span>(a, <span class="at">b =</span> <span class="fl">1.5</span>) {})</span>
 <span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> inspect<span class="sc">$</span><span class="fu">getargspec</span>(wrapped_func)</span>
 <span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ArgSpec</span>(<span class="at">args=</span>[<span class="st">'a'</span>, <span class="st">'b'</span>], <span class="at">varargs=</span>None, <span class="at">keywords=</span>None, <span class="at">defaults=</span>(<span class="fl">1.5</span>,))</span></code></pre></div>
-<p>Note that the signature of the R function must not contain esoteric Python-incompatible constructs. For example, we cannot have R function with signature like <code>function(a = 1, b)</code> since Python function requires that arguments without default values appear before arguments with default values.</p>
+<p>Note that the signature of the R function must not contain esoteric
+Python-incompatible constructs. For example, we cannot have R function
+with signature like <code>function(a = 1, b)</code> since Python
+function requires that arguments without default values appear before
+arguments with default values.</p>
 </div>
 <div class="section level3">
 <h3 id="background-threads">Background Threads<a class="anchor" aria-label="anchor" href="#background-threads"></a>
 </h3>
-<p>In some cases Python libraries will invoke callbacks on a Python background thread. Since R code must run on the main thread, this won’t work by default when you pass an R function as a callback.</p>
-<p>To work around this, you can use <code><a href="../reference/py_main_thread_func.html">py_main_thread_func()</a></code>, which will provide a special wrapper for your R function that ensures it will only be called on the main thread.</p>
+<p>In some cases Python libraries will invoke callbacks on a Python
+background thread. Since R code must run on the main thread, this won’t
+work by default when you pass an R function as a callback.</p>
+<p>To work around this, you can use <code><a href="../reference/py_main_thread_func.html">py_main_thread_func()</a></code>,
+which will provide a special wrapper for your R function that ensures it
+will only be called on the main thread.</p>
 </div>
 </div>
 <div class="section level2">
 <h2 id="advanced">Advanced<a class="anchor" aria-label="anchor" href="#advanced"></a>
 </h2>
-<p>There are several more advanced functions available that are useful principally when creating high level R interfaces for Python libraries.</p>
+<p>There are several more advanced functions available that are useful
+principally when creating high level R interfaces for Python
+libraries.</p>
 <div class="section level3">
 <h3 id="python-objects">Python Objects<a class="anchor" aria-label="anchor" href="#python-objects"></a>
 </h3>
-<p>Typically interacting with Python objects from R involves using the <code>$</code> operator to access whatever properties for functions of the object you need. When using the <code>$</code>, Python objects are automatically converted to their R equivalents when possible. The following functions enable you to interact with Python objects at a lower level (e.g. no conversion to R is done unless you explicitly call the <code>py_to_r</code> function):</p>
+<p>Typically interacting with Python objects from R involves using the
+<code>$</code> operator to access whatever properties for functions of
+the object you need. When using the <code>$</code>, Python objects are
+automatically converted to their R equivalents when possible. The
+following functions enable you to interact with Python objects at a
+lower level (e.g. no conversion to R is done unless you explicitly call
+the <code>py_to_r</code> function):</p>
 <table class="table">
+<colgroup>
+<col width="19%">
+<col width="80%">
+</colgroup>
 <thead><tr class="header">
 <th>Function</th>
 <th>Description</th>
@@ -543,8 +701,14 @@
 <div class="section level3">
 <h3 id="pickle">Pickle<a class="anchor" aria-label="anchor" href="#pickle"></a>
 </h3>
-<p>You can save and load Python objects (via pickle) using the <code>py_save_object</code> and <code>py_load_object</code> functions:</p>
+<p>You can save and load Python objects (via pickle) using the
+<code>py_save_object</code> and <code>py_load_object</code>
+functions:</p>
 <table class="table">
+<colgroup>
+<col width="19%">
+<col width="80%">
+</colgroup>
 <thead><tr class="header">
 <th>Function</th>
 <th>Description</th>
@@ -564,7 +728,8 @@
 <div class="section level3">
 <h3 id="configuration">Configuration<a class="anchor" aria-label="anchor" href="#configuration"></a>
 </h3>
-<p>The following functions enable you to query for information about the Python configuration available on the current system.</p>
+<p>The following functions enable you to query for information about the
+Python configuration available on the current system.</p>
 <table class="table">
 <colgroup>
 <col width="19%">
@@ -581,7 +746,8 @@
 </tr>
 <tr class="even">
 <td><code><a href="../reference/py_available.html">py_numpy_available()</a></code></td>
-<td>Check whether the R interface to NumPy is available (requires NumPy &gt;= 1.6)</td>
+<td>Check whether the R interface to NumPy is available (requires NumPy
+&gt;= 1.6)</td>
 </tr>
 <tr class="odd">
 <td><code><a href="../reference/py_module_available.html">py_module_available()</a></code></td>
@@ -597,7 +763,8 @@
 <div class="section level3">
 <h3 id="output-control">Output Control<a class="anchor" aria-label="anchor" href="#output-control"></a>
 </h3>
-<p>These functions enable you to capture or suppress output from Python:</p>
+<p>These functions enable you to capture or suppress output from
+Python:</p>
 <table class="table">
 <colgroup>
 <col width="19%">
@@ -610,11 +777,13 @@
 <tbody>
 <tr class="odd">
 <td><code><a href="../reference/py_capture_output.html">py_capture_output()</a></code></td>
-<td>Capture Python output for the specified expression and return it as an R character vector.</td>
+<td>Capture Python output for the specified expression and return it as
+an R character vector.</td>
 </tr>
 <tr class="even">
 <td><code><a href="../reference/py_suppress_warnings.html">py_suppress_warnings()</a></code></td>
-<td>Execute the specified expression, suppressing the display Python warnings.</td>
+<td>Execute the specified expression, suppressing the display Python
+warnings.</td>
 </tr>
 </tbody>
 </table>
@@ -622,7 +791,8 @@
 <div class="section level3">
 <h3 id="miscellaneous">Miscellaneous<a class="anchor" aria-label="anchor" href="#miscellaneous"></a>
 </h3>
-<p>The functions provide miscellaneous other lower-level capabilities:</p>
+<p>The functions provide miscellaneous other lower-level
+capabilities:</p>
 <table class="table">
 <colgroup>
 <col width="19%">
@@ -657,7 +827,8 @@
 </tr>
 <tr class="even">
 <td><code><a href="../reference/py_is_null_xptr.html">py_validate_xptr()</a></code></td>
-<td>Check whether a Python object is a null externalptr and throw an error if it is.</td>
+<td>Check whether a Python object is a null externalptr and throw an
+error if it is.</td>
 </tr>
 </tbody>
 </table>
@@ -666,12 +837,15 @@
 <div class="section level2">
 <h2 id="learning-more">Learning More<a class="anchor" aria-label="anchor" href="#learning-more"></a>
 </h2>
-<p>The following articles cover additional aspects of using <strong>reticulate</strong>:</p>
+<p>The following articles cover additional aspects of using
+<strong>reticulate</strong>:</p>
 <ul>
 <li><p><a href="r_markdown.html">R Markdown Python Engine</a></p></li>
 <li><p><a href="versions.html">Python Version Configuration</a></p></li>
-<li><p><a href="python_packages.html">Installing Python Packages</a></p></li>
-<li><p><a href="package.html">Using reticulate in an R Package</a></p></li>
+<li><p><a href="python_packages.html">Installing Python
+Packages</a></p></li>
+<li><p><a href="package.html">Using reticulate in an R
+Package</a></p></li>
 <li><p><a href="arrays.html">Arrays in R and Python</a></p></li>
 </ul>
 </div>
@@ -694,7 +868,7 @@
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer>

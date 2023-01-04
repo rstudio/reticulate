@@ -197,7 +197,8 @@ miniconda_installer_download <- function(url) {
 miniconda_installer_run <- function(installer, update, path) {
 
   args <- if (is_windows()) {
-    dir.create(path, recursive = TRUE, showWarnings = FALSE)
+    if(dir.exists(path))
+      unlink(path, recursive = TRUE)
     c(
       "/InstallationType=JustMe",
       "/AddToPath=0",
@@ -234,8 +235,10 @@ miniconda_installer_run <- function(installer, update, path) {
     on.exit(Sys.setenv(DYLD_FALLBACK_LIBRARY_PATH = old), add = TRUE)
 
   }
-  if (is_windows())
+  if (is_windows()) {
+    installer <- normalizePath(installer)
     status <- system2(installer, args)
+  }
   if (is_unix()) {
     ##check for bash
     bash_path <- Sys.which("bash")

@@ -151,7 +151,8 @@ See <strong>Finding Conda</strong> and <code>conda_binary()</code> for more deta
 <dt>packages</dt>
 <dd><p>A character vector, indicating package names which should be
 installed or removed. Use  <code>&lt;package&gt;==&lt;version&gt;</code> to request the installation
-of a specific version of a package.</p></dd>
+of a specific version of a package. A <code>NULL</code> value for <code>conda_remove()</code>
+will be interpretted to <code>"--all"</code>, removing the entire environment.</p></dd>
 
 
 <dt>...</dt>

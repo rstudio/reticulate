@@ -121,9 +121,11 @@ Python as installed by the <code><a href="install_python.html">install_python()<
 
 
 <dt>condaenv</dt>
-<dd><p>The conda environment to use. This can be the name, the absolute prefix path
-or the absolute path to the python binary. If the name is ambiguous, the
-first environment is used and a warning is issued.</p></dd>
+<dd><p>The conda environment to use. For <code>use_condaenv()</code>, this can be the name,
+the absolute prefix path, or the absolute path to the python binary. If
+the name is ambiguous, the first environment is used and a warning is
+issued. For <code>use_miniconda()</code>, the only conda installation searched is
+the one installed by <code><a href="install_miniconda.html">install_miniconda()</a></code>.</p></dd>
 
 
 <dt>conda</dt>

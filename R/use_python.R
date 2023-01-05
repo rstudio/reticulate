@@ -50,9 +50,11 @@
 #'   Either the name of, or the path to, a Python virtual environment.
 #'
 #' @param condaenv
-#'   The conda environment to use. This can be the name, the absolute prefix path
-#'   or the absolute path to the python binary. If the name is ambiguous, the
-#'   first environment is used and a warning is issued.
+#' The conda environment to use. For `use_condaenv()`, this can be the name,
+#' the absolute prefix path, or the absolute path to the python binary. If
+#' the name is ambiguous, the first environment is used and a warning is
+#' issued. For `use_miniconda()`, the only conda installation searched is
+#' the one installed by `install_miniconda()`.
 #'
 #' @param conda
 #'   The path to a `conda` executable. By default, `reticulate` will check the

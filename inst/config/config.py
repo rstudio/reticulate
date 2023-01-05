@@ -39,7 +39,7 @@ config = {
   "Prefix"           : getattr(sys, "prefix", ""),
   "ExecPrefix"       : getattr(sys, "exec_prefix", ""),
   "BaseExecPrefix"   : getattr(sys, "base_exec_prefix", ""),
-  "PythonPath"       : pathsep.join(sys.path[1:]),
+  "PythonPath"       : pathsep.join((x or "." for x in sys.path)),
   "LIBPL"            : sysconfig.get_config_var("LIBPL"),
   "LIBDIR"           : sysconfig.get_config_var("LIBDIR")
 }

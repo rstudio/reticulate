@@ -568,6 +568,8 @@ python_munge_path <- function(python) {
       envname = conda_info$root,
       intern = TRUE
     )
+    # maybe discard unsilenceable warnings, see issue #1303
+    new_path <- new_path[length(new_path)]
 
     old_path <- Sys.getenv("PATH")
     Sys.setenv("PATH" = new_path)

@@ -8,6 +8,8 @@
   
 - Fixed issues where `install_miniconda()` and `conda_install()` would error
   on Windows (#1286, #1287, conda/conda#11795, #1312)
+  
+- Fixed error when activating a conda env from a UNC drive on Windows (#1303).
 
 # reticulate 1.26
 

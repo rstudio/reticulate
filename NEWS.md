@@ -1,13 +1,11 @@
 # reticulate (development version)
 
-- Fixed an issue of the dependency on `bash` for the miniconda
-  installer on Linux and OSX (#1306, conda/conda#10431)
-
 - `py_run_file()` now ensures the `__file__` dunder is visible to the
   executing python code. (#1283, #1284)
   
-- Fixed issues where `install_miniconda()` and `conda_install()` would error
-  on Windows (#1286, #1287, conda/conda#11795, #1312)
+- Fixed errors with `install_miniconda()` and `conda_install()`,
+  on Windows (#1286, #1287, conda/conda#11795, #1312), 
+  and on Linux and macOS (#1306, conda/conda#10431)
   
 - Fixed error when activating a conda env from a UNC drive on Windows (#1303).
 

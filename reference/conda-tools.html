@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.26</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.27</span>
       </span>
     </div>
 
@@ -151,7 +151,8 @@ See <strong>Finding Conda</strong> and <code>conda_binary()</code> for more deta
 <dt>packages</dt>
 <dd><p>A character vector, indicating package names which should be
 installed or removed. Use  <code>&lt;package&gt;==&lt;version&gt;</code> to request the installation
-of a specific version of a package.</p></dd>
+of a specific version of a package. A <code>NULL</code> value for <code>conda_remove()</code>
+will be interpretted to <code>"--all"</code>, removing the entire environment.</p></dd>
 
 
 <dt>...</dt>
@@ -273,7 +274,7 @@ setting:</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer></div>

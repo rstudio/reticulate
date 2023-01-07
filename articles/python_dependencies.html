@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.26</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.27</span>
       </span>
     </div>
 
@@ -112,28 +112,61 @@
 
     
     
-<p>If you’re writing an R package that uses <code>reticulate</code> as an interface to a Python session, you likely also need to install one or more Python packages on the user’s machine for your package to function. In addition, you’d likely prefer to insulate users from details around how Python + <code>reticulate</code> are configured as much as possible. This vignette documents a few approaches for accomplishing these goals.</p>
+<p>If you’re writing an R package that uses <code>reticulate</code> as
+an interface to a Python session, you likely also need to install one or
+more Python packages on the user’s machine for your package to function.
+In addition, you’d likely prefer to insulate users from details around
+how Python + <code>reticulate</code> are configured as much as possible.
+This vignette documents a few approaches for accomplishing these
+goals.</p>
 <div class="section level2">
 <h2 id="manual-configuration">Manual Configuration<a class="anchor" aria-label="anchor" href="#manual-configuration"></a>
 </h2>
-<p>Previously, packages like <a href="https://tensorflow.rstudio.com" class="external-link">tensorflow</a> accomplished this by providing helper functions (e.g. <code>tensorflow::install_tensorflow()</code>), and documenting that users should call this function to prepare the environment. For example:</p>
+<p>Previously, packages like <a href="https://tensorflow.rstudio.com" class="external-link">tensorflow</a> accomplished this
+by providing helper functions (e.g.
+<code>tensorflow::install_tensorflow()</code>), and documenting that
+users should call this function to prepare the environment. For
+example:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/rstudio/tensorflow" class="external-link">tensorflow</a></span><span class="op">)</span></span>
 <span><span class="fu">install_tensorflow</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co"># use tensorflow</span></span></code></pre></div>
-<p>The biggest downside with this approach is that it requires users to manually download and install an appropriate version of Python. In addition, if the user has <em>not</em> downloaded an appropriate version of Python, then the version discovered on the user’s system may not conform with the requirements imposed by the <code>tensorflow</code> package – leading to more trouble.</p>
-<p>Fixing this often requires instructing the user to install Python, and then use <code>reticulate</code> APIs (e.g. <code><a href="../reference/use_python.html">reticulate::use_python()</a></code> and other tools) to find and use an appropriate Python version + environment. This is, understandably, more cognitive overhead than you might want to impose on users of your package.</p>
-<p>Another huge problem with manual configuration is that if different R packages use different default Python environments, then those packages can’t ever be loaded in the same R session (since there can only be one active Python environment at a time within an R session).</p>
+<p>The biggest downside with this approach is that it requires users to
+manually download and install an appropriate version of Python. In
+addition, if the user has <em>not</em> downloaded an appropriate version
+of Python, then the version discovered on the user’s system may not
+conform with the requirements imposed by the <code>tensorflow</code>
+package – leading to more trouble.</p>
+<p>Fixing this often requires instructing the user to install Python,
+and then use <code>reticulate</code> APIs
+(e.g. <code><a href="../reference/use_python.html">reticulate::use_python()</a></code> and other tools) to find and
+use an appropriate Python version + environment. This is,
+understandably, more cognitive overhead than you might want to impose on
+users of your package.</p>
+<p>Another huge problem with manual configuration is that if different R
+packages use different default Python environments, then those packages
+can’t ever be loaded in the same R session (since there can only be one
+active Python environment at a time within an R session).</p>
 </div>
 <div class="section level2">
 <h2 id="automatic-configuration">Automatic Configuration<a class="anchor" aria-label="anchor" href="#automatic-configuration"></a>
 </h2>
-<p>With newer versions of <code>reticulate</code>, it’s possible for client packages to declare their Python dependencies directly in the <code>DESCRIPTION</code> file, with the use of the <code>Config/reticulate</code> field.</p>
-<p>With automatic configuration, <code>reticulate</code> wants to encourage a world wherein different R packages wrapping Python packages can live together in the same Python environment / R session. In essence, we would like to minimize the number of conflicts that could arise through different R packages having incompatible Python dependencies.</p>
+<p>With newer versions of <code>reticulate</code>, it’s possible for
+client packages to declare their Python dependencies directly in the
+<code>DESCRIPTION</code> file, with the use of the
+<code>Config/reticulate</code> field.</p>
+<p>With automatic configuration, <code>reticulate</code> wants to
+encourage a world wherein different R packages wrapping Python packages
+can live together in the same Python environment / R session. In
+essence, we would like to minimize the number of conflicts that could
+arise through different R packages having incompatible Python
+dependencies.</p>
 <div class="section level3">
 <h3 id="using-configreticulate">Using Config/reticulate<a class="anchor" aria-label="anchor" href="#using-configreticulate"></a>
 </h3>
-<p>For example, if we had a package <code>rscipy</code> that acted as an interface to the <a href="https://scipy.org" class="external-link">SciPy</a> Python package, we might use the following <code>DESCRIPTION</code>:</p>
+<p>For example, if we had a package <code>rscipy</code> that acted as an
+interface to the <a href="https://scipy.org" class="external-link">SciPy</a> Python package,
+we might use the following <code>DESCRIPTION</code>:</p>
 <pre><code>Package: rscipy
 Title: An R Interface to scipy
 Version: 1.0.0
@@ -149,47 +182,92 @@ Config/reticulate:
 <div class="section level3">
 <h3 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h3>
-<p>With this, <code>reticulate</code> will take care of automatically configuring a Python environment for the user when the <code>rscipy</code> package is loaded and used (i.e. it’s no longer necessary to provide the user with a special <code>install_tensorflow()</code> type function).</p>
-<p>Specifically, after the <code>rscipy</code> package is loaded, the following will occur:</p>
+<p>With this, <code>reticulate</code> will take care of automatically
+configuring a Python environment for the user when the
+<code>rscipy</code> package is loaded and used (i.e. it’s no longer
+necessary to provide the user with a special
+<code>install_tensorflow()</code> type function).</p>
+<p>Specifically, after the <code>rscipy</code> package is loaded, the
+following will occur:</p>
 <ol style="list-style-type: decimal">
-<li><p>Unless the user has explicitly instructed <code>reticulate</code> to use an existing Python environment, <code>reticulate</code> will prompt the user to download and install <a href="https://docs.conda.io/en/latest/miniconda.html" class="external-link">Miniconda</a> (if necessary).</p></li>
-<li><p>After this, when the Python session is initialized by <code>reticulate</code>, all declared dependencies of loaded packages in <code>Config/reticulate</code> will be discovered.</p></li>
-<li><p>These dependencies will then be installed into an appropriate Conda environment, as provided by the Miniconda installation.</p></li>
+<li><p>Unless the user has explicitly instructed <code>reticulate</code>
+to use an existing Python environment, <code>reticulate</code> will
+prompt the user to download and install <a href="https://docs.conda.io/en/latest/miniconda.html" class="external-link">Miniconda</a> (if
+necessary).</p></li>
+<li><p>After this, when the Python session is initialized by
+<code>reticulate</code>, all declared dependencies of loaded packages in
+<code>Config/reticulate</code> will be discovered.</p></li>
+<li><p>These dependencies will then be installed into an appropriate
+Conda environment, as provided by the Miniconda installation.</p></li>
 </ol>
-<p>In this case, the end user workflow will be exactly as with an R package that has no Python dependencies:</p>
+<p>In this case, the end user workflow will be exactly as with an R
+package that has no Python dependencies:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">rscipy</span><span class="op">)</span></span>
 <span><span class="co"># use the package</span></span></code></pre></div>
-<p>If the user has no compatible version of Python available on their system, they will be prompted to install Miniconda. If they do have Python already, then the required Python packages (in this case <code>scipy</code>) will be installed in the standard shared environment for R sessions (typically a virtual environment, or a Conda environment named “r-reticulate”).</p>
-<p>In effect, users have to pay a one-time, mostly-automated initialization cost in order to use your package, and then things will then work as any other R package would. In particular, users are otherwise insulated from details as to how <code>reticulate</code> works.</p>
+<p>If the user has no compatible version of Python available on their
+system, they will be prompted to install Miniconda. If they do have
+Python already, then the required Python packages (in this case
+<code>scipy</code>) will be installed in the standard shared environment
+for R sessions (typically a virtual environment, or a Conda environment
+named “r-reticulate”).</p>
+<p>In effect, users have to pay a one-time, mostly-automated
+initialization cost in order to use your package, and then things will
+then work as any other R package would. In particular, users are
+otherwise insulated from details as to how <code>reticulate</code>
+works.</p>
 </div>
 <div class="section level3">
 <h3 id="onload-configuration">.onLoad Configuration<a class="anchor" aria-label="anchor" href="#onload-configuration"></a>
 </h3>
-<p>In some cases, a user may try to load your package after Python has already been initialized. To ensure that <code>reticulate</code> can still configure the active Python environment, you can include the code:</p>
+<p>In some cases, a user may try to load your package after Python has
+already been initialized. To ensure that <code>reticulate</code> can
+still configure the active Python environment, you can include the
+code:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">.onLoad</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">libname</span>, <span class="va">pkgname</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu">reticulate</span><span class="fu">::</span><span class="fu"><a href="../reference/configure_environment.html">configure_environment</a></span><span class="op">(</span><span class="va">pkgname</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>This will instruct <code>reticulate</code> to immediately try to configure the active Python environment, installing any required Python packages as necessary.</p>
+<p>This will instruct <code>reticulate</code> to immediately try to
+configure the active Python environment, installing any required Python
+packages as necessary.</p>
 </div>
 </div>
 <div class="section level2">
 <h2 id="versions">Versions<a class="anchor" aria-label="anchor" href="#versions"></a>
 </h2>
-<p>The goal of these mechanisms is to allow easy interoperability between R packages that have Python dependencies, as well as to minimize specialized version/configuration steps for end-users. To that end, <code>reticulate</code> will (by default) track an older version of Python than the current release, giving Python packages time to adapt as is required. Python 2 will not be supported.</p>
-<p>Tools for breaking these rules are not yet implemented, but will be provided as the need arises.</p>
+<p>The goal of these mechanisms is to allow easy interoperability
+between R packages that have Python dependencies, as well as to minimize
+specialized version/configuration steps for end-users. To that end,
+<code>reticulate</code> will (by default) track an older version of
+Python than the current release, giving Python packages time to adapt as
+is required. Python 2 will not be supported.</p>
+<p>Tools for breaking these rules are not yet implemented, but will be
+provided as the need arises.</p>
 </div>
 <div class="section level2">
 <h2 id="format">Format<a class="anchor" aria-label="anchor" href="#format"></a>
 </h2>
-<p>Declared Python package dependencies should have the following format:</p>
+<p>Declared Python package dependencies should have the following
+format:</p>
 <ul>
-<li><p><strong>package</strong>: The name of the Python package.</p></li>
-<li><p><strong>version</strong>: The version of the package that should be installed. When left unspecified, the latest-available version will be installed. This should only be set in exceptional cases – for example, if the most recently-released version of a Python package breaks compatibility with your package (or other Python packages) in a fundamental way. If multiple R packages request different versions of a particular Python package, <code>reticulate</code> will signal a warning.</p></li>
-<li><p><strong>pip</strong>: Whether this package should be retrieved from the <a href="https://pypi.org" class="external-link">PyPI</a> with <code>pip</code>, or (if <code>FALSE</code>) from the Anaconda repositories.</p></li>
+<li><p><strong>package</strong>: The name of the Python
+package.</p></li>
+<li><p><strong>version</strong>: The version of the package that should
+be installed. When left unspecified, the latest-available version will
+be installed. This should only be set in exceptional cases – for
+example, if the most recently-released version of a Python package
+breaks compatibility with your package (or other Python packages) in a
+fundamental way. If multiple R packages request different versions of a
+particular Python package, <code>reticulate</code> will signal a
+warning.</p></li>
+<li><p><strong>pip</strong>: Whether this package should be retrieved
+from the <a href="https://pypi.org" class="external-link">PyPI</a> with <code>pip</code>, or
+(if <code>FALSE</code>) from the Anaconda repositories.</p></li>
 </ul>
-<p>For example, we could change the <code>Config/reticulate</code> directive from above to specify that <code>scipy [1.3.0]</code> be installed from PyPI (with <code>pip</code>):</p>
+<p>For example, we could change the <code>Config/reticulate</code>
+directive from above to specify that <code>scipy [1.3.0]</code> be
+installed from PyPI (with <code>pip</code>):</p>
 <pre><code><span><span class="va">Config</span><span class="op">/</span><span class="va">reticulate</span><span class="op">:</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>    packages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
@@ -216,7 +294,7 @@ Config/reticulate:
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer>

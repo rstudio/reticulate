@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.26</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.27</span>
       </span>
     </div>
 
@@ -112,18 +112,32 @@
 
     
     
-<p>Dense data are stored contiguously in memory, addressed by a single index (the memory address). Array memory ordering schemes translate that single index into multiple indices corresponding to the array coordinates. For example, matrices have two indices: rows and columns. Three-d arrays have three, and so on.</p>
+<p>Dense data are stored contiguously in memory, addressed by a single
+index (the memory address). Array memory ordering schemes translate that
+single index into multiple indices corresponding to the array
+coordinates. For example, matrices have two indices: rows and columns.
+Three-d arrays have three, and so on.</p>
 <div class="section level3">
 <h3 id="column-major-order">Column-major order<a class="anchor" aria-label="anchor" href="#column-major-order"></a>
 </h3>
-<p><em>Column-major</em> order is used by Fortran, Matlab, R, and most underlying core linear algebra libraries (BLAS). Sequential address locations are translated into array coordinates <em>i, j, k, …</em> so that the first array coordinates vary most rapidly with address, the next array coordinates less rapidly, and so on. For instance, four address locations 1, 2, 3, 4 are translated into a two by two matrix coordinate system <em>(i, j)</em> as:</p>
+<p><em>Column-major</em> order is used by Fortran, Matlab, R, and most
+underlying core linear algebra libraries (BLAS). Sequential address
+locations are translated into array coordinates <em>i, j, k, …</em> so
+that the first array coordinates vary most rapidly with address, the
+next array coordinates less rapidly, and so on. For instance, four
+address locations 1, 2, 3, 4 are translated into a two by two matrix
+coordinate system <em>(i, j)</em> as:</p>
 <pre><code>address   i  j
   1       1  1
   2       2  1
   3       1  2
   4       2  2</code></pre>
-<p>The phrase <em>column-major</em> comes from the matrix example, where sequentially addressed data are laid out sequentially along columns of the matrix.</p>
-<p>The concept of “row” and “column” don’t directly apply to n-d arrays, but the same idea holds. For instance the R language lays out sequential addresses from 1, 2, …, 8, into a 2x2x2 3-d array as:</p>
+<p>The phrase <em>column-major</em> comes from the matrix example, where
+sequentially addressed data are laid out sequentially along columns of
+the matrix.</p>
+<p>The concept of “row” and “column” don’t directly apply to n-d arrays,
+but the same idea holds. For instance the R language lays out sequential
+addresses from 1, 2, …, 8, into a 2x2x2 3-d array as:</p>
 <pre><code>address   i  j  k
   1       1  1  1
   2       2  1  1
@@ -133,18 +147,30 @@
   6       2  1  2
   7       1  2  2
   8       2  2  2</code></pre>
-<p>Consider the 3-d case shown above. Given array dimensions <em>d<sub>1</sub>=2, d<sub>2</sub>=2, d<sub>3</sub>=2</em>, a formula that takes 1-based coordinates <em>i, j, k</em> and returns address location <em>a</em> is <br><em>a = i + (j - 1) * d<sub>1</sub> + (k - 1) * d<sub>2</sub> * d<sub>1</sub></em>.</p>
+<p>Consider the 3-d case shown above. Given array dimensions
+<em>d<sub>1</sub>=2, d<sub>2</sub>=2, d<sub>3</sub>=2</em>, a formula
+that takes 1-based coordinates <em>i, j, k</em> and returns address
+location <em>a</em> is <br><em>a = i + (j - 1) * d<sub>1</sub> + (k -
+1) * d<sub>2</sub> * d<sub>1</sub></em>.</p>
 </div>
 <div class="section level3">
 <h3 id="row-major-order">Row-major order<a class="anchor" aria-label="anchor" href="#row-major-order"></a>
 </h3>
-<p>Row-major ordering is a different translation between sequential address indices and array coordinates, instead laying sequential data in memory across rows in matrices. Row-major ordering is sometimes called “C” style ordering and column-major ordering “Fortran” style. Python/NumPy refers to the orderings in array flags as C_CONTIGUOUS and F_CONTIGUOUS, respectively. For instance address locations 1, 2, 3, 4 are translated into a 2x2 matrix coordinate system <em>(i, j)</em> as:</p>
+<p>Row-major ordering is a different translation between sequential
+address indices and array coordinates, instead laying sequential data in
+memory across rows in matrices. Row-major ordering is sometimes called
+“C” style ordering and column-major ordering “Fortran” style.
+Python/NumPy refers to the orderings in array flags as C_CONTIGUOUS and
+F_CONTIGUOUS, respectively. For instance address locations 1, 2, 3, 4
+are translated into a 2x2 matrix coordinate system <em>(i, j)</em>
+as:</p>
 <pre><code>address   i  j
   1       1  1
   2       1  2
   3       2  1
   4       2  2</code></pre>
-<p>Efficient wrappers to BLAS routines exist for row-major ordered arrays. For completeness, here is a 2x2x2 3-d example layout:</p>
+<p>Efficient wrappers to BLAS routines exist for row-major ordered
+arrays. For completeness, here is a 2x2x2 3-d example layout:</p>
 <pre><code>address   i  j  k
   1       1  1  1
   2       1  1  2
@@ -154,8 +180,12 @@
   6       2  1  2
   7       2  2  1
   8       2  2  2</code></pre>
-<p>And similarly to above a formula for this example that converts these 1-based array coordinates to address indices is: <br><em>a = k + (j - 1) * d<sub>3</sub> + (i - 1) * d<sub>3</sub> * d<sub>2</sub></em>.</p>
-<p>See the following notes for a general formula for row- and column-order coordinate to address mapping, but note the use of zero-based indexing.</p>
+<p>And similarly to above a formula for this example that converts these
+1-based array coordinates to address indices is: <br><em>a = k + (j -
+1) * d<sub>3</sub> + (i - 1) * d<sub>3</sub> * d<sub>2</sub></em>.</p>
+<p>See the following notes for a general formula for row- and
+column-order coordinate to address mapping, but note the use of
+zero-based indexing.</p>
 <ul>
 <li><a href="https://en.wikipedia.org/wiki/Row-_and_column-major_order#Address_calculation_in_general" class="external-link uri">https://en.wikipedia.org/wiki/Row-_and_column-major_order#Address_calculation_in_general</a></li>
 <li><a href="https://numpy.org/doc/stable/reference/arrays.ndarray.html" class="external-link uri">https://numpy.org/doc/stable/reference/arrays.ndarray.html</a></li>
@@ -164,12 +194,19 @@
 <div class="section level3">
 <h3 id="python">Python<a class="anchor" aria-label="anchor" href="#python"></a>
 </h3>
-<p>The Python NumPy library is very general. It can use <em>either</em> row-major or column-major ordered arrays, but it defaults to row-major ordering. NumPy also supports sophisticated <em>views</em> of data with custom strides across non-contiguous regions of memory.</p>
+<p>The Python NumPy library is very general. It can use <em>either</em>
+row-major or column-major ordered arrays, but it defaults to row-major
+ordering. NumPy also supports sophisticated <em>views</em> of data with
+custom strides across non-contiguous regions of memory.</p>
 </div>
 <div class="section level3">
 <h3 id="displaying-arrays">Displaying arrays<a class="anchor" aria-label="anchor" href="#displaying-arrays"></a>
 </h3>
-<p>R displays array data with unambiguously-labeled coordinate indices. Python doesn’t show this and displays n-d array data in different order than R (making matters somewhat confusing for R users). Consider the following example that creates and displays identical 4x3x2 arrays in R and Python:</p>
+<p>R displays array data with unambiguously-labeled coordinate indices.
+Python doesn’t show this and displays n-d array data in different order
+than R (making matters somewhat confusing for R users). Consider the
+following example that creates and displays identical 4x3x2 arrays in R
+and Python:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">24</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span>,<span class="fl">3</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -204,7 +241,12 @@
 <span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="co">##        [[ 4, 16],</span></span>
 <span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="co">##         [ 8, 20],</span></span>
 <span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="co">##         [12, 24]]])</span></span></code></pre></div>
-<p>It’s easier to know which coordinates go where in R because they are labeled. Python, using column-major ordering, displays the same thing but in a different order where the first indices are grouped together in order. To see that these arrays are, in fact, <strong>the same</strong>, let’s pick out values along just the first “row”, that is values with a first index of 1 (R) or 0 (Python):</p>
+<p>It’s easier to know which coordinates go where in R because they are
+labeled. Python, using column-major ordering, displays the same thing
+but in a different order where the first indices are grouped together in
+order. To see that these arrays are, in fact, <strong>the same</strong>,
+let’s pick out values along just the first “row”, that is values with a
+first index of 1 (R) or 0 (Python):</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">24</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">3</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span>,, ,drop<span class="op">=</span><span class="cn">FALSE</span><span class="op">]</span></span>
 <span></span>
@@ -220,7 +262,10 @@
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co">## array([[ 1, 13],</span></span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co">##        [ 5, 17],</span></span>
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="co">##        [ 9, 21]])</span></span></code></pre></div>
-<p>I specified R’s <code>drop=FALSE</code> argument to preserve array dimensionality above. If we use <code>drop=TRUE</code> (the default) then R returns a 3x2 array in column-major order–exactly the same result as Python above.</p>
+<p>I specified R’s <code>drop=FALSE</code> argument to preserve array
+dimensionality above. If we use <code>drop=TRUE</code> (the default)
+then R returns a 3x2 array in column-major order–exactly the same result
+as Python above.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">24</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">3</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span>,, ,drop<span class="op">=</span><span class="cn">TRUE</span><span class="op">]</span></span>
 <span></span>
@@ -228,7 +273,10 @@
 <span><span class="co">## [1,]    1   13</span></span>
 <span><span class="co">## [2,]    5   17</span></span>
 <span><span class="co">## [3,]    9   21</span></span></code></pre></div>
-<p>Note that the Python result is a special view of the original array data, not a copy. In this case it’s not stored in contiguous memory addresses and is neither really row- nor column-major. This is shown in the array flags:</p>
+<p>Note that the Python result is a special view of the original array
+data, not a copy. In this case it’s not stored in contiguous memory
+addresses and is neither really row- nor column-major. This is shown in
+the array flags:</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>np.reshape(np.arange(<span class="dv">1</span>,<span class="dv">25</span>), (<span class="dv">4</span>,<span class="dv">3</span>,<span class="dv">2</span>), <span class="st">"F"</span>)[<span class="dv">0</span>].flags</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co">##  C_CONTIGUOUS : False</span></span>
@@ -241,22 +289,36 @@
 <div class="section level3">
 <h3 id="reticulate-with-care">Reticulate with care<a class="anchor" aria-label="anchor" href="#reticulate-with-care"></a>
 </h3>
-<p>The reticulate package lets us easily mix R and Python code and data. Recall that R represents all dense arrays in column-major order but Python/NumPy can represent dense arrays much more generally. That difference warrants attention and can easily lead to confusion!</p>
-<p>Remember the following things when working with R and Python arrays, especially <em>n</em>-d arrays with <em>n &gt; 2</em>.</p>
+<p>The reticulate package lets us easily mix R and Python code and data.
+Recall that R represents all dense arrays in column-major order but
+Python/NumPy can represent dense arrays much more generally. That
+difference warrants attention and can easily lead to confusion!</p>
+<p>Remember the following things when working with R and Python arrays,
+especially <em>n</em>-d arrays with <em>n &gt; 2</em>.</p>
 <ol style="list-style-type: decimal">
-<li>Dense R arrays are presented to Python/NumPy as column-major NumPy arrays.</li>
+<li>Dense R arrays are presented to Python/NumPy as column-major NumPy
+arrays.</li>
 <li>
-<em>All</em> NumPy arrays (column-major, row-major, otherwise) are presented to R as column-major arrays, because that is the only kind of dense array that R understands.</li>
+<em>All</em> NumPy arrays (column-major, row-major, otherwise) are
+presented to R as column-major arrays, because that is the only kind of
+dense array that R understands.</li>
 <li>R and Python print arrays differently.</li>
 </ol>
 <p>Also worth knowing:</p>
 <ul>
 <li>Python array indices are zero-based, R indices are 1-based.</li>
-<li>R arrays are only copied to Python when they need to be, otherwise data are shared.</li>
-<li>Python arrays are <em>always</em> copied when moved into R arrays. This can sometimes lead to three copies of any one array in memory at any one time (at the moment this was written). Future versions will reduce that copy overhead to two.</li>
+<li>R arrays are only copied to Python when they need to be, otherwise
+data are shared.</li>
+<li>Python arrays are <em>always</em> copied when moved into R arrays.
+This can sometimes lead to three copies of any one array in memory at
+any one time (at the moment this was written). Future versions will
+reduce that copy overhead to two.</li>
 </ul>
-<p>Point number 3. introduces the most potential confusion. Let’s look at some examples to explore these points.</p>
-<p>The following example creates a 2x2x2 array in Python using native NumPy row-major ordering and imports it into R. Despite the fact that they print out differently, they are in fact the same.</p>
+<p>Point number 3. introduces the most potential confusion. Let’s look
+at some examples to explore these points.</p>
+<p>The following example creates a 2x2x2 array in Python using native
+NumPy row-major ordering and imports it into R. Despite the fact that
+they print out differently, they are in fact the same.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span></span>
 <span><span class="va">np</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/import.html">import</a></span><span class="op">(</span><span class="st">"numpy"</span>, convert<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></span>
@@ -279,7 +341,11 @@
 <span><span class="co">##      [,1] [,2]</span></span>
 <span><span class="co">## [1,]    2    4</span></span>
 <span><span class="co">## [2,]    6    8</span></span></code></pre></div>
-<p>Wait a minute! They look different! But remember Python’s print order is different. The first “rows” (first index values) are grouped together. Let’s pull out elements with first index of 1 in the R result, with and without dropping the unused dimension to show precisely what we’re indexing here:</p>
+<p>Wait a minute! They look different! But remember Python’s print order
+is different. The first “rows” (first index values) are grouped
+together. Let’s pull out elements with first index of 1 in the R result,
+with and without dropping the unused dimension to show precisely what
+we’re indexing here:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">y</span><span class="op">[</span><span class="fl">1</span>,,, drop<span class="op">=</span><span class="cn">FALSE</span><span class="op">]</span></span>
 <span></span>
@@ -296,11 +362,17 @@
 <span><span class="co">##      [,1] [,2]</span></span>
 <span><span class="co">## [1,]    1    2</span></span>
 <span><span class="co">## [2,]    3    4</span></span></code></pre></div>
-<p>Note that this is the same as the first block printed in the Python output above! These arrays really are the same in Python and R, respectively. Their apparent differences are merely a result of printing.</p>
+<p>Note that this is the same as the first block printed in the Python
+output above! These arrays really are the same in Python and R,
+respectively. Their apparent differences are merely a result of
+printing.</p>
 <div class="section level4">
 <h4 id="another-example">Another example<a class="anchor" aria-label="anchor" href="#another-example"></a>
 </h4>
-<p>Let’s look at this again with another example, this time with an array with different lengths along each dimension to make things even more clear (hopefully). Consider the following 4x3x2 array constructed in Python in row-major order:</p>
+<p>Let’s look at this again with another example, this time with an
+array with different lengths along each dimension to make things even
+more clear (hopefully). Consider the following 4x3x2 array constructed
+in Python in row-major order:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">np</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/import.html">import</a></span><span class="op">(</span><span class="st">"numpy"</span>, convert<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="op">(</span><span class="va">x</span> <span class="op">&lt;-</span> <span class="va">np</span><span class="op">$</span><span class="fu">reshape</span><span class="op">(</span><span class="va">np</span><span class="op">$</span><span class="fu">arange</span><span class="op">(</span><span class="fl">1</span>, <span class="fl">25</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4L</span>, <span class="fl">3L</span>, <span class="fl">2L</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
@@ -336,7 +408,9 @@
 <span><span class="co">## [2,]    8   10   12</span></span>
 <span><span class="co">## [3,]   14   16   18</span></span>
 <span><span class="co">## [4,]   20   22   24</span></span></code></pre></div>
-<p>Again, they look quite different but the R and Python arrays are really the same. Let’s pick out the sub-array with third index = 0 (Python), equivalently the third index = 1 in R.</p>
+<p>Again, they look quite different but the R and Python arrays are
+really the same. Let’s pick out the sub-array with third index = 0
+(Python), equivalently the third index = 1 in R.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">np</span><span class="op">$</span><span class="fu">take</span><span class="op">(</span><span class="va">x</span>, <span class="fl">0L</span>, <span class="fl">2L</span><span class="op">)</span></span>
 <span></span>
@@ -352,15 +426,23 @@
 <span><span class="co">## [2,]    7    9   11</span></span>
 <span><span class="co">## [3,]   13   15   17</span></span>
 <span><span class="co">## [4,]   19   21   23</span></span></code></pre></div>
-<p>The NumPy <code>take()</code> function is equivalent in this example to the Python notation <code>x[:, :, 0]</code>; that is, entries with third dimension index = 0. See <a href="https://numpy.org/doc/stable/reference/generated/numpy.take.html" class="external-link uri">https://numpy.org/doc/stable/reference/generated/numpy.take.html</a> for more information.</p>
-<p>The corresponding R notation, <code>y[, , 1]</code>, returns the same thing in this example: a 4x3 matrix.</p>
-<p>Despite different internal memory ordering, and particularly despite awkward differences in printing arrays, the arrays are the same and are indexed the same way in each language respectively.</p>
+<p>The NumPy <code>take()</code> function is equivalent in this example
+to the Python notation <code>x[:, :, 0]</code>; that is, entries with
+third dimension index = 0. See <a href="https://numpy.org/doc/stable/reference/generated/numpy.take.html" class="external-link uri">https://numpy.org/doc/stable/reference/generated/numpy.take.html</a>
+for more information.</p>
+<p>The corresponding R notation, <code>y[, , 1]</code>, returns the same
+thing in this example: a 4x3 matrix.</p>
+<p>Despite different internal memory ordering, and particularly despite
+awkward differences in printing arrays, the arrays are the same and are
+indexed the same way in each language respectively.</p>
 </div>
 </div>
 <div class="section level3">
 <h3 id="what-about-going-from-r-column-major-arrays-to-python">What about going from R column-major arrays to Python?<a class="anchor" aria-label="anchor" href="#what-about-going-from-r-column-major-arrays-to-python"></a>
 </h3>
-<p>The previous examples focused on row-major arrays natively constructed in Python. Let’s see what happens when we start with column-major arrays from R and work with them in Python.</p>
+<p>The previous examples focused on row-major arrays natively
+constructed in Python. Let’s see what happens when we start with
+column-major arrays from R and work with them in Python.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="op">(</span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">24</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">3</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>  <span class="co"># In R</span></span>
 <span></span>
@@ -395,7 +477,8 @@
 <span><span class="co">##  [[ 4 16]</span></span>
 <span><span class="co">##   [ 8 20]</span></span>
 <span><span class="co">##   [12 24]]]</span></span></code></pre></div>
-<p>Note that the Python version takes advantage of NumPy’s extraordinary flexibility and preserves R’s column-major ordering:</p>
+<p>Note that the Python version takes advantage of NumPy’s extraordinary
+flexibility and preserves R’s column-major ordering:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x</span><span class="op">$</span><span class="va">flags</span></span>
 <span></span>
@@ -405,7 +488,10 @@
 <span><span class="co">##   WRITEABLE : True</span></span>
 <span><span class="co">##   ALIGNED : True</span></span>
 <span><span class="co">##   UPDATEIFCOPY : False</span></span></code></pre></div>
-<p>You can probably tell already from the previous sections that these arrays are the same, and obey the same indexing conventions. The next example selects a subarray such that the third index of each array is 0 (Python) or 1 (R):</p>
+<p>You can probably tell already from the previous sections that these
+arrays are the same, and obey the same indexing conventions. The next
+example selects a subarray such that the third index of each array is 0
+(Python) or 1 (R):</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">y</span><span class="op">[</span>, , <span class="fl">1</span><span class="op">]</span></span>
 <span></span>
@@ -421,7 +507,8 @@
 <span><span class="co">##  [ 2  6 10]</span></span>
 <span><span class="co">##  [ 3  7 11]</span></span>
 <span><span class="co">##  [ 4  8 12]]</span></span></code></pre></div>
-<p>It’s important to remember that the order is preserved from Python when copying an array result back into R:</p>
+<p>It’s important to remember that the order is preserved from Python
+when copying an array result back into R:</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/r-py-conversion.html">py_to_r</a></span><span class="op">(</span><span class="va">np</span><span class="op">$</span><span class="fu">take</span><span class="op">(</span><span class="va">x</span>, <span class="fl">0L</span>, <span class="fl">2L</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -430,11 +517,16 @@
 <span><span class="co">## [2,]    2    6   10</span></span>
 <span><span class="co">## [3,]    3    7   11</span></span>
 <span><span class="co">## [4,]    4    8   12</span></span></code></pre></div>
-<p><em><strong>The upshot is that arrays created by either R or Python are indexed exactly the same in either language.</strong></em></p>
+<p><em><strong>The upshot is that arrays created by either R or Python
+are indexed exactly the same in either language.</strong></em></p>
 <div class="section level4">
-<h4 id="but-the-array-i-created-in-r-ends-up-transposed-compared-to-ones-i-create-in-python">But the array I created in R ends up transposed compared to ones I create in Python?<a class="anchor" aria-label="anchor" href="#but-the-array-i-created-in-r-ends-up-transposed-compared-to-ones-i-create-in-python"></a>
+<h4 id="but-the-array-i-created-in-r-ends-up-transposed-compared-to-ones-i-create-in-python">But the array I created in R ends up transposed compared to ones I
+create in Python?<a class="anchor" aria-label="anchor" href="#but-the-array-i-created-in-r-ends-up-transposed-compared-to-ones-i-create-in-python"></a>
 </h4>
-<p>Right. That’s just a simple consequence of the default column-major and row-major formats used in R and NumPy respectively. You are always free to use R’s column-major format directly in Python, for example using the “F” flag below (for Fortran):</p>
+<p>Right. That’s just a simple consequence of the default column-major
+and row-major formats used in R and NumPy respectively. You are always
+free to use R’s column-major format directly in Python, for example
+using the “F” flag below (for Fortran):</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">np</span><span class="op">$</span><span class="fu">reshape</span><span class="op">(</span><span class="va">np</span><span class="op">$</span><span class="fu">arange</span><span class="op">(</span><span class="fl">1</span>, <span class="fl">25</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4L</span>, <span class="fl">3L</span>, <span class="fl">2L</span><span class="op">)</span>, <span class="st">"F"</span><span class="op">)</span></span>
 <span></span>
@@ -453,13 +545,22 @@
 <span><span class="co">##  [[  4.  16.]</span></span>
 <span><span class="co">##   [  8.  20.]</span></span>
 <span><span class="co">##   [ 12.  24.]]]</span></span></code></pre></div>
-<p>Note that the result is just like the one we got starting from R above.</p>
-<p>Re-arranging R arrays into row-major order requires more work. R is less flexible than Python and we can’t explicitly change R’s memory order representation. When the array is a matrix when we can simply use <code>byrow=TRUE</code>. In the n-d array case, a portion of the problem can be reduced to using <code>byrow=TRUE</code> followed by judicious index permutation with <code><a href="https://rdrr.io/r/base/aperm.html" class="external-link">aperm()</a></code>. Here is one somewhat inefficient example:</p>
+<p>Note that the result is just like the one we got starting from R
+above.</p>
+<p>Re-arranging R arrays into row-major order requires more work. R is
+less flexible than Python and we can’t explicitly change R’s memory
+order representation. When the array is a matrix when we can simply use
+<code>byrow=TRUE</code>. In the n-d array case, a portion of the problem
+can be reduced to using <code>byrow=TRUE</code> followed by judicious
+index permutation with <code><a href="https://rdrr.io/r/base/aperm.html" class="external-link">aperm()</a></code>. Here is one somewhat
+inefficient example:</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/aperm.html" class="external-link">aperm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">24</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span> <span class="op">*</span> <span class="fl">4</span>, <span class="fl">2</span><span class="op">)</span>, byrow<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>,</span>
 <span>           <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>See the last section below for a different example.</p>
-<p>We can verify that the above ugly expression exactly reproduces a NumPy row-major array by subtracting our R array from a native Python one:</p>
+<p>We can verify that the above ugly expression exactly reproduces a
+NumPy row-major array by subtracting our R array from a native Python
+one:</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">np</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/import.html">import</a></span><span class="op">(</span><span class="st">"numpy"</span>, convert<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="va">o</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/import.html">import</a></span><span class="op">(</span><span class="st">"operator"</span>, convert<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></span>
@@ -481,17 +582,28 @@
 <span><span class="co">##  [[ 0.  0.]</span></span>
 <span><span class="co">##   [ 0.  0.]</span></span>
 <span><span class="co">##   [ 0.  0.]]]</span></span></code></pre></div>
-<p>The above NumPy arrays are the same, their element-wise difference is zero.</p>
+<p>The above NumPy arrays are the same, their element-wise difference is
+zero.</p>
 </div>
 <div class="section level4">
 <h4 id="reshaping-arrays">Reshaping arrays<a class="anchor" aria-label="anchor" href="#reshaping-arrays"></a>
 </h4>
-<p>In R you would typically reshape an array using the <code>dim&lt;-()</code> function. For example:</p>
+<p>In R you would typically reshape an array using the
+<code>dim&lt;-()</code> function. For example:</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1000</span>, <span class="fl">28</span>, <span class="fl">28</span><span class="op">)</span></span></code></pre></div>
-<p>In R, this operation simply changes the “dim” attribute of the array, effectively re-interpreting the array indices as specified using column-major semantics.</p>
-<p>However, the NumPy <code>reshape</code> method uses row-major semantics by default, so if you are mixing R and Python code that reshapes arrays you will find that the reshaping will be inconsistent if you use the R <code>dim&lt;-()</code> function.</p>
-<p>To overcome this inconsistency, there is an <code><a href="../reference/array_reshape.html">array_reshape()</a></code> function which will reshape an R array using row-major semantics (i.e. will fill the new dimensions in row-major rather than col-major order). The example above would be re-written as:</p>
+<p>In R, this operation simply changes the “dim” attribute of the array,
+effectively re-interpreting the array indices as specified using
+column-major semantics.</p>
+<p>However, the NumPy <code>reshape</code> method uses row-major
+semantics by default, so if you are mixing R and Python code that
+reshapes arrays you will find that the reshaping will be inconsistent if
+you use the R <code>dim&lt;-()</code> function.</p>
+<p>To overcome this inconsistency, there is an
+<code><a href="../reference/array_reshape.html">array_reshape()</a></code> function which will reshape an R array
+using row-major semantics (i.e. will fill the new dimensions in
+row-major rather than col-major order). The example above would be
+re-written as:</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/array_reshape.html">array_reshape</a></span><span class="op">(</span><span class="va">x</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1000</span>, <span class="fl">28</span>, <span class="fl">28</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Here’s a further example to illustrate the difference:</p>
@@ -516,9 +628,23 @@
 <div class="section level3">
 <h3 id="other-differences-warranting-caution">Other differences warranting caution<a class="anchor" aria-label="anchor" href="#other-differences-warranting-caution"></a>
 </h3>
-<p>It’s worth noting that analogs of R’s <code><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply()</a></code> function in Python behave differently. The following excellent Mathesaurus reference <a href="http://mathesaurus.sourceforge.net/r-numpy.html" class="external-link uri">http://mathesaurus.sourceforge.net/r-numpy.html</a> applies well to matrices and vectors, but is misleading for <em>n</em>-d arrays with <em>n &gt; 2</em>.</p>
-<p>In particular, Mathesaurus says that if <em>a</em> is a <em>matrix</em>, then the sum of each column in Python may be computed by <code>a.sum(0)</code>, and in R (among other possible ways) by <code>apply(a, 2, sum)</code>. Although correct for matrices, this is in general not quite right. A more precise R analog of NumPy’s <code>a.sum(0)</code> is <code>apply(a, seq_along(dim(a))[-1], sum)</code>. In other words, <code>a.sum(0)</code> means sum over the first dimension, returning an array of the same dimensions as <em>a</em> but with the first dimension removed.</p>
-<p>It’s easy to be confused by this, so let’s see an example using a 4x3x2 array, first in Python:</p>
+<p>It’s worth noting that analogs of R’s <code><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply()</a></code> function
+in Python behave differently. The following excellent Mathesaurus
+reference <a href="https://mathesaurus.sourceforge.net/r-numpy.html" class="external-link uri">https://mathesaurus.sourceforge.net/r-numpy.html</a> applies
+well to matrices and vectors, but is misleading for <em>n</em>-d arrays
+with <em>n &gt; 2</em>.</p>
+<p>In particular, Mathesaurus says that if <em>a</em> is a
+<em>matrix</em>, then the sum of each column in Python may be computed
+by <code>a.sum(0)</code>, and in R (among other possible ways) by
+<code>apply(a, 2, sum)</code>. Although correct for matrices, this is in
+general not quite right. A more precise R analog of NumPy’s
+<code>a.sum(0)</code> is
+<code>apply(a, seq_along(dim(a))[-1], sum)</code>. In other words,
+<code>a.sum(0)</code> means sum over the first dimension, returning an
+array of the same dimensions as <em>a</em> but with the first dimension
+removed.</p>
+<p>It’s easy to be confused by this, so let’s see an example using a
+4x3x2 array, first in Python:</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span></span>
 <span><span class="va">np</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/import.html">import</a></span><span class="op">(</span><span class="st">"numpy"</span>, convert<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></span>
@@ -549,7 +675,12 @@
 <div class="section level2">
 <h2 id="addressing-an-issue-that-came-up">Addressing an issue that came up<a class="anchor" aria-label="anchor" href="#addressing-an-issue-that-came-up"></a>
 </h2>
-<p>These notes were prepared in response to a tensorflow issue now in the reticulate package <a href="https://github.com/rstudio/reticulate/issues/9" class="external-link uri">https://github.com/rstudio/reticulate/issues/9</a>. The issue directly gets to a common source of confusion with n-d arrays in R and Python and how they are printed and stored. A lightly-edited reproduction of the reference Python code in the issue appears below.</p>
+<p>These notes were prepared in response to a tensorflow issue now in
+the reticulate package <a href="https://github.com/rstudio/reticulate/issues/9" class="external-link uri">https://github.com/rstudio/reticulate/issues/9</a>. The
+issue directly gets to a common source of confusion with n-d arrays in R
+and Python and how they are printed and stored. A lightly-edited
+reproduction of the reference Python code in the issue appears
+below.</p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/rstudio/tensorflow" class="external-link">tensorflow</a></span><span class="op">)</span></span>
 <span><span class="va">np</span>   <span class="op">&lt;-</span> <span class="fu"><a href="../reference/import.html">import</a></span><span class="op">(</span><span class="st">"numpy"</span>, convert<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></span>
@@ -562,12 +693,17 @@
 <span><span class="co">##      [,1] [,2]</span></span>
 <span><span class="co">## [1,]    5   11</span></span>
 <span><span class="co">## [2,]   39   53</span></span></code></pre></div>
-<p>The issue goes on to reproduce the example using R-generated arrays as follows:</p>
+<p>The issue goes on to reproduce the example using R-generated arrays
+as follows:</p>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">A</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span>, nrow<span class="op">=</span><span class="fl">2</span>, byrow<span class="op">=</span><span class="cn">T</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">5</span><span class="op">:</span><span class="fl">8</span>, nrow<span class="op">=</span><span class="fl">2</span>, byrow<span class="op">=</span><span class="cn">T</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">A</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="va">A</span><span class="op">)</span>, dim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">2</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>However, already at this point we see that the R-generated array <em>A</em> is not the same as the above array <em>a</em> by comparing <em>a</em> with <code>np$array(A)</code> below.</p>
-<p>However, we can see how it can be easy to make the mistake that they are the same simply because of the way the arrays are printed! The R array looks superficially the same as the printed Python array.</p>
+<p>However, already at this point we see that the R-generated array
+<em>A</em> is not the same as the above array <em>a</em> by comparing
+<em>a</em> with <code>np$array(A)</code> below.</p>
+<p>However, we can see how it can be easy to make the mistake that they
+are the same simply because of the way the arrays are printed! The R
+array looks superficially the same as the printed Python array.</p>
 <div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">a</span><span class="op">)</span></span>
 <span></span>
@@ -598,7 +734,9 @@
 <span><span class="co">##      [,1] [,2]</span></span>
 <span><span class="co">## [1,]    5    6</span></span>
 <span><span class="co">## [2,]    7    8</span></span></code></pre></div>
-<p>Instead, we need to construct the R array <em>A</em> differently to match the row-major order of Python, discussed in the previous sections. We can use many approaches including:</p>
+<p>Instead, we need to construct the R array <em>A</em> differently to
+match the row-major order of Python, discussed in the previous sections.
+We can use many approaches including:</p>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="op">(</span><span class="va">A</span> <span class="op">&lt;-</span> <span class="va">np</span><span class="op">$</span><span class="fu">array</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/aperm.html" class="external-link">aperm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">8</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">2</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>,<span class="fl">2</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -607,7 +745,9 @@
 <span><span class="co">## </span></span>
 <span><span class="co">##  [[5 6]</span></span>
 <span><span class="co">##   [7 8]]]</span></span></code></pre></div>
-<p>With similar care ordering the values in the <em>b</em> array we can finish replicating the example in R (with the same result as the reference Python example above).</p>
+<p>With similar care ordering the values in the <em>b</em> array we can
+finish replicating the example in R (with the same result as the
+reference Python example above).</p>
 <div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">A</span> <span class="op">&lt;-</span> <span class="va">np</span><span class="op">$</span><span class="fu">array</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/aperm.html" class="external-link">aperm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">8</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">2</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>,<span class="fl">2</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">B</span> <span class="op">&lt;-</span> <span class="va">np</span><span class="op">$</span><span class="fu">array</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/aperm.html" class="external-link">aperm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/array.html" class="external-link">array</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">2</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">1</span>,<span class="fl">3</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
@@ -638,7 +778,7 @@
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer>

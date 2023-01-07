@@ -1,12 +1,12 @@
-# reticulate (development version)
+# reticulate 1.27
 
 - `py_run_file()` now ensures the `__file__` dunder is visible to the
   executing python code. (#1283, #1284)
-  
+
 - Fixed errors with `install_miniconda()` and `conda_install()`,
-  on Windows (#1286, #1287, conda/conda#11795, #1312, #1297), 
+  on Windows (#1286, #1287, conda/conda#11795, #1312, #1297),
   and on Linux and macOS (#1306, conda/conda#10431)
-  
+
 - Fixed error when activating a conda env from a UNC drive on Windows (#1303).
 
 # reticulate 1.26

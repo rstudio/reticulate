@@ -304,6 +304,10 @@ miniconda_conda <- function(path = miniconda_path()) {
 
 miniconda_envpath <- function(env = NULL, path = miniconda_path()) {
   env <- env %||% Sys.getenv("RETICULATE_MINICONDA_ENVNAME", unset = "r-reticulate")
+  
+  if(env == 'base')
+    return(path)
+  
   file.path(path, "envs", env)
 }
 

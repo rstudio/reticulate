@@ -322,6 +322,10 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
   if (nzchar(python))
     python_versions <- c(python_versions, python)
 
+  python <- as.character(Sys.which("python"))
+  if (nzchar(python))
+    python_versions <- c(python_versions, python)
+
   # provide other common locations
   python_versions <- c(python_versions, py_discover_config_fallbacks())
 

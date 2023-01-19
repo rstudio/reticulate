@@ -347,6 +347,19 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
     python_versions <- python_versions[size != 0]
   }
 
+  # remove msys2 / cygwin python executables.
+  # path translation going to and from msys2 currently not implemented.
+  # E.g.: "C:\foo\bar" -> "/c/foo/bar" and  "/foo/bar" -> "C:\rtools43\foo\bar"
+  # https://github.com/rstudio/reticulate/issues/1325
+  if (is_windows()) {
+    python_sys_platforms <- vapply(
+      python_versions, system2, "",
+      args = c("-c", shQuote("import sys; print(sys.platform)")),
+      stdout = TRUE)
+
+    python_versions <- python_versions[python_sys_platforms != "cygwin"]
+  }
+
   # scan until we find a version of python that meets our qualifying conditions
   valid_python_versions <- c()
   for (python_version in python_versions) {

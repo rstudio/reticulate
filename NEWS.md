@@ -1,5 +1,10 @@
 # reticulate (development version)
 
+- Fixed issue where reticulate failed to discover Python 3.11 on Windows. (#1325)
+
+- Fixed issue where reticulate would error by attempting to bind to 
+  a cygwin/msys2 installation of Python on Windows (#1325).
+
 # reticulate 1.27
 
 - `py_run_file()` now ensures the `__file__` dunder is visible to the

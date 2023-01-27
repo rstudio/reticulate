@@ -1,8 +1,13 @@
 # reticulate (development version)
 
+- Fixed issue where `source_python()` (and likely many other entrypoints)
+  would error if reticulate was built with Rcpp 1.0.10. Exception and
+  error handling has been updated to accommodate usage of `R_ProtectUnwind()`.
+  (#1328, #1329).
+
 - Fixed issue where reticulate failed to discover Python 3.11 on Windows. (#1325)
 
-- Fixed issue where reticulate would error by attempting to bind to 
+- Fixed issue where reticulate would error by attempting to bind to
   a cygwin/msys2 installation of Python on Windows (#1325).
 
 # reticulate 1.27

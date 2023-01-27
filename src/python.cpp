@@ -1678,32 +1678,27 @@ extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* k
   Function append("append");
   rArgs = append(rArgs, rKeywords);
 
-  // Some special constants for various special error conditions
-  // (NOTE: these are also defined in call.py so must be changed in both places)
-  const char* const kErrorKey = "F4B07A71E0ED40469929658827023424";
-  const char* const kInterruptError = "E04414EDEA17488B93FE2AE30F1F67AF";
-
+  Environment pkgEnv = Rcpp::Environment::namespace_env("reticulate");
+  Function safe_do_call = pkgEnv["safe_do_call"];
   // call the R function
-  std::string err;
+  PyObject *out = PyTuple_New(2);
   try {
-    Function doCall("do.call");
-    RObject result = doCall(rFunction, rArgs);
-    return r_to_py(result, convert);
+    Rcpp::List result = safe_do_call(rFunction, rArgs);
+    // result is either (return_value, FALSE) or (error_message, TRUE)
+    PyTuple_SetItem(out, 0, r_to_py(result[0], convert)); // value
+    PyTuple_SetItem(out, 1, r_to_py(result[1], true));    // was_error
   } catch(const Rcpp::internal::InterruptedException& e) {
-    err = kInterruptError;
+    PyTuple_SetItem(out, 0, as_python_str("KeyboardInterrupt"));
+    PyTuple_SetItem(out, 1, as_python_str("KeyboardInterrupt"));
   } catch(const std::exception& e) {
-    err = e.what();
+    PyTuple_SetItem(out, 0, as_python_str(e.what()));
+    PyTuple_SetItem(out, 1, PyBool_FromLong(1L));
   } catch(...) {
-    err = "(Unknown exception occurred)";
+    PyTuple_SetItem(out, 0, as_python_str("(Unknown exception occurred)"));
+    PyTuple_SetItem(out, 1, PyBool_FromLong(1L));
   }
 
-  // ...we won't reach this code unless an error occurred
-
-  // Return a special named list which the caller transforms into a python error
-  PyObjectPtr errorDict(PyDict_New());
-  PyObjectPtr errorMsg(as_python_str(err));
-  PyDict_SetItemString(errorDict, kErrorKey, errorMsg);
-  return errorDict.detach();
+  return out;
 }
 
 struct PythonCall {

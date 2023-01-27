@@ -1,6 +1,12 @@
 
 `%||%` <- function(x, y) if (is.null(x)) y else x
 
+
+safe_do_call <- function(fn, args) {
+  tryCatch(list(do.call(fn, args), FALSE),
+           error = function(e) list(e$message, TRUE))
+}
+
 traceback_enabled <- function() {
 
   # if there is specific option set then respect it

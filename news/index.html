@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.27</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.28</span>
       </span>
     </div>
 
@@ -82,7 +82,13 @@
     </div>
 
     <div class="section level2">
-<h2 class="page-header" data-toc-text="1.27" id="reticulate-127">reticulate 1.27<a class="anchor" aria-label="anchor" href="#reticulate-127"></a></h2>
+<h2 class="page-header" data-toc-text="1.28" id="reticulate-128">reticulate 1.28<a class="anchor" aria-label="anchor" href="#reticulate-128"></a></h2>
+<ul><li><p>Fixed issue where <code><a href="../reference/source_python.html">source_python()</a></code> (and likely many other entrypoints) would error if reticulate was built with Rcpp 1.0.10. Exception and error handling has been updated to accommodate usage of <code>R_ProtectUnwind()</code>. (<a href="https://github.com/rstudio/reticulate/issues/1328" class="external-link">#1328</a>, <a href="https://github.com/rstudio/reticulate/issues/1329" class="external-link">#1329</a>).</p></li>
+<li><p>Fixed issue where reticulate failed to discover Python 3.11 on Windows. (<a href="https://github.com/rstudio/reticulate/issues/1325" class="external-link">#1325</a>)</p></li>
+<li><p>Fixed issue where reticulate would error by attempting to bind to a cygwin/msys2 installation of Python on Windows (<a href="https://github.com/rstudio/reticulate/issues/1325" class="external-link">#1325</a>).</p></li>
+</ul></div>
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="1.27" id="reticulate-127">reticulate 1.27<small>2023-01-07</small><a class="anchor" aria-label="anchor" href="#reticulate-127"></a></h2>
 <ul><li><p><code><a href="../reference/py_run.html">py_run_file()</a></code> now ensures the <code>__file__</code> dunder is visible to the executing python code. (<a href="https://github.com/rstudio/reticulate/issues/1283" class="external-link">#1283</a>, <a href="https://github.com/rstudio/reticulate/issues/1284" class="external-link">#1284</a>)</p></li>
 <li><p>Fixed errors with <code><a href="../reference/install_miniconda.html">install_miniconda()</a></code> and <code><a href="../reference/conda-tools.html">conda_install()</a></code>, on Windows (<a href="https://github.com/rstudio/reticulate/issues/1286" class="external-link">#1286</a>, <a href="https://github.com/rstudio/reticulate/issues/1287" class="external-link">#1287</a>, conda/conda#11795, <a href="https://github.com/rstudio/reticulate/issues/1312" class="external-link">#1312</a>, <a href="https://github.com/rstudio/reticulate/issues/1297" class="external-link">#1297</a>), and on Linux and macOS (<a href="https://github.com/rstudio/reticulate/issues/1306" class="external-link">#1306</a>, conda/conda#10431)</p></li>
 <li><p>Fixed error when activating a conda env from a UNC drive on Windows (<a href="https://github.com/rstudio/reticulate/issues/1303" class="external-link">#1303</a>).</p></li>

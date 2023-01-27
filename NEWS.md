@@ -1,3 +1,5 @@
+# reticulate (development version)
+
 # reticulate 1.28
 
 - Fixed issue where `source_python()` (and likely many other entrypoints)

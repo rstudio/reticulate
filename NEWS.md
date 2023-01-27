@@ -1,4 +1,4 @@
-# reticulate (development version)
+# reticulate 1.28
 
 - Fixed issue where `source_python()` (and likely many other entrypoints)
   would error if reticulate was built with Rcpp 1.0.10. Exception and

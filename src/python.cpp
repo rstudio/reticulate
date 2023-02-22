@@ -147,6 +147,10 @@ PyObject* py_get_attr(PyObject* object, const std::string& name) {
 
 }
 
+bool is_r_object_capsule(PyObject* capsule) {
+  return PyCapsule_IsValid(capsule, r_object_string);
+}
+
 // helper class for ensuring decref of PyObject in the current scope
 template <typename T>
 class PyPtr {
@@ -1110,6 +1114,10 @@ SEXP py_to_r(PyObject* x, bool convert) {
     return NumericVector::create(R_NaReal);
   }
 
+  else if (is_r_object_capsule(x)) {
+    return py_capsule_read(x);
+  }
+
   // default is to return opaque wrapper to python object. we pass convert = true
   // because if we hit this code then conversion has been either implicitly
   // or explicitly requested.
@@ -1616,9 +1624,7 @@ PyObject* r_to_py_cpp(RObject x, bool convert) {
     return r_extptr_capsule(sexp);
   }
 
-  // unhandled type
-  Rcpp::print(sexp);
-  stop("Unable to convert R object to Python type");
+  return py_capsule_new(sexp);
 
 }
 

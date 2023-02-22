@@ -1,5 +1,10 @@
 # reticulate (development version)
 
+- `r_to_py()` now succeeds for many additional types of R objects.
+  Objects that reticulate doesn't know how to convert are presented to
+  the python runtime as an opaque pointer to the underlying R object (a py capsule).
+  Previously this would error.
+
 # reticulate 1.28
 
 - Fixed issue where `source_python()` (and likely many other entrypoints)

@@ -126,6 +126,7 @@ LIBPYTHON_EXTERN PyTypeObject* PyFunction_Type;
 LIBPYTHON_EXTERN PyTypeObject* PyModule_Type;
 LIBPYTHON_EXTERN PyTypeObject* PyType_Type;
 LIBPYTHON_EXTERN PyTypeObject* PyProperty_Type;
+LIBPYTHON_EXTERN PyTypeObject* PyMethod_Type;
 LIBPYTHON_EXTERN PyTypeObject *PyMethod_Type;
 
 LIBPYTHON_EXTERN PyObject* Py_None;
@@ -296,6 +297,7 @@ LIBPYTHON_EXTERN PyObject* (*PyCapsule_New)(void *pointer, const char *name, PyC
 LIBPYTHON_EXTERN void* (*PyCapsule_GetPointer)(PyObject *capsule, const char *name);
 LIBPYTHON_EXTERN void* (*PyCapsule_GetContext)(PyObject *capsule);
 LIBPYTHON_EXTERN int (*PyCapsule_SetContext)(PyObject *capsule, void *context);
+LIBPYTHON_EXTERN int (*PyCapsule_IsValid)(PyObject *capsule, const char *name);
 
 
 LIBPYTHON_EXTERN PyObject* (*PyDict_New)(void);

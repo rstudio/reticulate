@@ -413,4 +413,5 @@ system2t <- function(command, args, ...) {
 rm_all_reticulate_state <- function() {
   unlink(rappdirs::user_data_dir("r-reticulate", NULL), recursive = TRUE, force = TRUE)
   unlink(rappdirs::user_data_dir("r-miniconda", NULL), recursive = TRUE, force = TRUE)
+  unlink(rappdirs::user_data_dir("r-miniconda-arm64", NULL), recursive = TRUE, force = TRUE)
 }

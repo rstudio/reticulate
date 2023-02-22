@@ -105,34 +105,36 @@ std::string to_string(const std::wstring& ws) {
 // forward declare error handling utility
 std::string py_fetch_error();
 
+const char *r_object_string = "r_object";
+
 // wrap an R object in a longer-lived python object "capsule"
 SEXP py_capsule_read(PyObject* capsule) {
 
-  SEXP object = (SEXP) PyCapsule_GetPointer(capsule, NULL);
+  SEXP object = (SEXP) PyCapsule_GetPointer(capsule, r_object_string);
   if (object == NULL)
     stop(py_fetch_error());
 
-  return object;
+  // Rcpp_precious_preserve() returns a cell of a doubly linked list
+  // with the original object preserved in the cell TAG().
+  return TAG(object);
 
 }
 
 void py_capsule_free(PyObject* capsule) {
 
-  SEXP object = py_capsule_read(capsule);
-  if (object != R_NilValue)
-    R_ReleaseObject(object);
+  SEXP object = (SEXP)PyCapsule_GetPointer(capsule, r_object_string);
+  if (object == NULL)
+    stop(py_fetch_error());
 
+  Rcpp_precious_remove(object);
 }
 
 PyObject* py_capsule_new(SEXP object) {
 
-  if (object != R_NilValue)
-    ::R_PreserveObject(object);
+  // if object == R_NilValue, this is a no-op, R_NilValue is reflected back.
+  object = Rcpp_precious_preserve(object);
 
-  return PyCapsule_New(
-    (void*) object,
-    NULL,
-    py_capsule_free);
+  return PyCapsule_New((void *)object, r_object_string, py_capsule_free);
 
 }
 
@@ -1371,7 +1373,7 @@ PyObject* r_to_py(RObject x, bool convert) {
 // Python capsule wrapping an R's external pointer object
 static void free_r_extptr_capsule(PyObject* capsule) {
   SEXP sexp = (SEXP)PyCapsule_GetContext(capsule);
-  ::R_ReleaseObject(sexp);
+  Rcpp_precious_remove(sexp);
 }
 
 static PyObject* r_extptr_capsule(SEXP sexp) {
@@ -1380,7 +1382,7 @@ static PyObject* r_extptr_capsule(SEXP sexp) {
   if (ptr == NULL)
     stop("Invalid pointer");
 
-  ::R_PreserveObject(sexp);
+  sexp = Rcpp_precious_preserve(sexp);
 
   PyObject* capsule = PyCapsule_New(ptr, NULL, free_r_extptr_capsule);
   PyCapsule_SetContext(capsule, (void*)sexp);

@@ -2014,7 +2014,7 @@ void py_initialize(const std::string& python,
   s_isInteractive = interactive;
 
   if(!s_isPython3)
-    warning("Python 2 reached EOL on January 1, 2020. Python 2 compatability be removed in an upcoming reticulate release.");
+    warning("Python 2 reached EOL on January 1, 2020. Python 2 compatability will be removed in an upcoming reticulate release.");
 
   // load the library
   std::string err;

@@ -682,6 +682,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// py_capsule
+PyObjectRef py_capsule(SEXP x);
+RcppExport SEXP _reticulate_py_capsule(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_capsule(x));
+    return rcpp_result_gen;
+END_RCPP
+}
 // readline
 SEXP readline(const std::string& prompt);
 RcppExport SEXP _reticulate_readline(SEXP promptSEXP) {
@@ -774,6 +785,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_reticulate_py_bool_impl", (DL_FUNC) &_reticulate_py_bool_impl, 1},
     {"_reticulate_py_has_method", (DL_FUNC) &_reticulate_py_has_method, 2},
     {"_reticulate_py_id", (DL_FUNC) &_reticulate_py_id, 1},
+    {"_reticulate_py_capsule", (DL_FUNC) &_reticulate_py_capsule, 1},
     {"_reticulate_readline", (DL_FUNC) &_reticulate_readline, 1},
     {"_reticulate_py_register_interrupt_handler", (DL_FUNC) &_reticulate_py_register_interrupt_handler, 0},
     {"_reticulate_py_interrupts_pending", (DL_FUNC) &_reticulate_py_interrupts_pending, 1},

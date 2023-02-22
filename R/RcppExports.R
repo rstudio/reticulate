@@ -270,6 +270,10 @@ py_id <- function(object) {
     .Call(`_reticulate_py_id`, object)
 }
 
+py_capsule <- function(x) {
+    .Call(`_reticulate_py_capsule`, x)
+}
+
 readline <- function(prompt) {
     .Call(`_reticulate_readline`, prompt)
 }

@@ -3132,3 +3132,19 @@ SEXP py_id(PyObjectRef object) {
 
   return CharacterVector({id.str()});
 }
+
+void ensure_python_initialized() {
+  if (s_is_python_initialized)
+    return;
+
+  Function initialize = Environment::namespace_env("reticulate")["ensure_python_initialized"];
+  initialize();
+}
+
+// [[Rcpp::export]]
+PyObjectRef py_capsule(SEXP x) {
+  if(!s_is_python_initialized)
+    ensure_python_initialized();
+
+  return py_ref(py_capsule_new(x), false);
+}

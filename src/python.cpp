@@ -1624,6 +1624,7 @@ PyObject* r_to_py_cpp(RObject x, bool convert) {
     return r_extptr_capsule(sexp);
   }
 
+  // default fallback, wrap the r object in a py capsule
   return py_capsule_new(sexp);
 
 }
@@ -1692,9 +1693,11 @@ extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* k
   PyObject *out = PyTuple_New(2);
   try {
     Rcpp::List result = safe_do_call(rFunction, rArgs);
-    // result is either (return_value, FALSE) or (error_message, TRUE)
-    PyTuple_SetItem(out, 0, r_to_py(result[0], convert)); // value
-    PyTuple_SetItem(out, 1, r_to_py(result[1], true));    // was_error
+    // result is either
+    // (return_value, NULL) or
+    // (NULL, Exception object converted from r_error_condition_object)
+    PyTuple_SetItem(out, 0, r_to_py(result[0], convert)); // value (or NULL)
+    PyTuple_SetItem(out, 1, r_to_py(result[1], false));   // Exception (or NULL)
   } catch(const Rcpp::internal::InterruptedException& e) {
     PyTuple_SetItem(out, 0, as_python_str("KeyboardInterrupt"));
     PyTuple_SetItem(out, 1, as_python_str("KeyboardInterrupt"));

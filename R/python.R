@@ -1581,6 +1581,7 @@ py_last_error <- function(exception) {
     message = paste0(traceback$format_exception(etype, e, etb),
                      collapse = "")
   )
+  out$r_condition <- py_get_attr(e, "_r_condition", TRUE)
   out <- lapply(out, as_r_value)
   attr(out, "exception") <- e
   class(out) <- "py_error"
@@ -1590,4 +1591,8 @@ py_last_error <- function(exception) {
 #' @export
 print.py_error <- function(x, ...) {
   cat(x$message, "\n", sep = "")
+  if(!is.null(x$r_condition)) {
+    cat("R condition:\n")
+    print(x$r_condition, "\n")
+  }
 }

@@ -3,8 +3,19 @@
 
 
 safe_do_call <- function(fn, args) {
-  tryCatch(list(do.call(fn, args), FALSE),
-           error = function(e) list(e$message, TRUE))
+  tryCatch(
+    list(do.call(fn, args), NULL),
+    error = function(e)
+      list(NULL, r_to_py.error(e))
+
+  )
+}
+
+#' @export
+r_to_py.error <- function(x, convert = FALSE) {
+  e <- import_builtins(convert = convert)$Exception(x$message)
+  e$`_r_condition` <- py_capsule(x)
+  e
 }
 
 traceback_enabled <- function() {

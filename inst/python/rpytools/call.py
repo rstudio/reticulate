@@ -1,11 +1,8 @@
 import rpycall
 
 
-
-
 def make_python_function(f, name=None):
     def python_function(*args, **kwargs):
-
         # call the function
         value, error = rpycall.call_r_function(f, *args, **kwargs)
 
@@ -15,8 +12,9 @@ def make_python_function(f, name=None):
                 # otherwise error is always a bool()
                 raise KeyboardInterrupt()
 
-            raise RuntimeError(value)
-
+            if isinstance(error, Exception):
+                raise error
+            raise RuntimeError(error)
         return value
 
     if not name is None:

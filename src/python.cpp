@@ -579,23 +579,51 @@ SEXP py_fetch_error() {
     Py_DecRef(excTraceback);
   }
 
+  PyObjectPtr pExcType(excType);  // decref on exit
+
   if (!PyObject_HasAttrString(excValue, "r_call")) {
+
     // If we're catching a Python exception that was originally an R error,
     // preserve the original R call from the condition.
     // Otherwise, try to capture the current call.
 
-    // TODO, this doesn't appear to be working correctly if the callstack
-    // is just one deep, (modulo tryCatch/withRestarts etc.)
-    // it returns NULL instead of the active call.
-    SEXP r_call = get_last_call();
-    if (r_call != R_NilValue) {
-      PyObject* r_call_capsule(py_capsule_new(get_last_call()));
-      PyObject_SetAttrString(excValue, "r_call", r_call_capsule);
-      Py_DecRef(r_call_capsule);
+    // A first draft of this tried using: SEXP r_call = get_last_call();
+    // with get_last_call() defined in Rcpp headers. Unfortunatly, that would
+    // skip over the actual call of interest, and frequently return NULL
+    // for shallow call stacks. So we fetch the call directly
+    // using the R API.
+
+    SEXP which_frame = PROTECT(Rf_ScalarInteger(-1));
+    SEXP sys_call_call = PROTECT(Rf_lang2(Rf_install("sys.call"),
+                                          which_frame));
+
+    int get_call_errored = 0;
+    SEXP r_call = PROTECT(R_tryEval(sys_call_call, R_BaseEnv,
+                                    &get_call_errored));
+    if(get_call_errored) {
+      UNPROTECT(3);
+      Rcpp::stop("Failed to fetch R call");
     }
+
+    // // snippet for debugging / inspecting the full call stack
+    // SEXP sys_calls_call = PROTECT(Rf_lang1(Rf_install("sys.calls")));
+    // SEXP r_calls = PROTECT(R_tryEval(sys_calls_call, R_BaseEnv, &get_call_errored));
+    // Rf_PrintValue(r_calls);
+    // UNPROTECT(2);
+
+    // TODO: needs a robust way to determine we're caturing the actual user
+    // call, and not something from reticulate. the `-1` for `which_frame` above
+    // is just a guess that usually right.
+
+    // TODO: capture `r_traceback` here as well, just like in `safe_do_call()`
+    // (look at using rlang for this). Ideally filter out reticulate frames.
+
+    PyObject* r_call_capsule(py_capsule_new(r_call));
+    PyObject_SetAttrString(excValue, "r_call", r_call_capsule);
+    Py_DecRef(r_call_capsule);
+    UNPROTECT(3);
   }
 
-  PyObjectPtr pExcType(excType); // decref on exit
   PyObjectRef cond(py_ref(excValue, false));
 
 // handled by py_filter_classes() now

@@ -40,6 +40,10 @@ py_validate_xptr <- function(x) {
     invisible(.Call(`_reticulate_py_validate_xptr`, x))
 }
 
+conditionMessage_from_py_exception <- function(exc) {
+    .Call(`_reticulate_conditionMessage_from_py_exception`, exc)
+}
+
 py_none_impl <- function() {
     .Call(`_reticulate_py_none_impl`)
 }

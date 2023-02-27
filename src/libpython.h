@@ -268,6 +268,7 @@ LIBPYTHON_EXTERN char* (*PyByteArray_AsString)(PyObject *bytearray);
 LIBPYTHON_EXTERN PyObject* (*PyUnicode_FromString)(const char *u);
 
 LIBPYTHON_EXTERN void (*PyErr_Clear)();
+LIBPYTHON_EXTERN void (*PyErr_Print)();
 LIBPYTHON_EXTERN void (*PyErr_Fetch)(PyObject **, PyObject **, PyObject **);
 LIBPYTHON_EXTERN void (*PyErr_Restore)(PyObject *, PyObject *, PyObject *);
 LIBPYTHON_EXTERN void (*PyErr_SetNone)(PyObject*);

@@ -7,7 +7,7 @@
   passed directly to `base::stop()` to signal an error in R and raise an
   exception in Python.
 
-- Raised Python Exceptions are now are used directly to signal an R error.
+- Raised Python Exceptions are now used directly to signal an R error.
   For example, in the following code, `e` is now an object that
   inherits from `python.builtin.Exception` as well as `error` and `condition`:
     ```r
@@ -23,10 +23,11 @@
 
 - `r_to_py()` now succeeds for many additional types of R objects.
   Objects that reticulate doesn't know how to convert are presented to
-  the python runtime as a py capsule (an opaque pointer to the underlying R object).
-  Previously this would error.
-  This allows for R code to pass R objects that cannot be converted to python
-  through the python runtime to other R code that can handle them. (#1304)
+  the python runtime as a py capsule (an opaque pointer to the underlying 
+  R object). Previously this would error.
+  This allows for R code to pass R objects that cannot be safely 
+  converted to Python through the Python runtime to other R code. 
+  (e.g, to an R function called by Python code). (#1304)
 
 # reticulate 1.28
 

@@ -37,7 +37,7 @@ Depends:
     R (>= 3.0)
 Imports:
     Matrix,
-    Rcpp (>= 0.12.7),
+    Rcpp (>= 1.0.7),
     RcppTOML,
     graphics,
     here,

@@ -3,9 +3,85 @@
 
 
 safe_do_call <- function(fn, args) {
-  tryCatch(list(do.call(fn, args), FALSE),
-           error = function(e) list(e$message, TRUE))
+
+  withRestarts(
+    expr = withCallingHandlers(
+      expr = return(list(do.call(fn, args), NULL)),
+      python.builtin.BaseException = function(e) {
+        # we're rethrowing
+        invokeRestart("raise_py_exception", e)
+      },
+      error = function(e) {
+        e$traceback <- .traceback(4)
+        invokeRestart("raise_py_exception", e)
+      }
+    ),
+
+    raise_py_exception = function(e) {
+      list(NULL, e)
+    }
+
+  )
 }
+
+#' @export
+r_to_py.error <- function(x, convert = FALSE) {
+  if(inherits(x, "python.builtin.object")) {
+    assign("convert", convert, envir =  as.environment(x))
+    return(x)
+  }
+
+  e <- import_builtins(convert = convert)$RuntimeError(conditionMessage(x))
+
+  for (nm in setdiff(names(x), c("call", "message")))
+    py_set_attr(e, paste0("r_", nm), x[[nm]])
+
+  py_set_attr(e, "r_call", conditionCall(x))
+  py_set_attr(e, "r_class", class(x))
+
+  e
+}
+
+#' @export
+conditionCall.python.builtin.BaseException <- function(c) {
+  as_r_value(py_get_attr(c, "r_call", TRUE))
+}
+
+#' @export
+conditionMessage.python.builtin.BaseException <- function(c) {
+  conditionMessage_from_py_exception(c)
+}
+
+#' @export
+print.python.builtin.BaseException <- function(x, ...) {
+    NextMethod()
+    r_attr_nms <- grep("^r_", py_list_attributes(x), value = TRUE)
+    if (length(r_attr_nms)) {
+      r_attrs <- lapply(r_attr_nms,
+                        function(nm)
+                          as_r_value(py_get_attr(x, nm)))
+      names(r_attrs) <- r_attr_nms
+      str(r_attrs, no.list = TRUE)
+    }
+    invisible(x)
+}
+
+#' @export
+`$.python.builtin.BaseException` <- function(x, name) {
+    if ("condition" %in% .Class &&
+        (identical(name, "call") || identical(name, "message"))) {
+        # warning("Please use conditionCall() or conditionMessage() instead of $call or $message")
+        return(switch(name,
+            call = conditionCall(x),
+            message = conditionMessage(x)
+        ))
+    }
+    py_get_attr(x, name, TRUE)
+}
+
+#' @export
+`[[.python.builtin.BaseException` <- `$.python.builtin.BaseException`
+
 
 traceback_enabled <- function() {
 

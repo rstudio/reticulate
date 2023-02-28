@@ -1,5 +1,34 @@
 # reticulate (development version)
 
+- R error information (call, message, other attributes) are now
+  preserved as an R error condition traverses the R <-> Python boundary.
+
+- Python Exceptions now inherit from `error` and `condition`, and can be
+  passed directly to `base::stop()` to signal an error in R and raise an
+  exception in Python.
+
+- Raised Python Exceptions are now used directly to signal an R error.
+  For example, in the following code, `e` is now an object that
+  inherits from `python.builtin.Exception` as well as `error` and `condition`:
+    ```r
+    e <- tryCatch(py_func_that_raises_exception(),
+                  error = function(e) e)
+    ```
+  Use `base::conditionCall()` and `base::conditionMessage()` to access
+  the original R call and error message.
+
+- `py_last_error()` return object contains `r_call`, `r_traceback` and/or
+  `r_class` if the Python Exception was raised by an R function called
+  from Python.
+
+- `r_to_py()` now succeeds for many additional types of R objects.
+  Objects that reticulate doesn't know how to convert are presented to
+  the python runtime as a py capsule (an opaque pointer to the underlying 
+  R object). Previously this would error.
+  This allows for R code to pass R objects that cannot be safely 
+  converted to Python through the Python runtime to other R code. 
+  (e.g, to an R function called by Python code). (#1304)
+
 # reticulate 1.28
 
 - Fixed issue where `source_python()` (and likely many other entrypoints)

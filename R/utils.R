@@ -61,7 +61,13 @@ print.python.builtin.BaseException <- function(x, ...) {
                         function(nm)
                           as_r_value(py_get_attr(x, nm)))
       names(r_attrs) <- r_attr_nms
+      r_traceback <- r_attrs$r_traceback
+      r_attrs$r_traceback <- NULL
       str(r_attrs, no.list = TRUE)
+      if(!is.null(r_traceback)) {
+        cat(" $ r_traceback: \n")
+        traceback(r_traceback)
+      }
     }
     invisible(x)
 }

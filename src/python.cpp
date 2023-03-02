@@ -588,7 +588,7 @@ SEXP py_fetch_error() {
     // Otherwise, try to capture the current call.
 
     // A first draft of this tried using: SEXP r_call = get_last_call();
-    // with get_last_call() defined in Rcpp headers. Unfortunatly, that would
+    // with get_last_call() defined in Rcpp headers. Unfortunately, that would
     // skip over the actual call of interest, and frequently return NULL
     // for shallow call stacks. So we fetch the call directly
     // using the R API.
@@ -624,7 +624,7 @@ SEXP py_fetch_error() {
     UNPROTECT(3);
   }
 
-  PyObjectRef cond(py_ref(excValue, false));
+  PyObjectRef cond(py_ref(excValue, true));
 
 // handled by py_filter_classes() now
 //   CharacterVector condClasses = cond.attr("class");
@@ -1754,7 +1754,7 @@ extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* k
     // (return_value, NULL) or
     // (NULL, Exception object converted from r_error_condition_object)
     PyTuple_SetItem(out, 0, r_to_py(result[0], convert)); // value (or NULL)
-    PyTuple_SetItem(out, 1, r_to_py(result[1], false));   // Exception (or NULL)
+    PyTuple_SetItem(out, 1, r_to_py(result[1], true));   // Exception (or NULL)
   } catch(const Rcpp::internal::InterruptedException& e) {
     PyTuple_SetItem(out, 0, as_python_str("KeyboardInterrupt"));
     PyTuple_SetItem(out, 1, as_python_str("KeyboardInterrupt"));

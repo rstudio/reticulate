@@ -1,5 +1,11 @@
 # reticulate (development version)
 
+- `py_run_file()` and `source_python()` now prepend the script directory to
+  the Python module search path, `sys.path`, while the requested script is executing. 
+  This allows the python scripts to resolve imports of modules defined in the 
+  script directory, matching the behavior of `python <script>` at the command line.
+  (#1347)
+
 - R error information (call, message, other attributes) are now
   preserved as an R error condition traverses the R <-> Python boundary.
 

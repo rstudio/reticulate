@@ -36,6 +36,8 @@ install_miniconda <- function(path = miniconda_path(),
 {
   check_forbidden_install("Miniconda")
 
+  path <- path.expand(path)
+
   if (grepl(" ", path, fixed = TRUE))
     stop("cannot install Miniconda into a path containing spaces")
 

@@ -148,7 +148,11 @@ void initialize_type_objects(bool python3);
 
 #define Py_TYPE(ob) (((PyObject*)(ob))->ob_type)
 
-#define PyUnicode_Check(o)   (Py_TYPE(o) == Py_TYPE(Py_Unicode))
+#define PyType_FastSubclass(type, flag) PyType_HasFeature(type, flag)
+#define Py_TPFLAGS_UNICODE_SUBCLASS     (1UL << 28)
+#define PyUnicode_Check(op) PyType_FastSubclass(Py_TYPE(op), Py_TPFLAGS_UNICODE_SUBCLASS)
+
+#define PyUnicode_CheckExact(o)   (Py_TYPE(o) == Py_TYPE(Py_Unicode))
 #define PyString_Check(o)    (Py_TYPE(o) == Py_TYPE(Py_String))
 #define PyInt_Check(o)       (Py_TYPE(o) == Py_TYPE(Py_Int))
 #define PyLong_Check(o)      (Py_TYPE(o) == Py_TYPE(Py_Long))
@@ -330,6 +334,7 @@ LIBPYTHON_EXTERN double (*PyComplex_ImagAsDouble)(PyObject *op);
 LIBPYTHON_EXTERN void* (*PyCObject_AsVoidPtr)(PyObject *);
 
 LIBPYTHON_EXTERN int (*PyType_IsSubtype)(PyTypeObject *, PyTypeObject *);
+LIBPYTHON_EXTERN int (*PyType_GetFlags)(PyTypeObject *type);
 
 LIBPYTHON_EXTERN void (*Py_SetProgramName)(char *);
 LIBPYTHON_EXTERN void (*Py_SetProgramName_v3)(wchar_t *);
@@ -453,6 +458,14 @@ typedef struct tagPyArrayObject_fields {
 } PyArrayObject_fields;
 
 
+
+static inline int
+PyType_HasFeature(PyTypeObject *type, unsigned long feature)
+{
+    unsigned long flags;
+    flags = PyType_GetFlags(type);
+    return ((flags & feature) != 0);
+}
 
 LIBPYTHON_EXTERN void **PyArray_API;
 

@@ -216,8 +216,9 @@ private:
 typedef PyPtr<PyObject> PyObjectPtr;
 typedef PyPtr<PyArray_Descr> PyArray_DescrPtr;
 
-PyObject* PyUnicode_AsBytes(PyObject* str) {
-  return PyUnicode_AsEncodedString(str, "utf-8", "ignore");
+inline PyObject* PyUnicode_AsBytes(PyObject* str) {
+  return PyUnicode_AsEncodedString(str, /* encoding = */ NULL, /* errors = */ "ignore");
+  // encoding = NULL  is fastpath to "utf-8"
 }
 
 PyObject* as_python_str(const std::string& str);

@@ -148,18 +148,42 @@ void initialize_type_objects(bool python3);
 
 #define Py_TYPE(ob) (((PyObject*)(ob))->ob_type)
 
+#define PyType_HasFeature(type, feature)  ((PyType_GetFlags(type) & (feature)) != 0)
 #define PyType_FastSubclass(type, flag) PyType_HasFeature(type, flag)
+
+#define Py_TPFLAGS_LONG_SUBCLASS        (1UL << 24)
+#define PyLong_Check(op) PyType_FastSubclass(Py_TYPE(op), Py_TPFLAGS_LONG_SUBCLASS)
+#define PyLong_CheckExact(o)      (Py_TYPE(o) == Py_TYPE(Py_Long))
+
+#define Py_TPFLAGS_LIST_SUBCLASS        (1UL << 25)
+#define PyList_Check(op) PyType_FastSubclass(Py_TYPE(op), Py_TPFLAGS_LIST_SUBCLASS)
+#define PyList_CheckExact(o)      (Py_TYPE(o) == Py_TYPE(Py_List))
+
+#define Py_TPFLAGS_TUPLE_SUBCLASS       (1UL << 26)
+#define PyTuple_Check(op) PyType_FastSubclass(Py_TYPE(op), Py_TPFLAGS_TUPLE_SUBCLASS)
+#define PyTuple_CheckExact(o)     (Py_TYPE(o) == Py_TYPE(Py_Tuple))
+
+#define Py_TPFLAGS_BYTES_SUBCLASS       (1UL << 27)
+#define PyBytes_Check(op) PyType_FastSubclass(Py_TYPE(op), Py_TPFLAGS_BYTES_SUBCLASS)
+
 #define Py_TPFLAGS_UNICODE_SUBCLASS     (1UL << 28)
 #define PyUnicode_Check(op) PyType_FastSubclass(Py_TYPE(op), Py_TPFLAGS_UNICODE_SUBCLASS)
-
 #define PyUnicode_CheckExact(o)   (Py_TYPE(o) == Py_TYPE(Py_Unicode))
+
+#define Py_TPFLAGS_DICT_SUBCLASS        (1UL << 29)
+#define PyDict_Check(op) PyType_FastSubclass(Py_TYPE(op), Py_TPFLAGS_DICT_SUBCLASS)
+#define PyDict_CheckExact(o)      (Py_TYPE(o) == Py_TYPE(Py_Dict))
+
+#define Py_TPFLAGS_BASE_EXC_SUBCLASS    (1UL << 30)
+#define PyExceptionInstance_Check(x) PyType_FastSubclass(Py_TYPE(x), Py_TPFLAGS_BASE_EXC_SUBCLASS)
+
+#define Py_TPFLAGS_TYPE_SUBCLASS        (1UL << 31)
+#define PyType_Check(op) PyType_FastSubclass(Py_TYPE(op), Py_TPFLAGS_TYPE_SUBCLASS)
+#define PyType_CheckExact(op) (Py_TYPE(op) == PyType_Type)
+
 #define PyString_Check(o)    (Py_TYPE(o) == Py_TYPE(Py_String))
 #define PyInt_Check(o)       (Py_TYPE(o) == Py_TYPE(Py_Int))
-#define PyLong_Check(o)      (Py_TYPE(o) == Py_TYPE(Py_Long))
-#define PyDict_Check(o)      (Py_TYPE(o) == Py_TYPE(Py_Dict))
 #define PyFloat_Check(o)     (Py_TYPE(o) == Py_TYPE(Py_Float))
-#define PyTuple_Check(o)     (Py_TYPE(o) == Py_TYPE(Py_Tuple))
-#define PyList_Check(o)      (Py_TYPE(o) == Py_TYPE(Py_List))
 #define PyComplex_Check(o)   (Py_TYPE(o) == Py_TYPE(Py_Complex))
 #define PyByteArray_Check(o) (Py_TYPE(o) == Py_TYPE(Py_ByteArray))
 
@@ -334,7 +358,7 @@ LIBPYTHON_EXTERN double (*PyComplex_ImagAsDouble)(PyObject *op);
 LIBPYTHON_EXTERN void* (*PyCObject_AsVoidPtr)(PyObject *);
 
 LIBPYTHON_EXTERN int (*PyType_IsSubtype)(PyTypeObject *, PyTypeObject *);
-LIBPYTHON_EXTERN int (*PyType_GetFlags)(PyTypeObject *type);
+LIBPYTHON_EXTERN unsigned long (*PyType_GetFlags)(PyTypeObject *type);
 
 LIBPYTHON_EXTERN void (*Py_SetProgramName)(char *);
 LIBPYTHON_EXTERN void (*Py_SetProgramName_v3)(wchar_t *);
@@ -359,7 +383,6 @@ LIBPYTHON_EXTERN void* (*PyCapsule_Import)(const char *name, int no_block);
 LIBPYTHON_EXTERN PyObject* (*PyObject_Type)(PyObject* o);
 #define PyObject_TypeCheck(o, tp) ((PyTypeObject*)Py_TYPE(o) == (tp)) || PyType_IsSubtype((PyTypeObject*)Py_TYPE(o), (tp))
 
-#define PyType_Check(o) PyObject_TypeCheck(o, PyType_Type)
 
 #define PyModule_Check(op) PyObject_TypeCheck(op, PyModule_Type)
 #define PyModule_CheckExact(op) (Py_TYPE(op) == PyModule_Type)
@@ -458,14 +481,6 @@ typedef struct tagPyArrayObject_fields {
 } PyArrayObject_fields;
 
 
-
-static inline int
-PyType_HasFeature(PyTypeObject *type, unsigned long feature)
-{
-    unsigned long flags;
-    flags = PyType_GetFlags(type);
-    return ((flags & feature) != 0);
-}
 
 LIBPYTHON_EXTERN void **PyArray_API;
 

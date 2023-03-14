@@ -1,8 +1,11 @@
 # reticulate (development version)
 
+- `py_to_r()` now succeeds when converting subtypes of the built-in
+  types (e.g. `list`, `dict`, `str`). (#1352, #1348, #1226, #1354)
+
 - `py_run_file()` and `source_python()` now prepend the script directory to
-  the Python module search path, `sys.path`, while the requested script is executing. 
-  This allows the python scripts to resolve imports of modules defined in the 
+  the Python module search path, `sys.path`, while the requested script is executing.
+  This allows the python scripts to resolve imports of modules defined in the
   script directory, matching the behavior of `python <script>` at the command line.
   (#1347)
 
@@ -29,10 +32,10 @@
 
 - `r_to_py()` now succeeds for many additional types of R objects.
   Objects that reticulate doesn't know how to convert are presented to
-  the python runtime as a py capsule (an opaque pointer to the underlying 
+  the python runtime as a py capsule (an opaque pointer to the underlying
   R object). Previously this would error.
-  This allows for R code to pass R objects that cannot be safely 
-  converted to Python through the Python runtime to other R code. 
+  This allows for R code to pass R objects that cannot be safely
+  converted to Python through the Python runtime to other R code.
   (e.g, to an R function called by Python code). (#1304)
 
 # reticulate 1.28

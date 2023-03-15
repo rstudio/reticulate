@@ -12,7 +12,12 @@ safe_do_call <- function(fn, args) {
         invokeRestart("raise_py_exception", e)
       },
       error = function(e) {
+        ## a few redundant captures of the callstack here,
+        ## to be pruned before next CRAN release, pending
+        ## a new print method powered by rlang.
         e$traceback <- .traceback(4)
+        e$call_stack <- sys.calls()
+        e$trace <- rlang::trace_back()
         invokeRestart("raise_py_exception", e)
       }
     ),

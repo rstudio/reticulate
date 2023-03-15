@@ -46,11 +46,11 @@ Imports:
     png,
     rappdirs,
     utils,
+    rlang,
     withr
 Suggests:
     callr,
     knitr,
-    rlang,
     rmarkdown,
     testthat
 LinkingTo: Rcpp

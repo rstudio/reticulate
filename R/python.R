@@ -1592,8 +1592,8 @@ py_last_error <- function(exception) {
                      collapse = "")
   )
   out$r_call <- conditionCall(e)
-  out$r_class <- py_get_attr(e, "r_class", TRUE)
-  out$r_traceback <- py_get_attr(e, "r_traceback", TRUE)
+  out$r_class <- as_r_value(py_get_attr(e, "r_class", TRUE)) %||% class(e)
+  out$r_trace <- py_get_attr(e, "r_trace", TRUE)
   out <- lapply(out, as_r_value)
   attr(out, "exception") <- e
   class(out) <- "py_error"
@@ -1602,11 +1602,9 @@ py_last_error <- function(exception) {
 
 #' @export
 print.py_error <- function(x, ...) {
-  cat(x$message, "\n", sep = "")
-  for(nm in c("r_call", "r_class", "r_traceback")) {
-    if(!is.null(val <- x[[nm]])) {
-      cat("..$", nm, ": ", sep = "")
-      print(val)
-    }
-  }
+  cat("Message:", x$message, "\n", sep = "")
+  cat("Exception class:\n")
+  print(x$r_class)
+  cat("R traceback:\n")
+  print(x$r_trace)
 }

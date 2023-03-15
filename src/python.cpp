@@ -674,7 +674,7 @@ SEXP py_fetch_error() {
     static SEXP rlang_trace_back_call = NULL;
     if(rlang_trace_back_call == NULL) {
       SEXP rlang_ns = R_FindNamespace(Rf_mkString("rlang"));
-      SEXP trace_back_fn = Rf_findVarInFrame3(rlang_ns, Rf_install("trace_back"), TRUE);
+      SEXP trace_back_fn = Rf_findVarInFrame(rlang_ns, Rf_install("trace_back"));
       rlang_trace_back_call = Rf_lang1(trace_back_fn);
       R_PreserveObject(rlang_trace_back_call);
     }

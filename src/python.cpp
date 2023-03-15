@@ -556,6 +556,41 @@ int flush_std_buffers() {
 }
 
 
+
+// copied directly from purrr; used to call rlang::trace_back() in
+// py_fetch_error() in such a way that it doesn't introduce a new
+// frame in returned traceback
+SEXP current_env(void) {
+  static SEXP call = NULL;
+
+  if (!call) {
+    // `sys.frame(sys.nframe())` doesn't work because `sys.nframe()`
+    // returns the number of the frame in which evaluation occurs. It
+    // doesn't return the number of frames on the stack. So we'd need
+    // to evaluate it in the last frame on the stack which is what we
+    // are looking for to begin with. We use instead this workaround:
+    // Call `sys.frame()` from a closure to push a new frame on the
+    // stack, and use negative indexing to get the previous frame.
+    ParseStatus status;
+    SEXP code = PROTECT(Rf_mkString("sys.frame(-1)"));
+    SEXP parsed = PROTECT(R_ParseVector(code, -1, &status, R_NilValue));
+    SEXP body = VECTOR_ELT(parsed, 0);
+
+    SEXP fn = PROTECT(Rf_allocSExp(CLOSXP));
+    SET_FORMALS(fn, R_NilValue);
+    SET_BODY(fn, body);
+    SET_CLOENV(fn, R_BaseEnv);
+
+    call = Rf_lang1(fn);
+    R_PreserveObject(call);
+
+    UNPROTECT(3);
+  }
+
+  return Rf_eval(call, R_BaseEnv);
+}
+
+
 SEXP py_fetch_error() {
 
   // check whether this error was signaled via an interrupt.
@@ -594,44 +629,77 @@ SEXP py_fetch_error() {
     // for shallow call stacks. So we fetch the call directly
     // using the R API.
 
-    SEXP which_frame = PROTECT(Rf_ScalarInteger(-1));
-    SEXP sys_call_call = PROTECT(Rf_lang2(Rf_install("sys.call"),
-                                          which_frame));
 
-    int get_call_errored = 0;
-    SEXP r_call = PROTECT(R_tryEval(sys_call_call, R_BaseEnv,
-                                    &get_call_errored));
-    if(get_call_errored) {
-      UNPROTECT(3);
-      Rcpp::stop("Failed to fetch R call");
+    // `r_call`; Get the R call
+    static SEXP sys_call_call = NULL;
+    if(sys_call_call == NULL) {
+      SEXP which_frame = PROTECT(Rf_ScalarInteger(0));
+      sys_call_call = PROTECT(Rf_lang2(Rf_install("sys.call"), which_frame));
+      R_PreserveObject(sys_call_call);
+      UNPROTECT(2);
     }
 
-    // // snippet for debugging / inspecting the full call stack
-    // SEXP sys_calls_call = PROTECT(Rf_lang1(Rf_install("sys.calls")));
-    // SEXP r_calls = PROTECT(R_tryEval(sys_calls_call, R_BaseEnv, &get_call_errored));
-    // Rf_PrintValue(r_calls);
-    // UNPROTECT(2);
 
-    // TODO: needs a robust way to determine we're caturing the actual user
-    // call, and not something from reticulate. the `-1` for `which_frame` above
-    // is just a guess that usually right.
+    int did_error = 0;
+    SEXP r_call = PROTECT(R_tryEval(sys_call_call, R_BaseEnv, &did_error));
+    if(did_error) {
+      UNPROTECT(1);
+      Rcpp::stop("Failed to fetch R call");
+    } else {
+      PyObject* r_call_capsule(py_capsule_new(r_call));
+      PyObject_SetAttrString(excValue, "r_call", r_call_capsule);
+      Py_DecRef(r_call_capsule);
+      UNPROTECT(1);
+    }
 
-    // TODO: capture `r_traceback` here as well, just like in `safe_do_call()`
-    // (look at using rlang for this). Ideally filter out reticulate frames.
+    // `r_call_stack`, the R call stack via sys.calls(),
+    static SEXP sys_calls_call = NULL;
+    if(sys_calls_call == NULL) {
+      sys_calls_call = Rf_lang1(Rf_install("sys.calls"));
+      R_PreserveObject(sys_calls_call);
+    }
 
-    PyObject* r_call_capsule(py_capsule_new(r_call));
-    PyObject_SetAttrString(excValue, "r_call", r_call_capsule);
-    Py_DecRef(r_call_capsule);
-    UNPROTECT(3);
+    SEXP r_calls = PROTECT(R_tryEval(sys_calls_call, R_BaseEnv, &did_error));
+    if(did_error) {
+      UNPROTECT(1);
+      Rcpp::stop("Failed to fetch R call stack");
+    } else {
+      PyObject* r_call_stack_capsule(py_capsule_new(r_calls));
+      PyObject_SetAttrString(excValue, "r_call_stack", r_call_stack_capsule);
+      Py_DecRef(r_call_stack_capsule);
+      UNPROTECT(1);
+    }
+
+    // `r_trace`, via rlang::trace_back(), which has a very nice print method.
+    static SEXP rlang_trace_back_call = NULL;
+    if(rlang_trace_back_call == NULL) {
+      SEXP rlang_ns = R_FindNamespace(Rf_mkString("rlang"));
+      SEXP trace_back_fn = Rf_findVarInFrame(rlang_ns, Rf_install("trace_back"));
+      rlang_trace_back_call = Rf_lang1(trace_back_fn);
+      R_PreserveObject(rlang_trace_back_call);
+    }
+
+    SEXP r_trace = PROTECT(R_tryEval(rlang_trace_back_call, current_env(), &did_error));
+    if(!did_error) {
+      PyObject* r_trace_capsule(py_capsule_new(r_trace));
+      PyObject_SetAttrString(excValue, "r_trace", r_trace_capsule);
+      Py_DecRef(r_trace_capsule);
+    }
+    UNPROTECT(1);
+
+    // get the cppstack, r_cppstack
+    // FIXME: this doesn't seem to work, always returns NULL
+    SEXP r_cppstack = PROTECT(rcpp_get_stack_trace());
+    PyObject* r_cppstack_capsule(py_capsule_new(r_cppstack));
+    UNPROTECT(1);
+
+    PyObject_SetAttrString(excValue, "r_cppstack", r_cppstack_capsule);
+    Py_DecRef(r_cppstack_capsule);
+
   }
 
   PyObjectRef cond(py_ref(excValue, true));
 
-// handled by py_filter_classes() now
-//   CharacterVector condClasses = cond.attr("class");
-//   condClasses.push_back("error");
-//   condClasses.push_back("condition");
-//   cond.attr("class") = condClasses;
 
   Environment pkg_globals(
       Environment::namespace_env("reticulate").get(".globals"));
@@ -669,10 +737,8 @@ std::string conditionMessage_from_py_exception(PyObjectRef exc) {
   for (Py_ssize_t i = 0, n = PyList_Size(formatted); i < n; i++)
     oss << as_std_string(PyList_GetItem(formatted, i));
 
+  oss << "See `reticulate::py_last_error()` for details";
   std::string error = oss.str();
-  // traceback.format_exception_only() automatically appends a newline
-  // make sure error collapsed doesn't end with a newline
-  error = error.substr(0, error.size() - 1);
 
   SEXP max_msg_len_s = PROTECT(Rf_GetOption1(Rf_install("warning.length")));
   std::size_t max_msg_len(Rf_asInteger(max_msg_len_s));
@@ -684,23 +750,22 @@ std::string conditionMessage_from_py_exception(PyObjectRef exc) {
     // truncated. If the message will be truncated, we truncate it a little
     // better here and include a useful hint in the error message.
 
-    std::string hint("See `reticulate::py_last_error()` for details");
     std::string trunc("<... omitted ...>");
 
     // Tensorflow since ~2.6 has been including a currated traceback as part of
     // the formatted exception message, with the most user-actionable content
     // towards the tail. Since the tail is the most useful part of the message,
     // truncate from the middle of the exception by default, after including the
-    // two lines.
+    // first two lines.
     int over(error.size() - max_msg_len);
     int first_line_end_pos(error.find("\n"));
     int second_line_start_pos(error.find("\n", first_line_end_pos + 1));
     std::string head(error.substr(0, second_line_start_pos + 1));
     std::string tail(
-        error.substr(over + head.size() + hint.size() + trunc.size() + 20,
+        error.substr(over + head.size() + trunc.size() + 20,
                      std::string::npos));
     // +20 to accommodate "Error: " and similar accruals from R signal handlers.
-    error = head + trunc + tail + hint;
+    error = head + trunc + tail;
   }
 
   return error;

@@ -26,7 +26,7 @@
   Use `base::conditionCall()` and `base::conditionMessage()` to access
   the original R call and error message.
 
-- `py_last_error()` return object contains `r_call`, `r_traceback` and/or
+- `py_last_error()` return object contains `r_call`, `r_trace` and/or
   `r_class` if the Python Exception was raised by an R function called
   from Python.
 

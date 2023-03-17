@@ -25,3 +25,22 @@ test_that("An R Markdown document can be rendered using reticulate", {
 })
 
 
+
+
+test_that("In Rmd chunks, comments and output attach to code correctly", {
+
+  skip_on_cran()
+  skip_if_not_installed("rmarkdown")
+  skip_if(py_version() < "3.8") # end_lineno attr added in 3.8
+
+  local_edition(3) # needed for expect_snapshot_file()
+  # TODO: update the full testsuite to testthat edition 3
+
+  print(getwd())
+  owd <- setwd(test_path("resources"))
+  on.exit(owd, add = TRUE)
+  rmarkdown::render("test-chunking.Rmd")
+
+  expect_snapshot_file("test-chunking.md")
+
+})

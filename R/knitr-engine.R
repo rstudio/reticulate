@@ -116,11 +116,12 @@ eng_python <- function(options) {
     # the wrong code chunk
 
     if (py_has_attr(node, "decorator_list") && length(node$decorator_list)) {
-      py_get_attr(node$decorator_list[[1]], "lineno")
+      out <- py_get_attr(node$decorator_list[[1]], "lineno")
     } else {
-      py_get_attr(node, "lineno")
+      out <- py_get_attr(node, "lineno")
     }
 
+    as_r_value(out)
   }, integer(1))
 
   # it's possible for multiple statements to live on the

@@ -126,7 +126,7 @@ LIBPYTHON_EXTERN PyTypeObject* PyFunction_Type;
 LIBPYTHON_EXTERN PyTypeObject* PyModule_Type;
 LIBPYTHON_EXTERN PyTypeObject* PyType_Type;
 LIBPYTHON_EXTERN PyTypeObject* PyProperty_Type;
-LIBPYTHON_EXTERN PyTypeObject *PyMethod_Type;
+LIBPYTHON_EXTERN PyTypeObject* PyMethod_Type;
 
 LIBPYTHON_EXTERN PyObject* Py_None;
 LIBPYTHON_EXTERN PyObject* Py_Unicode;
@@ -148,14 +148,42 @@ void initialize_type_objects(bool python3);
 
 #define Py_TYPE(ob) (((PyObject*)(ob))->ob_type)
 
-#define PyUnicode_Check(o)   (Py_TYPE(o) == Py_TYPE(Py_Unicode))
+#define PyType_HasFeature(type, feature)  ((PyType_GetFlags(type) & (feature)) != 0)
+#define PyType_FastSubclass(type, flag) PyType_HasFeature(type, flag)
+
+#define Py_TPFLAGS_LONG_SUBCLASS        (1UL << 24)
+#define PyLong_Check(op) PyType_FastSubclass(Py_TYPE(op), Py_TPFLAGS_LONG_SUBCLASS)
+#define PyLong_CheckExact(o)      (Py_TYPE(o) == Py_TYPE(Py_Long))
+
+#define Py_TPFLAGS_LIST_SUBCLASS        (1UL << 25)
+#define PyList_Check(op) PyType_FastSubclass(Py_TYPE(op), Py_TPFLAGS_LIST_SUBCLASS)
+#define PyList_CheckExact(o)      (Py_TYPE(o) == Py_TYPE(Py_List))
+
+#define Py_TPFLAGS_TUPLE_SUBCLASS       (1UL << 26)
+#define PyTuple_Check(op) PyType_FastSubclass(Py_TYPE(op), Py_TPFLAGS_TUPLE_SUBCLASS)
+#define PyTuple_CheckExact(o)     (Py_TYPE(o) == Py_TYPE(Py_Tuple))
+
+#define Py_TPFLAGS_BYTES_SUBCLASS       (1UL << 27)
+#define PyBytes_Check(op) PyType_FastSubclass(Py_TYPE(op), Py_TPFLAGS_BYTES_SUBCLASS)
+
+#define Py_TPFLAGS_UNICODE_SUBCLASS     (1UL << 28)
+#define PyUnicode_Check(op) PyType_FastSubclass(Py_TYPE(op), Py_TPFLAGS_UNICODE_SUBCLASS)
+#define PyUnicode_CheckExact(o)   (Py_TYPE(o) == Py_TYPE(Py_Unicode))
+
+#define Py_TPFLAGS_DICT_SUBCLASS        (1UL << 29)
+#define PyDict_Check(op) PyType_FastSubclass(Py_TYPE(op), Py_TPFLAGS_DICT_SUBCLASS)
+#define PyDict_CheckExact(o)      (Py_TYPE(o) == Py_TYPE(Py_Dict))
+
+#define Py_TPFLAGS_BASE_EXC_SUBCLASS    (1UL << 30)
+#define PyExceptionInstance_Check(x) PyType_FastSubclass(Py_TYPE(x), Py_TPFLAGS_BASE_EXC_SUBCLASS)
+
+#define Py_TPFLAGS_TYPE_SUBCLASS        (1UL << 31)
+#define PyType_Check(op) PyType_FastSubclass(Py_TYPE(op), Py_TPFLAGS_TYPE_SUBCLASS)
+#define PyType_CheckExact(op) (Py_TYPE(op) == PyType_Type)
+
 #define PyString_Check(o)    (Py_TYPE(o) == Py_TYPE(Py_String))
 #define PyInt_Check(o)       (Py_TYPE(o) == Py_TYPE(Py_Int))
-#define PyLong_Check(o)      (Py_TYPE(o) == Py_TYPE(Py_Long))
-#define PyDict_Check(o)      (Py_TYPE(o) == Py_TYPE(Py_Dict))
 #define PyFloat_Check(o)     (Py_TYPE(o) == Py_TYPE(Py_Float))
-#define PyTuple_Check(o)     (Py_TYPE(o) == Py_TYPE(Py_Tuple))
-#define PyList_Check(o)      (Py_TYPE(o) == Py_TYPE(Py_List))
 #define PyComplex_Check(o)   (Py_TYPE(o) == Py_TYPE(Py_Complex))
 #define PyByteArray_Check(o) (Py_TYPE(o) == Py_TYPE(Py_ByteArray))
 
@@ -268,6 +296,9 @@ LIBPYTHON_EXTERN char* (*PyByteArray_AsString)(PyObject *bytearray);
 LIBPYTHON_EXTERN PyObject* (*PyUnicode_FromString)(const char *u);
 
 LIBPYTHON_EXTERN void (*PyErr_Clear)();
+LIBPYTHON_EXTERN void (*PyErr_Print)();
+
+LIBPYTHON_EXTERN void (*PyErr_PrintEx)(int set_sys_last_vars);
 LIBPYTHON_EXTERN void (*PyErr_Fetch)(PyObject **, PyObject **, PyObject **);
 LIBPYTHON_EXTERN void (*PyErr_Restore)(PyObject *, PyObject *, PyObject *);
 LIBPYTHON_EXTERN void (*PyErr_SetNone)(PyObject*);
@@ -283,6 +314,7 @@ LIBPYTHON_EXTERN int (*PyCallable_Check)(PyObject *);
 LIBPYTHON_EXTERN PyObject* (*PyModule_GetDict)(PyObject *);
 LIBPYTHON_EXTERN PyObject* (*PyImport_AddModule)(const char *);
 
+LIBPYTHON_EXTERN PyObject* (*PyRun_FileEx)(FILE*, const char*, int, PyObject*, PyObject*, int);
 LIBPYTHON_EXTERN PyObject* (*PyRun_StringFlags)(const char *, int, PyObject*, PyObject*, void*);
 LIBPYTHON_EXTERN PyObject* (*Py_CompileString)(const char *str, const char *filename, int start);
 LIBPYTHON_EXTERN PyObject* (*PyEval_EvalCode)(PyObject *co, PyObject *globals, PyObject *locals);
@@ -295,6 +327,7 @@ LIBPYTHON_EXTERN PyObject* (*PyCapsule_New)(void *pointer, const char *name, PyC
 LIBPYTHON_EXTERN void* (*PyCapsule_GetPointer)(PyObject *capsule, const char *name);
 LIBPYTHON_EXTERN void* (*PyCapsule_GetContext)(PyObject *capsule);
 LIBPYTHON_EXTERN int (*PyCapsule_SetContext)(PyObject *capsule, void *context);
+LIBPYTHON_EXTERN int (*PyCapsule_IsValid)(PyObject *capsule, const char *name);
 
 
 LIBPYTHON_EXTERN PyObject* (*PyDict_New)(void);
@@ -302,6 +335,7 @@ LIBPYTHON_EXTERN int (*PyDict_Contains)(PyObject *mp, PyObject *key);
 LIBPYTHON_EXTERN PyObject* (*PyDict_GetItem)(PyObject *mp, PyObject *key);
 LIBPYTHON_EXTERN int (*PyDict_SetItem)(PyObject *mp, PyObject *key, PyObject *item);
 LIBPYTHON_EXTERN int (*PyDict_SetItemString)(PyObject *dp, const char *key, PyObject *item);
+LIBPYTHON_EXTERN int (*PyDict_DelItemString)(PyObject *dp, const char *key);
 LIBPYTHON_EXTERN int (*PyDict_Next)(
     PyObject *mp, Py_ssize_t *pos, PyObject **key, PyObject **value);
 LIBPYTHON_EXTERN PyObject* (*PyDict_Keys)(PyObject *mp);
@@ -326,6 +360,7 @@ LIBPYTHON_EXTERN double (*PyComplex_ImagAsDouble)(PyObject *op);
 LIBPYTHON_EXTERN void* (*PyCObject_AsVoidPtr)(PyObject *);
 
 LIBPYTHON_EXTERN int (*PyType_IsSubtype)(PyTypeObject *, PyTypeObject *);
+LIBPYTHON_EXTERN unsigned long (*PyType_GetFlags)(PyTypeObject *type);
 
 LIBPYTHON_EXTERN void (*Py_SetProgramName)(char *);
 LIBPYTHON_EXTERN void (*Py_SetProgramName_v3)(wchar_t *);
@@ -350,7 +385,6 @@ LIBPYTHON_EXTERN void* (*PyCapsule_Import)(const char *name, int no_block);
 LIBPYTHON_EXTERN PyObject* (*PyObject_Type)(PyObject* o);
 #define PyObject_TypeCheck(o, tp) ((PyTypeObject*)Py_TYPE(o) == (tp)) || PyType_IsSubtype((PyTypeObject*)Py_TYPE(o), (tp))
 
-#define PyType_Check(o) PyObject_TypeCheck(o, PyType_Type)
 
 #define PyModule_Check(op) PyObject_TypeCheck(op, PyModule_Type)
 #define PyModule_CheckExact(op) (Py_TYPE(op) == PyModule_Type)

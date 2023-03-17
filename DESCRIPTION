@@ -1,7 +1,7 @@
 Package: reticulate
 Type: Package
 Title: Interface to 'Python'
-Version: 1.26-9000
+Version: 1.28-9000
 Authors@R: c(
   person("Tomasz", "Kalinowski", role = c("ctb", "cre"),
          email = "tomasz@rstudio.com"),
@@ -37,7 +37,7 @@ Depends:
     R (>= 3.0)
 Imports:
     Matrix,
-    Rcpp (>= 0.12.7),
+    Rcpp (>= 1.0.7),
     RcppTOML,
     graphics,
     here,
@@ -46,14 +46,14 @@ Imports:
     png,
     rappdirs,
     utils,
+    rlang,
     withr
 Suggests:
     callr,
     knitr,
-    rlang,
     rmarkdown,
     testthat
 LinkingTo: Rcpp
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
 Roxygen: list(markdown = TRUE)
 VignetteBuilder: knitr

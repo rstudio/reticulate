@@ -1139,6 +1139,9 @@ py_flush_output <- function() {
 #' @param local Boolean; should Python objects be created as part of
 #'   a local / private dictionary? If `FALSE`, objects will be created within
 #'   the scope of the Python main module.
+#' @param prepend_path Boolean; should the script directory be added to the
+#'   Python module search path? The default, `TRUE`, matches the behavior of
+#'   `python <path/to/script.py>` at the command line.
 #'
 #' @return A Python dictionary of objects. When `local` is `FALSE`, this
 #'   dictionary captures the state of the Python main module after running
@@ -1156,9 +1159,15 @@ py_run_string <- function(code, local = FALSE, convert = TRUE) {
 
 #' @rdname py_run
 #' @export
-py_run_file <- function(file, local = FALSE, convert = TRUE) {
+py_run_file <- function(file, local = FALSE, convert = TRUE, prepend_path = TRUE) {
   ensure_python_initialized()
-  on.exit(py_flush_output(), add = TRUE)
+
+  file <- path.expand(file)
+  if (prepend_path) {
+    sys <- import("sys", convert = FALSE)
+    sys$path$insert(0L, dirname(file))
+    on.exit(sys$path$remove(dirname(file)), add = TRUE)
+  }
   invisible(py_run_file_impl(file, local, convert))
 }
 
@@ -1582,6 +1591,9 @@ py_last_error <- function(exception) {
     message = paste0(traceback$format_exception(etype, e, etb),
                      collapse = "")
   )
+  out$r_call <- conditionCall(e)
+  out$r_class <- as_r_value(py_get_attr(e, "r_class", TRUE)) %||% class(e)
+  out$r_trace <- py_get_attr(e, "r_trace", TRUE)
   out <- lapply(out, as_r_value)
   attr(out, "exception") <- e
   class(out) <- "py_error"
@@ -1590,5 +1602,9 @@ py_last_error <- function(exception) {
 
 #' @export
 print.py_error <- function(x, ...) {
-  cat(x$message, "\n", sep = "")
+  cat("Message:", x$message, "\n", sep = "")
+  cat("Exception class:\n")
+  print(x$r_class)
+  cat("R traceback:\n")
+  print(x$r_trace)
 }

@@ -32,6 +32,7 @@ jobs:
           - { os: ubuntu-latest, r: 'release', python: '3.7'  }
           - { os: ubuntu-latest, r: 'release', python: '3.9'  }
           - { os: ubuntu-latest, r: 'release', python: '3.10' }
+          - { os: ubuntu-latest, r: 'release', python: '3.11' }
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}

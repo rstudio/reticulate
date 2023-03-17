@@ -1,6 +1,99 @@
 
 `%||%` <- function(x, y) if (is.null(x)) y else x
 
+
+safe_do_call <- function(fn, args) {
+
+  withRestarts(
+    expr = withCallingHandlers(
+      expr = return(list(do.call(fn, args), NULL)),
+      python.builtin.BaseException = function(e) {
+        # we're rethrowing
+        invokeRestart("raise_py_exception", e)
+      },
+      error = function(e) {
+        ## a few redundant captures of the callstack here,
+        ## to be pruned before next CRAN release, pending
+        ## a new print method powered by rlang.
+        e$traceback <- .traceback(4)
+        e$call_stack <- sys.calls()
+        e$trace <- rlang::trace_back()
+        invokeRestart("raise_py_exception", e)
+      }
+    ),
+
+    raise_py_exception = function(e) {
+      list(NULL, e)
+    }
+
+  )
+}
+
+#' @export
+r_to_py.error <- function(x, convert = FALSE) {
+  if(inherits(x, "python.builtin.object")) {
+    assign("convert", convert, envir =  as.environment(x))
+    return(x)
+  }
+
+  e <- import_builtins(convert = convert)$RuntimeError(conditionMessage(x))
+
+  for (nm in setdiff(names(x), c("call", "message")))
+    py_set_attr(e, paste0("r_", nm), x[[nm]])
+
+  py_set_attr(e, "r_call", conditionCall(x))
+  py_set_attr(e, "r_class", class(x))
+
+  e
+}
+
+#' @export
+conditionCall.python.builtin.BaseException <- function(c) {
+  as_r_value(py_get_attr(c, "r_call", TRUE))
+}
+
+#' @export
+conditionMessage.python.builtin.BaseException <- function(c) {
+  conditionMessage_from_py_exception(c)
+}
+
+#' @export
+print.python.builtin.BaseException <- function(x, ...) {
+    NextMethod()
+    r_attr_nms <- grep("^r_", py_list_attributes(x), value = TRUE)
+    if (length(r_attr_nms)) {
+      r_attrs <- lapply(r_attr_nms,
+                        function(nm)
+                          as_r_value(py_get_attr(x, nm)))
+      names(r_attrs) <- r_attr_nms
+      r_traceback <- r_attrs$r_traceback
+      r_attrs$r_traceback <- NULL
+      str(r_attrs, no.list = TRUE)
+      if(!is.null(r_traceback)) {
+        cat(" $ r_traceback: \n")
+        traceback(r_traceback)
+      }
+    }
+    invisible(x)
+}
+
+#' @export
+`$.python.builtin.BaseException` <- function(x, name) {
+    if ("condition" %in% .Class &&
+        (identical(name, "call") || identical(name, "message"))) {
+        # warning("Please use conditionCall() or conditionMessage() instead of $call or $message")
+        return(switch(name,
+            call = conditionCall(x),
+            message = conditionMessage(x)
+        ))
+    }
+    py_get_attr(x, name, TRUE)
+}
+
+#' @export
+`[[.python.builtin.BaseException` <- `$.python.builtin.BaseException`
+
+
 traceback_enabled <- function() {
 
   # if there is specific option set then respect it
@@ -431,4 +524,5 @@ system2t <- function(command, args, ...) {
 rm_all_reticulate_state <- function() {
   unlink(rappdirs::user_data_dir("r-reticulate", NULL), recursive = TRUE, force = TRUE)
   unlink(rappdirs::user_data_dir("r-miniconda", NULL), recursive = TRUE, force = TRUE)
+  unlink(rappdirs::user_data_dir("r-miniconda-arm64", NULL), recursive = TRUE, force = TRUE)
 }

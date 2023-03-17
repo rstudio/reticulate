@@ -40,6 +40,10 @@ py_validate_xptr <- function(x) {
     invisible(.Call(`_reticulate_py_validate_xptr`, x))
 }
 
+conditionMessage_from_py_exception <- function(exc) {
+    .Call(`_reticulate_conditionMessage_from_py_exception`, exc)
+}
+
 py_none_impl <- function() {
     .Call(`_reticulate_py_none_impl`)
 }
@@ -268,6 +272,10 @@ py_has_method <- function(object, name) {
 #' @export
 py_id <- function(object) {
     .Call(`_reticulate_py_id`, object)
+}
+
+py_capsule <- function(x) {
+    .Call(`_reticulate_py_capsule`, x)
 }
 
 readline <- function(prompt) {

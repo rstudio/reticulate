@@ -4,6 +4,66 @@
   code chunk to the wrong code chunk (#1223).
 
 - The knitr python engine now respects the `strip.white` option (#1273).
+- `py_to_r()` now succeeds when converting subtypes of the built-in
+  types (e.g. `list`, `dict`, `str`). (#1352, #1348, #1226, #1354)
+
+- `py_run_file()` and `source_python()` now prepend the script directory to
+  the Python module search path, `sys.path`, while the requested script is executing.
+  This allows the python scripts to resolve imports of modules defined in the
+  script directory, matching the behavior of `python <script>` at the command line.
+  (#1347)
+
+- R error information (call, message, other attributes) are now
+  preserved as an R error condition traverses the R <-> Python boundary.
+
+- Python Exceptions now inherit from `error` and `condition`, and can be
+  passed directly to `base::stop()` to signal an error in R and raise an
+  exception in Python.
+
+- Raised Python Exceptions are now used directly to signal an R error.
+  For example, in the following code, `e` is now an object that
+  inherits from `python.builtin.Exception` as well as `error` and `condition`:
+    ```r
+    e <- tryCatch(py_func_that_raises_exception(),
+                  error = function(e) e)
+    ```
+  Use `base::conditionCall()` and `base::conditionMessage()` to access
+  the original R call and error message.
+
+- `py_last_error()` return object contains `r_call`, `r_trace` and/or
+  `r_class` if the Python Exception was raised by an R function called
+  from Python.
+
+- `r_to_py()` now succeeds for many additional types of R objects.
+  Objects that reticulate doesn't know how to convert are presented to
+  the python runtime as a py capsule (an opaque pointer to the underlying
+  R object). Previously this would error.
+  This allows for R code to pass R objects that cannot be safely
+  converted to Python through the Python runtime to other R code.
+  (e.g, to an R function called by Python code). (#1304)
+
+# reticulate 1.28
+
+- Fixed issue where `source_python()` (and likely many other entrypoints)
+  would error if reticulate was built with Rcpp 1.0.10. Exception and
+  error handling has been updated to accommodate usage of `R_ProtectUnwind()`.
+  (#1328, #1329).
+
+- Fixed issue where reticulate failed to discover Python 3.11 on Windows. (#1325)
+
+- Fixed issue where reticulate would error by attempting to bind to
+  a cygwin/msys2 installation of Python on Windows (#1325).
+
+# reticulate 1.27
+
+- `py_run_file()` now ensures the `__file__` dunder is visible to the
+  executing python code. (#1283, #1284)
+
+- Fixed errors with `install_miniconda()` and `conda_install()`,
+  on Windows (#1286, #1287, conda/conda#11795, #1312, #1297),
+  and on Linux and macOS (#1306, conda/conda#10431)
+
+- Fixed error when activating a conda env from a UNC drive on Windows (#1303).
 
 # reticulate 1.26
 

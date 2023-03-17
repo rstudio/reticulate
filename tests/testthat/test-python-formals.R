@@ -42,8 +42,10 @@ test_that("Errors from e.g. builtins are not propagated", {
   skip_if(py_version() < "3.3")
 
   print <- import_builtins()$print
-  expect_error(py_get_formals(print))
-
+  if(py_version() >= "3.11")
+    expect_no_error(py_get_formals(print))
+  else
+    expect_error(py_get_formals(print))
 })
 
 test_that("The inspect.Parameter signature converts properly", {

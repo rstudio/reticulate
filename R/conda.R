@@ -19,7 +19,8 @@
 #'
 #' @param packages A character vector, indicating package names which should be
 #'   installed or removed. Use  \verb{<package>==<version>} to request the installation
-#'   of a specific version of a package.
+#'   of a specific version of a package. A `NULL` value for [conda_remove()] 
+#'   will be interpretted to `"--all"`, removing the entire environment.
 #'
 #' @param environment The path to an environment definition, generated via
 #'   (for example) [conda_export()], or via `conda env export`. When provided,
@@ -101,6 +102,7 @@ conda_list <- function(conda = "auto") {
 
   # resolve conda binary
   conda <- conda_binary(conda)
+  local_conda_paths(conda)
 
   # list envs -- discard stderr as Anaconda may emit warnings that can
   # otherwise be ignored; see e.g. https://github.com/rstudio/reticulate/issues/474
@@ -190,6 +192,7 @@ conda_create <- function(envname = NULL,
 {
   # resolve conda binary
   conda <- conda_binary(conda)
+  local_conda_paths(conda)
 
   # if environment is provided, use it directly
   if (!is.null(environment))
@@ -273,6 +276,7 @@ conda_clone <- function(envname, ..., clone = "base", conda = "auto") {
 
   # resolve conda binary
   conda <- conda_binary(conda)
+  local_conda_paths(conda)
 
   # resolve environment name
   envname <- condaenv_resolve(envname)
@@ -312,6 +316,7 @@ conda_export <- function(envname,
 {
   # resolve parameters
   conda <- conda_binary(conda)
+  local_conda_paths(conda)
   envname <- condaenv_resolve(envname)
 
   # build conda argument list,
@@ -349,6 +354,7 @@ conda_remove <- function(envname,
 {
   # resolve conda binary
   conda <- conda_binary(conda)
+  local_conda_paths(conda)
 
   # resolve environment name
   envname <- condaenv_resolve(envname)
@@ -357,7 +363,7 @@ conda_remove <- function(envname,
   if (is.null(packages))
     packages <- "--all"
 
-  # remove packges (or the entire environment)
+  # remove packages (or the entire environment)
   args <- conda_args("remove", envname, packages)
   result <- system2t(conda, shQuote(args))
   if (result != 0L) {
@@ -400,6 +406,7 @@ conda_install <- function(envname = NULL,
 
   # resolve conda binary
   conda <- conda_binary(conda)
+  local_conda_paths(conda)
 
   # resolve environment name
   envname <- condaenv_resolve(envname)
@@ -538,6 +545,7 @@ conda_exe <- conda_binary
 #' @export
 conda_version <- function(conda = "auto") {
   conda_bin <- conda_binary(conda)
+  local_conda_paths(conda_bin)
   out <- system2(conda_bin, "--version", stdout = TRUE)
 
   # mamba --version gives multi-line output, with the conda version on the last line.
@@ -551,6 +559,7 @@ conda_update <- function(conda = "auto") {
 
   # resolve conda
   conda <- conda_binary(conda)
+  local_conda_paths(conda)
 
   # compute base path
   prefix <- system2(conda, c("info", "--base"), stdout = TRUE)
@@ -755,6 +764,7 @@ is_condaenv <- function(dir) {
 conda_list_packages <- function(envname = NULL, conda = "auto", no_pip = TRUE) {
 
   conda <- conda_binary(conda)
+  local_conda_paths(conda)
   envname <- condaenv_resolve(envname)
 
   # create the environment
@@ -805,6 +815,7 @@ conda_run <- function(cmd, args = c(), conda = "auto", envname = NULL,
   #  - fails if arguments need to be quoted
 
   conda <- conda_binary(conda)
+  local_conda_paths(conda)
   envname <- condaenv_resolve(envname)
 
   if (numeric_conda_version(conda) < "4.9")
@@ -836,6 +847,7 @@ conda_run2_windows <-
            cmd_line = paste(shQuote(cmd), paste(args, collapse = " ")),
            intern = FALSE, echo = !intern) {
   conda <- normalizePath(conda_binary(conda))
+  local_conda_paths(conda)
 
   if (identical(envname, "base"))
     envname <- file.path(dirname(conda), "../..")
@@ -871,6 +883,7 @@ conda_run2_nix <-
            cmd_line = paste(shQuote(cmd), paste(args, collapse = " ")),
            intern = FALSE, echo = !intern) {
   conda <- normalizePath(conda_binary(conda))
+  local_conda_paths(conda)
   activate <- normalizePath(file.path(dirname(conda), "activate"))
 
   if (!identical(envname, "base")) {
@@ -944,4 +957,40 @@ get_python_conda_info <- function(python) {
     root = normalizePath(root, winslash = "/", mustWork = TRUE)
   )
 
+}
+
+
+conda_prefix <- function(conda = "auto") {
+  conda <- normalizePath(conda_binary(conda),
+                         winslash = "/", mustWork = TRUE)
+  if(!is_windows())
+    # PREFIX/bin/conda
+    return(dirname(dirname(conda)))
+
+  # on Windows, conda can be a few places:
+  ## PREFIX/Scripts/conda.exe
+  ## PREFIX/condabin/conda.bat
+  ## PREFIX/conda.exe
+  ## others? maybe under mingw-32/ or Library/ or Tools/?
+  ## we punt and just ask conda
+  system2(conda, c("info", "--base"), stdout = TRUE)
+}
+
+conda_bin_paths <- function(conda = "auto") {
+  prefix <- conda_prefix(conda)
+  paths <- file.path(prefix, c(
+    "condabin",
+    "bin",
+    "Scripts",
+    "Library/bin",
+    "Library/usr/bin",
+    "Library/mingw-w64/bin"
+  ))
+  paths[dir.exists(paths)]
+}
+
+
+local_conda_paths <- function(conda, action = "prefix",
+                              .local_envir = parent.frame()) {
+  withr::local_path(conda_bin_paths(conda), action, .local_envir)
 }

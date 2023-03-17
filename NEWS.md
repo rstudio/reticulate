@@ -1,7 +1,7 @@
 # reticulate (development version)
 
 - Fixed issue where reticulate's knitr engine would attach comments in a
-  code chunk to the wrong code chunk (#1223).
+  code chunk to the wrong code chunk (requires Python>=3.8) (#1223).
 
 - The knitr python engine now respects the `strip.white` option (#1273).
 - `py_to_r()` now succeeds when converting subtypes of the built-in

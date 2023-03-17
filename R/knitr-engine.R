@@ -108,13 +108,19 @@ eng_python <- function(options) {
 
   # iterate over top-level nodes and extract line numbers
   lines <- vapply(parsed$body, function(node) {
-    end_lineno <- if(py_version() >= "3.8") "end_lineno" else "lineno"
+    if(py_version() >= "3.8")
+      return(as_r_value(py_get_attr(node, "end_lineno")))
+    # `end_lineno` attribute was introduced in python3.8
+    # in earlier versions, fallback to using just lineno
+    # note, this can result in comments being attached to
+    # the wrong code chunk
+
     if (py_has_attr(node, "decorator_list") && length(node$decorator_list)) {
-      out <- py_get_attr(node$decorator_list[[1]], end_lineno)
+      py_get_attr(node$decorator_list[[1]], "lineno")
     } else {
-      out <- py_get_attr(node, end_lineno)  # `end_lineno` attribute was introduced in python3.8
+      py_get_attr(node, "lineno")
     }
-    as_r_value(out)
+
   }, integer(1))
 
   # it's possible for multiple statements to live on the
@@ -134,7 +140,7 @@ eng_python <- function(options) {
       starts <- lines
       ends <- c(lines[-1] - 1, length(code))
     }
-      ranges <- mapply(c, starts, ends, SIMPLIFY = FALSE)
+    ranges <- mapply(c, starts, ends, SIMPLIFY = FALSE)
   }
 
   # line index from which source should be emitted

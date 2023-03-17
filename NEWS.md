@@ -4,6 +4,7 @@
   code chunk to the wrong code chunk (requires Python>=3.8) (#1223).
 
 - The knitr python engine now respects the `strip.white` option (#1273).
+
 - `py_to_r()` now succeeds when converting subtypes of the built-in
   types (e.g. `list`, `dict`, `str`). (#1352, #1348, #1226, #1354)
 

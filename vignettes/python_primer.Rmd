@@ -10,7 +10,7 @@ editor_options:
     wrap: 72
 ---
 
-```{r include=FALSE}
+```{r setup, include=FALSE}
 library(reticulate)
 
 # this vignette requires python 3.8 or newer
@@ -26,7 +26,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
+```{r}
 library(reticulate)
 ```
 

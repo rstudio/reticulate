@@ -1,5 +1,8 @@
 # reticulate (development version)
 
+- The knitr engine now suppresses warnings from python code if 
+  `warning=FALSE` is set in the chunk options. (quarto-dev/quarto#125, #1358)
+
 - Fixed issue where reticulate's knitr engine would attach comments in a
   code chunk to the wrong code chunk (requires Python>=3.8) (#1223).
 

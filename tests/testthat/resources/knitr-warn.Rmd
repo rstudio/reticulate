@@ -1,0 +1,18 @@
+---
+title: "Warnings"
+output: md_document
+---
+
+```{python, warning=FALSE}
+import warnings
+warnings.warn("a warning")
+1 + 1
+```
+
+
+```{python, echo=FALSE, warning=FALSE}
+import warnings
+warnings.warn("a warning")
+1 + 1
+```
+

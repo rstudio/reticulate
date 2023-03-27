@@ -165,6 +165,18 @@ eng_python <- function(options) {
     identical(options$error, TRUE) ||
     identical(getOption("knitr.in.progress", default = FALSE), FALSE)
 
+  if(isFALSE(options$warning)) {
+    py_catch_warnings_ctxt <-
+      # need to set record = TRUE, otherwise custom implementations of
+      # `warning.showwarning()` leak warnings out of the context.
+      import("warnings", convert = FALSE)$catch_warnings(record = TRUE)
+    py_catch_warnings_ctxt$`__enter__`()
+    on.exit({
+      py_catch_warnings_ctxt$`__exit__`(NULL, NULL, NULL)
+    }, add = TRUE)
+  }
+
+
   for (i in seq_along(ranges)) {
 
     # extract range

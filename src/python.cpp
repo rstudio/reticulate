@@ -1273,7 +1273,8 @@ void GrowList(SEXP args, SEXP tag, SEXP dflt) {
 }
 
 // [[Rcpp::export]]
-SEXP py_get_formals(PyObjectRef callable) {
+SEXP py_get_formals(PyObjectRef callable)
+{
 
   static PyObject *inspect_module = NULL;
   static PyObject *inspect_signature = NULL;
@@ -1284,76 +1285,76 @@ SEXP py_get_formals(PyObjectRef callable) {
   static PyObject *inspect_Parameter_empty = NULL;
 
   if (!inspect_Parameter_empty)
-  { // initialize static variables to avoid repeat lookups
-      inspect_module = PyImport_ImportModule("inspect");
-      if (!inspect_module) throw PythonException(py_fetch_error());
+  {
+    // initialize static variables to avoid repeat lookups
+    inspect_module = PyImport_ImportModule("inspect");
+    if (!inspect_module) throw PythonException(py_fetch_error());
 
-      inspect_signature = PyObject_GetAttrString(inspect_module, "signature");
-      if (!inspect_signature) throw PythonException(py_fetch_error());
+    inspect_signature = PyObject_GetAttrString(inspect_module, "signature");
+    if (!inspect_signature) throw PythonException(py_fetch_error());
 
-      inspect_Parameter = PyObject_GetAttrString(inspect_module, "Parameter");
-      if (!inspect_Parameter) throw PythonException(py_fetch_error());
+    inspect_Parameter = PyObject_GetAttrString(inspect_module, "Parameter");
+    if (!inspect_Parameter) throw PythonException(py_fetch_error());
 
-      inspect_Parameter_VAR_KEYWORD = PyObject_GetAttrString(inspect_Parameter, "VAR_KEYWORD");
-      if (!inspect_Parameter_VAR_KEYWORD) throw PythonException(py_fetch_error());
+    inspect_Parameter_VAR_KEYWORD = PyObject_GetAttrString(inspect_Parameter, "VAR_KEYWORD");
+    if (!inspect_Parameter_VAR_KEYWORD) throw PythonException(py_fetch_error());
 
-      inspect_Parameter_VAR_POSITIONAL = PyObject_GetAttrString(inspect_Parameter, "VAR_POSITIONAL");
-      if (!inspect_Parameter_VAR_POSITIONAL) throw PythonException(py_fetch_error());
+    inspect_Parameter_VAR_POSITIONAL = PyObject_GetAttrString(inspect_Parameter, "VAR_POSITIONAL");
+    if (!inspect_Parameter_VAR_POSITIONAL) throw PythonException(py_fetch_error());
 
-      inspect_Parameter_KEYWORD_ONLY = PyObject_GetAttrString(inspect_Parameter, "KEYWORD_ONLY");
-      if (!inspect_Parameter_KEYWORD_ONLY) throw PythonException(py_fetch_error());
+    inspect_Parameter_KEYWORD_ONLY = PyObject_GetAttrString(inspect_Parameter, "KEYWORD_ONLY");
+    if (!inspect_Parameter_KEYWORD_ONLY) throw PythonException(py_fetch_error());
 
-      inspect_Parameter_empty = PyObject_GetAttrString(inspect_Parameter, "empty");
-      if (!inspect_Parameter_empty) throw PythonException(py_fetch_error());
+    inspect_Parameter_empty = PyObject_GetAttrString(inspect_Parameter, "empty");
+    if (!inspect_Parameter_empty) throw PythonException(py_fetch_error());
   }
 
-  PyObject *sig = PyObject_CallFunctionObjArgs(inspect_signature, callable.get(), NULL);
-  if (sig == NULL) {
-      // inspect.signature() can error on builtins in cpython,
-      // or python functions built in C from modules
-      // fallback to returning formals of `...`.
-      PyErr_Clear();
-      SEXP out = Rf_cons(R_MissingArg, R_NilValue);
-      SET_TAG(out, Rf_install("..."));
-      return out;
+  PyObjectPtr sig(PyObject_CallFunctionObjArgs(inspect_signature, callable.get(), NULL));
+  if (sig.is_null())
+  {
+    // inspect.signature() can error on builtins in cpython,
+    // or python functions built in C from modules
+    // fallback to returning formals of `...`.
+    PyErr_Clear();
+    SEXP out = Rf_cons(R_MissingArg, R_NilValue);
+    SET_TAG(out, Rf_install("..."));
+    return out;
   }
 
-  PyObject *parameters = PyObject_GetAttrString(sig, "parameters");
-  Py_DecRef(sig);
-  if (!parameters) throw PythonException(py_fetch_error());
+  PyObjectPtr parameters(PyObject_GetAttrString(sig, "parameters"));
+  if (parameters.is_null()) throw PythonException(py_fetch_error());
 
-  PyObject *items_method = PyObject_GetAttrString(parameters, "items");
-  // Py_DecRef(parameters);
-  if (!items_method) throw PythonException(py_fetch_error());
+  PyObjectPtr items_method(PyObject_GetAttrString(parameters, "items"));
+  if (items_method.is_null()) throw PythonException(py_fetch_error());
 
-  PyObject *parameters_items = PyObject_CallFunctionObjArgs(items_method, NULL);
-  Py_DecRef(items_method);
-  if (!parameters_items) throw PythonException(py_fetch_error());
+  PyObjectPtr parameters_items(PyObject_CallFunctionObjArgs(items_method, NULL));
+  if (parameters_items.is_null()) throw PythonException(py_fetch_error());
 
-  PyObject *parameters_iterator = PyObject_GetIter(parameters_items);
-  if (!parameters_iterator) throw PythonException(py_fetch_error());
+  PyObjectPtr parameters_iterator(PyObject_GetIter(parameters_items));
+  if (parameters_iterator.is_null()) throw PythonException(py_fetch_error());
 
-  SEXP r_args = PROTECT(NewList());
-  PyObject *name, *param, *item;
+  RObject r_args(NewList());
+  PyObject *item;
   bool has_dots = false;
 
-  while ((item = PyIter_Next(parameters_iterator)))  // new ref
+  while ((item = PyIter_Next(parameters_iterator))) // new ref
   {
-    name = PyTuple_GetItem(item, 0);  // borrowed reference
-    param = PyTuple_GetItem(item, 1); // borrowed reference
-    Py_DecRef(item);
+    PyObjectPtr item_(item);
+    PyObject *name = PyTuple_GetItem(item, 0);  // borrowed reference
+    PyObject *param = PyTuple_GetItem(item, 1); // borrowed reference
 
-    PyObject *kind = PyObject_GetAttrString(param, "kind"); // new ref
-    if (!kind) throw PythonException(py_fetch_error());
+    PyObjectPtr kind_(PyObject_GetAttrString(param, "kind")); // new ref
+    if (kind_.is_null()) throw PythonException(py_fetch_error());
+    PyObject *kind = kind_.get();
 
     if (kind == inspect_Parameter_VAR_KEYWORD ||
         kind == inspect_Parameter_VAR_POSITIONAL)
     {
-      if(!has_dots) {
-        GrowList(r_args, Rf_install("..."), R_MissingArg);
-        has_dots = true;
+      if (!has_dots)
+      {
+          GrowList(r_args, Rf_install("..."), R_MissingArg);
+          has_dots = true;
       }
-      Py_DecRef(kind);
       continue;
     }
 
@@ -1362,13 +1363,13 @@ SEXP py_get_formals(PyObjectRef callable) {
       GrowList(r_args, Rf_install("..."), R_MissingArg);
       has_dots = true;
     }
-    Py_DecRef(kind);
 
     SEXP arg_default = R_NilValue;
-    PyObject *param_default = PyObject_GetAttrString(param, "default"); // new ref
-    if (!param_default) throw PythonException(py_fetch_error());
+    PyObjectPtr param_default(PyObject_GetAttrString(param, "default")); // new ref
+    if (param_default.is_null())
+      throw PythonException(py_fetch_error());
 
-    if (param_default == inspect_Parameter_empty)
+    if (param_default.get() == inspect_Parameter_empty)
     {
       arg_default = R_MissingArg;
     }
@@ -1378,11 +1379,11 @@ SEXP py_get_formals(PyObjectRef callable) {
     }
 
     GrowList(r_args, Rf_install(PyUnicode_AsUTF8(name)), arg_default);
-    Py_DecRef(param_default);
-}
+  }
 
-  Py_DecRef(parameters);
-  UNPROTECT(1);
+  if (PyErr_Occurred())
+    throw PythonException(py_fetch_error());
+
   return CDR(r_args);
 }
 

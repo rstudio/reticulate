@@ -28,12 +28,12 @@ test_that("Python signatures convert properly", {
   skip_if(py_version() < "3.3")
 
   expect_formals('a', alist(a = ))
-  expect_formals('a, b=1', alist(a = , b = NULL))
-  expect_formals('a, *, b=1', alist(a = , ... = , b = NULL))
-  expect_formals('a, *args, b=1', alist(a = , ... = , b = NULL))
-  expect_formals('a, b=1, **kw', alist(a = , b = NULL, ... = ))
+  expect_formals('a, b=1', alist(a = , b = 1L))
+  expect_formals('a, *, b=1', alist(a = , ... = , b = 1L))
+  expect_formals('a, *args, b=1', alist(a = , ... = , b = 1L))
+  expect_formals('a, b=1, **kw', alist(a = , b = 1L, ... = ))
   expect_formals('a, *args, **kw', alist(a = , ... = ))
-  expect_formals('a, *args, b=1, **kw', alist(a = , ... = , b = NULL))
+  expect_formals('a, *args, b=1, **kw', alist(a = , ... = , b = 1L))
 
 })
 
@@ -42,10 +42,7 @@ test_that("Errors from e.g. builtins are not propagated", {
   skip_if(py_version() < "3.3")
 
   print <- import_builtins()$print
-  if(py_version() >= "3.11")
-    expect_no_error(py_get_formals(print))
-  else
-    expect_error(py_get_formals(print))
+  expect_no_error(py_get_formals(print))
 })
 
 test_that("The inspect.Parameter signature converts properly", {
@@ -59,7 +56,7 @@ test_that("The inspect.Parameter signature converts properly", {
   fmls <- py_get_formals(Parameter)
   expect_formals(fmls, alist(
     name = , kind = , ... = ,
-    default = NULL, annotation = NULL
+    default = , annotation =
   ))
 
 })

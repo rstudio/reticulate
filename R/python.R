@@ -731,8 +731,8 @@ as_iterator <- function(x) {
 #' @export
 py_call <- function(x, ...) {
   ensure_python_initialized()
-  dots <- py_resolve_dots(list(...))
-  py_call_impl(x, dots$args, dots$keywords)
+  dots <- split_named_unnamed(list(...))
+  py_call_impl(x, dots$unnamed, dots$named)
 }
 
 
@@ -1227,10 +1227,12 @@ py_callable_as_function <- function(callable, convert) {
   force(callable)
   force(convert)
 
-  function(...) {
+  as.function.default(c(py_get_formals(callable), quote({
+    cl <- sys.call()
+    cl[[1L]] <- list
 
-    dots <- py_resolve_dots(list(...))
-    result <- py_call_impl(callable, dots$args, dots$keywords)
+    call_args <- split_named_unnamed(eval(cl, parent.frame()))
+    result <- py_call_impl(callable, call_args$unnamed, call_args$named)
 
     if (convert)
       result <- py_to_r(result)
@@ -1239,32 +1241,17 @@ py_callable_as_function <- function(callable, convert) {
       invisible(result)
     else
       result
-
-  }
-
+  })))
 }
 
-py_resolve_formals <- function(callback) {
 
-  object <- attr(callback, "py_object")
-  if (!inherits(object, "python.builtin.object"))
-    return(NULL)
-
-  tryCatch(py_get_formals(object), error = function(e) NULL)
-
-}
-
-py_resolve_dots <- function(dots) {
-
-  nms <- names(dots)
+split_named_unnamed <- function(x) {
+  nms <- names(x)
   if (is.null(nms))
-    return(list(args = dots, keywords = list()))
-
+    return(list(unnamed = x, named = list()))
   named <- nzchar(nms)
-  list(args = dots[!named], keywords = dots[named])
-
+  list(unnamed = x[!named], named = x[named])
 }
-
 
 
 py_is_module <- function(x) {

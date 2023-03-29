@@ -1251,110 +1251,139 @@ SEXP py_to_r(PyObject* x, bool convert) {
 
 }
 
+/* stretchy list, modified from R sources
+   CAR of the list points to the last cons-cell
+   CDR points to the first.
+*/
+
+SEXP NewList(void) {
+  SEXP s = Rf_cons(R_NilValue, R_NilValue);
+  SETCAR(s, s);
+  return s;
+}
+
+/* Add named element to the end of a stretchy list */
+void GrowList(SEXP args, SEXP tag, SEXP dflt) {
+  SEXP tmp;
+  tmp = Rf_cons(dflt, R_NilValue);
+  SET_TAG(tmp, tag);
+
+  SETCDR(CAR(args), tmp); // set cdr on the last cons-cell
+  SETCAR(args, tmp);      // update pointer to last cons cell
+}
+
 // [[Rcpp::export]]
-SEXP py_get_formals(PyObjectRef func) {
+SEXP py_get_formals(PyObjectRef callable) {
 
-  PyObjectPtr inspect(py_import("inspect"));
-  if (inspect.is_null())
-    throw PythonException(py_fetch_error());
+  static PyObject *inspect_module = NULL;
+  static PyObject *inspect_signature = NULL;
+  static PyObject *inspect_Parameter = NULL;
+  static PyObject *inspect_Parameter_VAR_KEYWORD = NULL;
+  static PyObject *inspect_Parameter_VAR_POSITIONAL = NULL;
+  static PyObject *inspect_Parameter_KEYWORD_ONLY = NULL;
+  static PyObject *inspect_Parameter_empty = NULL;
 
-  PyObjectPtr get_signature(PyObject_GetAttrString(inspect.get(), "signature"));
-  if (get_signature.is_null())
-    throw PythonException(py_fetch_error());
+  if (!inspect_Parameter_empty)
+  { // initialize static variables to avoid repeat lookups
+      inspect_module = PyImport_ImportModule("inspect");
+      if (!inspect_module) throw PythonException(py_fetch_error());
 
-  PyObjectPtr signature(PyObject_CallFunctionObjArgs(get_signature.get(), func.get(), NULL));
-  if (signature.is_null())
-    throw PythonException(py_fetch_error());
+      inspect_signature = PyObject_GetAttrString(inspect_module, "signature");
+      if (!inspect_signature) throw PythonException(py_fetch_error());
 
-  PyObjectPtr param_dict(PyObject_GetAttrString(signature.get(), "parameters"));
-  if (param_dict.is_null())
-    throw PythonException(py_fetch_error());
+      inspect_Parameter = PyObject_GetAttrString(inspect_module, "Parameter");
+      if (!inspect_Parameter) throw PythonException(py_fetch_error());
 
-  PyObjectPtr param_values(PyObject_GetAttrString(param_dict.get(), "values"));
-  if (param_values.is_null())
-    throw PythonException(py_fetch_error());
+      inspect_Parameter_VAR_KEYWORD = PyObject_GetAttrString(inspect_Parameter, "VAR_KEYWORD");
+      if (!inspect_Parameter_VAR_KEYWORD) throw PythonException(py_fetch_error());
 
-  PyObjectPtr params(PyObject_CallFunctionObjArgs(param_values.get(), NULL, NULL));
-  if (params.is_null())
-    throw PythonException(py_fetch_error());
+      inspect_Parameter_VAR_POSITIONAL = PyObject_GetAttrString(inspect_Parameter, "VAR_POSITIONAL");
+      if (!inspect_Parameter_VAR_POSITIONAL) throw PythonException(py_fetch_error());
 
-  PyObjectPtr param_iter(PyObject_GetIter(params.get()));
-  if (param_iter.is_null())
-    throw PythonException(py_fetch_error());
+      inspect_Parameter_KEYWORD_ONLY = PyObject_GetAttrString(inspect_Parameter, "KEYWORD_ONLY");
+      if (!inspect_Parameter_KEYWORD_ONLY) throw PythonException(py_fetch_error());
 
-  // Static properties of the Parameter class
-  PyObjectPtr param_class(PyObject_GetAttrString(inspect.get(), "Parameter"));
-  if (param_class.is_null())
-    throw PythonException(py_fetch_error());
-
-  PyObjectPtr empty_param(PyObject_GetAttrString(param_class.get(), "empty"));
-  if (empty_param.is_null())
-    throw PythonException(py_fetch_error());
-
-  PyObjectPtr var_pos(PyObject_GetAttrString(param_class.get(), "VAR_POSITIONAL"));
-  if (var_pos.is_null())
-    throw PythonException(py_fetch_error());
-
-  PyObjectPtr var_kw(PyObject_GetAttrString(param_class.get(), "VAR_KEYWORD"));
-  if (var_kw.is_null())
-    throw PythonException(py_fetch_error());
-
-  PyObjectPtr kw_only(PyObject_GetAttrString(param_class.get(), "KEYWORD_ONLY"));
-  if (kw_only.is_null())
-    throw PythonException(py_fetch_error());
-
-  Rcpp::Pairlist formals;
-  bool var_encountered = false;
-  while (true) {
-
-    PyObjectPtr param(PyIter_Next(param_iter.get()));
-    if (param.is_null())
-      break;
-
-    PyObjectPtr param_name(PyObject_GetAttrString(param.get(), "name"));
-    if (param_name.is_null())
-      throw PythonException(py_fetch_error());
-
-    PyObjectPtr param_kind(PyObject_GetAttrString(param.get(), "kind"));
-    if (param_kind.is_null())
-      throw PythonException(py_fetch_error());
-
-    PyObjectPtr param_default(PyObject_GetAttrString(param.get(), "default"));
-    if (param_default.is_null())
-      throw PythonException(py_fetch_error());
-
-    // If we encounter our first kw_only param
-    // without having encountered `*args` or `**kw`,
-    // we insert `...` before the actual parameter.
-    if (param_kind == kw_only && !var_encountered) {
-      formals << Named("...", R_MissingArg);
-      var_encountered = true;
-    }
-
-    // If we encounter the first of `*args` or `**kw`,
-    // we insert `...` instead of a parameter.
-    // foo(*args, b=1, **kw) -> foo(..., b=1)
-    if (param_kind == var_pos || param_kind == var_kw) {
-      if (!var_encountered) {
-        formals << Named("...", R_MissingArg);
-        var_encountered = true;
-      }
-    // For a parameter w/o default value, we insert `R_MissingArg`.
-    // There is inspect.Parameter(..., *, default = Parameter.empty, ...)
-    // so we check if param_kind != kw_only for this corner case.
-    } else if (param_kind != kw_only && param_default == empty_param) {
-      formals << Named(as_utf8_r_string(param_name.get()), R_MissingArg);
-    // If we arrive here we have a parameter with default value.
-    } else {
-      // Here we could convert a subset of python objects to R defaults.
-      // Plain values (numeric, character, NULL, ...) are stored as is,
-      // variables, calls, ... are stored as `symbol` or `language`.
-      formals << Named(as_utf8_r_string(param_name.get()), R_NilValue);
-    }
+      inspect_Parameter_empty = PyObject_GetAttrString(inspect_Parameter, "empty");
+      if (!inspect_Parameter_empty) throw PythonException(py_fetch_error());
   }
 
-  return formals;
+  PyObject *sig = PyObject_CallFunctionObjArgs(inspect_signature, callable.get(), NULL);
+  if (sig == NULL) {
+      // inspect.signature() can error on builtins in cpython,
+      // or python functions built in C from modules
+      // fallback to returning formals of `...`.
+      PyErr_Clear();
+      SEXP out = Rf_cons(R_MissingArg, R_NilValue);
+      SET_TAG(out, Rf_install("..."));
+      return out;
+  }
 
+  PyObject *parameters = PyObject_GetAttrString(sig, "parameters");
+  Py_DecRef(sig);
+  if (!parameters) throw PythonException(py_fetch_error());
+
+  PyObject *items_method = PyObject_GetAttrString(parameters, "items");
+  // Py_DecRef(parameters);
+  if (!items_method) throw PythonException(py_fetch_error());
+
+  PyObject *parameters_items = PyObject_CallFunctionObjArgs(items_method, NULL);
+  Py_DecRef(items_method);
+  if (!parameters_items) throw PythonException(py_fetch_error());
+
+  PyObject *parameters_iterator = PyObject_GetIter(parameters_items);
+  if (!parameters_iterator) throw PythonException(py_fetch_error());
+
+  SEXP r_args = PROTECT(NewList());
+  PyObject *name, *param, *item;
+  bool has_dots = false;
+
+  while ((item = PyIter_Next(parameters_iterator)))  // new ref
+  {
+    name = PyTuple_GetItem(item, 0);  // borrowed reference
+    param = PyTuple_GetItem(item, 1); // borrowed reference
+    Py_DecRef(item);
+
+    PyObject *kind = PyObject_GetAttrString(param, "kind"); // new ref
+    if (!kind) throw PythonException(py_fetch_error());
+
+    if (kind == inspect_Parameter_VAR_KEYWORD ||
+        kind == inspect_Parameter_VAR_POSITIONAL)
+    {
+      if(!has_dots) {
+        GrowList(r_args, Rf_install("..."), R_MissingArg);
+        has_dots = true;
+      }
+      Py_DecRef(kind);
+      continue;
+    }
+
+    if (!has_dots && kind == inspect_Parameter_KEYWORD_ONLY)
+    {
+      GrowList(r_args, Rf_install("..."), R_MissingArg);
+      has_dots = true;
+    }
+    Py_DecRef(kind);
+
+    SEXP arg_default = R_NilValue;
+    PyObject *param_default = PyObject_GetAttrString(param, "default"); // new ref
+    if (!param_default) throw PythonException(py_fetch_error());
+
+    if (param_default == inspect_Parameter_empty)
+    {
+      arg_default = R_MissingArg;
+    }
+    else
+    {
+      arg_default = py_to_r(param_default, true); // callable.convert());
+    }
+
+    GrowList(r_args, Rf_install(PyUnicode_AsUTF8(name)), arg_default);
+    Py_DecRef(param_default);
+}
+
+  Py_DecRef(parameters);
+  UNPROTECT(1);
+  return CDR(r_args);
 }
 
 bool is_convertible_to_numpy(RObject x) {

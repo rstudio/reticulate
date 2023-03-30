@@ -1589,9 +1589,8 @@ py_last_error <- function(exception) {
 
 #' @export
 print.py_error <- function(x, ...) {
-  cat("Message:", x$message, "\n", sep = "")
-  cat("Exception class:\n")
-  print(x$r_class)
-  cat("R traceback:\n")
+  cat("--- Python Exception Message\n")
+  cat(x$message)
+  cat("--- R Traceback\n")
   print(x$r_trace)
 }

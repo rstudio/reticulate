@@ -1,6 +1,10 @@
 # reticulate (development version)
 
-- The knitr engine now suppresses warnings from python code if 
+- R functions wrapping Python callables now have formals matching
+  those of the Python callable signature, enabling better
+  autocompletion in more contexts (#1361).
+
+- The knitr engine now suppresses warnings from python code if
   `warning=FALSE` is set in the chunk options. (quarto-dev/quarto#125, #1358)
 
 - Fixed issue where reticulate's knitr engine would attach comments in a

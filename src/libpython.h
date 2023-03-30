@@ -143,6 +143,7 @@ LIBPYTHON_EXTERN PyObject* Py_Tuple;
 LIBPYTHON_EXTERN PyObject* Py_Complex;
 LIBPYTHON_EXTERN PyObject* Py_ByteArray;
 LIBPYTHON_EXTERN PyObject* PyExc_KeyboardInterrupt;
+LIBPYTHON_EXTERN PyObject* PyExc_ValueError;
 
 void initialize_type_objects(bool python3);
 
@@ -285,6 +286,8 @@ LIBPYTHON_EXTERN int (*PyBytes_AsStringAndSize)(
   (only possible for 0-terminated
   strings) */
 );
+LIBPYTHON_EXTERN const char* (*PyUnicode_AsUTF8)(PyObject *unicode);
+
 #ifdef _WIN32
 LIBPYTHON_EXTERN PyObject* (*PyUnicode_AsMBCSString)(PyObject *unicode);
 #endif

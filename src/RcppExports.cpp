@@ -97,13 +97,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // py_get_formals
-SEXP py_get_formals(PyObjectRef func);
-RcppExport SEXP _reticulate_py_get_formals(SEXP funcSEXP) {
+SEXP py_get_formals(PyObjectRef callable);
+RcppExport SEXP _reticulate_py_get_formals(SEXP callableSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< PyObjectRef >::type func(funcSEXP);
-    rcpp_result_gen = Rcpp::wrap(py_get_formals(func));
+    Rcpp::traits::input_parameter< PyObjectRef >::type callable(callableSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_get_formals(callable));
     return rcpp_result_gen;
 END_RCPP
 }

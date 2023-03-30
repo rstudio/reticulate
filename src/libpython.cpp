@@ -181,6 +181,7 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
   LOAD_PYTHON_SYMBOL(PyErr_SetInterrupt)
   LOAD_PYTHON_SYMBOL(PyErr_CheckSignals)
   LOAD_PYTHON_SYMBOL(PyExc_KeyboardInterrupt)
+  LOAD_PYTHON_SYMBOL(PyExc_ValueError)
   LOAD_PYTHON_SYMBOL(Py_IncRef)
   LOAD_PYTHON_SYMBOL(Py_DecRef)
   LOAD_PYTHON_SYMBOL(PyObject_Size)
@@ -274,6 +275,7 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
   LOAD_PYTHON_SYMBOL(PySequence_GetItem)
   LOAD_PYTHON_SYMBOL(PyObject_IsTrue)
   LOAD_PYTHON_SYMBOL(PyCapsule_Import)
+  LOAD_PYTHON_SYMBOL(PyUnicode_AsUTF8)
 
   // PyUnicode_AsEncodedString may have several different names depending on the Python
   // version and the UCS build type

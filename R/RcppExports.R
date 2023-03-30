@@ -52,8 +52,8 @@ py_is_callable <- function(x) {
     .Call(`_reticulate_py_is_callable`, x)
 }
 
-py_get_formals <- function(func) {
-    .Call(`_reticulate_py_get_formals`, func)
+py_get_formals <- function(callable) {
+    .Call(`_reticulate_py_get_formals`, callable)
 }
 
 r_to_py_impl <- function(object, convert) {

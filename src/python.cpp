@@ -1263,13 +1263,14 @@ SEXP NewList(void) {
 }
 
 /* Add named element to the end of a stretchy list */
-void GrowList(SEXP args, SEXP tag, SEXP dflt) {
-  SEXP tmp;
-  tmp = Rf_cons(dflt, R_NilValue);
+void GrowList(SEXP args_list, SEXP tag, SEXP dflt) {
+  PROTECT(dflt);
+  SEXP tmp = PROTECT(Rf_cons(dflt, R_NilValue));
   SET_TAG(tmp, tag);
 
-  SETCDR(CAR(args), tmp); // set cdr on the last cons-cell
-  SETCAR(args, tmp);      // update pointer to last cons cell
+  SETCDR(CAR(args_list), tmp); // set cdr on the last cons-cell
+  SETCAR(args_list, tmp);      // update pointer to last cons cell
+  UNPROTECT(2);
 }
 
 // [[Rcpp::export]]

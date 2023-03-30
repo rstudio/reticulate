@@ -1340,7 +1340,7 @@ SEXP py_get_formals(PyObjectRef callable)
 
   while ((item = PyIter_Next(parameters_iterator))) // new ref
   {
-    PyObjectPtr item_(item);
+    PyObjectPtr item_(item); // auto-decref
     PyObject *name = PyTuple_GetItem(item, 0);  // borrowed reference
     PyObject *param = PyTuple_GetItem(item, 1); // borrowed reference
 
@@ -1365,21 +1365,19 @@ SEXP py_get_formals(PyObjectRef callable)
       has_dots = true;
     }
 
-    SEXP arg_default = R_NilValue;
+    SEXP arg_default = R_MissingArg;
     PyObjectPtr param_default(PyObject_GetAttrString(param, "default")); // new ref
     if (param_default.is_null())
       throw PythonException(py_fetch_error());
 
-    if (param_default.get() == inspect_Parameter_empty)
-    {
-      arg_default = R_MissingArg;
-    }
-    else
-    {
-      arg_default = py_to_r(param_default, true); // callable.convert());
-    }
+    if (param_default.get() != inspect_Parameter_empty)
+      arg_default = py_to_r(param_default, true);
 
-    GrowList(r_args, Rf_install(PyUnicode_AsUTF8(name)), arg_default);
+    const char *name_char = PyUnicode_AsUTF8(name);
+    if (name_char == NULL) throw PythonException(py_fetch_error());
+
+    SEXP name_sym = Rf_installTrChar(Rf_mkCharCE(name_char, CE_UTF8));
+    GrowList(r_args, name_sym, arg_default);
   }
 
   if (PyErr_Occurred())

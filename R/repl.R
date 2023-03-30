@@ -250,7 +250,7 @@ repl_python <- function(
       }
 
       # similar handling for help requests postfixed with '?'
-      if (grepl("[?]\\s*$", trimmed)) {
+      if (grepl("(^[\\#].*)[?]\\s*$", trimmed, perl = TRUE)) {
         replaced <- sub("[?]\\s*$", "", trimmed)
         code <- sprintf("help(\"%s\")", replaced)
         py_run_string(code)

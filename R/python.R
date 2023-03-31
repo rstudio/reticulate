@@ -82,6 +82,105 @@ py_compare <- function(a, b, op) {
   py_compare_impl(a, b, op)
 }
 
+make_ops_generic <- function(binary_dunder = NULL, unary_dunder = NULL) {
+
+  body <- quote({})
+  dispatch_unary_exprs <- NULL
+  dispatch_binary_exprs <- NULL
+
+  if (!is.null(binary_dunder)) {
+    `__dunder__` <- as.symbol(sprintf("__%s__", binary_dunder))
+    `__rdunder__` <- as.symbol(sprintf("__r%s__", binary_dunder))
+    dispatch_binary_exprs <- as.list(substitute({
+      if (inherits(e1, "python.builtin.object")) {
+        tryCatch(return(e1$`__dunder__`(e2)),
+                 error = identity) -> exception
+      }
+      if (inherits(e2, "python.builtin.object"))
+        tryCatch(return(e2$`__rdunder__`(e1)),
+                 error = identity)
+      # if __rdunder__ failed too, just show the first error from __dunder__
+      py_last_error(exception)
+      stop(exception)
+    }, list(`__dunder__` = `__dunder__`,
+            `__rdunder__` = `__rdunder__`)))[-1]
+  }
+
+  if(!is.null(unary_dunder)) {
+    `__unary_dunder__` <- as.symbol(sprintf("__%s__", unary_dunder))
+    dispatch_unary_exprs <- as.list(substitute({
+      if (missing(e2))
+        return(e1$`__unary_dunder__`())
+    }, list(`__unary_dunder__` = `__unary_dunder__`)))[-1]
+  }
+
+  formals <- alist(e1 = , e2 = )
+  body <- as.call(c(quote(`{`), dispatch_unary_exprs, dispatch_binary_exprs))
+
+  if(is.null(dispatch_binary_exprs))
+    formals <- alist(e1 = )
+  as.function.default(c(alist(e1 =, e2 = ), body), envir = parent.frame())
+}
+
+#' @export
+`+.python.builtin.object` <- make_ops_generic("add", "pos")
+
+#' @export
+`-.python.builtin.object` <- make_ops_generic("sub", "neg")
+
+#' @export
+`*.python.builtin.object` <- make_ops_generic("mul")
+
+#' @export
+`/.python.builtin.object` <- make_ops_generic("truediv")
+
+#' @export
+`%/%.python.builtin.object` <- make_ops_generic("floordiv")
+
+#' @export
+`%%.python.builtin.object` <- make_ops_generic("mod")
+
+#' @export
+`^.python.builtin.object` <- make_ops_generic("pow")
+
+#' @export
+`&.python.builtin.object` <- make_ops_generic("and")
+
+#' @export
+`|.python.builtin.object` <- make_ops_generic("or")
+
+#' @export
+`!.python.builtin.object` <-  make_ops_generic(NULL, "invert")
+
+rm(make_ops_generic)
+
+#' @export
+abs.python.builtin.object <- function(x) x$`__abs__`()
+
+#' @export
+round.python.builtin.object <- function(x, digits) {
+  if(missing(digits))
+    x$`__round__`()
+  else
+    x$`__round__`(as.integer(digits))
+}
+
+#' @export
+trunc.python.builtin.object <- function(x, ...) {
+    x$`__trunc__`(...)
+}
+
+#' @export
+floor.python.builtin.object <- function(x) {
+  x$`__floor__`()
+}
+
+#' @export
+ceiling.python.builtin.object <- function(x) {
+  x$`__ceil__`()
+}
+
+
 
 #' @export
 summary.python.builtin.object <- function(object, ...) {

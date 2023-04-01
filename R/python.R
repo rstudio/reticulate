@@ -42,37 +42,88 @@ as.character.python.builtin.bytes <- function(x, encoding = "utf-8", errors = "s
   x$decode(encoding = encoding, errors = errors)
 }
 
-#' @export
-"==.python.builtin.object" <- function(a, b) {
-  py_compare(a, b, "==")
+
+.operators <- new.env(parent = emptyenv())
+
+fetch_op <- function(nm, .op, nargs = 1L) {
+  ensure_python_initialized()
+  if (is.null(fn <- .operators[[nm]])) {
+    force(.op)
+
+    if (is.function(.op))
+      op <- .op
+    else
+      op <- function(...) py_call(.op, ...)
+
+    if (nargs == 1L) {
+
+      call_op_and_maybe_convert <- function(...)
+        py_maybe_convert(op(...),  py_has_convert(..1))
+
+    } else if (nargs == 2L) {
+
+      # Ops group generics
+      call_op_and_maybe_convert <- function(...) {
+        result <- op(...)
+        # if either dispatch object has convert=FALSE, don't convert
+        convert <-
+          !((inherits(..1, "python.builtin.object") && isFALSE(py_has_convert(..1))) ||
+            (inherits(..2, "python.builtin.object") && isFALSE(py_has_convert(..2))))
+        py_maybe_convert(result, convert)
+      }
+
+    } else stop("invalid nargs value: ", nargs)
+
+    fn <- .operators[[nm]] <- call_op_and_maybe_convert
+  }
+  fn
 }
 
 #' @export
-"!=.python.builtin.object" <- function(a, b) {
-  py_compare(a, b, "!=")
+"==.python.builtin.object" <- function(e1, e2) {
+  op <- fetch_op("eq", py_eval("lambda e1, e2: e1 == e2", convert = FALSE),
+                 nargs = 2L)
+  op(e1, e2)
 }
 
 #' @export
-"<.python.builtin.object" <- function(a, b) {
-  py_compare(a, b, "<")
+"!=.python.builtin.object" <- function(e1, e2) {
+  op <- fetch_op("ne", py_eval("lambda e1, e2: e1 != e2", convert = FALSE),
+                 nargs = 2L)
+  op(e1, e2)
 }
 
 #' @export
-">.python.builtin.object" <- function(a, b) {
-  py_compare(a, b, ">")
+"<.python.builtin.object" <- function(e1, e2) {
+  op <- fetch_op("lt", py_eval("lambda e1, e2: e1 < e2", convert = FALSE),
+                 nargs = 2L)
+  op(e1, e2)
 }
 
 #' @export
-">=.python.builtin.object" <- function(a, b) {
-  py_compare(a, b, ">=")
+">.python.builtin.object" <- function(e1, e2) {
+  op <- fetch_op("gt", py_eval("lambda e1, e2: e1 > e2", convert = FALSE),
+                 nargs = 2L)
+  op(e1, e2)
 }
 
 #' @export
-"<=.python.builtin.object" <- function(a, b) {
-  py_compare(a, b, "<=")
+">=.python.builtin.object" <- function(e1, e2) {
+  op <- fetch_op("ge", py_eval("lambda e1, e2: e1 >= e2", convert = FALSE),
+                 nargs = 2L)
+  op(e1, e2)
 }
 
+#' @export
+"<=.python.builtin.object" <- function(e1, e2) {
+  op <- fetch_op("le", py_eval("lambda e1, e2: e1 <= e2", convert = FALSE),
+                 nargs = 2L)
+  op(e1, e2)
+}
 
+# This uses PyObject_RichCompareBool(), which expects only py bools.
+# It will throw an exception on, e.g., with numpy arrays,
+# even though numpy.ndarray defines an __eq__() method.
 py_compare <- function(a, b, op) {
   ensure_python_initialized()
   py_validate_xptr(a)
@@ -82,103 +133,87 @@ py_compare <- function(a, b, op) {
   py_compare_impl(a, b, op)
 }
 
-make_ops_generic <- function(binary_dunder = NULL, unary_dunder = NULL) {
 
-  body <- quote({})
-  dispatch_unary_exprs <- NULL
-  dispatch_binary_exprs <- NULL
-
-  if (!is.null(binary_dunder)) {
-    `__dunder__` <- as.symbol(sprintf("__%s__", binary_dunder))
-    `__rdunder__` <- as.symbol(sprintf("__r%s__", binary_dunder))
-    dispatch_binary_exprs <- as.list(substitute({
-      if (inherits(e1, "python.builtin.object")) {
-        tryCatch(return(e1$`__dunder__`(e2)),
-                 error = identity) -> exception
-      }
-      if (inherits(e2, "python.builtin.object"))
-        tryCatch(return(e2$`__rdunder__`(e1)),
-                 error = identity)
-      # if __rdunder__ failed too, just show the first error from __dunder__
-      py_last_error(exception)
-      stop(exception)
-    }, list(`__dunder__` = `__dunder__`,
-            `__rdunder__` = `__rdunder__`)))[-1]
+#' @export
+`+.python.builtin.object` <- function(e1, e2) {
+  if (missing(e2)) {
+    op <- fetch_op("pos", py_eval("lambda e1: +e1", convert = FALSE))
+    return(op(e1))
   }
 
-  if(!is.null(unary_dunder)) {
-    `__unary_dunder__` <- as.symbol(sprintf("__%s__", unary_dunder))
-    dispatch_unary_exprs <- as.list(substitute({
-      if (missing(e2))
-        return(e1$`__unary_dunder__`())
-    }, list(`__unary_dunder__` = `__unary_dunder__`)))[-1]
+  op <- fetch_op("add", py_eval("lambda e1, e2: e1 + e2", convert = FALSE),
+                 nargs = 2L)
+  op(e1, e2)
+}
+
+
+#' @export
+`-.python.builtin.object` <- function(e1, e2) {
+  if (missing(e2)) {
+    op <- fetch_op("neg", py_eval("lambda e1: -e1", convert = FALSE))
+    return(op(e1))
   }
+  op <- fetch_op("sub", py_eval("lambda e1, e2: e1 - e2", convert = FALSE),
+                 nargs = 2L)
+  op(e1, e2)
+}
 
-  formals <- alist(e1 = , e2 = )
-  body <- as.call(c(quote(`{`), dispatch_unary_exprs, dispatch_binary_exprs))
 
-  if(is.null(dispatch_binary_exprs))
-    formals <- alist(e1 = )
-  as.function.default(c(alist(e1 =, e2 = ), body), envir = parent.frame())
+#' @export
+`*.python.builtin.object` <-function(e1, e2) {
+  op <- fetch_op("*", py_eval("lambda e1, e2: e1 * e2", convert = FALSE),
+                 nargs = 2L)
+  op(e1, e2)
 }
 
 #' @export
-`+.python.builtin.object` <- make_ops_generic("add", "pos")
-
-#' @export
-`-.python.builtin.object` <- make_ops_generic("sub", "neg")
-
-#' @export
-`*.python.builtin.object` <- make_ops_generic("mul")
-
-#' @export
-`/.python.builtin.object` <- make_ops_generic("truediv")
-
-#' @export
-`%/%.python.builtin.object` <- make_ops_generic("floordiv")
-
-#' @export
-`%%.python.builtin.object` <- make_ops_generic("mod")
-
-#' @export
-`^.python.builtin.object` <- make_ops_generic("pow")
-
-#' @export
-`&.python.builtin.object` <- make_ops_generic("and")
-
-#' @export
-`|.python.builtin.object` <- make_ops_generic("or")
-
-#' @export
-`!.python.builtin.object` <-  make_ops_generic(NULL, "invert")
-
-rm(make_ops_generic)
-
-#' @export
-abs.python.builtin.object <- function(x) x$`__abs__`()
-
-#' @export
-round.python.builtin.object <- function(x, digits) {
-  if(missing(digits))
-    x$`__round__`()
-  else
-    x$`__round__`(as.integer(digits))
+`/.python.builtin.object` <- function(e1, e2) {
+  op <- fetch_op("/", py_eval("lambda e1, e2: e1 / e2", convert = FALSE),
+                 nargs = 2L)
+  op(e1, e2)
 }
 
 #' @export
-trunc.python.builtin.object <- function(x, ...) {
-    x$`__trunc__`(...)
+`%/%.python.builtin.object` <- function(e1, e2) {
+  op <- fetch_op("//", py_eval("lambda e1, e2: e1 // e2", convert = FALSE),
+                 nargs = 2L)
+  op(e1, e2)
 }
 
 #' @export
-floor.python.builtin.object <- function(x) {
-  x$`__floor__`()
+`%%.python.builtin.object` <- function(e1, e2) {
+  op <- fetch_op("%", py_eval("lambda e1, e2: e1 % e2", convert = FALSE),
+                 nargs = 2L)
+  op(e1, e2)
 }
 
 #' @export
-ceiling.python.builtin.object <- function(x) {
-  x$`__ceil__`()
+`^.python.builtin.object` <- function(e1, e2) {
+  op <- fetch_op("pow", import_builtins(FALSE)$pow,
+                 nargs = 2L)
+  op(e1, e2)
 }
+
+#' @export
+`&.python.builtin.object` <- function(e1, e2) {
+  op <- fetch_op("&", py_eval("lambda e1, e2: e1 & e2", convert = FALSE),
+                 nargs = 2L)
+  op(e1, e2)
+}
+
+#' @export
+`|.python.builtin.object` <- function(e1, e2) {
+  op <- fetch_op("|", py_eval("lambda e1, e2: e1 | e2", convert = FALSE),
+                 nargs = 2L)
+  op(e1, e2)
+}
+
+#' @export
+`!.python.builtin.object` <- function(e1) {
+  op <- fetch_op("~", py_eval("lambda e1: ~ e1", convert = FALSE))
+  op(e1)
+}
+
 
 
 

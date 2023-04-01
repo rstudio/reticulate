@@ -1,5 +1,22 @@
 # reticulate (development version)
 
+- New Ops group generics for Python objects:
+  `+`, `-`, `*`, `/`, `^`, `%%`, `%/%`, `&`, `|`, `!`.
+  This completes the set and all Ops group generics are
+  now defined for Python objects. (#1187)
+  E.g., this now works:
+  ```r
+  np <- reticulate::import("numpy", convert = FALSE)
+  x <- np$array(1:5)
+  y <- np$array(6:10)
+  x + y
+  ```
+
+- Fixed an issue where R Ops comparison operator methods
+  (`==`, `!=`, `<`, `<=`, `>=`, `>`) would error on Python objects
+  that defined "rich comparison" Python methods that don't return a single bool.
+  (e.g., numpy arrays). (#1187)
+
 - R functions wrapping Python callables now have formals matching
   those of the Python callable signature, enabling better
   autocompletion in more contexts (#1361).

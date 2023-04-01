@@ -12,10 +12,15 @@
   x + y
   ```
 
-- Fixed an issue where R Ops comparison operator methods
-  (`==`, `!=`, `<`, `<=`, `>=`, `>`) would error on Python objects
-  that defined "rich comparison" Python methods that don't return a single bool.
-  (e.g., numpy arrays). (#1187)
+- Fixed two issues with R Ops comparison operator methods
+  (`==`, `!=`, `<`, `<=`, `>=`, `>`):
+   - The operators no longer error on Python objects that define "rich comparison" 
+     Python methods that don't return a single bool. (e.g., numpy arrays).
+   - The operators now respect the 'convert' value of the supplied Python objects.
+     Note, this may be a breaking change as, e.g, `==`, may now no long return 
+     an R scalar logical if the original python object was created 
+     with `convert = FALSE`. 
+  (#1187)
 
 - R functions wrapping Python callables now have formals matching
   those of the Python callable signature, enabling better

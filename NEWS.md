@@ -1,5 +1,27 @@
 # reticulate (development version)
 
+- New Ops group generics for Python objects:
+  `+`, `-`, `*`, `/`, `^`, `%%`, `%/%`, `&`, `|`, `!`.
+  Methods for all the Ops group generics are now defined for Python objects. (#1187, #1363)
+  E.g., this now works:
+  ```r
+  np <- reticulate::import("numpy", convert = FALSE)
+  x <- np$array(1:5)
+  y <- np$array(6:10)
+  x + y
+  ```
+
+- Fixed two issues with R comparison operator methods
+  (`==`, `!=`, `<`, `<=`, `>=`, `>`):
+   - The operators no longer error on Python objects that define "rich comparison"
+     Python methods that don't return a single bool. (e.g., numpy arrays).
+   - The operators now respect the 'convert' value of the supplied Python objects.
+     Note, this may be a breaking change as, e.g, `==`, may now no long return
+     an R scalar logical if one of the python object being compared was created
+     with `convert = FALSE`. Wrap the result of the comparison with `py_bool()` to
+     restore the previous behavior.
+  (#1187, #1363)
+
 - R functions wrapping Python callables now have formals matching
   those of the Python callable signature, enabling better
   autocompletion in more contexts (#1361).

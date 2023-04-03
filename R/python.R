@@ -42,37 +42,88 @@ as.character.python.builtin.bytes <- function(x, encoding = "utf-8", errors = "s
   x$decode(encoding = encoding, errors = errors)
 }
 
-#' @export
-"==.python.builtin.object" <- function(a, b) {
-  py_compare(a, b, "==")
+
+.operators <- new.env(parent = emptyenv())
+
+fetch_op <- function(nm, .op, nargs = 1L) {
+  ensure_python_initialized()
+  if (is.null(fn <- .operators[[nm]])) {
+    force(.op)
+
+    if (is.function(.op))
+      op <- .op
+    else
+      op <- function(...) py_call(.op, ...)
+
+    if (nargs == 1L) {
+
+      call_op_and_maybe_convert <- function(...)
+        py_maybe_convert(op(...),  py_has_convert(..1))
+
+    } else if (nargs == 2L) {
+
+      # Ops group generics
+      call_op_and_maybe_convert <- function(...) {
+        result <- op(...)
+        # if either dispatch object has convert=FALSE, don't convert
+        convert <-
+          !((inherits(..1, "python.builtin.object") && isFALSE(py_has_convert(..1))) ||
+            (inherits(..2, "python.builtin.object") && isFALSE(py_has_convert(..2))))
+        py_maybe_convert(result, convert)
+      }
+
+    } else stop("invalid nargs value: ", nargs)
+
+    fn <- .operators[[nm]] <- call_op_and_maybe_convert
+  }
+  fn
 }
 
 #' @export
-"!=.python.builtin.object" <- function(a, b) {
-  py_compare(a, b, "!=")
+"==.python.builtin.object" <- function(e1, e2) {
+  op <- fetch_op("eq", py_eval("lambda e1, e2: e1 == e2", convert = FALSE),
+                 nargs = 2L)
+  op(e1, e2)
 }
 
 #' @export
-"<.python.builtin.object" <- function(a, b) {
-  py_compare(a, b, "<")
+"!=.python.builtin.object" <- function(e1, e2) {
+  op <- fetch_op("ne", py_eval("lambda e1, e2: e1 != e2", convert = FALSE),
+                 nargs = 2L)
+  op(e1, e2)
 }
 
 #' @export
-">.python.builtin.object" <- function(a, b) {
-  py_compare(a, b, ">")
+"<.python.builtin.object" <- function(e1, e2) {
+  op <- fetch_op("lt", py_eval("lambda e1, e2: e1 < e2", convert = FALSE),
+                 nargs = 2L)
+  op(e1, e2)
 }
 
 #' @export
-">=.python.builtin.object" <- function(a, b) {
-  py_compare(a, b, ">=")
+">.python.builtin.object" <- function(e1, e2) {
+  op <- fetch_op("gt", py_eval("lambda e1, e2: e1 > e2", convert = FALSE),
+                 nargs = 2L)
+  op(e1, e2)
 }
 
 #' @export
-"<=.python.builtin.object" <- function(a, b) {
-  py_compare(a, b, "<=")
+">=.python.builtin.object" <- function(e1, e2) {
+  op <- fetch_op("ge", py_eval("lambda e1, e2: e1 >= e2", convert = FALSE),
+                 nargs = 2L)
+  op(e1, e2)
 }
 
+#' @export
+"<=.python.builtin.object" <- function(e1, e2) {
+  op <- fetch_op("le", py_eval("lambda e1, e2: e1 <= e2", convert = FALSE),
+                 nargs = 2L)
+  op(e1, e2)
+}
 
+# This uses PyObject_RichCompareBool(), which expects only py bools.
+# It will throw an exception on, e.g., with numpy arrays,
+# even though numpy.ndarray defines an __eq__() method.
 py_compare <- function(a, b, op) {
   ensure_python_initialized()
   py_validate_xptr(a)
@@ -81,6 +132,89 @@ py_compare <- function(a, b, op) {
   py_validate_xptr(b)
   py_compare_impl(a, b, op)
 }
+
+
+#' @export
+`+.python.builtin.object` <- function(e1, e2) {
+  if (missing(e2)) {
+    op <- fetch_op("pos", py_eval("lambda e1: +e1", convert = FALSE))
+    return(op(e1))
+  }
+
+  op <- fetch_op("add", py_eval("lambda e1, e2: e1 + e2", convert = FALSE),
+                 nargs = 2L)
+  op(e1, e2)
+}
+
+
+#' @export
+`-.python.builtin.object` <- function(e1, e2) {
+  if (missing(e2)) {
+    op <- fetch_op("neg", py_eval("lambda e1: -e1", convert = FALSE))
+    return(op(e1))
+  }
+  op <- fetch_op("sub", py_eval("lambda e1, e2: e1 - e2", convert = FALSE),
+                 nargs = 2L)
+  op(e1, e2)
+}
+
+
+#' @export
+`*.python.builtin.object` <-function(e1, e2) {
+  op <- fetch_op("*", py_eval("lambda e1, e2: e1 * e2", convert = FALSE),
+                 nargs = 2L)
+  op(e1, e2)
+}
+
+#' @export
+`/.python.builtin.object` <- function(e1, e2) {
+  op <- fetch_op("/", py_eval("lambda e1, e2: e1 / e2", convert = FALSE),
+                 nargs = 2L)
+  op(e1, e2)
+}
+
+#' @export
+`%/%.python.builtin.object` <- function(e1, e2) {
+  op <- fetch_op("//", py_eval("lambda e1, e2: e1 // e2", convert = FALSE),
+                 nargs = 2L)
+  op(e1, e2)
+}
+
+#' @export
+`%%.python.builtin.object` <- function(e1, e2) {
+  op <- fetch_op("%", py_eval("lambda e1, e2: e1 % e2", convert = FALSE),
+                 nargs = 2L)
+  op(e1, e2)
+}
+
+#' @export
+`^.python.builtin.object` <- function(e1, e2) {
+  op <- fetch_op("pow", import_builtins(FALSE)$pow,
+                 nargs = 2L)
+  op(e1, e2)
+}
+
+#' @export
+`&.python.builtin.object` <- function(e1, e2) {
+  op <- fetch_op("&", py_eval("lambda e1, e2: e1 & e2", convert = FALSE),
+                 nargs = 2L)
+  op(e1, e2)
+}
+
+#' @export
+`|.python.builtin.object` <- function(e1, e2) {
+  op <- fetch_op("|", py_eval("lambda e1, e2: e1 | e2", convert = FALSE),
+                 nargs = 2L)
+  op(e1, e2)
+}
+
+#' @export
+`!.python.builtin.object` <- function(e1) {
+  op <- fetch_op("~", py_eval("lambda e1: ~ e1", convert = FALSE))
+  op(e1)
+}
+
+
 
 
 #' @export
@@ -537,7 +671,7 @@ length.python.builtin.object <- function(x) {
 #' If the Python object defines a `__bool__` method, then that is invoked.
 #' Otherwise, if the object defines a `__len__` method, then `TRUE` is
 #' returned if the length is nonzero. If neither `__len__` nor `__bool__`
-#' are defined, then the Python object is considered `TRUE`. If `x`
+#' are defined, then the Python object is considered `TRUE`.
 #'
 #' @param x, A python object.
 #'

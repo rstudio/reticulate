@@ -48,10 +48,10 @@ test_that("$, [ operators behave as expected", {
   d <- dict(items = 1, apple = 42)
 
   expect_true(is.function(d$items))
-  expect_true(d['items'] == 1)
+  expect_true(py_bool(d['items'] == 1))
 
-  expect_true(d$apple == 42)
-  expect_true(d['apple'] == 42)
+  expect_true(py_bool(d$apple == 42))
+  expect_true(py_bool(d['apple'] == 42))
 
 })
 

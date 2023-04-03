@@ -1356,6 +1356,7 @@ py_ellipsis <- function() {
   builtins$Ellipsis
 }
 
+#' @importFrom rlang list2
 py_callable_as_function <- function(callable, convert) {
 
   force(callable)
@@ -1363,7 +1364,7 @@ py_callable_as_function <- function(callable, convert) {
 
   as.function.default(c(py_get_formals(callable), quote({
     cl <- sys.call()
-    cl[[1L]] <- list
+    cl[[1L]] <- list2
 
     call_args <- split_named_unnamed(eval(cl, parent.frame()))
     result <- py_call_impl(callable, call_args$unnamed, call_args$named)

@@ -1,5 +1,11 @@
 # reticulate (development version)
 
+- Converted Python callables gain support for dynamic dots from the rlang package.
+  New features:
+    - splicing (unpacking) arguments: `fn(!!!kwargs)`
+    - dynamic names: `nm <- "key"; fn("{nm}" := value)`
+    - trailing commas ignored (matching python syntax): `fn(a, )` identical to `fn(a)`
+    
 - New Ops group generics for Python objects:
   `+`, `-`, `*`, `/`, `^`, `%%`, `%/%`, `&`, `|`, `!`.
   Methods for all the Ops group generics are now defined for Python objects. (#1187, #1363)

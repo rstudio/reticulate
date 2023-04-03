@@ -51,6 +51,7 @@ Imports:
 Suggests:
     callr,
     knitr,
+    glue,
     rmarkdown,
     testthat
 LinkingTo: Rcpp

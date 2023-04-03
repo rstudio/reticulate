@@ -79,6 +79,9 @@
   `r_class` if the Python Exception was raised by an R function called
   from Python.
 
+- Fixed error `r_to_py()` with Pandas>=2.0 and R data.frames with a 
+  factor column containing levels with `NA`.
+
 - `r_to_py()` now succeeds for many additional types of R objects.
   Objects that reticulate doesn't know how to convert are presented to
   the python runtime as a py capsule (an opaque pointer to the underlying

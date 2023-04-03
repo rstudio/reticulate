@@ -94,7 +94,8 @@ random_df = pd.DataFrame({
 df_list = [df for i, df in random_df.groupby(["tool"])]
 
 # DICT OF DATA FRAMES
-df_dict = {i: df for i, df in random_df.groupby(["tool"])}
+# begining in Pandas 2.0, .groupby() returns the key as tuple(str,), previously, as a str.
+df_dict = {i[0] if isinstance(i, tuple) else i: df for i, df in random_df.groupby(["tool"])}
 ', local = TRUE)
 
   rdf_list <- py$df_list

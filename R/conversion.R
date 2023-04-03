@@ -620,7 +620,7 @@ r_convert_dataframe_column <- function(column, convert) {
 
   pd <- import("pandas", convert = FALSE)
   if (is.factor(column)) {
-    pd$Categorical(as.character(column),
+    pd$Categorical(as.list(as.character(column)),
                    categories = as.list(levels(column)),
                    ordered = inherits(column, "ordered"))
   } else if (is.numeric(column) || is.character(column)) {

@@ -33,3 +33,4 @@ README\.html
 __pycache__
 ^cran-comments\.md$
 ^CRAN-SUBMISSION$
+^\.vscode$

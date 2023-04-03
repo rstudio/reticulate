@@ -22,6 +22,9 @@ could be used as well.}
 
 \item{...}{Optional arguments, to be passed to the \code{pickle} module's
 \code{dump()} and \code{load()} functions.}
+
+\item{convert}{Bool. Whether the loaded pickle object should be converted to
+an R object.}
 }
 \description{
 Save and load Python objects.

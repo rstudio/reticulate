@@ -1706,10 +1706,15 @@ py_last_error <- function(exception) {
   etb <- py_get_attr_impl(e, "__traceback__", TRUE)
   traceback <- import("traceback")
 
+  if(is.null(etb))
+    formatted_traceback <- NULL
+  else
+    formatted_traceback <- traceback$format_tb(etb)
+
   out <- list(
     type = py_get_attr_impl(etype, "__name__", TRUE),
     value = py_str_impl(e),
-    traceback = if (!is.null(etb)) traceback$format_tb(etb),
+    traceback = formatted_traceback,
     message = paste0(traceback$format_exception(etype, e, etb),
                      collapse = "")
   )
@@ -1722,12 +1727,101 @@ py_last_error <- function(exception) {
   out
 }
 
+
+
+make_filepaths_clickable <- function(formatted_python_traceback) {
+  # Note a first draft of this iterated over the list of FrameSummarys in
+  # the exception.__traceback__, but that approach breaks with keras.
+  # So now we use a regex instead (:sad:).
+  # See format_py_exception_traceback_with_clickable_filepaths()
+  # for the previous approach
+
+  x <- strsplit(formatted_python_traceback, "\n", fixed = TRUE)[[1L]]
+  m <- regexec('File "([^"]+)", line ([0-9]+), in', x, perl = TRUE)
+
+  new <- lapply(regmatches(x, m), function(match) {
+    if (!length(match))
+      return(character())
+    filepath <- match[2]
+    lineno <- match[3]
+    cli::style_hyperlink(
+      filepath,
+      paste0("file://", normalizePath(filepath, mustWork = FALSE)),
+      params = c(line = lineno))
+  })
+
+  m2 <- lapply(m, function(match_pos) {
+    if(identical(as.vector(match_pos), -1L))
+      return(match_pos)
+    out <- match_pos[2] # only match filepath
+    attr(out, "match.length") <- attr(match_pos, "match.length")[2]
+    out
+  })
+
+  regmatches(x, m2) <- new
+
+  if(x[length(x)] != "")
+    x <- c(x, "") # ensure we end w/ a newline
+  paste0(x, collapse = "\n")
+}
+
 #' @export
 print.py_error <- function(x, ...) {
-  cat("--- Python Exception Message\n")
-  cat(x$message)
-  cat("--- R Traceback\n")
+
+  py_error_message <- x$message
+
+  if (identical(.Platform$GUI, "RStudio") &&
+      requireNamespace("cli", quietly = TRUE) &&
+      length(etb <- attr(x, "exception")$`__traceback__`))
+    py_error_message <- make_filepaths_clickable(py_error_message)
+
+  cat_h1("Python Exception Message")
+  cat(py_error_message)
+
+  cat_h1("R Traceback")
   print(x$r_trace)
+}
+
+cat_h1 <- function(x) {
+  if(requireNamespace("cli", quietly = TRUE)) {
+    cli::cli_h1(x)
+  } else {
+    cat("--- ", x, "\n", sep = "")
+  }
+}
+
+format_py_exception_traceback_with_clickable_filepaths <- function(etb) {
+  # This is currently unused, but preserved here in case it's useful for future
+  # development. This is unused because keras/tensorflow hijacks the python
+  # exception __traceback__, making it effectively useless. Instead, keras
+  # formats the actual (user relevant) traceback info directly into the
+  # exception message (and nicely too! albeit verbosely. It includes detailed
+  # info about call args in each user frame, including tensor shapes and dtypes,
+  # and formats with indentation matching user-generated frame depth).
+  # Unfortunately, that means that building up a nice formatted traceback by
+  # iterating over the traceback FrameSummary objects won't work correctly. The
+  # alternative is to apply a regex to the message, as we do in
+  # make_filepaths_clickable() (:sad:)
+
+  if(is.null(etb)) return(NULL)
+  fsl <- import("traceback")$extract_tb(etb)
+  if(!length(fsl)) return(NULL)
+  paste0(collapse = "\n", c(
+    "Traceback (most recent call last):",
+    vapply(fsl, function(fs) {
+      # fs == FrameSummary obj, with attrs: filename, line, lineno, locals, name
+      filepath <- fs$filename
+      lineno <- fs$lineno
+      clickable_filepath <-
+        cli::style_hyperlink(
+          filepath,
+          paste0("file://", normalizePath(filepath, mustWork = FALSE)),
+          params = c(line = lineno)
+        )
+      sprintf('  File "%s", line %i, in %s\n    %s',
+              clickable_filepath, lineno, fs$name, fs$line)
+    }, ""),
+    ""))
 }
 
 

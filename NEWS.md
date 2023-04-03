@@ -9,6 +9,9 @@
 - The hint to run `reticulate::py_last_error()` after an exception
   is now clickable in the RStudio IDE.
 
+- Filepaths to python files in the print output from `py_last_error()` are
+  now clickable links in the RStudio IDE.
+
 - New Ops group generics for Python objects:
   `+`, `-`, `*`, `/`, `^`, `%%`, `%/%`, `&`, `|`, `!`.
   Methods for all the Ops group generics are now defined for Python objects. (#1187, #1363)

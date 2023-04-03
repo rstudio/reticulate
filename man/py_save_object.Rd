@@ -7,7 +7,7 @@
 \usage{
 py_save_object(object, filename, pickle = "pickle", ...)
 
-py_load_object(filename, pickle = "pickle", ...)
+py_load_object(filename, pickle = "pickle", ..., convert = TRUE)
 }
 \arguments{
 \item{object}{A Python object.}

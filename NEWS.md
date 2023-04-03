@@ -26,6 +26,9 @@
   those of the Python callable signature, enabling better
   autocompletion in more contexts (#1361).
 
+- `py_load_object()` gains a `convert` argument. If `convert = FALSE`,
+  the returned Python object will not be converted to an R object.
+
 - The knitr engine now suppresses warnings from python code if
   `warning=FALSE` is set in the chunk options. (quarto-dev/quarto#125, #1358)
 

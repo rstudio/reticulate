@@ -737,7 +737,16 @@ std::string conditionMessage_from_py_exception(PyObjectRef exc) {
   for (Py_ssize_t i = 0, n = PyList_Size(formatted); i < n; i++)
     oss << as_std_string(PyList_GetItem(formatted, i));
 
-  oss << "See `reticulate::py_last_error()` for details";
+  static std::string hint;
+
+  if (hint.empty()) {
+    Environment pkg_env(Environment::namespace_env("reticulate"));
+    Function hint_fn = pkg_env[".py_last_error_hint"];
+    CharacterVector r_result = hint_fn();
+    hint = Rcpp::as<std::string>(r_result[0]);
+  }
+
+  oss << hint;
   std::string error = oss.str();
 
   SEXP max_msg_len_s = PROTECT(Rf_GetOption1(Rf_install("warning.length")));

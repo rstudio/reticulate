@@ -1729,3 +1729,18 @@ print.py_error <- function(x, ...) {
   cat("--- R Traceback\n")
   print(x$r_trace)
 }
+
+
+.py_last_error_hint <- function() {
+
+  if(!interactive() ||
+     !identical(.Platform$GUI, "RStudio") ||
+     !requireNamespace("cli", quietly = TRUE))
+    return("Run `reticulate::py_last_error()` for details.")
+
+  py_last_error <- cli::style_hyperlink(
+    "`reticulate::py_last_error()`",
+    "rstudio:run:reticulate::py_last_error()")
+
+  cli::col_silver(paste("Run", py_last_error, "for details."))
+}

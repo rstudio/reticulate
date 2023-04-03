@@ -5,7 +5,10 @@
     - splicing (unpacking) arguments: `fn(!!!kwargs)`
     - dynamic names: `nm <- "key"; fn("{nm}" := value)`
     - trailing commas ignored (matching python syntax): `fn(a, )` identical to `fn(a)`
-    
+
+- The hint to run `reticulate::py_last_error()` after an exception
+  is now clickable in the RStudio IDE.
+
 - New Ops group generics for Python objects:
   `+`, `-`, `*`, `/`, `^`, `%%`, `%/%`, `&`, `|`, `!`.
   Methods for all the Ops group generics are now defined for Python objects. (#1187, #1363)

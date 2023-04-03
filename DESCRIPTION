@@ -52,6 +52,7 @@ Suggests:
     callr,
     knitr,
     glue,
+    cli,
     rmarkdown,
     testthat
 LinkingTo: Rcpp

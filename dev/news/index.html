@@ -92,6 +92,8 @@
 <li>trailing commas ignored (matching python syntax): <code>fn(a, )</code> identical to <code>fn(a)</code>
 </li>
 </ul></li>
+<li><p>The hint to run <code><a href="../reference/py_last_error.html">reticulate::py_last_error()</a></code> after an exception is now clickable in the RStudio IDE.</p></li>
+<li><p>Filepaths to python files in the print output from <code><a href="../reference/py_last_error.html">py_last_error()</a></code> are now clickable links in the RStudio IDE.</p></li>
 <li>
 <p>New Ops group generics for Python objects: <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, <code>^</code>, <code>%%</code>, <code>%/%</code>, <code>&amp;</code>, <code>|</code>, <code>!</code>. Methods for all the Ops group generics are now defined for Python objects. (<a href="https://github.com/rstudio/reticulate/issues/1187" class="external-link">#1187</a>, <a href="https://github.com/rstudio/reticulate/issues/1363" class="external-link">#1363</a>) E.g., this now works:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">

@@ -89,7 +89,7 @@
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">py_save_object</span><span class="op">(</span><span class="va">object</span>, <span class="va">filename</span>, pickle <span class="op">=</span> <span class="st">"pickle"</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">py_load_object</span><span class="op">(</span><span class="va">filename</span>, pickle <span class="op">=</span> <span class="st">"pickle"</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">py_load_object</span><span class="op">(</span><span class="va">filename</span>, pickle <span class="op">=</span> <span class="st">"pickle"</span>, <span class="va">...</span>, convert <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -113,6 +113,11 @@ could be used as well.</p></dd>
 <dt>...</dt>
 <dd><p>Optional arguments, to be passed to the <code>pickle</code> module's
 <code><a href="https://rdrr.io/r/base/dump.html" class="external-link">dump()</a></code> and <code><a href="https://rdrr.io/r/base/load.html" class="external-link">load()</a></code> functions.</p></dd>
+
+
+<dt>convert</dt>
+<dd><p>Bool. Whether the loaded pickle object should be converted to
+an R object.</p></dd>
 
 </dl></div>
     <div id="details">

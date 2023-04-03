@@ -83,7 +83,21 @@
 
     <div class="section level2">
 <h2 class="page-header" data-toc-text="development version" id="reticulate-development-version">reticulate (development version)<a class="anchor" aria-label="anchor" href="#reticulate-development-version"></a></h2>
-<ul><li><p>R functions wrapping Python callables now have formals matching those of the Python callable signature, enabling better autocompletion in more contexts (<a href="https://github.com/rstudio/reticulate/issues/1361" class="external-link">#1361</a>).</p></li>
+<ul><li>
+<p>New Ops group generics for Python objects: <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, <code>^</code>, <code>%%</code>, <code>%/%</code>, <code>&amp;</code>, <code>|</code>, <code>!</code>. Methods for all the Ops group generics are now defined for Python objects. (<a href="https://github.com/rstudio/reticulate/issues/1187" class="external-link">#1187</a>, <a href="https://github.com/rstudio/reticulate/issues/1363" class="external-link">#1363</a>) E.g., this now works:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="va">np</span> <span class="op">&lt;-</span> <span class="fu">reticulate</span><span class="fu">::</span><span class="fu"><a href="../reference/import.html">import</a></span><span class="op">(</span><span class="st">"numpy"</span>, convert <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">x</span> <span class="op">&lt;-</span> <span class="va">np</span><span class="op">$</span><span class="fu">array</span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span></span>
+<span><span class="va">y</span> <span class="op">&lt;-</span> <span class="va">np</span><span class="op">$</span><span class="fu">array</span><span class="op">(</span><span class="fl">6</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span></span>
+<span><span class="va">x</span> <span class="op">+</span> <span class="va">y</span></span></code></pre></div>
+</li>
+<li>
+<p>Fixed two issues with R comparison operator methods (<code>==</code>, <code>!=</code>, <code>&lt;</code>, <code>&lt;=</code>, <code>&gt;=</code>, <code>&gt;</code>):</p>
+<ul><li>The operators no longer error on Python objects that define “rich comparison” Python methods that don’t return a single bool. (e.g., numpy arrays).</li>
+<li>The operators now respect the ‘convert’ value of the supplied Python objects. Note, this may be a breaking change as, e.g, <code>==</code>, may now no long return an R scalar logical if one of the python object being compared was created with <code>convert = FALSE</code>. Wrap the result of the comparison with <code><a href="../reference/py_bool.html">py_bool()</a></code> to restore the previous behavior. (<a href="https://github.com/rstudio/reticulate/issues/1187" class="external-link">#1187</a>, <a href="https://github.com/rstudio/reticulate/issues/1363" class="external-link">#1363</a>)</li>
+</ul></li>
+<li><p>R functions wrapping Python callables now have formals matching those of the Python callable signature, enabling better autocompletion in more contexts (<a href="https://github.com/rstudio/reticulate/issues/1361" class="external-link">#1361</a>).</p></li>
 <li><p>The knitr engine now suppresses warnings from python code if <code>warning=FALSE</code> is set in the chunk options. (quarto-dev/quarto#125, <a href="https://github.com/rstudio/reticulate/issues/1358" class="external-link">#1358</a>)</p></li>
 <li><p>Fixed issue where reticulate’s knitr engine would attach comments in a code chunk to the wrong code chunk (requires Python&gt;=3.8) (<a href="https://github.com/rstudio/reticulate/issues/1223" class="external-link">#1223</a>).</p></li>
 <li><p>The knitr python engine now respects the <code>strip.white</code> option (<a href="https://github.com/rstudio/reticulate/issues/1273" class="external-link">#1273</a>).</p></li>

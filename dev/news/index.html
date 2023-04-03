@@ -84,6 +84,15 @@
     <div class="section level2">
 <h2 class="page-header" data-toc-text="development version" id="reticulate-development-version">reticulate (development version)<a class="anchor" aria-label="anchor" href="#reticulate-development-version"></a></h2>
 <ul><li>
+<p>Converted Python callables gain support for dynamic dots from the rlang package. New features:</p>
+<ul><li>splicing (unpacking) arguments: <code>fn(!!!kwargs)</code>
+</li>
+<li>dynamic names: <code>nm &lt;- "key"; fn("{nm}" := value)</code>
+</li>
+<li>trailing commas ignored (matching python syntax): <code>fn(a, )</code> identical to <code>fn(a)</code>
+</li>
+</ul></li>
+<li>
 <p>New Ops group generics for Python objects: <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, <code>^</code>, <code>%%</code>, <code>%/%</code>, <code>&amp;</code>, <code>|</code>, <code>!</code>. Methods for all the Ops group generics are now defined for Python objects. (<a href="https://github.com/rstudio/reticulate/issues/1187" class="external-link">#1187</a>, <a href="https://github.com/rstudio/reticulate/issues/1363" class="external-link">#1363</a>) E.g., this now works:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>

@@ -1730,7 +1730,7 @@ py_last_error <- function(exception) {
 
 
 make_filepaths_clickable <- function(formatted_python_traceback) {
-  # Note a first draft of this iterated over the list of FrameSummarys in
+  # Note, a first draft of this iterated over the list of FrameSummarys in
   # the exception.__traceback__, but that approach breaks with keras.
   # So now we use a regex instead (:sad:).
   # See format_py_exception_traceback_with_clickable_filepaths()
@@ -1744,10 +1744,11 @@ make_filepaths_clickable <- function(formatted_python_traceback) {
       return(character())
     filepath <- match[2]
     lineno <- match[3]
-    cli::style_hyperlink(
+    link <- cli::style_hyperlink(
       filepath,
       paste0("file://", normalizePath(filepath, mustWork = FALSE)),
       params = c(line = lineno))
+    cli::col_grey(link)
   })
 
   m2 <- lapply(m, function(match_pos) {

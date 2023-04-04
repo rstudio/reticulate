@@ -141,8 +141,11 @@ conda environment.
 \code{conda_export()} returns the path to the exported environment definition,
 invisibly.
 
-\code{conda_search()} returns a data frame of search results for the specified
-packages.
+\code{conda_search()} returns an \R \code{data.frame} describing packages that
+matched against \code{matchspec}. The data frame will usually include
+fields \code{name} giving the package name, \code{version} giving the package
+version, \code{build} giving the package build, and \code{channel} giving the
+channel the package is hosted on.
 }
 \description{
 Tools for managing Python \code{conda} environments.

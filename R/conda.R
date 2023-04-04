@@ -631,8 +631,11 @@ conda_python <- function(envname = NULL,
 }
 
 #' @returns
-#'   `conda_search()` returns a data frame of search results for the specified
-#'   packages.
+#'   `conda_search()` returns an \R `data.frame` describing packages that
+#'   matched against `matchspec`. The data frame will usually include
+#'   fields `name` giving the package name, `version` giving the package
+#'   version, `build` giving the package build, and `channel` giving the
+#'   channel the package is hosted on.
 #'
 #' @param matchspec A MatchSpec query string.
 #'
@@ -672,14 +675,14 @@ conda_search <- function(matchspec,
 
   # different channels can have different fields, so we need
   # to pick the subset of fields common to all channels
-  common_cols = Reduce(intersect, lapply(parsed, names))
-  df = do.call(rbind, lapply(parsed, function(x) x[common_cols]))
+  common_cols <- Reduce(intersect, lapply(parsed, names))
+  df <- do.call(rbind, lapply(parsed, function(x) x[common_cols]))
   rownames(df) = NULL
 
   # return the basic fields, we could make it a user argument to
   # return the full set of fields. Use intersect on the off chance
   # the channel didn't include all of these basic fields
-  fields = intersect(c("name", "version", "build", "channel"), names(df))
+  fields <- intersect(c("name", "version", "build", "channel"), names(df))
   df[fields]
 }
 

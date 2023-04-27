@@ -103,6 +103,7 @@
 <span><span class="va">y</span> <span class="op">&lt;-</span> <span class="va">np</span><span class="op">$</span><span class="fu">array</span><span class="op">(</span><span class="fl">6</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span></span>
 <span><span class="va">x</span> <span class="op">+</span> <span class="va">y</span></span></code></pre></div>
 </li>
+<li><p>Python exceptions encountered in <code><a href="../reference/repl_python.html">repl_python()</a></code> are now printed with the python traceback by default. (<a href="https://github.com/rstudio/reticulate/issues/1240" class="external-link">#1240</a>)</p></li>
 <li>
 <p>Fixed two issues with R comparison operator methods (<code>==</code>, <code>!=</code>, <code>&lt;</code>, <code>&lt;=</code>, <code>&gt;=</code>, <code>&gt;</code>):</p>
 <ul><li>The operators no longer error on Python objects that define “rich comparison” Python methods that don’t return a single bool. (e.g., numpy arrays).</li>

@@ -1737,6 +1737,8 @@ make_filepaths_clickable <- function(formatted_python_traceback) {
   # for the previous approach
 
   x <- strsplit(formatted_python_traceback, "\n", fixed = TRUE)[[1L]]
+  if (!length(x))
+    return(formatted_python_traceback)
   m <- regexec('File "([^"]+)", line ([0-9]+), in', x, perl = TRUE)
 
   new <- lapply(regmatches(x, m), function(match) {
@@ -1755,6 +1757,7 @@ make_filepaths_clickable <- function(formatted_python_traceback) {
     if(identical(as.vector(match_pos), -1L))
       return(match_pos)
     out <- match_pos[2] # only match filepath
+    # TODO, make the clickable target bigger, include ", line nn" in link.
     attr(out, "match.length") <- attr(match_pos, "match.length")[2]
     out
   })

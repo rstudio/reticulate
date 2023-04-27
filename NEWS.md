@@ -23,6 +23,9 @@
   x + y
   ```
 
+- Python exceptions encountered in `repl_python()` are now printed with the
+  python traceback by default. (#1240)
+
 - Fixed two issues with R comparison operator methods
   (`==`, `!=`, `<`, `<=`, `>=`, `>`):
    - The operators no longer error on Python objects that define "rich comparison"
@@ -79,7 +82,7 @@
   `r_class` if the Python Exception was raised by an R function called
   from Python.
 
-- Fixed error `r_to_py()` with Pandas>=2.0 and R data.frames with a 
+- Fixed error `r_to_py()` with Pandas>=2.0 and R data.frames with a
   factor column containing levels with `NA`.
 
 - `r_to_py()` now succeeds for many additional types of R objects.

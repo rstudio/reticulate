@@ -137,6 +137,7 @@ LIBPYTHON_EXTERN PyObject* Py_Bool;
 LIBPYTHON_EXTERN PyObject* Py_True;
 LIBPYTHON_EXTERN PyObject* Py_False;
 LIBPYTHON_EXTERN PyObject* Py_Dict;
+LIBPYTHON_EXTERN PyObject* Py_DictClass;
 LIBPYTHON_EXTERN PyObject* Py_Float;
 LIBPYTHON_EXTERN PyObject* Py_List;
 LIBPYTHON_EXTERN PyObject* Py_Tuple;
@@ -346,6 +347,7 @@ LIBPYTHON_EXTERN PyObject* (*PyDict_Values)(PyObject *mp);
 LIBPYTHON_EXTERN Py_ssize_t (*PyDict_Size)(PyObject *mp);
 LIBPYTHON_EXTERN PyObject* (*PyDict_Copy)(PyObject *mp);
 
+LIBPYTHON_EXTERN PyObject*  (*PyMapping_Items)(PyObject *o);
 LIBPYTHON_EXTERN PyObject* (*PyInt_FromLong)(long);
 LIBPYTHON_EXTERN long (*PyInt_AsLong)(PyObject *);
 LIBPYTHON_EXTERN PyObject* (*PyLong_FromLong)(long);

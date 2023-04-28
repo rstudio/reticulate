@@ -151,6 +151,7 @@ void initialize_type_objects(bool python3) {
   Py_List = Py_BuildValue("[i]", 1024);
   Py_Complex = PyComplex_FromDoubles(0.0, 0.0);
   Py_ByteArray = PyByteArray_FromStringAndSize("a", 1);
+  Py_DictClass = PyObject_Type(Py_Dict);
 }
 
 #define LOAD_PYTHON_SYMBOL_AS(name, as)             \
@@ -264,6 +265,7 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
   LOAD_PYTHON_SYMBOL(PyObject_CallFunctionObjArgs)
   LOAD_PYTHON_SYMBOL(PyType_IsSubtype)
   LOAD_PYTHON_SYMBOL(PyType_GetFlags)
+  LOAD_PYTHON_SYMBOL(PyMapping_Items)
   LOAD_PYTHON_SYMBOL(PySys_WriteStderr)
   LOAD_PYTHON_SYMBOL(PySys_GetObject)
   LOAD_PYTHON_SYMBOL(PyEval_SetProfile)

@@ -597,13 +597,6 @@ SEXP current_call(void) {
   static SEXP call = NULL;
 
   if (!call) {
-    // `sys.frame(sys.nframe())` doesn't work because `sys.nframe()`
-    // returns the number of the frame in which evaluation occurs. It
-    // doesn't return the number of frames on the stack. So we'd need
-    // to evaluate it in the last frame on the stack which is what we
-    // are looking for to begin with. We use instead this workaround:
-    // Call `sys.frame()` from a closure to push a new frame on the
-    // stack, and use negative indexing to get the previous frame.
     ParseStatus status;
     SEXP code = PROTECT(Rf_mkString("sys.call(-1)"));
     SEXP parsed = PROTECT(R_ParseVector(code, -1, &status, R_NilValue));
@@ -687,23 +680,6 @@ SEXP py_fetch_error() {
   // `r_call`; Get the R call
 
 
-  // augment the exception object with some attrs: r_call, r_trace
-  if (!PyObject_HasAttrString(excValue, "r_call")) {
-
-    static SEXP sys_call_call = NULL;
-    if(sys_call_call == NULL) {
-      SEXP which_frame = PROTECT(Rf_ScalarInteger(0));
-      sys_call_call = PROTECT(Rf_lang2(Rf_install("sys.call"), which_frame));
-      R_PreserveObject(sys_call_call);
-      UNPROTECT(2);
-    }
-
-    SEXP r_call = current_call();
-    PyObject *r_call_capsule(py_capsule_new(r_call));
-    PyObject_SetAttrString(excValue, "r_call", r_call_capsule);
-    Py_DecRef(r_call_capsule);
-    UNPROTECT(1);
-  }
 
   if (!PyObject_HasAttrString(excValue, "r_trace")) {
     static SEXP get_r_trace_call = NULL;
@@ -733,6 +709,17 @@ SEXP py_fetch_error() {
     // UNPROTECT(1);
     // PyObject_SetAttrString(excValue, "r_cppstack", r_cppstack_capsule);
     // Py_DecRef(r_cppstack_capsule);
+  }
+
+
+  // augment the exception object with some attrs: r_call, r_trace
+  if (!PyObject_HasAttrString(excValue, "r_call")) {
+
+    SEXP r_call = current_call();
+    PyObject *r_call_capsule(py_capsule_new(r_call));
+    PyObject_SetAttrString(excValue, "r_call", r_call_capsule);
+    Py_DecRef(r_call_capsule);
+    UNPROTECT(1);
   }
 
   PyObjectRef cond(py_ref(excValue, true));

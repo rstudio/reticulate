@@ -621,8 +621,31 @@ SEXP py_fetch_error() {
   PyObjectPtr pExcType(excType);  // decref on exit
 
   if (!PyObject_HasAttrString(excValue, "r_call")) {
+    // check if this exception originaged in python using the `raise from`
+    // statement (or similar) using an exception that we've alrady augmented with the
+    // full r_trace. If we find r_trace/r_call in a __context__ exception,
+    // pull them forward to this topmost exception.
+    PyObject *context = NULL, *r_call = NULL, *r_trace = NULL;
+    PyObject *excValue_tmp = excValue;
 
-    // If we're catching a Python exception that was originally an R error,
+    while ((context = PyObject_GetAttrString(excValue_tmp, "__context__"))) {
+      if ((r_call = PyObject_GetAttrString(context, "r_call"))) {
+          PyObject_SetAttrString(excValue, "r_call", r_call);
+          Py_DecRef(r_call);
+      }
+      if ((r_trace = PyObject_GetAttrString(context, "r_trace"))) {
+          PyObject_SetAttrString(excValue, "r_trace", r_trace);
+          Py_DecRef(r_trace);
+      }
+      excValue_tmp = context;
+      Py_DecRef(context);
+      if(r_call || r_trace) {
+        break;
+      }
+    }
+  }
+
+   // If we're catching a Python exception that was originally an R error,
     // preserve the original R call from the condition.
     // Otherwise, try to capture the current call.
 
@@ -632,8 +655,12 @@ SEXP py_fetch_error() {
     // for shallow call stacks. So we fetch the call directly
     // using the R API.
 
-
     // `r_call`; Get the R call
+
+
+  // augment the exception object with some attrs: r_call, r_trace
+  if (!PyObject_HasAttrString(excValue, "r_call")) {
+
     static SEXP sys_call_call = NULL;
     if(sys_call_call == NULL) {
       SEXP which_frame = PROTECT(Rf_ScalarInteger(0));
@@ -642,63 +669,41 @@ SEXP py_fetch_error() {
       UNPROTECT(2);
     }
 
+    SEXP r_call = PROTECT(Rf_eval(sys_call_call, R_BaseEnv));
+    PyObject *r_call_capsule(py_capsule_new(r_call));
+    PyObject_SetAttrString(excValue, "r_call", r_call_capsule);
+    Py_DecRef(r_call_capsule);
+    UNPROTECT(1);
+  }
 
-    int did_error = 0;
-    SEXP r_call = PROTECT(R_tryEval(sys_call_call, R_BaseEnv, &did_error));
-    if(did_error) {
-      UNPROTECT(1);
-      Rcpp::stop("Failed to fetch R call");
-    } else {
-      PyObject* r_call_capsule(py_capsule_new(r_call));
-      PyObject_SetAttrString(excValue, "r_call", r_call_capsule);
-      Py_DecRef(r_call_capsule);
-      UNPROTECT(1);
+  if (!PyObject_HasAttrString(excValue, "r_trace")) {
+    static SEXP get_r_trace_call = NULL;
+    if (get_r_trace_call == NULL) {
+      // this fetches maybe a cached (longer) r_trace, if it infers that
+      // we're reexecuting this code path multiple times as part of
+      // unwinding a stack with multiple r->py->r->py crossings.
+      get_r_trace_call = Rf_lang1(Rf_install("get_r_trace"));
+      R_PreserveObject(get_r_trace_call);
     }
 
-    // `r_call_stack`, the R call stack via sys.calls(),
-    static SEXP sys_calls_call = NULL;
-    if(sys_calls_call == NULL) {
-      sys_calls_call = Rf_lang1(Rf_install("sys.calls"));
-      R_PreserveObject(sys_calls_call);
+    static SEXP reticulate_ns = NULL;
+    if (reticulate_ns == NULL) {
+      reticulate_ns = R_FindNamespace(Rf_mkString("reticulate"));
     }
 
-    SEXP r_calls = PROTECT(R_tryEval(sys_calls_call, R_BaseEnv, &did_error));
-    if(did_error) {
-      UNPROTECT(1);
-      Rcpp::stop("Failed to fetch R call stack");
-    } else {
-      PyObject* r_call_stack_capsule(py_capsule_new(r_calls));
-      PyObject_SetAttrString(excValue, "r_call_stack", r_call_stack_capsule);
-      Py_DecRef(r_call_stack_capsule);
-      UNPROTECT(1);
-    }
-
-    // `r_trace`, via rlang::trace_back(), which has a very nice print method.
-    static SEXP rlang_trace_back_call = NULL;
-    if(rlang_trace_back_call == NULL) {
-      SEXP rlang_ns = R_FindNamespace(Rf_mkString("rlang"));
-      SEXP trace_back_fn = Rf_findVarInFrame(rlang_ns, Rf_install("trace_back"));
-      rlang_trace_back_call = Rf_lang1(trace_back_fn);
-      R_PreserveObject(rlang_trace_back_call);
-    }
-
-    SEXP r_trace = PROTECT(R_tryEval(rlang_trace_back_call, current_env(), &did_error));
-    if(!did_error) {
-      PyObject* r_trace_capsule(py_capsule_new(r_trace));
-      PyObject_SetAttrString(excValue, "r_trace", r_trace_capsule);
-      Py_DecRef(r_trace_capsule);
-    }
+    SEXP r_trace = PROTECT(Rf_eval(get_r_trace_call, reticulate_ns));
+    PyObject* r_trace_capsule(py_capsule_new(r_trace));
+    PyObject_SetAttrString(excValue, "r_trace", r_trace_capsule);
+    Py_DecRef(r_trace_capsule);
     UNPROTECT(1);
 
     // get the cppstack, r_cppstack
     // FIXME: this doesn't seem to work, always returns NULL
-    SEXP r_cppstack = PROTECT(rcpp_get_stack_trace());
-    PyObject* r_cppstack_capsule(py_capsule_new(r_cppstack));
-    UNPROTECT(1);
-
-    PyObject_SetAttrString(excValue, "r_cppstack", r_cppstack_capsule);
-    Py_DecRef(r_cppstack_capsule);
-
+    // SEXP r_cppstack = PROTECT(rcpp_get_stack_trace());
+    // PyObject* r_cppstack_capsule(py_capsule_new(r_cppstack));
+    // UNPROTECT(1);
+    // PyObject_SetAttrString(excValue, "r_cppstack", r_cppstack_capsule);
+    // Py_DecRef(r_cppstack_capsule);
   }
 
   PyObjectRef cond(py_ref(excValue, true));
@@ -762,7 +767,7 @@ std::string conditionMessage_from_py_exception(PyObjectRef exc) {
     // truncated. If the message will be truncated, we truncate it a little
     // better here and include a useful hint in the error message.
 
-    std::string trunc("<... omitted ...>");
+    std::string trunc("<...truncated...>");
 
     // Tensorflow since ~2.6 has been including a currated traceback as part of
     // the formatted exception message, with the most user-actionable content
@@ -1907,30 +1912,32 @@ extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* k
 
   }
 
-  // combine positional and keyword arguments
-  Function append("append");
-  rArgs = append(rArgs, rKeywords);
+  static SEXP reticulate_ns = NULL;
+  static SEXP call_r_function_s = NULL;
+  if(reticulate_ns == NULL) {
+    reticulate_ns = R_FindNamespace(Rf_mkString("reticulate"));
+    call_r_function_s = Rf_install("call_r_function");
+  }
 
-  Environment pkgEnv = Rcpp::Environment::namespace_env("reticulate");
-  Function safe_do_call = pkgEnv["safe_do_call"];
-  // call the R function
+  RObject call_r_func_call(Rf_lang4(call_r_function_s, rFunction, rArgs, rKeywords));
+
   PyObject *out = PyTuple_New(2);
   try {
-    Rcpp::List result = safe_do_call(rFunction, rArgs);
+    Rcpp::List result(Rf_eval(call_r_func_call, reticulate_ns));
     // result is either
     // (return_value, NULL) or
     // (NULL, Exception object converted from r_error_condition_object)
     PyTuple_SetItem(out, 0, r_to_py(result[0], convert)); // value (or NULL)
     PyTuple_SetItem(out, 1, r_to_py(result[1], true));   // Exception (or NULL)
   } catch(const Rcpp::internal::InterruptedException& e) {
-    PyTuple_SetItem(out, 0, as_python_str("KeyboardInterrupt"));
+    PyTuple_SetItem(out, 0, r_to_py(R_NilValue, true));
     PyTuple_SetItem(out, 1, as_python_str("KeyboardInterrupt"));
   } catch(const std::exception& e) {
-    PyTuple_SetItem(out, 0, as_python_str(e.what()));
-    PyTuple_SetItem(out, 1, PyBool_FromLong(1L));
+    PyTuple_SetItem(out, 0, r_to_py(R_NilValue, true));
+    PyTuple_SetItem(out, 1, as_python_str(e.what()));
   } catch(...) {
-    PyTuple_SetItem(out, 0, as_python_str("(Unknown exception occurred)"));
-    PyTuple_SetItem(out, 1, PyBool_FromLong(1L));
+    PyTuple_SetItem(out, 0, r_to_py(R_NilValue, true));
+    PyTuple_SetItem(out, 1, as_python_str("(Unknown exception occurred)"));
   }
 
   return out;

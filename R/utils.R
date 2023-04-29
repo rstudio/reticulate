@@ -1,33 +1,105 @@
 
 `%||%` <- function(x, y) if (is.null(x)) y else x
 
+get_r_trace <- function(maybe_use_cached = FALSE) {
+  # this function, `get_r_trace()`, gets called repeatedly as a stack is being
+  # unwound, at each transition between r -> py frames. Here we make sure we
+  # don't return a truncated version of the same trace if this function is being called
+  # as a stack is unwinding due to an exception propogating.
 
-safe_do_call <- function(fn, args) {
+  # note, an earlier approach to capturing the R trace  saved a py_capsule() of
+  # the r_trace as an attribute of the python exception, allowing it to traverse
+  # the r<->py boundary during stack unwinding. This approach ran into two
+  # issues:
 
+  # 1: statements in python like `raise from` would nestle the actual r_trace
+  # under a chain of `__context__` attributes. This was cumbersome, but easily
+  # solvable by walking the chain of `__context__` attributes and copying the
+  # original r_trace over to the head of the exception chain.
+
+  # 2: tensorflow.autograph, **completely discards the original exception** when
+  # transforming a function, replacing it with a de-novo constructed exception
+  # that contains a half-hearted text summary + pre-formatted python traceback
+  # contained in the new exception object it passes. This means that if we
+  # create an exception object here and then `raise` it in python from the
+  # wrapper created by rpytools.call, when we encounter a propogating exception at the
+  # next r<->py boundry as the stack is being unwound, it is a *different*
+  # exception (new memory address, potentially different type(), none of the
+  # original attributes, with no way to recover the original attributes we want,
+  # like r_trace). This means that attaching the r_trace to the python exception
+  # and passing it through the python runtime is not going to work (at least
+  # with with tf.autograph, or things that use it like keras. Probably other
+  # approaches that involve rewriting or modifying python ast like numba and
+  # friends will fail similarly).
+
+  # Hence, this approach, where, to avoid giving arbitrary python code an
+  # opportunity to lose the r_trace, we cache the r_trace in R, and then try to
+  # be smart about pairing the R trace with the correct python exception when
+  # presenting the error to the user. Note, pairing an r trace with the correct
+  # exception is tricky and bound to fail in edge cases too, but w.r.t.
+  # tradeoffs, the failure mode will be more forgiving; the user will be
+  # presented with an r_trace that is too long rather than too short.
+
+  # (rlang traces are dataframes.)
+  t <- rlang::trace_back() # bottom=2 to omit this `save_r_trace()` frame
+  t <- t[1:(nrow(t)-1), ] # https://github.com/r-lib/rlang/issues/1620
+
+  if(!maybe_use_cached)
+    return(.globals$last_r_trace <- t)
+
+  ot <- .globals$last_r_trace
+
+  if (# no previously cached trace
+      is.null(ot) ||
+
+      # new trace is longer than previously cached trace, must be new
+      nrow(t) >= nrow(ot) ||
+
+      # new trace is not a subset of previously cached trace
+      !identical(t, ot[seq_len(nrow(t)), ])) {
+    .globals$last_r_trace <- t
+  }
+
+  invisible(.globals$last_r_trace)
+}
+
+
+call_r_function <- function(fn, args, named_args) {
   withRestarts(
-    expr = withCallingHandlers(
-      expr = return(list(do.call(fn, args), NULL)),
+
+    withCallingHandlers(
+
+      return(list(do.call(fn, c(args, named_args)), NULL)),
+
       python.builtin.BaseException = function(e) {
-        # we're rethrowing
+        delayedAssign("r_trace", get_r_trace(maybe_use_cached = TRUE))
+        if(!py_has_attr(e, "r_trace"))
+          py_set_attr(e, "r_trace", py_capsule(r_trace))
+
+        if(!py_has_attr(e, "r_call"))
+          py_set_attr(e, "r_call", py_capsule(r_trace$call[[nrow(r_trace)]]))
+
         invokeRestart("raise_py_exception", e)
       },
+
+      interrupt = function(e) {
+        invokeRestart("raise_py_exception", "KeyboardInterrupt")
+      },
+
       error = function(e) {
-        ## a few redundant captures of the callstack here,
-        ## to be pruned before next CRAN release, pending
-        ## a new print method powered by rlang.
-        e$traceback <- .traceback(4)
-        e$call_stack <- sys.calls()
-        e$trace <- rlang::trace_back()
+        # we're encountering an R error that has not yet been converted to Python,
+        trace <- e$trace %||% rlang::trace_back()
+        e$trace <- .globals$last_r_trace <- trace
         invokeRestart("raise_py_exception", e)
       }
-    ),
+    ), # withCallingHandlers()
 
     raise_py_exception = function(e) {
       list(NULL, e)
     }
-
-  )
+  ) # withRestarts()
 }
+
 
 #' @export
 r_to_py.error <- function(x, convert = FALSE) {
@@ -39,7 +111,7 @@ r_to_py.error <- function(x, convert = FALSE) {
   e <- import_builtins(convert = convert)$RuntimeError(conditionMessage(x))
 
   for (nm in setdiff(names(x), c("call", "message")))
-    py_set_attr(e, paste0("r_", nm), x[[nm]])
+    py_set_attr(e, paste0("r_", nm), py_capsule(x[[nm]]))
 
   py_set_attr(e, "r_call", conditionCall(x))
   py_set_attr(e, "r_class", class(x))

@@ -407,13 +407,16 @@ std::vector<std::string> py_class_names(PyObject* object) {
 
   // call inspect.getmro to get the class and it's bases in
   // method resolution order
-  PyObjectPtr inspect(py_import("inspect"));
-  if (inspect.is_null())
-    throw PythonException(py_fetch_error());
+  static PyObject* getmro = NULL;
+  if (getmro == NULL) {
+    PyObjectPtr inspect(py_import("inspect"));
+    if (inspect.is_null())
+      throw PythonException(py_fetch_error());
 
-  PyObjectPtr getmro(PyObject_GetAttrString(inspect, "getmro"));
-  if (getmro.is_null())
-    throw PythonException(py_fetch_error());
+    getmro = PyObject_GetAttrString(inspect, "getmro");
+    if (getmro == NULL)
+      throw PythonException(py_fetch_error());
+  }
 
   PyObjectPtr classes(PyObject_CallFunctionObjArgs(getmro, classPtr.get(), NULL));
   if (classes.is_null())

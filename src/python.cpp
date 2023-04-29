@@ -593,6 +593,35 @@ SEXP current_env(void) {
   return Rf_eval(call, R_BaseEnv);
 }
 
+SEXP current_call(void) {
+  static SEXP call = NULL;
+
+  if (!call) {
+    // `sys.frame(sys.nframe())` doesn't work because `sys.nframe()`
+    // returns the number of the frame in which evaluation occurs. It
+    // doesn't return the number of frames on the stack. So we'd need
+    // to evaluate it in the last frame on the stack which is what we
+    // are looking for to begin with. We use instead this workaround:
+    // Call `sys.frame()` from a closure to push a new frame on the
+    // stack, and use negative indexing to get the previous frame.
+    ParseStatus status;
+    SEXP code = PROTECT(Rf_mkString("sys.call(-1)"));
+    SEXP parsed = PROTECT(R_ParseVector(code, -1, &status, R_NilValue));
+    SEXP body = VECTOR_ELT(parsed, 0);
+
+    SEXP fn = PROTECT(Rf_allocSExp(CLOSXP));
+    SET_FORMALS(fn, R_NilValue);
+    SET_BODY(fn, body);
+    SET_CLOENV(fn, R_BaseEnv);
+
+    call = Rf_lang1(fn);
+    R_PreserveObject(call);
+
+    UNPROTECT(3);
+  }
+
+  return Rf_eval(call, R_BaseEnv);
+}
 
 SEXP py_fetch_error() {
 
@@ -645,17 +674,17 @@ SEXP py_fetch_error() {
     }
   }
 
-   // If we're catching a Python exception that was originally an R error,
-    // preserve the original R call from the condition.
-    // Otherwise, try to capture the current call.
+  // If we're catching a Python exception that was originally an R error,
+  // preserve the original R call from the condition.
+  // Otherwise, try to capture the current call.
 
-    // A first draft of this tried using: SEXP r_call = get_last_call();
-    // with get_last_call() defined in Rcpp headers. Unfortunately, that would
-    // skip over the actual call of interest, and frequently return NULL
-    // for shallow call stacks. So we fetch the call directly
-    // using the R API.
+  // A first draft of this tried using: SEXP r_call = get_last_call();
+  // with get_last_call() defined in Rcpp headers. Unfortunately, that would
+  // skip over the actual call of interest, and frequently return NULL
+  // for shallow call stacks. So we fetch the call directly
+  // using the R API.
 
-    // `r_call`; Get the R call
+  // `r_call`; Get the R call
 
 
   // augment the exception object with some attrs: r_call, r_trace
@@ -669,7 +698,7 @@ SEXP py_fetch_error() {
       UNPROTECT(2);
     }
 
-    SEXP r_call = PROTECT(Rf_eval(sys_call_call, R_BaseEnv));
+    SEXP r_call = current_call();
     PyObject *r_call_capsule(py_capsule_new(r_call));
     PyObject_SetAttrString(excValue, "r_call", r_call_capsule);
     Py_DecRef(r_call_capsule);

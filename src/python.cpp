@@ -103,7 +103,7 @@ std::string to_string(const std::wstring& ws) {
 
 
 // forward declare error handling utility
-SEXP py_fetch_error();
+SEXP py_fetch_error(bool maybe_reuse_cached_r_trace = false);
 
 
 const char *r_object_string = "r_object";
@@ -616,7 +616,24 @@ SEXP current_call(void) {
   return Rf_eval(call, R_BaseEnv);
 }
 
-SEXP py_fetch_error() {
+SEXP get_r_trace(bool maybe_use_cached = false) {
+  static SEXP get_r_trace_s = NULL;
+  static SEXP reticulate_ns = NULL;
+
+  if (!get_r_trace_s) {
+    reticulate_ns = R_FindNamespace(Rf_mkString("reticulate"));
+    get_r_trace_s =  Rf_install("get_r_trace");
+  }
+
+  SEXP maybe_use_cached_ = PROTECT(Rf_ScalarLogical(maybe_use_cached));
+  SEXP trim_tail_ = PROTECT(Rf_ScalarInteger(1));
+  SEXP call = PROTECT(Rf_lang3(get_r_trace_s, maybe_use_cached_, trim_tail_));
+  SEXP result = PROTECT(Rf_eval(call, reticulate_ns));
+  UNPROTECT(4);
+  return result;
+}
+
+SEXP py_fetch_error(bool maybe_reuse_cached_r_trace) {
 
   // check whether this error was signaled via an interrupt.
   // the intention here is to catch cases where reticulate is running
@@ -682,21 +699,7 @@ SEXP py_fetch_error() {
 
 
   if (!PyObject_HasAttrString(excValue, "r_trace")) {
-    static SEXP get_r_trace_call = NULL;
-    if (get_r_trace_call == NULL) {
-      // this fetches maybe a cached (longer) r_trace, if it infers that
-      // we're reexecuting this code path multiple times as part of
-      // unwinding a stack with multiple r->py->r->py crossings.
-      get_r_trace_call = Rf_lang1(Rf_install("get_r_trace"));
-      R_PreserveObject(get_r_trace_call);
-    }
-
-    static SEXP reticulate_ns = NULL;
-    if (reticulate_ns == NULL) {
-      reticulate_ns = R_FindNamespace(Rf_mkString("reticulate"));
-    }
-
-    SEXP r_trace = PROTECT(Rf_eval(get_r_trace_call, reticulate_ns));
+    SEXP r_trace = PROTECT(get_r_trace(maybe_reuse_cached_r_trace));
     PyObject* r_trace_capsule(py_capsule_new(r_trace));
     PyObject_SetAttrString(excValue, "r_trace", r_trace_capsule);
     Py_DecRef(r_trace_capsule);
@@ -2666,7 +2669,7 @@ SEXP py_call_impl(PyObjectRef x, List args = R_NilValue, List keywords = R_NilVa
 
   // check for error
   if (res.is_null())
-    throw PythonException(py_fetch_error());
+    throw PythonException(py_fetch_error(true));
 
   // return
   return py_ref(res.detach(), x.convert());

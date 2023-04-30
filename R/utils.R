@@ -1,9 +1,10 @@
 
 `%||%` <- function(x, y) if (is.null(x)) y else x
 
-get_r_trace <- function(maybe_use_cached = FALSE) {
-  # this function, `get_r_trace()`, gets called repeatedly as a stack is being
-  # unwound, at each transition between r -> py frames. Here we make sure we
+get_r_trace <- function(maybe_use_cached = FALSE, trim_tail = 1) {
+  # this function, `get_r_trace()`, can get called repeatedly as a stack is being
+  # unwound, at each transition between r -> py frames if python 'lost' the r_trace attr
+  # as part of handling the exceptoin. Here we make sure we
   # don't return a truncated version of the same trace if this function is being called
   # as a stack is unwinding due to an exception propogating.
 
@@ -42,10 +43,43 @@ get_r_trace <- function(maybe_use_cached = FALSE) {
 
   # (rlang traces are dataframes.)
   t <- rlang::trace_back() # bottom=2 to omit this `save_r_trace()` frame
-  t <- t[1:(nrow(t)-1), ] # https://github.com/r-lib/rlang/issues/1620
+  t <- t[1:(nrow(t) - trim_tail), ] # https://github.com/r-lib/rlang/issues/1620
+
+  ## the rlang trace contains calls mangled for pretty printing.
+  ## Unfortunately, the mangling is too aggressive, the actual call is frequently needed
+  ## to track down where an error occurred.
+  t$full_call <- sys.calls()[seq_len(nrow(t))]
+
+  # Drop reticulate internal frames that are not useful to the user
+  ## (this works, except [ method for traces does not adjust the parent
+  ## correctly when slicing out frames where parent == 0, and
+  ## then the tree that gets printed is not useful.
+  ## TODO: file an issue with rlang
+  # i <- 1L
+  # while(i < nrow(t)) {
+  #     # drop frames:
+  #     # withRestarts(withCallingHandlers(return(list(do.call(fn, c(args, named_args)), NULL)), python.builtin.BaseException = function(e) {     r_tra…
+  #     # withOneRestart(expr, restarts[[1L]])
+  #     # doWithOneRestart(return(expr), restart)
+  #     # withCallingHandlers(return(list(do.call(fn, c(args, named_args)), NULL)), python.builtin.BaseException = function(e) {     r_trace <- py_get_…
+  #     # do.call(fn, c(args, named_args))
+  #   if(identical(t$call[[i]][[1L]], quote(call_r_function))) {
+  #     i <- i + 1L
+  #     t <- t[-seq.int(from = i, length.out = 5L), ]
+  #   }
+  #
+  #   # drop py_call_impl() frame
+  #   else if(identical(t$call[[i]][[1L]], quote(py_call_impl))) {
+  #     t <- t[-i, ]
+  #   }
+  #
+  #   else {
+  #     i <- i + 1L
+  #   }
+  # }
 
   if(!maybe_use_cached)
-    return(.globals$last_r_trace <- t)
+    return((.globals$last_r_trace <- t))
 
   ot <- .globals$last_r_trace
 
@@ -63,6 +97,12 @@ get_r_trace <- function(maybe_use_cached = FALSE) {
   invisible(.globals$last_r_trace)
 }
 
+printtrace <- function(x) {
+  tibble::as_tibble(x) |>
+    dplyr::mutate(call2 = sapply(call, deparse1)) |>
+    print(n = Inf)
+}
+
 
 call_r_function <- function(fn, args, named_args) {
   withRestarts(
@@ -72,12 +112,20 @@ call_r_function <- function(fn, args, named_args) {
       return(list(do.call(fn, c(args, named_args)), NULL)),
 
       python.builtin.BaseException = function(e) {
-        delayedAssign("r_trace", get_r_trace(maybe_use_cached = TRUE))
-        if(!py_has_attr(e, "r_trace"))
+        # we're throwing a python exception
+        # check if we're rethrowing an exception that we've already seen
+        # and if so, make sure the r_trace attr is still present
+        r_trace <- as_r_value(py_get_attr(e, "r_trace", TRUE))
+        if(is.null(r_trace)) {
+          r_trace <- get_r_trace(maybe_use_cached = TRUE, trim_tail = 2)
           py_set_attr(e, "r_trace", py_capsule(r_trace))
+        }
 
-        if(!py_has_attr(e, "r_call"))
-          py_set_attr(e, "r_call", py_capsule(r_trace$call[[nrow(r_trace)]]))
+        if(!py_has_attr(e, "r_call")) {
+          if(is.null(r_trace))
+            r_trace <- get_r_trace(maybe_use_cached = TRUE, trim_tail = 2)
+          py_set_attr(e, "r_call", py_capsule(r_trace$full_call[[nrow(r_trace)]]))
+        }
 
         invokeRestart("raise_py_exception", e)
       },
@@ -87,8 +135,10 @@ call_r_function <- function(fn, args, named_args) {
       },
 
       error = function(e) {
-        # we're encountering an R error that has not yet been converted to Python,
-        trace <- e$trace %||% rlang::trace_back()
+        # we're encountering an R error that has not yet been converted to Python
+        trace <- e$trace
+        if(is.null(trace))
+          trace <- get_r_trace(maybe_use_cached = FALSE, trim_tail = 2)
         e$trace <- .globals$last_r_trace <- trace
         invokeRestart("raise_py_exception", e)
       }
@@ -99,6 +149,9 @@ call_r_function <- function(fn, args, named_args) {
     }
   ) # withRestarts()
 }
+
+
+as_r_value <- function(x) if(inherits(x, "python.builtin.object")) py_to_r(x) else x
 
 
 #' @export

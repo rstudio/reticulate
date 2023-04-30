@@ -99,12 +99,6 @@ get_r_trace <- function(maybe_use_cached = FALSE, trim_tail = 1L) {
   invisible(.globals$last_r_trace)
 }
 
-printtrace <- function(x) {
-  tibble::as_tibble(x) |>
-    dplyr::mutate(call2 = sapply(call, deparse1)) |>
-    print(n = Inf)
-}
-
 
 call_r_function <- function(fn, args, named_args) {
   withRestarts(

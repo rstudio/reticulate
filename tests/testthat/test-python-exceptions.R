@@ -18,6 +18,7 @@ test_that("py_last_error() returns R strings", {
 test_that("py_last_error() returns the R error condition object", {
     skip_if_no_python()
 
+
     signal_simple_error <- function() {
       stop("Hello signal_simple_error")
     }
@@ -25,9 +26,7 @@ test_that("py_last_error() returns the R error condition object", {
       py_run_string("raise RuntimeError('Hello raise_py_exception')")
     }
     signal_py_exception <- function() {
-      ex <- import_builtins()$RuntimeError("Hello signal_py_exception")
-      ex$r_call <- sys.call()
-      stop(ex)
+      stop(import_builtins()$RuntimeError("Hello signal_py_exception"))
     }
 
     f1 <- py_func(signal_simple_error)
@@ -62,5 +61,72 @@ test_that("py_last_error() returns the R error condition object", {
       expect_match(conditionMessage(e), "Hello")
       expect_type(conditionCall(e), "language")
     }
+    # test that py_last_error() reports full r_trace
+    # even if python discards the exception object
+
+    catch_and_replace_exception <- py_run_string("
+def catch_and_replace_exception(fn):
+    try:
+      fn()
+    except:
+      raise RuntimeError('''It's a mystery!''')
+")$catch_and_replace_exception
+
+    catch_clear_errstatus_then_raise_new_exception <- py_run_string("
+def catch_clear_errstatus_then_raise_new_exception(fn):
+    failed = False
+    try:
+      res = fn()
+    except:
+      failed = True
+    if failed:
+      raise RuntimeError('''It's a mystery!''')
+    return res
+")$catch_clear_errstatus_then_raise_new_exception
+
+    expect_match2 <- expect_match
+    formals(expect_match2)$fixed <- TRUE
+    formals(expect_match2)$all <- FALSE
+
+    for (erroring_fn in list(signal_simple_error,
+                             raise_py_exception,
+                             signal_py_exception)) {
+      f1 <- py_func(erroring_fn)
+      f2 <- py_func(function() f1())
+      f3 <- py_func(function() catch_and_replace_exception(f2))
+      f4 <- py_func(function() f3())
+      f5 <- py_func(function() f4())
+
+      e <- tryCatch(f5(), error = identity)
+      output <- suppressMessages(capture.output(print(reticulate::py_last_error())))
+
+      expect_match2(output, "Hello")
+      expect_match2(output, "It's a mystery!")
+      expect_match2(output, "f1()")
+      expect_match2(output, "catch_and_replace_exception(f2)")
+      expect_match2(output, "f3()")
+      expect_match2(output, "f4()")
+      expect_match2(output, "f5()")
+
+      f1 <- py_func(erroring_fn)
+      f2 <- py_func(function() f1())
+      f3 <- py_func(function() catch_clear_errstatus_then_raise_new_exception(f2))
+      f4 <- py_func(function() f3())
+      f5 <- py_func(function() f4())
+
+      e <- tryCatch(f5(), error = identity)
+
+      output <- suppressMessages(capture.output(print(reticulate::py_last_error())))
+
+      expect_match2(output, "It's a mystery!") # python code made it a mystery
+      expect_match2(output, "Hello") # we make it not a mystery by providing the R trace
+      expect_match2(output, "f1()")
+      expect_match2(output, "catch_clear_errstatus_then_raise_new_exception(f2)")
+      expect_match2(output, "f3()")
+      expect_match2(output, "f4()")
+      expect_match2(output, "f5()")
+
+    }
+
 
 })

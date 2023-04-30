@@ -1,69 +1,71 @@
 
 `%||%` <- function(x, y) if (is.null(x)) y else x
 
-get_r_trace <- function(maybe_use_cached = FALSE, trim_tail = 1) {
-  # this function, `get_r_trace()`, can get called repeatedly as a stack is being
-  # unwound, at each transition between r -> py frames if python 'lost' the r_trace attr
-  # as part of handling the exceptoin. Here we make sure we
-  # don't return a truncated version of the same trace if this function is being called
-  # as a stack is unwinding due to an exception propogating.
+get_r_trace <- function(maybe_use_cached = FALSE, trim_tail = 1L) {
+  # this function, `get_r_trace()`, can get called repeatedly as a stack is
+  # being unwound, at each transition between r -> py frames if python 'lost'
+  # the r_trace attr as part of handling the exception. Here we make sure we
+  # don't return a truncated version of the same trace if this function is being
+  # called as a stack is unwinding due to an exception propogating.
 
-  # note, an earlier approach to capturing the R trace  saved a py_capsule() of
-  # the r_trace as an attribute of the python exception, allowing it to traverse
-  # the r<->py boundary during stack unwinding. This approach ran into two
-  # issues:
+  # note, Exceptions typically have r_trace and r_call attrs set on creation,
+  # but those can be lost or discarded by python code. There are two
+  # common scenarios where the r_trace attr is missing after raising the
+  # exception in python and then recatching it in R as the stack is unwound:
 
-  # 1: statements in python like `raise from` would nestle the actual r_trace
-  # under a chain of `__context__` attributes. This was cumbersome, but easily
-  # solvable by walking the chain of `__context__` attributes and copying the
-  # original r_trace over to the head of the exception chain.
+  # 1: statements in python like `raise from` will nestle the exception
+  # containing the r_trace into chain of `__context__` attributes. This is
+  # scenario handled in C++ py_fetch_error() by walking the chain of
+  # `__context__` attributes and copying the original r_trace over to the head
+  # of the exception chain.
 
-  # 2: tensorflow.autograph, **completely discards the original exception** when
-  # transforming a function, replacing it with a de-novo constructed exception
-  # that contains a half-hearted text summary + pre-formatted python traceback
-  # contained in the new exception object it passes. This means that if we
-  # create an exception object here and then `raise` it in python from the
-  # wrapper created by rpytools.call, when we encounter a propogating exception at the
-  # next r<->py boundry as the stack is being unwound, it is a *different*
-  # exception (new memory address, potentially different type(), none of the
-  # original attributes, with no way to recover the original attributes we want,
-  # like r_trace). This means that attaching the r_trace to the python exception
-  # and passing it through the python runtime is not going to work (at least
-  # with with tf.autograph, or things that use it like keras. Probably other
-  # approaches that involve rewriting or modifying python ast like numba and
-  # friends will fail similarly).
+  # 2: tensorflow.autograph, **completely discards the original exception,
+  # clears the error, then raises a new exception** when transforming a
+  # function. The new exception raised is a de-novo constructed exception that
+  # containing a half-hearted text summary + pre-formatted python traceback of
+  # the original exception. This means that if we create an exception object
+  # here with an r_trace attr, and then `raise` it in python from the wrapper
+  # created by rpytools.call, when we next encounter a propogating exception at
+  # the next r<->py boundry as the stack is being unwound, it is a
+  # *different* exception (new memory address, potentially different type(),
+  # none of the original attributes, with no way to recover the original
+  # attributes we want, like r_trace). This means that attaching the r_trace to
+  # the python exception and passing it through the python runtime cannot be
+  # relied on. (at least not with with tf.autograph, or things that use it like
+  # keras. Probably other approaches that involve rewriting or modifying python
+  # ast like numba and friends will fail similarly).
 
-  # Hence, this approach, where, to avoid giving arbitrary python code an
-  # opportunity to lose the r_trace, we cache the r_trace in R, and then try to
-  # be smart about pairing the R trace with the correct python exception when
-  # presenting the error to the user. Note, pairing an r trace with the correct
-  # exception is tricky and bound to fail in edge cases too, but w.r.t.
-  # tradeoffs, the failure mode will be more forgiving; the user will be
-  # presented with an r_trace that is too long rather than too short.
+  # Hence, this approach, where, to mitigate the scenario where arbitrary python
+  # code lost the r_trace, we cache the r_trace in R, and then try to be smart
+  # about pairing the R trace with the correct python exception when presenting
+  # the error to the user. Note, pairing an r trace with the correct exception
+  # is tricky and bound to fail in edge cases too, but w.r.t. tradeoffs, the
+  # failure mode will be more forgiving; the user will be presented with an
+  # r_trace that is too long rather than too short.
 
   # (rlang traces are dataframes.)
   t <- rlang::trace_back() # bottom=2 to omit this `save_r_trace()` frame
-  t <- t[1:(nrow(t) - trim_tail), ] # https://github.com/r-lib/rlang/issues/1620
+  t <- t[1L:(nrow(t) - trim_tail), ] # https://github.com/r-lib/rlang/issues/1620
 
-  ## the rlang trace contains calls mangled for pretty printing.
-  ## Unfortunately, the mangling is too aggressive, the actual call is frequently needed
-  ## to track down where an error occurred.
+  ## the rlang trace contains calls mangled for pretty printing. Unfortunately,
+  ## the mangling is too aggressive, the actual call is frequently needed to
+  ## track down where an error occurred.
   t$full_call <- sys.calls()[seq_len(nrow(t))]
 
   # Drop reticulate internal frames that are not useful to the user
   ## (this works, except [ method for traces does not adjust the parent
   ## correctly when slicing out frames where parent == 0, and
   ## then the tree that gets printed is not useful.
-  ## TODO: file an issue with rlang
+  ## TODO: file an issue with rlang)
   # i <- 1L
   # while(i < nrow(t)) {
+  #   if(identical(t$call[[i]][[1L]], quote(call_r_function))) {
   #     # drop frames:
   #     # withRestarts(withCallingHandlers(return(list(do.call(fn, c(args, named_args)), NULL)), python.builtin.BaseException = function(e) {     r_tra…
   #     # withOneRestart(expr, restarts[[1L]])
   #     # doWithOneRestart(return(expr), restart)
   #     # withCallingHandlers(return(list(do.call(fn, c(args, named_args)), NULL)), python.builtin.BaseException = function(e) {     r_trace <- py_get_…
   #     # do.call(fn, c(args, named_args))
-  #   if(identical(t$call[[i]][[1L]], quote(call_r_function))) {
   #     i <- i + 1L
   #     t <- t[-seq.int(from = i, length.out = 5L), ]
   #   }
@@ -112,8 +114,7 @@ call_r_function <- function(fn, args, named_args) {
       return(list(do.call(fn, c(args, named_args)), NULL)),
 
       python.builtin.BaseException = function(e) {
-        # we're throwing a python exception
-        # check if we're rethrowing an exception that we've already seen
+        # check if rethrowing an exception that we've already seen
         # and if so, make sure the r_trace attr is still present
         r_trace <- as_r_value(py_get_attr(e, "r_trace", TRUE))
         if(is.null(r_trace)) {

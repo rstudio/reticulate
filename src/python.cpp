@@ -593,7 +593,7 @@ SEXP current_env(void) {
   return Rf_eval(call, R_BaseEnv);
 }
 
-SEXP current_call(void) {
+SEXP get_current_call(void) {
   static SEXP call = NULL;
 
   if (!call) {
@@ -660,10 +660,12 @@ SEXP py_fetch_error(bool maybe_reuse_cached_r_trace) {
   PyObjectPtr pExcType(excType);  // decref on exit
 
   if (!PyObject_HasAttrString(excValue, "r_call")) {
-    // check if this exception originaged in python using the `raise from`
-    // statement (or similar) using an exception that we've alrady augmented with the
-    // full r_trace. If we find r_trace/r_call in a __context__ exception,
-    // pull them forward to this topmost exception.
+    // check if this exception originated in python using the `raise from`
+    // statement with an exception that we've already augmented with the full
+    // r_trace. (or similarly, raised a new exception inside an `except:` block
+    // while it is catching an Exception that contains an r_trace). If we find
+    // r_trace/r_call in a __context__ Exception, pull them forward to this
+    // topmost exception.
     PyObject *context = NULL, *r_call = NULL, *r_trace = NULL;
     PyObject *excValue_tmp = excValue;
 
@@ -684,8 +686,17 @@ SEXP py_fetch_error(bool maybe_reuse_cached_r_trace) {
     }
   }
 
-  // If we're catching a Python exception that was originally an R error,
-  // preserve the original R call from the condition.
+
+
+  // make sure the exception object has some some attrs: r_call, r_trace
+  if (!PyObject_HasAttrString(excValue, "r_trace")) {
+    SEXP r_trace = PROTECT(get_r_trace(maybe_reuse_cached_r_trace));
+    PyObject* r_trace_capsule(py_capsule_new(r_trace));
+    PyObject_SetAttrString(excValue, "r_trace", r_trace_capsule);
+    Py_DecRef(r_trace_capsule);
+    UNPROTECT(1);
+  }
+
   // Otherwise, try to capture the current call.
 
   // A first draft of this tried using: SEXP r_call = get_last_call();
@@ -693,40 +704,24 @@ SEXP py_fetch_error(bool maybe_reuse_cached_r_trace) {
   // skip over the actual call of interest, and frequently return NULL
   // for shallow call stacks. So we fetch the call directly
   // using the R API.
-
-  // `r_call`; Get the R call
-
-
-
-  if (!PyObject_HasAttrString(excValue, "r_trace")) {
-    SEXP r_trace = PROTECT(get_r_trace(maybe_reuse_cached_r_trace));
-    PyObject* r_trace_capsule(py_capsule_new(r_trace));
-    PyObject_SetAttrString(excValue, "r_trace", r_trace_capsule);
-    Py_DecRef(r_trace_capsule);
-    UNPROTECT(1);
-
-    // get the cppstack, r_cppstack
-    // FIXME: this doesn't seem to work, always returns NULL
-    // SEXP r_cppstack = PROTECT(rcpp_get_stack_trace());
-    // PyObject* r_cppstack_capsule(py_capsule_new(r_cppstack));
-    // UNPROTECT(1);
-    // PyObject_SetAttrString(excValue, "r_cppstack", r_cppstack_capsule);
-    // Py_DecRef(r_cppstack_capsule);
-  }
-
-
-  // augment the exception object with some attrs: r_call, r_trace
   if (!PyObject_HasAttrString(excValue, "r_call")) {
-
-    SEXP r_call = current_call();
+    SEXP r_call = get_current_call();
     PyObject *r_call_capsule(py_capsule_new(r_call));
     PyObject_SetAttrString(excValue, "r_call", r_call_capsule);
     Py_DecRef(r_call_capsule);
     UNPROTECT(1);
   }
 
-  PyObjectRef cond(py_ref(excValue, true));
 
+  // get the cppstack, r_cppstack
+  // FIXME: this doesn't seem to work, always returns NULL
+  // SEXP r_cppstack = PROTECT(rcpp_get_stack_trace());
+  // PyObject* r_cppstack_capsule(py_capsule_new(r_cppstack));
+  // UNPROTECT(1);
+  // PyObject_SetAttrString(excValue, "r_cppstack", r_cppstack_capsule);
+  // Py_DecRef(r_cppstack_capsule);
+
+  PyObjectRef cond(py_ref(excValue, true));
 
   Environment pkg_globals(
       Environment::namespace_env("reticulate").get(".globals"));

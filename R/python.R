@@ -1788,7 +1788,7 @@ print.py_error <- function(x, ...) {
 
 cat_h1 <- function(x) {
   if(requireNamespace("cli", quietly = TRUE)) {
-    cli::cli_h1(x)
+    cli::cli_h1(x, .envir = NULL)
   } else {
     cat("--- ", x, "\n", sep = "")
   }

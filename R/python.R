@@ -1720,7 +1720,7 @@ py_last_error <- function(exception) {
   )
   out$r_call <- conditionCall(e)
   out$r_class <- as_r_value(py_get_attr(e, "r_class", TRUE)) %||% class(e)
-  out$r_trace <- py_get_attr(e, "r_trace", TRUE)
+  out$r_trace <- py_get_attr(e, "r_trace", TRUE) %||% .globals$last_r_trace
   out <- lapply(out, as_r_value)
   attr(out, "exception") <- e
   class(out) <- "py_error"
@@ -1737,6 +1737,8 @@ make_filepaths_clickable <- function(formatted_python_traceback) {
   # for the previous approach
 
   x <- strsplit(formatted_python_traceback, "\n", fixed = TRUE)[[1L]]
+  if (!length(x))
+    return(formatted_python_traceback)
   m <- regexec('File "([^"]+)", line ([0-9]+), in', x, perl = TRUE)
 
   new <- lapply(regmatches(x, m), function(match) {
@@ -1755,6 +1757,7 @@ make_filepaths_clickable <- function(formatted_python_traceback) {
     if(identical(as.vector(match_pos), -1L))
       return(match_pos)
     out <- match_pos[2] # only match filepath
+    # TODO, make the clickable target bigger, include ", line nn" in link.
     attr(out, "match.length") <- attr(match_pos, "match.length")[2]
     out
   })
@@ -1785,7 +1788,7 @@ print.py_error <- function(x, ...) {
 
 cat_h1 <- function(x) {
   if(requireNamespace("cli", quietly = TRUE)) {
-    cli::cli_h1(x)
+    cli::cli_h1(x, .envir = NULL)
   } else {
     cat("--- ", x, "\n", sep = "")
   }

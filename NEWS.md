@@ -93,6 +93,9 @@
   converted to Python through the Python runtime to other R code.
   (e.g, to an R function called by Python code). (#1304)
 
+- Default python version used by `install_miniconda()` and friends
+  is now 3.9 (was 3.8).
+
 # reticulate 1.28
 
 - Fixed issue where `source_python()` (and likely many other entrypoints)

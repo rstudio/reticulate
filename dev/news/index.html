@@ -122,6 +122,7 @@
 <li><p><code><a href="../reference/py_last_error.html">py_last_error()</a></code> return object contains <code>r_call</code>, <code>r_trace</code> and/or <code>r_class</code> if the Python Exception was raised by an R function called from Python.</p></li>
 <li><p>Fixed error <code><a href="../reference/r-py-conversion.html">r_to_py()</a></code> with Pandas&gt;=2.0 and R data.frames with a factor column containing levels with <code>NA</code>.</p></li>
 <li><p><code><a href="../reference/r-py-conversion.html">r_to_py()</a></code> now succeeds for many additional types of R objects. Objects that reticulate doesn’t know how to convert are presented to the python runtime as a py capsule (an opaque pointer to the underlying R object). Previously this would error. This allows for R code to pass R objects that cannot be safely converted to Python through the Python runtime to other R code. (e.g, to an R function called by Python code). (<a href="https://github.com/rstudio/reticulate/issues/1304" class="external-link">#1304</a>)</p></li>
+<li><p>Default python version used by <code><a href="../reference/install_miniconda.html">install_miniconda()</a></code> and friends is now 3.9 (was 3.8).</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="1.28" id="reticulate-128">reticulate 1.28<small>2023-01-27</small><a class="anchor" aria-label="anchor" href="#reticulate-128"></a></h2>

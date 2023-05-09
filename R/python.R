@@ -1681,14 +1681,23 @@ py_clear_last_error <- function() {
 py_last_error <- function(exception) {
   if (!missing(exception)) {
     # set as the last exception
-    if (inherits(exception, "py_error"))
+    r_trace <- NULL
+    if (inherits(exception, "py_error")) {
+      r_trace <- exception$r_trace
       exception <- attr(exception, "exception", TRUE)
+    }
+
+    if(is.null(r_trace))
+      r_trace <- as_r_value(py_get_attr(exception, "r_trace", TRUE))
 
     if (!is.null(exception) &&
         !inherits(exception, "python.builtin.Exception"))
       stop("`exception` must be NULL, a `py_error`, or a 'python.builtin.Exception'")
 
-    on.exit(.globals$py_last_exception <- exception)
+    on.exit({
+      .globals$py_last_exception <- exception
+      .globals$last_r_trace <- r_trace
+      })
     return(invisible(.globals$py_last_exception))
   }
 

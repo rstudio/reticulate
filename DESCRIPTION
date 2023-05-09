@@ -54,6 +54,7 @@ Suggests:
     glue,
     cli,
     rmarkdown,
+    pillar,
     testthat
 LinkingTo: Rcpp
 RoxygenNote: 7.2.3

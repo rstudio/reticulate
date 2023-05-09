@@ -53,7 +53,7 @@
 - The knitr python engine now respects the `strip.white` option (#1273).
 
 - `py_to_r()` now succeeds when converting subtypes of the built-in
-  types (e.g. `list`, `dict`, `str`). (#1352, #1348, #1226, #1354)
+  types (e.g. `list`, `dict`, `str`). (#1352, #1348, #1226, #1354, #1366)
 
 - `py_run_file()` and `source_python()` now prepend the script directory to
   the Python module search path, `sys.path`, while the requested script is executing.
@@ -81,6 +81,10 @@
 - `py_last_error()` return object contains `r_call`, `r_trace` and/or
   `r_class` if the Python Exception was raised by an R function called
   from Python.
+
+- New `pillar::type_sum` method now exported for python objects. That ensures
+  the full object class name is printing in R tracebacks and tibbles
+  containing python objects.
 
 - Fixed error `r_to_py()` with Pandas>=2.0 and R data.frames with a
   factor column containing levels with `NA`.

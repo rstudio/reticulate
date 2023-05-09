@@ -1778,6 +1778,14 @@ make_filepaths_clickable <- function(formatted_python_traceback) {
   paste0(x, collapse = "\n")
 }
 
+#' @exportS3Method pillar::type_sum
+type_sum.python.builtin.object <- function(x) {
+  s <- class(x)[[1L]]
+  if(startsWith(s, "R6type."))
+    s <- substr(s, 8L, 2147483647L)
+  s
+}
+
 #' @export
 print.py_error <- function(x, ...) {
 

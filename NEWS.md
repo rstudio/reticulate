@@ -13,7 +13,7 @@
   now clickable links in the RStudio IDE.
 
 - New Ops group generics for Python objects:
-  `+`, `-`, `*`, `/`, `^`, `%%`, `%/%`, `&`, `|`, `!`.
+  `+`, `-`, `*`, `/`, `^`, `%%`, `%/%`, `&`, `|`, `!`, `%*%`.
   Methods for all the Ops group generics are now defined for Python objects. (#1187, #1363)
   E.g., this now works:
   ```r

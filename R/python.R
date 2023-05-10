@@ -214,6 +214,12 @@ py_compare <- function(a, b, op) {
   op(e1)
 }
 
+#' @export
+`%*%.python.builtin.object` <-function(x, y) {
+  op <- fetch_op("@", py_eval("lambda x, y: x @ y", convert = FALSE),
+                 nargs = 2L)
+  op(x, y)
+}
 
 
 

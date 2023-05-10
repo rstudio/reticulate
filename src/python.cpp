@@ -831,6 +831,12 @@ int r_scalar_type(PyObject* x) {
 // check whether the PyObject is a list of a single R scalar type
 int scalar_list_type(PyObject* x) {
 
+  // check R option, default to false
+  SEXP simplify_s = Rf_GetOption1(Rf_install("reticulate.simplify_lists"));
+  bool simplify = simplify_s == R_NilValue ? false : Rf_asLogical(simplify_s);
+  if(!simplify)
+    return NILSXP;
+
   Py_ssize_t len = PyList_Size(x);
   if (len == 0)
     return NILSXP;

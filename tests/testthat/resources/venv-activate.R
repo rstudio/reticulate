@@ -7,4 +7,4 @@ Sys.unsetenv("RETICULATE_PYTHON_ENV")
 
 reticulate::use_virtualenv(venv, required = TRUE)
 sys <- reticulate::import("sys")
-writeLines(sys$path)
+writeLines(as.character(sys$path))

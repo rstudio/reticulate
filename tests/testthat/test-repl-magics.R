@@ -72,7 +72,7 @@ test_that("%system, !", {
   local_quiet_repl()
 
   repl_python(input = "x = !ls")
-  expect_equal(py_eval("x"), system("ls", intern = TRUE))
+  expect_equal(unlist(py_eval("x")), system("ls", intern = TRUE))
 
 })
 

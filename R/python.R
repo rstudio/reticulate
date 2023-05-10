@@ -1724,7 +1724,7 @@ py_last_error <- function(exception) {
   if(is.null(etb))
     formatted_traceback <- NULL
   else
-    formatted_traceback <- traceback$format_tb(etb)
+    formatted_traceback <- as.character(traceback$format_tb(etb))
 
   out <- list(
     type = py_get_attr_impl(etype, "__name__", TRUE),
@@ -1865,3 +1865,5 @@ format_py_exception_traceback_with_clickable_filepaths <- function(etb) {
 
   cli::col_silver(paste("Run", py_last_error, "for details."))
 }
+
+

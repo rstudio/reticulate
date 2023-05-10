@@ -97,6 +97,9 @@ assert isinstance(Dict({}), dict)
 ")$Dict
 
   expect_identical(Dict(dict()), structure(list(), names = character(0)))
-  expect_identical(Dict(list("abc" = 1:3)), list("abc" = 1:3))
+  expect_identical(Dict(list("abc" = as.list(1:3))), list("abc" = as.list(1:3)))
+  withr::with_options(c(reticulate.simplify_lists = TRUE), {
+    expect_identical(Dict(list("abc" = 1:3)), list("abc" = 1:3))
+  })
 
 })

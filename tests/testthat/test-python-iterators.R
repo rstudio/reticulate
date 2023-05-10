@@ -90,7 +90,7 @@ test_that("generator functions support a custom completed value", {
 test_that("generator functions are always called on the main thread", {
   skip_if_no_python()
   gen <- py_iterator(sequence_generator(10L))
-  expect_equal(test$iterateOnThread(gen), 11L:19L)
+  expect_equal(test$iterateOnThread(gen), as.list(11L:19L))
 })
 
 test_that("can't supply a function with arguments", {

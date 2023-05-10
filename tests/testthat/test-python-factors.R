@@ -5,6 +5,6 @@ test_that("R factors are converted to character", {
 
   before <- iris$Species
   after <- py_to_r(r_to_py(before))
-  expect_equal(as.character(before), after)
+  expect_equal(as.list(as.character(before)), after)
 })
 

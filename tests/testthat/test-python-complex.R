@@ -10,7 +10,11 @@ test_that("Complex scalars are converted correctly", {
 test_that("Complex vectors are converted correctly", {
   skip_if_no_python()
   z <- complex(real = stats::rnorm(100), imaginary = stats::rnorm(100))
-  expect_equal(z, test$reflect(z))
+  expect_equal(as.list(z), test$reflect(z))
+  withr::with_options(c(reticulate.simplify_lists = TRUE), {
+    expect_equal(z, test$reflect(z))
+  })
+
 })
 
 

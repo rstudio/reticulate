@@ -1926,18 +1926,20 @@ extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* k
 
   }
 
-  static SEXP reticulate_ns = NULL;
   static SEXP call_r_function_s = NULL;
-  if(reticulate_ns == NULL) {
-    reticulate_ns = R_FindNamespace(Rf_mkString("reticulate"));
-    call_r_function_s = Rf_install("call_r_function");
+  if(call_r_function_s == NULL) {
+    // Use an expression that deparses nicely for traceback printing purposes
+    call_r_function_s = Rf_lang3(Rf_install(":::"), Rf_install("reticulate"), Rf_install("call_r_function"));
+    R_PreserveObject(call_r_function_s);
   }
 
   RObject call_r_func_call(Rf_lang4(call_r_function_s, rFunction, rArgs, rKeywords));
 
   PyObject *out = PyTuple_New(2);
   try {
-    Rcpp::List result(Rf_eval(call_r_func_call, reticulate_ns));
+    // use current_env() here so that in case of error, rlang::trace_back()
+    // prints this frame as a node of the parent rather than a top-level call.
+    Rcpp::List result(Rf_eval(call_r_func_call, current_env()));
     // result is either
     // (return_value, NULL) or
     // (NULL, Exception object converted from r_error_condition_object)

@@ -1793,20 +1793,71 @@ type_sum.python.builtin.object <- function(x) {
 }
 
 #' @export
-print.py_error <- function(x, ...) {
+print.py_error <- function(x, ..., simplify = getOption("reticulate.print_simplified_traceback", FALSE)) {
 
   py_error_message <- x$message
+  if(simplify) {
+    py_error_message <- strsplit(py_error_message, "\n", fixed = TRUE)[[1L]]
+    reticulate_internal <-
+      grep(
+        'File ".+reticulate[/\\]python[/\\]rpytools[/\\]call.py", line [0-9]+, in python_function',
+        py_error_message)
+    if(length(reticulate_internal))
+      py_error_message <- py_error_message[-c(reticulate_internal, reticulate_internal + 1)]
+    py_error_message <- paste0(py_error_message, collapse = "\n")
+  }
 
   if (identical(.Platform$GUI, "RStudio") &&
       requireNamespace("cli", quietly = TRUE) &&
-      length(etb <- attr(x, "exception")$`__traceback__`))
+      length(etb <- attr(x, "exception")$`__traceback__`)) {
     py_error_message <- make_filepaths_clickable(py_error_message)
+  }
 
   cat_h1("Python Exception Message")
   cat(py_error_message)
 
   cat_h1("R Traceback")
-  print(x$r_trace)
+  r_trace <- x$r_trace
+  if(simplify) {
+
+    internal_frames <- with(r_trace, which(namespace == "reticulate" & scope == ":::"))
+    frames_to_hide <-  unlist(lapply(internal_frames, function(i) {
+      s <- r_trace$call[[i]][[1L]]
+      if(identical(s, quote(call_r_func))) {
+        #  8. ├─reticulate:::call_r_func(`<initialize>`, `<named list>`) at reticulate/R/RcppExports.R:158:4
+        #  9. │ ├─base::withRestarts(...) at reticulate/R/utils.R:7:2
+        # 10. │ │ └─base (local) withOneRestart(expr, restarts[[1L]])
+        # 11. │ │   └─base (local) doWithOneRestart(return(expr), restart)
+        # 12. │ ├─base::withCallingHandlers(...) at reticulate/R/utils.R:7:2
+        # 13. │ ├─base::do.call(fn, args) at reticulate/R/utils.R:7:2"
+        ## keep the call_r_func frame since the r func name (pillar label) can be actionable, but
+        ## drop the calling handler + restart + do.call frames
+        return(i + (1:5))
+      }
+
+      if(identical(s, quote(py_call_impl)))
+        return(i) # drop py_call_impl frame
+
+      NULL
+    }))
+
+    if(length(frames_to_hide)) {
+      r_trace$visible[frames_to_hide] <- FALSE
+      # # last frame must be visible due to bug in rlang:::print.rlang_trace()
+      # r_trace$visible[length(r_trace$visible)] <- TRUE
+    }
+
+  }
+
+  tryCatch(print(r_trace, drop = TRUE),
+           error = function(e) {
+             warning("Print of R Traceback w/o reticulate internal frames failed",
+                     call. = FALSE)
+             print(r_trace)
+           }) #simplify = if(simplify) "branch" else "none")
+
+  invisible(x)
+
 }
 
 cat_h1 <- function(x) {

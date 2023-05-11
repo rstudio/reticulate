@@ -91,7 +91,7 @@ test_that("Ops group generics dispatch correctly when only one argument is a Pyt
   expect_equal(py_to_r(r_obj > py_obj), array(c(TRUE, TRUE, TRUE)))
 })
 
-
+if (getRversion() >= "4.3.0")
 test_that("matrixOps group generics dispatch", {
 
   r_obj1 <- array(1:9, c(3, 3))

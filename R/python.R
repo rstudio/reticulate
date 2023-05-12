@@ -1625,6 +1625,31 @@ py_register_load_hook <- function(module, hook) {
 
 }
 
+#' nameOfClass for Python objects
+#'
+#' This generic enables passing a `python.builtin.type` object as the 2nd
+#' argument to `base::inherits()`.
+#'
+#' @param x A Python class
+#'
+#' @return A scalar string matching the S3 class of objects constructed from the
+#'   type.
+#'
+#' @export
+#' @examples
+#' \dontrun{
+#'   numpy <- import("numpy")
+#'   x <- r_to_py(array(1:3))
+#'   inherits(x, numpy$ndarray)
+#' }
+nameOfClass.python.builtin.type <- function(x) {
+  paste(
+    as_r_value(py_get_attr_impl(x, "__module__")),
+    as_r_value(py_get_attr_impl(x, "__name__")),
+    sep = "."
+  )
+}
+
 py_set_interrupt <- function() {
   py_set_interrupt_impl()
 }

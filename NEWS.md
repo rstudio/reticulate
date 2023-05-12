@@ -42,7 +42,7 @@
   autocompletion in more contexts (#1361).
 
 - new `nameOfClass()` S3 method for Python types, enabling usage:
-  `base::inherits(x, <python-type-object>)`
+  `base::inherits(x, <python-type-object>)` (requires R >= 4.3.0)
 
 - `py_load_object()` gains a `convert` argument. If `convert = FALSE`,
   the returned Python object will not be converted to an R object.

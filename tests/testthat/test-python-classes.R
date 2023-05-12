@@ -22,6 +22,7 @@ test_that("py_has_method()", {
 })
 
 
+if(getRversion() >= "4.3.0")
 test_that("nameOfClass()", {
 
   numpy <- import("numpy")

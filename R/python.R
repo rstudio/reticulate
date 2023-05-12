@@ -1625,7 +1625,8 @@ py_register_load_hook <- function(module, hook) {
 
 }
 
-#' nameOfClass for Python objects
+
+#' `nameOfClass()` for Python objects
 #'
 #' This generic enables passing a `python.builtin.type` object as the 2nd
 #' argument to `base::inherits()`.
@@ -1635,7 +1636,7 @@ py_register_load_hook <- function(module, hook) {
 #' @return A scalar string matching the S3 class of objects constructed from the
 #'   type.
 #'
-#' @export
+#' @rawNamespace if (getRversion() >= "4.3.0") S3method(nameOfClass,python.builtin.type)
 #' @examples
 #' \dontrun{
 #'   numpy <- import("numpy")

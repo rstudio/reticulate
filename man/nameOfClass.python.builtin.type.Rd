@@ -2,7 +2,7 @@
 % Please edit documentation in R/python.R
 \name{nameOfClass.python.builtin.type}
 \alias{nameOfClass.python.builtin.type}
-\title{nameOfClass for Python objects}
+\title{\code{nameOfClass()} for Python objects}
 \usage{
 \method{nameOfClass}{python.builtin.type}(x)
 }
@@ -16,4 +16,11 @@ type.
 \description{
 This generic enables passing a \code{python.builtin.type} object as the 2nd
 argument to \code{base::inherits()}.
+}
+\examples{
+\dontrun{
+  numpy <- import("numpy")
+  x <- r_to_py(array(1:3))
+  inherits(x, numpy$ndarray)
+}
 }

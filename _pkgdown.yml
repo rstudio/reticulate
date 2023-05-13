@@ -83,6 +83,7 @@ reference:
       - py_none
       - PyClass
       - py_function_custom_scaffold
+      - nameOfClass.python.builtin.type
 
   - title: "Package Installation"
     contents:

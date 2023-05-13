@@ -24,7 +24,8 @@
   ```
 
 - Python exceptions encountered in `repl_python()` are now printed with the
-  python traceback by default. (#1240)
+  python traceback by default. In the RStudio IDE, filepaths in the tracebacks 
+  are rendered as clickable links. (#1240)
 
 - Fixed two issues with R comparison operator methods
   (`==`, `!=`, `<`, `<=`, `>=`, `>`):

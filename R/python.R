@@ -1787,6 +1787,8 @@ make_filepaths_clickable <- function(formatted_python_traceback) {
       return(character())
     filepath <- match[2]
     lineno <- match[3]
+    if(!file.exists(file.path(filepath)))
+      return(filepath)
     link <- cli::style_hyperlink(
       filepath,
       paste0("file://", normalizePath(filepath, mustWork = FALSE)),
@@ -1798,7 +1800,6 @@ make_filepaths_clickable <- function(formatted_python_traceback) {
     if(identical(as.vector(match_pos), -1L))
       return(match_pos)
     out <- match_pos[2] # only match filepath
-    # TODO, make the clickable target bigger, include ", line nn" in link.
     attr(out, "match.length") <- attr(match_pos, "match.length")[2]
     out
   })

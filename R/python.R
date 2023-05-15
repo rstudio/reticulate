@@ -1773,6 +1773,10 @@ py_clear_last_error <- function() {
 #' @export
 py_last_error <- function(exception) {
   if (!missing(exception)) {
+
+    if (is.null(exception))
+      return(.globals$py_last_exception <- .globals$last_r_trace <- NULL)
+
     # set as the last exception
     r_trace <- NULL
     if (inherits(exception, "py_error")) {

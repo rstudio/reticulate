@@ -79,6 +79,52 @@ fetch_op <- function(nm, .op, nargs = 1L) {
   fn
 }
 
+
+#' S3 Ops Methods for Python Objects
+#'
+#' Reticulate provides S3 Ops Group Generic Methods for Python objects. The methods
+#' invoke the equivalent python method of the object.
+#'
+#' @param e1,e2,x,y A python object.
+#'
+#' @section Operator Mappings:
+#'
+#' | R expression  | Python expression | First python method invoked |
+#' | ------------- | ----------------- | --------------------------- |
+#' | `x == y`      | `x == y`          | `type(x).__eq__(x, y)`       |
+#' | `x != y`      | `x != y`          | `type(x).__ne__(x, y)`       |
+#' | `x < y`       | `x < y`           | `type(x).__lt__(x, y)`       |
+#' | `x > y`       | `x > y`           | `type(x).__gt__(x, y)`       |
+#' | `x >= y`      | `x >= y`          | `type(x).__ge__(x, y)`       |
+#' | `x <= y`      | `x <= y`          | `type(x).__le__(x, y)`       |
+#' | `+ x `        | `+ x`             | `type(x).__pos__(x)`         |
+#' | `- y`         | `- x`             | `type(x).__neg__(x)`         |
+#' | `x + y`       | `x + y`           | `type(x).__add__(x, y)`      |
+#' | `x - y`       | `x - y`           | `type(x).__sub__(x, y)`      |
+#' | `x * y`       | `x * y`           | `type(x).__mul__(x, y)`      |
+#' | `x / y`       | `x / y`           | `type(x).__truediv__(x, y)`  |
+#' | `x %/% y`     | `x // y`          | `type(x).__floordiv__(x, y)` |
+#' | `x %% y`      | `x % y`           | `type(x).__mod__(x, y)`   |
+#' | `x ^ y`       | `x ** y`          | `type(x).__pow__(x, y)`   |
+#' | `x & y`       | `x & y`           | `type(x).__and__(x, y)`   |
+#' | \code{x | y}  | \code{x | y}      | `type(x).__or__(x, y)`    |
+#' | `!x`          | `~x`              | `type(x).__not__(x)`      |
+#' | `x %*% y`     | `x @ y`           | `type(x).__matmul__(x, y)`|
+#'
+#' Note: If the initial Python method invoked raises a `NotImplemented`
+#' Exception, the Python interpreter will attempt to use the reflected
+#' variant of the method from the second argument. The arithmetic operators
+#' will call the equivalent double underscore (dunder) method with an "r" prefix. For
+#' instance, when evaluating the expression `x + y`, if `type(x).__add__(x, y)`
+#' raises a `NotImplemented` exception, then the interpreter will attempt
+#' `type(y).__radd__(y, x)`. The comparison operators follow a different
+#' sequence of fallbacks; refer to the Python documentation for more details.
+#'
+#' @return Result from evaluating the Python expression. If either of the
+#' arguments to the operator was a Python object with `convert=FALSE`, then
+#' the result will also be a Python object with `convert=FALSE` set.
+#' Otherwise, the result will be converted to an R object if possible.
+#' @rdname Ops-python-methods
 #' @export
 "==.python.builtin.object" <- function(e1, e2) {
   op <- fetch_op("eq", py_eval("lambda e1, e2: e1 == e2", convert = FALSE),
@@ -86,6 +132,7 @@ fetch_op <- function(nm, .op, nargs = 1L) {
   op(e1, e2)
 }
 
+#' @rdname Ops-python-methods
 #' @export
 "!=.python.builtin.object" <- function(e1, e2) {
   op <- fetch_op("ne", py_eval("lambda e1, e2: e1 != e2", convert = FALSE),
@@ -93,6 +140,7 @@ fetch_op <- function(nm, .op, nargs = 1L) {
   op(e1, e2)
 }
 
+#' @rdname Ops-python-methods
 #' @export
 "<.python.builtin.object" <- function(e1, e2) {
   op <- fetch_op("lt", py_eval("lambda e1, e2: e1 < e2", convert = FALSE),
@@ -100,6 +148,7 @@ fetch_op <- function(nm, .op, nargs = 1L) {
   op(e1, e2)
 }
 
+#' @rdname Ops-python-methods
 #' @export
 ">.python.builtin.object" <- function(e1, e2) {
   op <- fetch_op("gt", py_eval("lambda e1, e2: e1 > e2", convert = FALSE),
@@ -107,6 +156,7 @@ fetch_op <- function(nm, .op, nargs = 1L) {
   op(e1, e2)
 }
 
+#' @rdname Ops-python-methods
 #' @export
 ">=.python.builtin.object" <- function(e1, e2) {
   op <- fetch_op("ge", py_eval("lambda e1, e2: e1 >= e2", convert = FALSE),
@@ -114,6 +164,7 @@ fetch_op <- function(nm, .op, nargs = 1L) {
   op(e1, e2)
 }
 
+#' @rdname Ops-python-methods
 #' @export
 "<=.python.builtin.object" <- function(e1, e2) {
   op <- fetch_op("le", py_eval("lambda e1, e2: e1 <= e2", convert = FALSE),
@@ -133,7 +184,7 @@ py_compare <- function(a, b, op) {
   py_compare_impl(a, b, op)
 }
 
-
+#' @rdname Ops-python-methods
 #' @export
 `+.python.builtin.object` <- function(e1, e2) {
   if (missing(e2)) {
@@ -147,6 +198,7 @@ py_compare <- function(a, b, op) {
 }
 
 
+#' @rdname Ops-python-methods
 #' @export
 `-.python.builtin.object` <- function(e1, e2) {
   if (missing(e2)) {
@@ -159,6 +211,7 @@ py_compare <- function(a, b, op) {
 }
 
 
+#' @rdname Ops-python-methods
 #' @export
 `*.python.builtin.object` <-function(e1, e2) {
   op <- fetch_op("*", py_eval("lambda e1, e2: e1 * e2", convert = FALSE),
@@ -166,6 +219,7 @@ py_compare <- function(a, b, op) {
   op(e1, e2)
 }
 
+#' @rdname Ops-python-methods
 #' @export
 `/.python.builtin.object` <- function(e1, e2) {
   op <- fetch_op("/", py_eval("lambda e1, e2: e1 / e2", convert = FALSE),
@@ -173,6 +227,7 @@ py_compare <- function(a, b, op) {
   op(e1, e2)
 }
 
+#' @rdname Ops-python-methods
 #' @export
 `%/%.python.builtin.object` <- function(e1, e2) {
   op <- fetch_op("//", py_eval("lambda e1, e2: e1 // e2", convert = FALSE),
@@ -180,6 +235,7 @@ py_compare <- function(a, b, op) {
   op(e1, e2)
 }
 
+#' @rdname Ops-python-methods
 #' @export
 `%%.python.builtin.object` <- function(e1, e2) {
   op <- fetch_op("%", py_eval("lambda e1, e2: e1 % e2", convert = FALSE),
@@ -187,6 +243,7 @@ py_compare <- function(a, b, op) {
   op(e1, e2)
 }
 
+#' @rdname Ops-python-methods
 #' @export
 `^.python.builtin.object` <- function(e1, e2) {
   op <- fetch_op("pow", import_builtins(FALSE)$pow,
@@ -194,6 +251,7 @@ py_compare <- function(a, b, op) {
   op(e1, e2)
 }
 
+#' @rdname Ops-python-methods
 #' @export
 `&.python.builtin.object` <- function(e1, e2) {
   op <- fetch_op("&", py_eval("lambda e1, e2: e1 & e2", convert = FALSE),
@@ -201,6 +259,7 @@ py_compare <- function(a, b, op) {
   op(e1, e2)
 }
 
+#' @rdname Ops-python-methods
 #' @export
 `|.python.builtin.object` <- function(e1, e2) {
   op <- fetch_op("|", py_eval("lambda e1, e2: e1 | e2", convert = FALSE),
@@ -208,12 +267,14 @@ py_compare <- function(a, b, op) {
   op(e1, e2)
 }
 
+#' @rdname Ops-python-methods
 #' @export
 `!.python.builtin.object` <- function(e1) {
   op <- fetch_op("~", py_eval("lambda e1: ~ e1", convert = FALSE))
   op(e1)
 }
 
+#' @rdname Ops-python-methods
 #' @export
 `%*%.python.builtin.object` <-function(x, y) {
   op <- fetch_op("@", py_eval("lambda x, y: x @ y", convert = FALSE),

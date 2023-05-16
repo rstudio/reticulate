@@ -179,7 +179,8 @@ python_info_condaenv_find <- function(path) {
     return(NULL)
 
   # get path to conda script used
-  script <- sub("^#\\s+cmd: (.+)\\s+(create|install)\\s+.*", "\\1", lines[[1]])
+  script <- gsub("^#\\s+cmd: ", "", lines[[1]])
+  script <- gsub(pattern = "\\s.+$", replacement = "", script)
 
   # on Windows, a wrapper script is recorded in the history,
   # so instead attempt to find the real conda binary

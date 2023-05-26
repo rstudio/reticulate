@@ -508,7 +508,7 @@ conda_binary <- function(conda = "auto") {
   }
 
   conda <- normalizePath(conda, winslash = "/", mustWork = FALSE)
-  if (!grepl("^(conda|mamba)", basename(conda)))
+  if (!grepl("^(conda|mamba|micromamba)", basename(conda)))
     warning("Supplied path is not a conda binary: ", sQuote(conda))
 
   # if the user has requested a conda binary in the 'condabin' folder,
@@ -884,7 +884,9 @@ conda_run2_nix <-
            intern = FALSE, echo = !intern) {
   conda <- normalizePath(conda_binary(conda))
   local_conda_paths(conda)
-  activate <- normalizePath(file.path(dirname(conda), "activate"))
+
+  if (is.null(.globals$micromamba))
+    activate <- normalizePath(file.path(dirname(conda), "activate"))
 
   if (!identical(envname, "base")) {
     envname <- condaenv_resolve(envname)
@@ -895,13 +897,18 @@ conda_run2_nix <-
   fi <- tempfile(fileext = ".sh")
   on.exit(unlink(fi))
 
-  commands <- c(
-    paste(".", activate),
-    if (!identical(envname, "base"))
-      paste("conda activate", shQuote(envname)),
-    cmd_line
-  )
-
+  if (!is.null(.globals$micromamba)) {
+    commands <- c(
+      cmd_line
+    )
+  } else {
+    commands <- c(
+      paste(".", activate),
+      if (!identical(envname, "base"))
+        paste("conda activate", shQuote(envname)),
+      cmd_line
+    )
+  }
   # set -x is too verbose, includes all the commands made by conda scripts
   # so we manually echo the top-level commands only
   if (echo)
@@ -910,8 +917,13 @@ conda_run2_nix <-
       commands))
 
   writeLines(commands, fi)
-  system2(Sys.which("bash"), fi,
-          stdout = if (identical(intern, FALSE)) "" else intern)
+  if (!is.null(.globals$micromamba)) {
+    system2(Sys.which("bash"), fi,
+            stdout = if (identical(intern, FALSE)) "" else intern)
+  } else {
+    system2(conda, c("activate", "-n", shQuote(envname), fi),
+            stdout = if (identical(intern, FALSE)) "" else intern)
+  }
 }
 
 
@@ -949,7 +961,10 @@ get_python_conda_info <- function(python) {
   } else {
     # not base env, parse conda-meta history to find the conda binary
     # that created it
-    conda <- python_info_condaenv_find(root)
+    if(!is.null(.globals$micromamba))
+      conda <- .globals$micromamba
+    else
+      conda <- python_info_condaenv_find(root)
   }
 
   list(

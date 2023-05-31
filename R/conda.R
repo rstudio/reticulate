@@ -19,7 +19,7 @@
 #'
 #' @param packages A character vector, indicating package names which should be
 #'   installed or removed. Use  \verb{<package>==<version>} to request the installation
-#'   of a specific version of a package. A `NULL` value for [conda_remove()] 
+#'   of a specific version of a package. A `NULL` value for [conda_remove()]
 #'   will be interpretted to `"--all"`, removing the entire environment.
 #'
 #' @param environment The path to an environment definition, generated via
@@ -106,9 +106,18 @@ conda_list <- function(conda = "auto") {
 
   # list envs -- discard stderr as Anaconda may emit warnings that can
   # otherwise be ignored; see e.g. https://github.com/rstudio/reticulate/issues/474
-  conda_envs <- suppressWarnings(
-    system2(conda, args = c("info", "--json"), stdout = TRUE, stderr = FALSE)
-  )
+
+
+  if (startsWith(basename(conda), "micromamba")) {
+    conda_envs <- system2(conda, c("env", "list", "--json"),
+                          stdout = TRUE, stderr = FALSE)
+
+  } else {
+    conda_envs <- suppressWarnings(
+      system2(conda, args = c("info", "--json"),
+              stdout = TRUE, stderr = FALSE)
+    )
+  }
 
   # check for error
   status <- attr(conda_envs, "status") %||% 0L
@@ -885,9 +894,6 @@ conda_run2_nix <-
   conda <- normalizePath(conda_binary(conda))
   local_conda_paths(conda)
 
-  if (is.null(.globals$micromamba))
-    activate <- normalizePath(file.path(dirname(conda), "activate"))
-
   if (!identical(envname, "base")) {
     envname <- condaenv_resolve(envname)
     if (grepl("[/\\]", envname))
@@ -897,18 +903,32 @@ conda_run2_nix <-
   fi <- tempfile(fileext = ".sh")
   on.exit(unlink(fi))
 
-  if (!is.null(.globals$micromamba)) {
+  if (startsWith(basename(conda), "micromamba")) {
+
+    # micromamba is advertised as statically built, but libmamba
+    # can only be run from an activated shell.
+    # The binary doesn't typically live in the micromamba root prefix,
+    # and activate scripts aren't materialized on the filesystem, so must be dynamically
+    # generated.
     commands <- c(
+      sprintf('eval "$(%s shell hook --shell=bash)"', shQuote(conda)),
+      paste(shQuote(conda), "activate", shQuote(envname))
+      paste("micromamba activate", shQuote(envname)),
       cmd_line
     )
+
   } else {
+
+    activate <- normalizePath(file.path(dirname(conda), "activate"))
     commands <- c(
       paste(".", activate),
       if (!identical(envname, "base"))
         paste("conda activate", shQuote(envname)),
       cmd_line
     )
+
   }
+
   # set -x is too verbose, includes all the commands made by conda scripts
   # so we manually echo the top-level commands only
   if (echo)
@@ -917,13 +937,10 @@ conda_run2_nix <-
       commands))
 
   writeLines(commands, fi)
-  if (!is.null(.globals$micromamba)) {
-    system2(Sys.which("bash"), fi,
-            stdout = if (identical(intern, FALSE)) "" else intern)
-  } else {
-    system2(conda, c("activate", "-n", shQuote(envname), fi),
-            stdout = if (identical(intern, FALSE)) "" else intern)
-  }
+
+  stdout <- if (identical(intern, FALSE)) "" else intern
+  system2(Sys.which("bash"), fi, stdout = stdout)
+
 }
 
 
@@ -961,9 +978,6 @@ get_python_conda_info <- function(python) {
   } else {
     # not base env, parse conda-meta history to find the conda binary
     # that created it
-    if(!is.null(.globals$micromamba))
-      conda <- .globals$micromamba
-    else
       conda <- python_info_condaenv_find(root)
   }
 

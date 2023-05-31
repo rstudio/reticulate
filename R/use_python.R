@@ -184,10 +184,6 @@ use_condaenv <- function(condaenv = NULL, conda = "auto", required = NULL) {
   condaenv <- condaenv_resolve(condaenv)
   if (grepl("[/\\]", condaenv) && is_condaenv(condaenv)) {
     python <- conda_python(condaenv)
-    # Force use of conda_python when using micromamba.
-    .globals$micromamba <- NULL
-    if (grepl("^(micromamba)", basename(conda))) 
-      .globals$micromamba <- conda
     use_python(python, required = required)
     return(invisible(NULL))
   }

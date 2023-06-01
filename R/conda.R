@@ -104,15 +104,13 @@ conda_list <- function(conda = "auto") {
   conda <- conda_binary(conda)
   local_conda_paths(conda)
 
-  # list envs -- discard stderr as Anaconda may emit warnings that can
-  # otherwise be ignored; see e.g. https://github.com/rstudio/reticulate/issues/474
-
-
   if (startsWith(basename(conda), "micromamba")) {
     conda_envs <- system2(conda, c("env", "list", "--json"),
                           stdout = TRUE, stderr = FALSE)
 
   } else {
+  # list envs -- discard stderr as Anaconda may emit warnings that can
+  # otherwise be ignored; see e.g. https://github.com/rstudio/reticulate/issues/474
     conda_envs <- suppressWarnings(
       system2(conda, args = c("info", "--json"),
               stdout = TRUE, stderr = FALSE)
@@ -908,8 +906,10 @@ conda_run2_nix <-
   if (startsWith(basename(conda), "micromamba")) {
 
     envflag <- if(grepl("[/\\]", envname)) "-p" else "-n"
-    result <- system2t(conda, c('run', envflag, envname, cmd_line),
-                       stdout = stdout)
+    if(echo)
+      system2 <- system2t
+    result <- system2(conda, c('run', envflag, envname, cmd_line),
+                      stdout = stdout)
 
     error_status <- attr(result, "status")
     if (!is.null(error_status))
@@ -917,21 +917,16 @@ conda_run2_nix <-
 
     return(result)
 
-  } else {
-
-    activate <- normalizePath(file.path(dirname(conda), "activate"))
-
-    activate <- normalizePath(file.path(dirname(conda), "activate"))
-    commands <- c(
-      paste(".", activate),
-      if (!identical(envname, "base"))
-        paste("conda activate", shQuote(envname)),
-      cmd_line
-    )
-
-
   }
 
+
+  activate <- normalizePath(file.path(dirname(conda), "activate"))
+  commands <- c(
+    paste(".", activate),
+    if (!identical(envname, "base"))
+      paste("conda activate", shQuote(envname)),
+    cmd_line
+  )
 
   # set -x is too verbose, includes all the commands made by conda scripts
   # so we manually echo the top-level commands only

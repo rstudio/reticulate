@@ -19,7 +19,7 @@
 #'
 #' @param packages A character vector, indicating package names which should be
 #'   installed or removed. Use  \verb{<package>==<version>} to request the installation
-#'   of a specific version of a package. A `NULL` value for [conda_remove()] 
+#'   of a specific version of a package. A `NULL` value for [conda_remove()]
 #'   will be interpretted to `"--all"`, removing the entire environment.
 #'
 #' @param environment The path to an environment definition, generated via
@@ -104,11 +104,18 @@ conda_list <- function(conda = "auto") {
   conda <- conda_binary(conda)
   local_conda_paths(conda)
 
+  if (startsWith(basename(conda), "micromamba")) {
+    conda_envs <- system2(conda, c("env", "list", "--json"),
+                          stdout = TRUE, stderr = FALSE)
+
+  } else {
   # list envs -- discard stderr as Anaconda may emit warnings that can
   # otherwise be ignored; see e.g. https://github.com/rstudio/reticulate/issues/474
-  conda_envs <- suppressWarnings(
-    system2(conda, args = c("info", "--json"), stdout = TRUE, stderr = FALSE)
-  )
+    conda_envs <- suppressWarnings(
+      system2(conda, args = c("info", "--json"),
+              stdout = TRUE, stderr = FALSE)
+    )
+  }
 
   # check for error
   status <- attr(conda_envs, "status") %||% 0L
@@ -508,7 +515,7 @@ conda_binary <- function(conda = "auto") {
   }
 
   conda <- normalizePath(conda, winslash = "/", mustWork = FALSE)
-  if (!grepl("^(conda|mamba)", basename(conda)))
+  if (!grepl("^(conda|mamba|micromamba)", basename(conda)))
     warning("Supplied path is not a conda binary: ", sQuote(conda))
 
   # if the user has requested a conda binary in the 'condabin' folder,
@@ -884,7 +891,6 @@ conda_run2_nix <-
            intern = FALSE, echo = !intern) {
   conda <- normalizePath(conda_binary(conda))
   local_conda_paths(conda)
-  activate <- normalizePath(file.path(dirname(conda), "activate"))
 
   if (!identical(envname, "base")) {
     envname <- condaenv_resolve(envname)
@@ -895,6 +901,26 @@ conda_run2_nix <-
   fi <- tempfile(fileext = ".sh")
   on.exit(unlink(fi))
 
+  stdout <- if (identical(intern, FALSE)) "" else intern
+
+  if (startsWith(basename(conda), "micromamba")) {
+
+    envflag <- if(grepl("[/\\]", envname)) "-p" else "-n"
+    if(echo)
+      system2 <- system2t
+    result <- system2(conda, c('run', envflag, envname, cmd_line),
+                      stdout = stdout)
+
+    error_status <- attr(result, "status")
+    if (!is.null(error_status))
+      stop("Error ", error_status, " occurred while running conda command")
+
+    return(result)
+
+  }
+
+
+  activate <- normalizePath(file.path(dirname(conda), "activate"))
   commands <- c(
     paste(".", activate),
     if (!identical(envname, "base"))
@@ -910,8 +936,8 @@ conda_run2_nix <-
       commands))
 
   writeLines(commands, fi)
-  system2(Sys.which("bash"), fi,
-          stdout = if (identical(intern, FALSE)) "" else intern)
+  system2(Sys.which("bash"), fi, stdout = stdout)
+
 }
 
 

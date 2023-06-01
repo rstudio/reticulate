@@ -56,6 +56,9 @@
 
 - The knitr python engine now respects the `strip.white` option (#1273).
 
+- Fixed issue where the knitr engine would show two plots from a chunk
+  if the user called `matplotlib.pyplot.show()` (#1380, #1383)
+
 - reticulate gains the ability to bind to micromamba python installations 
   (#1378, #1176, #1382, #1379, thanks to Zia Khan, @zia1138)
 

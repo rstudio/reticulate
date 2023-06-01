@@ -187,6 +187,7 @@ eng_python <- function(options) {
 
     # clear the last value object (so we can tell if it was updated)
     py_compile_eval("'__reticulate_placeholder__'")
+    .engine_context$matplotlib_show_was_called <- FALSE
 
     # use trailing semicolon to suppress output of return value
     suppress <- grepl(";\\s*$", snippet)
@@ -454,6 +455,8 @@ eng_python_initialize_matplotlib <- function(options, envir) {
   # override show implementation
   plt$show <- function(...) {
 
+    .engine_context$matplotlib_show_was_called <- TRUE
+
     # get current chunk options
     options <- knitr::opts_current$get()
 
@@ -592,7 +595,7 @@ eng_python_autoprint <- function(captured, options, autoshow) {
     #
     # handle matplotlib output. note that the default hook installed by
     # reticulate will update the 'pending_plots' item
-    if (autoshow) {
+    if (autoshow && !.engine_context$matplotlib_show_was_called) {
       plt <- import("matplotlib.pyplot", convert = TRUE)
       plt$show()
     }

@@ -183,7 +183,10 @@ python_info_condaenv_find <- function(path) {
 
   # on Windows, a wrapper script is recorded in the history,
   # so instead attempt to find the real conda binary
-  conda <- file.path(dirname(script), exe)
+  if(is_windows())
+    conda <- file.path(dirname(script), exe)
+  else
+    conda <- script
   normalizePath(conda, winslash = "/", mustWork = FALSE)
 
 }

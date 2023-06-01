@@ -975,7 +975,7 @@ get_python_conda_info <- function(python) {
   } else {
     # not base env, parse conda-meta history to find the conda binary
     # that created it
-      conda <- python_info_condaenv_find(root)
+    conda <- python_info_condaenv_find(root)
   }
 
   list(

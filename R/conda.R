@@ -920,6 +920,8 @@ conda_run2_nix <-
   } else {
 
     activate <- normalizePath(file.path(dirname(conda), "activate"))
+
+    activate <- normalizePath(file.path(dirname(conda), "activate"))
     commands <- c(
       paste(".", activate),
       if (!identical(envname, "base"))
@@ -927,7 +929,9 @@ conda_run2_nix <-
       cmd_line
     )
 
+
   }
+
 
   # set -x is too verbose, includes all the commands made by conda scripts
   # so we manually echo the top-level commands only

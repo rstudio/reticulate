@@ -56,6 +56,9 @@
 
 - The knitr python engine now respects the `strip.white` option (#1273).
 
+- reticulate gains the ability to bind to micromamba python installations 
+  (#1378, #1176, #1382, #1379, thanks to Zia Khan, @zia1138)
+
 - `py_to_r()` now succeeds when converting subtypes of the built-in
   types (e.g. `list`, `dict`, `str`). (#1352, #1348, #1226, #1354, #1366)
 

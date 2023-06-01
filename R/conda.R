@@ -903,19 +903,19 @@ conda_run2_nix <-
   fi <- tempfile(fileext = ".sh")
   on.exit(unlink(fi))
 
+  stdout <- if (identical(intern, FALSE)) "" else intern
+
   if (startsWith(basename(conda), "micromamba")) {
 
-    # micromamba is advertised as statically built, but libmamba
-    # can only be run from an activated shell.
-    # The binary doesn't typically live in the micromamba root prefix,
-    # and activate scripts aren't materialized on the filesystem, so must be dynamically
-    # generated.
-    commands <- c(
-      sprintf('eval "$(%s shell hook --shell=bash)"', shQuote(conda)),
-      paste(shQuote(conda), "activate", shQuote(envname))
-      paste("micromamba activate", shQuote(envname)),
-      cmd_line
-    )
+    envflag <- if(grepl("[/\\]", envname)) "-p" else "-n"
+    result <- system2t(conda, c('run', envflag, envname, cmd_line),
+                       stdout = stdout)
+
+    error_status <- attr(result, "status")
+    if (!is.null(error_status))
+      stop("Error ", error_status, " occurred while running conda command")
+
+    return(result)
 
   } else {
 
@@ -937,8 +937,6 @@ conda_run2_nix <-
       commands))
 
   writeLines(commands, fi)
-
-  stdout <- if (identical(intern, FALSE)) "" else intern
   system2(Sys.which("bash"), fi, stdout = stdout)
 
 }

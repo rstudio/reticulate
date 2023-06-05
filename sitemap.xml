@@ -46,6 +46,9 @@
     <loc>https://rstudio.github.io/reticulate/news/index.html</loc>
   </url>
   <url>
+    <loc>https://rstudio.github.io/reticulate/reference/Ops-python-methods.html</loc>
+  </url>
+  <url>
     <loc>https://rstudio.github.io/reticulate/reference/PyClass.html</loc>
   </url>
   <url>
@@ -95,6 +98,9 @@
   </url>
   <url>
     <loc>https://rstudio.github.io/reticulate/reference/miniconda_update.html</loc>
+  </url>
+  <url>
+    <loc>https://rstudio.github.io/reticulate/reference/nameOfClass.python.builtin.type.html</loc>
   </url>
   <url>
     <loc>https://rstudio.github.io/reticulate/reference/np_array.html</loc>

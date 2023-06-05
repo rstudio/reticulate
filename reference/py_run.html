@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.28</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.29</span>
       </span>
     </div>
 
@@ -89,7 +89,7 @@
     <div id="ref-usage">
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">py_run_string</span><span class="op">(</span><span class="va">code</span>, local <span class="op">=</span> <span class="cn">FALSE</span>, convert <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">py_run_file</span><span class="op">(</span><span class="va">file</span>, local <span class="op">=</span> <span class="cn">FALSE</span>, convert <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">py_run_file</span><span class="op">(</span><span class="va">file</span>, local <span class="op">=</span> <span class="cn">FALSE</span>, convert <span class="op">=</span> <span class="cn">TRUE</span>, prepend_path <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -112,6 +112,12 @@ Python objects to <span style="R">R</span> via the <code><a href="r-py-conversio
 
 <dt>file</dt>
 <dd><p>The Python script to be executed.</p></dd>
+
+
+<dt>prepend_path</dt>
+<dd><p>Boolean; should the script directory be added to the
+Python module search path? The default, <code>TRUE</code>, matches the behavior of
+<code>python &lt;path/to/script.py&gt;</code> at the command line.</p></dd>
 
 </dl></div>
     <div id="value">

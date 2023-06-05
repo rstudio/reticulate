@@ -1,77 +1,8 @@
 # reticulate (development version)
 
-- Converted Python callables gain support for dynamic dots from the rlang package.
-  New features:
-    - splicing (unpacking) arguments: `fn(!!!kwargs)`
-    - dynamic names: `nm <- "key"; fn("{nm}" := value)`
-    - trailing commas ignored (matching python syntax): `fn(a, )` identical to `fn(a)`
+### Exceptions and Errors:
 
-- The hint to run `reticulate::py_last_error()` after an exception
-  is now clickable in the RStudio IDE.
-
-- Filepaths to python files in the print output from `py_last_error()` are
-  now clickable links in the RStudio IDE.
-
-- New Ops group generics for Python objects:
-  `+`, `-`, `*`, `/`, `^`, `%%`, `%/%`, `&`, `|`, `!`, `%*%`.
-  Methods for all the Ops group generics are now defined for Python objects. (#1187, #1363)
-  E.g., this now works:
-  ```r
-  np <- reticulate::import("numpy", convert = FALSE)
-  x <- np$array(1:5)
-  y <- np$array(6:10)
-  x + y
-  ```
-
-- Python exceptions encountered in `repl_python()` are now printed with the
-  python traceback by default. In the RStudio IDE, filepaths in the tracebacks 
-  are rendered as clickable links. (#1240)
-
-- Fixed two issues with R comparison operator methods
-  (`==`, `!=`, `<`, `<=`, `>=`, `>`):
-   - The operators no longer error on Python objects that define "rich comparison"
-     Python methods that don't return a single bool. (e.g., numpy arrays).
-   - The operators now respect the 'convert' value of the supplied Python objects.
-     Note, this may be a breaking change as, e.g, `==`, may now no long return
-     an R scalar logical if one of the python object being compared was created
-     with `convert = FALSE`. Wrap the result of the comparison with `py_bool()` to
-     restore the previous behavior.
-  (#1187, #1363)
-
-- R functions wrapping Python callables now have formals matching
-  those of the Python callable signature, enabling better
-  autocompletion in more contexts (#1361).
-
-- new `nameOfClass()` S3 method for Python types, enabling usage:
-  `base::inherits(x, <python-type-object>)` (requires R >= 4.3.0)
-
-- `py_load_object()` gains a `convert` argument. If `convert = FALSE`,
-  the returned Python object will not be converted to an R object.
-
-- The knitr engine now suppresses warnings from python code if
-  `warning=FALSE` is set in the chunk options. (quarto-dev/quarto#125, #1358)
-
-- Fixed issue where reticulate's knitr engine would attach comments in a
-  code chunk to the wrong code chunk (requires Python>=3.8) (#1223).
-
-- The knitr python engine now respects the `strip.white` option (#1273).
-
-- Fixed issue where the knitr engine would show two plots from a chunk
-  if the user called `matplotlib.pyplot.show()` (#1380, #1383)
-
-- reticulate gains the ability to bind to micromamba python installations 
-  (#1378, #1176, #1382, #1379, thanks to Zia Khan, @zia1138)
-
-- `py_to_r()` now succeeds when converting subtypes of the built-in
-  types (e.g. `list`, `dict`, `str`). (#1352, #1348, #1226, #1354, #1366)
-
-- `py_run_file()` and `source_python()` now prepend the script directory to
-  the Python module search path, `sys.path`, while the requested script is executing.
-  This allows the python scripts to resolve imports of modules defined in the
-  script directory, matching the behavior of `python <script>` at the command line.
-  (#1347)
-
-- R error information (call, message, other attributes) are now
+- R error information (call, message, other attributes) is now
   preserved as an R error condition traverses the R <-> Python boundary.
 
 - Python Exceptions now inherit from `error` and `condition`, and can be
@@ -92,22 +23,99 @@
   `r_class` if the Python Exception was raised by an R function called
   from Python.
 
-- New `pillar::type_sum` method now exported for python objects. That ensures
+- The hint to run `reticulate::py_last_error()` after an exception
+  is now clickable in the RStudio IDE.
+
+- Filepaths to Python files in the print output from `py_last_error()` are
+  now clickable links in the RStudio IDE.
+
+- Python exceptions encountered in `repl_python()` are now printed with the
+  full Python traceback by default. In the RStudio IDE, filepaths in the tracebacks
+  are rendered as clickable links. (#1240)
+
+### Language:
+
+- Converted Python callables gain support for dynamic dots from the rlang package.
+  New features:
+    - splicing (unpacking) arguments: `fn(!!!kwargs)`
+    - dynamic names: `nm <- "key"; fn("{nm}" := value)`
+    - trailing commas ignored (matching Python syntax): `fn(a, )` identical to `fn(a)`
+
+- New Ops group generics for Python objects:
+  `+`, `-`, `*`, `/`, `^`, `%%`, `%/%`, `&`, `|`, `!`, `%*%`.
+  Methods for all the Ops group generics are now defined for Python objects. (#1187, #1363)
+  E.g., this now works:
+  ```r
+  np <- reticulate::import("numpy", convert = FALSE)
+  x <- np$array(1:5)
+  y <- np$array(6:10)
+  x + y
+  ```
+
+- Fixed two issues with R comparison operator methods
+  (`==`, `!=`, `<`, `<=`, `>=`, `>`):
+   - The operators no longer error on Python objects that define "rich comparison"
+     Python methods that don't return a single bool. (e.g., numpy arrays).
+   - The operators now respect the 'convert' value of the supplied Python objects.
+     Note, this may be a breaking change as, e.g, `==`, may now no long return
+     an R scalar logical if one of the Python object being compared was created
+     with `convert = FALSE`. Wrap the result of the comparison with `py_bool()` to
+     restore the previous behavior.
+  (#1187, #1363)
+
+- R functions wrapping Python callables now have formals matching
+  those of the Python callable signature, enabling better
+  autocompletion in more contexts (#1361).
+
+- new `nameOfClass()` S3 method for Python types, enabling usage:
+  `base::inherits(x, <python-type-object>)` (requires R >= 4.3.0)
+
+- `py_run_file()` and `source_python()` now prepend the script directory to
+  the Python module search path, `sys.path`, while the requested script is executing.
+  This allows the Python scripts to resolve imports of modules defined in the
+  script directory, matching the behavior of `python <script>` at the command line.
+  (#1347)
+
+### knitr:
+
+- The knitr engine now suppresses warnings from Python code if
+  `warning=FALSE` is set in the chunk options. (quarto-dev/quarto#125, #1358)
+
+- Fixed issue where reticulate's knitr engine would attach comments in a
+  code chunk to the wrong code chunk (requires Python>=3.8) (#1223).
+
+- The knitr Python engine now respects the `strip.white` option (#1273).
+
+- Fixed issue where the knitr engine would show an additional plot from a chunk
+  if the user called `matplotlib.pyplot.show()` (#1380, #1383)
+
+- reticulate gains the ability to bind to micromamba Python installations
+  (#1378, #1176, #1382, #1379, thanks to Zia Khan, @zia1138)
+
+### Misc:
+
+- `py_to_r()` now succeeds when converting subtypes of the built-in
+  types (e.g. `list`, `dict`, `str`). (#1352, #1348, #1226, #1354, #1366)
+
+- New `pillar::type_sum()` method now exported for Python objects. That ensures
   the full object class name is printing in R tracebacks and tibbles
-  containing python objects.
+  containing Python objects.
+
+- `py_load_object()` gains a `convert` argument. If `convert = FALSE`,
+  the returned Python object will not be converted to an R object.
 
 - Fixed error `r_to_py()` with Pandas>=2.0 and R data.frames with a
   factor column containing levels with `NA`.
 
 - `r_to_py()` now succeeds for many additional types of R objects.
   Objects that reticulate doesn't know how to convert are presented to
-  the python runtime as a py capsule (an opaque pointer to the underlying
+  the Python runtime as a pycapsule (an opaque pointer to the underlying
   R object). Previously this would error.
   This allows for R code to pass R objects that cannot be safely
   converted to Python through the Python runtime to other R code.
   (e.g, to an R function called by Python code). (#1304)
 
-- Default python version used by `install_miniconda()` and friends
+- Default Python version used by `install_miniconda()` and friends
   is now 3.9 (was 3.8).
 
 # reticulate 1.28

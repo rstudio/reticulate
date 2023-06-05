@@ -4,10 +4,10 @@ Title: Interface to 'Python'
 Version: 1.28-9000
 Authors@R: c(
   person("Tomasz", "Kalinowski", role = c("ctb", "cre"),
-         email = "tomasz@rstudio.com"),
+         email = "tomasz@posit.co"),
   person("Kevin", "Ushey", role = c("aut"),
-         email = "kevin@rstudio.com"),
-  person("JJ", "Allaire", role = c("aut"), email = "jj@rstudio.com"),
+         email = "kevin@posit.co"),
+  person("JJ", "Allaire", role = c("aut"), email = "jj@posit.co"),
   person("RStudio", role = c("cph", "fnd")),
   person("Yuan", "Tang", role = c("aut", "cph"),
          email = "terrytangyuan@gmail.com",
@@ -17,7 +17,7 @@ Authors@R: c(
   person("Bryan", "Lewis", role = c("ctb", "cph"),
          email = "blewis@illposed.net"),
   person("Sigrid", "Keydana", role = c("ctb"),
-         email = "sigrid@rstudio.com"),
+         email = "sigrid@posit.co"),
   person("Ryan", "Hafen", role = c("ctb", "cph"),
          email = "rhafen@gmail.com"),
   person("Marcus", "Geelnard", role = c("ctb", "cph"),

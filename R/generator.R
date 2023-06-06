@@ -52,7 +52,7 @@
 #'
 #' @section Threading:
 #'
-#' Some Python APIs use generators to parallelize operations by calling the
+#' Some Python APIs use generators to parallellize operations by calling the
 #' generator on a background thread and then consuming its results on
 #' the foreground thread. The `py_iterator()` function creates threadsafe
 #' iterators by ensuring that the R function is always called on the main
@@ -65,7 +65,7 @@ py_iterator <- function(fn, completed = NULL) {
   # validation
   if (!is.function(fn))
     stop("fn must be an R function")
-  if (length(formals(fn) != 0))
+  if (length(formals(fn)))
     stop("fn must be an R function with no arguments")
 
   # wrap the function in an error handler

@@ -11,7 +11,7 @@ py_discover_config(required_module = NULL, use_environment = NULL)
 in order for a version of Python to be used.}
 
 \item{use_environment}{An optional virtual/conda environment name
-to prefer in the search}
+to prefer in the search.}
 }
 \value{
 Python configuration object.

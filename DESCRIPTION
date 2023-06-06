@@ -1,11 +1,13 @@
 Package: reticulate
 Type: Package
 Title: Interface to 'Python'
-Version: 1.14-9001
+Version: 1.29-9000
 Authors@R: c(
-  person("Kevin", "Ushey", role = c("aut", "cre"),
-         email = "kevin@rstudio.com"),
-  person("JJ", "Allaire", role = c("aut"), email = "jj@rstudio.com"),
+  person("Tomasz", "Kalinowski", role = c("ctb", "cre"),
+         email = "tomasz@posit.co"),
+  person("Kevin", "Ushey", role = c("aut"),
+         email = "kevin@posit.co"),
+  person("JJ", "Allaire", role = c("aut"), email = "jj@posit.co"),
   person("RStudio", role = c("cph", "fnd")),
   person("Yuan", "Tang", role = c("aut", "cph"),
          email = "terrytangyuan@gmail.com",
@@ -15,7 +17,7 @@ Authors@R: c(
   person("Bryan", "Lewis", role = c("ctb", "cph"),
          email = "blewis@illposed.net"),
   person("Sigrid", "Keydana", role = c("ctb"),
-         email = "sigrid@rstudio.com"),
+         email = "sigrid@posit.co"),
   person("Ryan", "Hafen", role = c("ctb", "cph"),
          email = "rhafen@gmail.com"),
   person("Marcus", "Geelnard", role = c("ctb", "cph"),
@@ -26,28 +28,36 @@ Description: Interface to 'Python' modules, classes, and functions. When calling
     types. When values are returned from 'Python' to R they are converted back to R
     types. Compatible with all versions of 'Python' >= 2.7.
 License: Apache License 2.0
-URL: https://github.com/rstudio/reticulate
+URL: https://rstudio.github.io/reticulate/,
+    https://github.com/rstudio/reticulate
 BugReports: https://github.com/rstudio/reticulate/issues
 SystemRequirements: Python (>= 2.7.0)
 Encoding: UTF-8
-LazyData: true
 Depends:
     R (>= 3.0)
 Imports:
-    graphics,
-    jsonlite,
     Matrix,
+    Rcpp (>= 1.0.7),
+    RcppTOML,
+    graphics,
+    here,
+    jsonlite,
     methods,
+    png,
     rappdirs,
-    Rcpp (>= 0.12.7),
     bit64,
-    utils
+    utils,
+    rlang,
+    withr
 Suggests:
     callr,
     knitr,
+    glue,
+    cli,
     rmarkdown,
+    pillar,
     testthat
 LinkingTo: Rcpp
-RoxygenNote: 7.0.2
+RoxygenNote: 7.2.3
 Roxygen: list(markdown = TRUE)
 VignetteBuilder: knitr

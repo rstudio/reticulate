@@ -44,7 +44,7 @@ def iterateOnThread(iter):
       results.append(i)
   thread = threading.Thread(target = iteration_worker)
   thread.start()
-  while thread.isAlive():
+  while thread.is_alive():
     thread.join(0.1)
   return results
 
@@ -54,7 +54,7 @@ def invokeOnThread(f, *args, **kwargs):
     result.append(f(*args, **kwargs))
   thread = threading.Thread(target = invoke_worker)
   thread.start()
-  while thread.isAlive():
+  while thread.is_alive():
     thread.join(0.1)
   return result[0]
 

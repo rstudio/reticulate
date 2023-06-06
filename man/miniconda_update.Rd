@@ -7,15 +7,16 @@
 miniconda_update(path = miniconda_path())
 }
 \arguments{
-\item{path}{The path in which Miniconda will be installed. Note that the
-installer does not support paths containing spaces.}
+\item{path}{The location where Miniconda is (or should be) installed. Note
+that the Miniconda installer does not support paths containing spaces. See
+\link{miniconda_path} for more details on the default path used by \code{reticulate}.}
 }
 \description{
 Update Miniconda to the latest version.
 }
 \seealso{
-Other miniconda: 
+Other miniconda-tools: 
 \code{\link{install_miniconda}()},
-\code{\link{miniconda_path}()}
+\code{\link{miniconda_uninstall}()}
 }
-\concept{miniconda}
+\concept{miniconda-tools}

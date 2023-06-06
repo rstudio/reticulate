@@ -13,67 +13,6 @@ is_python3 <- function() {
     .Call(`_reticulate_is_python3`)
 }
 
-#' Get or clear the last Python error encountered
-#'
-#' @return For `py_last_error()`, a list with the type, value,
-#' and traceback for the last Python error encountered (can be
-#' `NULL` if no error has yet been encountered).
-#'
-#' @export
-py_last_error <- function() {
-    .Call(`_reticulate_py_last_error`)
-}
-
-#' @rdname py_last_error
-#' @export
-py_clear_last_error <- function() {
-    invisible(.Call(`_reticulate_py_clear_last_error`))
-}
-
-py_is_callable <- function(x) {
-    .Call(`_reticulate_py_is_callable`, x)
-}
-
-py_get_formals <- function(func) {
-    .Call(`_reticulate_py_get_formals`, func)
-}
-
-r_to_py_impl <- function(object, convert) {
-    .Call(`_reticulate_r_to_py_impl`, object, convert)
-}
-
-py_activate_virtualenv <- function(script) {
-    invisible(.Call(`_reticulate_py_activate_virtualenv`, script))
-}
-
-py_initialize <- function(python, libpython, pythonhome, virtualenv_activate, python3, interactive, numpy_load_error) {
-    invisible(.Call(`_reticulate_py_initialize`, python, libpython, pythonhome, virtualenv_activate, python3, interactive, numpy_load_error))
-}
-
-py_finalize <- function() {
-    invisible(.Call(`_reticulate_py_finalize`))
-}
-
-py_is_none <- function(x) {
-    .Call(`_reticulate_py_is_none`, x)
-}
-
-py_compare_impl <- function(a, b, op) {
-    .Call(`_reticulate_py_compare_impl`, a, b, op)
-}
-
-py_str_impl <- function(x) {
-    .Call(`_reticulate_py_str_impl`, x)
-}
-
-py_print <- function(x) {
-    invisible(.Call(`_reticulate_py_print`, x))
-}
-
-py_is_function <- function(x) {
-    .Call(`_reticulate_py_is_function`, x)
-}
-
 #' Check if a Python object is a null externalptr
 #'
 #' @param x Python object
@@ -101,6 +40,76 @@ py_validate_xptr <- function(x) {
     invisible(.Call(`_reticulate_py_validate_xptr`, x))
 }
 
+conditionMessage_from_py_exception <- function(exc) {
+    .Call(`_reticulate_conditionMessage_from_py_exception`, exc)
+}
+
+py_none_impl <- function() {
+    .Call(`_reticulate_py_none_impl`)
+}
+
+py_is_callable <- function(x) {
+    .Call(`_reticulate_py_is_callable`, x)
+}
+
+py_get_formals <- function(callable) {
+    .Call(`_reticulate_py_get_formals`, callable)
+}
+
+r_to_py_impl <- function(object, convert) {
+    .Call(`_reticulate_r_to_py_impl`, object, convert)
+}
+
+py_activate_virtualenv <- function(script) {
+    invisible(.Call(`_reticulate_py_activate_virtualenv`, script))
+}
+
+main_process_python_info <- function() {
+    .Call(`_reticulate_main_process_python_info`)
+}
+
+py_clear_error <- function() {
+    invisible(.Call(`_reticulate_py_clear_error`))
+}
+
+was_python_initialized_by_reticulate <- function() {
+    .Call(`_reticulate_was_python_initialized_by_reticulate`)
+}
+
+py_initialize <- function(python, libpython, pythonhome, virtualenv_activate, python3, interactive, numpy_load_error) {
+    invisible(.Call(`_reticulate_py_initialize`, python, libpython, pythonhome, virtualenv_activate, python3, interactive, numpy_load_error))
+}
+
+py_finalize <- function() {
+    invisible(.Call(`_reticulate_py_finalize`))
+}
+
+py_is_none <- function(x) {
+    .Call(`_reticulate_py_is_none`, x)
+}
+
+py_compare_impl <- function(a, b, op) {
+    .Call(`_reticulate_py_compare_impl`, a, b, op)
+}
+
+py_str_impl <- function(x) {
+    .Call(`_reticulate_py_str_impl`, x)
+}
+
+#' @export
+#' @rdname py_str
+py_repr <- function(object) {
+    .Call(`_reticulate_py_repr`, object)
+}
+
+py_print <- function(x) {
+    invisible(.Call(`_reticulate_py_print`, x))
+}
+
+py_is_function <- function(x) {
+    .Call(`_reticulate_py_is_function`, x)
+}
+
 py_numpy_available_impl <- function() {
     .Call(`_reticulate_py_numpy_available_impl`)
 }
@@ -125,12 +134,16 @@ py_set_attr_impl <- function(x, name, value) {
     invisible(.Call(`_reticulate_py_set_attr_impl`, x, name, value))
 }
 
+py_del_attr_impl <- function(x, name) {
+    invisible(.Call(`_reticulate_py_del_attr_impl`, x, name))
+}
+
 py_set_item_impl <- function(x, key, val) {
     invisible(.Call(`_reticulate_py_set_item_impl`, x, key, val))
 }
 
-py_get_attribute_types <- function(x, attributes) {
-    .Call(`_reticulate_py_get_attribute_types`, x, attributes)
+py_get_attr_types_impl <- function(x, attrs, resolve_properties) {
+    .Call(`_reticulate_py_get_attr_types_impl`, x, attrs, resolve_properties)
 }
 
 py_ref_to_r_with_convert <- function(x, convert) {
@@ -225,7 +238,55 @@ r_convert_date <- function(dates, convert) {
     .Call(`_reticulate_r_convert_date`, dates, convert)
 }
 
+py_set_interrupt_impl <- function() {
+    invisible(.Call(`_reticulate_py_set_interrupt_impl`))
+}
+
+py_list_length <- function(x) {
+    .Call(`_reticulate_py_list_length`, x)
+}
+
+py_len_impl <- function(x, defaultValue = NULL) {
+    .Call(`_reticulate_py_len_impl`, x, defaultValue)
+}
+
+py_bool_impl <- function(x) {
+    .Call(`_reticulate_py_bool_impl`, x)
+}
+
+py_has_method <- function(object, name) {
+    .Call(`_reticulate_py_has_method`, object, name)
+}
+
+#' Unique identifer for Python object
+#'
+#' Get a globally unique identifier for a Python object.
+#'
+#' @note In the current implementation of CPython this is the
+#'  memory address of the object.
+#'
+#' @param object Python object
+#'
+#' @return Unique identifer (as string) or `NULL`
+#'
+#' @export
+py_id <- function(object) {
+    .Call(`_reticulate_py_id`, object)
+}
+
+py_capsule <- function(x) {
+    .Call(`_reticulate_py_capsule`, x)
+}
+
 readline <- function(prompt) {
     .Call(`_reticulate_readline`, prompt)
+}
+
+py_register_interrupt_handler <- function() {
+    invisible(.Call(`_reticulate_py_register_interrupt_handler`))
+}
+
+py_interrupts_pending <- function(reset) {
+    .Call(`_reticulate_py_interrupts_pending`, reset)
 }
 

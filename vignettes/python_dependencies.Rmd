@@ -2,7 +2,7 @@
 title: "Managing an R Package's Python Dependencies"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{python_dependencies}
+  %\VignetteIndexEntry{Managing an R Package's Python Dependencies}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -65,7 +65,7 @@ Python dependencies.
 ### Using Config/reticulate
 
 For example, if we had a package `rscipy` that acted as an interface to the
-[SciPy](https://www.scipy.org) Python package, we might use the following
+[SciPy](https://scipy.org) Python package, we might use the following
 `DESCRIPTION`:
 
 ```

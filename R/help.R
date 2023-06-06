@@ -35,9 +35,30 @@ register_help_topics <- function(type = c("module", "class"), topics) {
     assign(name, topics[[name]], envir = envir)
 }
 
+#' Provide help for Python objects
+#' 
+#' This is an internal method to be used by front-ends which need to provide
+#' help text / information for Python objects in different contexts.
+#' 
+#' @keywords internal
+#' @export
+py_help_handler <- function(type = c("completion", "parameter", "url"),
+                            topic,
+                            source,
+                            ...)
+{
+  help_handler(type, topic, source, ...)
+}
+
 # Generic help_handler returned from .DollarNames -- dispatches to various
-# other help handler functions
-help_handler <- function(type = c("completion", "parameter", "url"), topic, source, ...) {
+# other help handler functions.
+#
+# NOTE: this routine is used by RStudio's autocompletion system
+help_handler <- function(type = c("completion", "parameter", "url"),
+                         topic,
+                         source,
+                         ...)
+{
   type <- match.arg(type)
   if (type == "completion") {
     help_completion_handler.python.builtin.object(topic, source)
@@ -52,11 +73,11 @@ help_handler <- function(type = c("completion", "parameter", "url"), topic, sour
 #'
 #' @param module Name of a root Python module
 #' @param handler Handler function: `function(name, subtopic = NULL)`. The name
-#'   will be the fully qualfied name of a Python object (module, function, or
+#'   will be the fully qualified name of a Python object (module, function, or
 #'   class). The `subtopic` is optional and is currently used only for methods
 #'   within classes.
 #'
-#' @details The help handler is passed a fully qualfied module, class, or
+#' @details The help handler is passed a fully qualified module, class, or
 #'   function name (and optional method for classes). It should return a URL for
 #'   a help page (or `""` if no help page is available).
 #'

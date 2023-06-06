@@ -2,33 +2,86 @@
 % Please edit documentation in R/use_python.R
 \name{use_python}
 \alias{use_python}
+\alias{use_python_version}
 \alias{use_virtualenv}
 \alias{use_condaenv}
 \alias{use_miniconda}
-\title{Configure which version of Python to use}
+\title{Use Python}
 \usage{
-use_python(python, required = FALSE)
+use_python(python, required = NULL)
 
-use_virtualenv(virtualenv = NULL, required = FALSE)
+use_python_version(version, required = NULL)
 
-use_condaenv(condaenv = NULL, conda = "auto", required = FALSE)
+use_virtualenv(virtualenv = NULL, required = NULL)
 
-use_miniconda(condaenv = NULL, required = FALSE)
+use_condaenv(condaenv = NULL, conda = "auto", required = NULL)
+
+use_miniconda(condaenv = NULL, required = NULL)
 }
 \arguments{
-\item{python}{Path to Python binary}
+\item{python}{The path to a Python binary.}
 
-\item{required}{Is this version of Python required? If \code{TRUE} then an error
-occurs if it's not located. Otherwise, the version is taken as a hint only
-and scanning for other versions will still proceed.}
+\item{required}{Is the requested copy of Python required? If \code{TRUE}, an error will be
+emitted if the requested copy of Python does not exist. Otherwise, the
+request is taken as a hint only, and scanning for other versions will still
+proceed.}
 
-\item{virtualenv}{Directory of Python virtualenv}
+\item{version}{The version of Python to use. \code{reticulate} will search for versions of
+Python as installed by the \code{\link[=install_python]{install_python()}} helper function.}
 
-\item{condaenv}{Name of Conda environment}
+\item{virtualenv}{Either the name of, or the path to, a Python virtual environment.}
 
-\item{conda}{Conda executable. Default is \code{"auto"}, which checks the \code{PATH}
-as well as other standard locations for Anaconda installations.}
+\item{condaenv}{The conda environment to use. For \code{use_condaenv()}, this can be the name,
+the absolute prefix path, or the absolute path to the python binary. If
+the name is ambiguous, the first environment is used and a warning is
+issued. For \code{use_miniconda()}, the only conda installation searched is
+the one installed by \code{install_miniconda()}.}
+
+\item{conda}{The path to a \code{conda} executable. By default, \code{reticulate} will check the
+\code{PATH}, as well as other standard locations for Anaconda installations.}
 }
 \description{
-Configure which version of Python to use
+Select the version of Python to be used by \code{reticulate}.
 }
+\details{
+The \code{reticulate} package initializes its Python bindings lazily -- that is,
+it does not initialize its Python bindings until an API that explicitly
+requires Python to be loaded is called. This allows users and package authors
+to request particular versions of Python by calling \code{use_python()} or one of
+the other helper functions documented in this help file.
+}
+\section{RETICULATE_PYTHON}{
+
+
+The \code{RETICULATE_PYTHON} environment variable can also be used to control
+which copy of Python \code{reticulate} chooses to bind to. It should be set to
+the path to a Python interpreter, and that interpreter can either be:
+\itemize{
+\item A standalone system interpreter,
+\item Part of a virtual environment,
+\item Part of a Conda environment.
+}
+
+When set, this will override any other requests to use a particular copy of
+Python. Setting this in \verb{~/.Renviron} (or optionally, a project \code{.Renviron})
+can be a useful way of forcing \code{reticulate} to use a particular version of
+Python.
+}
+
+\section{Caveats}{
+
+
+Note that the requests for a particular version of Python via \code{use_python()}
+and friends only persist for the active session; they must be re-run in each
+new \R session as appropriate.
+
+If \code{use_python()} (or one of the other \verb{use_*()} functions) are called
+multiple times, the most recently-requested version of Python will be
+used. Note that any request to \code{use_python()} will always be overridden
+by the \code{RETICULATE_PYTHON} environment variable, if set.
+
+The \code{\link[=py_config]{py_config()}} function will also provide a short note describing why
+\code{reticulate} chose to select the version of Python that was ultimately
+activated.
+}
+

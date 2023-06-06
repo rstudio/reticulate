@@ -1,0 +1,966 @@
+---
+title: "Primer on Python for R Users"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Primer on Python for R Users}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options:
+  markdown:
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+library(reticulate)
+
+# this vignette requires python 3.8 or newer
+eval <- tryCatch({
+  config <- py_config()
+  numeric_version(config$version) >= "3.8" && py_numpy_available()
+}, error = function(e) FALSE)
+
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = eval
+)
+```
+
+```{r}
+library(reticulate)
+```
+
+## Primer on Python for R users
+
+You may find yourself wanting to read and understand some Python, or
+even port some Python to R. This guide is designed to enable you to do
+these tasks as quickly as possible. As you'll see, R and Python are
+similar enough that this is possible without necessarily learning all of
+Python. We start with the basics of container types and work up to the
+mechanics of classes, dunders, the iterator protocol, the context
+protocol, and more!
+
+### Whitespace
+
+Whitespace matters in Python. In R, expressions are grouped into a code
+block with `{}`. In Python, that is done by making the expressions share
+an indentation level. For example, an expression with an R code block
+might be:
+
+```{r}
+if (TRUE) {
+  cat("This is one expression. \n")
+  cat("This is another expression. \n")
+}
+```
+
+The equivalent in Python:
+
+```{python}
+if True:
+  print("This is one expression.")
+  print("This is another expression.")
+```
+
+Python accepts tabs or spaces as the indentation spacer, but the rules
+get tricky when they're mixed. Most style guides suggest (and IDE's
+default to) using spaces only.
+
+### Container Types
+
+In R, the `list()` is a container you can use to organize R objects. R's
+`list()` is feature packed, and there is no single direct equivalent in
+Python that supports all the same features. Instead there are (at least)
+4 different Python container types you need to be aware of: lists,
+dictionaries, tuples, and sets.
+
+#### Lists
+
+Python lists are typically created using bare brackets `[]`. The Python
+built-in `list()` function is more of a coercion function, closer in
+spirit to R's `as.list()`. The most important thing to know about Python
+lists is that they are modified in place. Note in the example below that
+`y` reflects the changes made to `x`, because the underlying list object
+which both symbols point to is modified in place.
+
+```{python}
+x = [1, 2, 3]
+y = x    # `y` and `x` now refer to the same list!
+x.append(4)
+print("x is", x)
+print("y is", y)
+```
+
+One Python idiom that might be concerning to R users is that of growing
+lists through the `append()` method. Growing lists in R is typically
+slow and best avoided. But because Python's list are modified in place
+(and a full copy of the list is avoided when appending items), it is
+efficient to grow Python lists in place.
+
+Some syntactic sugar around Python lists you might encounter is the
+usage of `+` and `*` with lists. These are concatenation and replication
+operators, akin to R's `c()` and `rep()`.
+
+```{python}
+x = [1]
+x
+x + x
+x * 3
+```
+
+You can index into lists with integers using trailing `[]`, but note
+that indexing is 0-based.
+
+```{python}
+x = [1, 2, 3]
+x[0]
+x[1]
+x[2]
+
+try:
+  x[3]
+except Exception as e:
+  print(e)
+```
+
+When indexing, negative numbers count from the end of the container.
+
+```{python}
+x = [1, 2, 3]
+x[-1]
+x[-2]
+x[-3]
+```
+
+You can slice ranges of lists using the `:` inside brackets. Note that
+the slice syntax is ***not*** inclusive of the end of the slice range.
+You can optionally also specify a stride.
+
+```{python}
+x = [1, 2, 3, 4, 5, 6]
+x[0:2] # get items at index positions 0, 1
+x[1:]  # get items from index position 1 to the end
+x[:-2] # get items from beginning up to the 2nd to last.
+x[:]   # get all the items (idiom used to copy the list so as not to modify in place)
+x[::2] # get all the items, with a stride of 2
+x[1::2] # get all the items from index 1 to the end, with a stride of 2
+```
+
+#### Tuples
+
+Tuples behave like lists, except they are not mutable, and they don't
+have the same modify-in-place methods like `append()`. They are
+typically constructed using bare `()`, but parentheses are not strictly
+required, and you may see an implicit tuple being defined just from a
+comma separated series of expressions. Because parentheses can also be
+used to specify order of operations in expressions like `(x + 3) * 4`, a
+special syntax is required to define tuples of length 1: a trailing
+comma. Tuples are most commonly encountered in functions that take a
+variable number of arguments.
+
+```{python}
+x = (1, 2) # tuple of length 2
+type(x)
+len(x)
+x
+
+x = (1,) # tuple of length 1
+type(x)
+len(x)
+x
+
+x = () # tuple of length 0
+print(f"{type(x) = }; {len(x) = }; {x = }")
+# example of an interpolated string literals
+
+x = 1, 2 # also a tuple
+type(x)
+len(x)
+
+x = 1, # beware a single trailing comma! This is a tuple!
+type(x)
+len(x)
+```
+
+##### Packing and Unpacking
+
+Tuples are the container that powers the *packing* and *unpacking*
+semantics in Python. Python provides the convenience of allowing you to
+assign multiple symbols in one expression. This is called *unpacking*.
+
+For example:
+
+```{python}
+x = (1, 2, 3)
+a, b, c = x
+a
+b
+c
+```
+
+(You can access similar unpacking behavior from R using
+`` zeallot::`%<-%` ``).
+
+Tuple unpacking can occur in a variety of contexts, such as iteration:
+
+```{python}
+xx = (("a", 1),
+      ("b", 2))
+for x1, x2 in xx:
+  print("x1 = ", x1)
+  print("x2 = ", x2)
+```
+
+If you attempt to unpack a container to the wrong number of symbols,
+Python raises an error:
+
+```{python, error = TRUE}
+x = (1, 2, 3)
+a, b, c = x # success
+a, b = x    # error, x has too many values to unpack
+a, b, c, d = x # error, x has not enough values to unpack
+```
+
+It is possible to unpack a variable number of arguments, using `*` as a
+prefix to a symbol. (You'll see the `*` prefix again when we talk about
+functions)
+
+```{python}
+x = (1, 2, 3)
+a, *the_rest = x
+a
+the_rest
+```
+
+You can also unpack nested structures:
+
+```{python}
+x = ((1, 2), (3, 4))
+(a, b), (c, d) = x
+```
+
+#### Dictionaries
+
+Dictionaries are most similar to R environments. They are a container
+where you can retrieve items by name, though in Python the name (called
+a *key* in Python's parlance) does not need to be a string like in R. It
+can be any Python object with a `hash()` method (meaning, it can be
+almost any Python object). They can be created using syntax like
+`{key: value}`. Like Python lists, they are modified in place. Note that
+`r_to_py()` converts R named lists to dictionaries.
+
+```{python}
+d = {"key1": 1,
+     "key2": 2}
+d2 = d
+d
+d["key1"]
+d["key3"] = 3
+d2 # modified in place!
+```
+
+Like R environments (and unlike R's named lists), you cannot index into
+a dictionary with an integer to get an item at a specific index
+position. Dictionaries are *unordered* containers. (However---beginning
+with Python 3.7, dictionaries do preserve the item insertion order).
+
+```{python, error = TRUE}
+d = {"key1": 1, "key2": 2}
+d[1] # error
+```
+
+A container that closest matches the semantics of R's named list is the
+[`OrderedDict`](https://docs.python.org/3/library/collections.html#collections.OrderedDict),
+but that's relatively uncommon in Python code so we don't cover it
+further.
+
+#### Sets
+
+Sets are a container that can be used to efficiently track unique items
+or deduplicate lists. They are constructed using `{val1, val2}` (like a
+dictionary, but without `:`). Think of them as dictionary where you only
+use the keys. Sets have many efficient methods for membership
+operations, like `intersection()`, `issubset()`, `union()` and so on.
+
+```{python}
+s = {1, 2, 3}
+type(s)
+s
+
+s.add(1)
+s
+```
+
+### Iteration with `for`
+
+The `for` statement in Python can be used to iterate over any kind of
+container.
+
+```{python}
+for x in [1, 2, 3]:
+  print(x)
+```
+
+R has a relatively limited set of objects that can be passed to `for`.
+Python by comparison, provides an iterator protocol interface, which
+means that authors can define custom objects, with custom behavior that
+is invoked by `for`. (We'll have an example for how to define a custom
+iterable when we get to classes). You may want to use a Python iterable
+from R using reticulate, so it's helpful to peel back the syntactic
+sugar a little to show what the `for` statement is doing in Python, and
+how you can step through it manually.
+
+There are two things that happen: first, an iterator is constructed from
+the supplied object. Then, the new iterator object is repeatedly called
+with `next()` until it is exhausted.
+
+```{python, error = TRUE}
+l = [1, 2, 3]
+it = iter(l) # create an iterator object
+it
+
+# call `next` on the iterator until it is exhausted:
+next(it)
+next(it)
+next(it)
+next(it)
+```
+
+In R, you can use reticulate to step through an iterator the same way.
+
+```{r}
+library(reticulate)
+l <- r_to_py(list(1, 2, 3))
+it <- as_iterator(l)
+
+iter_next(it)
+iter_next(it)
+iter_next(it)
+iter_next(it, completed = "StopIteration")
+```
+
+Iterating over dictionaries first requires understanding if you are
+iterating over the keys, values, or both. Dictionaries have methods that
+allow you to specify which.
+
+```{python}
+d = {"key1": 1, "key2": 2}
+for key in d:
+  print(key)
+
+for value in d.values():
+  print(value)
+
+for key, value in d.items():
+  print(key, ":", value)
+```
+
+#### Comprehensions
+
+Comprehensions are special syntax that allow you to construct a
+container like a list or a dict, while also executing a small operation
+or single expression on each element. You can think of it as special
+syntax for R's `lapply`.
+
+For example:
+
+```{python}
+x = [1, 2, 3]
+
+# a list comprehension built from x, where you add 100 to each element
+l = [element + 100 for element in x]
+l
+
+# a dict comprehension built from x, where the key is a string.
+# Python's str() is like R's as.character()
+d = {str(element) : element + 100
+     for element in x}
+d
+```
+
+### Defining Functions with `def`
+
+Python functions are defined with the `def` statement. The syntax for
+specifying function arguments and default values is very similar to R.
+
+```{python}
+def my_function(name = "World"):
+  print("Hello", name)
+
+my_function()
+my_function("Friend")
+```
+
+The equivalent R snippet would be
+
+```{r}
+my_function <- function(name = "World") {
+  cat("Hello", name, "\n")
+}
+
+my_function()
+my_function("Friend")
+```
+
+Unlike R functions, the last value in a function is not automatically
+returned. Python requires an explicit return statement.
+
+```{python}
+def fn():
+  1
+print(fn())
+
+def fn():
+  return 1
+print(fn())
+```
+
+(Note for advanced R users: Python has no equivalent of R's argument
+"promises". Function argument default values are evaluated once, when
+the function is constructed. This can be surprising if you define a
+Python function with a mutable object as a default argument value, like
+a Python list!)
+
+```{python}
+def my_func(x = []):
+  x.append("was called")
+  print(x)
+
+my_func()
+my_func()
+my_func()
+```
+
+You can also define Python functions that take a variable number of
+arguments, similar to `...` in R. A notable difference is that R's `...`
+makes no distinction between named and unnamed arguments, but Python
+does. In Python, prefixing a single `*` captures unnamed arguments, and
+two `**` signifies that *keyword* arguments are captured.
+
+```{python}
+def my_func(*args, **kwargs):
+  print("args = ", args) # args is a tuple
+  print("kwargs = ", kwargs) # kwargs is a dictionary
+
+my_func(1, 2, 3, a = 4, b = 5, c = 6)
+```
+
+Whereas the `*` and `**` in a function definition signature *pack*
+arguments, in a function call they *unpack* arguments. Unpacking
+arguments in a function call is equivalent to using `do.call()` in R.
+
+```{python}
+def my_func(a, b, c):
+  print(a, b, c)
+
+args = (1, 2, 3)
+my_func(*args)
+
+kwargs = {"a": 1, "b": 2, "c": 3}
+my_func(**kwargs)
+```
+
+### Defining Classes with `class`
+
+One could argue that in R, the preeminent unit of composition for code
+is the `function`, and in Python, it's the `class`. You can be a very
+productive R user and never use R6, reference classes, or similar R
+equivalents to the object-oriented style of Python `class`'s.
+
+In Python, however, understanding the basics of how `class` objects work
+is requisite knowledge, because `class`'s are how you organize and find
+methods in Python. (In contrast to R's approach, where methods are found
+by dispatching from a generic). Fortunately, the basics of `class`'s are
+accessible.
+
+Don't be intimidated if this is your first exposure to object oriented
+programming. We'll start by building up a simple Python class for
+demonstration purposes.
+
+```{python}
+class MyClass:
+  pass # `pass` means do nothing.
+
+MyClass
+type(MyClass)
+
+instance = MyClass()
+instance
+type(instance)
+```
+
+Like the `def` statement, the `class` statement binds a new callable
+symbol, `MyClass`. First note the strong naming convention, classes are
+typically `CamelCase`, and functions are typically `snake_case`. After
+defining `MyClass`, you can interact with it, and see that it has type
+`'type'`. Calling `MyClass()` creates a new object **instance** of the
+class, which has type `'MyClass'` (ignore the `__main__.` prefix for
+now). The instance prints with its memory address, which is a strong
+hint that it's common to be managing many instances of a class, and that
+the instance is mutable (modified-in-place by default).
+
+In the first example, we defined an empty `class`, but when we inspect
+it we see that it already comes with a bunch of attributes (`dir()` in
+Python is equivalent to `names()` in R):
+
+```{python}
+dir(MyClass)
+```
+
+#### What are all the underscores?
+
+Python typically indicates that something is special by wrapping the
+name in double underscores. A special double-underscore-wrapped token is
+commonly called a "dunder". "Special" is not a technical term, it just
+means that the token invokes a Python language feature. Some dunder
+tokens are merely ways code authors can plug into specific syntactic
+sugars, others are values provided by the interpreter that would be
+otherwise hard to acquire, yet others are for extending language
+interfaces (e.g., the iteration protocol), and finally, a small handful
+of dunders are truly complicated to understand. Fortunately, as an R
+user looking to use some Python features through reticulate, you only
+need to know about a few easy-to-understand dunders.
+
+The most common dunder method you'll encounter when reading Python code
+is `__init__()`. This is a function that is called when the class
+constructor is called, that is, when a class is **instantiated**. It is
+meant to initialize the new class instance. (In very sophisticated code
+bases, you may also encounter classes where `__new__` is also defined,
+this is called before `__init__`).
+
+```{python}
+class MyClass:
+
+  print("MyClass's definition body is being evaluated")
+
+  def __init__(self):
+    print(self, "is initializing")
+
+print("MyClass is finished being created")
+
+instance = MyClass()
+print(instance)
+
+instance2 = MyClass()
+print(instance2)
+```
+
+A few things to note:
+
+-   the `class` statement takes a code block that is defined by a common
+    indentation level. The code block has the same exact semantics as
+    any other expression that takes a code block, like `if` and `def`.
+    The body of the class is evaluated only **once**, when the class
+    constructor is first being created. Beware that any objects defined
+    here are shared by all instances of the class!
+
+-   `__init__` is just a normal function, defined with `def` like any
+    other function. Except it's inside the class body.
+
+-   `__init__` take an argument: `self`. `self` is the class instance
+    being initialized (note the identical memory address between `self`
+    and `instance`). Also note that we didn't provide `self` when call
+    `MyClass()` to create the class instance, `self` was spliced into
+    the function call by the interpreter.
+
+-   `__init__` is called each time a new instance is created.
+
+Functions defined inside a `class` code block are called *methods*, and
+the important thing to know about methods is that each time they are
+called from a class instance, the instance is spliced into the function
+call as the first argument. This applies to all functions defined in a
+class, including dunders. (The sole exception is if the function is
+decorated with something like `@classmethod` or `@staticmethod`).
+
+```{python, error = TRUE}
+class MyClass:
+  def a_method(self):
+    print("MyClass.a_method() was called with", self)
+
+instance = MyClass()
+instance.a_method()
+
+MyClass.a_method()     # error, missing required argument `self`
+MyClass.a_method(instance) # identical to instance.a_method()
+```
+
+Other dunder's worth knowing about are:
+
+-   `__getitem__`: the function invoked when subsetting an instance with
+    `[` (Equivalent to defining a `[` S3 method in R.
+
+-   `__getattr__`: the function invoked when subsetting with `.`
+    (Equivalent to defining a `$` S3 method in R.
+
+-   `__iter__` and `__next__`: functions invoked by `for`.
+
+-   `__call__`: invoked when a class instance is called like a function
+    (e.g., `instance()`).
+
+-   `__bool__`: invoked by `if` and `while` (equivalent to
+    `as.logical()` in R, but returning only a scalar, not a vector).
+
+-   `__repr__`, `__str__`, functions invoked for formatting and pretty
+    printing (akin to `format()`, `dput()`, and `print()` methods in R).
+
+-   `__enter__` and `__exit__`: functions invoked by `with`.
+
+-   Many [built-in](https://docs.python.org/3/library/functions.html)
+    Python functions are just sugar for invoking the dunder. For
+    example: calling `repr(x)` is identical to `x.__repr__()`. Other
+    builtins that are just sugar for invoking the dunder are `next()`,
+    `iter()`, `str()`, `list()`, `dict()`, `bool()`, `dir()`, `hash()`
+    and more!
+
+#### Iterators, revisited
+
+Now that we have the basics of `class`, it's time to revisit iterators.
+First, some terminology:
+
+**iterable**: something that can be iterated over. Concretely, a class
+that defines an `__iter__` method, whose job is to return an *iterator*.
+
+**iterator**: something that iterates. Concretely, a class that defines
+a `__next__` method, whose job is to return the next element each time
+it is called, and then raises a `StopIteration` exception once it's
+exhausted.
+
+It's common to see classes that are both iterables and iterators, where
+the `__iter__` method is just a stub that returns `self`.
+
+Here is a custom iterable / iterator implementation of Python's `range`
+(similar to `seq` in R)
+
+```{python, error = TRUE}
+class MyRange:
+  def __init__(self, start, end):
+    self.start = start
+    self.end = end
+
+  def __iter__(self):
+    # reset our counter.
+    self._index = self.start - 1
+    return self
+
+  def __next__(self):
+    if self._index < self.end:
+      self._index += 1 # increment
+      return self._index
+    else:
+      raise StopIteration
+
+for x in MyRange(1, 3):
+  print(x)
+
+# doing what `for` does, but manually
+r = MyRange(1, 3)
+it = iter(r)
+next(it)
+next(it)
+next(it)
+next(it)
+```
+
+### Defining Generators with `yield`.
+
+Generators are special Python functions that contain one or more `yield`
+statements. As soon as `yield` is included in a code block passed to
+`def`, the semantics change substantially. You're no longer defining a
+mere function, but a generator constructor! In turn, calling a generator
+constructor creates a generator object, which is just another type of
+iterator.
+
+Here is an example:
+
+```{python, error = TRUE}
+def my_generator_constructor():
+  yield 1
+  yield 2
+  yield 3
+
+# At first glance it presents like a regular function
+my_generator_constructor
+type(my_generator_constructor)
+
+# But calling it returns something special, a 'generator object'
+my_generator = my_generator_constructor()
+my_generator
+type(my_generator)
+
+# The generator object is both an iterable and an iterator
+# it's __iter__ method is just a stub that returns `self`
+iter(my_generator) == my_generator == my_generator.__iter__()
+
+# step through it like any other iterator
+next(my_generator)
+my_generator.__next__() # next() is just sugar for calling the dunder
+next(my_generator)
+next(my_generator)
+```
+
+Encountering `yield` is like hitting the pause button on a functions
+execution, it preserves the state of everything in the function body and
+returns control to whatever is iterating over the generator object.
+Calling `next()` on the generator object resumes execution of the
+function body until the next `yield` is encountered, or the function
+finishes.
+
+### Iteration closing remarks
+
+Iteration is deeply baked into the Python language, and R users may be
+surprised by how things in Python are iterable, iterators, or powered by
+the iterator protocol under the hood. For example, the built-in `map()`
+(equivalent to R's `lapply()`) yields an iterator, not a list.
+Similarly, a tuple comprehension like `(elem for elem in x)` produces an
+iterator. Most features dealing with files are iterators, and so on.
+
+Any time you find an iterator inconvenient, you can materialize all the
+elements into a list using the Python built-in `list()`, or
+`reticulate::iterate()` in R. Also, if you like the readability of
+`for`, you can utilize similar semantics to Python's `for` using
+`coro::loop()`.
+
+### `import` and Modules
+
+In R, authors can bundle their code into shareable extensions called R
+packages, and R users can access objects from R packages via `library()`
+or `::`. In Python, authors bundle code into *modules*, and users access
+modules using `import`. Consider the line:
+
+```{python}
+import numpy
+```
+
+This statement has Python go out to the file system, find an installed
+Python module named 'numpy', load it (commonly meaning: evaluate its
+`__init__.py` file and construct a `module` type), and bind it to the
+symbol `numpy`.
+
+The closest equivalent to this in R might be:
+
+```{r, eval = FALSE}
+dplyr <- loadNamespace("dplyr")
+```
+
+#### Where are modules found?
+
+In Python, the file system locations where modules are searched can be
+accessed (and modified) from the list found at `sys.path`. This is
+Python's equivalent to R's `.libPaths()`. `sys.path` will typically
+contain paths to the current working directory, the Python installation
+which contains the built-in standard library, administrator installed
+modules, user installed modules, values from environment variables like
+`PYTHONPATH`, and any modifications made directly to `sys.path` by other
+code in the current Python session (though this is relatively uncommon
+in practice).
+
+```{python}
+import sys
+sys.path
+```
+
+You can inspect where a module was loaded from by accessing the dunder
+`__path__` or `__file__` (especially useful when troubleshooting
+installation issues):
+
+```{python}
+import os
+os.__file__
+numpy.__path__
+```
+
+Once a module is loaded, you can access symbols from the module using
+`.` (equivalent to `::`, or maybe `$.environment`, in R).
+
+```{python}
+numpy.abs(-1)
+```
+
+There is also special syntax for specifying the symbol a module is bound
+to upon import, and for importing only some specific symbols.
+
+```{python}
+import numpy        # import
+import numpy as np  # import and bind to a custom symbol `np`
+np is numpy         # test for identicalness, similar to identical(np, numpy)
+
+from numpy import abs # import only `numpy.abs`, bind it to `abs`
+abs is numpy.abs
+
+from numpy import abs as abs2 # import only `numpy.abs`, bind it to `abs2`
+abs2 is numpy.abs
+```
+
+If you're looking for the Python equivalent of R's `library()`, which
+makes all of a package's exported symbols available, it might be using
+`import` with a `*` wildcard, though it's relatively uncommon to do so.
+The `*` wildcard will expand to include all the symbols in module, or
+all the symbols listed in `__all__`, if it is defined.
+
+```{python}
+from numpy import *
+```
+
+Python doesn't make a distinction like R does between package exported
+and internal symbols. In Python, all module symbols are equal, though
+there is the naming convention that intended-to-be-internal symbols are
+prefixed with a single leading underscore. (Two leading underscores
+invoke an advanced language feature called "name mangling", which is
+outside the scope of this introduction).
+
+### Integers and Floats
+
+R users generally don't need to be aware of the difference between
+integers and floating point numbers, but that's not the case in Python.
+If this is your first exposure to numeric data types, here are the
+essentials:
+
+-   integer types can only represent whole numbers like `1` or `2`, not
+    floating point numbers like `1.2`.
+
+-   floating-point types can represent any number, but with some degree
+    of imprecision.
+
+In R, writing a bare literal number like `12` produces a floating point
+type, whereas in Python, it produces an integer. You can produce an
+integer literal in R by appending an `L`, as in `12L`. Many Python
+functions expect integers, and will error when provided a float.
+
+For example, say we have a Python function that expects an integer:
+
+```{python}
+def a_strict_Python_function(x):
+  assert isinstance(x, int), "x is not an int"
+  print("Yay! x was an int")
+```
+
+When calling it from R, you must be sure to call it with an integer:
+
+```{r, error = TRUE}
+library(reticulate)
+py$a_strict_Python_function(3)             # error
+py$a_strict_Python_function(3L)            # success
+py$a_strict_Python_function(as.integer(3)) # success
+```
+
+### What about R vectors?
+
+R is a language designed for numerical computing first. Numeric vector
+data types are baked deep into the R language, to the point that the
+language doesn't even distinguish scalars from vectors. By comparison,
+numerical computing capabilities in Python are generally provided by
+third party packages (*modules*, in Python parlance).
+
+In Python, the `numpy` module is most commonly used to handle contiguous
+arrays of data. The closest equivalent to an R numeric vector is a numpy
+array, or sometimes, a list of scalar numbers (some Pythonistas might
+argue for `array.array()` here, but that's so rarely encountered in
+actual Python code we don't mention it further).
+
+Teaching the NumPy interface is beyond the scope of this primer, but
+it's worth pointing out some potential tripping hazards for users
+accustomed to R arrays:
+
+-   When indexing into multidimensional numpy arrays, trailing
+    dimensions can be omitted and are implicitly treated as missing. The
+    consequence is that iterating over arrays means iterating over the
+    first dimension. For example, this iterates over the rows of a
+    matrix.
+
+```{python}
+import numpy as np
+m = np.arange(12).reshape((3,4))
+m
+m[0, :] # first row
+m[0]    # also first row
+
+for row in m:
+  print(row)
+```
+
+-   Many numpy operations modify the array in place! This is surprising
+    to R users, who are used to the convenience and safety of R's
+    copy-on-modify semantics. Unfortunately, there is no simple scheme
+    or naming convention you can rely on to quickly determine if a
+    particular method modifies in-place or creates a new array copy. The
+    only reliable way is to consult the
+    [documentation](https://numpy.org/doc/stable/reference/index.html#reference),
+    and conduct small experiments at the `reticulate::repl_python()`.
+
+### Decorators
+
+Decorators are just functions that take a function as an argument, and
+then typically returns another function. Any function can be invoked as
+a decorator with the `@` syntax, which is just sugar for this simple
+action:
+
+```{python}
+def my_decorator(func):
+  func.x = "a decorator modified this function by adding an attribute `x`"
+  return func
+
+def my_function(): pass
+my_function = my_decorator(my_function)
+
+# @ is just fancy syntax for the above two lines
+@my_decorator
+def my_function(): pass
+```
+
+One decorator you might encounter frequently is:
+
+-   `@property`, which automatically calls a class method when the
+    attribute is accessed (similar to `makeActiveBinding()` in R).
+
+### `with` and context management
+
+Any object that defines `__enter__` and `__exit__` methods implements
+the "context" protocol, and can be passed to `with`. For example, here
+is a custom implementation of a context manager that temporarily changes
+the current working directory (equivalent to R's `withr::with_dir()`)
+
+```{python}
+from os import getcwd, chdir
+
+class wd_context:
+  def __init__(self, wd):
+    self.new_wd = wd
+
+  def __enter__(self):
+    self.original_wd = getcwd()
+    chdir(self.new_wd)
+
+  def __exit__(self, *args):
+    # __exit__ takes some additional argument that are commonly ignored
+    chdir(self.original_wd)
+
+
+getcwd()
+with wd_context(".."):
+  print("in the context, wd is:", getcwd())
+getcwd()
+```
+
+### Learning More
+
+Hopefully, this short primer to Python has provided a good foundation
+for confidently reading Python documentation and code, and using Python
+modules from R via reticulate. Of course, there is much, much more to
+learn about Python. Googling questions about Python reliably brings up
+pages of results, but not always sorted in order of most useful. Blog
+posts and tutorials targeting beginners can be valuable, but remember
+that Python's official documentation is generally excellent, and it
+should be your first destination when you have questions.
+
+<https://docs.Python.org/3/>
+
+<https://docs.Python.org/3/library/index.html>
+
+To learn Python more fully, the built-in official tutorial is also
+excellent and comprehensive (but does require a time commitment to get
+value out of it) <https://docs.Python.org/3/tutorial/index.html>
+
+Finally, don't forget to solidify your understanding by conducting small
+experiments at the `reticulate::repl_python()`.
+
+Thank you for reading!

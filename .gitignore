@@ -4,6 +4,7 @@
 .RData
 .Ruserdata
 .DS_Store
+docs/
 log/
 src/*.o
 src/*.so
@@ -13,3 +14,4 @@ issues/
 README.html
 index.html
 inst/doc
+.vscode/

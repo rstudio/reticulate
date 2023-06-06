@@ -6,6 +6,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // write_stdout
 int write_stdout(std::string text);
 RcppExport SEXP _reticulate_write_stdout(SEXP textSEXP) {
@@ -38,23 +43,46 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// py_last_error
-SEXP py_last_error();
-RcppExport SEXP _reticulate_py_last_error() {
+// py_is_null_xptr
+bool py_is_null_xptr(PyObjectRef x);
+RcppExport SEXP _reticulate_py_is_null_xptr(SEXP xSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    rcpp_result_gen = Rcpp::wrap(py_last_error());
+    Rcpp::traits::input_parameter< PyObjectRef >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_is_null_xptr(x));
     return rcpp_result_gen;
 END_RCPP
 }
-// py_clear_last_error
-void py_clear_last_error();
-RcppExport SEXP _reticulate_py_clear_last_error() {
+// py_validate_xptr
+void py_validate_xptr(PyObjectRef x);
+RcppExport SEXP _reticulate_py_validate_xptr(SEXP xSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
-    py_clear_last_error();
+    Rcpp::traits::input_parameter< PyObjectRef >::type x(xSEXP);
+    py_validate_xptr(x);
     return R_NilValue;
+END_RCPP
+}
+// conditionMessage_from_py_exception
+std::string conditionMessage_from_py_exception(PyObjectRef exc);
+RcppExport SEXP _reticulate_conditionMessage_from_py_exception(SEXP excSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< PyObjectRef >::type exc(excSEXP);
+    rcpp_result_gen = Rcpp::wrap(conditionMessage_from_py_exception(exc));
+    return rcpp_result_gen;
+END_RCPP
+}
+// py_none_impl
+PyObjectRef py_none_impl();
+RcppExport SEXP _reticulate_py_none_impl() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(py_none_impl());
+    return rcpp_result_gen;
 END_RCPP
 }
 // py_is_callable
@@ -69,13 +97,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // py_get_formals
-SEXP py_get_formals(PyObjectRef func);
-RcppExport SEXP _reticulate_py_get_formals(SEXP funcSEXP) {
+SEXP py_get_formals(PyObjectRef callable);
+RcppExport SEXP _reticulate_py_get_formals(SEXP callableSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< PyObjectRef >::type func(funcSEXP);
-    rcpp_result_gen = Rcpp::wrap(py_get_formals(func));
+    Rcpp::traits::input_parameter< PyObjectRef >::type callable(callableSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_get_formals(callable));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -99,6 +127,35 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const std::string& >::type script(scriptSEXP);
     py_activate_virtualenv(script);
     return R_NilValue;
+END_RCPP
+}
+// main_process_python_info
+SEXP main_process_python_info();
+RcppExport SEXP _reticulate_main_process_python_info() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(main_process_python_info());
+    return rcpp_result_gen;
+END_RCPP
+}
+// py_clear_error
+void py_clear_error();
+RcppExport SEXP _reticulate_py_clear_error() {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    py_clear_error();
+    return R_NilValue;
+END_RCPP
+}
+// was_python_initialized_by_reticulate
+bool was_python_initialized_by_reticulate();
+RcppExport SEXP _reticulate_was_python_initialized_by_reticulate() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(was_python_initialized_by_reticulate());
+    return rcpp_result_gen;
 END_RCPP
 }
 // py_initialize
@@ -161,6 +218,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// py_repr
+SEXP py_repr(PyObjectRef object);
+RcppExport SEXP _reticulate_py_repr(SEXP objectSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< PyObjectRef >::type object(objectSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_repr(object));
+    return rcpp_result_gen;
+END_RCPP
+}
 // py_print
 void py_print(PyObjectRef x);
 RcppExport SEXP _reticulate_py_print(SEXP xSEXP) {
@@ -180,27 +248,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< PyObjectRef >::type x(xSEXP);
     rcpp_result_gen = Rcpp::wrap(py_is_function(x));
     return rcpp_result_gen;
-END_RCPP
-}
-// py_is_null_xptr
-bool py_is_null_xptr(PyObjectRef x);
-RcppExport SEXP _reticulate_py_is_null_xptr(SEXP xSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< PyObjectRef >::type x(xSEXP);
-    rcpp_result_gen = Rcpp::wrap(py_is_null_xptr(x));
-    return rcpp_result_gen;
-END_RCPP
-}
-// py_validate_xptr
-void py_validate_xptr(PyObjectRef x);
-RcppExport SEXP _reticulate_py_validate_xptr(SEXP xSEXP) {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< PyObjectRef >::type x(xSEXP);
-    py_validate_xptr(x);
-    return R_NilValue;
 END_RCPP
 }
 // py_numpy_available_impl
@@ -274,6 +321,17 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
+// py_del_attr_impl
+void py_del_attr_impl(PyObjectRef x, const std::string& name);
+RcppExport SEXP _reticulate_py_del_attr_impl(SEXP xSEXP, SEXP nameSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< PyObjectRef >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type name(nameSEXP);
+    py_del_attr_impl(x, name);
+    return R_NilValue;
+END_RCPP
+}
 // py_set_item_impl
 void py_set_item_impl(PyObjectRef x, RObject key, RObject val);
 RcppExport SEXP _reticulate_py_set_item_impl(SEXP xSEXP, SEXP keySEXP, SEXP valSEXP) {
@@ -286,15 +344,16 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
-// py_get_attribute_types
-IntegerVector py_get_attribute_types(PyObjectRef x, const std::vector<std::string>& attributes);
-RcppExport SEXP _reticulate_py_get_attribute_types(SEXP xSEXP, SEXP attributesSEXP) {
+// py_get_attr_types_impl
+IntegerVector py_get_attr_types_impl(PyObjectRef x, const std::vector<std::string>& attrs, bool resolve_properties);
+RcppExport SEXP _reticulate_py_get_attr_types_impl(SEXP xSEXP, SEXP attrsSEXP, SEXP resolve_propertiesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< PyObjectRef >::type x(xSEXP);
-    Rcpp::traits::input_parameter< const std::vector<std::string>& >::type attributes(attributesSEXP);
-    rcpp_result_gen = Rcpp::wrap(py_get_attribute_types(x, attributes));
+    Rcpp::traits::input_parameter< const std::vector<std::string>& >::type attrs(attrsSEXP);
+    Rcpp::traits::input_parameter< bool >::type resolve_properties(resolve_propertiesSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_get_attr_types_impl(x, attrs, resolve_properties));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -568,6 +627,83 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// py_set_interrupt_impl
+void py_set_interrupt_impl();
+RcppExport SEXP _reticulate_py_set_interrupt_impl() {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    py_set_interrupt_impl();
+    return R_NilValue;
+END_RCPP
+}
+// py_list_length
+SEXP py_list_length(PyObjectRef x);
+RcppExport SEXP _reticulate_py_list_length(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< PyObjectRef >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_list_length(x));
+    return rcpp_result_gen;
+END_RCPP
+}
+// py_len_impl
+SEXP py_len_impl(PyObjectRef x, SEXP defaultValue);
+RcppExport SEXP _reticulate_py_len_impl(SEXP xSEXP, SEXP defaultValueSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< PyObjectRef >::type x(xSEXP);
+    Rcpp::traits::input_parameter< SEXP >::type defaultValue(defaultValueSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_len_impl(x, defaultValue));
+    return rcpp_result_gen;
+END_RCPP
+}
+// py_bool_impl
+SEXP py_bool_impl(PyObjectRef x);
+RcppExport SEXP _reticulate_py_bool_impl(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< PyObjectRef >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_bool_impl(x));
+    return rcpp_result_gen;
+END_RCPP
+}
+// py_has_method
+SEXP py_has_method(PyObjectRef object, const std::string& name);
+RcppExport SEXP _reticulate_py_has_method(SEXP objectSEXP, SEXP nameSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< PyObjectRef >::type object(objectSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type name(nameSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_has_method(object, name));
+    return rcpp_result_gen;
+END_RCPP
+}
+// py_id
+SEXP py_id(PyObjectRef object);
+RcppExport SEXP _reticulate_py_id(SEXP objectSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< PyObjectRef >::type object(objectSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_id(object));
+    return rcpp_result_gen;
+END_RCPP
+}
+// py_capsule
+PyObjectRef py_capsule(SEXP x);
+RcppExport SEXP _reticulate_py_capsule(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_capsule(x));
+    return rcpp_result_gen;
+END_RCPP
+}
 // readline
 SEXP readline(const std::string& prompt);
 RcppExport SEXP _reticulate_readline(SEXP promptSEXP) {
@@ -579,34 +715,59 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// py_register_interrupt_handler
+void py_register_interrupt_handler();
+RcppExport SEXP _reticulate_py_register_interrupt_handler() {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    py_register_interrupt_handler();
+    return R_NilValue;
+END_RCPP
+}
+// py_interrupts_pending
+bool py_interrupts_pending(bool reset);
+RcppExport SEXP _reticulate_py_interrupts_pending(SEXP resetSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< bool >::type reset(resetSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_interrupts_pending(reset));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_reticulate_write_stdout", (DL_FUNC) &_reticulate_write_stdout, 1},
     {"_reticulate_write_stderr", (DL_FUNC) &_reticulate_write_stderr, 1},
     {"_reticulate_is_python3", (DL_FUNC) &_reticulate_is_python3, 0},
-    {"_reticulate_py_last_error", (DL_FUNC) &_reticulate_py_last_error, 0},
-    {"_reticulate_py_clear_last_error", (DL_FUNC) &_reticulate_py_clear_last_error, 0},
+    {"_reticulate_py_is_null_xptr", (DL_FUNC) &_reticulate_py_is_null_xptr, 1},
+    {"_reticulate_py_validate_xptr", (DL_FUNC) &_reticulate_py_validate_xptr, 1},
+    {"_reticulate_conditionMessage_from_py_exception", (DL_FUNC) &_reticulate_conditionMessage_from_py_exception, 1},
+    {"_reticulate_py_none_impl", (DL_FUNC) &_reticulate_py_none_impl, 0},
     {"_reticulate_py_is_callable", (DL_FUNC) &_reticulate_py_is_callable, 1},
     {"_reticulate_py_get_formals", (DL_FUNC) &_reticulate_py_get_formals, 1},
     {"_reticulate_r_to_py_impl", (DL_FUNC) &_reticulate_r_to_py_impl, 2},
     {"_reticulate_py_activate_virtualenv", (DL_FUNC) &_reticulate_py_activate_virtualenv, 1},
+    {"_reticulate_main_process_python_info", (DL_FUNC) &_reticulate_main_process_python_info, 0},
+    {"_reticulate_py_clear_error", (DL_FUNC) &_reticulate_py_clear_error, 0},
+    {"_reticulate_was_python_initialized_by_reticulate", (DL_FUNC) &_reticulate_was_python_initialized_by_reticulate, 0},
     {"_reticulate_py_initialize", (DL_FUNC) &_reticulate_py_initialize, 7},
     {"_reticulate_py_finalize", (DL_FUNC) &_reticulate_py_finalize, 0},
     {"_reticulate_py_is_none", (DL_FUNC) &_reticulate_py_is_none, 1},
     {"_reticulate_py_compare_impl", (DL_FUNC) &_reticulate_py_compare_impl, 3},
     {"_reticulate_py_str_impl", (DL_FUNC) &_reticulate_py_str_impl, 1},
+    {"_reticulate_py_repr", (DL_FUNC) &_reticulate_py_repr, 1},
     {"_reticulate_py_print", (DL_FUNC) &_reticulate_py_print, 1},
     {"_reticulate_py_is_function", (DL_FUNC) &_reticulate_py_is_function, 1},
-    {"_reticulate_py_is_null_xptr", (DL_FUNC) &_reticulate_py_is_null_xptr, 1},
-    {"_reticulate_py_validate_xptr", (DL_FUNC) &_reticulate_py_validate_xptr, 1},
     {"_reticulate_py_numpy_available_impl", (DL_FUNC) &_reticulate_py_numpy_available_impl, 0},
     {"_reticulate_py_list_attributes_impl", (DL_FUNC) &_reticulate_py_list_attributes_impl, 1},
     {"_reticulate_py_has_attr_impl", (DL_FUNC) &_reticulate_py_has_attr_impl, 2},
     {"_reticulate_py_get_attr_impl", (DL_FUNC) &_reticulate_py_get_attr_impl, 3},
     {"_reticulate_py_get_item_impl", (DL_FUNC) &_reticulate_py_get_item_impl, 3},
     {"_reticulate_py_set_attr_impl", (DL_FUNC) &_reticulate_py_set_attr_impl, 3},
+    {"_reticulate_py_del_attr_impl", (DL_FUNC) &_reticulate_py_del_attr_impl, 2},
     {"_reticulate_py_set_item_impl", (DL_FUNC) &_reticulate_py_set_item_impl, 3},
-    {"_reticulate_py_get_attribute_types", (DL_FUNC) &_reticulate_py_get_attribute_types, 2},
+    {"_reticulate_py_get_attr_types_impl", (DL_FUNC) &_reticulate_py_get_attr_types_impl, 3},
     {"_reticulate_py_ref_to_r_with_convert", (DL_FUNC) &_reticulate_py_ref_to_r_with_convert, 2},
     {"_reticulate_py_ref_to_r", (DL_FUNC) &_reticulate_py_ref_to_r, 1},
     {"_reticulate_py_call_impl", (DL_FUNC) &_reticulate_py_call_impl, 3},
@@ -630,7 +791,16 @@ static const R_CallMethodDef CallEntries[] = {
     {"_reticulate_py_convert_pandas_df", (DL_FUNC) &_reticulate_py_convert_pandas_df, 1},
     {"_reticulate_r_convert_dataframe", (DL_FUNC) &_reticulate_r_convert_dataframe, 2},
     {"_reticulate_r_convert_date", (DL_FUNC) &_reticulate_r_convert_date, 2},
+    {"_reticulate_py_set_interrupt_impl", (DL_FUNC) &_reticulate_py_set_interrupt_impl, 0},
+    {"_reticulate_py_list_length", (DL_FUNC) &_reticulate_py_list_length, 1},
+    {"_reticulate_py_len_impl", (DL_FUNC) &_reticulate_py_len_impl, 2},
+    {"_reticulate_py_bool_impl", (DL_FUNC) &_reticulate_py_bool_impl, 1},
+    {"_reticulate_py_has_method", (DL_FUNC) &_reticulate_py_has_method, 2},
+    {"_reticulate_py_id", (DL_FUNC) &_reticulate_py_id, 1},
+    {"_reticulate_py_capsule", (DL_FUNC) &_reticulate_py_capsule, 1},
     {"_reticulate_readline", (DL_FUNC) &_reticulate_readline, 1},
+    {"_reticulate_py_register_interrupt_handler", (DL_FUNC) &_reticulate_py_register_interrupt_handler, 0},
+    {"_reticulate_py_interrupts_pending", (DL_FUNC) &_reticulate_py_interrupts_pending, 1},
     {NULL, NULL, 0}
 };
 

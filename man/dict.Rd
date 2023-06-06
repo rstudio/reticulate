@@ -30,6 +30,6 @@ other Python objects rather than character vectors.
 }
 \note{
 The returned dictionary will not automatically convert its elements
-from Python to R. You can do manual converstion with the \code{\link[=py_to_r]{py_to_r()}}
+from Python to R. You can do manual conversion with the \code{\link[=py_to_r]{py_to_r()}}
 function or pass \code{convert = TRUE} to request automatic conversion.
 }

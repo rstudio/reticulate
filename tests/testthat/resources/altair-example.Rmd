@@ -1,0 +1,27 @@
+---
+title: "Altair Example"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+```{r}
+library(reticulate)
+
+python <- "~/.virtualenvs/python-3.7.7-venv/bin/python"
+if (file.exists(python))
+  use_python(python, required = TRUE)
+```
+
+```{python, altair.fig.width=800, altair.fig.height=300}
+import altair as alt
+from vega_datasets import data
+
+source = data.movies.url
+
+alt.Chart(source).mark_bar().encode(
+    alt.X("IMDB_Rating:Q", bin=True),
+    y='count()',
+)
+```

@@ -1,0 +1,58 @@
+---
+title: "Python Multiple Print & Comments"
+output: md_document
+---
+
+```{r 'setup'}
+library(reticulate)
+```
+
+prose
+
+```{python}
+y = [2, 4, 6]
+
+# Comment about len
+print(len(y))
+
+# This comment about type should be attached to the code below.
+print(type(y))
+
+```
+
+prose
+
+```{python, collapse=TRUE}
+# Same Example with Collapsed Chunk
+y = [2, 4, 6]
+
+# Note the output of this command should available immediately below it (like with R).
+print(len(y))
+
+# Comment about type should be attached to the code below (like R). 
+# The output from the previous command should not be part of this
+print(type(y))
+```
+
+```{r}
+# Comparative Code for R
+x = c(2, 4, 6)
+
+# Output of length() is given just after the command (as expected)
+print(length(x))
+
+# Comment about class is attached to the code below (as expected)
+print(class(x))
+```
+
+
+```{r, collapse=TRUE}
+# Comparative Code for R
+x = c(2, 4, 6)
+
+# Output of length() is given just after the command (as expected)
+print(length(x))
+
+# Comment about class is attached to the code below (as expected)
+print(class(x))
+```

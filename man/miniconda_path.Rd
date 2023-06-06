@@ -7,11 +7,8 @@
 miniconda_path()
 }
 \description{
-The path to the Miniconda installation to use.
-}
-\seealso{
-Other miniconda: 
-\code{\link{install_miniconda}()},
-\code{\link{miniconda_update}()}
+The path to the Miniconda installation to use. By default, an OS-specific
+path is used. If you'd like to instead set your own path, you can set the
+\code{RETICULATE_MINICONDA_PATH} environment variable.
 }
 \concept{miniconda}

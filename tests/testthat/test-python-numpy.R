@@ -60,9 +60,12 @@ test_that("Long integer types are converted to R numeric", {
   skip_if_no_numpy()
   np <- import("numpy", convert = FALSE)
   dtypes <- c(np$uint32)
+
   lapply(dtypes, function(dtype) {
     a1 <- np$array(c(1L:30L), dtype = dtype)
-    expect_equal(class(as.vector(py_to_r(a1))), "numeric")
+    a1 <- as.vector(py_to_r(a1))
+    expect_true(is.numeric(a1))
+    expect_equal(a1, 1:30)
   })
 })
 

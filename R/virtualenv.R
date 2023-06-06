@@ -3,18 +3,16 @@
 #' R functions for managing Python [virtual environments](https://virtualenv.pypa.io/en/stable/).
 #'
 #' Virtual environments are by default located at `~/.virtualenvs` (accessed
-#' with the `virtualenv_root` function). You can change the default location by
-#' defining defining the `WORKON_HOME` environment variable.
-#'
-#' Virtual environment functions are not supported on Windows (the use of
-#' [conda environments][conda-tools] is recommended on Windows).
+#' with the `virtualenv_root()` function). You can change the default location by
+#' defining the `WORKON_HOME` environment variable.
 #'
 #' @param envname The name of, or path to, a Python virtual environment. If
 #'   this name contains any slashes, the name will be interpreted as a path;
 #'   if the name does not contain slashes, it will be treated as a virtual
 #'   environment within `virtualenv_root()`. When `NULL`, the virtual environment
 #'   as specified by the `RETICULATE_PYTHON_ENV` environment variable will be
-#'   used instead.
+#'   used instead. To refer to a virtual environment in the current working
+#'   directory, you can prefix the path with `./<name>`.
 #'
 #' @param packages A character vector with package names to install or remove.
 #'
@@ -23,6 +21,9 @@
 #'   packages available in the site libraries are ignored and hence packages
 #'   are installed into the virtual environment.)
 #'
+#' @param pip_options An optional character vector of additional command line
+#'   arguments to be passed to `pip`.
+#'
 #' @param confirm Boolean; confirm before removing packages or virtual
 #'   environments?
 #'
@@ -30,28 +31,57 @@
 #'   virtual environment. When `NULL`, the Python interpreter associated with
 #'   the current session will be used.
 #'
-#' @param ... Optional arguments; currently ignored for future expansion.
+#' @param version The version of Python to be used with the newly-created
+#'   virtual environment. Python installations as installed via
+#'   [install_python()] will be used.
+#'
+#' @param packages A set of Python packages to install (via `pip install`) into
+#'   the virtual environment, after it has been created. By default, the
+#'   `"numpy"` package will be installed, and the `pip`, `setuptools` and
+#'   `wheel` packages will be updated. Set this to `FALSE` to avoid installing
+#'   any packages after the virtual environment has been created.
+#'
+#' @param module The Python module to be used when creating the virtual
+#'   environment -- typically, `virtualenv` or `venv`. When `NULL` (the default),
+#'   `venv` will be used if available with Python >= 3.6; otherwise, the
+#'   `virtualenv` module will be used.
+#'
+#' @param system_site_packages Boolean; create new virtual environments with
+#'   the `--system-site-packages` flag, thereby allowing those virtual
+#'   environments to access the system's site packages? Defaults to `FALSE`.
+#'
+#' @param pip_version The version of `pip` to be installed in the virtual
+#'   environment. Relevant only when `module == "virtualenv"`. Set this to
+#'   `FALSE` to disable installation of `pip` altogether.
+#'
+#' @param setuptools_version The version of `setuptools` to be installed in
+#'   the virtual environment. Relevant only when `module == "virtualenv"`.
+#'   Set this to `FALSE` to disable installation of `setuptools` altogether.
+#'
+#' @param extra An optional set of extra command line arguments to be passed.
+#'   Arguments should be quoted via `shQuote()` when necessary.
+#'
+#' @param ... Optional arguments; currently ignored and reserved for future expansion.
 #'
 #' @name virtualenv-tools
 NULL
 
 
 
-#' @inheritParams virtualenv-tools
 #' @rdname virtualenv-tools
 #' @export
-virtualenv_list <- function() {
-  root <- virtualenv_root()
-  if (!file.exists(root))
-    return(character())
-  list.files(root)
-}
-
-#' @inheritParams virtualenv-tools
-#' @rdname virtualenv-tools
-#' @export
-virtualenv_create <- function(envname = NULL, python = NULL) {
-
+virtualenv_create <- function(
+  envname = NULL,
+  python  = NULL,
+  ...,
+  version              = NULL,
+  packages             = "numpy",
+  module               = getOption("reticulate.virtualenv.module"),
+  system_site_packages = getOption("reticulate.virtualenv.system_site_packages", default = FALSE),
+  pip_version          = getOption("reticulate.virtualenv.pip_version", default = NULL),
+  setuptools_version   = getOption("reticulate.virtualenv.setuptools_version", default = NULL),
+  extra                = getOption("reticulate.virtualenv.extra", default = NULL))
+{
   path <- virtualenv_path(envname)
   name <- if (is.null(envname)) path else envname
 
@@ -61,45 +91,98 @@ virtualenv_create <- function(envname = NULL, python = NULL) {
     return(invisible(path))
   }
 
+  python <- python %||% pyenv_python(version)
   python <- virtualenv_default_python(python)
-  module <- virtualenv_module(python)
+  module <- module %||% virtualenv_module(python)
 
-  writeLines(paste("Creating virtual environment", shQuote(name), "..."))
-  writeLines(paste("Using python:", python))
-
-  # use it to create the virtual environment (note that 'virtualenv'
-  # requires us to request the specific Python binary we wish to use when
-  # creating the environment)
+  # use it to create the virtual environment
+  # (note that 'virtualenv' requires us to request the specific Python binary
+  # we wish to use when creating the environment)
   args <- c("-m", module)
-  if (module == "virtualenv")
+  if (module == "virtualenv") {
+
+    # request the specific version of Python
     args <- c(args, "-p", shQuote(python))
-  args <- c(args, "--system-site-packages", shQuote(path.expand(path)))
-  
-  result <- system2(python, args)
-  if (result != 0L) {
-    fmt <- "Error creating virtual environment '%s' [error code %d]"
-    msg <- sprintf(fmt, name, result)
-    stop(msg, call. = FALSE)
+
+    # request specific version of pip
+    if (identical(pip_version, FALSE))
+      args <- c(args, "--no-pip")
+    else if (!is.null(pip_version))
+      args <- c(args, "--pip", shQuote(pip_version))
+
+    # request specific version of setuptools
+    if (identical(setuptools_version, FALSE))
+      args <- c(args, "--no-setuptools")
+    else if (!is.null(setuptools_version))
+      args <- c(args, "--setuptools", shQuote(setuptools_version))
+
   }
+
+  # add --system-site-packages if requested
+  if (system_site_packages)
+    args <- c(args, "--system-site-packages")
+
+  # add in any other arguments provided by the user
+  args <- c(args, extra)
+
+  # add the path where the environment will be created
+  args <- c(args, shQuote(path.expand(path)))
+
+  writef("Using Python: %s", python)
+  printf("Creating virtual environment %s ... \n", shQuote(name))
+
+  result <- system2t(python, args)
+  if (result != 0L) {
+    writef("FAILED")
+    fmt <- "Error creating virtual environment '%s' [error code %d]"
+    stopf(fmt, name, result)
+  }
+
+  writef("Done!")
 
   # upgrade pip and friends after creating the environment
   # (since the version bundled with virtualenv / venv may be stale)
-  python <- virtualenv_python(envname)
-  pip_install(python, c("pip", "wheel", "setuptools"))
+  if (!identical(packages, FALSE)) {
+    python <- virtualenv_python(envname)
+    packages <- unique(c("pip", "wheel", "setuptools", packages))
+    writef("Installing packages: %s", paste(shQuote(packages), collapse = ", "))
+    pip_install(python, packages)
+  }
 
+  writef("Virtual environment '%s' successfully created.", name)
   invisible(path)
 }
 
 
 
-#' @inheritParams virtualenv-tools
 #' @rdname virtualenv-tools
 #' @export
 virtualenv_install <- function(envname = NULL,
                                packages,
                                ignore_installed = FALSE,
+                               pip_options = character(),
                                ...)
 {
+  check_forbidden_install("Python packages")
+
+  # check that 'packages' argument was supplied
+  if (missing(packages)) {
+    if (!is.null(envname)) {
+
+      fmt <- paste(
+        "argument \"packages\" is missing, with no default",
+        "- did you mean 'conda_install(<envname>, %1$s)'?",
+        "- use 'py_install(%1$s)' to install into the active Python environment",
+        sep = "\n"
+      )
+
+      stopf(fmt, deparse1(substitute(envname)), call. = FALSE)
+
+    } else {
+      packages
+    }
+  }
+
   # create virtual environment on demand
   path <- virtualenv_path(envname)
   if (!file.exists(path))
@@ -118,20 +201,25 @@ virtualenv_install <- function(envname = NULL,
   python <- virtualenv_python(envname)
   if (pip_version(python) < "8.1")
     pip_install(python, c("pip", "wheel", "setuptools"))
-  
+
   # now install the requested package
-  pip_install(python, packages, ignore_installed = ignore_installed)
+  pip_install(python,
+              packages,
+              ignore_installed = ignore_installed,
+              pip_options = pip_options)
 }
 
 
 
-#' @inheritParams virtualenv-tools
 #' @rdname virtualenv-tools
 #' @export
-virtualenv_remove <- function(envname = NULL, packages = NULL, confirm = interactive()) {
-
+virtualenv_remove <- function(envname = NULL,
+                              packages = NULL,
+                              confirm = interactive())
+{
   path <- virtualenv_path(envname)
   name <- if (is.null(envname)) path else envname
+  confirm <- confirm && is_interactive()
 
   if (!virtualenv_exists(path)) {
     fmt <- "Virtual environment '%s' does not exist."
@@ -173,9 +261,16 @@ virtualenv_remove <- function(envname = NULL, packages = NULL, confirm = interac
   invisible(NULL)
 }
 
+#' @rdname virtualenv-tools
+#' @export
+virtualenv_list <- function() {
+  root <- virtualenv_root()
+  if (!file.exists(root))
+    return(character())
+  list.files(root)
+}
 
 
-#' @inheritParams virtualenv-tools
 #' @rdname virtualenv-tools
 #' @export
 virtualenv_root <- function() {
@@ -184,7 +279,6 @@ virtualenv_root <- function() {
 
 
 
-#' @inheritParams virtualenv-tools
 #' @rdname virtualenv-tools
 #' @export
 virtualenv_python <- function(envname = NULL) {
@@ -193,8 +287,8 @@ virtualenv_python <- function(envname = NULL) {
   path.expand(file.path(path, suffix))
 }
 
-
-
+#' @rdname virtualenv-tools
+#' @export
 virtualenv_exists <- function(envname = NULL) {
 
   # try to resolve path
@@ -230,7 +324,7 @@ virtualenv_default_python <- function(python = NULL) {
 
   # if the user has supplied a verison of python already, use it
   if (!is.null(python))
-    return(python)
+    return(path.expand(python))
 
   # check for some pre-defined Python sources (prefer Python 3)
   pythons <- c(
@@ -247,7 +341,11 @@ virtualenv_default_python <- function(python = NULL) {
       next
 
     # get list of required modules
-    suppressWarnings({version <- tryCatch(python_version(python), error = identity)})
+    version <- tryCatch(
+      suppressWarnings(python_version(python)),
+      error = identity
+    )
+
     if (inherits(version, "error"))
       next
 
@@ -286,7 +384,7 @@ virtualenv_module <- function(python) {
       return(module)
 
   # virtualenv not available: instruct the user to install
-  commands <- new_stack()
+  commands <- stack(mode = "character")
   commands$push("Tools for managing Python virtual environments are not installed.")
   commands$push("")
 
@@ -324,17 +422,17 @@ virtualenv_module <- function(python) {
 
 
 is_virtualenv <- function(dir) {
-  
+
   # check for expected files for virtualenv / venv
   subdir <- if (is_windows()) "Scripts" else "bin"
-  
+
   files <- c(
     file.path(subdir, "activate_this.py"),
     file.path(subdir, "pyvenv.cfg"),
     "pyvenv.cfg"
   )
-  
+
   paths <- file.path(dir, files)
   any(file.exists(paths))
-  
+
 }

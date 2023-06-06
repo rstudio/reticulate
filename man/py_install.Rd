@@ -11,7 +11,9 @@ py_install(
   conda = "auto",
   python_version = NULL,
   pip = FALSE,
-  ...
+  ...,
+  pip_ignore_installed = ignore_installed,
+  ignore_installed = FALSE
 )
 }
 \arguments{
@@ -27,8 +29,9 @@ method that will work in the local environment. Change the default to force
 a specific installation method. Note that the "virtualenv" method is not
 available on Windows.}
 
-\item{conda}{The path to a \code{conda} executable. Use \code{"auto"} to allow \code{reticulate} to
-automatically find an appropriate \code{conda} binary. See \strong{Finding Conda} for more details.}
+\item{conda}{The path to a \code{conda} executable. Use \code{"auto"} to allow
+\code{reticulate} to automatically find an appropriate \code{conda} binary.
+See \strong{Finding Conda} and \code{\link[=conda_binary]{conda_binary()}} for more details.}
 
 \item{python_version}{The requested Python version. Ignored when attempting
 to install with a Python virtual environment.}
@@ -39,6 +42,15 @@ from the Conda repositories.}
 
 \item{...}{Additional arguments passed to \code{\link[=conda_install]{conda_install()}}
 or \code{\link[=virtualenv_install]{virtualenv_install()}}.}
+
+\item{pip_ignore_installed, ignore_installed}{Boolean; whether pip should
+ignore previously installed versions of the requested packages. Setting
+this to \code{TRUE} causes pip to install the latest versions of all
+dependencies into the requested environment. This ensure that no
+dependencies are satisfied by a package that exists either in the site
+library or was previously installed from a different--potentially
+incompatible--distribution channel. (\code{ignore_installed} is an alias for
+\code{pip_ignore_installed}, \code{pip_ignore_installed} takes precedence).}
 }
 \description{
 Install Python packages into a virtual environment or Conda environment.
@@ -49,5 +61,6 @@ On Linux and OS X the "virtualenv" method will be used by default
 "conda" method is always used.
 }
 \seealso{
-\link{conda-tools}, \link{virtualenv-tools}
+\code{\link[=conda_install]{conda_install()}}, for installing packages into conda environments.
+\code{\link[=virtualenv_install]{virtualenv_install()}}, for installing packages into virtual environments.
 }

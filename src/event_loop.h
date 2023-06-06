@@ -1,12 +1,13 @@
 
-#ifndef __PYTHON_EVENT_LOOP__
-#define __PYTHON_EVENT_LOOP__
+#ifndef RETICULATE_EVENT_LOOP_H
+#define RETICULATE_EVENT_LOOP_H
 
+namespace reticulate {
 namespace event_loop {
 
 void initialize();
 
 } // namespace event_loop
+} // namespace reticulate
 
-#endif // __PYTHON_EVENT_LOOP__
-
+#endif // RETICULATE_EVENT_LOOP_H

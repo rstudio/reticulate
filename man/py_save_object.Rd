@@ -3,23 +3,33 @@
 \name{py_save_object}
 \alias{py_save_object}
 \alias{py_load_object}
-\title{Save and load Python objects with pickle}
+\title{Save and Load Python Objects}
 \usage{
 py_save_object(object, filename, pickle = "pickle", ...)
 
-py_load_object(filename, pickle = "pickle", ...)
+py_load_object(filename, pickle = "pickle", ..., convert = TRUE)
 }
 \arguments{
-\item{object}{Object to save}
+\item{object}{A Python object.}
 
-\item{filename}{File name}
+\item{filename}{The output file name. Note that the file extension \code{.pickle}
+is considered the "standard" extension for serialized Python objects
+as created by the \code{pickle} module.}
 
-\item{pickle}{The implementation of pickle to use (defaults to "pickle" but
-could e.g. also be "cPickle")}
+\item{pickle}{The "pickle" implementation to use. Defaults to \verb{"pickle}",
+but other compatible Python "pickle" implementations (e.g. \code{"cPickle"})
+could be used as well.}
 
-\item{...}{Optional arguments to be passed to the \code{load()} function defined
-by the associated \code{pickle} module.}
+\item{...}{Optional arguments, to be passed to the \code{pickle} module's
+\code{dump()} and \code{load()} functions.}
+
+\item{convert}{Bool. Whether the loaded pickle object should be converted to
+an R object.}
 }
 \description{
-Save and load Python objects with pickle
+Save and load Python objects.
+}
+\details{
+Python objects are serialized using the \code{pickle} module -- see
+\url{https://docs.python.org/3/library/pickle.html} for more details.
 }

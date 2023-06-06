@@ -1,0 +1,31 @@
+---
+title: "Plotly Example"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r}
+library(reticulate)
+
+python <- "~/.virtualenvs/python-3.7.7-venv/bin/python"
+if (file.exists(python))
+  use_python(python, required = TRUE)
+```
+
+## plotly figures should be rendered on .show()
+
+```{python}
+import plotly.express as px
+fig = px.scatter(x=[0, 1, 2, 3, 4], y=[0, 1, 4, 9, 16])
+fig.show()
+```
+
+## plotly figures should be implicitly rendered on print
+
+```{python}
+import plotly.express as px
+fig = px.scatter(x=[0, 1, 2, 3, 4], y=[0, 1, 4, 9, 16])
+fig
+```
+

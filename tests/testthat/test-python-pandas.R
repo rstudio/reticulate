@@ -166,6 +166,7 @@ test_that("NaT is converted to NA", {
 
   expect_equal(py_to_r(before), py_to_r(after))
 
+
 })
 
 test_that("Large ints are handled correctly", {
@@ -181,4 +182,58 @@ test_that("Large ints are handled correctly", {
   options(reticulate.ulong_as_bit64=F)
   A <- data.frame(val=c(as.integer64("1567447722123456785"), as.integer64("1567447722123456786")))
   expect_equal(A, py_to_r(r_to_py(A)))
+
+})
+
+test_that("pandas NAs are converted to R NAs", {
+  skip_if_no_pandas()
+
+  code <- "
+import pandas as pd
+df = pd.DataFrame({'a': [1, 2, 3], 'b': [10, 20, pd.NA]})
+"
+
+  locals <- py_run_string(code, local = TRUE, convert = TRUE)
+
+  df <- locals$df
+  expect_true(is.na(df$b[[3]]))
+
+  pd <- import("pandas", convert = FALSE)
+  pdNA <- py_to_r(py_get_attr(pd, "NA"))
+  expect_true(is.na(pdNA))
+
+})
+
+test_that("categorical NAs are handled", {
+  skip_if_no_pandas()
+
+  df <- data.frame(x = factor("a", NA))
+  pdf <- r_to_py(df)
+  rdf <- py_to_r(pdf)
+  attr(rdf, "pandas.index") <- NULL
+  expect_equal(df, rdf)
+
+})
+
+
+
+test_that("ordered categoricals are handled correctly, #1234", {
+  skip_if_no_pandas()
+
+  p_df <- py_run_string(
+'import pandas as pd
+
+# Create Dataframe with Unordered & Ordered Factors
+df = pd.DataFrame({"FCT": pd.Categorical(["No", "Yes"]),
+                   "ORD": pd.Categorical(["No", "Yes"], ordered=True)})
+', local = TRUE)$df
+
+  r_df <- data.frame("FCT" = factor(c("No", "Yes")),
+                     "ORD" = factor(c("No", "Yes"), ordered = TRUE))
+
+  attr(p_df, "pandas.index") <- NULL
+
+  expect_identical(p_df, r_df)
+
+
 })

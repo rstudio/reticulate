@@ -20,7 +20,7 @@ np_array <- function(data, dtype = NULL, order = "C") {
     # check if this object has object bit set (skip dispatch
     # if we know it's unnecessary)
     isobj <- is.object(data)
-    
+
     # convert non-array to array
     if (!is.array(data))
       data <- as.array(data)
@@ -44,8 +44,8 @@ np_array <- function(data, dtype = NULL, order = "C") {
 
 
 #' @export
-"length.numpy.ndarray" <- function(x) {
-  if (py_is_null_xptr(x))
+length.numpy.ndarray <- function(x) {
+  if (py_is_null_xptr(x) || !py_available())
     length(NULL)
   else
     as_r_value(x$size)

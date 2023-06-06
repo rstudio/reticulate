@@ -10,7 +10,7 @@ register_module_help_handler(module, handler)
 \item{module}{Name of a root Python module}
 
 \item{handler}{Handler function: \verb{function(name, subtopic = NULL)}. The name
-will be the fully qualfied name of a Python object (module, function, or
+will be the fully qualified name of a Python object (module, function, or
 class). The \code{subtopic} is optional and is currently used only for methods
 within classes.}
 }
@@ -18,7 +18,7 @@ within classes.}
 Register a help handler for a root Python module
 }
 \details{
-The help handler is passed a fully qualfied module, class, or
+The help handler is passed a fully qualified module, class, or
 function name (and optional method for classes). It should return a URL for
 a help page (or \code{""} if no help page is available).
 }

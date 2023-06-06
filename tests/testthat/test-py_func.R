@@ -17,8 +17,8 @@ def f1(a, b=3):
   # signatures should match
   inspect <- import("inspect")
   expect_equal(
-    inspect$getargspec(py_func(f1)),
-    inspect$getargspec(util$f1))
+    inspect$getfullargspec(py_func(f1)),
+    inspect$getfullargspec(util$f1))
 
   # results should match
   expect_equal(
@@ -32,7 +32,7 @@ def f1(a, b=3):
     util$f1(a = 1, b = 2))
 
   has_args <- function(f) {
-    length(inspect$getargspec(f)$args) != 0
+    length(inspect$getfullargspec(f)$args) != 0
   }
   # Some micellaneous test cases which should not fail
   expect_true(has_args(py_func(function(a = c(1, 2, 3)) {})))

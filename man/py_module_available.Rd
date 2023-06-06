@@ -7,11 +7,13 @@
 py_module_available(module)
 }
 \arguments{
-\item{module}{Name of module}
+\item{module}{The name of the module.}
 }
 \value{
-Logical indicating whether module is available
+\code{TRUE} if the module is available and can be loaded;
+\code{FALSE} otherwise.
 }
 \description{
-Check if a Python module is available on this system.
+Note that this function will also attempt to initialize Python
+before checking if the requested module is available.
 }

@@ -1467,7 +1467,7 @@ SEXP py_get_formals(PyObjectRef callable)
     const char *name_char = PyUnicode_AsUTF8(name);
     if (name_char == NULL) throw PythonException(py_fetch_error());
 
-    SEXP name_sym = Rf_installTrChar(Rf_mkCharCE(name_char, CE_UTF8));
+    SEXP name_sym = Rf_installChar(Rf_mkCharCE(name_char, CE_UTF8));
     GrowList(r_args, name_sym, arg_default);
   }
 

@@ -1,5 +1,7 @@
 # reticulate (development version)
 
+# reticulate 1.29
+
 ### Exceptions and Errors:
 
 - R error information (call, message, other attributes) is now
@@ -89,9 +91,6 @@
 - Fixed issue where the knitr engine would show an additional plot from a chunk
   if the user called `matplotlib.pyplot.show()` (#1380, #1383)
 
-- reticulate gains the ability to bind to micromamba Python installations
-  (#1378, #1176, #1382, #1379, thanks to Zia Khan, @zia1138)
-
 ### Misc:
 
 - `py_to_r()` now succeeds when converting subtypes of the built-in
@@ -114,9 +113,13 @@
   This allows for R code to pass R objects that cannot be safely
   converted to Python through the Python runtime to other R code.
   (e.g, to an R function called by Python code). (#1304)
+  
+- reticulate gains the ability to bind to micromamba Python installations
+  (#1378, #1176, #1382, #1379, thanks to Zia Khan, @zia1138)
 
 - Default Python version used by `install_miniconda()` and friends
   is now 3.9 (was 3.8).
+
 
 # reticulate 1.28
 

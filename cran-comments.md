@@ -1,5 +1,4 @@
-Release with new features and bugfixes.
-Details in NEWS.md
+Hotfix release to restore compatibility with R 3.5
 
 ## R CMD check results
 

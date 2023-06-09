@@ -1876,7 +1876,9 @@ make_filepaths_clickable <- function(formatted_python_traceback) {
   paste0(x, collapse = "\n")
 }
 
-#' @exportS3Method pillar::type_sum
+## not exported because pillar only in suggests
+## exported dynamically in .onLoad()
+## @exportS3Method pillar::type_sum
 type_sum.python.builtin.object <- function(x) {
   s <- class(x)[[1L]]
   if(startsWith(s, "R6type."))

@@ -69,7 +69,7 @@ test_that("Parameters are not matched by prefix", {
   f_py <- py_eval('lambda long=None, **kw: (long, kw)')
   expect_identical(formals(f_r), py_get_formals(f_py))
 
-  if(getRversion() > "3.5") {
+  if(getRversion() >= "3.6") {
     op <- options(warnPartialMatchArgs = FALSE)
     on.exit(options(op))
   }

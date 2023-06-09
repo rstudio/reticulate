@@ -34,3 +34,5 @@ __pycache__
 ^cran-comments\.md$
 ^CRAN-SUBMISSION$
 ^\.vscode$
+^Dockerfile$
+^.dockerignore$

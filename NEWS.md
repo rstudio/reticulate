@@ -1,4 +1,6 @@
-# reticulate (development version)
+# reticulate 1.30
+
+- Fix compilation error on R 3.5. Bump minimum R version dependency to 3.5
 
 # reticulate 1.29
 

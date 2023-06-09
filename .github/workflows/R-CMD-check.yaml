@@ -28,7 +28,7 @@ jobs:
           - { os: ubuntu-latest, r: 'oldrel-1', python: '3.9' }
           - { os: ubuntu-latest, r: 'oldrel-2', python: '3.9' }
           - { os: ubuntu-latest, r: '3.5', python: '3.9' }
-          - { os: ubuntu-latest, r: '3.4', python: '3.8' }
+          - { os: ubuntu-latest, r: '3.6', python: '3.8' }
           # - { os: ubuntu-latest, r: 'devel'   , python: '3.8', http-user-agent: 'release' }
 
           - { os: ubuntu-latest, r: 'release', python: '2.7'  }

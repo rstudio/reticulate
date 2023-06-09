@@ -69,8 +69,10 @@ test_that("Parameters are not matched by prefix", {
   f_py <- py_eval('lambda long=None, **kw: (long, kw)')
   expect_identical(formals(f_r), py_get_formals(f_py))
 
-  op <- options(warnPartialMatchArgs = FALSE)
-  on.exit(options(op))
+  if(getRversion() > "3.5") {
+    op <- options(warnPartialMatchArgs = FALSE)
+    on.exit(options(op))
+  }
 
   # Normal R functions match partially:
   expect_identical(f_r(l = 2L), list(2L, list()))

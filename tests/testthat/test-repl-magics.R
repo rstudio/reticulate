@@ -5,6 +5,10 @@ quiet_repl <- function() {
   sink(nullfile())
 }
 
+if(getRversion() < "3.6")
+nullfile <- function()
+  if (.Platform$OS.type == "windows") "nul:" else "/dev/null"
+
 unquiet_repl <- function() {
   options("reticulate.repl.quiet" = NULL)
   sink()

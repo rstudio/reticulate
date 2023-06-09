@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.29</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.30</span>
       </span>
     </div>
 
@@ -82,9 +82,13 @@
     </div>
 
     <div class="section level2">
-<h2 class="page-header" data-toc-text="development version" id="reticulate-development-version">reticulate (development version)<a class="anchor" aria-label="anchor" href="#reticulate-development-version"></a></h2>
+<h2 class="page-header" data-toc-text="1.30" id="reticulate-130">reticulate 1.30<a class="anchor" aria-label="anchor" href="#reticulate-130"></a></h2>
+<ul><li>Fix compilation error on R 3.5. Bump minimum R version dependency to 3.5.</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="1.29" id="reticulate-129">reticulate 1.29<small>2023-06-05</small><a class="anchor" aria-label="anchor" href="#reticulate-129"></a></h2>
 <div class="section level4">
-<h4 id="exceptions-and-errors-development-version">Exceptions and Errors:<a class="anchor" aria-label="anchor" href="#exceptions-and-errors-development-version"></a></h4>
+<h4 id="exceptions-and-errors-1-29">Exceptions and Errors:<a class="anchor" aria-label="anchor" href="#exceptions-and-errors-1-29"></a></h4>
 <ul><li><p>R error information (call, message, other attributes) is now preserved as an R error condition traverses the R &lt;-&gt; Python boundary.</p></li>
 <li><p>Python Exceptions now inherit from <code>error</code> and <code>condition</code>, and can be passed directly to <code><a href="https://rdrr.io/r/base/stop.html" class="external-link">base::stop()</a></code> to signal an error in R and raise an exception in Python.</p></li>
 <li><p>Raised Python Exceptions are now used directly to signal an R error. For example, in the following code, <code>e</code> is now an object that inherits from <code>python.builtin.Exception</code> as well as <code>error</code> and <code>condition</code>: <code>r     e &lt;- tryCatch(py_func_that_raises_exception(),                   error = function(e) e)</code> Use <code><a href="https://rdrr.io/r/base/conditions.html" class="external-link">base::conditionCall()</a></code> and <code><a href="https://rdrr.io/r/base/conditions.html" class="external-link">base::conditionMessage()</a></code> to access the original R call and error message.</p></li>
@@ -94,7 +98,7 @@
 <li><p>Python exceptions encountered in <code><a href="../reference/repl_python.html">repl_python()</a></code> are now printed with the full Python traceback by default. In the RStudio IDE, filepaths in the tracebacks are rendered as clickable links. (<a href="https://github.com/rstudio/reticulate/issues/1240" class="external-link">#1240</a>)</p></li>
 </ul></div>
 <div class="section level4">
-<h4 id="language-development-version">Language:<a class="anchor" aria-label="anchor" href="#language-development-version"></a></h4>
+<h4 id="language-1-29">Language:<a class="anchor" aria-label="anchor" href="#language-1-29"></a></h4>
 <ul><li>
 <p>Converted Python callables gain support for dynamic dots from the rlang package. New features:</p>
 <ul><li>splicing (unpacking) arguments: <code>fn(!!!kwargs)</code>
@@ -123,20 +127,20 @@
 <li><p><code><a href="../reference/py_run.html">py_run_file()</a></code> and <code><a href="../reference/source_python.html">source_python()</a></code> now prepend the script directory to the Python module search path, <code>sys.path</code>, while the requested script is executing. This allows the Python scripts to resolve imports of modules defined in the script directory, matching the behavior of <code>python &lt;script&gt;</code> at the command line. (<a href="https://github.com/rstudio/reticulate/issues/1347" class="external-link">#1347</a>)</p></li>
 </ul></div>
 <div class="section level4">
-<h4 id="knitr-development-version">knitr:<a class="anchor" aria-label="anchor" href="#knitr-development-version"></a></h4>
+<h4 id="knitr-1-29">knitr:<a class="anchor" aria-label="anchor" href="#knitr-1-29"></a></h4>
 <ul><li><p>The knitr engine now suppresses warnings from Python code if <code>warning=FALSE</code> is set in the chunk options. (quarto-dev/quarto#125, <a href="https://github.com/rstudio/reticulate/issues/1358" class="external-link">#1358</a>)</p></li>
 <li><p>Fixed issue where reticulate’s knitr engine would attach comments in a code chunk to the wrong code chunk (requires Python&gt;=3.8) (<a href="https://github.com/rstudio/reticulate/issues/1223" class="external-link">#1223</a>).</p></li>
 <li><p>The knitr Python engine now respects the <code>strip.white</code> option (<a href="https://github.com/rstudio/reticulate/issues/1273" class="external-link">#1273</a>).</p></li>
 <li><p>Fixed issue where the knitr engine would show an additional plot from a chunk if the user called <code>matplotlib.pyplot.show()</code> (<a href="https://github.com/rstudio/reticulate/issues/1380" class="external-link">#1380</a>, <a href="https://github.com/rstudio/reticulate/issues/1383" class="external-link">#1383</a>)</p></li>
-<li><p>reticulate gains the ability to bind to micromamba Python installations (<a href="https://github.com/rstudio/reticulate/issues/1378" class="external-link">#1378</a>, <a href="https://github.com/rstudio/reticulate/issues/1176" class="external-link">#1176</a>, <a href="https://github.com/rstudio/reticulate/issues/1382" class="external-link">#1382</a>, <a href="https://github.com/rstudio/reticulate/issues/1379" class="external-link">#1379</a>, thanks to Zia Khan, <a href="https://github.com/zia1138" class="external-link">@zia1138</a>)</p></li>
 </ul></div>
 <div class="section level4">
-<h4 id="misc-development-version">Misc:<a class="anchor" aria-label="anchor" href="#misc-development-version"></a></h4>
+<h4 id="misc-1-29">Misc:<a class="anchor" aria-label="anchor" href="#misc-1-29"></a></h4>
 <ul><li><p><code><a href="../reference/r-py-conversion.html">py_to_r()</a></code> now succeeds when converting subtypes of the built-in types (e.g. <code>list</code>, <code>dict</code>, <code>str</code>). (<a href="https://github.com/rstudio/reticulate/issues/1352" class="external-link">#1352</a>, <a href="https://github.com/rstudio/reticulate/issues/1348" class="external-link">#1348</a>, <a href="https://github.com/rstudio/reticulate/issues/1226" class="external-link">#1226</a>, <a href="https://github.com/rstudio/reticulate/issues/1354" class="external-link">#1354</a>, <a href="https://github.com/rstudio/reticulate/issues/1366" class="external-link">#1366</a>)</p></li>
 <li><p>New <code><a href="https://pillar.r-lib.org/reference/type_sum.html" class="external-link">pillar::type_sum()</a></code> method now exported for Python objects. That ensures the full object class name is printing in R tracebacks and tibbles containing Python objects.</p></li>
 <li><p><code><a href="../reference/py_save_object.html">py_load_object()</a></code> gains a <code>convert</code> argument. If <code>convert = FALSE</code>, the returned Python object will not be converted to an R object.</p></li>
 <li><p>Fixed error <code><a href="../reference/r-py-conversion.html">r_to_py()</a></code> with Pandas&gt;=2.0 and R data.frames with a factor column containing levels with <code>NA</code>.</p></li>
 <li><p><code><a href="../reference/r-py-conversion.html">r_to_py()</a></code> now succeeds for many additional types of R objects. Objects that reticulate doesn’t know how to convert are presented to the Python runtime as a pycapsule (an opaque pointer to the underlying R object). Previously this would error. This allows for R code to pass R objects that cannot be safely converted to Python through the Python runtime to other R code. (e.g, to an R function called by Python code). (<a href="https://github.com/rstudio/reticulate/issues/1304" class="external-link">#1304</a>)</p></li>
+<li><p>reticulate gains the ability to bind to micromamba Python installations (<a href="https://github.com/rstudio/reticulate/issues/1378" class="external-link">#1378</a>, <a href="https://github.com/rstudio/reticulate/issues/1176" class="external-link">#1176</a>, <a href="https://github.com/rstudio/reticulate/issues/1382" class="external-link">#1382</a>, <a href="https://github.com/rstudio/reticulate/issues/1379" class="external-link">#1379</a>, thanks to Zia Khan, <a href="https://github.com/zia1138" class="external-link">@zia1138</a>)</p></li>
 <li><p>Default Python version used by <code><a href="../reference/install_miniconda.html">install_miniconda()</a></code> and friends is now 3.9 (was 3.8).</p></li>
 </ul></div>
 </div>

@@ -34,7 +34,7 @@ BugReports: https://github.com/rstudio/reticulate/issues
 SystemRequirements: Python (>= 2.7.0)
 Encoding: UTF-8
 Depends:
-    R (>= 3.0)
+    R (>= 3.5)
 Imports:
     Matrix,
     Rcpp (>= 1.0.7),

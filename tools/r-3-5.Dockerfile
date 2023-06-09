@@ -21,7 +21,9 @@ ENV RETICULATE_PYTHON=/.virtualenvs/r-reticulate/bin/python
 
 ADD ./ /reticulate
 # RUN R -e 'remotes::install_local("/reticulate", dependencies = TRUE)'
-RUN R -e 'rcmdcheck::rcmdcheck("/reticulate", args = c("--no-manual", "--as-cran"))'
+RUN R -e '{options(crayon.enabled = TRUE); rcmdcheck::rcmdcheck("/reticulate", args = c("--no-manual", "--as-cran"), error_on = "warning");}'
 
 # docker build -t reticulate-r-3-5 -f tools/r-3-5.Dockerfile .
 # docker run -it reticulate-r-3-5 R -q -e 'rcmdcheck::rcmdcheck("/reticulate", args = c("--no-manual", "--as-cran"))'
+
+# docker build --pull --rm -f "tools/r-3-5.Dockerfile" -t reticulate-r-3-5 .

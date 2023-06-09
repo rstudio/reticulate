@@ -11,7 +11,7 @@
   warnPartialMatchDollar = TRUE
 )
 
-if(getRversion() <= "3.5") {
+if(getRversion() < "3.6") {
   .oop$warnPartialMatchArgs <- NULL
   .oop$warnPartialMatchAttr <- NULL
   .oop$warnPartialMatchDollar <- NULL

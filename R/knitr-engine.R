@@ -532,7 +532,8 @@ eng_python_is_matplotlib_output <- function(value) {
     value <- value[[0]]
 
   # TODO: are there other types we care about?
-  inherits(value, "matplotlib.artist.Artist")
+  inherits(value, c("matplotlib.artist.Artist",
+                    "matplotlib.container.Container"))
 
 }
 

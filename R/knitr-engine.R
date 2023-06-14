@@ -527,14 +527,28 @@ eng_python_validate_options <- function(options) {
 
 eng_python_is_matplotlib_output <- function(value) {
 
-  # extract 'boxed' matplotlib outputs
-  if (inherits(value, "python.builtin.list") && length(value) > 0)
-    value <- value[[0]]
+  matplotlib_plot_types <- c("matplotlib.artist.Artist",
+                             "matplotlib.container.Container",
+                             "matplotlib.image.AxesImage",
+                             "matplotlib.image.BboxImage",
+                             "matplotlib.image.FigureImage",
+                             "matplotlib.image.NonUniformImage",
+                             "matplotlib.image.PcolorImage")
 
-  # TODO: are there other types we care about?
-  inherits(value, c("matplotlib.artist.Artist",
-                    "matplotlib.container.Container"))
+  if (inherits(value, c("python.builtin.tuple", "python.builtin.list")) &&
+      length(value) > 0L) {
 
+    # some functions returned list-"boxed" images, like [<img>]
+    if (inherits(py_get_item(value, 0L), matplotlib_plot_types))
+      return(TRUE)
+
+    # plt.hist returns (<np.array>, <np.array>, <img>)
+    if(length(value) > 1L &&
+       inherits(py_get_item(value, length(value)-1L), matplotlib_plot_types))
+      return(TRUE)
+  }
+
+  inherits(value, matplotlib_plot_types)
 }
 
 eng_python_is_seaborn_output <- function(value) {

@@ -175,6 +175,9 @@ pyenv_bootstrap_windows <- function() {
     mustWork = FALSE
   )
 
+  if (Sys.which("git") == "")
+    stop("Please install git and ensure it is on your PATH")
+
   # clone if necessary
   if (!file.exists(root)) {
     url <- "https://github.com/pyenv-win/pyenv-win"

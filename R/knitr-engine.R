@@ -200,19 +200,11 @@ eng_python <- function(options) {
     py_compile_eval("'__reticulate_placeholder__'")
     .engine_context$matplotlib_show_was_called <- FALSE
 
-    # In standard mode, calculate output by default, but use trailing semicolon
-    # to suppress output and check of return value, including plot.  In
-    # jupyter_compat mode, always check output, including plot, but drop
-    # output further down, if required.
-    end_semicolon <- grepl(";\\s*$", snippet)
-    suppress <- if (jupyter_compat) FALSE else end_semicolon
-    compile_mode <- if (suppress) "exec" else "single"
-
     # run code and capture output
     captured <- if (capture_errors)
-      tryCatch(py_compile_eval(snippet, compile_mode), error = identity)
+      tryCatch(py_compile_eval(snippet, 'single'), error = identity)
     else
-      py_compile_eval(snippet, compile_mode)
+      py_compile_eval(snippet, 'single')
 
     # handle matplotlib and other plot output
     captured <- eng_python_autoprint(
@@ -221,9 +213,12 @@ eng_python <- function(options) {
       autoshow = (last_range & !jupyter_compat)
     )
 
-    # For Jupyter-compat mode, do not show output by default, unless this is
-    # the last code line, in which case, show if no semicolon.
-    captured <- if (jupyter_compat & (!last_range | end_semicolon)) "" else captured
+    # In all modes, code statements ending in semicolons always suppress repr
+    # output.  In jupyter_compat mode, also suppress repr output for all
+    # but the final expression.
+    if ((grepl(";\\s*$", snippet)) | (jupyter_compat & !last_range)) {
+      captured = ""
+    }
 
     # emit outputs if we have any
     has_outputs <-
@@ -625,6 +620,7 @@ eng_python_autoprint <- function(captured, options, autoshow) {
       .engine_context$matplotlib_pending_show <- TRUE
     }
 
+    # Always suppress Matplotlib reprs
     return("")
 
   } else if (eng_python_is_seaborn_output(value)) {

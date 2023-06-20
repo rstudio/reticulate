@@ -14,6 +14,8 @@
   generate output, except if there is a standalone expression as the last code
   statement in the chunk, and that expression does not have a semicolon
   — a semicolon suppresses the output, as it does for the default behavior.
+  See [PR](https://github.com/rstudio/reticulate/pull/1394) and [original
+  issue](https://github.com/rstudio/reticulate/issues/1391).
 
 - Fix: the knitr engine now automatically calls `plt.show()` for matplotlib 
   bar plots, like it does for other matplotlib plot types (#1391). 

@@ -34,6 +34,9 @@
 #'   <https://github.com/pyenv/pyenv/wiki#suggested-build-environment> for
 #'   example commands you can run to pre-install system dependencies
 #'   (requires administrator privileges).
+#'   Python is built with `PYTHON_CONFIGURE_OPTS=--enable-shared` set.
+#'
+#'   On Windows, prebuilt installers from <https://www.python.org> are used.
 #'
 #' @export
 install_python <- function(version = "3.9:latest",

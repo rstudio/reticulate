@@ -42,37 +42,139 @@ as.character.python.builtin.bytes <- function(x, encoding = "utf-8", errors = "s
   x$decode(encoding = encoding, errors = errors)
 }
 
-#' @export
-"==.python.builtin.object" <- function(a, b) {
-  py_compare(a, b, "==")
+
+.operators <- new.env(parent = emptyenv())
+
+fetch_op <- function(nm, .op, nargs = 1L) {
+  ensure_python_initialized()
+  if (is.null(fn <- .operators[[nm]])) {
+    force(.op)
+
+    if (is.function(.op))
+      op <- .op
+    else
+      op <- function(...) py_call(.op, ...)
+
+    if (nargs == 1L) {
+
+      call_op_and_maybe_convert <- function(...)
+        py_maybe_convert(op(...),  py_has_convert(..1))
+
+    } else if (nargs == 2L) {
+
+      # Ops group generics
+      call_op_and_maybe_convert <- function(...) {
+        result <- op(...)
+        # if either dispatch object has convert=FALSE, don't convert
+        convert <-
+          !((inherits(..1, "python.builtin.object") && isFALSE(py_has_convert(..1))) ||
+            (inherits(..2, "python.builtin.object") && isFALSE(py_has_convert(..2))))
+        py_maybe_convert(result, convert)
+      }
+
+    } else stop("invalid nargs value: ", nargs)
+
+    fn <- .operators[[nm]] <- call_op_and_maybe_convert
+  }
+  fn
 }
 
+
+#' S3 Ops Methods for Python Objects
+#'
+#' Reticulate provides S3 Ops Group Generic Methods for Python objects. The methods
+#' invoke the equivalent python method of the object.
+#'
+#' @param e1,e2,x,y A python object.
+#'
+#' @section Operator Mappings:
+#'
+#' | R expression  | Python expression | First python method invoked |
+#' | ------------- | ----------------- | --------------------------- |
+#' | `x == y`      | `x == y`          | `type(x).__eq__(x, y)`       |
+#' | `x != y`      | `x != y`          | `type(x).__ne__(x, y)`       |
+#' | `x < y`       | `x < y`           | `type(x).__lt__(x, y)`       |
+#' | `x > y`       | `x > y`           | `type(x).__gt__(x, y)`       |
+#' | `x >= y`      | `x >= y`          | `type(x).__ge__(x, y)`       |
+#' | `x <= y`      | `x <= y`          | `type(x).__le__(x, y)`       |
+#' | `+ x `        | `+ x`             | `type(x).__pos__(x)`         |
+#' | `- y`         | `- x`             | `type(x).__neg__(x)`         |
+#' | `x + y`       | `x + y`           | `type(x).__add__(x, y)`      |
+#' | `x - y`       | `x - y`           | `type(x).__sub__(x, y)`      |
+#' | `x * y`       | `x * y`           | `type(x).__mul__(x, y)`      |
+#' | `x / y`       | `x / y`           | `type(x).__truediv__(x, y)`  |
+#' | `x %/% y`     | `x // y`          | `type(x).__floordiv__(x, y)` |
+#' | `x %% y`      | `x % y`           | `type(x).__mod__(x, y)`   |
+#' | `x ^ y`       | `x ** y`          | `type(x).__pow__(x, y)`   |
+#' | `x & y`       | `x & y`           | `type(x).__and__(x, y)`   |
+#' | \code{x | y}  | \code{x | y}      | `type(x).__or__(x, y)`    |
+#' | `!x`          | `~x`              | `type(x).__not__(x)`      |
+#' | `x %*% y`     | `x @ y`           | `type(x).__matmul__(x, y)`|
+#'
+#' Note: If the initial Python method invoked raises a `NotImplemented`
+#' Exception, the Python interpreter will attempt to use the reflected
+#' variant of the method from the second argument. The arithmetic operators
+#' will call the equivalent double underscore (dunder) method with an "r" prefix. For
+#' instance, when evaluating the expression `x + y`, if `type(x).__add__(x, y)`
+#' raises a `NotImplemented` exception, then the interpreter will attempt
+#' `type(y).__radd__(y, x)`. The comparison operators follow a different
+#' sequence of fallbacks; refer to the Python documentation for more details.
+#'
+#' @return Result from evaluating the Python expression. If either of the
+#' arguments to the operator was a Python object with `convert=FALSE`, then
+#' the result will also be a Python object with `convert=FALSE` set.
+#' Otherwise, the result will be converted to an R object if possible.
+#' @rdname Ops-python-methods
 #' @export
-"!=.python.builtin.object" <- function(a, b) {
-  py_compare(a, b, "!=")
+"==.python.builtin.object" <- function(e1, e2) {
+  op <- fetch_op("eq", py_eval("lambda e1, e2: e1 == e2", convert = FALSE),
+                 nargs = 2L)
+  op(e1, e2)
 }
 
+#' @rdname Ops-python-methods
 #' @export
-"<.python.builtin.object" <- function(a, b) {
-  py_compare(a, b, "<")
+"!=.python.builtin.object" <- function(e1, e2) {
+  op <- fetch_op("ne", py_eval("lambda e1, e2: e1 != e2", convert = FALSE),
+                 nargs = 2L)
+  op(e1, e2)
 }
 
+#' @rdname Ops-python-methods
 #' @export
-">.python.builtin.object" <- function(a, b) {
-  py_compare(a, b, ">")
+"<.python.builtin.object" <- function(e1, e2) {
+  op <- fetch_op("lt", py_eval("lambda e1, e2: e1 < e2", convert = FALSE),
+                 nargs = 2L)
+  op(e1, e2)
 }
 
+#' @rdname Ops-python-methods
 #' @export
-">=.python.builtin.object" <- function(a, b) {
-  py_compare(a, b, ">=")
+">.python.builtin.object" <- function(e1, e2) {
+  op <- fetch_op("gt", py_eval("lambda e1, e2: e1 > e2", convert = FALSE),
+                 nargs = 2L)
+  op(e1, e2)
 }
 
+#' @rdname Ops-python-methods
 #' @export
-"<=.python.builtin.object" <- function(a, b) {
-  py_compare(a, b, "<=")
+">=.python.builtin.object" <- function(e1, e2) {
+  op <- fetch_op("ge", py_eval("lambda e1, e2: e1 >= e2", convert = FALSE),
+                 nargs = 2L)
+  op(e1, e2)
 }
 
+#' @rdname Ops-python-methods
+#' @export
+"<=.python.builtin.object" <- function(e1, e2) {
+  op <- fetch_op("le", py_eval("lambda e1, e2: e1 <= e2", convert = FALSE),
+                 nargs = 2L)
+  op(e1, e2)
+}
 
+# This uses PyObject_RichCompareBool(), which expects only py bools.
+# It will throw an exception on, e.g., with numpy arrays,
+# even though numpy.ndarray defines an __eq__() method.
 py_compare <- function(a, b, op) {
   ensure_python_initialized()
   py_validate_xptr(a)
@@ -81,6 +183,105 @@ py_compare <- function(a, b, op) {
   py_validate_xptr(b)
   py_compare_impl(a, b, op)
 }
+
+#' @rdname Ops-python-methods
+#' @export
+`+.python.builtin.object` <- function(e1, e2) {
+  if (missing(e2)) {
+    op <- fetch_op("pos", py_eval("lambda e1: +e1", convert = FALSE))
+    return(op(e1))
+  }
+
+  op <- fetch_op("add", py_eval("lambda e1, e2: e1 + e2", convert = FALSE),
+                 nargs = 2L)
+  op(e1, e2)
+}
+
+
+#' @rdname Ops-python-methods
+#' @export
+`-.python.builtin.object` <- function(e1, e2) {
+  if (missing(e2)) {
+    op <- fetch_op("neg", py_eval("lambda e1: -e1", convert = FALSE))
+    return(op(e1))
+  }
+  op <- fetch_op("sub", py_eval("lambda e1, e2: e1 - e2", convert = FALSE),
+                 nargs = 2L)
+  op(e1, e2)
+}
+
+
+#' @rdname Ops-python-methods
+#' @export
+`*.python.builtin.object` <-function(e1, e2) {
+  op <- fetch_op("*", py_eval("lambda e1, e2: e1 * e2", convert = FALSE),
+                 nargs = 2L)
+  op(e1, e2)
+}
+
+#' @rdname Ops-python-methods
+#' @export
+`/.python.builtin.object` <- function(e1, e2) {
+  op <- fetch_op("/", py_eval("lambda e1, e2: e1 / e2", convert = FALSE),
+                 nargs = 2L)
+  op(e1, e2)
+}
+
+#' @rdname Ops-python-methods
+#' @export
+`%/%.python.builtin.object` <- function(e1, e2) {
+  op <- fetch_op("//", py_eval("lambda e1, e2: e1 // e2", convert = FALSE),
+                 nargs = 2L)
+  op(e1, e2)
+}
+
+#' @rdname Ops-python-methods
+#' @export
+`%%.python.builtin.object` <- function(e1, e2) {
+  op <- fetch_op("%", py_eval("lambda e1, e2: e1 % e2", convert = FALSE),
+                 nargs = 2L)
+  op(e1, e2)
+}
+
+#' @rdname Ops-python-methods
+#' @export
+`^.python.builtin.object` <- function(e1, e2) {
+  op <- fetch_op("pow", import_builtins(FALSE)$pow,
+                 nargs = 2L)
+  op(e1, e2)
+}
+
+#' @rdname Ops-python-methods
+#' @export
+`&.python.builtin.object` <- function(e1, e2) {
+  op <- fetch_op("&", py_eval("lambda e1, e2: e1 & e2", convert = FALSE),
+                 nargs = 2L)
+  op(e1, e2)
+}
+
+#' @rdname Ops-python-methods
+#' @export
+`|.python.builtin.object` <- function(e1, e2) {
+  op <- fetch_op("|", py_eval("lambda e1, e2: e1 | e2", convert = FALSE),
+                 nargs = 2L)
+  op(e1, e2)
+}
+
+#' @rdname Ops-python-methods
+#' @export
+`!.python.builtin.object` <- function(e1) {
+  op <- fetch_op("~", py_eval("lambda e1: ~ e1", convert = FALSE))
+  op(e1)
+}
+
+#' @rdname Ops-python-methods
+#' @export
+`%*%.python.builtin.object` <-function(x, y) {
+  op <- fetch_op("@", py_eval("lambda x, y: x @ y", convert = FALSE),
+                 nargs = 2L)
+  op(x, y)
+}
+
 
 
 #' @export
@@ -537,7 +738,7 @@ length.python.builtin.object <- function(x) {
 #' If the Python object defines a `__bool__` method, then that is invoked.
 #' Otherwise, if the object defines a `__len__` method, then `TRUE` is
 #' returned if the length is nonzero. If neither `__len__` nor `__bool__`
-#' are defined, then the Python object is considered `TRUE`. If `x`
+#' are defined, then the Python object is considered `TRUE`.
 #'
 #' @param x, A python object.
 #'
@@ -731,8 +932,8 @@ as_iterator <- function(x) {
 #' @export
 py_call <- function(x, ...) {
   ensure_python_initialized()
-  dots <- py_resolve_dots(list(...))
-  py_call_impl(x, dots$args, dots$keywords)
+  dots <- split_named_unnamed(list(...))
+  py_call_impl(x, dots$unnamed, dots$named)
 }
 
 
@@ -1139,6 +1340,9 @@ py_flush_output <- function() {
 #' @param local Boolean; should Python objects be created as part of
 #'   a local / private dictionary? If `FALSE`, objects will be created within
 #'   the scope of the Python main module.
+#' @param prepend_path Boolean; should the script directory be added to the
+#'   Python module search path? The default, `TRUE`, matches the behavior of
+#'   `python <path/to/script.py>` at the command line.
 #'
 #' @return A Python dictionary of objects. When `local` is `FALSE`, this
 #'   dictionary captures the state of the Python main module after running
@@ -1156,9 +1360,15 @@ py_run_string <- function(code, local = FALSE, convert = TRUE) {
 
 #' @rdname py_run
 #' @export
-py_run_file <- function(file, local = FALSE, convert = TRUE) {
+py_run_file <- function(file, local = FALSE, convert = TRUE, prepend_path = TRUE) {
   ensure_python_initialized()
-  on.exit(py_flush_output(), add = TRUE)
+
+  file <- path.expand(file)
+  if (prepend_path) {
+    sys <- import("sys", convert = FALSE)
+    sys$path$insert(0L, dirname(file))
+    on.exit(sys$path$remove(dirname(file)), add = TRUE)
+  }
   invisible(py_run_file_impl(file, local, convert))
 }
 
@@ -1213,15 +1423,18 @@ py_ellipsis <- function() {
   builtins$Ellipsis
 }
 
+#' @importFrom rlang list2
 py_callable_as_function <- function(callable, convert) {
 
   force(callable)
   force(convert)
 
-  function(...) {
+  as.function.default(c(py_get_formals(callable), quote({
+    cl <- sys.call()
+    cl[[1L]] <- list2
 
-    dots <- py_resolve_dots(list(...))
-    result <- py_call_impl(callable, dots$args, dots$keywords)
+    call_args <- split_named_unnamed(eval(cl, parent.frame()))
+    result <- py_call_impl(callable, call_args$unnamed, call_args$named)
 
     if (convert)
       result <- py_to_r(result)
@@ -1230,32 +1443,17 @@ py_callable_as_function <- function(callable, convert) {
       invisible(result)
     else
       result
-
-  }
-
+  })))
 }
 
-py_resolve_formals <- function(callback) {
 
-  object <- attr(callback, "py_object")
-  if (!inherits(object, "python.builtin.object"))
-    return(NULL)
-
-  tryCatch(py_get_formals(object), error = function(e) NULL)
-
-}
-
-py_resolve_dots <- function(dots) {
-
-  nms <- names(dots)
+split_named_unnamed <- function(x) {
+  nms <- names(x)
   if (is.null(nms))
-    return(list(args = dots, keywords = list()))
-
+    return(list(unnamed = x, named = list()))
   named <- nzchar(nms)
-  list(args = dots[!named], keywords = dots[named])
-
+  list(unnamed = x[!named], named = x[named])
 }
-
 
 
 py_is_module <- function(x) {
@@ -1492,6 +1690,32 @@ py_register_load_hook <- function(module, hook) {
 
 }
 
+
+#' `nameOfClass()` for Python objects
+#'
+#' This generic enables passing a `python.builtin.type` object as the 2nd
+#' argument to `base::inherits()`.
+#'
+#' @param x A Python class
+#'
+#' @return A scalar string matching the S3 class of objects constructed from the
+#'   type.
+#'
+#' @rawNamespace if (getRversion() >= "4.3.0") S3method(nameOfClass,python.builtin.type)
+#' @examples
+#' \dontrun{
+#'   numpy <- import("numpy")
+#'   x <- r_to_py(array(1:3))
+#'   inherits(x, numpy$ndarray)
+#' }
+nameOfClass.python.builtin.type <- function(x) {
+  paste(
+    as_r_value(py_get_attr_impl(x, "__module__")),
+    as_r_value(py_get_attr_impl(x, "__name__")),
+    sep = "."
+  )
+}
+
 py_set_interrupt <- function() {
   py_set_interrupt_impl()
 }
@@ -1553,15 +1777,28 @@ py_clear_last_error <- function() {
 #' @export
 py_last_error <- function(exception) {
   if (!missing(exception)) {
+
+    if (is.null(exception))
+      return(.globals$py_last_exception <- .globals$last_r_trace <- NULL)
+
     # set as the last exception
-    if (inherits(exception, "py_error"))
+    r_trace <- NULL
+    if (inherits(exception, "py_error")) {
+      r_trace <- exception$r_trace
       exception <- attr(exception, "exception", TRUE)
+    }
+
+    if(is.null(r_trace))
+      r_trace <- as_r_value(py_get_attr(exception, "r_trace", TRUE))
 
     if (!is.null(exception) &&
         !inherits(exception, "python.builtin.Exception"))
       stop("`exception` must be NULL, a `py_error`, or a 'python.builtin.Exception'")
 
-    on.exit(.globals$py_last_exception <- exception)
+    on.exit({
+      .globals$py_last_exception <- exception
+      .globals$last_r_trace <- r_trace
+      })
     return(invisible(.globals$py_last_exception))
   }
 
@@ -1579,20 +1816,150 @@ py_last_error <- function(exception) {
   etb <- py_get_attr_impl(e, "__traceback__", TRUE)
   traceback <- import("traceback")
 
+  if(is.null(etb))
+    formatted_traceback <- NULL
+  else
+    formatted_traceback <- traceback$format_tb(etb)
+
   out <- list(
     type = py_get_attr_impl(etype, "__name__", TRUE),
     value = py_str_impl(e),
-    traceback = if (!is.null(etb)) traceback$format_tb(etb),
+    traceback = formatted_traceback,
     message = paste0(traceback$format_exception(etype, e, etb),
                      collapse = "")
   )
+  out$r_call <- conditionCall(e)
+  out$r_class <- as_r_value(py_get_attr(e, "r_class", TRUE)) %||% class(e)
+  out$r_trace <- py_get_attr(e, "r_trace", TRUE) %||% .globals$last_r_trace
   out <- lapply(out, as_r_value)
   attr(out, "exception") <- e
   class(out) <- "py_error"
   out
 }
 
+
+
+make_filepaths_clickable <- function(formatted_python_traceback) {
+  # Note, a first draft of this iterated over the list of FrameSummarys in
+  # the exception.__traceback__, but that approach breaks with keras.
+  # So now we use a regex instead (:sad:).
+  # See format_py_exception_traceback_with_clickable_filepaths()
+  # for the previous approach
+
+  x <- strsplit(formatted_python_traceback, "\n", fixed = TRUE)[[1L]]
+  if (!length(x))
+    return(formatted_python_traceback)
+  m <- regexec('File "([^"]+)", line ([0-9]+), in', x, perl = TRUE)
+
+  new <- lapply(regmatches(x, m), function(match) {
+    if (!length(match))
+      return(character())
+    filepath <- match[2]
+    lineno <- match[3]
+    if(!file.exists(file.path(filepath)))
+      return(filepath)
+    link <- cli::style_hyperlink(
+      filepath,
+      paste0("file://", normalizePath(filepath, mustWork = FALSE)),
+      params = c(line = lineno))
+    cli::col_grey(link)
+  })
+
+  m2 <- lapply(m, function(match_pos) {
+    if(identical(as.vector(match_pos), -1L))
+      return(match_pos)
+    out <- match_pos[2] # only match filepath
+    attr(out, "match.length") <- attr(match_pos, "match.length")[2]
+    out
+  })
+
+  regmatches(x, m2) <- new
+
+  if(x[length(x)] != "")
+    x <- c(x, "") # ensure we end w/ a newline
+  paste0(x, collapse = "\n")
+}
+
+## not exported because pillar only in suggests
+## exported dynamically in .onLoad()
+## @exportS3Method pillar::type_sum
+type_sum.python.builtin.object <- function(x) {
+  s <- class(x)[[1L]]
+  if(startsWith(s, "R6type."))
+    s <- substr(s, 8L, 2147483647L)
+  s
+}
+
 #' @export
 print.py_error <- function(x, ...) {
-  cat(x$message, "\n", sep = "")
+
+  py_error_message <- x$message
+
+  if (identical(.Platform$GUI, "RStudio") &&
+      requireNamespace("cli", quietly = TRUE) &&
+      length(etb <- attr(x, "exception")$`__traceback__`))
+    py_error_message <- make_filepaths_clickable(py_error_message)
+
+  cat_h1("Python Exception Message")
+  cat(py_error_message)
+
+  cat_h1("R Traceback")
+  print(x$r_trace)
+}
+
+cat_h1 <- function(x) {
+  if(requireNamespace("cli", quietly = TRUE)) {
+    cli::cli_h1(x, .envir = NULL)
+  } else {
+    cat("--- ", x, "\n", sep = "")
+  }
+}
+
+format_py_exception_traceback_with_clickable_filepaths <- function(etb) {
+  # This is currently unused, but preserved here in case it's useful for future
+  # development. This is unused because keras/tensorflow hijacks the python
+  # exception __traceback__, making it effectively useless. Instead, keras
+  # formats the actual (user relevant) traceback info directly into the
+  # exception message (and nicely too! albeit verbosely. It includes detailed
+  # info about call args in each user frame, including tensor shapes and dtypes,
+  # and formats with indentation matching user-generated frame depth).
+  # Unfortunately, that means that building up a nice formatted traceback by
+  # iterating over the traceback FrameSummary objects won't work correctly. The
+  # alternative is to apply a regex to the message, as we do in
+  # make_filepaths_clickable() (:sad:)
+
+  if(is.null(etb)) return(NULL)
+  fsl <- import("traceback")$extract_tb(etb)
+  if(!length(fsl)) return(NULL)
+  paste0(collapse = "\n", c(
+    "Traceback (most recent call last):",
+    vapply(fsl, function(fs) {
+      # fs == FrameSummary obj, with attrs: filename, line, lineno, locals, name
+      filepath <- fs$filename
+      lineno <- fs$lineno
+      clickable_filepath <-
+        cli::style_hyperlink(
+          filepath,
+          paste0("file://", normalizePath(filepath, mustWork = FALSE)),
+          params = c(line = lineno)
+        )
+      sprintf('  File "%s", line %i, in %s\n    %s',
+              clickable_filepath, lineno, fs$name, fs$line)
+    }, ""),
+    ""))
+}
+
+
+.py_last_error_hint <- function() {
+
+  if(!interactive() ||
+     !identical(.Platform$GUI, "RStudio") ||
+     !requireNamespace("cli", quietly = TRUE))
+    return("Run `reticulate::py_last_error()` for details.")
+
+  py_last_error <- cli::style_hyperlink(
+    "`reticulate::py_last_error()`",
+    "rstudio:run:reticulate::py_last_error()")
+
+  cli::col_silver(paste("Run", py_last_error, "for details."))
 }

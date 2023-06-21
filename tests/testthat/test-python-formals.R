@@ -28,12 +28,12 @@ test_that("Python signatures convert properly", {
   skip_if(py_version() < "3.3")
 
   expect_formals('a', alist(a = ))
-  expect_formals('a, b=1', alist(a = , b = NULL))
-  expect_formals('a, *, b=1', alist(a = , ... = , b = NULL))
-  expect_formals('a, *args, b=1', alist(a = , ... = , b = NULL))
-  expect_formals('a, b=1, **kw', alist(a = , b = NULL, ... = ))
+  expect_formals('a, b=1', alist(a = , b = 1L))
+  expect_formals('a, *, b=1', alist(a = , ... = , b = 1L))
+  expect_formals('a, *args, b=1', alist(a = , ... = , b = 1L))
+  expect_formals('a, b=1, **kw', alist(a = , b = 1L, ... = ))
   expect_formals('a, *args, **kw', alist(a = , ... = ))
-  expect_formals('a, *args, b=1, **kw', alist(a = , ... = , b = NULL))
+  expect_formals('a, *args, b=1, **kw', alist(a = , ... = , b = 1L))
 
 })
 
@@ -42,8 +42,7 @@ test_that("Errors from e.g. builtins are not propagated", {
   skip_if(py_version() < "3.3")
 
   print <- import_builtins()$print
-  expect_error(py_get_formals(print))
-
+  expect_no_error(py_get_formals(print))
 })
 
 test_that("The inspect.Parameter signature converts properly", {
@@ -57,7 +56,7 @@ test_that("The inspect.Parameter signature converts properly", {
   fmls <- py_get_formals(Parameter)
   expect_formals(fmls, alist(
     name = , kind = , ... = ,
-    default = NULL, annotation = NULL
+    default = , annotation =
   ))
 
 })
@@ -70,8 +69,10 @@ test_that("Parameters are not matched by prefix", {
   f_py <- py_eval('lambda long=None, **kw: (long, kw)')
   expect_identical(formals(f_r), py_get_formals(f_py))
 
-  op <- options(warnPartialMatchArgs = FALSE)
-  on.exit(options(op))
+  if(getRversion() >= "3.6") {
+    op <- options(warnPartialMatchArgs = FALSE)
+    on.exit(options(op))
+  }
 
   # Normal R functions match partially:
   expect_identical(f_r(l = 2L), list(2L, list()))

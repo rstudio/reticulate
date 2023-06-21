@@ -20,6 +20,9 @@
 #' @param ... Optional arguments, to be passed to the `pickle` module's
 #'   `dump()` and `load()` functions.
 #'
+#' @param convert Bool. Whether the loaded pickle object should be converted to
+#'   an R object.
+#'
 #' @export
 py_save_object <- function(object, filename, pickle = "pickle", ...) {
 
@@ -36,16 +39,16 @@ py_save_object <- function(object, filename, pickle = "pickle", ...) {
 
 #' @rdname py_save_object
 #' @export
-py_load_object <- function(filename, pickle = "pickle", ...) {
+py_load_object <- function(filename, pickle = "pickle", ..., convert = TRUE) {
 
   filename <- normalizePath(filename, winslash = "/", mustWork = FALSE)
 
   builtins <- import_builtins()
-  pickle <- import(pickle, convert = TRUE)
+  pickle <- import(pickle, convert = convert)
 
   handle <- builtins$open(filename, "rb")
   on.exit(handle$close(), add = TRUE)
-  pickle$load(handle, ...)
-
+  obj <- py_call(pickle$load, handle, ...)
+  py_maybe_convert(obj, convert)
 }
 

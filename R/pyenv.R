@@ -92,7 +92,11 @@ pyenv_list <- function(pyenv = NULL, installed = FALSE) {
   output <- system2(pyenv, c("install", "--list"), stdout = TRUE, stderr = TRUE)
 
   # clean up output
-  versions <- tail(output, n = -1L)
+  # on some platforms, warnings from cmd.exe appear in the output
+  # also, there is a header like ":: [Info] ::  Mirror: https://www.python.org/ftp/python"
+  # https://github.com/rstudio/reticulate/issues/1390
+  header_end <- max(1L, grep("^:: \\[Info\\] :: .+$", output))
+  versions <- tail(output, n = -header_end)
   cleaned <- gsub("^\\s*", "", versions)
 
   # only include CPython interpreters for now
@@ -174,6 +178,9 @@ pyenv_bootstrap_windows <- function() {
     winslash = "/",
     mustWork = FALSE
   )
+
+  if (Sys.which("git") == "")
+    stop("Please install git and ensure it is on your PATH")
 
   # clone if necessary
   if (!file.exists(root)) {

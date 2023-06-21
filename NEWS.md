@@ -1,15 +1,187 @@
 # reticulate (development version)
 
+- New optional feature: Reticulate now accepts a new option `jupyter_compat`
+  set to `FALSE` by default, that changes the default expression output display
+  behavior of Reticulate chunks, to better match the behavior of Jupyter.  In
+  the Reticulate default, each standalone code expression in the code chunk
+  that does not end in a semi-colon, generates display of the expression
+  output. With the `jupyter_compat` option set, no expression in the chunk will
+  generate output, except if there is a standalone expression as the last code
+  statement in the chunk, and that expression does not have a semicolon.
+  A semicolon always suppresses the expression output, for the default and
+  `jupyter_compat` case. See
+  [PR](https://github.com/rstudio/reticulate/pull/1394) and [original
+  issue](https://github.com/rstudio/reticulate/issues/1391) for discussion for
+  this and the next item.
+
+- Behavior change: Previously, a Matplotlib plot would only be automatically
+  displayed (without `plt.show()`) if there was a final standalone expression
+  returning a Matplotlib object, and that expression did not have a final
+  semicolon.  With this update, any standalone expression returning
+  a Matplotlib object, with or without a semicolon, will cause chunk to display
+  the plot automatically.  See above for discussion.
+
+- Fix: the knitr engine now automatically calls `plt.show()` for matplotlib 
+  bar plots, like it does for other matplotlib plot types (#1391). 
+
+# reticulate 1.30
+
+- Fix compilation error on R 3.5. Bump minimum R version dependency to 3.5.
+
+# reticulate 1.29
+
+### Exceptions and Errors:
+
+- R error information (call, message, other attributes) is now
+  preserved as an R error condition traverses the R <-> Python boundary.
+
+- Python Exceptions now inherit from `error` and `condition`, and can be
+  passed directly to `base::stop()` to signal an error in R and raise an
+  exception in Python.
+
+- Raised Python Exceptions are now used directly to signal an R error.
+  For example, in the following code, `e` is now an object that
+  inherits from `python.builtin.Exception` as well as `error` and `condition`:
+    ```r
+    e <- tryCatch(py_func_that_raises_exception(),
+                  error = function(e) e)
+    ```
+  Use `base::conditionCall()` and `base::conditionMessage()` to access
+  the original R call and error message.
+
+- `py_last_error()` return object contains `r_call`, `r_trace` and/or
+  `r_class` if the Python Exception was raised by an R function called
+  from Python.
+
+- The hint to run `reticulate::py_last_error()` after an exception
+  is now clickable in the RStudio IDE.
+
+- Filepaths to Python files in the print output from `py_last_error()` are
+  now clickable links in the RStudio IDE.
+
+- Python exceptions encountered in `repl_python()` are now printed with the
+  full Python traceback by default. In the RStudio IDE, filepaths in the tracebacks
+  are rendered as clickable links. (#1240)
+
+### Language:
+
+- Converted Python callables gain support for dynamic dots from the rlang package.
+  New features:
+    - splicing (unpacking) arguments: `fn(!!!kwargs)`
+    - dynamic names: `nm <- "key"; fn("{nm}" := value)`
+    - trailing commas ignored (matching Python syntax): `fn(a, )` identical to `fn(a)`
+
+- New Ops group generics for Python objects:
+  `+`, `-`, `*`, `/`, `^`, `%%`, `%/%`, `&`, `|`, `!`, `%*%`.
+  Methods for all the Ops group generics are now defined for Python objects. (#1187, #1363)
+  E.g., this now works:
+  ```r
+  np <- reticulate::import("numpy", convert = FALSE)
+  x <- np$array(1:5)
+  y <- np$array(6:10)
+  x + y
+  ```
+
+- Fixed two issues with R comparison operator methods
+  (`==`, `!=`, `<`, `<=`, `>=`, `>`):
+   - The operators no longer error on Python objects that define "rich comparison"
+     Python methods that don't return a single bool. (e.g., numpy arrays).
+   - The operators now respect the 'convert' value of the supplied Python objects.
+     Note, this may be a breaking change as, e.g, `==`, may now no long return
+     an R scalar logical if one of the Python object being compared was created
+     with `convert = FALSE`. Wrap the result of the comparison with `py_bool()` to
+     restore the previous behavior.
+  (#1187, #1363)
+
+- R functions wrapping Python callables now have formals matching
+  those of the Python callable signature, enabling better
+  autocompletion in more contexts (#1361).
+
+- new `nameOfClass()` S3 method for Python types, enabling usage:
+  `base::inherits(x, <python-type-object>)` (requires R >= 4.3.0)
+
+- `py_run_file()` and `source_python()` now prepend the script directory to
+  the Python module search path, `sys.path`, while the requested script is executing.
+  This allows the Python scripts to resolve imports of modules defined in the
+  script directory, matching the behavior of `python <script>` at the command line.
+  (#1347)
+
+### knitr:
+
+- The knitr engine now suppresses warnings from Python code if
+  `warning=FALSE` is set in the chunk options. (quarto-dev/quarto#125, #1358)
+
+- Fixed issue where reticulate's knitr engine would attach comments in a
+  code chunk to the wrong code chunk (requires Python>=3.8) (#1223).
+
+- The knitr Python engine now respects the `strip.white` option (#1273).
+
+- Fixed issue where the knitr engine would show an additional plot from a chunk
+  if the user called `matplotlib.pyplot.show()` (#1380, #1383)
+
+### Misc:
+
+- `py_to_r()` now succeeds when converting subtypes of the built-in
+  types (e.g. `list`, `dict`, `str`). (#1352, #1348, #1226, #1354, #1366)
+
+- New `pillar::type_sum()` method now exported for Python objects. That ensures
+  the full object class name is printing in R tracebacks and tibbles
+  containing Python objects.
+
+- `py_load_object()` gains a `convert` argument. If `convert = FALSE`,
+  the returned Python object will not be converted to an R object.
+
+- Fixed error `r_to_py()` with Pandas>=2.0 and R data.frames with a
+  factor column containing levels with `NA`.
+
+- `r_to_py()` now succeeds for many additional types of R objects.
+  Objects that reticulate doesn't know how to convert are presented to
+  the Python runtime as a pycapsule (an opaque pointer to the underlying
+  R object). Previously this would error.
+  This allows for R code to pass R objects that cannot be safely
+  converted to Python through the Python runtime to other R code.
+  (e.g, to an R function called by Python code). (#1304)
+
+- reticulate gains the ability to bind to micromamba Python installations
+  (#1378, #1176, #1382, #1379, thanks to Zia Khan, @zia1138)
+
+- Default Python version used by `install_miniconda()` and friends
+  is now 3.9 (was 3.8).
+
+
+# reticulate 1.28
+
+- Fixed issue where `source_python()` (and likely many other entrypoints)
+  would error if reticulate was built with Rcpp 1.0.10. Exception and
+  error handling has been updated to accommodate usage of `R_ProtectUnwind()`.
+  (#1328, #1329).
+
+- Fixed issue where reticulate failed to discover Python 3.11 on Windows. (#1325)
+
+- Fixed issue where reticulate would error by attempting to bind to
+  a cygwin/msys2 installation of Python on Windows (#1325).
+
+# reticulate 1.27
+
+- `py_run_file()` now ensures the `__file__` dunder is visible to the
+  executing python code. (#1283, #1284)
+
+- Fixed errors with `install_miniconda()` and `conda_install()`,
+  on Windows (#1286, #1287, conda/conda#11795, #1312, #1297),
+  and on Linux and macOS (#1306, conda/conda#10431)
+
+- Fixed error when activating a conda env from a UNC drive on Windows (#1303).
+
 # reticulate 1.26
 
 - Fixed issue where reticulate failed to bind to python2. (#1241, #1229)
 
 - A warning is now issued when reticulate binds to python2 that python2
   support will be removed in an upcoming reticulate release.
-  
+
 - `py_id()` now returns a character string, instead of an R integer (#1216).
 
-- Fixed an issue where `py_to_r()` would not convert elements of a 
+- Fixed an issue where `py_to_r()` would not convert elements of a
   dictionary (#1221).
 
 - Fixed an issue where setting `RETICULATE_PYTHON` or `RETICULATE_PYTHON_FALLBACK`

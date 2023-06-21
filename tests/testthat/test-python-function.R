@@ -2,7 +2,7 @@ context("functions")
 
 test_that("Python functions are marshalled as function objects", {
   skip_if_no_python()
-  spec <- inspect$getargspec(inspect$getclasstree)
+  spec <- inspect$getfullargspec(inspect$getclasstree)
   expect_equal(spec$args, c("classes", "unique"))
 })
 

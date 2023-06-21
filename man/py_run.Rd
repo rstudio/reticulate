@@ -8,7 +8,7 @@
 \usage{
 py_run_string(code, local = FALSE, convert = TRUE)
 
-py_run_file(file, local = FALSE, convert = TRUE)
+py_run_file(file, local = FALSE, convert = TRUE, prepend_path = TRUE)
 }
 \arguments{
 \item{code}{The Python code to be executed.}
@@ -22,6 +22,10 @@ to their \R equivalent? If set to \code{FALSE}, you can still manually convert
 Python objects to \R via the \code{\link[=py_to_r]{py_to_r()}} function.}
 
 \item{file}{The Python script to be executed.}
+
+\item{prepend_path}{Boolean; should the script directory be added to the
+Python module search path? The default, \code{TRUE}, matches the behavior of
+\verb{python <path/to/script.py>} at the command line.}
 }
 \value{
 A Python dictionary of objects. When \code{local} is \code{FALSE}, this

@@ -322,6 +322,10 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
   if (nzchar(python))
     python_versions <- c(python_versions, python)
 
+  python <- as.character(Sys.which("python"))
+  if (nzchar(python))
+    python_versions <- c(python_versions, python)
+
   # provide other common locations
   python_versions <- c(python_versions, py_discover_config_fallbacks())
 
@@ -341,6 +345,19 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
     info <- suppressWarnings(file.info(python_versions))
     size <- ifelse(is.na(info$size), 0, info$size)
     python_versions <- python_versions[size != 0]
+  }
+
+  # remove msys2 / cygwin python executables.
+  # path translation going to and from msys2 currently not implemented.
+  # E.g.: "C:\foo\bar" -> "/c/foo/bar" and  "/foo/bar" -> "C:\rtools43\foo\bar"
+  # https://github.com/rstudio/reticulate/issues/1325
+  if (is_windows()) {
+    python_sys_platforms <- vapply(
+      python_versions, system2, "",
+      args = c("-c", shQuote("import sys; print(sys.platform)")),
+      stdout = TRUE)
+
+    python_versions <- python_versions[python_sys_platforms != "cygwin"]
   }
 
   # scan until we find a version of python that meets our qualifying conditions
@@ -568,6 +585,8 @@ python_munge_path <- function(python) {
       envname = conda_info$root,
       intern = TRUE
     )
+    # maybe discard unsilenceable warnings, see issue #1303
+    new_path <- new_path[length(new_path)]
 
     old_path <- Sys.getenv("PATH")
     Sys.setenv("PATH" = new_path)
@@ -678,7 +697,6 @@ python_config <- function(python,
   # get the full textual version and the numeric version, check for anaconda
   version_string <- config$Version
   version <- config$VersionNumber
-  conda <- grepl("conda", version_string, ignore.case = TRUE)
   anaconda <- grepl("anaconda|continuum", version_string, ignore.case = TRUE)
   architecture <- config$Architecture
 
@@ -797,7 +815,7 @@ python_config <- function(python,
     version              = version,
     architecture         = architecture,
     anaconda             = anaconda,
-    conda                = conda,
+    conda                = config$IsConda,
     numpy                = numpy,
     required_module      = required_module,
     required_module_path = required_module_path,

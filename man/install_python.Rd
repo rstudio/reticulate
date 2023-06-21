@@ -42,4 +42,7 @@ dependencies are preinstalled. See
 \url{https://github.com/pyenv/pyenv/wiki#suggested-build-environment} for
 example commands you can run to pre-install system dependencies
 (requires administrator privileges).
+Python is built with \code{PYTHON_CONFIGURE_OPTS=--enable-shared} set.
+
+On Windows, prebuilt installers from \url{https://www.python.org} are used.
 }

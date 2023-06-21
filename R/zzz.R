@@ -70,7 +70,12 @@
     }
   }
 
+  ## Register S3 method for suggested package
+  s3_register <- asNamespace("rlang")$s3_register
+  s3_register("pillar::type_sum", "python.builtin.object")
+
 }
+
 
 # .onUnload <- function(libpath) {
 #   ## Don't acquire GIL if we're embedded; https://github.com/rpy2/rpy2/issues/872

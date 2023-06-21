@@ -1,5 +1,26 @@
 # reticulate (development version)
 
+- New optional feature: Reticulate now accepts a new option `jupyter_compat`
+  set to `FALSE` by default, that changes the default expression output display
+  behavior of Reticulate chunks, to better match the behavior of Jupyter.  In
+  the Reticulate default, each standalone code expression in the code chunk
+  that does not end in a semi-colon, generates display of the expression
+  output. With the `jupyter_compat` option set, no expression in the chunk will
+  generate output, except if there is a standalone expression as the last code
+  statement in the chunk, and that expression does not have a semicolon.
+  A semicolon always suppresses the expression output, for the default and
+  `jupyter_compat` case. See
+  [PR](https://github.com/rstudio/reticulate/pull/1394) and [original
+  issue](https://github.com/rstudio/reticulate/issues/1391) for discussion for
+  this and the next item.
+
+- Behavior change: Previously, a Matplotlib plot would only be automatically
+  displayed (without `plt.show()`) if there was a final standalone expression
+  returning a Matplotlib object, and that expression did not have a final
+  semicolon.  With this update, any standalone expression returning
+  a Matplotlib object, with or without a semicolon, will cause chunk to display
+  the plot automatically.  See above for discussion.
+
 - Fix: the knitr engine now automatically calls `plt.show()` for matplotlib 
   bar plots, like it does for other matplotlib plot types (#1391). 
 

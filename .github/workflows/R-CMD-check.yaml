@@ -31,7 +31,6 @@ jobs:
           - { os: ubuntu-latest, r: '3.6', python: '3.8' }
           # - { os: ubuntu-latest, r: 'devel'   , python: '3.8', http-user-agent: 'release' }
 
-          - { os: ubuntu-latest, r: 'release', python: '2.7'  }
           - { os: ubuntu-latest, r: 'release', python: '3.7'  }
           - { os: ubuntu-latest, r: 'release', python: '3.8'  }
           - { os: ubuntu-latest, r: 'release', python: '3.10' }
@@ -55,9 +54,6 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.config.python }}
-
-      - if: matrix.config.python == '2.7'
-        run: python -m pip install --upgrade --user virtualenv
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:

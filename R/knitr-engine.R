@@ -198,7 +198,6 @@ eng_python <- function(options) {
 
     # clear the last value object (so we can tell if it was updated)
     py_compile_eval("'__reticulate_placeholder__'")
-    .engine_context$matplotlib_show_was_called <- FALSE
 
     # run code and capture output
     captured <- if (capture_errors)
@@ -209,8 +208,7 @@ eng_python <- function(options) {
     # handle matplotlib and other plot output
     captured <- eng_python_autoprint(
       captured = captured,
-      options  = options,
-      autoshow = (last_range & !jupyter_compat)
+      options  = options
     )
 
     # In all modes, code statements ending in semicolons always suppress repr
@@ -457,7 +455,6 @@ eng_python_initialize_matplotlib <- function(options, envir) {
   # override show implementation
   plt$show <- function(...) {
 
-    .engine_context$matplotlib_show_was_called <- TRUE
     .engine_context$matplotlib_pending_show = FALSE
 
     # get current chunk options
@@ -588,7 +585,7 @@ eng_python_altair_chart_id <- function(options, ids) {
 
 }
 
-eng_python_autoprint <- function(captured, options, autoshow) {
+eng_python_autoprint <- function(captured, options) {
 
   # bail if no new value was produced by interpreter
   value <- py_last_value()
@@ -607,18 +604,9 @@ eng_python_autoprint <- function(captured, options, autoshow) {
 
   if (eng_python_is_matplotlib_output(value)) {
 
-    # by default, we suppress "side-effect" outputs from matplotlib
-    # objects; only when 'autoshow' is set will we try to render the
-    # associated matplotlib plot
-    #
-    # handle matplotlib output. note that the default hook installed by
-    # reticulate will update the 'pending_plots' item
-    if (autoshow && !.engine_context$matplotlib_show_was_called) {
-      plt <- import("matplotlib.pyplot", convert = TRUE)
-      plt$show()
-    } else if (isTRUE(options$jupyter_compat)) {
-      .engine_context$matplotlib_pending_show <- TRUE
-    }
+    # Handle matplotlib output. Note that the default hook for plt.show
+    # installed by reticulate will update the 'pending_plots' item.
+    .engine_context$matplotlib_pending_show <- TRUE
 
     # Always suppress Matplotlib reprs
     return("")

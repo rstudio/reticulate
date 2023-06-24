@@ -17,9 +17,9 @@
 - Behavior change: Previously, a Matplotlib plot would only be automatically
   displayed (without `plt.show()`) if there was a final standalone expression
   returning a Matplotlib object, and that expression did not have a final
-  semicolon.  With this update, any standalone expression returning
-  a Matplotlib object, with or without a semicolon, will cause chunk to display
-  the plot automatically.  See above for discussion.
+  semicolon.  With this update, Reticulate will display any pending Matplotlib
+  plot.  See above, and [Matplotlib plot
+  PR](https://github.com/rstudio/reticulate/pull/1401) for discussion.
 
 - Fix: the knitr engine now automatically calls `plt.show()` for matplotlib 
   bar plots, like it does for other matplotlib plot types (#1391). 

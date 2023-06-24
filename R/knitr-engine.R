@@ -184,9 +184,6 @@ eng_python <- function(options) {
     }, add = TRUE)
   }
 
-  # Flag to signal plt command called, but not yet shown.
-  .engine_context$matplotlib_pending_show <- FALSE
-
   for (i in seq_along(ranges)) {
 
     # extract range
@@ -275,9 +272,8 @@ eng_python <- function(options) {
     outputs$push(output)
   }
 
-  if (.engine_context$matplotlib_pending_show & is_include) {
-    plt <- import("matplotlib.pyplot", convert = TRUE)
-    plt$show()
+  if (is_include & length(mpl_pending_figures())) {
+    .engine_context$plt$show()
     for (plot in .engine_context$pending_plots$data())
       outputs_target$push(plot)
   }
@@ -455,8 +451,6 @@ eng_python_initialize_matplotlib <- function(options, envir) {
   # override show implementation
   plt$show <- function(...) {
 
-    .engine_context$matplotlib_pending_show = FALSE
-
     # get current chunk options
     options <- knitr::opts_current$get()
 
@@ -475,6 +469,9 @@ eng_python_initialize_matplotlib <- function(options, envir) {
 
   # set up figure dimensions
   plt$rc("figure", figsize = tuple(options$fig.width, options$fig.height))
+
+  # Stash plt for later
+  .engine_context$plt = plt
 
 }
 
@@ -603,10 +600,7 @@ eng_python_autoprint <- function(captured, options) {
   isHtml <- knitr::is_html_output()
 
   if (eng_python_is_matplotlib_output(value)) {
-
-    # Handle matplotlib output. Note that the default hook for plt.show
-    # installed by reticulate will update the 'pending_plots' item.
-    .engine_context$matplotlib_pending_show <- TRUE
+    # We handle pending Matplotlib plots with fignums check later.
 
     # Always suppress Matplotlib reprs
     return("")
@@ -692,4 +686,11 @@ eng_python_autoprint <- function(captured, options) {
 
   }
 
+}
+
+
+mpl_pending_figures <- function() {
+  # Return list of as-yet-unshown Matplotlib figures.
+  plt <- .engine_context$plt
+  if (is.null(plt)) list() else plt$get_fignums()
 }

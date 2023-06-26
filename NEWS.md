@@ -1,17 +1,16 @@
 # reticulate (development version)
 
-- The knitr engine gains a `jupyter_compat` mode, enabling
-  reticulate to better match the behavior of Jupyter. With this chunk option
-  enabled, only the return value from the last expression in a chunk is auto-printed.
+- The knitr engine gains a `jupyter_compat` option, enabling
+  reticulate to better match the behavior of Jupyter. When this chunk option is set to `TRUE`,
+  only the return value from the last expression in a chunk is auto-printed.
   (#1391, #1394, contributed by @matthew-brett)
 
-- The knitr engine now more reliably detects and displays matplotlib pending plots.
-  Pending matplotlib plots are now displayed without the need for a top-level expression
-  to return a matplotlib artist object.
+- The knitr engine now more reliably detects and displays matplotlib pending plots,
+  without the need for a matplotlib artist object to be returned as a top-level expression.
+  E.g., the knitr engine will now display plots when the matplotlib api returns something other
+  than an artist object, (`plt.bar()`), or the matplotlib return value is not auto-printed due
+  to assignent, (`x = plt.plot()`), or  `repr()` output is suppressed with a `;`, (`plt.plot();`).
   (#1401, contributed by @matthew-brett)
-
-- Fix: the knitr engine now automatically calls `plt.show()` for matplotlib
-  bar plots, like it does for other matplotlib plot types (#1391).
 
 # reticulate 1.30
 

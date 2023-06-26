@@ -1,28 +1,17 @@
 # reticulate (development version)
 
-- New optional feature: Reticulate now accepts a new option `jupyter_compat`
-  set to `FALSE` by default, that changes the default expression output display
-  behavior of Reticulate chunks, to better match the behavior of Jupyter.  In
-  the Reticulate default, each standalone code expression in the code chunk
-  that does not end in a semi-colon, generates display of the expression
-  output. With the `jupyter_compat` option set, no expression in the chunk will
-  generate output, except if there is a standalone expression as the last code
-  statement in the chunk, and that expression does not have a semicolon.
-  A semicolon always suppresses the expression output, for the default and
-  `jupyter_compat` case. See
-  [PR](https://github.com/rstudio/reticulate/pull/1394) and [original
-  issue](https://github.com/rstudio/reticulate/issues/1391) for discussion for
-  this and the next item.
+- The knitr engine gains a `jupyter_compat` mode, enabling
+  reticulate to better match the behavior of Jupyter. With this chunk option
+  enabled, only the return value from the last expression in a chunk is auto-printed.
+  (#1391, #1394, contributed by @matthew-brett)
 
-- Behavior change: Previously, a Matplotlib plot would only be automatically
-  displayed (without `plt.show()`) if there was a final standalone expression
-  returning a Matplotlib object, and that expression did not have a final
-  semicolon.  With this update, Reticulate will display any pending Matplotlib
-  plot.  See above, and [Matplotlib plot
-  PR](https://github.com/rstudio/reticulate/pull/1401) for discussion.
+- The knitr engine now more reliably detects and displays matplotlib pending plots.
+  Pending matplotlib plots are now displayed without the need for a top-level expression
+  to return a matplotlib artist object.
+  (#1401, contributed by @matthew-brett)
 
-- Fix: the knitr engine now automatically calls `plt.show()` for matplotlib 
-  bar plots, like it does for other matplotlib plot types (#1391). 
+- Fix: the knitr engine now automatically calls `plt.show()` for matplotlib
+  bar plots, like it does for other matplotlib plot types (#1391).
 
 # reticulate 1.30
 

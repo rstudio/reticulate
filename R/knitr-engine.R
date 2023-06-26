@@ -184,6 +184,8 @@ eng_python <- function(options) {
     }, add = TRUE)
   }
 
+  mpl_close_empty_figures(mpl_pending_figures())
+
   for (i in seq_along(ranges)) {
 
     # extract range
@@ -273,7 +275,7 @@ eng_python <- function(options) {
   }
 
   if (is_include & length(mpl_pending_figures())) {
-    .engine_context$plt$show()
+    .engine_context$matplotlib$pyplot$show()
     for (plot in .engine_context$pending_plots$data())
       outputs_target$push(plot)
   }
@@ -470,9 +472,9 @@ eng_python_initialize_matplotlib <- function(options, envir) {
   # set up figure dimensions
   plt$rc("figure", figsize = tuple(options$fig.width, options$fig.height))
 
-  # Stash plt for later
-  .engine_context$plt = plt
-
+  # Stash converted matplotlib module for later
+  matplotlib <- import("matplotlib", convert = TRUE)
+  .engine_context$matplotlib = matplotlib
 }
 
 eng_python_initialize_plotly <- function(options, envir) {
@@ -688,9 +690,20 @@ eng_python_autoprint <- function(captured, options) {
 
 }
 
-
 mpl_pending_figures <- function() {
   # Return list of as-yet-unshown Matplotlib figures.
-  plt <- .engine_context$plt
-  if (is.null(plt)) list() else plt$get_fignums()
+  plt <- .engine_context$matplotlib$pyplot
+  return (if (is.null(plt)) integer() else plt$get_fignums())
+}
+
+mpl_close_empty_figures <- function(fig_nos) {
+  # Close any Matplotlib figures that are empty.
+  plt <- .engine_context$matplotlib$pyplot
+  if (is.null(plt)) return
+  for (fig_no in fig_nos) {
+    fig <- plt$figure(fig_no)
+    if (length(fig$axes) == 0) {
+      plt$close(fig)
+    }
+  }
 }

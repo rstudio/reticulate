@@ -24,6 +24,9 @@
 - Fix: the knitr engine now automatically calls `plt.show()` for matplotlib 
   bar plots, like it does for other matplotlib plot types (#1391). 
 
+- Updated sparse matrix conversion routines for compatibility with scipy 1.11.0.
+
+
 # reticulate 1.30
 
 - Fix compilation error on R 3.5. Bump minimum R version dependency to 3.5.

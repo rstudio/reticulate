@@ -1,4 +1,4 @@
-context("knitr")
+context("knitr-engine")
 
 test_that("An R Markdown document can be rendered using reticulate", {
 
@@ -17,13 +17,12 @@ test_that("An R Markdown document can be rendered using reticulate", {
     }
   }
 
-  owd <- setwd("resources")
-  status <- rmarkdown::render("eng-reticulate-example.Rmd", quiet = TRUE)
-  setwd(owd)
+  output <- withr::with_dir("resources", {
+    rmarkdown::render("eng-reticulate-example.Rmd", quiet = TRUE)
+  })
 
-  expect_true(file.exists(status), "example.Rmd rendered successfully")
+  expect_true(file.exists(output), "example.Rmd rendered successfully")
 })
-
 
 
 

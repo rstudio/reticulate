@@ -475,14 +475,14 @@ as.environment.python.builtin.object <- function(x) {
   if (inherits(x, "python.builtin.dict")) {
 
     names <- py_dict_get_keys_as_str(x)
-    names <- names[substr(names, 1, 1) != '_']
+    names <- names[substr(names, 1, 1) != "_"]
     Encoding(names) <- "UTF-8"
     types <- rep_len(0L, length(names))
 
   } else {
     # get the names and filter out internal attributes (_*)
     names <- py_suppress_warnings(py_list_attributes(x))
-    names <- names[substr(names, 1, 1) != '_']
+    names <- names[substr(names, 1, 1) != "_"]
     # replace function with `function`
     names <- sub("^function$", "`function`", names)
     names <- sort(names, decreasing = FALSE)
@@ -1555,37 +1555,41 @@ py_inject_r <- function() {
   if (py_has_attr(main, "r"))
     return(FALSE)
 
-  # define our 'R' class
-  py_run_string("class R(object): pass")
+  builtins <- import_builtins(convert = FALSE)
+  if (!py_has_attr(builtins, "__R__")) {
 
-  # extract it from the main module
-  main <- import_main(convert = FALSE)
-  R <- main$R
+    # define our 'R' class
+    py_run_string("class R(object): pass")
+    R <- main$R
 
-  # define the getters, setters we'll attach to the Python class
-  getter <- function(self, code) {
-    envir <- py_resolve_envir()
-    object <- eval(parse(text = as_r_value(code)), envir = envir)
-    r_to_py(object, convert = is.function(object))
+    # copy it to 'builtins'
+    py_set_attr(builtins, "__R__", R)
+
+    # remove the 'R' class object from '__main__'
+    py_del_attr(main, "R")
+
+    # define the getters, setters we'll attach to the Python class
+    getter <- function(self, code) {
+      envir <- py_resolve_envir()
+      object <- eval(parse(text = as_r_value(code)), envir = envir)
+      r_to_py(object, convert = is.function(object))
+    }
+
+    setter <- function(self, name, value) {
+      envir <- py_resolve_envir()
+      name  <- as_r_value(name)
+      value <- as_r_value(value)
+      assign(name, value, envir = envir)
+    }
+
+    py_set_attr(R, "__getattr__", getter)
+    py_set_attr(R, "__setattr__", setter)
+    py_set_attr(R, "__getitem__", getter)
+    py_set_attr(R, "__setitem__", setter)
   }
-
-  setter <- function(self, name, value) {
-    envir <- py_resolve_envir()
-    name  <- as_r_value(name)
-    value <- as_r_value(value)
-    assign(name, value, envir = envir)
-  }
-
-  py_set_attr(R, "__getattr__", getter)
-  py_set_attr(R, "__setattr__", setter)
-  py_set_attr(R, "__getitem__", getter)
-  py_set_attr(R, "__setitem__", setter)
 
   # now define the R object
-  py_run_string("r = R()")
-
-  # remove the 'R' class object
-  py_del_attr(main, "R")
+  py_run_string("r = __R__()")
 
   # indicate success
   TRUE

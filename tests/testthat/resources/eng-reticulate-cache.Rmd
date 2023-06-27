@@ -1,0 +1,40 @@
+---
+title: "Using reticulate's Python Engine with cache enabled"
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(cache = TRUE)
+```
+
+Cache can handle changes to second chunk:
+
+```{python}
+# define a variable
+x = 1
+
+# empty file that flags the chunk was executed
+open('py_chunk_executed', 'w').close()
+```
+
+```{python, cache = FALSE}
+print(x + 1)
+```
+
+The special "`r` object" is _deleted_ before saving the session, but a custom
+user-defined `r` variable should be kept.
+
+```{python custom-r-obj}
+# overwrites the special 'r' object
+r = 'awesome'
+```
+
+In a second execution of the document, the `r` variable should be loaded from cache.
+
+```{python, cache = FALSE}
+def print_globals():
+    # avoid 'dictionary changed size during iteration' error
+    for name, value in globals().items():
+        if not name.startswith('__'):
+            print(name, ": ", value, sep="")
+print_globals()
+```

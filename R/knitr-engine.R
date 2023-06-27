@@ -38,22 +38,12 @@ eng_python <- function(options) {
     return(wrap(outputs, options))
   }
 
-  engine.path <- if (is.list(options[["engine.path"]]))
-    options[["engine.path"]][["python"]]
-  else
-    options[["engine.path"]]
+  # if the user has requested a custom Python, attempt to honor that request
+  eng_python_initialize(options)
 
-  # if the user has requested a custom Python, attempt
-  # to honor that request (warn if Python already initialized
-  # to a different version)
-  if (is.character(engine.path)) {
-
-    # if Python has not yet been loaded, then try
-    # to load it with the requested version of Python
-    if (!py_available())
-      use_python(engine.path, required = TRUE)
-
-    # double-check that we've loaded the requested Python
+  # double-check that we've loaded the requested Python (warn if Python already
+  # initialized to a different version)
+  if (is.character(engine.path <- get_engine_path(options))) {
     conf <- py_config()
     requestedPython <- normalizePath(engine.path)
     actualPython <- normalizePath(conf$python)
@@ -69,8 +59,6 @@ eng_python <- function(options) {
 
   # a list of pending plots / outputs
   .engine_context$pending_plots <- stack()
-
-  eng_python_initialize(options = options, envir = environment())
 
   # helper function for extracting range of code, dropping blank lines
   extract <- function(code, range) {
@@ -328,13 +316,24 @@ eng_python <- function(options) {
 
 }
 
-eng_python_initialize <- function(options, envir) {
+get_engine_path <- function(options) {
+  option <- options[["engine.path"]]
+  engine.path <- if (is.list(option)) option[["python"]] else option
+  if (is.character(engine.path))
+    stopifnot(length(engine.path) == 1L)
+  engine.path
+}
 
-  if (is.character(options$engine.path))
-    use_python(options$engine.path[[1]])
+eng_python_initialize <- function(options) {
+
+  # if Python has not yet been loaded, then try
+  # to load it with the requested version of Python
+  engine.path <- get_engine_path(options)
+  if (is.character(engine.path) && !py_available())
+    use_python(engine.path, required = TRUE)
 
   ensure_python_initialized()
-  eng_python_initialize_hooks(options, envir)
+  eng_python_initialize_hooks(options)
 
 }
 
@@ -384,7 +383,7 @@ eng_python_matplotlib_show <- function(plt, options) {
 
 }
 
-eng_python_initialize_hooks <- function(options, envir) {
+eng_python_initialize_hooks <- function(options) {
 
   # set up hooks for matplotlib modules
   matplotlib_modules <- c(
@@ -395,7 +394,7 @@ eng_python_initialize_hooks <- function(options, envir) {
 
   for (module in matplotlib_modules) {
     py_register_load_hook(module, function(...) {
-      eng_python_initialize_matplotlib(options, envir)
+      eng_python_initialize_matplotlib(options)
     })
   }
 
@@ -407,13 +406,13 @@ eng_python_initialize_hooks <- function(options, envir) {
 
   for (module in plotly_modules) {
     py_register_load_hook(module, function(...) {
-      eng_python_initialize_plotly(options, envir)
+      eng_python_initialize_plotly(options)
     })
   }
 
 }
 
-eng_python_initialize_matplotlib <- function(options, envir) {
+eng_python_initialize_matplotlib <- function(options) {
 
   # mark initialization done
   if (identical(.globals$matplotlib_initialized, TRUE))
@@ -437,7 +436,7 @@ eng_python_initialize_matplotlib <- function(options, envir) {
     if ("matplotlib.backends" %in% names(sys$modules)) {
       matplotlib$pyplot$switch_backend("agg")
     } else {
-      version <- numeric_version(matplotlib$`__version__`)
+      version <- as_numeric_version(matplotlib$`__version__`)
       if (version < "3.3.0")
         matplotlib$use("agg", warn = FALSE, force = TRUE)
       else
@@ -478,7 +477,7 @@ eng_python_initialize_matplotlib <- function(options, envir) {
 
 }
 
-eng_python_initialize_plotly <- function(options, envir) {
+eng_python_initialize_plotly <- function(options) {
 
   # mark initialization done
   if (identical(.globals$plotly_initialized, TRUE))

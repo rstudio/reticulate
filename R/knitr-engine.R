@@ -165,7 +165,7 @@ eng_python <- function(options) {
   outputs_target <- if (is_hold) held_outputs else outputs
 
   # synchronize state R -> Python
-  eng_python_synchronize_before()
+  eng_python_synchronize_before(options)
 
   # determine if we should capture errors
   # (don't capture errors during knit)
@@ -183,9 +183,6 @@ eng_python <- function(options) {
       py_catch_warnings_ctxt$`__exit__`(NULL, NULL, NULL)
     }, add = TRUE)
   }
-
-  # Flag to signal plt command called, but not yet shown.
-  .engine_context$matplotlib_pending_show <- FALSE
 
   for (i in seq_along(ranges)) {
 
@@ -205,18 +202,16 @@ eng_python <- function(options) {
     else
       py_compile_eval(snippet, 'single')
 
-    # handle matplotlib and other plot output
+    # handle matplotlib plots and other special output
     captured <- eng_python_autoprint(
       captured = captured,
       options  = options
     )
 
-    # In all modes, code statements ending in semicolons always suppress repr
-    # output.  In jupyter_compat mode, also suppress repr output for all
-    # but the final expression.
-    if ((grepl(";\\s*$", snippet)) | (jupyter_compat & !last_range)) {
-      captured = ""
-    }
+    # A trailing ';' suppresses output.
+    # In jupyter mode, only the last expression in a chunk has repr() output.
+    if (grepl(";\\s*$", snippet) | (jupyter_compat & !last_range))
+      captured <- ""
 
     # emit outputs if we have any
     has_outputs <-
@@ -275,12 +270,18 @@ eng_python <- function(options) {
     outputs$push(output)
   }
 
-  if (.engine_context$matplotlib_pending_show & is_include) {
-    plt <- import("matplotlib.pyplot", convert = TRUE)
-    plt$show()
-    for (plot in .engine_context$pending_plots$data())
-      outputs_target$push(plot)
+  # check if we need to call matplotlib.pyplot.show()
+  # for any pending undisplayed plots
+  if(isTRUE(.globals$matplotlib_initialized)) {
+    plt <- import("matplotlib.pyplot")
+    if(length(plt$get_fignums()))
+      plt$show()
   }
+
+  for (plot in .engine_context$pending_plots$data())
+    outputs_target$push(plot)
+  .engine_context$pending_plots$clear()
+
 
   # if we were using held outputs, we just inject the source in now
   if (is_hold) {
@@ -377,7 +378,7 @@ eng_python_matplotlib_show <- function(plt, options) {
   # save the current figure
   dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
   plt$savefig(path, dpi = options$dpi)
-  plt$clf()
+  plt$close()
 
   # include the requested path
   knitr::include_graphics(path)
@@ -415,11 +416,10 @@ eng_python_initialize_hooks <- function(options, envir) {
 
 eng_python_initialize_matplotlib <- function(options, envir) {
 
-  # mark initialization done
+  # early exit if we already initialized
+  # (this onload hook is registered for multiple matplotlib submodules)
   if (identical(.globals$matplotlib_initialized, TRUE))
     return(TRUE)
-
-  .globals$matplotlib_initialized <- TRUE
 
   # attempt to enforce a non-Qt matplotlib backend. this is especially important
   # with RStudio Desktop as attempting to use a Qt backend will cause issues due
@@ -455,8 +455,6 @@ eng_python_initialize_matplotlib <- function(options, envir) {
   # override show implementation
   plt$show <- function(...) {
 
-    .engine_context$matplotlib_pending_show = FALSE
-
     # get current chunk options
     options <- knitr::opts_current$get()
 
@@ -473,8 +471,7 @@ eng_python_initialize_matplotlib <- function(options, envir) {
 
   }
 
-  # set up figure dimensions
-  plt$rc("figure", figsize = tuple(options$fig.width, options$fig.height))
+  .globals$matplotlib_initialized <- TRUE
 
 }
 
@@ -498,8 +495,14 @@ eng_python_initialize_plotly <- function(options, envir) {
 }
 
 # synchronize objects R -> Python
-eng_python_synchronize_before <- function() {
+eng_python_synchronize_before <- function(options) {
   py_inject_r()
+  if(isTRUE(.globals$matplotlib_initialized)) {
+
+    # set up figure dimensions
+    plt <- import("matplotlib.pyplot")
+    plt$rc("figure", figsize = tuple(options$fig.width, options$fig.height))
+  }
 }
 
 # synchronize objects Python -> R
@@ -603,10 +606,7 @@ eng_python_autoprint <- function(captured, options) {
   isHtml <- knitr::is_html_output()
 
   if (eng_python_is_matplotlib_output(value)) {
-
-    # Handle matplotlib output. Note that the default hook for plt.show
-    # installed by reticulate will update the 'pending_plots' item.
-    .engine_context$matplotlib_pending_show <- TRUE
+    # We handle pending Matplotlib plots with fignums check later.
 
     # Always suppress Matplotlib reprs
     return("")

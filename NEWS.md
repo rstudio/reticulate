@@ -1,19 +1,25 @@
 # reticulate (development version)
 
-- The knitr engine gains a `jupyter_compat` option, enabling
-  reticulate to better match the behavior of Jupyter. When this chunk option is set to `TRUE`,
-  only the return value from the last expression in a chunk is auto-printed.
-  (#1391, #1394, contributed by @matthew-brett)
+-   The knitr engine gains a `jupyter_compat` option, enabling
+    reticulate to better match the behavior of Jupyter. When this chunk
+    option is set to `TRUE`, only the return value from the last
+    expression in a chunk is auto-printed. (#1391, #1394, contributed by
+    @matthew-brett)
 
-- The knitr engine now more reliably detects and displays matplotlib pending plots,
-  without the need for a matplotlib artist object to be returned as a top-level expression.
-  E.g., the knitr engine will now display plots when the matplotlib api returns something other
-  than an artist object, (`plt.bar()`), or the matplotlib return value is not auto-printed due
-  to assignent, (`x = plt.plot()`), or  `repr()` output is suppressed with a `;`, (`plt.plot();`).
-  (#1401, contributed by @matthew-brett)
+-   The knitr engine now more reliably detects and displays matplotlib
+    pending plots, without the need for a matplotlib artist object to be
+    returned as a top-level expression. E.g., the knitr engine will now
+    display plots when the matplotlib api returns something other than
+    an artist object, (`plt.bar()`), or the matplotlib return value is
+    not auto-printed due to being assigned, (`x = plt.plot()`), or
+    suppressed with a `;`, (`plt.plot();`). (#1391, #1401, contributed
+    by @matthew-brett)
 
-- Updated sparse matrix conversion routines for compatibility with scipy 1.11.0.
+-   Fixed an issue where knitr engine would not respect chunk options
+    `fig.width` / `fig.height` when rendering matplotlib plots. (#1398)
 
+-   Updated sparse matrix conversion routines for compatibility with
+    scipy 1.11.0.
 
 # reticulate 1.30
 

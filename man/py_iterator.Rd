@@ -4,13 +4,17 @@
 \alias{py_iterator}
 \title{Create a Python iterator from an R function}
 \usage{
-py_iterator(fn, completed = NULL)
+py_iterator(fn, completed = NULL, prefetch = 0L)
 }
 \arguments{
 \item{fn}{R function with no arguments.}
 
 \item{completed}{Special sentinel return value which indicates that
-iteration is complete (defaults to \code{NULL})}
+iteration is complete (defaults to \code{NULL}).}
+
+\item{prefetch}{Number items to prefetch. Set this to a positive integer to
+avoid a deadlock in situations where the generator values are consumed by
+python background threads while the main thread is blocked.}
 }
 \value{
 Python iterator which calls the R function for each iteration.

@@ -83,7 +83,8 @@
 
     <div class="section level2">
 <h2 class="page-header" data-toc-text="development version" id="reticulate-development-version">reticulate (development version)<a class="anchor" aria-label="anchor" href="#reticulate-development-version"></a></h2>
-<ul><li>
+<ul><li><p><code><a href="../reference/py_iterator.html">py_iterator()</a></code> gains a <code>prefetch</code> argument, primarily to avoid deadlocks where the main thread is blocked, waiting for the iterator, which is waiting to run on the main thread, as encountered in TensorFlow/Keras. (<a href="https://github.com/rstudio/reticulate/issues/1405" class="external-link">#1405</a>).</p></li>
+<li>
 <p>The knitr engine gains a <code>jupyter_compat</code> option, enabling reticulate to better match the behavior of Jupyter. When this chunk option is set to <code>TRUE</code>, only the return value from the last expression in a chunk is auto-printed. (<a href="https://github.com/rstudio/reticulate/issues/1391" class="external-link">#1391</a>, <a href="https://github.com/rstudio/reticulate/issues/1394" class="external-link">#1394</a>, contributed by</p>
 <ol class="example" style="list-style-type: decimal"><li>
 </li></ol></li>

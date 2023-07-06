@@ -100,3 +100,44 @@ assert isinstance(Dict({}), dict)
   expect_identical(Dict(list("abc" = 1:3)), list("abc" = 1:3))
 
 })
+
+
+
+test_that("capsules can be freed by other threads", {
+  skip_if_no_python()
+
+  free_py_capsule_on_other_thread <- py_run_string("
+import threading
+capsule = None
+
+def free_py_capsule_on_other_thread():
+  def free():
+    global capsule
+    del capsule
+  t = threading.Thread(target=free)
+  t.start()
+  t.join()
+
+  ", convert = FALSE)$free_py_capsule_on_other_thread
+
+  e <- new.env(parent = emptyenv())
+  e_finalized <- FALSE
+  reg.finalizer(e, function(e) { e_finalized <<- TRUE })
+  py$capsule <- reticulate:::py_capsule(e)
+  remove(e)
+  gc()
+
+  expect_false(e_finalized)
+
+  expect_no_error({
+    # gctorture()
+
+    py_call_impl(free_py_capsule_on_other_thread, NULL, NULL)
+
+    gc()
+    # gctorture(FALSE)
+  })
+
+  expect_true(e_finalized)
+
+})

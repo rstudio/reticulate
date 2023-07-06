@@ -4,7 +4,10 @@
 #'
 #' @param fn R function with no arguments.
 #' @param completed Special sentinel return value which indicates that
-#'  iteration is complete (defaults to `NULL`)
+#'  iteration is complete (defaults to `NULL`).
+#' @param prefetch Number items to prefetch. Set this to a positive integer to
+#'   avoid a deadlock in situations where the generator values are consumed by
+#'   python background threads while the main thread is blocked.
 #'
 #' @return Python iterator which calls the R function for each iteration.
 #'
@@ -60,26 +63,34 @@
 #' generator is run on a background thread.
 #'
 #' @export
-py_iterator <- function(fn, completed = NULL) {
+py_iterator <- function(fn, completed = NULL, prefetch = 0L) {
 
   # validation
   if (!is.function(fn))
     stop("fn must be an R function")
   if (length(formals(fn)))
     stop("fn must be an R function with no arguments")
+  force(completed)
 
   # wrap the function in an error handler
+  # perform the sentinel check in R while we have the main thread,
+  # rather than depending on `__eq__` dispatch in python
   wrapped_fn <- function() {
-    tryCatch({
-      fn()
-    }, error = function(e) {
-      message("Error occurred in generator: ", e$message)
-      completed
-    })
+    val <- tryCatch(
+      fn(),
+      python.builtin.StopIteration = function(e) completed,
+      error = function(e) {
+        message("Error occurred in generator: ", e$message)
+        completed
+      }
+    )
+    if (identical(val, completed))
+      stop(py_eval("StopIteration()"))
+    val
   }
 
   # create the generator
   tools <- import("rpytools")
-  tools$generator$RGenerator(wrapped_fn, completed)
+  tools$generator$RGenerator(wrapped_fn, as.integer(prefetch))
 }
 

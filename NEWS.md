@@ -1,5 +1,9 @@
 # reticulate (development version)
 
+-   `py_iterator()` gains a `prefetch` argument, primarily to avoid deadlocks
+    where the main thread is blocked, waiting for the iterator, which is waiting
+    to run on the main thread, as encountered in TensorFlow/Keras. (#1405).
+
 -   The knitr engine gains a `jupyter_compat` option, enabling
     reticulate to better match the behavior of Jupyter. When this chunk
     option is set to `TRUE`, only the return value from the last

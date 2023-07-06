@@ -80,7 +80,7 @@ py_iterator <- function(fn, completed = NULL, prefetch = 0L) {
       fn(),
       python.builtin.StopIteration = function(e) completed,
       error = function(e) {
-        message("Error occurred in generator: ", e$message)
+        warning("Error occurred in generator: ", e$message)
         completed
       }
     )

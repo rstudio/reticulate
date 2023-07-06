@@ -91,6 +91,7 @@
 <li><p>The knitr engine now more reliably detects and displays matplotlib pending plots, without the need for a matplotlib artist object to be returned as a top-level expression. E.g., the knitr engine will now display plots when the matplotlib api returns something other than an artist object, (<code>plt.bar()</code>), or the matplotlib return value is not auto-printed due to being assigned, (<code>x = plt.plot()</code>), or suppressed with a <code>;</code>, (<code>plt.plot();</code>). (<a href="https://github.com/rstudio/reticulate/issues/1391" class="external-link">#1391</a>, <a href="https://github.com/rstudio/reticulate/issues/1401" class="external-link">#1401</a>, contributed by 1)</p></li>
 <li><p>Fixed an issue where knitr engine would not respect chunk options <code>fig.width</code> / <code>fig.height</code> when rendering matplotlib plots. (<a href="https://github.com/rstudio/reticulate/issues/1398" class="external-link">#1398</a>)</p></li>
 <li><p>Updated sparse matrix conversion routines for compatibility with scipy 1.11.0.</p></li>
+<li><p>Fixed an issue where a py capsule finalizer could access the R API from a background thread. (<a href="https://github.com/rstudio/reticulate/issues/1406" class="external-link">#1406</a>)</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="1.30" id="reticulate-130">reticulate 1.30<small>2023-06-09</small><a class="anchor" aria-label="anchor" href="#reticulate-130"></a></h2>

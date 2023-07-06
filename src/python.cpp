@@ -121,13 +121,53 @@ SEXP py_capsule_read(PyObject* capsule) {
 
 }
 
+tthread::thread::id s_main_thread = 0;
+bool is_main_thread() {
+  if (s_main_thread == 0)
+    return true;
+  return s_main_thread == tthread::this_thread::get_id();
+}
+
+
+int free_sexp(void* sexp) {
+  // wrap Rcpp_precious_remove() to satisfy
+  // Py_AddPendingCall() signature and return value requirements
+  Rcpp_precious_remove((SEXP) sexp);
+  return 0;
+}
+
+void Rcpp_precious_remove_main_thread(SEXP object) {
+  if (is_main_thread()) {
+    return Rcpp_precious_remove(object);
+  }
+
+  // #Py_AddPendingCall can fail sometimes, so we retry a few times
+  const size_t wait_ms = 100;
+  size_t waited_ms = 0;
+  while (Py_AddPendingCall(free_sexp, object) != 0) {
+
+    tthread::this_thread::sleep_for(tthread::chrono::milliseconds(wait_ms));
+
+    // increment total wait time and print a warning every 60 seconds
+    waited_ms += wait_ms;
+    if ((waited_ms % 60000) == 0)
+        PySys_WriteStderr("Waiting to schedule object finalizer on main R interpeter thread...\n");
+    else if (waited_ms > 60000 * 2) {
+        // if we've waited more than 2 minutes, something is wrong
+        PySys_WriteStderr("Error: unable to register R object finalizer on main thread\n");
+        return;
+    }
+  }
+}
+
 void py_capsule_free(PyObject* capsule) {
 
   SEXP object = (SEXP)PyCapsule_GetPointer(capsule, r_object_string);
   if (object == NULL)
     throw PythonException(py_fetch_error());
 
-  Rcpp_precious_remove(object);
+  // the R api access must be from the main thread
+  Rcpp_precious_remove_main_thread(object);
 }
 
 PyObject* py_capsule_new(SEXP object) {
@@ -634,6 +674,9 @@ SEXP get_r_trace(bool maybe_use_cached = false) {
 }
 
 SEXP py_fetch_error(bool maybe_reuse_cached_r_trace) {
+
+  // TODO: we need to add a guardrail to catch cases when
+  // this is being invoked from not the main thread
 
   // check whether this error was signaled via an interrupt.
   // the intention here is to catch cases where reticulate is running
@@ -1624,7 +1667,7 @@ PyObject* r_to_py(RObject x, bool convert) {
 // Python capsule wrapping an R's external pointer object
 static void free_r_extptr_capsule(PyObject* capsule) {
   SEXP sexp = (SEXP)PyCapsule_GetContext(capsule);
-  Rcpp_precious_remove(sexp);
+  Rcpp_precious_remove_main_thread(sexp);
 }
 
 static PyObject* r_extptr_capsule(SEXP sexp) {
@@ -2333,6 +2376,7 @@ void py_initialize(const std::string& python,
     PySys_SetArgv(1, const_cast<char**>(argv));
   }
 
+  s_main_thread = tthread::this_thread::get_id();
   s_is_python_initialized = true;
   GILScope scope;
 

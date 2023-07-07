@@ -38,6 +38,7 @@ namespace {
 
 // Tracks whether we've requested Python to poll on the main thread.
 volatile sig_atomic_t s_pollingRequested;
+bool s_flush_std_buffers = true;
 
 // Forward declarations
 int pollForEvents(void*);
@@ -89,8 +90,12 @@ int pollForEvents(void*) {
 
   // Periodically flush stdout/stderr buffers to ensure that any output from
   // long-running Python calls is visible in the R console.
-  if (flush_std_buffers() != 0)
-    Rprintf("Error flushing Python's stdout/stderr buffers.\n");
+  if (s_flush_std_buffers) {
+    if (flush_std_buffers() != 0) {
+      Rprintf("Error flushing Python's stdout/stderr buffers. Auto-flushing is now disabled.\n");
+      s_flush_std_buffers = false;
+    }
+  }
 
   {
     // Process events. We wrap this in R_ToplevelExec just to avoid jumps.

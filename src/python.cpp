@@ -564,39 +564,7 @@ bool traceback_enabled() {
   return as<bool>(func());
 }
 
-int flush_std_buffers() {
-  int status = 0;
-  PyObject* tmp = NULL;
-  PyObject *error_type, *error_value, *error_traceback;
-  PyErr_Fetch(&error_type, &error_value, &error_traceback);
 
-  PyObject* sys_stdout(PySys_GetObject("stdout"));  // returns borrowed reference
-  if (sys_stdout == NULL)
-    status = -1;
-  else
-    tmp = PyObject_CallMethod(sys_stdout, "flush", NULL);
-
-  if (tmp == NULL)
-    status = -1;
-  else {
-    Py_DecRef(tmp);
-    tmp = NULL;
-  }
-
-  PyObject* sys_stderr(PySys_GetObject("stderr"));  // returns borrowed reference
-  if (sys_stderr == NULL)
-    status = -1;
-  else
-    tmp = PyObject_CallMethod(sys_stderr, "flush", NULL);
-
-  if (tmp == NULL)
-    status = -1;
-  else
-    Py_DecRef(tmp);
-
-  PyErr_Restore(error_type, error_value, error_traceback);
-  return status;
-}
 
 
 

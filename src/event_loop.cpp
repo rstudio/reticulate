@@ -87,6 +87,11 @@ int pollForEvents(void*) {
   // can be throttled)
   s_pollingRequested = 0;
 
+  // Periodically flush stdout/stderr buffers to ensure that any output from
+  // long-running Python calls is visible in the R console.
+  if (flush_std_buffers() != 0)
+    Rprintf("Error flushing Python's stdout/stderr buffers.\n");
+
   {
     // Process events. We wrap this in R_ToplevelExec just to avoid jumps.
     // Suspend interrupts here so we don't inadvertently handle them.

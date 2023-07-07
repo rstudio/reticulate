@@ -763,6 +763,8 @@ LIBPYTHON_EXTERN PyThreadState* (*PyThreadState_Next)(PyThreadState*);
 
 /* End PyFrameObject */
 
+int flush_std_buffers();
+
 } // namespace libpython
 } // namespace reticulate
 

@@ -693,6 +693,11 @@ SEXP py_fetch_error(bool maybe_reuse_cached_r_trace) {
 
   PyObject *excType, *excValue, *excTraceback;
   PyErr_Fetch(&excType, &excValue, &excTraceback);  // we now own the PyObjects
+
+  if (!excType) {
+    Rcpp::stop("Unknown Python error.");
+  }
+
   PyErr_NormalizeException(&excType, &excValue, &excTraceback);
 
   if (excTraceback != NULL && excValue != NULL && s_isPython3) {

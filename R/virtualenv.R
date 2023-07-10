@@ -6,6 +6,10 @@
 #' with the `virtualenv_root()` function). You can change the default location by
 #' defining the `WORKON_HOME` environment variable.
 #'
+#' Virtual environments are created from another "starter" or "seed" Python
+#' already installed on the system. Suitable Pythons installed on the system are
+#' found by `virtualenv_starter()`.
+#'
 #' @param envname The name of, or path to, a Python virtual environment. If
 #'   this name contains any slashes, the name will be interpreted as a path;
 #'   if the name does not contain slashes, it will be treated as a virtual
@@ -478,6 +482,14 @@ virtualenv_starter <- function(version = NULL, all = FALSE) {
     starters <<- df
   }
 
+  if(is.character(getOption("reticulate.virtualenv.starter"))) {
+    # Accept user customization, a character vector (or ":" separated string) of
+    # file paths to python binaries. Paths can be globs, as they are passed on
+    # to Sys.glob()
+    lapply(unlist(strsplit(getOption("reticulate.virtualenv.starter"), "[:;]")),
+           find_starters)
+  }
+
   # Find pythons installed via `install_python()` or by directly using pyenv.
   # Typically something like "~/.pyenv/versions/3.9.17/bin/python3.9" or
   #  "C:/Users/Administrator/AppData/Local/r-reticulate/r-reticulate/pyenv/pyenv-win/versions/3.9.13/python.exe"
@@ -529,6 +541,7 @@ virtualenv_starter <- function(version = NULL, all = FALSE) {
       satisfies_constraint <- check(starters$version)
       starters <- starters[satisfies_constraint, ]
     }
+    rownames(starters) <- NULL
   }
 
   if (all)

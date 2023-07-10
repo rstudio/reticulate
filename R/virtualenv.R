@@ -604,10 +604,8 @@ can_be_virtualenv_starter <- function(python) {
 
   # check if python was built with `--enable-shared`, to make sure
   # we don't bootstrap a venv that reticulate can't bind to
-  is_enable_shared <- system2(python, c("-c",
-                                        "import sysconfig; print(sysconfig.get_config_var('Py_ENABLE_SHARED'))"),
-                              stdout = TRUE, stderr = TRUE)
-  if(!identical(is_enable_shared, "1"))
+  config <- python_config(python, modules)
+  if (is.null(config$libpython))
     return(FALSE)
 
   TRUE

@@ -151,9 +151,15 @@ virtualenv_create <- function(
   # (since the version bundled with virtualenv / venv may be stale)
   if (!identical(packages, FALSE)) {
     python <- virtualenv_python(envname)
-    packages <- unique(c("pip", "wheel", "setuptools", packages))
-    writef("Installing packages: %s", paste(shQuote(packages), collapse = ", "))
-    pip_install(python, packages)
+    # first upgrade pip and friends
+    writef("Installing packages: 'pip', 'wheel', 'setuptools'")
+    pip_install(python, c("pip", "wheel", "setuptools"))
+    packages <- setdiff(packages, c("pip", "wheel", "setuptools"))
+    # install requested packages
+    if (length(packages)) {
+      writef("Installing packages: %s", paste(shQuote(packages), collapse = ", "))
+      pip_install(python, packages)
+    }
   }
 
   writef("Virtual environment '%s' successfully created.", name)

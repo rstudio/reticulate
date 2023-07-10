@@ -118,7 +118,9 @@
 <span></span>
 <span><span class="fu">virtualenv_python</span><span class="op">(</span>envname <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">virtualenv_exists</span><span class="op">(</span>envname <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">virtualenv_exists</span><span class="op">(</span>envname <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">virtualenv_starter</span><span class="op">(</span>version <span class="op">=</span> <span class="cn">NULL</span>, all <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -146,7 +148,8 @@ the current session will be used.</p></dd>
 <dt>version</dt>
 <dd><p>The version of Python to be used with the newly-created
 virtual environment. Python installations as installed via
-<code><a href="install_python.html">install_python()</a></code> will be used.</p></dd>
+<code><a href="install_python.html">install_python()</a></code> will be used. This can also be a comma separated list of
+version constraints, like <code>"&gt;=3.8"</code>, or <code>"&lt;=3.11,!=3.9.3,&gt;3.6"</code></p></dd>
 
 
 <dt>packages</dt>
@@ -202,6 +205,13 @@ arguments to be passed to <code>pip</code>.</p></dd>
 <dt>confirm</dt>
 <dd><p>Boolean; confirm before removing packages or virtual
 environments?</p></dd>
+
+
+<dt>all</dt>
+<dd><p>If <code>TRUE</code>, <code>virtualenv_starter()</code> returns a 2-column data frame,
+with column names <code>path</code> and <code>version</code>. If <code>FALSE</code>, only a single path to a
+python binary is returned, corresponding to the first entry when
+<code>all = TRUE</code>, or <code>NULL</code> if no suitable python binaries were found.</p></dd>
 
 </dl></div>
     <div id="details">

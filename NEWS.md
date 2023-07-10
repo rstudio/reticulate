@@ -24,6 +24,8 @@
 
 -   Updated sparse matrix conversion routines for compatibility with
     scipy 1.11.0.
+    
+-   `install_python()` now gives a better error message if git is not installed.
 
 -   Fixed an issue where a py capsule finalizer could access the R API from
     a background thread. (#1406)

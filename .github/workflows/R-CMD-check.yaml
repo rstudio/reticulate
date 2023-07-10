@@ -58,20 +58,25 @@ jobs:
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: rcmdcheck remotes local::.
-          cache-version: 2
+          cache-version: 3
           upgrade: 'TRUE'
 
 
       - name: setup r-reticulate venv
         shell: Rscript {0}
         run: |
-          # remotes::install_local()
-          reticulate::virtualenv_create("r-reticulate", Sys.which("python"))
-          reticulate::virtualenv_install("r-reticulate",
-            c("docutils", "pandas", "scipy", "matplotlib", "ipython",
-              "tabulate", "plotly", "psutil", "kaleido", "wrapt"))
-          python <- reticulate::virtualenv_python("r-reticulate")
-          writeLines(sprintf("RETICULATE_PYTHON=%s", python),
+
+          path_to_python <- reticulate::virtualenv_create(
+            envname = "r-reticulate",
+            python = Sys.which("python"), # placed on PATH by the setup-python action
+            packages = c(
+              "docutils", "pandas", "scipy", "matplotlib", "ipython",
+              "tabulate", "plotly", "psutil", "kaleido", "wrapt"
+            )
+          )
+
+          writeLines(sprintf("RETICULATE_PYTHON=%s", path_to_python),
                      Sys.getenv("GITHUB_ENV"))
+
 
       - uses: r-lib/actions/check-r-package@v2

@@ -900,6 +900,8 @@ is_osx <- function() {
   Sys.info()["sysname"] == "Darwin"
 }
 
+is_macos <- is_osx
+
 is_linux <- function() {
   identical(tolower(Sys.info()[["sysname"]]), "linux")
 }

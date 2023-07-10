@@ -26,7 +26,9 @@
     scipy 1.11.0.
 
 -   New function `virtualenv_starter()`, which can be used to find a suitable
-    python binary for creating a virtual environmnent.
+    python binary for creating a virtual environmnent. This is now the default
+    method for finding the python binary when calling `virtualenv_create(version = <version>)`.
+
 
 -   `install_python()` now gives a better error message if git is not installed.
 

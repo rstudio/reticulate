@@ -97,9 +97,12 @@ virtualenv_create <- function(
     writeLines(paste("virtualenv:", name))
     return(invisible(path))
   }
+  if (is.null(python)) {
+    python <- virtualenv_starter(version) %||% virtualenv_default_python()
+  } else {
+    python <- normalizePath(python, winslash = "/")
+  }
 
-  python <- python %||% pyenv_python(version)
-  python <- virtualenv_default_python(python)
   module <- module %||% virtualenv_module(python)
 
   # use it to create the virtual environment
@@ -335,7 +338,7 @@ virtualenv_pip <- function(envname) {
 
 virtualenv_default_python <- function(python = NULL) {
 
-  # if the user has supplied a verison of python already, use it
+  # if the user has supplied a version of python already, use it
   if (!is.null(python))
     return(path.expand(python))
 

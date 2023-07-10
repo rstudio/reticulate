@@ -64,9 +64,8 @@ the current session will be used.}
 
 \item{version}{The version of Python to be used with the newly-created
 virtual environment. Python installations as installed via
-\code{\link[=install_python]{install_python()}} will be used. For \code{virtualenv_starter()}, this can also
-be a comma separated list of version constraints, like \code{">=3.8"}, or
-\code{"<=3.11,!=3.9.3,>3.6"}}
+\code{\link[=install_python]{install_python()}} will be used. This can also be a comma separated list of
+version constraints, like \code{">=3.8"}, or \code{"<=3.11,!=3.9.3,>3.6"}}
 
 \item{packages}{A set of Python packages to install (via \verb{pip install}) into
 the virtual environment, after it has been created. By default, the
@@ -108,7 +107,7 @@ environments?}
 \item{all}{If \code{TRUE}, \code{virtualenv_starter()} returns a 2-column data frame,
 with column names \code{path} and \code{version}. If \code{FALSE}, only a single path to a
 python binary is returned, corresponding to the first entry when
-\code{all = TRUE}, or \code{NULL} if no suitable binaries were found.}
+\code{all = TRUE}, or \code{NULL} if no suitable python binaries were found.}
 }
 \description{
 R functions for managing Python \href{https://virtualenv.pypa.io/en/stable/}{virtual environments}.

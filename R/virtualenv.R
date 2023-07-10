@@ -33,9 +33,8 @@
 #'
 #' @param version The version of Python to be used with the newly-created
 #'   virtual environment. Python installations as installed via
-#'   [install_python()] will be used. For `virtualenv_starter()`, this can also
-#'   be a comma separated list of version constraints, like `">=3.8"`, or
-#'   `"<=3.11,!=3.9.3,>3.6"`
+#'   [install_python()] will be used. This can also be a comma separated list of
+#'   version constraints, like `">=3.8"`, or `"<=3.11,!=3.9.3,>3.6"`
 #'
 #' @param all If `TRUE`, `virtualenv_starter()` returns a 2-column data frame,
 #'   with column names `path` and `version`. If `FALSE`, only a single path to a
@@ -97,11 +96,25 @@ virtualenv_create <- function(
     writeLines(paste("virtualenv:", name))
     return(invisible(path))
   }
-  if (is.null(python)) {
-    python <- virtualenv_starter(version) %||% virtualenv_default_python()
-  } else {
+
+
+  if (is.null(python)) repeat {
+    python <- virtualenv_starter(version)
+    if(!is.null(python))
+      break
+
+    if(!is.null(version))
+      stop_no_virtualenv_starter(version)
+
+    python <- virtualenv_default_python()
+    if(!is.null(python))
+       break
+
     python <- normalizePath(python, winslash = "/")
+    break
   }
+
+  check_can_be_virtualenv_starter(python)
 
   module <- module %||% virtualenv_module(python)
 
@@ -335,7 +348,6 @@ virtualenv_pip <- function(envname) {
 }
 
 
-
 virtualenv_default_python <- function(python = NULL) {
 
   # if the user has supplied a version of python already, use it
@@ -352,25 +364,7 @@ virtualenv_default_python <- function(python = NULL) {
 
   for (python in pythons) {
 
-    # skip non-existent Python
-    if (!file.exists(python))
-      next
-
-    # get list of required modules
-    version <- tryCatch(
-      suppressWarnings(python_version(python)),
-      error = identity
-    )
-
-    if (inherits(version, "error"))
-      next
-
-    py2_modules <- c("pip", "virtualenv")
-    py3_modules <- c("pip", "venv")
-    modules <- ifelse(version < 3, py2_modules, py3_modules)
-
-    # ensure these modules are available
-    if (!python_has_modules(python, modules))
+    if(!can_be_virtualenv_starter(python))
       next
 
     return(normalizePath(python, winslash = "/"))
@@ -580,5 +574,70 @@ as_version_constraint_checkers <- function(version) {
     }
   }, list(op, ver), NULL)
 }
+
+
+check_can_be_virtualenv_starter <- function(python) {
+  if(!can_be_virtualenv_starter(python))
+    stop_no_virtualenv_starter()
+}
+
+can_be_virtualenv_starter <- function(python) {
+  if (!file.exists(python))
+    return(FALSE)
+
+  # get version
+  version <- tryCatch(
+    suppressWarnings(python_version(python)),
+    error = identity
+  )
+
+  if (inherits(version, "error"))
+    return(FALSE)
+
+  py2_modules <- c("pip", "virtualenv")
+  py3_modules <- c("pip", "venv")
+  modules <- ifelse(version < 3, py2_modules, py3_modules)
+
+  # ensure these modules are available
+  if (!python_has_modules(python, modules))
+    return(FALSE)
+
+  # check if python was built with `--enable-shared`, to make sure
+  # we don't bootstrap a venv that reticulate can't bind to
+  is_enable_shared <- system2(python, c("-c",
+                                        "import sysconfig; print(sysconfig.get_config_var('Py_ENABLE_SHARED'))"),
+                              stdout = TRUE, stderr = TRUE)
+  if(!identical(is_enable_shared, "1"))
+    return(FALSE)
+
+  TRUE
+}
+
+
+stop_no_virtualenv_starter <- function(version = NULL) {
+
+  .msg <- character()
+  w <- function(...) .msg <<- c(.msg, paste0(...))
+
+  w("Suitable Python installation not found.")
+  if (!is.null(version))
+    w("Requested version constraint: ", version)
+  w("Please install Python with one of following methods:")
+
+  if (is_linux())
+      w("- https://github.com/rstudio/python-builds/")
+
+  if (!is_linux())
+    w("- https://www.python.org/downloads/")
+
+  w("- reticulate::install_python(version = '<version>')")
+
+  if (is_macos() && nzchar(Sys.which("brew")))
+    w('- system("brew install python@<version>")')
+
+  stop(paste0(.msg, collapse = "\n"))
+
+}
+
 
 

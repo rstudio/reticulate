@@ -461,7 +461,7 @@ virtualenv_starter <- function(version = NULL, all = FALSE) {
                          path = character())
 
   find_starters <- function(glob) {
-    p <- unique(normalizePath(Sys.glob(glob)))
+    p <- unique(normalizePath(Sys.glob(glob), winslash = "/"))
     p <- p[grep("^python[0-9.]*(\\.exe)?$", basename(p))]
     v <- numeric_version(vapply(p, function(python_path)
       tryCatch({
@@ -478,6 +478,11 @@ virtualenv_starter <- function(version = NULL, all = FALSE) {
 
     df <- rbind(starters, df)
     df <- df[!duplicated(df$path), ]
+    if(is_windows()) {
+      # on windows, removed dups of the same python,
+      # like 'python.exe', 'python3.exe' 'python3.11.exe'
+      df <- df[!duplicated(dirname(df$path)), ]
+    }
     rownames(df) <- NULL
     starters <<- df
   }

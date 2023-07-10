@@ -33,7 +33,14 @@
 #'
 #' @param version The version of Python to be used with the newly-created
 #'   virtual environment. Python installations as installed via
-#'   [install_python()] will be used.
+#'   [install_python()] will be used. For `virtualenv_starter()`, this can also
+#'   be a comma separated list of version constraints, like `">=3.8"`, or
+#'   `"<=3.11,!=3.9.3,>3.6"`
+#'
+#' @param all If `TRUE`, `virtualenv_starter()` returns a 2-column data frame,
+#'   with column names `path` and `version`. If `FALSE`, only a single path to a
+#'   python binary is returned, corresponding to the first entry when
+#'   `all = TRUE`, or `NULL` if no suitable python binaries were found.
 #'
 #' @param packages A set of Python packages to install (via `pip install`) into
 #'   the virtual environment, after it has been created. By default, the
@@ -436,3 +443,133 @@ is_virtualenv <- function(dir) {
   any(file.exists(paths))
 
 }
+
+
+
+#' @rdname virtualenv-tools
+#' @export
+virtualenv_starter <- function(version = NULL, all = FALSE) {
+
+  starters <- data.frame(version = numeric_version(character()),
+                         path = character())
+
+  find_starters <- function(glob) {
+    p <- unique(normalizePath(Sys.glob(glob)))
+    p <- p[grep("^python[0-9.]*(\\.exe)?$", basename(p))]
+    v <- numeric_version(vapply(p, function(python_path)
+      tryCatch({
+        v <- system2(python_path, "-EV", stdout = TRUE)
+        if ((attr(v, "status") %||% 0) ||
+            length(v) != 1L ||
+            !startsWith(v, "Python "))
+          return(NA_character_)
+        substr(v, 8L, 999L)
+      }, error = function(e) NA_character_), ""), strict = FALSE)
+    df <- data.frame(version = v, path = p, row.names = NULL)
+    df <- df[!is.na(df$version), ]
+    df <- df[order(df$version, decreasing = TRUE), ]
+
+    df <- rbind(starters, df)
+    df <- df[!duplicated(df$path), ]
+    rownames(df) <- NULL
+    starters <<- df
+  }
+
+  # Find pythons installed via `install_python()` or by directly using pyenv.
+  # Typically something like "~/.pyenv/versions/3.9.17/bin/python3.9" or
+  #  "C:/Users/Administrator/AppData/Local/r-reticulate/r-reticulate/pyenv/pyenv-win/versions/3.9.13/python.exe"
+  # but can be different if user set PYENV_ROOT or manually installed pyenv
+  # in a different location
+  if (length(pyenv <- pyenv_find(install = FALSE))) {
+     if (is_windows()) {
+       pyenv_root <- dirname(dirname(pyenv))
+       find_starters(file.path(pyenv_root, "versions/*/python*.exe"))
+     } else {
+       pyenv_root <- system2(pyenv, "root", stdout = TRUE)
+       find_starters(file.path(pyenv_root, "versions/*/bin/python*"))
+    }
+  }
+
+  # official python.org installer for macOS default location
+  # "/Library/Frameworks/Python.framework/Versions/3.11/bin/python3.11"
+  if (is_macos())
+    find_starters("/Library/Frameworks/Python.framework/Versions/*/bin/python*")
+
+  # official python.org installer for windows
+  # system install:  "C:/Program Files/Python311/python.exe"
+  # user install: "C:/Users/<username>/AppData/Local/Programs/Python/Python311/python.exe"
+  if (is_windows()) {
+    find_starters("/Program Files/Python*/python*.exe")
+    find_starters("~/../AppData/Local/Programs/Python/Python*/python*.exe")
+  }
+
+  # Pythons installed from https://github.com/rstudio/python-builds
+  # e.g., "/opt/python/3.11.4/bin/python3.11"
+  if (is_linux())
+    find_starters("/opt/python/*/bin/python*")
+
+  # python installed system wide
+  if (!is_windows())
+    find_starters("/usr/local/bin/python*")
+
+  # only use system python on linux, not mac
+  if (is_linux())
+    find_starters("/usr/bin/python*")
+
+  # on mac, use homebrew as a fallback, if found
+  if (is_macos())
+    find_starters("/opt/homebrew/opt/python*/bin/python*")
+
+  # if specific version requested, filter for that.
+  if (!is.null(version)) {
+    for(check in as_version_constraint_checkers(version)) {
+      satisfies_constraint <- check(starters$version)
+      starters <- starters[satisfies_constraint, ]
+    }
+  }
+
+  if (all)
+    starters
+  else if (nrow(starters))
+    starters$path[[1L]]
+  else
+    NULL
+
+}
+
+as_version_constraint_checkers <- function(version) {
+  stopifnot(is.character(version))
+
+  # given a version string like ">=3.6,!=3.9,<3.11", split on ","
+  version <- unlist(strsplit(version, ",", fixed = TRUE))
+
+  # given string like ">=3.8", match two groups, on ">=" and "3.8"
+  pattern <- "^([><=!]{0,2})\\s*([0-9.]*)"
+
+  op <- sub(pattern, "\\1",  version)
+  op[op == ""] <- "=="
+
+  ver <- sub(pattern, "\\2",  version)
+  ver <- numeric_version(ver)
+
+  .mapply(function(op, ver) {
+    op <- get(op, mode = "function")
+    force(ver)
+
+    # return a "checker" function that takes a vector of versions and returns
+    # a logical vector of if the version satisfies the constraint.
+    function(x) {
+      x <- numeric_version(x)
+      # if the constraint version is missing minor or patch level, set
+      # to 0, so we can match on all, equivalent to pip style syntax like '3.8.*'
+      for(lvl in 3:2)
+        if (is.na(ver[, lvl])) {
+          ver[, lvl] <- 0L
+          x[, lvl] <- 0L
+        }
+      op(x, ver)
+    }
+  }, list(op, ver), NULL)
+}
+
+

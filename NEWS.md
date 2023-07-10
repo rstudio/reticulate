@@ -24,7 +24,10 @@
 
 -   Updated sparse matrix conversion routines for compatibility with
     scipy 1.11.0.
-    
+
+-   New function `virtualenv_starter()`, which can be used to find a suitable
+    python binary for creating a virtual environmnent.
+
 -   `install_python()` now gives a better error message if git is not installed.
 
 -   Fixed an issue where a py capsule finalizer could access the R API from

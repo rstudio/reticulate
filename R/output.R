@@ -28,6 +28,11 @@ reset_output_streams <- function() {
 }
 
 set_knitr_python_stdout_hook <- function() {
+  # if the env var is set to 0, we respect it and never remap. If the env var is 1
+  # this means that remapping is already set and we don't need the hook anyway.
+  if (!is.na(Sys.getenv("RETICULATE_REMAP_OUTPUT_STREAMS", unset = NA)))
+    return()
+
   # we don't want to to force a knitr load namespace, so if it's already loaded
   # we set the knitr hook, otherwise we schedule an onLoad hook.
   if (isNamespaceLoaded("knitr")) {

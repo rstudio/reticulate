@@ -143,15 +143,16 @@ class OutputRemap(object):
     return None
 
 
-def remap_output_streams(r_stdout, r_stderr, tty, force):
-  
-  if (force or sys.stdout is None):
-    sys.stdout = OutputRemap(sys.stdout, r_stdout, tty)
-    
-  if (force or sys.stderr is None):
-    sys.stderr = OutputRemap(sys.stderr, r_stderr, tty)
+def remap_output_streams(r_stdout, r_stderr, tty):
+  sys.stdout = OutputRemap(sys.stdout, r_stdout, tty)
+  sys.stderr = OutputRemap(sys.stderr, r_stderr, tty)
 
-
+def reset_output_streams():
+  # https://stackoverflow.com/a/51340381/3297472 suggests that the initial stdout
+  # is always available in `sys.__stdout__` so we just need to reassign to revert
+  # it.
+  sys.stdout = sys.__stdout__
+  sys.stderr = sys.__stderr__
 
 
 

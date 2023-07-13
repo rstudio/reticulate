@@ -29,8 +29,9 @@
     python binary for creating a virtual environmnent. This is now the default
     method for finding the python binary when calling `virtualenv_create(version = <version>)`.
 
-
 -   `install_python()` now gives a better error message if git is not installed.
+
+-   New function `conda_search()`, contributed by @mkoohafkan in PR #1364.
 
 -   Fixed an issue where a py capsule finalizer could access the R API from
     a background thread. (#1406)

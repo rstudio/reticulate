@@ -637,6 +637,70 @@ conda_python <- function(envname = NULL,
   path.expand(python)
 }
 
+#' @returns
+#'   `conda_search()` returns an \R `data.frame` describing packages that
+#'   matched against `matchspec`. The data frame will usually include
+#'   fields `name` giving the package name, `version` giving the package
+#'   version, `build` giving the package build, and `channel` giving the
+#'   channel the package is hosted on.
+#'
+#' @param matchspec A conda MatchSpec query string.
+#'
+#' @rdname conda-tools
+#' @export
+conda_search <-
+  function(matchspec,
+           forge = TRUE,
+           channel = character(),
+           conda = "auto",
+           ...) {
+
+  conda <- conda_binary(conda)
+  local_conda_paths(conda)
+
+  args <- c("search", matchspec)
+
+  # add user-requested channels
+  channels <- if (length(channel))
+    channel
+  else if (forge)
+    "conda-forge"
+
+  for (ch in channels)
+    args <- c(args, "-c", ch)
+
+  args = c(args, "--json")
+  output <- system2(conda, shQuote(args), stdout = TRUE)
+  status <- attr(output, "status") %||% 0L
+  # check for errors
+  if (status != 0L) {
+    fmt <- "error searching for packages [error code %i]"
+    stopf(fmt, status)
+  }
+
+  parsed <- jsonlite::fromJSON(output)
+
+  all_colnames <- unique(unlist(lapply(parsed, names)))
+  df <- do.call(rbind, lapply(parsed, function(x) {
+    if(any(missing_cols <- setdiff(all_colnames, names(x))))
+      x[missing_cols] <- NA
+    x
+  }))
+  rownames(df) <- NULL
+
+  # reverse row order, so most recent versions are (likely) first. In an ideal
+  # world we'd use `order(numeric_version(df$version))`, but we can't depend on
+  # the version string being parseable.
+  if(nrow(df))
+    df <- df[rev(seq_len(nrow(df))), ]
+
+  # reorder columns
+  to_front <- intersect(c("name", "version", "build", "channel"), names(df))
+  df <- df[c(unique(to_front, names(df)))]
+
+  df
+}
+
 
 find_conda <- function() {
 

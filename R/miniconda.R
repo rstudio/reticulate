@@ -306,10 +306,10 @@ miniconda_conda <- function(path = miniconda_path()) {
 
 miniconda_envpath <- function(env = NULL, path = miniconda_path()) {
   env <- env %||% Sys.getenv("RETICULATE_MINICONDA_ENVNAME", unset = "r-reticulate")
-  
+
   if(env == 'base')
     return(path)
-  
+
   file.path(path, "envs", env)
 }
 
@@ -403,7 +403,7 @@ miniconda_python_envpath <- function() {
 
 # the version of python to use in the environment
 miniconda_python_version <- function() {
-  Sys.getenv("RETICULATE_MINICONDA_PYTHON_VERSION", unset = "3.8")
+  Sys.getenv("RETICULATE_MINICONDA_PYTHON_VERSION", unset = "3.9")
 }
 
 miniconda_python_package <- function() {

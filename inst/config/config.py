@@ -41,8 +41,17 @@ config = {
   "BaseExecPrefix"   : getattr(sys, "base_exec_prefix", ""),
   "PythonPath"       : pathsep.join((x or "." for x in sys.path)),
   "LIBPL"            : sysconfig.get_config_var("LIBPL"),
-  "LIBDIR"           : sysconfig.get_config_var("LIBDIR")
+  "LIBDIR"           : sysconfig.get_config_var("LIBDIR"),
+  "SharedLibrary"    : sysconfig.get_config_var("Py_ENABLE_SHARED"),
 }
+
+# detect if this is a conda managed python
+# https://stackoverflow.com/a/21282816/5128728
+if sys.version_info >= (3, 7):
+  is_conda = os.path.exists(os.path.join(sys.prefix, 'conda-meta'))
+else:
+  is_conda = 'conda' in sys.version
+config['IsConda'] = is_conda
 
 # Read numpy configuration (if available)
 try:

@@ -41,6 +41,20 @@ plt.plot([1, 2, 3, 4])
 plt.show()
 ```
 
+
+```{python, fig.width=8, fig.height=3, dev="svg"}
+import matplotlib.pyplot as plt
+
+plt.plot(range(10))
+```
+
+```{python, fig.width=8, fig.height=3, dev="svg"}
+import matplotlib.pyplot as plt
+
+plt.hist(range(10))
+```
+
+
 Python can access objects available in the R environment.
 
 ```{r}
@@ -81,7 +95,7 @@ print(y)
 - #130: The `echo` chunk option is respected (for `TRUE` and `FALSE` values). Output, but not source, should show in the following output.
 
 ```{python echo=FALSE}
-print ("Chunk with echo = FALSE")
+print("Chunk with echo = FALSE")
 ```
 
 - #130: The `results` chunk option is respected for Python outputs. Source, but not output, should show in the following output.

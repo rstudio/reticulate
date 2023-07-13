@@ -21,16 +21,18 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - { os: macOS-latest  , r: 'release', python: '3.8' }
-          - { os: windows-latest, r: 'release', python: '3.8' }
-          - { os: ubuntu-latest , r: 'release', python: '3.8' }
+          - { os: macOS-latest  , r: 'release', python: '3.9' }
+          - { os: windows-latest, r: 'release', python: '3.9' }
+          - { os: ubuntu-latest , r: 'release', python: '3.9' }
 
-          - { os: ubuntu-latest, r: 'oldrel-1', python: '3.8' }
+          - { os: ubuntu-latest, r: 'oldrel-1', python: '3.9' }
+          - { os: ubuntu-latest, r: 'oldrel-2', python: '3.9' }
+          - { os: ubuntu-20.04,  r: '3.6',      python: '3.8' }
+          - { os: ubuntu-20.04,  r: '3.5',      python: '3.6' }
           # - { os: ubuntu-latest, r: 'devel'   , python: '3.8', http-user-agent: 'release' }
 
-          - { os: ubuntu-latest, r: 'release', python: '2.7'  }
           - { os: ubuntu-latest, r: 'release', python: '3.7'  }
-          - { os: ubuntu-latest, r: 'release', python: '3.9'  }
+          - { os: ubuntu-latest, r: 'release', python: '3.8'  }
           - { os: ubuntu-latest, r: 'release', python: '3.10' }
           - { os: ubuntu-latest, r: 'release', python: '3.11' }
 
@@ -53,23 +55,28 @@ jobs:
         with:
           python-version: ${{ matrix.config.python }}
 
-      - if: matrix.config.python == '2.7'
-        run: python -m pip install --upgrade --user virtualenv
-
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: rcmdcheck remotes
+          extra-packages: rcmdcheck remotes local::.
+          cache-version: 3
+          upgrade: 'TRUE'
+
 
       - name: setup r-reticulate venv
         shell: Rscript {0}
         run: |
-          remotes::install_local()
-          reticulate::virtualenv_create("r-reticulate", Sys.which("python"))
-          reticulate::virtualenv_install("r-reticulate",
-            c("docutils", "pandas", "scipy", "matplotlib", "ipython",
-              "tabulate", "plotly", "psutil", "kaleido"))
-          python <- reticulate::virtualenv_python("r-reticulate")
-          writeLines(sprintf("RETICULATE_PYTHON=%s", python),
+
+          path_to_python <- reticulate::virtualenv_create(
+            envname = "r-reticulate",
+            python = Sys.which("python"), # placed on PATH by the setup-python action
+            packages = c(
+              "docutils", "pandas", "scipy", "matplotlib", "ipython",
+              "tabulate", "plotly", "psutil", "kaleido", "wrapt"
+            )
+          )
+
+          writeLines(sprintf("RETICULATE_PYTHON=%s", path_to_python),
                      Sys.getenv("GITHUB_ENV"))
+
 
       - uses: r-lib/actions/check-r-package@v2

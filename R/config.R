@@ -697,7 +697,6 @@ python_config <- function(python,
   # get the full textual version and the numeric version, check for anaconda
   version_string <- config$Version
   version <- config$VersionNumber
-  conda <- grepl("conda", version_string, ignore.case = TRUE)
   anaconda <- grepl("anaconda|continuum", version_string, ignore.case = TRUE)
   architecture <- config$Architecture
 
@@ -821,7 +820,7 @@ python_config <- function(python,
     version              = version,
     architecture         = architecture,
     anaconda             = anaconda,
-    conda                = conda,
+    conda                = config$IsConda,
     numpy                = numpy,
     required_module      = required_module,
     required_module_path = required_module_path,
@@ -900,6 +899,8 @@ is_unix <- function() {
 is_osx <- function() {
   Sys.info()["sysname"] == "Darwin"
 }
+
+is_macos <- is_osx
 
 is_linux <- function() {
   identical(tolower(Sys.info()[["sysname"]]), "linux")

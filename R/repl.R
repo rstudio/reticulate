@@ -149,8 +149,13 @@ repl_python <- function(
   handle_error <- function(output) {
     failed <- inherits(output, "error")
     if (failed) {
-      error <- py_last_error()
-      message(paste(error$type, error$value, sep = ": "))
+      error_message <- py_last_error()$message
+
+      if (identical(.Platform$GUI, "RStudio") &&
+          requireNamespace("cli", quietly = TRUE))
+        error_message <- make_filepaths_clickable(error_message)
+
+      message(error_message, appendLF = !endsWith(error_message, "\n"))
     }
     failed
   }

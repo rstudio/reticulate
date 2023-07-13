@@ -144,6 +144,11 @@ eng_python <- function(options) {
     ranges <- mapply(c, starts, ends, SIMPLIFY = FALSE)
   }
 
+  # Stash some options.
+  is_hold <- identical(options$results, "hold")
+  is_include <- isTRUE(options$include)
+  jupyter_compat <- isTRUE(options$jupyter_compat)
+
   # line index from which source should be emitted
   pending_source_index <- 1
 
@@ -156,8 +161,11 @@ eng_python <- function(options) {
   # 'held' outputs, to be appended at the end (for results = "hold")
   held_outputs <- stack()
 
+  # Outputs to be appended to; these depend on the "hold" option.
+  outputs_target <- if (is_hold) held_outputs else outputs
+
   # synchronize state R -> Python
-  eng_python_synchronize_before()
+  eng_python_synchronize_before(options)
 
   # determine if we should capture errors
   # (don't capture errors during knit)
@@ -176,11 +184,11 @@ eng_python <- function(options) {
     }, add = TRUE)
   }
 
-
   for (i in seq_along(ranges)) {
 
     # extract range
     range <- ranges[[i]]
+    last_range <- i == length(ranges)
 
     # extract code to be run
     snippet <- extract(code, range)
@@ -188,22 +196,22 @@ eng_python <- function(options) {
     # clear the last value object (so we can tell if it was updated)
     py_compile_eval("'__reticulate_placeholder__'")
 
-    # use trailing semicolon to suppress output of return value
-    suppress <- grepl(";\\s*$", snippet)
-    compile_mode <- if (suppress) "exec" else "single"
-
     # run code and capture output
     captured <- if (capture_errors)
-      tryCatch(py_compile_eval(snippet, compile_mode), error = identity)
+      tryCatch(py_compile_eval(snippet, 'single'), error = identity)
     else
-      py_compile_eval(snippet, compile_mode)
+      py_compile_eval(snippet, 'single')
 
-    # handle matplotlib output
+    # handle matplotlib plots and other special output
     captured <- eng_python_autoprint(
       captured = captured,
-      options  = options,
-      autoshow = i == length(ranges)
+      options  = options
     )
+
+    # A trailing ';' suppresses output.
+    # In jupyter mode, only the last expression in a chunk has repr() output.
+    if (grepl(";\\s*$", snippet) | (jupyter_compat & !last_range))
+      captured <- ""
 
     # emit outputs if we have any
     has_outputs <-
@@ -213,7 +221,7 @@ eng_python <- function(options) {
     if (has_outputs) {
 
       # append pending source to outputs (respecting 'echo' option)
-      if (!identical(options$echo, FALSE) && !identical(options$results, "hold")) {
+      if (!identical(options$echo, FALSE) && !is_hold) {
         extracted <- extract(code, c(pending_source_index, range[2]))
         if(!identical(options$collapse, TRUE) &&
            identical(options$strip.white, TRUE)) {
@@ -226,34 +234,15 @@ eng_python <- function(options) {
       }
 
       # append captured outputs (respecting 'include' option)
-      if (isTRUE(options$include)) {
+      if (is_include) {
+        # append captured output
+        if (!identical(captured, ""))
+          outputs_target$push(captured)
 
-        if (identical(options$results, "hold")) {
-
-          # append captured output
-          if (!identical(captured, ""))
-            held_outputs$push(captured)
-
-          # append captured images / figures
-          plots <- .engine_context$pending_plots$data()
-          for (plot in plots)
-            held_outputs$push(plot)
-          .engine_context$pending_plots$clear()
-
-        } else {
-
-          # append captured output
-          if (!identical(captured, ""))
-            outputs$push(captured)
-
-          # append captured images / figures
-          plots <- .engine_context$pending_plots$data()
-          for (plot in plots)
-            outputs$push(plot)
-          .engine_context$pending_plots$clear()
-
-        }
-
+        # append captured images / figures
+        for (plot in .engine_context$pending_plots$data())
+          outputs_target$push(plot)
+        .engine_context$pending_plots$clear()
       }
 
       # update pending source range
@@ -281,8 +270,21 @@ eng_python <- function(options) {
     outputs$push(output)
   }
 
+  # check if we need to call matplotlib.pyplot.show()
+  # for any pending undisplayed plots
+  if(isTRUE(.globals$matplotlib_initialized)) {
+    plt <- import("matplotlib.pyplot")
+    if(length(plt$get_fignums()))
+      plt$show()
+  }
+
+  for (plot in .engine_context$pending_plots$data())
+    outputs_target$push(plot)
+  .engine_context$pending_plots$clear()
+
+
   # if we were using held outputs, we just inject the source in now
-  if (identical(options$results, "hold")) {
+  if (is_hold) {
     output <- structure(list(src = code), class = "source")
     outputs$push(output)
   }
@@ -376,7 +378,7 @@ eng_python_matplotlib_show <- function(plt, options) {
   # save the current figure
   dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
   plt$savefig(path, dpi = options$dpi)
-  plt$clf()
+  plt$close()
 
   # include the requested path
   knitr::include_graphics(path)
@@ -414,11 +416,10 @@ eng_python_initialize_hooks <- function(options, envir) {
 
 eng_python_initialize_matplotlib <- function(options, envir) {
 
-  # mark initialization done
+  # early exit if we already initialized
+  # (this onload hook is registered for multiple matplotlib submodules)
   if (identical(.globals$matplotlib_initialized, TRUE))
     return(TRUE)
-
-  .globals$matplotlib_initialized <- TRUE
 
   # attempt to enforce a non-Qt matplotlib backend. this is especially important
   # with RStudio Desktop as attempting to use a Qt backend will cause issues due
@@ -470,8 +471,7 @@ eng_python_initialize_matplotlib <- function(options, envir) {
 
   }
 
-  # set up figure dimensions
-  plt$rc("figure", figsize = tuple(options$fig.width, options$fig.height))
+  .globals$matplotlib_initialized <- TRUE
 
 }
 
@@ -495,8 +495,14 @@ eng_python_initialize_plotly <- function(options, envir) {
 }
 
 # synchronize objects R -> Python
-eng_python_synchronize_before <- function() {
+eng_python_synchronize_before <- function(options) {
   py_inject_r()
+  if(isTRUE(.globals$matplotlib_initialized)) {
+
+    # set up figure dimensions
+    plt <- import("matplotlib.pyplot")
+    plt$rc("figure", figsize = tuple(options$fig.width, options$fig.height))
+  }
 }
 
 # synchronize objects Python -> R
@@ -524,13 +530,28 @@ eng_python_validate_options <- function(options) {
 
 eng_python_is_matplotlib_output <- function(value) {
 
-  # extract 'boxed' matplotlib outputs
-  if (inherits(value, "python.builtin.list") && length(value) > 0)
-    value <- value[[0]]
+  matplotlib_plot_types <- c("matplotlib.artist.Artist",
+                             "matplotlib.container.Container",
+                             "matplotlib.image.AxesImage",
+                             "matplotlib.image.BboxImage",
+                             "matplotlib.image.FigureImage",
+                             "matplotlib.image.NonUniformImage",
+                             "matplotlib.image.PcolorImage")
 
-  # TODO: are there other types we care about?
-  inherits(value, "matplotlib.artist.Artist")
+  if (inherits(value, c("python.builtin.tuple", "python.builtin.list")) &&
+      length(value) > 0L) {
 
+    # some functions returned list-"boxed" images, like [<img>]
+    if (inherits(py_get_item(value, 0L), matplotlib_plot_types))
+      return(TRUE)
+
+    # plt.hist returns (<np.array>, <np.array>, <img>)
+    if(length(value) > 1L &&
+       inherits(py_get_item(value, length(value)-1L), matplotlib_plot_types))
+      return(TRUE)
+  }
+
+  inherits(value, matplotlib_plot_types)
 }
 
 eng_python_is_seaborn_output <- function(value) {
@@ -567,7 +588,7 @@ eng_python_altair_chart_id <- function(options, ids) {
 
 }
 
-eng_python_autoprint <- function(captured, options, autoshow) {
+eng_python_autoprint <- function(captured, options) {
 
   # bail if no new value was produced by interpreter
   value <- py_last_value()
@@ -585,18 +606,9 @@ eng_python_autoprint <- function(captured, options, autoshow) {
   isHtml <- knitr::is_html_output()
 
   if (eng_python_is_matplotlib_output(value)) {
+    # We handle pending Matplotlib plots with fignums check later.
 
-    # by default, we suppress "side-effect" outputs from matplotlib
-    # objects; only when 'autoshow' is set will we try to render the
-    # associated matplotlib plot
-    #
-    # handle matplotlib output. note that the default hook installed by
-    # reticulate will update the 'pending_plots' item
-    if (autoshow) {
-      plt <- import("matplotlib.pyplot", convert = TRUE)
-      plt$show()
-    }
-
+    # Always suppress Matplotlib reprs
     return("")
 
   } else if (eng_python_is_seaborn_output(value)) {

@@ -79,6 +79,52 @@ fetch_op <- function(nm, .op, nargs = 1L) {
   fn
 }
 
+
+#' S3 Ops Methods for Python Objects
+#'
+#' Reticulate provides S3 Ops Group Generic Methods for Python objects. The methods
+#' invoke the equivalent python method of the object.
+#'
+#' @param e1,e2,x,y A python object.
+#'
+#' @section Operator Mappings:
+#'
+#' | R expression  | Python expression | First python method invoked |
+#' | ------------- | ----------------- | --------------------------- |
+#' | `x == y`      | `x == y`          | `type(x).__eq__(x, y)`       |
+#' | `x != y`      | `x != y`          | `type(x).__ne__(x, y)`       |
+#' | `x < y`       | `x < y`           | `type(x).__lt__(x, y)`       |
+#' | `x > y`       | `x > y`           | `type(x).__gt__(x, y)`       |
+#' | `x >= y`      | `x >= y`          | `type(x).__ge__(x, y)`       |
+#' | `x <= y`      | `x <= y`          | `type(x).__le__(x, y)`       |
+#' | `+ x `        | `+ x`             | `type(x).__pos__(x)`         |
+#' | `- y`         | `- x`             | `type(x).__neg__(x)`         |
+#' | `x + y`       | `x + y`           | `type(x).__add__(x, y)`      |
+#' | `x - y`       | `x - y`           | `type(x).__sub__(x, y)`      |
+#' | `x * y`       | `x * y`           | `type(x).__mul__(x, y)`      |
+#' | `x / y`       | `x / y`           | `type(x).__truediv__(x, y)`  |
+#' | `x %/% y`     | `x // y`          | `type(x).__floordiv__(x, y)` |
+#' | `x %% y`      | `x % y`           | `type(x).__mod__(x, y)`   |
+#' | `x ^ y`       | `x ** y`          | `type(x).__pow__(x, y)`   |
+#' | `x & y`       | `x & y`           | `type(x).__and__(x, y)`   |
+#' | \code{x | y}  | \code{x | y}      | `type(x).__or__(x, y)`    |
+#' | `!x`          | `~x`              | `type(x).__not__(x)`      |
+#' | `x %*% y`     | `x @ y`           | `type(x).__matmul__(x, y)`|
+#'
+#' Note: If the initial Python method invoked raises a `NotImplemented`
+#' Exception, the Python interpreter will attempt to use the reflected
+#' variant of the method from the second argument. The arithmetic operators
+#' will call the equivalent double underscore (dunder) method with an "r" prefix. For
+#' instance, when evaluating the expression `x + y`, if `type(x).__add__(x, y)`
+#' raises a `NotImplemented` exception, then the interpreter will attempt
+#' `type(y).__radd__(y, x)`. The comparison operators follow a different
+#' sequence of fallbacks; refer to the Python documentation for more details.
+#'
+#' @return Result from evaluating the Python expression. If either of the
+#' arguments to the operator was a Python object with `convert=FALSE`, then
+#' the result will also be a Python object with `convert=FALSE` set.
+#' Otherwise, the result will be converted to an R object if possible.
+#' @rdname Ops-python-methods
 #' @export
 "==.python.builtin.object" <- function(e1, e2) {
   op <- fetch_op("eq", py_eval("lambda e1, e2: e1 == e2", convert = FALSE),
@@ -86,6 +132,7 @@ fetch_op <- function(nm, .op, nargs = 1L) {
   op(e1, e2)
 }
 
+#' @rdname Ops-python-methods
 #' @export
 "!=.python.builtin.object" <- function(e1, e2) {
   op <- fetch_op("ne", py_eval("lambda e1, e2: e1 != e2", convert = FALSE),
@@ -93,6 +140,7 @@ fetch_op <- function(nm, .op, nargs = 1L) {
   op(e1, e2)
 }
 
+#' @rdname Ops-python-methods
 #' @export
 "<.python.builtin.object" <- function(e1, e2) {
   op <- fetch_op("lt", py_eval("lambda e1, e2: e1 < e2", convert = FALSE),
@@ -100,6 +148,7 @@ fetch_op <- function(nm, .op, nargs = 1L) {
   op(e1, e2)
 }
 
+#' @rdname Ops-python-methods
 #' @export
 ">.python.builtin.object" <- function(e1, e2) {
   op <- fetch_op("gt", py_eval("lambda e1, e2: e1 > e2", convert = FALSE),
@@ -107,6 +156,7 @@ fetch_op <- function(nm, .op, nargs = 1L) {
   op(e1, e2)
 }
 
+#' @rdname Ops-python-methods
 #' @export
 ">=.python.builtin.object" <- function(e1, e2) {
   op <- fetch_op("ge", py_eval("lambda e1, e2: e1 >= e2", convert = FALSE),
@@ -114,6 +164,7 @@ fetch_op <- function(nm, .op, nargs = 1L) {
   op(e1, e2)
 }
 
+#' @rdname Ops-python-methods
 #' @export
 "<=.python.builtin.object" <- function(e1, e2) {
   op <- fetch_op("le", py_eval("lambda e1, e2: e1 <= e2", convert = FALSE),
@@ -133,7 +184,7 @@ py_compare <- function(a, b, op) {
   py_compare_impl(a, b, op)
 }
 
-
+#' @rdname Ops-python-methods
 #' @export
 `+.python.builtin.object` <- function(e1, e2) {
   if (missing(e2)) {
@@ -147,6 +198,7 @@ py_compare <- function(a, b, op) {
 }
 
 
+#' @rdname Ops-python-methods
 #' @export
 `-.python.builtin.object` <- function(e1, e2) {
   if (missing(e2)) {
@@ -159,6 +211,7 @@ py_compare <- function(a, b, op) {
 }
 
 
+#' @rdname Ops-python-methods
 #' @export
 `*.python.builtin.object` <-function(e1, e2) {
   op <- fetch_op("*", py_eval("lambda e1, e2: e1 * e2", convert = FALSE),
@@ -166,6 +219,7 @@ py_compare <- function(a, b, op) {
   op(e1, e2)
 }
 
+#' @rdname Ops-python-methods
 #' @export
 `/.python.builtin.object` <- function(e1, e2) {
   op <- fetch_op("/", py_eval("lambda e1, e2: e1 / e2", convert = FALSE),
@@ -173,6 +227,7 @@ py_compare <- function(a, b, op) {
   op(e1, e2)
 }
 
+#' @rdname Ops-python-methods
 #' @export
 `%/%.python.builtin.object` <- function(e1, e2) {
   op <- fetch_op("//", py_eval("lambda e1, e2: e1 // e2", convert = FALSE),
@@ -180,6 +235,7 @@ py_compare <- function(a, b, op) {
   op(e1, e2)
 }
 
+#' @rdname Ops-python-methods
 #' @export
 `%%.python.builtin.object` <- function(e1, e2) {
   op <- fetch_op("%", py_eval("lambda e1, e2: e1 % e2", convert = FALSE),
@@ -187,6 +243,7 @@ py_compare <- function(a, b, op) {
   op(e1, e2)
 }
 
+#' @rdname Ops-python-methods
 #' @export
 `^.python.builtin.object` <- function(e1, e2) {
   op <- fetch_op("pow", import_builtins(FALSE)$pow,
@@ -194,6 +251,7 @@ py_compare <- function(a, b, op) {
   op(e1, e2)
 }
 
+#' @rdname Ops-python-methods
 #' @export
 `&.python.builtin.object` <- function(e1, e2) {
   op <- fetch_op("&", py_eval("lambda e1, e2: e1 & e2", convert = FALSE),
@@ -201,6 +259,7 @@ py_compare <- function(a, b, op) {
   op(e1, e2)
 }
 
+#' @rdname Ops-python-methods
 #' @export
 `|.python.builtin.object` <- function(e1, e2) {
   op <- fetch_op("|", py_eval("lambda e1, e2: e1 | e2", convert = FALSE),
@@ -208,12 +267,20 @@ py_compare <- function(a, b, op) {
   op(e1, e2)
 }
 
+#' @rdname Ops-python-methods
 #' @export
 `!.python.builtin.object` <- function(e1) {
   op <- fetch_op("~", py_eval("lambda e1: ~ e1", convert = FALSE))
   op(e1)
 }
 
+#' @rdname Ops-python-methods
+#' @export
+`%*%.python.builtin.object` <-function(x, y) {
+  op <- fetch_op("@", py_eval("lambda x, y: x @ y", convert = FALSE),
+                 nargs = 2L)
+  op(x, y)
+}
 
 
 
@@ -1619,6 +1686,32 @@ py_register_load_hook <- function(module, hook) {
 
 }
 
+
+#' `nameOfClass()` for Python objects
+#'
+#' This generic enables passing a `python.builtin.type` object as the 2nd
+#' argument to `base::inherits()`.
+#'
+#' @param x A Python class
+#'
+#' @return A scalar string matching the S3 class of objects constructed from the
+#'   type.
+#'
+#' @rawNamespace if (getRversion() >= "4.3.0") S3method(nameOfClass,python.builtin.type)
+#' @examples
+#' \dontrun{
+#'   numpy <- import("numpy")
+#'   x <- r_to_py(array(1:3))
+#'   inherits(x, numpy$ndarray)
+#' }
+nameOfClass.python.builtin.type <- function(x) {
+  paste(
+    as_r_value(py_get_attr_impl(x, "__module__")),
+    as_r_value(py_get_attr_impl(x, "__name__")),
+    sep = "."
+  )
+}
+
 py_set_interrupt <- function() {
   py_set_interrupt_impl()
 }
@@ -1680,15 +1773,28 @@ py_clear_last_error <- function() {
 #' @export
 py_last_error <- function(exception) {
   if (!missing(exception)) {
+
+    if (is.null(exception))
+      return(.globals$py_last_exception <- .globals$last_r_trace <- NULL)
+
     # set as the last exception
-    if (inherits(exception, "py_error"))
+    r_trace <- NULL
+    if (inherits(exception, "py_error")) {
+      r_trace <- exception$r_trace
       exception <- attr(exception, "exception", TRUE)
+    }
+
+    if(is.null(r_trace))
+      r_trace <- as_r_value(py_get_attr(exception, "r_trace", TRUE))
 
     if (!is.null(exception) &&
         !inherits(exception, "python.builtin.Exception"))
       stop("`exception` must be NULL, a `py_error`, or a 'python.builtin.Exception'")
 
-    on.exit(.globals$py_last_exception <- exception)
+    on.exit({
+      .globals$py_last_exception <- exception
+      .globals$last_r_trace <- r_trace
+      })
     return(invisible(.globals$py_last_exception))
   }
 
@@ -1720,7 +1826,7 @@ py_last_error <- function(exception) {
   )
   out$r_call <- conditionCall(e)
   out$r_class <- as_r_value(py_get_attr(e, "r_class", TRUE)) %||% class(e)
-  out$r_trace <- py_get_attr(e, "r_trace", TRUE)
+  out$r_trace <- py_get_attr(e, "r_trace", TRUE) %||% .globals$last_r_trace
   out <- lapply(out, as_r_value)
   attr(out, "exception") <- e
   class(out) <- "py_error"
@@ -1737,6 +1843,8 @@ make_filepaths_clickable <- function(formatted_python_traceback) {
   # for the previous approach
 
   x <- strsplit(formatted_python_traceback, "\n", fixed = TRUE)[[1L]]
+  if (!length(x))
+    return(formatted_python_traceback)
   m <- regexec('File "([^"]+)", line ([0-9]+), in', x, perl = TRUE)
 
   new <- lapply(regmatches(x, m), function(match) {
@@ -1744,6 +1852,8 @@ make_filepaths_clickable <- function(formatted_python_traceback) {
       return(character())
     filepath <- match[2]
     lineno <- match[3]
+    if(!file.exists(file.path(filepath)))
+      return(filepath)
     link <- cli::style_hyperlink(
       filepath,
       paste0("file://", normalizePath(filepath, mustWork = FALSE)),
@@ -1766,6 +1876,16 @@ make_filepaths_clickable <- function(formatted_python_traceback) {
   paste0(x, collapse = "\n")
 }
 
+## not exported because pillar only in suggests
+## exported dynamically in .onLoad()
+## @exportS3Method pillar::type_sum
+type_sum.python.builtin.object <- function(x) {
+  s <- class(x)[[1L]]
+  if(startsWith(s, "R6type."))
+    s <- substr(s, 8L, 2147483647L)
+  s
+}
+
 #' @export
 print.py_error <- function(x, ...) {
 
@@ -1785,7 +1905,7 @@ print.py_error <- function(x, ...) {
 
 cat_h1 <- function(x) {
   if(requireNamespace("cli", quietly = TRUE)) {
-    cli::cli_h1(x)
+    cli::cli_h1(x, .envir = NULL)
   } else {
     cat("--- ", x, "\n", sep = "")
   }

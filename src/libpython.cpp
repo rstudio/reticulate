@@ -151,6 +151,7 @@ void initialize_type_objects(bool python3) {
   Py_List = Py_BuildValue("[i]", 1024);
   Py_Complex = PyComplex_FromDoubles(0.0, 0.0);
   Py_ByteArray = PyByteArray_FromStringAndSize("a", 1);
+  Py_DictClass = PyObject_Type(Py_Dict);
 }
 
 #define LOAD_PYTHON_SYMBOL_AS(name, as)             \
@@ -264,6 +265,7 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
   LOAD_PYTHON_SYMBOL(PyObject_CallFunctionObjArgs)
   LOAD_PYTHON_SYMBOL(PyType_IsSubtype)
   LOAD_PYTHON_SYMBOL(PyType_GetFlags)
+  LOAD_PYTHON_SYMBOL(PyMapping_Items)
   LOAD_PYTHON_SYMBOL(PySys_WriteStderr)
   LOAD_PYTHON_SYMBOL(PySys_GetObject)
   LOAD_PYTHON_SYMBOL(PyEval_SetProfile)
@@ -394,6 +396,41 @@ bool import_numpy_api(bool python3, std::string* pError) {
   }
 
   return true;
+}
+
+
+int flush_std_buffers() {
+  int status = 0;
+  PyObject* tmp = NULL;
+  PyObject *error_type, *error_value, *error_traceback;
+  PyErr_Fetch(&error_type, &error_value, &error_traceback);
+
+  PyObject* sys_stdout(PySys_GetObject("stdout"));  // returns borrowed reference
+  if (sys_stdout == NULL)
+    status = -1;
+  else
+    tmp = PyObject_CallMethod(sys_stdout, "flush", NULL);
+
+  if (tmp == NULL)
+    status = -1;
+  else {
+    Py_DecRef(tmp);
+    tmp = NULL;
+  }
+
+  PyObject* sys_stderr(PySys_GetObject("stderr"));  // returns borrowed reference
+  if (sys_stderr == NULL)
+    status = -1;
+  else
+    tmp = PyObject_CallMethod(sys_stderr, "flush", NULL);
+
+  if (tmp == NULL)
+    status = -1;
+  else
+    Py_DecRef(tmp);
+
+  PyErr_Restore(error_type, error_value, error_traceback);
+  return status;
 }
 
 

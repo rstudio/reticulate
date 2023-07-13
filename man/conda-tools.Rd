@@ -125,7 +125,7 @@ install via pip due to compilation requirements).}
 
 \item{all}{Boolean; report all instances of Python found?}
 
-\item{matchspec}{A MatchSpec query string.}
+\item{matchspec}{A conda MatchSpec query string.}
 }
 \value{
 \code{conda_list()} returns an \R \code{data.frame}, with \code{name} giving the name of

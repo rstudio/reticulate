@@ -644,16 +644,16 @@ conda_python <- function(envname = NULL,
 #'   version, `build` giving the package build, and `channel` giving the
 #'   channel the package is hosted on.
 #'
-#' @param matchspec A MatchSpec query string.
+#' @param matchspec A conda MatchSpec query string.
 #'
 #' @rdname conda-tools
 #' @export
-conda_search <- function(matchspec,
-                        forge = TRUE,
-                        channel = character(),
-                        conda = "auto",
-                        ...)
-{
+conda_search <-
+  function(matchspec,
+           forge = TRUE,
+           channel = character(),
+           conda = "auto",
+           ...) {
 
   conda <- conda_binary(conda)
   local_conda_paths(conda)
@@ -680,17 +680,25 @@ conda_search <- function(matchspec,
 
   parsed <- jsonlite::fromJSON(output)
 
-  # different channels can have different fields, so we need
-  # to pick the subset of fields common to all channels
-  common_cols <- Reduce(intersect, lapply(parsed, names))
-  df <- do.call(rbind, lapply(parsed, function(x) x[common_cols]))
-  rownames(df) = NULL
+  all_colnames <- unique(unlist(lapply(parsed, names)))
+  df <- do.call(rbind, lapply(parsed, function(x) {
+    if(any(missing_cols <- setdiff(all_colnames, names(x))))
+      x[missing_cols] <- NA
+    x
+  }))
+  rownames(df) <- NULL
 
-  # return the basic fields, we could make it a user argument to
-  # return the full set of fields. Use intersect on the off chance
-  # the channel didn't include all of these basic fields
-  fields <- intersect(c("name", "version", "build", "channel"), names(df))
-  df[fields]
+  # reverse row order, so most recent versions are (likely) first. In an ideal
+  # world we'd use `order(numeric_version(df$version))`, but we can't depend on
+  # the version string being parseable.
+  if(nrow(df))
+    df <- df[rev(seq_len(nrow(df))), ]
+
+  # reorder columns
+  to_front <- intersect(c("name", "version", "build", "channel"), names(df))
+  df <- df[c(unique(to_front, names(df)))]
+
+  df
 }
 
 

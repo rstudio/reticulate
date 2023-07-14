@@ -81,9 +81,9 @@ test_that("Output streams are remaped when kniting", {
   # is correctly reset
   skip_if(!is.na(Sys.getenv("RETICULATE_REMAP_OUTPUT_STREAMS", unset = NA)))
 
-  py <- reticulate::import_builtins()
+  bt <- reticulate::import_builtins()
   x <- py_capture_output(out <- capture.output({
-    py$print("hello world")
+    bt$print("hello world")
   }))
   expect_length(out, 0)
 

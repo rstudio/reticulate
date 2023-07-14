@@ -1,6 +1,4 @@
 remap_output_streams <- function() {
-  output <- import("rpytools.output")
-
   # force remapping of output streams (required with Windows + Python 2
   # as otherwise output from Python is lost)
   force <- is_windows() && !is_python3()
@@ -8,23 +6,20 @@ remap_output_streams <- function() {
   if (!is.na(remap))
     force <- identical(remap, "1")
 
+  # if stdout is NULL in Python we want to force remapping too.
+  if (!force) {
+    sys <- import("sys")
+    force <- is.null(sys$stdout)
+  }
+
   if (!force) return()
+
   set_output_streams(tty = interactive() || isatty(stdout()))
 }
 
 set_output_streams <- function(tty) {
-  output <- import("rpytools.output")
-  output$remap_output_streams(
-    write_stdout,
-    write_stderr,
-    tty = tty
-  )
-}
-
-reset_output_streams <- function() {
-  output <- import("rpytools.output")
-  output$reset_output_streams()
-  remap_output_streams()
+  stream_context <- output_stream_context(tty)
+  stream_context$`__enter__`()
 }
 
 set_knitr_python_stdout_hook <- function() {
@@ -53,13 +48,23 @@ set_knitr_python_stdout_hook <- function() {
 }
 
 set_knitr_hook <- function() {
+  context <- output_stream_context(tty = FALSE)
+
   knitr::knit_hooks$set(include = function(before, options, envir) {
     if (!options$include) return()
     if (before) {
-      set_output_streams(tty = FALSE)
+      context$`__enter__`()
     } else {
-      reset_output_streams()
+      context$`__exit__`()
     }
   })
 }
 
+output_stream_context <- function(tty) {
+  output <- import("rpytools.output")
+  output$RemapOutputStreams(
+    write_stdout,
+    write_stderr,
+    tty = tty
+  )
+}

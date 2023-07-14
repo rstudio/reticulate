@@ -1,4 +1,4 @@
-    py <- reticulate::import_builtins()
-    py$print("Hello world")
+    bt <- reticulate::import_builtins()
+    bt$print("Hello world")
 
     ## Hello world

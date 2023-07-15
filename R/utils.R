@@ -117,9 +117,8 @@ call_r_function <- function(fn, args, named_args) {
         }
 
         if(!py_has_attr(e, "r_call")) {
-          if(is.null(r_trace))
-            r_trace <- get_r_trace(maybe_use_cached = TRUE, trim_tail = 2)
-          py_set_attr(e, "r_call", py_capsule(r_trace$full_call[[nrow(r_trace)]]))
+          py_set_attr(e, "r_call",
+                      py_capsule(r_trace$full_call[[nrow(r_trace)]]))
         }
 
         invokeRestart("raise_py_exception", e)
@@ -137,16 +136,17 @@ call_r_function <- function(fn, args, named_args) {
         e$trace <- .globals$last_r_trace <- trace
         invokeRestart("raise_py_exception", e)
       }
-    ), # withCallingHandlers()
+    ), # end withCallingHandlers()
 
     raise_py_exception = function(e) {
       list(NULL, e)
     }
-  ) # withRestarts()
+  ) # end withRestarts()
 }
 
 
-as_r_value <- function(x) if(inherits(x, "python.builtin.object")) py_to_r(x) else x
+as_r_value <- function(x)
+  if(inherits(x, "python.builtin.object")) py_to_r(x) else x
 
 
 #' @export
@@ -156,7 +156,8 @@ r_to_py.error <- function(x, convert = FALSE) {
     return(x)
   }
 
-  e <- import_builtins(convert = convert)$RuntimeError(conditionMessage(x))
+  bt <- import_builtins(convert = convert)
+  e <- bt$RuntimeError(conditionMessage(x))
 
   for (nm in setdiff(names(x), c("call", "message")))
     py_set_attr(e, paste0("r_", nm), py_capsule(x[[nm]]))
@@ -199,15 +200,17 @@ print.python.builtin.BaseException <- function(x, ...) {
 
 #' @export
 `$.python.builtin.BaseException` <- function(x, name) {
-    if ("condition" %in% .Class &&
-        (identical(name, "call") || identical(name, "message"))) {
-        # warning("Please use conditionCall() or conditionMessage() instead of $call or $message")
-        return(switch(name,
-            call = conditionCall(x),
-            message = conditionMessage(x)
-        ))
-    }
-    py_get_attr(x, name, TRUE)
+  if(identical(name, "call"))
+    return(conditionCall(x))
+  if(identical(name, "message"))
+    return(conditionMessage(x))
+
+  attr <- if(py_has_attr(x, name))
+    py_get_attr(x, name)
+  else
+    py_get_attr(x, paste0("r_", name), TRUE)
+
+  py_maybe_convert(attr, py_has_convert(x))
 }
 
 #' @export

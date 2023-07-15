@@ -968,7 +968,11 @@ py_get_attr <- function(x, name, silent = FALSE) {
   ensure_python_initialized()
   if (py_is_module_proxy(x))
     py_resolve_module_proxy(x)
-  py_get_attr_impl(x, name, silent)
+  res <- py_get_attr_impl(x, name, silent)
+  if(silent && py_is_none(res) && !py_has_attr(x, name))
+    NULL
+  else
+    res
 }
 
 #' Set an attribute of a Python object

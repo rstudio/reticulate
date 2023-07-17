@@ -110,15 +110,14 @@ call_r_function <- function(fn, args, named_args) {
       python.builtin.BaseException = function(e) {
         # check if rethrowing an exception that we've already seen
         # and if so, make sure the r_trace attr is still present
-        r_trace <- as_r_value(py_get_attr(e, "r_trace", TRUE))
+        r_trace <- as_r_value(py_get_attr(e, "trace", TRUE))
         if(is.null(r_trace)) {
           r_trace <- get_r_trace(maybe_use_cached = TRUE, trim_tail = 2)
-          py_set_attr(e, "r_trace", py_capsule(r_trace))
+          py_set_attr(e, "trace", py_capsule(r_trace))
         }
 
-        if(!py_has_attr(e, "r_call")) {
-          py_set_attr(e, "r_call",
-                      py_capsule(r_trace$full_call[[nrow(r_trace)]]))
+        if(!py_has_attr(e, "call")) {
+          py_set_attr(e, "call", py_capsule(r_trace$full_call[[nrow(r_trace)]]))
         }
 
         invokeRestart("raise_py_exception", e)
@@ -130,10 +129,8 @@ call_r_function <- function(fn, args, named_args) {
 
       error = function(e) {
         # we're encountering an R error that has not yet been converted to Python
-        trace <- e$trace
-        if(is.null(trace))
-          trace <- get_r_trace(maybe_use_cached = FALSE, trim_tail = 2)
-        e$trace <- .globals$last_r_trace <- trace
+        .globals$last_r_trace <- e$trace <-
+          e$trace %||% get_r_trace(maybe_use_cached = FALSE, trim_tail = 2)
         invokeRestart("raise_py_exception", e)
       }
     ), # end withCallingHandlers()
@@ -152,25 +149,24 @@ as_r_value <- function(x)
 #' @export
 r_to_py.error <- function(x, convert = FALSE) {
   if(inherits(x, "python.builtin.object")) {
-    assign("convert", convert, envir =  as.environment(x))
+    assign("convert", convert, envir = as.environment(x))
     return(x)
   }
 
   bt <- import_builtins(convert = convert)
   e <- bt$RuntimeError(conditionMessage(x))
 
-  for (nm in setdiff(names(x), c("call", "message")))
-    py_set_attr(e, paste0("r_", nm), py_capsule(x[[nm]]))
+  for (nm in names(x))
+    py_set_attr(e, nm, py_capsule(x[[nm]]))
 
-  py_set_attr(e, "r_call", conditionCall(x))
-  py_set_attr(e, "r_class", class(x))
+  py_set_attr(e, "r_class", py_capsule(class(x)))
 
   e
 }
 
 #' @export
 conditionCall.python.builtin.BaseException <- function(c) {
-  as_r_value(py_get_attr(c, "r_call", TRUE))
+  as_r_value(py_get_attr(c, "call", TRUE))
 }
 
 #' @export
@@ -178,25 +174,6 @@ conditionMessage.python.builtin.BaseException <- function(c) {
   conditionMessage_from_py_exception(c)
 }
 
-#' @export
-print.python.builtin.BaseException <- function(x, ...) {
-    NextMethod()
-    r_attr_nms <- grep("^r_", py_list_attributes(x), value = TRUE)
-    if (length(r_attr_nms)) {
-      r_attrs <- lapply(r_attr_nms,
-                        function(nm)
-                          as_r_value(py_get_attr(x, nm)))
-      names(r_attrs) <- r_attr_nms
-      r_traceback <- r_attrs$r_traceback
-      r_attrs$r_traceback <- NULL
-      str(r_attrs, no.list = TRUE)
-      if(!is.null(r_traceback)) {
-        cat(" $ r_traceback: \n")
-        traceback(r_traceback)
-      }
-    }
-    invisible(x)
-}
 
 #' @export
 `$.python.builtin.BaseException` <- function(x, name) {
@@ -205,12 +182,7 @@ print.python.builtin.BaseException <- function(x, ...) {
   if(identical(name, "message"))
     return(conditionMessage(x))
 
-  attr <- if(py_has_attr(x, name))
-    py_get_attr(x, name)
-  else
-    py_get_attr(x, paste0("r_", name), TRUE)
-
-  py_maybe_convert(attr, py_has_convert(x))
+  py_maybe_convert(py_get_attr(x, name, TRUE), py_has_convert(x))
 }
 
 #' @export

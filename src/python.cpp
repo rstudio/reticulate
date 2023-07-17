@@ -490,9 +490,10 @@ PyObjectRef py_ref(PyObject* object,
   std::vector<std::string> attrClass;
 
   // add extra class if requested
-  if (!extraClass.empty() && std::find(attrClass.begin(),
-                        attrClass.end(),
-                        extraClass) == attrClass.end()) {
+  if (!extraClass.empty() &&
+      std::find(attrClass.begin(),
+                attrClass.end(),
+                extraClass) == attrClass.end()) {
     attrClass.push_back(extraClass);
   }
 
@@ -675,7 +676,7 @@ SEXP py_fetch_error(bool maybe_reuse_cached_r_trace) {
 
   PyObjectPtr pExcType(excType);  // decref on exit
 
-  if (!PyObject_HasAttrString(excValue, "r_call")) {
+  if (!PyObject_HasAttrString(excValue, "call")) {
     // check if this exception originated in python using the `raise from`
     // statement with an exception that we've already augmented with the full
     // r_trace. (or similarly, raised a new exception inside an `except:` block
@@ -686,12 +687,12 @@ SEXP py_fetch_error(bool maybe_reuse_cached_r_trace) {
     PyObject *excValue_tmp = excValue;
 
     while ((context = PyObject_GetAttrString(excValue_tmp, "__context__"))) {
-      if ((r_call = PyObject_GetAttrString(context, "r_call"))) {
-          PyObject_SetAttrString(excValue, "r_call", r_call);
+      if ((r_call = PyObject_GetAttrString(context, "call"))) {
+          PyObject_SetAttrString(excValue, "call", r_call);
           Py_DecRef(r_call);
       }
-      if ((r_trace = PyObject_GetAttrString(context, "r_trace"))) {
-          PyObject_SetAttrString(excValue, "r_trace", r_trace);
+      if ((r_trace = PyObject_GetAttrString(context, "trace"))) {
+          PyObject_SetAttrString(excValue, "trace", r_trace);
           Py_DecRef(r_trace);
       }
       excValue_tmp = context;
@@ -704,11 +705,11 @@ SEXP py_fetch_error(bool maybe_reuse_cached_r_trace) {
 
 
 
-  // make sure the exception object has some some attrs: r_call, r_trace
-  if (!PyObject_HasAttrString(excValue, "r_trace")) {
+  // make sure the exception object has some some attrs: call, trace
+  if (!PyObject_HasAttrString(excValue, "trace")) {
     SEXP r_trace = PROTECT(get_r_trace(maybe_reuse_cached_r_trace));
     PyObject* r_trace_capsule(py_capsule_new(r_trace));
-    PyObject_SetAttrString(excValue, "r_trace", r_trace_capsule);
+    PyObject_SetAttrString(excValue, "trace", r_trace_capsule);
     Py_DecRef(r_trace_capsule);
     UNPROTECT(1);
   }
@@ -720,10 +721,10 @@ SEXP py_fetch_error(bool maybe_reuse_cached_r_trace) {
   // skip over the actual call of interest, and frequently return NULL
   // for shallow call stacks. So we fetch the call directly
   // using the R API.
-  if (!PyObject_HasAttrString(excValue, "r_call")) {
+  if (!PyObject_HasAttrString(excValue, "call")) {
     SEXP r_call = get_current_call();
     PyObject *r_call_capsule(py_capsule_new(r_call));
-    PyObject_SetAttrString(excValue, "r_call", r_call_capsule);
+    PyObject_SetAttrString(excValue, "call", r_call_capsule);
     Py_DecRef(r_call_capsule);
     UNPROTECT(1);
   }

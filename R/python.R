@@ -414,6 +414,8 @@ py_get_attr_or_item <- function(x, name, prefer_attr) {
 
 #' @export
 `[[.python.builtin.object` <- function(x, name) {
+  if(is.function(x))
+    return(get("pyobj", as.environment(x)))
   py_get_attr_or_item(x, name, FALSE)
 }
 
@@ -1784,12 +1786,12 @@ py_last_error <- function(exception) {
     # set as the last exception
     r_trace <- NULL
     if (inherits(exception, "py_error")) {
-      r_trace <- exception$r_trace
+      r_trace <- exception$trace
       exception <- attr(exception, "exception", TRUE)
     }
 
-    if(is.null(r_trace))
-      r_trace <- as_r_value(py_get_attr(exception, "r_trace", TRUE))
+    if (is.null(r_trace))
+      r_trace <- as_r_value(py_get_attr(exception, "trace", TRUE))
 
     if (!is.null(exception) &&
         !inherits(exception, "python.builtin.Exception"))
@@ -1798,7 +1800,7 @@ py_last_error <- function(exception) {
     on.exit({
       .globals$py_last_exception <- exception
       .globals$last_r_trace <- r_trace
-      })
+    })
     return(invisible(.globals$py_last_exception))
   }
 
@@ -1830,7 +1832,7 @@ py_last_error <- function(exception) {
   )
   out$r_call <- conditionCall(e)
   out$r_class <- as_r_value(py_get_attr(e, "r_class", TRUE)) %||% class(e)
-  out$r_trace <- py_get_attr(e, "r_trace", TRUE) %||% .globals$last_r_trace
+  out$r_trace <- py_get_attr(e, "trace", TRUE) %||% .globals$last_r_trace
   out <- lapply(out, as_r_value)
   attr(out, "exception") <- e
   class(out) <- "py_error"

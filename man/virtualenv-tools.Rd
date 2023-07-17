@@ -116,4 +116,8 @@ R functions for managing Python \href{https://virtualenv.pypa.io/en/stable/}{vir
 Virtual environments are by default located at \verb{~/.virtualenvs} (accessed
 with the \code{virtualenv_root()} function). You can change the default location by
 defining the \code{WORKON_HOME} environment variable.
+
+Virtual environments are created from another "starter" or "seed" Python
+already installed on the system. Suitable Pythons installed on the system are
+found by \code{virtualenv_starter()}.
 }

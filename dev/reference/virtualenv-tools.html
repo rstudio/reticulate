@@ -219,6 +219,9 @@ python binary is returned, corresponding to the first entry when
     <p>Virtual environments are by default located at <code>~/.virtualenvs</code> (accessed
 with the <code>virtualenv_root()</code> function). You can change the default location by
 defining the <code>WORKON_HOME</code> environment variable.</p>
+<p>Virtual environments are created from another "starter" or "seed" Python
+already installed on the system. Suitable Pythons installed on the system are
+found by <code>virtualenv_starter()</code>.</p>
     </div>
 
   </div>

@@ -414,8 +414,6 @@ py_get_attr_or_item <- function(x, name, prefer_attr) {
 
 #' @export
 `[[.python.builtin.object` <- function(x, name) {
-  if(is.function(x))
-    return(get("pyobj", as.environment(x)))
   py_get_attr_or_item(x, name, FALSE)
 }
 

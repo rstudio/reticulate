@@ -18,7 +18,6 @@ test_that("py_last_error() returns R strings", {
 test_that("py_last_error() returns the R error condition object", {
     skip_if_no_python()
 
-
     signal_simple_error <- function() {
       stop("Hello signal_simple_error")
     }
@@ -50,16 +49,20 @@ test_that("py_last_error() returns the R error condition object", {
 
       e <- tryCatch( fn(), error = function(e) e )
 
-      expect_s3_class(e, c("python.builtin.Exception",
-                           "python.builtin.BaseException",
-                           "python.builtin.object",
-                           "error", "condition"))
+      for(cls in  c("python.builtin.Exception",
+                    "python.builtin.BaseException",
+                    "python.builtin.object",
+                    "error", "condition"))
+        expect_s3_class(e, cls)
 
       expect_identical(conditionMessage(e), e$message)
       expect_identical(conditionCall(e), e$call)
 
       expect_match(conditionMessage(e), "Hello")
       expect_type(conditionCall(e), "language")
+
+      expect_s3_class(e$trace, "data.frame")
+      expect_s3_class(e$trace, "rlang_trace")
     }
     # test that py_last_error() reports full r_trace
     # even if python discards the exception object
@@ -98,6 +101,9 @@ def catch_clear_errstatus_then_raise_new_exception(fn):
       f5 <- py_func(function() f4())
 
       e <- tryCatch(f5(), error = identity)
+      expect_s3_class(e$trace, "data.frame")
+      expect_s3_class(e$trace, "rlang_trace")
+
       output <- suppressMessages(capture.output(print(reticulate::py_last_error())))
 
       expect_match2(output, "Hello")
@@ -115,6 +121,8 @@ def catch_clear_errstatus_then_raise_new_exception(fn):
       f5 <- py_func(function() f4())
 
       e <- tryCatch(f5(), error = identity)
+      expect_s3_class(e$trace, "data.frame")
+      expect_s3_class(e$trace, "rlang_trace")
 
       output <- suppressMessages(capture.output(print(reticulate::py_last_error())))
 

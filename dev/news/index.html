@@ -97,6 +97,7 @@
 <li><p>New function <code><a href="../reference/conda-tools.html">conda_search()</a></code>, contributed by <a href="https://github.com/mkoohafkan" class="external-link">@mkoohafkan</a> in PR <a href="https://github.com/rstudio/reticulate/issues/1364" class="external-link">#1364</a>.</p></li>
 <li><p>Fixed an issue where exceptions from reticulate would not be formatted properly when running tests under testthat (r-lib/rlang#1637, <a href="https://github.com/rstudio/reticulate/issues/1413" class="external-link">#1413</a>).</p></li>
 <li><p>Fixed an issue where <code>py_get_attr(silent = TRUE)</code> would not return an R <code>NULL</code>, if the attribute was missing, as documented. (<a href="https://github.com/rstudio/reticulate/issues/1413" class="external-link">#1413</a>)</p></li>
+<li><p>Fixed an issue where <code>py_get_attr(silent = TRUE)</code> would leave a python global exception set if the attribute was missing, resulting in fatal errors when running python under debug mode. (<a href="https://github.com/rstudio/reticulate/issues/1396" class="external-link">#1396</a>)</p></li>
 <li><p>Fixed an issue where a py capsule finalizer could access the R API from a background thread. (<a href="https://github.com/rstudio/reticulate/issues/1406" class="external-link">#1406</a>)</p></li>
 </ul></div>
     <div class="section level2">

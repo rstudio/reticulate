@@ -93,6 +93,7 @@
 <span>  <span class="va">...</span>,</span>
 <span>  version <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  packages <span class="op">=</span> <span class="st">"numpy"</span>,</span>
+<span>  requirements <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  module <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"reticulate.virtualenv.module"</span><span class="op">)</span>,</span>
 <span>  system_site_packages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"reticulate.virtualenv.system_site_packages"</span>, default</span>
 <span>    <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>,</span>
@@ -104,9 +105,10 @@
 <span></span>
 <span><span class="fu">virtualenv_install</span><span class="op">(</span></span>
 <span>  envname <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  <span class="va">packages</span>,</span>
+<span>  packages <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  ignore_installed <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  pip_options <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  requirements <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -158,6 +160,10 @@ the virtual environment, after it has been created. By default, the
 <code>"numpy"</code> package will be installed, and the <code>pip</code>, <code>setuptools</code> and
 <code>wheel</code> packages will be updated. Set this to <code>FALSE</code> to avoid installing
 any packages after the virtual environment has been created.</p></dd>
+
+
+<dt>requirements</dt>
+<dd><p>Filepath to a pip requirements file.</p></dd>
 
 
 <dt>module</dt>

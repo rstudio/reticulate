@@ -36,6 +36,10 @@ jobs:
           - { os: ubuntu-latest, r: 'release', python: '3.10' }
           - { os: ubuntu-latest, r: 'release', python: '3.11' }
 
+          # test with one debug build of python
+          # disabled; failing presently
+          # - { os: ubuntu-latest , r: 'release', python: 'debug' }
+
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
@@ -52,8 +56,18 @@ jobs:
           # http-user-agent: ${{ matrix.config.http-user-agent }}
 
       - uses: actions/setup-python@v4
+        if: matrix.config.python != 'debug'
         with:
           python-version: ${{ matrix.config.python }}
+
+      - if: matrix.config.python == 'debug'
+        name: setup python3-dbg
+        run: |
+          # sudo apt-get update
+          sudo apt-get install -y python3-dbg python3-pip python3-venv
+          # sudo rm -f /usr/bin/python3 /usr/bin/python
+          sudo ln -sf /usr/bin/python3-dbg /usr/bin/python3
+          sudo ln -sf /usr/bin/python3-dbg /usr/bin/python
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:

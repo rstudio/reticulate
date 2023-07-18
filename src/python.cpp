@@ -2501,36 +2501,34 @@ bool py_has_attr_impl(PyObjectRef x, const std::string& name) {
   return PyObject_HasAttrString(x, name.c_str());
 }
 
-namespace {
 
-PyObjectRef py_get_common(PyObject* object,
-                          bool convert,
-                          bool silent)
-{
-  // if we have an object, return it
-  if (object != NULL)
-    return py_ref(object, convert);
-
-  // if we're silent, return new reference to Py_None
-  if (silent) {
-    Py_IncRef(Py_None);
-    return py_ref(Py_None, convert);
-  }
-
-  // otherwise, throw an R error
-  throw PythonException(py_fetch_error());
-
-}
-
-} // end anonymous namespace
 
 // [[Rcpp::export]]
 PyObjectRef py_get_attr_impl(PyObjectRef x,
                              const std::string& key,
                              bool silent = false)
 {
+  PyObject *er_type, *er_value, *er_traceback;
+  if (silent)
+    PyErr_Fetch(&er_type, &er_value, &er_traceback);
+
   PyObject* attr = PyObject_GetAttrString(x, key.c_str());
-  return py_get_common(attr, x.convert(), silent);
+
+  if(attr == NULL) { // exception was raised
+    if(silent) {
+      Py_IncRef(Py_None);
+      attr = Py_None;
+    } else
+      throw PythonException(py_fetch_error());
+  }
+
+  // must restore before calling py_ref(), which access the Python API,
+  // which will complain if the error is set.
+  if (silent)
+    PyErr_Restore(er_type, er_value, er_traceback);
+
+  return py_ref(attr, x.convert());
+
 }
 
 // [[Rcpp::export]]
@@ -2538,9 +2536,26 @@ PyObjectRef py_get_item_impl(PyObjectRef x,
                              RObject key,
                              bool silent = false)
 {
+  PyObject *er_type, *er_value, *er_traceback;
+  if (silent)
+    PyErr_Fetch(&er_type, &er_value, &er_traceback);
+
   PyObjectPtr py_key(r_to_py(key, x.convert()));
   PyObject* item = PyObject_GetItem(x, py_key);
-  return py_get_common(item, x.convert(), silent);
+
+  if(item == NULL) { // exception was raised
+    if(silent) {
+      Py_IncRef(Py_None);
+      item = Py_None;
+    } else
+      throw PythonException(py_fetch_error());
+  }
+
+  // must restore before calling py_ref(), which may raise its own exception
+  if (silent)
+    PyErr_Restore(er_type, er_value, er_traceback);
+
+  return py_ref(item, x.convert());
 }
 
 // [[Rcpp::export]]

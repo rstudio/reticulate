@@ -42,6 +42,10 @@
 - Fixed an issue where `py_get_attr(silent = TRUE)` would not return an R `NULL`,
   if the attribute was missing, as documented. (#1413)
 
+- Fixed an issue where `py_get_attr(silent = TRUE)` would leave a python global
+  exception set if the attribute was missing, resulting in fatal errors when
+  running python under debug mode. (#1396)
+
 - Fixed an issue where a py capsule finalizer could access the R API from
   a background thread. (#1406)
 

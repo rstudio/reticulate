@@ -1,41 +1,49 @@
 # reticulate (development version)
 
--   `py_iterator()` gains a `prefetch` argument, primarily to avoid deadlocks
-    where the main thread is blocked, waiting for the iterator, which is waiting
-    to run on the main thread, as encountered in TensorFlow/Keras. (#1405).
+- `py_iterator()` gains a `prefetch` argument, primarily to avoid deadlocks
+  where the main thread is blocked, waiting for the iterator, which is waiting
+  to run on the main thread, as encountered in TensorFlow/Keras. (#1405).
 
--   The knitr engine gains a `jupyter_compat` option, enabling
-    reticulate to better match the behavior of Jupyter. When this chunk
-    option is set to `TRUE`, only the return value from the last
-    expression in a chunk is auto-printed. (#1391, #1394, contributed by
-    @matthew-brett)
+- The knitr engine gains a `jupyter_compat` option, enabling
+  reticulate to better match the behavior of Jupyter. When this chunk
+  option is set to `TRUE`, only the return value from the last
+  expression in a chunk is auto-printed. (#1391, #1394, contributed by
+  @matthew-brett)
 
--   The knitr engine now more reliably detects and displays matplotlib
-    pending plots, without the need for a matplotlib artist object to be
-    returned as a top-level expression. E.g., the knitr engine will now
-    display plots when the matplotlib api returns something other than
-    an artist object, (`plt.bar()`), or the matplotlib return value is
-    not auto-printed due to being assigned, (`x = plt.plot()`), or
-    suppressed with a `;`, (`plt.plot();`). (#1391, #1401, contributed
-    by @matthew-brett)
+- The knitr engine now more reliably detects and displays matplotlib
+  pending plots, without the need for a matplotlib artist object to be
+  returned as a top-level expression. E.g., the knitr engine will now
+  display plots when the matplotlib api returns something other than
+  an artist object, (`plt.bar()`), or the matplotlib return value is
+  not auto-printed due to being assigned, (`x = plt.plot()`), or
+  suppressed with a `;`, (`plt.plot();`). (#1391, #1401, contributed
+  by @matthew-brett)
 
--   Fixed an issue where knitr engine would not respect chunk options
-    `fig.width` / `fig.height` when rendering matplotlib plots. (#1398)
+- Fixed an issue where knitr engine would not respect chunk options
+  `fig.width` / `fig.height` when rendering matplotlib plots. (#1398)
 
--   Updated sparse matrix conversion routines for compatibility with
-    scipy 1.11.0.
+- Updated sparse matrix conversion routines for compatibility with
+  scipy 1.11.0.
 
--   New function `virtualenv_starter()`, which can be used to find a suitable
-    python binary for creating a virtual environmnent. This is now the default
-    method for finding the python binary when calling `virtualenv_create(version = <version>)`.
+- New function `virtualenv_starter()`, which can be used to find a suitable
+  python binary for creating a virtual environmnent. This is now the default
+  method for finding the python binary when calling `virtualenv_create(version = <version>)`.
 
 - Fixed an issue where the reticulate knitr engine would not capture output
   printed from python. (PR #1412, fixing #1378, #331)
 
--   `install_python()` now gives a better error message if git is not installed.
+- `install_python()` now gives a better error message if git is not installed.
 
--   Fixed an issue where a py capsule finalizer could access the R API from
-    a background thread. (#1406)
+- New function `conda_search()`, contributed by @mkoohafkan in PR #1364.
+
+- Fixed an issue where exceptions from reticulate would not be formatted properly
+  when running tests under testthat (r-lib/rlang#1637, #1413).
+
+- Fixed an issue where `py_get_attr(silent = TRUE)` would not return an R `NULL`,
+  if the attribute was missing, as documented. (#1413)
+
+- Fixed an issue where a py capsule finalizer could access the R API from
+  a background thread. (#1406)
 
 # reticulate 1.30
 

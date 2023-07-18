@@ -139,6 +139,8 @@ pyenv_find_impl <- function(install = TRUE) {
   # all else fails, try to manually install pyenv
   if(install)
     pyenv_bootstrap()
+  else
+    ""
 
 }
 

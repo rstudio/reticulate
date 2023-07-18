@@ -968,7 +968,11 @@ py_get_attr <- function(x, name, silent = FALSE) {
   ensure_python_initialized()
   if (py_is_module_proxy(x))
     py_resolve_module_proxy(x)
-  py_get_attr_impl(x, name, silent)
+  res <- py_get_attr_impl(x, name, silent)
+  if(silent && py_is_none(res) && !py_has_attr(x, name))
+    NULL
+  else
+    res
 }
 
 #' Set an attribute of a Python object
@@ -1780,12 +1784,12 @@ py_last_error <- function(exception) {
     # set as the last exception
     r_trace <- NULL
     if (inherits(exception, "py_error")) {
-      r_trace <- exception$r_trace
+      r_trace <- exception$trace
       exception <- attr(exception, "exception", TRUE)
     }
 
-    if(is.null(r_trace))
-      r_trace <- as_r_value(py_get_attr(exception, "r_trace", TRUE))
+    if (is.null(r_trace))
+      r_trace <- as_r_value(py_get_attr(exception, "trace", TRUE))
 
     if (!is.null(exception) &&
         !inherits(exception, "python.builtin.Exception"))
@@ -1794,7 +1798,7 @@ py_last_error <- function(exception) {
     on.exit({
       .globals$py_last_exception <- exception
       .globals$last_r_trace <- r_trace
-      })
+    })
     return(invisible(.globals$py_last_exception))
   }
 
@@ -1826,7 +1830,7 @@ py_last_error <- function(exception) {
   )
   out$r_call <- conditionCall(e)
   out$r_class <- as_r_value(py_get_attr(e, "r_class", TRUE)) %||% class(e)
-  out$r_trace <- py_get_attr(e, "r_trace", TRUE) %||% .globals$last_r_trace
+  out$r_trace <- py_get_attr(e, "trace", TRUE) %||% .globals$last_r_trace
   out <- lapply(out, as_r_value)
   attr(out, "exception") <- e
   class(out) <- "py_error"

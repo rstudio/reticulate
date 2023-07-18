@@ -20,6 +20,8 @@
 #'
 #' @param packages A character vector with package names to install or remove.
 #'
+#' @param requirements Filepath to a pip requirements file.
+#'
 #' @param ignore_installed Boolean; ignore previously-installed versions of the
 #'   requested packages? (This should normally be `TRUE`, so that pre-installed
 #'   packages available in the site libraries are ignored and hence packages
@@ -86,6 +88,7 @@ virtualenv_create <- function(
   ...,
   version              = NULL,
   packages             = "numpy",
+  requirements         = NULL,
   module               = getOption("reticulate.virtualenv.module"),
   system_site_packages = getOption("reticulate.virtualenv.system_site_packages", default = FALSE),
   pip_version          = getOption("reticulate.virtualenv.pip_version", default = NULL),
@@ -182,6 +185,11 @@ virtualenv_create <- function(
     }
   }
 
+  if(!is.null(requirements)) {
+    writef("Installing packages per requirements file: %s", normalizePath(requirements))
+    pip_install(python, requirements = requirements)
+  }
+
   writef("Virtual environment '%s' successfully created.", name)
   invisible(path)
 }
@@ -191,20 +199,21 @@ virtualenv_create <- function(
 #' @rdname virtualenv-tools
 #' @export
 virtualenv_install <- function(envname = NULL,
-                               packages,
+                               packages = NULL,
                                ignore_installed = FALSE,
                                pip_options = character(),
+                               requirements = NULL,
                                ...)
 {
   check_forbidden_install("Python packages")
 
   # check that 'packages' argument was supplied
-  if (missing(packages)) {
+  if (missing(packages) && missing(requirements)) {
     if (!is.null(envname)) {
 
       fmt <- paste(
         "argument \"packages\" is missing, with no default",
-        "- did you mean 'conda_install(<envname>, %1$s)'?",
+        "- did you mean 'virtualenv_install(<envname>, %1$s)'?",
         "- use 'py_install(%1$s)' to install into the active Python environment",
         sep = "\n"
       )
@@ -239,7 +248,8 @@ virtualenv_install <- function(envname = NULL,
   pip_install(python,
               packages,
               ignore_installed = ignore_installed,
-              pip_options = pip_options)
+              pip_options = pip_options,
+              requirements = requirements)
 }
 
 

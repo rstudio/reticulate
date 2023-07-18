@@ -104,12 +104,12 @@ pyenv_list <- function(pyenv = NULL, installed = FALSE) {
 
 }
 
-pyenv_find <- function() {
-  pyenv <- pyenv_find_impl()
+pyenv_find <- function(install = TRUE) {
+  pyenv <- pyenv_find_impl(install = install)
   canonical_path(pyenv)
 }
 
-pyenv_find_impl <- function() {
+pyenv_find_impl <- function(install = TRUE) {
 
   # check for pyenv binary specified via option
   pyenv <- getOption("reticulate.pyenv", default = NULL)
@@ -137,7 +137,10 @@ pyenv_find_impl <- function() {
     return(pyenv)
 
   # all else fails, try to manually install pyenv
-  pyenv_bootstrap()
+  if(install)
+    pyenv_bootstrap()
+  else
+    ""
 
 }
 

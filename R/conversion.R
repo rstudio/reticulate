@@ -646,3 +646,11 @@ py_to_r.scipy.sparse._csc.csc_matrix <- py_to_r.scipy.sparse.csc.csc_matrix
 py_to_r.scipy.sparse._csr.csr_matrix <- py_to_r.scipy.sparse.csr.csr_matrix
 #' @export
 py_to_r.scipy.sparse._coo.coo_matrix <- py_to_r.scipy.sparse.coo.coo_matrix
+
+# updated locations for scipy 1.11.0
+#' @export
+dim.scipy.sparse._base._spbase <- dim.scipy.sparse.base.spmatrix
+#' @export
+length.scipy.sparse._base._spbase <- length.scipy.sparse.base.spmatrix
+#' @export
+py_to_r.scipy.sparse._matrix.spmatrix <- py_to_r.scipy.sparse.base.spmatrix

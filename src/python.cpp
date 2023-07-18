@@ -121,13 +121,53 @@ SEXP py_capsule_read(PyObject* capsule) {
 
 }
 
+tthread::thread::id s_main_thread = 0;
+bool is_main_thread() {
+  if (s_main_thread == 0)
+    return true;
+  return s_main_thread == tthread::this_thread::get_id();
+}
+
+
+int free_sexp(void* sexp) {
+  // wrap Rcpp_precious_remove() to satisfy
+  // Py_AddPendingCall() signature and return value requirements
+  Rcpp_precious_remove((SEXP) sexp);
+  return 0;
+}
+
+void Rcpp_precious_remove_main_thread(SEXP object) {
+  if (is_main_thread()) {
+    return Rcpp_precious_remove(object);
+  }
+
+  // #Py_AddPendingCall can fail sometimes, so we retry a few times
+  const size_t wait_ms = 100;
+  size_t waited_ms = 0;
+  while (Py_AddPendingCall(free_sexp, object) != 0) {
+
+    tthread::this_thread::sleep_for(tthread::chrono::milliseconds(wait_ms));
+
+    // increment total wait time and print a warning every 60 seconds
+    waited_ms += wait_ms;
+    if ((waited_ms % 60000) == 0)
+        PySys_WriteStderr("Waiting to schedule object finalizer on main R interpeter thread...\n");
+    else if (waited_ms > 60000 * 2) {
+        // if we've waited more than 2 minutes, something is wrong
+        PySys_WriteStderr("Error: unable to register R object finalizer on main thread\n");
+        return;
+    }
+  }
+}
+
 void py_capsule_free(PyObject* capsule) {
 
   SEXP object = (SEXP)PyCapsule_GetPointer(capsule, r_object_string);
   if (object == NULL)
     throw PythonException(py_fetch_error());
 
-  Rcpp_precious_remove(object);
+  // the R api access must be from the main thread
+  Rcpp_precious_remove_main_thread(object);
 }
 
 PyObject* py_capsule_new(SEXP object) {
@@ -450,9 +490,10 @@ PyObjectRef py_ref(PyObject* object,
   std::vector<std::string> attrClass;
 
   // add extra class if requested
-  if (!extraClass.empty() && std::find(attrClass.begin(),
-                        attrClass.end(),
-                        extraClass) == attrClass.end()) {
+  if (!extraClass.empty() &&
+      std::find(attrClass.begin(),
+                attrClass.end(),
+                extraClass) == attrClass.end()) {
     attrClass.push_back(extraClass);
   }
 
@@ -524,39 +565,7 @@ bool traceback_enabled() {
   return as<bool>(func());
 }
 
-int flush_std_buffers() {
-  int status = 0;
-  PyObject* tmp = NULL;
-  PyObject *error_type, *error_value, *error_traceback;
-  PyErr_Fetch(&error_type, &error_value, &error_traceback);
 
-  PyObject* sys_stdout(PySys_GetObject("stdout"));  // returns borrowed reference
-  if (sys_stdout == NULL)
-    status = -1;
-  else
-    tmp = PyObject_CallMethod(sys_stdout, "flush", NULL);
-
-  if (tmp == NULL)
-    status = -1;
-  else {
-    Py_DecRef(tmp);
-    tmp = NULL;
-  }
-
-  PyObject* sys_stderr(PySys_GetObject("stderr"));  // returns borrowed reference
-  if (sys_stderr == NULL)
-    status = -1;
-  else
-    tmp = PyObject_CallMethod(sys_stderr, "flush", NULL);
-
-  if (tmp == NULL)
-    status = -1;
-  else
-    Py_DecRef(tmp);
-
-  PyErr_Restore(error_type, error_value, error_traceback);
-  return status;
-}
 
 
 
@@ -635,6 +644,9 @@ SEXP get_r_trace(bool maybe_use_cached = false) {
 
 SEXP py_fetch_error(bool maybe_reuse_cached_r_trace) {
 
+  // TODO: we need to add a guardrail to catch cases when
+  // this is being invoked from not the main thread
+
   // check whether this error was signaled via an interrupt.
   // the intention here is to catch cases where reticulate is running
   // Python code, an interrupt is signaled and caught by that code,
@@ -650,6 +662,11 @@ SEXP py_fetch_error(bool maybe_reuse_cached_r_trace) {
 
   PyObject *excType, *excValue, *excTraceback;
   PyErr_Fetch(&excType, &excValue, &excTraceback);  // we now own the PyObjects
+
+  if (!excType) {
+    Rcpp::stop("Unknown Python error.");
+  }
+
   PyErr_NormalizeException(&excType, &excValue, &excTraceback);
 
   if (excTraceback != NULL && excValue != NULL && s_isPython3) {
@@ -659,7 +676,7 @@ SEXP py_fetch_error(bool maybe_reuse_cached_r_trace) {
 
   PyObjectPtr pExcType(excType);  // decref on exit
 
-  if (!PyObject_HasAttrString(excValue, "r_call")) {
+  if (!PyObject_HasAttrString(excValue, "call")) {
     // check if this exception originated in python using the `raise from`
     // statement with an exception that we've already augmented with the full
     // r_trace. (or similarly, raised a new exception inside an `except:` block
@@ -670,12 +687,12 @@ SEXP py_fetch_error(bool maybe_reuse_cached_r_trace) {
     PyObject *excValue_tmp = excValue;
 
     while ((context = PyObject_GetAttrString(excValue_tmp, "__context__"))) {
-      if ((r_call = PyObject_GetAttrString(context, "r_call"))) {
-          PyObject_SetAttrString(excValue, "r_call", r_call);
+      if ((r_call = PyObject_GetAttrString(context, "call"))) {
+          PyObject_SetAttrString(excValue, "call", r_call);
           Py_DecRef(r_call);
       }
-      if ((r_trace = PyObject_GetAttrString(context, "r_trace"))) {
-          PyObject_SetAttrString(excValue, "r_trace", r_trace);
+      if ((r_trace = PyObject_GetAttrString(context, "trace"))) {
+          PyObject_SetAttrString(excValue, "trace", r_trace);
           Py_DecRef(r_trace);
       }
       excValue_tmp = context;
@@ -688,11 +705,11 @@ SEXP py_fetch_error(bool maybe_reuse_cached_r_trace) {
 
 
 
-  // make sure the exception object has some some attrs: r_call, r_trace
-  if (!PyObject_HasAttrString(excValue, "r_trace")) {
+  // make sure the exception object has some some attrs: call, trace
+  if (!PyObject_HasAttrString(excValue, "trace")) {
     SEXP r_trace = PROTECT(get_r_trace(maybe_reuse_cached_r_trace));
     PyObject* r_trace_capsule(py_capsule_new(r_trace));
-    PyObject_SetAttrString(excValue, "r_trace", r_trace_capsule);
+    PyObject_SetAttrString(excValue, "trace", r_trace_capsule);
     Py_DecRef(r_trace_capsule);
     UNPROTECT(1);
   }
@@ -704,10 +721,10 @@ SEXP py_fetch_error(bool maybe_reuse_cached_r_trace) {
   // skip over the actual call of interest, and frequently return NULL
   // for shallow call stacks. So we fetch the call directly
   // using the R API.
-  if (!PyObject_HasAttrString(excValue, "r_call")) {
+  if (!PyObject_HasAttrString(excValue, "call")) {
     SEXP r_call = get_current_call();
     PyObject *r_call_capsule(py_capsule_new(r_call));
-    PyObject_SetAttrString(excValue, "r_call", r_call_capsule);
+    PyObject_SetAttrString(excValue, "call", r_call_capsule);
     Py_DecRef(r_call_capsule);
     UNPROTECT(1);
   }
@@ -1624,7 +1641,7 @@ PyObject* r_to_py(RObject x, bool convert) {
 // Python capsule wrapping an R's external pointer object
 static void free_r_extptr_capsule(PyObject* capsule) {
   SEXP sexp = (SEXP)PyCapsule_GetContext(capsule);
-  Rcpp_precious_remove(sexp);
+  Rcpp_precious_remove_main_thread(sexp);
 }
 
 static PyObject* r_extptr_capsule(SEXP sexp) {
@@ -2333,6 +2350,7 @@ void py_initialize(const std::string& python,
     PySys_SetArgv(1, const_cast<char**>(argv));
   }
 
+  s_main_thread = tthread::this_thread::get_id();
   s_is_python_initialized = true;
   GILScope scope;
 

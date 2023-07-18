@@ -1,0 +1,29 @@
+name: Close 'awaiting response' labeled issues
+
+on:
+  workflow_dispatch:
+  schedule:
+  - cron: '0 6 * * *'
+
+jobs:
+  close-issues-with-no-response:
+
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+
+    steps:
+    - uses: actions/stale@v8
+      with:
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+        stale-issue-label: 'awaiting response'
+        stale-pr-label: 'awaiting response'
+        days-before-stale: -1
+
+        days-before-close: 14
+        close-issue-message: >
+          Automatically closed because there has not been a response for 14 days.
+          When you're ready to work on this further, please comment here and the
+          issue will automatically reopen.

@@ -13,6 +13,7 @@
 \alias{conda_version}
 \alias{conda_update}
 \alias{conda_python}
+\alias{conda_search}
 \title{Conda Tools}
 \usage{
 conda_list(conda = "auto")
@@ -62,6 +63,14 @@ conda_version(conda = "auto")
 conda_update(conda = "auto")
 
 conda_python(envname = NULL, conda = "auto", all = FALSE)
+
+conda_search(
+  matchspec,
+  forge = TRUE,
+  channel = character(),
+  conda = "auto",
+  ...
+)
 }
 \arguments{
 \item{conda}{The path to a \code{conda} executable. Use \code{"auto"} to allow
@@ -115,6 +124,8 @@ a conda binary package (e.g. SciPy on Windows which is very difficult to
 install via pip due to compilation requirements).}
 
 \item{all}{Boolean; report all instances of Python found?}
+
+\item{matchspec}{A conda MatchSpec query string.}
 }
 \value{
 \code{conda_list()} returns an \R \code{data.frame}, with \code{name} giving the name of
@@ -129,6 +140,12 @@ conda environment.
 
 \code{conda_export()} returns the path to the exported environment definition,
 invisibly.
+
+\code{conda_search()} returns an \R \code{data.frame} describing packages that
+matched against \code{matchspec}. The data frame will usually include
+fields \code{name} giving the package name, \code{version} giving the package
+version, \code{build} giving the package build, and \code{channel} giving the
+channel the package is hosted on.
 }
 \description{
 Tools for managing Python \code{conda} environments.

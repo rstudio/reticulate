@@ -1,6 +1,6 @@
 ---
 title: "Using reticulate in an R Package"
-output: 
+output:
   rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Using reticulate in an R Package}
@@ -48,7 +48,7 @@ Without the `delay_load`, Python would be loaded immediately and the user's call
 
 ## Installing Python Dependencies
 
-Your R package likely depends on the installation of one or more Python packages. As a convenience to your users, you may want to provide a high-level R function to allow users to install these Python packages. It's furthermore beneficial if multiple R packages that depend on Python packages install their dependencies in the same Python environment (so that they can be easily used together). 
+Your R package likely depends on the installation of one or more Python packages. As a convenience to your users, you may want to provide a high-level R function to allow users to install these Python packages. It's furthermore beneficial if multiple R packages that depend on Python packages install their dependencies in the same Python environment (so that they can be easily used together).
 
 The `py_install()` function provides a high-level interface for installing one or more Python packages. The packages will by default be installed within a virtualenv or Conda environment named "r-reticulate". For example:
 
@@ -79,7 +79,7 @@ There are two things you should do to ensure your package is well behaved on CRA
     ```{r}
     # python 'scipy' module I want to use in my package
     scipy <- NULL
-    
+
     .onLoad <- function(libname, pkgname) {
       # delay load foo module (will only be loaded when accessed via $)
       scipy <<- import("scipy", delay_load = TRUE)
@@ -95,7 +95,7 @@ There are two things you should do to ensure your package is well behaved on CRA
       if (!have_scipy)
         skip("scipy not available for testing")
     }
-    
+
     # then call this function from all of your tests
     test_that("Things work as expected", {
       skip_if_no_scipy()
@@ -116,7 +116,7 @@ By default when you attempt to interact with a Python object from a previous ses
 method.MyModule.MyPythonClass <- function(x, y, ...) {
   if (py_is_null_xptr(x))
     # whatever is appropriate
-  else 
+  else
     # interact with the object
 }
 ```
@@ -127,7 +127,7 @@ The **reticulate** package exports a `py_str` generic method which is called fro
 
 ```{r eval=FALSE}
 #' @importFrom reticulate py_str
-#' @export 
+#' @export
 py_str.MyModule.MyPythonClass <- function(object, ...) {
   # interact with the object to generate the string
 }
@@ -209,21 +209,22 @@ r_to_py.my_r_object <- function(x, convert) {
       - uses: actions/setup-python@v4
         with:
           python-version: "3.x"
-          
+
       - name: setup r-reticulate venv
         shell: Rscript {0}
         run: |
-          python_packages <- 
-            c("numpy", "any-other-python-packages-you-want-go-here")
-          
-          library(reticulate)
-          virtualenv_create("r-reticulate", Sys.which("python"))
-          virtualenv_install("r-reticulate", python_packages)
-          
-          path_to_python <- virtualenv_python("r-reticulate")
+
+          path_to_python <- reticulate::virtualenv_create(
+            envname = "r-reticulate",
+            python = Sys.which("python"), # placed on PATH by the setup-python action
+            packages = c(
+              "numpy", "any-other-python-packages-you-want-go-here"
+            )
+          )
+
           writeLines(sprintf("RETICULATE_PYTHON=%s", path_to_python),
                      Sys.getenv("GITHUB_ENV"))
-                     
+
       - uses: r-lib/actions/check-r-package@v2
 
 ```

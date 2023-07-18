@@ -17,7 +17,7 @@ test_that("An R Markdown document can be rendered using reticulate", {
     }
   }
 
-  owd <- setwd("resources")
+  owd <- setwd(test_path("resources"))
   status <- rmarkdown::render("eng-reticulate-example.Rmd", quiet = TRUE)
   setwd(owd)
 

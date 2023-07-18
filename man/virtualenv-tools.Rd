@@ -9,6 +9,7 @@
 \alias{virtualenv_root}
 \alias{virtualenv_python}
 \alias{virtualenv_exists}
+\alias{virtualenv_starter}
 \title{Interface to Python Virtual Environments}
 \usage{
 virtualenv_create(
@@ -43,6 +44,8 @@ virtualenv_root()
 virtualenv_python(envname = NULL)
 
 virtualenv_exists(envname = NULL)
+
+virtualenv_starter(version = NULL, all = FALSE)
 }
 \arguments{
 \item{envname}{The name of, or path to, a Python virtual environment. If
@@ -61,7 +64,8 @@ the current session will be used.}
 
 \item{version}{The version of Python to be used with the newly-created
 virtual environment. Python installations as installed via
-\code{\link[=install_python]{install_python()}} will be used.}
+\code{\link[=install_python]{install_python()}} will be used. This can also be a comma separated list of
+version constraints, like \code{">=3.8"}, or \code{"<=3.11,!=3.9.3,>3.6"}}
 
 \item{packages}{A set of Python packages to install (via \verb{pip install}) into
 the virtual environment, after it has been created. By default, the
@@ -99,6 +103,11 @@ arguments to be passed to \code{pip}.}
 
 \item{confirm}{Boolean; confirm before removing packages or virtual
 environments?}
+
+\item{all}{If \code{TRUE}, \code{virtualenv_starter()} returns a 2-column data frame,
+with column names \code{path} and \code{version}. If \code{FALSE}, only a single path to a
+python binary is returned, corresponding to the first entry when
+\code{all = TRUE}, or \code{NULL} if no suitable python binaries were found.}
 }
 \description{
 R functions for managing Python \href{https://virtualenv.pypa.io/en/stable/}{virtual environments}.
@@ -107,4 +116,8 @@ R functions for managing Python \href{https://virtualenv.pypa.io/en/stable/}{vir
 Virtual environments are by default located at \verb{~/.virtualenvs} (accessed
 with the \code{virtualenv_root()} function). You can change the default location by
 defining the \code{WORKON_HOME} environment variable.
+
+Virtual environments are created from another "starter" or "seed" Python
+already installed on the system. Suitable Pythons installed on the system are
+found by \code{virtualenv_starter()}.
 }

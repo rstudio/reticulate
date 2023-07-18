@@ -18,6 +18,7 @@ virtualenv_create(
   ...,
   version = NULL,
   packages = "numpy",
+  requirements = NULL,
   module = getOption("reticulate.virtualenv.module"),
   system_site_packages = getOption("reticulate.virtualenv.system_site_packages", default
     = FALSE),
@@ -29,9 +30,10 @@ virtualenv_create(
 
 virtualenv_install(
   envname = NULL,
-  packages,
+  packages = NULL,
   ignore_installed = FALSE,
   pip_options = character(),
+  requirements = NULL,
   ...
 )
 
@@ -72,6 +74,8 @@ the virtual environment, after it has been created. By default, the
 \code{"numpy"} package will be installed, and the \code{pip}, \code{setuptools} and
 \code{wheel} packages will be updated. Set this to \code{FALSE} to avoid installing
 any packages after the virtual environment has been created.}
+
+\item{requirements}{Filepath to a pip requirements file.}
 
 \item{module}{The Python module to be used when creating the virtual
 environment -- typically, \code{virtualenv} or \code{venv}. When \code{NULL} (the default),

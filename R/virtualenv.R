@@ -207,8 +207,8 @@ virtualenv_install <- function(envname = NULL,
 {
   check_forbidden_install("Python packages")
 
-  # check that 'packages' argument was supplied
-  if (missing(packages) && missing(requirements)) {
+  # check that packages wasn't accidentally supplied to the envname argument
+  if (is.null(packages) && is.null(requirements)) {
     if (!is.null(envname)) {
 
       fmt <- paste(
@@ -220,8 +220,6 @@ virtualenv_install <- function(envname = NULL,
 
       stopf(fmt, deparse1(substitute(envname)), call. = FALSE)
 
-    } else {
-      packages
     }
   }
 

@@ -29,6 +29,9 @@
   python binary for creating a virtual environmnent. This is now the default
   method for finding the python binary when calling `virtualenv_create(version = <version>)`.
 
+- Fixed an issue where the reticulate knitr engine would not capture output
+  printed from python. (PR #1412, fixing #1378, #331)
+
 - `install_python()` now gives a better error message if git is not installed.
 
 - New function `conda_search()`, contributed by @mkoohafkan in PR #1364.

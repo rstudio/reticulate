@@ -63,3 +63,28 @@ test_that("knitr 'warning=FALSE' option", {
   expect_no_match(res, "UserWarning", fixed = TRUE)
 
 })
+
+test_that("Output streams are remaped when kniting", {
+
+  skip_on_cran()
+  skip_if_not_installed("rmarkdown")
+  local_edition(3)
+
+  owd <- setwd(test_path("resources"))
+  rmarkdown::render("knitr-print.Rmd")
+  setwd(owd)
+
+  rendered <- test_path("resources", "knitr-print.md")
+  expect_snapshot_file(rendered)
+
+  # if remaping is set by default we have no way to check that the options
+  # is correctly reset
+  skip_if(!is.na(Sys.getenv("RETICULATE_REMAP_OUTPUT_STREAMS", unset = NA)))
+
+  bt <- reticulate::import_builtins()
+  x <- py_capture_output(out <- capture.output({
+    bt$print("hello world")
+  }))
+  expect_length(out, 0)
+
+})

@@ -25,13 +25,16 @@
 - Updated sparse matrix conversion routines for compatibility with
   scipy 1.11.0.
 
--   New function `virtualenv_starter()`, which can be used to find a suitable
-    python binary for creating a virtual environmnent. This is now the default
-    method for finding the python binary when calling `virtualenv_create(version = <version>)`.
+- New function `virtualenv_starter()`, which can be used to find a suitable
+  python binary for creating a virtual environmnent. This is now the default
+  method for finding the python binary when calling `virtualenv_create(version = <version>)`.
 
--   `install_python()` now gives a better error message if git is not installed.
+- Fixed an issue where the reticulate knitr engine would not capture output
+  printed from python. (PR #1412, fixing #1378, #331)
 
--   New function `conda_search()`, contributed by @mkoohafkan in PR #1364.
+- `install_python()` now gives a better error message if git is not installed.
+
+- New function `conda_search()`, contributed by @mkoohafkan in PR #1364.
 
 - Fixed an issue where exceptions from reticulate would not be formatted properly
   when running tests under testthat (r-lib/rlang#1637, #1413).
@@ -39,8 +42,8 @@
 - Fixed an issue where `py_get_attr(silent = TRUE)` would not return an R `NULL`,
   if the attribute was missing, as documented. (#1413)
 
--   Fixed an issue where a py capsule finalizer could access the R API from
-    a background thread. (#1406)
+- Fixed an issue where a py capsule finalizer could access the R API from
+  a background thread. (#1406)
 
 # reticulate 1.30
 

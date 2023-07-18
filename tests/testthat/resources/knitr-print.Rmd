@@ -1,0 +1,10 @@
+---
+title: "Preserve output from python print"
+output: md_document
+---
+
+```{r}
+bt <- reticulate::import_builtins()
+bt$print("Hello world")
+```
+

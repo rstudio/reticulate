@@ -143,17 +143,24 @@ class OutputRemap(object):
     return None
 
 
-def remap_output_streams(r_stdout, r_stderr, tty, force):
+def _remap_output_streams(r_stdout, r_stderr, tty):
+  sys.stdout = OutputRemap(sys.stdout, r_stdout, tty)
+  sys.stderr = OutputRemap(sys.stderr, r_stderr, tty)
   
-  if (force or sys.stdout is None):
-    sys.stdout = OutputRemap(sys.stdout, r_stdout, tty)
+
+class RemapOutputStreams:
+  def __init__(self, r_stdout, r_stderr, tty):
+    self.r_stdout = r_stdout
+    self.r_stderr = r_stderr
+    self.tty = tty
+  
+  def __enter__(self):
+    self._stdout = sys.stdout
+    self._stderr = sys.stderr
     
-  if (force or sys.stderr is None):
-    sys.stderr = OutputRemap(sys.stderr, r_stderr, tty)
-
-
-
-
-
-
+    _remap_output_streams(self.r_stdout, self.r_stderr, self.tty)
   
+  def __exit__(self):
+    sys.stdout = self._stdout
+    sys.stderr = self._stderr
+

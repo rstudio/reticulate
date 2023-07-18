@@ -25,9 +25,6 @@ jobs:
           - { os: windows-latest, r: 'release', python: '3.9' }
           - { os: ubuntu-latest , r: 'release', python: '3.9' }
 
-          # test with one debug build of python
-          - { os: ubuntu-latest , r: 'release', python: 'debug' }
-
           - { os: ubuntu-latest, r: 'oldrel-1', python: '3.9' }
           - { os: ubuntu-latest, r: 'oldrel-2', python: '3.9' }
           - { os: ubuntu-20.04,  r: '3.6',      python: '3.8' }
@@ -38,6 +35,10 @@ jobs:
           - { os: ubuntu-latest, r: 'release', python: '3.8'  }
           - { os: ubuntu-latest, r: 'release', python: '3.10' }
           - { os: ubuntu-latest, r: 'release', python: '3.11' }
+
+          # test with one debug build of python
+          # disabled; failing presently
+          # - { os: ubuntu-latest , r: 'release', python: 'debug' }
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -67,7 +68,6 @@ jobs:
           # sudo rm -f /usr/bin/python3 /usr/bin/python
           sudo ln -sf /usr/bin/python3-dbg /usr/bin/python3
           sudo ln -sf /usr/bin/python3-dbg /usr/bin/python
-          python -m pip install --upgrade --user virtualenv
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:

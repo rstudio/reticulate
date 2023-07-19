@@ -928,6 +928,28 @@ bool py_is_callable(PyObjectRef x) {
     return py_is_callable(x.get());
 }
 
+// caches np.nditer function so we don't need to obtain it everytime we want to
+// cast numpy string arrays into R objects.
+PyObject* np_nditer;
+PyObject* get_np_nditer () {
+  if (np_nditer) {
+    return np_nditer;
+  }
+
+  requireNumPy();
+
+  PyObjectPtr numpy(PyImport_ImportModule("numpy"));
+  if (numpy.is_null()) {
+    throw PythonException(py_fetch_error());
+  }
+
+  np_nditer = PyObject_GetAttrString(numpy, "nditer");
+  if (np_nditer == NULL) {
+    throw PythonException(py_fetch_error());
+  }
+
+  return np_nditer;
+}
 
 // convert a python object to an R object
 SEXP py_to_r(PyObject* x, bool convert) {
@@ -1126,19 +1148,38 @@ SEXP py_to_r(PyObject* x, bool convert) {
 
       case NPY_STRING:
       case NPY_UNICODE: {
-        PyObjectPtr itemFunc(PyObject_GetAttrString(ptrArray, "item"));
-        if (itemFunc.is_null())
+
+        PyObjectPtr nditerArgs(PyTuple_New(1));
+        // PyTuple_SetItem steals reference the array, but it's already wraped
+        // into PyObjectPtr earlier (so it gets deleted after the scope of this function)
+        // To avoid trying to delete it twice, we need to increase its ref count here.
+        PyTuple_SetItem(nditerArgs, 0, (PyObject*)array);
+        Py_IncRef((PyObject*)array);
+
+        PyObjectPtr iter(PyObject_Call(get_np_nditer(), nditerArgs, NULL));
+
+        if (iter.is_null()) {
           throw PythonException(py_fetch_error());
+        }
+
         rArray = Rf_allocArray(STRSXP, dimsVector);
         RObject protectArray(rArray);
+
+        // empty tuple, casts to scalar value
+        PyObjectPtr itemArg(PyTuple_New(0));
         for (int i=0; i<len; i++) {
-          PyObjectPtr pyArgs(PyTuple_New(1));
-          // PyTuple_SetItem steals reference to object created by PyInt_FromLong
-          PyTuple_SetItem(pyArgs, 0, PyInt_FromLong(i));
-          PyObjectPtr pyStr(PyObject_Call(itemFunc, pyArgs, NULL));
+          PyObjectPtr el(PyIter_Next(iter)); // returns an scalar array.
+
+          PyObjectPtr itemFunc(PyObject_GetAttrString(el, "item"));
+          if (itemFunc.is_null()) {
+            throw PythonException(py_fetch_error());
+          }
+
+          PyObjectPtr pyStr(PyObject_Call(itemFunc, itemArg, NULL));
           if (pyStr.is_null()) {
             throw PythonException(py_fetch_error());
           }
+
           set_string_element(rArray, i, pyStr);
         }
         break;

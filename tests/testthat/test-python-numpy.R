@@ -86,3 +86,18 @@ test_that("boolean matrices are converted appropriately", {
   A <- matrix(TRUE, nrow = 2, ncol = 2)
   expect_equal(A, py_to_r(r_to_py(A)))
 })
+
+test_that("numpy string arrays are correctly handled", {
+  # https://github.com/rstudio/reticulate/issues/1409
+  skip_if_no_numpy()
+
+  py_run_string(
+    r"(
+import numpy as np
+c1 = np.array(["1","2","3"])
+c2 = np.array(["4","5","6"])
+c = np.stack([c1,c2], axis = 1)
+)")
+
+  expect_equal(py$c, matrix(as.character(1:6), ncol = 2))
+})

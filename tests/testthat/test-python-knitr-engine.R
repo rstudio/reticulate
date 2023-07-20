@@ -87,4 +87,11 @@ test_that("Output streams are remaped when kniting", {
   }))
   expect_length(out, 0)
 
+  # make sure it works from a background session
+  callr::r(function(path) {
+    setwd(path)
+    rmarkdown::render("knitr-print.Rmd", output_file = "knitr-print2.md")
+  }, args = list(path = test_path("resources")))
+
+  expect_snapshot_file(test_path("resources", "knitr-print2.md"))
 })

@@ -7,17 +7,17 @@
 py_discover_config(required_module = NULL, use_environment = NULL)
 }
 \arguments{
-\item{required_module}{A optional module name that must be available
-in order for a version of Python to be used.}
+\item{required_module}{A optional module name that will be used to select the
+Python environment used.}
 
-\item{use_environment}{An optional virtual/conda environment name
-to prefer in the search.}
+\item{use_environment}{An optional virtual/conda environment name to prefer
+in the search.}
 }
 \value{
 Python configuration object.
 }
 \description{
-This function enables callers to check which versions of Python will
-be discovered on a system as well as which one will be chosen for
-use with reticulate.
+This function enables callers to check which versions of Python will be
+discovered on a system as well as which one will be chosen for use with
+reticulate.
 }

@@ -37,6 +37,11 @@
 #'   virtual environment. When `NULL`, the Python interpreter associated with
 #'   the current session will be used.
 #'
+#' @param force Boolean; force recreating the environment specified by
+#'   `envname`, even if it already exists. If `TRUE`, the previous enviroment is
+#'   first deleted and recreated. Otherwise, if `FALSE`, the path to the
+#'   existing environment is returned.
+#'
 #' @param version The version of Python to be used with the newly-created
 #'   virtual environment. Python installations as installed via
 #'   [install_python()] will be used. This can also be a comma separated list of
@@ -84,11 +89,12 @@ NULL
 #' @export
 virtualenv_create <- function(
   envname = NULL,
-  python  = NULL,
+  python  = virtualenv_starter(version),
   ...,
   version              = NULL,
   packages             = "numpy",
   requirements         = NULL,
+  force                = FALSE,
   module               = getOption("reticulate.virtualenv.module"),
   system_site_packages = getOption("reticulate.virtualenv.system_site_packages", default = FALSE),
   pip_version          = getOption("reticulate.virtualenv.pip_version", default = NULL),
@@ -100,26 +106,16 @@ virtualenv_create <- function(
 
   # check and see if we already have a virtual environment
   if (virtualenv_exists(path)) {
-    writeLines(paste("virtualenv:", name))
-    return(invisible(path))
+    if(force) {
+      virtualenv_remove(envname = envname, confirm = FALSE)
+    } else {
+      writeLines(paste("virtualenv:", name))
+      return(invisible(path))
+    }
   }
 
-
-  if (is.null(python)) repeat {
-    python <- virtualenv_starter(version)
-    if(!is.null(python))
-      break
-
-    if(!is.null(version))
-      stop_no_virtualenv_starter(version)
-
-    python <- virtualenv_default_python()
-    if(!is.null(python))
-       break
-
-    python <- normalizePath(python, winslash = "/")
-    break
-  }
+  if (is.null(python))
+    stop_no_virtualenv_starter(version)
 
   check_can_be_virtualenv_starter(python)
 
@@ -360,7 +356,11 @@ virtualenv_pip <- function(envname) {
 }
 
 
+# This function is at this point only invoked from `py_install()`
+# no longer safe to call from `virtualenv_create()` due to potential
+# for infinite recursion via py_discover_config() bootstrapping a venv.
 virtualenv_default_python <- function(python = NULL) {
+
 
   # if the user has supplied a version of python already, use it
   if (!is.null(python))
@@ -507,7 +507,7 @@ virtualenv_starter <- function(version = NULL, all = FALSE) {
 
   # Find pythons installed via `install_python()` or by directly using pyenv.
   # Typically something like "~/.pyenv/versions/3.9.17/bin/python3.9" or
-  #  "C:/Users/Administrator/AppData/Local/r-reticulate/r-reticulate/pyenv/pyenv-win/versions/3.9.13/python.exe"
+  #  "C:/Users/<username>/AppData/Local/r-reticulate/r-reticulate/pyenv/pyenv-win/versions/3.9.13/python.exe"
   # but can be different if user set PYENV_ROOT or manually installed pyenv
   # in a different location
   if (length(pyenv <- pyenv_find(install = FALSE))) {
@@ -528,6 +528,8 @@ virtualenv_starter <- function(version = NULL, all = FALSE) {
   # official python.org installer for windows
   # system install:  "C:/Program Files/Python311/python.exe"
   # user install: "C:/Users/<username>/AppData/Local/Programs/Python/Python311/python.exe"
+  # TODO: we can make this more robust by using env vars SYSTEMDRIVE, and USERPROFILE
+  # see https://github.com/rstudio/rstudio/blob/094af5c40cd13ef8ac84845462c35ffeb3a06d65/src/cpp/session/modules/SessionPythonEnvironments.R#L555C28-L555C39
   if (is_windows()) {
     find_starters("/Program Files/Python*/python*.exe")
     find_starters("~/../AppData/Local/Programs/Python/Python*/python*.exe")
@@ -645,7 +647,7 @@ stop_no_virtualenv_starter <- function(version = NULL) {
   .msg <- character()
   w <- function(...) .msg <<- c(.msg, paste0(...))
 
-  w("Suitable Python installation not found.")
+  w("Suitable Python installation for creating a venv not found.")
   if (!is.null(version))
     w("Requested version constraint: ", version)
   w("Please install Python with one of following methods:")

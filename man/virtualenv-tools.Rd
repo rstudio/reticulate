@@ -14,11 +14,12 @@
 \usage{
 virtualenv_create(
   envname = NULL,
-  python = NULL,
+  python = virtualenv_starter(version),
   ...,
   version = NULL,
   packages = "numpy",
   requirements = NULL,
+  force = FALSE,
   module = getOption("reticulate.virtualenv.module"),
   system_site_packages = getOption("reticulate.virtualenv.system_site_packages", default
     = FALSE),
@@ -76,6 +77,11 @@ the virtual environment, after it has been created. By default, the
 any packages after the virtual environment has been created.}
 
 \item{requirements}{Filepath to a pip requirements file.}
+
+\item{force}{Boolean; force recreating the environment specified by
+\code{envname}, even if it already exists. If \code{TRUE}, the previous enviroment is
+first deleted and recreated. Otherwise, if \code{FALSE}, the path to the
+existing environment is returned.}
 
 \item{module}{The Python module to be used when creating the virtual
 environment -- typically, \code{virtualenv} or \code{venv}. When \code{NULL} (the default),

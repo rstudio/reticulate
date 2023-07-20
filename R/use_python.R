@@ -114,20 +114,24 @@ use_python <- function(python, required = NULL) {
   }
 
   if (required) {
-    if (!is.null(prior_required_python <-
-                 .globals$required_python_version) &&
+    # warn if we're overriding a previous request that will be ignored.
+    prior_required_python <- .globals$required_python_version
+    if (!is.null(prior_required_python) &&
         !isTRUE(canonical_path(prior_required_python) == canonical_path(python)))
-      warningf(
-        'Previous request to `use_python("%s", required = TRUE)` will be ignored. It is superseded by request to `use_python("%s")',
+      warningf(heredoc(c(
+        'Previous request to `use_python("%s", required = TRUE)` will be ignored.',
+        'It is superseded by request to `use_python("%s")')),
         prior_required_python, python)
 
     .globals$required_python_version <- python
 
-    if (!is.na(python_w_precedence <-
-               Sys.getenv("RETICULATE_PYTHON", NA)) &&
+    # warn if this setting will be ignored because RETICULATE_PYTHON is set
+    python_w_precedence <- Sys.getenv("RETICULATE_PYTHON", NA)
+    if (!is.na(python_w_precedence) &&
         !isTRUE(canonical_path(python_w_precedence) == canonical_path(python)))
-      warningf(
-        'The request to `use_python("%s")` will be ignored because the environment variable RETICULATE_PYTHON is set to "%s"',
+      warningf(heredoc(c(
+        'The request to `use_python("%s")` will be ignored because the',
+        'environment variable RETICULATE_PYTHON is set to "%s"')),
         python, python_w_precedence)
   }
 

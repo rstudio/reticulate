@@ -91,13 +91,41 @@ test_that("numpy string arrays are correctly handled", {
   # https://github.com/rstudio/reticulate/issues/1409
   skip_if_no_numpy()
 
-  py_run_string(
-    r"(
-import numpy as np
-c1 = np.array(["1","2","3"])
-c2 = np.array(["4","5","6"])
-c = np.stack([c1,c2], axis = 1)
-)")
+  np <- import("numpy", convert = FALSE)
+  c1 <- np$array(c("1", "2", "3"))
+  c2 <- np$array(c("4", "5", "6"))
+  x <- py_to_r(np$stack(list(c1, c2), axis = 1L))
+  expect_equal(x, matrix(as.character(1:6), ncol = 2))
 
-  expect_equal(py$c, matrix(as.character(1:6), ncol = 2))
+  # test for more dimensions
+  x <- np$random$rand(3L, 5L, 4L)
+  y <- x$astype("str")
+
+  a <- py_to_r(x)
+  b <- py_to_r(y)
+  storage.mode(b) <- "numeric"
+  expect_equal(a, b)
+
+  # test F ordering
+  x <- np$random$rand(3L, 5L, 4L)
+  y <- x$astype("str")
+  y <- np$asfortranarray(y)
+  expect_true(py_to_r(y$flags$f_contiguous))
+
+  a <- py_to_r(x)
+  b <- py_to_r(y)
+  storage.mode(b) <- "numeric"
+  expect_equal(a, b)
+
+  # test for strided views
+  x <- np$random$rand(3L, 5L, 4L)
+  y <- x$astype("str")
+
+  x <- np$reshape(x, c(5L, 3L, 4L))
+  y <- np$reshape(y, c(5L, 3L, 4L))
+
+  a <- py_to_r(x)
+  b <- py_to_r(y)
+  storage.mode(b) <- "numeric"
+  expect_equal(a, b)
 })

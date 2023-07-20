@@ -36,6 +36,7 @@ set_knitr_python_stdout_hook <- function() {
     # if knitr is already in progress here, this means that python was initialized
     # during a chunk execution. We have to force an instant remap as the hook won't
     # have a chance to run for that chunk.
+    # In such cases `context.__enter__` is never called.
     if (isTRUE(getOption('knitr.in.progress'))) set_output_streams(tty = FALSE)
   } else {
     setHook(

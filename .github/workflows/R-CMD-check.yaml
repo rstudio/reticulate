@@ -80,7 +80,9 @@ jobs:
         shell: Rscript {0}
         run: |
 
-          path_to_python <- reticulate::virtualenv_create(
+          library(reticulate)
+
+          path_to_venv <- virtualenv_create(
             envname = "r-reticulate",
             python = Sys.which("python"), # placed on PATH by the setup-python action
             packages = c(
@@ -89,8 +91,9 @@ jobs:
             )
           )
 
-          writeLines(sprintf("RETICULATE_PYTHON=%s", path_to_python),
-                     Sys.getenv("GITHUB_ENV"))
+          writeLines(
+            paste0("RETICULATE_PYTHON=", virtualenv_python(path_to_venv)),
+            Sys.getenv("GITHUB_ENV"))
 
 
       - uses: r-lib/actions/check-r-package@v2

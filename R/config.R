@@ -282,8 +282,8 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
 
 
   ## At this point, the user, (and package authors on behalf of the user), has
-  ## expressed no intent or preference for any particular python installation,
-  ## or the preference expressed is for the python environment that don't exist.
+  ## expressed no preference for any particular python installation, or the
+  ## preference expressed is for the python environment that don't exist.
   ##
   ## In other words,
   ##  - no use_python(), use_virtualenv(), use_condaenv()
@@ -294,7 +294,7 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
   ##  - no configured poetry or pipfile in the current working directory
 
   # Look for a "r-reticulate" venv. if found, use that.
-  # This is the default in the absence of any expressed intent by the user.
+  # This is the default in the absence of any expressed preference by the user.
   python <- tryCatch(py_resolve("r-reticulate"), error = identity)
   if (!inherits(python, "error"))
     return(python_config(python, required_module))
@@ -305,7 +305,6 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
   python <- tryCatch(py_resolve("r-reticulate"), error = identity)
   if (!inherits(python, "error"))
     return(python_config(python, required_module))
-
 
   # At this point, user has expressed no preference, and has declined
   # to use the create the "r-reticulate" venv.

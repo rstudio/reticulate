@@ -141,15 +141,15 @@ py_module_available <- function(module) {
 
 #' Discover the version of Python to use with reticulate.
 #'
-#' This function enables callers to check which versions of Python will
-#' be discovered on a system as well as which one will be chosen for
-#' use with reticulate.
+#' This function enables callers to check which versions of Python will be
+#' discovered on a system as well as which one will be chosen for use with
+#' reticulate.
 #'
-#' @param required_module A optional module name that must be available
-#'   in order for a version of Python to be used.
+#' @param required_module A optional module name that will be used to select the
+#'   Python environment used.
 #'
-#' @param use_environment An optional virtual/conda environment name
-#'   to prefer in the search.
+#' @param use_environment An optional virtual/conda environment name to prefer
+#'   in the search.
 #'
 #' @return Python configuration object.
 #'
@@ -189,18 +189,29 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
   }
 
   # if RETICULATE_PYTHON_ENV is specified then use that
+  # can be a bare envname or a path
   reticulate_python_env <- Sys.getenv("RETICULATE_PYTHON_ENV", unset = NA)
   if (!is.na(reticulate_python_env)) {
 
-    python <- python_binary_path(reticulate_python_env)
-    python_version <- normalize_python_path(python)
-    if (!python_version$exists)
+    # resolve the path to the environment directory
+    tryCatch({
+      python <- py_resolve(reticulate_python_env)
+    }, error = function(e) {
       stop("Python specified in RETICULATE_PYTHON_ENV (", reticulate_python_env, ") does not exist")
+    })
 
-    path <- python_version$path
     config <- python_config(path, required_module, forced = "RETICULATE_PYTHON_ENV")
     return(config)
 
+  }
+
+  # look for a required python version
+  # (e.g. use_python("/usr/bin/python", required = TRUE))
+  required_version <- .globals$required_python_version
+  if (!is.null(required_version)) {
+    python_version <- normalize_python_path(required_version)$path
+    config <- python_config(python_version, required_module, forced = "use_python() function")
+    return(config)
   }
 
   # if we're working within a project that contains a pyproject.toml file,
@@ -215,12 +226,37 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
   if (!inherits(config, "error") && !is.null(config))
     return(config)
 
-  # next look for a required python version
-  # (e.g. use_python("/usr/bin/python", required = TRUE))
-  required_version <- .globals$required_python_version
-  if (!is.null(required_version)) {
-    python_version <- normalize_python_path(required_version)$path
-    config <- python_config(python_version, required_module, forced = "use_python function")
+  # look for any environment names supplied in a call like:
+  #  import("bar", delayed = list(environment = "r-barlyr"))
+  if(!is.null(use_environment)) {
+    python <- tryCatch(py_resolve(use_environment), error = identity)
+    if (!inherits(python, "error"))
+      return(python_config(
+        python, required_module,
+        forced = sprintf('import("%s")', required_module)
+      ))
+  }
+
+  # look in virtual environments that have a required module derived name,
+  # e.g., given a call to import("bar"), look for an environment named "r-bar"
+  if (!is.null(required_module)) {
+    envname <- paste0("r-", required_module)
+    python <- tryCatch(py_resolve(envname), error = identity)
+    if (!inherits(python, "error"))
+      return(python_config(
+        python, required_module,
+        forced = sprintf('import("%s")', required_module)
+      ))
+  }
+
+  # check for `use_python( , required = FALSE)`. This should rarely be triggered
+  # any more, since the default value for `required` changed from FALSE to TRUE,
+  # excepting if the use_*() call is within a `.onLoad()` call of a package.
+  # last call of use_*(,required = FALSE) wins
+  optional_requested_use_pythons <- reticulate_python_versions()
+  for (python in rev(optional_requested_use_pythons)) {
+    config <- python_config(python, required_module,
+                            forced = "use_python(, required = FALSE)")
     return(config)
   }
 
@@ -235,123 +271,75 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
     return(config)
   }
 
-  # create a list of possible python versions to bind to
-  # (start with versions specified via environment variable or use_* function)
-  python_versions <- reticulate_python_versions()
-
-  # prioritize the r-reticulate python environment
-  python_virtualenvs <- python_virtualenv_versions()
-  r_reticulate_python_envs <- python_virtualenvs[python_virtualenvs$name == "r-reticulate", ]
-  python_versions <- c(python_versions, r_reticulate_python_envs$python)
-
-  # next look in virtual environments that have a required module derived name
-  if (!is.null(required_module)) {
-    # filter by required module
-    envnames <- c(required_module, paste0("r-", required_module), use_environment)
-    module_python_envs <- python_virtualenvs[python_virtualenvs$name %in% envnames, ]
-    python_versions <- c(python_versions, module_python_envs$python)
-  }
-
-  # look for conda environments
-  python_condaenvs <- python_conda_versions()
-  r_reticulate_python_envs <- python_condaenvs[python_condaenvs$name == "r-reticulate", ]
-  python_versions <- c(python_versions, r_reticulate_python_envs$python)
-
-  # next look in conda envs that have a required module derived name
-  if (!is.null(required_module)) {
-    # filter by required module
-    envnames <- c(required_module, paste0("r-", required_module), use_environment)
-    module_python_envs <- python_condaenvs[python_condaenvs$name %in% envnames, ]
-    python_versions <- c(python_versions, module_python_envs$python)
-  }
-
-  # look for r-reticulate environment in miniconda
-  # if the environment doesn't exist, and the user hasn't requested a separate
-  # environment, then we'll prompt for installation of miniconda
-  miniconda <- miniconda_conda()
-  if (!file.exists(miniconda)) {
-
-    can_install_miniconda <-
-      is_interactive() &&
-      length(python_versions) == 0 &&
-      miniconda_enabled() &&
-      miniconda_installable()
-
-    if (can_install_miniconda)
-      miniconda_install_prompt()
-
-  }
-
-  # if the earlier branch installed miniconda, it may exist now -- if so,
-  # try to activate it
-  if (file.exists(miniconda)) {
-
-    # create the conda environment if necessary
-    envpath <- miniconda_python_envpath()
-    if (!file.exists(envpath)) {
-      python <- miniconda_python_package()
-      conda_create(envpath, packages = c(python, "numpy"), conda = miniconda)
-    }
-
-    # bind to it
-    miniconda_python <- conda_python(envpath, conda = miniconda)
-    config <- python_config(miniconda_python, NULL, miniconda_python)
+  # check if we're running in an activated venv
+  if (is_virtualenv(envpath <- Sys.getenv("VIRTUAL_ENV", NA))) {
+    # If this check ends up being too strict, we can alternatively do:
+    # if (python_info(Sys.which("python"))$type == "virtualenv") {
+    config <- python_config(virtualenv_python(envpath), required_module,
+                            forced = "`. bin/activate` (before R started)")
     return(config)
-
   }
 
-  # the user might have opted out for miniconda but could still have a
-  # conda isntallation. In this case, we should the r-reticulate env
-  # we use the same python version as we would install with miniconda.
-  if (conda_installed() && nrow(conda_list()) == 0) {
-    python <- miniconda_python_package()
-    conda_create("r-reticulate", packages = c(python, "numpy"), conda = conda_binary())
 
-    # gather python conda versions one again as they might exist now that
-    # we created the environment
-    python_condaenvs <- python_conda_versions()
-    r_reticulate_python_envs <- python_condaenvs[python_condaenvs$name == "r-reticulate", ]
-    python_versions <- c(python_versions, r_reticulate_python_envs$python)
-  }
+  ## At this point, the user, (and package authors on behalf of the user), has
+  ## expressed no intent or preference for any particular python installation,
+  ## or the preference expressed is for the python environment that don't exist.
+  ##
+  ## In other words,
+  ##  - no use_python(), use_virtualenv(), use_condaenv()
+  ##  - no RETICULATE_PYTHON, RETICULATE_PYTHON_ENV, or RETICULATE_PYTHON_FALLBACK env vars
+  ##  - no env named 'r-bar' if there was a call like `import('foo', delay_load = list(environment = "r-bar"))`
+  ##  - no env named 'r-foo' if there was a call like `import('foo')`
+  ##  - we're not running under an already activated venv
+  ##  - no configured poetry or pipfile in the current working directory
 
-  # join virtualenv, condaenv environments together
-  python_envs <- rbind(python_virtualenvs, python_condaenvs)
+  # Look for a "r-reticulate" venv. if found, use that.
+  # This is the default in the absence of any expressed intent by the user.
+  python <- tryCatch(py_resolve("r-reticulate"), error = identity)
+  if (!inherits(python, "error"))
+    return(python_config(python, required_module))
 
-  # look on system path
-  python <- as.character(Sys.which("python3"))
-  if (nzchar(python))
-    python_versions <- c(python_versions, python)
+  # if we couldn't find a "r-reticulate" env, try to create one
+  # and look for it again
+  create_default_virtualenv(package = "reticulate")
+  python <- tryCatch(py_resolve("r-reticulate"), error = identity)
+  if (!inherits(python, "error"))
+    return(python_config(python, required_module))
 
-  python <- as.character(Sys.which("python"))
-  if (nzchar(python))
-    python_versions <- c(python_versions, python)
 
-  # provide other common locations
-  python_versions <- c(python_versions, py_discover_config_fallbacks())
+  # At this point, user has expressed no preference, and has declined
+  # to use the create the "r-reticulate" venv.
 
-  # next add all known virtual environments
-  python_versions <- c(python_versions, python_envs$python)
+  # fall back to using the PATH python, or fail.
+  # We intentionally do not go on a fishing expedition for every possible python,
+  # for two reasons:
+  #   - the default workflow should be to use venvs
+  #   - make which python is found more predictable.
 
-  # de-duplicate
-  python_versions <- unique(python_versions)
+  # create a list of possible python versions to bind to
+  # use the first one that has the requested module.
+  python_versions <- unique(c(
+    Sys.which("python3"),
+    Sys.which("python"),
+    if (is_windows())
+      py_versions_windows()$executable_path,
+  ))
 
   # filter locations by existence
   if (length(python_versions) > 0)
     python_versions <- python_versions[file.exists(python_versions)]
 
-  # remove 'fake' / inaccessible python executables
-  # https://github.com/rstudio/reticulate/issues/534
   if (is_windows()) {
+    # remove 'fake' / inaccessible python executables
+    # https://github.com/rstudio/reticulate/issues/534
     info <- suppressWarnings(file.info(python_versions))
     size <- ifelse(is.na(info$size), 0, info$size)
     python_versions <- python_versions[size != 0]
-  }
 
-  # remove msys2 / cygwin python executables.
-  # path translation going to and from msys2 currently not implemented.
-  # E.g.: "C:\foo\bar" -> "/c/foo/bar" and  "/foo/bar" -> "C:\rtools43\foo\bar"
-  # https://github.com/rstudio/reticulate/issues/1325
-  if (is_windows()) {
+    # remove msys2 / cygwin python executables.
+    # path translation going to and from msys2 currently not implemented.
+    # E.g.: "C:\foo\bar" -> "/c/foo/bar" and  "/foo/bar" -> "C:\rtools43\foo\bar"
+    # https://github.com/rstudio/reticulate/issues/1325
     python_sys_platforms <- vapply(
       python_versions, system2, "",
       args = c("-c", shQuote("import sys; print(sys.platform)")),
@@ -366,23 +354,6 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
 
     # get the config
     config <- python_config(python_version, required_module, python_versions)
-
-    # if this is a conda python installation, then create an r-reticulate
-    # environment and use that instead
-    initenv <-
-      identical(getOption("reticulate.conda.autoclone", FALSE), TRUE) &&
-      identical(getOption("reticulate.python.initializing"), TRUE) &&
-      identical(config$conda, TRUE)
-
-    if (initenv) {
-      fmt <- "* Found conda installation at %s; creating 'r-reticulate' environment ..."
-      messagef(fmt, pretty_path(config$prefix))
-      conda_clone("r-reticulate")
-      conda_install("r-reticulate", packages = "numpy")
-      python <- conda_python("r-reticulate")
-      config <- python_config(python, required_module, python_versions)
-      return(config)
-    }
 
     # if we have a required module ensure it's satisfied.
     # also check architecture (can be an issue on windows)
@@ -442,6 +413,39 @@ py_discover_config_fallbacks <- function() {
   )
 
   paste(grid$prefix, grid$suffix, sep = "/")
+
+}
+
+create_default_virtualenv <- function(package = "reticulate", ...) {
+
+  # If the environment already exists, use it
+  envname <- paste0("r-", package)
+  if(virtualenv_exists(envname))
+    return(virtualenv_python(envname))
+
+  permission <- tolower(Sys.getenv("RETICULATE_AUTOCREATE_PACKAGE_VENV", ""))
+
+  if (permission %in% c("false", "0", "no"))
+    return(NULL)
+
+  if (permission == "") {
+    if(is_interactive()) {
+      permission <- askYesNo(sprintf(
+        "Would you like to create a default python environment for the %s package?",
+        package))
+      if(!isTRUE(permission))
+        return(NULL)
+      permission <- "true"
+    }
+  }
+
+  if (!permission %in% c("true", "yes", "1"))
+    return(NULL)
+
+  virtualenv_create(
+    envname = envname,
+    ...
+  )
 
 }
 

@@ -71,7 +71,7 @@ test_that("Output streams are remaped when kniting", {
   local_edition(3)
 
   owd <- setwd(test_path("resources"))
-  rmarkdown::render("knitr-print.Rmd")
+  rmarkdown::render("knitr-print.Rmd", quiet = TRUE)
   setwd(owd)
 
   rendered <- test_path("resources", "knitr-print.md")
@@ -87,4 +87,15 @@ test_that("Output streams are remaped when kniting", {
   }))
   expect_length(out, 0)
 
+  # make sure it works from a background session
+  callr::r(function(path) {
+    setwd(path)
+    rmarkdown::render(
+      "knitr-print.Rmd",
+      output_file = "knitr-print2.md",
+      quiet = TRUE
+    )
+  }, args = list(path = test_path("resources")))
+
+  expect_snapshot_file(test_path("resources", "knitr-print2.md"))
 })

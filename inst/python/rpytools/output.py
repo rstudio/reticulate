@@ -153,14 +153,18 @@ class RemapOutputStreams:
     self.r_stdout = r_stdout
     self.r_stderr = r_stderr
     self.tty = tty
+    self._stdout = sys.stdout
+    self._stderr = sys.stderr
   
   def __enter__(self):
+    # It's possible that __enter__ does not execute before __exit__ in some
+    # special cases. We also store _stdout and _stderr when creating the context.
     self._stdout = sys.stdout
     self._stderr = sys.stderr
     
     _remap_output_streams(self.r_stdout, self.r_stderr, self.tty)
   
-  def __exit__(self):
+  def __exit__(self, *args):
     sys.stdout = self._stdout
     sys.stderr = self._stderr
 

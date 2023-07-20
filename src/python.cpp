@@ -930,8 +930,10 @@ bool py_is_callable(PyObjectRef x) {
 
 // caches np.nditer function so we don't need to obtain it everytime we want to
 // cast numpy string arrays into R objects.
-PyObject* np_nditer;
 PyObject* get_np_nditer () {
+
+  static PyObject* np_nditer;
+
   if (np_nditer) {
     return np_nditer;
   }
@@ -1165,21 +1167,13 @@ SEXP py_to_r(PyObject* x, bool convert) {
         rArray = Rf_allocArray(STRSXP, dimsVector);
         RObject protectArray(rArray);
 
-        // empty tuple, casts to scalar value
-        PyObjectPtr itemArg(PyTuple_New(0));
+
         for (int i=0; i<len; i++) {
           PyObjectPtr el(PyIter_Next(iter)); // returns an scalar array.
-
-          PyObjectPtr itemFunc(PyObject_GetAttrString(el, "item"));
-          if (itemFunc.is_null()) {
-            throw PythonException(py_fetch_error());
-          }
-
-          PyObjectPtr pyStr(PyObject_Call(itemFunc, itemArg, NULL));
+          PyObjectPtr pyStr(PyObject_CallMethod(el, "item", NULL));
           if (pyStr.is_null()) {
             throw PythonException(py_fetch_error());
           }
-
           set_string_element(rArray, i, pyStr);
         }
         break;

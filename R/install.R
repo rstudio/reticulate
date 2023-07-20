@@ -161,6 +161,8 @@ py_resolve <- function(envname = NULL,
   if (is.null(envname))
     return(py_exe())
 
+  type <- match.arg(type)
+
   # if envname was supplied, try to resolve the environment path
   envpath <- if (type == "virtualenv") {
 

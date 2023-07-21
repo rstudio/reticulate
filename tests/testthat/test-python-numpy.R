@@ -86,3 +86,62 @@ test_that("boolean matrices are converted appropriately", {
   A <- matrix(TRUE, nrow = 2, ncol = 2)
   expect_equal(A, py_to_r(r_to_py(A)))
 })
+
+test_that("numpy string arrays are correctly handled", {
+  # https://github.com/rstudio/reticulate/issues/1409
+  skip_if_no_numpy()
+
+  np <- import("numpy", convert = FALSE)
+  c1 <- np$array(c("1", "2", "3"))
+  c2 <- np$array(c("4", "5", "6"))
+  x <- py_to_r(np$stack(list(c1, c2), axis = 1L))
+  expect_equal(x, matrix(as.character(1:6), ncol = 2))
+
+  # test for more dimensions
+  x <- np$random$rand(3L, 5L, 4L)
+  y <- x$astype("str")
+
+  a <- py_to_r(x)
+  b <- py_to_r(y)
+  storage.mode(b) <- "numeric"
+  expect_equal(a, b)
+
+  # test F ordering
+  x <- np$random$rand(3L, 5L, 4L)
+  y <- x$astype("str")
+  y <- np$asfortranarray(y)
+  expect_true(py_to_r(y$flags$f_contiguous))
+
+  a <- py_to_r(x)
+  b <- py_to_r(y)
+  storage.mode(b) <- "numeric"
+  expect_equal(a, b)
+
+  # test for strided views
+  x <- np$random$rand(3L, 5L, 4L)
+  y <- x$astype("str")
+
+  x <- np$reshape(x, c(5L, 3L, 4L))
+  y <- np$reshape(y, c(5L, 3L, 4L))
+
+  a <- py_to_r(x)
+  b <- py_to_r(y)
+  storage.mode(b) <- "numeric"
+  expect_equal(a, b)
+
+  x <- np$array(as.character(1:18))$reshape(c(-1L, 2L))
+
+  fn <- py_eval("lambda x: x[::2]") # another strided view
+  expect_equal(fn(x), matrix(c("1", "2",
+                               "5", "6",
+                               "9", "10",
+                               "13", "14",
+                               "17", "18"), byrow = TRUE, ncol = 2))
+  x <- np$asfortranarray(x)
+  expect_equal(fn(x), matrix(c("1", "2",
+                               "5", "6",
+                               "9", "10",
+                               "13", "14",
+                               "17", "18"), byrow = TRUE, ncol = 2))
+
+  })

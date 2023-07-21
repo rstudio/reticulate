@@ -40,10 +40,9 @@ install.packages("reticulate")
 
 #### Python version
 
-By default, reticulate uses the version of Python found on your `PATH`
-(i.e. `Sys.which("python")`).
+By default, reticulate uses an isolated python virtual environment named "r-reticulate".
 
-The `use_python()` function enables you to specify an alternate version,
+The `use_python()` function enables you to specify an alternate python,
 for example:
 
 ``` r

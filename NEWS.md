@@ -1,5 +1,11 @@
 # reticulate (development version)
 
+- reticulate will no longer prompt users to install miniconda. Instead,
+  reticulate will now prompt users to create a default `r-reticulate` venv.
+
+- The python search behavior that reticulate uses to select a Python has changed.
+  See the updated "versions" vignette for the new order of discovery.
+
 - `py_iterator()` gains a `prefetch` argument, primarily to avoid deadlocks
   where the main thread is blocked, waiting for the iterator, which is waiting
   to run on the main thread, as encountered in TensorFlow/Keras. (#1405).

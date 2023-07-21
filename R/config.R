@@ -156,6 +156,10 @@ py_module_available <- function(module) {
 #' @export
 py_discover_config <- function(required_module = NULL, use_environment = NULL) {
 
+  required_module <- required_module %||% .globals$delay_load_module
+  if (!is.null(required_module))
+    required_module <- strsplit(required_module, ".", fixed = TRUE)[[1L]][[1L]]
+
   # check if python symbols can already be found in the current process
   main_process_info <- main_process_python_info()
   if (!is.null(main_process_info)) {
@@ -228,6 +232,7 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
 
   # look for any environment names supplied in a call like:
   #  import("bar", delayed = list(environment = "r-barlyr"))
+  use_environment <- use_environment %||% .globals$delay_load_environment
   if(!is.null(use_environment)) {
     python <- tryCatch(py_resolve(use_environment), error = identity)
     if (!inherits(python, "error"))

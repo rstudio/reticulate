@@ -166,6 +166,23 @@ test_that("NaT is converted to NA", {
 
   expect_equal(py_to_r(before), py_to_r(after))
 
+
+})
+
+test_that("Large ints are handled correctly", {
+  skip_if_no_pandas()
+  require(bit64)
+
+  options(reticulate.long_as_bit64=TRUE)
+  options(reticulate.ulong_as_bit64=TRUE)
+  A <- data.frame(val=c(as.integer64("1567447722123456785"), as.integer64("1567447722123456786")))
+  expect_equal(A, py_to_r(r_to_py(A)))
+
+  options(reticulate.long_as_bit64=F)
+  options(reticulate.ulong_as_bit64=F)
+  A <- data.frame(val=c(as.integer64("1567447722123456785"), as.integer64("1567447722123456786")))
+  expect_equal(A, py_to_r(r_to_py(A)))
+
 })
 
 test_that("pandas NAs are converted to R NAs", {
@@ -217,5 +234,6 @@ df = pd.DataFrame({"FCT": pd.Categorical(["No", "Yes"]),
   attr(p_df, "pandas.index") <- NULL
 
   expect_identical(p_df, r_df)
+
 
 })

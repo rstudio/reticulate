@@ -82,6 +82,27 @@ std::wstring s_python_v3;
 std::string s_pythonhome;
 std::wstring s_pythonhome_v3;
 
+const std::string CONFIG_LONG_AS_BIT64="reticulate.long_as_bit64";
+const std::string CONFIG_ULONG_AS_BIT64="reticulate.ulong_as_bit64";
+
+template<typename T>
+T getConfig(std::string config, T defValue) {
+  Environment base( "package:base" ) ;
+  Function getOption = base["getOption"];
+  SEXP s = getOption(config, defValue);
+  if(s == NULL) {
+    return defValue;
+  }
+  return as<T>(s);
+}
+
+bool convertLongToBit64() {
+  return getConfig<bool>(CONFIG_LONG_AS_BIT64, false);
+}
+
+bool convertULongToBit64() {
+  return getConfig<bool>(CONFIG_ULONG_AS_BIT64, false);
+}
 
 
 // helper to convert std::string to std::wstring
@@ -334,12 +355,19 @@ int narrow_array_typenum(int typenum) {
   case NPY_INT:
     typenum = NPY_LONG;
     break;
-    // double
-  case NPY_UINT:
-  case NPY_ULONG:
-  case NPY_ULONGLONG:
+
   case NPY_LONG:
   case NPY_LONGLONG:
+    typenum = convertLongToBit64() ? NPY_LONG : NPY_DOUBLE;
+    break;
+
+  case NPY_ULONG:
+  case NPY_ULONGLONG:
+    typenum = convertULongToBit64() ? NPY_ULONG : NPY_DOUBLE;
+    break;
+
+    // double
+  case NPY_UINT:
   case NPY_HALF:
   case NPY_FLOAT:
   case NPY_DOUBLE:
@@ -368,12 +396,24 @@ int narrow_array_typenum(int typenum) {
   return typenum;
 }
 
+int typenum(PyArrayObject* array) {
+  return PyArray_TYPE(array);
+}
+
+int typenum(PyArray_Descr* descr) {
+  return descr->type_num;
+}
+
+int typenum(int typeenum) {
+  return typeenum;
+}
+
 int narrow_array_typenum(PyArrayObject* array) {
-  return narrow_array_typenum(PyArray_TYPE(array));
+  return narrow_array_typenum(typenum(array));
 }
 
 int narrow_array_typenum(PyArray_Descr* descr) {
-  return narrow_array_typenum(descr->type_num);
+  return narrow_array_typenum(typenum(descr->type_num));
 }
 
 bool is_numpy_str(PyObject* x) {
@@ -928,10 +968,8 @@ bool py_is_callable(PyObjectRef x) {
     return py_is_callable(x.get());
 }
 
-
 // convert a python object to an R object
 SEXP py_to_r(PyObject* x, bool convert) {
-
   // NULL for Python None
   if (py_is_none(x))
     return R_NilValue;
@@ -945,9 +983,18 @@ SEXP py_to_r(PyObject* x, bool convert) {
       return LogicalVector::create(x == Py_True);
 
     // integer
-    else if (scalarType == INTSXP)
-      return IntegerVector::create(PyInt_AsLong(x));
-
+    else if (scalarType == INTSXP) {
+      long val = PyLong_AsLong(x);
+      if((val > std::numeric_limits<int>::max() || val < std::numeric_limits<int>::min()) && convertLongToBit64()) {
+        Rcpp::NumericVector vec(1);
+        std::memcpy(&(vec[0]), &(val), sizeof(double));
+        vec.attr("class") = "integer64";
+        return vec;
+      }
+      else{
+        return IntegerVector::create(val);
+      }
+    }
     // double
     else if (scalarType == REALSXP)
       return NumericVector::create(PyFloat_AsDouble(x));
@@ -980,9 +1027,23 @@ SEXP py_to_r(PyObject* x, bool convert) {
       return vec;
     } else if (scalarType == INTSXP) {
       Rcpp::IntegerVector vec(len);
-      for (Py_ssize_t i = 0; i<len; i++)
-        vec[i] = PyInt_AsLong(PyList_GetItem(x, i));
+      for (Py_ssize_t i = 0; i<len; i++) {
+        long num = PyLong_AsLong(PyList_GetItem(x, i));
+        if((num > std::numeric_limits<int>::max() || num < std::numeric_limits<int>::min()) && convertLongToBit64()) {
+          //We need to start over an interpret as 64 bit int
+          Rcpp::NumericVector nVec(len);
+          long long* res_ptr  = (long long*) dataptr(nVec);
+          for (Py_ssize_t j = 0; j<len; j++) {
+            res_ptr[j] = PyInt_AsLong(PyList_GetItem(x, j));;
+          }
+          nVec.attr("class") = "integer64";
+          return nVec;
+        } else {
+          vec[i] = num;
+        }
+      }
       return vec;
+
     } else if (scalarType == CPLXSXP) {
       Rcpp::ComplexVector vec(len);
       for (Py_ssize_t i = 0; i<len; i++) {
@@ -1072,6 +1133,7 @@ SEXP py_to_r(PyObject* x, bool convert) {
     }
 
     // determine the target type of the array
+    int oriType = typenum(array);
     int typenum = narrow_array_typenum(array);
 
     // cast it to a fortran array (PyArray_CastToType steals the descr)
@@ -1096,10 +1158,32 @@ SEXP py_to_r(PyObject* x, bool convert) {
       }
 
       case NPY_LONG: {
-        npy_long* pData = (npy_long*)PyArray_DATA(array);
-        rArray = Rf_allocArray(INTSXP, dimsVector);
-        for (int i=0; i<len; i++)
-          INTEGER(rArray)[i] = pData[i];
+        if((oriType == NPY_LONG || oriType == NPY_LONGLONG) && convertLongToBit64()) {
+          Rcpp::NumericVector nVec(len);
+          //Inspired by https://gallery.rcpp.org/articles/creating-integer64-and-nanotime-vectors/
+          npy_ulong* pData = (npy_ulong*)PyArray_DATA(array);
+          std::memcpy(&(nVec[0]), &(pData[0]), len * sizeof(double));
+          nVec.attr("class") = "integer64";
+          nVec.attr("dim") = dimsVector;
+          rArray = nVec;
+        } else {
+          npy_long* pData = (npy_long*)PyArray_DATA(array);
+          rArray = Rf_allocArray(INTSXP, dimsVector);
+          for (int i=0; i<len; i++) {
+            INTEGER(rArray)[i] = pData[i];
+          }
+        }
+
+        break;
+      }
+      case NPY_ULONG: {
+        npy_ulong* pData = (npy_ulong*)PyArray_DATA(array);
+        Rcpp::NumericVector nVec(len);
+        //Inspired by https://gallery.rcpp.org/articles/creating-integer64-and-nanotime-vectors/
+        std::memcpy(&(nVec[0]), &(pData[0]), len * sizeof(double));
+        nVec.attr("class") = CharacterVector::create("integer64", "np.ulong");
+        nVec.attr("dim") = dimsVector;
+        rArray = nVec;
         break;
       }
 
@@ -1359,6 +1443,7 @@ SEXP py_to_r(PyObject* x, bool convert) {
 
 }
 
+
 /* stretchy list, modified from R sources
    CAR of the list points to the last cons-cell
    CDR points to the first.
@@ -1375,6 +1460,7 @@ void GrowList(SEXP args_list, SEXP tag, SEXP dflt) {
   PROTECT(dflt);
   SEXP tmp = PROTECT(Rf_cons(dflt, R_NilValue));
   SET_TAG(tmp, tag);
+
 
   SETCDR(CAR(args_list), tmp); // set cdr on the last cons-cell
   SETCAR(args_list, tmp);      // update pointer to last cons cell
@@ -1494,6 +1580,7 @@ SEXP py_get_formals(PyObjectRef callable)
   return CDR(r_args);
 }
 
+
 bool is_convertible_to_numpy(RObject x) {
 
   if (!haveNumPy())
@@ -1534,7 +1621,7 @@ PyObject* r_to_py_numpy(RObject x, bool convert) {
       typenum = NPY_INT;
     data = &(INTEGER(sexp)[0]);
   } else if (type == REALSXP) {
-    typenum = NPY_DOUBLE;
+    typenum = x.inherits("integer64") ? (x.inherits("np.ulong") ? NPY_ULONG : NPY_LONG) : NPY_DOUBLE;
     data = &(REAL(sexp)[0]);
   } else if (type == LGLSXP) {
     typenum = NPY_BOOL;
@@ -1715,25 +1802,39 @@ PyObject* r_to_py_cpp(RObject x, bool convert) {
   }
 
   // numeric (pass length 1 vectors as scalars, otherwise pass list)
-  if (type == REALSXP) {
-
-    // handle scalars
+  } else if (type == REALSXP) {
+    bool isBit64  = x.inherits("integer64");
+    bool isUnsigned = x.inherits("np.ulong");
+    bool isInt64 = isBit64 && !isUnsigned;
+    bool isUint64 = isBit64 && isUnsigned;
     if (LENGTH(sexp) == 1) {
       double value = REAL(sexp)[0];
-      return PyFloat_FromDouble(value);
+      if(isInt64) {
+        return PyInt_FromLong(reinterpret_cast<long&>(value));
+      } else if(isUint64) {
+        return PyLong_FromUnsignedLong(reinterpret_cast<unsigned long&>(value));
+      } else {
+        return PyFloat_FromDouble(value);
+      }
+    } else {
+      PyObjectPtr list(PyList_New(LENGTH(sexp)));
+      for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
+        double value = REAL(sexp)[i];
+        // NOTE: reference to added value is "stolen" by the list
+        PyObject* obj;
+        if(isInt64) {
+          obj = PyInt_FromLong(reinterpret_cast<long&>(value));
+        } else if(isUint64) {
+          obj = PyLong_FromUnsignedLong(reinterpret_cast<unsigned long&>(value));
+        } else {
+          obj = PyFloat_FromDouble(value);
+        }
+        int res = PyList_SetItem(list, i, obj);
+        if (res != 0)
+          throw PythonException(py_fetch_error());
+      }
+      return list.detach();
     }
-
-    PyObjectPtr list(PyList_New(LENGTH(sexp)));
-    for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
-      double value = REAL(sexp)[i];
-      // NOTE: reference to added value is "stolen" by the list
-      int res = PyList_SetItem(list, i, PyFloat_FromDouble(value));
-      if (res != 0)
-        throw PythonException(py_fetch_error());
-    }
-
-    return list.detach();
-
   }
 
   // complex (pass length 1 vectors as scalars, otherwise pass list)
@@ -2736,6 +2837,7 @@ SEXP py_dict_get_item(PyObjectRef dict, RObject key) {
     return py_ref(Py_None, false);
   }
 
+
   Py_IncRef(item);
   return py_ref(item, dict.convert());
 
@@ -2798,6 +2900,7 @@ CharacterVector py_dict_get_keys_as_str(PyObjectRef dict) {
   std::vector<std::string> keys;
 
   PyObjectPtr it(PyObject_GetIter(py_keys));
+
   if (it.is_null())
     throw PythonException(py_fetch_error());
 
@@ -3430,4 +3533,5 @@ PyObjectRef py_capsule(SEXP x) {
     ensure_python_initialized();
 
   return py_ref(py_capsule_new(x), false);
+
 }

@@ -45,6 +45,7 @@ Imports:
     methods,
     png,
     rappdirs,
+    bit64,
     utils,
     rlang,
     withr

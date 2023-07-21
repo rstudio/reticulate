@@ -327,7 +327,7 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
     Sys.which("python3"),
     Sys.which("python"),
     if (is_windows())
-      py_versions_windows()$executable_path,
+      py_versions_windows(include_conda = FALSE)$executable_path
   ))
 
   # filter locations by existence
@@ -462,11 +462,11 @@ create_default_virtualenv <- function(package = "reticulate", ...) {
 #'
 #' @keywords internal
 #' @export
-py_versions_windows <- function() {
+py_versions_windows <- function(include_conda = TRUE) {
   rbind(
     read_python_versions_from_registry("HCU", key = "PythonCore"),
     read_python_versions_from_registry("HLM", key = "PythonCore"),
-    windows_registry_anaconda_versions()
+    if(include_conda) windows_registry_anaconda_versions()
   )
 }
 

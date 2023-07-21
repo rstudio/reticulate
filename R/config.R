@@ -260,6 +260,15 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
     return(config)
   }
 
+  # check if we're running in an activated venv
+  if (is_virtualenv(envpath <- Sys.getenv("VIRTUAL_ENV", NA))) {
+    # If this check ends up being too strict, we can alternatively do:
+    # if (python_info(Sys.which("python"))$type == "virtualenv") {
+    config <- python_config(virtualenv_python(envpath), required_module,
+                            forced = "`. bin/activate` (before R started)")
+    return(config)
+  }
+
   # if RETICULATE_PYTHON_FALLBACK is specified then use it
   reticulate_env <- Sys.getenv("RETICULATE_PYTHON_FALLBACK", unset = NA)
   if (!is.na(reticulate_env)) {
@@ -271,14 +280,6 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
     return(config)
   }
 
-  # check if we're running in an activated venv
-  if (is_virtualenv(envpath <- Sys.getenv("VIRTUAL_ENV", NA))) {
-    # If this check ends up being too strict, we can alternatively do:
-    # if (python_info(Sys.which("python"))$type == "virtualenv") {
-    config <- python_config(virtualenv_python(envpath), required_module,
-                            forced = "`. bin/activate` (before R started)")
-    return(config)
-  }
 
 
   ## At this point, the user, (and package authors on behalf of the user), has

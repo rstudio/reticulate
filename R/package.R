@@ -111,7 +111,7 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
 
   # provide hint to install Miniconda if no Python is found
   python_not_found <- function(msg) {
-    hint <- "Use reticulate::install_miniconda() if you'd like to install a Miniconda Python environment."
+    hint <- "Please create a default virtual environment with `reticulate::virtualenv_create('r-reticulate')`."
     stop(paste(msg, hint, sep = "\n"), call. = FALSE)
   }
 

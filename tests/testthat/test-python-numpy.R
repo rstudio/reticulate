@@ -128,4 +128,20 @@ test_that("numpy string arrays are correctly handled", {
   b <- py_to_r(y)
   storage.mode(b) <- "numeric"
   expect_equal(a, b)
-})
+
+  x <- np$array(as.character(1:18))$reshape(c(-1L, 2L))
+
+  fn <- py_eval("lambda x: x[::2]") # another strided view
+  expect_equal(fn(x), matrix(c("1", "2",
+                               "5", "6",
+                               "9", "10",
+                               "13", "14",
+                               "17", "18"), byrow = TRUE, ncol = 2))
+  x <- np$asfortranarray(x)
+  expect_equal(fn(x), matrix(c("1", "2",
+                               "5", "6",
+                               "9", "10",
+                               "13", "14",
+                               "17", "18"), byrow = TRUE, ncol = 2))
+
+  })

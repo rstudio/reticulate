@@ -204,7 +204,7 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
       stop("Python specified in RETICULATE_PYTHON_ENV (", reticulate_python_env, ") does not exist")
     })
 
-    config <- python_config(path, required_module, forced = "RETICULATE_PYTHON_ENV")
+    config <- python_config(python, required_module, forced = "RETICULATE_PYTHON_ENV")
     return(config)
 
   }
@@ -435,7 +435,7 @@ create_default_virtualenv <- function(package = "reticulate", ...) {
 
   if (permission == "") {
     if(is_interactive()) {
-      permission <- askYesNo(sprintf(
+      permission <- utils::askYesNo(sprintf(
         "Would you like to create a default python environment for the %s package?",
         package))
       if(!isTRUE(permission))

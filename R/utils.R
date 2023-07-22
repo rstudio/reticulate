@@ -574,6 +574,10 @@ str_drop_prefix <- function(x, prefix) {
 
 }
 
+`append<-` <- function(x, value) {
+  c(x, value)
+}
+
 if (getRversion() < "3.3.0") {
 
 startsWith <- function(x, prefix) {

@@ -325,10 +325,12 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
   # use the first one that has the requested module.
   python_versions <- unique(c(
     Sys.which("python3"),
-    Sys.which("python"),
-    if (is_windows())
-      py_versions_windows(include_conda = FALSE)$executable_path
+    Sys.which("python")
   ))
+  if(is_windows()) {
+    append(python_versions) <-
+      subset(py_versions_windows(), type == "PythonCore")$executable_path
+  }
 
   # filter locations by existence
   if (length(python_versions) > 0)
@@ -462,11 +464,11 @@ create_default_virtualenv <- function(package = "reticulate", ...) {
 #'
 #' @keywords internal
 #' @export
-py_versions_windows <- function(include_conda = TRUE) {
+py_versions_windows <- function() {
   rbind(
     read_python_versions_from_registry("HCU", key = "PythonCore"),
     read_python_versions_from_registry("HLM", key = "PythonCore"),
-    if(include_conda) windows_registry_anaconda_versions()
+    windows_registry_anaconda_versions()
   )
 }
 
@@ -1003,7 +1005,7 @@ windows_registry_anaconda_versions <- function() {
         read_python_versions_from_registry("HLM", key = "ContinuumAnalytics", type = "Anaconda"))
 }
 
-read_python_versions_from_registry <- function(hive, key,type=key) {
+read_python_versions_from_registry <- function(hive, key, type=key) {
 
   python_core_key <- tryCatch(utils::readRegistry(
     key = paste0("SOFTWARE\\Python\\", key), hive = hive, maxdepth = 3),

@@ -48,6 +48,9 @@ install_python <- function(version = "3.9:latest",
   if (!file.exists(pyenv))
     stop("could not locate 'pyenv' binary")
 
+  # make sure pyenv is up-to-date
+  pyenv_update(pyenv)
+
   # if list is set, then list available versions instead
   if (identical(list, TRUE))
     return(pyenv_list(pyenv = pyenv))

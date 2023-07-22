@@ -252,16 +252,29 @@ pyenv_bootstrap_unix <- function() {
 
 
 pyenv_update <- function(pyenv = pyenv_find()) {
+
+  if (startsWith(pyenv, root <- pyenv_root())) {
+    # this pyenv installation is fully managed by reticulate
+    # root == where .../bin/pyenv lives
+    withr::with_dir(root, system2("git", "pull"))
+  }
+
   if (is_windows())
     return(system2t(pyenv, "update"))
 
   # $ git clone https://github.com/pyenv/pyenv-update.git $(pyenv root)/plugins/pyenv-update
+  # root == ~/.pyenv == where installed pythons live
   root <- system2(pyenv, "root", stdout = TRUE)
   if (!dir.exists(file.path(root, "plugins/pyenv-update")))
     system2("git", c("clone", "https://github.com/pyenv/pyenv-update.git",
                       file.path(root, "plugins/pyenv-update")))
 
-  system2t(pyenv, "update")
+  result <- system2t(pyenv, "update", stdout = TRUE, stderr = TRUE)a
+  if (result != 0L) {
+    fmt <- "Error creating conda environment [exit code %i]"
+    stopf(fmt, result)
+  }
+
 }
 
 #export PATH="$HOME/.local/share/r-reticulate/pyenv/bin/:$PATH"

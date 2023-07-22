@@ -269,7 +269,7 @@ pyenv_update <- function(pyenv = pyenv_find()) {
     system2("git", c("clone", "https://github.com/pyenv/pyenv-update.git",
                       file.path(root, "plugins/pyenv-update")))
 
-  result <- system2t(pyenv, "update", stdout = TRUE, stderr = TRUE)a
+  result <- system2t(pyenv, "update", stdout = TRUE, stderr = TRUE)
   if (result != 0L) {
     fmt <- "Error creating conda environment [exit code %i]"
     stopf(fmt, result)

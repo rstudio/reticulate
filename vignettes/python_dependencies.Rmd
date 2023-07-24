@@ -5,8 +5,8 @@ vignette: >
   %\VignetteIndexEntry{Managing an R Package's Python Dependencies}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
-editor_options: 
-  markdown: 
+editor_options:
+  markdown:
     wrap: 72
 ---
 
@@ -141,18 +141,19 @@ use of the `Config/reticulate` field.
 With automatic configuration, `reticulate` envisions a world wherein
 different R packages wrapping Python packages can live together in the
 same Python environment / R session. This approach only works when the
-packages being wrapped don't have conflicting dependencies.
+Python packages being wrapped don't have conflicting dependencies.
 
 You must be a judge of the python dependencies your R package
 requires--if automatically bootstrapping an installation of the python
-package into the users active python environment is a safe action to
-perform by default. For example, this is most likely a safe action for a
-python package like "requests", but perhaps not for a frequently updated
-package with many dependencies, like torch or tensorflow (e.g., it's not
-uncommon for torch and tensorflow to have conflicting version
-requirements for dependencies like numpy or cuda). Keep in mind that,
-unlike CRAN, PyPI does not perform any compatibility or consistency
-checks across the package repository.
+package into the users active python environment, whatever it may
+contain, is a safe action to perform by default. For example, this is
+most likely a safe action for a python package like "requests", but
+perhaps not for a frequently updated package with many dependencies,
+like torch or tensorflow (e.g., it's not uncommon for torch and
+tensorflow to have conflicting version requirements for dependencies
+like numpy or cuda). Keep in mind that, unlike CRAN, PyPI does not
+perform any compatibility or consistency checks across the package
+repository.
 
 ### Using Config/reticulate
 
@@ -166,7 +167,7 @@ Package: rscipy
 Title: An R Interface to scipy
 Version: 1.0.0
 Description: Provides an R interface to the Python package scipy.
-Config/reticulate/autoconfigure: 
+Config/reticulate/autoconfigure:
   list(
     packages = list(
       list(package = "scipy")

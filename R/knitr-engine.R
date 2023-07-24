@@ -625,7 +625,9 @@ eng_python_autoprint <- function(captured, options) {
 
   } else if (isHtml && py_has_method(value, "_repr_html_")) {
 
-    data <- as_r_value(value$`_repr_html_`())
+    py_capture_output({
+      data <- as_r_value(value$`_repr_html_`())
+    })
     .engine_context$pending_plots$push(knitr::raw_html(data))
     return("")
 

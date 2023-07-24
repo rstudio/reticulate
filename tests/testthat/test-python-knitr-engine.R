@@ -37,7 +37,7 @@ test_that("In Rmd chunks, comments and output attach to code correctly", {
   # TODO: update the full testsuite to testthat edition 3
 
   owd <- setwd(test_path("resources"))
-  rmarkdown::render("test-chunking.Rmd")
+  rmarkdown::render("test-chunking.Rmd", quiet = TRUE)
 
   expect_snapshot_file("test-chunking.md")
   setwd(owd)
@@ -53,7 +53,7 @@ test_that("knitr 'warning=FALSE' option", {
   local_edition(3) # needed for expect_snapshot_file()
 
   owd <- setwd(test_path("resources"))
-  rmarkdown::render("knitr-warn.Rmd")
+  rmarkdown::render("knitr-warn.Rmd", quiet = TRUE)
   setwd(owd)
 
   rendered <- test_path("resources", "knitr-warn.md")

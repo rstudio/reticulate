@@ -10,7 +10,7 @@ editor_options:
     wrap: 72
 ---
 
-```{r, include = FALSE}
+``` r
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
@@ -61,7 +61,7 @@ work that happens in `tensorflow::.onLoad()`, where the R package
 expresses a preference, on behalf of the user, to use the `r-tensorflow`
 environment if it exists.
 
-```{r}
+``` r
 install_tensorflow <- function(..., envname = "r-tensorflow") {
   reticulate::py_install("tensorflow", envname = envname, ...)
 }
@@ -97,7 +97,7 @@ The most straightforward approach is for users to create a dedicated
 python environment for a specific project. For example, a user can can
 do something like:
 
-```{r}
+``` r
 envname <- "~/my/project/venv"
 tensorflow::install_tensorflow(envname = envname)
 sparklyr::install_sparklyr(envname = envname)
@@ -112,13 +112,13 @@ dependencies into another Python environment already on the search path.
 For example, users can *opt-in* to installing everything into the
 default `r-reticulate` venv:
 
-```{r}
+``` r
 tensorflow::install_tensorflow(envname = "r-reticulate")
 ```
 
 Or they can install spark into the default "r-tensorflow" environment:
 
-```{r}
+``` r
 tensorflow::install_tensorflow()
 sparklyr::install_spark(envname = "r-tensorflow")
 ```

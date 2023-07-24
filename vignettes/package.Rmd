@@ -8,11 +8,9 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(eval = FALSE)
 ```
-
 
 ## Delay Loading Python Modules
 
@@ -20,7 +18,7 @@ If you write an R package that wraps one or more Python packages, it's likely th
 
 When you do this, you should use the `delay_load` flag to the `import()` function, for example:
 
-```r
+``` r
 # global reference to scipy (will be initialized in .onLoad)
 scipy <- NULL
 
@@ -30,14 +28,13 @@ scipy <- NULL
 }
 ```
 
-
 Using the `delay_load` flag has two important benefits:
 
-1. It allows you to successfully load your package even when Python / Python packages are not installed on the target system (this is particularly important when testing on CRAN build machines).
+1.  It allows you to successfully load your package even when Python / Python packages are not installed on the target system (this is particularly important when testing on CRAN build machines).
 
-2. It allows users to specify a desired location for Python before interacting with your package. For example:
+2.  It allows users to specify a desired location for Python before interacting with your package. For example:
 
-    ```r
+    ``` r
     library(mypackage)
     reticulate::use_virtualenv("~/pythonenvs/userenv")
     # call functions from mypackage
@@ -45,14 +42,13 @@ Using the `delay_load` flag has two important benefits:
 
 Without the `delay_load`, Python would be loaded immediately and the user's call to `use_virtualenv` would have no effect.
 
-
 ## Installing Python Dependencies
 
-Your R package likely depends on the installation of one or more Python packages. As a convenience to your users, you may want to provide a high-level R function to allow users to install these Python packages. It's furthermore beneficial if multiple R packages that depend on Python packages install their dependencies in the same Python environment (so that they can be easily used together).
+Your R package likely depends on the installation of one or more Python packages. As a convenience to your users, you may want to provide a high-level R function to allow users to install these Python packages. By default, the Python packages should be installed in an isolated virtual environemt, but it's beneficial if users could easily configure multiple R packages to depend on a common Python environment (so that they can be easily used together).
 
 The `py_install()` function provides a high-level interface for installing one or more Python packages. The packages will by default be installed within a virtualenv or Conda environment named "r-reticulate". For example:
 
-```r
+``` r
 library(reticulate)
 py_install("scipy")
 ```
@@ -60,13 +56,13 @@ py_install("scipy")
 You can document the use of this function along with your package or alternatively provide a wrapper function for `py_install()`. For example:
 
 ```{r, eval = FALSE}
-install_scipy <- function(method = "auto", conda = "auto") {
-  reticulate::py_install("scipy", method = method, conda = conda)
+install_scipy <- function(envname = "r-scipy", method = "auto", ...) {
+  reticulate::py_install("scipy", envname = envname, 
+                         method = method, ...)
 }
 ```
 
 While reticulate is capable of binding to [any Python environment](calling_python.html#python-version) available on a system, it's much more straightforward for users if there is a common environment used by R packages with convenient high-level functions provided for installation. We therefore strongly recommend that R package developers use the approach described here.
-
 
 ## Checking and Testing on CRAN
 
@@ -74,7 +70,7 @@ If you use **reticulate** in another R package you need to account for the fact 
 
 There are two things you should do to ensure your package is well behaved on CRAN:
 
-1. Use the `delay_load` option (as described above) to ensure that the module (and Python) is loaded only on its first use. For example:
+1.  Use the `delay_load` option (as described above) to ensure that the module (and Python) is loaded only on its first use. For example:
 
     ```{r}
     # python 'scipy' module I want to use in my package
@@ -86,7 +82,7 @@ There are two things you should do to ensure your package is well behaved on CRA
     }
     ```
 
-2. When writing tests, check to see if your module is available and if it isn't then skip the test. For example, if you are using the **testthat** package, you might do this:
+2.  When writing tests, check to see if your module is available and if it isn't then skip the test. For example, if you are using the **testthat** package, you might do this:
 
     ```{r}
     # helper function to skip tests if we don't have the 'foo' module
@@ -102,7 +98,6 @@ There are two things you should do to ensure your package is well behaved on CRA
       # test code here...
     })
     ```
-
 
 ## Implementing S3 Methods
 
@@ -135,26 +130,22 @@ py_str.MyModule.MyPythonClass <- function(object, ...) {
 
 The `print` and `summary` methods for Python objects both call the `str` method by default, so if you implement `py_str()` you will automatically inherit implementations for those methods.
 
-
 ### Converting between R and Python
 
 **reticulate** provides the generics `r_to_py()` for converting R objects into Python objects, and `py_to_r()` for converting Python objects back into R objects. Package authors can provide methods for these generics to convert Python and R objects otherwise not handled by **reticulate**.
 
 **reticulate** provides conversion operators for some of the most commonly used Python objects, including:
 
-- Built-in Python objects (lists, dictionaries, numbers, strings, tuples)
-- NumPy arrays,
-- Pandas objects (`Index`, `Series`, `DataFrame`),
-- Python `datetime` objects.
+-   Built-in Python objects (lists, dictionaries, numbers, strings, tuples)
+-   NumPy arrays,
+-   Pandas objects (`Index`, `Series`, `DataFrame`),
+-   Python `datetime` objects.
 
 If you see that **reticulate** is missing support for conversion of one or more objects from these packages, please [let us know](https://github.com/rstudio/reticulate/issues) and we'll try to implement the missing converter. For Python packages not in this set, you can provide conversion operators in your own extension package.
 
-
 ### Writing your own `r_to_py()` methods
 
-`r_to_py()` accepts a `convert` argument, which controls how objects generated
-from the created Python object are converted. To illustrate, consider the
-difference between these two cases:
+`r_to_py()` accepts a `convert` argument, which controls how objects generated from the created Python object are converted. To illustrate, consider the difference between these two cases:
 
 ```{r}
 library(reticulate)
@@ -170,14 +161,11 @@ class(sys$path)
 # [1] "python.builtin.list" "python.builtin.object"
 ```
 
-This is accomplished through the use of a `convert` flag, which is set on the
-Python object wrappers used by `reticulate`. Therefore, if you're writing a
-method `r_to_py.foo()` for an object of class `foo`, you should take care to
-preserve the `convert` flag on the generated object. This is typically done by:
+This is accomplished through the use of a `convert` flag, which is set on the Python object wrappers used by `reticulate`. Therefore, if you're writing a method `r_to_py.foo()` for an object of class `foo`, you should take care to preserve the `convert` flag on the generated object. This is typically done by:
 
-1. Passing `convert` along to the appropriate lower-level `r_to_py()` method;
+1.  Passing `convert` along to the appropriate lower-level `r_to_py()` method;
 
-2. Explicitly setting the `convert` attribute on the returned Python object.
+2.  Explicitly setting the `convert` attribute on the returned Python object.
 
 As an example of the second:
 
@@ -191,12 +179,11 @@ r_to_py.my_r_object <- function(x, convert) {
 }
 ```
 
-
 ## Using Github Actions
 
 [Github Actions](https://github.com/features/actions) are commonly used for continuous integration and testing of R packages. Making it work with **reticulate** is pretty simple - all you need to do is ensure that there is a valid Python installation on the runner, and that reticulate knows to use it. You can do this all with shell commands, or you can use functions in reticulate to do this. Here is an example sequence of `steps` demonstrating how you can do this with reticulate functions:
 
-```yaml
+``` yaml
 
       - uses: r-lib/actions/setup-r@v2
         with:
@@ -226,6 +213,4 @@ r_to_py.my_r_object <- function(x, convert) {
                      Sys.getenv("GITHUB_ENV"))
 
       - uses: r-lib/actions/check-r-package@v2
-
 ```
-

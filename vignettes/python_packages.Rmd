@@ -8,35 +8,35 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(eval = FALSE)
 ```
-
 
 ## Overview
 
 Python packages are typically installed from one of two package repositories:
 
-1) [PyPI](https://pypi.org/); or
+1)  [PyPI](https://pypi.org/); or
 
-2) [Conda](https://conda.io/docs/) 
+2)  [Conda](https://conda.io/docs/)
 
-Any Python package you install from PyPI or Conda can be used from R with reticulate. 
+Any Python package you install from PyPI or Conda can be used from R with reticulate.
 
-Each version of Python on your system has its own set of packages and reticulate will automatically find a version of Python that contains the first package that you import from R. If need be you can also configure reticulate to use a [specific version](versions.html) of Python.
+Each installation of Python on your system has its own set of packages. How reticulate selects a python installation, and how you can configure the behavior, is described in the [version](versions.html) vignette.
 
 ### Python environments
 
-When installing Python packages it's typically a good practice to isolate them within a Python environment (a named Python installation that exists for a specific project or purpose). This provides a measure of isolation, so that updating a Python package for one project doesn't impact other projects.
+When installing Python packages it's best practice to isolate them within a Python environment (a named Python installation that exists for a specific project or purpose). This provides a measure of isolation, so that updating a Python package for one project doesn't impact other projects. The risk for package incompatibilities is significantly higher with Python packages than it is with R packages, because unlike CRAN, PyPI does not enforce, or even check, if the current versions of packages currently available are compatible.
 
-The reticulate package includes functions for creating Python environments (either virtualenvs or conda envs) and installing packages within them. Using virtualenvs is supported on Linux and Mac OS X, using Conda environments is supported on all platforms including Windows.
+The reticulate package includes functions for creating Python environments (either virtualenvs or conda envs) and installing packages within them. Both virtual environments and conda environments are supported on all platforms (Linux, macOS, and Windows).
+
+Note that facilities to create and manage virtual environments (commonly refereed to as a "venv") come with the Python standard library, and are the recommended way to create isolated python installations. Conda environments are supported as well, but be aware that there is the potential for binary incompatibilities between packages built by conda and packages built outside of conda (e.g., [CRAN](https://cran.r-project.org/), or [PPM](https://packagemanager.posit.co/)).
 
 ## Simple Installation
 
 The reticulate package includes a `py_install()` function that can be used to install one or more Python packages. The packages will be by default be installed within a virtualenv or Conda environment named "r-reticulate". For example:
 
-```r
+``` r
 library(reticulate)
 py_install("pandas")
 ```
@@ -45,54 +45,16 @@ This provides a straightforward high-level interface to package installation and
 
 There are also functions available for directly managing both Conda and virtualenvs for situations where you want more control over how packages are installed. These functions are covered in the sections below.
 
-## Conda installation
-
-The following functions are available for managing Conda environments:
-
-| Function | Description                                    |
-| ------ | ----------------------------------------- |
-| `conda_list()` | List all available conda environments |
-| `conda_create()` | Create a new conda environment |
-| `conda_install()` | Install a package within a conda environment |
-| `conda_remove()` | Remove individual packages or an entire conda environment |
-
-Here's an example of using these functions to create an environment, install packages within it, then use the environment from R:
-
-```{r}
-library(reticulate)
-
-# create a new environment 
-conda_create("r-reticulate")
-
-# install SciPy
-conda_install("r-reticulate", "scipy")
-
-# import SciPy (it will be automatically discovered in "r-reticulate")
-scipy <- import("scipy")
-```
-
-Note that you may have a given Python package installed in multiple Conda environments, in that case you may want to call the `use_condaenv()` function to ensure that a specific Conda environment is utilized by reticulate:
-
-```{r}
-library(reticulate)
-
-# indicate that we want to use a specific condaenv
-use_condaenv("r-reticulate")
-
-# import SciPy (will use "r-reticulate" as per call to use_condaenv)
-scipy <- import("scipy")
-```
-
-## virtualenv installation
+## Virtualenv installation
 
 The following functions are available for managing Python virtualenvs:
 
-| Function | Description                                    |
-| ------ | ----------------------------------------- |
-| `virtualenv_list()` | List all available virtualenvs |
-| `virtualenv_create()` | Create a new virtualenv |
-| `virtualenv_install()` | Install a package within a virtualenv |
-| `virtualenv_remove()` | Remove individual packages or an entire virtualenv |
+| Function               | Description                                        |
+|---------------|---------------------------------------------------------|
+| `virtualenv_list()`    | List all available virtualenvs                     |
+| `virtualenv_create()`  | Create a new virtualenv                            |
+| `virtualenv_install()` | Install a package within a virtualenv              |
+| `virtualenv_remove()`  | Remove individual packages or an entire virtualenv |
 
 Virtual environments are by default located at `~/.virtualenvs`. You can change this behavior by defining the `WORKON_HOME` environment variable.
 
@@ -123,11 +85,59 @@ use_virtualenv("r-reticulate")
 scipy <- import("scipy")
 ```
 
+Virtual environments are typically derived from (created using) a "starter" python installation. That is, there must be a python installation already installed on the system before you can create virtual environments. You can install a "venv starter" python in a variety of ways, however is most convenient:
+
+-   On macOS and Windows, visit <https://www.python.org/downloads/> and install a suitable version for your system.
+-   On Linux, you can use prebuilt python binaries from <https://github.com/rstudio/python-builds>
+-   On all platforms, you can use `reticulate::install_python()`. Note that on macOS and Linux, this will build Python from source on your system, which may take up to a few minutes.
+
+There can be multiple versions of Python installed along-side each other on a system (for example, Python versions 3.9, 3.10, and 3.11). By default, reticulate will use the latest version installed on the system for creating the virtualenv. If you have specific version constraints on the version of Python required, you can supply those to the `version` argument--for example: `virtualenv_create(version = ">=3.9")`
+
+At anytime, you can see all the available virtualenv starters on your system by calling `virtualenv_starter(all = TRUE)`. If you have Python venv starters installed in non-standard locations, you can inform reticulate where to look by setting the environment variable `RETICULATE_VIRTUALENV_STARTER`.
+
+## Conda installation
+
+The following functions are available for managing Conda environments:
+
+| Function          | Description                                               |
+|---------------|---------------------------------------------------------|
+| `conda_list()`    | List all available conda environments                     |
+| `conda_create()`  | Create a new conda environment                            |
+| `conda_install()` | Install a package within a conda environment              |
+| `conda_remove()`  | Remove individual packages or an entire conda environment |
+
+Here's an example of using these functions to create an environment, install packages within it, then use the environment from R:
+
+```{r}
+library(reticulate)
+
+# create a new environment 
+conda_create("r-reticulate")
+
+# install SciPy
+conda_install("r-reticulate", "scipy")
+
+# import SciPy (it will be automatically discovered in "r-reticulate")
+scipy <- import("scipy")
+```
+
+Note that you may have a given Python package installed in multiple Conda environments, in that case you may want to call the `use_condaenv()` function to ensure that a specific Conda environment is utilized by reticulate:
+
+```{r}
+library(reticulate)
+
+# indicate that we want to use a specific condaenv
+use_condaenv("r-reticulate")
+
+# import SciPy (will use "r-reticulate" as per call to use_condaenv)
+scipy <- import("scipy")
+```
+
 ## Shell installation
 
 You can also use standard shell installation utilities (`pip` or `conda`) to install Python packages:
 
-```bash
+``` bash
 # install into system level Python
 $ sudo pip install SciPy
 
@@ -137,3 +147,8 @@ $ conda install SciPy
 
 When doing this, be sure to make note of which version of Python your package has been installed within, and call `use_python()` functions as appropriate to ensure that this version is used by reticulate.
 
+Alternatively, within `repl_python()`, you can prefix `!` to send a shell command, and the version of `pip` or `conda` used will already be configured for the Python installation reticulate is currently using.
+
+``` shell
+!pip install scipy
+```

@@ -242,6 +242,17 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
       ))
   }
 
+  # check for `use_python(required = FALSE)`. This should rarely be triggered
+  # any more by users, since the default value for `required` changed from FALSE to TRUE.
+  # excepting if the use_*() call is within a `.onLoad()` call of a package.
+  # last call of use_*(,required = FALSE) wins
+  optional_requested_use_pythons <- reticulate_python_versions()
+  for (python in rev(optional_requested_use_pythons)) {
+    config <- python_config(python, required_module,
+                            forced = "use_python(, required = FALSE)")
+    return(config)
+  }
+
   # look in virtual environments that have a required module derived name,
   # e.g., given a call to import("bar"), look for an environment named "r-bar"
   if (!is.null(required_module)) {
@@ -252,17 +263,6 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
         python, required_module,
         forced = sprintf('import("%s")', required_module)
       ))
-  }
-
-  # check for `use_python( , required = FALSE)`. This should rarely be triggered
-  # any more, since the default value for `required` changed from FALSE to TRUE,
-  # excepting if the use_*() call is within a `.onLoad()` call of a package.
-  # last call of use_*(,required = FALSE) wins
-  optional_requested_use_pythons <- reticulate_python_versions()
-  for (python in rev(optional_requested_use_pythons)) {
-    config <- python_config(python, required_module,
-                            forced = "use_python(, required = FALSE)")
-    return(config)
   }
 
   # check if we're running in an activated venv
@@ -319,7 +319,7 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
   # We intentionally do not go on a fishing expedition for every possible python,
   # for two reasons:
   #   - the default workflow should be to use venvs
-  #   - make which python is found more predictable.
+  #   - which python is found should be predictable.
 
   # create a list of possible python versions to bind to
   # use the first one that has the requested module.

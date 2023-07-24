@@ -1,6 +1,6 @@
 ---
 title: "Python Version Configuration"
-output: 
+output:
   rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Python Version Configuration}
@@ -81,9 +81,9 @@ The order in which Python installation will be discovered and used is as follows
 
 6.  If there was a call (typically from within a package using reticulate), `import("bar", delay_load = list(environment = "r-barlyr")`, and there exists a virtual environment or conda environment named `"r-barlyr"`, it is used.
 
-7.  If there was a call to `import("bar")`, and there exists a virtual environment or conda environment named `"r-bar"`, it is used.
+7.  If any calls to `use_python()`, `use_virtualenv()`, and `use_condaenv()` were made from within a package `.onLoad()` call, or with `required = FALSE` supplied, those locations are used.
 
-8.  If any calls to `use_python()`, `use_virtualenv()`, and `use_condaenv()` were made from within a package `.onLoad()` call, or with `required = FALSE` supplied, those locations are used.
+8.  If there was a call to `import("bar")`, and there exists a virtual environment or conda environment named `"r-bar"`, it is used.
 
 9.  If the environment variable `VIRTUAL_ENV` is defined (typically from running an `activate` script before R started), that python from the activated environment is used.
 

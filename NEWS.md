@@ -5,6 +5,11 @@
 
 - The python search behavior that reticulate uses to select a Python has changed.
   See the updated "versions" vignette for the new order of discovery.
+  
+- `virtualenv_create()` gains a `force` argument.
+
+- `virtualenv_install()` gains a `python_version` argument, allowing users to customize
+  which python version is used when bootstrapping a new virtual environment.
 
 - `py_iterator()` gains a `prefetch` argument, primarily to avoid deadlocks
   where the main thread is blocked, waiting for the iterator, which is waiting

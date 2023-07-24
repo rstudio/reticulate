@@ -5,17 +5,15 @@ py_install_method_detect <- function(envname, conda = "auto") {
   if (virtualenv_exists(envname))
     return("virtualenv")
 
-  # check and prompt for miniconda
-  if (miniconda_enabled() && miniconda_installable() && !miniconda_exists())
-    miniconda_install_prompt()
-
   # try to find an existing condaenv
   if (condaenv_exists(envname, conda = conda))
     return("conda")
 
   # check to see if virtualenv or venv is available
-  python <- virtualenv_default_python()
-  if (python_has_module(python, "virtualenv") || python_has_module(python, "venv"))
+  python <- virtualenv_starter()
+  if (!is.null(python) &&
+      (python_has_module(python, "venv") ||
+       python_has_module(python, "virtualenv")))
     return("virtualenv")
 
   # check to see if conda is available
@@ -130,6 +128,7 @@ py_install <- function(packages,
       envname = envname,
       packages = packages,
       ignore_installed = pip_ignore_installed,
+      python_version = python_version,
       ...
     ),
 

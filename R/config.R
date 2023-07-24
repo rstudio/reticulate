@@ -327,10 +327,12 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
     Sys.which("python3"),
     Sys.which("python")
   ))
-  if(is_windows()) {
-    append(python_versions) <-
-      subset(py_versions_windows(), type == "PythonCore")$executable_path
-  }
+  if(is_windows())
+    append(python_versions) <- local({
+      df <- py_versions_windows()
+      df$executable_path[df$type == "PythonCore"]
+    })
+
 
   # filter locations by existence
   if (length(python_versions) > 0)

@@ -1,21 +1,22 @@
 #' Interface to Python Virtual Environments
 #'
-#' R functions for managing Python [virtual environments](https://virtualenv.pypa.io/en/stable/).
+#' R functions for managing Python [virtual
+#' environments](https://virtualenv.pypa.io/en/stable/).
 #'
 #' Virtual environments are by default located at `~/.virtualenvs` (accessed
-#' with the `virtualenv_root()` function). You can change the default location by
-#' defining the `WORKON_HOME` environment variable.
+#' with the `virtualenv_root()` function). You can change the default location
+#' by defining the `WORKON_HOME` environment variable.
 #'
 #' Virtual environments are created from another "starter" or "seed" Python
 #' already installed on the system. Suitable Pythons installed on the system are
 #' found by `virtualenv_starter()`.
 #'
-#' @param envname The name of, or path to, a Python virtual environment. If
-#'   this name contains any slashes, the name will be interpreted as a path;
-#'   if the name does not contain slashes, it will be treated as a virtual
-#'   environment within `virtualenv_root()`. When `NULL`, the virtual environment
-#'   as specified by the `RETICULATE_PYTHON_ENV` environment variable will be
-#'   used instead. To refer to a virtual environment in the current working
+#' @param envname The name of, or path to, a Python virtual environment. If this
+#'   name contains any slashes, the name will be interpreted as a path; if the
+#'   name does not contain slashes, it will be treated as a virtual environment
+#'   within `virtualenv_root()`. When `NULL`, the virtual environment as
+#'   specified by the `RETICULATE_PYTHON_ENV` environment variable will be used
+#'   instead. To refer to a virtual environment in the current working
 #'   directory, you can prefix the path with `./<name>`.
 #'
 #' @param packages A character vector with package names to install or remove.
@@ -24,8 +25,8 @@
 #'
 #' @param ignore_installed Boolean; ignore previously-installed versions of the
 #'   requested packages? (This should normally be `TRUE`, so that pre-installed
-#'   packages available in the site libraries are ignored and hence packages
-#'   are installed into the virtual environment.)
+#'   packages available in the site libraries are ignored and hence packages are
+#'   installed into the virtual environment.)
 #'
 #' @param pip_options An optional character vector of additional command line
 #'   arguments to be passed to `pip`.
@@ -42,15 +43,16 @@
 #'   first deleted and recreated. Otherwise, if `FALSE`, the path to the
 #'   existing environment is returned.
 #'
-#' @param version The version of Python to be used with the newly-created
-#'   virtual environment. Python installations as installed via
-#'   [install_python()] will be used. This can also be a comma separated list of
-#'   version constraints, like `">=3.8"`, or `"<=3.11,!=3.9.3,>3.6"`
+#' @param version,python_version The version of Python to use when creating a
+#'   virtual environment. Python installations will be searched for using
+#'   [`virtualenv_starter()`]. This can a specific version, like `"3.9"` or
+#'   `"3.9.3`, or a comma separated list of version constraints, like `">=3.8"`,
+#'   or `"<=3.11,!=3.9.3,>3.6"`
 #'
 #' @param all If `TRUE`, `virtualenv_starter()` returns a 2-column data frame,
 #'   with column names `path` and `version`. If `FALSE`, only a single path to a
-#'   python binary is returned, corresponding to the first entry when
-#'   `all = TRUE`, or `NULL` if no suitable python binaries were found.
+#'   python binary is returned, corresponding to the first entry when `all =
+#'   TRUE`, or `NULL` if no suitable python binaries were found.
 #'
 #' @param packages A set of Python packages to install (via `pip install`) into
 #'   the virtual environment, after it has been created. By default, the
@@ -59,26 +61,27 @@
 #'   any packages after the virtual environment has been created.
 #'
 #' @param module The Python module to be used when creating the virtual
-#'   environment -- typically, `virtualenv` or `venv`. When `NULL` (the default),
-#'   `venv` will be used if available with Python >= 3.6; otherwise, the
-#'   `virtualenv` module will be used.
+#'   environment -- typically, `virtualenv` or `venv`. When `NULL` (the
+#'   default), `venv` will be used if available with Python >= 3.6; otherwise,
+#'   the `virtualenv` module will be used.
 #'
-#' @param system_site_packages Boolean; create new virtual environments with
-#'   the `--system-site-packages` flag, thereby allowing those virtual
-#'   environments to access the system's site packages? Defaults to `FALSE`.
+#' @param system_site_packages Boolean; create new virtual environments with the
+#'   `--system-site-packages` flag, thereby allowing those virtual environments
+#'   to access the system's site packages? Defaults to `FALSE`.
 #'
 #' @param pip_version The version of `pip` to be installed in the virtual
 #'   environment. Relevant only when `module == "virtualenv"`. Set this to
 #'   `FALSE` to disable installation of `pip` altogether.
 #'
-#' @param setuptools_version The version of `setuptools` to be installed in
-#'   the virtual environment. Relevant only when `module == "virtualenv"`.
-#'   Set this to `FALSE` to disable installation of `setuptools` altogether.
+#' @param setuptools_version The version of `setuptools` to be installed in the
+#'   virtual environment. Relevant only when `module == "virtualenv"`. Set this
+#'   to `FALSE` to disable installation of `setuptools` altogether.
 #'
 #' @param extra An optional set of extra command line arguments to be passed.
 #'   Arguments should be quoted via `shQuote()` when necessary.
 #'
-#' @param ... Optional arguments; currently ignored and reserved for future expansion.
+#' @param ... Optional arguments; currently ignored and reserved for future
+#'   expansion.
 #'
 #' @name virtualenv-tools
 NULL

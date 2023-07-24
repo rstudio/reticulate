@@ -61,16 +61,16 @@ You can also provide a list of named functions, which act as callbacks to be
 run when the module is later loaded. For example:
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{delay_load = list(
-  
+
   # run before the module is loaded
   before_load = function() \{ ... \}
-  
+
   # run immediately after the module is loaded
   on_load = function() \{ ... \}
-  
+
   # run if an error occurs during module import
   on_error = function(error) \{ ... \}
-  
+
 )
 }\if{html}{\out{</div>}}
 

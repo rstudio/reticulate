@@ -3,6 +3,8 @@
 
     ## Hello world
 
+## Print statements should always be captured
+
 In `jupyter_compat = FALSE`: we should only see the output of both
 expressions.
 
@@ -25,6 +27,8 @@ expressions.
 
     ## 2
 
+## Only outputs of last expressions are captured in jupyter compat
+
 In `jupyter_compat = FALSE`: we should only see the output of both
 expressions.
 
@@ -43,3 +47,24 @@ expression.
     1 + 1
 
     ## 2
+
+## One can disable outputs by using `;`
+
+In `jupyter_compat = FALSE`: we should only see the print statement
+output
+
+    print("hello");
+
+    ## hello
+
+    1 + 0;
+    1 + 1;
+
+`jupyter_compat = TRUE`: we should only see the print statement output
+
+    print("hello");
+
+    ## hello
+
+    1 + 0;
+    1 + 1;

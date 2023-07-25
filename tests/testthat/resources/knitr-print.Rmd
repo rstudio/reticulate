@@ -8,28 +8,53 @@ bt <- reticulate::import_builtins()
 bt$print("Hello world")
 ```
 
-Both in `jupyter_compat = TRUE` and `jupyter_compat = FALSE` we should see the
-results, because a `print` was called:
+## Print statements should always be captured
+
+In `jupyter_compat = FALSE`: we should only see the output of both expressions.
 
 ```{python}
 print(1)
 print(2)
 ```
 
+In `jupyter_compat = TRUE`: we should only see the output of both expressions.
+
 ```{python, jupyter_compat = TRUE}
 print(1)
 print(2)
 ```
 
-For the `jupyter_compat = FALSE` mode we should see the output of both expressions.
-In `jupyter_compat`, we should only see the output for the last expression. 
+## Only outputs of last expressions are captured in jupyter compat
+
+In `jupyter_compat = FALSE`: we should only see the output of both expressions.
 
 ```{python}
 1 + 0
 1 + 1
 ```
 
+`jupyter_compat = TRUE`: we should only see the output of the last expression.
+
 ```{python, jupyter_compat = TRUE}
 1 + 0
 1 + 1
 ```
+
+## One can disable outputs by using `;`
+
+In `jupyter_compat = FALSE`: we should only see the print statement output
+
+```{python}
+print("hello");
+1 + 0;
+1 + 1;
+```
+
+`jupyter_compat = TRUE`: we should only see the print statement output
+
+```{python, jupyter_compat = TRUE}
+print("hello");
+1 + 0;
+1 + 1;
+```
+

@@ -68,3 +68,18 @@ output
 
     1 + 0;
     1 + 1;
+
+## `jupyter_compat` works with interleaved expressions
+
+    print('first_stdout')
+
+    ## first_stdout
+
+    'first_expression'
+    print('second_stdout')
+
+    ## second_stdout
+
+    'final_expression'
+
+    ## 'final_expression'

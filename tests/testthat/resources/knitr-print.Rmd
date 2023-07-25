@@ -58,3 +58,13 @@ print("hello");
 1 + 1;
 ```
 
+## `jupyter_compat` works with interleaved expressions
+
+```{python, jupyter_compat=TRUE}
+print('first_stdout')
+'first_expression'
+print('second_stdout')
+'final_expression'
+```
+
+

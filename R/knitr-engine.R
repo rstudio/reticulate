@@ -196,22 +196,26 @@ eng_python <- function(options) {
     # clear the last value object (so we can tell if it was updated)
     py_compile_eval("'__reticulate_placeholder__'")
 
+    # use trailing semicolon to suppress output of return value
+    suppress <- grepl(";\\s*$", snippet) || (jupyter_compat & !last_range)
+    compile_mode <- if (suppress) "exec" else "single"
+
     # run code and capture output
-    captured <- if (capture_errors)
-      tryCatch(py_compile_eval(snippet, 'single'), error = identity)
+    captured_stdout <- if (capture_errors)
+      tryCatch(py_compile_eval(snippet, compile_mode), error = identity)
     else
-      py_compile_eval(snippet, 'single')
+      py_compile_eval(snippet, compile_mode)
 
     # handle matplotlib plots and other special output
     captured <- eng_python_autoprint(
-      captured = captured,
+      captured = captured_stdout,
       options  = options
     )
 
     # A trailing ';' suppresses output.
     # In jupyter mode, only the last expression in a chunk has repr() output.
-    if (grepl(";\\s*$", snippet) | (jupyter_compat & !last_range))
-      captured <- ""
+    if (suppress)
+      captured <- captured_stdout
 
     # emit outputs if we have any
     has_outputs <-

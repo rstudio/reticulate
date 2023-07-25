@@ -20,10 +20,11 @@ documents a few approaches for accomplishing these goals.
 ## Creating a Pit Of Success
 
 Overall, the goal of an R package author using reticulate is to create a
-default experience works reliably and don't require users to intervene
-or to have a sophisticated understanding of Python installation
-management. At the same time, it must also be easy for users to override
-the default behavior. There are two key questions to keep in mind:
+default experience that works reliably and don't require users to
+intervene or to have a sophisticated understanding of Python
+installation management. At the same time, it should also be easy to
+adjust the default behavior. There are two key questions to keep in
+mind:
 
 -   What will the default behavior be when the user expresses no
     preference for any specific Python installation, and
@@ -32,8 +33,8 @@ the default behavior. There are two key questions to keep in mind:
 
 Packages like [tensorflow](https://tensorflow.rstudio.com) approach this
 task this by providing a helper function,
-`tensorflow::install_tensorflow()`, and documenting that users should
-call this function to prepare the environment. For example:
+`tensorflow::install_tensorflow()`, and documenting that users can call
+this function to prepare the environment. For example:
 
 ``` r
 library(tensorflow)
@@ -71,20 +72,25 @@ tf <- NULL
 }a
 ```
 
-The R package expresses to reticulate a soft preference for an
-environment named "r-tensorflow", and users can make that optional hint
-actionable by actually creating the "r-tensorflow" environment.
+The R package:
+
+-   in `.onLoad()` expresses to reticulate a soft preference for an
+    environment named "r-tensorflow", and
+
+-   with `install_tensorflow()`, provides a conventint way to make the
+    optional hint in `.onLoad()` actionable, by actually creating the
+    "r-tensorflow" environment.
 
 With this setup, the default experience is for the user to call
 `install_tensorflow()` once (creating a "r-tensorflow" environment).
 Subsequently, calls to `library(tensorflow)` will cause reticulate to
 use the `r-tensorflow` environment, and for everything to "just-work".
-The risk of the Python environment disrupting or being disrupted is
-minimal, since the environment is designated for the R package. At the
-same time, if the environment is disrupted at some time later (perhaps
-because something with conflicting python dependencies was manually
-installed by the user), the user can easily revert to a working state by
-just calling `install_tensorflow()`.
+The risk of disrupting another Python environment, or of this one being
+disrupting, is minimal, since the environment is designated for the R
+package. At the same time, if the environment is disrupted at some time
+later (perhaps because something with conflicting python dependencies
+was manually installed), the user can easily revert to a working state
+by calling `install_tensorflow()`.
 
 ## Managing Multiple Package Dependencies.
 
@@ -135,11 +141,12 @@ to a particular environment, and a hint in `.onLoad()` to use that
 environment---is one way to create a "pit-of-success". It encourages a
 default workflow that is robust and reliable, especially for users
 not-yet familiar with the mechanics of Python installation management.
-At the same time, it still empowers users to configure and select a
-Python environments through a variety of ways as they see fit, either
-implicitly by creating the appropriately named environments and taking
-advantage of the reticulates order of Python discovery, or explicitly
-through function calls like `use_python()`.
+At the same time, an installation helper function empowers users to
+manage Python environments through simply providing an environment name.
+It makes it easy to combine dependencies of multiple R packages, and,
+should anything go wrong due to conflicting Python dependencies, it also
+provides a straighforward way to revert to a working state at any time,
+by calling the helper function without arguments.
 
 ## Automatic Configuration
 

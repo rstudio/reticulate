@@ -46,7 +46,7 @@ Without the `delay_load`, Python would be loaded immediately and the user's call
 
 Your R package likely depends on the installation of one or more Python packages. As a convenience to your users, you may want to provide a high-level R function to allow users to install these Python packages. By default, the Python packages should be installed in an isolated virtual environment, but it's beneficial if users could easily configure multiple R packages to depend on a common Python environment (so that they can be easily used together).
 
-The `py_install()` function provides a high-level interface for installing one or more Python packages. The packages will by default be installed within a virtualenv or Conda environment named "r-reticulate". For example:
+The `py_install()` function provides a high-level interface for installing one or more Python packages. The packages will by default be installed within the currently active virtual environment or conda environment, (which is, by default, an environent named "r-reticulate"). For example:
 
 ``` r
 library(reticulate)
@@ -62,7 +62,7 @@ install_scipy <- function(envname = "r-scipy", method = "auto", ...) {
 }
 ```
 
-For a fuller discussion of how to use reticulate in an R package, include alternative approaches, and how to create a "pit of success" for R users with regards to managing Python installations, see the guide on [Python Dependencies](python_dependencies.html) 
+For a fuller discussion of how to use reticulate in an R package, include alternative approaches, and how to create a "pit of success" for R users with regards to managing Python installations, see the guide on [Python Dependencies](python_dependencies.html)
 
 ## Checking and Testing on CRAN
 

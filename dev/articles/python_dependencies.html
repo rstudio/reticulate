@@ -209,20 +209,28 @@ do something like:</p>
 <span><span class="fu">tensorflow</span><span class="fu">::</span><span class="fu">install_tensorflow</span><span class="op">(</span>envname <span class="op">=</span> <span class="va">envname</span><span class="op">)</span></span>
 <span><span class="fu">sparklyr</span><span class="fu">::</span><span class="fu">install_sparklyr</span><span class="op">(</span>envname <span class="op">=</span> <span class="va">envname</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/use_python.html">use_virtualenv</a></span><span class="op">(</span><span class="va">envname</span><span class="op">)</span></span></code></pre></div>
-<p>This approach minimizes the risk that an already working Python
-environments will accidentally be broken by installing packages, which
-may inadvertently upgrade or downgrade other packages already installed
-in the environment.</p>
-<p>Another approach is for users to install your packages Python
+<p>The user could then place a .Renviron or .Rprofile file in the
+project directory, ensuring that reticulate will use always use the
+python configured for that project. For example, an .Renviron file in
+the project directory could contain:</p>
+<pre><code>RETICULATE_PYTHON_ENV=~/my/project/venv</code></pre>
+<p>Or a .Rprofile in the project directory could contain:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span><span class="st">"RETICULATE_PYTHON_ENV"</span> <span class="op">=</span> <span class="st">"~/my/project/venv"</span><span class="op">)</span></span></code></pre></div>
+<p>This approach minimizes the risk that an existing, already working,
+Python environment will accidentally be broken by installing packages,
+due to inadvertently upgrading or downgrading other Python packages
+already installed in the environment.</p>
+<p>Another approach is for users to install your R packages Python
 dependencies into another Python environment that is already on the
 search path. For example, users can <em>opt-in</em> to installing into
 the default <code>r-reticulate</code> venv:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">tensorflow</span><span class="fu">::</span><span class="fu">install_tensorflow</span><span class="op">(</span>envname <span class="op">=</span> <span class="st">"r-reticulate"</span><span class="op">)</span></span></code></pre></div>
 <p>Or they can install one packages dependencies into another packages
 default environment. For example, installing spark into the default
 “r-tensorflow” environment:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">tensorflow</span><span class="fu">::</span><span class="fu">install_tensorflow</span><span class="op">(</span><span class="op">)</span> <span class="co"># creates an "r-tensorflow" env</span></span>
 <span><span class="fu">sparklyr</span><span class="fu">::</span><span class="fu">install_spark</span><span class="op">(</span>envname <span class="op">=</span> <span class="st">"r-tensorflow"</span><span class="op">)</span></span></code></pre></div>
 <p>This approach—exporting a installation helper function that defaults
@@ -308,7 +316,7 @@ Conda environment, as provided by the Miniconda installation.</p></li>
 </ol>
 <p>In this case, the end user workflow will be exactly as with an R
 package that has no Python dependencies:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">rscipy</span><span class="op">)</span></span>
 <span><span class="co"># use the package</span></span></code></pre></div>
 <p>If the user has no compatible version of Python available on their
@@ -330,7 +338,7 @@ works.</p>
 already been initialized. To ensure that <code>reticulate</code> can
 still configure the active Python environment, you can include the
 code:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">.onLoad</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">libname</span>, <span class="va">pkgname</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu">reticulate</span><span class="fu">::</span><span class="fu"><a href="../reference/configure_environment.html">configure_environment</a></span><span class="op">(</span><span class="va">pkgname</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>

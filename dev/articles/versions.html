@@ -159,8 +159,8 @@ binary.</p></li>
 </ol>
 <table class="table">
 <colgroup>
-<col width="26%">
-<col width="73%">
+<col width="27%">
+<col width="72%">
 </colgroup>
 <thead><tr class="header">
 <th>Function</th>
@@ -220,24 +220,26 @@ binary)</p></li>
 name of a virtual environment or conda environment)</p></li>
 <li><p>If specified, the location referenced by calls to
 <code><a href="../reference/use_python.html">use_python()</a></code>, <code><a href="../reference/use_python.html">use_virtualenv()</a></code>, and
-<code><a href="../reference/use_python.html">use_condaenv()</a></code>, excepting if the call is made with
-<code>required = FALSE</code>, or is from within a package
-<code>.onLoad()</code> call.</p></li>
+<code><a href="../reference/use_python.html">use_condaenv()</a></code> with <code>required = TRUE</code>.</p></li>
 <li><p>If the current working directory contains a pyproject.toml file
 from a poetry environment, the Python installation from the poetry
 environment is used.</p></li>
 <li><p>If the current working directory contains a Pipfile associated
-with a pipenv, the Python installation from the pipenv is used.</p></li>
+with a pipenv, the Python installation from pipenv is used.</p></li>
+<li><p>If the current working directory contains a directory named
+“venv”, “virtualenv”, “.venv”, or “.virtualenv”, and that directory is a
+Python virtual environment, the Python from the virtual environment is
+used.</p></li>
 <li><p>If there was a call (typically from within a package using
 reticulate), of the form:
 <code>import("bar", delay_load = list(environment = "r-barlyr")</code>,
 and there exists a virtual environment or conda environment named
 <code>"r-barlyr"</code>, it is used.</p></li>
-<li><p>If any calls to <code><a href="../reference/use_python.html">use_python()</a></code>,
-<code><a href="../reference/use_python.html">use_virtualenv()</a></code>, and <code><a href="../reference/use_python.html">use_condaenv()</a></code> were made
-from within a package <code>.onLoad()</code> call, or with
-<code>required = FALSE</code> supplied, those locations are
-used.</p></li>
+<li><p>If any call to <code><a href="../reference/use_python.html">use_python()</a></code>,
+<code><a href="../reference/use_python.html">use_virtualenv()</a></code>, or <code><a href="../reference/use_python.html">use_condaenv()</a></code> was made
+with <code>required = FALSE</code>, or from within a packages
+<code>.onLoad()</code> function, and the referenced python installation
+exists, it is used.</p></li>
 <li><p>If there was a call to <code>import("bar")</code>, and there
 exists a virtual environment or conda environment named
 <code>"r-bar"</code>, it is used.</p></li>

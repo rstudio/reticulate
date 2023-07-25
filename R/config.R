@@ -230,6 +230,16 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
   if (!inherits(config, "error") && !is.null(config))
     return(config)
 
+  # if the current directory contains a venv, use it:
+  for (dirpath in c("./venv", "./virtualenv", "./.venv", "./.virtualenv")) {
+    if(dir.exists(dirpath) && is_virtualenv(dirpath)) {
+      python <- virtualenv_python(dirpath)
+      config <- python_config(python, required_module,
+                              forced = sprintf("'%s' existing in the current working directory"))
+      return(config)
+    }
+  }
+
   # look for any environment names supplied in a call like:
   #  import("bar", delayed = list(environment = "r-barlyr"))
   use_environment <- use_environment %||% .globals$delay_load_environment

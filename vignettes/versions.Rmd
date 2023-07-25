@@ -14,7 +14,7 @@ knitr::opts_chunk$set(eval = FALSE)
 
 ## Locating Python
 
-It is not uncommon for several versions of Python (and several conda or virtualenv environments derived from a given version) to be available on a given system. The **reticulate** package can bind to any of these python installations, and provides a variety of convenient ways to allow the user to implicitly or explicitly specify which python installation to select.
+It is not uncommon for several installations of Python to be available on a given system. The **reticulate** package can bind to almost any Python installations, and provides a variety of convenient ways to allow the user to implicitly or explicitly specify which Python installation to select.
 
 Note that for reticulate to bind to a version of Python it must have been compiled with shared library support (i.e. with the `--enable-shared` flag).
 
@@ -22,22 +22,31 @@ Consider the following code:
 
 ```{r}
 library(reticulate)
+py_eval("1+1")
+```
+
+In this case, reticulate will search for a suitable Python installation. In the absence of other hints (detailed below), reticulate will fallback to an environment named "r-reticulate", creating it if necessary.
+
+Consider another case:
+
+```{r}
+library(reticulate)
 scipy <- import("scipy")
 scipy$amin(c(1,3,5,7))
 ```
 
-In this case, reticulate will search for a suitable python installation. In the absence of other hints, reticulate will first look for an environment named "r-scipy", and if that doesn't exist, it will fallback to the environment named "r-reticulate".
+In this case, reticulate will first look for an environment named "r-scipy", and if that doesn't exist, it will fallback to the environment named "r-reticulate".
 
 ## Providing Hints
 
-There are two ways you can provide hints as to which version of Python should be used:
+There are a few ways you can provide hints as to which version of Python should be used:
 
 1.  By setting the value of the `RETICULATE_PYTHON` environment variable to a Python binary. Note that if you set this environment variable, then the specified version of Python will always be used (i.e. this is prescriptive rather than advisory). To set the value of `RETICULATE_PYTHON`, insert `Sys.setenv(RETICULATE_PYTHON = PATH)` into your project's .Rprofile, where `PATH` is your preferred Python binary.
 
 2.  By calling one of the these functions:
 
 | Function           | Description                                           |
-|-----------------------|-------------------------------------------------|
+|--------------------|-------------------------------------------------------|
 | `use_python()`     | Specify the path a specific Python binary.            |
 | `use_virtualenv()` | Specify the name of (or path to) a Python virtualenv. |
 | `use_condaenv()`   | Specify the name of a Conda environment.              |
@@ -53,39 +62,35 @@ use_condaenv("myenv")
 
 If the `use_virtualenv()` function is supplied a name of a virtual environment (as opposed to a path), it will look in the virtualenv root directory, by default `~/.virtualenvs`, and configurable by setting the environment variable `WORKON_HOME`.
 
-The `use_condaenv` function will use whatever conda binary is found on the `PATH`. If you want to use a specific alternate version you can use the `conda` parameter. For example:
+The `use_condaenv()` function will use whatever conda binary is found on the `PATH`. If you want to use a specific alternate version you can use the `conda` parameter. For example:
 
 ```{r}
 use_condaenv(condaenv = "r-nlp", conda = "/opt/anaconda3/bin/conda")
 ```
 
-Note that the `use` functions take an optional `required` argument. By default, a value of `required = NULL` is equivalent to `required = TRUE` in most circumstances, excepting if the call is made from within an R packages `.onLoad()` hook. If `required = FALSE` is supplied (or implicitly when the call is made from within a packages `.onLoad()`), then the call is considered only as a hint as to where to find Python (i.e. it doesn't produce an error if the specified version doesn't exist). You can add the `required` parameter to ensure that the specified version of Python is always used (it will be an error if the specified version doesn't exist):
-
-```{r}
-use_virtualenv("~/myenv", required = TRUE)
-```
+Note that the `use_*()` functions take an optional `required` argument. By default, a value of `required = NULL` is equivalent to `required = TRUE` in most circumstances. If `required = FALSE` is supplied, then the call is considered an optional hint as to where to find Python (i.e. it doesn't produce an error if the specified version doesn't exist).
 
 ## Order of Discovery
 
 The order in which Python installation will be discovered and used is as follows:
 
-1.  If specified, the location referenced by the `RETICULATE_PYTHON` environment variable. (Path to a python binary)
+1.  If specified, the location referenced by the `RETICULATE_PYTHON` environment variable. (Path to a Python binary)
 
 2.  If specified, the location referenced by the `RETICULATE_PYTHON_ENV` environment variable. (Path to or name of a virtual environment or conda environment)
 
 3.  If specified, the location referenced by calls to `use_python()`, `use_virtualenv()`, and `use_condaenv()`, excepting if the call is made with `required = FALSE`, or is from within a package `.onLoad()` call.
 
-4.  If the current working directory contains a pyproject.toml file from a poetry environment, the python installation from the poetry environment is used.
+4.  If the current working directory contains a pyproject.toml file from a poetry environment, the Python installation from the poetry environment is used.
 
-5.  If the current working directory contains a Pipfile associated with a pipenv, the python installation from the pipenv is used.
+5.  If the current working directory contains a Pipfile associated with a pipenv, the Python installation from the pipenv is used.
 
-6.  If there was a call (typically from within a package using reticulate), `import("bar", delay_load = list(environment = "r-barlyr")`, and there exists a virtual environment or conda environment named `"r-barlyr"`, it is used.
+6.  If there was a call (typically from within a package using reticulate), of the form: `import("bar", delay_load = list(environment = "r-barlyr")`, and there exists a virtual environment or conda environment named `"r-barlyr"`, it is used.
 
 7.  If any calls to `use_python()`, `use_virtualenv()`, and `use_condaenv()` were made from within a package `.onLoad()` call, or with `required = FALSE` supplied, those locations are used.
 
 8.  If there was a call to `import("bar")`, and there exists a virtual environment or conda environment named `"r-bar"`, it is used.
 
-9.  If the environment variable `VIRTUAL_ENV` is defined (typically from running an `activate` script before R started), that python from the activated environment is used.
+9.  If the environment variable `VIRTUAL_ENV` is defined (typically from running an `activate` script before R started), then the Python from the activated environment is used.
 
 10. If specified, the location referenced by the `RETICULATE_PYTHON_FALLBACK` environment variable. (Path to a python binary)
 

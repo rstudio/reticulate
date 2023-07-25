@@ -50,7 +50,7 @@ There are also functions available for directly managing both Conda and virtuale
 The following functions are available for managing Python virtualenvs:
 
 | Function               | Description                                        |
-|---------------|---------------------------------------------------------|
+|------------------------|----------------------------------------------------|
 | `virtualenv_list()`    | List all available virtualenvs                     |
 | `virtualenv_create()`  | Create a new virtualenv                            |
 | `virtualenv_install()` | Install a package within a virtualenv              |
@@ -100,7 +100,7 @@ At anytime, you can see all the available virtualenv starters on your system by 
 The following functions are available for managing Conda environments:
 
 | Function          | Description                                               |
-|---------------|---------------------------------------------------------|
+|-------------------|-----------------------------------------------------------|
 | `conda_list()`    | List all available conda environments                     |
 | `conda_create()`  | Create a new conda environment                            |
 | `conda_install()` | Install a package within a conda environment              |

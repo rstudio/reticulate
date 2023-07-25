@@ -44,7 +44,7 @@ Without the `delay_load`, Python would be loaded immediately and the user's call
 
 ## Installing Python Dependencies
 
-Your R package likely depends on the installation of one or more Python packages. As a convenience to your users, you may want to provide a high-level R function to allow users to install these Python packages. By default, the Python packages should be installed in an isolated virtual environemt, but it's beneficial if users could easily configure multiple R packages to depend on a common Python environment (so that they can be easily used together).
+Your R package likely depends on the installation of one or more Python packages. As a convenience to your users, you may want to provide a high-level R function to allow users to install these Python packages. By default, the Python packages should be installed in an isolated virtual environment, but it's beneficial if users could easily configure multiple R packages to depend on a common Python environment (so that they can be easily used together).
 
 The `py_install()` function provides a high-level interface for installing one or more Python packages. The packages will by default be installed within a virtualenv or Conda environment named "r-reticulate". For example:
 
@@ -53,7 +53,7 @@ library(reticulate)
 py_install("scipy")
 ```
 
-You can document the use of this function along with your package or alternatively provide a wrapper function for `py_install()`. For example:
+You can document the use of this function along with your package, or alternatively you can provide a wrapper function for `py_install()` that defaults to installing in a Python environment created specifically for your R package. For example:
 
 ```{r, eval = FALSE}
 install_scipy <- function(envname = "r-scipy", method = "auto", ...) {
@@ -62,7 +62,7 @@ install_scipy <- function(envname = "r-scipy", method = "auto", ...) {
 }
 ```
 
-While reticulate is capable of binding to [any Python environment](calling_python.html#python-version) available on a system, it's much more straightforward for users if there is a common environment used by R packages with convenient high-level functions provided for installation. We therefore strongly recommend that R package developers use the approach described here.
+For a fuller discussion of how to use reticulate in an R package, include alternative approaches, and how to create a "pit of success" for R users with regards to managing Python installations, see the guide on [Python Dependencies](python_dependencies.html) 
 
 ## Checking and Testing on CRAN
 

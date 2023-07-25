@@ -6,7 +6,16 @@
 - The python search behavior that reticulate uses to select a Python has changed.
   See the updated "versions" vignette for the new order of discovery.
   
+- Updated recommendations in the "python_dependencies" vignette for how R packages 
+  can approach Python dependency management.
+  
 - `virtualenv_create()` gains a `force` argument.
+
+- Fixed an issue where the list of available python versions used by `install_python()` 
+  would be out-of-date.
+  
+- `install_python()` on macOS will now will use brew, if it's available, to install
+   build dependencies, substantially speeding up python build times.
 
 - `virtualenv_install()` gains a `python_version` argument, allowing users to customize
   which python version is used when bootstrapping a new virtual environment.

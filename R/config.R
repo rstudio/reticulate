@@ -322,11 +322,11 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
   #   - which python is found should be predictable.
 
   # create a list of possible python versions to bind to
-  # use the first one that has the requested module.
   python_versions <- unique(c(
     Sys.which("python3"),
     Sys.which("python")
   ))
+
   if(is_windows())
     append(python_versions) <- local({
       df <- py_versions_windows()

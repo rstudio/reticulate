@@ -113,12 +113,27 @@ sparklyr::install_sparklyr(envname = envname)
 use_virtualenv(envname)
 ```
 
-This approach minimizes the risk that an already working Python
-environments will accidentally be broken by installing packages, which
-may inadvertently upgrade or downgrade other packages already installed
-in the environment.
+The user could then place a .Renviron or .Rprofile file in the project
+directory, ensuring that reticulate will use always use the python
+configured for that project. For example, an .Renviron file in the
+project directory could contain:
 
-Another approach is for users to install your packages Python
+```         
+RETICULATE_PYTHON_ENV=~/my/project/venv
+```
+
+Or a .Rprofile in the project directory could contain:
+
+``` r
+Sys.setenv("RETICULATE_PYTHON_ENV" = "~/my/project/venv")
+```
+
+This approach minimizes the risk that an existing, already working,
+Python environment will accidentally be broken by installing packages,
+due to inadvertently upgrading or downgrading other Python packages
+already installed in the environment.
+
+Another approach is for users to install your R packages Python
 dependencies into another Python environment that is already on the
 search path. For example, users can *opt-in* to installing into the
 default `r-reticulate` venv:

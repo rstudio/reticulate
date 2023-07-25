@@ -574,6 +574,10 @@ str_drop_prefix <- function(x, prefix) {
 
 }
 
+`append<-` <- function(x, value) {
+  c(x, value)
+}
+
 if (getRversion() < "3.3.0") {
 
 startsWith <- function(x, prefix) {
@@ -615,8 +619,14 @@ system2t <- function(command, args, ...) {
   # system2, with a trace
   # mimic bash's set -x usage of a "+" prefix for now
   # maybe someday take a dep on {cli} and make it prettier
-  message(paste("+", shQuote(command), paste0(args, collapse = " ")))
+  message(paste("+", maybe_shQuote(command), paste0(args, collapse = " ")))
   system2(command, args, ...)
+}
+
+maybe_shQuote <- function(x) {
+  if(grepl("[\\s'\"]", x))
+    x <- shQuote(x)
+  x
 }
 
 

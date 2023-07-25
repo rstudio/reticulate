@@ -111,7 +111,7 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
 
   # provide hint to install Miniconda if no Python is found
   python_not_found <- function(msg) {
-    hint <- "Use reticulate::install_miniconda() if you'd like to install a Miniconda Python environment."
+    hint <- "Please create a default virtual environment with `reticulate::virtualenv_create('r-reticulate')`."
     stop(paste(msg, hint, sep = "\n"), call. = FALSE)
   }
 
@@ -297,6 +297,8 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
   config
 }
 
+# unused presently, formerly called from initialize_python()
+# https://github.com/rstudio/reticulate/commit/e8c82a1f95eb97c4e5fc27b6550a4498827438e0#r122213856
 check_forbidden_initialization <- function() {
 
   if (is_python_initialized())

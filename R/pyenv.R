@@ -217,10 +217,12 @@ pyenv_bootstrap_unix <- function() {
   on.exit(setwd(owd), add = TRUE)
 
   # pyenv python builds are substantially faster on macOS if we pre-install
-  # some dependencies (especially openssl@1.1) as pre-built but "untapped kegs"
+  # some dependencies (especially openssl) as pre-built but "untapped kegs"
   # (i.e., unlinked to somewhere on the PATH but tucked away under $BREW_ROOT/Cellar).
-  if (nzchar(Sys.which("brew")))
-    system("brew install --only-dependencies pyenv python@3.9")
+  if (nzchar(Sys.which("brew"))) {
+    system2t("brew", c("install -q openssl readline sqlite3 xz zlib tcl-tk"))
+    system2t("brew", c("install --only-dependencies pyenv python"))
+  }
 
   # download the installer
   url <- "https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer"
@@ -250,16 +252,29 @@ pyenv_bootstrap_unix <- function() {
 
 
 pyenv_update <- function(pyenv = pyenv_find()) {
+
+  if (startsWith(pyenv, root <- pyenv_root())) {
+    # this pyenv installation is fully managed by reticulate
+    # root == where .../bin/pyenv lives
+    withr::with_dir(root, system2("git", "pull"))
+  }
+
   if (is_windows())
     return(system2t(pyenv, "update"))
 
   # $ git clone https://github.com/pyenv/pyenv-update.git $(pyenv root)/plugins/pyenv-update
+  # root == ~/.pyenv == where installed pythons live
   root <- system2(pyenv, "root", stdout = TRUE)
   if (!dir.exists(file.path(root, "plugins/pyenv-update")))
     system2("git", c("clone", "https://github.com/pyenv/pyenv-update.git",
                       file.path(root, "plugins/pyenv-update")))
 
-  system2t(pyenv, "update")
+  result <- system2t(pyenv, "update", stdout = TRUE, stderr = TRUE)
+  if (result != 0L) {
+    fmt <- "Error creating conda environment [exit code %i]"
+    stopf(fmt, result)
+  }
+
 }
 
 #export PATH="$HOME/.local/share/r-reticulate/pyenv/bin/:$PATH"

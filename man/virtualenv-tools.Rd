@@ -14,11 +14,12 @@
 \usage{
 virtualenv_create(
   envname = NULL,
-  python = NULL,
+  python = virtualenv_starter(version),
   ...,
   version = NULL,
   packages = "numpy",
   requirements = NULL,
+  force = FALSE,
   module = getOption("reticulate.virtualenv.module"),
   system_site_packages = getOption("reticulate.virtualenv.system_site_packages", default
     = FALSE),
@@ -34,7 +35,8 @@ virtualenv_install(
   ignore_installed = FALSE,
   pip_options = character(),
   requirements = NULL,
-  ...
+  ...,
+  python_version = NULL
 )
 
 virtualenv_remove(envname = NULL, packages = NULL, confirm = interactive())
@@ -50,24 +52,26 @@ virtualenv_exists(envname = NULL)
 virtualenv_starter(version = NULL, all = FALSE)
 }
 \arguments{
-\item{envname}{The name of, or path to, a Python virtual environment. If
-this name contains any slashes, the name will be interpreted as a path;
-if the name does not contain slashes, it will be treated as a virtual
-environment within \code{virtualenv_root()}. When \code{NULL}, the virtual environment
-as specified by the \code{RETICULATE_PYTHON_ENV} environment variable will be
-used instead. To refer to a virtual environment in the current working
+\item{envname}{The name of, or path to, a Python virtual environment. If this
+name contains any slashes, the name will be interpreted as a path; if the
+name does not contain slashes, it will be treated as a virtual environment
+within \code{virtualenv_root()}. When \code{NULL}, the virtual environment as
+specified by the \code{RETICULATE_PYTHON_ENV} environment variable will be used
+instead. To refer to a virtual environment in the current working
 directory, you can prefix the path with \verb{./<name>}.}
 
 \item{python}{The path to a Python interpreter, to be used with the created
 virtual environment. When \code{NULL}, the Python interpreter associated with
 the current session will be used.}
 
-\item{...}{Optional arguments; currently ignored and reserved for future expansion.}
+\item{...}{Optional arguments; currently ignored and reserved for future
+expansion.}
 
-\item{version}{The version of Python to be used with the newly-created
-virtual environment. Python installations as installed via
-\code{\link[=install_python]{install_python()}} will be used. This can also be a comma separated list of
-version constraints, like \code{">=3.8"}, or \code{"<=3.11,!=3.9.3,>3.6"}}
+\item{version, python_version}{The version of Python to use when creating a
+virtual environment. Python installations will be searched for using
+\code{\link[=virtualenv_starter]{virtualenv_starter()}}. This can a specific version, like \code{"3.9"} or
+\verb{"3.9.3}, or a comma separated list of version constraints, like \code{">=3.8"},
+or \code{"<=3.11,!=3.9.3,>3.6"}}
 
 \item{packages}{A set of Python packages to install (via \verb{pip install}) into
 the virtual environment, after it has been created. By default, the
@@ -77,30 +81,35 @@ any packages after the virtual environment has been created.}
 
 \item{requirements}{Filepath to a pip requirements file.}
 
-\item{module}{The Python module to be used when creating the virtual
-environment -- typically, \code{virtualenv} or \code{venv}. When \code{NULL} (the default),
-\code{venv} will be used if available with Python >= 3.6; otherwise, the
-\code{virtualenv} module will be used.}
+\item{force}{Boolean; force recreating the environment specified by
+\code{envname}, even if it already exists. If \code{TRUE}, the previous enviroment is
+first deleted and recreated. Otherwise, if \code{FALSE}, the path to the
+existing environment is returned.}
 
-\item{system_site_packages}{Boolean; create new virtual environments with
-the \code{--system-site-packages} flag, thereby allowing those virtual
-environments to access the system's site packages? Defaults to \code{FALSE}.}
+\item{module}{The Python module to be used when creating the virtual
+environment -- typically, \code{virtualenv} or \code{venv}. When \code{NULL} (the
+default), \code{venv} will be used if available with Python >= 3.6; otherwise,
+the \code{virtualenv} module will be used.}
+
+\item{system_site_packages}{Boolean; create new virtual environments with the
+\code{--system-site-packages} flag, thereby allowing those virtual environments
+to access the system's site packages? Defaults to \code{FALSE}.}
 
 \item{pip_version}{The version of \code{pip} to be installed in the virtual
 environment. Relevant only when \code{module == "virtualenv"}. Set this to
 \code{FALSE} to disable installation of \code{pip} altogether.}
 
-\item{setuptools_version}{The version of \code{setuptools} to be installed in
-the virtual environment. Relevant only when \code{module == "virtualenv"}.
-Set this to \code{FALSE} to disable installation of \code{setuptools} altogether.}
+\item{setuptools_version}{The version of \code{setuptools} to be installed in the
+virtual environment. Relevant only when \code{module == "virtualenv"}. Set this
+to \code{FALSE} to disable installation of \code{setuptools} altogether.}
 
 \item{extra}{An optional set of extra command line arguments to be passed.
 Arguments should be quoted via \code{shQuote()} when necessary.}
 
 \item{ignore_installed}{Boolean; ignore previously-installed versions of the
 requested packages? (This should normally be \code{TRUE}, so that pre-installed
-packages available in the site libraries are ignored and hence packages
-are installed into the virtual environment.)}
+packages available in the site libraries are ignored and hence packages are
+installed into the virtual environment.)}
 
 \item{pip_options}{An optional character vector of additional command line
 arguments to be passed to \code{pip}.}
@@ -110,16 +119,15 @@ environments?}
 
 \item{all}{If \code{TRUE}, \code{virtualenv_starter()} returns a 2-column data frame,
 with column names \code{path} and \code{version}. If \code{FALSE}, only a single path to a
-python binary is returned, corresponding to the first entry when
-\code{all = TRUE}, or \code{NULL} if no suitable python binaries were found.}
+python binary is returned, corresponding to the first entry when \code{all = TRUE}, or \code{NULL} if no suitable python binaries were found.}
 }
 \description{
 R functions for managing Python \href{https://virtualenv.pypa.io/en/stable/}{virtual environments}.
 }
 \details{
 Virtual environments are by default located at \verb{~/.virtualenvs} (accessed
-with the \code{virtualenv_root()} function). You can change the default location by
-defining the \code{WORKON_HOME} environment variable.
+with the \code{virtualenv_root()} function). You can change the default location
+by defining the \code{WORKON_HOME} environment variable.
 
 Virtual environments are created from another "starter" or "seed" Python
 already installed on the system. Suitable Pythons installed on the system are

@@ -20,7 +20,7 @@ documents a few approaches for accomplishing these goals.
 ## Creating a Pit Of Success
 
 Overall, the goal of an R package author using reticulate is to create a
-default experience that works reliably and don't require users to
+default experience that works reliably and doesn't require users to
 intervene or to have a sophisticated understanding of Python
 installation management. At the same time, it should also be easy to
 adjust the default behavior. There are two key questions to keep in
@@ -77,7 +77,7 @@ The R package:
 -   in `.onLoad()` expresses to reticulate a soft preference for an
     environment named "r-tensorflow", and
 
--   with `install_tensorflow()`, provides a conventint way to make the
+-   with `install_tensorflow()`, provides a convenient way to make the
     optional hint in `.onLoad()` actionable, by actually creating the
     "r-tensorflow" environment.
 
@@ -145,7 +145,7 @@ At the same time, an installation helper function empowers users to
 manage Python environments through simply providing an environment name.
 It makes it easy to combine dependencies of multiple R packages, and,
 should anything go wrong due to conflicting Python dependencies, it also
-provides a straighforward way to revert to a working state at any time,
+provides a straightforward way to revert to a working state at any time,
 by calling the helper function without arguments.
 
 ## Automatic Configuration

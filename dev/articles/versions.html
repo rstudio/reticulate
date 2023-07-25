@@ -116,32 +116,35 @@
 <div class="section level2">
 <h2 id="locating-python">Locating Python<a class="anchor" aria-label="anchor" href="#locating-python"></a>
 </h2>
-<p>It is not uncommon for several version of Python (and several conda
-or virtualenv environments within a given version) to be available on a
-given system. The <strong>reticulate</strong> package can bind to any of
-these versions, and in all cases will attempt to locate a version which
-includes the first Python package imported via the <code><a href="../reference/import.html">import()</a></code>
-function. Consider the following code:</p>
+<p>It is not uncommon for several installations of Python to be
+available on a given system. The <strong>reticulate</strong> package can
+bind to almost any Python installations, and provides a variety of
+convenient ways to allow the user to implicitly or explicitly specify
+which Python installation to select.</p>
+<p>Note that for reticulate to bind to a version of Python it must have
+been compiled with shared library support (i.e. with the
+<code>--enable-shared</code> flag).</p>
+<p>Consider the following code:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/py_eval.html">py_eval</a></span><span class="op">(</span><span class="st">"1+1"</span><span class="op">)</span></span></code></pre></div>
+<p>In this case, reticulate will search for a suitable Python
+installation. In the absence of other hints (detailed below), reticulate
+will fallback to an environment named “r-reticulate”, creating it if
+necessary.</p>
+<p>Consider another case:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span></span>
 <span><span class="va">scipy</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/import.html">import</a></span><span class="op">(</span><span class="st">"scipy"</span><span class="op">)</span></span>
 <span><span class="va">scipy</span><span class="op">$</span><span class="fu">amin</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">3</span>,<span class="fl">5</span>,<span class="fl">7</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p>In this case, the various versions of Python installed on the system
-will be scanned to see whether one of them includes the “scipy” Python
-package (the first version found that satisfies this requirement will be
-used).</p>
-<p>By default, the version of Python found on the system
-<code>PATH</code> is checked first, and then some other conventional
-location for Py Python (e.g. <code>/usr/local/bin/python</code>,
-<code>/opt/local/bin/python</code>, etc.) are checked.</p>
-<p>Note that for reticulate to bind to a version of Python it must be
-compiled with shared library support (i.e. with the
-<code>--enable-shared</code> flag).</p>
+<p>In this case, reticulate will first look for an environment named
+“r-scipy”, and if that doesn’t exist, it will fallback to the
+environment named “r-reticulate”.</p>
 </div>
 <div class="section level2">
 <h2 id="providing-hints">Providing Hints<a class="anchor" aria-label="anchor" href="#providing-hints"></a>
 </h2>
-<p>There are two ways you can provide hints as to which version of
+<p>There are a few ways you can provide hints as to which version of
 Python should be used:</p>
 <ol style="list-style-type: decimal">
 <li><p>By setting the value of the <code>RETICULATE_PYTHON</code>
@@ -156,8 +159,8 @@ binary.</p></li>
 </ol>
 <table class="table">
 <colgroup>
-<col width="19%">
-<col width="80%">
+<col width="26%">
+<col width="73%">
 </colgroup>
 <thead><tr class="header">
 <th>Function</th>
@@ -170,7 +173,7 @@ binary.</p></li>
 </tr>
 <tr class="even">
 <td><code><a href="../reference/use_python.html">use_virtualenv()</a></code></td>
-<td>Specify the directory containing a Python virtualenv.</td>
+<td>Specify the name of (or path to) a Python virtualenv.</td>
 </tr>
 <tr class="odd">
 <td><code><a href="../reference/use_python.html">use_condaenv()</a></code></td>
@@ -179,67 +182,84 @@ binary.</p></li>
 </tbody>
 </table>
 <p>For example:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/use_python.html">use_python</a></span><span class="op">(</span><span class="st">"/usr/local/bin/python"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/use_python.html">use_virtualenv</a></span><span class="op">(</span><span class="st">"~/myenv"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/use_python.html">use_condaenv</a></span><span class="op">(</span><span class="st">"myenv"</span><span class="op">)</span></span></code></pre></div>
-<p>The <code>use_condaenv</code> function will use whatever conda binary
-is found on the system PATH. If you want to use a specific alternate
-version you can use the <code>conda</code> parameter. For example:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/use_python.html">use_condaenv</a></span><span class="op">(</span>condaenv <span class="op">=</span> <span class="st">"r-nlp"</span>, conda <span class="op">=</span> <span class="st">"/opt/anaconda3/bin/conda"</span><span class="op">)</span></span></code></pre></div>
-<p>Note that the <code>use</code> functions are by default considered
-only hints as to where to find Python (i.e. they don’t produce errors if
-the specified version doesn’t exist). You can add the
-<code>required</code> parameter to ensure that the specified version of
-Python is always used (it will be an error if the specified version
-doesn’t exist):</p>
+<p>If the <code><a href="../reference/use_python.html">use_virtualenv()</a></code> function is supplied a name of a
+virtual environment (as opposed to a path), it will look in the
+virtualenv root directory, by default <code>~/.virtualenvs</code>, and
+configurable by setting the environment variable
+<code>WORKON_HOME</code>.</p>
+<p>The <code><a href="../reference/use_python.html">use_condaenv()</a></code> function will use whatever conda
+binary is found on the <code>PATH</code>. If you want to use a specific
+alternate version you can use the <code>conda</code> parameter. For
+example:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/use_python.html">use_virtualenv</a></span><span class="op">(</span><span class="st">"~/myenv"</span>, required <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/use_python.html">use_condaenv</a></span><span class="op">(</span>condaenv <span class="op">=</span> <span class="st">"r-nlp"</span>, conda <span class="op">=</span> <span class="st">"/opt/anaconda3/bin/conda"</span><span class="op">)</span></span></code></pre></div>
+<p>Note that the <code>use_*()</code> functions take an optional
+<code>required</code> argument. By default, a value of
+<code>required = NULL</code> is equivalent to
+<code>required = TRUE</code> in most circumstances. If
+<code>required = FALSE</code> is supplied, then the call is considered
+an optional hint as to where to find Python (i.e. it doesn’t produce an
+error if the specified version doesn’t exist).</p>
 </div>
 <div class="section level2">
 <h2 id="order-of-discovery">Order of Discovery<a class="anchor" aria-label="anchor" href="#order-of-discovery"></a>
 </h2>
-<p>The order in which versions of Python will be discovered and used is
+<p>The order in which Python installation will be discovered and used is
 as follows:</p>
 <ol style="list-style-type: decimal">
-<li><p>If specified, at the location referenced by the
-<code>RETICULATE_PYTHON</code> environment variable.</p></li>
-<li><p>If specified, at the locations referenced by calls to
+<li><p>If specified, the location referenced by the
+<code>RETICULATE_PYTHON</code> environment variable. (Path to a Python
+binary)</p></li>
+<li><p>If specified, the location referenced by the
+<code>RETICULATE_PYTHON_ENV</code> environment variable. (Path to or
+name of a virtual environment or conda environment)</p></li>
+<li><p>If specified, the location referenced by calls to
 <code><a href="../reference/use_python.html">use_python()</a></code>, <code><a href="../reference/use_python.html">use_virtualenv()</a></code>, and
-<code><a href="../reference/use_python.html">use_condaenv()</a></code>.</p></li>
-<li>
-<p>Within virtualenvs and conda envs that carry the same name as the
-first module imported. For example, if you execute
-<code>import("nltk")</code> then the following locations (among other
-similar ones) would be scanned for a version of Python with the
-<strong>nltk</strong> module installed:</p>
-<ul>
-<li>$WORKON_HOME/nltk</li>
-<li>~/.virtualenvs/nltk</li>
-<li>~/anaconda/envs/nltk</li>
-<li>~/nltk</li>
-</ul>
-</li>
-<li><p>At the location of the Python binary discovered on the system
-<code>PATH</code> (via the <code>Sys.which</code> function).</p></li>
-<li><p>At other customary locations for Python including
-<code>/usr/local/bin/python</code>, <code>/opt/local/bin/python</code>,
-etc.</p></li>
+<code><a href="../reference/use_python.html">use_condaenv()</a></code>, excepting if the call is made with
+<code>required = FALSE</code>, or is from within a package
+<code>.onLoad()</code> call.</p></li>
+<li><p>If the current working directory contains a pyproject.toml file
+from a poetry environment, the Python installation from the poetry
+environment is used.</p></li>
+<li><p>If the current working directory contains a Pipfile associated
+with a pipenv, the Python installation from the pipenv is used.</p></li>
+<li><p>If there was a call (typically from within a package using
+reticulate), of the form:
+<code>import("bar", delay_load = list(environment = "r-barlyr")</code>,
+and there exists a virtual environment or conda environment named
+<code>"r-barlyr"</code>, it is used.</p></li>
+<li><p>If any calls to <code><a href="../reference/use_python.html">use_python()</a></code>,
+<code><a href="../reference/use_python.html">use_virtualenv()</a></code>, and <code><a href="../reference/use_python.html">use_condaenv()</a></code> were made
+from within a package <code>.onLoad()</code> call, or with
+<code>required = FALSE</code> supplied, those locations are
+used.</p></li>
+<li><p>If there was a call to <code>import("bar")</code>, and there
+exists a virtual environment or conda environment named
+<code>"r-bar"</code>, it is used.</p></li>
+<li><p>If the environment variable <code>VIRTUAL_ENV</code> is defined
+(typically from running an <code>activate</code> script before R
+started), then the Python from the activated environment is
+used.</p></li>
+<li><p>If specified, the location referenced by the
+<code>RETICULATE_PYTHON_FALLBACK</code> environment variable. (Path to a
+python binary)</p></li>
+<li><p>In the absence of any expression of preference via one of the
+ways outlined above, reticulate falls back to using a virtual
+environment named <code>"r-reticulate"</code>. If one does not exist,
+reticulate will offer to create one.</p></li>
+<li><p>If the “r-reticulate” environment is not available and cannot be
+created, then we fall back to using the python on the
+<code>PATH</code>.</p></li>
 </ol>
-<p>The scanning for and binding to a version of Python typically occurs
-at the time of the first call to <code><a href="../reference/import.html">import()</a></code> within an R
-session. As a result, priority will be given to versions of Python that
-include the module specified within the call to <code><a href="../reference/import.html">import()</a></code>
-(i.e. versions that don’t include it will be skipped).</p>
 </div>
 <div class="section level2">
 <h2 id="python-packages">Python Packages<a class="anchor" aria-label="anchor" href="#python-packages"></a>
 </h2>
-<p>Each version of Python on your system has its own set of packages and
-as described above reticulate will automatically find a version of
-Python that contains the first package that you import from R.</p>
 <p>You can learn more about installing Python packages into virtualenvs
 or Conda environments in the article on <a href="python_packages.html">Installing Python Packages</a>.</p>
 </div>

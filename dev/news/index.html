@@ -83,7 +83,14 @@
 
     <div class="section level2">
 <h2 class="page-header" data-toc-text="development version" id="reticulate-development-version">reticulate (development version)<a class="anchor" aria-label="anchor" href="#reticulate-development-version"></a></h2>
-<ul><li><p><code><a href="../reference/py_iterator.html">py_iterator()</a></code> gains a <code>prefetch</code> argument, primarily to avoid deadlocks where the main thread is blocked, waiting for the iterator, which is waiting to run on the main thread, as encountered in TensorFlow/Keras. (<a href="https://github.com/rstudio/reticulate/issues/1405" class="external-link">#1405</a>).</p></li>
+<ul><li><p>reticulate will no longer prompt users to install miniconda. Instead, reticulate will now prompt users to create a default <code>r-reticulate</code> venv.</p></li>
+<li><p>The python search behavior that reticulate uses to select a Python has changed. See the updated “versions” vignette for the new order of discovery.</p></li>
+<li><p>Updated recommendations in the “python_dependencies” vignette for how R packages can approach Python dependency management.</p></li>
+<li><p><code><a href="../reference/virtualenv-tools.html">virtualenv_create()</a></code> gains a <code>force</code> argument.</p></li>
+<li><p>Fixed an issue where the list of available python versions used by <code><a href="../reference/install_python.html">install_python()</a></code> would be out-of-date.</p></li>
+<li><p><code><a href="../reference/install_python.html">install_python()</a></code> on macOS will now will use brew, if it’s available, to install build dependencies, substantially speeding up python build times.</p></li>
+<li><p><code><a href="../reference/virtualenv-tools.html">virtualenv_install()</a></code> gains a <code>python_version</code> argument, allowing users to customize which python version is used when bootstrapping a new virtual environment.</p></li>
+<li><p><code><a href="../reference/py_iterator.html">py_iterator()</a></code> gains a <code>prefetch</code> argument, primarily to avoid deadlocks where the main thread is blocked, waiting for the iterator, which is waiting to run on the main thread, as encountered in TensorFlow/Keras. (<a href="https://github.com/rstudio/reticulate/issues/1405" class="external-link">#1405</a>).</p></li>
 <li>
 <p>The knitr engine gains a <code>jupyter_compat</code> option, enabling reticulate to better match the behavior of Jupyter. When this chunk option is set to <code>TRUE</code>, only the return value from the last expression in a chunk is auto-printed. (<a href="https://github.com/rstudio/reticulate/issues/1391" class="external-link">#1391</a>, <a href="https://github.com/rstudio/reticulate/issues/1394" class="external-link">#1394</a>, contributed by</p>
 <ol class="example" style="list-style-type: decimal"><li>

@@ -156,28 +156,31 @@ have no effect.</p>
 <p>Your R package likely depends on the installation of one or more
 Python packages. As a convenience to your users, you may want to provide
 a high-level R function to allow users to install these Python packages.
-It’s furthermore beneficial if multiple R packages that depend on Python
-packages install their dependencies in the same Python environment (so
-that they can be easily used together).</p>
+By default, the Python packages should be installed in an isolated
+virtual environment, but it’s beneficial if users could easily configure
+multiple R packages to depend on a common Python environment (so that
+they can be easily used together).</p>
 <p>The <code><a href="../reference/py_install.html">py_install()</a></code> function provides a high-level
 interface for installing one or more Python packages. The packages will
-by default be installed within a virtualenv or Conda environment named
-“r-reticulate”. For example:</p>
+by default be installed within the currently active virtual environment
+or conda environment, (which is, by default, an environent named
+“r-reticulate”). For example:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/py_install.html">py_install</a></span><span class="op">(</span><span class="st">"scipy"</span><span class="op">)</span></span></code></pre></div>
-<p>You can document the use of this function along with your package or
-alternatively provide a wrapper function for <code><a href="../reference/py_install.html">py_install()</a></code>.
-For example:</p>
+<p>You can document the use of this function along with your package, or
+alternatively you can provide a wrapper function for
+<code><a href="../reference/py_install.html">py_install()</a></code> that defaults to installing in a Python
+environment created specifically for your R package. For example:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">install_scipy</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">method</span> <span class="op">=</span> <span class="st">"auto"</span>, <span class="va">conda</span> <span class="op">=</span> <span class="st">"auto"</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu">reticulate</span><span class="fu">::</span><span class="fu"><a href="../reference/py_install.html">py_install</a></span><span class="op">(</span><span class="st">"scipy"</span>, method <span class="op">=</span> <span class="va">method</span>, conda <span class="op">=</span> <span class="va">conda</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">install_scipy</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">envname</span> <span class="op">=</span> <span class="st">"r-scipy"</span>, <span class="va">method</span> <span class="op">=</span> <span class="st">"auto"</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu">reticulate</span><span class="fu">::</span><span class="fu"><a href="../reference/py_install.html">py_install</a></span><span class="op">(</span><span class="st">"scipy"</span>, envname <span class="op">=</span> <span class="va">envname</span>, </span>
+<span>                         method <span class="op">=</span> <span class="va">method</span>, <span class="va">...</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>While reticulate is capable of binding to <a href="calling_python.html#python-version">any Python environment</a>
-available on a system, it’s much more straightforward for users if there
-is a common environment used by R packages with convenient high-level
-functions provided for installation. We therefore strongly recommend
-that R package developers use the approach described here.</p>
+<p>For a fuller discussion of how to use reticulate in an R package,
+include alternative approaches, and how to create a “pit of success” for
+R users with regards to managing Python installations, see the guide on
+<a href="python_dependencies.html">Python Dependencies</a></p>
 </div>
 <div class="section level2">
 <h2 id="checking-and-testing-on-cran">Checking and Testing on CRAN<a class="anchor" aria-label="anchor" href="#checking-and-testing-on-cran"></a>

@@ -148,11 +148,8 @@ pyenv_find_impl <- function(install = TRUE) {
 
 pyenv_install <- function(version, force, pyenv = NULL) {
 
-  pyenv <- normalizePath(
-    pyenv %||% pyenv_find(),
-    winslash = "/",
-    mustWork = TRUE
-  )
+  pyenv <- canonical_path(pyenv %||% pyenv_find())
+  stopifnot(file.exists(pyenv))
 
   # set options
   withr::local_envvar(PYTHON_CONFIGURE_OPTS = "--enable-shared")

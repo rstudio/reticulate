@@ -21,7 +21,8 @@ NULL
 .globals$py_config <- NULL
 .globals$delay_load_imports <- data.frame(module = character(),
                                           priority = integer(),
-                                          environment = character())
+                                          environment = character(),
+                                          stringsAsFactors = FALSE)
 .globals$suppress_warnings_handlers <- list()
 .globals$class_filters <- list(
 

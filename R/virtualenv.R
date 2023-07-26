@@ -514,7 +514,7 @@ virtualenv_starter <- function(version = NULL, all = FALSE) {
   #  "C:/Users/<username>/AppData/Local/r-reticulate/r-reticulate/pyenv/pyenv-win/versions/3.9.13/python.exe"
   # but can be different if user set PYENV_ROOT or manually installed pyenv
   # in a different location
-  if (length(pyenv <- pyenv_find(install = FALSE))) {
+  if (!is.null(pyenv <- pyenv_find(install = FALSE))) {
      if (is_windows()) {
        pyenv_root <- dirname(dirname(pyenv))
        find_starters(file.path(pyenv_root, "versions/*/python*.exe"))

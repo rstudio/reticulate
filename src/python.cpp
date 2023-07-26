@@ -3124,17 +3124,22 @@ SEXP py_eval_impl(const std::string& code, bool convert = true) {
   return result;
 }
 
+template <int RTYPE>
+void pandas_apply_na_mask(Vector<RTYPE> x, const LogicalVector& mask) {
+  x[mask] = Rcpp::traits::get_na<RTYPE>();
+}
+
 // [[Rcpp::export]]
 SEXP py_convert_pandas_series(PyObjectRef series) {
 
   // extract dtype
   PyObjectPtr dtype(PyObject_GetAttrString(series, "dtype"));
-  PyObjectPtr name(PyObject_GetAttrString(dtype, "name"));
+  auto name = as_std_string(PyObjectPtr(PyObject_GetAttrString(dtype, "name")));
 
   RObject R_obj;
 
   // special treatment for pd.Categorical
-  if (as_std_string(name) == "category") {
+  if (name == "category") {
 
     // get actual values and convert to R
     PyObjectPtr cat(PyObject_GetAttrString(series, "cat"));
@@ -3178,7 +3183,7 @@ SEXP py_convert_pandas_series(PyObjectRef series) {
   // special treatment for pd.TimeStamp
   // if available, time zone information will be respected,
   // but values returned to R will be in UTC
-  } else if (as_std_string(name) == "datetime64[ns]" ||
+  } else if (name == "datetime64[ns]" ||
 
     // if a time zone is present, dtype is "object"
     PyObject_HasAttrString(series, "dt")) {
@@ -3224,6 +3229,37 @@ SEXP py_convert_pandas_series(PyObjectRef series) {
     }
 
     return R_posixct;
+
+
+  // Data types starting with Capitalized case are used as the nullable datatypes in
+  // Pandas, thus most of them might contain a `pd.NA`, that we will represent
+  // as NA's in R.
+  } else if (name == "Int32") {
+
+    // pandas arrays all inherit from a BaseMaskedArray containing the attributes
+    // _data and _mask numpy arrays. That we can use to replace values by NA.
+    PyObjectPtr pandas_array(PyObject_GetAttrString(series, "values"));
+
+    if (pandas_array.is_null()) {
+      throw PythonException(py_fetch_error());
+    }
+
+    PyObjectPtr _data(PyObject_GetAttrString(pandas_array, "_data"));
+    if (_data.is_null()) {
+      throw PythonException(py_fetch_error());
+    }
+
+    PyObjectPtr _mask(PyObject_GetAttrString(pandas_array, "_mask"));
+    if (_mask.is_null()) {
+      throw PythonException(py_fetch_error());
+    }
+
+    // we cast both data and mask into R objects.
+    SEXP r_data(py_to_r(_data, true));
+    LogicalVector r_mask(py_to_r(_mask, true));
+
+    pandas_apply_na_mask<INTSXP>(r_data, r_mask);
+    R_obj = r_data;
 
   // default case
   } else {

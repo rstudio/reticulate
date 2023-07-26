@@ -219,3 +219,13 @@ df = pd.DataFrame({"FCT": pd.Categorical(["No", "Yes"]),
   expect_identical(p_df, r_df)
 
 })
+
+test_that("can cast from pandas nullable types", {
+  pd <- import("pandas", convert = FALSE)
+  p_df <- pd$DataFrame(list("x" = pd$Series(list(NULL, 1L, 2L), dtype = pd$Int32Dtype())))
+
+  expect_equal(py_to_r(p_df$x$dtype$name), "Int32")
+  r_df <- py_to_r(p_df)
+
+  expect_identical(r_df$x, c(NA, 1L, 2L))
+})

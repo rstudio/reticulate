@@ -470,7 +470,8 @@ is_virtualenv <- function(dir) {
 virtualenv_starter <- function(version = NULL, all = FALSE) {
 
   starters <- data.frame(version = numeric_version(character()),
-                         path = character())
+                         path = character(),
+                         stringsAsFactors = FALSE)
 
   find_starters <- function(glob) {
     # accept NULL, NA, and "" as a no-op
@@ -507,7 +508,8 @@ virtualenv_starter <- function(version = NULL, all = FALSE) {
           return(NA_character_)
         substr(v, 8L, 999L)
       }, error = function(e) NA_character_), ""), strict = FALSE)
-    df <- data.frame(version = v, path = p, row.names = NULL)
+    df <- data.frame(version = v, path = p,
+                     row.names = NULL, stringsAsFactors = FALSE)
     df <- df[!is.na(df$version), ]
     df <- df[order(df$version, decreasing = TRUE), ]
 

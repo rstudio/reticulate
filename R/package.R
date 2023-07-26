@@ -115,7 +115,7 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
 
   # resolve top level module for search
   if (!is.null(required_module))
-    required_module <- strsplit(required_module, ".", fixed = TRUE)[[1]][[1]]
+    required_module <- strsplit(required_module, ".", fixed = TRUE)[[1L]][[1L]]
 
   # find configuration
   config <- local({

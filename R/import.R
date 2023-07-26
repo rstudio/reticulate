@@ -147,7 +147,7 @@ register_delay_load_import <- function(module, delay_load = NULL) {
   storage.mode(spec$environment) <- "character"
 
   df <- .globals$delay_load_imports
-  df <- rbind(df, spec)
+  df <- rbind(df, spec, stringsAsFactors = FALSE)
   df <- df[order(df$priority, decreasing = TRUE), ]
   .globals$delay_load_imports <- df
 

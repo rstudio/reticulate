@@ -513,7 +513,7 @@ virtualenv_starter <- function(version = NULL, all = FALSE) {
     df <- df[!is.na(df$version), ]
     df <- df[order(df$version, decreasing = TRUE), ]
 
-    df <- rbind(starters, df)
+    df <- rbind(starters, df, stringsAsFactors = FALSE)
     df <- df[!duplicated(df$path), ]
     if(is_windows()) {
       # on windows, removed dups of the same python in the same directory,

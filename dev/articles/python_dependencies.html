@@ -202,17 +202,21 @@ slightly more active role in managing their python environments.
 However, this can be as simple as supplying a unique environment
 name.</p>
 <p>The most straightforward approach is for users to create a dedicated
-python environment for a specific project. For example, a user can can
-do something like:</p>
+python environment for a specific project. For example, a user can
+create a virtual environment in the project directory, like this:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">envname</span> <span class="op">&lt;-</span> <span class="st">"~/my/project/venv"</span></span>
+<code class="sourceCode R"><span><span class="va">envname</span> <span class="op">&lt;-</span> <span class="st">"./venv"</span></span>
 <span><span class="fu">tensorflow</span><span class="fu">::</span><span class="fu">install_tensorflow</span><span class="op">(</span>envname <span class="op">=</span> <span class="va">envname</span><span class="op">)</span></span>
-<span><span class="fu">sparklyr</span><span class="fu">::</span><span class="fu">install_sparklyr</span><span class="op">(</span>envname <span class="op">=</span> <span class="va">envname</span><span class="op">)</span></span>
+<span><span class="fu">pysparklyr</span><span class="fu">::</span><span class="fu">install_pyspark</span><span class="op">(</span>envname <span class="op">=</span> <span class="va">envname</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/use_python.html">use_virtualenv</a></span><span class="op">(</span><span class="va">envname</span><span class="op">)</span></span></code></pre></div>
-<p>The user could then place a .Renviron or .Rprofile file in the
-project directory, ensuring that reticulate will use always use the
-python configured for that project. For example, an .Renviron file in
-the project directory could contain:</p>
+<p>As described in the <a href="versions.html">Order of Python
+Discovery</a> guide, reticulate will automatically discover and use a
+Python virtual environment in the current working directory like this.
+Alternatively, if the environment exists outside the project directory,
+the user could then place a .Renviron or .Rprofile file in the project
+directory, ensuring that reticulate will use always use the python
+configured for that project. For example, an .Renviron file in the
+project directory could contain:</p>
 <pre><code>RETICULATE_PYTHON_ENV=~/my/project/venv</code></pre>
 <p>Or a .Rprofile in the project directory could contain:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
@@ -232,7 +236,7 @@ default environment. For example, installing spark into the default
 “r-tensorflow” environment:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">tensorflow</span><span class="fu">::</span><span class="fu">install_tensorflow</span><span class="op">(</span><span class="op">)</span> <span class="co"># creates an "r-tensorflow" env</span></span>
-<span><span class="fu">sparklyr</span><span class="fu">::</span><span class="fu">install_spark</span><span class="op">(</span>envname <span class="op">=</span> <span class="st">"r-tensorflow"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">pysparklyr</span><span class="fu">::</span><span class="fu">install_pyspark</span><span class="op">(</span>envname <span class="op">=</span> <span class="st">"r-tensorflow"</span><span class="op">)</span></span></code></pre></div>
 <p>This approach—exporting a installation helper function that defaults
 to a particular environment, and a hint in <code>.onLoad()</code> to use
 that environment—is one way to create a “pit-of-success”. It encourages

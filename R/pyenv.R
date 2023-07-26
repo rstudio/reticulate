@@ -106,6 +106,8 @@ pyenv_list <- function(pyenv = NULL, installed = FALSE) {
 
 pyenv_find <- function(install = TRUE) {
   pyenv <- pyenv_find_impl(install = install)
+  if (isFALSE(install) && is.null(pyenv))
+    return(NULL)
   canonical_path(pyenv)
 }
 
@@ -140,7 +142,7 @@ pyenv_find_impl <- function(install = TRUE) {
   if(install)
     pyenv_bootstrap()
   else
-    ""
+    NULL
 
 }
 

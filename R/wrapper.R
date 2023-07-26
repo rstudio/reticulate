@@ -212,7 +212,7 @@ py_function_custom_scaffold <- function(
       write_line("#' ")
 
       # Write docstrings for each parameters
-      for(i in 1:length(docs$parameters)) {
+      for (i in 1:length(docs$parameters)) {
         param_name <- names(docs$parameters)[i]
         param_doc <- process_param_doc_fn(docs$parameters[[param_name]], docs)
         write_line(paste0("#' @param ", " ", names(docs$parameters)[i], " ", param_doc))

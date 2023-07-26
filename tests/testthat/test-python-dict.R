@@ -104,7 +104,7 @@ df_dict = {i[0] if isinstance(i, tuple) else i: df for i, df in random_df.groupb
   rdf_dict <- py$df_dict
   lapply(rdf_list, expect_s3_class, "data.frame")
 
-  for(i in seq_along(rdf_dict)) {
+  for (i in seq_along(rdf_dict)) {
     attr(rdf_dict[[i]], "pandas.index") <- NULL
     attr(rdf_list[[i]], "pandas.index") <- NULL
   }

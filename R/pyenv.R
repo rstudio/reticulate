@@ -148,11 +148,8 @@ pyenv_find_impl <- function(install = TRUE) {
 
 pyenv_install <- function(version, force, pyenv = NULL) {
 
-  pyenv <- normalizePath(
-    pyenv %||% pyenv_find(),
-    winslash = "/",
-    mustWork = TRUE
-  )
+  pyenv <- canonical_path(pyenv %||% pyenv_find())
+  stopifnot(file.exists(pyenv))
 
   # set options
   withr::local_envvar(PYTHON_CONFIGURE_OPTS = "--enable-shared")
@@ -258,7 +255,7 @@ pyenv_update <- function(pyenv = pyenv_find()) {
   if (startsWith(pyenv, root <- pyenv_root())) {
     # this pyenv installation is fully managed by reticulate
     # root == where .../bin/pyenv lives
-    withr::with_dir(root, system2("git", "pull"))
+    withr::with_dir(root, system2("git", "pull", stdout = FALSE, stderr = FALSE))
   }
 
   if (is_windows())
@@ -271,10 +268,10 @@ pyenv_update <- function(pyenv = pyenv_find()) {
     system2("git", c("clone", "https://github.com/pyenv/pyenv-update.git",
                       file.path(root, "plugins/pyenv-update")))
 
-  result <- system2t(pyenv, "update", stdout = TRUE, stderr = TRUE)
-  if (result != 0L) {
-    fmt <- "Error creating conda environment [exit code %i]"
-    stopf(fmt, result)
+  result <- system2t(pyenv, "update", stdout = FALSE, stderr = FALSE)
+  if (!identical(result, 0L)) {
+    fmt <- "Error updating pyenv [exit code %i]"
+    warningf(fmt, result)
   }
 
 }

@@ -49,10 +49,10 @@ test_that("py_last_error() returns the R error condition object", {
 
       e <- tryCatch( fn(), error = function(e) e )
 
-      for(cls in  c("python.builtin.Exception",
-                    "python.builtin.BaseException",
-                    "python.builtin.object",
-                    "error", "condition"))
+      for (cls in  c("python.builtin.Exception",
+                     "python.builtin.BaseException",
+                     "python.builtin.object",
+                     "error", "condition"))
         expect_s3_class(e, cls)
 
       expect_identical(conditionMessage(e), e$message)

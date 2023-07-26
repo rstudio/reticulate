@@ -1523,9 +1523,7 @@ py_resolve_module_proxy <- function(proxy) {
   py_module_proxy_import(proxy)
 
   # clear the global tracking of delay load modules
-  .globals$delay_load_module <- NULL
-  .globals$delay_load_environment <- NULL
-  .globals$delay_load_priority <- 0
+  .globals$delay_load_imports <- NULL
 
   # call on_load if provided
   if (is.function(on_load))

@@ -271,7 +271,7 @@ pyenv_update <- function(pyenv = pyenv_find()) {
   result <- system2t(pyenv, "update", stdout = FALSE, stderr = FALSE)
   if (!identical(result, 0L)) {
     fmt <- "Error updating pyenv [exit code %i]"
-    warningff(fmt, result)
+    warningf(fmt, result)
   }
 
 }

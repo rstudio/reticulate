@@ -473,11 +473,34 @@ virtualenv_starter <- function(version = NULL, all = FALSE) {
                          path = character())
 
   find_starters <- function(glob) {
+    # accept NULL, NA, and "" as a no-op
+    if(is.null(glob) || isTRUE(is.na(glob)) || isFALSE(nzchar(glob)))
+      return(invisible(starters))
+
+    # if not a glob,
+    if (!grepl("*", glob, fixed = TRUE)) {
+    # accept a path to a directory, convert it into globs that
+    # catch two different scenarios:
+    # - flat directory of python installations (presumably of different versions)
+    # - nested directory of python installations (presumably nested by version and arch)
+
+      suffix <- if (is_windows())
+        #e.g, /3.9.4/python.exe, /3.9.4/x64/python.exe
+        c("/*/python*.exe", "/*/*/python*.exe")
+      else {
+        #/3.9.4/bin/python, /3.9.4/x64/bin/python
+        c("/*/bin/python*", "/*/*/bin/python*")
+      }
+      glob <- paste0(normalizePath(glob, winslash = "/", mustWork = FALSE),
+                     suffix)
+    }
+
     p <- unique(normalizePath(Sys.glob(glob), winslash = "/"))
     p <- p[grep("^python[0-9.]*(\\.exe)?$", basename(p))]
     v <- numeric_version(vapply(p, function(python_path)
       tryCatch({
         v <- system2(python_path, "-EV", stdout = TRUE)
+        # v should be something like "Python 3.10.6"
         if ((attr(v, "status") %||% 0) ||
             length(v) != 1L ||
             !startsWith(v, "Python "))
@@ -491,7 +514,7 @@ virtualenv_starter <- function(version = NULL, all = FALSE) {
     df <- rbind(starters, df)
     df <- df[!duplicated(df$path), ]
     if(is_windows()) {
-      # on windows, removed dups of the same python,
+      # on windows, removed dups of the same python in the same directory,
       # like 'python.exe', 'python3.exe' 'python3.11.exe'
       df <- df[!duplicated(dirname(df$path)), ]
     }
@@ -505,8 +528,7 @@ virtualenv_starter <- function(version = NULL, all = FALSE) {
     # Accept user customization, a character vector (or ":" separated string) of
     # file paths to python binaries. Paths can be globs, as they are passed on
     # to Sys.glob()
-    if (custom_loc != "")
-      lapply(unlist(strsplit(custom_loc, "[:;]")), find_starters)
+    lapply(unlist(strsplit(custom_loc, "[:;]")), find_starters)
   }
 
   # Find pythons installed via `install_python()` or by directly using pyenv.
@@ -543,6 +565,10 @@ virtualenv_starter <- function(version = NULL, all = FALSE) {
   # e.g., "/opt/python/3.11.4/bin/python3.11"
   if (is_linux())
     find_starters("/opt/python/*/bin/python*")
+
+  # on Github Action Runners, find Pythons installed in the tool cache
+  if(!is.na(tool_cache_dir <- Sys.getenv("RUNNER_TOOL_CACHE", NA)))
+    find_starters(paste0(tool_cache_dir, "/Python"))
 
   # python installed system wide
   if (!is_windows())

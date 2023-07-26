@@ -156,7 +156,8 @@ py_module_available <- function(module) {
 #' @export
 py_discover_config <- function(required_module = NULL, use_environment = NULL) {
 
-  required_module <- required_module %||% .globals$delay_load_module
+  if (is.null(required_module) && length(.globals$delay_load_imports$module))
+    required_module <- .globals$delay_load_imports$module[[1L]]
   if (!is.null(required_module))
     required_module <- strsplit(required_module, ".", fixed = TRUE)[[1L]][[1L]]
 
@@ -242,9 +243,10 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
 
   # look for any environment names supplied in a call like:
   #  import("bar", delayed = list(environment = "r-barlyr"))
-  use_environment <- use_environment %||% .globals$delay_load_environment
-  if(!is.null(use_environment)) {
-    python <- tryCatch(py_resolve(use_environment), error = identity)
+  for (envname in c(use_environment, .globals$delay_load_imports$environment)) {
+    if(is.na(envname))
+      next
+    python <- tryCatch(py_resolve(envname), error = identity)
     if (!inherits(python, "error"))
       return(python_config(
         python, required_module,
@@ -265,8 +267,8 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
 
   # look in virtual environments that have a required module derived name,
   # e.g., given a call to import("bar"), look for an environment named "r-bar"
-  if (!is.null(required_module)) {
-    envname <- paste0("r-", required_module)
+  for(module in c(required_module, .globals$delay_load_imports$module)) {
+    envname <- paste0("r-", module)
     python <- tryCatch(py_resolve(envname), error = identity)
     if (!inherits(python, "error"))
       return(python_config(

@@ -566,10 +566,6 @@ virtualenv_starter <- function(version = NULL, all = FALSE) {
   if (is_linux())
     find_starters("/opt/python/*/bin/python*")
 
-  # on Github Action Runners, find Pythons installed in the tool cache
-  if(!is.na(tool_cache_dir <- Sys.getenv("RUNNER_TOOL_CACHE", NA)))
-    find_starters(paste0(tool_cache_dir, "/Python"))
-
   # python installed system wide
   if (!is_windows())
     find_starters("/usr/local/bin/python*")
@@ -581,6 +577,10 @@ virtualenv_starter <- function(version = NULL, all = FALSE) {
   # on mac, use homebrew as a fallback, if found
   if (is_macos())
     find_starters("/opt/homebrew/opt/python*/bin/python*")
+
+  # on Github Action Runners, find Pythons installed in the tool cache
+  if(!is.na(tool_cache_dir <- Sys.getenv("RUNNER_TOOL_CACHE", NA)))
+    find_starters(paste0(tool_cache_dir, "/Python"))
 
   # if specific version requested, filter for that.
   if (!is.null(version)) {
@@ -601,6 +601,9 @@ virtualenv_starter <- function(version = NULL, all = FALSE) {
 }
 
 as_version_constraint_checkers <- function(version) {
+
+  if (inherits(version, "numeric_version"))
+    version <- as.character(version)
   stopifnot(is.character(version))
 
   # given a version string like ">=3.6,!=3.9,<3.11", split on ","

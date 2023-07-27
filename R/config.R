@@ -267,7 +267,7 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
 
   # look in virtual environments that have a required module derived name,
   # e.g., given a call to import("bar"), look for an environment named "r-bar"
-  for(module in c(required_module, .globals$delay_load_imports$module)) {
+  for (module in c(required_module, .globals$delay_load_imports$module)) {
     envname <- paste0("r-", module)
     python <- tryCatch(py_resolve(envname), error = identity)
     if (!inherits(python, "error"))

@@ -586,7 +586,7 @@ virtualenv_starter <- function(version = NULL, all = FALSE) {
 
   # if specific version requested, filter for that.
   if (!is.null(version)) {
-    for(check in as_version_constraint_checkers(version)) {
+    for (check in as_version_constraint_checkers(version)) {
       satisfies_constraint <- check(starters$version)
       starters <- starters[satisfies_constraint, ]
     }
@@ -630,7 +630,7 @@ as_version_constraint_checkers <- function(version) {
       x <- numeric_version(x)
       # if the constraint version is missing minor or patch level, set
       # to 0, so we can match on all, equivalent to pip style syntax like '3.8.*'
-      for(lvl in 3:2)
+      for (lvl in 3:2)
         if (is.na(ver[, lvl])) {
           ver[, lvl] <- 0L
           x[, lvl] <- 0L

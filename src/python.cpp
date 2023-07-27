@@ -3134,7 +3134,20 @@ SEXP py_convert_pandas_series(PyObjectRef series) {
 
   // extract dtype
   PyObjectPtr dtype(PyObject_GetAttrString(series, "dtype"));
-  auto name = as_std_string(PyObjectPtr(PyObject_GetAttrString(dtype, "name")));
+  const auto name = as_std_string(PyObjectPtr(PyObject_GetAttrString(dtype, "name")));
+  const static std::set<std::string> nullable_dtypes({
+    "Int8",
+    "Int16",
+    "Int32",
+    "Int64",
+    "UInt8",
+    "UInt16",
+    "UInt32",
+    "UInt64",
+    "boolean",
+    "Float32",
+    "Float64"
+  });
 
   RObject R_obj;
 
@@ -3234,7 +3247,7 @@ SEXP py_convert_pandas_series(PyObjectRef series) {
   // Data types starting with Capitalized case are used as the nullable datatypes in
   // Pandas, thus most of them might contain a `pd.NA`, that we will represent
   // as NA's in R.
-  } else if (name == "Int32") {
+  } else if (nullable_dtypes.find(name) != nullable_dtypes.end()) {
 
     // pandas arrays all inherit from a BaseMaskedArray containing the attributes
     // _data and _mask numpy arrays. That we can use to replace values by NA.
@@ -3258,7 +3271,12 @@ SEXP py_convert_pandas_series(PyObjectRef series) {
     SEXP r_data(py_to_r(_data, true));
     LogicalVector r_mask(py_to_r(_mask, true));
 
-    pandas_apply_na_mask<INTSXP>(r_data, r_mask);
+    switch (TYPEOF(r_data)) {
+    case INTSXP: pandas_apply_na_mask<INTSXP>(r_data, r_mask);
+    case REALSXP: pandas_apply_na_mask<REALSXP>(r_data, r_mask);
+    case LGLSXP: pandas_apply_na_mask<LGLSXP>(r_data, r_mask);
+    }
+
     R_obj = r_data;
 
   // default case

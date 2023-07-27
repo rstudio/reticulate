@@ -88,7 +88,7 @@ use the `r-tensorflow` environment, and for everything to "just-work".
 The risk of disrupting another Python environment, or of this one being
 disrupting, is minimal, since the environment is designated for the R
 package. At the same time, if the environment is disrupted at some time
-later (perhaps because something with conflicting python dependencies
+later (perhaps because something with conflicting Python dependencies
 was manually installed), the user can easily revert to a working state
 by calling `install_tensorflow()`.
 
@@ -110,7 +110,6 @@ create a virtual environment in the project directory, like this:
 envname <- "./venv"
 tensorflow::install_tensorflow(envname = envname)
 pysparklyr::install_pyspark(envname = envname)
-use_virtualenv(envname)
 ```
 
 As described in the [Order of Python

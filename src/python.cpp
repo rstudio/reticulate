@@ -3167,7 +3167,7 @@ RObject pandas_nullable_collect_values (PyObject* series) {
 "UInt64"
 
 
-auto nullable_typename_to_sexptype (const std::string& name) {
+SEXPTYPE nullable_typename_to_sexptype (const std::string& name) {
   const static std::set<std::string> nullable_integers({NULLABLE_INTEGERS});
 
   if (nullable_integers.find(name) != nullable_integers.end()) {

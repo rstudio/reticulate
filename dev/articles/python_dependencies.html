@@ -159,17 +159,18 @@ optionally creating it as needed.</p>
 preference, on behalf of the user, to use the <code>r-tensorflow</code>
 environment if it exists. Inside the package, these two parts work
 together to create a “pit of success”:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>install_tensorflow <span class="ot">&lt;-</span> <span class="cf">function</span>(..., <span class="at">envname =</span> <span class="st">"r-tensorflow"</span>) {</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  reticulate<span class="sc">::</span><span class="fu">py_install</span>(<span class="st">"tensorflow"</span>, <span class="at">envname =</span> envname, ...)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>tf <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>.onLoad <span class="ot">&lt;-</span> <span class="cf">function</span>(...) {</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  tf <span class="ot">&lt;&lt;-</span> reticulate<span class="sc">::</span><span class="fu">import</span>(<span class="st">"tensorflow"</span>, <span class="at">delay_load =</span> <span class="fu">list</span>(</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">environment =</span> <span class="st">"r-tensorflow"</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  ))</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>}a</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">install_tensorflow</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">...</span>, <span class="va">envname</span> <span class="op">=</span> <span class="st">"r-tensorflow"</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu">reticulate</span><span class="fu">::</span><span class="fu"><a href="../reference/py_install.html">py_install</a></span><span class="op">(</span><span class="st">"tensorflow"</span>, envname <span class="op">=</span> <span class="va">envname</span>, <span class="va">...</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span></span>
+<span><span class="va">tf</span> <span class="op">&lt;-</span> <span class="cn">NULL</span></span>
+<span><span class="va">.onLoad</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">tf</span> <span class="op">&lt;&lt;-</span> <span class="fu">reticulate</span><span class="fu">::</span><span class="fu"><a href="../reference/import.html">import</a></span><span class="op">(</span><span class="st">"tensorflow"</span>, delay_load <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    environment <span class="op">=</span> <span class="st">"r-tensorflow"</span></span>
+<span>  <span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
 <p>The R package:</p>
 <ul>
 <li><p>in <code>.onLoad()</code> expresses to reticulate a soft

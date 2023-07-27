@@ -69,7 +69,7 @@ tf <- NULL
   tf <<- reticulate::import("tensorflow", delay_load = list(
     environment = "r-tensorflow"
   ))
-}a
+}
 ```
 
 The R package:

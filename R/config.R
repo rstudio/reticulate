@@ -224,7 +224,7 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
     # If this check ends up being too strict, we can alternatively do:
     # if (python_info(Sys.which("python"))$type == "virtualenv") {
     config <- python_config(virtualenv_python(envpath), required_module,
-                            forced = "`. bin/activate` (before R started)")
+                            forced = "VIRTUAL_ENV")
     return(config)
   }
 
@@ -242,10 +242,11 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
 
   # if the current directory contains a venv, use it:
   for (dirpath in c("./venv", "./virtualenv", "./.venv", "./.virtualenv")) {
-    if(dir.exists(dirpath) && is_virtualenv(dirpath)) {
+    if (dir.exists(dirpath) && is_virtualenv(dirpath)) {
       python <- virtualenv_python(dirpath)
-      config <- python_config(python, required_module,
-                              forced = sprintf("'%s' existing in the current working directory"))
+      config <- python_config(
+        python, required_module,
+        forced = sprintf("'%s' existing in the current working directory", dirpath))
       return(config)
     }
   }
@@ -253,7 +254,7 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
   # look for any environment names supplied in a call like:
   #  import("bar", delayed = list(environment = "r-barlyr"))
   for (envname in c(use_environment, .globals$delay_load_imports$environment)) {
-    if(is.na(envname))
+    if (is.na(envname))
       next
     python <- tryCatch(py_resolve(envname), error = identity)
     if (!inherits(python, "error"))
@@ -266,9 +267,9 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
   # check for `use_python(required = FALSE)`. This should rarely be triggered
   # any more by users, since the default value for `required` changed from FALSE to TRUE.
   # excepting if the use_*() call is within a `.onLoad()` call of a package.
-  # last call of use_*(,required = FALSE) wins
+  # first call of use_*(,required = FALSE) wins
   optional_requested_use_pythons <- reticulate_python_versions()
-  for (python in rev(optional_requested_use_pythons)) {
+  for (python in optional_requested_use_pythons) {
     config <- python_config(python, required_module,
                             forced = "use_python(, required = FALSE)")
     return(config)
@@ -286,7 +287,6 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
       ))
   }
 
-
   # if RETICULATE_PYTHON_FALLBACK is specified then use it
   reticulate_env <- Sys.getenv("RETICULATE_PYTHON_FALLBACK", unset = NA)
   if (!is.na(reticulate_env)) {
@@ -299,7 +299,6 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
   }
 
 
-
   ## At this point, the user, (and package authors on behalf of the user), has
   ## expressed no preference for any particular python installation, or the
   ## preference expressed is for the python environment that don't exist.
@@ -309,8 +308,8 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
   ##  - no RETICULATE_PYTHON, RETICULATE_PYTHON_ENV, or RETICULATE_PYTHON_FALLBACK env vars
   ##  - no env named 'r-bar' if there was a call like `import('foo', delay_load = list(environment = "r-bar"))`
   ##  - no env named 'r-foo' if there was a call like `import('foo')`
-  ##  - we're not running under an already activated venv
-  ##  - no configured poetry or pipfile in the current working directory
+  ##  - we're not running under an already activated venv (i.e., no VIRTUAL_ENV env var)
+  ##  - no configured poetry or pipfile or venv in the current working directory
 
   # Look for a "r-reticulate" venv. if found, use that.
   # This is the default in the absence of any expressed preference by the user.
@@ -340,7 +339,7 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
     Sys.which("python")
   ))
 
-  if(is_windows())
+  if (is_windows())
     append(python_versions) <- local({
       df <- py_versions_windows()
       df$executable_path[df$type == "PythonCore"]
@@ -442,7 +441,7 @@ create_default_virtualenv <- function(package = "reticulate", ...) {
 
   # If the environment already exists, use it
   envname <- paste0("r-", package)
-  if(virtualenv_exists(envname))
+  if (virtualenv_exists(envname))
     return(virtualenv_python(envname))
 
   permission <- tolower(Sys.getenv("RETICULATE_AUTOCREATE_PACKAGE_VENV", ""))
@@ -451,11 +450,11 @@ create_default_virtualenv <- function(package = "reticulate", ...) {
     return(NULL)
 
   if (permission == "") {
-    if(is_interactive()) {
+    if (is_interactive()) {
       permission <- utils::askYesNo(sprintf(
         "Would you like to create a default python environment for the %s package?",
         package))
-      if(!isTRUE(permission))
+      if (!isTRUE(permission))
         return(NULL)
       permission <- "true"
     }

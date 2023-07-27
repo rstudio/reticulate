@@ -3141,7 +3141,7 @@ RObject pandas_nullable_collect_values (PyObject* series) {
   }
 
   Vector<RTYPE> output(size, Rcpp::traits::get_na<RTYPE>());
-  for(auto i=0; i<size; i++) {
+  for(size_t i=0; i<size; i++) {
     PyObjectPtr item(PyIter_Next(iter));
 
     if (item.is_null()) {

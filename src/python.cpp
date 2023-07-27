@@ -3125,8 +3125,62 @@ SEXP py_eval_impl(const std::string& code, bool convert = true) {
 }
 
 template <int RTYPE>
-void pandas_apply_na_mask(Vector<RTYPE> x, const LogicalVector& mask) {
-  x[mask] = Rcpp::traits::get_na<RTYPE>();
+RObject pandas_nullable_collect_values (PyObject* series) {
+  size_t size;
+  {
+    PyObjectPtr _size(PyObject_GetAttrString(series, "size"));
+    if (_size.is_null()) {
+      throw PythonException(py_fetch_error());
+    }
+    size = PyLong_AsLong(_size);
+  }
+
+  PyObjectPtr iter(PyObject_GetIter(series));
+  if (iter.is_null()) {
+    throw PythonException(py_fetch_error());
+  }
+
+  Vector<RTYPE> output(size, Rcpp::traits::get_na<RTYPE>());
+  for(auto i=0; i<size; i++) {
+    PyObjectPtr item(PyIter_Next(iter));
+
+    if (item.is_null()) {
+      throw PythonException(py_fetch_error());
+    }
+
+    if (!is_pandas_na(item)) {
+      output[i] = Rcpp::as<Vector<RTYPE>>(py_to_r(item, true))[0];
+    }
+  }
+
+  return output;
+}
+
+#define NULLABLE_INTEGERS                                      \
+"Int8",                                                        \
+"Int16",                                                       \
+"Int32",                                                       \
+"Int64",                                                       \
+"UInt8",                                                       \
+"UInt16",                                                      \
+"UInt32",                                                      \
+"UInt64"
+
+
+auto nullable_typename_to_sexptype (const std::string& name) {
+  const static std::set<std::string> nullable_integers({NULLABLE_INTEGERS});
+
+  if (nullable_integers.find(name) != nullable_integers.end()) {
+    return INTSXP;
+  } else if (name == "Float32" || name == "Float64") {
+    return REALSXP;
+  } else if (name == "string") {
+    return STRSXP;
+  } else if (name == "boolean") {
+    return LGLSXP;
+  }
+
+  Rcpp::stop("Can't cast column with type name: " + name);
 }
 
 // [[Rcpp::export]]
@@ -3135,18 +3189,13 @@ SEXP py_convert_pandas_series(PyObjectRef series) {
   // extract dtype
   PyObjectPtr dtype(PyObject_GetAttrString(series, "dtype"));
   const auto name = as_std_string(PyObjectPtr(PyObject_GetAttrString(dtype, "name")));
+
   const static std::set<std::string> nullable_dtypes({
-    "Int8",
-    "Int16",
-    "Int32",
-    "Int64",
-    "UInt8",
-    "UInt16",
-    "UInt32",
-    "UInt64",
+    NULLABLE_INTEGERS,
     "boolean",
     "Float32",
-    "Float64"
+    "Float64",
+    "string"
   });
 
   RObject R_obj;
@@ -3245,39 +3294,20 @@ SEXP py_convert_pandas_series(PyObjectRef series) {
 
 
   // Data types starting with Capitalized case are used as the nullable datatypes in
-  // Pandas, thus most of them might contain a `pd.NA`, that we will represent
-  // as NA's in R.
+  // Pandas. They use pd.NA to represent missing values and we preserve them in the R
+  // arrays.
   } else if (nullable_dtypes.find(name) != nullable_dtypes.end()) {
 
-    // pandas arrays all inherit from a BaseMaskedArray containing the attributes
-    // _data and _mask numpy arrays. That we can use to replace values by NA.
-    PyObjectPtr pandas_array(PyObject_GetAttrString(series, "values"));
-
-    if (pandas_array.is_null()) {
-      throw PythonException(py_fetch_error());
-    }
-
-    PyObjectPtr _data(PyObject_GetAttrString(pandas_array, "_data"));
-    if (_data.is_null()) {
-      throw PythonException(py_fetch_error());
-    }
-
-    PyObjectPtr _mask(PyObject_GetAttrString(pandas_array, "_mask"));
-    if (_mask.is_null()) {
-      throw PythonException(py_fetch_error());
-    }
-
-    // we cast both data and mask into R objects.
-    SEXP r_data(py_to_r(_data, true));
-    LogicalVector r_mask(py_to_r(_mask, true));
-
-    switch (TYPEOF(r_data)) {
-    case INTSXP: pandas_apply_na_mask<INTSXP>(r_data, r_mask);
-    case REALSXP: pandas_apply_na_mask<REALSXP>(r_data, r_mask);
-    case LGLSXP: pandas_apply_na_mask<LGLSXP>(r_data, r_mask);
-    }
-
-    R_obj = r_data;
+    // IIFE pattern
+    R_obj = [&]() {
+      switch (nullable_typename_to_sexptype(name)) {
+      case INTSXP: return pandas_nullable_collect_values<INTSXP>(series);
+      case REALSXP: return pandas_nullable_collect_values<REALSXP>(series);
+      case LGLSXP: return pandas_nullable_collect_values<LGLSXP>(series);
+      case STRSXP: return pandas_nullable_collect_values<STRSXP>(series);
+      }
+      Rcpp::stop("Unsupported data type name: " + name);
+    }();
 
   // default case
   } else {

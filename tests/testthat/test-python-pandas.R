@@ -231,7 +231,8 @@ test_that("can cast from pandas nullable types", {
     list(name = "UInt16", type = pd$UInt16Dtype(), data = list(NULL, 1L, 2L)),
     list(name = "UInt32", type = pd$UInt32Dtype(), data = list(NULL, 1L, 2L)),
     list(name = "UInt64", type = pd$UInt64Dtype(), data = list(NULL, 1L, 2L)),
-    list(name = "boolean", type = pd$BooleanDtype(), data = list(NULL, TRUE, FALSE))
+    list(name = "boolean", type = pd$BooleanDtype(), data = list(NULL, TRUE, FALSE)),
+    list(name = "string", type = pd$StringDtype(), data = list(NULL, "a", "b"))
   )
 
   # Float32 was added sometime after v1.1.5

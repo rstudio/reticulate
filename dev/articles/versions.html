@@ -159,8 +159,8 @@ binary.</p></li>
 </ol>
 <table class="table">
 <colgroup>
-<col width="27%">
-<col width="72%">
+<col width="26%">
+<col width="73%">
 </colgroup>
 <thead><tr class="header">
 <th>Function</th>
@@ -221,6 +221,10 @@ name of a virtual environment or conda environment)</p></li>
 <li><p>If specified, the location referenced by calls to
 <code><a href="../reference/use_python.html">use_python()</a></code>, <code><a href="../reference/use_python.html">use_virtualenv()</a></code>, and
 <code><a href="../reference/use_python.html">use_condaenv()</a></code> with <code>required = TRUE</code>.</p></li>
+<li><p>If the environment variable <code>VIRTUAL_ENV</code> is defined
+(typically from running an <code>activate</code> script before R
+started), then the Python from the activated environment is
+used.</p></li>
 <li><p>If the current working directory contains a pyproject.toml file
 from a poetry environment, the Python installation from the poetry
 environment is used.</p></li>
@@ -243,10 +247,6 @@ exists, it is used.</p></li>
 <li><p>If there was a call to <code>import("bar")</code>, and there
 exists a virtual environment or conda environment named
 <code>"r-bar"</code>, it is used.</p></li>
-<li><p>If the environment variable <code>VIRTUAL_ENV</code> is defined
-(typically from running an <code>activate</code> script before R
-started), then the Python from the activated environment is
-used.</p></li>
 <li><p>If specified, the location referenced by the
 <code>RETICULATE_PYTHON_FALLBACK</code> environment variable. (Path to a
 python binary)</p></li>

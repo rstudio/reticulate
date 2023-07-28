@@ -64,11 +64,8 @@ install_tensorflow <- function(..., envname = "r-tensorflow") {
 }
 
 
-tf <- NULL
 .onLoad <- function(...) {
-  tf <<- reticulate::import("tensorflow", delay_load = list(
-    environment = "r-tensorflow"
-  ))
+  use_virtualenv("r-tensorflow", required = FALSE)
 }
 ```
 

@@ -231,6 +231,6 @@ test_that("NA in string columns don't prevent simplification", {
   r <- py_to_r(x)
 
   expect_equal(typeof(r), "character")
-  expect_equal(is.na(r), c(FALSE< TRUE, TRUE, TRUE))
+  expect_equal(is.na(r), c(FALSE, TRUE, TRUE, TRUE))
 
 })

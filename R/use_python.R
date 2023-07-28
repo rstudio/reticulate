@@ -197,7 +197,14 @@ use_condaenv <- function(condaenv = NULL, conda = "auto", required = NULL) {
   #
   # TODO: what if there are multiple conda installations? users could still
   # use 'use_python()' explicitly to target a specific install
-  conda <- conda_binary(conda)
+  conda <- tryCatch(conda_binary(conda), error = identity)
+  if (inherits(conda, "error")) {
+    if (required)
+      stop(conda)
+    else
+      return(invisible(NULL))
+  }
+
   if (identical(condaenv, "base")) {
     bin <- dirname(conda)
     suffix <- if (is_windows()) "../python.exe" else "python"

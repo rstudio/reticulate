@@ -62,9 +62,9 @@
 #'
 #' @param required
 #'   Is the requested copy of Python required? If `TRUE`, an error will be
-#'   emitted if the requested copy of Python does not exist. Otherwise, the
+#'   emitted if the requested copy of Python does not exist. If `FALSE`, the
 #'   request is taken as a hint only, and scanning for other versions will still
-#'   proceed.
+#'   proceed. A value of `NULL` (the default), is equivalent to `TRUE`.
 #'
 #' @importFrom utils file_test
 #'

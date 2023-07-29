@@ -22,9 +22,9 @@ use_miniconda(condaenv = NULL, required = NULL)
 \item{python}{The path to a Python binary.}
 
 \item{required}{Is the requested copy of Python required? If \code{TRUE}, an error will be
-emitted if the requested copy of Python does not exist. Otherwise, the
+emitted if the requested copy of Python does not exist. If \code{FALSE}, the
 request is taken as a hint only, and scanning for other versions will still
-proceed.}
+proceed. A value of \code{NULL} (the default), is equivalent to \code{TRUE}.}
 
 \item{version}{The version of Python to use. \code{reticulate} will search for versions of
 Python as installed by the \code{\link[=install_python]{install_python()}} helper function.}

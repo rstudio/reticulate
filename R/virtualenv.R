@@ -500,7 +500,9 @@ virtualenv_starter <- function(version = NULL, all = FALSE) {
     p <- p[grep("^python[0-9.]*(\\.exe)?$", basename(p))]
     v <- numeric_version(vapply(p, function(python_path)
       tryCatch({
-        v <- system2(python_path, "-EV", stdout = TRUE)
+        v <- suppressWarnings(system2(
+          python_path, "-EV",
+          stdout = TRUE, stderr = TRUE))
         # v should be something like "Python 3.10.6"
         if ((attr(v, "status") %||% 0) ||
             length(v) != 1L ||

@@ -258,8 +258,16 @@ pyenv_update <- function(pyenv = pyenv_find()) {
     withr::with_dir(root, system2("git", "pull", stdout = FALSE, stderr = FALSE))
   }
 
-  if (is_windows())
-    return(system2t(pyenv, "update"))
+  if (is_windows()) {
+   # `pyenv update` is very slow on windows, we need to throttle it.
+   # only update it once every 30 days
+    cache_file <- file.path(dirname(dirname(pyenv)), ".versions_cache.xml")
+
+    if (!file.exists(cache_file) ||
+        (Sys.Date() - as.Date(file.mtime(cache_file)) > 30))
+      system2t(pyenv, "update")
+    return()
+  }
 
   # $ git clone https://github.com/pyenv/pyenv-update.git $(pyenv root)/plugins/pyenv-update
   # root == ~/.pyenv == where installed pythons live

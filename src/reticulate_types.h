@@ -9,11 +9,7 @@ using namespace reticulate::libpython;
 #define RCPP_NO_SUGAR
 #include <Rcpp.h>
 
-inline void python_object_finalize(SEXP object) {
-  PyObject* pyObject = (PyObject*)R_ExternalPtrAddr(object);
-  if (pyObject != NULL)
-    Py_DecRef(pyObject);
-}
+inline void python_object_finalize(SEXP object);
 
 class PyObjectRef : public Rcpp::Environment {
 
@@ -103,6 +99,13 @@ class GILScope {
   }
 };
 
+inline void python_object_finalize(SEXP object) {
+  GILScope gilscope;
+  PyObject* pyObject = (PyObject*)R_ExternalPtrAddr(object);
+  if (pyObject != NULL)
+    Py_DecRef(pyObject);
+}
+
 // define a PythonException struct that we can use to throw an
 // exception from C++ code. The class contains an SEXP with an R condition
 // object that can be used to generate an R error condition.
@@ -110,7 +113,6 @@ struct PythonException {
   SEXP condition;
   PythonException(SEXP condition_) : condition(condition_) {}
 };
-
 
 
 // This custom BEGIN_RCPP is effectively identical to upstream

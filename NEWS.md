@@ -72,6 +72,9 @@
 - Fixed an issue where a py capsule finalizer could access the R API from
   a background thread. (#1406)
 
+- Fixed issue where R would crash in long-lived R sessions where both
+  rpy2 and reticulate were in use (#1236).
+
 # reticulate 1.30
 
 - Fix compilation error on R 3.5. Bump minimum R version dependency to 3.5.

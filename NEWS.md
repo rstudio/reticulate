@@ -75,6 +75,12 @@
 - Fixed issue where R would crash in long-lived R sessions where both
   rpy2 and reticulate were in use (#1236).
 
+- String columns from Pandas data frames containing `None`, `pd.NA` or `np.nan` are
+  now simplified into character vectors and missing values replaced by `NA` (#1428).
+
+- Converting from Pandas data frames containing columns with Pandas nullable data
+  types are now correctly converted into R data.frames preserving the missing values (#1427).
+
 # reticulate 1.30
 
 - Fix compilation error on R 3.5. Bump minimum R version dependency to 3.5.

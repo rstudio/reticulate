@@ -587,9 +587,9 @@ virtualenv_starter <- function(version = NULL, all = FALSE) {
   if (is_linux())
     find_starters("/usr/bin/python*")
 
-  # on mac, use homebrew as a fallback, if found
-  if (is_macos())
-    find_starters("/opt/homebrew/opt/python*/bin/python*")
+  # on macOS, intentionally don't discover homebrew python
+  # https://justinmayer.com/posts/homebrew-python-is-not-for-you/
+  # if (is_macos()) find_starters("/opt/homebrew/opt/python*/bin/python*")
 
   # on Github Action Runners, find Pythons installed in the tool cache
   if(!is.na(tool_cache_dir <- Sys.getenv("RUNNER_TOOL_CACHE", NA)))

@@ -226,7 +226,9 @@ virtualenv_install <- function(envname = NULL,
   # create virtual environment on demand
   path <- virtualenv_path(envname)
   if (!file.exists(path))
-    path <- virtualenv_create(envname, version = python_version)
+    path <- virtualenv_create(envname, version = python_version,
+                              packages = NULL)
+  # packages=NULL: install only pip, setuptools, wheel, not numpy
 
   # validate that we've received the path to a virtual environment
   name <- if (is.null(envname)) path else envname

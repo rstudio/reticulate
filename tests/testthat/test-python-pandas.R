@@ -220,6 +220,45 @@ df = pd.DataFrame({"FCT": pd.Categorical(["No", "Yes"]),
 
 })
 
+test_that("can cast from pandas nullable types", {
+  pd <- import("pandas", convert = FALSE)
+  data <- list(
+    list(name = "Int8", type = pd$Int8Dtype(), data = list(NULL, 1L, 2L)),
+    list(name = "Int16", type = pd$Int16Dtype(), data = list(NULL, 1L, 2L)),
+    list(name = "Int32", type = pd$Int32Dtype(), data = list(NULL, 1L, 2L)),
+    list(name = "Int64", type = pd$Int64Dtype(), data = list(NULL, 1L, 2L)),
+    list(name = "UInt8", type = pd$UInt8Dtype(), data = list(NULL, 1L, 2L)),
+    list(name = "UInt16", type = pd$UInt16Dtype(), data = list(NULL, 1L, 2L)),
+    list(name = "UInt32", type = pd$UInt32Dtype(), data = list(NULL, 1L, 2L)),
+    list(name = "UInt64", type = pd$UInt64Dtype(), data = list(NULL, 1L, 2L)),
+    list(name = "boolean", type = pd$BooleanDtype(), data = list(NULL, TRUE, FALSE)),
+    list(name = "string", type = pd$StringDtype(), data = list(NULL, "a", "b"))
+  )
+
+  # Float32 was added sometime after v1.1.5
+  if (reticulate::py_has_attr(pd, "Float32Dtype")) {
+    data <- append(
+      data,
+      list(
+        list(name = "Float32", type = pd$Float32Dtype(), data = list(NULL, 0.5, 0.3)),
+        list(name = "Float64", type = pd$Float64Dtype(), data = list(NULL, 0.5, 0.3))
+      )
+    )
+  }
+
+  for (el in data) {
+    p_df <- pd$DataFrame(list("x" = pd$Series(el$data, dtype = el$type)))
+    expect_equal(py_to_r(p_df$x$dtype$name), el$name)
+    r_df <- py_to_r(p_df)
+
+    expect_equal(
+      r_df$x,
+      unlist(lapply(el$data, function(x) if (is.null(x)) NA else x))
+    )
+  }
+
+})
+
 test_that("NA in string columns don't prevent simplification", {
 
   pd <- import("pandas", convert = FALSE)

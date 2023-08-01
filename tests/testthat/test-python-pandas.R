@@ -258,3 +258,18 @@ test_that("can cast from pandas nullable types", {
   }
 
 })
+
+test_that("NA in string columns don't prevent simplification", {
+
+  pd <- import("pandas", convert = FALSE)
+  np <- import("numpy", convert = FALSE)
+
+  x <- pd$Series(list("a", pd$`NA`, NULL, np$nan))
+  expect_equal(py_to_r(x$dtype$name), "object")
+
+  r <- py_to_r(x)
+
+  expect_equal(typeof(r), "character")
+  expect_equal(as.logical(is.na(r)), c(FALSE, TRUE, TRUE, TRUE))
+
+})

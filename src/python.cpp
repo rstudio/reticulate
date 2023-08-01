@@ -866,13 +866,6 @@ int scalar_list_type(PyObject* x) {
   return scalarType;
 }
 
-void set_string_element(SEXP rArray, int i, PyObject* pyStr) {
-  std::string str = as_std_string(pyStr);
-  cetype_t ce = PyUnicode_Check(pyStr) ? CE_UTF8 : CE_NATIVE;
-  SEXP strSEXP = Rf_mkCharCE(str.c_str(), ce);
-  SET_STRING_ELT(rArray, i, strSEXP);
-}
-
 bool py_equal(PyObject* x, const std::string& str) {
 
   PyObjectPtr pyStr(as_python_str(str));
@@ -905,10 +898,33 @@ bool is_pandas_na(PyObject* x) {
 
   // check for expected names
   return py_equal(pyName, "NAType") ||
-         py_equal(pyName, "C_NAType");
+    py_equal(pyName, "C_NAType");
 
 }
 
+PyObject* numpy () {
+  const static PyObjectPtr numpy(PyImport_ImportModule("numpy"));
+  if (numpy.is_null()) {
+    throw PythonException(py_fetch_error());
+  }
+  return numpy;
+}
+
+bool is_pandas_na_like(PyObject* x) {
+  const static PyObjectPtr np_nan(PyObject_GetAttrString(numpy(), "nan"));
+  return is_pandas_na(x) || (x == Py_None) || (x == (PyObject*)np_nan);
+}
+
+void set_string_element(SEXP rArray, int i, PyObject* pyStr) {
+  if (is_pandas_na_like(pyStr)) {
+    SET_STRING_ELT(rArray, i, NA_STRING);
+    return;
+  }
+  std::string str = as_std_string(pyStr);
+  cetype_t ce = PyUnicode_Check(pyStr) ? CE_UTF8 : CE_NATIVE;
+  SEXP strSEXP = Rf_mkCharCE(str.c_str(), ce);
+  SET_STRING_ELT(rArray, i, strSEXP);
+}
 
 bool py_is_callable(PyObject* x) {
   return PyCallable_Check(x) == 1 || PyObject_HasAttrString(x, "__call__");
@@ -931,25 +947,10 @@ bool py_is_callable(PyObjectRef x) {
 // caches np.nditer function so we don't need to obtain it everytime we want to
 // cast numpy string arrays into R objects.
 PyObject* get_np_nditer () {
-
-  static PyObject* np_nditer;
-
-  if (np_nditer) {
-    return np_nditer;
-  }
-
-  requireNumPy();
-
-  PyObjectPtr numpy(PyImport_ImportModule("numpy"));
-  if (numpy.is_null()) {
+  const static PyObjectPtr np_nditer(PyObject_GetAttrString(numpy(), "nditer"));
+  if (np_nditer.is_null()) {
     throw PythonException(py_fetch_error());
   }
-
-  np_nditer = PyObject_GetAttrString(numpy, "nditer");
-  if (np_nditer == NULL) {
-    throw PythonException(py_fetch_error());
-  }
-
   return np_nditer;
 }
 
@@ -1187,7 +1188,8 @@ SEXP py_to_r(PyObject* x, bool convert) {
         // check for all strings
         bool allStrings = true;
         for (npy_intp i=0; i<len; i++) {
-          if (!is_python_str(pData[i])) {
+          auto el = pData[i];
+          if (!is_python_str(el) && !is_pandas_na_like(el)) {
             allStrings = false;
             break;
           }

@@ -706,9 +706,6 @@ stop_no_virtualenv_starter <- function(version = NULL) {
 
   w("- reticulate::install_python(version = '<version>')")
 
-  if (is_macos() && nzchar(Sys.which("brew")))
-    w('- system("brew install python@<version>")')
-
   stop(paste0(.msg, collapse = "\n"))
 
 }

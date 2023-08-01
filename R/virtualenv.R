@@ -471,6 +471,13 @@ is_virtualenv <- function(dir) {
 #' @export
 virtualenv_starter <- function(version = NULL, all = FALSE) {
 
+  # if `version` is an absolute path to a python binary, reflect it
+  if(!is.null(version) &&
+     is_string(version) &&
+     file.exists(version) &&
+     grepl("^python[0-9.]*(\\.exe)?$", basename(version)))
+    return(version)
+
   starters <- data.frame(version = numeric_version(character()),
                          path = character(),
                          stringsAsFactors = FALSE)

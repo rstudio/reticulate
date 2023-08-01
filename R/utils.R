@@ -516,6 +516,10 @@ isFALSE <- function(x) {
   is.logical(x) && length(x) == 1L && !is.na(x) && !x
 }
 
+is_string <- function(x) {
+  is.character(x) && length(x) == 1L && !is.na(x)
+}
+
 home <- function() {
   path.expand("~")
 }

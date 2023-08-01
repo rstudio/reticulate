@@ -46,7 +46,7 @@ There are a few ways you can provide hints as to which version of Python should 
 2.  By calling one of the these functions:
 
 | Function           | Description                                           |
-|--------------------|----------------------------------------------------|
+|---------------------|---------------------------------------------------|
 | `use_python()`     | Specify the path a specific Python binary.            |
 | `use_virtualenv()` | Specify the name of (or path to) a Python virtualenv. |
 | `use_condaenv()`   | Specify the name of a Conda environment.              |
@@ -78,21 +78,21 @@ The order in which Python installation will be discovered and used is as follows
 
 2.  If specified, the location referenced by the `RETICULATE_PYTHON_ENV` environment variable. (Path to or name of a virtual environment or conda environment)
 
-3.  If specified, the location referenced by calls to `use_python()`, `use_virtualenv()`, and `use_condaenv()` with `required = TRUE`.
+3.  If specified, the location referenced by calls to `use_python()`, `use_virtualenv()`, and `use_condaenv()` with `required = TRUE` (the default).
 
-4.  If the current working directory contains a pyproject.toml file from a poetry environment, the Python installation from the poetry environment is used.
+4.  If the environment variable `VIRTUAL_ENV` is defined (typically from running an `activate` script before R started, or from having the "Automatically activate project-local Python environments" option enabled in the RStudio IDE), then the Python from the activated environment is used.
 
-5.  If the current working directory contains a Pipfile associated with a pipenv, the Python installation from pipenv is used.
+5.  If the current working directory contains a pyproject.toml file from a poetry environment, the Python installation from the poetry environment is used.
 
-6.  If the current working directory contains a directory named "venv", "virtualenv", ".venv", or ".virtualenv", and that directory is a Python virtual environment, the Python from the virtual environment is used.
+6.  If the current working directory contains a Pipfile associated with a pipenv, the Python installation from pipenv is used.
 
-7.  If there was a call (typically from within a package using reticulate), of the form: `import("bar", delay_load = list(environment = "r-barlyr")`, and there exists a virtual environment or conda environment named `"r-barlyr"`, it is used.
+7.  If the current working directory contains a directory named "venv", "virtualenv", ".venv", or ".virtualenv", and that directory is a Python virtual environment, the Python from the virtual environment is used.
 
-8.  If any call to `use_python()`, `use_virtualenv()`, or `use_condaenv()` was made with `required = FALSE`, or from within a packages `.onLoad()` function, and the referenced python installation exists, it is used.
+8.  If there was a call (typically from within a package using reticulate), of the form: `import("bar", delay_load = list(environment = "r-barlyr")`, and there exists a virtual environment or conda environment named `"r-barlyr"`, it is used.
 
-9.  If there was a call to `import("bar")`, and there exists a virtual environment or conda environment named `"r-bar"`, it is used.
+9.  If any call to `use_python()`, `use_virtualenv()`, or `use_condaenv()` was made with `required = FALSE`, or from within a packages `.onLoad()` function, and the referenced python installation exists, it is used.
 
-10. If the environment variable `VIRTUAL_ENV` is defined (typically from running an `activate` script before R started), then the Python from the activated environment is used.
+10. If there was a call to `import("bar")`, and there exists a virtual environment or conda environment named `"r-bar"`, it is used.
 
 11. If specified, the location referenced by the `RETICULATE_PYTHON_FALLBACK` environment variable. (Path to a python binary)
 

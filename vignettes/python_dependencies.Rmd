@@ -64,12 +64,9 @@ install_tensorflow <- function(..., envname = "r-tensorflow") {
 }
 
 
-tf <- NULL
 .onLoad <- function(...) {
-  tf <<- reticulate::import("tensorflow", delay_load = list(
-    environment = "r-tensorflow"
-  ))
-}a
+  use_virtualenv("r-tensorflow", required = FALSE)
+}
 ```
 
 The R package:
@@ -88,7 +85,7 @@ use the `r-tensorflow` environment, and for everything to "just-work".
 The risk of disrupting another Python environment, or of this one being
 disrupting, is minimal, since the environment is designated for the R
 package. At the same time, if the environment is disrupted at some time
-later (perhaps because something with conflicting python dependencies
+later (perhaps because something with conflicting Python dependencies
 was manually installed), the user can easily revert to a working state
 by calling `install_tensorflow()`.
 
@@ -103,20 +100,23 @@ slightly more active role in managing their python environments.
 However, this can be as simple as supplying a unique environment name.
 
 The most straightforward approach is for users to create a dedicated
-python environment for a specific project. For example, a user can can
-do something like:
+python environment for a specific project. For example, a user can
+create a virtual environment in the project directory, like this:
 
 ``` r
-envname <- "~/my/project/venv"
+envname <- "./venv"
 tensorflow::install_tensorflow(envname = envname)
-sparklyr::install_sparklyr(envname = envname)
-use_virtualenv(envname)
+pysparklyr::install_pyspark(envname = envname)
 ```
 
-The user could then place a .Renviron or .Rprofile file in the project
-directory, ensuring that reticulate will use always use the python
-configured for that project. For example, an .Renviron file in the
-project directory could contain:
+As described in the [Order of Python
+Discovery](versions.html) guide, reticulate will
+automatically discover and use a Python virtual environment in the
+current working directory like this. Alternatively, if the environment
+exists outside the project directory, the user could then place a
+.Renviron or .Rprofile file in the project directory, ensuring that
+reticulate will use always use the python configured for that project.
+For example, an .Renviron file in the project directory could contain:
 
 ```         
 RETICULATE_PYTHON_ENV=~/my/project/venv
@@ -148,7 +148,7 @@ default environment. For example, installing spark into the default
 
 ``` r
 tensorflow::install_tensorflow() # creates an "r-tensorflow" env
-sparklyr::install_spark(envname = "r-tensorflow")
+pysparklyr::install_pyspark(envname = "r-tensorflow")
 ```
 
 This approach---exporting a installation helper function that defaults

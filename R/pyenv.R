@@ -106,6 +106,8 @@ pyenv_list <- function(pyenv = NULL, installed = FALSE) {
 
 pyenv_find <- function(install = TRUE) {
   pyenv <- pyenv_find_impl(install = install)
+  if (isFALSE(install) && is.null(pyenv))
+    return(NULL)
   canonical_path(pyenv)
 }
 
@@ -140,17 +142,14 @@ pyenv_find_impl <- function(install = TRUE) {
   if(install)
     pyenv_bootstrap()
   else
-    ""
+    NULL
 
 }
 
 pyenv_install <- function(version, force, pyenv = NULL) {
 
-  pyenv <- normalizePath(
-    pyenv %||% pyenv_find(),
-    winslash = "/",
-    mustWork = TRUE
-  )
+  pyenv <- canonical_path(pyenv %||% pyenv_find())
+  stopifnot(file.exists(pyenv))
 
   # set options
   withr::local_envvar(PYTHON_CONFIGURE_OPTS = "--enable-shared")
@@ -256,11 +255,19 @@ pyenv_update <- function(pyenv = pyenv_find()) {
   if (startsWith(pyenv, root <- pyenv_root())) {
     # this pyenv installation is fully managed by reticulate
     # root == where .../bin/pyenv lives
-    withr::with_dir(root, system2("git", "pull"))
+    withr::with_dir(root, system2("git", "pull", stdout = FALSE, stderr = FALSE))
   }
 
-  if (is_windows())
-    return(system2t(pyenv, "update"))
+  if (is_windows()) {
+   # `pyenv update` is very slow on windows, we need to throttle it.
+   # only update it once every 30 days
+    cache_file <- file.path(dirname(dirname(pyenv)), ".versions_cache.xml")
+
+    if (!file.exists(cache_file) ||
+        (Sys.Date() - as.Date(file.mtime(cache_file)) > 30))
+      system2t(pyenv, "update")
+    return()
+  }
 
   # $ git clone https://github.com/pyenv/pyenv-update.git $(pyenv root)/plugins/pyenv-update
   # root == ~/.pyenv == where installed pythons live
@@ -269,10 +276,10 @@ pyenv_update <- function(pyenv = pyenv_find()) {
     system2("git", c("clone", "https://github.com/pyenv/pyenv-update.git",
                       file.path(root, "plugins/pyenv-update")))
 
-  result <- system2t(pyenv, "update", stdout = TRUE, stderr = TRUE)
-  if (result != 0L) {
-    fmt <- "Error creating conda environment [exit code %i]"
-    stopf(fmt, result)
+  result <- system2t(pyenv, "update", stdout = FALSE, stderr = FALSE)
+  if (!identical(result, 0L)) {
+    fmt <- "Error updating pyenv [exit code %i]"
+    warningf(fmt, result)
   }
 
 }

@@ -391,8 +391,12 @@ canonical_path <- function(path) {
   # on windows we normalize the whole path to avoid
   # short path components leaking in
   if (is_windows()) {
+    # on windows, normalizePath("") returns "C:/"
+    if(isFALSE(nzchar(path))) return("")
     normalizePath(path, winslash = "/", mustWork = FALSE)
   } else {
+    # on linux/mac, we protect against `normalizePath()` resolving
+    # python binaries that are symbolic links, as encountered in python venvs.
     file.path(
       normalizePath(dirname(path), winslash = "/", mustWork = FALSE),
       basename(path)

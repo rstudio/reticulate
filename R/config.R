@@ -156,7 +156,8 @@ py_module_available <- function(module) {
 #' @export
 py_discover_config <- function(required_module = NULL, use_environment = NULL) {
 
-  required_module <- required_module %||% .globals$delay_load_module
+  if (is.null(required_module) && length(.globals$delay_load_imports$module))
+    required_module <- .globals$delay_load_imports$module[[1L]]
   if (!is.null(required_module))
     required_module <- strsplit(required_module, ".", fixed = TRUE)[[1L]][[1L]]
 
@@ -218,6 +219,15 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
     return(config)
   }
 
+  # check if we're running in an activated venv
+  if (is_virtualenv(envpath <- Sys.getenv("VIRTUAL_ENV", NA))) {
+    # If this check ends up being too strict, we can alternatively do:
+    # if (python_info(Sys.which("python"))$type == "virtualenv") {
+    config <- python_config(virtualenv_python(envpath), required_module,
+                            forced = "VIRTUAL_ENV")
+    return(config)
+  }
+
   # if we're working within a project that contains a pyproject.toml file,
   # then use the copy of Python associated with the poetry environment
   config <- tryCatch(poetry_config(required_module), error = identity)
@@ -232,19 +242,21 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
 
   # if the current directory contains a venv, use it:
   for (dirpath in c("./venv", "./virtualenv", "./.venv", "./.virtualenv")) {
-    if(dir.exists(dirpath) && is_virtualenv(dirpath)) {
+    if (dir.exists(dirpath) && is_virtualenv(dirpath)) {
       python <- virtualenv_python(dirpath)
-      config <- python_config(python, required_module,
-                              forced = sprintf("'%s' existing in the current working directory"))
+      config <- python_config(
+        python, required_module,
+        forced = sprintf("'%s' existing in the current working directory", dirpath))
       return(config)
     }
   }
 
   # look for any environment names supplied in a call like:
   #  import("bar", delayed = list(environment = "r-barlyr"))
-  use_environment <- use_environment %||% .globals$delay_load_environment
-  if(!is.null(use_environment)) {
-    python <- tryCatch(py_resolve(use_environment), error = identity)
+  for (envname in c(use_environment, .globals$delay_load_imports$environment)) {
+    if (is.na(envname))
+      next
+    python <- tryCatch(py_resolve(envname), error = identity)
     if (!inherits(python, "error"))
       return(python_config(
         python, required_module,
@@ -255,9 +267,9 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
   # check for `use_python(required = FALSE)`. This should rarely be triggered
   # any more by users, since the default value for `required` changed from FALSE to TRUE.
   # excepting if the use_*() call is within a `.onLoad()` call of a package.
-  # last call of use_*(,required = FALSE) wins
+  # first call of use_*(,required = FALSE) wins
   optional_requested_use_pythons <- reticulate_python_versions()
-  for (python in rev(optional_requested_use_pythons)) {
+  for (python in optional_requested_use_pythons) {
     config <- python_config(python, required_module,
                             forced = "use_python(, required = FALSE)")
     return(config)
@@ -265,23 +277,14 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
 
   # look in virtual environments that have a required module derived name,
   # e.g., given a call to import("bar"), look for an environment named "r-bar"
-  if (!is.null(required_module)) {
-    envname <- paste0("r-", required_module)
+  for (module in c(required_module, .globals$delay_load_imports$module)) {
+    envname <- paste0("r-", module)
     python <- tryCatch(py_resolve(envname), error = identity)
     if (!inherits(python, "error"))
       return(python_config(
         python, required_module,
         forced = sprintf('import("%s")', required_module)
       ))
-  }
-
-  # check if we're running in an activated venv
-  if (is_virtualenv(envpath <- Sys.getenv("VIRTUAL_ENV", NA))) {
-    # If this check ends up being too strict, we can alternatively do:
-    # if (python_info(Sys.which("python"))$type == "virtualenv") {
-    config <- python_config(virtualenv_python(envpath), required_module,
-                            forced = "`. bin/activate` (before R started)")
-    return(config)
   }
 
   # if RETICULATE_PYTHON_FALLBACK is specified then use it
@@ -296,7 +299,6 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
   }
 
 
-
   ## At this point, the user, (and package authors on behalf of the user), has
   ## expressed no preference for any particular python installation, or the
   ## preference expressed is for the python environment that don't exist.
@@ -306,8 +308,8 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
   ##  - no RETICULATE_PYTHON, RETICULATE_PYTHON_ENV, or RETICULATE_PYTHON_FALLBACK env vars
   ##  - no env named 'r-bar' if there was a call like `import('foo', delay_load = list(environment = "r-bar"))`
   ##  - no env named 'r-foo' if there was a call like `import('foo')`
-  ##  - we're not running under an already activated venv
-  ##  - no configured poetry or pipfile in the current working directory
+  ##  - we're not running under an already activated venv (i.e., no VIRTUAL_ENV env var)
+  ##  - no configured poetry or pipfile or venv in the current working directory
 
   # Look for a "r-reticulate" venv. if found, use that.
   # This is the default in the absence of any expressed preference by the user.
@@ -337,7 +339,7 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
     Sys.which("python")
   ))
 
-  if(is_windows())
+  if (is_windows())
     append(python_versions) <- local({
       df <- py_versions_windows()
       df$executable_path[df$type == "PythonCore"]
@@ -439,7 +441,7 @@ create_default_virtualenv <- function(package = "reticulate", ...) {
 
   # If the environment already exists, use it
   envname <- paste0("r-", package)
-  if(virtualenv_exists(envname))
+  if (virtualenv_exists(envname))
     return(virtualenv_python(envname))
 
   permission <- tolower(Sys.getenv("RETICULATE_AUTOCREATE_PACKAGE_VENV", ""))
@@ -448,11 +450,11 @@ create_default_virtualenv <- function(package = "reticulate", ...) {
     return(NULL)
 
   if (permission == "") {
-    if(is_interactive()) {
+    if (is_interactive()) {
       permission <- utils::askYesNo(sprintf(
         "Would you like to create a default python environment for the %s package?",
         package))
-      if(!isTRUE(permission))
+      if (!isTRUE(permission))
         return(NULL)
       permission <- "true"
     }

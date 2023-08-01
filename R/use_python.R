@@ -62,9 +62,9 @@
 #'
 #' @param required
 #'   Is the requested copy of Python required? If `TRUE`, an error will be
-#'   emitted if the requested copy of Python does not exist. Otherwise, the
+#'   emitted if the requested copy of Python does not exist. If `FALSE`, the
 #'   request is taken as a hint only, and scanning for other versions will still
-#'   proceed.
+#'   proceed. A value of `NULL` (the default), is equivalent to `TRUE`.
 #'
 #' @importFrom utils file_test
 #'
@@ -197,7 +197,14 @@ use_condaenv <- function(condaenv = NULL, conda = "auto", required = NULL) {
   #
   # TODO: what if there are multiple conda installations? users could still
   # use 'use_python()' explicitly to target a specific install
-  conda <- conda_binary(conda)
+  conda <- tryCatch(conda_binary(conda), error = identity)
+  if (inherits(conda, "error")) {
+    if (required)
+      stop(conda)
+    else
+      return(invisible(NULL))
+  }
+
   if (identical(condaenv, "base")) {
     bin <- dirname(conda)
     suffix <- if (is_windows()) "../python.exe" else "python"

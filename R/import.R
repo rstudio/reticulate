@@ -88,57 +88,70 @@ import <- function(module, as = NULL, convert = TRUE, delay_load = FALSE) {
     })
   }
 
-  # resolve delay load
-  delay_load_environment <- NULL
-  delay_load_priority <- 0
-  delay_load_functions <- NULL
-  if (is.function(delay_load)) {
-    delay_load_functions <- list(on_load = delay_load)
-    delay_load <- TRUE
-  } else if (is.list(delay_load)) {
-    delay_load_environment <- delay_load$environment
-    delay_load_functions <- delay_load
-    if (!is.null(delay_load$priority))
-      delay_load_priority <- delay_load$priority
-    delay_load <- TRUE
-  }
 
   # normal case (load immediately)
-  if (!delay_load || is_python_initialized()) {
+  if (isFALSE(delay_load) || is_python_initialized()) {
 
     # ensure that python is initialized (pass top level module as
     # a hint as to which version of python to choose)
     ensure_python_initialized(required_module = module)
 
     # import the module
-    py_module_import(module, convert = convert)
+    return(py_module_import(module, convert = convert))
 
   }
+
 
   # delay load case (wait until first access)
-  else {
-    if (is.null(.globals$delay_load_module) || (delay_load_priority > .globals$delay_load_priority)) {
-      .globals$delay_load_module <- module
-      .globals$delay_load_environment <- delay_load_environment # environment name, like "r-keras"
-      .globals$delay_load_priority <- delay_load_priority
-    }
-    module_proxy <- new.env(parent = emptyenv())
-    module_proxy$module <- module
-    module_proxy$convert <- convert
-    if (!is.null(delay_load_functions)) {
+  register_delay_load_import(module, delay_load) ->
+    module_hooks
 
-      # `get_module()` can be a function that at runtime can resolve the name
-      # (length 1 character vector) of the actual module to import e.g., in
-      # keras, we can decide at run time if this should be "tensorflow.keras",
-      # "keras", or "keras_core" based on any env vars or versions installed.
-      module_proxy$get_module <- delay_load_functions$get_module
-      module_proxy$before_load <- delay_load_functions$before_load
-      module_proxy$on_load <- delay_load_functions$on_load
-      module_proxy$on_error <- delay_load_functions$on_error
-    }
-    attr(module_proxy, "class") <- c("python.builtin.module", "python.builtin.object")
-    module_proxy
+  module_proxy <- new.env(parent = emptyenv())
+  module_proxy$module <- module
+  module_proxy$convert <- convert
+  if (!is.null(module_hooks)) {
+    # `get_module()` can be a function that at runtime can resolve the name
+    # (length 1 character vector) of the actual module to import e.g., in
+    # keras, we can decide at run time if this should be "tensorflow.keras",
+    # "keras", or "keras_core" based on any env vars or versions installed.
+    module_proxy$get_module <- module_hooks$get_module
+    module_proxy$before_load <- module_hooks$before_load
+    module_proxy$on_load <- module_hooks$on_load
+    module_proxy$on_error <- module_hooks$on_error
   }
+
+  attr(module_proxy, "class") <- c("python.builtin.module", "python.builtin.object")
+  module_proxy
+}
+
+
+register_delay_load_import <- function(module, delay_load = NULL) {
+  spec <- list(module = module,
+               priority = 0L,
+               environment = NA_character_)
+  hooks <- NULL
+
+  if (is.function(delay_load)) {
+
+    hooks <- list(on_load = delay_load)
+
+  } else if (is.list(delay_load)) {
+
+    spec$priority <- delay_load$priority %||% 0L
+    spec$environment <- delay_load$environment %||% NA_character_
+    hooks <- delay_load
+
+  }
+
+  storage.mode(spec$priority) <- "integer"
+  storage.mode(spec$environment) <- "character"
+
+  df <- .globals$delay_load_imports
+  df <- rbind(df, spec, stringsAsFactors = FALSE)
+  df <- df[order(df$priority, decreasing = TRUE), ]
+  .globals$delay_load_imports <- df
+
+  hooks
 }
 
 

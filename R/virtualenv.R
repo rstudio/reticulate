@@ -470,28 +470,55 @@ is_virtualenv <- function(dir) {
 virtualenv_starter <- function(version = NULL, all = FALSE) {
 
   starters <- data.frame(version = numeric_version(character()),
-                         path = character())
+                         path = character(),
+                         stringsAsFactors = FALSE)
 
   find_starters <- function(glob) {
+    # accept NULL, NA, and "" as a no-op
+    if(is.null(glob) || isTRUE(is.na(glob)) || isFALSE(nzchar(glob)))
+      return(invisible(starters))
+
+    # if not a glob,
+    if (!grepl("*", glob, fixed = TRUE)) {
+    # accept a path to a directory, convert it into globs that
+    # catch two different scenarios:
+    # - flat directory of python installations (presumably of different versions)
+    # - nested directory of python installations (presumably nested by version and arch)
+
+      suffix <- if (is_windows())
+        #e.g, /3.9.4/python.exe, /3.9.4/x64/python.exe
+        c("/*/python*.exe", "/*/*/python*.exe")
+      else {
+        #/3.9.4/bin/python, /3.9.4/x64/bin/python
+        c("/*/bin/python*", "/*/*/bin/python*")
+      }
+      glob <- paste0(normalizePath(glob, winslash = "/", mustWork = FALSE),
+                     suffix)
+    }
+
     p <- unique(normalizePath(Sys.glob(glob), winslash = "/"))
     p <- p[grep("^python[0-9.]*(\\.exe)?$", basename(p))]
     v <- numeric_version(vapply(p, function(python_path)
       tryCatch({
-        v <- system2(python_path, "-EV", stdout = TRUE)
+        v <- suppressWarnings(system2(
+          python_path, "-EV",
+          stdout = TRUE, stderr = TRUE))
+        # v should be something like "Python 3.10.6"
         if ((attr(v, "status") %||% 0) ||
             length(v) != 1L ||
             !startsWith(v, "Python "))
           return(NA_character_)
         substr(v, 8L, 999L)
       }, error = function(e) NA_character_), ""), strict = FALSE)
-    df <- data.frame(version = v, path = p, row.names = NULL)
+    df <- data.frame(version = v, path = p,
+                     row.names = NULL, stringsAsFactors = FALSE)
     df <- df[!is.na(df$version), ]
     df <- df[order(df$version, decreasing = TRUE), ]
 
-    df <- rbind(starters, df)
+    df <- rbind(starters, df, stringsAsFactors = FALSE)
     df <- df[!duplicated(df$path), ]
     if(is_windows()) {
-      # on windows, removed dups of the same python,
+      # on windows, removed dups of the same python in the same directory,
       # like 'python.exe', 'python3.exe' 'python3.11.exe'
       df <- df[!duplicated(dirname(df$path)), ]
     }
@@ -505,8 +532,7 @@ virtualenv_starter <- function(version = NULL, all = FALSE) {
     # Accept user customization, a character vector (or ":" separated string) of
     # file paths to python binaries. Paths can be globs, as they are passed on
     # to Sys.glob()
-    if (custom_loc != "")
-      lapply(unlist(strsplit(custom_loc, "[:;]")), find_starters)
+    lapply(unlist(strsplit(custom_loc, "[:;]")), find_starters)
   }
 
   # Find pythons installed via `install_python()` or by directly using pyenv.
@@ -514,7 +540,7 @@ virtualenv_starter <- function(version = NULL, all = FALSE) {
   #  "C:/Users/<username>/AppData/Local/r-reticulate/r-reticulate/pyenv/pyenv-win/versions/3.9.13/python.exe"
   # but can be different if user set PYENV_ROOT or manually installed pyenv
   # in a different location
-  if (length(pyenv <- pyenv_find(install = FALSE))) {
+  if (!is.null(pyenv <- pyenv_find(install = FALSE))) {
      if (is_windows()) {
        pyenv_root <- dirname(dirname(pyenv))
        find_starters(file.path(pyenv_root, "versions/*/python*.exe"))
@@ -556,9 +582,13 @@ virtualenv_starter <- function(version = NULL, all = FALSE) {
   if (is_macos())
     find_starters("/opt/homebrew/opt/python*/bin/python*")
 
+  # on Github Action Runners, find Pythons installed in the tool cache
+  if(!is.na(tool_cache_dir <- Sys.getenv("RUNNER_TOOL_CACHE", NA)))
+    find_starters(paste0(tool_cache_dir, "/Python"))
+
   # if specific version requested, filter for that.
   if (!is.null(version)) {
-    for(check in as_version_constraint_checkers(version)) {
+    for (check in as_version_constraint_checkers(version)) {
       satisfies_constraint <- check(starters$version)
       starters <- starters[satisfies_constraint, ]
     }
@@ -575,6 +605,9 @@ virtualenv_starter <- function(version = NULL, all = FALSE) {
 }
 
 as_version_constraint_checkers <- function(version) {
+
+  if (inherits(version, "numeric_version"))
+    version <- as.character(version)
   stopifnot(is.character(version))
 
   # given a version string like ">=3.6,!=3.9,<3.11", split on ","
@@ -599,7 +632,7 @@ as_version_constraint_checkers <- function(version) {
       x <- numeric_version(x)
       # if the constraint version is missing minor or patch level, set
       # to 0, so we can match on all, equivalent to pip style syntax like '3.8.*'
-      for(lvl in 3:2)
+      for (lvl in 3:2)
         if (is.na(ver[, lvl])) {
           ver[, lvl] <- 0L
           x[, lvl] <- 0L

@@ -174,12 +174,12 @@ virtualenv_create <- function(
   if (!identical(packages, FALSE)) {
     python <- virtualenv_python(envname)
     # first upgrade pip and friends
-    writef("Installing packages: 'pip', 'wheel', 'setuptools'")
+    writef("Installing packages: pip, wheel, setuptools")
     pip_install(python, c("pip", "wheel", "setuptools"))
     packages <- setdiff(packages, c("pip", "wheel", "setuptools"))
     # install requested packages
     if (length(packages)) {
-      writef("Installing packages: %s", paste(shQuote(packages), collapse = ", "))
+      writef("Installing packages: %s", paste(maybe_shQuote(packages), collapse = ", "))
       pip_install(python, packages)
     }
   }

@@ -37,12 +37,12 @@ pip_install <- function(python,
   if (!is.null(packages)) {
   # quote in case of version constraints like 'Pillow<8.3'
   # but don't double quote if already quoted
-    packages <- shQuote(gsub("[\"']", "", packages))
+    packages <- maybe_shQuote(gsub("[\"']", "", packages))
     args <- c(args, packages)
   }
 
   if (!is.null(requirements)) {
-    args <- c(args, "-r", shQuote(requirements))
+    args <- c(args, "-r", maybe_shQuote(requirements))
   }
 
   # figure out if we should go though conda_run()

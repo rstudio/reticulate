@@ -108,6 +108,8 @@
 <li><p>Fixed an issue where <code>py_get_attr(silent = TRUE)</code> would leave a python global exception set if the attribute was missing, resulting in fatal errors when running python under debug mode. (<a href="https://github.com/rstudio/reticulate/issues/1396" class="external-link">#1396</a>)</p></li>
 <li><p>Fixed an issue where a py capsule finalizer could access the R API from a background thread. (<a href="https://github.com/rstudio/reticulate/issues/1406" class="external-link">#1406</a>)</p></li>
 <li><p>Fixed issue where R would crash in long-lived R sessions where both rpy2 and reticulate were in use (<a href="https://github.com/rstudio/reticulate/issues/1236" class="external-link">#1236</a>).</p></li>
+<li><p>String columns from Pandas data frames containing <code>None</code>, <code>pd.NA</code> or <code>np.nan</code> are now simplified into character vectors and missing values replaced by <code>NA</code> (<a href="https://github.com/rstudio/reticulate/issues/1428" class="external-link">#1428</a>).</p></li>
+<li><p>Converting from Pandas data frames containing columns with Pandas nullable data types are now correctly converted into R data.frames preserving the missing values (<a href="https://github.com/rstudio/reticulate/issues/1427" class="external-link">#1427</a>).</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="1.30" id="reticulate-130">reticulate 1.30<small>2023-06-09</small><a class="anchor" aria-label="anchor" href="#reticulate-130"></a></h2>

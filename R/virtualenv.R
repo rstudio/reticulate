@@ -155,7 +155,7 @@ virtualenv_create <- function(
   args <- c(args, extra)
 
   # add the path where the environment will be created
-  args <- c(args, shQuote(path.expand(path)))
+  args <- c(args, maybe_shQuote(path.expand(path)))
 
   writef("Using Python: %s", python)
   printf("Creating virtual environment %s ... \n", shQuote(name))

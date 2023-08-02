@@ -632,7 +632,7 @@ system2t <- function(command, args, ...) {
 }
 
 maybe_shQuote <- function(x) {
-  needs_quote <- !grepl("^[[:alnum:]_-]+$", x)
+  needs_quote <- !grepl("^[[:alnum:]/._-]+$", x)
   if(any(needs_quote))
     x[needs_quote] <- shQuote(x[needs_quote])
   x

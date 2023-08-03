@@ -278,6 +278,17 @@ py_capsule <- function(x) {
     .Call(`_reticulate_py_capsule`, x)
 }
 
+#' Return a python `slice` object
+#'
+#' @param start,stop,step An integer, or NULL.
+#'
+#' @return a python slice object
+#'
+#' @export
+py_slice <- function(start = NULL, stop = NULL, step = NULL) {
+    .Call(`_reticulate_py_slice`, start, stop, step)
+}
+
 readline <- function(prompt) {
     .Call(`_reticulate_readline`, prompt)
 }

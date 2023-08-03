@@ -46,10 +46,19 @@
 
   # get the names and filter out internal attributes (_*)
   names <- py_suppress_warnings(py_list_attributes(x))
-  # names <- names[substr(names, 1, 1) != '_']
+
+  names <- sort(names, decreasing = FALSE)
+
+  # sort: (name, _name, __name)
+  is_dunder <- substr(names, 1, 2) == '__'
+  is_oneder <- substr(names, 1, 1) == '_' & !is_dunder
+  is_nunder <- substr(names, 1, 1) != '_'
+  names <- c(names[is_nunder],
+             sprintf("`%s`", names[is_oneder]),
+             sprintf("`%s`", names[is_dunder]))
+
   # replace function with `function`
   names <- sub("^function$", "`function`", names)
-  names <- sort(names, decreasing = FALSE)
 
   # get the types
   types <- py_suppress_warnings(py_get_attr_types(x, names))
@@ -65,15 +74,15 @@
     }
   }
 
-  idx <- grepl(pattern, names)
-  names <- names[idx]
-  types <- types[idx]
+  if(pattern != "") {
+    idx <- grepl(pattern, names)
+    names <- names[idx]
+    types <- types[idx]
+  }
 
   if (length(names) > 0) {
     # set types
-    oidx <- order(names)
-    names <- names[oidx]
-    attr(names, "types") <- types[oidx]
+    attr(names, "types") <- types
 
     # specify a help_handler
     attr(names, "helpHandler") <- "reticulate:::help_handler"

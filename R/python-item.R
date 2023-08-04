@@ -87,7 +87,7 @@ py_set_item <- function(x, key, value) {
   ensure_python_initialized()
   if (py_is_module_proxy(x))
     py_resolve_module_proxy(x)
-  py_set_item_impl(x, name, value)
+  py_set_item_impl(x, key, value)
   invisible(x)
 }
 
@@ -102,7 +102,7 @@ py_del_item <- function(x, key) {
     stop("Python object has no '__delitem__' method", call. = FALSE)
   delitem <- py_to_r(py_get_attr(x, "__delitem__", silent = FALSE))
 
-  delitem(name)
+  delitem(key)
   invisible(x)
 }
 
@@ -123,6 +123,9 @@ py_del_item <- function(x, key) {
 #' @rdname py_get_item
 #' @export
 `[<-.python.builtin.object` <- function(x, ..., value) {
+  if (py_is_null_xptr(x) || !py_available())
+    stopf("Unable to assign value (`%s` reference is NULL)", deparse1(substitute(x)))
+
   key <- dots_to__getitem__key(..., .envir = parent.frame())
 
   if(is.null(value))

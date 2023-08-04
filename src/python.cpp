@@ -3552,3 +3552,24 @@ PyObjectRef py_capsule(SEXP x) {
 
   return py_ref(py_capsule_new(x), false);
 }
+
+
+// [[Rcpp::export]]
+PyObjectRef py_slice(SEXP start = R_NilValue, SEXP stop = R_NilValue, SEXP step = R_NilValue) {
+  if(!s_is_python_initialized)
+    ensure_python_initialized();
+
+  PyObjectPtr start_, stop_, step_;
+
+  if (start != R_NilValue)
+    start_.assign(PyLong_FromLong(Rf_asInteger(start)));
+  if (stop != R_NilValue)
+    stop_.assign(PyLong_FromLong(Rf_asInteger(stop)));
+  if (step != R_NilValue)
+    step_.assign(PyLong_FromLong(Rf_asInteger(step)));
+
+  PyObject* out(PySlice_New(start_, stop_, step_));
+  if (out == NULL)
+    throw PythonException(py_fetch_error());
+  return py_ref(out, false);
+}

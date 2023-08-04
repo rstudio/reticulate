@@ -24,11 +24,14 @@
 `[[.python.builtin.dict` <- `[.python.builtin.dict`
 
 #' @export
-`$<-.python.builtin.dict` <- function(x, name, value) {
-  if (!py_is_null_xptr(x) && py_available())
-    py_dict_set_item(x, name, value)
-  else
+`$<-.python.builtin.dict` <- function(x, key, value) {
+  if (py_is_null_xptr(x) || !py_available())
     stop("Unable to assign value (dict reference is NULL)")
+
+  if(is.null(value))
+    py_del_item(x, key)
+  else
+    py_dict_set_item(x, key, value)
   x
 }
 

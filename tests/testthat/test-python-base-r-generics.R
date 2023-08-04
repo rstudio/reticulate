@@ -110,3 +110,61 @@ test_that("matrixOps group generics dispatch", {
   expect_equal(py_to_r(r_obj2 %*% py_obj1), r_obj2 %*% r_obj1)
 
 })
+
+
+test_that("[ can infer slices, multiple args", {
+
+  x <- r_to_py(array(1:64, c(4, 4, 4)))
+  py$x <- x
+
+  expect_identical(py_eval("x[0]"), py_to_r(x[0]))
+  expect_identical(py_eval("x[:, 0]"), py_to_r(x[, 0]))
+  expect_identical(py_eval("x[:, :, 0]"), py_to_r(x[, , 0]))
+
+  expect_identical(py_eval("x[:2]"), py_to_r(x[`:2`]))
+  expect_identical(py_eval("x[:2]"), py_to_r(x[NULL:2]))
+  expect_identical(py_eval("x[:2]"), py_to_r(x[NA:2]))
+
+  expect_identical(py_eval("x[1:2]"), py_to_r(x[1:2]))
+  expect_identical(py_eval("x[1:2]"), py_to_r(x[`1:2`]))
+
+  expect_identical(py_eval("x[2:]"), py_to_r(x[2:NA]))
+  expect_identical(py_eval("x[2:]"), py_to_r(x[`2:`]))
+  expect_identical(py_eval("x[2:]"), py_to_r(x[2:NULL]))
+
+  expect_identical(py_eval("x[1:3:2]"), py_to_r(x[1:3:2]))
+  expect_identical(py_eval("x[1:3:2]"), py_to_r(x[`1:3:2`]))
+
+  expect_identical(py_eval("x[::2]"), py_to_r(x[`::2`]))
+  expect_identical(py_eval("x[::2]"), py_to_r(x[NULL:NULL:2]))
+  expect_identical(py_eval("x[::2]"), py_to_r(x[NA:NA:2]))
+
+  expect_identical(py_eval("x[:, :2]"), py_to_r(x[, `:2`]))
+  expect_identical(py_eval("x[:, :2]"), py_to_r(x[, NULL:2]))
+  expect_identical(py_eval("x[:, :2]"), py_to_r(x[, NA:2]))
+
+  expect_identical(py_eval("x[:, ::2]"), py_to_r(x[, `::2`]))
+  expect_identical(py_eval("x[:, ::2]"), py_to_r(x[, NULL:NULL:2]))
+  expect_identical(py_eval("x[:, ::2]"), py_to_r(x[, NA:NA:2]))
+
+  expect_identical(py_eval("x[:, :2, :]"), py_to_r(x[, `:2`]))
+  expect_identical(py_eval("x[:, :2, :]"), py_to_r(x[, NULL:2]))
+  expect_identical(py_eval("x[:, :2, :]"), py_to_r(x[, NA:2]))
+
+  expect_identical(py_eval("x[:, ::2, :]"), py_to_r(x[, `::2`, ]))
+  expect_identical(py_eval("x[:, ::2, :]"), py_to_r(x[, NULL:NULL:2, ]))
+  expect_identical(py_eval("x[:, ::2, :]"), py_to_r(x[, NA:NA:2, ]))
+
+  # test the test is actually compart R arrays
+  expect_identical(py_to_r(x[, , 0]), array(1:16, c(4, 4)))
+  expect_identical(py_eval("x[:, :, 0]"), array(1:16, c(4, 4)))
+
+  # copy `x` to make it writeable
+  py_run_string("import numpy as np; x = np.array(x)")
+  x <- np_array(x)
+
+  py_run_string("x[:, 2, :] = 99")
+  x[, 2, ] <- 99L
+  expect_identical(py_eval("x"), py_to_r(x))
+
+})

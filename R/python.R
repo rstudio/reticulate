@@ -446,8 +446,33 @@ py_get_attr_or_item <- function(x, name, prefer_attr) {
 #' }
 `[.python.builtin.object` <- function(x, ...) {
 
-  .env <- parent.frame()
-  dots <- lapply(eval(substitute(alist(...))), function(d) {
+  key <- dots_to__getitem__key(eval(substitute(alist(...))), parent.frame())
+
+  if(inherits(key, "python.builtin.tuple"))
+      py_get_item(x, key)
+  else
+    py_get_attr_or_item(x, key, FALSE) # prefer_attr = FALSE
+
+}
+
+#' @rdname py_set_item
+#' @export
+#' @family item-related APIs
+#'
+#' @note See examples in [py_get_item()] for different ways to supply `key` to [...].
+`[<-.python.builtin.object` <- function(x, ..., value) {
+  key <- dots_to__getitem__key(eval(substitute(alist(...))), parent.frame())
+
+ # @note Assigning `value` of `NULL` calls `py_del_item`.
+  # if(is.null(value))
+  #   py_del_item(x, key)
+  # else
+    py_set_item(x, key, value)
+}
+
+dots_to__getitem__key <- function(exprs, envir) {
+
+  dots <- lapply(exprs, function(d) {
 
     if(is_missing(d))
       return(py_slice())
@@ -472,7 +497,7 @@ py_get_attr_or_item <- function(x, name, prefer_attr) {
       if(!length(d) %in% 1:3)
         stop("Only 1, 2, or 3 arguments can be supplied as a python slice")
 
-      d <- lapply(d, eval, envir = .env)
+      d <- lapply(d, eval, envir = envir)
       d <- lapply(d, function(e) if(identical(e, NA) ||
                                     identical(e, NA_integer_) ||
                                     identical(e, NA_real_)) NULL else e)
@@ -481,17 +506,16 @@ py_get_attr_or_item <- function(x, name, prefer_attr) {
     }
 
     # else, eval normally
-    d <- eval(d, envir = .env)
+    d <- eval(d, envir = envir)
     if(rlang::is_scalar_integerish(d))
       d <- as.integer(d)
     d
   })
 
   if(length(dots) == 1L)
-    py_get_attr_or_item(x, dots[[1L]], FALSE) # prefer_attr = FALSE
+    dots[[1L]]
   else
-    py_get_item(x, tuple(dots))
-
+    tuple(dots)
 }
 
 # TODO: update these to use rlang

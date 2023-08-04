@@ -21,6 +21,6 @@ through its \verb{__delitem__} method.
 \seealso{
 Other item-related APIs: 
 \code{\link{[.python.builtin.object}()},
-\code{\link{py_set_item}()}
+\code{\link{[<-.python.builtin.object}()}
 }
 \concept{item-related APIs}

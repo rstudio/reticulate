@@ -60,11 +60,11 @@ x <- np_array(array(1:64, c(4, 4, 4)))
 }
 \seealso{
 Other item-related APIs: 
-\code{\link{py_del_item}()},
-\code{\link{py_set_item}()}
+\code{\link{[<-.python.builtin.object}()},
+\code{\link{py_del_item}()}
 
 Other item-related APIs: 
-\code{\link{py_del_item}()},
-\code{\link{py_set_item}()}
+\code{\link{[<-.python.builtin.object}()},
+\code{\link{py_del_item}()}
 }
 \concept{item-related APIs}

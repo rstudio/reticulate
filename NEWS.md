@@ -9,6 +9,10 @@
 - Updated recommendations in the "python_dependencies" vignette for how R packages 
   can approach Python dependency management.
   
+- New `[` and `[<-` methods that invoke python `__getitem__`, `__setitem__` 
+  and `__delitem__`. The R generic `[` accepts python-style slice syntax like `x[1:2:3]`.
+  See examples in `?py_get_item`.
+  
 - `virtualenv_create()` gains a `force` argument.
 
 - Fixed an issue where the list of available python versions used by `install_python()` 

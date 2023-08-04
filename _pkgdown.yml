@@ -62,7 +62,6 @@ reference:
       - py_del_attr
       - py_list_attributes
       - py_get_item
-      - '[.python.builtin.object'
       - py_set_item
       - py_del_item
       - py_call

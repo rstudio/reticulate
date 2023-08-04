@@ -446,7 +446,7 @@ py_get_attr_or_item <- function(x, name, prefer_attr) {
 #' }
 `[.python.builtin.object` <- function(x, ...) {
 
-  key <- dots_to__getitem__key(eval(substitute(alist(...))), parent.frame())
+  key <- dots_to__getitem__key(..., .envir = parent.frame())
 
   if(inherits(key, "python.builtin.tuple"))
       py_get_item(x, key)
@@ -461,7 +461,7 @@ py_get_attr_or_item <- function(x, name, prefer_attr) {
 #'
 #' @note See examples in [py_get_item()] for different ways to supply `key` to [...].
 `[<-.python.builtin.object` <- function(x, ..., value) {
-  key <- dots_to__getitem__key(eval(substitute(alist(...))), parent.frame())
+  key <- dots_to__getitem__key(..., .envir = parent.frame())
 
  # @note Assigning `value` of `NULL` calls `py_del_item`.
   # if(is.null(value))
@@ -470,9 +470,8 @@ py_get_attr_or_item <- function(x, name, prefer_attr) {
     py_set_item(x, key, value)
 }
 
-dots_to__getitem__key <- function(exprs, envir) {
-
-  dots <- lapply(exprs, function(d) {
+dots_to__getitem__key <- function(..., .envir) {
+  dots <- lapply(eval(substitute(alist(...))), function(d) {
 
     if(is_missing(d))
       return(py_slice())
@@ -497,7 +496,7 @@ dots_to__getitem__key <- function(exprs, envir) {
       if(!length(d) %in% 1:3)
         stop("Only 1, 2, or 3 arguments can be supplied as a python slice")
 
-      d <- lapply(d, eval, envir = envir)
+      d <- lapply(d, eval, envir = .envir)
       d <- lapply(d, function(e) if(identical(e, NA) ||
                                     identical(e, NA_integer_) ||
                                     identical(e, NA_real_)) NULL else e)
@@ -506,7 +505,7 @@ dots_to__getitem__key <- function(exprs, envir) {
     }
 
     # else, eval normally
-    d <- eval(d, envir = envir)
+    d <- eval(d, envir = .envir)
     if(rlang::is_scalar_integerish(d))
       d <- as.integer(d)
     d
@@ -520,7 +519,7 @@ dots_to__getitem__key <- function(exprs, envir) {
 
 # TODO: update these to use rlang
 is_has_colon <- function(x)
-  is_colon_call(x) || (is.symbol(x) && identical(":", as.character(x)))
+  is_colon_call(x) || (is.symbol(x) && grepl(":", as.character(x), fixed = TRUE))
 
 is_colon_call <- function(x)
   is.call(x) && identical(x[[1L]], quote(`:`))

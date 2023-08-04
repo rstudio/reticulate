@@ -408,15 +408,71 @@ py_get_attr_or_item <- function(x, name, prefer_attr) {
 }
 
 #' @export
-`[.python.builtin.object` <- function(x, name) {
-  py_get_attr_or_item(x, name, FALSE)
+`[.python.builtin.object` <- function(x, ...) {
+  .env <- parent.frame()
+  dots <- lapply(eval(substitute(alist(...))), function(d) {
+
+    if(is_missing(d))
+      return(py_slice())
+
+    if (is_has_colon(d)) {
+
+      if (is_colon_call(d)) {
+
+        d <- as.list(d)[-1L]
+
+        if (is_colon_call(d[[1L]] -> d1)) # step supplied
+          d <- c(as.list(d1)[-1L], d[-1L])
+
+      } else { # single name with colon , like `::2`
+
+        d <- deparse(d, width.cutoff = 500L, backtick = FALSE)
+        d <- strsplit(d, ":", fixed = TRUE)[[1L]]
+        d[!nzchar(d)] <- "NULL"
+        d <- lapply(d, parse1) # rlang::parse_expr
+      }
+
+      if(!length(d) %in% 1:3)
+        stop("Only 1, 2, or 3 arguments can be supplied as a python slice")
+
+      d <- lapply(d, eval, envir = .env)
+      d <- lapply(d, function(e) if(identical(e, NA) ||
+                                    identical(e, NA_integer_) ||
+                                    identical(e, NA_real_)) NULL else e)
+
+      return(do.call(py_slice, d))
+    }
+
+    # else, eval normally
+    d <- eval(d, envir = .env)
+    if(rlang::is_scalar_integerish(d))
+      d <- as.integer(d)
+    d
+  })
+
+  if(length(dots) == 1L)
+    py_get_attr_or_item(x, dots[[1L]], FALSE)
+  else
+    py_get_item(x, tuple(dots))
+
 }
+
+# TODO: update these to use rlang
+is_has_colon <- function(x)
+  is_colon_call(x) || (is.symbol(x) && identical(":", as.character(x)))
+
+is_colon_call <- function(x)
+  is.call(x) && identical(x[[1L]], quote(`:`))
+
+is_missing <- function(x) identical(x, quote(expr =))
+
+parse1 <- function (text)  parse(text = text, keep.source = FALSE)[[1L]]
+
 
 #' @export
 `[[.python.builtin.object` <- function(x, name) {
   py_get_attr_or_item(x, name, FALSE)
 }
-
 
 
 # the as.environment generic enables pytyhon objects that manifest

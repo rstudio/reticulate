@@ -3576,8 +3576,8 @@ PyObjectRef py_slice(SEXP start = R_NilValue, SEXP stop = R_NilValue, SEXP step 
   if (step != R_NilValue)
     step_.assign(PyLong_FromLong(Rf_asInteger(step)));
 
-  PyObjectPtr out(PySlice_New(start_, stop_, step_));
-  if (out.is_null())
+  PyObject* out(PySlice_New(start_, stop_, step_));
+  if (out == NULL)
     throw PythonException(py_fetch_error());
   return py_ref(out, false);
 }

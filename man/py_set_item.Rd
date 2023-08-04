@@ -26,7 +26,12 @@ set an item called \code{name} with value \code{value} on object
 \code{x}. The object's \verb{__setitem__} method will be called.
 }
 \note{
-See examples in \code{\link[=py_get_item]{py_get_item()}} for different ways to supply \code{key} to \link{...}.
+Assigning \code{value} of \code{NULL} calls \code{\link[=py_del_item]{py_del_item()}}. To set an item
+value of \code{None}, you can call \code{py_set_item()} directly, or call
+\code{x[key] <- py_none()}
+
+See examples in \code{\link[=py_get_item]{py_get_item()}} for different ways to supply \code{key} to
+\link{...}.
 }
 \seealso{
 Other item-related APIs: 

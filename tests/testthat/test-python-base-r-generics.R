@@ -159,4 +159,12 @@ test_that("[ can infer slices, multiple args", {
   expect_identical(py_to_r(x[, , 0]), array(1:16, c(4, 4)))
   expect_identical(py_eval("x[:, :, 0]"), array(1:16, c(4, 4)))
 
+  # copy `x` to make it writeable
+  py_run_string("import numpy as np; x = np.array(x)")
+  x <- np_array(x)
+
+  py_run_string("x[:, 2, :] = 99")
+  x[, 2, ] <- 99L
+  expect_identical(py_eval("x"), py_to_r(x))
+
 })

@@ -452,21 +452,23 @@ py_get_attr_or_item <- function(x, name, prefer_attr) {
       py_get_item(x, key)
   else
     py_get_attr_or_item(x, key, FALSE) # prefer_attr = FALSE
-
 }
 
 #' @rdname py_set_item
 #' @export
 #' @family item-related APIs
+#' @note Assigning `value` of `NULL` calls [`py_del_item()`]. To set an item
+#'   value of `None`, you can call `py_set_item()` directly, or call
+#'   `x[key] <- py_none()`
 #'
-#' @note See examples in [py_get_item()] for different ways to supply `key` to [...].
+#' @note See examples in [py_get_item()] for different ways to supply `key` to
+#'   [...].
 `[<-.python.builtin.object` <- function(x, ..., value) {
   key <- dots_to__getitem__key(..., .envir = parent.frame())
 
- # @note Assigning `value` of `NULL` calls `py_del_item`.
-  # if(is.null(value))
-  #   py_del_item(x, key)
-  # else
+  if(is.null(value))
+    py_del_item(x, key)
+  else
     py_set_item(x, key, value)
 }
 

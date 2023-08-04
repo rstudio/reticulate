@@ -13,7 +13,7 @@
 #'   with `convert = TRUE`.
 #'
 #' @param x A Python object.
-#' @param key,... The key used for item lookup.
+#' @param key,name,... The key used for item lookup.
 #' @param silent Boolean; when \code{TRUE}, attempts to access missing items
 #'   will return \code{NULL} rather than throw an error.
 #' @param value The item value to set. Assigning `value` of `NULL` calls
@@ -83,17 +83,17 @@ py_get_item <- function(x, key, silent = FALSE) {
 
 #' @rdname py_get_item
 #' @export
-py_set_item <- function(x, key, value) {
+py_set_item <- function(x, name, value) {
   ensure_python_initialized()
   if (py_is_module_proxy(x))
     py_resolve_module_proxy(x)
-  py_set_item_impl(x, key, value)
+  py_set_item_impl(x, name, value)
   invisible(x)
 }
 
 #' @rdname py_get_item
 #' @export
-py_del_item <- function(x, key) {
+py_del_item <- function(x, name) {
   ensure_python_initialized()
   if (py_is_module_proxy(x))
     py_resolve_module_proxy(x)
@@ -102,7 +102,7 @@ py_del_item <- function(x, key) {
     stop("Python object has no '__delitem__' method", call. = FALSE)
   delitem <- py_to_r(py_get_attr(x, "__delitem__", silent = FALSE))
 
-  delitem(key)
+  delitem(name)
   invisible(x)
 }
 

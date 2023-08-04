@@ -10,9 +10,9 @@
 \usage{
 py_get_item(x, key, silent = FALSE)
 
-py_set_item(x, key, value)
+py_set_item(x, name, value)
 
-py_del_item(x, key)
+py_del_item(x, name)
 
 \method{[}{python.builtin.object}(x, ...)
 
@@ -21,7 +21,7 @@ py_del_item(x, key)
 \arguments{
 \item{x}{A Python object.}
 
-\item{key, ...}{The key used for item lookup.}
+\item{key, name, ...}{The key used for item lookup.}
 
 \item{silent}{Boolean; when \code{TRUE}, attempts to access missing items
 will return \code{NULL} rather than throw an error.}

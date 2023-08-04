@@ -86,6 +86,7 @@
 <ul><li><p>reticulate will no longer prompt users to install miniconda. Instead, reticulate will now prompt users to create a default <code>r-reticulate</code> venv.</p></li>
 <li><p>The python search behavior that reticulate uses to select a Python has changed. See the updated “versions” vignette for the new order of discovery.</p></li>
 <li><p>Updated recommendations in the “python_dependencies” vignette for how R packages can approach Python dependency management.</p></li>
+<li><p>New <code>[</code> and <code>[&lt;-</code> methods that invoke python <code>__getitem__</code>, <code>__setitem__</code> and <code>__delitem__</code>. The R generic <code>[</code> accepts python-style slice syntax like <code>x[1:2:3]</code>. See examples in <code><a href="../reference/py_get_item.html">?py_get_item</a></code>.</p></li>
 <li><p><code><a href="../reference/virtualenv-tools.html">virtualenv_create()</a></code> gains a <code>force</code> argument.</p></li>
 <li><p>Fixed an issue where the list of available python versions used by <code><a href="../reference/install_python.html">install_python()</a></code> would be out-of-date.</p></li>
 <li><p><code><a href="../reference/install_python.html">install_python()</a></code> on macOS will now will use brew, if it’s available, to install build dependencies, substantially speeding up python build times.</p></li>
@@ -465,7 +466,7 @@
 <ul><li><p><code><a href="../reference/source_python.html">source_python()</a></code> now flushes stdout and stderr after running the associated Python script, to ensure that <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>-ed output is output to the console. (<a href="https://github.com/rstudio/reticulate/issues/284" class="external-link">#284</a>)</p></li>
 <li><p>Fixed an issue where logical R matrices would not be converted correctly to their NumPy counterpart. (<a href="https://github.com/rstudio/reticulate/issues/280" class="external-link">#280</a>)</p></li>
 <li><p>Fixed an issue where Python chunks containing multiple statements on the same line would be evaluated and printed multiple times.</p></li>
-<li><p>Added <code><a href="../reference/py_get_item.html">py_get_item()</a></code>, <code><a href="../reference/py_set_item.html">py_set_item()</a></code>, and <code><a href="../reference/py_del_item.html">py_del_item()</a></code> as lower-level APIs for directly accessing the items of e.g. a Python dictionary or a Pandas DataFrame.</p></li>
+<li><p>Added <code><a href="../reference/py_get_item.html">py_get_item()</a></code>, <code><a href="../reference/py_get_item.html">py_set_item()</a></code>, and <code><a href="../reference/py_get_item.html">py_del_item()</a></code> as lower-level APIs for directly accessing the items of e.g. a Python dictionary or a Pandas DataFrame.</p></li>
 <li><p>Fix issue with Pandas column names that clash with built in methods (e.g. ‘pop’)</p></li>
 <li><p>Improve default <code><a href="https://rdrr.io/r/utils/str.html" class="external-link">str()</a></code> output for Python objects (print <code>__dict__</code> if available)</p></li>
 </ul></div>

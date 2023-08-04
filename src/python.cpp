@@ -3554,14 +3554,6 @@ PyObjectRef py_capsule(SEXP x) {
 }
 
 
-
-//' Return a python `slice` object
-//'
-//' @param start,stop,step An integer, or NULL.
-//'
-//' @return a python slice object
-//'
-//' @export
 // [[Rcpp::export]]
 PyObjectRef py_slice(SEXP start = R_NilValue, SEXP stop = R_NilValue, SEXP step = R_NilValue) {
   if(!s_is_python_initialized)

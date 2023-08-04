@@ -64,7 +64,6 @@ reference:
       - py_get_item
       - py_set_item
       - py_del_item
-      - py_slice
       - py_call
       - py_to_r
       - r_to_py

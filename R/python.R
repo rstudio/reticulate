@@ -407,8 +407,45 @@ py_get_attr_or_item <- function(x, name, prefer_attr) {
   py_get_attr_or_item(x, name, TRUE)
 }
 
+
+#' @rdname py_get_item
 #' @export
+#' @family item-related APIs
+#' @examples
+#' \dontrun{
+#'
+#' ## get item from Python dict
+#' x <- r_to_py(list(abc = "xyz"))
+#' x["abc"]
+#'
+#' ## get item from Python list
+#' x <- r_to_py(list("a", "b", "c"))
+#' x[0]
+#'
+#' ## slice a NumPy array
+#' x <- np_array(array(1:64, c(4, 4, 4)))
+#'
+#' # R expression | Python expression
+#' # ------------ | -----------------
+#'   x[0]         # x[0]
+#'   x[, 0]       # x[:, 0]
+#'   x[, , 0]     # x[:, :, 0]
+#'
+#'   x[NA:2]      # x[:2]
+#'   x[`:2`]      # x[:2]
+#'
+#'   x[2:NA]      # x[2:]
+#'   x[`2:`]      # x[2:]
+#'
+#'   x[NA:NA:2]   # x[::2]
+#'   x[`::2`]     # x[::2]
+#'
+#'   x[1:3:2]     # x[1:3:2]
+#'   x[`1:3:2`]   # x[1:3:2]
+#'
+#' }
 `[.python.builtin.object` <- function(x, ...) {
+
   .env <- parent.frame()
   dots <- lapply(eval(substitute(alist(...))), function(d) {
 
@@ -451,7 +488,7 @@ py_get_attr_or_item <- function(x, name, prefer_attr) {
   })
 
   if(length(dots) == 1L)
-    py_get_attr_or_item(x, dots[[1L]], FALSE)
+    py_get_attr_or_item(x, dots[[1L]], FALSE) # prefer_attr = FALSE
   else
     py_get_item(x, tuple(dots))
 
@@ -1103,11 +1140,12 @@ py_get_attr_types <- function(x,
 #' `__getitem__` method will be called.
 #'
 #' @param x A Python object.
-#' @param key The key used for item lookup.
+#' @param key,... The key used for item lookup.
 #' @param silent Boolean; when \code{TRUE}, attempts to access
 #'   missing items will return \code{NULL} rather than
 #'   throw an error.
 #'
+#' @rdname py_get_item
 #' @family item-related APIs
 #' @export
 py_get_item <- function(x, key, silent = FALSE) {

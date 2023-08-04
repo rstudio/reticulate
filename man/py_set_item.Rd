@@ -24,7 +24,7 @@ set an item called \code{name} with value \code{value} on object
 }
 \seealso{
 Other item-related APIs: 
-\code{\link{py_del_item}()},
-\code{\link{py_get_item}()}
+\code{\link{[.python.builtin.object}()},
+\code{\link{py_del_item}()}
 }
 \concept{item-related APIs}

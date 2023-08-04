@@ -20,7 +20,7 @@ through its \verb{__delitem__} method.
 }
 \seealso{
 Other item-related APIs: 
-\code{\link{py_get_item}()},
+\code{\link{[.python.builtin.object}()},
 \code{\link{py_set_item}()}
 }
 \concept{item-related APIs}

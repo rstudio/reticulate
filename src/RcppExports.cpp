@@ -64,6 +64,16 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
+// py_flush_output
+SEXP py_flush_output();
+RcppExport SEXP _reticulate_py_flush_output() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(py_flush_output());
+    return rcpp_result_gen;
+END_RCPP
+}
 // conditionMessage_from_py_exception
 std::string conditionMessage_from_py_exception(PyObjectRef exc);
 RcppExport SEXP _reticulate_conditionMessage_from_py_exception(SEXP excSEXP) {
@@ -755,6 +765,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_reticulate_is_python3", (DL_FUNC) &_reticulate_is_python3, 0},
     {"_reticulate_py_is_null_xptr", (DL_FUNC) &_reticulate_py_is_null_xptr, 1},
     {"_reticulate_py_validate_xptr", (DL_FUNC) &_reticulate_py_validate_xptr, 1},
+    {"_reticulate_py_flush_output", (DL_FUNC) &_reticulate_py_flush_output, 0},
     {"_reticulate_conditionMessage_from_py_exception", (DL_FUNC) &_reticulate_conditionMessage_from_py_exception, 1},
     {"_reticulate_py_none_impl", (DL_FUNC) &_reticulate_py_none_impl, 0},
     {"_reticulate_py_is_callable", (DL_FUNC) &_reticulate_py_is_callable, 1},

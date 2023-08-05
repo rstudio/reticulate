@@ -31,26 +31,13 @@
   })
 
   # register a callback auto-flushing Python output as appropriate
-  sys <- NULL
   addTaskCallback(function(...) {
 
     enabled <- getOption("reticulate.autoflush", default = TRUE)
-    if (!enabled)
-      return(TRUE)
-
-    if (!is_python_initialized())
-      return(TRUE)
-
-    sys <- sys %||% import("sys", convert = TRUE)
-
-    if (!is.null(sys$stdout) && !is.null(sys$stdout$flush))
-      sys$stdout$flush()
-
-    if (!is.null(sys$stderr) && !is.null(sys$stderr$flush))
-      sys$stderr$flush()
+    if (enabled && is_python_initialized())
+      py_flush_output()
 
     TRUE
-
   })
 
   # on macOS, set the OPENBLAS environment variable if possible, as otherwise

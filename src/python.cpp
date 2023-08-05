@@ -753,6 +753,13 @@ SEXP py_fetch_error(bool maybe_reuse_cached_r_trace) {
 }
 
 // [[Rcpp::export]]
+SEXP py_flush_output() {
+  if(s_is_python_initialized)
+    flush_std_buffers();
+  return R_NilValue;
+}
+
+// [[Rcpp::export]]
 std::string conditionMessage_from_py_exception(PyObjectRef exc) {
   // invoke 'traceback.format_exception_only(<traceback>)'
   PyObjectPtr tb_module(py_import("traceback"));

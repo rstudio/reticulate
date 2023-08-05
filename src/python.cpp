@@ -2538,59 +2538,67 @@ bool py_has_attr_impl(PyObjectRef x, const std::string& name) {
   return PyObject_HasAttrString(x, name.c_str());
 }
 
+class PyErrorScopeGuard {
+private:
+  PyObject *er_type, *er_value, *er_traceback;
 
+public:
+  PyErrorScopeGuard() {
+    PyErr_Fetch(&er_type, &er_value, &er_traceback);
+  }
+
+  ~PyErrorScopeGuard() {
+    PyErr_Restore(er_type, er_value, er_traceback);
+  }
+};
 
 // [[Rcpp::export]]
 PyObjectRef py_get_attr_impl(PyObjectRef x,
                              const std::string& key,
                              bool silent = false)
 {
-  PyObject *er_type, *er_value, *er_traceback;
-  if (silent)
-    PyErr_Fetch(&er_type, &er_value, &er_traceback);
 
-  PyObject* attr = PyObject_GetAttrString(x, key.c_str());
+  PyObject *attr;
 
-  if(attr == NULL) { // exception was raised
-    if(silent) {
-      Py_IncRef(Py_None);
-      attr = Py_None;
-    } else
+  if (silent) {
+    PyErrorScopeGuard _g;
+
+    attr = PyObject_GetAttrString(x, key.c_str());
+    if (attr == NULL)
+      return PyObjectRef(R_EmptyEnv);
+
+  } else {
+
+    attr = PyObject_GetAttrString(x, key.c_str());
+    if (attr == NULL)
       throw PythonException(py_fetch_error());
+
   }
 
-  // must restore before calling py_ref(), which access the Python API,
-  // which will complain if the error is set.
-  if (silent)
-    PyErr_Restore(er_type, er_value, er_traceback);
-
   return py_ref(attr, x.convert());
-
 }
 
 // [[Rcpp::export]]
-PyObjectRef py_get_item_impl(PyObjectRef x,
-                             RObject key,
-                             bool silent = false)
+PyObjectRef py_get_item_impl(PyObjectRef x, RObject key, bool silent = false)
 {
-  PyObject *er_type, *er_value, *er_traceback;
-  if (silent)
-    PyErr_Fetch(&er_type, &er_value, &er_traceback);
 
   PyObjectPtr py_key(r_to_py(key, x.convert()));
-  PyObject* item = PyObject_GetItem(x, py_key);
+  PyObject *item;
 
-  if(item == NULL) { // exception was raised
-    if(silent) {
-      Py_IncRef(Py_None);
-      item = Py_None;
-    } else
+  if (silent) {
+    PyErrorScopeGuard _g;
+
+    item = PyObject_GetItem(x, py_key);
+    if (item == NULL)
+      return PyObjectRef(R_EmptyEnv);
+
+  } else {
+
+    item = PyObject_GetItem(x, py_key);
+    if (item == NULL)
       throw PythonException(py_fetch_error());
-  }
 
-  // must restore before calling py_ref(), which may raise its own exception
-  if (silent)
-    PyErr_Restore(er_type, er_value, er_traceback);
+  }
 
   return py_ref(item, x.convert());
 }

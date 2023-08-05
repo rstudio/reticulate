@@ -1232,22 +1232,6 @@ py_capture_output <- function(expr, type = c("stdout", "stderr")) {
 
 }
 
-py_flush_output <- function() {
-
-  if (!is_python3())
-    return()
-
-  sys <- import("sys", convert = TRUE)
-
-  if (!is.null(sys$stdout) && is.function(sys$stdout$flush))
-    sys$stdout$flush()
-
-  if (!is.null(sys$stderr) && is.function(sys$stderr$flush))
-    sys$stderr$flush()
-
-}
-
-
 
 #' Run Python code
 #'

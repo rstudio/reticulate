@@ -169,15 +169,7 @@ repl_python <- function(
   repl <- function() {
 
     # flush stdout, stderr on each REPL iteration
-    on.exit({
-
-      if (!is.null(sys$stdout) && !is.null(sys$stdout$flush))
-        sys$stdout$flush()
-
-      if (!is.null(sys$stderr) && !is.null(sys$stderr$flush))
-        sys$stderr$flush()
-
-    }, add = TRUE)
+    on.exit(py_flush_output(), add = TRUE)
 
     # read input (either from user or from code)
     prompt <- if (buffer$empty()) ">>> " else "... "

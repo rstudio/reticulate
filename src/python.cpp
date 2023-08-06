@@ -2649,26 +2649,33 @@ IntegerVector py_get_attr_types_impl(
   const int LIST        =  4;
   const int ENVIRONMENT =  5;
   const int FUNCTION    =  6;
-
-  PyObjectRef type = py_get_attr_impl(x, "__class__");
+  PyErrorScopeGuard _g;
+  PyObjectPtr type( PyObject_GetAttrString(x, "__class__") );
 
   std::size_t n = attrs.size();
   IntegerVector types = no_init(n);
   for (std::size_t i = 0; i < n; i++) {
+    const std::string& name = attrs[i];
 
     // check if this is a property; if so, avoid resolving it unless
     // requested as this could imply running arbitrary Python code
-    const std::string& name = attrs[i];
     if (!resolve_properties) {
-      PyObjectRef attr = py_get_attr_impl(type, name, true);
-      if (PyObject_TypeCheck(attr, PyProperty_Type)) {
+      PyObjectPtr attr(PyObject_GetAttrString(type, name.c_str()));
+      if (attr.is_null())
+        PyErr_Clear();
+      else if (PyObject_TypeCheck(attr, PyProperty_Type)) {
         types[i] = UNKNOWN;
         continue;
       }
     }
 
-    PyObjectRef attr = py_get_attr_impl(x, name, true);
-    if (attr.get() == Py_None)
+    PyObjectPtr attr(PyObject_GetAttrString(x, name.c_str()));
+
+    if(attr.is_null()) {
+      PyErr_Clear();
+      types[i] = UNKNOWN;
+    }
+    else if (attr.get() == Py_None)
       types[i] = UNKNOWN;
     else if (PyType_Check(attr))
       types[i] = UNKNOWN;

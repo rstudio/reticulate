@@ -2545,59 +2545,67 @@ bool py_has_attr_impl(PyObjectRef x, const std::string& name) {
   return PyObject_HasAttrString(x, name.c_str());
 }
 
+class PyErrorScopeGuard {
+private:
+  PyObject *er_type, *er_value, *er_traceback;
 
+public:
+  PyErrorScopeGuard() {
+    PyErr_Fetch(&er_type, &er_value, &er_traceback);
+  }
+
+  ~PyErrorScopeGuard() {
+    PyErr_Restore(er_type, er_value, er_traceback);
+  }
+};
 
 // [[Rcpp::export]]
 PyObjectRef py_get_attr_impl(PyObjectRef x,
                              const std::string& key,
                              bool silent = false)
 {
-  PyObject *er_type, *er_value, *er_traceback;
-  if (silent)
-    PyErr_Fetch(&er_type, &er_value, &er_traceback);
 
-  PyObject* attr = PyObject_GetAttrString(x, key.c_str());
+  PyObject *attr;
 
-  if(attr == NULL) { // exception was raised
-    if(silent) {
-      Py_IncRef(Py_None);
-      attr = Py_None;
-    } else
+  if (silent) {
+    PyErrorScopeGuard _g;
+
+    attr = PyObject_GetAttrString(x, key.c_str());
+    if (attr == NULL)
+      return PyObjectRef(R_EmptyEnv);
+
+  } else {
+
+    attr = PyObject_GetAttrString(x, key.c_str());
+    if (attr == NULL)
       throw PythonException(py_fetch_error());
+
   }
 
-  // must restore before calling py_ref(), which access the Python API,
-  // which will complain if the error is set.
-  if (silent)
-    PyErr_Restore(er_type, er_value, er_traceback);
-
   return py_ref(attr, x.convert());
-
 }
 
 // [[Rcpp::export]]
-PyObjectRef py_get_item_impl(PyObjectRef x,
-                             RObject key,
-                             bool silent = false)
+PyObjectRef py_get_item_impl(PyObjectRef x, RObject key, bool silent = false)
 {
-  PyObject *er_type, *er_value, *er_traceback;
-  if (silent)
-    PyErr_Fetch(&er_type, &er_value, &er_traceback);
 
   PyObjectPtr py_key(r_to_py(key, x.convert()));
-  PyObject* item = PyObject_GetItem(x, py_key);
+  PyObject *item;
 
-  if(item == NULL) { // exception was raised
-    if(silent) {
-      Py_IncRef(Py_None);
-      item = Py_None;
-    } else
+  if (silent) {
+    PyErrorScopeGuard _g;
+
+    item = PyObject_GetItem(x, py_key);
+    if (item == NULL)
+      return PyObjectRef(R_EmptyEnv);
+
+  } else {
+
+    item = PyObject_GetItem(x, py_key);
+    if (item == NULL)
       throw PythonException(py_fetch_error());
-  }
 
-  // must restore before calling py_ref(), which may raise its own exception
-  if (silent)
-    PyErr_Restore(er_type, er_value, er_traceback);
+  }
 
   return py_ref(item, x.convert());
 }
@@ -2648,26 +2656,33 @@ IntegerVector py_get_attr_types_impl(
   const int LIST        =  4;
   const int ENVIRONMENT =  5;
   const int FUNCTION    =  6;
-
-  PyObjectRef type = py_get_attr_impl(x, "__class__");
+  PyErrorScopeGuard _g;
+  PyObjectPtr type( PyObject_GetAttrString(x, "__class__") );
 
   std::size_t n = attrs.size();
   IntegerVector types = no_init(n);
   for (std::size_t i = 0; i < n; i++) {
+    const std::string& name = attrs[i];
 
     // check if this is a property; if so, avoid resolving it unless
     // requested as this could imply running arbitrary Python code
-    const std::string& name = attrs[i];
     if (!resolve_properties) {
-      PyObjectRef attr = py_get_attr_impl(type, name, true);
-      if (PyObject_TypeCheck(attr, PyProperty_Type)) {
+      PyObjectPtr attr(PyObject_GetAttrString(type, name.c_str()));
+      if (attr.is_null())
+        PyErr_Clear();
+      else if (PyObject_TypeCheck(attr, PyProperty_Type)) {
         types[i] = UNKNOWN;
         continue;
       }
     }
 
-    PyObjectRef attr = py_get_attr_impl(x, name, true);
-    if (attr.get() == Py_None)
+    PyObjectPtr attr(PyObject_GetAttrString(x, name.c_str()));
+
+    if(attr.is_null()) {
+      PyErr_Clear();
+      types[i] = UNKNOWN;
+    }
+    else if (attr.get() == Py_None)
       types[i] = UNKNOWN;
     else if (PyType_Check(attr))
       types[i] = UNKNOWN;

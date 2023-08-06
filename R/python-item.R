@@ -72,13 +72,11 @@ py_get_item <- function(x, key, silent = FALSE) {
   if (py_is_module_proxy(x))
     py_resolve_module_proxy(x)
 
-  # NOTE: for backwards compatibility, we make sure to return an R NULL on error
-  if (silent) {
-    tryCatch(py_get_item_impl(x, key, FALSE), error = function(e) NULL)
-  } else {
-    py_get_item_impl(x, key, FALSE)
-  }
-
+  res <- py_get_item_impl(x, key, silent)
+  if(silent && identical(emptyenv(), res))
+    NULL
+  else
+    res
 }
 
 #' @rdname py_get_item

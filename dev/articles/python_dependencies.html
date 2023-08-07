@@ -187,22 +187,43 @@ environment is disrupted at some time later (perhaps because something
 with conflicting Python dependencies was manually installed), the user
 can easily revert to a working state by calling
 <code>install_tensorflow()</code>.</p>
+<p>Python environments can occasionally get into a broken state when
+conflicting package versions are installed, and the most reliable way to
+get back to a working state is to delete the environment and start over
+with a fresh one. For this reason, <code>install_tensorflow()</code>
+removes any pre-existing “r-tensorflow” python environments first.
+Deleting a Python environment however is not something to be done
+lightly, so the default is to only delete the default “r-tensorflow”
+environment. Here is an example of the helper
+<code>install_tensorflow()</code> with the “reset” behavior.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co">#' @importFrom reticulate py_install virtualenv_exists virtualenv_remove</span></span>
+<span><span class="va">install_tensorflow</span> <span class="op">&lt;-</span></span>
+<span>  <span class="kw">function</span><span class="op">(</span><span class="va">...</span>,</span>
+<span>           <span class="va">envname</span> <span class="op">=</span> <span class="st">"r-tensorflow"</span>,</span>
+<span>           <span class="va">new_env</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">envname</span>, <span class="st">"r-tensorflow"</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span></span>
+<span>  <span class="kw">if</span><span class="op">(</span><span class="va">new_env</span> <span class="op">&amp;&amp;</span> <span class="fu"><a href="../reference/virtualenv-tools.html">virtualenv_exists</a></span><span class="op">(</span><span class="va">envname</span><span class="op">)</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="../reference/virtualenv-tools.html">virtualenv_remove</a></span><span class="op">(</span><span class="va">envname</span><span class="op">)</span></span>
+<span></span>
+<span>  <span class="fu"><a href="../reference/py_install.html">py_install</a></span><span class="op">(</span>packages <span class="op">=</span> <span class="st">"tensorflow"</span>, envname <span class="op">=</span> <span class="va">envname</span>, <span class="va">...</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="managing-multiple-package-dependencies-">Managing Multiple Package Dependencies.<a class="anchor" aria-label="anchor" href="#managing-multiple-package-dependencies-"></a>
 </h2>
 <p>One drawback of the isolated-package-environments approach is that if
-multiple R packages using reticulate are used, then those packages won’t
-all be able to use their preferred Python environment in the same R
-session (since there can only be one active Python environment at a time
-within an R session). To resolve this, users will have to take a
+multiple R packages using reticulate are in use, then those packages
+won’t all be able to use their preferred Python environment in the same
+R session (since there can only be one active Python environment at a
+time within an R session). To resolve this, users will have to take a
 slightly more active role in managing their python environments.
 However, this can be as simple as supplying a unique environment
 name.</p>
 <p>The most straightforward approach is for users to create a dedicated
 python environment for a specific project. For example, a user can
 create a virtual environment in the project directory, like this:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">envname</span> <span class="op">&lt;-</span> <span class="st">"./venv"</span></span>
 <span><span class="fu">tensorflow</span><span class="fu">::</span><span class="fu">install_tensorflow</span><span class="op">(</span>envname <span class="op">=</span> <span class="va">envname</span><span class="op">)</span></span>
 <span><span class="fu">pysparklyr</span><span class="fu">::</span><span class="fu">install_pyspark</span><span class="op">(</span>envname <span class="op">=</span> <span class="va">envname</span><span class="op">)</span></span></code></pre></div>
@@ -216,7 +237,7 @@ configured for that project. For example, an .Renviron file in the
 project directory could contain:</p>
 <pre><code>RETICULATE_PYTHON_ENV=~/my/project/venv</code></pre>
 <p>Or a .Rprofile in the project directory could contain:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span><span class="st">"RETICULATE_PYTHON_ENV"</span> <span class="op">=</span> <span class="st">"~/my/project/venv"</span><span class="op">)</span></span></code></pre></div>
 <p>This approach minimizes the risk that an existing, already working,
 Python environment will accidentally be broken by installing packages,
@@ -226,12 +247,12 @@ already installed in the environment.</p>
 dependencies into another Python environment that is already on the
 search path. For example, users can <em>opt-in</em> to installing into
 the default <code>r-reticulate</code> venv:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">tensorflow</span><span class="fu">::</span><span class="fu">install_tensorflow</span><span class="op">(</span>envname <span class="op">=</span> <span class="st">"r-reticulate"</span><span class="op">)</span></span></code></pre></div>
 <p>Or they can install one packages dependencies into another packages
 default environment. For example, installing spark into the default
 “r-tensorflow” environment:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">tensorflow</span><span class="fu">::</span><span class="fu">install_tensorflow</span><span class="op">(</span><span class="op">)</span> <span class="co"># creates an "r-tensorflow" env</span></span>
 <span><span class="fu">pysparklyr</span><span class="fu">::</span><span class="fu">install_pyspark</span><span class="op">(</span>envname <span class="op">=</span> <span class="st">"r-tensorflow"</span><span class="op">)</span></span></code></pre></div>
 <p>This approach—exporting a installation helper function that defaults
@@ -317,7 +338,7 @@ Conda environment, as provided by the Miniconda installation.</p></li>
 </ol>
 <p>In this case, the end user workflow will be exactly as with an R
 package that has no Python dependencies:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">rscipy</span><span class="op">)</span></span>
 <span><span class="co"># use the package</span></span></code></pre></div>
 <p>If the user has no compatible version of Python available on their
@@ -339,7 +360,7 @@ works.</p>
 already been initialized. To ensure that <code>reticulate</code> can
 still configure the active Python environment, you can include the
 code:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">.onLoad</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">libname</span>, <span class="va">pkgname</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu">reticulate</span><span class="fu">::</span><span class="fu"><a href="../reference/configure_environment.html">configure_environment</a></span><span class="op">(</span><span class="va">pkgname</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>

@@ -89,13 +89,36 @@ later (perhaps because something with conflicting Python dependencies
 was manually installed), the user can easily revert to a working state
 by calling `install_tensorflow()`.
 
+Python environments can occasionally get into a broken state when
+conflicting package versions are installed, and the most reliable way to
+get back to a working state is to delete the environment and start over
+with a fresh one. For this reason, `install_tensorflow()` removes any
+pre-existing "r-tensorflow" python environments first. Deleting a Python
+environment however is not something to be done lightly, so the default
+is to only delete the default "r-tensorflow" environment. Here is an
+example of the helper `install_tensorflow()` with the "reset" behavior.
+
+``` r
+#' @importFrom reticulate py_install virtualenv_exists virtualenv_remove
+install_tensorflow <-
+  function(...,
+           envname = "r-tensorflow",
+           new_env = identical(envname, "r-tensorflow")) {
+
+  if(new_env && virtualenv_exists(envname))
+    virtualenv_remove(envname)
+
+  py_install(packages = "tensorflow", envname = envname, ...)
+}
+```
+
 ## Managing Multiple Package Dependencies.
 
 One drawback of the isolated-package-environments approach is that if
-multiple R packages using reticulate are used, then those packages won't
-all be able to use their preferred Python environment in the same R
-session (since there can only be one active Python environment at a time
-within an R session). To resolve this, users will have to take a
+multiple R packages using reticulate are in use, then those packages
+won't all be able to use their preferred Python environment in the same
+R session (since there can only be one active Python environment at a
+time within an R session). To resolve this, users will have to take a
 slightly more active role in managing their python environments.
 However, this can be as simple as supplying a unique environment name.
 
@@ -109,16 +132,16 @@ tensorflow::install_tensorflow(envname = envname)
 pysparklyr::install_pyspark(envname = envname)
 ```
 
-As described in the [Order of Python
-Discovery](versions.html) guide, reticulate will
-automatically discover and use a Python virtual environment in the
-current working directory like this. Alternatively, if the environment
-exists outside the project directory, the user could then place a
-.Renviron or .Rprofile file in the project directory, ensuring that
-reticulate will use always use the python configured for that project.
-For example, an .Renviron file in the project directory could contain:
+As described in the [Order of Python Discovery](versions.html) guide,
+reticulate will automatically discover and use a Python virtual
+environment in the current working directory like this. Alternatively,
+if the environment exists outside the project directory, the user could
+then place a .Renviron or .Rprofile file in the project directory,
+ensuring that reticulate will use always use the python configured for
+that project. For example, an .Renviron file in the project directory
+could contain:
 
-```         
+```
 RETICULATE_PYTHON_ENV=~/my/project/venv
 ```
 
@@ -199,7 +222,7 @@ this. For example, if we had a package `rscipy` that acted as an
 interface to the [SciPy](https://scipy.org) Python package, we might use
 the following `DESCRIPTION`:
 
-```         
+```
 Package: rscipy
 Title: An R Interface to scipy
 Version: 1.0.0
@@ -307,7 +330,7 @@ For example, we could change the `Config/reticulate` directive from
 above to specify that `scipy [1.3.0]` be installed from PyPI (with
 `pip`):
 
-```         
+```
 Config/reticulate:
   list(
     packages = list(

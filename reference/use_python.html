@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.30</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.31</span>
       </span>
     </div>
 
@@ -106,9 +106,9 @@
 
 <dt>required</dt>
 <dd><p>Is the requested copy of Python required? If <code>TRUE</code>, an error will be
-emitted if the requested copy of Python does not exist. Otherwise, the
+emitted if the requested copy of Python does not exist. If <code>FALSE</code>, the
 request is taken as a hint only, and scanning for other versions will still
-proceed.</p></dd>
+proceed. A value of <code>NULL</code> (the default), is equivalent to <code>TRUE</code>.</p></dd>
 
 
 <dt>version</dt>

@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.30</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.31</span>
       </span>
     </div>
 
@@ -87,7 +87,7 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">py_iterator</span><span class="op">(</span><span class="va">fn</span>, completed <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">py_iterator</span><span class="op">(</span><span class="va">fn</span>, completed <span class="op">=</span> <span class="cn">NULL</span>, prefetch <span class="op">=</span> <span class="fl">0L</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -98,7 +98,13 @@
 
 <dt>completed</dt>
 <dd><p>Special sentinel return value which indicates that
-iteration is complete (defaults to <code>NULL</code>)</p></dd>
+iteration is complete (defaults to <code>NULL</code>).</p></dd>
+
+
+<dt>prefetch</dt>
+<dd><p>Number items to prefetch. Set this to a positive integer to
+avoid a deadlock in situations where the generator values are consumed by
+python background threads while the main thread is blocked.</p></dd>
 
 </dl></div>
     <div id="value">

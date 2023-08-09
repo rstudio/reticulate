@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.30</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.31</span>
       </span>
     </div>
 
@@ -155,28 +155,31 @@ have no effect.</p>
 <p>Your R package likely depends on the installation of one or more
 Python packages. As a convenience to your users, you may want to provide
 a high-level R function to allow users to install these Python packages.
-It’s furthermore beneficial if multiple R packages that depend on Python
-packages install their dependencies in the same Python environment (so
-that they can be easily used together).</p>
+By default, the Python packages should be installed in an isolated
+virtual environment, but it’s beneficial if users could easily configure
+multiple R packages to depend on a common Python environment (so that
+they can be easily used together).</p>
 <p>The <code><a href="../reference/py_install.html">py_install()</a></code> function provides a high-level
 interface for installing one or more Python packages. The packages will
-by default be installed within a virtualenv or Conda environment named
-“r-reticulate”. For example:</p>
+by default be installed within the currently active virtual environment
+or conda environment, (which is, by default, an environent named
+“r-reticulate”). For example:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/py_install.html">py_install</a></span><span class="op">(</span><span class="st">"scipy"</span><span class="op">)</span></span></code></pre></div>
-<p>You can document the use of this function along with your package or
-alternatively provide a wrapper function for <code><a href="../reference/py_install.html">py_install()</a></code>.
-For example:</p>
+<p>You can document the use of this function along with your package, or
+alternatively you can provide a wrapper function for
+<code><a href="../reference/py_install.html">py_install()</a></code> that defaults to installing in a Python
+environment created specifically for your R package. For example:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">install_scipy</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">method</span> <span class="op">=</span> <span class="st">"auto"</span>, <span class="va">conda</span> <span class="op">=</span> <span class="st">"auto"</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu">reticulate</span><span class="fu">::</span><span class="fu"><a href="../reference/py_install.html">py_install</a></span><span class="op">(</span><span class="st">"scipy"</span>, method <span class="op">=</span> <span class="va">method</span>, conda <span class="op">=</span> <span class="va">conda</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">install_scipy</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">envname</span> <span class="op">=</span> <span class="st">"r-scipy"</span>, <span class="va">method</span> <span class="op">=</span> <span class="st">"auto"</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu">reticulate</span><span class="fu">::</span><span class="fu"><a href="../reference/py_install.html">py_install</a></span><span class="op">(</span><span class="st">"scipy"</span>, envname <span class="op">=</span> <span class="va">envname</span>, </span>
+<span>                         method <span class="op">=</span> <span class="va">method</span>, <span class="va">...</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>While reticulate is capable of binding to <a href="calling_python.html#python-version">any Python environment</a>
-available on a system, it’s much more straightforward for users if there
-is a common environment used by R packages with convenient high-level
-functions provided for installation. We therefore strongly recommend
-that R package developers use the approach described here.</p>
+<p>For a fuller discussion of how to use reticulate in an R package,
+include alternative approaches, and how to create a “pit of success” for
+R users with regards to managing Python installations, see the guide on
+<a href="python_dependencies.html">Python Dependencies</a></p>
 </div>
 <div class="section level2">
 <h2 id="checking-and-testing-on-cran">Checking and Testing on CRAN<a class="anchor" aria-label="anchor" href="#checking-and-testing-on-cran"></a>
@@ -246,7 +249,7 @@ example:</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>method.MyModule.MyPythonClass <span class="ot">&lt;-</span> <span class="cf">function</span>(x, y, ...) {</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">py_is_null_xptr</span>(x))</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># whatever is appropriate</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">else</span> </span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">else</span></span>
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># interact with the object</span></span>
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <p>Note that this check isn’t required, as by default an R error will
@@ -259,7 +262,7 @@ after doing appropriate validation (if the object is NULL then
 <code>py_str</code> method as follows:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#' @importFrom reticulate py_str</span></span>
-<span><span class="co">#' @export </span></span>
+<span><span class="co">#' @export</span></span>
 <span><span class="va">py_str.MyModule.MyPythonClass</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">object</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="co"># interact with the object to generate the string</span></span>
 <span><span class="op">}</span></span></code></pre></div>
@@ -357,22 +360,23 @@ can do this with reticulate functions:</p>
 <span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">uses</span><span class="kw">:</span><span class="at"> actions/setup-python@v4</span></span>
 <span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">with</span><span class="kw">:</span></span>
 <span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="at">          </span><span class="fu">python-version</span><span class="kw">:</span><span class="at"> </span><span class="st">"3.x"</span></span>
-<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="at">          </span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> setup r-reticulate venv</span></span>
 <span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">shell</span><span class="kw">:</span><span class="at"> Rscript {0}</span></span>
 <span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a><span class="fu">        run</span><span class="kw">: </span><span class="ch">|</span></span>
-<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>          python_packages &lt;- </span>
-<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>            c("numpy", "any-other-python-packages-you-want-go-here")</span>
-<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>          </span>
-<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>          library(reticulate)</span>
-<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>          virtualenv_create("r-reticulate", Sys.which("python"))</span>
-<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>          virtualenv_install("r-reticulate", python_packages)</span>
-<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>          </span>
-<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>          path_to_python &lt;- virtualenv_python("r-reticulate")</span>
-<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>          writeLines(sprintf("RETICULATE_PYTHON=%s", path_to_python),</span>
-<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>                     Sys.getenv("GITHUB_ENV"))</span>
-<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>                     </span>
-<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">uses</span><span class="kw">:</span><span class="at"> r-lib/actions/check-r-package@v2</span></span></code></pre></div>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>          path_to_python &lt;- reticulate::virtualenv_create(</span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>            envname = "r-reticulate",</span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>            python = Sys.which("python"), # placed on PATH by the setup-python action</span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>            packages = c(</span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>              "numpy", "any-other-python-packages-you-want-go-here"</span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>            )</span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>          )</span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>          writeLines(sprintf("RETICULATE_PYTHON=%s", path_to_python),</span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>                     Sys.getenv("GITHUB_ENV"))</span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">uses</span><span class="kw">:</span><span class="at"> r-lib/actions/check-r-package@v2</span></span></code></pre></div>
 </div>
   </div>
 

@@ -130,9 +130,6 @@
     <loc>https://rstudio.github.io/reticulate/reference/py_del_attr.html</loc>
   </url>
   <url>
-    <loc>https://rstudio.github.io/reticulate/reference/py_del_item.html</loc>
-  </url>
-  <url>
     <loc>https://rstudio.github.io/reticulate/reference/py_discover_config.html</loc>
   </url>
   <url>
@@ -209,9 +206,6 @@
   </url>
   <url>
     <loc>https://rstudio.github.io/reticulate/reference/py_set_attr.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/py_set_item.html</loc>
   </url>
   <url>
     <loc>https://rstudio.github.io/reticulate/reference/py_set_seed.html</loc>

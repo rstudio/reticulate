@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.30</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.31</span>
       </span>
     </div>
 
@@ -133,7 +133,15 @@
 <span></span>
 <span><span class="fu">conda_update</span><span class="op">(</span>conda <span class="op">=</span> <span class="st">"auto"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">conda_python</span><span class="op">(</span>envname <span class="op">=</span> <span class="cn">NULL</span>, conda <span class="op">=</span> <span class="st">"auto"</span>, all <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">conda_python</span><span class="op">(</span>envname <span class="op">=</span> <span class="cn">NULL</span>, conda <span class="op">=</span> <span class="st">"auto"</span>, all <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">conda_search</span><span class="op">(</span></span>
+<span>  <span class="va">matchspec</span>,</span>
+<span>  forge <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  channel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  conda <span class="op">=</span> <span class="st">"auto"</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -219,6 +227,10 @@ install via pip due to compilation requirements).</p></dd>
 <dt>all</dt>
 <dd><p>Boolean; report all instances of Python found?</p></dd>
 
+
+<dt>matchspec</dt>
+<dd><p>A conda MatchSpec query string.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
@@ -241,6 +253,15 @@ conda environment.</p>
 
 <p><code>conda_export()</code> returns the path to the exported environment definition,
 invisibly.</p>
+
+
+<p><code>conda_search()</code> returns an <span style="R">R</span></p>
+<p></p>
+<p><code>data.frame</code> describing packages that
+matched against <code>matchspec</code>. The data frame will usually include
+fields <code>name</code> giving the package name, <code>version</code> giving the package
+version, <code>build</code> giving the package build, and <code>channel</code> giving the
+channel the package is hosted on.</p>
     </div>
     <div id="finding-conda">
     <h2>Finding Conda</h2>

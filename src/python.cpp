@@ -3476,7 +3476,7 @@ PyObject* r_to_py_pandas_nullable_series (const RObject& column, const bool conv
     // the minimum pandas version.
     // we show a warning and force the numpy construction.
     Rcpp::warning(
-      "Nullable data types require pandas version >= 1.0.0. "
+      "Nullable data types require pandas version >= 1.2.0. "
       "Forcing numpy cast. Use `options(reticulate.pandas_force_numpy = TRUE)` "
       "to disable this warning."
     );

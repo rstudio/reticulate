@@ -3477,7 +3477,7 @@ PyObject* r_to_py_pandas_nullable_series (const RObject& column, const bool conv
     // we show a warning and force the numpy construction.
     Rcpp::warning(
       "Nullable data types require pandas version >= 1.2.0. "
-      "Forcing numpy cast. Use `options(reticulate.pandas_force_numpy = TRUE)` "
+      "Forcing numpy cast. Use `options(reticulate.pandas_use_nullable_dtypes = FALSE)` "
       "to disable this warning."
     );
 
@@ -3499,7 +3499,7 @@ PyObject* r_to_py_pandas_nullable_series (const RObject& column, const bool conv
       // we force the old cast method after a warning.
       Rcpp::warning(
         "String nullable data types require pandas version >= 1.5.0. "
-        "Forcing numpy cast. Use `options(reticulate.pandas_force_numpy = TRUE)` "
+        "Forcing numpy cast. Use `options(reticulate.pandas_use_nullable_dtypes = FALSE)` "
         "to disable this warning."
       );
 

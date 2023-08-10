@@ -3441,26 +3441,6 @@ PyObject* na_mask (SEXP x) {
 
 PyObject* r_to_py_pandas_nullable_series (const RObject& column, const bool convert) {
 
-  // strings are not built using np array + mask. Instead they take a
-  // np array with OBJECT type, with None's in the place of NA's
-  if (TYPEOF(column) == STRSXP) {
-    const static PyObjectPtr StringArray(
-        PyObject_GetAttrString(pandas_arrays(), "StringArray")
-    );
-
-    if (StringArray.is_null()) throw PythonException(py_fetch_error());
-
-    PyObjectPtr args(PyTuple_New(2));
-    PyTuple_SetItem(args, 0, (PyObject*)r_to_py_numpy(column, convert));
-    PyTuple_SetItem(args, 1, Py_False);
-
-    PyObject* pd_col(PyObject_Call(StringArray.get(), args, NULL));
-
-    if (!pd_col) throw PythonException(py_fetch_error());
-
-    return pd_col;
-  }
-
   PyObject* constructor;
   switch (TYPEOF(column)) {
   case INTSXP:
@@ -3481,11 +3461,53 @@ PyObject* r_to_py_pandas_nullable_series (const RObject& column, const bool conv
     );
     constructor = BoolArray.get();
     break;
+  case STRSXP:
+    const static PyObjectPtr StringArray(
+        PyObject_GetAttrString(pandas_arrays(), "StringArray")
+    );
+    constructor = StringArray.get();
+    break;
   default:
-    Rcpp::stop("R type not handled. Please supply one of int, double, logical");
+    Rcpp::stop("R type not handled. Please supply one of int, double, logical or character");
   }
 
-  if (!constructor) throw PythonException(py_fetch_error());
+  if (!constructor) {
+    // if the constructor is not available it means that the user doesn't have
+    // the minimum pandas version.
+    // we show a warning and force the numpy construction.
+    Rcpp::warning(
+      "Nullable data types require pandas version >= 1.0.0. "
+      "Forcing numpy cast. Use `options(reticulate.pandas_force_numpy = TRUE)` "
+      "to disable this warning."
+    );
+
+    return r_to_py_numpy(column, convert);
+  }
+
+  // strings are not built using np array + mask. Instead they take a
+  // np array with OBJECT type, with None's in the place of NA's
+  if (TYPEOF(column) == STRSXP) {
+    PyObjectPtr args(PyTuple_New(2));
+    PyTuple_SetItem(args, 0, (PyObject*)r_to_py_numpy(column, convert));
+    PyTuple_SetItem(args, 1, Py_False);
+
+    PyObject* pd_col(PyObject_Call(constructor, args, NULL));
+
+    if (!pd_col) {
+      // it's likely that the error is caused by using an old version of pandas
+      // that don't accept `None` as a `NA` value.
+      // we force the old cast method after a warning.
+      Rcpp::warning(
+        "String nullable data types require pandas version >= 1.5.0. "
+        "Forcing numpy cast. Use `options(reticulate.pandas_force_numpy = TRUE)` "
+        "to disable this warning."
+      );
+
+      return r_to_py_numpy(column, convert);
+    }
+
+    return pd_col;
+  }
 
   // tuples own the objects - thus we don't leak the value and mask
   PyObjectPtr args(PyTuple_New(3));

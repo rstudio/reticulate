@@ -275,6 +275,11 @@ test_that("NA in string columns don't prevent simplification", {
 })
 
 test_that("NA's are preserved in pandas columns", {
+  pd <- import("pandas")
+  if (numeric_version(pd$`__version__`) < "1.5") {
+    skip("Nullable data types require pandas version >= 1.5 to work fully.")
+  }
+
   df <- data.frame(
     int = c(NA, 1:10),
     num = c(NA, rnorm(10)),
@@ -282,7 +287,10 @@ test_that("NA's are preserved in pandas columns", {
     string = c(NA, letters[1:10])
   )
 
-  p_df <- r_to_py(df)
+  withr::with_options(c(reticulate.pandas_use_nullable_dtypes = TRUE), {
+    p_df <- r_to_py(df)
+  })
+
   r_df <- py_to_r(p_df)
 
   expect_identical(r_df$num, df$num)
@@ -291,25 +299,12 @@ test_that("NA's are preserved in pandas columns", {
   expect_identical(r_df$string, df$string)
 })
 
-test_that("Can use option to force not using nullable data types", {
+test_that("Round strip for string columns with NA's work correctly", {
+  df <- data.frame(string = c(NA, letters[1:10]))
+  p <- r_to_py(df)
 
-  df <- data.frame(
-    int = c(NA, 1:10),
-    num = c(NA, rnorm(10)),
-    lgl = c(NA, rep(c(TRUE, FALSE), 5)),
-    string = c(NA, letters[1:10])
-  )
+  expect_null(py_to_r(p$string[0]))
 
-  withr::with_options(c("reticulate.pandas_force_numpy" = TRUE), {
-    p_df <- r_to_py(df)
-  })
-
-  expect_equal(py_to_r(p_df$int$dtype$name), "int32")
-  expect_equal(py_to_r(p_df$num$dtype$name), "float64")
-  expect_equal(py_to_r(p_df$lgl$dtype$name), "bool")
-  expect_equal(py_to_r(p_df$string$dtype$name), "object")
-
-  # we now expect that NA`s are converted to `None` on string columns of pandas
-  # data frames.
-  expect_null(py_to_r(p_df$string[0]))
+  r <- py_to_r(p)
+  expect_true(is.na(r$string[1]))
 })

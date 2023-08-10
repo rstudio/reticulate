@@ -3530,7 +3530,7 @@ PyObjectRef r_convert_dataframe(RObject dataframe, bool convert) {
   CharacterVector names = dataframe.attr("names");
   // when this is set we cast R atomic vectors to numpy arrays and don't
   // use pandas dtypes that can handle missing values.
-  bool pandas_force_numpy = option_is_true("reticulate.pandas_force_numpy");
+  bool nullable_dtypes = option_is_true("reticulate.pandas_use_nullable_dtypes");
 
   for (R_xlen_t i = 0, n = Rf_xlength(dataframe); i < n; i++)
   {
@@ -3566,7 +3566,7 @@ PyObjectRef r_convert_dataframe(RObject dataframe, bool convert) {
 
     // We are sure it's an atomic vector:
     // Atomic values STRSXP, INTSXP, REALSXP and CPLSXP
-    if (pandas_force_numpy || TYPEOF(column) == CPLXSXP) {
+    if (!nullable_dtypes || TYPEOF(column) == CPLXSXP) {
       PyObjectPtr value(r_to_py_numpy(column, convert));
       status = PyDict_SetItem(dict, name, value);
     } else {

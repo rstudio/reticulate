@@ -285,7 +285,12 @@ std::string as_std_string(PyObject* str) {
 
 #define as_utf8_r_string(str) Rcpp::String(as_std_string(str))
 
-PyObject* as_python_str(SEXP strSEXP) {
+PyObject* as_python_str(SEXP strSEXP, bool handle_na=false) {
+  if (handle_na && strSEXP == NA_STRING) {
+    Py_IncRef(Py_None);
+    return Py_None;
+  }
+
   if (is_python3()) {
     // python3 doesn't have PyString and all strings are unicode so
     // make sure we get a unicode representation from R
@@ -909,12 +914,19 @@ bool is_pandas_na(PyObject* x) {
 
 }
 
+#define STATIC_MODULE(module)                                      \
+  const static PyObjectPtr mod(PyImport_ImportModule(module));     \
+  if (mod.is_null()) {                                             \
+    throw PythonException(py_fetch_error());                       \
+  }                                                                \
+  return mod;
+
 PyObject* numpy () {
-  const static PyObjectPtr numpy(PyImport_ImportModule("numpy"));
-  if (numpy.is_null()) {
-    throw PythonException(py_fetch_error());
-  }
-  return numpy;
+  STATIC_MODULE("numpy")
+}
+
+PyObject* pandas_arrays () {
+  STATIC_MODULE("pandas.arrays")
 }
 
 bool is_pandas_na_like(PyObject* x) {
@@ -1631,7 +1643,7 @@ PyObject* r_to_py_numpy(RObject x, bool convert) {
     void** pData = (void**)PyArray_DATA((PyArrayObject*)array);
     R_xlen_t len = Rf_xlength(x);
     for (R_xlen_t i = 0; i<len; i++) {
-      PyObject* pyStr = as_python_str(STRING_ELT(x, i));
+      PyObject* pyStr = as_python_str(STRING_ELT(x, i), /*handle_na=*/true);
       pData[i] = pyStr;
     }
 
@@ -3381,6 +3393,110 @@ SEXP py_convert_pandas_df(PyObjectRef df) {
 
 }
 
+PyObject* na_mask (SEXP x) {
+
+  const size_t n(LENGTH(x));
+  npy_intp dims(n);
+
+  PyObject* mask(PyArray_SimpleNew(1, &dims, NPY_BOOL));
+  if (!mask) throw PythonException(py_fetch_error());
+
+  // Instead of using R's Logical
+  // data points to mask 'owned' memory, so we don't need to free it.
+  bool* data = (bool*) PyArray_DATA((PyArrayObject*) mask);
+  if (!data) throw PythonException(py_fetch_error());
+
+  size_t i;
+
+  // This is modified from R primitive do_isna - backing the `is.na()`:
+  // https://github.com/wch/r-source/blob/6b5d4ca5d1e3b4b9e4bbfb8f75577aff396a378a/src/main/coerce.c#L2221
+  // Unfortunately couldn't find a simple way to find NA's for whichever atomic type.
+  switch (TYPEOF(x)) {
+  case LGLSXP:
+    for (i = 0; i < n; i++)
+      data[i] = (LOGICAL_ELT(x, i) == NA_LOGICAL);
+    break;
+  case INTSXP:
+    for (i = 0; i < n; i++)
+      data[i] = (INTEGER_ELT(x, i) == NA_INTEGER);
+    break;
+  case REALSXP:
+    for (i = 0; i < n; i++)
+      data[i] = ISNAN(REAL_ELT(x, i));
+    break;
+  case CPLXSXP:
+    for (i = 0; i < n; i++) {
+      Rcomplex v = COMPLEX_ELT(x, i);
+      data[i] = (ISNAN(v.r) || ISNAN(v.i));
+    }
+    break;
+  case STRSXP:
+    for (i = 0; i < n; i++)
+      data[i] = (STRING_ELT(x, i) == NA_STRING);
+    break;
+  }
+
+  return mask;
+}
+
+PyObject* r_to_py_pandas_nullable_series (const RObject& column, const bool convert) {
+
+  // strings are not built using np array + mask. Instead they take a
+  // np array with OBJECT type, with None's in the place of NA's
+  if (TYPEOF(column) == STRSXP) {
+    const static PyObjectPtr StringArray(
+        PyObject_GetAttrString(pandas_arrays(), "StringArray")
+    );
+
+    if (StringArray.is_null()) throw PythonException(py_fetch_error());
+
+    PyObjectPtr args(PyTuple_New(2));
+    PyTuple_SetItem(args, 0, (PyObject*)r_to_py_numpy(column, convert));
+    PyTuple_SetItem(args, 1, Py_False);
+
+    PyObject* pd_col(PyObject_Call(StringArray.get(), args, NULL));
+
+    if (!pd_col) throw PythonException(py_fetch_error());
+
+    return pd_col;
+  }
+
+  PyObject* constructor;
+  switch (TYPEOF(column)) {
+  case INTSXP:
+    const static PyObjectPtr IntArray(
+        PyObject_GetAttrString(pandas_arrays(), "IntegerArray")
+    );
+    constructor = IntArray.get();
+    break;
+  case REALSXP:
+    const static PyObjectPtr FloatArray(
+        PyObject_GetAttrString(pandas_arrays(), "FloatingArray")
+    );
+    constructor = FloatArray.get();
+    break;
+  case LGLSXP:
+    const static PyObjectPtr BoolArray(
+        PyObject_GetAttrString(pandas_arrays(), "BooleanArray")
+    );
+    constructor = BoolArray.get();
+    break;
+  default:
+    Rcpp::stop("R type not handled. Please supply one of int, double, logical");
+  }
+
+  if (!constructor) throw PythonException(py_fetch_error());
+
+  // tuples own the objects - thus we don't leak the value and mask
+  PyObjectPtr args(PyTuple_New(3));
+  PyTuple_SetItem(args, 0, (PyObject*)r_to_py_numpy(column, convert)); // value
+  PyTuple_SetItem(args, 1, (PyObject*)na_mask(column));                // mask
+  PyTuple_SetItem(args, 2, Py_False);                                  // copy=False
+
+  PyObject* pd_col(PyObject_Call(constructor, args, NULL));
+  return pd_col;
+}
+
 // [[Rcpp::export]]
 PyObjectRef r_convert_dataframe(RObject dataframe, bool convert) {
 
@@ -3390,27 +3506,51 @@ PyObjectRef r_convert_dataframe(RObject dataframe, bool convert) {
   PyObjectPtr dict(PyDict_New());
 
   CharacterVector names = dataframe.attr("names");
+  // when this is set we cast R atomic vectors to numpy arrays and don't
+  // use pandas dtypes that can handle missing values.
+  bool pandas_force_numpy = option_is_true("reticulate.pandas_force_numpy");
+
   for (R_xlen_t i = 0, n = Rf_xlength(dataframe); i < n; i++)
   {
     RObject column = VECTOR_ELT(dataframe, i);
 
     // ensure name is converted to appropriate encoding
-    const char* name = is_python3()
-      ? Rf_translateCharUTF8(names[i])
-      : Rf_translateChar(names[i]);
+    PyObjectPtr name(as_python_str(names[i]));
 
     int status = 0;
-    if (OBJECT(column) == 0) {
-      if (is_convertible_to_numpy(column)) {
-        PyObjectPtr value(r_to_py_numpy(column, convert));
-        status = PyDict_SetItemString(dict, name, value);
-      } else {
-        PyObjectPtr value(r_to_py_cpp(column, convert));
-        status = PyDict_SetItemString(dict, name, value);
-      }
-    } else {
+
+    if (OBJECT(column) != 0) {
+      // An object with a class attribute, we dispatch to the S3 method
+      // and continue to the next column.
       PyObjectRef ref(r_convert_dataframe_column(column, convert));
-      status = PyDict_SetItemString(dict, name, ref.get());
+      status = PyDict_SetItem(dict, name, ref.get());
+      if (status != 0)
+        throw PythonException(py_fetch_error());
+
+      continue;
+    }
+
+    if (!is_convertible_to_numpy(column)) {
+      // Not an atomic type supported by numpy, thus we use the default
+      // cast engine and continue to the next column.
+      PyObjectPtr value(r_to_py_cpp(column, convert));
+      status = PyDict_SetItem(dict, name, value);
+
+      if (status != 0)
+        throw PythonException(py_fetch_error());
+
+      continue;
+    }
+
+    // We are sure it's an atomic vector:
+    // Atomic values STRSXP, INTSXP, REALSXP and CPLSXP
+    if (pandas_force_numpy || TYPEOF(column) == CPLXSXP) {
+      PyObjectPtr value(r_to_py_numpy(column, convert));
+      status = PyDict_SetItem(dict, name, value);
+    } else {
+      // use Pandas nullable data types.
+      PyObjectPtr value(r_to_py_pandas_nullable_series(column, convert));
+      status = PyDict_SetItem(dict, name, value);
     }
 
     if (status != 0)
@@ -3418,7 +3558,6 @@ PyObjectRef r_convert_dataframe(RObject dataframe, bool convert) {
   }
 
   return py_ref(dict.detach(), convert);
-
 }
 
 namespace {

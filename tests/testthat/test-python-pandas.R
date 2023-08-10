@@ -273,3 +273,43 @@ test_that("NA in string columns don't prevent simplification", {
   expect_equal(as.logical(is.na(r)), c(FALSE, TRUE, TRUE, TRUE))
 
 })
+
+test_that("NA's are preserved in pandas columns", {
+  df <- data.frame(
+    int = c(NA, 1:10),
+    num = c(NA, rnorm(10)),
+    bool = c(NA, rep(c(TRUE, FALSE), 5)),
+    string = c(NA, letters[1:10])
+  )
+
+  p_df <- r_to_py(df)
+  r_df <- py_to_r(p_df)
+
+  expect_identical(r_df$num, df$num)
+  expect_identical(r_df$int, df$int)
+  expect_identical(r_df$bool, df$bool)
+  expect_identical(r_df$string, df$string)
+})
+
+test_that("Can use option to force not using nullable data types", {
+
+  df <- data.frame(
+    int = c(NA, 1:10),
+    num = c(NA, rnorm(10)),
+    lgl = c(NA, rep(c(TRUE, FALSE), 5)),
+    string = c(NA, letters[1:10])
+  )
+
+  withr::with_options(c("reticulate.pandas_force_numpy" = TRUE), {
+    p_df <- r_to_py(df)
+  })
+
+  expect_equal(py_to_r(p_df$int$dtype$name), "int32")
+  expect_equal(py_to_r(p_df$num$dtype$name), "float64")
+  expect_equal(py_to_r(p_df$lgl$dtype$name), "bool")
+  expect_equal(py_to_r(p_df$string$dtype$name), "object")
+
+  # we now expect that NA`s are converted to `None` on string columns of pandas
+  # data frames.
+  expect_null(py_to_r(p_df$string[0]))
+})

@@ -552,6 +552,9 @@ LIBPYTHON_EXTERN void **PyArray_API;
           (*(PyObject * (*)(PyTypeObject *, int, npy_intp *, int, npy_intp *, void *, int, int, PyObject *)) \
              PyArray_API[93])
 
+#define PyArray_SimpleNew(nd, dims, typenum) \
+          PyArray_New(&PyArray_Type, nd, dims, typenum, NULL, NULL, 0, 0, NULL)
+
 inline void* PyArray_DATA(PyArrayObject *arr) {
   return ((PyArrayObject_fields *)arr)->data;
 }

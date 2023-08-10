@@ -303,7 +303,7 @@ test_that("Round strip for string columns with NA's work correctly", {
   df <- data.frame(string = c(NA, letters[1:10]))
   p <- r_to_py(df)
 
-  expect_null(py_to_r(p$string[0]))
+  expect_true(py_to_r(p$string$isna()[0]))
 
   r <- py_to_r(p)
   expect_true(is.na(r$string[1]))

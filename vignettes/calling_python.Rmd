@@ -240,6 +240,32 @@ R data frames can be automatically converted to and from [Pandas](https://pandas
 
 If the R data frame has row names, the generated Pandas DataFrame will be re-indexed using those row names (and vice versa). Special handling is also available for a `DatetimeIndex` associated with a Pandas DataFrame; however, because R only supports character vectors for row names they are converted to character first.
 
+### Using Pandas nullable data types
+
+Pandas has experimental support for nullable data types. Those data types have built-in
+support for missing values, represented by `pd.NA` and using them allows us to better
+represent R `NA` values.
+
+Users can opt-in to use Pandas nullable data types instead of numpy arrays by setting
+the `reticulate.pandas_use_nullable_dtypes` to `TRUE`. For example:
+
+```r
+df <- data.frame(
+  int = c(NA, 1:4),
+  num = c(NA, rnorm(4)),
+  lgl = c(NA, rep(c(TRUE, FALSE), 2)),
+  string = c(NA, letters[1:4])
+)
+options(reticulate.pandas_use_nullable_data_types = TRUE)
+r_to_py(df)
+#>     int       num    lgl string
+#> 0  <NA>      <NA>   <NA>   <NA>
+#> 1     1 -0.697855   True      a
+#> 2     2 -0.253042  False      b
+#> 3     3  0.385421   True      c
+#> 4     4  0.519933  False      d
+```
+
 ## Sparse Matrices
 
 Sparse matrices created by [Matrix R package](https://CRAN.R-project.org/package=Matrix) can be converted [Scipy CSC matrix](https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.csc_matrix.html), and vice versa. This is often useful when you want to pass sparse matrices to Python functions that accepts Scipy CSC matrix to take advantage of this format, such as efficient column slicing and fast matrix vector products. 

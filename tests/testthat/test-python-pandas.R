@@ -273,3 +273,38 @@ test_that("NA in string columns don't prevent simplification", {
   expect_equal(as.logical(is.na(r)), c(FALSE, TRUE, TRUE, TRUE))
 
 })
+
+test_that("NA's are preserved in pandas columns", {
+  pd <- import("pandas")
+  if (numeric_version(pd$`__version__`) < "1.5") {
+    skip("Nullable data types require pandas version >= 1.5 to work fully.")
+  }
+
+  df <- data.frame(
+    int = c(NA, 1:10),
+    num = c(NA, rnorm(10)),
+    bool = c(NA, rep(c(TRUE, FALSE), 5)),
+    string = c(NA, letters[1:10])
+  )
+
+  withr::with_options(c(reticulate.pandas_use_nullable_dtypes = TRUE), {
+    p_df <- r_to_py(df)
+  })
+
+  r_df <- py_to_r(p_df)
+
+  expect_identical(r_df$num, df$num)
+  expect_identical(r_df$int, df$int)
+  expect_identical(r_df$bool, df$bool)
+  expect_identical(r_df$string, df$string)
+})
+
+test_that("Round strip for string columns with NA's work correctly", {
+  df <- data.frame(string = c(NA, letters[1:10]))
+  p <- r_to_py(df)
+
+  expect_true(py_to_r(p$string$isna()[0]))
+
+  r <- py_to_r(p)
+  expect_true(is.na(r$string[1]))
+})

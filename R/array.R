@@ -26,10 +26,12 @@ np_array <- function(data, dtype = NULL, order = "C") {
       data <- as.array(data)
 
     # do the conversion (will result in Fortran column ordering)
-    data <- if (isobj)
+    data <- if (isobj) {
       r_to_py(data, convert = FALSE)
-    else
+    } else {
+      ensure_python_initialized()
       r_to_py_impl(data, convert = FALSE)
+    }
   }
 
   # if we don't yet have a dtype then use the converted type

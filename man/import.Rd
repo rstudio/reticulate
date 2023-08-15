@@ -9,9 +9,9 @@
 \usage{
 import(module, as = NULL, convert = TRUE, delay_load = FALSE)
 
-import_main(convert = TRUE)
+import_main(convert = TRUE, delay_load = FALSE)
 
-import_builtins(convert = TRUE)
+import_builtins(convert = TRUE, delay_load = FALSE)
 
 import_from_path(module, path = ".", convert = TRUE, delay_load = FALSE)
 }

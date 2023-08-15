@@ -157,19 +157,14 @@ register_delay_load_import <- function(module, delay_load = NULL) {
 
 #' @rdname import
 #' @export
-import_main <- function(convert = TRUE) {
-  ensure_python_initialized()
-  import("__main__", convert = convert)
+import_main <- function(convert = TRUE, delay_load = FALSE) {
+  import("__main__", convert = convert, delay_load = delay_load)
 }
 
 #' @rdname import
 #' @export
-import_builtins <- function(convert = TRUE) {
-  ensure_python_initialized()
-  if (is_python3())
-    import("builtins", convert = convert)
-  else
-    import("__builtin__", convert = convert)
+import_builtins <- function(convert = TRUE, delay_load = FALSE) {
+  import("builtins", convert = convert, delay_load = delay_load)
 }
 
 

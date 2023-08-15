@@ -26,3 +26,58 @@ environment requesting that Python chunks be processed by this engine.
 Note that \code{knitr} (since version 1.18) will use the \code{reticulate} engine by
 default when executing Python chunks within an R Markdown document.
 }
+\section{Supported \code{knitr} chunk options}{
+
+
+For most options, reticulate's python engine behaves the same as the default
+R engine included in knitr, but they might not support all the same features.
+Options in \emph{italic} are equivalent to knitr, but with modified behavior.
+\itemize{
+\item \emph{\code{eval}} (\code{TRUE}, logical): If \code{TRUE}, all expressions in the chunk are evaluated. If \code{FALSE},
+no expression is evaluated. Unlike knitr's R engine, it doesn't support numeric
+values indicating the expressions to evaluate.
+\item \emph{\code{echo}} (\code{TRUE}, logical): Whether to display the source code in the output document. Unlike
+knitr's R engine, it doesn't support numeric values indicating the expressions
+to display.
+\item \code{results} (\code{'markup'}, character): Controls how to display the text results. Note that this option only
+applies to normal text output (not warnings, messages, or errors). The behavior
+should be identical to knitr's R engine.
+\item \code{collapse} (\code{FALSE}, logical): Whether to, if possible, collapse all the source and output blocks
+from one code chunk into a single block (by default, they are written to separate blocks).
+This option only applies to Markdown documents.
+\item \code{error} (\code{TRUE}, logical): Whether to preserve errors. If \code{FALSE} evaluation stops
+on errors. (Note that RMarkdown sets it to \code{FALSE}).
+\item \emph{\code{warning}} (\code{TRUE}, logical): Whether to preserve warnings in the output. If FALSE, all warnings
+will be suppressed. Doesn't support indices.
+\item \code{include} (\code{TRUE}, logical): Whether to include the chunk output in the output document.
+If \code{FALSE}, nothing will be written into the output document, but the code is still
+evaluated and plot files are generated if there are any plots in the chunk, so you
+can manually insert figures later.
+\item \code{dev}: The graphical device to generate plot files. See knitr documentation for
+additional information.
+\item \code{base.dir} (\code{NULL}; character): An absolute directory under which the plots
+are generated.
+\item \code{strip.white} (TRUE; logical): Whether to remove blank lines in the beginning
+or end of a source code block in the output.
+\item \code{dpi} (72; numeric): The DPI (dots per inch) for bitmap devices (dpi * inches = pixels).
+\item \code{fig.width}, \code{fig.height} (both are 7; numeric): Width and height of the plot
+(in inches), to be used in the graphics device.
+\item \code{label}: The chunk label for each chunk is assumed to be unique within the
+document. This is especially important for cache and plot filenames, because
+these filenames are based on chunk labels. Chunks without labels will be
+assigned labels like unnamed-chunk-i, where i is an incremental number.
+}
+\subsection{Python engine only options}{
+\itemize{
+\item \strong{\code{jupyter_compat}} (FALSE, logical): If \code{TRUE} then, like in Jupyter notebooks,
+only the last expression in the chunk is printed to the output.
+\item \strong{\code{out.width.px}}, \strong{\code{out.height.px}} (810, 400, both integers): Width and
+height of the plot in the output document, which can be different with its
+physical \code{fig.width} and \code{fig.height}, i.e., plots can be scaled in the output
+document. Unlike knitr's \code{out.width}, this is always set in pixels.
+\item \strong{\code{altair.fig.width}}, \strong{\code{altair.fig.height}}: If set, is used instead of
+\code{out.width.px} and \code{out.height.px} when writing Altair charts.
+}
+}
+}
+

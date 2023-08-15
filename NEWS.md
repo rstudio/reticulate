@@ -1,32 +1,62 @@
 # reticulate (development version)
 
+# reticulate 1.31
+
+## Python Installation Management
+
 - reticulate will no longer prompt users to install miniconda. Instead,
   reticulate will now prompt users to create a default `r-reticulate` venv.
 
-- The python search behavior that reticulate uses to select a Python has changed.
-  See the updated "versions" vignette for the new order of discovery.
+- The search that reticulate conducts to select which Python installation to load 
+  has changed. See the updated Python "Order of Discover" in the "versions" vignette.
+  `vignette("versions", package = "reticulate")`.
   
 - Updated recommendations in the "python_dependencies" vignette for how R packages 
-  can approach Python dependency management.
+  can approach Python dependency management. 
+  `vignette("python_dependencies", package = "reticulate")`
   
-- New `[` and `[<-` methods that invoke python `__getitem__`, `__setitem__` 
-  and `__delitem__`. The R generic `[` accepts python-style slice syntax like `x[1:2:3]`.
-  See examples in `?py_get_item`.
-  
-- `virtualenv_create()` gains a `force` argument.
+- New function `virtualenv_starter()`, which can be used to find a suitable
+  python binary for creating a virtual environmnent. This is now the default
+  method for finding the python binary when calling 
+  `virtualenv_create(version = <version>)`.
 
-- Fixed an issue where the list of available python versions used by `install_python()` 
-  would be out-of-date.
-  
-- `install_python()` on macOS will now will use brew, if it's available, to install
-   build dependencies, substantially speeding up python build times.
+- `virtualenv_create()` and `virtualenv_install()` gain a `requirements` argument,
+  accepting a filepath to a python requirements file.
+
+- `virtualenv_create()` gains a `force` argument.
 
 - `virtualenv_install()` gains a `python_version` argument, allowing users to customize
   which python version is used when bootstrapping a new virtual environment.
 
+- Fixed an issue where the list of available python versions used by 
+  `install_python()` would be out-of-date.
+
+- `install_python()` now gives a better error message if git is not installed.
+
+- `install_python()` on macOS will now will use brew, if it's available, to install
+   build dependencies, substantially speeding up python build times.
+
+- New function `conda_search()`, contributed by @mkoohafkan in PR #1364.
+  
+## Language
+  
+- New `[` and `[<-` methods that invoke Python `__getitem__`, `__setitem__` and 
+  `__delitem__`. The R generics `[` and `[<-` now accept python-style slice 
+  syntax like `x[1:2:3]`. See examples in `?py_get_item`.
+  
 - `py_iterator()` gains a `prefetch` argument, primarily to avoid deadlocks
   where the main thread is blocked, waiting for the iterator, which is waiting
   to run on the main thread, as encountered in TensorFlow/Keras. (#1405).
+  
+- String columns from Pandas data frames containing `None`, `pd.NA` or `np.nan` 
+  are now simplified into character vectors and missing values replaced by `NA` 
+  (#1428).
+
+- Converting from Pandas data frames containing columns with Pandas nullable 
+  data types are now correctly converted into R data.frames preserving the 
+  missing values (#1427).
+
+## Knitr
 
 - The knitr engine gains a `jupyter_compat` option, enabling
   reticulate to better match the behavior of Jupyter. When this chunk
@@ -46,22 +76,26 @@
 - Fixed an issue where knitr engine would not respect chunk options
   `fig.width` / `fig.height` when rendering matplotlib plots. (#1398)
 
-- Updated sparse matrix conversion routines for compatibility with
-  scipy 1.11.0.
-
-- New function `virtualenv_starter()`, which can be used to find a suitable
-  python binary for creating a virtual environmnent. This is now the default
-  method for finding the python binary when calling `virtualenv_create(version = <version>)`.
-
-- `virtualenv_create()` and `virtualenv_install()` gain a `requirements` argument,
-  accepting a filepath to a python requirements file.
-
 - Fixed an issue where the reticulate knitr engine would not capture output
   printed from python. (PR #1412, fixing #1378, #331)
 
-- `install_python()` now gives a better error message if git is not installed.
+## Miscellanous 
 
-- New function `conda_search()`, contributed by @mkoohafkan in PR #1364.
+- Reticulate now periodically flushes python `stdout` and `stderr` buffers even 
+  while the main thread is blocked executing Python code. Streaming output
+  from a long-running Python function call will now appear in the R console 
+  while the Python function is still executing. (Previously, output might not 
+  appear until the Python function had finished and control of the main thread 
+  had returned to R).
+
+- Updated sparse matrix conversion routines for compatibility with
+  scipy 1.11.0.
+  
+- Fixed an issue where a py capsule finalizer could access the R API from
+  a background thread. (#1406)
+
+- Fixed issue where R would segfault (crash) in long-lived R sessions where both
+  rpy2 and reticulate were in use (#1236).
 
 - Fixed an issue where exceptions from reticulate would not be formatted properly
   when running tests under testthat (r-lib/rlang#1637, #1413).
@@ -72,18 +106,6 @@
 - Fixed an issue where `py_get_attr(silent = TRUE)` would leave a python global
   exception set if the attribute was missing, resulting in fatal errors when
   running python under debug mode. (#1396)
-
-- Fixed an issue where a py capsule finalizer could access the R API from
-  a background thread. (#1406)
-
-- Fixed issue where R would crash in long-lived R sessions where both
-  rpy2 and reticulate were in use (#1236).
-
-- String columns from Pandas data frames containing `None`, `pd.NA` or `np.nan` are
-  now simplified into character vectors and missing values replaced by `NA` (#1428).
-
-- Converting from Pandas data frames containing columns with Pandas nullable data
-  types are now correctly converted into R data.frames preserving the missing values (#1427).
 
 # reticulate 1.30
 

@@ -35,6 +35,9 @@ pyenv_python <- function(version) {
   if (is.null(version))
     return(NULL)
 
+  if(grepl("^3\\.[0-9]+$", version))
+    version <- paste0(version, ":latest")
+
   if (endsWith(version, ":latest"))
     version <- pyenv_resolve_latest_patch(version, installed = TRUE)
 

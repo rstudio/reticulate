@@ -436,6 +436,32 @@ will be re-indexed using those row names (and vice versa). Special
 handling is also available for a <code>DatetimeIndex</code> associated
 with a Pandas DataFrame; however, because R only supports character
 vectors for row names they are converted to character first.</p>
+<div class="section level3">
+<h3 id="using-pandas-nullable-data-types">Using Pandas nullable data types<a class="anchor" aria-label="anchor" href="#using-pandas-nullable-data-types"></a>
+</h3>
+<p>Pandas has experimental support for nullable data types. Those data
+types have built-in support for missing values, represented by
+<code>pd.NA</code> and using them allows us to better represent R
+<code>NA</code> values.</p>
+<p>Users can opt-in to use Pandas nullable data types instead of numpy
+arrays by setting the <code>reticulate.pandas_use_nullable_dtypes</code>
+to <code>TRUE</code>. For example:</p>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  int <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span>,</span>
+<span>  num <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">4</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  lgl <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">TRUE</span>, <span class="cn">FALSE</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  string <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="va">letters</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>reticulate.pandas_use_nullable_data_types <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/r-py-conversion.html">r_to_py</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span></span>
+<span><span class="co">#&gt;     int       num    lgl string</span></span>
+<span><span class="co">#&gt; 0  &lt;NA&gt;      &lt;NA&gt;   &lt;NA&gt;   &lt;NA&gt;</span></span>
+<span><span class="co">#&gt; 1     1 -0.697855   True      a</span></span>
+<span><span class="co">#&gt; 2     2 -0.253042  False      b</span></span>
+<span><span class="co">#&gt; 3     3  0.385421   True      c</span></span>
+<span><span class="co">#&gt; 4     4  0.519933  False      d</span></span></code></pre></div>
+</div>
 </div>
 <div class="section level2">
 <h2 id="sparse-matrices">Sparse Matrices<a class="anchor" aria-label="anchor" href="#sparse-matrices"></a>
@@ -495,7 +521,7 @@ that we created earlier using <code><a href="https://rdrr.io/pkg/Matrix/man/spar
 <p>The R <code>with</code> generic function can be used to interact with
 Python context manager objects (in Python you use the <code>with</code>
 keyword to do the same). For example:</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">py</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/import.html">import_builtins</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="va">py</span><span class="op">$</span><span class="fu">open</span><span class="op">(</span><span class="st">"output.txt"</span>, <span class="st">"w"</span><span class="op">)</span> <span class="op"><a href="../reference/with-as-operator.html">%as%</a></span> <span class="va">file</span>, <span class="op">{</span></span>
 <span>  <span class="va">file</span><span class="op">$</span><span class="fu">write</span><span class="op">(</span><span class="st">"Hello, there!"</span><span class="op">)</span></span>
@@ -511,15 +537,15 @@ operator to alias the object created by the context manager.</p>
 with it using the <code><a href="../reference/iterate.html">iterate()</a></code> function. The
 <code><a href="../reference/iterate.html">iterate()</a></code> function can be used to apply an R function to
 each item yielded by the iterator:</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/iterate.html">iterate</a></span><span class="op">(</span><span class="va">iter</span>, <span class="va">print</span><span class="op">)</span></span></code></pre></div>
 <p>If you don’t pass a function to <code>iterate</code> the results will
 be collected into an R vector:</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/iterate.html">iterate</a></span><span class="op">(</span><span class="va">iter</span><span class="op">)</span></span></code></pre></div>
 <p>Note that the <code>Iterators</code> will be drained of their values
 by <code><a href="../reference/iterate.html">iterate()</a></code>:</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">a</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/iterate.html">iterate</a></span><span class="op">(</span><span class="va">iter</span><span class="op">)</span> <span class="co"># results are not empty</span></span>
 <span><span class="va">b</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/iterate.html">iterate</a></span><span class="op">(</span><span class="va">iter</span><span class="op">)</span> <span class="co"># results are empty since items have already been drained</span></span></code></pre></div>
 <div class="section level3">
@@ -527,7 +553,7 @@ by <code><a href="../reference/iterate.html">iterate()</a></code>:</p>
 </h3>
 <p>You can also iterate on an element-by-element basis using the
 <code><a href="../reference/iterate.html">iter_next()</a></code> function. For example:</p>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">while</span> <span class="op">(</span><span class="cn">TRUE</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">item</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/iterate.html">iter_next</a></span><span class="op">(</span><span class="va">iter</span><span class="op">)</span></span>
 <span>  <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">item</span><span class="op">)</span><span class="op">)</span></span>
@@ -537,7 +563,7 @@ by <code><a href="../reference/iterate.html">iterate()</a></code>:</p>
 when the iteration is complete but you can provide a custom
 <code>completed</code> value it will be returned instead. For
 example:</p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">while</span> <span class="op">(</span><span class="cn">TRUE</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">item</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/iterate.html">iter_next</a></span><span class="op">(</span><span class="va">iter</span>, completed <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span></span>
 <span>  <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">item</span><span class="op">)</span><span class="op">)</span></span>
@@ -560,7 +586,7 @@ of the <code>yield</code> keyword is that it enables successive
 iterations to use the state of previous iterations. In R, this can be
 done by returning a function that mutates its enclosing environment via
 the &lt;&lt;- operator. For example:</p>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># define a generator function</span></span>
 <span><span class="va">sequence_generator</span> <span class="op">&lt;-</span><span class="kw">function</span><span class="op">(</span><span class="va">start</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">value</span> <span class="op">&lt;-</span> <span class="va">start</span></span>
@@ -574,7 +600,7 @@ the &lt;&lt;- operator. For example:</p>
 <span><span class="va">iter</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/py_iterator.html">py_iterator</a></span><span class="op">(</span><span class="fu">sequence_generator</span><span class="op">(</span><span class="fl">10</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>If you want to indicate the end of the iteration, return
 <code>NULL</code> from the function:</p>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sequence_generator</span> <span class="op">&lt;-</span><span class="kw">function</span><span class="op">(</span><span class="va">start</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">value</span> <span class="op">&lt;-</span> <span class="va">start</span></span>
 <span>  <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
@@ -604,10 +630,10 @@ and then we use <a href="https://docs.python.org/3/library/inspect.html" class="
 module</a> to get the converted function’s argument spec. You can see
 that the signature of the wrapped function looks different than the
 original R function’s signature.</p>
-<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> inspect <span class="ot">&lt;-</span> <span class="fu">import</span>(<span class="st">"inspect"</span>)</span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> converted_func <span class="ot">&lt;-</span> <span class="fu">r_to_py</span>(<span class="cf">function</span>(a, <span class="at">b =</span> <span class="fl">1.5</span>) {})</span>
-<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> inspect<span class="sc">$</span><span class="fu">getargspec</span>(converted_func)</span>
-<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ArgSpec</span>(<span class="at">args=</span>[], <span class="at">varargs=</span><span class="st">'args'</span>, <span class="at">keywords=</span><span class="st">'kwargs'</span>, <span class="at">defaults=</span>None)</span></code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> inspect <span class="ot">&lt;-</span> <span class="fu">import</span>(<span class="st">"inspect"</span>)</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> converted_func <span class="ot">&lt;-</span> <span class="fu">r_to_py</span>(<span class="cf">function</span>(a, <span class="at">b =</span> <span class="fl">1.5</span>) {})</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> inspect<span class="sc">$</span><span class="fu">getargspec</span>(converted_func)</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ArgSpec</span>(<span class="at">args=</span>[], <span class="at">varargs=</span><span class="st">'args'</span>, <span class="at">keywords=</span><span class="st">'kwargs'</span>, <span class="at">defaults=</span>None)</span></code></pre></div>
 <p>This default conversion typically works fine, however some Python
 libraries have strict checking on the function signatures of user
 provided callbacks. In these cases the generic
@@ -617,9 +643,9 @@ function so that the wrapped function has exactly the same signature as
 that of the original R function, e.g. one argument <code>a</code>
 without default value and another argument <code>b</code> with default
 value 1.5.</p>
-<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> wrapped_func <span class="ot">&lt;-</span> <span class="fu">py_func</span>(<span class="cf">function</span>(a, <span class="at">b =</span> <span class="fl">1.5</span>) {})</span>
-<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> inspect<span class="sc">$</span><span class="fu">getargspec</span>(wrapped_func)</span>
-<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ArgSpec</span>(<span class="at">args=</span>[<span class="st">'a'</span>, <span class="st">'b'</span>], <span class="at">varargs=</span>None, <span class="at">keywords=</span>None, <span class="at">defaults=</span>(<span class="fl">1.5</span>,))</span></code></pre></div>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> wrapped_func <span class="ot">&lt;-</span> <span class="fu">py_func</span>(<span class="cf">function</span>(a, <span class="at">b =</span> <span class="fl">1.5</span>) {})</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> inspect<span class="sc">$</span><span class="fu">getargspec</span>(wrapped_func)</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ArgSpec</span>(<span class="at">args=</span>[<span class="st">'a'</span>, <span class="st">'b'</span>], <span class="at">varargs=</span>None, <span class="at">keywords=</span>None, <span class="at">defaults=</span>(<span class="fl">1.5</span>,))</span></code></pre></div>
 <p>Note that the signature of the R function must not contain esoteric
 Python-incompatible constructs. For example, we cannot have R function
 with signature like <code>function(a = 1, b)</code> since Python

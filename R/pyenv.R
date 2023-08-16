@@ -157,6 +157,11 @@ pyenv_install <- function(version, force, pyenv = NULL) {
   # set options
   withr::local_envvar(PYTHON_CONFIGURE_OPTS = "--enable-shared")
 
+  if(is_macos() &&
+     Sys.which("brew") == "" &&
+     file.exists("/opt/homebrew/bin/brew"))
+    withr::local_path("/opt/homebrew/bin")
+
   # build install arguments
   force <- if (force)
     "--force"
@@ -221,9 +226,15 @@ pyenv_bootstrap_unix <- function() {
   # pyenv python builds are substantially faster on macOS if we pre-install
   # some dependencies (especially openssl) as pre-built but "untapped kegs"
   # (i.e., unlinked to somewhere on the PATH but tucked away under $BREW_ROOT/Cellar).
-  if (nzchar(Sys.which("brew"))) {
-    system2t("brew", c("install -q openssl readline sqlite3 xz zlib tcl-tk"))
-    system2t("brew", c("install --only-dependencies pyenv python"))
+  if (is_macos()) {
+    brew <- Sys.which("brew")
+    if(brew == "" && file.exists(brew <- "/opt/homebrew/bin/brew"))
+      withr::local_path("/opt/homebrew/bin")
+
+    if(file.exists(brew)) {
+      system2t(brew, c("install -q openssl readline sqlite3 xz zlib tcl-tk"))
+      system2t(brew, c("install --only-dependencies pyenv python"))
+    }
   }
 
   # download the installer

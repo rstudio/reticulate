@@ -1614,6 +1614,29 @@ nameOfClass.python.builtin.type <- function(x) {
   )
 }
 
+#' @rawNamespace if (getRversion() >= "4.3.0") S3method(chooseOpsMethod,python.builtin.object)
+chooseOpsMethod.python.builtin.object <- function(x, y, mx, my, cl, reverse) {
+  # If both objects are python objects, and
+  # 'my' is the default Ops method provided by reticulate
+  # (e.g, its environment is the reticulate namespace)
+  # then 'mx' must be the more specific method, select mx.
+  # e.g.,:
+  # x class: tensorflow.tensor ... python.builtin.object
+  # y class: numpy.ndarray         python.builtin.object
+  # 'x * y' gives
+  # Warning: Incompatible methods ("*.tensorflow.tensor", "*.python.builtin.object") for "*"
+  # Error in img * x : non-numeric argument to binary operator
+
+  # TODO: File a bug in R bugzilla, we should not need to provide this method.
+  # DispatchGroup() should automatically detect that '*.tensorflow.tensor' is
+  # more specialized and preferred since both x and y would otherwise dispatch to
+  # '*.python.builtin.object'.
+
+  inherits(x, "python.builtin.object") &&
+  inherits(y, "python.builtin.object") &&
+  identical(environment(my), parent.env(environment()))
+}
+
 py_set_interrupt <- function() {
   py_set_interrupt_impl()
 }

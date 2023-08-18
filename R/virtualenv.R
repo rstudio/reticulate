@@ -120,10 +120,8 @@ virtualenv_create <- function(
   if (is.null(python))
     python <- virtualenv_starter(version)
 
-  if (is.null(python))
-    stop_no_virtualenv_starter(version)
 
-  check_can_be_virtualenv_starter(python)
+  check_can_be_virtualenv_starter(python, version)
 
   module <- module %||% virtualenv_module(python)
 
@@ -655,13 +653,13 @@ as_version_constraint_checkers <- function(version) {
 }
 
 
-check_can_be_virtualenv_starter <- function(python) {
+check_can_be_virtualenv_starter <- function(python, version) {
   if(!can_be_virtualenv_starter(python))
-    stop_no_virtualenv_starter()
+    stop_no_virtualenv_starter(version = version, python = python)
 }
 
 can_be_virtualenv_starter <- function(python) {
-  if (!file.exists(python))
+  if (is.null(python) || !file.exists(python))
     return(FALSE)
 
   # get version
@@ -691,23 +689,42 @@ can_be_virtualenv_starter <- function(python) {
 }
 
 
-stop_no_virtualenv_starter <- function(version = NULL) {
+stop_no_virtualenv_starter <- function(version = NULL, python = NULL) {
 
   .msg <- character()
   w <- function(...) .msg <<- c(.msg, paste0(...))
 
   w("Suitable Python installation for creating a venv not found.")
+  if (!is.null(python))
+    w("  Requested Python: ", python)
   if (!is.null(version))
-    w("Requested version constraint: ", version)
+    w("  Requested version constraint: ", version)
+
   w("Please install Python with one of following methods:")
 
   if (is_linux())
-      w("- https://github.com/rstudio/python-builds/")
+    w("- https://github.com/rstudio/python-builds/")
 
   if (!is_linux())
     w("- https://www.python.org/downloads/")
 
   w("- reticulate::install_python(version = '<version>')")
+
+
+  # On linux, if there is an incomplete system python install,
+  # give a hint on how to make it usable
+  python <- python %||% "/usr/bin/python3"
+  if (is_linux() &&
+      startsWith(python, "/usr/bin/python3") &&
+      file.exists(python) &&
+      !python_has_modules(python, c("pip", "venv"))) {
+    if (is_ubuntu())
+      w("- sudo apt install python3-venv")
+    else if (is_fedora())
+      w("- sudo dnf install python3-pip")
+    else
+      w("- Install python3-venv and python3-pip using the system package manager")
+  }
 
   stop(paste0(.msg, collapse = "\n"))
 

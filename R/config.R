@@ -941,6 +941,16 @@ is_ubuntu <- function() {
   }
 }
 
+
+is_fedora <- function() {
+  if (is_unix() && file.exists("/etc/os-release")) {
+    os_info <- readLines("/etc/os-release")
+    any(grepl("Fedora", os_info))
+  } else {
+    FALSE
+  }
+}
+
 is_rstudio <- function() {
   exists("RStudio.Version", envir = globalenv())
 }

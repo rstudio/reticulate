@@ -118,6 +118,9 @@ virtualenv_create <- function(
   }
 
   if (is.null(python))
+    python <- virtualenv_starter(version)
+
+  if (is.null(python))
     stop_no_virtualenv_starter(version)
 
   check_can_be_virtualenv_starter(python)

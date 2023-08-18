@@ -444,6 +444,9 @@ create_default_virtualenv <- function(package = "reticulate", ...) {
   if (virtualenv_exists(envname))
     return(virtualenv_python(envname))
 
+  if (!isTRUE(getOption("reticulate.python.initializing")))
+    return(NULL)
+
   permission <- tolower(Sys.getenv("RETICULATE_AUTOCREATE_PACKAGE_VENV", ""))
 
   if (permission %in% c("false", "0", "no"))

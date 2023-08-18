@@ -22,7 +22,8 @@
       return(main)
 
     # attempt to initialize main
-    main <<- import_main(convert = TRUE)
+    if (is_python_initialized())
+      main <<- import_main(convert = TRUE)
 
     # return value of main
     main

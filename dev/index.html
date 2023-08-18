@@ -230,9 +230,9 @@
 <p>When calling into Python, R data types are automatically converted to their equivalent Python types. When values are returned from Python to R they are converted back to R types. Types are converted as follows:</p>
 <table class="table">
 <colgroup>
-<col width="25%">
-<col width="20%">
-<col width="53%">
+<col width="39%">
+<col width="16%">
+<col width="43%">
 </colgroup>
 <thead><tr class="header">
 <th>R</th>
@@ -241,47 +241,42 @@
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td>Single-element vector</td>
+<td>Single-element atomic vector</td>
 <td>Scalar</td>
 <td>
 <code>1</code>, <code>1L</code>, <code>TRUE</code>, <code>"foo"</code>
 </td>
 </tr>
 <tr class="even">
-<td>Multi-element vector</td>
+<td>Unnamed list or multi-element atomic vector</td>
 <td>List</td>
 <td>
 <code>c(1.0, 2.0, 3.0)</code>, <code>c(1L, 2L, 3L)</code>
 </td>
 </tr>
 <tr class="odd">
-<td>List of multiple types</td>
-<td>Tuple</td>
-<td><code>list(1L, TRUE, "foo")</code></td>
-</tr>
-<tr class="even">
 <td>Named list</td>
 <td>Dict</td>
 <td>
 <code>list(a = 1L, b = 2.0)</code>, <code>dict(x = x_data)</code>
 </td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Matrix/Array</td>
 <td>NumPy ndarray</td>
 <td><code>matrix(c(1,2,3,4), nrow = 2, ncol = 2)</code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Data Frame</td>
 <td>Pandas DataFrame</td>
 <td><code>data.frame(x = c(1,2,3), y = c("a", "b", "c"))</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Function</td>
 <td>Python function</td>
 <td><code>function(x) x + 1</code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>NULL, TRUE, FALSE</td>
 <td>None, True, False</td>
 <td>

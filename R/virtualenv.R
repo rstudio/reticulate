@@ -120,7 +120,6 @@ virtualenv_create <- function(
   if (is.null(python))
     python <- virtualenv_starter(version)
 
-
   check_can_be_virtualenv_starter(python, version)
 
   module <- module %||% virtualenv_module(python)
@@ -409,8 +408,16 @@ virtualenv_module <- function(python) {
 
   # if we have one of these modules available, return it
   for (module in modules)
-    if (python_has_module(python, module))
+    if (python_has_module(python, module)) {
+      if(module == "venv" && is_ubuntu() && startsWith(python, "/usr/bin/python")) {
+        # `apt install python3` makes an importable venv module, but not one
+        # capable of actually creating a venv unless python3-venv is installed.
+        # if python3-venv is not installed, move on and maybe discover virtualenv.
+        if (!any(grepl("^python[0-9.]*-venv$", system("dpkg -l", intern = TRUE))))
+          next
+      }
       return(module)
+    }
 
   # virtualenv not available: instruct the user to install
   commands <- stack(mode = "character")

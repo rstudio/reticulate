@@ -117,12 +117,19 @@ python_info_virtualenv <- function(path) {
   python <- file.path(path, suffix)
 
   # return details
-  list(
+  out <- list(
     python = python,
     type = "virtualenv",
     root = path
   )
 
+  if (file.exists(cfg <- file.path(out$root, "pyvenv.cfg"))) {
+    starter <- grep("^home = ", readLines(cfg), value = TRUE)
+    if(length(starter))
+      out$starter <- str_drop_prefix(starter, "home = ")
+  }
+
+  out
 }
 
 python_info_condaenv <- function(path) {

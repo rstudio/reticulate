@@ -647,13 +647,30 @@ python_munge_path <- function(python) {
 
 python_config_impl <- function(python) {
 
+  if(!file.exists(python)) {
+    # Test if `python` is broken symlink, which can happen with a venv if the
+    # venv starter is moved/removed
+    msg <- paste0("Error running ", shQuote(python), ": No such file.")
+    info <- python_info(python)
+    if (info$type == "virtualenv") {
+      msg <- paste0(sep = "", c(msg, "\n",
+          "The Python installation used to create the virtualenv has been moved or removed",
+          if(is.null(info$starter)) "." else ":\n  ", shQuote(info$starter)
+        ))
+    }
+    stop(msg)
+  }
+
   script <- system.file("config/config.py", package = "reticulate")
-  config <- system2(
+  config <- tryCatch(system2(
     command = python,
     args    = shQuote(script),
     stdout  = TRUE,
     stderr  = FALSE
-  )
+  ), error = function(e) {
+    e$message <- paste(e$message, shQuote(python))
+    stop(e)
+  })
 
   # check for error
   status <- attr(config, "status")

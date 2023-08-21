@@ -1,12 +1,30 @@
 # reticulate (development version)
 
-- reticulate now exports a 'chooseOpsMethod()` method, allowing for Ops dispatch 
+- reticulate now exports a `chooseOpsMethod()` method, allowing for Ops dispatch 
   to more specialized Ops methods defined for Python objects. 
 
 - reticulate now supports casting R data.frames to Pandas data.frames using nullable
   data types allowing users to preserve NA's from R atomic vectors. This feature is
   opt-in and can be enabled by setting the R option `reticulate.pandas_use_nullable_dtypes`
   to `TRUE`. (#1439)
+  
+- Fixed issue where `virtualenv_create()` would fail to discover a 'virtualenv' module 
+  in the system Python installation on Ubuntu. Reticulate will no longer discover 
+  and attempt to use the `venv` module stub present on Ubuntu systems
+  where the `python3-venv` apt package has not been installed. 
+  (mlverse/pysparklyr#11, #1437, #1455)
+  
+- Fixed issue where the user was prompted to create an 'r-reticulate' venv 
+  in the RStudio IDE before reticulate was requested to initialize Python. (#1450, #1456)
+  
+- Improved error message when reticulate attempts to initialize a virtual environment 
+  after the Python installation it was created from is no longer available. (#1149, #1457)
+  
+- Improved error message on Fedora when attempting to create a virtual environment
+  from the system python before running `dnf install python3-pip`.
+  
+- Fixed issue where `install_python()` on macOS in the RStudio IDE would fail discover
+  and use brew for Python build dependencies.
 
 # reticulate 1.31
 

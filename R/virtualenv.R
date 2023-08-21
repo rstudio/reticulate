@@ -35,18 +35,17 @@
 #'   environments?
 #'
 #' @param python The path to a Python interpreter, to be used with the created
-#'   virtual environment. When `NULL`, the Python interpreter associated with
-#'   the current session will be used.
+#'   virtual environment.
 #'
 #' @param force Boolean; force recreating the environment specified by
-#'   `envname`, even if it already exists. If `TRUE`, the previous enviroment is
+#'   `envname`, even if it already exists. If `TRUE`, the previous environment is
 #'   first deleted and recreated. Otherwise, if `FALSE`, the path to the
 #'   existing environment is returned.
 #'
-#' @param version,python_version The version of Python to use when creating a
+#' @param version,python_version (string) The version of Python to use when creating a
 #'   virtual environment. Python installations will be searched for using
 #'   [`virtualenv_starter()`]. This can a specific version, like `"3.9"` or
-#'   `"3.9.3`, or a comma separated list of version constraints, like `">=3.8"`,
+#'   `"3.9.3"`, or a comma separated list of version constraints, like `">=3.8"`,
 #'   or `"<=3.11,!=3.9.3,>3.6"`
 #'
 #' @param all If `TRUE`, `virtualenv_starter()` returns a 2-column data frame,

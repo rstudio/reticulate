@@ -61,16 +61,15 @@ instead. To refer to a virtual environment in the current working
 directory, you can prefix the path with \verb{./<name>}.}
 
 \item{python}{The path to a Python interpreter, to be used with the created
-virtual environment. When \code{NULL}, the Python interpreter associated with
-the current session will be used.}
+virtual environment.}
 
 \item{...}{Optional arguments; currently ignored and reserved for future
 expansion.}
 
-\item{version, python_version}{The version of Python to use when creating a
+\item{version, python_version}{(string) The version of Python to use when creating a
 virtual environment. Python installations will be searched for using
 \code{\link[=virtualenv_starter]{virtualenv_starter()}}. This can a specific version, like \code{"3.9"} or
-\verb{"3.9.3}, or a comma separated list of version constraints, like \code{">=3.8"},
+\code{"3.9.3"}, or a comma separated list of version constraints, like \code{">=3.8"},
 or \code{"<=3.11,!=3.9.3,>3.6"}}
 
 \item{packages}{A set of Python packages to install (via \verb{pip install}) into
@@ -82,7 +81,7 @@ any packages after the virtual environment has been created.}
 \item{requirements}{Filepath to a pip requirements file.}
 
 \item{force}{Boolean; force recreating the environment specified by
-\code{envname}, even if it already exists. If \code{TRUE}, the previous enviroment is
+\code{envname}, even if it already exists. If \code{TRUE}, the previous environment is
 first deleted and recreated. Otherwise, if \code{FALSE}, the path to the
 existing environment is returned.}
 

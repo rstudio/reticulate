@@ -1,12 +1,15 @@
 # reticulate (development version)
 
 - reticulate now exports a `chooseOpsMethod()` method, allowing for Ops dispatch 
-  to more specialized Ops methods defined for Python objects. 
+  to more specialized Ops methods defined for Python objects.
 
 - reticulate now supports casting R data.frames to Pandas data.frames using nullable
   data types allowing users to preserve NA's from R atomic vectors. This feature is
   opt-in and can be enabled by setting the R option `reticulate.pandas_use_nullable_dtypes`
   to `TRUE`. (#1439)
+  
+- Fixed issue where Python would raise an exception when opening a subprocess while
+  running in Rstudio on Windows. (#1448, #518)
   
 - Fixed issue where `virtualenv_create()` would fail to discover a 'virtualenv' module 
   in the system Python installation on Ubuntu. Reticulate will no longer discover 

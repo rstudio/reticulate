@@ -103,6 +103,8 @@ virtualenv_create <- function(
   setuptools_version   = getOption("reticulate.virtualenv.setuptools_version", default = NULL),
   extra                = getOption("reticulate.virtualenv.extra", default = NULL))
 {
+  check_forbidden_install("Python Virtual Environments")
+
   path <- virtualenv_path(envname)
   name <- if (is.null(envname)) path else envname
 

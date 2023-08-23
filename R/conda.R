@@ -197,6 +197,8 @@ conda_create <- function(envname = NULL,
                          conda = "auto",
                          python_version = miniconda_python_version())
 {
+  check_forbidden_install("Conda Environments")
+
   # resolve conda binary
   conda <- conda_binary(conda)
   local_conda_paths(conda)
@@ -247,6 +249,8 @@ conda_create <- function(envname = NULL,
 }
 
 conda_create_env <- function(envname, environment, conda) {
+
+  check_forbidden_install("Conda Environments")
 
   if (!is.null(envname))
     envname <- condaenv_resolve(envname)

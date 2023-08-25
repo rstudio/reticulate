@@ -249,10 +249,12 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
 
   }
 
-  if (is_windows()) {
+  local({
     # patch sys.executable to point to python.exe, not Rterm.exe or rsession-utf8.exe, #1258
-    py_run_string_impl("import sys; sys.executable = sys.argv[0]", local = TRUE)
-  }
+    patch <- sprintf("import sys; sys.executable  = r'''%s'''",
+                     config$executable)
+    py_run_string_impl(patch, local = TRUE)
+  })
 
   if (nzchar(config$base_executable)) local({
     # just like sys.executable, patch to point to python.exe, not Rterm.exe

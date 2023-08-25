@@ -8,8 +8,11 @@
   opt-in and can be enabled by setting the R option `reticulate.pandas_use_nullable_dtypes`
   to `TRUE`. (#1439)
   
-- Fixed issue where Python would raise an exception when opening a subprocess while
-  running in Rstudio on Windows. (#1448, #518)
+- Fixed issue where Python would raise exception "OSError: [WinError 6] The handle is invalid" 
+  when opening a subprocess while running in Rstudio on Windows. (#1448, #518)
+  
+- Fixed issue where the multiprocessing Python module would crash or hang when spawning a 
+  `Process()` on Windows. (#1430, #1346, fixed in #1461)
   
 - Fixed issue where `virtualenv_create()` would fail to discover a 'virtualenv' module 
   in the system Python installation on Ubuntu. Reticulate will no longer discover 

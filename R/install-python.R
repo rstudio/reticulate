@@ -43,6 +43,9 @@ install_python <- function(version = "3.9:latest",
                            list = FALSE,
                            force = FALSE)
 {
+
+  check_forbidden_install("Python")
+
   # resolve pyenv path
   pyenv <- pyenv_find()
   if (!file.exists(pyenv))

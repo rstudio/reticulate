@@ -275,7 +275,7 @@ py_compare <- function(a, b, op) {
 }
 
 #' @rdname Ops-python-methods
-#' @export
+#' @rawNamespace if (getRversion() >= "4.3.0") S3method("%*%",python.builtin.object)
 `%*%.python.builtin.object` <-function(x, y) {
   op <- fetch_op("@", py_eval("lambda x, y: x @ y", convert = FALSE),
                  nargs = 2L)

@@ -254,6 +254,15 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
     py_run_string_impl("import sys; sys.executable = sys.argv[0]", local = TRUE)
   }
 
+  if (nzchar(config$base_executable)) local({
+    # just like sys.executable, patch to point to python.exe, not Rterm.exe
+    # need to patch for multiprocessing to work on windows, perhaps other things too.
+    # in venvs, _base_executable should point to the venv starter, #1430
+    patch <- sprintf("import sys; sys._base_executable = r'''%s'''",
+                     config$base_executable)
+    py_run_string_impl(patch, local = TRUE)
+  })
+
   # ensure modules can be imported from the current working directory
   py_run_string_impl("import sys; sys.path.insert(0, '')", local = TRUE)
 

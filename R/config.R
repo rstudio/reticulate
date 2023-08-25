@@ -861,6 +861,7 @@ python_config <- function(python,
     base_exec_prefix     = config$BaseExecPrefix,
     virtualenv           = virtualenv,
     virtualenv_activate  = virtualenv_activate,
+    base_executable      = config$BaseExecutable, # points to the virtualenv starter for virtualenvs
     version_string       = version_string,
     version              = version,
     architecture         = architecture,

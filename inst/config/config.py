@@ -43,6 +43,7 @@ config = {
   "LIBPL"            : sysconfig.get_config_var("LIBPL"),
   "LIBDIR"           : sysconfig.get_config_var("LIBDIR"),
   "SharedLibrary"    : sysconfig.get_config_var("Py_ENABLE_SHARED"),
+  "BaseExecutable"   : getattr(sys, "_base_executable", "")
 }
 
 # detect if this is a conda managed python

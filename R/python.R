@@ -1627,12 +1627,6 @@ chooseOpsMethod.python.builtin.object <- function(x, y, mx, my, cl, reverse) {
   # Warning: Incompatible methods ("*.tensorflow.tensor", "*.python.builtin.object") for "*"
   # Error in img * x : non-numeric argument to binary operator
 
-  # TODO: File a bug in R bugzilla, we should not need to provide this method.
-  # DispatchGroup() should automatically detect that '*.tensorflow.tensor' is
-  # more specialized and preferred since both x and y would otherwise dispatch to
-  # '*.python.builtin.object'.
-
-  inherits(x, "python.builtin.object") &&
   inherits(y, "python.builtin.object") &&
   identical(environment(my), parent.env(environment()))
 }

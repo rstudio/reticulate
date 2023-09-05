@@ -25,10 +25,12 @@ pip_install <- function(python,
                         ignore_installed = FALSE,
                         conda = "auto",
                         envname = NULL,
-                        requirements = NULL)
+                        requirements = NULL,
+                        no_user = TRUE)
 {
   # construct command line arguments
-  args <- c("-m", "pip", "install", "--upgrade", "--no-user")
+  args <- c("-m", "pip", "install", "--upgrade",
+            if (no_user) "--no-user")
   if (ignore_installed)
     args <- c(args, "--ignore-installed")
   args <- c(args, pip_options)

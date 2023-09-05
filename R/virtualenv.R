@@ -179,7 +179,9 @@ virtualenv_create <- function(
     python <- virtualenv_python(envname)
     # first upgrade pip and friends
     writef("Installing packages: pip, wheel, setuptools")
-    pip_install(python, c("pip", "wheel", "setuptools"))
+    pip_install(python, c("pip", "wheel", "setuptools"),
+                # on centos7, system pip too old, no support for --no-user
+                no_user = FALSE)
     packages <- setdiff(packages, c("pip", "wheel", "setuptools"))
     # install requested packages
     if (length(packages)) {

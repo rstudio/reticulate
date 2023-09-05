@@ -170,6 +170,9 @@ virtualenv_create <- function(
 
   writef("Done!")
 
+  if (missing(packages) && !is.null(requirements))
+    packages <- NULL
+
   # upgrade pip and friends after creating the environment
   # (since the version bundled with virtualenv / venv may be stale)
   if (!identical(packages, FALSE)) {

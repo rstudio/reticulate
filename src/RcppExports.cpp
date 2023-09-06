@@ -567,7 +567,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // py_run_file_impl
-SEXP py_run_file_impl(const std::string& file, bool local, bool convert);
+PyObjectRef py_run_file_impl(const std::string& file, bool local, bool convert);
 RcppExport SEXP _reticulate_py_run_file_impl(SEXP fileSEXP, SEXP localSEXP, SEXP convertSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;

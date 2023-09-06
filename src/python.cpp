@@ -2148,8 +2148,6 @@ extern "C" PyObject* initializeRPYCall(void) {
   return PyModule_Create(&RPYCallModuleDef, _PYTHON3_ABI_VERSION);
 }
 
-// forward declare py_run_file
-PyObjectRef py_run_file_impl(const std::string& file);
 
 // [[Rcpp::export]]
 void py_activate_virtualenv(const std::string& script)
@@ -3088,7 +3086,7 @@ SEXP py_run_string_impl(const std::string& code,
 }
 
 // [[Rcpp::export]]
-SEXP py_run_file_impl(const std::string& file,
+PyObjectRef py_run_file_impl(const std::string& file,
                       bool local = false,
                       bool convert = true) {
   FILE* fp = fopen(file.c_str(), "rb");
@@ -3105,7 +3103,7 @@ SEXP py_run_file_impl(const std::string& file,
     Py_IncRef(locals);
   }
 
-  PyObjectPtr locals_w_finalizer(locals);  // ensur decref on early return
+  PyObjectPtr locals_w_finalizer(locals);  // ensure decref on early return
 
   if (PyDict_SetItemString(locals, "__file__", as_python_str(file)) < 0)
     throw PythonException(py_fetch_error());
@@ -3119,7 +3117,7 @@ SEXP py_run_file_impl(const std::string& file,
   if (res.is_null())
     throw PythonException(py_fetch_error());
 
-  // try delete dunders; mimic PyRun_SimpleFile behavior
+  // try delete dunders; mimic PyRun_SimpleFile() behavior
   if (PyDict_DelItemString(locals, "__file__"))   PyErr_Clear();
   if (PyDict_DelItemString(locals, "__cached__")) PyErr_Clear();
 

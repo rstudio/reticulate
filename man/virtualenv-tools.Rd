@@ -61,16 +61,18 @@ instead. To refer to a virtual environment in the current working
 directory, you can prefix the path with \verb{./<name>}.}
 
 \item{python}{The path to a Python interpreter, to be used with the created
-virtual environment.}
+virtual environment. This can also accept a version constraint like
+\code{"3.10"}, which is passed on to \code{virtualenv_starter()} to find a suitable
+python binary.}
 
 \item{...}{Optional arguments; currently ignored and reserved for future
 expansion.}
 
-\item{version, python_version}{(string) The version of Python to use when creating a
-virtual environment. Python installations will be searched for using
-\code{\link[=virtualenv_starter]{virtualenv_starter()}}. This can a specific version, like \code{"3.9"} or
-\code{"3.9.3"}, or a comma separated list of version constraints, like \code{">=3.8"},
-or \code{"<=3.11,!=3.9.3,>3.6"}}
+\item{version, python_version}{(string) The version of Python to use when
+creating a virtual environment. Python installations will be searched for
+using \code{\link[=virtualenv_starter]{virtualenv_starter()}}. This can a specific version, like \code{"3.9"}
+or \code{"3.9.3"}, or a comma separated list of version constraints, like
+\code{">=3.8"}, or \code{"<=3.11,!=3.9.3,>3.6"}}
 
 \item{packages}{A set of Python packages to install (via \verb{pip install}) into
 the virtual environment, after it has been created. By default, the
@@ -81,9 +83,9 @@ any packages after the virtual environment has been created.}
 \item{requirements}{Filepath to a pip requirements file.}
 
 \item{force}{Boolean; force recreating the environment specified by
-\code{envname}, even if it already exists. If \code{TRUE}, the previous environment is
-first deleted and recreated. Otherwise, if \code{FALSE}, the path to the
-existing environment is returned.}
+\code{envname}, even if it already exists. If \code{TRUE}, the pre-existing
+environment is first deleted and then recreated. Otherwise, if \code{FALSE} (the
+default), the path to the existing environment is returned.}
 
 \item{module}{The Python module to be used when creating the virtual
 environment -- typically, \code{virtualenv} or \code{venv}. When \code{NULL} (the

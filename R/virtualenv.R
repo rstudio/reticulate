@@ -35,18 +35,20 @@
 #'   environments?
 #'
 #' @param python The path to a Python interpreter, to be used with the created
-#'   virtual environment.
+#'   virtual environment. This can also accept a version constraint like
+#'   `"3.10"`, which is passed on to `virtualenv_starter()` to find a suitable
+#'   python binary.
 #'
 #' @param force Boolean; force recreating the environment specified by
-#'   `envname`, even if it already exists. If `TRUE`, the previous environment is
-#'   first deleted and recreated. Otherwise, if `FALSE`, the path to the
-#'   existing environment is returned.
+#'   `envname`, even if it already exists. If `TRUE`, the pre-existing
+#'   environment is first deleted and then recreated. Otherwise, if `FALSE` (the
+#'   default), the path to the existing environment is returned.
 #'
-#' @param version,python_version (string) The version of Python to use when creating a
-#'   virtual environment. Python installations will be searched for using
-#'   [`virtualenv_starter()`]. This can a specific version, like `"3.9"` or
-#'   `"3.9.3"`, or a comma separated list of version constraints, like `">=3.8"`,
-#'   or `"<=3.11,!=3.9.3,>3.6"`
+#' @param version,python_version (string) The version of Python to use when
+#'   creating a virtual environment. Python installations will be searched for
+#'   using [`virtualenv_starter()`]. This can a specific version, like `"3.9"`
+#'   or `"3.9.3"`, or a comma separated list of version constraints, like
+#'   `">=3.8"`, or `"<=3.11,!=3.9.3,>3.6"`
 #'
 #' @param all If `TRUE`, `virtualenv_starter()` returns a 2-column data frame,
 #'   with column names `path` and `version`. If `FALSE`, only a single path to a
@@ -118,8 +120,16 @@ virtualenv_create <- function(
     }
   }
 
-  if (is.null(python))
+  # for convenience, also accept a version constraint in the 2nd positional arg
+  # e.g.: virtualenv_create("r-foo", "3.10")
+  if(is.null(version) && is_string(python) &&
+     !grepl("[/\\]", python) && # not a file path
+     grepl("^[0-9.><=!,]+$", python)) # maybe a version constraint
+    python <- virtualenv_starter(python)
+
+  else if (is.null(python))
     python <- virtualenv_starter(version)
+
 
   check_can_be_virtualenv_starter(python, version)
 

@@ -93,6 +93,7 @@
 <li><p>Improved error message when reticulate attempts to initialize a virtual environment after the Python installation it was created from is no longer available. (<a href="https://github.com/rstudio/reticulate/issues/1149" class="external-link">#1149</a>, <a href="https://github.com/rstudio/reticulate/issues/1457" class="external-link">#1457</a>)</p></li>
 <li><p>Improved error message on Fedora when attempting to create a virtual environment from the system python before running <code>dnf install python3-pip</code>.</p></li>
 <li><p>Fixed issue where <code><a href="../reference/install_python.html">install_python()</a></code> on macOS in the RStudio IDE would fail to discover and use brew for Python build dependencies.</p></li>
+<li><p>Fixed error with <code>virtualenv_create(python = "/usr/bin/python")</code> on centos7. (<a href="https://github.com/rstudio/reticulate/issues/1467" class="external-link">#1467</a>)</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="1.31" id="reticulate-131">reticulate 1.31<small>2023-08-10</small><a class="anchor" aria-label="anchor" href="#reticulate-131"></a></h2>

@@ -35,6 +35,8 @@
 - Fixed issue where `install_python()` on macOS in the RStudio IDE would fail to discover
   and use brew for Python build dependencies.
 
+- Fixed error with `virtualenv_create(python = "/usr/bin/python")` on centos7. (#1467)
+
 # reticulate 1.31
 
 ## Python Installation Management

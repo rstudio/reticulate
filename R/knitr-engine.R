@@ -678,19 +678,19 @@ eng_python_autoprint <- function(captured, options) {
 
     # this comes from https://github.com/yihui/knitr/blob/7bc8b393e261c88f299bccc7eee40b4e952ebd57/R/output.R#L197
     isQuarto <- !is.null(knitr::opts_knit$get('quarto.version'))
-    renderPandas <- getOption("reticulate.engine.render_pandas", default = TRUE)
+    renderDF <- getOption("reticulate.engine.render_df", default = TRUE)
 
     # Quarto documents running Python with the Jupyter engine return richly rendered
     # data.frames and we want keep the same behavior for documents rendered with
     # the knitr engine
-    if (isQuarto && renderPandas) {
+    if (isQuarto && renderDF) {
       return(eng_python_generic_autoprint(captured, value))
     }
 
     # we respect the Rmarkdown `df_print` option that allows to control how
     # to display data.frames in the document. In the case it's not the default,
     # we cast into an R data.frame and let knitr handle the rendering.
-    if (knitr::opts_knit$get("rmarkdown.df_print") != "default" && renderPandas) {
+    if (knitr::opts_knit$get("rmarkdown.df_print") != "default" && renderDF) {
       return(knitr::knit_print(py_to_r(value)))
     }
 

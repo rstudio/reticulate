@@ -221,6 +221,7 @@ df = pd.DataFrame({"FCT": pd.Categorical(["No", "Yes"]),
 })
 
 test_that("can cast from pandas nullable types", {
+  skip_if_no_pandas()
   pd <- import("pandas", convert = FALSE)
   data <- list(
     list(name = "Int8", type = pd$Int8Dtype(), data = list(NULL, 1L, 2L)),
@@ -260,6 +261,7 @@ test_that("can cast from pandas nullable types", {
 })
 
 test_that("NA in string columns don't prevent simplification", {
+  skip_if_no_pandas()
 
   pd <- import("pandas", convert = FALSE)
   np <- import("numpy", convert = FALSE)
@@ -275,6 +277,7 @@ test_that("NA in string columns don't prevent simplification", {
 })
 
 test_that("NA's are preserved in pandas columns", {
+  skip_if_no_pandas()
   pd <- import("pandas")
   if (numeric_version(pd$`__version__`) < "1.5") {
     skip("Nullable data types require pandas version >= 1.5 to work fully.")
@@ -300,6 +303,7 @@ test_that("NA's are preserved in pandas columns", {
 })
 
 test_that("Round strip for string columns with NA's work correctly", {
+  skip_if_no_pandas()
   df <- data.frame(string = c(NA, letters[1:10]))
   p <- r_to_py(df)
 

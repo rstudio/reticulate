@@ -32,7 +32,7 @@
 - Improved error message on Fedora when attempting to create a virtual environment
   from the system python before running `dnf install python3-pip`.
   
-- Fixed issue where `install_python()` on macOS in the RStudio IDE would fail discover
+- Fixed issue where `install_python()` on macOS in the RStudio IDE would fail to discover
   and use brew for Python build dependencies.
 
 # reticulate 1.31

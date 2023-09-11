@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.31</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.32.0</span>
       </span>
     </div>
 
@@ -141,8 +141,9 @@ directory, you can prefix the path with <code>./&lt;name&gt;</code>.</p></dd>
 
 <dt>python</dt>
 <dd><p>The path to a Python interpreter, to be used with the created
-virtual environment. When <code>NULL</code>, the Python interpreter associated with
-the current session will be used.</p></dd>
+virtual environment. This can also accept a version constraint like
+<code>"3.10"</code>, which is passed on to <code>virtualenv_starter()</code> to find a suitable
+python binary.</p></dd>
 
 
 <dt>...</dt>
@@ -151,11 +152,11 @@ expansion.</p></dd>
 
 
 <dt>version, python_version</dt>
-<dd><p>The version of Python to use when creating a
-virtual environment. Python installations will be searched for using
-<code>virtualenv_starter()</code>. This can a specific version, like <code>"3.9"</code> or
-<code>"3.9.3</code>, or a comma separated list of version constraints, like <code>"&gt;=3.8"</code>,
-or <code>"&lt;=3.11,!=3.9.3,&gt;3.6"</code></p></dd>
+<dd><p>(string) The version of Python to use when
+creating a virtual environment. Python installations will be searched for
+using <code>virtualenv_starter()</code>. This can a specific version, like <code>"3.9"</code>
+or <code>"3.9.3"</code>, or a comma separated list of version constraints, like
+<code>"&gt;=3.8"</code>, or <code>"&lt;=3.11,!=3.9.3,&gt;3.6"</code></p></dd>
 
 
 <dt>packages</dt>
@@ -172,9 +173,9 @@ any packages after the virtual environment has been created.</p></dd>
 
 <dt>force</dt>
 <dd><p>Boolean; force recreating the environment specified by
-<code>envname</code>, even if it already exists. If <code>TRUE</code>, the previous enviroment is
-first deleted and recreated. Otherwise, if <code>FALSE</code>, the path to the
-existing environment is returned.</p></dd>
+<code>envname</code>, even if it already exists. If <code>TRUE</code>, the pre-existing
+environment is first deleted and then recreated. Otherwise, if <code>FALSE</code> (the
+default), the path to the existing environment is returned.</p></dd>
 
 
 <dt>module</dt>

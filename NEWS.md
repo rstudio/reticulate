@@ -1,4 +1,4 @@
-# reticulate (development version)
+# reticulate 1.32.0
 
 - reticulate now supports casting R data.frames to Pandas data.frames using nullable
   data types, allowing users to preserve NA's from R atomic vectors. This feature is

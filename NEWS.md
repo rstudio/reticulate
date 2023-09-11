@@ -1,12 +1,12 @@
 # reticulate (development version)
 
-- reticulate now exports a `chooseOpsMethod()` method, allowing for Ops dispatch 
-  to more specialized Ops methods defined for Python objects.
-
 - reticulate now supports casting R data.frames to Pandas data.frames using nullable
-  data types allowing users to preserve NA's from R atomic vectors. This feature is
+  data types, allowing users to preserve NA's from R atomic vectors. This feature is
   opt-in and can be enabled by setting the R option `reticulate.pandas_use_nullable_dtypes`
   to `TRUE`. (#1439)
+  
+- reticulate now exports a `chooseOpsMethod()` method, allowing for Ops dispatch 
+  to more specialized Ops methods defined for Python objects.
   
 - `py_discover_config()` will now warn instead of error upon encountering a 
   broken Python installation. (#1441, #1459)

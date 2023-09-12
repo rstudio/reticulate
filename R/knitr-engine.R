@@ -691,7 +691,7 @@ eng_python_autoprint <- function(captured, options) {
     # to display data.frames in the document. In the case it's not the default,
     # we cast into an R data.frame and let knitr handle the rendering.
     if (knitr::opts_knit$get("rmarkdown.df_print") != "default" && renderDF) {
-      return(knitr::knit_print(py_to_r(value)))
+      return(knitr::knit_print(py_to_r(value), options = options))
     }
 
     return(captured)

@@ -99,3 +99,25 @@ test_that("Output streams are remaped when kniting", {
 
   expect_snapshot_file(test_path("resources", "knitr-print2.md"))
 })
+
+test_that("correctly handles `df_print` for pandas data frames", {
+
+  skip_on_cran()
+  skip_if_not_installed("rmarkdown")
+  local_edition(3)
+
+  owd <- setwd(test_path("resources"))
+  on.exit({setwd(owd)}, add = TRUE)
+  for (df_print in c("paged", "default", "kable")) {
+    out_file <- paste0(df_print, ".html")
+    rmarkdown::render(
+      "pandas-autoprint.Rmd",
+      quiet = TRUE,
+      output_file = out_file,
+      output_format = rmarkdown::html_document(
+        df_print = df_print
+      ))
+    expect_snapshot_file(out_file)
+  }
+
+})

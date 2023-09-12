@@ -82,7 +82,7 @@
     </div>
 
     <div class="section level2">
-<h2 class="page-header" data-toc-text="1.32.0" id="reticulate-1320">reticulate 1.32.0<a class="anchor" aria-label="anchor" href="#reticulate-1320"></a></h2>
+<h2 class="page-header" data-toc-text="1.32.0" id="reticulate-1320">reticulate 1.32.0<small>2023-09-11</small><a class="anchor" aria-label="anchor" href="#reticulate-1320"></a></h2>
 <ul><li><p>reticulate now supports casting R data.frames to Pandas data.frames using nullable data types, allowing users to preserve NA’s from R atomic vectors. This feature is opt-in and can be enabled by setting the R option <code>reticulate.pandas_use_nullable_dtypes</code> to <code>TRUE</code>. (<a href="https://github.com/rstudio/reticulate/issues/1439" class="external-link">#1439</a>)</p></li>
 <li><p>reticulate now exports a <code><a href="https://rdrr.io/r/base/chooseOpsMethod.html" class="external-link">chooseOpsMethod()</a></code> method, allowing for Ops dispatch to more specialized Ops methods defined for Python objects.</p></li>
 <li><p><code><a href="../reference/py_discover_config.html">py_discover_config()</a></code> will now warn instead of error upon encountering a broken Python installation. (<a href="https://github.com/rstudio/reticulate/issues/1441" class="external-link">#1441</a>, <a href="https://github.com/rstudio/reticulate/issues/1459" class="external-link">#1459</a>)</p></li>

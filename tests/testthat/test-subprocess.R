@@ -16,3 +16,11 @@ test_that("subprocess.Popen works", {
   })
 
 })
+
+test_that("modules that subclass Popen work", {
+
+  expect_no_error({
+    import("asyncio")
+  })
+
+})

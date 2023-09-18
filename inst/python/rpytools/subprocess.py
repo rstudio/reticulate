@@ -3,7 +3,7 @@
 
 
 def patch_subprocess_Popen():
-  import subprocess
-  from functools import partial
+    from subprocess import Popen, DEVNULL
+    from functools import partialmethod
 
-  subprocess.Popen.__init__ = partial(subprocess.Popen.__init__, stdin = subprocess.DEVNULL)
+    Popen.__init__ = partialmethod(Popen.__init__, stdin=DEVNULL)

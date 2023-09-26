@@ -14,6 +14,7 @@
 \alias{conda_update}
 \alias{conda_python}
 \alias{conda_search}
+\alias{condaenv_exists}
 \title{Conda Tools}
 \usage{
 conda_list(conda = "auto")
@@ -71,6 +72,8 @@ conda_search(
   conda = "auto",
   ...
 )
+
+condaenv_exists(envname = NULL, conda = "auto")
 }
 \arguments{
 \item{conda}{The path to a \code{conda} executable. Use \code{"auto"} to allow

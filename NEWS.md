@@ -2,6 +2,8 @@
 
 - Fixed issue where `asyncio`, (and modules that use `asyncio`) would error on 
   Windows when running under RStudio (#1478, #1479).
+  
+- `condaenv_exists()` is now exported.
 
 # reticulate 1.32.0
 

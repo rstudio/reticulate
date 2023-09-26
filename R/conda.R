@@ -800,6 +800,8 @@ condaenv_path <- function(envname = NULL) {
 
 }
 
+#' @export
+#' @rdname conda-tools
 condaenv_exists <- function(envname = NULL, conda = "auto") {
 
   # check that conda is installed

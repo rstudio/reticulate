@@ -215,7 +215,7 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
   required_version <- .globals$required_python_version
   if (!is.null(required_version)) {
     python_version <- normalize_python_path(required_version)$path
-    try(return(python_config(python_version, required_module, 
+    try(return(python_config(python_version, required_module,
                              forced = "use_python() function")))
   }
 
@@ -294,7 +294,7 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
     if (!python_version$exists)
       stop("Python specified in RETICULATE_PYTHON_FALLBACK (", reticulate_env, ") does not exist")
     python_version <- python_version$path
-    try(return(python_config(python_version, required_module, python_version, 
+    try(return(python_config(python_version, required_module, python_version,
                              forced = "RETICULATE_PYTHON_FALLBACK")))
   }
 

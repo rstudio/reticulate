@@ -52,34 +52,6 @@ get_r_trace <- function(maybe_use_cached = FALSE, trim_tail = 1L) {
   ## track down where an error occurred.
   t$full_call <- sys.calls()[seq_len(nrow(t))]
 
-  # Drop reticulate internal frames that are not useful to the user
-  ## (this works, except [ method for traces does not adjust the parent
-  ## correctly when slicing out frames where parent == 0, and
-  ## then the tree that gets printed is not useful.
-  ## TODO: file an issue with rlang)
-  # i <- 1L
-  # while(i < nrow(t)) {
-  #   if(identical(t$call[[i]][[1L]], quote(call_r_function))) {
-  #     # drop frames:
-  #     # withRestarts(withCallingHandlers(return(list(do.call(fn, c(args, named_args)), NULL)), python.builtin.BaseException = function(e) {     r_tra…
-  #     # withOneRestart(expr, restarts[[1L]])
-  #     # doWithOneRestart(return(expr), restart)
-  #     # withCallingHandlers(return(list(do.call(fn, c(args, named_args)), NULL)), python.builtin.BaseException = function(e) {     r_trace <- py_get_…
-  #     # do.call(fn, c(args, named_args))
-  #     i <- i + 1L
-  #     t <- t[-seq.int(from = i, length.out = 5L), ]
-  #   }
-  #
-  #   # drop py_call_impl() frame
-  #   else if(identical(t$call[[i]][[1L]], quote(py_call_impl))) {
-  #     t <- t[-i, ]
-  #   }
-  #
-  #   else {
-  #     i <- i + 1L
-  #   }
-  # }
-
   if(!maybe_use_cached)
     return((.globals$last_r_trace <- t))
 

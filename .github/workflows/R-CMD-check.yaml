@@ -35,6 +35,7 @@ jobs:
           - { os: ubuntu-latest, r: 'release', python: '3.8'  }
           - { os: ubuntu-latest, r: 'release', python: '3.10' }
           - { os: ubuntu-latest, r: 'release', python: '3.11' }
+          - { os: ubuntu-latest, r: 'release', python: '3.12' }
 
           # test with one debug build of python
           # disabled; failing presently

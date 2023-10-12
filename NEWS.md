@@ -1,4 +1,6 @@
-# reticulate (development version)
+# reticulate 1.34.0
+
+# reticulate 1.33.0
 
 - Fixed issue where `asyncio`, (and modules that use `asyncio`), would error on
   Windows when running under RStudio (#1478, #1479).

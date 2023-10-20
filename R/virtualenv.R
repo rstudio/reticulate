@@ -429,7 +429,7 @@ virtualenv_module <- function(python) {
         # `apt install python3` makes an importable venv module, but not one
         # capable of actually creating a venv unless python3-venv is installed.
         # if python3-venv is not installed, move on and maybe discover virtualenv.
-        if (!any(grepl("^python[0-9.]*-venv$", system("dpkg -l", intern = TRUE))))
+        if (!any(grepl("\\bpython[0-9.]*-venv\\b", system("dpkg -l", intern = TRUE))))
           next
       }
       return(module)

@@ -1,5 +1,8 @@
 # reticulate (development version)
 
+- Fixed issue where `virtualenv_create()` would error on Ubuntu 22.04 when
+  using the system python as a base. (#1495, fixed in #1496).
+
 # reticulate 1.34.0
 
 # reticulate 1.33.0

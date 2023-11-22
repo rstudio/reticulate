@@ -732,7 +732,9 @@ eng_python_autoprint <- function(captured, options) {
       .engine_context$pending_plots$push(knitr::raw_html(data))
     } else {
       paths <- eng_python_knit_figure_path(options)
-      lapply(paths, function(path){value$save(path)})
+      lapply(paths, function(path){
+        value$save(path)
+      })
       .engine_context$pending_plots$push(knitr::include_graphics(paths[1]))
     }
 

@@ -283,7 +283,7 @@ miniconda_path_default <- function() {
   }
 
   # otherwise, use rappdirs default
-  root <- normalizePath(rappdirs::user_data_dir(), winslash = "/", mustWork = FALSE)
+  root <- normalizePath(user_data_dir(), winslash = "/", mustWork = FALSE)
   file.path(root, "r-miniconda")
 
 }
@@ -314,7 +314,7 @@ miniconda_envpath <- function(env = NULL, path = miniconda_path()) {
 }
 
 miniconda_meta_path <- function() {
-  root <- rappdirs::user_data_dir("r-reticulate")
+  root <- user_data_dir("r-reticulate")
   file.path(root, "miniconda.json")
 }
 

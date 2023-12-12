@@ -640,7 +640,43 @@ maybe_shQuote <- function(x) {
 
 
 rm_all_reticulate_state <- function() {
-  unlink(rappdirs::user_data_dir("r-reticulate", NULL), recursive = TRUE, force = TRUE)
-  unlink(rappdirs::user_data_dir("r-miniconda", NULL), recursive = TRUE, force = TRUE)
-  unlink(rappdirs::user_data_dir("r-miniconda-arm64", NULL), recursive = TRUE, force = TRUE)
+  unlink(user_data_dir("r-reticulate", NULL), recursive = TRUE, force = TRUE)
+  unlink(user_data_dir("r-miniconda", NULL), recursive = TRUE, force = TRUE)
+  unlink(user_data_dir("r-miniconda-arm64", NULL), recursive = TRUE, force = TRUE)
+  unlink(miniconda_path_default(), recursive = TRUE, force = TRUE)
 }
+
+
+user_data_dir <- function(...) {
+  expand_env_vars(rappdirs::user_data_dir(...))
+}
+
+expand_env_vars <- function(x) {
+  # We need to expand some env vars here, until
+  # Rstudio server is patched.
+  # https://github.com/rstudio/rstudio-pro/issues/2968
+  # The core issue is RStudio Server shell expands some env vars, but
+  # doesn't propogate those expanded env vars to the user R sessions
+  # e.g., https://docs.posit.co/ide/server-pro/1.4.1722-1/server-management.html#setting-environment-variables
+  # suggests adminst set XDG_DATA_HOME=/mnt/storage/$USER
+  # that is correctly expanded by rstudio server here:
+  # https://github.com/rstudio/rstudio/blob/55c42e8d9c0df19a6566000f550a0fa6dc519899/src/cpp/core/system/Xdg.cpp#L160-L178
+  # but then not propogated to the user R session.
+  # https://github.com/rstudio/reticulate/issues/1513
+
+  if(!grepl("$", x, fixed = TRUE))
+    return(x)
+  delayedAssign("info", Sys.info())
+  delayedAssign("HOME", Sys.getenv("HOME") %""% path.expand("~"))
+  delayedAssign("USER", Sys.getenv("USER") %""% info[["user"]])
+  delayedAssign("HOSTNAME", Sys.getenv("HOSTNAME") %""% info[["nodename"]])
+  for (name in c("HOME", "USER", "HOSTNAME")) {
+    if (grepl(name, x, fixed = TRUE)) {
+      x <- gsub(sprintf("$%s", name), get(name), x, fixed = TRUE)
+      x <- gsub(sprintf("${%s}", name), get(name), x, fixed = TRUE)
+    }
+  }
+  x
+}
+
+`%""%` <- function(x, y) if(identical(x, "")) y else x

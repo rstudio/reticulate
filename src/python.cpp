@@ -2558,14 +2558,23 @@ bool py_has_attr_impl(PyObjectRef x, const std::string& name) {
 class PyErrorScopeGuard {
 private:
   PyObject *er_type, *er_value, *er_traceback;
+  bool pending_restore;
 
 public:
   PyErrorScopeGuard() {
     PyErr_Fetch(&er_type, &er_value, &er_traceback);
+    pending_restore = true;
+  }
+
+  void release(bool restore = false) {
+    if (restore)
+      PyErr_Restore(er_type, er_value, er_traceback);
+    pending_restore = false;
   }
 
   ~PyErrorScopeGuard() {
-    PyErr_Restore(er_type, er_value, er_traceback);
+    if (pending_restore)
+      PyErr_Restore(er_type, er_value, er_traceback);
   }
 };
 
@@ -3664,15 +3673,21 @@ SEXP py_len_impl(PyObjectRef x, SEXP defaultValue = R_NilValue) {
 }
 
 // [[Rcpp::export]]
-SEXP py_bool_impl(PyObjectRef x) {
+SEXP py_bool_impl(PyObjectRef x, bool silent = false) {
+  PyErrorScopeGuard py_error_guard;
 
   // evaluate Python `not not x`
   int result = PyObject_IsTrue(x);
 
-  if (result == -1) {
-  // Should only happen if the object has a `__bool__` method that
-  // intentionally throws an exception.
-    throw PythonException(py_fetch_error());
+  if(result == -1) {
+    // Should only happen if the object has a `__bool__` method that
+    // intentionally throws an exception.
+    if (silent) {
+      result = NA_LOGICAL;
+    } else {
+      py_error_guard.release();
+      throw PythonException(py_fetch_error());
+    }
   }
 
   return Rf_ScalarLogical(result);

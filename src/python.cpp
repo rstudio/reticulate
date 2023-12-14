@@ -3674,20 +3674,23 @@ SEXP py_len_impl(PyObjectRef x, SEXP defaultValue = R_NilValue) {
 
 // [[Rcpp::export]]
 SEXP py_bool_impl(PyObjectRef x, bool silent = false) {
-  PyErrorScopeGuard py_error_guard;
+  int result;
+  if(silent) {
+    PyErrorScopeGuard _g;
 
-  // evaluate Python `not not x`
-  int result = PyObject_IsTrue(x);
-
-  if(result == -1) {
-    // Should only happen if the object has a `__bool__` method that
-    // intentionally throws an exception.
-    if (silent) {
+    // evaluate Python `not not x`
+    result = PyObject_IsTrue(x);
+    // result==-1 should only happen if the object has a
+    // __bool__() method that intentionally raises an exception.
+    if(result == -1)
       result = NA_LOGICAL;
-    } else {
-      py_error_guard.release();
+
+  } else {
+
+    result = PyObject_IsTrue(x);
+    if(result == -1)
       throw PythonException(py_fetch_error());
-    }
+
   }
 
   return Rf_ScalarLogical(result);

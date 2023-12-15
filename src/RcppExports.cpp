@@ -670,13 +670,14 @@ BEGIN_RCPP
 END_RCPP
 }
 // py_bool_impl
-SEXP py_bool_impl(PyObjectRef x);
-RcppExport SEXP _reticulate_py_bool_impl(SEXP xSEXP) {
+SEXP py_bool_impl(PyObjectRef x, bool silent);
+RcppExport SEXP _reticulate_py_bool_impl(SEXP xSEXP, SEXP silentSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< PyObjectRef >::type x(xSEXP);
-    rcpp_result_gen = Rcpp::wrap(py_bool_impl(x));
+    Rcpp::traits::input_parameter< bool >::type silent(silentSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_bool_impl(x, silent));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -818,7 +819,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_reticulate_py_set_interrupt_impl", (DL_FUNC) &_reticulate_py_set_interrupt_impl, 0},
     {"_reticulate_py_list_length", (DL_FUNC) &_reticulate_py_list_length, 1},
     {"_reticulate_py_len_impl", (DL_FUNC) &_reticulate_py_len_impl, 2},
-    {"_reticulate_py_bool_impl", (DL_FUNC) &_reticulate_py_bool_impl, 1},
+    {"_reticulate_py_bool_impl", (DL_FUNC) &_reticulate_py_bool_impl, 2},
     {"_reticulate_py_has_method", (DL_FUNC) &_reticulate_py_has_method, 2},
     {"_reticulate_py_id", (DL_FUNC) &_reticulate_py_id, 1},
     {"_reticulate_py_capsule", (DL_FUNC) &_reticulate_py_capsule, 1},

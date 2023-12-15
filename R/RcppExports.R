@@ -254,8 +254,8 @@ py_len_impl <- function(x, defaultValue = NULL) {
     .Call(`_reticulate_py_len_impl`, x, defaultValue)
 }
 
-py_bool_impl <- function(x) {
-    .Call(`_reticulate_py_bool_impl`, x)
+py_bool_impl <- function(x, silent = FALSE) {
+    .Call(`_reticulate_py_bool_impl`, x, silent)
 }
 
 py_has_method <- function(object, name) {

@@ -519,14 +519,18 @@ virtualenv_starter <- function(version = NULL, all = FALSE) {
     # - nested directory of python installations (presumably nested by version and arch)
 
       suffix <- if (is_windows())
-        #e.g, /3.9.4/python.exe, /3.9.4/x64/python.exe
-        c("/*/python*.exe", "/*/*/python*.exe")
+        # <base_prefix>   /3.9.4/python.exe, /3.9.4/x64/python.exe
+        c("/python*.exe", "/*/python*.exe", "/*/*/python*.exe")
       else {
-        #/3.9.4/bin/python, /3.9.4/x64/bin/python
-        c("/*/bin/python*", "/*/*/bin/python*")
+        # <base_prefix>   /3.9.4/bin/python, /3.9.4/x64/bin/python
+        c("/bin/python*", "/*/bin/python*", "/*/*/bin/python*")
       }
-      glob <- paste0(normalizePath(glob, winslash = "/", mustWork = FALSE),
-                     suffix)
+
+      # retain the original value of `glob`, for the case it is a path
+      # to a python binary (and not a path to a directory of python installations).
+      append(glob) <-
+        paste0(normalizePath(glob, winslash = "/", mustWork = FALSE),
+               suffix)
     }
 
     p <- unique(normalizePath(Sys.glob(glob), winslash = "/"))
@@ -618,6 +622,16 @@ virtualenv_starter <- function(version = NULL, all = FALSE) {
   # on Github Action Runners, find Pythons installed in the tool cache
   if(!is.na(tool_cache_dir <- Sys.getenv("RUNNER_TOOL_CACHE", NA)))
     find_starters(paste0(tool_cache_dir, "/Python"))
+
+  # If user pointed reticulate at a python via RETICULATE_PYTHON, use_python(),
+  # or similar, include that python in the list of starters found. Note that
+  # find_starters() / normalizePath() will follow the link of python binary in a
+  # venv to resolve the starter used.
+  find_starters(Sys.getenv("RETICULATE_PYTHON"))
+  find_starters(Sys.getenv("RETICULATE_PYTHON_ENV"))
+  find_starters(py_exe())
+  find_starters(Sys.which("python3"))
+  find_starters(Sys.which("python"))
 
   # if specific version requested, filter for that.
   if (!is.null(version)) {

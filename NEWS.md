@@ -1,5 +1,9 @@
 # reticulate (development version)
 
+- R external pointers (EXTPTRSXP objects) now round-trip through 
+  `py_to_r(r_to_py(x))` successfully.
+  (reported in #1511, fixed in #1519, contributed by @llaniewski).
+
 - Fixed issue where `virtualenv_create()` would error on Ubuntu 22.04 when
   using the system python as a base. (#1495, fixed in #1496).
 

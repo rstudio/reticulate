@@ -107,6 +107,7 @@ SEXP py_fetch_error(bool maybe_reuse_cached_r_trace = false);
 
 
 const char *r_object_string = "r_object";
+const char *r_extptr_string = "r_extptr";
 
 // wrap an R object in a longer-lived python object "capsule"
 SEXP py_capsule_read(PyObject* capsule) {
@@ -119,6 +120,14 @@ SEXP py_capsule_read(PyObject* capsule) {
   // with the original object preserved in the cell TAG().
   return TAG(object);
 
+}
+
+// for a extptr stored in a capsule, use the R object stored in the capsule's context
+SEXP py_extptr_capsule_read(PyObject* capsule) {
+  SEXP object = (SEXP) PyCapsule_GetContext(capsule);
+  if (object == NULL)
+    throw PythonException(py_fetch_error());
+  return TAG(object);
 }
 
 tthread::thread::id s_main_thread = 0;
@@ -190,6 +199,10 @@ PyObject* py_get_attr(PyObject* object, const std::string& name) {
 
 bool is_r_object_capsule(PyObject* capsule) {
   return PyCapsule_IsValid(capsule, r_object_string);
+}
+
+bool is_r_extptr_capsule(PyObject* capsule) {
+  return PyCapsule_IsValid(capsule, r_extptr_string);
 }
 
 // helper class for ensuring decref of PyObject in the current scope
@@ -1405,6 +1418,11 @@ SEXP py_to_r(PyObject* x, bool convert) {
     return py_capsule_read(x);
   }
 
+  // external pointer
+  else if (is_r_extptr_capsule(x)) {
+    return py_extptr_capsule_read(x);
+  }
+
   // default is to return opaque wrapper to python object. we pass convert = true
   // because if we hit this code then conversion has been either implicitly
   // or explicitly requested.
@@ -1708,7 +1726,7 @@ static PyObject* r_extptr_capsule(SEXP sexp) {
 
   sexp = Rcpp_precious_preserve(sexp);
 
-  PyObject* capsule = PyCapsule_New(ptr, NULL, free_r_extptr_capsule);
+  PyObject* capsule = PyCapsule_New(ptr, r_extptr_string, free_r_extptr_capsule);
   PyCapsule_SetContext(capsule, (void*)sexp);
   return capsule;
 

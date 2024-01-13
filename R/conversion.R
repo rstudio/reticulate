@@ -313,6 +313,39 @@ r_to_py.data.frame <- function(x, convert = FALSE) {
 }
 
 #' @export
+r_to_py.sf.data.frame <- function(x, convert = FALSE) {
+
+  # if we don't have geopandas, just use pandas implementation
+  if (!py_module_available("geopandas"))
+    return(r_to_py.data.frame(x, convert = FALSE))
+
+  gpd <- import("geopandas", convert = FALSE)
+
+  # manually convert each column to assciated Python vector type
+  colums <- r_convert_dataframe(x, convert = convert)
+
+  # generate GeoDataFrame from dictionary
+  gdf <- gpd$GeoDataFrame$from_dict(columns)
+
+  # copy over row names if they exist
+  rni <- .row_names_info(x, type = 0L)
+  if (is.character(rni)) {
+    if (length(rni) == 1)
+      rni <- as.list(rni)
+    gdf$index <- rni
+  }
+
+  # re-order based on original columns
+  if (length(x) > 1)
+    gdf <- gdf$reindex(columns = names(x))
+
+  gdf
+
+}
+
+
+
+#' @export
 py_to_r.datatable.Frame <- function(x) {
   disable_conversion_scope(x)
 

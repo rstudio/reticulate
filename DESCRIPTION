@@ -55,6 +55,7 @@ Suggests:
     cli,
     rmarkdown,
     pillar,
+    sf,
     testthat
 LinkingTo: Rcpp
 RoxygenNote: 7.2.3

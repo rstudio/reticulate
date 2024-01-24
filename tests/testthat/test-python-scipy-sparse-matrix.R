@@ -190,3 +190,108 @@ test_that("Conversion between R sparse matrices without specific conversion func
   expect_true(is(result, "scipy.sparse.csc.csc_matrix") || is(result, "scipy.sparse._csc.csc_matrix"))
   check_matrix_conversion(x, result)
 })
+
+test_that("Conversion with unsorted values works in csc", {
+  skip_on_cran()
+  skip_if_no_scipy()
+
+  sp <- import("scipy.sparse", convert = FALSE)
+
+  # Test data
+  indices <- c(1L, 0L, 2L, 1L, 0L)
+  indptr <- c(0L, 3L, 5L)
+  data <- c(2, 1, 3, 5, 4)
+
+  # create csr matrix and try to convert
+  mat_py <- sp$csc_matrix(
+    tuple(
+      np_array(data),
+      np_array(indices),
+      np_array(indptr),
+      convert = FALSE
+    ),
+    shape = c(3L, 2L)
+  )
+
+  mat_py_to_r <- py_to_r(mat_py)
+
+  mat_r <- Matrix::sparseMatrix(
+    i = indices + 1,
+    p = indptr,
+    x = data,
+    dims = c(3L, 2L)
+  )
+
+  expect_equal(as.matrix(mat_py_to_r), as.matrix(mat_r))
+})
+
+test_that("Conversion with unsorted values works in csr", {
+  skip_on_cran()
+  skip_if_no_scipy()
+
+  sp <- import("scipy.sparse", convert = FALSE)
+
+  # Test data
+  indices <- c(1L, 0L, 2L, 1L, 0L)
+  indptr <- c(0L, 3L, 5L)
+  data <- c(2, 1, 3, 5, 4)
+
+  # create csr matrix and try to convert
+  mat_py <- sp$csr_matrix(
+    tuple(
+      np_array(data),
+      np_array(indices),
+      np_array(indptr),
+      convert = FALSE
+    ),
+    shape = c(2L, 3L)
+  )
+
+  mat_py_to_r <- py_to_r(mat_py)
+
+  mat_r <- Matrix::sparseMatrix(
+    j = indices + 1,
+    p = indptr,
+    x = data,
+    dims = c(2L, 3L)
+  )
+
+  expect_equal(as.matrix(mat_py_to_r), as.matrix(mat_r))
+})
+
+
+test_that("Conversion with unsorted values works in coo", {
+  skip_on_cran()
+  skip_if_no_scipy()
+
+  sp <- import("scipy.sparse", convert = FALSE)
+
+  # Test data
+  row <- c(1L, 0L, 2L, 1L, 0L)
+  col <- c(1L, 0L, 0L, 0L, 1L)
+  data <- c(5, 1, 3, 2, 4)
+
+  # create csr matrix and try to convert
+  mat_py <- sp$coo_matrix(
+    tuple(
+      np_array(data),
+      tuple(
+        np_array(row),
+        np_array(col)
+      ),
+      convert = FALSE
+    ),
+    shape = c(3L, 2L)
+  )
+
+  mat_py_to_r <- py_to_r(mat_py)
+
+  mat_r <- Matrix::sparseMatrix(
+    i = row + 1,
+    j = col + 1,
+    x = data,
+    dims = c(3L, 2L)
+  )
+
+  expect_equal(as.matrix(mat_py_to_r), as.matrix(mat_r))
+})

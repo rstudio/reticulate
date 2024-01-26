@@ -7,6 +7,8 @@
 - Fixed issue where `virtualenv_create()` would error on Ubuntu 22.04 when
   using the system python as a base. (#1495, fixed in #1496).
 
+- Fixed issue where `csc_matrix` objects with unsorted indices could not be converted to a dgCMatrix. (related to #727, fixed in #1524, contributed by @rcannood).
+
 # reticulate 1.34.0
 
 # reticulate 1.33.0

@@ -324,7 +324,6 @@ eng_python <- function(options) {
       if (had_error && identical(options$error, FALSE))
         break
 
-
     }
   }
 
@@ -454,7 +453,7 @@ eng_python_matplotlib_show <- function(plt, options) {
 
   on.exit(plt$close())
 
-  # save, return knitr::include_graphics() wrapped figure path
+  # save figure file, return knitr::include_graphics() wrapped figure path
   eng_python_knit_include_graphics(
     options, write_figure = function(path) {
       # save the current figure to all requested devices
@@ -530,6 +529,9 @@ eng_python_initialize_matplotlib <- function(options, envir) {
     return()
 
   plt <- import("matplotlib.pyplot", convert = FALSE)
+
+  # set up figure dimensions
+  plt$rc("figure", figsize = tuple(options$fig.width, options$fig.height))
 
   # override show implementation
   plt$show <- function(...) {

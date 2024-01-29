@@ -4,6 +4,10 @@
   exception type and any exception notes when chunk options
   `error = TRUE` is set (reported in #1520, fixed in #1527).
 
+- Fixed an issue where matplotlib figures generated in the initial chunk
+  where matplotlib was first imported would be the wrong size
+  (reported in #1523, fixed in #1530)
+
 - Fixed an issue where the knitr python engine would fail to include
   figures from python chunks if a custom `root.dir` chunk option was set.
   (reported in #1526, fixed in #1529)

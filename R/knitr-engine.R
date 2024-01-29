@@ -427,32 +427,35 @@ eng_python_knit_figure_path <- function(options, suffix = NULL) {
   # construct plot path
   plot_counter <- yoink("knitr", "plot_counter")
   number <- plot_counter()
-  path <- knitr::fig_path(
+  paths <- knitr::fig_path(
     suffix  = suffix %||% options$dev,
     options = options,
     number  = number
   )
 
   # ensure parent path exists
-  dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
+  lapply(paths, function(path){dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)})
 
   # return path
-  path
+  paths
 
 }
 
 eng_python_matplotlib_show <- function(plt, options) {
 
   # get figure path
-  path <- eng_python_knit_figure_path(options)
+  paths <- eng_python_knit_figure_path(options)
 
-  # save the current figure
-  dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
-  plt$savefig(path, dpi = options$dpi)
+  # save the current figure to all requested devices
+  lapply(paths, function(path){
+    dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
+    plt$savefig(path, dpi = options$dpi)
+  })
+
   plt$close()
 
   # include the requested path
-  knitr::include_graphics(path)
+  knitr::include_graphics(paths[1])
 
 }
 
@@ -685,9 +688,12 @@ eng_python_autoprint <- function(captured, options) {
   } else if (eng_python_is_seaborn_output(value)) {
 
     # get figure path
-    path <- eng_python_knit_figure_path(options)
-    value$savefig(path)
-    .engine_context$pending_plots$push(knitr::include_graphics(path))
+    paths <- eng_python_knit_figure_path(options)
+    lapply(paths, function(path) {
+      value$savefig(path)
+    })
+
+    .engine_context$pending_plots$push(knitr::include_graphics(paths[1]))
     return("")
 
   } else if (inherits(value, "pandas.core.frame.DataFrame")) {
@@ -706,13 +712,15 @@ eng_python_autoprint <- function(captured, options) {
              py_module_available("psutil") &&
              py_module_available("kaleido")) {
 
-    path <- eng_python_knit_figure_path(options)
-    value$write_image(
+    paths <- eng_python_knit_figure_path(options)
+    lapply(paths, function(path) {
+      value$write_image(
       file   = path,
       width  = options$out.width.px,
       height = options$out.height.px
     )
-    .engine_context$pending_plots$push(knitr::include_graphics(path))
+    })
+    .engine_context$pending_plots$push(knitr::include_graphics(paths[1]))
     return("")
 
   } else if (eng_python_is_altair_chart(value)) {
@@ -739,9 +747,11 @@ eng_python_autoprint <- function(captured, options) {
       data <- as_r_value(value$to_html(output_div = id))
       .engine_context$pending_plots$push(knitr::raw_html(data))
     } else {
-      path <- eng_python_knit_figure_path(options)
-      value$save(path)
-      .engine_context$pending_plots$push(knitr::include_graphics(path))
+      paths <- eng_python_knit_figure_path(options)
+      lapply(paths, function(path){
+        value$save(path)
+      })
+      .engine_context$pending_plots$push(knitr::include_graphics(paths[1]))
     }
 
     return("")

@@ -1,6 +1,6 @@
 
 pyenv_root <- function() {
-  root <- rappdirs::user_data_dir("r-reticulate")
+  root <- user_data_dir("r-reticulate")
   dir.create(root, showWarnings = FALSE, recursive = TRUE)
   norm <- normalizePath(root, winslash = "/", mustWork = TRUE)
   file.path(norm, "pyenv")

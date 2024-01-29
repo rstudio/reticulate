@@ -1,5 +1,9 @@
 # reticulate (development version)
 
+- The knitr python engine now formats captured python exceptions to include the 
+  exception type and any exception notes when chunk options 
+  `error = TRUE` is set (reported in #1520, fixed in #1527).
+
 - R external pointers (EXTPTRSXP objects) now round-trip through 
   `py_to_r(r_to_py(x))` successfully.
   (reported in #1511, fixed in #1519, contributed by @llaniewski).
@@ -7,7 +11,8 @@
 - Fixed issue where `virtualenv_create()` would error on Ubuntu 22.04 when
   using the system python as a base. (#1495, fixed in #1496).
 
-- Fixed issue where `csc_matrix` objects with unsorted indices could not be converted to a dgCMatrix. (related to #727, fixed in #1524, contributed by @rcannood).
+- Fixed issue where `csc_matrix` objects with unsorted indices could not be 
+  converted to a dgCMatrix. (related to #727, fixed in #1524, contributed by @rcannood).
 
 # reticulate 1.34.0
 

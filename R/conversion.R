@@ -517,6 +517,7 @@ r_to_py.dgCMatrix <- function(x, convert = FALSE) {
 py_to_r.scipy.sparse.csc.csc_matrix <- function(x) {
   disable_conversion_scope(x)
 
+  x <- x$sorted_indices()
   new(
     "dgCMatrix",
     i = as.integer(as_r_value(x$indices)),

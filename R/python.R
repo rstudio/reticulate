@@ -715,10 +715,16 @@ length.python.builtin.object <- function(x) {
 
   # otherwise, try to invoke the object's __len__ method
   n <- py_len_impl(x, NA_integer_)
-  if (is.na(n))
-    # if the object didn't have a __len__ method, or __len__ raised an
-    # Exception, try instead to invoke its __bool__ method
-    return(as.integer(py_bool_impl(x)))
+
+  # if the object didn't have a __len__() method, or __len__() raised an
+  # Exception, try instead to invoke its __bool__() method.
+  if (is.na(n)) {
+    n <- as.integer(py_bool_impl(x, TRUE))
+    # py_bool_impl( ,TRUE) can also return NA if __bool__() raised an exception.
+    # length() is used extensively in R and must be safe to call, so we don't
+    # want to propagate the Python Exception and signal an R error, but also
+    # don't want to return a false result. We balance concerns by returning NA.
+  }
 
   n
 }

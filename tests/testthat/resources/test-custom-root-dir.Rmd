@@ -39,9 +39,19 @@ plt.plot(x, x)
 
 ```{r}
 knitr::opts_knit$get("root.dir")
+knitr::opts_knit$get("base.dir") 
+knitr::opts_knit$get("output.dir")
 
-if( file.exists(file.path(knitr::opts_knit$get("root.dir"), "figure", "r-plot-1.png")))    stop("figure saved in wrong place")
-if( file.exists(file.path(knitr::opts_knit$get("root.dir"), "figure", "py-plot-1.png")))   stop("figure saved in wrong place")
-if(!file.exists(file.path(knitr::opts_knit$get("output.dir"), "figure", "r-plot-1.png")))  stop("figure saved in wrong place")
-if(!file.exists(file.path(knitr::opts_knit$get("output.dir"), "figure", "py-plot-1.png"))) stop("figure saved in wrong place")
+if (length(Sys.glob(paste0(knitr::opts_knit$get("root.dir"), "/figure*/*"))))
+  stop("Figures saved in the wrong dir")
+
+if (!setequal(
+  basename(Sys.glob(paste0(knitr::opts_knit$get("output.dir"), "/figure*/*"))),
+  c("r-plot-1.png", "py-plot-1.png")))
+  stop("Figures not found in expected output.dir")
+
+if( file.exists(file.path(knitr::opts_knit$get("root.dir"), "figure", "r-plot-1.png")))    stop("figure saved in wrong place1")
+if( file.exists(file.path(knitr::opts_knit$get("root.dir"), "figure", "py-plot-1.png")))   stop("figure saved in wrong place2")
+if(!file.exists(file.path(knitr::opts_knit$get("output.dir"), "figure", "r-plot-1.png")))  stop("figure saved in wrong place3")
+if(!file.exists(file.path(knitr::opts_knit$get("output.dir"), "figure", "py-plot-1.png"))) stop("figure saved in wrong place4")
 ```

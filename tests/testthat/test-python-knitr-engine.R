@@ -33,9 +33,16 @@ test_that("Figures saved in correct place with custom root.dir", {
   skip_if_not_installed("rmarkdown")
   skip_if(py_version() < "3.8") # end_lineno attr added in 3.8
 
-  owd <- setwd(test_path("resources"))
-  status <- rmarkdown::render("test-custom-root-dir.Rmd", quiet = TRUE)
-  expect_true(file.exists(status), "test-custom-root-dir.Rmd rendered successfully")
+  rmd_filepath <- normalizePath(file.path(test_path("resources"),
+                                          "test-custom-root-dir.Rmd"))
+
+  dir.create(dir <- tempfile("reticulate-knitr-test-dir"))
+  owd <- setwd(dir)
+
+  file.copy(rmd_filepath, ".")
+  output <- knitr::knit("test-custom-root-dir.Rmd", quiet = TRUE)
+
+  expect_true(file.exists(output), "test-custom-root-dir.Rmd rendered successfully")
 
   setwd(owd)
 

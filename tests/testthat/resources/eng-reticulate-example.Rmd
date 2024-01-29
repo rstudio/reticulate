@@ -8,14 +8,19 @@ library(reticulate)
 knitr::knit_engines$set(python = eng_python)
 
 # use specific environment if available
-python <- "~/.virtualenvs/python-3.7.7-venv/bin/python"
-if (file.exists(python))
-  reticulate::use_python(python, required = TRUE)
+# python <- "~/.virtualenvs/python-3.7.7-venv/bin/python"
+# if (file.exists(python))
+#   reticulate::use_python(python, required = TRUE)
 
 # use rlang error handler
 if (requireNamespace("rlang", quietly = TRUE))
   options(error = rlang::entrace)
 ```
+
+```{r}
+reticulate::py_config()
+```
+
 
 Python variables live across chunk boundaries.
 
@@ -126,6 +131,25 @@ error occurs.
 
 ```{python, error=TRUE}
 raise RuntimeError("oops!")
+print("This line is still reached.")
+```
+
+Ensure that Exceptions are formatted w/ the type and notes.
+```{python, error=TRUE}
+class CustomException(Exception):
+  pass
+
+e = CustomException("oops!")
+
+# BaseException.add_note() added in Python 3.11
+import sys
+if sys.version_info >= (3, 11):
+  e.add_note("note 1: extra oopsy oops")
+  e.add_note("note 2: in the future avoid oopsies")
+else:
+  print(sys.version_info)
+
+raise e
 print("This line is still reached.")
 ```
 

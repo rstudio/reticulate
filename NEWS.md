@@ -4,6 +4,10 @@
   exception type and any exception notes when chunk options
   `error = TRUE` is set (reported in #1520, fixed in #1527).
 
+- Fixed an issue where the knitr python engine would fail to include
+  figures from python chunks if a custom `root.dir` chunk option was set.
+  (reported in #1526, fixed in #1529)
+
 - R external pointers (EXTPTRSXP objects) now round-trip through
   `py_to_r(r_to_py(x))` successfully.
   (reported in #1511, fixed in #1519, contributed by @llaniewski).

@@ -1,0 +1,57 @@
+---
+title: "reticulate"
+---
+
+Change the knit root directory to the temporary R session.
+See https://github.com/rstudio/reticulate/issues/1526 for context.
+
+```{r setup}
+knitr::opts_knit$set("root.dir" = tempdir())
+```
+
+```{r confirm-wd}
+getwd()
+```
+
+```{r configure-python}
+library("reticulate")
+matplotlib <- import("matplotlib")
+```
+
+```{r}
+reticulate::py_config()
+```
+
+The R plot is saved relative to the location of the Rmd file:
+
+```{r r-plot}
+plot(1:10)
+```
+
+The Python plot is also saved relative to the location of the Rmd file (not root.dir):
+
+```{python py-plot}
+import matplotlib.pyplot as plt
+
+x = range(1, 10)
+plt.plot(x, x)
+```
+
+```{r}
+knitr::opts_knit$get("root.dir")
+knitr::opts_knit$get("base.dir") 
+knitr::opts_knit$get("output.dir")
+
+if (length(Sys.glob(paste0(knitr::opts_knit$get("root.dir"), "/figure*/*"))))
+  stop("Figures saved in the wrong dir")
+
+if (!setequal(
+  basename(Sys.glob(paste0(knitr::opts_knit$get("output.dir"), "/figure*/*"))),
+  c("r-plot-1.png", "py-plot-1.png")))
+  stop("Figures not found in expected output.dir")
+
+if( file.exists(file.path(knitr::opts_knit$get("root.dir"), "figure", "r-plot-1.png")))    stop("figure saved in wrong place1")
+if( file.exists(file.path(knitr::opts_knit$get("root.dir"), "figure", "py-plot-1.png")))   stop("figure saved in wrong place2")
+if(!file.exists(file.path(knitr::opts_knit$get("output.dir"), "figure", "r-plot-1.png")))  stop("figure saved in wrong place3")
+if(!file.exists(file.path(knitr::opts_knit$get("output.dir"), "figure", "py-plot-1.png"))) stop("figure saved in wrong place4")
+```

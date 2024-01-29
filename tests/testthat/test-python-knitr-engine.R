@@ -27,6 +27,21 @@ test_that("An R Markdown document can be rendered using reticulate", {
 
 
 
+test_that("Figures saved in correct place with custom root.dir", {
+
+  skip_on_cran()
+  skip_if_not_installed("rmarkdown")
+  skip_if(py_version() < "3.8") # end_lineno attr added in 3.8
+
+  owd <- setwd(test_path("resources"))
+  status <- rmarkdown::render("test-custom-root-dir.Rmd", quiet = TRUE)
+  expect_true(file.exists(status), "test-custom-root-dir.Rmd rendered successfully")
+
+  setwd(owd)
+
+})
+
+
 test_that("In Rmd chunks, comments and output attach to code correctly", {
 
   skip_on_cran()

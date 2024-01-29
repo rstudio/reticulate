@@ -252,8 +252,25 @@ eng_python <- function(options) {
     compile_mode <- if (suppress) "exec" else "single"
 
     # run code and capture output
-    captured_stdout <- if (capture_errors)
-      tryCatch(py_compile_eval(snippet, compile_mode), error = identity)
+    captured_stdout <- if (capture_errors) {
+      tryCatch(
+        py_compile_eval(snippet, compile_mode),
+        error = function(e) {
+
+          # if the chunk option is error = FALSE (the default).
+          # we'll need to bail and not evaluate to the next python expression.
+          if (identical(options$error, FALSE))
+            had_error <- TRUE
+
+          # format the exception object
+          etype <- py_get_attr(e, "__class__")
+          traceback <- import("traceback")
+          paste0(traceback$format_exception_only(etype, e),
+                 collapse = "")
+        }
+      )
+
+    }
     else
       py_compile_eval(snippet, compile_mode)
 
@@ -304,10 +321,9 @@ eng_python <- function(options) {
       pending_source_index <- range[2] + 1
 
       # bail if we had an error with 'error=FALSE'
-      if (identical(options$error, FALSE) && inherits(captured, "error")) {
-        had_error <- TRUE
+      if (had_error && identical(options$error, FALSE))
         break
-      }
+
 
     }
   }

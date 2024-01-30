@@ -458,9 +458,15 @@ std::string as_r_class(PyObject* classPtr) {
 
 std::vector<std::string> py_class_names(PyObject* object) {
 
-  // class
-  PyObjectPtr classPtr(PyObject_GetAttrString(object, "__class__"));
-  if (classPtr.is_null())
+  // Py_TYPE() usually returns a borrowed reference to object.__class__
+  // but can differ if __class__ was modified after the object was created.
+  // (e.g., wrapt.ObjectProxy(dict()), as encountered in
+  // tensorflow.python.trackable.data_structures._DictWrapper)
+  // In CPython, the definition of Py_TYPE() changed in Python 3.10
+  // from a macro with no return type to a inline static function returning PyTypeObject*.
+  // for back compat, we continue to define Py_TYPE as a macro in reticulate/src/libpython.h
+  PyObject* type = (PyObject*) Py_TYPE(object);
+  if (type == NULL)
     throw PythonException(py_fetch_error());
 
   // call inspect.getmro to get the class and it's bases in
@@ -476,7 +482,7 @@ std::vector<std::string> py_class_names(PyObject* object) {
       throw PythonException(py_fetch_error());
   }
 
-  PyObjectPtr classes(PyObject_CallFunctionObjArgs(getmro, classPtr.get(), NULL));
+  PyObjectPtr classes(PyObject_CallFunctionObjArgs(getmro, type, NULL));
   if (classes.is_null())
     throw PythonException(py_fetch_error());
 

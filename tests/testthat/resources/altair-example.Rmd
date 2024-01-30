@@ -9,9 +9,7 @@ output:
 ```{r}
 library(reticulate)
 
-python <- "~/.virtualenvs/python-3.7.7-venv/bin/python"
-if (file.exists(python))
-  use_python(python, required = TRUE)
+# py_install(c("altair", "vega_datasets", "pandas"))
 ```
 
 ```{python, altair.fig.width=800, altair.fig.height=300}
@@ -24,4 +22,49 @@ alt.Chart(source).mark_bar().encode(
     alt.X("IMDB_Rating:Q", bin=True),
     y='count()',
 )
+```
+
+## Compound charts
+
+```{python}
+import altair as alt
+import pandas as pd
+
+source = pd.DataFrame({
+    'a': ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'],
+    'b': [28, 55, 43, 91, 81, 53, 19, 87, 52]
+})
+
+fig1 = alt.Chart(source).mark_bar().encode(
+    x='a',
+    y='b'
+)
+fig2 = alt.Chart(source).mark_bar().encode(
+    x='a',
+    y='b',
+    color='b:N'
+)
+fig3 = alt.Chart(source).mark_bar().encode(
+    x='a',
+    y='b',
+    color='a:N'
+)
+```
+
+## Compound Chart1 
+```{python}
+#| label: first
+(fig1 | fig2).properties(title="This is the First Chart")
+```
+
+## Compound Chart2 
+```{python}
+#| label: second
+(fig2 | fig1).properties(title="This is the Second Chart")
+```
+
+## Compound Chart3 
+```{python}
+#| label: third
+(fig2 | fig1 | fig3).properties(title="This is the Third Chart")
 ```

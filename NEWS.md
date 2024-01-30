@@ -1,5 +1,8 @@
 # reticulate (development version)
 
+- Fixed an issue where the knitr engine would not correctly display altair 
+  compound charts if more than one were present in a document (#1500, #1532).
+
 - Subclassed Python list and dict objects are no longer automatically converted
   to R vectors. Additionally, the S3 R `class` attribute for Python objects is
   now constructed using the Python `type(object)` directly, rather than from the 

@@ -1,5 +1,10 @@
 # reticulate (development version)
 
+- Subclassed Python list and dict objects are no longer automatically converted
+  to R vectors. Additionally, the S3 R `class` attribute for Python objects is
+  now constructed using the Python `type(object)` directly, rather than from the 
+  `object.__class__` attribute. See #1531 for details and context.
+
 - The knitr python engine now formats captured python exceptions to include the
   exception type and any exception notes when chunk options
   `error = TRUE` is set (reported in #1520, fixed in #1527).

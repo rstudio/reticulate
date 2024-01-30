@@ -37,7 +37,6 @@ class M:
 })
 
 
-
 test_that("py_id() returns unique strings; #1216", {
   skip_if_no_python()
 
@@ -50,8 +49,6 @@ test_that("py_id() returns unique strings; #1216", {
   expect_false(py_id(py_eval("object()")) == py_id(py_eval("object()")))
   expect_true(py_id(py_eval("object")) == py_id(py_eval("object")))
 })
-
-
 
 
 
@@ -75,7 +72,14 @@ class List(Sequence, list):
     return len(self._storage)
 ")$List
 
-  expect_identical(List(1,2,3), list(1,2,3))
+  expect_contains(class(List(1,2,3)),
+                  c("__main__.List",
+                    "collections.abc.Sequence",
+                    "python.builtin.list",
+                    "python.builtin.object"))
+
+  py_bt_list <- import_builtins()$list
+  expect_identical(py_bt_list(List(1, 2, "3")), list(1, 2, "3"))
 
 })
 
@@ -96,11 +100,16 @@ assert isinstance(Dict({}), dict)
 
 ")$Dict
 
-  expect_identical(Dict(dict()), structure(list(), names = character(0)))
-  expect_identical(Dict(list("abc" = 1:3)), list("abc" = 1:3))
+  expect_contains(class(Dict(dict())),
+                  c("__main__.Dict",
+                    "python.builtin.ObjectProxy",
+                    "python.builtin.object"))
+
+  x <- list("abc" = 1:3)
+  py_bt_dict <- import_builtins()$dict
+  expect_identical(py_bt_dict(Dict(x)), x)
 
 })
-
 
 
 test_that("capsules can be freed by other threads", {

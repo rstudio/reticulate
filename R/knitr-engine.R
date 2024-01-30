@@ -648,7 +648,7 @@ eng_python_is_altair_chart <- function(value) {
   # support different API versions, assuming that the class name
   # otherwise remains compatible
   classes <- class(value)
-  pattern <- "^altair\\.vegalite\\.v[[:digit:]]+\\.api\\.Chart$"
+  pattern <- "^altair\\.vegalite\\.v[[:digit:]]+\\.api\\.(HConcat|VConcat|Layer|Repeat|Facet)?Chart$"
   any(grepl(pattern, classes))
 
 }
@@ -734,14 +734,14 @@ eng_python_autoprint <- function(captured, options) {
   } else if (eng_python_is_altair_chart(value)) {
 
     # set width if it's not already set
-    width <- value$width
+    width <- py_get_attr(value, "width", TRUE)
     if (inherits(width, "altair.utils.schemapi.UndefinedType")) {
       width <- options$altair.fig.width %||% options$out.width.px %||% 810L
       value <- value$properties(width = width)
     }
 
     # set height if it's not already set
-    height <- value$height
+    height <- py_get_attr(value, "height", TRUE)
     if (inherits(height, "altair.utils.schemapi.UndefinedType")) {
       height <- options$altair.fig.height %||% options$out.height.px %||% 400L
       value <- value$properties(height = height)

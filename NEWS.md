@@ -25,6 +25,9 @@
 - knitr engine gains the ability to save chunk figures in multiple files/formats
   (Contributed by @Rumengol in #1507)
 
+- Added support for partially unexpanded variables like `$USER` in
+  `XDG_DATA_HOME` and similar (#1513, #1514)
+
 # reticulate 1.34.0
 
 # reticulate 1.33.0

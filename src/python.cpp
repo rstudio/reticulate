@@ -1305,65 +1305,74 @@ SEXP py_to_r(PyObject* x, bool convert) {
 
   }
 
-  else if (PyList_Check(x)) {
-    // didn't pass PyList_CheckExact(), but does pass PyList_Check()
-    // so it's an object that subclasses list.
-    // (This type of subclassed list is used by tensorflow for lists of layers
-    // attached to a keras model, tensorflow.python.training.tracking.data_structures.List,
-    // https://github.com/rstudio/reticulate/issues/1226 )
-    // if needed, consider changing this check from PyList_Check(x) to either:
-    //  - PySequence_Check(x), which just checks for existence of __getitem__ and __len__ methods,
-    //  - PyObject_IsInstance(x, Py_ListClass) for wrapt.ProxyObject wrapping a list.
-
-    // Since it's a subclassed list.
-    // We can't depend on the the PyList_* API working,
-    // and must instead fallback to the generic PyObject_* API or PySequence_API.
-    // (PyList_*() function do not work for tensorflow.python.training.tracking.data_structures.List)
-    long len = PyObject_Size(x);
-    Rcpp::List list(len);
-    for (long i = 0; i < len; i++) {
-      PyObject *pi = PyLong_FromLong(i);
-      list[i] = py_to_r(PyObject_GetItem(x, pi), convert);
-      Py_DecRef(pi);
-    }
-    return list;
-  }
-
-  else if (PyObject_IsInstance(x, Py_DictClass)) {
-    // This check is kind of slow since it calls back into evaluating Python code instead of
-    // merely consulting the object header, but it is the only reliable way that works
-    // for tensorflow._DictWrapper,
-    // which in actually is a wrapt.ProxyObject pretending to be a dict.
-    // ProxyObject goes to great lenghts to pretend to be the underlying object,
-    // to the point that x.__class__ is __builtins__.dict,
-    // but it fails PyDict_CheckExact(x) and PyDict_Check(x).
-    // Registering a custom S3 r_to_py() method here isn't straighforward either,
-    // since the object presents as a plain dict when inspecting __class__,
-    // despite the fact that none of the PyDict_* C API functions work with it.
-
-    // PyMapping_Items returns a list of (key, value) tuples.
-    PyObjectPtr items(PyMapping_Items(x));
-
-    Py_ssize_t size = PyObject_Size(items);
-    std::vector<std::string> names(size);
-    Rcpp::List list(size);
-
-    for (Py_ssize_t idx = 0; idx < size; idx++) {
-      PyObjectPtr item(PySequence_GetItem(items, idx));
-      PyObject *key = PyTuple_GetItem(item, 0); // borrowed ref
-      PyObject *value = PyTuple_GetItem(item, 1); // borrowed ref
-
-      if (is_python_str(key)) {
-        names[idx] = as_utf8_r_string(key);
-      } else {
-        PyObjectPtr str(PyObject_Str(key));
-        names[idx] = as_utf8_r_string(str);
-      }
-      list[idx] = py_to_r(value, convert);
-    }
-    list.names() = names;
-    return list;
-  }
+  // These two commented-out ifelse branches convert a subclassed
+  // python list or dict object as if it was a simple list or dict. This is turning out
+  // to be a bad idea, as we encounter more user-facing subclassed dicts and
+  // list with additional methods or items that are discarded during conversion,
+  // and that users are expecting to persist. e.g., in huggingface
+  // https://github.com/rstudio/reticulate/issues/1510
+  // https://github.com/rstudio/reticulate/issues/1429#issuecomment-1658499679
+  // https://github.com/rstudio/reticulate/issues/1360#issuecomment-1680413674
+  //
+  // else if (PyList_Check(x)) {
+  //   // didn't pass PyList_CheckExact(), but does pass PyList_Check()
+  //   // so it's an object that subclasses list.
+  //   // (This type of subclassed list is used by tensorflow for lists of layers
+  //   // attached to a keras model, tensorflow.python.training.tracking.data_structures.List,
+  //   // https://github.com/rstudio/reticulate/issues/1226 )
+  //   // if needed, consider changing this check from PyList_Check(x) to either:
+  //   //  - PySequence_Check(x), which just checks for existence of __getitem__ and __len__ methods,
+  //   //  - PyObject_IsInstance(x, Py_ListClass) for wrapt.ProxyObject wrapping a list.
+  //
+  //   // Since it's a subclassed list.
+  //   // We can't depend on the the PyList_* API working,
+  //   // and must instead fallback to the generic PyObject_* API or PySequence_API.
+  //   // (PyList_*() function do not work for tensorflow.python.training.tracking.data_structures.List)
+  //   long len = PyObject_Size(x);
+  //   Rcpp::List list(len);
+  //   for (long i = 0; i < len; i++) {
+  //     PyObject *pi = PyLong_FromLong(i);
+  //     list[i] = py_to_r(PyObject_GetItem(x, pi), convert);
+  //     Py_DecRef(pi);
+  //   }
+  //   return list;
+  // }
+  //
+  // else if (PyObject_IsInstance(x, Py_DictClass)) {
+  //   // This check is kind of slow since it calls back into evaluating Python code instead of
+  //   // merely consulting the object header, but it is the only reliable way that works
+  //   // for tensorflow._DictWrapper,
+  //   // which in actually is a wrapt.ProxyObject pretending to be a dict.
+  //   // ProxyObject goes to great lenghts to pretend to be the underlying object,
+  //   // to the point that x.__class__ is __builtins__.dict,
+  //   // but it fails PyDict_CheckExact(x) and PyDict_Check(x).
+  //   // Registering a custom S3 r_to_py() method here isn't straighforward either,
+  //   // since the object presents as a plain dict when inspecting __class__,
+  //   // despite the fact that none of the PyDict_* C API functions work with it.
+  //
+  //   // PyMapping_Items returns a list of (key, value) tuples.
+  //   PyObjectPtr items(PyMapping_Items(x));
+  //
+  //   Py_ssize_t size = PyObject_Size(items);
+  //   std::vector<std::string> names(size);
+  //   Rcpp::List list(size);
+  //
+  //   for (Py_ssize_t idx = 0; idx < size; idx++) {
+  //     PyObjectPtr item(PySequence_GetItem(items, idx));
+  //     PyObject *key = PyTuple_GetItem(item, 0); // borrowed ref
+  //     PyObject *value = PyTuple_GetItem(item, 1); // borrowed ref
+  //
+  //     if (is_python_str(key)) {
+  //       names[idx] = as_utf8_r_string(key);
+  //     } else {
+  //       PyObjectPtr str(PyObject_Str(key));
+  //       names[idx] = as_utf8_r_string(str);
+  //     }
+  //     list[idx] = py_to_r(value, convert);
+  //   }
+  //   list.names() = names;
+  //   return list;
+  // }
 
   // callable
   else if (py_is_callable(x)) {

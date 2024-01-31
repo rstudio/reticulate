@@ -1,4 +1,4 @@
-# reticulate (development version)
+# reticulate 1.35.0
 
 - Subclassed Python list and dict objects are no longer automatically converted
   to R vectors. Additionally, the S3 R `class` attribute for Python objects is

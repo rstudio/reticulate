@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.34.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.35.0</span>
       </span>
     </div>
 
@@ -310,9 +310,9 @@ Python raises an error:</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> (<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>)</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>a, b, c <span class="op">=</span> x <span class="co"># success</span></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>a, b <span class="op">=</span> x    <span class="co"># error, x has too many values to unpack</span></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; too many values to unpack (expected 2)</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ValueError: too many values to unpack (expected 2)</span></span>
 <span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>a, b, c, d <span class="op">=</span> x <span class="co"># error, x has not enough values to unpack</span></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; not enough values to unpack (expected 4, got 3)</span></span></code></pre></div>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; ValueError: not enough values to unpack (expected 4, got 3)</span></span></code></pre></div>
 <p>It is possible to unpack a variable number of arguments, using
 <code>*</code> as a prefix to a symbol. (You’ll see the <code>*</code>
 prefix again when we talk about functions)</p>
@@ -355,7 +355,7 @@ position. Dictionaries are <em>unordered</em> containers.
 insertion order).</p>
 <div class="sourceCode" id="cb16"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>d <span class="op">=</span> {<span class="st">"key1"</span>: <span class="dv">1</span>, <span class="st">"key2"</span>: <span class="dv">2</span>}</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>d[<span class="dv">1</span>] <span class="co"># error</span></span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1</span></span></code></pre></div>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; KeyError: 1</span></span></code></pre></div>
 <p>A container that closest matches the semantics of R’s named list is
 the <a href="https://docs.python.org/3/library/collections.html#collections.OrderedDict" class="external-link"><code>OrderedDict</code></a>,
 but that’s relatively uncommon in Python code so we don’t cover it
@@ -407,7 +407,7 @@ called with <code>next()</code> until it is exhausted.</p>
 <div class="sourceCode" id="cb19"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>l <span class="op">=</span> [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>]</span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>it <span class="op">=</span> <span class="bu">iter</span>(l) <span class="co"># create an iterator object</span></span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>it</span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;list_iterator object at 0x7fa1ea0aae80&gt;</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;list_iterator object at 0x7f0444b27be0&gt;</span></span>
 <span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="co"># call `next` on the iterator until it is exhausted:</span></span>
 <span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="bu">next</span>(it)</span>
@@ -417,7 +417,7 @@ called with <code>next()</code> until it is exhausted.</p>
 <span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a><span class="bu">next</span>(it)</span>
 <span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3</span></span>
 <span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a><span class="bu">next</span>(it)</span>
-<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span></code></pre></div>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; StopIteration</span></span></code></pre></div>
 <p>In R, you can use reticulate to step through an iterator the same
 way.</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
@@ -578,7 +578,7 @@ for demonstration purposes.</p>
 <span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>instance <span class="op">=</span> MyClass()</span>
 <span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>instance</span>
-<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;__main__.MyClass object at 0x7fa1ea0b3f70&gt;</span></span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;__main__.MyClass object at 0x7f0444a76f10&gt;</span></span>
 <span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a><span class="bu">type</span>(instance)</span>
 <span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;class '__main__.MyClass'&gt;</span></span></code></pre></div>
 <p>Like the <code>def</code> statement, the <code>class</code> statement
@@ -631,14 +631,14 @@ before <code>__init__</code>).</p>
 <span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; MyClass is finished being created</span></span>
 <span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a>instance <span class="op">=</span> MyClass()</span>
-<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;__main__.MyClass object at 0x7fa1e9fe8d60&gt; is initializing</span></span>
+<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;__main__.MyClass object at 0x7f0444a768b0&gt; is initializing</span></span>
 <span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(instance)</span>
-<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;__main__.MyClass object at 0x7fa1e9fe8d60&gt;</span></span>
+<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;__main__.MyClass object at 0x7f0444a768b0&gt;</span></span>
 <span id="cb31-16"><a href="#cb31-16" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb31-17"><a href="#cb31-17" aria-hidden="true" tabindex="-1"></a>instance2 <span class="op">=</span> MyClass()</span>
-<span id="cb31-18"><a href="#cb31-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;__main__.MyClass object at 0x7fa1e9fe4460&gt; is initializing</span></span>
+<span id="cb31-18"><a href="#cb31-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;__main__.MyClass object at 0x7f0444a8d490&gt; is initializing</span></span>
 <span id="cb31-19"><a href="#cb31-19" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(instance2)</span>
-<span id="cb31-20"><a href="#cb31-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;__main__.MyClass object at 0x7fa1e9fe4460&gt;</span></span></code></pre></div>
+<span id="cb31-20"><a href="#cb31-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;__main__.MyClass object at 0x7f0444a8d490&gt;</span></span></code></pre></div>
 <p>A few things to note:</p>
 <ul>
 <li><p>the <code>class</code> statement takes a code block that is
@@ -674,12 +674,12 @@ if the function is decorated with something like
 <span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>instance <span class="op">=</span> MyClass()</span>
 <span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>instance.a_method()</span>
-<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; MyClass.a_method() was called with &lt;__main__.MyClass object at 0x7fa1ea09d700&gt;</span></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; MyClass.a_method() was called with &lt;__main__.MyClass object at 0x7f0444a853a0&gt;</span></span>
 <span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>MyClass.a_method()     <span class="co"># error, missing required argument `self`</span></span>
-<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; a_method() missing 1 required positional argument: 'self'</span></span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; TypeError: a_method() missing 1 required positional argument: 'self'</span></span>
 <span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>MyClass.a_method(instance) <span class="co"># identical to instance.a_method()</span></span>
-<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; MyClass.a_method() was called with &lt;__main__.MyClass object at 0x7fa1ea09d700&gt;</span></span></code></pre></div>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; MyClass.a_method() was called with &lt;__main__.MyClass object at 0x7f0444a853a0&gt;</span></span></code></pre></div>
 <p>Other dunder’s worth knowing about are:</p>
 <ul>
 <li><p><code>__getitem__</code>: the function invoked when subsetting an
@@ -759,7 +759,7 @@ where the <code>__iter__</code> method is just a stub that returns
 <span id="cb33-31"><a href="#cb33-31" aria-hidden="true" tabindex="-1"></a><span class="bu">next</span>(it)</span>
 <span id="cb33-32"><a href="#cb33-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3</span></span>
 <span id="cb33-33"><a href="#cb33-33" aria-hidden="true" tabindex="-1"></a><span class="bu">next</span>(it)</span>
-<span id="cb33-34"><a href="#cb33-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span></code></pre></div>
+<span id="cb33-34"><a href="#cb33-34" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; StopIteration</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level3">
@@ -779,14 +779,14 @@ a generator object, which is just another type of iterator.</p>
 <span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a><span class="co"># At first glance it presents like a regular function</span></span>
 <span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>my_generator_constructor</span>
-<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;function my_generator_constructor at 0x7fa1ea0bf430&gt;</span></span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;function my_generator_constructor at 0x7f0444a82f70&gt;</span></span>
 <span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a><span class="bu">type</span>(my_generator_constructor)</span>
 <span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;class 'function'&gt;</span></span>
 <span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a><span class="co"># But calling it returns something special, a 'generator object'</span></span>
 <span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a>my_generator <span class="op">=</span> my_generator_constructor()</span>
 <span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a>my_generator</span>
-<span id="cb34-15"><a href="#cb34-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;generator object my_generator_constructor at 0x7fa1e14db660&gt;</span></span>
+<span id="cb34-15"><a href="#cb34-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;generator object my_generator_constructor at 0x7f0436f88740&gt;</span></span>
 <span id="cb34-16"><a href="#cb34-16" aria-hidden="true" tabindex="-1"></a><span class="bu">type</span>(my_generator)</span>
 <span id="cb34-17"><a href="#cb34-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; &lt;class 'generator'&gt;</span></span>
 <span id="cb34-18"><a href="#cb34-18" aria-hidden="true" tabindex="-1"></a></span>
@@ -803,7 +803,7 @@ a generator object, which is just another type of iterator.</p>
 <span id="cb34-29"><a href="#cb34-29" aria-hidden="true" tabindex="-1"></a><span class="bu">next</span>(my_generator)</span>
 <span id="cb34-30"><a href="#cb34-30" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 3</span></span>
 <span id="cb34-31"><a href="#cb34-31" aria-hidden="true" tabindex="-1"></a><span class="bu">next</span>(my_generator)</span>
-<span id="cb34-32"><a href="#cb34-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span></code></pre></div>
+<span id="cb34-32"><a href="#cb34-32" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; StopIteration</span></span></code></pre></div>
 <p>Encountering <code>yield</code> is like hitting the pause button on a
 functions execution, it preserves the state of everything in the
 function body and returns control to whatever is iterating over the

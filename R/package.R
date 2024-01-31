@@ -7,13 +7,12 @@
 #' types. The reticulate package is compatible with all versions of Python >= 3.6.
 #' Integration with NumPy requires NumPy version 1.6 or higher.
 #'
-#' @docType package
 #' @name reticulate
 #' @aliases reticulate-package
 #' @keywords internal
 #' @useDynLib reticulate, .registration = TRUE
 #' @importFrom Rcpp evalCpp
-NULL
+"_PACKAGE"
 
 # package level mutable global state
 .globals <- new.env(parent = emptyenv())

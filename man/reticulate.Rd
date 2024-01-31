@@ -12,4 +12,34 @@ types. When values are returned from Python to R they are converted back to R
 types. The reticulate package is compatible with all versions of Python >= 3.6.
 Integration with NumPy requires NumPy version 1.6 or higher.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://rstudio.github.io/reticulate/}
+  \item \url{https://github.com/rstudio/reticulate}
+  \item Report bugs at \url{https://github.com/rstudio/reticulate/issues}
+}
+
+}
+\author{
+\strong{Maintainer}: Tomasz Kalinowski \email{tomasz@posit.co} [contributor]
+
+Authors:
+\itemize{
+  \item Kevin Ushey \email{kevin@posit.co}
+  \item JJ Allaire \email{jj@posit.co}
+  \item Yuan Tang \email{terrytangyuan@gmail.com} (\href{https://orcid.org/0000-0001-5243-233X}{ORCID}) [copyright holder]
+}
+
+Other contributors:
+\itemize{
+  \item RStudio [copyright holder, funder]
+  \item Dirk Eddelbuettel \email{edd@debian.org} [contributor, copyright holder]
+  \item Bryan Lewis \email{blewis@illposed.net} [contributor, copyright holder]
+  \item Sigrid Keydana \email{sigrid@posit.co} [contributor]
+  \item Ryan Hafen \email{rhafen@gmail.com} [contributor, copyright holder]
+  \item Marcus Geelnard (TinyThread library, http://tinythreadpp.bitsnbites.eu/) [contributor, copyright holder]
+}
+
+}
 \keyword{internal}

@@ -11,7 +11,7 @@ py_set_seed(seed, disable_hash_randomization = TRUE)
 
 \item{disable_hash_randomization}{Disable hash randomization, which is
 another common source of variable results. See
-\url{https://docs.python.org/3.4/using/cmdline.html#envvar-PYTHONHASHSEED}}
+\url{https://docs.python.org/3/using/cmdline.html#envvar-PYTHONHASHSEED}}
 }
 \description{
 Set various random seeds required to ensure reproducible results. The

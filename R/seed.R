@@ -8,7 +8,7 @@
 #' @param seed A single value, interpreted as an integer
 #' @param disable_hash_randomization Disable hash randomization, which is
 #'   another common source of variable results. See
-#'   <https://docs.python.org/3.4/using/cmdline.html#envvar-PYTHONHASHSEED>
+#'   <https://docs.python.org/3/using/cmdline.html#envvar-PYTHONHASHSEED>
 #'
 #' @details This function does not set the R random seed, for that you
 #'   should call [set.seed()].
@@ -20,7 +20,7 @@ py_set_seed <- function(seed, disable_hash_randomization = TRUE) {
   seed <- as.integer(seed)
 
   # Ensure reproducibility for certain hash-based operations for Python 3
-  # References: https://docs.python.org/3.4/using/cmdline.html#envvar-PYTHONHASHSEED
+  # References: https://docs.python.org/3/using/cmdline.html#envvar-PYTHONHASHSEED
   #             https://github.com/fchollet/keras/issues/2280#issuecomment-306959926
   if (disable_hash_randomization) {
     os <- import("os")

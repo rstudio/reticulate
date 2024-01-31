@@ -20,6 +20,6 @@ expression's evaluation (optional).}
 The \code{with} method for objects of type \code{python.builtin.object}
 implements the context manager protocol used by the Python \code{with}
 statement. The passed object must implement the
-\href{https://docs.python.org/2/reference/datamodel.html#context-managers}{context
+\href{https://docs.python.org/3/reference/datamodel.html#context-managers}{context
 manager} (\code{__enter__} and \code{__exit__} methods.
 }

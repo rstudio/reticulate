@@ -4,8 +4,14 @@ New features and fixes. See NEWS.md for details.
 
 ## revdepcheck results
 
-We checked 231 reverse dependencies (188 from CRAN + 43 from Bioconductor), comparing R CMD check results across CRAN and dev versions of this package.
+We checked 244 reverse dependencies (200 from CRAN + 44 from Bioconductor), comparing R CMD check results across CRAN and dev versions of this package.
 
  * We saw 0 new problems
- * We failed to check 0 packages
+ * We failed to check 2 packages
 
+Issues with CRAN packages are summarised below.
+
+### Failed to check
+
+* lilikoi (NA)
+* Seurat  (NA)

@@ -1,24 +1,9 @@
 # reticulate (development version)
 
-- Fixed an issue where the knitr engine would not correctly display altair 
-  compound charts if more than one were present in a document (#1500, #1532).
-
 - Subclassed Python list and dict objects are no longer automatically converted
   to R vectors. Additionally, the S3 R `class` attribute for Python objects is
   now constructed using the Python `type(object)` directly, rather than from the 
   `object.__class__` attribute. See #1531 for details and context.
-
-- The knitr python engine now formats captured python exceptions to include the
-  exception type and any exception notes when chunk options
-  `error = TRUE` is set (reported in #1520, fixed in #1527).
-
-- Fixed an issue where matplotlib figures generated in the initial chunk
-  where matplotlib was first imported would be the wrong size
-  (reported in #1523, fixed in #1530)
-
-- Fixed an issue where the knitr python engine would fail to include
-  figures from python chunks if a custom `root.dir` chunk option was set.
-  (reported in #1526, fixed in #1529)
 
 - R external pointers (EXTPTRSXP objects) now round-trip through
   `py_to_r(r_to_py(x))` successfully.
@@ -30,11 +15,28 @@
 - Fixed issue where `csc_matrix` objects with unsorted indices could not be
   converted to a dgCMatrix. (related to #727, fixed in #1524, contributed by @rcannood).
 
+- Added support for partially unexpanded variables like `$USER` in
+  `XDG_DATA_HOME` and similar (#1513, #1514)
+
+## Knitr Python Engine Changes: 
+
+- The knitr python engine now formats captured python exceptions to include the
+  exception type and any exception notes when chunk options
+  `error = TRUE` is set (reported in #1520, fixed in #1527).
+
+- Fixed an issue where the knitr python engine would fail to include
+  figures from python chunks if a custom `root.dir` chunk option was set.
+  (reported in #1526, fixed in #1529)
+
 - knitr engine gains the ability to save chunk figures in multiple files/formats
   (Contributed by @Rumengol in #1507)
 
-- Added support for partially unexpanded variables like `$USER` in
-  `XDG_DATA_HOME` and similar (#1513, #1514)
+- Fixed an issue where matplotlib figures generated in the initial chunk
+  where matplotlib was first imported would be the wrong size
+  (reported in #1523, fixed in #1530)
+
+- Fixed an issue where the knitr engine would not correctly display altair 
+  compound charts if more than one were present in a document (#1500, #1532).
 
 # reticulate 1.34.0
 

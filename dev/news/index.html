@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.34.0.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.35.0.9000</span>
       </span>
     </div>
 
@@ -83,13 +83,16 @@
 
     <div class="section level2">
 <h2 class="page-header" data-toc-text="development version" id="reticulate-development-version">reticulate (development version)<a class="anchor" aria-label="anchor" href="#reticulate-development-version"></a></h2>
+</div>
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="1.35.0" id="reticulate-1350">reticulate 1.35.0<small>2024-01-31</small><a class="anchor" aria-label="anchor" href="#reticulate-1350"></a></h2>
 <ul><li><p>Subclassed Python list and dict objects are no longer automatically converted to R vectors. Additionally, the S3 R <code>class</code> attribute for Python objects is now constructed using the Python <code>type(object)</code> directly, rather than from the <code>object.__class__</code> attribute. See <a href="https://github.com/rstudio/reticulate/issues/1531" class="external-link">#1531</a> for details and context.</p></li>
 <li><p>R external pointers (EXTPTRSXP objects) now round-trip through <code>py_to_r(r_to_py(x))</code> successfully. (reported in <a href="https://github.com/rstudio/reticulate/issues/1511" class="external-link">#1511</a>, fixed in <a href="https://github.com/rstudio/reticulate/issues/1519" class="external-link">#1519</a>, contributed by <a href="https://github.com/llaniewski" class="external-link">@llaniewski</a>).</p></li>
 <li><p>Fixed issue where <code><a href="../reference/virtualenv-tools.html">virtualenv_create()</a></code> would error on Ubuntu 22.04 when using the system python as a base. (<a href="https://github.com/rstudio/reticulate/issues/1495" class="external-link">#1495</a>, fixed in <a href="https://github.com/rstudio/reticulate/issues/1496" class="external-link">#1496</a>).</p></li>
 <li><p>Fixed issue where <code>csc_matrix</code> objects with unsorted indices could not be converted to a dgCMatrix. (related to <a href="https://github.com/rstudio/reticulate/issues/727" class="external-link">#727</a>, fixed in <a href="https://github.com/rstudio/reticulate/issues/1524" class="external-link">#1524</a>, contributed by <a href="https://github.com/rcannood" class="external-link">@rcannood</a>).</p></li>
 <li><p>Added support for partially unexpanded variables like <code>$USER</code> in <code>XDG_DATA_HOME</code> and similar (<a href="https://github.com/rstudio/reticulate/issues/1513" class="external-link">#1513</a>, <a href="https://github.com/rstudio/reticulate/issues/1514" class="external-link">#1514</a>)</p></li>
 </ul><div class="section level3">
-<h3 id="knitr-python-engine-changes-development-version">Knitr Python Engine Changes:<a class="anchor" aria-label="anchor" href="#knitr-python-engine-changes-development-version"></a></h3>
+<h3 id="knitr-python-engine-changes-1-35-0">Knitr Python Engine Changes:<a class="anchor" aria-label="anchor" href="#knitr-python-engine-changes-1-35-0"></a></h3>
 <ul><li><p>The knitr python engine now formats captured python exceptions to include the exception type and any exception notes when chunk options <code>error = TRUE</code> is set (reported in <a href="https://github.com/rstudio/reticulate/issues/1520" class="external-link">#1520</a>, fixed in <a href="https://github.com/rstudio/reticulate/issues/1527" class="external-link">#1527</a>).</p></li>
 <li><p>Fixed an issue where the knitr python engine would fail to include figures from python chunks if a custom <code>root.dir</code> chunk option was set. (reported in <a href="https://github.com/rstudio/reticulate/issues/1526" class="external-link">#1526</a>, fixed in <a href="https://github.com/rstudio/reticulate/issues/1529" class="external-link">#1529</a>)</p></li>
 <li><p>knitr engine gains the ability to save chunk figures in multiple files/formats (Contributed by <a href="https://github.com/Rumengol" class="external-link">@Rumengol</a> in <a href="https://github.com/rstudio/reticulate/issues/1507" class="external-link">#1507</a>)</p></li>
@@ -145,11 +148,8 @@
 </ul></div>
 <div class="section level3">
 <h3 id="knitr-1-31">Knitr<a class="anchor" aria-label="anchor" href="#knitr-1-31"></a></h3>
-<ul><li>
-<p>The knitr engine gains a <code>jupyter_compat</code> option, enabling reticulate to better match the behavior of Jupyter. When this chunk option is set to <code>TRUE</code>, only the return value from the last expression in a chunk is auto-printed. (<a href="https://github.com/rstudio/reticulate/issues/1391" class="external-link">#1391</a>, <a href="https://github.com/rstudio/reticulate/issues/1394" class="external-link">#1394</a>, contributed by</p>
-<ol class="example" style="list-style-type: decimal"><li>
-</li></ol></li>
-<li><p>The knitr engine now more reliably detects and displays matplotlib pending plots, without the need for a matplotlib artist object to be returned as a top-level expression. E.g., the knitr engine will now display plots when the matplotlib api returns something other than an artist object, (<code>plt.bar()</code>), or the matplotlib return value is not auto-printed due to being assigned, (<code>x = plt.plot()</code>), or suppressed with a <code>;</code>, (<code>plt.plot();</code>). (<a href="https://github.com/rstudio/reticulate/issues/1391" class="external-link">#1391</a>, <a href="https://github.com/rstudio/reticulate/issues/1401" class="external-link">#1401</a>, contributed by 1)</p></li>
+<ul><li><p>The knitr engine gains a <code>jupyter_compat</code> option, enabling reticulate to better match the behavior of Jupyter. When this chunk option is set to <code>TRUE</code>, only the return value from the last expression in a chunk is auto-printed. (<a href="https://github.com/rstudio/reticulate/issues/1391" class="external-link">#1391</a>, <a href="https://github.com/rstudio/reticulate/issues/1394" class="external-link">#1394</a>, contributed by <a href="https://github.com/matthew-brett" class="external-link">@matthew-brett</a>)</p></li>
+<li><p>The knitr engine now more reliably detects and displays matplotlib pending plots, without the need for a matplotlib artist object to be returned as a top-level expression. E.g., the knitr engine will now display plots when the matplotlib api returns something other than an artist object, (<code>plt.bar()</code>), or the matplotlib return value is not auto-printed due to being assigned, (<code>x = plt.plot()</code>), or suppressed with a <code>;</code>, (<code>plt.plot();</code>). (<a href="https://github.com/rstudio/reticulate/issues/1391" class="external-link">#1391</a>, <a href="https://github.com/rstudio/reticulate/issues/1401" class="external-link">#1401</a>, contributed by <a href="https://github.com/matthew-brett" class="external-link">@matthew-brett</a>)</p></li>
 <li><p>Fixed an issue where knitr engine would not respect chunk options <code>fig.width</code> / <code>fig.height</code> when rendering matplotlib plots. (<a href="https://github.com/rstudio/reticulate/issues/1398" class="external-link">#1398</a>)</p></li>
 <li><p>Fixed an issue where the reticulate knitr engine would not capture output printed from python. (PR <a href="https://github.com/rstudio/reticulate/issues/1412" class="external-link">#1412</a>, fixing <a href="https://github.com/rstudio/reticulate/issues/1378" class="external-link">#1378</a>, <a href="https://github.com/rstudio/reticulate/issues/331" class="external-link">#331</a>)</p></li>
 </ul></div>

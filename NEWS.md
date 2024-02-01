@@ -149,8 +149,8 @@
 - The knitr engine gains a `jupyter_compat` option, enabling
   reticulate to better match the behavior of Jupyter. When this chunk
   option is set to `TRUE`, only the return value from the last
-  expression in a chunk is auto-printed. (#1391, #1394, contributed by
-  @matthew-brett)
+  expression in a chunk is auto-printed. 
+  (#1391, #1394, contributed by @matthew-brett)
 
 - The knitr engine now more reliably detects and displays matplotlib
   pending plots, without the need for a matplotlib artist object to be

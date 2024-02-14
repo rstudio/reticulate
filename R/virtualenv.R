@@ -710,7 +710,7 @@ can_be_virtualenv_starter <- function(python) {
 
   py2_modules <- c("pip", "virtualenv")
   py3_modules <- c("pip", "venv")
-  modules <- ifelse(version < 3, py2_modules, py3_modules)
+  modules <- ifelse(version < "3", py2_modules, py3_modules)
 
   # ensure these modules are available
   if (!python_has_modules(python, modules))

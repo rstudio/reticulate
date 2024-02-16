@@ -226,7 +226,8 @@ py_to_r.pandas.core.series.Series <- function(x) {
   disable_conversion_scope(x)
   values <- py_to_r(x$values)
   index <- py_to_r(x$index)
-  names(values) <- index$format()
+  bt <- import("builtins")
+  names(values) <- as.character(bt$list(index$astype(bt$str)))
   values
 }
 
@@ -326,13 +327,14 @@ py_to_r.pandas.core.frame.DataFrame <- function(x) {
 
   np <- import("numpy", convert = TRUE)
   pandas <- import("pandas", convert = TRUE)
+  bt <- import("builtins", convert = TRUE)
 
   # extract numpy arrays associated with each column
   columns <- x$columns$values
 
   # delegate to c++
   converted <- py_convert_pandas_df(x)
-  names(converted) <- py_to_r(x$columns$format())
+  names(converted) <- as.character(bt$list(x$columns$astype(bt$str)))
 
   # clean up converted objects
   for (i in seq_along(converted)) {

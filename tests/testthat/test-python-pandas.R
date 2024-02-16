@@ -113,7 +113,11 @@ test_that("complex names are handled", {
 
   p <- pd$DataFrame(data = d)
   r <- py_to_r(p)
-  expect_equal(names(r), c("col1", "(col1, col2)"))
+  expect_equal(names(r)[1], "col1")
+  # pandas 2.2 removed index.format(), and users must pass custom formatters now,
+  # we default to using __str__ for formatting, which given a tuple, falls back
+  # to __repr__ (which prints strings with quotes).
+  expect_in(names(r)[2], c("(col1, col2)", "('col1', 'col2')"))
 
 })
 

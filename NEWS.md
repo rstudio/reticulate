@@ -1,5 +1,9 @@
 # reticulate (development version)
 
+- Update for Pandas 2.2 deprecation of `Index.format()` (#1537, #1538).
+
+- Updates for CRAN R-devel (R 4.4).
+
 # reticulate 1.35.0
 
 - Subclassed Python list and dict objects are no longer automatically converted

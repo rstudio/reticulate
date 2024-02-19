@@ -83,7 +83,9 @@
 
     <div class="section level2">
 <h2 class="page-header" data-toc-text="development version" id="reticulate-development-version">reticulate (development version)<a class="anchor" aria-label="anchor" href="#reticulate-development-version"></a></h2>
-</div>
+<ul><li><p>Update for Pandas 2.2 deprecation of <code>Index.format()</code> (<a href="https://github.com/rstudio/reticulate/issues/1537" class="external-link">#1537</a>, <a href="https://github.com/rstudio/reticulate/issues/1538" class="external-link">#1538</a>).</p></li>
+<li><p>Updates for CRAN R-devel (R 4.4).</p></li>
+</ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="1.35.0" id="reticulate-1350">reticulate 1.35.0<small>2024-01-31</small><a class="anchor" aria-label="anchor" href="#reticulate-1350"></a></h2>
 <ul><li><p>Subclassed Python list and dict objects are no longer automatically converted to R vectors. Additionally, the S3 R <code>class</code> attribute for Python objects is now constructed using the Python <code>type(object)</code> directly, rather than from the <code>object.__class__</code> attribute. See <a href="https://github.com/rstudio/reticulate/issues/1531" class="external-link">#1531</a> for details and context.</p></li>

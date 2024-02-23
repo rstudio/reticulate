@@ -78,6 +78,9 @@ test_that("generator functions iterate as expected", {
   skip_if_no_python()
   gen <- py_iterator(sequence_generator(10L))
   expect_equal(iterate(gen), 11L:19L)
+  expect_identical(iterate(gen), list())
+  expect_identical(iterate(gen), list())
+  expect_identical(iterate(gen), list())
 })
 
 
@@ -98,4 +101,58 @@ test_that("can't supply a function with arguments", {
     py_iterator(function(x) x),
     "no arguments"
   )
+})
+
+# test simplify=TRUE for all atomic types
+test_that("iterate(simplify=TRUE) for atomic types", {
+  # integer
+  it <- py_eval("(i for i in (1, 2, 3))")
+  expect_identical(iterate(it), c(1L, 2L, 3L))
+
+  # double
+  it <- py_eval("(i for i in (1., 2., 3.))")
+  expect_identical(iterate(it), c(1, 2, 3))
+
+  # character
+  it <- py_eval("(i for i in ('abc', 'def', 'ghi'))")
+  expect_identical(iterate(it), c('abc', 'def', 'ghi'))
+
+  # logical
+  it <- py_eval("(i for i in (True, False, True))")
+  expect_identical(iterate(it), c(TRUE, FALSE, TRUE))
+
+  # complex
+  it <- py_eval("(i for i in (1+1j, 2+2j, 3+3j))")
+  expect_identical(iterate(it), c(1+1i, 2+2i, 3+3i))
+
+  # if can't simplify, returns a list
+  it <- py_eval("(i for i in (1, 2, 3, None))")
+  expect_identical(iterate(it), list(1L, 2L, 3L, NULL))
+
+  it <- py_eval("(i for i in (1., 2., 3., None))")
+  expect_identical(iterate(it), list(1, 2, 3, NULL))
+
+  it <- py_eval("(i for i in ('abc', 'def', 'ghi', None))")
+  expect_identical(iterate(it), list('abc', 'def', 'ghi', NULL))
+
+  it <- py_eval("(i for i in (True, False, True, None))")
+  expect_identical(iterate(it), list(TRUE, FALSE, TRUE, NULL))
+
+  it <- py_eval("(i for i in (1+1j, 2+2j, 3+3j, None))")
+  expect_identical(iterate(it), list(1+1i, 2+2i, 3+3i, NULL))
+
+  # unconverted python objects prevent simplification
+  it <- py_eval("(i for i in (1, 2, object()))")
+  res <- iterate(it)
+  expect_type(res, "list")
+  expect_identical(res[1:2], list(1L, 2L))
+  expect_identical(class(res[[3]]), "python.builtin.object")
+
+  # convert=FALSE prevents simplification
+  it <- py_eval("(i for i in (1, 2, 3))", convert = FALSE)
+  res <- iterate(it)
+  expect_type(res, "list")
+  for(el in res)
+    expect_s3_class(el, "python.builtin.object")
+
 })

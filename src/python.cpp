@@ -3024,7 +3024,7 @@ CharacterVector py_list_submodules(const std::string& module) {
 // Traverse a Python iterator or generator
 
 // [[Rcpp::export]]
-List py_iterate(PyObjectRef x, Function f) {
+SEXP py_iterate(PyObjectRef x, Function f, bool simplify = true) {
 
   // List to return
   std::vector<RObject> list;
@@ -3034,6 +3034,7 @@ List py_iterate(PyObjectRef x, Function f) {
   if (iterator.is_null())
     throw PythonException(py_fetch_error());
 
+  bool convert(x.convert());
   // loop over it
   while (true) {
 
@@ -3049,18 +3050,96 @@ List py_iterate(PyObjectRef x, Function f) {
     }
 
     // call the function
-    SEXP param = x.convert()
-      ? py_to_r(item, x.convert())
+    SEXP ret = convert
+      ? py_to_r(item, convert)
       : py_ref(item.detach(), false);
 
-    list.push_back(f(param));
+    list.push_back(f(ret));
   }
 
-  // return the list
-  List rList(list.size());
-  for (size_t i = 0; i < list.size(); i++)
-    rList[i] = list[i];
-  return rList;
+  SEXPTYPE outType;
+  if (simplify && convert && list.size() > 0)
+  {
+      // iterate over `list` to see if we have a common SEXP atomic type and length
+      outType = TYPEOF(list[0]);
+      switch (outType)
+      {
+      case INTSXP:
+      case REALSXP:
+      case LGLSXP:
+      case STRSXP:
+      case CPLXSXP:
+          // iterate over list, see if all items are scalar atomics of the same type
+          // If not, break early and return a list
+          for (size_t i = 1; i < list.size(); i++)
+          {
+              SEXP item = list[i];
+              if (TYPEOF(item) != outType || Rf_length(item) != 1)
+              {
+                  outType = VECSXP;
+                  break;
+              }
+          }
+          break;
+      default:
+          outType = VECSXP;
+      }
+  }
+  else
+  {
+      outType = VECSXP;
+  }
+  // allocate an R object of type outType
+  // copy over the list elements
+  SEXP out = PROTECT(Rf_allocVector(outType, list.size()));
+  switch (outType)
+  {
+  case LGLSXP: {
+      int *pout = LOGICAL(out);
+      for (size_t i = 0; i < list.size(); i++)
+          pout[i] = Rf_asLogical(list[i]);
+      break;
+  }
+
+  case INTSXP: {
+      int *pout = INTEGER(out);
+      for (size_t i = 0; i < list.size(); i++)
+          pout[i] = Rf_asInteger(list[i]);
+      break;
+  }
+
+  case REALSXP: {
+      double *pout = REAL(out);
+      for (size_t i = 0; i < list.size(); i++)
+          pout[i] = Rf_asReal(list[i]);
+      break;
+  }
+
+  case CPLXSXP: {
+      Rcomplex *pout = COMPLEX(out);
+      for (size_t i = 0; i < list.size(); i++)
+          pout[i] = Rf_asComplex(list[i]);
+      break;
+  }
+
+  case STRSXP: {
+      for (size_t i = 0; i < list.size(); i++)
+          SET_STRING_ELT(out, i, STRING_ELT(list[i], 0));
+      break;
+  }
+
+  case VECSXP: {
+      for (size_t i = 0; i < list.size(); i++)
+          SET_VECTOR_ELT(out, i, list[i]);
+      break;
+  }
+
+  default:
+      // should never happen
+      Rf_error("Internal error: unexpected type encountered in py_iterate");
+  }
+  UNPROTECT(1);
+  return out;
 }
 
 // [[Rcpp::export]]

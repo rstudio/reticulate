@@ -80,12 +80,14 @@ py_iterator <- function(fn, completed = NULL, prefetch = 0L) {
       fn(),
       python.builtin.StopIteration = function(e) completed,
       error = function(e) {
-        warning("Error occurred in generator: ", e$message)
+        warning("Error occurred in generator: ", conditionMessage(e))
         completed
       }
     )
-    if (identical(val, completed))
-      stop(py_eval("StopIteration()"))
+    if (identical(val, completed)) {
+      bt <- import("builtins", convert = FALSE)
+      signalCondition(bt$StopIteration())
+    }
     val
   }
 

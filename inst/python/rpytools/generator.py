@@ -67,7 +67,7 @@ class RGenerator(object):
         try:
             # only wait/block-thread/yield-to-another-thread if the R generator
             # is not exhausted.
-            val = self.values_queue.get(block=~self.completed)
+            val = self.values_queue.get(block=(not self.completed))
             if val is _completed_sentinel:
                 raise StopIteration()
             return val

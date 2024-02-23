@@ -1,5 +1,10 @@
 # reticulate (development version)
 
+- `iterate(simplify=TRUE)` rewritten in C for speed improvements. 
+
+- Fixed hang encountered (sometimes) when attempting to call `iterate()` 
+  on an exhausted `py_iterator()` object multiple times.
+
 - Update for Pandas 2.2 deprecation of `Index.format()` (#1537, #1538).
 
 - Updates for CRAN R-devel (R 4.4).

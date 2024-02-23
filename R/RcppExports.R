@@ -206,8 +206,8 @@ py_list_submodules <- function(module) {
     .Call(`_reticulate_py_list_submodules`, module)
 }
 
-py_iterate <- function(x, f) {
-    .Call(`_reticulate_py_iterate`, x, f)
+py_iterate <- function(x, f, simplify = TRUE) {
+    .Call(`_reticulate_py_iterate`, x, f, simplify)
 }
 
 py_iter_next <- function(iterator, completed) {

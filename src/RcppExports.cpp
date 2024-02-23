@@ -530,14 +530,15 @@ BEGIN_RCPP
 END_RCPP
 }
 // py_iterate
-List py_iterate(PyObjectRef x, Function f);
-RcppExport SEXP _reticulate_py_iterate(SEXP xSEXP, SEXP fSEXP) {
+SEXP py_iterate(PyObjectRef x, Function f, bool simplify);
+RcppExport SEXP _reticulate_py_iterate(SEXP xSEXP, SEXP fSEXP, SEXP simplifySEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< PyObjectRef >::type x(xSEXP);
     Rcpp::traits::input_parameter< Function >::type f(fSEXP);
-    rcpp_result_gen = Rcpp::wrap(py_iterate(x, f));
+    Rcpp::traits::input_parameter< bool >::type simplify(simplifySEXP);
+    rcpp_result_gen = Rcpp::wrap(py_iterate(x, f, simplify));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -807,7 +808,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_reticulate_py_module_import", (DL_FUNC) &_reticulate_py_module_import, 2},
     {"_reticulate_py_module_proxy_import", (DL_FUNC) &_reticulate_py_module_proxy_import, 1},
     {"_reticulate_py_list_submodules", (DL_FUNC) &_reticulate_py_list_submodules, 1},
-    {"_reticulate_py_iterate", (DL_FUNC) &_reticulate_py_iterate, 2},
+    {"_reticulate_py_iterate", (DL_FUNC) &_reticulate_py_iterate, 3},
     {"_reticulate_py_iter_next", (DL_FUNC) &_reticulate_py_iter_next, 2},
     {"_reticulate_py_run_string_impl", (DL_FUNC) &_reticulate_py_run_string_impl, 3},
     {"_reticulate_py_run_file_impl", (DL_FUNC) &_reticulate_py_run_file_impl, 3},

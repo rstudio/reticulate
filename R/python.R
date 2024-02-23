@@ -863,30 +863,8 @@ iterate <- function(it, f = base::identity, simplify = TRUE) {
 
   ensure_python_initialized()
 
-  # resolve iterator
-  it <- as_iterator(it)
-
   # perform iteration
-  result <- py_iterate(it, f)
-
-  # simplify if requested and appropriate
-  if (simplify) {
-
-    # attempt to simplify if all elements are length 1
-    lengths <- sapply(result, length)
-    unique_length <- unique(lengths)
-    if (length(unique_length) == 1 && unique_length == 1) {
-
-      # then only simplify if we have a common primitive type
-      classes <- sapply(result, class)
-      unique_class <- unique(classes)
-      if (length(unique_class) == 1 &&
-          unique_class %in% c("character", "complex", "double", "integer", "logical")) {
-        result <- unlist(result)
-      }
-
-    }
-  }
+  result <- py_iterate(it, f, simplify)
 
   # return invisibly
   invisible(result)

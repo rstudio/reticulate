@@ -83,7 +83,9 @@
 
     <div class="section level2">
 <h2 class="page-header" data-toc-text="development version" id="reticulate-development-version">reticulate (development version)<a class="anchor" aria-label="anchor" href="#reticulate-development-version"></a></h2>
-<ul><li><p>Update for Pandas 2.2 deprecation of <code>Index.format()</code> (<a href="https://github.com/rstudio/reticulate/issues/1537" class="external-link">#1537</a>, <a href="https://github.com/rstudio/reticulate/issues/1538" class="external-link">#1538</a>).</p></li>
+<ul><li><p><code>iterate(simplify=TRUE)</code> rewritten in C for speed improvements.</p></li>
+<li><p>Fixed hang encountered (sometimes) when attempting to call <code><a href="../reference/iterate.html">iterate()</a></code> on an exhausted <code><a href="../reference/py_iterator.html">py_iterator()</a></code> object multiple times.</p></li>
+<li><p>Update for Pandas 2.2 deprecation of <code>Index.format()</code> (<a href="https://github.com/rstudio/reticulate/issues/1537" class="external-link">#1537</a>, <a href="https://github.com/rstudio/reticulate/issues/1538" class="external-link">#1538</a>).</p></li>
 <li><p>Updates for CRAN R-devel (R 4.4).</p></li>
 </ul></div>
     <div class="section level2">

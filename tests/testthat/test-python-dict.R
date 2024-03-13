@@ -70,6 +70,19 @@ test_that("ordered dictionaries with non-string keys can be converted", {
 
 })
 
+test_that("ordered dictionaries can be converted", {
+  skip_if_no_python()
+
+  collections <- import("collections", convert = FALSE)
+  od <- collections$OrderedDict(list(tuple("a", 1),
+                                     tuple("b", 2),
+                                     tuple("c", 3)))
+
+  result <- py_eval("lambda x: x")(od) # implicit conversion to R
+  expect_identical(result, list(a = 1, b = 2, c = 3))
+
+})
+
 test_that("py_to_r(dict) converts recursively, #1221", {
   skip_if_no_python()
   skip_if_no_numpy()

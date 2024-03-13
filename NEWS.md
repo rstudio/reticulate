@@ -1,19 +1,22 @@
 # reticulate (development version)
 
-- `iterate(simplify=TRUE)` rewritten in C for speed improvements. 
+- `iterate(simplify=TRUE)` rewritten in C for speed improvements.
 
-- Fixed hang encountered (sometimes) when attempting to call `iterate()` 
+- Fixed hang encountered (sometimes) when attempting to call `iterate()`
   on an exhausted `py_iterator()` object multiple times.
 
 - Update for Pandas 2.2 deprecation of `Index.format()` (#1537, #1538).
 
 - Updates for CRAN R-devel (R 4.4).
 
+- Fixed an issue where `py_discover_config()` would discover `python` (v2) on the PATH
+  in preference of `python3` on the PATH. (#1547)
+
 # reticulate 1.35.0
 
 - Subclassed Python list and dict objects are no longer automatically converted
   to R vectors. Additionally, the S3 R `class` attribute for Python objects is
-  now constructed using the Python `type(object)` directly, rather than from the 
+  now constructed using the Python `type(object)` directly, rather than from the
   `object.__class__` attribute. See #1531 for details and context.
 
 - R external pointers (EXTPTRSXP objects) now round-trip through
@@ -29,7 +32,7 @@
 - Added support for partially unexpanded variables like `$USER` in
   `XDG_DATA_HOME` and similar (#1513, #1514)
 
-## Knitr Python Engine Changes: 
+## Knitr Python Engine Changes:
 
 - The knitr python engine now formats captured python exceptions to include the
   exception type and any exception notes when chunk options
@@ -46,7 +49,7 @@
   where matplotlib was first imported would be the wrong size
   (reported in #1523, fixed in #1530)
 
-- Fixed an issue where the knitr engine would not correctly display altair 
+- Fixed an issue where the knitr engine would not correctly display altair
   compound charts if more than one were present in a document (#1500, #1532).
 
 # reticulate 1.34.0
@@ -160,7 +163,7 @@
 - The knitr engine gains a `jupyter_compat` option, enabling
   reticulate to better match the behavior of Jupyter. When this chunk
   option is set to `TRUE`, only the return value from the last
-  expression in a chunk is auto-printed. 
+  expression in a chunk is auto-printed.
   (#1391, #1394, contributed by @matthew-brett)
 
 - The knitr engine now more reliably detects and displays matplotlib

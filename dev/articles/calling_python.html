@@ -277,8 +277,8 @@ section below for more details).</p>
 and make the objects it creates available within an R environment (by
 default the calling environment). For example, consider the following
 Python script:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> add(x, y):</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> x <span class="op">+</span> y</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="kw">def</span> add(x, y):</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>  <span class="cf">return</span> x <span class="op">+</span> y</span></code></pre></div>
 <p>We source it using the <code><a href="../reference/source_python.html">source_python()</a></code> function and then
 can call the <code>add()</code> function directly from R:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
@@ -630,10 +630,10 @@ and then we use <a href="https://docs.python.org/3/library/inspect.html" class="
 module</a> to get the converted function’s argument spec. You can see
 that the signature of the wrapped function looks different than the
 original R function’s signature.</p>
-<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> inspect <span class="ot">&lt;-</span> <span class="fu">import</span>(<span class="st">"inspect"</span>)</span>
-<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> converted_func <span class="ot">&lt;-</span> <span class="fu">r_to_py</span>(<span class="cf">function</span>(a, <span class="at">b =</span> <span class="fl">1.5</span>) {})</span>
-<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> inspect<span class="sc">$</span><span class="fu">getargspec</span>(converted_func)</span>
-<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ArgSpec</span>(<span class="at">args=</span>[], <span class="at">varargs=</span><span class="st">'args'</span>, <span class="at">keywords=</span><span class="st">'kwargs'</span>, <span class="at">defaults=</span>None)</span></code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" tabindex="-1"></a><span class="sc">&gt;</span> inspect <span class="ot">&lt;-</span> <span class="fu">import</span>(<span class="st">"inspect"</span>)</span>
+<span id="cb33-2"><a href="#cb33-2" tabindex="-1"></a><span class="sc">&gt;</span> converted_func <span class="ot">&lt;-</span> <span class="fu">r_to_py</span>(<span class="cf">function</span>(a, <span class="at">b =</span> <span class="fl">1.5</span>) {})</span>
+<span id="cb33-3"><a href="#cb33-3" tabindex="-1"></a><span class="sc">&gt;</span> inspect<span class="sc">$</span><span class="fu">getargspec</span>(converted_func)</span>
+<span id="cb33-4"><a href="#cb33-4" tabindex="-1"></a><span class="fu">ArgSpec</span>(<span class="at">args=</span>[], <span class="at">varargs=</span><span class="st">'args'</span>, <span class="at">keywords=</span><span class="st">'kwargs'</span>, <span class="at">defaults=</span>None)</span></code></pre></div>
 <p>This default conversion typically works fine, however some Python
 libraries have strict checking on the function signatures of user
 provided callbacks. In these cases the generic
@@ -643,9 +643,9 @@ function so that the wrapped function has exactly the same signature as
 that of the original R function, e.g. one argument <code>a</code>
 without default value and another argument <code>b</code> with default
 value 1.5.</p>
-<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> wrapped_func <span class="ot">&lt;-</span> <span class="fu">py_func</span>(<span class="cf">function</span>(a, <span class="at">b =</span> <span class="fl">1.5</span>) {})</span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> inspect<span class="sc">$</span><span class="fu">getargspec</span>(wrapped_func)</span>
-<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ArgSpec</span>(<span class="at">args=</span>[<span class="st">'a'</span>, <span class="st">'b'</span>], <span class="at">varargs=</span>None, <span class="at">keywords=</span>None, <span class="at">defaults=</span>(<span class="fl">1.5</span>,))</span></code></pre></div>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" tabindex="-1"></a><span class="sc">&gt;</span> wrapped_func <span class="ot">&lt;-</span> <span class="fu">py_func</span>(<span class="cf">function</span>(a, <span class="at">b =</span> <span class="fl">1.5</span>) {})</span>
+<span id="cb34-2"><a href="#cb34-2" tabindex="-1"></a><span class="sc">&gt;</span> inspect<span class="sc">$</span><span class="fu">getargspec</span>(wrapped_func)</span>
+<span id="cb34-3"><a href="#cb34-3" tabindex="-1"></a><span class="fu">ArgSpec</span>(<span class="at">args=</span>[<span class="st">'a'</span>, <span class="st">'b'</span>], <span class="at">varargs=</span>None, <span class="at">keywords=</span>None, <span class="at">defaults=</span>(<span class="fl">1.5</span>,))</span></code></pre></div>
 <p>Note that the signature of the R function must not contain esoteric
 Python-incompatible constructs. For example, we cannot have R function
 with signature like <code>function(a = 1, b)</code> since Python

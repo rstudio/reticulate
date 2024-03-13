@@ -224,24 +224,24 @@ and Python:</p>
 <span><span class="co">## [2,]   14   18   22</span></span>
 <span><span class="co">## [3,]   15   19   23</span></span>
 <span><span class="co">## [4,]   16   20   24</span></span></code></pre></div>
-<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>np.reshape(np.arange(<span class="dv">1</span>,<span class="dv">25</span>), (<span class="dv">4</span>,<span class="dv">3</span>,<span class="dv">2</span>), <span class="st">"F"</span>)</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co">## array([[[ 1, 13],</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co">##         [ 5, 17],</span></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co">##         [ 9, 21]],</span></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co">##</span></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="co">##        [[ 2, 14],</span></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co">##         [ 6, 18],</span></span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co">##         [10, 22]],</span></span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="co">##</span></span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="co">##        [[ 3, 15],</span></span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="co">##         [ 7, 19],</span></span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="co">##         [11, 23]],</span></span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="co">##</span></span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="co">##        [[ 4, 16],</span></span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="co">##         [ 8, 20],</span></span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="co">##         [12, 24]]])</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>np.reshape(np.arange(<span class="dv">1</span>,<span class="dv">25</span>), (<span class="dv">4</span>,<span class="dv">3</span>,<span class="dv">2</span>), <span class="st">"F"</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">## array([[[ 1, 13],</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">##         [ 5, 17],</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">##         [ 9, 21]],</span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">##</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">##        [[ 2, 14],</span></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co">##         [ 6, 18],</span></span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">##         [10, 22]],</span></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">##</span></span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">##        [[ 3, 15],</span></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">##         [ 7, 19],</span></span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">##         [11, 23]],</span></span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="co">##</span></span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="co">##        [[ 4, 16],</span></span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a><span class="co">##         [ 8, 20],</span></span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a><span class="co">##         [12, 24]]])</span></span></code></pre></div>
 <p>It’s easier to know which coordinates go where in R because they are
 labeled. Python, using column-major ordering, displays the same thing
 but in a different order where the first indices are grouped together in
@@ -258,11 +258,11 @@ first index of 1 (R) or 0 (Python):</p>
 <span><span class="co">## , , 2</span></span>
 <span><span class="co">##      [,1] [,2] [,3]</span></span>
 <span><span class="co">## [1,]   13   17   21</span></span></code></pre></div>
-<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>np.reshape(np.arange(<span class="dv">1</span>,<span class="dv">25</span>), (<span class="dv">4</span>,<span class="dv">3</span>,<span class="dv">2</span>), <span class="st">"F"</span>)[<span class="dv">0</span>]</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co">## array([[ 1, 13],</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co">##        [ 5, 17],</span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="co">##        [ 9, 21]])</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>np.reshape(np.arange(<span class="dv">1</span>,<span class="dv">25</span>), (<span class="dv">4</span>,<span class="dv">3</span>,<span class="dv">2</span>), <span class="st">"F"</span>)[<span class="dv">0</span>]</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="co">## array([[ 1, 13],</span></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="co">##        [ 5, 17],</span></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="co">##        [ 9, 21]])</span></span></code></pre></div>
 <p>I specified R’s <code>drop=FALSE</code> argument to preserve array
 dimensionality above. If we use <code>drop=TRUE</code> (the default)
 then R returns a 3x2 array in column-major order–exactly the same result
@@ -278,14 +278,14 @@ as Python above.</p>
 data, not a copy. In this case it’s not stored in contiguous memory
 addresses and is neither really row- nor column-major. This is shown in
 the array flags:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>np.reshape(np.arange(<span class="dv">1</span>,<span class="dv">25</span>), (<span class="dv">4</span>,<span class="dv">3</span>,<span class="dv">2</span>), <span class="st">"F"</span>)[<span class="dv">0</span>].flags</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co">##  C_CONTIGUOUS : False</span></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co">##  F_CONTIGUOUS : False</span></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="co">##  OWNDATA : False</span></span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="co">##  WRITEABLE : True</span></span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="co">##  ALIGNED : True</span></span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="co">##  UPDATEIFCOPY : False</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>np.reshape(np.arange(<span class="dv">1</span>,<span class="dv">25</span>), (<span class="dv">4</span>,<span class="dv">3</span>,<span class="dv">2</span>), <span class="st">"F"</span>)[<span class="dv">0</span>].flags</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="co">##  C_CONTIGUOUS : False</span></span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="co">##  F_CONTIGUOUS : False</span></span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="co">##  OWNDATA : False</span></span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="co">##  WRITEABLE : True</span></span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="co">##  ALIGNED : True</span></span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a><span class="co">##  UPDATEIFCOPY : False</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="reticulate-with-care">Reticulate with care<a class="anchor" aria-label="anchor" href="#reticulate-with-care"></a>

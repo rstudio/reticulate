@@ -12,6 +12,9 @@
 - Fixed an issue where `py_discover_config()` would discover `python` (v2) on the PATH
   in preference of `python3` on the PATH. (#1547)
 
+- Fixed an issue where reticulate would error when using conda environments created
+  with the (new) `conda env create` command. (#1535, #1543)
+
 # reticulate 1.35.0
 
 - Subclassed Python list and dict objects are no longer automatically converted

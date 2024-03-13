@@ -385,13 +385,13 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
 
     # if we have a required module ensure it's satisfied.
     # also check architecture (can be an issue on windows)
-    has_python_gte_27 <- as.numeric_version(config$version) >= "2.7"
+    has_python_gte_36 <- as.numeric_version(config$version) >= "3.6"
     has_compatible_arch <- !is_incompatible_arch(config)
     has_preferred_numpy <- !is.null(config$numpy) && config$numpy$version >= "1.6"
     if (has_compatible_arch && has_preferred_numpy)
-      valid_python_versions <- c(valid_python_versions, python_version)
+      append(valid_python_versions) <- python_version
     has_required_module <- is.null(config$required_module) || !is.null(config$required_module_path)
-    if (has_python_gte_27 && has_compatible_arch && has_preferred_numpy && has_required_module)
+    if (has_python_gte_36 && has_compatible_arch && has_preferred_numpy && has_required_module)
       return(config)
   }
 

@@ -238,7 +238,7 @@ conda_create <- function(envname = NULL,
     args <- c(args, "-c", ch)
 
   # invoke conda
-  result <- system2t(conda, shQuote(args))
+  result <- system2t(conda, maybe_shQuote(args))
   if (result != 0L) {
     fmt <- "Error creating conda environment '%s' [exit code %i]"
     stopf(fmt, envname, result, call. = FALSE)
@@ -260,10 +260,10 @@ conda_create_env <- function(envname, environment, conda) {
     if (is.null(envname))
       c()
     else if (grepl("/", envname))
-      c("--prefix", shQuote(envname))
+      c("--prefix", maybe_shQuote(envname))
     else
-      c("--name", shQuote(envname)),
-    "-f", shQuote(environment)
+      c("--name", maybe_shQuote(envname)),
+    "-f", maybe_shQuote(environment)
   )
 
   result <- system2t(conda, args)
@@ -302,7 +302,7 @@ conda_clone <- function(envname, ..., clone = "base", conda = "auto") {
   args <- c(args, "--clone", clone)
 
   # invoke conda
-  result <- system2t(conda, shQuote(args))
+  result <- system2t(conda, maybe_shQuote(args))
   if (result != 0L) {
     fmt <- "Error creating conda environment '%s' [exit code %i]"
     stopf(fmt, envname, result, call. = FALSE)
@@ -376,7 +376,7 @@ conda_remove <- function(envname,
 
   # remove packages (or the entire environment)
   args <- conda_args("remove", envname, packages)
-  result <- system2t(conda, shQuote(args))
+  result <- system2t(conda, maybe_shQuote(args))
   if (result != 0L) {
     stop("Error ", result, " occurred removing conda environment ", envname,
          call. = FALSE)
@@ -457,7 +457,7 @@ conda_install <- function(envname = NULL,
   # (should be no-op if that copy of Python already installed)
   if (!is.null(python_version)) {
     args <- conda_args("install", envname, python_package)
-    status <- system2t(conda, shQuote(args))
+    status <- system2t(conda, maybe_shQuote(args))
     if (status != 0L) {
       fmt <- "installation of '%s' into environment '%s' failed [error code %i]"
       msg <- sprintf(fmt, python_package, envname, status)
@@ -494,7 +494,7 @@ conda_install <- function(envname = NULL,
     args <- c(args, "-c", ch)
 
   args <- c(args, python_package, packages)
-  result <- system2t(conda, shQuote(args))
+  result <- system2t(conda, maybe_shQuote(args))
 
   # check for errors
   if (result != 0L) {
@@ -581,7 +581,7 @@ conda_update <- function(conda = "auto") {
   name <- if ("anaconda" %in% envlist$name) "anaconda" else "conda"
 
   # attempt update
-  system2t(conda, c("update", "--prefix", shQuote(prefix), "--yes", name))
+  system2t(conda, c("update", "--prefix", maybe_shQuote(prefix), "--yes", name))
 }
 
 numeric_conda_version <- function(conda = "auto", version_string = conda_version(conda)) {

@@ -306,6 +306,7 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
   ## In other words,
   ##  - no use_python(), use_virtualenv(), use_condaenv()
   ##  - no RETICULATE_PYTHON, RETICULATE_PYTHON_ENV, or RETICULATE_PYTHON_FALLBACK env vars
+  ##  - no existing venv in the current working directory named: venv .venv virtualenv or .virtualenv
   ##  - no env named 'r-bar' if there was a call like `import('foo', delay_load = list(environment = "r-bar"))`
   ##  - no env named 'r-foo' if there was a call like `import('foo')`
   ##  - we're not running under an already activated venv (i.e., no VIRTUAL_ENV env var)

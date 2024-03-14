@@ -874,15 +874,7 @@ iterate <- function(it, f = base::identity, simplify = TRUE) {
 #' @rdname iterate
 #' @export
 iter_next <- function(it, completed = NULL) {
-
-  # TODO: would like to use PyIter_Check() but that is only implemented
-  # as a macro in Python 2.x and requires copying more headers
-  iterable <- py_has_attr(it, "__next__") || py_has_attr(it, "next")
-  if (!iterable)
-    stop("object is not iterable", call. = FALSE)
-
   py_iter_next(it, completed)
-
 }
 
 

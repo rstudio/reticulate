@@ -88,8 +88,10 @@ bool loadSymbol(void* pLib, const std::string& name, void** ppSymbol, std::strin
 #endif
   if (*ppSymbol == NULL)
   {
-    lastDLErrorMessage(pError);
-    *pError = name + " - " + *pError;
+    if (pError != NULL) {
+      lastDLErrorMessage(pError);
+      *pError = name + " - " + *pError;
+    }
     return false;
   }
   else
@@ -168,6 +170,12 @@ bool SharedLibrary::load(const std::string& libPath, bool python3, std::string* 
     return false;
 
   return loadSymbols(python3, pError);
+}
+
+// Define "slow" fallback implementation for Py version <= 3.9
+int PyIter_Check_Impl(PyObject* o) {
+  return PyObject_HasAttrString(o, "__next__");
+    // && PyObject_HasAttrString(o, "__iter__") too?
 }
 
 
@@ -338,6 +346,12 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
   LOAD_PYTHON_SYMBOL(PyCapsule_SetContext)
   LOAD_PYTHON_SYMBOL(PyCapsule_GetContext)
   LOAD_PYTHON_SYMBOL(Py_BuildValue)
+
+  // LOAD_PYTHON_SYMBOL(PyIter_Check) // only available beginning in 3.10
+  // Try to load the symbol, and if it fails, set it to the internal function
+  if (!loadSymbol(pLib_, "PyIter_Check", (void**)&PyIter_Check, NULL)) {
+    PyIter_Check = &PyIter_Check_Impl;
+  }
 
   return true;
 }

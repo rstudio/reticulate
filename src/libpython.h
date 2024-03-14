@@ -325,6 +325,7 @@ LIBPYTHON_EXTERN PyObject* (*PyEval_EvalCode)(PyObject *co, PyObject *globals, P
 
 LIBPYTHON_EXTERN PyObject* (*PyObject_GetIter)(PyObject *);
 LIBPYTHON_EXTERN PyObject* (*PyIter_Next)(PyObject *);
+LIBPYTHON_EXTERN int (*PyIter_Check)(PyObject *); // only available beginning Python 3.10
 
 typedef void (*PyCapsule_Destructor)(PyObject *);
 LIBPYTHON_EXTERN PyObject* (*PyCapsule_New)(void *pointer, const char *name, PyCapsule_Destructor destructor);

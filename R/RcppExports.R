@@ -286,6 +286,12 @@ py_slice <- function(start = NULL, stop = NULL, step = NULL) {
     .Call(`_reticulate_py_slice`, start, stop, step)
 }
 
+#' @rdname iterate
+#' @export
+as_iterator <- function(x) {
+    .Call(`_reticulate_as_iterator`, x)
+}
+
 readline <- function(prompt) {
     .Call(`_reticulate_readline`, prompt)
 }

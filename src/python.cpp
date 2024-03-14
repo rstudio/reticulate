@@ -3887,3 +3887,39 @@ PyObjectRef py_slice(SEXP start = R_NilValue, SEXP stop = R_NilValue, SEXP step 
     throw PythonException(py_fetch_error());
   return py_ref(out, false);
 }
+
+
+//' @rdname iterate
+//' @export
+// [[Rcpp::export]]
+SEXP as_iterator(SEXP x) {
+  if(!s_is_python_initialized)
+    ensure_python_initialized();
+
+  // If already inherits from iterator, return as is
+  if (Rf_inherits(x, "python.builtin.iterator"))
+    return x;
+
+  PyObject* iterable;
+  PyObjectPtr iterable_ptr;
+  bool convert;
+
+  if (Rf_inherits(x, "python.builtin.object")) {
+    // unwrap PyObjectRef / Python objects
+    PyObjectRef ref(x);
+    iterable = ref.get();
+    convert = ref.convert();
+  }
+  else {
+    // If not already a py object, cast with r_to_py()
+    iterable = r_to_py(x, true);   // returns a new ref
+    iterable_ptr.assign(iterable); // decref on scope exit
+    convert = true;
+  }
+
+  PyObject* iterator(PyObject_GetIter(iterable)); // returns new ref
+  if(iterator == NULL)
+    throw PythonException(py_fetch_error());
+
+  return py_ref(iterator, convert);
+}

@@ -729,6 +729,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// as_iterator
+SEXP as_iterator(SEXP x);
+RcppExport SEXP _reticulate_as_iterator(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(as_iterator(x));
+    return rcpp_result_gen;
+END_RCPP
+}
 // readline
 SEXP readline(const std::string& prompt);
 RcppExport SEXP _reticulate_readline(SEXP promptSEXP) {
@@ -825,6 +836,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_reticulate_py_id", (DL_FUNC) &_reticulate_py_id, 1},
     {"_reticulate_py_capsule", (DL_FUNC) &_reticulate_py_capsule, 1},
     {"_reticulate_py_slice", (DL_FUNC) &_reticulate_py_slice, 3},
+    {"_reticulate_as_iterator", (DL_FUNC) &_reticulate_as_iterator, 1},
     {"_reticulate_readline", (DL_FUNC) &_reticulate_readline, 1},
     {"_reticulate_py_register_interrupt_handler", (DL_FUNC) &_reticulate_py_register_interrupt_handler, 0},
     {"_reticulate_py_interrupts_pending", (DL_FUNC) &_reticulate_py_interrupts_pending, 1},

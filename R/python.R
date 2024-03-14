@@ -878,16 +878,6 @@ iter_next <- function(it, completed = NULL) {
 }
 
 
-#' @rdname iterate
-#' @export
-as_iterator <- function(x) {
-  if (inherits(x, "python.builtin.iterator"))
-    x
-  else if (py_has_attr(x, "__iter__"))
-    x$`__iter__`()
-  else
-    stop("iterator function called with non-iterator argument", call. = FALSE)
-}
 
 
 #' Call a Python callable object

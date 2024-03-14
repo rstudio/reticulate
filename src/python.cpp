@@ -3021,154 +3021,6 @@ CharacterVector py_list_submodules(const std::string& module) {
   return wrap(modules);
 }
 
-// Traverse a Python iterator or generator
-
-// [[Rcpp::export]]
-SEXP py_iterate(PyObjectRef x, Function f, bool simplify = true) {
-
-  // List to return
-  std::vector<RObject> list;
-
-  // get the iterator
-  PyObjectPtr iterator(PyObject_GetIter(x));
-  if (iterator.is_null())
-    throw PythonException(py_fetch_error());
-
-  bool convert(x.convert());
-  // loop over it
-  while (true) {
-
-    // check next item
-    PyObjectPtr item(PyIter_Next(iterator));
-    if (item.is_null()) {
-      // null return means either iteration is done or
-      // that there is an error
-      if (PyErr_Occurred())
-        throw PythonException(py_fetch_error());
-      else
-        break;
-    }
-
-    // call the function
-    SEXP ret = convert
-      ? py_to_r(item, convert)
-      : py_ref(item.detach(), false);
-
-    list.push_back(f(ret));
-  }
-
-  SEXPTYPE outType;
-  if (simplify && convert && list.size() > 0)
-  {
-      // iterate over `list` to see if we have a common SEXP atomic type and length
-      outType = TYPEOF(list[0]);
-      switch (outType)
-      {
-      case INTSXP:
-      case REALSXP:
-      case LGLSXP:
-      case STRSXP:
-      case CPLXSXP:
-          // iterate over list, see if all items are scalar atomics of the same type
-          // If not, break early and return a list
-          for (size_t i = 1; i < list.size(); i++)
-          {
-              SEXP item = list[i];
-              if (TYPEOF(item) != outType || Rf_length(item) != 1)
-              {
-                  outType = VECSXP;
-                  break;
-              }
-          }
-          break;
-      default:
-          outType = VECSXP;
-      }
-  }
-  else
-  {
-      outType = VECSXP;
-  }
-  // allocate an R object of type outType
-  // copy over the list elements
-  SEXP out = PROTECT(Rf_allocVector(outType, list.size()));
-  switch (outType)
-  {
-  case LGLSXP: {
-      int *pout = LOGICAL(out);
-      for (size_t i = 0; i < list.size(); i++)
-          pout[i] = Rf_asLogical(list[i]);
-      break;
-  }
-
-  case INTSXP: {
-      int *pout = INTEGER(out);
-      for (size_t i = 0; i < list.size(); i++)
-          pout[i] = Rf_asInteger(list[i]);
-      break;
-  }
-
-  case REALSXP: {
-      double *pout = REAL(out);
-      for (size_t i = 0; i < list.size(); i++)
-          pout[i] = Rf_asReal(list[i]);
-      break;
-  }
-
-  case CPLXSXP: {
-      Rcomplex *pout = COMPLEX(out);
-      for (size_t i = 0; i < list.size(); i++)
-          pout[i] = Rf_asComplex(list[i]);
-      break;
-  }
-
-  case STRSXP: {
-      for (size_t i = 0; i < list.size(); i++)
-          SET_STRING_ELT(out, i, STRING_ELT(list[i], 0));
-      break;
-  }
-
-  case VECSXP: {
-      for (size_t i = 0; i < list.size(); i++)
-          SET_VECTOR_ELT(out, i, list[i]);
-      break;
-  }
-
-  default:
-      // should never happen
-      Rf_error("Internal error: unexpected type encountered in py_iterate");
-  }
-  UNPROTECT(1);
-  return out;
-}
-
-// [[Rcpp::export]]
-SEXP py_iter_next(PyObjectRef iterator, RObject completed) {
-
-  if(!PyIter_Check(iterator))
-    stop("object is not an iterator");
-
-  PyObjectPtr item(PyIter_Next(iterator));
-  if (item.is_null()) {
-
-    // null could mean that iteraton is done so we check to
-    // ensure that an error actually occrred
-    if (PyErr_Occurred())
-      throw PythonException(py_fetch_error());
-
-    // if there wasn't an error then return the 'completed' sentinel
-    return completed;
-
-  } else {
-
-    // return R object
-    return iterator.convert()
-      ? py_to_r(item, true)
-      : py_ref(item.detach(), false);
-
-  }
-}
-
 
 // [[Rcpp::export]]
 SEXP py_run_string_impl(const std::string& code,
@@ -3922,4 +3774,164 @@ SEXP as_iterator(SEXP x) {
     throw PythonException(py_fetch_error());
 
   return py_ref(iterator, convert);
+}
+
+
+// [[Rcpp::export]]
+SEXP py_iter_next(PyObjectRef iterator, RObject completed) {
+
+  if(!PyIter_Check(iterator))
+    stop("object is not an iterator");
+
+  PyObjectPtr item(PyIter_Next(iterator));
+  if (item.is_null()) {
+
+    // null could mean that iteraton is done so we check to
+    // ensure that an error actually occrred
+    if (PyErr_Occurred())
+      throw PythonException(py_fetch_error());
+
+    // if there wasn't an error then return the 'completed' sentinel
+    return completed;
+
+  } else {
+
+    // return R object
+    return iterator.convert()
+      ? py_to_r(item, true)
+      : py_ref(item.detach(), false);
+
+  }
+}
+
+
+// Traverse a Python iterator or generator
+
+// [[Rcpp::export]]
+SEXP py_iterate(PyObjectRef x, Function f, bool simplify = true) {
+
+  if(!s_is_python_initialized)
+    ensure_python_initialized();
+
+  // List to return
+  std::vector<RObject> list;
+
+  // get the iterator
+  PyObjectPtr iterator(PyObject_GetIter(x));
+  if (iterator.is_null())
+    throw PythonException(py_fetch_error());
+
+  bool convert(x.convert());
+  // loop over it
+  while (true) {
+
+    // check next item
+    PyObjectPtr item(PyIter_Next(iterator));
+    if (item.is_null()) {
+      // null return means either iteration is done or
+      // that there is an error
+      if (PyErr_Occurred())
+        throw PythonException(py_fetch_error());
+      else
+        break;
+    }
+
+    // call the function
+    SEXP ret = convert
+      ? py_to_r(item, convert)
+      : py_ref(item.detach(), false);
+
+    list.push_back(f(ret));
+  }
+
+  auto list_size = list.size();
+
+  if (list_size == 0)
+    return Rf_allocVector(VECSXP, 0);
+
+  int outType;
+  if (simplify && convert)
+  {
+      // iterate over `list` to see if we have a common SEXP atomic type and length
+      outType = TYPEOF(list[0]);
+      switch (outType)
+      {
+      case INTSXP:
+      case REALSXP:
+      case LGLSXP:
+      case STRSXP:
+      case CPLXSXP:
+          // iterate over list, see if all items are scalar atomics of the same type
+          // If not, break early and return a list
+          for (size_t i = 1; i < list_size; i++)
+          {
+              SEXP item = list[i];
+              if (TYPEOF(item) != outType ||
+                  OBJECT(item) ||
+                  Rf_length(item) != 1)
+              {
+                  outType = VECSXP;
+                  break;
+              }
+          }
+          break;
+      default:
+          outType = VECSXP;
+      }
+  }
+  else
+  {
+      outType = VECSXP;
+  }
+  // allocate an R object of type outType
+  // copy over the list elements
+  SEXP out = PROTECT(Rf_allocVector(outType, list_size));
+  switch (outType)
+  {
+  case LGLSXP: {
+      int *pout = LOGICAL(out);
+      for (size_t i = 0; i < list_size; i++)
+          pout[i] = LOGICAL_ELT(list[i], 0);
+      break;
+  }
+
+  case INTSXP: {
+      int *pout = INTEGER(out);
+      for (size_t i = 0; i < list_size; i++)
+          pout[i] = INTEGER_ELT(list[i], 0);
+      break;
+  }
+
+  case REALSXP: {
+      double *pout = REAL(out);
+      for (size_t i = 0; i < list_size; i++)
+          pout[i] = REAL_ELT(list[i], 0);
+      break;
+  }
+
+  case CPLXSXP: {
+      Rcomplex *pout = COMPLEX(out);
+      for (size_t i = 0; i < list_size; i++)
+          pout[i] = COMPLEX_ELT(list[i], 0);
+      break;
+  }
+
+  case STRSXP: {
+      for (size_t i = 0; i < list_size; i++)
+          SET_STRING_ELT(out, i, STRING_ELT(list[i], 0));
+      break;
+  }
+
+  case VECSXP: {
+      for (size_t i = 0; i < list_size; i++)
+          SET_VECTOR_ELT(out, i, list[i]);
+      break;
+  }
+
+  default:
+      // should never happen
+      Rf_error("Internal error: unexpected type encountered in py_iterate");
+  }
+  UNPROTECT(1);
+  return out;
 }

@@ -206,14 +206,6 @@ py_list_submodules <- function(module) {
     .Call(`_reticulate_py_list_submodules`, module)
 }
 
-py_iterate <- function(x, f, simplify = TRUE) {
-    .Call(`_reticulate_py_iterate`, x, f, simplify)
-}
-
-py_iter_next <- function(iterator, completed) {
-    .Call(`_reticulate_py_iter_next`, iterator, completed)
-}
-
 py_run_string_impl <- function(code, local = FALSE, convert = TRUE) {
     .Call(`_reticulate_py_run_string_impl`, code, local, convert)
 }
@@ -290,6 +282,14 @@ py_slice <- function(start = NULL, stop = NULL, step = NULL) {
 #' @export
 as_iterator <- function(x) {
     .Call(`_reticulate_as_iterator`, x)
+}
+
+py_iter_next <- function(iterator, completed) {
+    .Call(`_reticulate_py_iter_next`, iterator, completed)
+}
+
+py_iterate <- function(x, f, simplify = TRUE) {
+    .Call(`_reticulate_py_iterate`, x, f, simplify)
 }
 
 readline <- function(prompt) {

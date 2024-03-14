@@ -860,14 +860,7 @@ with.python.builtin.object <- function(data, expr, as = NULL, ...) {
 #'
 #' @export
 iterate <- function(it, f = base::identity, simplify = TRUE) {
-
-  ensure_python_initialized()
-
-  # perform iteration
-  result <- py_iterate(it, f, simplify)
-
-  # return invisibly
-  invisible(result)
+  invisible(py_iterate(it, f, simplify))
 }
 
 

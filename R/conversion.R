@@ -66,13 +66,30 @@ r_to_py.factor <- function(x, convert = FALSE) {
 #' @export
 r_to_py.POSIXt <- function(x, convert = FALSE) {
 
-  # we prefer datetime64 for efficiency
-  if (py_module_available("numpy"))
-    return(np_array(as.numeric(x) * 1E9, dtype = "datetime64[ns]"))
+  tz <- attr(x, "tzone", TRUE)
 
+  ## POSIXlt tzone is a length-3 vec, where "" means local/missing tzone
+  if(length(tz))
+    tz <- tz[[1L]] %""% NULL
+
+  # we prefer numpy datetime64 for efficiency
+  # numpy doesn't support tzone
+  # (internally, always stored from UTC epoch, like POSIXct in R)
+  if (is.null(tz) && py_module_available("numpy")) {
+    np_array <- r_to_py_impl(array(as.double(x) * 1E9), convert = FALSE)
+    return(np_array$astype(dtype = "datetime64[ns]"))
+  }
+
+  if(!is.null(tz)) {
+    if(py_version() >= "3.9")
+      tz <- import("zoneinfo", convert = FALSE)$ZoneInfo(tz)
+    else
+      tz <- import("pytz")$timezone(tz)
+  }
   datetime <- import("datetime", convert = FALSE)
-  datetime$datetime$fromtimestamp(as.double(x))
+  datetime$datetime$fromtimestamp(as.double(x), tz = tz)
 }
+
 
 #' @export
 py_to_r.datetime.datetime <- function(x) {
@@ -86,9 +103,16 @@ py_to_r.datetime.datetime <- function(x) {
       # Note that accessing `ZoneInfo.tzname()` is lossy. Eg.
       # doing `ZoneInfo("America/New_York").tzname()` returns "EDT", which is
       # not in R's OlsonNames() database, and also not stable wrt DST status.
-      if (inherits(x$tzinfo, "zoneinfo.ZoneInfo"))
-        tryCatch(tz <- as_r_value(x$tzinfo$key), error = identity)
 
+      # pytz.zone, round-trips better
+      if(is.null(tz))
+        tz <- as_r_value(py_get_attr(x$tzinfo, "zone", TRUE))
+
+      # zoneinfo.ZoneInfo(), roundtrip lossy (standardized), but in py stdlib
+      if (is.null(tz))
+        tz <- as_r_value(py_get_attr(x$tzinfo, "key", TRUE))
+
+      # common to pytz.timezone, ZoneInfo, other subclasses
       if (is.null(tz))
         tryCatch(tz <- as_r_value(x$tzname()), error = identity)
     }
@@ -125,9 +149,8 @@ r_to_py.Date <- function(x, convert = FALSE) {
 
 #' @export
 py_to_r.datetime.date <- function(x) {
-  disable_conversion_scope(x)
-  iso <- py_to_r(x$isoformat())
-  as.Date(iso)
+  iso <- as_r_value(x$isoformat())
+  as.Date.character(iso)
 }
 
 

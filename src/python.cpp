@@ -663,9 +663,6 @@ bool traceback_enabled() {
 }
 
 
-
-
-
 // copied directly from purrr; used to call rlang::trace_back() in
 // py_fetch_error() in such a way that it doesn't introduce a new
 // frame in returned traceback
@@ -723,20 +720,9 @@ SEXP get_current_call(void) {
 }
 
 SEXP get_r_trace(bool maybe_use_cached = false) {
-  static SEXP get_r_trace_s = NULL;
-  static SEXP reticulate_ns = NULL;
-
-  if (!get_r_trace_s) {
-    reticulate_ns = R_FindNamespace(Rf_mkString("reticulate"));
-    get_r_trace_s =  Rf_install("get_r_trace");
-  }
-
-  SEXP maybe_use_cached_ = PROTECT(Rf_ScalarLogical(maybe_use_cached));
-  SEXP trim_tail_ = PROTECT(Rf_ScalarInteger(1));
-  SEXP call = PROTECT(Rf_lang3(get_r_trace_s, maybe_use_cached_, trim_tail_));
-  SEXP result = PROTECT(Rf_eval(call, reticulate_ns));
-  UNPROTECT(4);
-  return result;
+  return eval_call(r_func_get_r_trace,
+                   Rf_ScalarLogical(maybe_use_cached),
+                   /*trim_tail = */ Rf_ScalarInteger(true));
 }
 
 SEXP py_fetch_error(bool maybe_reuse_cached_r_trace) {
@@ -1295,16 +1281,18 @@ SEXP py_to_r(PyObject* x, bool convert) {
       case NPY_BOOL: {
         npy_bool* pData = (npy_bool*)PyArray_DATA(array);
         rArray = Rf_allocArray(LGLSXP, dimsVector);
+        int* rArray_ptr = LOGICAL(rArray);
         for (int i=0; i<len; i++)
-          LOGICAL(rArray)[i] = pData[i];
+          rArray_ptr[i] = pData[i];
         break;
       }
 
       case NPY_LONG: {
         npy_long* pData = (npy_long*)PyArray_DATA(array);
         rArray = Rf_allocArray(INTSXP, dimsVector);
+        int* rArray_ptr = INTEGER(rArray);
         for (int i=0; i<len; i++)
-          INTEGER(rArray)[i] = pData[i];
+          rArray_ptr[i] = pData[i];
         break;
       }
 
@@ -1646,10 +1634,13 @@ SEXP py_get_formals(PyObjectRef callable)
   static PyObject *inspect_Parameter_VAR_POSITIONAL = NULL;
   static PyObject *inspect_Parameter_KEYWORD_ONLY = NULL;
   static PyObject *inspect_Parameter_empty = NULL;
+  static SEXP sym_dotdotdot = NULL;
 
   if (!inspect_Parameter_empty)
   {
     // initialize static variables to avoid repeat lookups
+    sym_dotdotdot = Rf_install("...");
+
     inspect_module = PyImport_ImportModule("inspect");
     if (!inspect_module) throw PythonException(py_fetch_error());
 
@@ -1680,7 +1671,7 @@ SEXP py_get_formals(PyObjectRef callable)
     // fallback to returning formals of `...`.
     PyErr_Clear();
     SEXP out = Rf_cons(R_MissingArg, R_NilValue);
-    SET_TAG(out, Rf_install("..."));
+    SET_TAG(out, sym_dotdotdot);
     return out;
   }
 
@@ -1715,7 +1706,7 @@ SEXP py_get_formals(PyObjectRef callable)
     {
       if (!has_dots)
       {
-          GrowList(r_args, Rf_install("..."), R_MissingArg);
+          GrowList(r_args, sym_dotdotdot, R_MissingArg);
           has_dots = true;
       }
       continue;
@@ -1723,7 +1714,7 @@ SEXP py_get_formals(PyObjectRef callable)
 
     if (!has_dots && kind == inspect_Parameter_KEYWORD_ONLY)
     {
-      GrowList(r_args, Rf_install("..."), R_MissingArg);
+      GrowList(r_args, sym_dotdotdot, R_MissingArg);
       has_dots = true;
     }
 
@@ -1769,8 +1760,9 @@ PyObject* r_to_py_numpy(RObject x, bool convert) {
   SEXP sexp = x.get__();
 
   // figure out dimensions for resulting array
-  IntegerVector dimensions = x.hasAttribute("dim")
-    ? x.attr("dim")
+  SEXP dim_sexp = Rf_getAttrib(sexp, R_DimSymbol);
+  IntegerVector dimensions = (dim_sexp != R_NilValue)
+    ? IntegerVector(dim_sexp)
     : IntegerVector::create(Rf_xlength(x));
 
   int nd = dimensions.length();
@@ -1873,13 +1865,10 @@ PyObject* r_to_py(RObject x, bool convert) {
   if (OBJECT(x) == 0)
     return r_to_py_cpp(x, convert);
 
-  // get a reference to the R version of r_to_py
-  Rcpp::Environment pkgEnv = Rcpp::Environment::namespace_env("reticulate");
-  Rcpp::Function r_to_py_fn = pkgEnv["r_to_py"];
-
   // call the R version and hold the return value in a PyObjectRef (SEXP wrapper)
   // this object will be released when the function returns
-  PyObjectRef ref(r_to_py_fn(x, convert));
+
+  PyObjectRef ref(eval_call(r_func_r_to_py, x, Rf_ScalarLogical(convert)));
 
   // get the underlying Python object and call Py_IncRef before returning it
   // this allows this function to provide the same memory semantics as the
@@ -1915,25 +1904,26 @@ PyObject* r_to_py_cpp(RObject x, bool convert) {
   }
 
   // convert arrays and matrixes to numpy (throw error if numpy not available)
-  if (x.hasAttribute("dim") && requireNumPy()) {
+  if (Rf_getAttrib(sexp, R_DimSymbol) != R_NilValue &&
+      requireNumPy()) {
     return r_to_py_numpy(x, convert);
   }
 
   // integer (pass length 1 vectors as scalars, otherwise pass list)
   if (type == INTSXP) {
 
-    // handle scalars
-    if (LENGTH(sexp) == 1) {
-      int value = INTEGER(sexp)[0];
-      return PyInt_FromLong(value);
-    }
+    R_xlen_t len = LENGTH(sexp);
+    int* psexp = INTEGER(sexp);
 
-    PyObjectPtr list(PyList_New(LENGTH(sexp)));
-    for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
-      int value = INTEGER(sexp)[i];
+    // handle scalars
+    if (len == 1)
+      return PyInt_FromLong(psexp[0]);
+
+    PyObjectPtr list(PyList_New(len));
+    for (R_xlen_t i = 0; i<len; i++) {
+      int value = psexp[i];
       // NOTE: reference to added value is "stolen" by the list
-      int res = PyList_SetItem(list, i, PyInt_FromLong(value));
-      if (res != 0)
+      if (PyList_SetItem(list, i, PyInt_FromLong(value)))
         throw PythonException(py_fetch_error());
     }
 
@@ -1945,17 +1935,16 @@ PyObject* r_to_py_cpp(RObject x, bool convert) {
   if (type == REALSXP) {
 
     // handle scalars
-    if (LENGTH(sexp) == 1) {
-      double value = REAL(sexp)[0];
-      return PyFloat_FromDouble(value);
-    }
+    R_xlen_t len = LENGTH(sexp);
+    double* psexp = REAL(sexp);
+    if (len == 1)
+      return PyFloat_FromDouble(psexp[0]);
 
-    PyObjectPtr list(PyList_New(LENGTH(sexp)));
-    for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
-      double value = REAL(sexp)[i];
+    PyObjectPtr list(PyList_New(len));
+    for (R_xlen_t i = 0; i<len; i++) {
+      double value = psexp[i];
       // NOTE: reference to added value is "stolen" by the list
-      int res = PyList_SetItem(list, i, PyFloat_FromDouble(value));
-      if (res != 0)
+      if (PyList_SetItem(list, i, PyFloat_FromDouble(value)))
         throw PythonException(py_fetch_error());
     }
 
@@ -1966,18 +1955,18 @@ PyObject* r_to_py_cpp(RObject x, bool convert) {
   // complex (pass length 1 vectors as scalars, otherwise pass list)
   if (type == CPLXSXP) {
 
-    // handle scalars
-    if (LENGTH(sexp) == 1) {
-      Rcomplex cplx = COMPLEX(sexp)[0];
+    R_xlen_t len = LENGTH(sexp);
+    Rcomplex* psexp = COMPLEX(sexp);
+    if (len == 1) {
+      Rcomplex cplx = psexp[0];
       return PyComplex_FromDoubles(cplx.r, cplx.i);
     }
 
-    PyObjectPtr list(PyList_New(LENGTH(sexp)));
-    for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
-      Rcomplex cplx = COMPLEX(sexp)[i];
+    PyObjectPtr list(PyList_New(len));
+    for (R_xlen_t i = 0; i<len; i++) {
+      Rcomplex cplx = psexp[i];
       // NOTE: reference to added value is "stolen" by the list
-      int res = PyList_SetItem(list, i, PyComplex_FromDoubles(cplx.r, cplx.i));
-      if (res != 0)
+      if (PyList_SetItem(list, i, PyComplex_FromDoubles(cplx.r, cplx.i)))
         throw PythonException(py_fetch_error());
     }
 
@@ -1988,18 +1977,17 @@ PyObject* r_to_py_cpp(RObject x, bool convert) {
   // logical (pass length 1 vectors as scalars, otherwise pass list)
   if (type == LGLSXP) {
 
-    // handle scalars
-    if (LENGTH(sexp) == 1) {
-      int value = LOGICAL(sexp)[0];
-      return PyBool_FromLong(value);
-    }
+    R_xlen_t len = LENGTH(sexp);
+    int* psexp = LOGICAL(sexp);
 
-    PyObjectPtr list(PyList_New(LENGTH(sexp)));
-    for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
-      int value = LOGICAL(sexp)[i];
+    if (len == 1)
+      return PyBool_FromLong(psexp[0]);
+
+    PyObjectPtr list(PyList_New(len));
+    for (R_xlen_t i = 0; i<len; i++) {
+      int value = psexp[i];
       // NOTE: reference to added value is "stolen" by the list
-      int res = PyList_SetItem(list, i, PyBool_FromLong(value));
-      if (res != 0)
+      if (PyList_SetItem(list, i, PyBool_FromLong(value)))
         throw PythonException(py_fetch_error());
     }
 
@@ -2010,13 +1998,13 @@ PyObject* r_to_py_cpp(RObject x, bool convert) {
   // character (pass length 1 vectors as scalars, otherwise pass list)
   if (type == STRSXP) {
 
-    // handle scalars
-    if (LENGTH(sexp) == 1) {
-      return as_python_str(STRING_ELT(sexp, 0));
-    }
+    R_xlen_t len = LENGTH(sexp);
 
-    PyObjectPtr list(PyList_New(LENGTH(sexp)));
-    for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
+    if (len == 1)
+      return as_python_str(STRING_ELT(sexp, 0));
+
+    PyObjectPtr list(PyList_New(len));
+    for (R_xlen_t i = 0; i<len; i++) {
       // NOTE: reference to added value is "stolen" by the list
       int res = PyList_SetItem(list, i, as_python_str(STRING_ELT(sexp, i)));
       if (res != 0)
@@ -2042,16 +2030,17 @@ PyObject* r_to_py_cpp(RObject x, bool convert) {
   // list
   if (type == VECSXP) {
 
+    R_xlen_t len = LENGTH(sexp);
+
     // create a dict for names
     if (x.hasAttribute("names")) {
       PyObjectPtr dict(PyDict_New());
       CharacterVector names = x.attr("names");
       SEXP namesSEXP = names;
-      for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
+      for (R_xlen_t i = 0; i<len; i++) {
         const char* name = Rf_translateChar(STRING_ELT(namesSEXP, i));
-        PyObjectPtr item(r_to_py(RObject(VECTOR_ELT(sexp, i)), convert));
-        int res = PyDict_SetItemString(dict, name, item);
-        if (res != 0)
+        PyObjectPtr item(r_to_py(VECTOR_ELT(sexp, i), convert));
+        if (PyDict_SetItemString(dict, name, item))
           throw PythonException(py_fetch_error());
       }
 
@@ -2060,9 +2049,9 @@ PyObject* r_to_py_cpp(RObject x, bool convert) {
     }
 
     // create a list if there are no names
-    PyObjectPtr list(PyList_New(LENGTH(sexp)));
-    for (R_xlen_t i = 0; i<LENGTH(sexp); i++) {
-      PyObject* item = r_to_py(RObject(VECTOR_ELT(sexp, i)), convert);
+    PyObjectPtr list(PyList_New(len));
+    for (R_xlen_t i = 0; i<len; i++) {
+      PyObject* item = r_to_py(VECTOR_ELT(sexp, i), convert);
       // NOTE: reference to added value is "stolen" by the list
       int res = PyList_SetItem(list, i, item);
       if (res != 0)
@@ -2913,11 +2902,13 @@ SEXP py_ref_to_r(PyObjectRef x) {
 // [[Rcpp::export]]
 SEXP py_call_impl(PyObjectRef x, List args = R_NilValue, List keywords = R_NilValue) {
 
+  bool convert = x.convert();
+
   // unnamed arguments
   PyObjectPtr pyArgs(PyTuple_New(args.length()));
   if (args.length() > 0) {
     for (R_xlen_t i = 0; i<args.size(); i++) {
-      PyObject* arg = r_to_py(args.at(i), x.convert());
+      PyObject* arg = r_to_py(args.at(i), convert);
       // NOTE: reference to arg is "stolen" by the tuple
       int res = PyTuple_SetItem(pyArgs, i, arg);
       if (res != 0)
@@ -2932,7 +2923,7 @@ SEXP py_call_impl(PyObjectRef x, List args = R_NilValue, List keywords = R_NilVa
     SEXP namesSEXP = names;
     for (R_xlen_t i = 0; i<keywords.length(); i++) {
       const char* name = Rf_translateChar(STRING_ELT(namesSEXP, i));
-      PyObjectPtr arg(r_to_py(keywords.at(i), x.convert()));
+      PyObjectPtr arg(r_to_py(keywords.at(i), convert));
       int res = PyDict_SetItemString(pyKeywords, name, arg);
       if (res != 0)
         throw PythonException(py_fetch_error());
@@ -2947,7 +2938,7 @@ SEXP py_call_impl(PyObjectRef x, List args = R_NilValue, List keywords = R_NilVa
     throw PythonException(py_fetch_error(true));
 
   // return
-  return py_ref(res.detach(), x.convert());
+  return py_ref(res.detach(), convert);
 }
 
 // [[Rcpp::export]]

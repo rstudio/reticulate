@@ -2989,7 +2989,7 @@ SEXP py_dict_get_item(PyObjectRef dict, RObject key) {
 // [[Rcpp::export]]
 void py_dict_set_item(PyObjectRef dict, RObject key, RObject val) {
 
-  if (!PyDict_Check(dict))
+  if (!PyDict_CheckExact(dict))
     return py_set_item_impl(dict, key, val);
 
   PyObjectPtr py_key(r_to_py(key, dict.convert()));

@@ -35,7 +35,7 @@ test_that("Dictionary items can be get / set / removed with py_item APIs", {
   one <- r_to_py(1)
 
   py_set_item(d, "apple", one)
-  expect_equal(py_get_item(d, "apple"), one)
+  expect_equal(py_id(py_get_item(d, "apple")), py_id(one))
 
   py_del_item(d, "apple")
   expect_error(py_get_item(d, "apple"))

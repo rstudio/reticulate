@@ -489,6 +489,67 @@ public:
   }
 };
 
+// copied directly from purrr; used to call rlang::trace_back() in
+// py_fetch_error() in such a way that it doesn't introduce a new
+// frame in returned traceback
+SEXP current_env(void) {
+  static SEXP call = NULL;
+
+  if (!call) {
+    // `sys.frame(sys.nframe())` doesn't work because `sys.nframe()`
+    // returns the number of the frame in which evaluation occurs. It
+    // doesn't return the number of frames on the stack. So we'd need
+    // to evaluate it in the last frame on the stack which is what we
+    // are looking for to begin with. We use instead this workaround:
+    // Call `sys.frame()` from a closure to push a new frame on the
+    // stack, and use negative indexing to get the previous frame.
+    ParseStatus status;
+    SEXP code = PROTECT(Rf_mkString("sys.frame(-1)"));
+    SEXP parsed = PROTECT(R_ParseVector(code, -1, &status, R_NilValue));
+    SEXP body = VECTOR_ELT(parsed, 0);
+
+    SEXP fn = PROTECT(Rf_allocSExp(CLOSXP));
+    SET_FORMALS(fn, R_NilValue);
+    SET_BODY(fn, body);
+    SET_CLOENV(fn, R_BaseEnv);
+
+    call = Rf_lang1(fn);
+    R_PreserveObject(call);
+
+    UNPROTECT(3);
+  }
+
+  return Rf_eval(call, R_BaseEnv);
+}
+
+SEXP eval_call(SEXP r_func, SEXP arg) {
+  SEXP cl = Rf_lang2(r_func, arg);
+  RObject cl_(cl); // protect
+  return Rf_eval(cl, ns_reticulate);
+}
+
+SEXP eval_call(SEXP r_func, SEXP arg1, SEXP arg2) {
+  SEXP cl = Rf_lang3(r_func, arg1, arg2);
+  RObject cl_(cl); // protect
+  return Rf_eval(cl, ns_reticulate);
+}
+
+SEXP eval_call(SEXP r_func, SEXP arg1, bool arg2) {
+  return eval_call(r_func, arg1, Rf_ScalarLogical(arg2));
+}
+
+SEXP eval_call_in_userenv(SEXP r_func, SEXP arg) {
+  SEXP cl = Rf_lang2(r_func, arg);
+  RObject cl_(cl); // protect
+  return Rf_eval(cl, current_env());
+}
+
+SEXP eval_call_in_userenv(SEXP r_func, SEXP arg1, SEXP arg2) {
+  SEXP cl = Rf_lang3(r_func, arg1, arg2);
+  RObject cl_(cl); // protect
+  return Rf_eval(cl, current_env());
+}
+
 
 std::string as_r_class(PyObject* classPtr) {
 
@@ -513,22 +574,6 @@ std::string as_r_class(PyObject* classPtr) {
   ostr << module << as_std_string(namePtr);
   return ostr.str();
 
-}
-
-SEXP eval_call(SEXP r_func, SEXP arg) {
-  SEXP cl = Rf_lang2(r_func, arg);
-  RObject cl_(cl); // protect
-  return Rf_eval(cl, ns_reticulate);
-}
-
-SEXP eval_call(SEXP r_func, SEXP arg1, SEXP arg2) {
-  SEXP cl = Rf_lang3(r_func, arg1, arg2);
-  RObject cl_(cl); // protect
-  return Rf_eval(cl, ns_reticulate);
-}
-
-SEXP eval_call(SEXP r_func, SEXP arg1, bool arg2) {
-  return eval_call(r_func, arg1, Rf_ScalarLogical(arg2));
 }
 
 SEXP py_class_names(PyObject* object) {
@@ -663,38 +708,6 @@ bool traceback_enabled() {
 }
 
 
-// copied directly from purrr; used to call rlang::trace_back() in
-// py_fetch_error() in such a way that it doesn't introduce a new
-// frame in returned traceback
-SEXP current_env(void) {
-  static SEXP call = NULL;
-
-  if (!call) {
-    // `sys.frame(sys.nframe())` doesn't work because `sys.nframe()`
-    // returns the number of the frame in which evaluation occurs. It
-    // doesn't return the number of frames on the stack. So we'd need
-    // to evaluate it in the last frame on the stack which is what we
-    // are looking for to begin with. We use instead this workaround:
-    // Call `sys.frame()` from a closure to push a new frame on the
-    // stack, and use negative indexing to get the previous frame.
-    ParseStatus status;
-    SEXP code = PROTECT(Rf_mkString("sys.frame(-1)"));
-    SEXP parsed = PROTECT(R_ParseVector(code, -1, &status, R_NilValue));
-    SEXP body = VECTOR_ELT(parsed, 0);
-
-    SEXP fn = PROTECT(Rf_allocSExp(CLOSXP));
-    SET_FORMALS(fn, R_NilValue);
-    SET_BODY(fn, body);
-    SET_CLOENV(fn, R_BaseEnv);
-
-    call = Rf_lang1(fn);
-    R_PreserveObject(call);
-
-    UNPROTECT(3);
-  }
-
-  return Rf_eval(call, R_BaseEnv);
-}
 
 SEXP get_current_call(void) {
   static SEXP call = NULL;
@@ -720,6 +733,7 @@ SEXP get_current_call(void) {
 }
 
 SEXP get_r_trace(bool maybe_use_cached = false) {
+  // should this be eval_call_in_userenv()?
   return eval_call(r_func_get_r_trace,
                    Rf_ScalarLogical(maybe_use_cached),
                    /*trim_tail = */ Rf_ScalarInteger(true));
@@ -1068,7 +1082,7 @@ SEXP py_callable_as_function(SEXP callable, bool convert) {
 
 
 SEXP py_to_r_wrapper(SEXP x) {
-  SEXP x2 = eval_call(r_func_py_to_r_wrapper, x);
+  SEXP x2 = eval_call_in_userenv(r_func_py_to_r_wrapper, x);
   if(x == x2) // no method, py_to_r_wrapper.default() reflects
     return(x);
 
@@ -1126,7 +1140,7 @@ SEXP py_to_r(PyObject* x, bool convert) {
   if(!is_py_object(result))
     return(result);
 
-  return eval_call(r_func_py_to_r, result);
+  return eval_call_in_userenv(r_func_py_to_r, result);
 }
 
 
@@ -1617,7 +1631,7 @@ SEXP py_to_r_cpp(PyObject* x, bool convert, bool simple) {
   } // end convert == true && simple == true
 
   Py_IncRef(x);
-  return py_ref(x, convert, simple);
+  return PyObjectRef(x, convert, simple);
 
 }
 
@@ -1896,7 +1910,7 @@ PyObject* r_to_py(RObject x, bool convert) {
   // call the R version and hold the return value in a PyObjectRef (SEXP wrapper)
   // this object will be released when the function returns
 
-  PyObjectRef ref(eval_call(r_func_r_to_py, x, Rf_ScalarLogical(convert)));
+  PyObjectRef ref(eval_call_in_userenv(r_func_r_to_py, x, Rf_ScalarLogical(convert)));
 
   // get the underlying Python object and call Py_IncRef before returning it
   // this allows this function to provide the same memory semantics as the

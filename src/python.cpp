@@ -465,22 +465,48 @@ PyObject* py_import(const std::string& module) {
   return PyImport_Import(module_str);
 }
 
+
+class PyErrorScopeGuard {
+private:
+  PyObject *er_type, *er_value, *er_traceback;
+  bool pending_restore;
+
+public:
+  PyErrorScopeGuard() {
+    PyErr_Fetch(&er_type, &er_value, &er_traceback);
+    pending_restore = true;
+  }
+
+  void release(bool restore = false) {
+    if (restore)
+      PyErr_Restore(er_type, er_value, er_traceback);
+    pending_restore = false;
+  }
+
+  ~PyErrorScopeGuard() {
+    if (pending_restore)
+      PyErr_Restore(er_type, er_value, er_traceback);
+  }
+};
+
+
 std::string as_r_class(PyObject* classPtr) {
 
   PyObjectPtr namePtr(PyObject_GetAttrString(classPtr, "__name__"));
   std::ostringstream ostr;
   std::string module;
 
-  if (PyObject_HasAttrString(classPtr, "__module__")) {
-    PyObjectPtr modulePtr(PyObject_GetAttrString(classPtr, "__module__"));
+  PyObjectPtr modulePtr(PyObject_GetAttrString(classPtr, "__module__"));
+  if (modulePtr) {
     module = as_std_string(modulePtr) + ".";
-    std::string builtin("__builtin__");
+    std::string builtin("__builtin__"); // python2 only?
     if (module.find(builtin) == 0)
       module.replace(0, builtin.length(), "python.builtin");
     std::string builtins("builtins");
     if (module.find(builtins) == 0)
       module.replace(0, builtins.length(), "python.builtin");
   } else {
+    PyErr_Clear();
     module = "python.builtin.";
   }
 
@@ -2694,29 +2720,6 @@ bool py_has_attr_impl(PyObjectRef x, const std::string& name) {
     return false;
   return PyObject_HasAttrString(x, name.c_str());
 }
-
-class PyErrorScopeGuard {
-private:
-  PyObject *er_type, *er_value, *er_traceback;
-  bool pending_restore;
-
-public:
-  PyErrorScopeGuard() {
-    PyErr_Fetch(&er_type, &er_value, &er_traceback);
-    pending_restore = true;
-  }
-
-  void release(bool restore = false) {
-    if (restore)
-      PyErr_Restore(er_type, er_value, er_traceback);
-    pending_restore = false;
-  }
-
-  ~PyErrorScopeGuard() {
-    if (pending_restore)
-      PyErr_Restore(er_type, er_value, er_traceback);
-  }
-};
 
 // [[Rcpp::export]]
 PyObjectRef py_get_attr_impl(PyObjectRef x,

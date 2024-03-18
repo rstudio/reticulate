@@ -28,16 +28,16 @@ source_python <- function(file, envir = parent.frame(), convert = TRUE) {
   }
 
   # source the python script into the main python module
-  py_run_file(file, local = FALSE, convert = convert)
+  main_dict <- py_run_file(file, local = FALSE, convert = convert)
   on.exit(py_flush_output(), add = TRUE)
 
   # copy objects from the main python module into the specified R environment
   if (!is.null(envir)) {
-    main <- import_main(convert = convert)
-    main_dict <- py_get_attr(main, "__dict__")
     names <- py_dict_get_keys_as_str(main_dict)
-    names <- names[substr(names, 1, 1) != '_']
+    names <- names[!startsWith(names, '_')]
+    names <- names[-match("r", names)] # don't export "R interface object"
     Encoding(names) <- "UTF-8"
+
     for (name in names) {
       value <- main_dict[[name]]
       if (!inherits(value, "python.builtin.module"))

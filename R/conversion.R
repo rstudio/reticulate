@@ -15,7 +15,10 @@ r_to_py <- function(x, convert = FALSE) {
 #' @rdname r-py-conversion
 #' @export
 py_to_r <- function(x) {
-  ensure_python_initialized()
+  if(!is_py_object(x <- py_to_r_cpp(x))) # simple obj
+    return(x)
+  # Note, the new `x` here (with convert=TRUE) won't be visible to S3 methods
+  # UseMethod() doesn't allow modifying the original call args
   UseMethod("py_to_r")
 }
 
@@ -27,58 +30,8 @@ r_to_py.default <- function(x, convert = FALSE) {
 
 #' @export
 py_to_r.default <- function(x) {
-  if (!inherits(x, "python.builtin.object"))
-    stop("Object to convert is not a Python object")
-
-  # get the default wrapper
-  x <- py_ref_to_r(x)
-
-  # allow customization of the wrapper
-  wrapper <- py_to_r_wrapper(x)
-  attributes(wrapper) <- attributes(x)
-
-  # return the wrapper
-  wrapper
+  py_to_r_cpp(x)
 }
-
-
-
-#' @export
-r_to_py.list <- function(x, convert = FALSE) {
-  converted <- lapply(x, r_to_py, convert = convert)
-  r_to_py_impl(converted, convert = convert)
-}
-
-#' @export
-py_to_r.python.builtin.list <- function(x) {
-
-  # NOTE: we don't disable conversion in this context
-  # as we want to ensure sub-objects inherit convert-ability
-  # see e.g. https://github.com/rstudio/keras/issues/732
-
-  # give internal code a chance to perform efficient
-  # conversion of e.g. numeric vectors and the like
-  converted <- py_ref_to_r(x)
-
-  # if we received an R list, assume that we may need
-  # to recursively convert elements
-  if (is.list(converted)) {
-    converted <- lapply(converted, function(object) {
-      if (inherits(object, "python.builtin.object"))
-        py_to_r(object)
-      else
-        object
-    })
-  }
-
-  converted
-}
-
-#' @export
-py_to_r.python.builtin.tuple <- py_to_r.python.builtin.list
-
-#' @export
-py_to_r.python.builtin.dict <- py_to_r.python.builtin.list
 
 #' R wrapper for Python objects
 #'

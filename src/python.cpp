@@ -489,7 +489,23 @@ std::string as_r_class(PyObject* classPtr) {
 
 }
 
-std::vector<std::string> py_class_names(PyObject* object) {
+SEXP eval_call(SEXP r_func, SEXP arg) {
+  SEXP cl = Rf_lang2(r_func, arg);
+  RObject cl_(cl); // protect
+  return Rf_eval(cl, ns_reticulate);
+}
+
+SEXP eval_call(SEXP r_func, SEXP arg1, SEXP arg2) {
+  SEXP cl = Rf_lang3(r_func, arg1, arg2);
+  RObject cl_(cl); // protect
+  return Rf_eval(cl, ns_reticulate);
+}
+
+SEXP eval_call(SEXP r_func, SEXP arg1, bool arg2) {
+  return eval_call(r_func, arg1, Rf_ScalarLogical(arg2));
+}
+
+SEXP py_class_names(PyObject* object) {
 
   // Py_TYPE() usually returns a borrowed reference to object.__class__
   // but can differ if __class__ was modified after the object was created.
@@ -522,58 +538,56 @@ std::vector<std::string> py_class_names(PyObject* object) {
   // start adding class names
   std::vector<std::string> classNames;
 
+  {
+  PyErrorScopeGuard g_;
+
   // add the bases to the R class attribute
   Py_ssize_t len = PyTuple_Size(classes);
   for (Py_ssize_t i = 0; i < len; i++) {
     PyObject* base = PyTuple_GetItem(classes, i); // borrowed
     classNames.push_back(as_r_class(base));
   }
+  }
 
-  // return constructed class names
-  return classNames;
+  // add python.builtin.object if we don't already have it
+  if (classNames.empty() || classNames.back() != "python.builtin.object") {
+    classNames.push_back("python.builtin.object");
+  }
 
+  // if it's an iterable, include python.builtin.iterator, before python.builtin.object
+  if(PyIter_Check(object))
+    classNames.insert(classNames.end() - 1, "python.builtin.iterator");
+
+  return eval_call(r_func_py_filter_classes, Rcpp::wrap(classNames));
 }
 
+
+// needs to be defined here, though only used in reticulate_types.h
+SEXP new_refenv() {
+
+#if defined(R_VERSION) && R_VERSION >= R_Version(4, 1, 0)
+  return R_NewEnv(/*enclos =*/ R_EmptyEnv, /*hash =*/ false, /*size =*/ 0);
+#else
+  // R_NewEnv() C func introducted in R 4.1.
+  // Prior to that, we need to call R func new.env()
+  static SEXP call = NULL;
+  if (!call) {
+    call = Rf_lang3(Rf_findFun(Rf_install("new.env"), R_BaseEnv),
+                    /*hash =*/ Rf_ScalarLogical(FALSE),
+                    /*parent =*/ R_EmptyEnv);
+    R_PreserveObject(call);
+  }
+  return Rf_eval(call, R_BaseEnv);
+#endif
+}
+
+
 // wrap a PyObject
-PyObjectRef py_ref(PyObject* object,
-                   bool convert,
-                   const std::string& extraClass = "")
+PyObjectRef py_ref(PyObject* object, bool convert)
 {
 
   // wrap
   PyObjectRef ref(object, convert);
-
-  // class attribute
-  std::vector<std::string> attrClass;
-
-  // add extra class if requested
-  if (!extraClass.empty() &&
-      std::find(attrClass.begin(),
-                attrClass.end(),
-                extraClass) == attrClass.end()) {
-    attrClass.push_back(extraClass);
-  }
-
-  // register R classes
-  if (PyObject_HasAttrString(object, "__class__")) {
-    std::vector<std::string> classNames = py_class_names(object);
-    attrClass.insert(attrClass.end(), classNames.begin(), classNames.end());
-  }
-
-  // add python.builtin.object if we don't already have it
-  if (std::find(attrClass.begin(), attrClass.end(), "python.builtin.object") == attrClass.end()) {
-    attrClass.push_back("python.builtin.object");
-  }
-
-  // apply class filter
-  Rcpp::Environment pkgEnv = Rcpp::Environment::namespace_env("reticulate");
-  Rcpp::Function py_filter_classes = pkgEnv["py_filter_classes"];
-  attrClass = as< std::vector<std::string> >(py_filter_classes(attrClass));
-
-  // set classes
-  ref.attr("class") = attrClass;
-
-  // return ref
   return ref;
 
 }
@@ -1023,6 +1037,67 @@ PyObject* get_np_nditer () {
     throw PythonException(py_fetch_error());
   }
   return np_nditer;
+}
+
+
+SEXP py_callable_as_function(SEXP callable, bool convert) {
+  SEXP f = PROTECT(eval_call(r_func_py_callable_as_function, callable));
+
+  // copy over class attribute
+  Rf_setAttrib(f, R_ClassSymbol, Rf_getAttrib(callable, R_ClassSymbol));
+
+  // save reference to underlying py_object
+  Rf_setAttrib(f, sym_py_object, callable);
+
+  UNPROTECT(1);
+  return f;
+}
+
+
+
+SEXP py_to_r_wrapper(SEXP x) {
+  SEXP x2 = eval_call(r_func_py_to_r_wrapper, x);
+  if(x == x2) // no method, py_to_r_wrapper.default() reflects
+    return(x);
+
+  // copy over all attributes ("class" and "py_object", typically)
+  PROTECT(x2);
+  SEXP a = ATTRIB(x);
+  while (CAR(a) != R_NilValue) {
+    Rf_setAttrib(x2, TAG(a), CAR(a));
+    a = CDR(a);
+  }
+  UNPROTECT(1);
+  return x2;
+}
+
+
+SEXP py_to_r_cpp(PyObject* x, bool convert, bool simple = true);
+
+
+static inline
+bool inherits2(SEXP object, const char* name) {
+  // like inherits in R, but iterates over the class STRSXP vector
+  // in reverse, since python.builtin.object is typically at the tail.
+  SEXP klass = Rf_getAttrib(object, R_ClassSymbol);
+  if (TYPEOF(klass) == STRSXP) {
+    for (int i = Rf_length(klass)-1; i >= 0; i--) {
+      if (strcmp(CHAR(STRING_ELT(klass, i)), name) == 0)
+        return true;
+    }
+  }
+  return false;
+}
+
+// [[Rcpp::export]]
+bool is_py_object(SEXP x) {
+  switch (TYPEOF(x)) {
+    case ENVSXP:
+    case CLOSXP:
+      return inherits2(x, "python.builtin.object");
+    default:
+      return false;
+  }
 }
 
 // convert a python object to an R object
@@ -1805,20 +1880,12 @@ PyObject* r_to_py_cpp(RObject x, bool convert) {
     return Py_None;
   }
 
-  // use py_object attribute if we have it
-  if (x.hasAttribute("py_object")) {
-    Rcpp::RObject py_object = x.attr("py_object");
-    PyObjectRef obj = as<PyObjectRef>(py_object);
-    Py_IncRef(obj.get());
-    return obj.get();
-  }
-
   // pass python objects straight through (Py_IncRef since returning this
   // creates a new reference from the caller)
-  if (x.inherits("python.builtin.object")) {
-    PyObjectRef obj = as<PyObjectRef>(sexp);
-    Py_IncRef(obj.get());
-    return obj.get();
+  if (is_py_object(sexp)) {
+    PyObject* pyobj = PyObjectRef(sexp).get();
+    Py_IncRef(pyobj);
+    return pyobj;
   }
 
   // convert arrays and matrixes to numpy (throw error if numpy not available)
@@ -2664,7 +2731,7 @@ PyObjectRef py_get_attr_impl(PyObjectRef x,
 
     attr = PyObject_GetAttrString(x, key.c_str());
     if (attr == NULL)
-      return PyObjectRef(R_EmptyEnv);
+      return PyObjectRef(R_NilValue);
 
   } else {
 
@@ -2678,6 +2745,30 @@ PyObjectRef py_get_attr_impl(PyObjectRef x,
 }
 
 // [[Rcpp::export]]
+SEXP py_get_convert(PyObjectRef x) {
+  return Rf_ScalarLogical(x.convert());
+}
+
+// [[Rcpp::export]]
+SEXP py_set_convert(PyObjectRef x, bool value) {
+  Rf_defineVar(sym_convert, Rf_ScalarLogical(value), x.get_refenv());
+  return x;
+}
+
+
+// [[Rcpp::export]]
+PyObjectRef py_new_ref(PyObjectRef x, SEXP convert) {
+  bool convert_ = (convert == R_NilValue) ?
+    x.convert() : ((bool) Rf_asLogical(convert));
+  // if (convert_ == R_NilValue)
+  //   convert = x.convert();
+  // else
+  //   convert =
+  return py_ref(x.get(), convert_);
+}
+
+
+// [[Rcpp::export]]
 PyObjectRef py_get_item_impl(PyObjectRef x, RObject key, bool silent = false)
 {
 
@@ -2689,7 +2780,7 @@ PyObjectRef py_get_item_impl(PyObjectRef x, RObject key, bool silent = false)
 
     item = PyObject_GetItem(x, py_key);
     if (item == NULL)
-      return PyObjectRef(R_EmptyEnv);
+      return PyObjectRef(R_NilValue);
 
   } else {
 
@@ -3023,14 +3114,15 @@ PyObjectRef py_module_import(const std::string& module, bool convert) {
 
 // [[Rcpp::export]]
 void py_module_proxy_import(PyObjectRef proxy) {
-  if (proxy.exists("module")) {
-    Rcpp::RObject r_module = proxy.getFromEnvironment("module");
+  Rcpp::Environment refenv = proxy.get_refenv();
+  if (refenv.exists("module")) {
+    Rcpp::RObject r_module = refenv.get("module");
     std::string module = as<std::string>(r_module);
     PyObject* pModule = py_import(module);
     if (pModule == NULL)
       throw PythonException(py_fetch_error());
     proxy.set(pModule);
-    proxy.remove("module");
+    refenv.remove("module");
   } else {
     stop("Module proxy does not contain module name");
   }
@@ -3975,3 +4067,11 @@ SEXP py_iterate(PyObjectRef x, Function f, bool simplify = true) {
   UNPROTECT(1);
   return out;
 }
+
+
+bool try_py_resolve_module_proxy(SEXP proxy) {
+  Rcpp::Environment pkgEnv = Rcpp::Environment::namespace_env("reticulate");
+  Rcpp::Function py_resolve_module_proxy = pkgEnv["py_resolve_module_proxy"];
+  return py_resolve_module_proxy(proxy);
+}
+

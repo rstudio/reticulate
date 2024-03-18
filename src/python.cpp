@@ -1113,7 +1113,54 @@ bool is_py_object(SEXP x) {
 }
 
 // convert a python object to an R object
+// This creates a new reference to x
+// (i.e, caller should call Py_DecRef() / PyObjectPtr.detach() for any refs caller created)
 SEXP py_to_r(PyObject* x, bool convert) {
+  if(!convert) {
+    Py_IncRef(x);
+    return py_ref(x, convert);
+  }
+
+  // first try the fast path
+  SEXP result = py_to_r_cpp(x, true);
+  if(!is_py_object(result))
+    return(result);
+
+  return eval_call(r_func_py_to_r, result);
+}
+
+
+// [[Rcpp::export]]
+SEXP py_to_r_cpp(SEXP x) {
+
+  // reflect non python objects
+  if (!is_py_object(x)) return x;
+
+  PyObjectRef ref(x, /*check =*/false);
+  bool simple = ref.simple();
+
+  // if we already know this is not a simple py object,
+  // and `convert` is already TRUE., there is nothing to do
+  // return x unmodified
+  if(!simple && ref.convert()) return x;
+
+  // if simple = true, call py_to_r_cpp(PyObject) to (try to) simplify
+  // if convert = false, call py_to_r_cpp(PyObject) to get a new ref with convert = true
+  SEXP ret = py_to_r_cpp(ref.get(), /*convert =*/ true, simple);
+  if(simple && is_py_object(ret))
+    // if we tried and failed to simplify the ref,
+    // mark the ref as non simple so we can skip trying next time.
+    Rf_defineVar(sym_simple, Rf_ScalarLogical(FALSE), ref.get_refenv());
+  return ret; // return the new ref
+}
+
+// fast path
+SEXP py_to_r_cpp(PyObject* x, bool convert, bool simple) {
+  // object is assumed to be simple unless proven otherwise.
+  // simple==true allows for skipping all the checks,
+  // since we know we won't be able to simplify here
+  // cpp::py_to_r() -> r::py_to_r() -> cpp::py_to_r_cpp()
+  if (convert && simple) {
 
   // NULL for Python None
   if (py_is_none(x))
@@ -1152,7 +1199,7 @@ SEXP py_to_r(PyObject* x, bool convert) {
   }
 
   // list
-  else if (PyList_CheckExact(x)) {
+  if (PyList_CheckExact(x)) {
 
     Py_ssize_t len = PyList_Size(x);
     int scalarType = scalar_list_type(x);
@@ -1189,13 +1236,13 @@ SEXP py_to_r(PyObject* x, bool convert) {
     } else { // not a homegenous list of scalars, return a list
       Rcpp::List list(len);
       for (Py_ssize_t i = 0; i<len; i++)
-        list[i] = py_to_r(PyList_GetItem(x, i), convert);
+        list[i] = py_to_r(PyList_GetItem(x, i), convert); // borrowed ref
       return list;
     }
   }
 
   // tuple (but don't convert namedtuple as it's often a custom class)
-  else if (PyTuple_CheckExact(x) && !PyObject_HasAttrString(x, "_fields")) {
+  if (PyTuple_CheckExact(x) && !PyObject_HasAttrString(x, "_fields")) {
     Py_ssize_t len = PyTuple_Size(x);
     Rcpp::List list(len);
     for (Py_ssize_t i = 0; i<len; i++)
@@ -1204,7 +1251,7 @@ SEXP py_to_r(PyObject* x, bool convert) {
   }
 
   // dict
-  else if (PyDict_CheckExact(x)) {
+  if (PyDict_CheckExact(x)) {
 
     // copy the dict and allocate
     PyObjectPtr dict(PyDict_Copy(x));
@@ -1232,7 +1279,7 @@ SEXP py_to_r(PyObject* x, bool convert) {
   }
 
   // numpy array
-  else if (isPyArray(x)) {
+  if (isPyArray(x)) {
 
     // R array to return
     RObject rArray = R_NilValue;
@@ -1399,7 +1446,7 @@ SEXP py_to_r(PyObject* x, bool convert) {
   }
 
   // check for numpy scalar
-  else if (isPyArrayScalar(x)) {
+  if (isPyArrayScalar(x)) {
 
     // determine the type to convert to
     PyArray_DescrPtr descrPtr(PyArray_DescrFromScalar(x));
@@ -1537,40 +1584,9 @@ SEXP py_to_r(PyObject* x, bool convert) {
   //   return list;
   // }
 
-  // callable
-  else if (py_is_callable(x)) {
-
-    // reference to underlying python object
-    Py_IncRef(x);
-    PyObjectRef pyFunc = py_ref(x, convert);
-
-    // create an R function wrapper
-    Rcpp::Environment pkgEnv = Rcpp::Environment::namespace_env("reticulate");
-    Rcpp::Function py_callable_as_function = pkgEnv["py_callable_as_function"];
-    Rcpp::Function f = py_callable_as_function(pyFunc, convert);
-
-    // forward classes
-    f.attr("class") = pyFunc.attr("class");
-
-    // save reference to underlying py_object
-    f.attr("py_object") = pyFunc;
-
-    // return the R function
-    return f;
-  }
-
-  // iterator/generator
-  else if (PyObject_HasAttrString(x, "__iter__") &&
-           (PyObject_HasAttrString(x, "next") ||
-            PyObject_HasAttrString(x, "__next__"))) {
-
-    // return it raw but add a class so we can create S3 methods for it
-    Py_IncRef(x);
-    return py_ref(x, true, std::string("python.builtin.iterator"));
-  }
 
   // bytearray
-  else if (PyByteArray_Check(x)) {
+  if (PyByteArray_Check(x)) {
 
     if (PyByteArray_Size(x) == 0)
       return RawVector();
@@ -1586,7 +1602,8 @@ SEXP py_to_r(PyObject* x, bool convert) {
     return NumericVector::create(R_NaReal);
   }
 
-  else if (is_r_object_capsule(x)) {
+  // r object capsule
+  if (is_r_object_capsule(x)) {
     return py_capsule_read(x);
   }
 
@@ -1594,10 +1611,17 @@ SEXP py_to_r(PyObject* x, bool convert) {
   // default is to return opaque wrapper to python object. we pass convert = true
   // because if we hit this code then conversion has been either implicitly
   // or explicitly requested.
-  else {
-    Py_IncRef(x);
-    return py_ref(x, true);
-  }
+
+  // mark that the object is not a simple python object
+  // i.e., not fast-path convertable by r_to_py_cpp()
+  // (this lets us skip checking next time, if we go through this code path twice,
+  // once in r_to_py() before dispatch, and again if we invoke r_to_py.default()
+  simple = false;
+
+  } // end convert == true && simple == true
+
+  Py_IncRef(x);
+  return py_ref(x, convert, simple);
 
 }
 
@@ -1892,6 +1916,7 @@ PyObject* r_to_py(RObject x, bool convert) {
 
 // convert an R object to a python object (the returned object
 // will have an active reference count on it)
+// the convert arg is only applicable to R functions that will being wrapped in python functions.
 PyObject* r_to_py_cpp(RObject x, bool convert) {
   int type = x.sexp_type();
   SEXP sexp = x.get__();

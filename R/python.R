@@ -402,13 +402,14 @@ as.environment.python.builtin.object <- function(x) {
 .DollarNames.python.builtin.module <- function(x, pattern = "") {
 
   # resolve module proxies (ignore errors since this is occurring during completion)
-  result <- tryCatch({
-    if (py_is_module_proxy(x))
+  if (py_is_module_proxy(x)) {
+    result <- tryCatch({
       py_resolve_module_proxy(x)
-    TRUE
-  }, error = clear_error_handler(FALSE))
-  if (!result)
-    return(character())
+      TRUE
+    }, error = clear_error_handler(FALSE))
+    if (!result)
+      return(character())
+  }
 
   # delegate
   .DollarNames.python.builtin.object(x, pattern)
@@ -860,8 +861,6 @@ py_call <- function(x, ...) {
 #' @export
 py_has_attr <- function(x, name) {
   ensure_python_initialized()
-  if (py_is_module_proxy(x))
-    py_resolve_module_proxy(x)
   py_has_attr_impl(x, name)
 }
 
@@ -876,13 +875,7 @@ py_has_attr <- function(x, name) {
 #' @export
 py_get_attr <- function(x, name, silent = FALSE) {
   ensure_python_initialized()
-  if (py_is_module_proxy(x))
-    py_resolve_module_proxy(x)
-  res <- py_get_attr_impl(x, name, silent)
-  if(silent && identical(res, emptyenv()))
-    NULL
-  else
-    res
+  py_get_attr_impl(x, name, silent)
 }
 
 #' Set an attribute of a Python object
@@ -894,8 +887,6 @@ py_get_attr <- function(x, name, silent = FALSE) {
 #' @export
 py_set_attr <- function(x, name, value) {
   ensure_python_initialized()
-  if (py_is_module_proxy(x))
-    py_resolve_module_proxy(x)
   py_set_attr_impl(x, name, value)
 }
 
@@ -917,8 +908,6 @@ py_none <- function() {
 #' @export
 py_del_attr <- function(x, name) {
   ensure_python_initialized()
-  if (py_is_module_proxy(x))
-    py_resolve_module_proxy(x)
   py_del_attr_impl(x, name)
 }
 
@@ -931,8 +920,6 @@ py_del_attr <- function(x, name) {
 #' @export
 py_list_attributes <- function(x) {
   ensure_python_initialized()
-  if (py_is_module_proxy(x))
-    py_resolve_module_proxy(x)
   attrs <- py_list_attributes_impl(x)
   Encoding(attrs) <- "UTF-8"
   attrs
@@ -943,9 +930,6 @@ py_get_attr_types <- function(x,
                               resolve_properties = FALSE)
 {
   ensure_python_initialized()
-  if (py_is_module_proxy(x))
-    py_resolve_module_proxy(x)
-
   py_get_attr_types_impl(x, names, resolve_properties)
 }
 
@@ -1245,10 +1229,9 @@ py_ellipsis <- function() {
 }
 
 #' @importFrom rlang list2
-py_callable_as_function <- function(callable, convert) {
+py_callable_as_function <- function(callable) {
 
   force(callable)
-  force(convert)
 
   as.function.default(c(py_get_formals(callable), quote({
     cl <- sys.call()
@@ -1257,7 +1240,7 @@ py_callable_as_function <- function(callable, convert) {
     call_args <- split_named_unnamed(eval(cl, parent.frame()))
     result <- py_call_impl(callable, call_args$unnamed, call_args$named)
 
-    if (convert)
+    if(py_get_convert(callable))
       result <- py_to_r(result)
 
     if (is.null(result))
@@ -1282,10 +1265,15 @@ py_is_module <- function(x) {
 }
 
 py_is_module_proxy <- function(x) {
-  inherits(x, "python.builtin.module") && exists("module", envir = x)
+  typeof(x) == "environment" &&
+  exists("module", envir = x, inherits = FALSE) &&
+  inherits(x, "python.builtin.module")
 }
 
 py_resolve_module_proxy <- function(proxy) {
+
+  if(!py_is_module_proxy(proxy))
+    return(FALSE)
 
   # collect module proxy hooks
   collect_value <- function(name) {
@@ -1345,6 +1333,8 @@ py_resolve_module_proxy <- function(proxy) {
   # call on_load if provided
   if (is.function(on_load))
     on_load()
+
+  TRUE
 }
 
 py_get_name <- function(x) {

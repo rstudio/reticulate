@@ -252,5 +252,37 @@ import_from_path_immediate <- function(module, path, convert) {
 }
 
 
-
+#' Import objects from a Python module
+#'
+#' @param module string, name of python module
+#' @param ... names of objects to import as bare expressions. Can be named to
+#'   change the binding name in R. rlang dynamic dots are supported.
+#' @param .convert passed on to `import()`
+#' @param .env R environment where to assign the imported symbols.
+#'
+#' @details This function is useful for porting the Python idiom `from foo
+#'   import abc, hjk, xyz` to R. Here are few examples:
+#'
+#' | Python                                      | R                                                |
+#' |---------------------------------------------|--------------------------------------------------|
+#' | `from numpy import abs`                     | `py_import_from("numpy", abs)`                   |
+#' | `from jax import grad, jit, vmap`           | `py_import_from("jax", grad, jit, vmap)`         |
+#' | `from datetime import date as d, time as t` | `py_import_from("datetime", d = date, t = time)` |
+#'
+#' @return `NULL` invisibly. This function is called for its side effect of
+#'   assigning symbols in `.env`.
+#' @export
+py_import_from <- function(module, ..., .convert = TRUE, .env = parent.frame()) {
+  module <- import(module, convert = .convert)
+  dots <- lapply(
+    rlang::ensyms(..., .named = TRUE, .ignore_empty = "all",
+                  .ignore_null = "none", .homonyms = "error",
+                  .unquote_names = TRUE, .check_assign = TRUE),
+    function(name) {
+      py_maybe_convert(py_get_attr(module, as.character(name)),
+                       .convert)
+    })
+  list2env(dots, envir = .env)
+  invisible()
+}
 

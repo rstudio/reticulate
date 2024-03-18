@@ -1597,10 +1597,6 @@ SEXP py_to_r_cpp(PyObject* x, bool convert, bool simple) {
 
   }
 
-  // pandas array
-  else if (is_pandas_na(x)) {
-    return NumericVector::create(R_NaReal);
-  }
 
   // r object capsule
   if (is_r_object_capsule(x)) {

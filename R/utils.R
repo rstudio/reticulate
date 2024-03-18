@@ -142,9 +142,7 @@ call_r_function <- function(fn, args, named_args) {
 }
 
 
-as_r_value <- function(x)
-  if(inherits(x, "python.builtin.object")) py_to_r(x) else x
-
+as_r_value <- function(x) py_to_r(x)
 
 #' @export
 r_to_py.error <- function(x, convert = FALSE) {
@@ -261,6 +259,16 @@ disable_conversion_scope <- function(object) {
 
   TRUE
 }
+
+local_conversion_scope <- function(object, value, envir = parent.frame()) {
+  if(py_get_convert(object) == value)
+    return()
+
+  cl <- call("py_set_convert", object, !value)
+  do.call(on.exit, list(cl, add = TRUE), envir = envir)
+}
+
+
 
 py_compile_eval <- function(code, compile_mode = "single", capture = TRUE) {
 

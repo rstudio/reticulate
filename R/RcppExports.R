@@ -56,6 +56,14 @@ py_is_callable <- function(x) {
     .Call(`_reticulate_py_is_callable`, x)
 }
 
+is_py_object <- function(x) {
+    .Call(`_reticulate_is_py_object`, x)
+}
+
+py_to_r_cpp <- function(x) {
+    .Call(`_reticulate_py_to_r_cpp`, x)
+}
+
 py_get_formals <- function(callable) {
     .Call(`_reticulate_py_get_formals`, callable)
 }
@@ -128,6 +136,18 @@ py_has_attr_impl <- function(x, name) {
 
 py_get_attr_impl <- function(x, key, silent = FALSE) {
     .Call(`_reticulate_py_get_attr_impl`, x, key, silent)
+}
+
+py_get_convert <- function(x) {
+    .Call(`_reticulate_py_get_convert`, x)
+}
+
+py_set_convert <- function(x, value) {
+    .Call(`_reticulate_py_set_convert`, x, value)
+}
+
+py_new_ref <- function(x, convert) {
+    .Call(`_reticulate_py_new_ref`, x, convert)
 }
 
 py_get_item_impl <- function(x, key, silent = FALSE) {

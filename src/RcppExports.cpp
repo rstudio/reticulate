@@ -106,6 +106,28 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// is_py_object
+bool is_py_object(SEXP x);
+RcppExport SEXP _reticulate_is_py_object(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(is_py_object(x));
+    return rcpp_result_gen;
+END_RCPP
+}
+// py_to_r_cpp
+SEXP py_to_r_cpp(SEXP x);
+RcppExport SEXP _reticulate_py_to_r_cpp(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< SEXP >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_to_r_cpp(x));
+    return rcpp_result_gen;
+END_RCPP
+}
 // py_get_formals
 SEXP py_get_formals(PyObjectRef callable);
 RcppExport SEXP _reticulate_py_get_formals(SEXP callableSEXP) {
@@ -303,6 +325,41 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const std::string& >::type key(keySEXP);
     Rcpp::traits::input_parameter< bool >::type silent(silentSEXP);
     rcpp_result_gen = Rcpp::wrap(py_get_attr_impl(x, key, silent));
+    return rcpp_result_gen;
+END_RCPP
+}
+// py_get_convert
+SEXP py_get_convert(PyObjectRef x);
+RcppExport SEXP _reticulate_py_get_convert(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< PyObjectRef >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_get_convert(x));
+    return rcpp_result_gen;
+END_RCPP
+}
+// py_set_convert
+SEXP py_set_convert(PyObjectRef x, bool value);
+RcppExport SEXP _reticulate_py_set_convert(SEXP xSEXP, SEXP valueSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< PyObjectRef >::type x(xSEXP);
+    Rcpp::traits::input_parameter< bool >::type value(valueSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_set_convert(x, value));
+    return rcpp_result_gen;
+END_RCPP
+}
+// py_new_ref
+PyObjectRef py_new_ref(PyObjectRef x, SEXP convert);
+RcppExport SEXP _reticulate_py_new_ref(SEXP xSEXP, SEXP convertSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< PyObjectRef >::type x(xSEXP);
+    Rcpp::traits::input_parameter< SEXP >::type convert(convertSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_new_ref(x, convert));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -782,6 +839,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_reticulate_conditionMessage_from_py_exception", (DL_FUNC) &_reticulate_conditionMessage_from_py_exception, 1},
     {"_reticulate_py_none_impl", (DL_FUNC) &_reticulate_py_none_impl, 0},
     {"_reticulate_py_is_callable", (DL_FUNC) &_reticulate_py_is_callable, 1},
+    {"_reticulate_is_py_object", (DL_FUNC) &_reticulate_is_py_object, 1},
+    {"_reticulate_py_to_r_cpp", (DL_FUNC) &_reticulate_py_to_r_cpp, 1},
     {"_reticulate_py_get_formals", (DL_FUNC) &_reticulate_py_get_formals, 1},
     {"_reticulate_r_to_py_impl", (DL_FUNC) &_reticulate_r_to_py_impl, 2},
     {"_reticulate_py_activate_virtualenv", (DL_FUNC) &_reticulate_py_activate_virtualenv, 1},
@@ -800,6 +859,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_reticulate_py_list_attributes_impl", (DL_FUNC) &_reticulate_py_list_attributes_impl, 1},
     {"_reticulate_py_has_attr_impl", (DL_FUNC) &_reticulate_py_has_attr_impl, 2},
     {"_reticulate_py_get_attr_impl", (DL_FUNC) &_reticulate_py_get_attr_impl, 3},
+    {"_reticulate_py_get_convert", (DL_FUNC) &_reticulate_py_get_convert, 1},
+    {"_reticulate_py_set_convert", (DL_FUNC) &_reticulate_py_set_convert, 2},
+    {"_reticulate_py_new_ref", (DL_FUNC) &_reticulate_py_new_ref, 2},
     {"_reticulate_py_get_item_impl", (DL_FUNC) &_reticulate_py_get_item_impl, 3},
     {"_reticulate_py_set_attr_impl", (DL_FUNC) &_reticulate_py_set_attr_impl, 3},
     {"_reticulate_py_del_attr_impl", (DL_FUNC) &_reticulate_py_del_attr_impl, 2},
@@ -843,7 +905,9 @@ static const R_CallMethodDef CallEntries[] = {
     {NULL, NULL, 0}
 };
 
+void reticulate_init(DllInfo *dll);
 RcppExport void R_init_reticulate(DllInfo *dll) {
     R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
     R_useDynamicSymbols(dll, FALSE);
+    reticulate_init(dll);
 }

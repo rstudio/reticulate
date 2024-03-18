@@ -982,6 +982,22 @@ bool py_equal(PyObject* x, const std::string& str) {
 
 bool is_pandas_na(PyObject* x) {
 
+  // don't want to prematurely import pandas if we don't need it.
+  // ideally we would be able to do something like this
+  // static PyObject* pandas_NAType = NULL;
+  // if (pandas_NAType == NULL) {
+  //   PyObjectPtr inspect(py_import("pandas"));
+  //   if (inspect.is_null())
+  //     throw PythonException(py_fetch_error());
+  // }
+  //  PyObject* type = (PyObject*) Py_TYPE(object);
+  // if (type == NULL)
+  //   throw PythonException(py_fetch_error());
+
+  // call inspect.getmro to get the class and it's bases in
+  // method resolution order
+
+
   // retrieve class object
   PyObjectPtr pyClass(py_get_attr(x, "__class__"));
   if (pyClass.is_null())
@@ -2115,11 +2131,11 @@ PyObject* r_to_py_cpp(RObject x, bool convert) {
     PyObjectPtr pyFunctionName(r_to_py(x.attr("py_function_name"), convert));
 
     // create the python wrapper function
-    PyObjectPtr module(py_import("rpytools.call"));
+    PyObjectPtr module(py_import("rpytools.call")); // we should cache this
     if (module.is_null())
       throw PythonException(py_fetch_error());
 
-    PyObjectPtr func(PyObject_GetAttrString(module, "make_python_function"));
+    PyObjectPtr func(PyObject_GetAttrString(module, "make_python_function")); // cache
     if (func.is_null())
       throw PythonException(py_fetch_error());
 

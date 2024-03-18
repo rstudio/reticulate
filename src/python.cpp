@@ -1800,28 +1800,36 @@ PyObject* r_to_py_numpy(RObject x, bool convert) {
   int flags = NPY_ARRAY_FARRAY_RO;
 
   // because R logical vectors are just ints under the
-  // hood, we need to explicitly construct a boolean
-  // vector for our Python array. note that the created
-  // array will own the data so we do not free it after
+  // hood, we create a strided view of the ints, to avoid
+  // an allocation.
+  npy_intp* strides = NULL;
   if (typenum == NPY_BOOL) {
-    R_xlen_t n = XLENGTH(sexp);
-    bool* converted = (bool*) PyArray_malloc(n * sizeof(bool));
-    for (R_xlen_t i = 0; i < n; i++)
-      converted[i] = LOGICAL(sexp)[i];
-    data = converted;
-    flags |= NPY_ARRAY_OWNDATA;
-  }
+    // Hack to allocate some memory
+    SEXP strides_s = PROTECT(Rf_allocVector(INTSXP, nd * (sizeof(npy_intp) / sizeof(int))));
+    // note: npy_intp is typicall 8 bytes, int is 4 bytes. Could hardcode to nd*2 if I
+    // had more confidence in npy_intp always being 8 bytes.
+    strides = (npy_intp*) INTEGER(strides_s);
+    int element_size = sizeof(int);
+    for (int i = 0; i < nd; i++) {
+      strides[i] = element_size;
+      if (dims[i])
+        element_size *= dims[i];
+    }
 
-  // create the matrix
+  }
+  // create the array
   PyObject* array = PyArray_New(&PyArray_Type,
                                 nd,
                                 &(dims[0]),
                                 typenum,
-                                NULL,
+                                strides,
                                 data,
                                 0,
                                 flags,
                                 NULL);
+
+  if(typenum == NPY_BOOL)
+    UNPROTECT(1); // strides_s
 
   // check for error
   if (array == NULL)

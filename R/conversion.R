@@ -156,8 +156,7 @@ py_to_r.datetime.date <- function(x) {
 
 #' @export
 py_to_r.collections.OrderedDict <- function(x) {
-  disable_conversion_scope(x)
-
+  local_conversion_scope(x, TRUE)
   keys <- py_dict_get_keys(x)
   result <- lapply(seq_len(length(keys)) - 1L, function(i) {
     py_to_r(py_dict_get_item(x, keys[i]))
@@ -170,7 +169,7 @@ py_to_r.collections.OrderedDict <- function(x) {
 
 #' @export
 py_to_r.pandas.core.series.Series <- function(x) {
-  disable_conversion_scope(x)
+  local_conversion_scope(x, FALSE)
   values <- py_to_r(x$values)
   index <- py_to_r(x$index)
   bt <- import("builtins")
@@ -180,7 +179,7 @@ py_to_r.pandas.core.series.Series <- function(x) {
 
 #' @export
 py_to_r.pandas.core.categorical.Categorical <- function(x) {
-  disable_conversion_scope(x)
+  local_conversion_scope(x, FALSE)
   values <- py_to_r(x$get_values())
   levels <- py_to_r(x$categories$values)
   ordered <- py_to_r(x$dtype$ordered)
@@ -193,13 +192,11 @@ py_to_r.pandas.core.arrays.categorical.Categorical <-
 
 #' @export
 py_to_r.pandas._libs.missing.NAType <- function(x) {
-  disable_conversion_scope(x)
   NA
 }
 
 #' @export
 py_to_r.pandas._libs.missing.C_NAType <- function(x) {
-  disable_conversion_scope(x)
   NA
 }
 
@@ -262,40 +259,34 @@ r_to_py.data.frame <- function(x, convert = FALSE) {
 
 #' @export
 py_to_r.datatable.Frame <- function(x) {
-  disable_conversion_scope(x)
-
   # TODO: it would be nice to avoid the extra conversion to pandas
   py_to_r(x$to_pandas())
 }
 
 #' @export
 py_to_r.pandas.core.frame.DataFrame <- function(x) {
-  disable_conversion_scope(x)
+  local_conversion_scope(x, TRUE)
 
   np <- import("numpy", convert = TRUE)
   pandas <- import("pandas", convert = TRUE)
   bt <- import("builtins", convert = TRUE)
 
-  # extract numpy arrays associated with each column
-  columns <- x$columns$values
-
   # delegate to c++
   converted <- py_convert_pandas_df(x)
-  names(converted) <- as.character(bt$list(x$columns$map(bt$str)))
+  converted <- lapply(converted, function(col) {
+    if (identical(length(dim(col)), 1L))
+      dim(col) <- NULL
+    col
+  })
 
-  # clean up converted objects
-  for (i in seq_along(converted)) {
-    column <- names(converted)[[i]]
-
-    # drop 1D dimensions
-    if (identical(dim(converted[[i]]), length(converted[[i]]))) {
-      dim(converted[[i]]) <- NULL
-    }
-  }
+  # assign colnamnes
+  columns <- py_set_convert(x$columns, FALSE)$values
+  columns <- as.character(bt$list(x$columns$map(bt$str)))
+  names(converted) <- columns
 
   df <- converted
+  attr(df, "row.names") <- c(NA_integer_, -x$shape[[1L]])
   class(df) <- "data.frame"
-  attr(df, "row.names") <- c(NA_integer_, -nrow(x))
 
   # attempt to copy over index, and set as rownames when appropriate
   #

@@ -289,52 +289,13 @@ summary.python.builtin.object <- function(object, ...) {
   str(object)
 }
 
-#' @export
-`$.python.builtin.module` <- function(x, name) {
 
-  # resolve module proxies
-  if (py_is_module_proxy(x))
-    py_resolve_module_proxy(x)
-
-  `$.python.builtin.object`(x, name)
-}
-
-py_has_convert <- function(x) {
-
-  # resolve wrapped environment
-  x <- as.environment(x)
-
-  # get convert flag
-  if (exists("convert", x, inherits = FALSE))
-    get("convert", x, inherits = FALSE)
-  else
-    TRUE
-}
+py_has_convert <- py_get_convert
 
 py_maybe_convert <- function(x, convert) {
-
-  # if this is already an R object, nothing to do
-  if (!inherits(x, "python.builtin.object"))
-    return(x)
-
-  # if it's neither convertable nor callable,
-  # nothing to do
-  convertable <- convert || py_is_callable(x)
-  if (!convertable)
-    return(x)
-
-  # perform conversion
-  # capture previous convert for attr
-  attrib_convert <- py_has_convert(x)
-
-  # temporarily change convert so we can call py_to_r and get S3 dispatch
-  envir <- as.environment(x)
-  assign("convert", convert, envir = envir)
-  on.exit(assign("convert", attrib_convert, envir = envir), add = TRUE)
-
-  # call py_to_r
-  py_to_r(x)
-
+  if(convert)
+    x <- py_to_r(x)
+  x
 }
 
 # helper function for accessing attributes or items from a
@@ -342,9 +303,6 @@ py_maybe_convert <- function(x, convert) {
 # a valid Python object reference
 py_get_attr_or_item <- function(x, name, prefer_attr) {
 
-  # resolve module proxies
-  if (py_is_module_proxy(x))
-    py_resolve_module_proxy(x)
 
   # skip if this is a NULL xptr
   if (py_is_null_xptr(x) || !py_available())

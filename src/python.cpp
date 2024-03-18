@@ -26,6 +26,47 @@ using namespace Rcpp;
 
 using namespace reticulate::libpython;
 
+int _Py_Check(PyObject* o) {
+  // default impl we assign to some Python api functions until we've initialized Python;
+  return 0;
+}
+
+SEXP sym_pyobj;
+SEXP sym_py_object;
+SEXP sym_simple;
+SEXP sym_convert;
+
+SEXP ns_reticulate;
+
+SEXP r_func_py_filter_classes;
+SEXP r_func_get_r_trace;
+SEXP r_func_py_callable_as_function;
+SEXP r_func_r_to_py;
+SEXP r_func_py_to_r;
+SEXP r_func_py_to_r_wrapper;
+
+// [[Rcpp::init]]
+void reticulate_init(DllInfo *dll) {
+  // before python is initialized, make these symbols safe to call (always return false)
+  PyIter_Check = &_Py_Check;
+  PyCallable_Check = &_Py_Check;
+
+  sym_py_object = Rf_install("py_object");
+  sym_simple = Rf_install("simple");
+  sym_convert = Rf_install("convert");
+  sym_pyobj = Rf_install("pyobj");
+
+  ns_reticulate = Rf_findVarInFrame(R_NamespaceRegistry, Rf_install("reticulate"));
+
+  r_func_py_filter_classes = Rf_findVar(Rf_install("py_filter_classes"), ns_reticulate);
+  r_func_py_callable_as_function = Rf_findVar(Rf_install("py_callable_as_function"), ns_reticulate);
+  r_func_r_to_py = Rf_findVar(Rf_install("r_to_py"), ns_reticulate);
+  r_func_py_to_r = Rf_findVar(Rf_install("py_to_r"), ns_reticulate);
+  r_func_py_to_r_wrapper = Rf_findVar(Rf_install("py_to_r_wrapper"), ns_reticulate);
+  r_func_get_r_trace = Rf_findVar(Rf_install("get_r_trace"), ns_reticulate);
+}
+
+
 // track whether we are using python 3 (set during py_initialize)
 bool s_isPython3 = false;
 

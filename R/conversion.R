@@ -111,35 +111,6 @@ r_to_py.factor <- function(x, convert = FALSE) {
 
 
 #' @export
-py_to_r.numpy.ndarray <- function(x) {
-  disable_conversion_scope(x)
-
-  # handle numpy datetime64 objects. fortunately, as per the
-  # numpy documentation:
-  #
-  #    Datetimes are always stored based on POSIX time
-  #
-  # although some work is required to handle the different
-  # subtypes of datetime64 (since the units since epoch can
-  # be configurable)
-  #
-  # TODO: Python (by default) displays times using UTC time;
-  # to reflect that behavior we also us 'tz = "UTC"', but we
-  # might consider just using the default (local timezone)
-  np <- import("numpy", convert = TRUE)
-  if (np$issubdtype(x$dtype, np$datetime64)) {
-    vector <- py_to_r(x$astype("datetime64[ns]")$astype("float64"))
-    return(as.POSIXct(vector / 1E9, origin = "1970-01-01", tz = "UTC"))
-  }
-
-  # no special handler found; delegate to next method
-  NextMethod()
-
-}
-
-
-
-#' @export
 r_to_py.POSIXt <- function(x, convert = FALSE) {
 
   # we prefer datetime64 for efficiency

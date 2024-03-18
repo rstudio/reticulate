@@ -393,6 +393,7 @@ int narrow_array_typenum(int typenum) {
   case NPY_HALF:
   case NPY_FLOAT:
   case NPY_DOUBLE:
+  case NPY_DATETIME: // needs some additional special handling
     typenum = NPY_DOUBLE;
     break;
 
@@ -1151,6 +1152,7 @@ SEXP py_to_r(PyObject* x, bool convert) {
 
     // get the array
     PyArrayObject* array = (PyArrayObject*) x;
+    PyObjectPtr array_; // in case we need to decref before we're done;
 
     // get the dimensions -- treat 0-dim array (numpy scalar) as
     // a 1-dim for conversion to R (will end up with a single
@@ -1165,9 +1167,16 @@ SEXP py_to_r(PyObject* x, bool convert) {
     } else {
       dimsVector.push_back(1);
     }
-
     // determine the target type of the array
-    int typenum = narrow_array_typenum(array);
+    int og_typenum = PyArray_TYPE(array);
+    int typenum = narrow_array_typenum(og_typenum);
+
+    if(og_typenum == NPY_DATETIME) {
+      PyObjectPtr dtype_str(as_python_str("datetime64[ns]"));
+      PyObject* array2 = PyObject_CallMethod(x, "astype", "O", (PyObject*) dtype_str.get()); // new ref
+      array_.assign(array2); // decref new array on scope exit
+      array = (PyArrayObject*) array2;
+    }
 
     // cast it to a fortran array (PyArray_CastToType steals the descr)
     // (note that we will decref the copied array below)
@@ -1201,8 +1210,17 @@ SEXP py_to_r(PyObject* x, bool convert) {
       case NPY_DOUBLE: {
         npy_double* pData = (npy_double*)PyArray_DATA(array);
         rArray = Rf_allocArray(REALSXP, dimsVector);
+        double* rArray_ptr = REAL(rArray);
         for (int i=0; i<len; i++)
-          REAL(rArray)[i] = pData[i];
+          rArray_ptr[i] = pData[i];
+        if(og_typenum == NPY_DATETIME) {
+          for (int i = 0; i<len; i++)
+            rArray_ptr[i] /= 1e9; // ns to s
+          SEXP klass = Rf_allocVector(STRSXP, 2);
+          Rf_setAttrib(rArray, R_ClassSymbol, klass); // protects
+          SET_STRING_ELT(klass, 0, Rf_mkChar("POSIXct"));
+          SET_STRING_ELT(klass, 1, Rf_mkChar("POSIXt"));
+        }
         break;
       }
 
@@ -1296,7 +1314,16 @@ SEXP py_to_r(PyObject* x, bool convert) {
 
     // determine the type to convert to
     PyArray_DescrPtr descrPtr(PyArray_DescrFromScalar(x));
-    int typenum = narrow_array_typenum(descrPtr);
+    int og_typenum = descrPtr.get()->type_num;
+    int typenum = narrow_array_typenum(og_typenum);
+
+    PyObjectPtr x_;
+    if(og_typenum == NPY_DATETIME) {
+      PyObjectPtr dtype_str(as_python_str("datetime64[ns]"));
+      x = PyObject_CallMethod(x, "astype", "O", (PyObject*) dtype_str.get()); // new ref
+      x_.assign(x); // decref new array on scope exit
+    }
+
     PyArray_DescrPtr toDescr(PyArray_DescrFromType(typenum));
 
     // convert to R type (guaranteed to by NPY_BOOL, NPY_LONG, or NPY_DOUBLE
@@ -1321,7 +1348,16 @@ SEXP py_to_r(PyObject* x, bool convert) {
     {
       npy_double value;
       PyArray_CastScalarToCtype(x, (void*)&value, toDescr);
-      return NumericVector::create(value);
+      SEXP out = PROTECT(Rf_ScalarReal(value)); //  NumericVector::create(value);
+      if (og_typenum == NPY_DATETIME) {
+        REAL(out)[0] /= 1e9;
+        SEXP klass = Rf_allocVector(STRSXP, 2);
+        Rf_setAttrib(out, R_ClassSymbol, klass); // protects
+        SET_STRING_ELT(klass, 0, Rf_mkChar("POSIXct"));
+        SET_STRING_ELT(klass, 1, Rf_mkChar("POSIXt"));
+      }
+      UNPROTECT(1);
+      return out;
     }
 
     case NPY_CDOUBLE:

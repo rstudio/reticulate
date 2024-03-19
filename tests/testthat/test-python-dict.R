@@ -81,6 +81,9 @@ test_that("ordered dictionaries can be converted", {
   result <- py_eval("lambda x: x")(od) # implicit conversion to R
   expect_identical(result, list(a = 1, b = 2, c = 3))
 
+  result <- py_eval("lambda x: x", convert = FALSE)(od) # no conversion
+  expect_identical(py_id(result), py_id(od))
+
 })
 
 test_that("py_to_r(dict) converts recursively, #1221", {

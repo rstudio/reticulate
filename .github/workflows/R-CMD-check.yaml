@@ -74,7 +74,7 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: rcmdcheck remotes local::.
+          extra-packages: rcmdcheck local::.
           cache-version: 3
           upgrade: 'TRUE'
 

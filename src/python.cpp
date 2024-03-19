@@ -645,7 +645,7 @@ SEXP py_class_names(PyObject* object) {
     classNames.push_back("python.builtin.object");
   }
 
-  // if it's an iterable, include python.builtin.iterator, before python.builtin.object
+  // if it's an iterator, include python.builtin.iterator, before python.builtin.object
   if(PyIter_Check(object))
     classNames.insert(classNames.end() - 1, "python.builtin.iterator");
 
@@ -1222,9 +1222,12 @@ SEXP py_to_r_cpp(SEXP x) {
 // fast path
 SEXP py_to_r_cpp(PyObject* x, bool convert, bool simple) {
   // object is assumed to be simple unless proven otherwise.
-  // simple==true allows for skipping all the checks,
-  // since we know we won't be able to simplify here
-  // cpp::py_to_r() -> r::py_to_r() -> cpp::py_to_r_cpp()
+  // simple==false allows for skipping all the checks.
+  // an object can pass through here multiple times during conversion
+  // because we call it before py_to_r S3 dispatch, and also,
+  // in py_to_r.default.
+  // we do this for consistency between objects that originate in cpp
+  // and that originate from R.
   if (convert && simple) {
 
   // NULL for Python None
@@ -1317,6 +1320,11 @@ SEXP py_to_r_cpp(PyObject* x, bool convert, bool simple) {
 
   // dict
   if (PyDict_CheckExact(x)) {
+    // if you tempted to change this to PyDict_Check() to allow subclasses, don't.
+    // https://github.com/rstudio/reticulate/issues/1510
+    // https://github.com/rstudio/reticulate/issues/1429#issuecomment-1658499679
+    // https://github.com/rstudio/reticulate/issues/1360#issuecomment-1680413674
+
 
     // copy the dict and allocate
     PyObjectPtr dict(PyDict_Copy(x));
@@ -1579,76 +1587,6 @@ SEXP py_to_r_cpp(PyObject* x, bool convert, bool simple) {
     }
 
   }
-
-  // These two commented-out ifelse branches convert a subclassed
-  // python list or dict object as if it was a simple list or dict. This is turning out
-  // to be a bad idea, as we encounter more user-facing subclassed dicts and
-  // list with additional methods or items that are discarded during conversion,
-  // and that users are expecting to persist. e.g., in huggingface
-  // https://github.com/rstudio/reticulate/issues/1510
-  // https://github.com/rstudio/reticulate/issues/1429#issuecomment-1658499679
-  // https://github.com/rstudio/reticulate/issues/1360#issuecomment-1680413674
-  //
-  // else if (PyList_Check(x)) {
-  //   // didn't pass PyList_CheckExact(), but does pass PyList_Check()
-  //   // so it's an object that subclasses list.
-  //   // (This type of subclassed list is used by tensorflow for lists of layers
-  //   // attached to a keras model, tensorflow.python.training.tracking.data_structures.List,
-  //   // https://github.com/rstudio/reticulate/issues/1226 )
-  //   // if needed, consider changing this check from PyList_Check(x) to either:
-  //   //  - PySequence_Check(x), which just checks for existence of __getitem__ and __len__ methods,
-  //   //  - PyObject_IsInstance(x, Py_ListClass) for wrapt.ProxyObject wrapping a list.
-  //
-  //   // Since it's a subclassed list.
-  //   // We can't depend on the the PyList_* API working,
-  //   // and must instead fallback to the generic PyObject_* API or PySequence_API.
-  //   // (PyList_*() function do not work for tensorflow.python.training.tracking.data_structures.List)
-  //   long len = PyObject_Size(x);
-  //   Rcpp::List list(len);
-  //   for (long i = 0; i < len; i++) {
-  //     PyObject *pi = PyLong_FromLong(i);
-  //     list[i] = py_to_r(PyObject_GetItem(x, pi), convert);
-  //     Py_DecRef(pi);
-  //   }
-  //   return list;
-  // }
-  //
-  // else if (PyObject_IsInstance(x, Py_DictClass)) {
-  //   // This check is kind of slow since it calls back into evaluating Python code instead of
-  //   // merely consulting the object header, but it is the only reliable way that works
-  //   // for tensorflow._DictWrapper,
-  //   // which in actually is a wrapt.ProxyObject pretending to be a dict.
-  //   // ProxyObject goes to great lenghts to pretend to be the underlying object,
-  //   // to the point that x.__class__ is __builtins__.dict,
-  //   // but it fails PyDict_CheckExact(x) and PyDict_Check(x).
-  //   // Registering a custom S3 r_to_py() method here isn't straighforward either,
-  //   // since the object presents as a plain dict when inspecting __class__,
-  //   // despite the fact that none of the PyDict_* C API functions work with it.
-  //
-  //   // PyMapping_Items returns a list of (key, value) tuples.
-  //   PyObjectPtr items(PyMapping_Items(x));
-  //
-  //   Py_ssize_t size = PyObject_Size(items);
-  //   std::vector<std::string> names(size);
-  //   Rcpp::List list(size);
-  //
-  //   for (Py_ssize_t idx = 0; idx < size; idx++) {
-  //     PyObjectPtr item(PySequence_GetItem(items, idx));
-  //     PyObject *key = PyTuple_GetItem(item, 0); // borrowed ref
-  //     PyObject *value = PyTuple_GetItem(item, 1); // borrowed ref
-  //
-  //     if (is_python_str(key)) {
-  //       names[idx] = as_utf8_r_string(key);
-  //     } else {
-  //       PyObjectPtr str(PyObject_Str(key));
-  //       names[idx] = as_utf8_r_string(str);
-  //     }
-  //     list[idx] = py_to_r(value, convert);
-  //   }
-  //   list.names() = names;
-  //   return list;
-  // }
-
 
   // bytearray
   if (PyByteArray_Check(x)) {
@@ -2850,9 +2788,12 @@ SEXP py_set_convert(PyObjectRef x, bool value) {
 // [[Rcpp::export]]
 PyObjectRef py_new_ref(PyObjectRef x, SEXP convert) {
   bool convert_ = (convert == R_NilValue)
-  ? x.convert()
-  : ((bool) Rf_asLogical(convert));
-  return py_ref(x.get(), convert_);
+  ? x.convert() :
+  ((bool) Rf_asLogical(convert));
+
+  PyObject* pyobj = x.get();
+  Py_IncRef(pyobj);
+  return py_ref(pyobj, convert_);
 }
 
 
@@ -2910,7 +2851,7 @@ void py_set_item_impl(PyObjectRef x,
                       RObject val)
 {
   ensure_python_initialized();
-  PyObjectPtr py_key(r_to_py(key, true)); // revisit this - functions coming in should probably default to convert = true, even if x.convert() == false
+  PyObjectPtr py_key(r_to_py(key, true));
   PyObjectPtr py_val(r_to_py(val, true));
 
   int res = PyObject_SetItem(x, py_key, py_val);
@@ -3076,10 +3017,8 @@ SEXP py_dict_get_item(PyObjectRef dict, RObject key) {
   if (!PyDict_CheckExact(dict)) {
     PyObjectRef ref(py_get_item_impl(dict, key, false));
     if(dict.convert()) {
-    // py_get_item_impl returns PyObjectRef always
-      PyObject* item = ref.get();
-      // Py_IncRef(item);
-      return py_to_r(item, true);
+      // py_get_item_impl returns PyObjectRef always
+      return py_to_r(ref.get(), true); // py_to_r() does *not* steal a ref
     } else {
       return ref;
     }
@@ -3093,9 +3032,7 @@ SEXP py_dict_get_item(PyObjectRef dict, RObject key) {
   if (item == NULL)
     item = Py_None;
 
-  // Py_IncRef(item);
   return py_to_r(item, dict.convert());
-
 }
 
 // [[Rcpp::export]]
@@ -3379,11 +3316,7 @@ SEXP py_eval_impl(const std::string& code, bool convert = true) {
     throw PythonException(py_fetch_error());
 
   // return (convert to R if requested)
-  RObject result = convert
-    ? py_to_r(res, convert)
-    : py_ref(res.detach(), convert);
-
-  return result;
+  return py_to_r(res, convert);
 }
 
 template <int RTYPE>
@@ -3958,8 +3891,7 @@ SEXP py_id(PyObjectRef object) {
 
 // [[Rcpp::export]]
 PyObjectRef py_capsule(SEXP x) {
-  if(!s_is_python_initialized)
-    ensure_python_initialized();
+  ensure_python_initialized();
 
   return py_ref(py_capsule_new(x), false);
 }
@@ -3967,8 +3899,7 @@ PyObjectRef py_capsule(SEXP x) {
 
 // [[Rcpp::export]]
 PyObjectRef py_slice(SEXP start = R_NilValue, SEXP stop = R_NilValue, SEXP step = R_NilValue) {
-  if(!s_is_python_initialized)
-    ensure_python_initialized();
+  ensure_python_initialized();
 
   PyObjectPtr start_, stop_, step_;
 
@@ -3990,20 +3921,19 @@ PyObjectRef py_slice(SEXP start = R_NilValue, SEXP stop = R_NilValue, SEXP step 
 //' @export
 // [[Rcpp::export]]
 SEXP as_iterator(SEXP x) {
-  if(!s_is_python_initialized)
-    ensure_python_initialized();
+  ensure_python_initialized();
 
   // If already inherits from iterator, return as is
-  if (Rf_inherits(x, "python.builtin.iterator"))
+  if (inherits2(x, "python.builtin.iterator"))
     return x;
 
   PyObject* iterable;
   PyObjectPtr iterable_ptr;
   bool convert;
 
-  if (Rf_inherits(x, "python.builtin.object")) {
+  if (is_py_object(x)) {
     // unwrap PyObjectRef / Python objects
-    PyObjectRef ref(x);
+    PyObjectRef ref(x, false);
     iterable = ref.get();
     convert = ref.convert();
   }
@@ -4041,11 +3971,8 @@ SEXP py_iter_next(PyObjectRef iterator, RObject completed) {
 
   } else {
 
-    // return R object
-    return iterator.convert()
-      ? py_to_r(item, true)
-      : py_ref(item.detach(), false);
-
+    // return R object (PyObjectRef or converted obj)
+    return py_to_r(item, iterator.convert());
   }
 }
 
@@ -4055,8 +3982,7 @@ SEXP py_iter_next(PyObjectRef iterator, RObject completed) {
 // [[Rcpp::export]]
 SEXP py_iterate(PyObjectRef x, Function f, bool simplify = true) {
 
-  if(!s_is_python_initialized)
-    ensure_python_initialized();
+  ensure_python_initialized();
 
   // List to return
   std::vector<RObject> list;
@@ -4081,11 +4007,8 @@ SEXP py_iterate(PyObjectRef x, Function f, bool simplify = true) {
         break;
     }
 
-    // call the function
-    SEXP ret = convert
-      ? py_to_r(item, convert)
-      : py_ref(item.detach(), false);
-
+    // get sexp (PyObjectRef or converted r obj)
+    SEXP ret = py_to_r(item, convert);
     list.push_back(f(ret));
   }
 

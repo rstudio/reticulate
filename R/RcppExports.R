@@ -13,6 +13,10 @@ is_python3 <- function() {
     .Call(`_reticulate_is_python3`)
 }
 
+was_python_initialized_by_reticulate <- function() {
+    .Call(`_reticulate_was_python_initialized_by_reticulate`)
+}
+
 #' Check if a Python object is a null externalptr
 #'
 #' @param x Python object
@@ -82,10 +86,6 @@ main_process_python_info <- function() {
 
 py_clear_error <- function() {
     invisible(.Call(`_reticulate_py_clear_error`))
-}
-
-was_python_initialized_by_reticulate <- function() {
-    .Call(`_reticulate_was_python_initialized_by_reticulate`)
 }
 
 py_initialize <- function(python, libpython, pythonhome, virtualenv_activate, python3, interactive, numpy_load_error) {
@@ -164,6 +164,10 @@ py_del_attr_impl <- function(x, name) {
 
 py_set_item_impl <- function(x, key, val) {
     invisible(.Call(`_reticulate_py_set_item_impl`, x, key, val))
+}
+
+py_del_item_impl <- function(x, key) {
+    invisible(.Call(`_reticulate_py_del_item_impl`, x, key))
 }
 
 py_get_attr_types_impl <- function(x, attrs, resolve_properties) {

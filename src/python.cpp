@@ -2877,6 +2877,15 @@ void py_set_item_impl(PyObjectRef x,
     throw PythonException(py_fetch_error());
 }
 
+// [[Rcpp::export]]
+void py_del_item_impl(PyObjectRef x, RObject key) {
+  ensure_python_initialized();
+  PyObjectPtr pyKey(r_to_py(key, true));
+  int res = PyObject_DelItem(x.get(), pyKey.get());
+  if (res != 0)
+    throw PythonException(py_fetch_error());
+}
+
 
 // [[Rcpp::export]]
 IntegerVector py_get_attr_types_impl(

@@ -84,13 +84,7 @@ py_set_item <- function(x, name, value) {
 #' @rdname py_get_item
 #' @export
 py_del_item <- function(x, name) {
-  ensure_python_initialized()
-
-  if (!py_has_attr(x, "__delitem__"))
-    stop("Python object has no '__delitem__' method", call. = FALSE)
-  delitem <- py_to_r(py_get_attr(x, "__delitem__", silent = FALSE))
-
-  delitem(name)
+  py_del_item_impl(x, name)
   invisible(x)
 }
 

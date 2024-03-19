@@ -524,15 +524,13 @@ SEXP current_env(void) {
 }
 
 SEXP eval_call(SEXP r_func, SEXP arg) {
-  SEXP cl = Rf_lang2(r_func, arg);
-  RObject cl_(cl); // protect
-  return Rf_eval(cl, ns_reticulate);
+  RObject cl(Rf_lang2(r_func, arg));
+  return Rcpp_fast_eval(cl, ns_reticulate);
 }
 
 SEXP eval_call(SEXP r_func, SEXP arg1, SEXP arg2) {
-  SEXP cl = Rf_lang3(r_func, arg1, arg2);
-  RObject cl_(cl); // protect
-  return Rf_eval(cl, ns_reticulate);
+  RObject cl(Rf_lang3(r_func, arg1, arg2));
+  return Rcpp_fast_eval(cl, ns_reticulate);
 }
 
 SEXP eval_call(SEXP r_func, SEXP arg1, bool arg2) {
@@ -540,9 +538,8 @@ SEXP eval_call(SEXP r_func, SEXP arg1, bool arg2) {
 }
 
 SEXP eval_call_in_userenv(SEXP r_func, SEXP arg) {
-  SEXP cl = Rf_lang2(r_func, arg);
-  RObject cl_(cl); // protect
-  return Rf_eval(cl, current_env());
+  RObject cl(Rf_lang2(r_func, arg));
+  return Rcpp_fast_eval(cl, current_env());
   // this sometimes returns the reticulate ns env
   // we need a new func, current_user_env(), that walks the frames, skipping reticulate ns frames.
 }
@@ -550,7 +547,7 @@ SEXP eval_call_in_userenv(SEXP r_func, SEXP arg) {
 SEXP eval_call_in_userenv(SEXP r_func, SEXP arg1, SEXP arg2) {
   SEXP cl = Rf_lang3(r_func, arg1, arg2);
   RObject cl_(cl); // protect
-  return Rf_eval(cl, current_env());
+  return Rcpp_fast_eval(cl, current_env());
 }
 
 
@@ -649,7 +646,8 @@ SEXP py_class_names(PyObject* object) {
   if(PyIter_Check(object))
     classNames.insert(classNames.end() - 1, "python.builtin.iterator");
 
-  return eval_call(r_func_py_filter_classes, Rcpp::wrap(classNames));
+  RObject classNames_robj = Rcpp::wrap(classNames); // convert + protect
+  return eval_call(r_func_py_filter_classes, (SEXP) classNames_robj);
 }
 
 
@@ -1132,17 +1130,19 @@ SEXP py_callable_as_function(SEXP callable, bool convert) {
 
 
 SEXP py_to_r_wrapper(SEXP x) {
-  SEXP x2 = eval_call_in_userenv(r_func_py_to_r_wrapper, x);
+  SEXP x2 = eval_call(r_func_py_to_r_wrapper, x);
   if(x == x2) // no method, py_to_r_wrapper.default() reflects
     return(x);
 
   // copy over all attributes ("class" and "py_object", typically)
+  // similar to Rf_copyMostAttrib(x, x2);, but copies *all* attribs
   PROTECT(x2);
   SEXP a = ATTRIB(x);
-  while (CAR(a) != R_NilValue) {
+  while (a != R_NilValue) {
     Rf_setAttrib(x2, TAG(a), CAR(a));
     a = CDR(a);
   }
+  SET_OBJECT(x2, 1);
   UNPROTECT(1);
   return x2;
 }
@@ -1191,7 +1191,8 @@ SEXP py_to_r(PyObject* x, bool convert) {
   if(!is_py_object(result))
     return(result);
 
-  return eval_call_in_userenv(r_func_py_to_r, result);
+  // ideally this would call in userenv, so UseMethod() finds methods there.
+  return eval_call(r_func_py_to_r, result);
 }
 
 
@@ -1320,7 +1321,7 @@ SEXP py_to_r_cpp(PyObject* x, bool convert, bool simple) {
 
   // dict
   if (PyDict_CheckExact(x)) {
-    // if you tempted to change this to PyDict_Check() to allow subclasses, don't.
+    // if you're tempted to change this to PyDict_Check() to allow subclasses, don't.
     // https://github.com/rstudio/reticulate/issues/1510
     // https://github.com/rstudio/reticulate/issues/1429#issuecomment-1658499679
     // https://github.com/rstudio/reticulate/issues/1360#issuecomment-1680413674
@@ -1905,7 +1906,9 @@ PyObject* r_to_py(RObject x, bool convert) {
 
   // call the R version and hold the return value in a PyObjectRef (SEXP wrapper)
   // this object will be released when the function returns
-  PyObjectRef ref(eval_call_in_userenv(r_func_r_to_py, x, Rf_ScalarLogical(convert)));
+  // ideally this would call in userenv, so UseMethod() finds methods there.
+  SEXP ref_sexp = eval_call(r_func_r_to_py, x, Rf_ScalarLogical(convert));
+  PyObjectRef ref(ref_sexp);
 
   // get the underlying Python object and call Py_IncRef before returning it
   // this allows this function to provide the same memory semantics as the
@@ -1954,7 +1957,7 @@ PyObject* r_to_py_cpp(RObject x, bool convert) {
   // integer (pass length 1 vectors as scalars, otherwise pass list)
   if (type == INTSXP) {
 
-    R_xlen_t len = LENGTH(sexp);
+    R_xlen_t len = XLENGTH(sexp);
     int* psexp = INTEGER(sexp);
 
     // handle scalars
@@ -1977,7 +1980,7 @@ PyObject* r_to_py_cpp(RObject x, bool convert) {
   if (type == REALSXP) {
 
     // handle scalars
-    R_xlen_t len = LENGTH(sexp);
+    R_xlen_t len = XLENGTH(sexp);
     double* psexp = REAL(sexp);
     if (len == 1)
       return PyFloat_FromDouble(psexp[0]);
@@ -1997,7 +2000,7 @@ PyObject* r_to_py_cpp(RObject x, bool convert) {
   // complex (pass length 1 vectors as scalars, otherwise pass list)
   if (type == CPLXSXP) {
 
-    R_xlen_t len = LENGTH(sexp);
+    R_xlen_t len = XLENGTH(sexp);
     Rcomplex* psexp = COMPLEX(sexp);
     if (len == 1) {
       Rcomplex cplx = psexp[0];
@@ -2019,7 +2022,7 @@ PyObject* r_to_py_cpp(RObject x, bool convert) {
   // logical (pass length 1 vectors as scalars, otherwise pass list)
   if (type == LGLSXP) {
 
-    R_xlen_t len = LENGTH(sexp);
+    R_xlen_t len = XLENGTH(sexp);
     int* psexp = LOGICAL(sexp);
 
     if (len == 1)
@@ -2040,7 +2043,7 @@ PyObject* r_to_py_cpp(RObject x, bool convert) {
   // character (pass length 1 vectors as scalars, otherwise pass list)
   if (type == STRSXP) {
 
-    R_xlen_t len = LENGTH(sexp);
+    R_xlen_t len = XLENGTH(sexp);
 
     if (len == 1)
       return as_python_str(STRING_ELT(sexp, 0));
@@ -2072,7 +2075,7 @@ PyObject* r_to_py_cpp(RObject x, bool convert) {
   // list
   if (type == VECSXP) {
 
-    R_xlen_t len = LENGTH(sexp);
+    R_xlen_t len = XLENGTH(sexp);
 
     // create a dict for names
     if (x.hasAttribute("names")) {
@@ -2207,6 +2210,8 @@ extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* k
   try {
     // use current_env() here so that in case of error, rlang::trace_back()
     // prints this frame as a node of the parent rather than a top-level call.
+    // Rf_eval() is safe to use here because call_r_function() setups up calling handlers
+    // so there should be no risk of a longjump from here
     Rcpp::List result(Rf_eval(call_r_func_call, current_env()));
     // result is either
     // (return_value, NULL) or
@@ -3552,7 +3557,7 @@ SEXP py_convert_pandas_df(PyObjectRef df) {
 
 PyObject* na_mask (SEXP x) {
 
-  const size_t n(LENGTH(x));
+  const size_t n(XLENGTH(x));
   npy_intp dims(n);
 
   PyObject* mask(PyArray_SimpleNew(1, &dims, NPY_BOOL));

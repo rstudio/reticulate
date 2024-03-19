@@ -1175,7 +1175,7 @@ bool is_py_object(SEXP x) {
 }
 
 // convert a python object to an R object
-// This creates a new reference to x
+// if we fail to convert, this creates a new reference to x
 // (i.e, caller should call Py_DecRef() / PyObjectPtr.detach() for any refs caller created)
 SEXP py_to_r(PyObject* x, bool convert) {
   if(!convert) {
@@ -1950,6 +1950,7 @@ PyObject* r_to_py_numpy(RObject x, bool convert) {
 
 PyObject* r_to_py_cpp(RObject x, bool convert);
 
+// returns a new reference
 PyObject* r_to_py(RObject x, bool convert) {
   // if the object bit is not set, we can skip R dispatch
 
@@ -1987,8 +1988,6 @@ PyObject* r_to_py_cpp(RObject x, bool convert) {
 
   int type = x.sexp_type();
   SEXP sexp = x.get__();
-
-
 
   // NULL becomes python None
   // (Py_IncRef since PyTuple_SetItem will steal the passed reference)
@@ -2859,7 +2858,7 @@ PyObjectRef py_get_item_impl(PyObjectRef x, RObject key, bool silent = false)
 {
   ensure_python_initialized();
 
-  PyObjectPtr py_key(r_to_py(key, x.convert()));
+  PyObjectPtr py_key(r_to_py(key, false));
   PyObject *item;
 
   if (silent) {
@@ -3071,20 +3070,28 @@ PyObjectRef py_dict_impl(const List& keys, const List& items, bool convert) {
 SEXP py_dict_get_item(PyObjectRef dict, RObject key) {
   ensure_python_initialized();
 
-  if (!PyDict_CheckExact(dict))
-    return py_get_item_impl(dict, key, false);
-
-  PyObjectPtr pyKey(r_to_py(key, dict.convert()));
-
-  // NOTE: returns borrowed reference
-  PyObject* item = PyDict_GetItem(dict, pyKey);
-  if (item == NULL) {
-    Py_IncRef(Py_None);
-    return py_ref(Py_None, false);
+  if (!PyDict_CheckExact(dict)) {
+    PyObjectRef ref(py_get_item_impl(dict, key, false));
+    if(dict.convert()) {
+    // py_get_item_impl returns PyObjectRef always
+      PyObject* item = ref.get();
+      // Py_IncRef(item);
+      return py_to_r(item, true);
+    } else {
+      return ref;
+    }
   }
 
-  Py_IncRef(item);
-  return py_ref(item, dict.convert());
+  PyObjectPtr pyKey(r_to_py(key, false));
+
+  // NOTE: returns borrowed reference
+  // NOTE: does *not* set an exception if key is missing
+  PyObject* item = PyDict_GetItem(dict, pyKey);
+  if (item == NULL)
+    item = Py_None;
+
+  // Py_IncRef(item);
+  return py_to_r(item, dict.convert());
 
 }
 

@@ -156,10 +156,12 @@ py_to_r.datetime.date <- function(x) {
 
 #' @export
 py_to_r.collections.OrderedDict <- function(x) {
-  local_conversion_scope(x, TRUE)
   keys <- py_dict_get_keys(x)
+  py_set_convert(keys, FALSE)
+
+  local_conversion_scope(x, TRUE)
   result <- lapply(seq_len(length(keys)) - 1L, function(i) {
-    py_to_r(py_dict_get_item(x, keys[i]))
+    py_dict_get_item(x, keys[i])
   })
 
   names(result) <- py_dict_get_keys_as_str(x)

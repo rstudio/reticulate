@@ -488,7 +488,6 @@ public:
       PyErr_Restore(er_type, er_value, er_traceback);
   }
 };
-
 // copied directly from purrr; used to call rlang::trace_back() in
 // py_fetch_error() in such a way that it doesn't introduce a new
 // frame in returned traceback
@@ -519,6 +518,8 @@ SEXP current_env(void) {
     UNPROTECT(3);
   }
 
+  // Rf_PrintValue(get_r_trace(false, false));
+
   return Rf_eval(call, R_BaseEnv);
 }
 
@@ -542,6 +543,8 @@ SEXP eval_call_in_userenv(SEXP r_func, SEXP arg) {
   SEXP cl = Rf_lang2(r_func, arg);
   RObject cl_(cl); // protect
   return Rf_eval(cl, current_env());
+  // this sometimes returns the reticulate ns env
+  // we need a new func, current_user_env(), that walks the frames, skipping reticulate ns frames.
 }
 
 SEXP eval_call_in_userenv(SEXP r_func, SEXP arg1, SEXP arg2) {

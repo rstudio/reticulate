@@ -180,7 +180,18 @@ def py_new_callback_caller(callback):
   callback_caller(od)
 
   # conversion via user S3 method
-  py_to_r.__main__.MyFoo <- function(x) list(a = 42)
+  # ideally we would test by just defining `py_to_r.__main__.MyFoo` in the calling
+  # env like this:
+  #   (function() {
+  #     py_to_r.__main__.MyFoo <- function(x) list(a = 42)
+  #     callback_caller(new_MyFoo())
+  #   })()
+  #
+  # unfortunately, our ability to infer the userenv needs a little work.
+  # we register the S3 method directly as an alternative.
+  new_MyFoo <- py_eval("type('MyFoo', (), {})")
+  registerS3method("py_to_r", "__main__.MyFoo", function(x) list(a = 42),
+                   asNamespace("reticulate"))
   new_MyFoo <- py_eval("type('MyFoo', (), {})")
   callback_caller(new_MyFoo())
 

@@ -1894,14 +1894,12 @@ PyObject* r_to_py_cpp(RObject x, bool convert);
 // returns a new reference
 PyObject* r_to_py(RObject x, bool convert) {
   // if the object bit is not set, we can skip R dispatch
-
   if (OBJECT(x) == 0)
     return r_to_py_cpp(x, convert);
 
   if(is_py_object(x)) {
     PyObject* obj = PyObjectRef(x, false).get();
     Py_IncRef(obj);
-    // return with convert unchanged; respecting the convert value when the ref was first created.
     return(obj);
   }
 

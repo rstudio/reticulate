@@ -551,6 +551,23 @@ SEXP eval_call_in_userenv(SEXP r_func, SEXP arg1, SEXP arg2) {
 }
 
 
+bool s_is_python_initialized = false;
+bool s_was_python_initialized_by_reticulate = false;
+
+// [[Rcpp::export]]
+bool was_python_initialized_by_reticulate() {
+  return s_was_python_initialized_by_reticulate;
+}
+
+static inline
+void ensure_python_initialized() {
+  if (s_is_python_initialized) return;
+  Function initialize = Environment::namespace_env("reticulate")["ensure_python_initialized"];
+  initialize();
+}
+
+
+
 std::string as_r_class(PyObject* classPtr) {
 
   PyObjectPtr namePtr(PyObject_GetAttrString(classPtr, "__name__"));
@@ -654,6 +671,7 @@ SEXP new_refenv() {
 
 
 // wrap a PyObject
+// this steals a reference
 PyObjectRef py_ref(PyObject* object, bool convert)
 {
 
@@ -855,6 +873,18 @@ SEXP py_flush_output() {
     flush_std_buffers();
   return R_NilValue;
 }
+
+
+class PyFlushOutputOnScopeExit {
+  public:
+    ~PyFlushOutputOnScopeExit() {
+      if (flush_std_buffers() == -1)
+        warning(
+          "Error encountered when flushing python buffers sys.stderr and "
+          "sys.stdout");
+  }
+};
+
 
 // [[Rcpp::export]]
 std::string conditionMessage_from_py_exception(PyObjectRef exc) {
@@ -1059,6 +1089,7 @@ bool py_is_callable(PyObject* x) {
 
 // [[Rcpp::export]]
 PyObjectRef py_none_impl() {
+  ensure_python_initialized();
   Py_IncRef(Py_None);
   return py_ref(Py_None, false);
 }
@@ -1133,13 +1164,14 @@ bool inherits2(SEXP object, const char* name) {
 
 // [[Rcpp::export]]
 bool is_py_object(SEXP x) {
-  switch (TYPEOF(x)) {
+  if(OBJECT(x)) {
+    switch (TYPEOF(x)) {
     case ENVSXP:
     case CLOSXP:
       return inherits2(x, "python.builtin.object");
-    default:
-      return false;
+    }
   }
+  return false;
 }
 
 // convert a python object to an R object
@@ -1920,12 +1952,19 @@ PyObject* r_to_py_cpp(RObject x, bool convert);
 
 PyObject* r_to_py(RObject x, bool convert) {
   // if the object bit is not set, we can skip R dispatch
+
   if (OBJECT(x) == 0)
     return r_to_py_cpp(x, convert);
 
+  if(is_py_object(x)) {
+    PyObject* obj = PyObjectRef(x, false).get();
+    Py_IncRef(obj);
+    // return with convert unchanged; respecting the convert value when the ref was first created.
+    return(obj);
+  }
+
   // call the R version and hold the return value in a PyObjectRef (SEXP wrapper)
   // this object will be released when the function returns
-
   PyObjectRef ref(eval_call_in_userenv(r_func_r_to_py, x, Rf_ScalarLogical(convert)));
 
   // get the underlying Python object and call Py_IncRef before returning it
@@ -1944,8 +1983,12 @@ PyObject* r_to_py(RObject x, bool convert) {
 // will have an active reference count on it)
 // the convert arg is only applicable to R functions that will being wrapped in python functions.
 PyObject* r_to_py_cpp(RObject x, bool convert) {
+  ensure_python_initialized();
+
   int type = x.sexp_type();
   SEXP sexp = x.get__();
+
+
 
   // NULL becomes python None
   // (Py_IncRef since PyTuple_SetItem will steal the passed reference)
@@ -1956,10 +1999,12 @@ PyObject* r_to_py_cpp(RObject x, bool convert) {
 
   // pass python objects straight through (Py_IncRef since returning this
   // creates a new reference from the caller)
+  // This will also initialize python if sexp is an R module proxy
   if (is_py_object(sexp)) {
     PyObject* pyobj = PyObjectRef(sexp).get();
     Py_IncRef(pyobj);
     return pyobj;
+    // should we update convert to the new value?
   }
 
   // convert arrays and matrixes to numpy (throw error if numpy not available)
@@ -2165,8 +2210,6 @@ PyObjectRef r_to_py_impl(RObject object, bool convert) {
 }
 
 // custom module used for calling R functions from python wrappers
-
-
 
 extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* keywords)
 {
@@ -2535,14 +2578,6 @@ void py_clear_error() {
   PyErr_Clear();
 }
 
-bool s_is_python_initialized = false;
-bool s_was_python_initialized_by_reticulate = false;
-
-// [[Rcpp::export]]
-bool was_python_initialized_by_reticulate() {
-  return s_was_python_initialized_by_reticulate;
-}
-
 // [[Rcpp::export]]
 void py_initialize(const std::string& python,
                    const std::string& libpython,
@@ -2748,6 +2783,7 @@ bool py_numpy_available_impl() {
 
 // [[Rcpp::export]]
 std::vector<std::string> py_list_attributes_impl(PyObjectRef x) {
+  ensure_python_initialized();
   std::vector<std::string> attributes;
   PyObjectPtr attrs(PyObject_Dir(x));
   if (attrs.is_null())
@@ -2766,6 +2802,7 @@ std::vector<std::string> py_list_attributes_impl(PyObjectRef x) {
 bool py_has_attr_impl(PyObjectRef x, const std::string& name) {
   if (py_is_null_xptr(x))
     return false;
+  ensure_python_initialized();
   return PyObject_HasAttrString(x, name.c_str());
 }
 
@@ -2775,6 +2812,7 @@ PyObjectRef py_get_attr_impl(PyObjectRef x,
                              bool silent = false)
 {
 
+  ensure_python_initialized();
   PyObject *attr;
 
   if (silent) {
@@ -2782,7 +2820,7 @@ PyObjectRef py_get_attr_impl(PyObjectRef x,
 
     attr = PyObject_GetAttrString(x, key.c_str());
     if (attr == NULL)
-      return PyObjectRef(R_NilValue);
+      return PyObjectRef(R_NilValue, false);
 
   } else {
 
@@ -2809,12 +2847,9 @@ SEXP py_set_convert(PyObjectRef x, bool value) {
 
 // [[Rcpp::export]]
 PyObjectRef py_new_ref(PyObjectRef x, SEXP convert) {
-  bool convert_ = (convert == R_NilValue) ?
-    x.convert() : ((bool) Rf_asLogical(convert));
-  // if (convert_ == R_NilValue)
-  //   convert = x.convert();
-  // else
-  //   convert =
+  bool convert_ = (convert == R_NilValue)
+  ? x.convert()
+  : ((bool) Rf_asLogical(convert));
   return py_ref(x.get(), convert_);
 }
 
@@ -2822,6 +2857,7 @@ PyObjectRef py_new_ref(PyObjectRef x, SEXP convert) {
 // [[Rcpp::export]]
 PyObjectRef py_get_item_impl(PyObjectRef x, RObject key, bool silent = false)
 {
+  ensure_python_initialized();
 
   PyObjectPtr py_key(r_to_py(key, x.convert()));
   PyObject *item;
@@ -2831,7 +2867,7 @@ PyObjectRef py_get_item_impl(PyObjectRef x, RObject key, bool silent = false)
 
     item = PyObject_GetItem(x, py_key);
     if (item == NULL)
-      return PyObjectRef(R_NilValue);
+      return PyObjectRef(R_NilValue, false);
 
   } else {
 
@@ -2849,6 +2885,7 @@ void py_set_attr_impl(PyObjectRef x,
                       const std::string& name,
                       RObject value)
 {
+  ensure_python_initialized();
   PyObjectPtr converted(r_to_py(value, x.convert()));
   int res = PyObject_SetAttrString(x, name.c_str(), converted);
   if (res != 0)
@@ -2859,6 +2896,7 @@ void py_set_attr_impl(PyObjectRef x,
 void py_del_attr_impl(PyObjectRef x,
                       const std::string& name)
 {
+  ensure_python_initialized();
   int res = PyObject_SetAttrString(x, name.c_str(), NULL);
   if (res != 0)
     throw PythonException(py_fetch_error());
@@ -2869,8 +2907,9 @@ void py_set_item_impl(PyObjectRef x,
                       RObject key,
                       RObject val)
 {
-  PyObjectPtr py_key(r_to_py(key, x.convert()));
-  PyObjectPtr py_val(r_to_py(val, x.convert()));
+  ensure_python_initialized();
+  PyObjectPtr py_key(r_to_py(key, true)); // revisit this - functions coming in should probably default to convert = true, even if x.convert() == false
+  PyObjectPtr py_val(r_to_py(val, true));
 
   int res = PyObject_SetItem(x, py_key, py_val);
   if (res != 0)
@@ -2893,6 +2932,7 @@ IntegerVector py_get_attr_types_impl(
     const std::vector<std::string>& attrs,
     bool resolve_properties)
 {
+  ensure_python_initialized();
   const int UNKNOWN     =  0;
   const int VECTOR      =  1;
   const int ARRAY       =  2;
@@ -2970,6 +3010,7 @@ SEXP py_ref_to_r(PyObjectRef x) {
 // [[Rcpp::export]]
 SEXP py_call_impl(PyObjectRef x, List args = R_NilValue, List keywords = R_NilValue) {
 
+  ensure_python_initialized();
   bool convert = x.convert();
 
   // unnamed arguments
@@ -3011,6 +3052,7 @@ SEXP py_call_impl(PyObjectRef x, List args = R_NilValue, List keywords = R_NilVa
 
 // [[Rcpp::export]]
 PyObjectRef py_dict_impl(const List& keys, const List& items, bool convert) {
+  ensure_python_initialized();
 
   PyObject* dict = PyDict_New();
 
@@ -3027,8 +3069,9 @@ PyObjectRef py_dict_impl(const List& keys, const List& items, bool convert) {
 
 // [[Rcpp::export]]
 SEXP py_dict_get_item(PyObjectRef dict, RObject key) {
+  ensure_python_initialized();
 
-  if (!PyDict_Check(dict))
+  if (!PyDict_CheckExact(dict))
     return py_get_item_impl(dict, key, false);
 
   PyObjectPtr pyKey(r_to_py(key, dict.convert()));
@@ -3137,6 +3180,7 @@ CharacterVector py_dict_get_keys_as_str(PyObjectRef dict) {
 
 // [[Rcpp::export]]
 PyObjectRef py_tuple(const List& items, bool convert) {
+  ensure_python_initialized();
 
   R_xlen_t n = items.length();
   PyObject* tuple = PyTuple_New(n);
@@ -3221,6 +3265,8 @@ SEXP py_run_string_impl(const std::string& code,
                         bool local = false,
                         bool convert = true)
 {
+  ensure_python_initialized();
+  PyFlushOutputOnScopeExit flush_;
   // retrieve reference to main module dictionary
   // note: both PyImport_AddModule() and PyModule_GetDict()
   // return borrowed references
@@ -3259,6 +3305,7 @@ SEXP py_run_string_impl(const std::string& code,
 PyObjectRef py_run_file_impl(const std::string& file,
                       bool local = false,
                       bool convert = true) {
+  ensure_python_initialized();
   FILE* fp = fopen(file.c_str(), "rb");
   if (fp == NULL) stop("Unable to open file '%s'", file);
 
@@ -3301,6 +3348,7 @@ PyObjectRef py_run_file_impl(const std::string& file,
 
 // [[Rcpp::export]]
 SEXP py_eval_impl(const std::string& code, bool convert = true) {
+  ensure_python_initialized();
   // compile the code
   PyObjectPtr compiledCode;
   if (Py_CompileStringExFlags != NULL)
@@ -3897,13 +3945,6 @@ SEXP py_id(PyObjectRef object) {
   return CharacterVector({id.str()});
 }
 
-void ensure_python_initialized() {
-  if (s_is_python_initialized)
-    return;
-
-  Function initialize = Environment::namespace_env("reticulate")["ensure_python_initialized"];
-  initialize();
-}
 
 // [[Rcpp::export]]
 PyObjectRef py_capsule(SEXP x) {

@@ -264,6 +264,7 @@ local_conversion_scope <- function(object, value, envir = parent.frame()) {
   if(py_get_convert(object) == value)
     return()
 
+  py_set_convert(object, value)
   cl <- call("py_set_convert", object, !value)
   do.call(on.exit, list(cl, add = TRUE), envir = envir)
 }

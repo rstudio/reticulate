@@ -68,15 +68,12 @@
 #'
 #' }
 py_get_item <- function(x, key, silent = FALSE) {
-  ensure_python_initialized()
-
   py_get_item_impl(x, key, silent)
 }
 
 #' @rdname py_get_item
 #' @export
 py_set_item <- function(x, name, value) {
-  ensure_python_initialized()
   py_set_item_impl(x, name, value)
   invisible(x)
 }

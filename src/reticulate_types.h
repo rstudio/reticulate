@@ -30,14 +30,14 @@ public:
 
   explicit PyObjectRef(SEXP object, bool check = true) : Rcpp::RObject(object) {
     if(!check) return;
-    Rcpp::Environment x;
-    if(object == R_NilValue || is_py_object(object)) return;
+    if(is_py_object(object)) return;
     Rcpp::stop("Expected a python object, received a %s",
                Rf_type2char(TYPEOF(object)));
   }
 
   explicit PyObjectRef(PyObject* object, bool convert, bool simple = true) {
-
+    // this steals a reference to 'object'.
+    // (i.e., we call Py_DecRef on it eventually, from the xtptr finalizer)
     SEXP xptr = PROTECT(R_MakeExternalPtr((void*) object, R_NilValue, R_NilValue));
     R_RegisterCFinalizer(xptr, python_object_finalize);
 

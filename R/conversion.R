@@ -93,7 +93,7 @@ r_to_py.POSIXt <- function(x, convert = FALSE) {
 
 #' @export
 py_to_r.datetime.datetime <- function(x) {
-  if (py_version() >= 3L) {
+  if (py_version() >= "3") {
     tz <- NULL
     if (!is.null(x$tzinfo)) {
 

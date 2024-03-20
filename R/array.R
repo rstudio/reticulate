@@ -29,7 +29,6 @@ np_array <- function(data, dtype = NULL, order = "C") {
     data <- if (isobj) {
       r_to_py(data, convert = FALSE)
     } else {
-      ensure_python_initialized()
       r_to_py_impl(data, convert = FALSE)
     }
   }
@@ -93,7 +92,7 @@ array_reshape <- function(x, dim, order = c("C", "F")) {
   np <- import("numpy", convert = FALSE)
   order <- match.arg(order)
   reshaped <- np$reshape(x, as.integer(dim), order)
-  if (!inherits(x, "python.builtin.object"))
+  if (!is_py_object(x))
     reshaped <- py_to_r(reshaped)
   reshaped
 }

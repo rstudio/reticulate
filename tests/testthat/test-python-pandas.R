@@ -147,8 +147,26 @@ test_that("Time zones are respected if available", {
   converted <- py_to_r(before)
   after <- r_to_py(converted)
 
-  # check if both are the same in *local* timezone
+  expect_true(py_to_r(before$equals(after)))
+
+  # !! this expect_equal() silently succeeds if py_to_r()
+  # returns a df containing python objects.
   expect_equal(py_to_r(before), py_to_r(after))
+
+  expect_type(unlist(py_to_r(before)), "double") # py_ref / env would fail to simplify
+  expect_type(unlist(py_to_r(after)), "double") # py_ref / env would fail to simplify
+
+  attr(converted, "pandas.index") <- NULL
+  expect_identical(converted, structure(
+    list(TZ = list(
+      as.POSIXct(format = "%Y%m%d%H%M%OS", '20130102003020', tz = 'US/Pacific'),
+      as.POSIXct(format = "%Y%m%d%H%M%OS", '20130102003020', tz = 'CET'),
+      as.POSIXct(format = "%Y%m%d%H%M%OS", '20130102003020', tz = 'UTC'),
+      as.POSIXct(format = "%Y%m%d%H%M%OS", '20130102003020', tz = 'Hongkong')
+    )),
+    row.names = c(NA, -4L),
+    class = "data.frame"
+  ))
 
 })
 

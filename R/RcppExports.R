@@ -13,6 +13,10 @@ is_python3 <- function() {
     .Call(`_reticulate_is_python3`)
 }
 
+was_python_initialized_by_reticulate <- function() {
+    .Call(`_reticulate_was_python_initialized_by_reticulate`)
+}
+
 #' Check if a Python object is a null externalptr
 #'
 #' @param x Python object
@@ -56,6 +60,14 @@ py_is_callable <- function(x) {
     .Call(`_reticulate_py_is_callable`, x)
 }
 
+is_py_object <- function(x) {
+    .Call(`_reticulate_is_py_object`, x)
+}
+
+py_to_r_cpp <- function(x) {
+    .Call(`_reticulate_py_to_r_cpp`, x)
+}
+
 py_get_formals <- function(callable) {
     .Call(`_reticulate_py_get_formals`, callable)
 }
@@ -74,10 +86,6 @@ main_process_python_info <- function() {
 
 py_clear_error <- function() {
     invisible(.Call(`_reticulate_py_clear_error`))
-}
-
-was_python_initialized_by_reticulate <- function() {
-    .Call(`_reticulate_was_python_initialized_by_reticulate`)
 }
 
 py_initialize <- function(python, libpython, pythonhome, virtualenv_activate, python3, interactive, numpy_load_error) {
@@ -130,6 +138,18 @@ py_get_attr_impl <- function(x, key, silent = FALSE) {
     .Call(`_reticulate_py_get_attr_impl`, x, key, silent)
 }
 
+py_get_convert <- function(x) {
+    .Call(`_reticulate_py_get_convert`, x)
+}
+
+py_set_convert <- function(x, value) {
+    .Call(`_reticulate_py_set_convert`, x, value)
+}
+
+py_new_ref <- function(x, convert) {
+    .Call(`_reticulate_py_new_ref`, x, convert)
+}
+
 py_get_item_impl <- function(x, key, silent = FALSE) {
     .Call(`_reticulate_py_get_item_impl`, x, key, silent)
 }
@@ -144,6 +164,10 @@ py_del_attr_impl <- function(x, name) {
 
 py_set_item_impl <- function(x, key, val) {
     invisible(.Call(`_reticulate_py_set_item_impl`, x, key, val))
+}
+
+py_del_item_impl <- function(x, key) {
+    invisible(.Call(`_reticulate_py_del_item_impl`, x, key))
 }
 
 py_get_attr_types_impl <- function(x, attrs, resolve_properties) {
@@ -204,14 +228,6 @@ py_module_proxy_import <- function(proxy) {
 
 py_list_submodules <- function(module) {
     .Call(`_reticulate_py_list_submodules`, module)
-}
-
-py_iterate <- function(x, f, simplify = TRUE) {
-    .Call(`_reticulate_py_iterate`, x, f, simplify)
-}
-
-py_iter_next <- function(iterator, completed) {
-    .Call(`_reticulate_py_iter_next`, iterator, completed)
 }
 
 py_run_string_impl <- function(code, local = FALSE, convert = TRUE) {
@@ -284,6 +300,20 @@ py_capsule <- function(x) {
 
 py_slice <- function(start = NULL, stop = NULL, step = NULL) {
     .Call(`_reticulate_py_slice`, start, stop, step)
+}
+
+#' @rdname iterate
+#' @export
+as_iterator <- function(x) {
+    .Call(`_reticulate_as_iterator`, x)
+}
+
+py_iter_next <- function(iterator, completed) {
+    .Call(`_reticulate_py_iter_next`, iterator, completed)
+}
+
+py_iterate <- function(x, f, simplify = TRUE) {
+    .Call(`_reticulate_py_iterate`, x, f, simplify)
 }
 
 readline <- function(prompt) {

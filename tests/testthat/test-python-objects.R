@@ -150,3 +150,49 @@ def free_py_capsule_on_other_thread():
   expect_true(e_finalized)
 
 })
+
+
+test_that("py_to_r() generics are found from R functions called in Python", {
+  skip_if_no_python()
+
+
+  py_new_callback_caller <- py_run_string("
+def py_new_callback_caller(callback):
+    def callback_caller(*args, **kwargs):
+        callback(*args, **kwargs)
+    return callback_caller
+", local = TRUE)$py_new_callback_caller
+
+  r_callback <- function(x) {
+    expect_false(is_py_object(x))
+    expect_identical(x, list(a = 42))
+    x
+  }
+  callback_caller <- py_new_callback_caller(r_callback)
+
+
+  # simple type conversion handled in py_to_r_cpp
+  d <- list(a = 42)
+  callback_caller(d) # list() -> dict() -> list()
+
+  # conversion via package S3 method
+  od <- import("collections", convert = FALSE)$OrderedDict(d)
+  callback_caller(od)
+
+  # conversion via user S3 method
+  # ideally we would test by just defining `py_to_r.__main__.MyFoo` in the calling
+  # env like this:
+  #   (function() {
+  #     py_to_r.__main__.MyFoo <- function(x) list(a = 42)
+  #     callback_caller(new_MyFoo())
+  #   })()
+  #
+  # unfortunately, our ability to infer the userenv needs a little work.
+  # we register the S3 method directly as an alternative.
+  new_MyFoo <- py_eval("type('MyFoo', (), {})")
+  registerS3method("py_to_r", "__main__.MyFoo", function(x) list(a = 42),
+                   asNamespace("reticulate"))
+  new_MyFoo <- py_eval("type('MyFoo', (), {})")
+  callback_caller(new_MyFoo())
+
+})

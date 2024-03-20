@@ -68,23 +68,12 @@
 #'
 #' }
 py_get_item <- function(x, key, silent = FALSE) {
-  ensure_python_initialized()
-  if (py_is_module_proxy(x))
-    py_resolve_module_proxy(x)
-
-  res <- py_get_item_impl(x, key, silent)
-  if(silent && identical(emptyenv(), res))
-    NULL
-  else
-    res
+  py_get_item_impl(x, key, silent)
 }
 
 #' @rdname py_get_item
 #' @export
 py_set_item <- function(x, name, value) {
-  ensure_python_initialized()
-  if (py_is_module_proxy(x))
-    py_resolve_module_proxy(x)
   py_set_item_impl(x, name, value)
   invisible(x)
 }
@@ -92,15 +81,7 @@ py_set_item <- function(x, name, value) {
 #' @rdname py_get_item
 #' @export
 py_del_item <- function(x, name) {
-  ensure_python_initialized()
-  if (py_is_module_proxy(x))
-    py_resolve_module_proxy(x)
-
-  if (!py_has_attr(x, "__delitem__"))
-    stop("Python object has no '__delitem__' method", call. = FALSE)
-  delitem <- py_to_r(py_get_attr(x, "__delitem__", silent = FALSE))
-
-  delitem(name)
+  py_del_item_impl(x, name)
   invisible(x)
 }
 

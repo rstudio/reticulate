@@ -45,15 +45,9 @@ as.character.python.builtin.bytes <- function(x, encoding = "utf-8", errors = "s
 
 .operators <- new.env(parent = emptyenv())
 
-fetch_op <- function(nm, .op, nargs = 1L) {
-  ensure_python_initialized()
+fetch_op <- function(nm, op, nargs = 1L) {
   if (is.null(fn <- .operators[[nm]])) {
-    force(.op)
-
-    if (is.function(.op))
-      op <- .op
-    else
-      op <- function(...) py_call(.op, ...)
+    force(op)
 
     if (nargs == 1L) {
 
@@ -67,8 +61,8 @@ fetch_op <- function(nm, .op, nargs = 1L) {
         result <- op(...)
         # if either dispatch object has convert=FALSE, don't convert
         convert <-
-          !((inherits(..1, "python.builtin.object") && isFALSE(py_has_convert(..1))) ||
-            (inherits(..2, "python.builtin.object") && isFALSE(py_has_convert(..2))))
+          !((is_py_object(..1) && !py_has_convert(..1)) ||
+            (is_py_object(..2) && !py_has_convert(..2)))
         py_maybe_convert(result, convert)
       }
 
@@ -176,7 +170,6 @@ fetch_op <- function(nm, .op, nargs = 1L) {
 # It will throw an exception on, e.g., with numpy arrays,
 # even though numpy.ndarray defines an __eq__() method.
 py_compare <- function(a, b, op) {
-  ensure_python_initialized()
   py_validate_xptr(a)
   if (!inherits(b, "python.builtin.object"))
     b <- r_to_py(b)
@@ -289,52 +282,13 @@ summary.python.builtin.object <- function(object, ...) {
   str(object)
 }
 
-#' @export
-`$.python.builtin.module` <- function(x, name) {
 
-  # resolve module proxies
-  if (py_is_module_proxy(x))
-    py_resolve_module_proxy(x)
-
-  `$.python.builtin.object`(x, name)
-}
-
-py_has_convert <- function(x) {
-
-  # resolve wrapped environment
-  x <- as.environment(x)
-
-  # get convert flag
-  if (exists("convert", x, inherits = FALSE))
-    get("convert", x, inherits = FALSE)
-  else
-    TRUE
-}
+py_has_convert <- py_get_convert
 
 py_maybe_convert <- function(x, convert) {
-
-  # if this is already an R object, nothing to do
-  if (!inherits(x, "python.builtin.object"))
-    return(x)
-
-  # if it's neither convertable nor callable,
-  # nothing to do
-  convertable <- convert || py_is_callable(x)
-  if (!convertable)
-    return(x)
-
-  # perform conversion
-  # capture previous convert for attr
-  attrib_convert <- py_has_convert(x)
-
-  # temporarily change convert so we can call py_to_r and get S3 dispatch
-  envir <- as.environment(x)
-  assign("convert", convert, envir = envir)
-  on.exit(assign("convert", attrib_convert, envir = envir), add = TRUE)
-
-  # call py_to_r
-  py_to_r(x)
-
+  if(convert)
+    x <- py_to_r(x)
+  x
 }
 
 # helper function for accessing attributes or items from a
@@ -342,9 +296,6 @@ py_maybe_convert <- function(x, convert) {
 # a valid Python object reference
 py_get_attr_or_item <- function(x, name, prefer_attr) {
 
-  # resolve module proxies
-  if (py_is_module_proxy(x))
-    py_resolve_module_proxy(x)
 
   # skip if this is a NULL xptr
   if (py_is_null_xptr(x) || !py_available())
@@ -412,11 +363,13 @@ py_get_attr_or_item <- function(x, name, prefer_attr) {
 }
 
 
-# the as.environment generic enables pytyhon objects that manifest
+# the as.environment generic enables python objects that manifest
 # as R functions (e.g. for functions, classes, callables, etc.) to
-# be automatically converted to enviroments during the construction
-# of PyObjectRef. This makes them a seamless drop-in for standard
-# python objects represented as environments
+# be resolve the environment containing the external pointer (the "refenv")
+# This is still useful e.g., for passing to assign("convert", x, as.environment(x)).
+# This was previously the primary mechanism that allowed for constructing
+# PyObjectRefs from closures, before PyObjectRefs was refactored. The S3 generic
+# is retained for backwards-compatability.
 
 #' @export
 as.environment.python.builtin.object <- function(x) {
@@ -444,13 +397,14 @@ as.environment.python.builtin.object <- function(x) {
 .DollarNames.python.builtin.module <- function(x, pattern = "") {
 
   # resolve module proxies (ignore errors since this is occurring during completion)
-  result <- tryCatch({
-    if (py_is_module_proxy(x))
+  if (py_is_module_proxy(x)) {
+    result <- tryCatch({
       py_resolve_module_proxy(x)
-    TRUE
-  }, error = clear_error_handler(FALSE))
-  if (!result)
-    return(character())
+      TRUE
+    }, error = clear_error_handler(FALSE))
+    if (!result)
+      return(character())
+  }
 
   # delegate
   .DollarNames.python.builtin.object(x, pattern)
@@ -576,8 +530,6 @@ plot.numpy.ndarray <- function(x, y, ...) {
 #' @export
 dict <- function(..., convert = FALSE) {
 
-  ensure_python_initialized()
-
   # get the args
   values <- list(...)
 
@@ -586,7 +538,7 @@ dict <- function(..., convert = FALSE) {
   scan_parent_frame <- TRUE
 
   # if there is a single element and it's a list then use that
-  if (length(values) == 1 && is.null(names(values)) && is.list(values[[1]])) {
+  if (length(values) == 1L && is.null(names(values)) && is.list(values[[1L]])) {
     values <- values[[1]]
     scan_parent_frame <- FALSE
   }
@@ -600,7 +552,7 @@ dict <- function(..., convert = FALSE) {
     # allow python objects to serve as keys
     if (scan_parent_frame && exists(name, envir = frame, inherits = TRUE)) {
       key <- get(name, envir = frame, inherits = TRUE)
-      if (inherits(key, "python.builtin.object"))
+      if (is_py_object(key))
         key
       else
         name
@@ -620,7 +572,6 @@ dict <- function(..., convert = FALSE) {
 #' @rdname dict
 #' @export
 py_dict <- function(keys, values, convert = FALSE) {
-  ensure_python_initialized()
   py_dict_impl(keys, values, convert = convert)
 }
 
@@ -639,16 +590,14 @@ py_dict <- function(keys, values, convert = FALSE) {
 #' @export
 tuple <- function(..., convert = FALSE) {
 
-  ensure_python_initialized()
-
   # get the args
   values <- list(...)
 
   # if it's a single value then maybe do some special resolution
-  if (length(values) == 1) {
+  if (length(values) == 1L) {
 
     # alias value
-    value <- values[[1]]
+    value <- values[[1L]]
 
     # reflect tuples back
     if (inherits(value, "python.builtin.tuple"))
@@ -765,7 +714,6 @@ py_bool <- function(x) {
 #'
 #' @export
 py_unicode <- function(str) {
-  ensure_python_initialized()
   if (is_python3()) {
     r_to_py(str)
   } else {
@@ -792,8 +740,6 @@ py_unicode <- function(str) {
 #'
 #' @export
 with.python.builtin.object <- function(data, expr, as = NULL, ...) {
-
-  ensure_python_initialized()
 
   # enter the context
   context <- data$`__enter__`()
@@ -860,42 +806,17 @@ with.python.builtin.object <- function(data, expr, as = NULL, ...) {
 #'
 #' @export
 iterate <- function(it, f = base::identity, simplify = TRUE) {
-
-  ensure_python_initialized()
-
-  # perform iteration
-  result <- py_iterate(it, f, simplify)
-
-  # return invisibly
-  invisible(result)
+  invisible(py_iterate(it, f, simplify))
 }
 
 
 #' @rdname iterate
 #' @export
 iter_next <- function(it, completed = NULL) {
-
-  # TODO: would like to use PyIter_Check() but that is only implemented
-  # as a macro in Python 2.x and requires copying more headers
-  iterable <- py_has_attr(it, "__next__") || py_has_attr(it, "next")
-  if (!iterable)
-    stop("object is not iterable", call. = FALSE)
-
   py_iter_next(it, completed)
-
 }
 
 
-#' @rdname iterate
-#' @export
-as_iterator <- function(x) {
-  if (inherits(x, "python.builtin.iterator"))
-    x
-  else if (py_has_attr(x, "__iter__"))
-    x$`__iter__`()
-  else
-    stop("iterator function called with non-iterator argument", call. = FALSE)
-}
 
 
 #' Call a Python callable object
@@ -908,7 +829,6 @@ as_iterator <- function(x) {
 #'
 #' @export
 py_call <- function(x, ...) {
-  ensure_python_initialized()
   dots <- split_named_unnamed(list(...))
   py_call_impl(x, dots$unnamed, dots$named)
 }
@@ -926,9 +846,6 @@ py_call <- function(x, ...) {
 #'   \code{FALSE} otherwise.
 #' @export
 py_has_attr <- function(x, name) {
-  ensure_python_initialized()
-  if (py_is_module_proxy(x))
-    py_resolve_module_proxy(x)
   py_has_attr_impl(x, name)
 }
 
@@ -942,14 +859,7 @@ py_has_attr <- function(x, name) {
 #' @return Attribute of Python object
 #' @export
 py_get_attr <- function(x, name, silent = FALSE) {
-  ensure_python_initialized()
-  if (py_is_module_proxy(x))
-    py_resolve_module_proxy(x)
-  res <- py_get_attr_impl(x, name, silent)
-  if(silent && identical(res, emptyenv()))
-    NULL
-  else
-    res
+  py_get_attr_impl(x, name, silent)
 }
 
 #' Set an attribute of a Python object
@@ -960,9 +870,6 @@ py_get_attr <- function(x, name, silent = FALSE) {
 #'
 #' @export
 py_set_attr <- function(x, name, value) {
-  ensure_python_initialized()
-  if (py_is_module_proxy(x))
-    py_resolve_module_proxy(x)
   py_set_attr_impl(x, name, value)
 }
 
@@ -972,7 +879,6 @@ py_set_attr <- function(x, name, value) {
 #'
 #' @export
 py_none <- function() {
-  ensure_python_initialized()
   py_none_impl()
 }
 
@@ -983,10 +889,8 @@ py_none <- function() {
 #'
 #' @export
 py_del_attr <- function(x, name) {
-  ensure_python_initialized()
-  if (py_is_module_proxy(x))
-    py_resolve_module_proxy(x)
   py_del_attr_impl(x, name)
+  invisible(x)
 }
 
 #' List all attributes of a Python object
@@ -997,9 +901,6 @@ py_del_attr <- function(x, name) {
 #' @return Character vector of attributes
 #' @export
 py_list_attributes <- function(x) {
-  ensure_python_initialized()
-  if (py_is_module_proxy(x))
-    py_resolve_module_proxy(x)
   attrs <- py_list_attributes_impl(x)
   Encoding(attrs) <- "UTF-8"
   attrs
@@ -1009,10 +910,6 @@ py_get_attr_types <- function(x,
                               names,
                               resolve_properties = FALSE)
 {
-  ensure_python_initialized()
-  if (py_is_module_proxy(x))
-    py_resolve_module_proxy(x)
-
   py_get_attr_types_impl(x, names, resolve_properties)
 }
 
@@ -1044,7 +941,7 @@ py_get_attr_types <- function(x,
 #'
 #' @export
 py_str <- function(object, ...) {
-  if (!inherits(object, "python.builtin.object"))
+  if (!is_py_object(object))
     "<not a python object>"
   else if (py_is_null_xptr(object) || !py_available())
     "<pointer: 0x0>"
@@ -1241,8 +1138,6 @@ py_capture_output <- function(expr, type = c("stdout", "stderr")) {
 #'
 #' @export
 py_run_string <- function(code, local = FALSE, convert = TRUE) {
-  ensure_python_initialized()
-  on.exit(py_flush_output(), add = TRUE)
   invisible(py_run_string_impl(code, local, convert))
 }
 
@@ -1299,7 +1194,6 @@ py_run_file <- function(file, local = FALSE, convert = TRUE, prepend_path = TRUE
 #'
 #' @export
 py_eval <- function(code, convert = TRUE) {
-  ensure_python_initialized()
   py_eval_impl(code, convert)
 }
 
@@ -1312,10 +1206,9 @@ py_ellipsis <- function() {
 }
 
 #' @importFrom rlang list2
-py_callable_as_function <- function(callable, convert) {
+py_callable_as_function <- function(callable) {
 
   force(callable)
-  force(convert)
 
   as.function.default(c(py_get_formals(callable), quote({
     cl <- sys.call()
@@ -1324,7 +1217,7 @@ py_callable_as_function <- function(callable, convert) {
     call_args <- split_named_unnamed(eval(cl, parent.frame()))
     result <- py_call_impl(callable, call_args$unnamed, call_args$named)
 
-    if (convert)
+    if(py_get_convert(callable))
       result <- py_to_r(result)
 
     if (is.null(result))
@@ -1349,10 +1242,15 @@ py_is_module <- function(x) {
 }
 
 py_is_module_proxy <- function(x) {
-  inherits(x, "python.builtin.module") && exists("module", envir = x)
+  typeof(x) == "environment" &&
+  exists("module", envir = x, inherits = FALSE) &&
+  inherits(x, "python.builtin.module")
 }
 
 py_resolve_module_proxy <- function(proxy) {
+
+  if(!py_is_module_proxy(proxy))
+    return(FALSE)
 
   # collect module proxy hooks
   collect_value <- function(name) {
@@ -1412,6 +1310,8 @@ py_resolve_module_proxy <- function(proxy) {
   # call on_load if provided
   if (is.function(on_load))
     on_load()
+
+  TRUE
 }
 
 py_get_name <- function(x) {

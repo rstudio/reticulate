@@ -15,7 +15,10 @@ r_to_py <- function(x, convert = FALSE) {
 #' @rdname r-py-conversion
 #' @export
 py_to_r <- function(x) {
-  ensure_python_initialized()
+  if(!is_py_object(x <- py_to_r_cpp(x))) # simple obj
+    return(x)
+  # Note, the new `x` here (with convert=TRUE) won't be visible to S3 methods
+  # UseMethod() doesn't allow modifying the original call args
   UseMethod("py_to_r")
 }
 
@@ -27,58 +30,8 @@ r_to_py.default <- function(x, convert = FALSE) {
 
 #' @export
 py_to_r.default <- function(x) {
-  if (!inherits(x, "python.builtin.object"))
-    stop("Object to convert is not a Python object")
-
-  # get the default wrapper
-  x <- py_ref_to_r(x)
-
-  # allow customization of the wrapper
-  wrapper <- py_to_r_wrapper(x)
-  attributes(wrapper) <- attributes(x)
-
-  # return the wrapper
-  wrapper
+  py_to_r_cpp(x)
 }
-
-
-
-#' @export
-r_to_py.list <- function(x, convert = FALSE) {
-  converted <- lapply(x, r_to_py, convert = convert)
-  r_to_py_impl(converted, convert = convert)
-}
-
-#' @export
-py_to_r.python.builtin.list <- function(x) {
-
-  # NOTE: we don't disable conversion in this context
-  # as we want to ensure sub-objects inherit convert-ability
-  # see e.g. https://github.com/rstudio/keras/issues/732
-
-  # give internal code a chance to perform efficient
-  # conversion of e.g. numeric vectors and the like
-  converted <- py_ref_to_r(x)
-
-  # if we received an R list, assume that we may need
-  # to recursively convert elements
-  if (is.list(converted)) {
-    converted <- lapply(converted, function(object) {
-      if (inherits(object, "python.builtin.object"))
-        py_to_r(object)
-      else
-        object
-    })
-  }
-
-  converted
-}
-
-#' @export
-py_to_r.python.builtin.tuple <- py_to_r.python.builtin.list
-
-#' @export
-py_to_r.python.builtin.dict <- py_to_r.python.builtin.list
 
 #' R wrapper for Python objects
 #'
@@ -111,44 +64,32 @@ r_to_py.factor <- function(x, convert = FALSE) {
 
 
 #' @export
-py_to_r.numpy.ndarray <- function(x) {
-  disable_conversion_scope(x)
-
-  # handle numpy datetime64 objects. fortunately, as per the
-  # numpy documentation:
-  #
-  #    Datetimes are always stored based on POSIX time
-  #
-  # although some work is required to handle the different
-  # subtypes of datetime64 (since the units since epoch can
-  # be configurable)
-  #
-  # TODO: Python (by default) displays times using UTC time;
-  # to reflect that behavior we also us 'tz = "UTC"', but we
-  # might consider just using the default (local timezone)
-  np <- import("numpy", convert = TRUE)
-  if (np$issubdtype(x$dtype, np$datetime64)) {
-    vector <- py_to_r(x$astype("datetime64[ns]")$astype("float64"))
-    return(as.POSIXct(vector / 1E9, origin = "1970-01-01", tz = "UTC"))
-  }
-
-  # no special handler found; delegate to next method
-  NextMethod()
-
-}
-
-
-
-#' @export
 r_to_py.POSIXt <- function(x, convert = FALSE) {
 
-  # we prefer datetime64 for efficiency
-  if (py_module_available("numpy"))
-    return(np_array(as.numeric(x) * 1E9, dtype = "datetime64[ns]"))
+  tz <- attr(x, "tzone", TRUE)
 
+  ## POSIXlt tzone is a length-3 vec, where "" means local/missing tzone
+  if(length(tz))
+    tz <- tz[[1L]] %""% NULL
+
+  # we prefer numpy datetime64 for efficiency
+  # numpy doesn't support tzone
+  # (internally, always stored from UTC epoch, like POSIXct in R)
+  if (is.null(tz) && py_module_available("numpy")) {
+    np_array <- r_to_py_impl(array(as.double(x) * 1E9), convert = FALSE)
+    return(np_array$astype(dtype = "datetime64[ns]"))
+  }
+
+  if(!is.null(tz)) {
+    if(py_version() >= "3.9")
+      tz <- import("zoneinfo", convert = FALSE)$ZoneInfo(tz)
+    else
+      tz <- import("pytz")$timezone(tz)
+  }
   datetime <- import("datetime", convert = FALSE)
-  datetime$datetime$fromtimestamp(as.double(x))
+  datetime$datetime$fromtimestamp(as.double(x), tz = tz)
 }
+
 
 #' @export
 py_to_r.datetime.datetime <- function(x) {
@@ -162,9 +103,16 @@ py_to_r.datetime.datetime <- function(x) {
       # Note that accessing `ZoneInfo.tzname()` is lossy. Eg.
       # doing `ZoneInfo("America/New_York").tzname()` returns "EDT", which is
       # not in R's OlsonNames() database, and also not stable wrt DST status.
-      if (inherits(x$tzinfo, "zoneinfo.ZoneInfo"))
-        tryCatch(tz <- as_r_value(x$tzinfo$key), error = identity)
 
+      # pytz.zone, round-trips better
+      if(is.null(tz))
+        tz <- as_r_value(py_get_attr(x$tzinfo, "zone", TRUE))
+
+      # zoneinfo.ZoneInfo(), roundtrip lossy (standardized), but in py stdlib
+      if (is.null(tz))
+        tz <- as_r_value(py_get_attr(x$tzinfo, "key", TRUE))
+
+      # common to pytz.timezone, ZoneInfo, other subclasses
       if (is.null(tz))
         tryCatch(tz <- as_r_value(x$tzname()), error = identity)
     }
@@ -201,19 +149,19 @@ r_to_py.Date <- function(x, convert = FALSE) {
 
 #' @export
 py_to_r.datetime.date <- function(x) {
-  disable_conversion_scope(x)
-  iso <- py_to_r(x$isoformat())
-  as.Date(iso)
+  iso <- as_r_value(x$isoformat())
+  as.Date.character(iso)
 }
 
 
 #' @export
 py_to_r.collections.OrderedDict <- function(x) {
-  disable_conversion_scope(x)
-
   keys <- py_dict_get_keys(x)
+  py_set_convert(keys, FALSE)
+
+  local_conversion_scope(x, TRUE)
   result <- lapply(seq_len(length(keys)) - 1L, function(i) {
-    py_to_r(py_dict_get_item(x, keys[i]))
+    py_dict_get_item(x, keys[i])
   })
 
   names(result) <- py_dict_get_keys_as_str(x)
@@ -223,7 +171,7 @@ py_to_r.collections.OrderedDict <- function(x) {
 
 #' @export
 py_to_r.pandas.core.series.Series <- function(x) {
-  disable_conversion_scope(x)
+  local_conversion_scope(x, FALSE)
   values <- py_to_r(x$values)
   index <- py_to_r(x$index)
   bt <- import("builtins")
@@ -233,7 +181,7 @@ py_to_r.pandas.core.series.Series <- function(x) {
 
 #' @export
 py_to_r.pandas.core.categorical.Categorical <- function(x) {
-  disable_conversion_scope(x)
+  local_conversion_scope(x, FALSE)
   values <- py_to_r(x$get_values())
   levels <- py_to_r(x$categories$values)
   ordered <- py_to_r(x$dtype$ordered)
@@ -246,13 +194,11 @@ py_to_r.pandas.core.arrays.categorical.Categorical <-
 
 #' @export
 py_to_r.pandas._libs.missing.NAType <- function(x) {
-  disable_conversion_scope(x)
   NA
 }
 
 #' @export
 py_to_r.pandas._libs.missing.C_NAType <- function(x) {
-  disable_conversion_scope(x)
   NA
 }
 
@@ -315,40 +261,34 @@ r_to_py.data.frame <- function(x, convert = FALSE) {
 
 #' @export
 py_to_r.datatable.Frame <- function(x) {
-  disable_conversion_scope(x)
-
   # TODO: it would be nice to avoid the extra conversion to pandas
   py_to_r(x$to_pandas())
 }
 
 #' @export
 py_to_r.pandas.core.frame.DataFrame <- function(x) {
-  disable_conversion_scope(x)
+  local_conversion_scope(x, TRUE)
 
   np <- import("numpy", convert = TRUE)
   pandas <- import("pandas", convert = TRUE)
   bt <- import("builtins", convert = TRUE)
 
-  # extract numpy arrays associated with each column
-  columns <- x$columns$values
-
   # delegate to c++
   converted <- py_convert_pandas_df(x)
-  names(converted) <- as.character(bt$list(x$columns$map(bt$str)))
+  converted <- lapply(converted, function(col) {
+    if (identical(length(dim(col)), 1L))
+      dim(col) <- NULL
+    col
+  })
 
-  # clean up converted objects
-  for (i in seq_along(converted)) {
-    column <- names(converted)[[i]]
-
-    # drop 1D dimensions
-    if (identical(dim(converted[[i]]), length(converted[[i]]))) {
-      dim(converted[[i]]) <- NULL
-    }
-  }
+  # assign colnamnes
+  columns <- py_set_convert(x$columns, FALSE)$values
+  columns <- as.character(bt$list(x$columns$map(bt$str)))
+  names(converted) <- columns
 
   df <- converted
+  attr(df, "row.names") <- c(NA_integer_, -x$shape[[1L]])
   class(df) <- "data.frame"
-  attr(df, "row.names") <- c(NA_integer_, -nrow(x))
 
   # attempt to copy over index, and set as rownames when appropriate
   #

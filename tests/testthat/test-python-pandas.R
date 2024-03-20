@@ -334,3 +334,82 @@ test_that("Round strip for string columns with NA's work correctly", {
   r <- py_to_r(p)
   expect_true(is.na(r$string[1]))
 })
+
+
+
+if(getRversion() < "4")
+  list2DF <- function (x = list(), nrow = 0L)
+  {
+    stopifnot(is.list(x), is.null(nrow) || nrow >= 0L)
+    if (n <- length(x)) {
+      if (length(nrow <- unique(lengths(x))) > 1L)
+        stop("all variables should have the same length")
+    }
+    else {
+      if (is.null(nrow))
+        nrow <- 0L
+    }
+    if (is.null(names(x)))
+      names(x) <- character(n)
+    class(x) <- "data.frame"
+    attr(x, "row.names") <- .set_row_names(nrow)
+    x
+  }
+
+test_that("pandas simplification behavior", {
+  # https://github.com/rstudio/reticulate/issues/1534
+  py_run_string("
+import pandas
+df = pandas.DataFrame({'col1':[True]})
+df_none = pandas.DataFrame({'col1':[True, None]})
+")
+
+  expect_equal_df <- function(x, y, ...) {
+    attr(x, "pandas.index") <- NULL
+    attr(y, "pandas.index") <- NULL
+    expect_equal(x, y, ...)
+  }
+
+
+  expect_equal_df(py$df, list2DF(list(col1 = TRUE)))
+  expect_equal_df(py$df_none, list2DF(list(col1 = list(TRUE, NULL))))
+
+  py_run_string("df_none['col1'] = df_none['col1'].astype('boolean')")
+  expect_equal_df(py$df_none, list2DF(list(col1 = c(TRUE, NA))))
+
+  simplify_nullable_logical_columns <- function(df) {
+    df[] <- lapply(df, function(col) {
+      if (is.list(col)) {
+        # bail early if we can't simplify
+        for (el in col)
+          switch(typeof(el),
+                 "NULL" = next,
+                 "logical" = if (length(el) != 1) return(col),
+                 return(col))
+
+        col <- vapply(col, \(x) if(is.null(x)) NA else x, TRUE,
+                      USE.NAMES = FALSE)
+      }
+      col
+    })
+    df
+  }
+
+
+  py_run_string("
+import pandas
+df = pandas.DataFrame({
+  'col1': [True, None, False, None],
+  'col2': [True, False, 1, None],
+})")
+
+  expect_equal_df(py$df, list2DF(list(col1 = list(TRUE, NULL, FALSE, NULL),
+                                      col2 = list(TRUE, FALSE, 1L, NULL))))
+
+  expect_equal_df(
+    simplify_nullable_logical_columns(py$df),
+    list2DF(list(col1 = c(TRUE, NA, FALSE, NA),
+                 col2 = list(TRUE, FALSE, 1L, NULL))))
+
+
+})

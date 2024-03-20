@@ -21,3 +21,7 @@ This function enables callers to check which versions of Python will be
 discovered on a system as well as which one will be chosen for use with
 reticulate.
 }
+\details{
+The order of discovery is documented in \code{vignette("versions")}, also available online
+\href{https://rstudio.github.io/reticulate/articles/versions.html#order-of-discovery}{here}
+}

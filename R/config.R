@@ -145,6 +145,9 @@ py_module_available <- function(module) {
 #' discovered on a system as well as which one will be chosen for use with
 #' reticulate.
 #'
+#' The order of discovery is documented in `vignette("versions")`, also available online
+#' [here](https://rstudio.github.io/reticulate/articles/versions.html#order-of-discovery)
+#'
 #' @param required_module A optional module name that will be used to select the
 #'   Python environment used.
 #'

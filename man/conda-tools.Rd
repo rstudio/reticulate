@@ -171,7 +171,7 @@ The following locations are searched, in order:
 To force \code{reticulate} to use a particular \code{conda} binary, we recommend
 setting:
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{options(reticulate.conda_binary = "/path/to/conda")
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{options(reticulate.conda_binary = "/path/to/conda")
 }\if{html}{\out{</div>}}
 
 This can be useful if your conda installation lives in a location that

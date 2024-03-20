@@ -80,7 +80,7 @@
 #' To force `reticulate` to use a particular `conda` binary, we recommend
 #' setting:
 #'
-#' ```
+#' ```r
 #' options(reticulate.conda_binary = "/path/to/conda")
 #' ```
 #'
@@ -1053,7 +1053,7 @@ get_python_conda_info <- function(python) {
     conda <- NA
 
   list(
-    conda = NA,
+    conda = conda,
     root = normalizePath(root, winslash = "/", mustWork = TRUE)
   )
 

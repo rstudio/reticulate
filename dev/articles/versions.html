@@ -257,8 +257,13 @@ ways outlined above, reticulate falls back to using a virtual
 environment named <code>"r-reticulate"</code>. If one does not exist,
 reticulate will offer to create one.</p></li>
 <li><p>If the “r-reticulate” environment is not available and cannot be
-created, then we fall back to using the python on the
-<code>PATH</code>.</p></li>
+created, then we fall back to using the Python on the <code>PATH</code>,
+or on Windows, the Python referenced by the registry. If both
+<code>python</code> and <code>python3</code> are on the
+<code>PATH</code>, then reticulate will prefer <code>python3</code>,
+unless only <code>python</code> has NumPy installed, or
+<code>python3</code> is built for a different architecture than R (e.g.,
+x86).</p></li>
 </ol>
 </div>
 <div class="section level2">

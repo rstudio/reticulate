@@ -387,7 +387,7 @@ df_none = pandas.DataFrame({'col1':[True, None]})
                  "logical" = if (length(el) != 1) return(col),
                  return(col))
 
-        col <- vapply(col, \(x) if(is.null(x)) NA else x, TRUE,
+        col <- vapply(col, function(x) if(is.null(x)) NA else x, TRUE,
                       USE.NAMES = FALSE)
       }
       col

@@ -80,7 +80,7 @@
 #' To force `reticulate` to use a particular `conda` binary, we recommend
 #' setting:
 #'
-#' ```
+#' ```r
 #' options(reticulate.conda_binary = "/path/to/conda")
 #' ```
 #'
@@ -511,7 +511,7 @@ conda_install <- function(envname = NULL,
 conda_binary <- function(conda = "auto") {
 
   # automatic lookup if requested
-  if (identical(conda, "auto")) {
+  if (identical(conda, "auto") || isTRUE(is.na(conda))) {
     conda <- find_conda()
     if (is.null(conda))
       stop("Unable to find conda binary. Is Anaconda installed?", call. = FALSE)
@@ -1048,8 +1048,12 @@ get_python_conda_info <- function(python) {
     conda <- python_info_condaenv_find(root)
   }
 
+  conda <- normalizePath(conda, winslash = "/", mustWork = FALSE)
+  if(!file.exists(conda))
+    conda <- NA
+
   list(
-    conda = normalizePath(conda, winslash = "/", mustWork = TRUE),
+    conda = conda,
     root = normalizePath(root, winslash = "/", mustWork = TRUE)
   )
 

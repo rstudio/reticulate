@@ -6,18 +6,18 @@
 - Fixed issue where `py_to_r()` S3 methods would not be called on arguments supplied to
   R functions being called from Python.
 
-- py_to_r(x) now returns `x` unmodified if `x` is not a Python object, instead of signaling an error.
+- `py_to_r(x)` now returns `x` unmodified if `x` is not a Python object, instead of signaling an error.
 
 - `attr(x, "tzone")` attributes are (better) preserved when converting POSIXt to Python.
-   POSIXt types with a non-empty `tzone` attr convert to a datetime.datetime,
-   otherwise they convert to NumPy datetime64[ns] arrays.
+  POSIXt types with a non-empty `tzone` attr convert to a datetime.datetime,
+  otherwise they convert to NumPy datetime64[ns] arrays.
 
-- Fixed an issue where calling py_set_item() on a subclassed dict would
-  not invoke a custom __setitem__ method.
+- Fixed an issue where calling `py_set_item()` on a subclassed dict would
+  not invoke a custom `__setitem__` method.
 
-- py_del_attr(x, name) now returns x invisibly
+- `py_del_attr(x, name)` now returns x invisibly
 
-- source_python() no longer exports assigns the "r" symbol to the R globalenv().
+- `source_python()` no longer exports assigns the `r` symbol to the R globalenv().
   (the "R Interface object" that is used by python code get a reference to the R globalenv)
 
 - `iterate(simplify=TRUE)` rewritten in C for speed improvements.
@@ -34,6 +34,10 @@
 
 - Fixed an issue where reticulate would error when using conda environments created
   with the (new) `conda env create` command. (#1535, #1543)
+  
+- Fixed an issue where reticulate would error when using a conda environment
+  where the original conda binary that was used to create the environment
+  is no longer available (#1555)
 
 # reticulate 1.35.0
 

@@ -58,7 +58,7 @@ test_that("R datetimes can be passed to Python functions", {
 test_that("timezone information is not lost during conversion", {
 
   skip_if_no_python()
-  skip_if(py_version() < 3)
+  skip_if(py_version() < "3")
 
   datetime <- import("datetime", convert = FALSE)
   if (!py_has_attr(datetime, "timezone"))

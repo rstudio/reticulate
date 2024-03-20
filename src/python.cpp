@@ -528,6 +528,13 @@ SEXP eval_call(SEXP r_func, SEXP arg) {
   return Rcpp_fast_eval(cl, ns_reticulate);
 }
 
+SEXP eval_call_fast_unsafe(SEXP r_func, SEXP arg) {
+  SEXP cl = PROTECT(Rf_lang2(r_func, arg));
+  SEXP res = Rf_eval(cl, ns_reticulate);
+  UNPROTECT(1);
+  return res;
+}
+
 SEXP eval_call(SEXP r_func, SEXP arg1, SEXP arg2) {
   RObject cl(Rf_lang3(r_func, arg1, arg2));
   return Rcpp_fast_eval(cl, ns_reticulate);
@@ -1115,7 +1122,7 @@ PyObject* get_np_nditer () {
 
 
 SEXP py_callable_as_function(SEXP callable, bool convert) {
-  SEXP f = PROTECT(eval_call(r_func_py_callable_as_function, callable));
+  SEXP f = PROTECT(eval_call_fast_unsafe(r_func_py_callable_as_function, callable));
 
   // copy over class attribute
   Rf_setAttrib(f, R_ClassSymbol, Rf_getAttrib(callable, R_ClassSymbol));

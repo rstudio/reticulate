@@ -83,7 +83,14 @@
 
     <div class="section level2">
 <h2 class="page-header" data-toc-text="development version" id="reticulate-development-version">reticulate (development version)<a class="anchor" aria-label="anchor" href="#reticulate-development-version"></a></h2>
-<ul><li><p><code>iterate(simplify=TRUE)</code> rewritten in C for speed improvements.</p></li>
+<ul><li><p>Fixed issue where callable python objects created with <code>convert = FALSE</code> would not be wrapped in an R function.</p></li>
+<li><p>Fixed issue where <code><a href="../reference/r-py-conversion.html">py_to_r()</a></code> S3 methods would not be called on arguments supplied to R functions being called from Python.</p></li>
+<li><p>py_to_r(x) now returns <code>x</code> unmodified if <code>x</code> is not a Python object, instead of signaling an error.</p></li>
+<li><p><code>attr(x, "tzone")</code> attributes are (better) preserved when converting POSIXt to Python. POSIXt types with a non-empty <code>tzone</code> attr convert to a datetime.datetime, otherwise they convert to NumPy datetime64[ns] arrays.</p></li>
+<li><p>Fixed an issue where calling py_set_item() on a subclassed dict would not invoke a custom <strong>setitem</strong> method.</p></li>
+<li><p>py_del_attr(x, name) now returns x invisibly</p></li>
+<li><p>source_python() no longer exports assigns the “r” symbol to the R globalenv(). (the “R Interface object” that is used by python code get a reference to the R globalenv)</p></li>
+<li><p><code>iterate(simplify=TRUE)</code> rewritten in C for speed improvements.</p></li>
 <li><p>Fixed hang encountered (sometimes) when attempting to call <code><a href="../reference/iterate.html">iterate()</a></code> on an exhausted <code><a href="../reference/py_iterator.html">py_iterator()</a></code> object multiple times.</p></li>
 <li><p>Update for Pandas 2.2 deprecation of <code>Index.format()</code> (<a href="https://github.com/rstudio/reticulate/issues/1537" class="external-link">#1537</a>, <a href="https://github.com/rstudio/reticulate/issues/1538" class="external-link">#1538</a>).</p></li>
 <li><p>Updates for CRAN R-devel (R 4.4).</p></li>

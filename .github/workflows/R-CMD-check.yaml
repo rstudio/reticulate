@@ -37,7 +37,7 @@ jobs:
           - { os: ubuntu-latest, r: 'release', python: '3.11' }
           - { os: ubuntu-latest, r: 'release', python: '3.12' }
 
-          # - { os: ubuntu-latest, r: 'devel', python: '3.12', http-user-agent: 'release' }
+          - { os: ubuntu-latest, r: 'devel', python: '3.12', http-user-agent: 'release' }
 
           # test with one debug build of python
           # disabled; failing presently
@@ -74,10 +74,9 @@ jobs:
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: rcmdcheck local::.
-          cache-version: 3
+          extra-packages: any::rcmdcheck local::.
+          cache-version: 4
           upgrade: 'TRUE'
-
 
       - name: setup r-reticulate venv
         shell: Rscript {0}

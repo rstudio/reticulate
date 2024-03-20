@@ -298,16 +298,8 @@ py_get_attr_or_item <- function(x, name, prefer_attr) {
 
 
   # skip if this is a NULL xptr
-  if (py_is_null_xptr(x) || !py_available())
+  if (py_is_null_xptr(x))
     return(NULL)
-
-  # special handling for embedded modules (which don't always show
-  # up as "attributes")
-  if (py_is_module(x) && !py_has_attr(x, name)) {
-    module <- py_get_submodule(x, name, py_has_convert(x))
-    if (!is.null(module))
-      return(module)
-  }
 
   # re-cast numeric values as integers
   if (is.numeric(name))
@@ -362,6 +354,21 @@ py_get_attr_or_item <- function(x, name, prefer_attr) {
   py_get_attr_or_item(x, name, FALSE)
 }
 
+#' @export
+`$.python.builtin.module` <- function(x, name) {
+  attr <- py_get_attr_impl(x, name, TRUE)
+  if(!is.null(attr))
+    return(py_maybe_convert(attr, py_has_convert(x)))
+
+  # special handling for embedded modules (which don't always show
+  # up as "attributes")
+  module <- py_get_submodule(x, name, py_has_convert(x))
+  if (!is.null(module))
+    return(module)
+
+  # fall back to raising the AttributeError
+  py_get_attr_impl(x, name, FALSE)
+}
 
 # the as.environment generic enables python objects that manifest
 # as R functions (e.g. for functions, classes, callables, etc.) to

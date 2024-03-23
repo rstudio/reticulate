@@ -492,6 +492,31 @@ eng_python_initialize_hooks <- function(options, envir) {
 
 }
 
+eng_python_matplotlib_backend <- function() {
+
+  # allow override, just in case
+  envvars <- c("RETICULATE_MPLBACKEND", "MPLBACKEND")
+  for (envvar in envvars) {
+    override <- Sys.getenv(envvar, unset = NA)
+    if (!is.na(override))
+      return(override)
+  }
+
+  # in RStudio Desktop, enforce a non-Qt matplotlib backend
+  # this is especially important with RStudio Desktop as attempting to use a Qt
+  # backend will cause issues due to mismatched Qt versions between RStudio and
+  # Anaconda environments, and will cause crashes when generating plots
+  if (is_rstudio_desktop())
+    return("agg")
+
+  # prefer using the agg backend in non-interactive environments
+  if (!interactive())
+    return("agg")
+
+  # otherwise, use whatever backend was already configured
+  ""
+}
+
 eng_python_initialize_matplotlib <- function(options, envir) {
 
   # early exit if we already initialized
@@ -499,12 +524,8 @@ eng_python_initialize_matplotlib <- function(options, envir) {
   if (identical(.globals$matplotlib_initialized, TRUE))
     return(TRUE)
 
-  # attempt to enforce a non-Qt matplotlib backend. this is especially important
-  # with RStudio Desktop as attempting to use a Qt backend will cause issues due
-  # to mismatched Qt versions between RStudio and Anaconda environments, and
-  # will cause crashes when attempting to generate plots
-  testthat <- Sys.getenv("TESTTHAT", unset = NA)
-  if (is_rstudio_desktop() || identical(testthat, "true")) {
+  backend <- eng_python_matplotlib_backend()
+  if (nzchar(backend)) {
 
     matplotlib <- import("matplotlib", convert = TRUE)
 
@@ -513,13 +534,13 @@ eng_python_initialize_matplotlib <- function(options, envir) {
     # specific one when the backend is initialized later
     sys <- import("sys", convert = FALSE)
     if ("matplotlib.backends" %in% names(sys$modules)) {
-      matplotlib$pyplot$switch_backend("agg")
+      matplotlib$pyplot$switch_backend(backend)
     } else {
       version <- numeric_version(matplotlib$`__version__`)
       if (version < "3.3.0")
-        matplotlib$use("agg", warn = FALSE, force = TRUE)
+        matplotlib$use(backend, warn = FALSE, force = TRUE)
       else
-        matplotlib$use("agg", force = TRUE)
+        matplotlib$use(backend, force = TRUE)
     }
   }
 

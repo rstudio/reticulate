@@ -1,5 +1,9 @@
 # reticulate (development version)
 
+- `reticulate` now prefers using the agg matplotlib backend when the R session
+  is non-interactive. The backend can also be overridden via the `MPLBACKEND` or
+  `RETICULATE_MPLBACKEND` environment variables when necessary.
+
 - Fixed issue where callable python objects created with `convert = FALSE` would not be
   wrapped in an R function.
 

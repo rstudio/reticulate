@@ -510,6 +510,10 @@ eng_python_matplotlib_backend <- function() {
     return("agg")
 
   # prefer using the agg backend in non-interactive environments
+  # (matplotlib might prefer using the tkAgg backend, but we've seen
+  # issues when trying to use in some environments, e.g. Windows)
+  #
+  # https://github.com/rstudio/rstudio/issues/13840
   if (!interactive())
     return("agg")
 

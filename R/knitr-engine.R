@@ -502,10 +502,19 @@ eng_python_matplotlib_backend <- function() {
       return(override)
   }
 
+  # if we're currently running testthat tests, force an 'agg' backend
+  testthat <- Sys.getenv("TESTTHAT", unset = NA)
+  if (identical(testthat, "true"))
+    return("agg")
+
   # in RStudio Desktop, enforce a non-Qt matplotlib backend
-  # this is especially important with RStudio Desktop as attempting to use a Qt
-  # backend will cause issues due to mismatched Qt versions between RStudio and
-  # Anaconda environments, and will cause crashes when generating plots
+  #
+  # this is mainly important for older releases of RStudio which were built
+  # using Qt, since some conda installations might also bundle + use their own
+  # versions of Qt, and those Qt installations could be incompatible.
+  #
+  # newer versions of RStudio set the matplotlib backend to 'agg' more
+  # explicitly, so this branch could likely be removed in a future reticulate release
   if (is_rstudio_desktop())
     return("agg")
 

@@ -38,6 +38,9 @@
 - Fixed an issue where reticulate would error when using a conda environment
   where the original conda binary that was used to create the environment
   is no longer available (#1555)
+  
+- Fixed an issue where the would be unable to accept the prompt to create
+  the default "r-reticulate" venv (#1557).
 
 # reticulate 1.35.0
 

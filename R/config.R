@@ -458,6 +458,14 @@ try_create_default_virtualenv <- function(package = "reticulate", ...) {
   if (!isTRUE(getOption("reticulate.python.initializing")))
     return(NULL)
 
+  # if we're in a recursive call, return NULL (we've already asked.)
+  #   py_discover_config() -> try_create_default_virtualenv() ->
+  #   virtualenv_create() -> virtualenv_starter() -> py_exe() ->
+  #   py_discover_config() -> try_create_default_virtualenv()
+  for(cl in sys.calls()[-length(sys.calls())])
+    if (identical(cl[[1L]], quote(try_create_default_virtualenv)))
+      return(NULL)
+
   permission <- tolower(Sys.getenv("RETICULATE_AUTOCREATE_PACKAGE_VENV", ""))
 
   if (permission %in% c("false", "0", "no"))
@@ -466,7 +474,7 @@ try_create_default_virtualenv <- function(package = "reticulate", ...) {
   if (permission == "") {
     if (is_interactive()) {
       permission <- utils::askYesNo(sprintf(
-        "Would you like to create a default python environment for the %s package?",
+        "Would you like to create a default Python environment for the %s package?",
         package))
       if (!isTRUE(permission))
         return(NULL)

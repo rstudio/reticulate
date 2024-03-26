@@ -72,9 +72,11 @@ public:
 
   PyObject* get() const {
     PyObject* obj = nullable_get();
-    if (obj == NULL)
+    if (obj == NULL) {
+      if(try_py_resolve_module_proxy(get_refenv()))
+        return get(); // maybe resolved module proxy
       Rcpp::stop("Unable to access object (object is from previous session and is now invalid)");
-
+    }
     return obj;
   }
 
@@ -82,17 +84,17 @@ public:
 
     SEXP xptr = Rf_findVarInFrame(get_refenv(), sym_pyobj);
 
-    if (TYPEOF(xptr) != EXTPTRSXP) {
-      // might be a (lazy) module_proxy or a restored (now invalid) sexp
-      if(xptr == R_UnboundValue || xptr == R_NilValue) {
-        if(try_py_resolve_module_proxy(get_refenv()))
-          return nullable_get(); // maybe resolved module proxy
-        return(NULL);
-      }
-      Rcpp::stop("malformed pyobj");
+    if(TYPEOF(xptr) == EXTPTRSXP) {
+      return (PyObject*) R_ExternalPtrAddr(xptr);
     }
 
-    return (PyObject*) R_ExternalPtrAddr(xptr);
+    // might be a (lazy) module_proxy
+    if(xptr == R_UnboundValue) {
+      return(NULL);
+    }
+
+    Rcpp::stop("malformed pyobj");
+    return NULL; // unreachable, for compiler
   }
 
   SEXP get_refenv() const {

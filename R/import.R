@@ -137,14 +137,13 @@ register_delay_load_import <- function(module, delay_load = NULL) {
 
   } else if (is.list(delay_load)) {
 
-    spec$priority <- delay_load$priority %||% 0L
-    spec$environment <- delay_load$environment %||% NA_character_
+    spec$priority <- as.integer(delay_load$priority %||% 0L)
+    spec$environment <- as.character(delay_load$environment %||% NA_character_)
     hooks <- delay_load
 
   }
-
-  storage.mode(spec$priority) <- "integer"
-  storage.mode(spec$environment) <- "character"
+  # maybe recycle 'module', 'priority' if length(environment) > 1
+  spec <- as.data.frame(spec, stringsAsFactors = FALSE)
 
   df <- .globals$delay_load_imports
   df <- rbind(df, spec, stringsAsFactors = FALSE)

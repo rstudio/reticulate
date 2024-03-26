@@ -357,6 +357,7 @@ if(getRversion() < "4")
   }
 
 test_that("pandas simplification behavior", {
+  skip_if_no_pandas()
   # https://github.com/rstudio/reticulate/issues/1534
   py_run_string("
 import pandas

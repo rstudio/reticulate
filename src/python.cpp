@@ -2763,21 +2763,16 @@ PyObjectRef py_get_attr_impl(PyObjectRef x,
 {
 
   ensure_python_initialized();
-  PyObject *attr;
 
-  if (silent) {
-    PyErrorScopeGuard _g;
+  PyObject *attr = PyObject_GetAttrString(x, key.c_str()); // new ref
 
-    attr = PyObject_GetAttrString(x, key.c_str());
-    if (attr == NULL)
+  if (attr == NULL) {
+    if (silent) {
+      PyErr_Clear();
       return PyObjectRef(R_NilValue, false);
-
-  } else {
-
-    attr = PyObject_GetAttrString(x, key.c_str());
-    if (attr == NULL)
+    } else {
       throw PythonException(py_fetch_error());
-
+    }
   }
 
   return py_ref(attr, x.convert());

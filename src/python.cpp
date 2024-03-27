@@ -523,11 +523,13 @@ SEXP current_env(void) {
   return Rf_eval(call, R_BaseEnv);
 }
 
+static inline
 SEXP eval_call(SEXP r_func, SEXP arg) {
   RObject cl(Rf_lang2(r_func, arg));
   return Rcpp_fast_eval(cl, ns_reticulate);
 }
 
+static inline
 SEXP eval_call_fast_unsafe(SEXP r_func, SEXP arg) {
   SEXP cl = PROTECT(Rf_lang2(r_func, arg));
   SEXP res = Rf_eval(cl, ns_reticulate);
@@ -535,15 +537,18 @@ SEXP eval_call_fast_unsafe(SEXP r_func, SEXP arg) {
   return res;
 }
 
+static inline
 SEXP eval_call(SEXP r_func, SEXP arg1, SEXP arg2) {
   RObject cl(Rf_lang3(r_func, arg1, arg2));
   return Rcpp_fast_eval(cl, ns_reticulate);
 }
 
+static inline
 SEXP eval_call(SEXP r_func, SEXP arg1, bool arg2) {
   return eval_call(r_func, arg1, Rf_ScalarLogical(arg2));
 }
 
+static inline
 SEXP eval_call_in_userenv(SEXP r_func, SEXP arg) {
   RObject cl(Rf_lang2(r_func, arg));
   return Rcpp_fast_eval(cl, current_env());
@@ -551,6 +556,7 @@ SEXP eval_call_in_userenv(SEXP r_func, SEXP arg) {
   // we need a new func, current_user_env(), that walks the frames, skipping reticulate ns frames.
 }
 
+static inline
 SEXP eval_call_in_userenv(SEXP r_func, SEXP arg1, SEXP arg2) {
   SEXP cl = Rf_lang3(r_func, arg1, arg2);
   RObject cl_(cl); // protect
@@ -687,6 +693,20 @@ PyObjectRef py_ref(PyObject* object, bool convert)
   PyObjectRef ref(object, convert);
   return ref;
 
+}
+
+static inline
+bool inherits2(SEXP object, const char* name) {
+  // like inherits in R, but iterates over the class STRSXP vector
+  // in reverse, since python.builtin.object is typically at the tail.
+  SEXP klass = Rf_getAttrib(object, R_ClassSymbol);
+  if (TYPEOF(klass) == STRSXP) {
+    for (int i = Rf_length(klass)-1; i >= 0; i--) {
+      if (strcmp(CHAR(STRING_ELT(klass, i)), name) == 0)
+        return true;
+    }
+  }
+  return false;
 }
 
 //' Check if a Python object is a null externalptr
@@ -1165,20 +1185,6 @@ SEXP py_to_r_wrapper(SEXP x) {
 
 SEXP py_to_r_cpp(PyObject* x, bool convert, bool simple = true);
 
-
-static inline
-bool inherits2(SEXP object, const char* name) {
-  // like inherits in R, but iterates over the class STRSXP vector
-  // in reverse, since python.builtin.object is typically at the tail.
-  SEXP klass = Rf_getAttrib(object, R_ClassSymbol);
-  if (TYPEOF(klass) == STRSXP) {
-    for (int i = Rf_length(klass)-1; i >= 0; i--) {
-      if (strcmp(CHAR(STRING_ELT(klass, i)), name) == 0)
-        return true;
-    }
-  }
-  return false;
-}
 
 // [[Rcpp::export]]
 bool is_py_object(SEXP x) {

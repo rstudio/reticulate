@@ -226,10 +226,10 @@ PyObject* py_capsule_new(SEXP object) {
 
 PyObject* py_get_attr(PyObject* object, const std::string& name) {
 
-  if (PyObject_HasAttrString(object, name.c_str()))
-    return PyObject_GetAttrString(object, name.c_str());
-  else
-    return NULL;
+  PyObject* attr = PyObject_GetAttrString(object, name.c_str());
+  if(attr == NULL)
+    PyErr_Clear();
+  return attr;
 
 }
 

@@ -865,16 +865,6 @@ py_list_attributes <- function(x) {
   attrs
 }
 
-py_get_attr_types <- function(x,
-                              names,
-                              resolve_properties = FALSE)
-{
-  py_get_attr_types_impl(x, names, resolve_properties)
-}
-
-
-
-
 
 #' String representation of a python object.
 #'

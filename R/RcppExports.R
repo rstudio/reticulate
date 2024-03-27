@@ -209,8 +209,8 @@ py_del_item <- function(x, key) {
     invisible(.Call(`_reticulate_py_del_item`, x, key))
 }
 
-py_get_attr_types_impl <- function(x, attrs, resolve_properties) {
-    .Call(`_reticulate_py_get_attr_types_impl`, x, attrs, resolve_properties)
+py_get_attr_types <- function(x, attrs, resolve_properties = FALSE) {
+    .Call(`_reticulate_py_get_attr_types`, x, attrs, resolve_properties)
 }
 
 py_ref_to_r_with_convert <- function(x, convert) {

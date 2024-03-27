@@ -2918,10 +2918,10 @@ PyObjectRef py_del_item(PyObjectRef x, RObject key) {
 
 
 // [[Rcpp::export]]
-IntegerVector py_get_attr_types_impl(
+IntegerVector py_get_attr_types(
     PyObjectRef x,
     const std::vector<std::string>& attrs,
-    bool resolve_properties)
+    bool resolve_properties = false)
 {
   PyObject* x_ = x.get(); // ensure python initialized, module proxy resolved
   const int UNKNOWN     =  0;

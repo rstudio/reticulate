@@ -83,7 +83,9 @@
 
     <div class="section level2">
 <h2 class="page-header" data-toc-text="development version" id="reticulate-development-version">reticulate (development version)<a class="anchor" aria-label="anchor" href="#reticulate-development-version"></a></h2>
-<ul><li><p><code>reticulate</code> now prefers using the agg matplotlib backend when the R session is non-interactive. The backend can also be overridden via the <code>MPLBACKEND</code> or <code>RETICULATE_MPLBACKEND</code> environment variables when necessary.</p></li>
+<ul><li><p>Fixed an issue where printing a delayed module (<code>import("foo", delay_load = TRUE)</code>) would output <code>&lt;pointer: 0x0&gt;</code>.</p></li>
+<li><p><code><a href="../reference/py_is_null_xptr.html">py_validate_xptr()</a></code> will now attempt to resolve delayed modules before signaling an error (<a href="https://github.com/rstudio/reticulate/issues/1561" class="external-link">#1561</a>).</p></li>
+<li><p><code>reticulate</code> now prefers using the agg matplotlib backend when the R session is non-interactive. The backend can also be overridden via the <code>MPLBACKEND</code> or <code>RETICULATE_MPLBACKEND</code> environment variables when necessary.</p></li>
 <li><p>Fixed issue where callable python objects created with <code>convert = FALSE</code> would not be wrapped in an R function.</p></li>
 <li><p>Fixed issue where <code><a href="../reference/r-py-conversion.html">py_to_r()</a></code> S3 methods would not be called on arguments supplied to R functions being called from Python.</p></li>
 <li><p><code>py_to_r(x)</code> now returns <code>x</code> unmodified if <code>x</code> is not a Python object, instead of signaling an error.</p></li>

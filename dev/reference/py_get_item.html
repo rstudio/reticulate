@@ -81,7 +81,7 @@ called."><meta name="robots" content="noindex"><!-- mathjax --><script src="http
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Get/Set/Delete an item from a Python object</h1>
-    <small class="dont-index">Source: <a href="https://github.com/rstudio/reticulate/blob/HEAD/R/python-item.R" class="external-link"><code>R/python-item.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/rstudio/reticulate/blob/HEAD/R/RcppExports.R" class="external-link"><code>R/RcppExports.R</code></a>, <a href="https://github.com/rstudio/reticulate/blob/HEAD/R/python-item.R" class="external-link"><code>R/python-item.R</code></a></small>
     <div class="hidden name"><code>py_get_item.Rd</code></div>
     </div>
 
@@ -95,9 +95,9 @@ called.</p>
     <div id="ref-usage">
     <div class="sourceCode"><pre><code>py_get_item(x, key, silent = FALSE)
 
-py_set_item(x, name, value)
+py_set_item(x, key, value)
 
-py_del_item(x, name)
+py_del_item(x, key)
 
 # S3 method for python.builtin.object
 [(x, ...)
@@ -112,7 +112,7 @@ py_del_item(x, name)
 <dd><p>A Python object.</p></dd>
 
 
-<dt>key, name, ...</dt>
+<dt>key, ...</dt>
 <dd><p>The key used for item lookup.</p></dd>
 
 

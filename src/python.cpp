@@ -4157,7 +4157,6 @@ SEXP py_iterate(PyObjectRef x, Function f, bool simplify = true) {
 
 
 bool try_py_resolve_module_proxy(SEXP proxy) {
-  // eval_call()
   Rcpp::Environment pkgEnv = Rcpp::Environment::namespace_env("reticulate");
   Rcpp::Function py_resolve_module_proxy = pkgEnv["py_resolve_module_proxy"];
   return py_resolve_module_proxy(proxy);

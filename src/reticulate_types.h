@@ -110,7 +110,7 @@ public:
     return get();
   }
 
-  // This will *not* initialize Pyhton or resolve module proxies
+  // This will *not* initialize Python or resolve module proxies
   bool is_null_xptr() const {
     SEXP xptr = Rf_findVarInFrame(get_refenv(), sym_pyobj);
     if(TYPEOF(xptr) == EXTPTRSXP)

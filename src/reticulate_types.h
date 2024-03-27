@@ -70,27 +70,24 @@ public:
     UNPROTECT(1);
   }
 
+  // get() will initialize python + resolve module proxies as needed
+  // or throw an exception if it can't return a valid PyObject*
   PyObject* get() const {
-    PyObject* obj = nullable_get();
-    if (obj == NULL) {
-      if(try_py_resolve_module_proxy(get_refenv()))
-        return get(); // maybe resolved module proxy
-      Rcpp::stop("Unable to access object (object is from previous session and is now invalid)");
-    }
-    return obj;
-  }
-
-  PyObject* nullable_get() const {
 
     SEXP xptr = Rf_findVarInFrame(get_refenv(), sym_pyobj);
 
     if(TYPEOF(xptr) == EXTPTRSXP) {
-      return (PyObject*) R_ExternalPtrAddr(xptr);
+      PyObject* pyobj = (PyObject*) R_ExternalPtrAddr(xptr);
+      if(pyobj == NULL)
+        Rcpp::stop("Unable to access object (object is from previous session and is now invalid)");
+      return pyobj;
     }
 
     // might be a (lazy) module_proxy
     if(xptr == R_UnboundValue) {
-      return(NULL);
+      if(try_py_resolve_module_proxy(get_refenv())) {
+        return get();
+      }
     }
 
     Rcpp::stop("malformed pyobj");
@@ -113,8 +110,14 @@ public:
     return get();
   }
 
+  // This will *not* initialize Pyhton or resolve module proxies
   bool is_null_xptr() const {
-    return nullable_get() == NULL;
+    SEXP xptr = Rf_findVarInFrame(get_refenv(), sym_pyobj);
+    if(TYPEOF(xptr) == EXTPTRSXP)
+      return ((PyObject*) R_ExternalPtrAddr(xptr) == NULL);
+    if(xptr == R_UnboundValue || xptr == R_NilValue)
+      return true; // return true for lazy module proxy
+    return false; // should never happen
   }
 
   bool convert() const {

@@ -714,13 +714,21 @@ bool py_is_null_xptr(PyObjectRef x) {
 //' @rdname py_is_null_xptr
 //' @export
 // [[Rcpp::export]]
-void py_validate_xptr(PyObjectRef x) {
-  if (py_is_null_xptr(x)) {
-    stop("Object is a null externalptr (it may have been disconnected from "
-           " the session where it was created)");
-  }
-}
+void py_validate_xptr(PyObjectRef x)
+{
+    if (!x.is_null_xptr())
+        return;
 
+    if (inherits2(x, "python.builtin.module"))
+    {
+        if (try_py_resolve_module_proxy(x.get_refenv()))
+            if (!x.is_null_xptr())
+                return;
+    }
+
+    stop("Object is a null externalptr (it may have been disconnected from "
+         "the session where it was created)");
+}
 
 bool option_is_true(const std::string& name) {
   SEXP valueSEXP = Rf_GetOption(Rf_install(name.c_str()), R_BaseEnv);

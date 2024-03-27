@@ -130,14 +130,6 @@ py_list_attributes_impl <- function(x) {
     .Call(`_reticulate_py_list_attributes_impl`, x)
 }
 
-py_has_attr_impl <- function(x, name) {
-    .Call(`_reticulate_py_has_attr_impl`, x, name)
-}
-
-py_get_attr_impl <- function(x, key, silent = FALSE) {
-    .Call(`_reticulate_py_get_attr_impl`, x, key, silent)
-}
-
 py_get_convert <- function(x) {
     .Call(`_reticulate_py_get_convert`, x)
 }
@@ -150,24 +142,71 @@ py_new_ref <- function(x, convert) {
     .Call(`_reticulate_py_new_ref`, x, convert)
 }
 
-py_get_item_impl <- function(x, key, silent = FALSE) {
-    .Call(`_reticulate_py_get_item_impl`, x, key, silent)
+#' Check if a Python object has an attribute
+#'
+#' Check whether a Python object \code{x} has an attribute
+#' \code{name}.
+#'
+#' @param x A python object.
+#' @param name The attribute to be accessed.
+#'
+#' @return \code{TRUE} if the object has the attribute \code{name}, and
+#'   \code{FALSE} otherwise.
+#' @export
+py_has_attr <- function(x, name) {
+    .Call(`_reticulate_py_has_attr`, x, name)
 }
 
-py_set_attr_impl <- function(x, name, value) {
-    invisible(.Call(`_reticulate_py_set_attr_impl`, x, name, value))
+#' Get an attribute of a Python object
+#'
+#' @param x Python object
+#' @param name Attribute name
+#' @param silent \code{TRUE} to return \code{NULL} if the attribute
+#'  doesn't exist (default is \code{FALSE} which will raise an error)
+#'
+#' @return Attribute of Python object
+#' @export
+py_get_attr <- function(x, name, silent = FALSE) {
+    .Call(`_reticulate_py_get_attr`, x, name, silent)
 }
 
-py_del_attr_impl <- function(x, name) {
-    invisible(.Call(`_reticulate_py_del_attr_impl`, x, name))
+#' Set an attribute of a Python object
+#'
+#' @param x Python object
+#' @param name Attribute name
+#' @param value Attribute value
+#'
+#' @export
+py_set_attr <- function(x, name, value) {
+    invisible(.Call(`_reticulate_py_set_attr`, x, name, value))
 }
 
-py_set_item_impl <- function(x, key, val) {
-    invisible(.Call(`_reticulate_py_set_item_impl`, x, key, val))
+#' Delete an attribute of a Python object
+#'
+#' @param x A Python object.
+#' @param name The attribute name.
+#'
+#' @export
+py_del_attr <- function(x, name) {
+    invisible(.Call(`_reticulate_py_del_attr`, x, name))
 }
 
-py_del_item_impl <- function(x, key) {
-    invisible(.Call(`_reticulate_py_del_item_impl`, x, key))
+#' @rdname py_get_item
+#' @export
+py_get_item <- function(x, key, silent = FALSE) {
+    .Call(`_reticulate_py_get_item`, x, key, silent)
+}
+
+#' @rdname py_get_item
+#' @export
+py_set_item <- function(x, key, value) {
+    invisible(.Call(`_reticulate_py_set_item`, x, key, value))
+}
+
+#' @rdname py_get_item
+#' @export
+py_del_item <- function(x, key) {
+    invisible(.Call(`_reticulate_py_del_item`, x, key))
 }
 
 py_get_attr_types_impl <- function(x, attrs, resolve_properties) {

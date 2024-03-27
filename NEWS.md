@@ -1,5 +1,11 @@
 # reticulate (development version)
 
+- Fixed an issue where printing a delayed module (`import("foo", delay_load = TRUE)`) 
+  would output `<pointer: 0x0>`.
+  
+- `py_validate_xptr()` will now attempt to resolve delayed modules before 
+  signaling an error (#1561).
+
 - `reticulate` now prefers using the agg matplotlib backend when the R session
   is non-interactive. The backend can also be overridden via the `MPLBACKEND` or
   `RETICULATE_MPLBACKEND` environment variables when necessary.

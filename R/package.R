@@ -271,40 +271,6 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
   # https://github.com/rstudio/reticulate/issues/586
   py_set_qt_qpa_platform_plugin_path(config)
 
-  # notify the user if the loaded version of Python isn't the same
-  # as the requested version of python
-  local({
-
-    # nothing to do if user didn't request any version
-    requested_versions <- reticulate_python_versions()
-    if (length(requested_versions) == 0)
-      return()
-
-    # if we loaded one of the requested versions, everything is ok
-    actual <- normalizePath(config$python, winslash = "/", mustWork = FALSE)
-    requested <- normalizePath(requested_versions, winslash = "/", mustWork = FALSE)
-    if (actual %in% requested)
-      return()
-
-    # otherwise, warn that we were unable to honor their request
-    if (length(requested_versions) == 1) {
-      fmt <- paste(
-        "Python '%s' was requested but '%s' was loaded instead",
-        "(see reticulate::py_config() for more information)"
-      )
-      msg <- sprintf(fmt, requested_versions[[1]], config$python)
-      warning(msg, call. = FALSE)
-    } else {
-      fmt <- paste(
-        "could not honor request to load desired versions of Python; '%s' was loaded instead",
-        "(see reticulate::py_config() for more information)"
-      )
-      msg <- sprintf(fmt, config$python)
-      warning(msg, call. = FALSE)
-    }
-
-  })
-
   # return config
   config
 }

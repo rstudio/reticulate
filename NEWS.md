@@ -25,10 +25,12 @@
 - Fixed an issue where calling `py_set_item()` on a subclassed dict would
   not invoke a custom `__setitem__` method.
 
-- `py_del_attr(x, name)` now returns x invisibly
+- `py_del_attr(x, name)` now returns `x` invisibly
 
 - `source_python()` no longer exports assigns the `r` symbol to the R globalenv().
   (the "R Interface object" that is used by python code get a reference to the R globalenv)
+
+- Reticulate will no longer warn about ignored `use_python(,required = FALSE)` calls.
 
 - `iterate(simplify=TRUE)` rewritten in C for speed improvements.
 

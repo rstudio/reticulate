@@ -908,6 +908,12 @@ py_str.python.builtin.object <- function(object, ...) {
   py_str_impl(object)
 }
 
+#' @export
+format.python.builtin.module <- function(x, ...) {
+  if(py_is_module_proxy(x))
+    return(paste0("Module(", get("module", envir = x), ")", sep = ""))
+  NextMethod()
+}
 
 #' @export
 format.python.builtin.object <- function(x, ...) {

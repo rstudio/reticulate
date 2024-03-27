@@ -356,7 +356,7 @@ py_get_attr_or_item <- function(x, name, prefer_attr) {
 
 #' @export
 `$.python.builtin.module` <- function(x, name) {
-  attr <- py_get_attr_impl(x, name, TRUE)
+  attr <- py_get_attr(x, name, TRUE)
   if(!is.null(attr))
     return(py_maybe_convert(attr, py_has_convert(x)))
 
@@ -367,7 +367,7 @@ py_get_attr_or_item <- function(x, name, prefer_attr) {
     return(module)
 
   # fall back to raising the AttributeError
-  py_get_attr_impl(x, name, FALSE)
+  py_get_attr(x, name, FALSE)
 }
 
 # the as.environment generic enables python objects that manifest
@@ -841,44 +841,6 @@ py_call <- function(x, ...) {
 }
 
 
-#' Check if a Python object has an attribute
-#'
-#' Check whether a Python object \code{x} has an attribute
-#' \code{name}.
-#'
-#' @param x A python object.
-#' @param name The attribute to be accessed.
-#'
-#' @return \code{TRUE} if the object has the attribute \code{name}, and
-#'   \code{FALSE} otherwise.
-#' @export
-py_has_attr <- function(x, name) {
-  py_has_attr_impl(x, name)
-}
-
-#' Get an attribute of a Python object
-#'
-#' @param x Python object
-#' @param name Attribute name
-#' @param silent \code{TRUE} to return \code{NULL} if the attribute
-#'  doesn't exist (default is \code{FALSE} which will raise an error)
-#'
-#' @return Attribute of Python object
-#' @export
-py_get_attr <- function(x, name, silent = FALSE) {
-  py_get_attr_impl(x, name, silent)
-}
-
-#' Set an attribute of a Python object
-#'
-#' @param x Python object
-#' @param name Attribute name
-#' @param value Attribute value
-#'
-#' @export
-py_set_attr <- function(x, name, value) {
-  py_set_attr_impl(x, name, value)
-}
 
 #' The Python None object
 #'
@@ -889,16 +851,6 @@ py_none <- function() {
   py_none_impl()
 }
 
-#' Delete an attribute of a Python object
-#'
-#' @param x A Python object.
-#' @param name The attribute name.
-#'
-#' @export
-py_del_attr <- function(x, name) {
-  py_del_attr_impl(x, name)
-  invisible(x)
-}
 
 #' List all attributes of a Python object
 #'
@@ -912,16 +864,6 @@ py_list_attributes <- function(x) {
   Encoding(attrs) <- "UTF-8"
   attrs
 }
-
-py_get_attr_types <- function(x,
-                              names,
-                              resolve_properties = FALSE)
-{
-  py_get_attr_types_impl(x, names, resolve_properties)
-}
-
-
-
 
 
 #' String representation of a python object.
@@ -966,6 +908,12 @@ py_str.python.builtin.object <- function(object, ...) {
   py_str_impl(object)
 }
 
+#' @export
+format.python.builtin.module <- function(x, ...) {
+  if(py_is_module_proxy(x))
+    return(paste0("Module(", get("module", envir = x), ")", sep = ""))
+  NextMethod()
+}
 
 #' @export
 format.python.builtin.object <- function(x, ...) {
@@ -1499,8 +1447,8 @@ py_register_load_hook <- function(module, hook) {
 #' }
 nameOfClass.python.builtin.type <- function(x) {
   paste(
-    as_r_value(py_get_attr_impl(x, "__module__")),
-    as_r_value(py_get_attr_impl(x, "__name__")),
+    as_r_value(py_get_attr(x, "__module__")),
+    as_r_value(py_get_attr(x, "__name__")),
     sep = "."
   )
 }
@@ -1618,8 +1566,8 @@ py_last_error <- function(exception) {
     return(NULL)
   }
 
-  etype <- py_get_attr_impl(e, "__class__")
-  etb <- py_get_attr_impl(e, "__traceback__", TRUE)
+  etype <- py_get_attr(e, "__class__")
+  etb <- py_get_attr(e, "__traceback__", TRUE)
   traceback <- import("traceback")
 
   if(is.null(etb))
@@ -1628,7 +1576,7 @@ py_last_error <- function(exception) {
     formatted_traceback <- traceback$format_tb(etb)
 
   out <- list(
-    type = py_get_attr_impl(etype, "__name__", TRUE),
+    type = py_get_attr(etype, "__name__", TRUE),
     value = py_str_impl(e),
     traceback = formatted_traceback,
     message = paste0(traceback$format_exception(etype, e, etb),

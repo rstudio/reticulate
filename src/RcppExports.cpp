@@ -303,31 +303,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// py_has_attr_impl
-bool py_has_attr_impl(PyObjectRef x, const std::string& name);
-RcppExport SEXP _reticulate_py_has_attr_impl(SEXP xSEXP, SEXP nameSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< PyObjectRef >::type x(xSEXP);
-    Rcpp::traits::input_parameter< const std::string& >::type name(nameSEXP);
-    rcpp_result_gen = Rcpp::wrap(py_has_attr_impl(x, name));
-    return rcpp_result_gen;
-END_RCPP
-}
-// py_get_attr_impl
-PyObjectRef py_get_attr_impl(PyObjectRef x, const std::string& key, bool silent);
-RcppExport SEXP _reticulate_py_get_attr_impl(SEXP xSEXP, SEXP keySEXP, SEXP silentSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< PyObjectRef >::type x(xSEXP);
-    Rcpp::traits::input_parameter< const std::string& >::type key(keySEXP);
-    Rcpp::traits::input_parameter< bool >::type silent(silentSEXP);
-    rcpp_result_gen = Rcpp::wrap(py_get_attr_impl(x, key, silent));
-    return rcpp_result_gen;
-END_RCPP
-}
 // py_get_convert
 SEXP py_get_convert(PyObjectRef x);
 RcppExport SEXP _reticulate_py_get_convert(SEXP xSEXP) {
@@ -363,75 +338,104 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// py_get_item_impl
-PyObjectRef py_get_item_impl(PyObjectRef x, RObject key, bool silent);
-RcppExport SEXP _reticulate_py_get_item_impl(SEXP xSEXP, SEXP keySEXP, SEXP silentSEXP) {
+// py_has_attr
+bool py_has_attr(PyObjectRef x, const std::string& name);
+RcppExport SEXP _reticulate_py_has_attr(SEXP xSEXP, SEXP nameSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< PyObjectRef >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type name(nameSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_has_attr(x, name));
+    return rcpp_result_gen;
+END_RCPP
+}
+// py_get_attr
+PyObjectRef py_get_attr(PyObjectRef x, const std::string& name, bool silent);
+RcppExport SEXP _reticulate_py_get_attr(SEXP xSEXP, SEXP nameSEXP, SEXP silentSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< PyObjectRef >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type name(nameSEXP);
+    Rcpp::traits::input_parameter< bool >::type silent(silentSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_get_attr(x, name, silent));
+    return rcpp_result_gen;
+END_RCPP
+}
+// py_set_attr
+PyObjectRef py_set_attr(PyObjectRef x, const std::string& name, RObject value);
+RcppExport SEXP _reticulate_py_set_attr(SEXP xSEXP, SEXP nameSEXP, SEXP valueSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< PyObjectRef >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type name(nameSEXP);
+    Rcpp::traits::input_parameter< RObject >::type value(valueSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_set_attr(x, name, value));
+    return rcpp_result_gen;
+END_RCPP
+}
+// py_del_attr
+PyObjectRef py_del_attr(PyObjectRef x, const std::string& name);
+RcppExport SEXP _reticulate_py_del_attr(SEXP xSEXP, SEXP nameSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< PyObjectRef >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type name(nameSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_del_attr(x, name));
+    return rcpp_result_gen;
+END_RCPP
+}
+// py_get_item
+PyObjectRef py_get_item(PyObjectRef x, RObject key, bool silent);
+RcppExport SEXP _reticulate_py_get_item(SEXP xSEXP, SEXP keySEXP, SEXP silentSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< PyObjectRef >::type x(xSEXP);
     Rcpp::traits::input_parameter< RObject >::type key(keySEXP);
     Rcpp::traits::input_parameter< bool >::type silent(silentSEXP);
-    rcpp_result_gen = Rcpp::wrap(py_get_item_impl(x, key, silent));
+    rcpp_result_gen = Rcpp::wrap(py_get_item(x, key, silent));
     return rcpp_result_gen;
 END_RCPP
 }
-// py_set_attr_impl
-void py_set_attr_impl(PyObjectRef x, const std::string& name, RObject value);
-RcppExport SEXP _reticulate_py_set_attr_impl(SEXP xSEXP, SEXP nameSEXP, SEXP valueSEXP) {
+// py_set_item
+PyObjectRef py_set_item(PyObjectRef x, RObject key, RObject value);
+RcppExport SEXP _reticulate_py_set_item(SEXP xSEXP, SEXP keySEXP, SEXP valueSEXP) {
 BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< PyObjectRef >::type x(xSEXP);
-    Rcpp::traits::input_parameter< const std::string& >::type name(nameSEXP);
+    Rcpp::traits::input_parameter< RObject >::type key(keySEXP);
     Rcpp::traits::input_parameter< RObject >::type value(valueSEXP);
-    py_set_attr_impl(x, name, value);
-    return R_NilValue;
+    rcpp_result_gen = Rcpp::wrap(py_set_item(x, key, value));
+    return rcpp_result_gen;
 END_RCPP
 }
-// py_del_attr_impl
-void py_del_attr_impl(PyObjectRef x, const std::string& name);
-RcppExport SEXP _reticulate_py_del_attr_impl(SEXP xSEXP, SEXP nameSEXP) {
+// py_del_item
+PyObjectRef py_del_item(PyObjectRef x, RObject key);
+RcppExport SEXP _reticulate_py_del_item(SEXP xSEXP, SEXP keySEXP) {
 BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< PyObjectRef >::type x(xSEXP);
-    Rcpp::traits::input_parameter< const std::string& >::type name(nameSEXP);
-    py_del_attr_impl(x, name);
-    return R_NilValue;
-END_RCPP
-}
-// py_set_item_impl
-void py_set_item_impl(PyObjectRef x, RObject key, RObject val);
-RcppExport SEXP _reticulate_py_set_item_impl(SEXP xSEXP, SEXP keySEXP, SEXP valSEXP) {
-BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< PyObjectRef >::type x(xSEXP);
     Rcpp::traits::input_parameter< RObject >::type key(keySEXP);
-    Rcpp::traits::input_parameter< RObject >::type val(valSEXP);
-    py_set_item_impl(x, key, val);
-    return R_NilValue;
+    rcpp_result_gen = Rcpp::wrap(py_del_item(x, key));
+    return rcpp_result_gen;
 END_RCPP
 }
-// py_del_item_impl
-void py_del_item_impl(PyObjectRef x, RObject key);
-RcppExport SEXP _reticulate_py_del_item_impl(SEXP xSEXP, SEXP keySEXP) {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< PyObjectRef >::type x(xSEXP);
-    Rcpp::traits::input_parameter< RObject >::type key(keySEXP);
-    py_del_item_impl(x, key);
-    return R_NilValue;
-END_RCPP
-}
-// py_get_attr_types_impl
-IntegerVector py_get_attr_types_impl(PyObjectRef x, const std::vector<std::string>& attrs, bool resolve_properties);
-RcppExport SEXP _reticulate_py_get_attr_types_impl(SEXP xSEXP, SEXP attrsSEXP, SEXP resolve_propertiesSEXP) {
+// py_get_attr_types
+IntegerVector py_get_attr_types(PyObjectRef x, const std::vector<std::string>& attrs, bool resolve_properties);
+RcppExport SEXP _reticulate_py_get_attr_types(SEXP xSEXP, SEXP attrsSEXP, SEXP resolve_propertiesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< PyObjectRef >::type x(xSEXP);
     Rcpp::traits::input_parameter< const std::vector<std::string>& >::type attrs(attrsSEXP);
     Rcpp::traits::input_parameter< bool >::type resolve_properties(resolve_propertiesSEXP);
-    rcpp_result_gen = Rcpp::wrap(py_get_attr_types_impl(x, attrs, resolve_properties));
+    rcpp_result_gen = Rcpp::wrap(py_get_attr_types(x, attrs, resolve_properties));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -868,17 +872,17 @@ static const R_CallMethodDef CallEntries[] = {
     {"_reticulate_py_is_function", (DL_FUNC) &_reticulate_py_is_function, 1},
     {"_reticulate_py_numpy_available_impl", (DL_FUNC) &_reticulate_py_numpy_available_impl, 0},
     {"_reticulate_py_list_attributes_impl", (DL_FUNC) &_reticulate_py_list_attributes_impl, 1},
-    {"_reticulate_py_has_attr_impl", (DL_FUNC) &_reticulate_py_has_attr_impl, 2},
-    {"_reticulate_py_get_attr_impl", (DL_FUNC) &_reticulate_py_get_attr_impl, 3},
     {"_reticulate_py_get_convert", (DL_FUNC) &_reticulate_py_get_convert, 1},
     {"_reticulate_py_set_convert", (DL_FUNC) &_reticulate_py_set_convert, 2},
     {"_reticulate_py_new_ref", (DL_FUNC) &_reticulate_py_new_ref, 2},
-    {"_reticulate_py_get_item_impl", (DL_FUNC) &_reticulate_py_get_item_impl, 3},
-    {"_reticulate_py_set_attr_impl", (DL_FUNC) &_reticulate_py_set_attr_impl, 3},
-    {"_reticulate_py_del_attr_impl", (DL_FUNC) &_reticulate_py_del_attr_impl, 2},
-    {"_reticulate_py_set_item_impl", (DL_FUNC) &_reticulate_py_set_item_impl, 3},
-    {"_reticulate_py_del_item_impl", (DL_FUNC) &_reticulate_py_del_item_impl, 2},
-    {"_reticulate_py_get_attr_types_impl", (DL_FUNC) &_reticulate_py_get_attr_types_impl, 3},
+    {"_reticulate_py_has_attr", (DL_FUNC) &_reticulate_py_has_attr, 2},
+    {"_reticulate_py_get_attr", (DL_FUNC) &_reticulate_py_get_attr, 3},
+    {"_reticulate_py_set_attr", (DL_FUNC) &_reticulate_py_set_attr, 3},
+    {"_reticulate_py_del_attr", (DL_FUNC) &_reticulate_py_del_attr, 2},
+    {"_reticulate_py_get_item", (DL_FUNC) &_reticulate_py_get_item, 3},
+    {"_reticulate_py_set_item", (DL_FUNC) &_reticulate_py_set_item, 3},
+    {"_reticulate_py_del_item", (DL_FUNC) &_reticulate_py_del_item, 2},
+    {"_reticulate_py_get_attr_types", (DL_FUNC) &_reticulate_py_get_attr_types, 3},
     {"_reticulate_py_ref_to_r_with_convert", (DL_FUNC) &_reticulate_py_ref_to_r_with_convert, 2},
     {"_reticulate_py_ref_to_r", (DL_FUNC) &_reticulate_py_ref_to_r, 1},
     {"_reticulate_py_call_impl", (DL_FUNC) &_reticulate_py_call_impl, 3},

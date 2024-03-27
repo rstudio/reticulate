@@ -20,12 +20,15 @@ test_that("imported module can be customized via delay_load", {
     stopifnot(isTRUE(reticulate:::py_is_module_proxy(sys)))
 
     print(sys)
-    reticulate::py_is_null_xptr(sys)
-
+    stopifnot(isTRUE(reticulate::py_is_null_xptr(sys)))
     stopifnot(isTRUE(reticulate:::py_is_module_proxy(sys)))
 
-    as.character(sys$byteorder)
+    out <- as.character(sys$byteorder)
 
+    stopifnot(isFALSE(reticulate::py_is_null_xptr(sys)))
+    stopifnot(isFALSE(reticulate:::py_is_module_proxy(sys)))
+
+    out
   })
 
   # validate expected result

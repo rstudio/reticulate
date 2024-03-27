@@ -226,10 +226,10 @@ PyObject* py_capsule_new(SEXP object) {
 
 PyObject* py_get_attr(PyObject* object, const std::string& name) {
 
-  if (PyObject_HasAttrString(object, name.c_str()))
-    return PyObject_GetAttrString(object, name.c_str());
-  else
-    return NULL;
+  PyObject* attr = PyObject_GetAttrString(object, name.c_str());
+  if(attr == NULL)
+    PyErr_Clear();
+  return attr;
 
 }
 
@@ -523,11 +523,13 @@ SEXP current_env(void) {
   return Rf_eval(call, R_BaseEnv);
 }
 
+static inline
 SEXP eval_call(SEXP r_func, SEXP arg) {
   RObject cl(Rf_lang2(r_func, arg));
   return Rcpp_fast_eval(cl, ns_reticulate);
 }
 
+static inline
 SEXP eval_call_fast_unsafe(SEXP r_func, SEXP arg) {
   SEXP cl = PROTECT(Rf_lang2(r_func, arg));
   SEXP res = Rf_eval(cl, ns_reticulate);
@@ -535,15 +537,18 @@ SEXP eval_call_fast_unsafe(SEXP r_func, SEXP arg) {
   return res;
 }
 
+static inline
 SEXP eval_call(SEXP r_func, SEXP arg1, SEXP arg2) {
   RObject cl(Rf_lang3(r_func, arg1, arg2));
   return Rcpp_fast_eval(cl, ns_reticulate);
 }
 
+static inline
 SEXP eval_call(SEXP r_func, SEXP arg1, bool arg2) {
   return eval_call(r_func, arg1, Rf_ScalarLogical(arg2));
 }
 
+static inline
 SEXP eval_call_in_userenv(SEXP r_func, SEXP arg) {
   RObject cl(Rf_lang2(r_func, arg));
   return Rcpp_fast_eval(cl, current_env());
@@ -551,6 +556,7 @@ SEXP eval_call_in_userenv(SEXP r_func, SEXP arg) {
   // we need a new func, current_user_env(), that walks the frames, skipping reticulate ns frames.
 }
 
+static inline
 SEXP eval_call_in_userenv(SEXP r_func, SEXP arg1, SEXP arg2) {
   SEXP cl = Rf_lang3(r_func, arg1, arg2);
   RObject cl_(cl); // protect
@@ -689,6 +695,20 @@ PyObjectRef py_ref(PyObject* object, bool convert)
 
 }
 
+static inline
+bool inherits2(SEXP object, const char* name) {
+  // like inherits in R, but iterates over the class STRSXP vector
+  // in reverse, since python.builtin.object is typically at the tail.
+  SEXP klass = Rf_getAttrib(object, R_ClassSymbol);
+  if (TYPEOF(klass) == STRSXP) {
+    for (int i = Rf_length(klass)-1; i >= 0; i--) {
+      if (strcmp(CHAR(STRING_ELT(klass, i)), name) == 0)
+        return true;
+    }
+  }
+  return false;
+}
+
 //' Check if a Python object is a null externalptr
 //'
 //' @param x Python object
@@ -714,13 +734,21 @@ bool py_is_null_xptr(PyObjectRef x) {
 //' @rdname py_is_null_xptr
 //' @export
 // [[Rcpp::export]]
-void py_validate_xptr(PyObjectRef x) {
-  if (py_is_null_xptr(x)) {
-    stop("Object is a null externalptr (it may have been disconnected from "
-           " the session where it was created)");
-  }
-}
+void py_validate_xptr(PyObjectRef x)
+{
+    if (!x.is_null_xptr())
+        return;
 
+    if (inherits2(x, "python.builtin.module"))
+    {
+        if (try_py_resolve_module_proxy(x.get_refenv()))
+            if (!x.is_null_xptr())
+                return;
+    }
+
+    stop("Object is a null externalptr (it may have been disconnected from "
+         "the session where it was created)");
+}
 
 bool option_is_true(const std::string& name) {
   SEXP valueSEXP = Rf_GetOption(Rf_install(name.c_str()), R_BaseEnv);
@@ -1157,20 +1185,6 @@ SEXP py_to_r_wrapper(SEXP x) {
 
 SEXP py_to_r_cpp(PyObject* x, bool convert, bool simple = true);
 
-
-static inline
-bool inherits2(SEXP object, const char* name) {
-  // like inherits in R, but iterates over the class STRSXP vector
-  // in reverse, since python.builtin.object is typically at the tail.
-  SEXP klass = Rf_getAttrib(object, R_ClassSymbol);
-  if (TYPEOF(klass) == STRSXP) {
-    for (int i = Rf_length(klass)-1; i >= 0; i--) {
-      if (strcmp(CHAR(STRING_ELT(klass, i)), name) == 0)
-        return true;
-    }
-  }
-  return false;
-}
 
 // [[Rcpp::export]]
 bool is_py_object(SEXP x) {
@@ -2733,9 +2747,9 @@ bool py_numpy_available_impl() {
 
 // [[Rcpp::export]]
 std::vector<std::string> py_list_attributes_impl(PyObjectRef x) {
-  ensure_python_initialized();
+  PyObject* x_ = x.get(); // ensure python initialized, module proxy resolved
   std::vector<std::string> attributes;
-  PyObjectPtr attrs(PyObject_Dir(x));
+  PyObjectPtr attrs(PyObject_Dir(x_));
   if (attrs.is_null())
     throw PythonException(py_fetch_error());
 
@@ -2748,35 +2762,6 @@ std::vector<std::string> py_list_attributes_impl(PyObjectRef x) {
   return attributes;
 }
 
-// [[Rcpp::export]]
-bool py_has_attr_impl(PyObjectRef x, const std::string& name) {
-  if (py_is_null_xptr(x))
-    return false;
-  ensure_python_initialized();
-  return PyObject_HasAttrString(x, name.c_str());
-}
-
-// [[Rcpp::export]]
-PyObjectRef py_get_attr_impl(PyObjectRef x,
-                             const std::string& key,
-                             bool silent = false)
-{
-
-  ensure_python_initialized();
-
-  PyObject *attr = PyObject_GetAttrString(x, key.c_str()); // new ref
-
-  if (attr == NULL) {
-    if (silent) {
-      PyErr_Clear();
-      return PyObjectRef(R_NilValue, false);
-    } else {
-      throw PythonException(py_fetch_error());
-    }
-  }
-
-  return py_ref(attr, x.convert());
-}
 
 // [[Rcpp::export]]
 SEXP py_get_convert(PyObjectRef x) {
@@ -2802,85 +2787,143 @@ PyObjectRef py_new_ref(PyObjectRef x, SEXP convert) {
 }
 
 
+//' Check if a Python object has an attribute
+//'
+//' Check whether a Python object \code{x} has an attribute
+//' \code{name}.
+//'
+//' @param x A python object.
+//' @param name The attribute to be accessed.
+//'
+//' @return \code{TRUE} if the object has the attribute \code{name}, and
+//'   \code{FALSE} otherwise.
+//' @export
 // [[Rcpp::export]]
-PyObjectRef py_get_item_impl(PyObjectRef x, RObject key, bool silent = false)
+bool py_has_attr(PyObjectRef x, const std::string& name) {
+  PyObject* x_ = x.get(); // ensure python initialized, module proxy resolved
+  return PyObject_HasAttrString(x_, name.c_str());
+}
+
+
+//' Get an attribute of a Python object
+//'
+//' @param x Python object
+//' @param name Attribute name
+//' @param silent \code{TRUE} to return \code{NULL} if the attribute
+//'  doesn't exist (default is \code{FALSE} which will raise an error)
+//'
+//' @return Attribute of Python object
+//' @export
+// [[Rcpp::export]]
+PyObjectRef py_get_attr(PyObjectRef x,
+                        const std::string& name,
+                        bool silent = false)
 {
-  ensure_python_initialized();
+  PyObject* x_ = x.get(); // ensure python initialized, module proxy resolved
+  PyObject *attr = PyObject_GetAttrString(x_, name.c_str()); // new ref
 
-  PyObjectPtr py_key(r_to_py(key, false));
-  PyObject *item;
-
-  if (silent) {
-    PyErrorScopeGuard _g;
-
-    item = PyObject_GetItem(x, py_key);
-    if (item == NULL)
+  if (attr == NULL) {
+    if (silent) {
+      PyErr_Clear();
       return PyObjectRef(R_NilValue, false);
-
-  } else {
-
-    item = PyObject_GetItem(x, py_key);
-    if (item == NULL)
+    } else {
       throw PythonException(py_fetch_error());
-
+    }
   }
 
-  return py_ref(item, x.convert());
+  return PyObjectRef(attr, x.convert());
 }
 
-// [[Rcpp::export]]
-void py_set_attr_impl(PyObjectRef x,
-                      const std::string& name,
-                      RObject value)
+
+//' Set an attribute of a Python object
+//'
+//' @param x Python object
+//' @param name Attribute name
+//' @param value Attribute value
+//'
+//' @export
+// [[Rcpp::export(invisible = true)]]
+PyObjectRef py_set_attr(PyObjectRef x,
+                        const std::string& name,
+                        RObject value)
 {
-  ensure_python_initialized();
-  PyObjectPtr converted(r_to_py(value, x.convert()));
-  int res = PyObject_SetAttrString(x, name.c_str(), converted);
+  PyObject* x_ = x.get(); // ensure python initialized, module proxy resolved
+  PyObjectPtr value_(r_to_py(value, x.convert()));
+  int res = PyObject_SetAttrString(x_, name.c_str(), value_);
   if (res != 0)
     throw PythonException(py_fetch_error());
+  return x;
 }
 
-// [[Rcpp::export]]
-void py_del_attr_impl(PyObjectRef x,
-                      const std::string& name)
+//' Delete an attribute of a Python object
+//'
+//' @param x A Python object.
+//' @param name The attribute name.
+//'
+//' @export
+// [[Rcpp::export(invisible = true)]]
+PyObjectRef py_del_attr(PyObjectRef x, const std::string& name)
 {
-  ensure_python_initialized();
-  int res = PyObject_SetAttrString(x, name.c_str(), NULL);
+  PyObject* x_ = x.get(); // ensure python initialized, module proxy resolved
+  int res = PyObject_SetAttrString(x_, name.c_str(), NULL);
   if (res != 0)
     throw PythonException(py_fetch_error());
+  return x;
 }
 
+//' @rdname py_get_item
+//' @export
 // [[Rcpp::export]]
-void py_set_item_impl(PyObjectRef x,
-                      RObject key,
-                      RObject val)
+PyObjectRef py_get_item(PyObjectRef x, RObject key, bool silent = false)
 {
-  ensure_python_initialized();
+  PyObject* x_ = x.get(); // ensure python initialized, module proxy resolved
+  PyObjectPtr py_key(r_to_py(key, false));
+  PyObject *item = PyObject_GetItem(x_, py_key);
+  if (item == NULL) {
+    if (silent) {
+      PyErr_Clear();
+      return PyObjectRef(R_NilValue, false);
+    }
+    throw PythonException(py_fetch_error());
+  }
+  return PyObjectRef(item, x.convert());
+}
+
+//' @rdname py_get_item
+//' @export
+// [[Rcpp::export(invisible = true)]]
+PyObjectRef py_set_item(PyObjectRef x, RObject key, RObject value)
+{
+  PyObject* x_ = x.get(); // ensure python initialized, module proxy resolved
   PyObjectPtr py_key(r_to_py(key, true));
-  PyObjectPtr py_val(r_to_py(val, true));
+  PyObjectPtr py_val(r_to_py(value, true));
 
-  int res = PyObject_SetItem(x, py_key, py_val);
+  int res = PyObject_SetItem(x_, py_key, py_val);
   if (res != 0)
     throw PythonException(py_fetch_error());
+  return x;
 }
 
-// [[Rcpp::export]]
-void py_del_item_impl(PyObjectRef x, RObject key) {
-  ensure_python_initialized();
+//' @rdname py_get_item
+//' @export
+// [[Rcpp::export(invisible = true)]]
+PyObjectRef py_del_item(PyObjectRef x, RObject key) {
+  PyObject* x_ = x.get(); // ensure python initialized, module proxy resolved
   PyObjectPtr pyKey(r_to_py(key, true));
-  int res = PyObject_DelItem(x.get(), pyKey.get());
+  int res = PyObject_DelItem(x_, pyKey.get());
   if (res != 0)
     throw PythonException(py_fetch_error());
+  return x;
 }
 
 
 // [[Rcpp::export]]
-IntegerVector py_get_attr_types_impl(
+IntegerVector py_get_attr_types(
     PyObjectRef x,
     const std::vector<std::string>& attrs,
-    bool resolve_properties)
+    bool resolve_properties = false)
 {
-  ensure_python_initialized();
+  PyObject* x_ = x.get(); // ensure python initialized, module proxy resolved
   const int UNKNOWN     =  0;
   const int VECTOR      =  1;
   const int ARRAY       =  2;
@@ -2888,7 +2931,7 @@ IntegerVector py_get_attr_types_impl(
   const int ENVIRONMENT =  5;
   const int FUNCTION    =  6;
   PyErrorScopeGuard _g;
-  PyObjectPtr type( PyObject_GetAttrString(x, "__class__") );
+  PyObjectPtr type( PyObject_GetAttrString(x_, "__class__") );
 
   std::size_t n = attrs.size();
   IntegerVector types = no_init(n);
@@ -2907,7 +2950,7 @@ IntegerVector py_get_attr_types_impl(
       }
     }
 
-    PyObjectPtr attr(PyObject_GetAttrString(x, name.c_str()));
+    PyObjectPtr attr(PyObject_GetAttrString(x_, name.c_str()));
 
     if(attr.is_null()) {
       PyErr_Clear();
@@ -3017,10 +3060,10 @@ PyObjectRef py_dict_impl(const List& keys, const List& items, bool convert) {
 
 // [[Rcpp::export]]
 SEXP py_dict_get_item(PyObjectRef dict, RObject key) {
-  ensure_python_initialized();
+  PyObject* dict_ = dict.get(); // ensure python initialized, module proxy resolved
 
-  if (!PyDict_CheckExact(dict)) {
-    PyObjectRef ref(py_get_item_impl(dict, key, false));
+  if (!PyDict_CheckExact(dict_)) {
+    PyObjectRef ref(py_get_item(dict, key, false));
     if(dict.convert()) {
       // py_get_item_impl returns PyObjectRef always
       return py_to_r(ref.get(), true); // py_to_r() does *not* steal a ref
@@ -3033,7 +3076,7 @@ SEXP py_dict_get_item(PyObjectRef dict, RObject key) {
 
   // NOTE: returns borrowed reference
   // NOTE: does *not* set an exception if key is missing
-  PyObject* item = PyDict_GetItem(dict, pyKey);
+  PyObject* item = PyDict_GetItem(dict_, pyKey);
   if (item == NULL)
     item = Py_None;
 
@@ -3042,13 +3085,16 @@ SEXP py_dict_get_item(PyObjectRef dict, RObject key) {
 
 // [[Rcpp::export]]
 void py_dict_set_item(PyObjectRef dict, RObject key, RObject val) {
+  PyObject* dict_ = dict.get(); // ensure python initialized, module proxy resolved
 
-  if (!PyDict_CheckExact(dict))
-    return py_set_item_impl(dict, key, val);
+  if (!PyDict_CheckExact(dict_)) {
+    py_set_item(dict, key, val);
+    return ;
+  }
 
   PyObjectPtr py_key(r_to_py(key, dict.convert()));
   PyObjectPtr py_val(r_to_py(val, dict.convert()));
-  PyDict_SetItem(dict, py_key, py_val);
+  PyDict_SetItem(dict_, py_key, py_val);
 
 }
 

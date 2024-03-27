@@ -1,6 +1,5 @@
 
 
-
 #' Get/Set/Delete an item from a Python object
 #'
 #' Access an item from a Python object, similar to how \code{x[key]} might be
@@ -13,7 +12,7 @@
 #'   with `convert = TRUE`.
 #'
 #' @param x A Python object.
-#' @param key,name,... The key used for item lookup.
+#' @param key,... The key used for item lookup.
 #' @param silent Boolean; when \code{TRUE}, attempts to access missing items
 #'   will return \code{NULL} rather than throw an error.
 #' @param value The item value to set. Assigning `value` of `NULL` calls
@@ -25,7 +24,6 @@
 #'   `x.__getitem__()` method. For `py_set_item()`, `py_del_item()` and `[<-`,
 #'   the mutate object `x` is returned.
 #'
-#' @rdname py_get_item
 #' @family item-related APIs
 #' @export
 #' @examples
@@ -67,25 +65,6 @@
 #'   x[`1:3:2`]   # x[1:3:2]
 #'
 #' }
-py_get_item <- function(x, key, silent = FALSE) {
-  py_get_item_impl(x, key, silent)
-}
-
-#' @rdname py_get_item
-#' @export
-py_set_item <- function(x, name, value) {
-  py_set_item_impl(x, name, value)
-  invisible(x)
-}
-
-#' @rdname py_get_item
-#' @export
-py_del_item <- function(x, name) {
-  py_del_item_impl(x, name)
-  invisible(x)
-}
-
-
 #' @rdname py_get_item
 #' @export
 `[.python.builtin.object` <- function(x, ...) {

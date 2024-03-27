@@ -21,7 +21,7 @@ py_del_item(x, key)
 \arguments{
 \item{x}{A Python object.}
 
-\item{key, name, ...}{The key used for item lookup.}
+\item{key, ...}{The key used for item lookup.}
 
 \item{silent}{Boolean; when \code{TRUE}, attempts to access missing items
 will return \code{NULL} rather than throw an error.}

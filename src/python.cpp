@@ -3572,7 +3572,7 @@ SEXP py_convert_pandas_df(PyObjectRef df) {
 
   // pd.DataFrame.items() returns an iterator over (column name, Series) pairs
   PyObjectPtr items(PyObject_CallMethod(df, "items", NULL));
-  if (! (PyObject_HasAttrString(items, "__next__") || PyObject_HasAttrString(items, "next")))
+  if (!PyIter_Check(items))
     stop("Cannot iterate over object");
 
   std::vector<RObject> list;
@@ -3902,16 +3902,15 @@ SEXP py_bool_impl(PyObjectRef x, bool silent = false) {
 
 // [[Rcpp::export]]
 SEXP py_has_method(PyObjectRef object, const std::string& name) {
+  PyObject* object_ = object.get(); // ensure python initialized, module proxy resolved
 
-  if (py_is_null_xptr(object))
+  PyObjectPtr attr(PyObject_GetAttrString(object_, name.c_str()));
+  if (attr.is_null()) {
+    PyErr_Clear();
     return Rf_ScalarLogical(false);
+  }
 
-  if (!PyObject_HasAttrString(object, name.c_str()))
-    return Rf_ScalarLogical(false);
-
-  PyObjectPtr attr(PyObject_GetAttrString(object, name.c_str()));
   int result = PyMethod_Check(attr);
-
   return Rf_ScalarLogical(result);
 }
 

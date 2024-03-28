@@ -1675,6 +1675,7 @@ SEXP py_get_formals(PyObjectRef callable)
 {
 
   PyObject* callable_ = callable.get();
+
   static PyObject *inspect_module = NULL;
   static PyObject *inspect_signature = NULL;
   static PyObject *inspect_Parameter = NULL;
@@ -1682,9 +1683,8 @@ SEXP py_get_formals(PyObjectRef callable)
   static PyObject *inspect_Parameter_VAR_POSITIONAL = NULL;
   static PyObject *inspect_Parameter_KEYWORD_ONLY = NULL;
   static PyObject *inspect_Parameter_empty = NULL;
-  static SEXP sym_dotdotdot = NULL;
 
-  if (!sym_dotdotdot)
+  if (!inspect_Parameter_empty)
   {
     // initialize static variables to avoid repeat lookups
 
@@ -1709,10 +1709,9 @@ SEXP py_get_formals(PyObjectRef callable)
     inspect_Parameter_empty = PyObject_GetAttrString(inspect_Parameter, "empty");
     if (!inspect_Parameter_empty) throw PythonException(py_fetch_error());
 
-    sym_dotdotdot = Rf_install("...");
   }
 
-  PyObjectPtr sig(PyObject_CallFunctionObjArgs(inspect_signature, callable.get(), NULL));
+  PyObjectPtr sig(PyObject_CallFunctionObjArgs(inspect_signature, callable_, NULL));
   if (sig.is_null())
   {
     // inspect.signature() can error on builtins in cpython,
@@ -1720,7 +1719,7 @@ SEXP py_get_formals(PyObjectRef callable)
     // fallback to returning formals of `...`.
     PyErr_Clear();
     SEXP out = PROTECT(Rf_cons(R_MissingArg, R_NilValue));
-    SET_TAG(out, sym_dotdotdot);
+    SET_TAG(out, R_DotsSymbol);
     UNPROTECT(1);
     return out;
   }
@@ -1756,7 +1755,7 @@ SEXP py_get_formals(PyObjectRef callable)
     {
       if (!has_dots)
       {
-          GrowList(r_args, sym_dotdotdot, R_MissingArg);
+          GrowList(r_args, R_DotsSymbol, R_MissingArg);
           has_dots = true;
       }
       continue;
@@ -1764,7 +1763,7 @@ SEXP py_get_formals(PyObjectRef callable)
 
     if (!has_dots && kind == inspect_Parameter_KEYWORD_ONLY)
     {
-      GrowList(r_args, sym_dotdotdot, R_MissingArg);
+      GrowList(r_args, R_DotsSymbol, R_MissingArg);
       has_dots = true;
     }
 

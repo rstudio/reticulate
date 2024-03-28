@@ -543,25 +543,25 @@ SEXP eval_call(SEXP r_func, SEXP arg1, SEXP arg2) {
   return Rcpp_fast_eval(cl, ns_reticulate);
 }
 
-static inline
-SEXP eval_call(SEXP r_func, SEXP arg1, bool arg2) {
-  return eval_call(r_func, arg1, Rf_ScalarLogical(arg2));
-}
+// static inline
+// SEXP eval_call(SEXP r_func, SEXP arg1, bool arg2) {
+//   return eval_call(r_func, arg1, Rf_ScalarLogical(arg2));
+// }
 
-static inline
-SEXP eval_call_in_userenv(SEXP r_func, SEXP arg) {
-  RObject cl(Rf_lang2(r_func, arg));
-  return Rcpp_fast_eval(cl, current_env());
-  // this sometimes returns the reticulate ns env
-  // we need a new func, current_user_env(), that walks the frames, skipping reticulate ns frames.
-}
+// static inline
+// SEXP eval_call_in_userenv(SEXP r_func, SEXP arg) {
+//   RObject cl(Rf_lang2(r_func, arg));
+//   return Rcpp_fast_eval(cl, current_env());
+//   // this sometimes returns the reticulate ns env
+//   // we need a new func, current_user_env(), that walks the frames, skipping reticulate ns frames.
+// }
 
-static inline
-SEXP eval_call_in_userenv(SEXP r_func, SEXP arg1, SEXP arg2) {
-  SEXP cl = Rf_lang3(r_func, arg1, arg2);
-  RObject cl_(cl); // protect
-  return Rcpp_fast_eval(cl, current_env());
-}
+// static inline
+// SEXP eval_call_in_userenv(SEXP r_func, SEXP arg1, SEXP arg2) {
+//   SEXP cl = Rf_lang3(r_func, arg1, arg2);
+//   RObject cl_(cl); // protect
+//   return Rcpp_fast_eval(cl, current_env());
+// }
 
 
 bool s_is_python_initialized = false;

@@ -38,15 +38,15 @@
 #'   example commands you can run to pre-install system dependencies
 #'   (requires administrator privileges).
 #'
-#'  If `optimized = FALSE`, Python is built with:
-#'   ```
-#'   PYTHON_CONFIGURE_OPTS=--enable-shared
-#'   ```
-#'
-#'  If `optimized = TRUE`, Python is build with:
+#'  If `optimized = TRUE`, (the default) Python is build with:
 #'   ```
 #'   PYTHON_CONFIGURE_OPTS="--enable-shared --enable-optimizations --with-lto"
 #'   PYTHON_CFLAGS="-march=native -mtune=native"
+#'   ```
+#'
+#'  If `optimized = FALSE`, Python is built with:
+#'   ```
+#'   PYTHON_CONFIGURE_OPTS=--enable-shared
 #'   ```
 #'
 #'   On Windows, prebuilt installers from <https://www.python.org> are used.
@@ -55,7 +55,7 @@
 install_python <- function(version = "3.9:latest",
                            list = FALSE,
                            force = FALSE,
-                           optimized = FALSE)
+                           optimized = TRUE)
 {
 
   check_forbidden_install("Python")

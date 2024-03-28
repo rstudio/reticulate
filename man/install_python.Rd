@@ -8,7 +8,7 @@ install_python(
   version = "3.9:latest",
   list = FALSE,
   force = FALSE,
-  optimized = FALSE
+  optimized = TRUE
 )
 }
 \arguments{
@@ -51,15 +51,15 @@ dependencies are preinstalled. See
 example commands you can run to pre-install system dependencies
 (requires administrator privileges).
 
-If \code{optimized = FALSE}, Python is built with:
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{PYTHON_CONFIGURE_OPTS=--enable-shared
-}\if{html}{\out{</div>}}
-
-If \code{optimized = TRUE}, Python is build with:
+If \code{optimized = TRUE}, (the default) Python is build with:
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{PYTHON_CONFIGURE_OPTS="--enable-shared --enable-optimizations --with-lto"
 PYTHON_CFLAGS="-march=native -mtune=native"
+}\if{html}{\out{</div>}}
+
+If \code{optimized = FALSE}, Python is built with:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{PYTHON_CONFIGURE_OPTS=--enable-shared
 }\if{html}{\out{</div>}}
 
 On Windows, prebuilt installers from \url{https://www.python.org} are used.

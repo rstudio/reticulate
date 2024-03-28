@@ -149,7 +149,7 @@ pyenv_find_impl <- function(install = TRUE) {
 
 }
 
-pyenv_install <- function(version, force, pyenv = NULL, optimized = FALSE) {
+pyenv_install <- function(version, force, pyenv = NULL, optimized = TRUE) {
 
   pyenv <- canonical_path(pyenv %||% pyenv_find())
   stopifnot(file.exists(pyenv))

@@ -4,6 +4,8 @@
   to the original `sys.stdout` and `sys.stderr`, resulting in no further visible output
   from Python, and possibly a segfault. (#1564)
 
+- `install_python()` will now build optimized versions of Python on macOS and Linux (#1567)
+
 - Fixed an issue where printing a delayed module (`import("foo", delay_load = TRUE)`)
   would output `<pointer: 0x0>`.
 

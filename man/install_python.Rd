@@ -4,7 +4,12 @@
 \alias{install_python}
 \title{Install Python}
 \usage{
-install_python(version = "3.9:latest", list = FALSE, force = FALSE)
+install_python(
+  version = "3.9:latest",
+  list = FALSE,
+  force = FALSE,
+  optimized = TRUE
+)
 }
 \arguments{
 \item{version}{The version of Python to install.}
@@ -13,6 +18,9 @@ install_python(version = "3.9:latest", list = FALSE, force = FALSE)
 
 \item{force}{Boolean; force re-installation even if the requested version
 of Python is already installed?}
+
+\item{optimized}{Boolean; if \code{TRUE}, installation will take significantly longer but
+should result in a faster Python interpreter. Only applicable on macOS and Linux.}
 }
 \description{
 Download and install Python, using the \href{https://github.com/pyenv/pyenv}{pyenv}.
@@ -42,7 +50,17 @@ dependencies are preinstalled. See
 \url{https://github.com/pyenv/pyenv/wiki#suggested-build-environment} for
 example commands you can run to pre-install system dependencies
 (requires administrator privileges).
-Python is built with \code{PYTHON_CONFIGURE_OPTS=--enable-shared} set.
+
+If \code{optimized = TRUE}, (the default) Python is build with:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{PYTHON_CONFIGURE_OPTS="--enable-shared --enable-optimizations --with-lto"
+PYTHON_CFLAGS="-march=native -mtune=native"
+}\if{html}{\out{</div>}}
+
+If \code{optimized = FALSE}, Python is built with:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{PYTHON_CONFIGURE_OPTS=--enable-shared
+}\if{html}{\out{</div>}}
 
 On Windows, prebuilt installers from \url{https://www.python.org} are used.
 }

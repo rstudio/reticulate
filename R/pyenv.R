@@ -149,13 +149,21 @@ pyenv_find_impl <- function(install = TRUE) {
 
 }
 
-pyenv_install <- function(version, force, pyenv = NULL) {
+pyenv_install <- function(version, force, pyenv = NULL, optimized = TRUE) {
 
   pyenv <- canonical_path(pyenv %||% pyenv_find())
   stopifnot(file.exists(pyenv))
 
-  # set options
-  withr::local_envvar(PYTHON_CONFIGURE_OPTS = "--enable-shared")
+  if (optimized) {
+    withr::local_envvar(
+      PYTHON_CONFIGURE_OPTS = "--enable-shared --enable-optimizations --with-lto",
+      PYTHON_CFLAGS = "-march=native -mtune=native"
+    )
+  } else {
+    withr::local_envvar(
+      PYTHON_CONFIGURE_OPTS = "--enable-shared"
+    )
+  }
 
   if(is_macos() &&
      Sys.which("brew") == "" &&

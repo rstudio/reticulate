@@ -83,7 +83,8 @@
 
     <div class="section level2">
 <h2 class="page-header" data-toc-text="development version" id="reticulate-development-version">reticulate (development version)<a class="anchor" aria-label="anchor" href="#reticulate-development-version"></a></h2>
-<ul><li><p>Fixed an issue where nested <code><a href="../reference/py_capture_output.html">py_capture_output()</a></code> calls result in a lost reference to the original <code>sys.stdout</code> and <code>sys.stderr</code>, resulting in no further visible output from Python, and possibly a segfault. (<a href="https://github.com/rstudio/reticulate/issues/1564" class="external-link">#1564</a>)</p></li>
+<ul><li><p>Many internal changes and optimizations should result in an overall substantially faster experience. I.e. a sample workload of <code>py_to_r(np_array(1:3) + np_array(1:3))</code> is approx 3.4x faster as compared to the current CRAN release.</p></li>
+<li><p>Fixed an issue where nested <code><a href="../reference/py_capture_output.html">py_capture_output()</a></code> calls result in a lost reference to the original <code>sys.stdout</code> and <code>sys.stderr</code>, resulting in no further visible output from Python, and possibly a segfault. (<a href="https://github.com/rstudio/reticulate/issues/1564" class="external-link">#1564</a>)</p></li>
 <li><p>New <code><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame()</a></code> method exported for Python Polars DataFrames (<a href="https://github.com/rstudio/reticulate/issues/1568" class="external-link">#1568</a>)</p></li>
 <li><p><code><a href="../reference/install_python.html">install_python()</a></code> will now build optimized versions of Python on macOS and Linux (<a href="https://github.com/rstudio/reticulate/issues/1567" class="external-link">#1567</a>)</p></li>
 <li><p>Fixed an issue where printing a delayed module (<code>import("foo", delay_load = TRUE)</code>) would output <code>&lt;pointer: 0x0&gt;</code>.</p></li>
@@ -96,7 +97,7 @@
 <li><p><code>attr(x, "tzone")</code> attributes are (better) preserved when converting POSIXt to Python. POSIXt types with a non-empty <code>tzone</code> attr convert to a datetime.datetime, otherwise they convert to NumPy datetime64[ns] arrays.</p></li>
 <li><p>Fixed an issue where calling <code><a href="../reference/py_get_item.html">py_set_item()</a></code> on a subclassed dict would not invoke a custom <code>__setitem__</code> method.</p></li>
 <li><p><code>py_del_attr(x, name)</code> now returns <code>x</code> invisibly</p></li>
-<li><p><code><a href="../reference/source_python.html">source_python()</a></code> no longer exports assigns the <code>r</code> symbol to the R globalenv(). (the “R Interface object” that is used by python code get a reference to the R globalenv)</p></li>
+<li><p><code><a href="../reference/source_python.html">source_python()</a></code> no longer exports the <code>r</code> symbol to the R globalenv(). (the “R Interface Object” that is used by Python code get a reference to the R globalenv)</p></li>
 <li><p>Reticulate will no longer warn about ignored <code>use_python(,required = FALSE)</code> calls.</p></li>
 <li><p><code>iterate(simplify=TRUE)</code> rewritten in C for speed improvements.</p></li>
 <li><p>Fixed hang encountered (sometimes) when attempting to call <code><a href="../reference/iterate.html">iterate()</a></code> on an exhausted <code><a href="../reference/py_iterator.html">py_iterator()</a></code> object multiple times.</p></li>
@@ -105,7 +106,7 @@
 <li><p>Fixed an issue where <code><a href="../reference/py_discover_config.html">py_discover_config()</a></code> would discover <code>python</code> (v2) on the PATH in preference of <code>python3</code> on the PATH. (<a href="https://github.com/rstudio/reticulate/issues/1547" class="external-link">#1547</a>)</p></li>
 <li><p>Fixed an issue where reticulate would error when using conda environments created with the (new) <code>conda env create</code> command. (<a href="https://github.com/rstudio/reticulate/issues/1535" class="external-link">#1535</a>, <a href="https://github.com/rstudio/reticulate/issues/1543" class="external-link">#1543</a>)</p></li>
 <li><p>Fixed an issue where reticulate would error when using a conda environment where the original conda binary that was used to create the environment is no longer available (<a href="https://github.com/rstudio/reticulate/issues/1555" class="external-link">#1555</a>)</p></li>
-<li><p>Fixed an issue where the would be unable to accept the prompt to create the default “r-reticulate” venv (<a href="https://github.com/rstudio/reticulate/issues/1557" class="external-link">#1557</a>).</p></li>
+<li><p>Fixed an issue where a user would be unable to accept the prompt to create the default “r-reticulate” venv (<a href="https://github.com/rstudio/reticulate/issues/1557" class="external-link">#1557</a>).</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="1.35.0" id="reticulate-1350">reticulate 1.35.0<small>2024-01-31</small><a class="anchor" aria-label="anchor" href="#reticulate-1350"></a></h2>

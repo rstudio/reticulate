@@ -57,8 +57,11 @@ ensure your module is lazy-loaded (e.g. because you are a package author and
 want to avoid initializing Python before the user has explicitly requested it),
 then passing \code{TRUE} is normally the right choice.
 
-You can also provide a list of named functions, which act as callbacks to be
-run when the module is later loaded. For example:
+You can also provide a named list: \code{"before_load"}, \code{"on_load"} and
+\code{"on_error"} can be functions , which act as callbacks to be run when the
+module is later loaded. \code{"environment"} can be a character
+vector of preferred python environment names to
+search for and use. For example:
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{delay_load = list(
 
@@ -71,6 +74,7 @@ run when the module is later loaded. For example:
   # run if an error occurs during module import
   on_error = function(error) \{ ... \}
 
+  environment = c("r-preferred-venv1", "r-preferred-venv2")
 )
 }\if{html}{\out{</div>}}
 

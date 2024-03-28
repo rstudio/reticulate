@@ -1,14 +1,18 @@
 # reticulate (development version)
 
 - Fixed an issue where nested `py_capture_output()` calls result in a lost reference
-  to the original `sys.stdout` and `sys.stderr`, resulting in no further visible output 
+  to the original `sys.stdout` and `sys.stderr`, resulting in no further visible output
   from Python, and possibly a segfault. (#1564)
 
-- Fixed an issue where printing a delayed module (`import("foo", delay_load = TRUE)`) 
+- Fixed an issue where printing a delayed module (`import("foo", delay_load = TRUE)`)
   would output `<pointer: 0x0>`.
-  
-- `py_validate_xptr()` will now attempt to resolve delayed modules before 
+
+- `py_validate_xptr()` will now attempt to resolve delayed modules before
   signaling an error (#1561).
+
+- R packages can now express multiple preferred Python environments to
+  search for and use if they exist, by supplying a character vector to `import()`:
+  `import("foo", delay_load = list(environment = c("r-foo", "r-bar")))`
 
 - `reticulate` now prefers using the agg matplotlib backend when the R session
   is non-interactive. The backend can also be overridden via the `MPLBACKEND` or
@@ -50,11 +54,11 @@
 
 - Fixed an issue where reticulate would error when using conda environments created
   with the (new) `conda env create` command. (#1535, #1543)
-  
+
 - Fixed an issue where reticulate would error when using a conda environment
   where the original conda binary that was used to create the environment
   is no longer available (#1555)
-  
+
 - Fixed an issue where the would be unable to accept the prompt to create
   the default "r-reticulate" venv (#1557).
 

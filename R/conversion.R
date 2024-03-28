@@ -597,3 +597,9 @@ dim.scipy.sparse._base._spbase <- dim.scipy.sparse.base.spmatrix
 length.scipy.sparse._base._spbase <- length.scipy.sparse.base.spmatrix
 #' @export
 py_to_r.scipy.sparse._matrix.spmatrix <- py_to_r.scipy.sparse.base.spmatrix
+
+#' @export
+as.data.frame.polars.dataframe.frame.DataFrame <-
+function(x, row.names = NULL, optional = FALSE, ...) {
+  py_set_convert(x$to_pandas, TRUE)()
+}

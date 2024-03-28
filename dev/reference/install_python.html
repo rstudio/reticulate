@@ -89,7 +89,12 @@ and <a href="https://github.com/pyenv-win/pyenv-win" class="external-link">pyenv
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">install_python</span><span class="op">(</span>version <span class="op">=</span> <span class="st">"3.9:latest"</span>, list <span class="op">=</span> <span class="cn">FALSE</span>, force <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">install_python</span><span class="op">(</span></span>
+<span>  version <span class="op">=</span> <span class="st">"3.9:latest"</span>,</span>
+<span>  list <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  force <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  optimized <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -105,6 +110,11 @@ and <a href="https://github.com/pyenv-win/pyenv-win" class="external-link">pyenv
 <dt>force</dt>
 <dd><p>Boolean; force re-installation even if the requested version
 of Python is already installed?</p></dd>
+
+
+<dt>optimized</dt>
+<dd><p>Boolean; if <code>TRUE</code>, installation will take significantly longer but
+should result in a faster Python interpreter. Only applicable on macOS and Linux.</p></dd>
 
 </dl></div>
     <div id="details">
@@ -130,8 +140,12 @@ take a few minutes. Installation will be faster if some build
 dependencies are preinstalled. See
 <a href="https://github.com/pyenv/pyenv/wiki#suggested-build-environment" class="external-link">https://github.com/pyenv/pyenv/wiki#suggested-build-environment</a> for
 example commands you can run to pre-install system dependencies
-(requires administrator privileges).
-Python is built with <code>PYTHON_CONFIGURE_OPTS=--enable-shared</code> set.</p>
+(requires administrator privileges).</p>
+<p>If <code>optimized = TRUE</code>, (the default) Python is build with:</p>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>PYTHON_CONFIGURE_OPTS<span class="ot">=</span><span class="st">"--enable-shared --enable-optimizations --with-lto"</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>PYTHON_CFLAGS<span class="ot">=</span><span class="st">"-march=native -mtune=native"</span></span></code></pre><p></p></div>
+<p>If <code>optimized = FALSE</code>, Python is built with:</p>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>PYTHON_CONFIGURE_OPTS<span class="ot">=</span><span class="sc">--</span>enable<span class="sc">-</span>shared</span></code></pre><p></p></div>
 <p>On Windows, prebuilt installers from <a href="https://www.python.org" class="external-link">https://www.python.org</a> are used.</p>
     </div>
 

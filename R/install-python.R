@@ -28,20 +28,34 @@
 #' @param force Boolean; force re-installation even if the requested version
 #'   of Python is already installed?
 #'
+#' @param optimized Boolean; if `TRUE`, installation will take significantly longer but
+#'  should result in a faster Python interpreter. Only applicable on macOS and Linux.
+#'
 #' @note On macOS and Linux this will build Python from sources, which may
 #'   take a few minutes. Installation will be faster if some build
 #'   dependencies are preinstalled. See
 #'   <https://github.com/pyenv/pyenv/wiki#suggested-build-environment> for
 #'   example commands you can run to pre-install system dependencies
 #'   (requires administrator privileges).
-#'   Python is built with `PYTHON_CONFIGURE_OPTS=--enable-shared` set.
+#'
+#'  If `optimized = FALSE`, Python is built with:
+#'   ```
+#'   PYTHON_CONFIGURE_OPTS=--enable-shared
+#'   ```
+#'
+#'  If `optimized = TRUE`, Python is build with:
+#'   ```
+#'   PYTHON_CONFIGURE_OPTS="--enable-shared --enable-optimizations --with-lto"
+#'   PYTHON_CFLAGS="-march=native -mtune=native"
+#'   ```
 #'
 #'   On Windows, prebuilt installers from <https://www.python.org> are used.
 #'
 #' @export
 install_python <- function(version = "3.9:latest",
                            list = FALSE,
-                           force = FALSE)
+                           force = FALSE,
+                           optimized = FALSE)
 {
 
   check_forbidden_install("Python")
@@ -63,7 +77,7 @@ install_python <- function(version = "3.9:latest",
       pyenv_resolve_latest_patch(version, installed = FALSE, pyenv = pyenv)
 
   # install the requested package
-  status <- pyenv_install(version, force, pyenv = pyenv)
+  status <- pyenv_install(version, force, pyenv = pyenv, optimized = optimized)
   if (!identical(status, 0L))
     stopf("installation of Python %s failed", version)
 

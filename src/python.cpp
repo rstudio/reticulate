@@ -3106,7 +3106,7 @@ void py_dict_set_item(PyObjectRef dict, RObject key, RObject val) {
 // [[Rcpp::export]]
 int py_dict_length(PyObjectRef dict) {
 
-  if (!PyDict_Check(dict))
+  if (!PyDict_CheckExact(dict))
     return PyObject_Size(dict);
 
   return PyDict_Size(dict);
@@ -3202,7 +3202,7 @@ PyObjectRef py_tuple(const List& items, bool convert) {
 // [[Rcpp::export]]
 int py_tuple_length(PyObjectRef tuple) {
 
-  if (!PyTuple_Check(tuple))
+  if (!PyTuple_CheckExact(tuple))
     return PyObject_Size(tuple);
 
   return PyTuple_Size(tuple);
@@ -3848,7 +3848,13 @@ void py_set_interrupt_impl() {
 
 // [[Rcpp::export]]
 SEXP py_list_length(PyObjectRef x) {
-  Py_ssize_t value = PyList_Size(x);
+
+  Py_ssize_t value;
+  if (PyList_CheckExact(x))
+    value = PyList_Size(x);
+  else
+    value = PyObject_Size(x);
+
   if (value <= static_cast<Py_ssize_t>(INT_MAX))
     return Rf_ScalarInteger((int) value);
   else

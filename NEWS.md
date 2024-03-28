@@ -4,6 +4,8 @@
   to the original `sys.stdout` and `sys.stderr`, resulting in no further visible output
   from Python, and possibly a segfault. (#1564)
 
+- New `as.data.frame()` method exported for Python Polars DataFrames (#1568)
+
 - `install_python()` will now build optimized versions of Python on macOS and Linux (#1567)
 
 - Fixed an issue where printing a delayed module (`import("foo", delay_load = TRUE)`)
@@ -170,7 +172,7 @@
   `vignette("python_dependencies", package = "reticulate")`
 
 - New function `virtualenv_starter()`, which can be used to find a suitable
-  python binary for creating a virtual environmnent. This is now the default
+  python binary for creating a virtual environment. This is now the default
   method for finding the python binary when calling
   `virtualenv_create(version = <version>)`.
 

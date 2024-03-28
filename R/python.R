@@ -1046,6 +1046,8 @@ register_class_filter <- function(filter) {
 py_capture_output <- function(expr, type = c("stdout", "stderr")) {
 
   # initialize python if necessary
+  # without expressing an implict venv preference
+  # via an internal import() call
   ensure_python_initialized()
 
   # resolve type argument
@@ -1057,14 +1059,21 @@ py_capture_output <- function(expr, type = c("stdout", "stderr")) {
   # scope output capture
   capture_stdout <- "stdout" %in% type
   capture_stderr <- "stderr" %in% type
-  output_tools$start_capture(capture_stdout, capture_stderr)
-  on.exit(output_tools$end_capture(capture_stdout, capture_stderr), add = TRUE)
 
-  # evaluate the expression
-  force(expr)
+  context_manager <- output_tools$CaptureOutputStreams(
+    capture_stdout, capture_stderr
+  )
+
+  context_manager$`__enter__`()
+  tryCatch(
+    force(expr),
+    finally = {
+      context_manager$`__exit__`()
+    }
+  )
 
   # collect output
-  output_tools$collect_output()
+  context_manager$collect_output()
 
 }
 

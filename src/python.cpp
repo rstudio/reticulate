@@ -617,7 +617,11 @@ SEXP py_class_names(PyObject* object) {
   // for back compat, we continue to define Py_TYPE as a macro in reticulate/src/libpython.h
   PyObject* type = (PyObject*) Py_TYPE(object);
   if (type == NULL)
-    throw PythonException(py_fetch_error());
+    // this code path gets heavily excercised by py_fetch_error()
+    // Something going wrong here, then py_fetch_error() will be of no help.
+    // Fortunatly, an Exception here should be an exceedingly rare occurance.
+    Rcpp::stop("Unable to resolve PyObject type.");
+    // throw PythonException(py_fetch_error());
 
   // call inspect.getmro to get the class and it's bases in
   // method resolution order
@@ -634,20 +638,18 @@ SEXP py_class_names(PyObject* object) {
 
   PyObjectPtr classes(PyObject_CallFunctionObjArgs(getmro, type, NULL));
   if (classes.is_null())
-    throw PythonException(py_fetch_error());
+    Rcpp::stop("Exception raised by 'inspect.getmro(<pyobj>)'; unable to build R 'class' attribute");
+    // throw PythonException(py_fetch_error());
 
   // start adding class names
   std::vector<std::string> classNames;
 
-  {
-  PyErrorScopeGuard g_;
 
   // add the bases to the R class attribute
   Py_ssize_t len = PyTuple_Size(classes);
   for (Py_ssize_t i = 0; i < len; i++) {
     PyObject* base = PyTuple_GetItem(classes, i); // borrowed
     classNames.push_back(as_r_class(base));
-  }
   }
 
   // add python.builtin.object if we don't already have it
@@ -1672,6 +1674,7 @@ void GrowList(SEXP args_list, SEXP tag, SEXP dflt) {
 SEXP py_get_formals(PyObjectRef callable)
 {
 
+  PyObject* callable_ = callable.get();
   static PyObject *inspect_module = NULL;
   static PyObject *inspect_signature = NULL;
   static PyObject *inspect_Parameter = NULL;
@@ -1681,10 +1684,9 @@ SEXP py_get_formals(PyObjectRef callable)
   static PyObject *inspect_Parameter_empty = NULL;
   static SEXP sym_dotdotdot = NULL;
 
-  if (!inspect_Parameter_empty)
+  if (!sym_dotdotdot)
   {
     // initialize static variables to avoid repeat lookups
-    sym_dotdotdot = Rf_install("...");
 
     inspect_module = PyImport_ImportModule("inspect");
     if (!inspect_module) throw PythonException(py_fetch_error());
@@ -1706,6 +1708,8 @@ SEXP py_get_formals(PyObjectRef callable)
 
     inspect_Parameter_empty = PyObject_GetAttrString(inspect_Parameter, "empty");
     if (!inspect_Parameter_empty) throw PythonException(py_fetch_error());
+
+    sym_dotdotdot = Rf_install("...");
   }
 
   PyObjectPtr sig(PyObject_CallFunctionObjArgs(inspect_signature, callable.get(), NULL));
@@ -1715,8 +1719,9 @@ SEXP py_get_formals(PyObjectRef callable)
     // or python functions built in C from modules
     // fallback to returning formals of `...`.
     PyErr_Clear();
-    SEXP out = Rf_cons(R_MissingArg, R_NilValue);
+    SEXP out = PROTECT(Rf_cons(R_MissingArg, R_NilValue));
     SET_TAG(out, sym_dotdotdot);
+    UNPROTECT(1);
     return out;
   }
 

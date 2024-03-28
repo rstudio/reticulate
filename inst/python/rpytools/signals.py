@@ -1,4 +1,3 @@
-
 # We register a custom Python signal handler here for the following reasons.
 #
 #  1. We are running R and Python together within the same process.
@@ -33,25 +32,26 @@ from signal import signal, SIGINT
 # where R and Python are calling back to each other recursively.
 _callback = None
 
+
 def _signal_handler(sig, frame):
-  
-  # Ask R whether interrupts are pending.
-  global _callback
-  pending = _callback(False)
-  
-  # If interrupts are pending, now's our chance to handle it.
-  # Now that Python is getting a chance to handle interrupts,
-  # we can tell R to unset the interrupts pending flag.
-  if pending:
-    _callback(True)
-    raise KeyboardInterrupt
-  
+
+    # Ask R whether interrupts are pending.
+    global _callback
+    pending = _callback(False)
+
+    # If interrupts are pending, now's our chance to handle it.
+    # Now that Python is getting a chance to handle interrupts,
+    # we can tell R to unset the interrupts pending flag.
+    if pending:
+        _callback(True)
+        raise KeyboardInterrupt
+
+
 def initialize(callback):
 
-  # Initialize our callback.  
-  global _callback
-  _callback = callback
-  
-  # Set our signal handler.
-  signal(SIGINT, _signal_handler)
-  
+    # Initialize our callback.
+    global _callback
+    _callback = callback
+
+    # Set our signal handler.
+    signal(SIGINT, _signal_handler)

@@ -1,0 +1,16 @@
+# Format Python files with Black
+fc430b4dbf1854b68de44d927add8a41f64beecc
+
+# whitespace only commits
+e1df4e54c0a4d15cbb01a3af7e8466d29ed64305
+02a0d984171dcacd322e7c071edf3d6b1cefb7b1
+95573e7f3e0a11e4d703c4dbc6c29a409ee7b242
+64acdfa98c29c70917ca7f60f05ad4192272e244
+da67e9dff1be9b5c344aa3431eae520b57142bde
+1a62650d952460ce047e06354b84d1a3b3e683de
+
+
+## Snippet to inspect/filter commits quickly:
+# library(tidyverse)
+# df <- as_tibble(git2r::repository("."))
+# df |> filter(grepl("white[- ]?space", summary))

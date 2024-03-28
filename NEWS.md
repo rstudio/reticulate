@@ -1,5 +1,9 @@
 # reticulate (development version)
 
+- Many internal changes and optimizations should result in an overall substantially faster experience.
+  I.e. a sample workload of `py_to_r(np_array(1:3) + np_array(1:3))` is approx 3.4x faster as
+  compared to the current CRAN release.
+
 - Fixed an issue where nested `py_capture_output()` calls result in a lost reference
   to the original `sys.stdout` and `sys.stderr`, resulting in no further visible output
   from Python, and possibly a segfault. (#1564)
@@ -39,8 +43,8 @@
 
 - `py_del_attr(x, name)` now returns `x` invisibly
 
-- `source_python()` no longer exports assigns the `r` symbol to the R globalenv().
-  (the "R Interface object" that is used by python code get a reference to the R globalenv)
+- `source_python()` no longer exports the `r` symbol to the R globalenv().
+  (the "R Interface Object" that is used by Python code get a reference to the R globalenv)
 
 - Reticulate will no longer warn about ignored `use_python(,required = FALSE)` calls.
 
@@ -63,7 +67,7 @@
   where the original conda binary that was used to create the environment
   is no longer available (#1555)
 
-- Fixed an issue where the would be unable to accept the prompt to create
+- Fixed an issue where a user would be unable to accept the prompt to create
   the default "r-reticulate" venv (#1557).
 
 # reticulate 1.35.0

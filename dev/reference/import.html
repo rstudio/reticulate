@@ -151,8 +151,11 @@ that name change.</p>
 ensure your module is lazy-loaded (e.g. because you are a package author and
 want to avoid initializing Python before the user has explicitly requested it),
 then passing <code>TRUE</code> is normally the right choice.</p>
-<p>You can also provide a list of named functions, which act as callbacks to be
-run when the module is later loaded. For example:</p>
+<p>You can also provide a named list: <code>"before_load"</code>, <code>"on_load"</code> and
+<code>"on_error"</code> can be functions , which act as callbacks to be run when the
+module is later loaded. <code>"environment"</code> can be a character
+vector of preferred python environment names to
+search for and use. For example:</p>
 <p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>delay_load <span class="ot">=</span> <span class="fu">list</span>(</span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>  <span class="co"># run before the module is loaded</span></span>
@@ -164,7 +167,8 @@ run when the module is later loaded. For example:</p>
 <span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>  <span class="co"># run if an error occurs during module import</span></span>
 <span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>  <span class="at">on_error =</span> <span class="cf">function</span>(error) { ... }</span>
 <span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a></span>
-<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a>)</span></code></pre><p></p></div>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a>  <span class="at">environment =</span> <span class="fu">c</span>(<span class="st">"r-preferred-venv1"</span>, <span class="st">"r-preferred-venv2"</span>)</span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a>)</span></code></pre><p></p></div>
 <p>Alternatively, if you supply only a single function, that will be treated as
 an <code>on_load</code> handler.</p>
     </div>

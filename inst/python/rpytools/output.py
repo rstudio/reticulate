@@ -54,7 +54,7 @@ def _override_logger_streams(
                 _setStream(handler, new_stderr)
 
 
-class CaptureOutputStreams:
+class OutputCaptureContext:
     def __init__(self, capture_stdout, capture_stderr):
         self._capture_stdout = bool(capture_stdout)
         self._capture_stderr = bool(capture_stderr)

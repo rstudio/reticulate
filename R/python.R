@@ -1060,7 +1060,7 @@ py_capture_output <- function(expr, type = c("stdout", "stderr")) {
   capture_stdout <- "stdout" %in% type
   capture_stderr <- "stderr" %in% type
 
-  context_manager <- output_tools$CaptureOutputStreams(
+  context_manager <- output_tools$OutputCaptureContext(
     capture_stdout, capture_stderr
   )
 

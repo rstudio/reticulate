@@ -56,11 +56,11 @@ def _override_logger_streams(
 
 class CaptureOutputStreams:
     def __init__(self, capture_stdout, capture_stderr):
-        self._capture_stdout = capture_stdout
-        self._capture_stderr = capture_stderr
+        self._capture_stdout = bool(capture_stdout)
+        self._capture_stderr = bool(capture_stderr)
+        self._capturing_stream = StringIO()
 
     def __enter__(self):
-        self._capturing_stream = StringIO()
         if self._capture_stdout:
             self._prev_stdout = sys.stdout
             sys.stdout = self._capturing_stream
@@ -77,10 +77,8 @@ class CaptureOutputStreams:
             new_stderr=sys.stderr if self._capture_stderr else None,
             old_stderr=self._prev_stderr if self._capture_stderr else None,
         )
-        self._active = True
 
     def __exit__(self, *args):
-        self._capturing_stream.flush()
         if self._capture_stdout:
             sys.stdout = self._prev_stdout
         if self._capture_stderr:
@@ -94,15 +92,12 @@ class CaptureOutputStreams:
             new_stderr=sys.stderr,
             old_stderr=self._prev_stderr if self._capture_stderr else None,
         )
-        self._active = False
 
-    def collect_output(self):
-        if self._active:
-            raise Exception(
-                "Must exit capturing context before collecting output"
-            )
+    def collect_output(self, clear=True):
         output = self._capturing_stream.getvalue()
-        self._capturing_stream.close()
+        if clear:
+            self._capturing_stream.truncate(0)
+            self._capturing_stream.seek(0)
         return output
 
 

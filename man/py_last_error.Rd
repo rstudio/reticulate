@@ -22,6 +22,13 @@ Otherwise, a named list with entries:
 \item \code{"traceback"}: R character vector, the formatted python traceback,
 \item \code{"message"}: The full formatted raised exception, as it would be printed in
 Python. Includes the traceback, type, and value.
+\item \code{"r_trace"}: A \code{data.frame} with class \code{rlang_trace} and columns:
+\itemize{
+\item \code{call}: The R callstack, \code{full_call}, summarized for pretty printing.
+\item \code{full_call}: The R callstack. (Output of \code{sys.calls()} at the error callsite).
+\item \code{parent}: The parent of each frame in callstack. (Output of \code{sys.parents()} at the error callsite).
+\item Additional columns for internals use: \code{namespace}, \code{visible}, \code{scope}.
+}
 }
 
 And attribute \code{"exception"}, a \code{'python.builtin.Exception'} object.
@@ -34,6 +41,13 @@ Get or (re)set the last Python error encountered.
 }
 \examples{
 \dontrun{
+
+# see last python exception with R traceback
+reticulate::py_last_error()
+
+# see the full R callstack from the last Python exception
+reticulate::py_last_error()$r_trace$full_call
+
 # run python code that might error,
 # without modifying the user-visible python exception
 

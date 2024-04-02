@@ -1684,6 +1684,8 @@ print.py_error <- function(x, ...) {
 
   cat_h1("R Traceback")
   print(x$r_trace)
+
+  cat(.py_last_error_full_callstack_hint(), "\n", sep = "")
 }
 
 cat_h1 <- function(x) {
@@ -1742,3 +1744,24 @@ format_py_exception_traceback_with_clickable_filepaths <- function(etb) {
 
   cli::col_silver(paste("Run", py_last_error, "for details."))
 }
+
+
+.py_last_error_full_callstack_hint <- function() {
+
+  hint <- "See `reticulate::py_last_error()$r_trace$full_call` for more details."
+
+  if(!interactive() ||
+     !identical(.Platform$GUI, "RStudio") ||
+     !requireNamespace("cli", quietly = TRUE))
+    return(hint)
+
+  # # ide:run: / rstudio:run: links don't support expressions like this.
+  # last_error_unsummarized_callstack <- cli::style_hyperlink(
+  #   "`reticulate::py_last_error()$r_trace$full_call`",
+  #     "rstudio:run:reticulate::py_last_error()$r_trace$full_call")
+  # hint <- cli::col_silver(paste("See", last_error_unsummarized_callstack,
+  #                               "for more details."))
+
+  cli::col_silver(hint)
+}
+

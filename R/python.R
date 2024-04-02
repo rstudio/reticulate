@@ -1503,14 +1503,23 @@ py_clear_last_error <- function() {
 #' @return For `py_last_error()`, `NULL` if no error has yet been encountered.
 #'   Otherwise, a named list with entries:
 #'
-#'   +  `"type"`: R string, name of the exception class.
+#' +  `"type"`: R string, name of the exception class.
 #'
-#'   +  `"value"`: R string, formatted exception message.
+#' +  `"value"`: R string, formatted exception message.
 #'
-#'   +  `"traceback"`: R character vector, the formatted python traceback,
+#' +  `"traceback"`: R character vector, the formatted python traceback,
 #'
-#'   +  `"message"`: The full formatted raised exception, as it would be printed in
-#'   Python. Includes the traceback, type, and value.
+#' +  `"message"`: The full formatted raised exception, as it would be printed in
+#' Python. Includes the traceback, type, and value.
+#'
+#' +  `"r_trace"`: A `data.frame` with class `rlang_trace` and columns:
+#'
+#'    - `call`: The R callstack, `full_call`, summarized for pretty printing.
+#'    - `full_call`: The R callstack. (Output of `sys.calls()` at the error callsite).
+#'    - `parent`: The parent of each frame in callstack. (Output of `sys.parents()` at the error callsite).
+#'    - Additional columns for internals use: `namespace`, `visible`, `scope`.
+#'
+#'
 #'
 #' And attribute `"exception"`, a `'python.builtin.Exception'` object.
 #'
@@ -1519,6 +1528,13 @@ py_clear_last_error <- function() {
 #'
 #' @examples
 #' \dontrun{
+#'
+#' # see last python exception with R traceback
+#' reticulate::py_last_error()
+#'
+#' # see the full R callstack from the last Python exception
+#' reticulate::py_last_error()$r_trace$full_call
+#'
 #' # run python code that might error,
 #' # without modifying the user-visible python exception
 #'
@@ -1668,6 +1684,8 @@ print.py_error <- function(x, ...) {
 
   cat_h1("R Traceback")
   print(x$r_trace)
+
+  cat(.py_last_error_full_callstack_hint(), "\n", sep = "")
 }
 
 cat_h1 <- function(x) {
@@ -1726,3 +1744,24 @@ format_py_exception_traceback_with_clickable_filepaths <- function(etb) {
 
   cli::col_silver(paste("Run", py_last_error, "for details."))
 }
+
+
+.py_last_error_full_callstack_hint <- function() {
+
+  hint <- "See `reticulate::py_last_error()$r_trace$full_call` for more details."
+
+  if(!interactive() ||
+     !identical(.Platform$GUI, "RStudio") ||
+     !requireNamespace("cli", quietly = TRUE))
+    return(hint)
+
+  # # ide:run: / rstudio:run: links don't support expressions like this.
+  # last_error_unsummarized_callstack <- cli::style_hyperlink(
+  #   "`reticulate::py_last_error()$r_trace$full_call`",
+  #     "rstudio:run:reticulate::py_last_error()$r_trace$full_call")
+  # hint <- cli::col_silver(paste("See", last_error_unsummarized_callstack,
+  #                               "for more details."))
+
+  cli::col_silver(hint)
+}
+

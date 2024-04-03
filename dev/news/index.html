@@ -83,7 +83,8 @@
 
     <div class="section level2">
 <h2 class="page-header" data-toc-text="development version" id="reticulate-development-version">reticulate (development version)<a class="anchor" aria-label="anchor" href="#reticulate-development-version"></a></h2>
-<ul><li><p>Many internal changes and optimizations should result in an overall substantially faster experience. I.e. a sample workload of <code>py_to_r(np_array(1:3) + np_array(1:3))</code> is approx 3.4x faster as compared to the current CRAN release.</p></li>
+<ul><li><p>Default Python version installed by <code><a href="../reference/install_python.html">install_python()</a></code> is now 3.10 (was 3.9).</p></li>
+<li><p>Many internal changes and optimizations should result in an overall substantially faster experience. I.e. a sample workload of <code>py_to_r(np_array(1:3) + np_array(1:3))</code> is approx 3.4x faster as compared to the current CRAN release.</p></li>
 <li><p>Output of <code><a href="../reference/py_last_error.html">reticulate::py_last_error()</a></code> now includes a hint, showing how to access the full R call stack.</p></li>
 <li><p>Fixed an issue where nested <code><a href="../reference/py_capture_output.html">py_capture_output()</a></code> calls result in a lost reference to the original <code>sys.stdout</code> and <code>sys.stderr</code>, resulting in no further visible output from Python, and possibly a segfault. (<a href="https://github.com/rstudio/reticulate/issues/1564" class="external-link">#1564</a>)</p></li>
 <li><p>New <code><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame()</a></code> method exported for Python Polars DataFrames (<a href="https://github.com/rstudio/reticulate/issues/1568" class="external-link">#1568</a>)</p></li>

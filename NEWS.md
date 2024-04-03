@@ -1,5 +1,8 @@
 # reticulate (development version)
 
+- Default Python version installed by `install_python()`
+  is now 3.10 (was 3.9).
+
 - Many internal changes and optimizations should result in an overall substantially faster experience.
   I.e. a sample workload of `py_to_r(np_array(1:3) + np_array(1:3))` is approx 3.4x faster as
   compared to the current CRAN release.
@@ -72,7 +75,7 @@
 
 - Fixed an issue where a user would be unable to accept the prompt to create
   the default "r-reticulate" venv (#1557).
-  
+
 - `is_py_object()` is now exported.
 
 # reticulate 1.35.0

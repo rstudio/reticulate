@@ -2150,18 +2150,23 @@ PyObject* r_to_py_cpp(RObject x, bool convert) {
     // check for a py_function_name attribute
     PyObjectPtr pyFunctionName(r_to_py(x.attr("py_function_name"), convert));
 
+    static PyObject* make_python_function = NULL;
+    if (make_python_function == NULL) {
+      PyObjectPtr module(py_import("rpytools.call"));
+      if (module.is_null())
+        throw PythonException(py_fetch_error());
+
+      make_python_function =
+        PyObject_GetAttrString(module, "make_python_function");
+
+      if (make_python_function == NULL)
+        throw PythonException(py_fetch_error());
+    }
+
     // create the python wrapper function
-    PyObjectPtr module(py_import("rpytools.call")); // we should cache this
-    if (module.is_null())
-      throw PythonException(py_fetch_error());
-
-    PyObjectPtr func(PyObject_GetAttrString(module, "make_python_function")); // cache
-    if (func.is_null())
-      throw PythonException(py_fetch_error());
-
     PyObjectPtr wrapper(
         PyObject_CallFunctionObjArgs(
-          func,
+          make_python_function,
           capsule.get(),
           pyFunctionName.get(),
           NULL));

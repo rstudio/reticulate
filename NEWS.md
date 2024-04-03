@@ -4,6 +4,9 @@
   I.e. a sample workload of `py_to_r(np_array(1:3) + np_array(1:3))` is approx 3.4x faster as
   compared to the current CRAN release.
 
+- Output of `reticulate::py_last_error()` now includes a hint, showing how to access
+  the full R call stack.
+
 - Fixed an issue where nested `py_capture_output()` calls result in a lost reference
   to the original `sys.stdout` and `sys.stderr`, resulting in no further visible output
   from Python, and possibly a segfault. (#1564)
@@ -69,6 +72,8 @@
 
 - Fixed an issue where a user would be unable to accept the prompt to create
   the default "r-reticulate" venv (#1557).
+  
+- `is_py_object()` is now exported.
 
 # reticulate 1.35.0
 

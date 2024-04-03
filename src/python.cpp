@@ -1187,7 +1187,16 @@ SEXP py_to_r_wrapper(SEXP x) {
 
 SEXP py_to_r_cpp(PyObject* x, bool convert, bool simple = true);
 
-
+//' Check if x is a Python object
+//'
+//' Checks if `x` is a Python object, more efficiently
+//' than `inherits(x, "python.builtin.object")`.
+//'
+//' @param x An \R or Python.
+//'
+//' @return \code{TRUE} or \code{FALSE}.
+//' @export
+//' @keywords internal
 // [[Rcpp::export]]
 bool is_py_object(SEXP x) {
   if(OBJECT(x)) {

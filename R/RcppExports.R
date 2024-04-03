@@ -60,6 +60,16 @@ py_is_callable <- function(x) {
     .Call(`_reticulate_py_is_callable`, x)
 }
 
+#' Check if x is a Python object
+#'
+#' Checks if `x` is a Python object, more efficiently
+#' than `inherits(x, "python.builtin.object")`.
+#'
+#' @param x An \R or Python.
+#'
+#' @return \code{TRUE} or \code{FALSE}.
+#' @export
+#' @keywords internal
 is_py_object <- function(x) {
     .Call(`_reticulate_is_py_object`, x)
 }

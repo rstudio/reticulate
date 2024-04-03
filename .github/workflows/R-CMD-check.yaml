@@ -21,9 +21,9 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - { os: macOS-latest  , r: 'release', python: '3.9' }
-          - { os: windows-latest, r: 'release', python: '3.9' }
-          - { os: ubuntu-latest , r: 'release', python: '3.9' }
+          - { os: macOS-latest  , r: 'release', python: '3.10' }
+          - { os: windows-latest, r: 'release', python: '3.10' }
+          - { os: ubuntu-latest , r: 'release', python: '3.10' }
 
           - { os: ubuntu-latest, r: 'oldrel-1', python: '3.9' }
           - { os: ubuntu-latest, r: 'oldrel-2', python: '3.9' }
@@ -33,7 +33,7 @@ jobs:
 
           - { os: ubuntu-latest, r: 'release', python: '3.7'  }
           - { os: ubuntu-latest, r: 'release', python: '3.8'  }
-          - { os: ubuntu-latest, r: 'release', python: '3.10' }
+          - { os: ubuntu-latest, r: 'release', python: '3.9' }
           - { os: ubuntu-latest, r: 'release', python: '3.11' }
           - { os: ubuntu-latest, r: 'release', python: '3.12' }
 

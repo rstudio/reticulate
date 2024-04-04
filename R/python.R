@@ -1419,9 +1419,12 @@ py_module_onload <- function(module) {
 }
 
 py_module_loaded <- function(module) {
-  sys <- import("sys", convert = TRUE)
-  modules <- sys$modules
-  module %in% names(modules)
+  if(is_python_initialized()) {
+    sys <- import("sys", convert = TRUE)
+    modules <- names(sys$modules)
+  } else
+    modules <- NULL
+  module %in% modules
 }
 
 py_register_load_hook <- function(module, hook) {

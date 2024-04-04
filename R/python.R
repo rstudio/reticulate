@@ -1217,10 +1217,11 @@ py_resolve_module_proxy <- function(proxy) {
     return(FALSE)
 
   # collect module proxy hooks
-  collect_value <- function(name) {
+  collect_value <- function(name, clear = TRUE) {
     if (exists(name, envir = proxy, inherits = FALSE)) {
       value <- get(name, envir = proxy, inherits = FALSE)
-      remove(list = name, envir = proxy)
+      if (clear)
+        remove(list = name, envir = proxy)
       value
     } else {
       NULL
@@ -1235,12 +1236,8 @@ py_resolve_module_proxy <- function(proxy) {
   # get module name
   module <- get("module", envir = proxy)
 
-  # load and error handlers
-  before_load <- collect_value("before_load")
-  on_load <- collect_value("on_load")
-  on_error <- collect_value("on_error")
-
   # execute before load handler
+  before_load <- collect_value("before_load", clear = TRUE)
   if (is.function(before_load))
     before_load()
 
@@ -1248,6 +1245,8 @@ py_resolve_module_proxy <- function(proxy) {
   # python configuration information if we have it
   result <- tryCatch(import(module), error = clear_error_handler())
   if (inherits(result, "error")) {
+    # load and error handlers
+    on_error <- collect_value("on_error", clear = FALSE)
     if (!is.null(on_error)) {
 
       # call custom error handler
@@ -1265,13 +1264,19 @@ py_resolve_module_proxy <- function(proxy) {
     }
   }
 
-  # fixup the proxy
-  py_module_proxy_import(proxy)
-
+  # clear any custom 'on_error' hook
+  collect_value("on_error", clear = TRUE)
   # clear the global tracking of delay load modules
   .globals$delay_load_imports <- NULL
 
+  # fixup the proxy. Note, the proxy may have already been fixed up,
+  # if `import(module)` triggered hooks to run registered via
+  # (unexported) py_register_load_hook()
+  py_module_proxy_import(proxy)
+
+
   # call on_load if provided
+  on_load <- collect_value("on_load", clear = TRUE)
   if (is.function(on_load))
     on_load()
 
@@ -1419,9 +1424,12 @@ py_module_onload <- function(module) {
 }
 
 py_module_loaded <- function(module) {
-  sys <- import("sys", convert = TRUE)
-  modules <- sys$modules
-  module %in% names(modules)
+  if(is_python_initialized()) {
+    sys <- import("sys", convert = TRUE)
+    modules <- names(sys$modules)
+  } else
+    modules <- NULL
+  module %in% modules
 }
 
 py_register_load_hook <- function(module, hook) {

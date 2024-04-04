@@ -3245,9 +3245,10 @@ void py_module_proxy_import(PyObjectRef proxy) {
       throw PythonException(py_fetch_error());
     proxy.set(pModule);
     refenv.remove("module");
-  } else {
-    stop("Module proxy does not contain module name");
-  }
+  }// else, if !exists("module", <refenv>),
+   // then we're unwinding a recursive py_resolve_module_proxy() call, e.g.:
+   // -> py_resolve_module_proxy() -> import() -> py_module_onload() ->
+   //  <r-hook-that-forces-a-module-proxy> -> py_resolve_module_proxy()
 }
 
 

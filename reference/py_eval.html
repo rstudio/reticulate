@@ -18,7 +18,7 @@ eval() built-in function."><!-- mathjax --><script src="https://cdnjs.cloudflare
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.35.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.36.0</span>
       </span>
     </div>
 
@@ -118,17 +118,17 @@ eval() built-in function."><!-- mathjax --><script src="https://cdnjs.cloudflare
 
 <p><code>py_eval()</code> only supports evaluation of 'simple' Python expressions.
 Other expressions (e.g. assignments) will fail; e.g.</p>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">py_eval</span>(<span class="st">"x = 1"</span>)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>Error <span class="cf">in</span> <span class="fu">py_eval_impl</span>(code, convert) <span class="sc">:</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  SyntaxError<span class="sc">:</span> invalid <span class="fu">syntax</span> (reticulate_eval, line <span class="dv">1</span>)</span></code></pre><p></p></div>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">py_eval</span>(<span class="st">"x = 1"</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>Error <span class="cf">in</span> <span class="fu">py_eval_impl</span>(code, convert) <span class="sc">:</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>  SyntaxError<span class="sc">:</span> invalid <span class="fu">syntax</span> (reticulate_eval, line <span class="dv">1</span>)</span></code></pre><p></p></div>
 <p>and this mirrors what one would see in a regular Python interpreter:</p>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span><span class="er">&gt;&gt;</span> <span class="fu">eval</span>(<span class="st">"x = 1"</span>)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">Traceback</span> (most recent call last)<span class="sc">:</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  File <span class="st">"&lt;stdin&gt;"</span>, line <span class="dv">1</span>, <span class="cf">in</span> <span class="sc">&lt;</span>module<span class="sc">&gt;</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  File <span class="st">"&lt;string&gt;"</span>, line <span class="dv">1</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>x <span class="ot">=</span> <span class="dv">1</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="sc">^</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  SyntaxError<span class="sc">:</span> invalid syntax</span></code></pre><p></p></div>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="sc">&gt;</span><span class="er">&gt;&gt;</span> <span class="fu">eval</span>(<span class="st">"x = 1"</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">Traceback</span> (most recent call last)<span class="sc">:</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>  File <span class="st">"&lt;stdin&gt;"</span>, line <span class="dv">1</span>, <span class="cf">in</span> <span class="sc">&lt;</span>module<span class="sc">&gt;</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>  File <span class="st">"&lt;string&gt;"</span>, line <span class="dv">1</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>x <span class="ot">=</span> <span class="dv">1</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="sc">^</span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>  SyntaxError<span class="sc">:</span> invalid syntax</span></code></pre><p></p></div>
 <p>The <code><a href="py_run.html">py_run_string()</a></code> method can be used if the evaluation of arbitrary
 Python code is required.</p>
     </div>

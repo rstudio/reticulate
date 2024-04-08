@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.35.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.36.0</span>
       </span>
     </div>
 
@@ -109,6 +109,11 @@ Otherwise, a named list with entries:</p><ul><li><p><code>"type"</code>: R strin
 <li><p><code>"traceback"</code>: R character vector, the formatted python traceback,</p></li>
 <li><p><code>"message"</code>: The full formatted raised exception, as it would be printed in
 Python. Includes the traceback, type, and value.</p></li>
+<li><p><code>"r_trace"</code>: A <code>data.frame</code> with class <code>rlang_trace</code> and columns:</p><ul><li><p><code>call</code>: The R callstack, <code>full_call</code>, summarized for pretty printing.</p></li>
+<li><p><code>full_call</code>: The R callstack. (Output of <code><a href="https://rdrr.io/r/base/sys.parent.html" class="external-link">sys.calls()</a></code> at the error callsite).</p></li>
+<li><p><code>parent</code>: The parent of each frame in callstack. (Output of <code><a href="https://rdrr.io/r/base/sys.parent.html" class="external-link">sys.parents()</a></code> at the error callsite).</p></li>
+<li><p>Additional columns for internals use: <code>namespace</code>, <code>visible</code>, <code>scope</code>.</p></li>
+</ul></li>
 </ul><p>And attribute <code>"exception"</code>, a <code>'python.builtin.Exception'</code> object.</p>
 
 
@@ -121,6 +126,13 @@ that is the equivalent of <code>cat(py_last_error()$message)</code>.</p>
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># see last python exception with R traceback</span></span></span>
+<span class="r-in"><span><span class="fu">reticulate</span><span class="fu">::</span><span class="fu">py_last_error</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># see the full R callstack from the last Python exception</span></span></span>
+<span class="r-in"><span><span class="fu">reticulate</span><span class="fu">::</span><span class="fu">py_last_error</span><span class="op">(</span><span class="op">)</span><span class="op">$</span><span class="va">r_trace</span><span class="op">$</span><span class="va">full_call</span></span></span>
+<span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># run python code that might error,</span></span></span>
 <span class="r-in"><span><span class="co"># without modifying the user-visible python exception</span></span></span>
 <span class="r-in"><span></span></span>

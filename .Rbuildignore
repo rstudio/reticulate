@@ -35,5 +35,5 @@ __pycache__
 ^CRAN-SUBMISSION$
 ^\.vscode$
 ^Dockerfile$
-^.dockerignore$
-^.git-blame-ignore-revs$
+^\.dockerignore$
+^\.git-blame-ignore-revs$

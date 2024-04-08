@@ -36,3 +36,4 @@ __pycache__
 ^\.vscode$
 ^Dockerfile$
 ^.dockerignore$
+^.git-blame-ignore-revs$

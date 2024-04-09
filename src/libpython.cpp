@@ -290,6 +290,7 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
   // PyUnicode_AsEncodedString may have several different names depending on the Python
   // version and the UCS build type
   std::vector<std::string> names;
+  names.reserve(3);
   names.push_back("PyUnicode_AsEncodedString");
   names.push_back("PyUnicodeUCS2_AsEncodedString");
   names.push_back("PyUnicodeUCS4_AsEncodedString");

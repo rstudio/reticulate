@@ -37,3 +37,4 @@ __pycache__
 ^Dockerfile$
 ^\.dockerignore$
 ^\.git-blame-ignore-revs$
+^rchk$

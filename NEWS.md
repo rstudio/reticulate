@@ -23,6 +23,8 @@
   to the original `sys.stdout` and `sys.stderr`, resulting in no further visible output
   from Python, and eventually, a segfault. (#1564)
 
+- Fixed issues reported by rchk, as requested by CRAN (#1581).
+
 - `py_to_r(x)` now returns `x` unmodified if `x` is not a Python object,
   instead of signaling an error.
 

@@ -492,9 +492,8 @@ public:
 // py_fetch_error() in such a way that it doesn't introduce a new
 // frame in returned traceback
 SEXP current_env(void) {
-  static SEXP call = NULL;
+  static SEXP call = []() {
 
-  if (!call) {
     // `sys.frame(sys.nframe())` doesn't work because `sys.nframe()`
     // returns the number of the frame in which evaluation occurs. It
     // doesn't return the number of frames on the stack. So we'd need
@@ -512,11 +511,12 @@ SEXP current_env(void) {
     SET_BODY(fn, body);
     SET_CLOENV(fn, R_BaseEnv);
 
-    call = Rf_lang1(fn);
+    SEXP call = Rf_lang1(fn);
     R_PreserveObject(call);
 
     UNPROTECT(3);
-  }
+    return call;
+  }();
 
   // Rf_PrintValue(get_r_trace(false, false));
 
@@ -644,9 +644,10 @@ SEXP py_class_names(PyObject* object) {
   // start adding class names
   std::vector<std::string> classNames;
 
+  Py_ssize_t len = PyTuple_Size(classes);
+  classNames.reserve(len+2); // +2 to possibly add python.builtin.object and python.builtin.iterator
 
   // add the bases to the R class attribute
-  Py_ssize_t len = PyTuple_Size(classes);
   for (Py_ssize_t i = 0; i < len; i++) {
     PyObject* base = PyTuple_GetItem(classes, i); // borrowed
     classNames.push_back(as_r_class(base));
@@ -674,13 +675,13 @@ SEXP new_refenv() {
 #else
   // R_NewEnv() C func introducted in R 4.1.
   // Prior to that, we need to call R func new.env()
-  static SEXP call = NULL;
-  if (!call) {
-    call = Rf_lang3(Rf_findFun(Rf_install("new.env"), R_BaseEnv),
+  static SEXP call = []() {
+    SEXP call = Rf_lang3(Rf_findFun(Rf_install("new.env"), R_BaseEnv),
                     /*hash =*/ Rf_ScalarLogical(FALSE),
                     /*parent =*/ R_EmptyEnv);
     R_PreserveObject(call);
-  }
+    return call;
+  }();
   return Rf_eval(call, R_BaseEnv);
 #endif
 }
@@ -766,9 +767,7 @@ bool traceback_enabled() {
 
 
 SEXP get_current_call(void) {
-  static SEXP call = NULL;
-
-  if (!call) {
+  static SEXP call = []() {
     ParseStatus status;
     SEXP code = PROTECT(Rf_mkString("sys.call(-1)"));
     SEXP parsed = PROTECT(R_ParseVector(code, -1, &status, R_NilValue));
@@ -779,11 +778,12 @@ SEXP get_current_call(void) {
     SET_BODY(fn, body);
     SET_CLOENV(fn, R_BaseEnv);
 
-    call = Rf_lang1(fn);
+    SEXP call = Rf_lang1(fn);
     R_PreserveObject(call);
 
     UNPROTECT(3);
-  }
+    return call;
+  }();
 
   return Rf_eval(call, R_BaseEnv);
 }
@@ -875,11 +875,13 @@ SEXP py_fetch_error(bool maybe_reuse_cached_r_trace) {
   // for shallow call stacks. So we fetch the call directly
   // using the R API.
   if (!PyObject_HasAttrString(excValue, "call")) {
-    SEXP r_call = get_current_call();
-    PyObject *r_call_capsule(py_capsule_new(r_call));
+    // Technically we don't need to protct call, since
+    // it would already be protected by it's inclusion in the R callstack,
+    // but rchk flags it anyway, and so ...
+    RObject r_call(  get_current_call() );
+    PyObject* r_call_capsule(py_capsule_new(r_call));
     PyObject_SetAttrString(excValue, "call", r_call_capsule);
     Py_DecRef(r_call_capsule);
-    UNPROTECT(1);
   }
 
 
@@ -891,11 +893,12 @@ SEXP py_fetch_error(bool maybe_reuse_cached_r_trace) {
   // PyObject_SetAttrString(excValue, "r_cppstack", r_cppstack_capsule);
   // Py_DecRef(r_cppstack_capsule);
 
-  PyObjectRef cond(py_ref(excValue, true));
+  PyObjectRef cond(excValue, true);
 
-  Environment pkg_globals(
-      Environment::namespace_env("reticulate").get(".globals"));
-  pkg_globals.assign("py_last_exception", cond);
+  static SEXP sym_py_last_exception = Rf_install("py_last_exception");
+  static SEXP pkg_globals = Rf_eval(Rf_install(".globals"), ns_reticulate); // eval to force PROMSXP
+
+  Rf_defineVar(sym_py_last_exception, cond, pkg_globals);
 
   if (flush_std_buffers() == -1)
     warning(
@@ -1238,17 +1241,20 @@ SEXP py_to_r_cpp(SEXP x) {
   bool simple = ref.simple();
 
   // if we already know this is not a simple py object,
-  // and `convert` is already TRUE., there is nothing to do
+  // and `convert` is already TRUE, there is nothing to do;
   // return x unmodified
   if(!simple && ref.convert()) return x;
 
   // if simple = true, call py_to_r_cpp(PyObject) to (try to) simplify
   // if convert = false, call py_to_r_cpp(PyObject) to get a new ref with convert = true
   SEXP ret = py_to_r_cpp(ref.get(), /*convert =*/ true, simple);
-  if(simple && is_py_object(ret))
+  if(simple && is_py_object(ret)) {
+    PROTECT(ret);
+    Rf_defineVar(sym_simple, Rf_ScalarLogical(FALSE), ref.get_refenv());
+    UNPROTECT(1);
+  }
     // if we tried and failed to simplify the ref,
     // mark the ref as non simple so we can skip trying next time.
-    Rf_defineVar(sym_simple, Rf_ScalarLogical(FALSE), ref.get_refenv());
   return ret; // return the new ref
 }
 
@@ -1399,7 +1405,7 @@ SEXP py_to_r_cpp(PyObject* x, bool convert, bool simple) {
     // element R vector)
     npy_intp len = PyArray_SIZE(array);
     int nd = PyArray_NDIM(array);
-    IntegerVector dimsVector(nd);
+    Rcpp::IntegerVector dimsVector(nd);
     if (nd > 0) {
       npy_intp *dims = PyArray_DIMS(array);
       for (int i = 0; i<nd; i++)
@@ -1458,8 +1464,9 @@ SEXP py_to_r_cpp(PyObject* x, bool convert, bool simple) {
         if(og_typenum == NPY_DATETIME) {
           for (int i = 0; i<len; i++)
             rArray_ptr[i] /= 1e9; // ns to s
-          SEXP klass = Rf_allocVector(STRSXP, 2);
-          Rf_setAttrib(rArray, R_ClassSymbol, klass); // protects
+          RObject klass_(Rf_allocVector(STRSXP, 2));
+          SEXP klass = klass_;
+          Rf_setAttrib(rArray, R_ClassSymbol, klass); // protects, but rchk doesn't know
           SET_STRING_ELT(klass, 0, Rf_mkChar("POSIXct"));
           SET_STRING_ELT(klass, 1, Rf_mkChar("POSIXt"));
         }
@@ -1776,19 +1783,20 @@ SEXP py_get_formals(PyObjectRef callable)
       has_dots = true;
     }
 
+    const char *name_char = PyUnicode_AsUTF8(name);
+    if (name_char == NULL) throw PythonException(py_fetch_error());
+
+    SEXP name_sym = Rf_installChar(Rf_mkCharCE(name_char, CE_UTF8));
+
     SEXP arg_default = R_MissingArg;
     PyObjectPtr param_default(PyObject_GetAttrString(param, "default")); // new ref
     if (param_default.is_null())
       throw PythonException(py_fetch_error());
 
     if (param_default.get() != inspect_Parameter_empty)
-      arg_default = py_to_r(param_default, true);
+      arg_default = py_to_r(param_default, true); // needs protection before next potential R allocation
 
-    const char *name_char = PyUnicode_AsUTF8(name);
-    if (name_char == NULL) throw PythonException(py_fetch_error());
-
-    SEXP name_sym = Rf_installChar(Rf_mkCharCE(name_char, CE_UTF8));
-    GrowList(r_args, name_sym, arg_default);
+    GrowList(r_args, name_sym, arg_default); // protects arg_default
   }
 
   if (PyErr_Occurred())
@@ -1941,7 +1949,10 @@ PyObject* r_to_py(RObject x, bool convert) {
   // call the R version and hold the return value in a PyObjectRef (SEXP wrapper)
   // this object will be released when the function returns
   // ideally this would call in userenv, so UseMethod() finds methods there.
-  SEXP ref_sexp = eval_call(r_func_r_to_py, x, Rf_ScalarLogical(convert));
+  // rchk complains that PyObjectRef(eval()) leaves eval() result unprotected
+  // while PyObjectRef constructor might allocate, which it only if throwing
+  // an exception... do the indirect construction to avoid the warning.
+  RObject ref_sexp(eval_call(r_func_r_to_py, x, Rf_ScalarLogical(convert)));
   PyObjectRef ref(ref_sexp);
 
   // get the underlying Python object and call Py_IncRef before returning it
@@ -2206,11 +2217,14 @@ extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* k
     rArgs = py_to_r(funcArgs, convert);
   } else {
     Py_ssize_t len = PyTuple_Size(funcArgs);
+    std::vector<PyObjectRef> values;
+    values.reserve(len);
     for (Py_ssize_t index = 0; index<len; index++) {
       PyObject* item = PyTuple_GetItem(funcArgs, index); // borrowed
       Py_IncRef(item);
-      rArgs.push_back(py_ref(item, convert));
+      values.push_back(py_ref(item, convert));
     }
+    rArgs = List(values.begin(), values.end());
   }
 
   // get keyword arguments
@@ -2224,24 +2238,35 @@ extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* k
 
       PyObject *key, *value;
       Py_ssize_t pos = 0;
+      std::vector<PyObjectRef> values;
+      std::vector<std::string> names;
+
+      Py_ssize_t size = PyDict_Size(keywords);
+      names.reserve(size);
+      values.reserve(size);
 
       // NOTE: PyDict_Next uses borrowed references,
       // so anything we return should be Py_IncRef'd
       while (PyDict_Next(keywords, &pos, &key, &value)) {
         PyObjectPtr str(PyObject_Str(key));
+        names.push_back(as_std_string(str));
+
         Py_IncRef(value);
-        rKeywords[as_std_string(str)] = py_ref(value, convert);
+        values.push_back(py_ref(value, convert));
       }
+
+      rKeywords = List(values.begin(), values.end());
+      rKeywords.names() = Rcpp::wrap(names);
     }
 
   }
 
-  static SEXP call_r_function_s = NULL;
-  if(call_r_function_s == NULL) {
+  static SEXP call_r_function_s = []() {
     // Use an expression that deparses nicely for traceback printing purposes
-    call_r_function_s = Rf_lang3(Rf_install(":::"), Rf_install("reticulate"), Rf_install("call_r_function"));
-    R_PreserveObject(call_r_function_s);
-  }
+    SEXP cl = Rf_lang3(Rf_install(":::"), Rf_install("reticulate"), Rf_install("call_r_function"));
+    R_PreserveObject(cl);
+    return cl;
+  }();
 
   RObject call_r_func_call(Rf_lang4(call_r_function_s, rFunction, rArgs, rKeywords));
 
@@ -2251,7 +2276,12 @@ extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* k
     // prints this frame as a node of the parent rather than a top-level call.
     // Rf_eval() is safe to use here because call_r_function() setups up calling handlers
     // so there should be no risk of a longjump from here
-    Rcpp::List result(Rf_eval(call_r_func_call, current_env()));
+    // Technically we don't need to protct env, since
+    // it would already be protected by it's inclusion in the R callstack frames,
+    // but rchk flags it anyway, and so ...
+    RObject env(current_env());
+    Rcpp::List result(Rf_eval(call_r_func_call, env));
+
     // result is either
     // (return_value, NULL) or
     // (NULL, Exception object converted from r_error_condition_object)
@@ -2500,7 +2530,6 @@ SEXP main_process_python_info_unix() {
     return R_NilValue;
   }
 
-  List info;
 
   if (PyGILState_Ensure == NULL)
     loadSymbol(pLib, "PyGILState_Ensure", (void**)&PyGILState_Ensure);
@@ -2516,25 +2545,25 @@ SEXP main_process_python_info_unix() {
     loadSymbol(pLib, "Py_GetProgramFullPath", (void**) &Py_GetProgramFullPath);
     const std::wstring wide_python_path(Py_GetProgramFullPath());
     python_path = to_string(wide_python_path);
-    info["python"] = python_path;
   } else {
     loadSymbol(pLib, "Py_GetProgramFullPath", (void**) &Py_GetProgramFullPath_v2);
     python_path = Py_GetProgramFullPath_v2();
-    info["python"] = python_path;
   }
 
+  RObject libpython;
   // read libpython file path
   if (strcmp(dinfo.dli_fname, python_path.c_str()) == 0 ||
       strcmp(dinfo.dli_fname, "python") == 0) {
     // if the library is the same as the executable, it's probably a PIE.
     // Any consequent dlopen on the PIE may fail, return NA to indicate this.
     // when R is embedded by rpy2, dli_fname can be 'python'
-    info["libpython"] = Rf_ScalarString(R_NaString);
+    libpython = Rf_ScalarString(R_NaString);
   } else {
-    info["libpython"] = dinfo.dli_fname;
+    libpython = Rf_mkString(dinfo.dli_fname);
   }
 
-  return info;
+  return List::create(_["python"] = python_path,
+                      _["libpython"] = libpython);
 
 }
 
@@ -2654,7 +2683,8 @@ void py_initialize(const std::string& python,
 
   // initialize trace
   Function sysGetEnv("Sys.getenv");
-  std::string tracems_env = as<std::string>(sysGetEnv("RETICULATE_DUMP_STACK_TRACE", 0));
+  RObject tracems_env_( sysGetEnv("RETICULATE_DUMP_STACK_TRACE", 0) );
+  std::string tracems_env = as<std::string>(tracems_env_);
   int tracems = ::atoi(tracems_env.c_str());
   if (tracems > 0)
     trace_thread_init(tracems);
@@ -3084,7 +3114,9 @@ SEXP py_dict_get_item(PyObjectRef dict, RObject key) {
     PyObjectRef ref(py_get_item(dict, key, false));
     if(dict.convert()) {
       // py_get_item_impl returns PyObjectRef always
-      return py_to_r(ref.get(), true); // py_to_r() does *not* steal a ref
+      // RObject, so that the SEXP is protected while ref destructor is called
+      // which rchks flags as a potential issue
+      return RObject(py_to_r(ref.get(), true)); // py_to_r() does *not* steal a ref
     } else {
       return ref;
     }
@@ -3773,7 +3805,9 @@ PyObjectRef r_convert_dataframe(RObject dataframe, bool convert) {
     if (OBJECT(column) != 0) {
       // An object with a class attribute, we dispatch to the S3 method
       // and continue to the next column.
-      PyObjectRef ref(r_convert_dataframe_column(column, convert));
+      // see comment in r_to_py() for why indirection in constructor is needed.
+      RObject ref_(r_convert_dataframe_column(column, convert));
+      PyObjectRef ref(ref_);
       status = PyDict_SetItem(dict, name, ref.get());
       if (status != 0)
         throw PythonException(py_fetch_error());
@@ -4059,6 +4093,10 @@ SEXP py_iterate(PyObjectRef x, Function f, bool simplify = true) {
 
   ensure_python_initialized();
 
+  SEXP out;
+  { // open scope so we can invoke c++ destructors before
+    // calling UNPROTECT on the out object
+
   // List to return
   std::vector<RObject> list;
 
@@ -4089,8 +4127,10 @@ SEXP py_iterate(PyObjectRef x, Function f, bool simplify = true) {
 
   auto list_size = list.size();
 
-  if (list_size == 0)
-    return Rf_allocVector(VECSXP, 0);
+  if (list_size == 0) {
+    out = PROTECT(Rf_allocVector(VECSXP, 0));
+    goto done;
+  }
 
   int outType;
   if (simplify && convert)
@@ -4128,7 +4168,7 @@ SEXP py_iterate(PyObjectRef x, Function f, bool simplify = true) {
   }
   // allocate an R object of type outType
   // copy over the list elements
-  SEXP out = PROTECT(Rf_allocVector(outType, list_size));
+  out = PROTECT(Rf_allocVector(outType, list_size));
   switch (outType)
   {
   case LGLSXP: {
@@ -4175,6 +4215,8 @@ SEXP py_iterate(PyObjectRef x, Function f, bool simplify = true) {
       // should never happen
       Rf_error("Internal error: unexpected type encountered in py_iterate");
   }
+  }
+  done:
   UNPROTECT(1);
   return out;
 }

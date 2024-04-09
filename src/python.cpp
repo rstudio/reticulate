@@ -2222,7 +2222,7 @@ extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* k
     for (Py_ssize_t index = 0; index<len; index++) {
       PyObject* item = PyTuple_GetItem(funcArgs, index); // borrowed
       Py_IncRef(item);
-      values[index] = py_ref(item, convert);
+      values.push_back(py_ref(item, convert));
     }
     rArgs = List(values.begin(), values.end());
   }

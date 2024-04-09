@@ -492,9 +492,8 @@ public:
 // py_fetch_error() in such a way that it doesn't introduce a new
 // frame in returned traceback
 SEXP current_env(void) {
-  static SEXP call = NULL;
+  static SEXP call = []() {
 
-  if (!call) {
     // `sys.frame(sys.nframe())` doesn't work because `sys.nframe()`
     // returns the number of the frame in which evaluation occurs. It
     // doesn't return the number of frames on the stack. So we'd need
@@ -512,11 +511,12 @@ SEXP current_env(void) {
     SET_BODY(fn, body);
     SET_CLOENV(fn, R_BaseEnv);
 
-    call = Rf_lang1(fn);
+    SEXP call = Rf_lang1(fn);
     R_PreserveObject(call);
 
     UNPROTECT(3);
-  }
+    return call;
+  }();
 
   // Rf_PrintValue(get_r_trace(false, false));
 
@@ -644,9 +644,10 @@ SEXP py_class_names(PyObject* object) {
   // start adding class names
   std::vector<std::string> classNames;
 
+  Py_ssize_t len = PyTuple_Size(classes);
+  classNames.reserve(len+2); // +2 to possibly add python.builtin.object and python.builtin.iterator
 
   // add the bases to the R class attribute
-  Py_ssize_t len = PyTuple_Size(classes);
   for (Py_ssize_t i = 0; i < len; i++) {
     PyObject* base = PyTuple_GetItem(classes, i); // borrowed
     classNames.push_back(as_r_class(base));
@@ -674,13 +675,13 @@ SEXP new_refenv() {
 #else
   // R_NewEnv() C func introducted in R 4.1.
   // Prior to that, we need to call R func new.env()
-  static SEXP call = NULL;
-  if (!call) {
-    call = Rf_lang3(Rf_findFun(Rf_install("new.env"), R_BaseEnv),
+  static SEXP call = []() {
+    SEXP call = Rf_lang3(Rf_findFun(Rf_install("new.env"), R_BaseEnv),
                     /*hash =*/ Rf_ScalarLogical(FALSE),
                     /*parent =*/ R_EmptyEnv);
     R_PreserveObject(call);
-  }
+    return call;
+  }();
   return Rf_eval(call, R_BaseEnv);
 #endif
 }
@@ -766,9 +767,7 @@ bool traceback_enabled() {
 
 
 SEXP get_current_call(void) {
-  static SEXP call = NULL;
-
-  if (!call) {
+  static SEXP call = []() {
     ParseStatus status;
     SEXP code = PROTECT(Rf_mkString("sys.call(-1)"));
     SEXP parsed = PROTECT(R_ParseVector(code, -1, &status, R_NilValue));
@@ -779,11 +778,12 @@ SEXP get_current_call(void) {
     SET_BODY(fn, body);
     SET_CLOENV(fn, R_BaseEnv);
 
-    call = Rf_lang1(fn);
+    SEXP call = Rf_lang1(fn);
     R_PreserveObject(call);
 
     UNPROTECT(3);
-  }
+    return call;
+  }();
 
   return Rf_eval(call, R_BaseEnv);
 }
@@ -1241,7 +1241,7 @@ SEXP py_to_r_cpp(SEXP x) {
   bool simple = ref.simple();
 
   // if we already know this is not a simple py object,
-  // and `convert` is already TRUE., there is nothing to do
+  // and `convert` is already TRUE, there is nothing to do;
   // return x unmodified
   if(!simple && ref.convert()) return x;
 
@@ -1405,7 +1405,7 @@ SEXP py_to_r_cpp(PyObject* x, bool convert, bool simple) {
     // element R vector)
     npy_intp len = PyArray_SIZE(array);
     int nd = PyArray_NDIM(array);
-    IntegerVector dimsVector(nd);
+    Rcpp::IntegerVector dimsVector(nd);
     if (nd > 0) {
       npy_intp *dims = PyArray_DIMS(array);
       for (int i = 0; i<nd; i++)
@@ -2217,11 +2217,14 @@ extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* k
     rArgs = py_to_r(funcArgs, convert);
   } else {
     Py_ssize_t len = PyTuple_Size(funcArgs);
+    std::vector<PyObjectRef> values;
+    values.reserve(len);
     for (Py_ssize_t index = 0; index<len; index++) {
       PyObject* item = PyTuple_GetItem(funcArgs, index); // borrowed
       Py_IncRef(item);
-      rArgs.push_back(py_ref(item, convert));
+      values[index] = py_ref(item, convert);
     }
+    rArgs = List(values.begin(), values.end());
   }
 
   // get keyword arguments
@@ -2258,12 +2261,12 @@ extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* k
 
   }
 
-  static SEXP call_r_function_s = NULL;
-  if(call_r_function_s == NULL) {
+  static SEXP call_r_function_s = []() {
     // Use an expression that deparses nicely for traceback printing purposes
-    call_r_function_s = Rf_lang3(Rf_install(":::"), Rf_install("reticulate"), Rf_install("call_r_function"));
-    R_PreserveObject(call_r_function_s);
-  }
+    SEXP cl = Rf_lang3(Rf_install(":::"), Rf_install("reticulate"), Rf_install("call_r_function"));
+    R_PreserveObject(cl);
+    return cl;
+  }();
 
   RObject call_r_func_call(Rf_lang4(call_r_function_s, rFunction, rArgs, rKeywords));
 
@@ -2537,14 +2540,14 @@ SEXP main_process_python_info_unix() {
   GILScope scope(true);
 
   // read Python program path
-  RObject python_path;
+  std::string python_path;
   if (Py_GetVersion()[0] >= '3') {
     loadSymbol(pLib, "Py_GetProgramFullPath", (void**) &Py_GetProgramFullPath);
     const std::wstring wide_python_path(Py_GetProgramFullPath());
-    python_path = Rf_mkString(to_string(wide_python_path).c_str());
+    python_path = to_string(wide_python_path);
   } else {
     loadSymbol(pLib, "Py_GetProgramFullPath", (void**) &Py_GetProgramFullPath_v2);
-    python_path = Rf_mkString(Py_GetProgramFullPath_v2());
+    python_path = Py_GetProgramFullPath_v2();
   }
 
   RObject libpython;

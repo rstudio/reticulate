@@ -17,3 +17,11 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - uses: r-lib/actions/run-rchk@v2
+    - run: R CMD build .
+    - run: docker pull kalibera/rchk:latest
+    - run: |
+          mkdir -p rchk/packages
+          mv reticulate_*.tar.gz rchk/packages/
+          cd rchk/packages
+          pkgtar=$(ls reticulate_*.tar.gz)
+          docker run -v `pwd`/packages:/rchk/packages kalibera/rchk:latest /rchk/packages/$pkgtar

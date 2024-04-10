@@ -1,0 +1,19 @@
+
+on:
+  workflow_dispatch:
+  push:
+    branches: main
+  pull_request:
+    branches: main
+
+name: rchk
+
+jobs:
+  rchk:
+    runs-on: ubuntu-latest
+    container:
+      image: rhub/ubuntu-rchk
+      options: --user=root
+    steps:
+    - uses: actions/checkout@v4
+    - uses: r-lib/actions/run-rchk@v2

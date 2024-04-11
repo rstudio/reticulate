@@ -27,7 +27,8 @@ conda_create(
   channel = character(),
   environment = NULL,
   conda = "auto",
-  python_version = miniconda_python_version()
+  python_version = miniconda_python_version(),
+  additional_create_args = character()
 )
 
 conda_clone(envname, ..., clone = "base", conda = "auto")
@@ -52,6 +53,8 @@ conda_install(
   pip_ignore_installed = FALSE,
   conda = "auto",
   python_version = NULL,
+  additional_create_args = character(),
+  additional_install_args = character(),
   ...
 )
 
@@ -129,6 +132,12 @@ install via pip due to compilation requirements).}
 \item{all}{Boolean; report all instances of Python found?}
 
 \item{matchspec}{A conda MatchSpec query string.}
+
+\item{additional_create_arguments}{An optional character vector of
+additional arguments to use in the call to \verb{conda create}.}
+
+\item{additional_install_arguments}{An optional character vector of
+additional arguments to use in the call to \verb{conda install}.}
 }
 \value{
 \code{conda_list()} returns an \R \code{data.frame}, with \code{name} giving the name of

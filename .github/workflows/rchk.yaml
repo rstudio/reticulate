@@ -26,4 +26,10 @@ jobs:
           mv reticulate_*.tar.gz rchk/packages/
           cd rchk/packages
           pkgtar=$(ls reticulate_*.tar.gz)
-          docker run -v `pwd`/packages:/rchk/packages kalibera/rchk:latest /rchk/packages/$pkgtar
+          docker run -v `pwd`/packages:/rchk/packages kalibera/rchk:latest /rchk/packages/$pkgtar > rchk.log 2>&1
+          cat rchk.log
+    - name: upload rchk log
+      uses: actions/upload-artifact@v2
+      with:
+        name: rchk-log
+        path: rchk/packages/rchk.log

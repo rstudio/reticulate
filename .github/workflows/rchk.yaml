@@ -21,15 +21,17 @@ jobs:
     - run: R CMD build .
 
     - run: docker pull kalibera/rchk:latest
-    - run: |
-          mkdir -p rchk/packages
-          mv reticulate_*.tar.gz rchk/packages/
-          cd rchk/packages
+    - name: run rchk
+      run: |
           pkgtar=$(ls reticulate_*.tar.gz)
+          mkdir -p rchk/packages
+          mv $pkgtar rchk/packages/
+          cd rchk
           docker run -v `pwd`/packages:/rchk/packages kalibera/rchk:latest /rchk/packages/$pkgtar > rchk.log 2>&1
           cat rchk.log
+
     - name: upload rchk log
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: rchk-log
         path: rchk/packages/rchk.log

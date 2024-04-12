@@ -61,11 +61,11 @@
 #'
 #' @param all Boolean; report all instances of Python found?
 #'
-#' @param additional_create_arguments An optional character vector of
-#'   additional arguments to use in the call to `conda create`. 
+#' @param additional_create_args An optional character vector of additional
+#'   arguments to use in the call to `conda create`. 
 #'
-#' @param additional_install_arguments An optional character vector of
-#'   additional arguments to use in the call to `conda install`. 
+#' @param additional_install_args An optional character vector of additional
+#'   arguments to use in the call to `conda install`. 
 #'
 #' @param ... Optional arguments, reserved for future expansion.
 #'

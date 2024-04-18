@@ -3610,7 +3610,7 @@ SEXP py_convert_pandas_series(PyObjectRef series) {
   } else {
 
     PyObjectPtr values(PyObject_GetAttrString(series, "values"));
-    R_obj = py_to_r(values, series.convert());
+    R_obj = py_to_r(values, true);
 
   }
 
@@ -3643,7 +3643,7 @@ SEXP py_convert_pandas_df(PyObjectRef df) {
     PyObjectPtr series(PySequence_GetItem(tuple, 1));
 
     // delegate to py_convert_pandas_series
-    PyObjectRef series_ref(series.detach(), df.convert());
+    PyObjectRef series_ref(series.detach(), true);
     RObject R_obj = py_convert_pandas_series(series_ref);
 
     list.push_back(R_obj);

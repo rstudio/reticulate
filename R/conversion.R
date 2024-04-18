@@ -267,7 +267,7 @@ py_to_r.datatable.Frame <- function(x) {
 
 #' @export
 py_to_r.pandas.core.frame.DataFrame <- function(x) {
-  local_conversion_scope(x, TRUE)
+  local_conversion_scope(x, FALSE)
 
   np <- import("numpy", convert = TRUE)
   pandas <- import("pandas", convert = TRUE)
@@ -282,12 +282,12 @@ py_to_r.pandas.core.frame.DataFrame <- function(x) {
   })
 
   # assign colnamnes
-  columns <- py_set_convert(x$columns, FALSE)$values
+  columns <- x$columns$values
   columns <- as.character(bt$list(x$columns$map(bt$str)))
   names(converted) <- columns
 
   df <- converted
-  attr(df, "row.names") <- c(NA_integer_, -x$shape[[1L]])
+  attr(df, "row.names") <- c(NA_integer_, py_to_r(-x$shape[[0L]]))
   class(df) <- "data.frame"
 
   # attempt to copy over index, and set as rownames when appropriate

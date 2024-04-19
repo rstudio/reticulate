@@ -1,3 +1,8 @@
+# reticulate 1.36.0.9000
+
+- Added an option for extra command-line arguments in `conda_create()`,
+  `conda_install()` (#1585).
+
 # reticulate 1.36.0
 
 - Internal refactoring and optimization now give a faster experience,

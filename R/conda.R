@@ -466,12 +466,22 @@ conda_install <- function(envname = NULL,
 
   }
 
+  # prepare user-requested channels
+  channels <- if (length(channel))
+    channel
+  else if (forge)
+    "conda-forge"
+
+  channel_args <- character()
+  for (ch in channels)
+    channel_args <- c(channel_args, "-c", ch)
+
   # if the user has requested a specific version of Python, ensure that
   # version of Python is installed into the requested environment
   # (should be no-op if that copy of Python already installed)
   if (!is.null(python_version)) {
     args <- conda_args("install", envname, python_package)
-    args <- c(args, additional_install_args)
+    args <- c(args, channel_args, additional_install_args)
     status <- system2t(conda, maybe_shQuote(args))
     if (status != 0L) {
       fmt <- "installation of '%s' into environment '%s' failed [error code %i]"
@@ -500,13 +510,7 @@ conda_install <- function(envname = NULL,
   args <- conda_args("install", envname)
 
   # add user-requested channels
-  channels <- if (length(channel))
-    channel
-  else if (forge)
-    "conda-forge"
-
-  for (ch in channels)
-    args <- c(args, "-c", ch)
+  args <- c(args, channel_args)
 
   args <- c(args, python_package, packages, additional_install_args)
   result <- system2t(conda, maybe_shQuote(args))

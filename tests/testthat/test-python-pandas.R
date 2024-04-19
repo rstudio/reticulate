@@ -414,3 +414,29 @@ df = pandas.DataFrame({
 
 
 })
+
+test_that("Additional S3 methods don't break pandas conversion", {
+  # anndata exports a py_to_r.pandas.core.indexes.base.Index method
+  # https://github.com/rstudio/reticulate/issues/1591
+
+  df <- data.frame(row.names = c("s1", "s2"),
+                   group = c("a", "b"))
+
+  registerS3method("py_to_r", "pandas.core.indexes.base.Index",
+                   function(x) stop("Method should not be called here"))
+
+  on.exit({
+    rm(list = "py_to_r.pandas.core.indexes.base.Index",
+       envir = environment(py_to_r)$.__S3MethodsTable__.)
+  })
+
+  expect_no_error({
+    df2 <- py_to_r(r_to_py(df))
+  })
+
+  attr(df2, "pandas.index") <- NULL
+  expect_identical(df, df2)
+
+})
+
+

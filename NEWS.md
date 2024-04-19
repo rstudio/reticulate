@@ -1,4 +1,10 @@
-# reticulate 1.36.0.9000
+# reticulate (development version)
+
+- Fix issue where `py_to_r()` method for Pandas DataFrames would error 
+  if `py_to_r()` S3 methods were defined for Pandas subtypes, 
+  (as done by {anndata}) (#1591).
+  
+- "Python Dependencies" vignette edits (@salim-b, #1586)
 
 - Added an option for extra command-line arguments in `conda_create()`,
   `conda_install()` (#1585).

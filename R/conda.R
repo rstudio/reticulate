@@ -61,6 +61,12 @@
 #'
 #' @param all Boolean; report all instances of Python found?
 #'
+#' @param additional_create_args An optional character vector of additional
+#'   arguments to use in the call to `conda create`. 
+#'
+#' @param additional_install_args An optional character vector of additional
+#'   arguments to use in the call to `conda install`. 
+#'
 #' @param ... Optional arguments, reserved for future expansion.
 #'
 #'
@@ -195,7 +201,8 @@ conda_create <- function(envname = NULL,
                          channel = character(),
                          environment = NULL,
                          conda = "auto",
-                         python_version = miniconda_python_version())
+                         python_version = miniconda_python_version(),
+                         additional_create_args = character())
 {
   check_forbidden_install("Conda Environments")
 
@@ -205,7 +212,7 @@ conda_create <- function(envname = NULL,
 
   # if environment is provided, use it directly
   if (!is.null(environment))
-    return(conda_create_env(envname, environment, conda))
+    return(conda_create_env(envname, environment, conda, additional_create_args))
 
   # resolve environment name
   envname <- condaenv_resolve(envname)
@@ -237,6 +244,9 @@ conda_create <- function(envname = NULL,
   for (ch in channels)
     args <- c(args, "-c", ch)
 
+  # add additional arguments
+  args <- c(args, additional_create_args)
+
   # invoke conda
   result <- system2t(conda, maybe_shQuote(args))
   if (result != 0L) {
@@ -248,7 +258,7 @@ conda_create <- function(envname = NULL,
   conda_python(envname = envname, conda = conda)
 }
 
-conda_create_env <- function(envname, environment, conda) {
+conda_create_env <- function(envname, environment, conda, additional_create_args) {
 
   check_forbidden_install("Conda Environments")
 
@@ -263,7 +273,8 @@ conda_create_env <- function(envname, environment, conda) {
       c("--prefix", maybe_shQuote(envname))
     else
       c("--name", maybe_shQuote(envname)),
-    "-f", maybe_shQuote(environment)
+    "-f", maybe_shQuote(environment),
+    additional_create_args
   )
 
   result <- system2t(conda, args)
@@ -394,6 +405,8 @@ conda_install <- function(envname = NULL,
                           pip_ignore_installed = FALSE,
                           conda = "auto",
                           python_version = NULL,
+                          additional_create_args = character(),
+                          additional_install_args = character(),
                           ...)
 {
   check_forbidden_install("Python packages")
@@ -445,7 +458,8 @@ conda_install <- function(envname = NULL,
       packages = python_package %||% "python",
       forge = forge,
       channel = channel,
-      conda = conda
+      conda = conda,
+      additional_create_args = additional_create_args
     )
 
     python <- conda_python(envname = envname, conda = conda)
@@ -457,6 +471,7 @@ conda_install <- function(envname = NULL,
   # (should be no-op if that copy of Python already installed)
   if (!is.null(python_version)) {
     args <- conda_args("install", envname, python_package)
+    args <- c(args, additional_install_args)
     status <- system2t(conda, maybe_shQuote(args))
     if (status != 0L) {
       fmt <- "installation of '%s' into environment '%s' failed [error code %i]"
@@ -493,7 +508,7 @@ conda_install <- function(envname = NULL,
   for (ch in channels)
     args <- c(args, "-c", ch)
 
-  args <- c(args, python_package, packages)
+  args <- c(args, python_package, packages, additional_install_args)
   result <- system2t(conda, maybe_shQuote(args))
 
   # check for errors

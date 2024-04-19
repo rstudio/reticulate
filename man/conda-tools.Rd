@@ -27,7 +27,8 @@ conda_create(
   channel = character(),
   environment = NULL,
   conda = "auto",
-  python_version = miniconda_python_version()
+  python_version = miniconda_python_version(),
+  additional_create_args = character()
 )
 
 conda_clone(envname, ..., clone = "base", conda = "auto")
@@ -52,6 +53,8 @@ conda_install(
   pip_ignore_installed = FALSE,
   conda = "auto",
   python_version = NULL,
+  additional_create_args = character(),
+  additional_install_args = character(),
   ...
 )
 
@@ -106,6 +109,9 @@ and other arguments will be ignored.}
 you'd like to change the version of Python associated with a particular
 conda environment.}
 
+\item{additional_create_args}{An optional character vector of additional
+arguments to use in the call to \verb{conda create}.}
+
 \item{clone}{The name of the conda environment to be cloned.}
 
 \item{file}{The path where the conda environment definition will be written.}
@@ -125,6 +131,9 @@ can be installed even if they are downgrades. The \code{FALSE} option is useful
 for situations where you don't want a pip install to attempt an overwrite of
 a conda binary package (e.g. SciPy on Windows which is very difficult to
 install via pip due to compilation requirements).}
+
+\item{additional_install_args}{An optional character vector of additional
+arguments to use in the call to \verb{conda install}.}
 
 \item{all}{Boolean; report all instances of Python found?}
 

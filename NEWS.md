@@ -1,5 +1,11 @@
 # reticulate (development version)
 
+- Fix issue where `py_to_r()` method for Pandas DataFrames would error 
+  if `py_to_r()` S3 methods were defined for Pandas subtypes, 
+  (as done by {anndata}) (#1591).
+  
+- "Python Dependencies" vignette edits (@salim-b, #1586)
+
 # reticulate 1.36.0
 
 - Internal refactoring and optimization now give a faster experience,

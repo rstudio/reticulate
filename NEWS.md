@@ -9,6 +9,9 @@
 - Added an option for extra command-line arguments in `conda_create()`,
   `conda_install()` (#1585).
 
+- Fixed issue where `conda_install()` ignores user-specified channels during
+  Python installation (#1594).
+
 # reticulate 1.36.0
 
 - Internal refactoring and optimization now give a faster experience,

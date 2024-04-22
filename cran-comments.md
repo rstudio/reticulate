@@ -1,5 +1,8 @@
 New features and fixes. See NEWS.md for details.
 
+This submission is a hot patch to fix an issue introduced by our
+previous release that broke compatibility with the {anndata} package.
+
 ## R CMD check results
 
 ## revdepcheck results

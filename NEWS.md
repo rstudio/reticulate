@@ -1,5 +1,7 @@
 # reticulate (development version)
 
+- `virtualenv_starter()` no longer warns when encountering broken symlinks (#1598).
+
 # reticulate 1.36.1
 
 - Fix issue where `py_to_r()` method for Pandas DataFrames would error 

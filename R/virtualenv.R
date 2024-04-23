@@ -533,8 +533,10 @@ virtualenv_starter <- function(version = NULL, all = FALSE) {
                suffix)
     }
 
-    p <- unique(normalizePath(Sys.glob(glob), winslash = "/"))
+    p <- unique(normalizePath(Sys.glob(glob), winslash = "/", mustWork = FALSE))
     p <- p[grep("^python[0-9.]*(\\.exe)?$", basename(p))]
+    p <- p[utils::file_test("-x", p)]
+    p <- p[utils::file_test("-f", p)]
     v <- numeric_version(vapply(p, function(python_path)
       tryCatch({
         v <- suppressWarnings(system2(

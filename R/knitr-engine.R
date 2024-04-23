@@ -197,6 +197,7 @@ eng_python <- function(options) {
 
   # Stash some options.
   is_hold <- identical(options$results, "hold")
+  is_hidden <- identical(options$results, "hide")
   is_include <- isTRUE(options$include)
   jupyter_compat <- isTRUE(options$jupyter_compat)
 
@@ -306,7 +307,7 @@ eng_python <- function(options) {
       }
 
       # append captured outputs (respecting 'include' option)
-      if (is_include) {
+      if (!is_hidden && is_include) {
         # append captured output
         if (!identical(captured, ""))
           outputs_target$push(captured)

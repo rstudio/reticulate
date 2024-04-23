@@ -349,10 +349,11 @@ eng_python <- function(options) {
       plt$show()
   }
 
-  for (plot in .engine_context$pending_plots$data())
-    outputs_target$push(plot)
-  .engine_context$pending_plots$clear()
-
+  if (!is_hidden && is_include) {
+    for (plot in .engine_context$pending_plots$data())
+      outputs_target$push(plot)
+    .engine_context$pending_plots$clear()
+  }
 
   # if we were using held outputs, we just inject the source in now
   if (is_hold) {

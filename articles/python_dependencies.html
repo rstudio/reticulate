@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.36.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.36.1</span>
       </span>
     </div>
 
@@ -114,13 +114,13 @@
     
 <p>If you’re writing an R package that uses <code>reticulate</code> as
 an interface to a Python session, you likely also need one or more
-Python packages installed on the user’s machine for your package to
-function. In addition, you’d likely prefer to insulate users from
-details around how Python + <code>reticulate</code> are configured as
-much as possible. This vignette documents a few approaches for
-accomplishing these goals.</p>
+Python packages installed on the user’s machine for your package to work
+properly. In addition, you’d likely prefer to spare users as much as
+possible from details around how Python + <code>reticulate</code> are
+configured. This vignette documents a few approaches for accomplishing
+these goals.</p>
 <div class="section level2">
-<h2 id="creating-a-pit-of-success">Creating a Pit Of Success<a class="anchor" aria-label="anchor" href="#creating-a-pit-of-success"></a>
+<h2 id="creating-a-pit-of-success">Creating a “Pit of Success”<a class="anchor" aria-label="anchor" href="#creating-a-pit-of-success"></a>
 </h2>
 <p>Overall, the goal of an R package author using reticulate is to
 create a default experience that works reliably and doesn’t require
@@ -130,12 +130,12 @@ adjust the default behavior. There are two key questions to keep in
 mind:</p>
 <ul>
 <li>What will the default behavior be when the user expresses no
-preference for any specific Python installation, and</li>
+preference for any specific Python installation?</li>
 <li>How can users express a preference for a specific Python
-installation that is satisfiable, (and why would they want to).</li>
+installation that is satisfiable (and why would they want to)?</li>
 </ul>
 <p>Packages like <a href="https://tensorflow.rstudio.com" class="external-link">tensorflow</a>
-approach this task this by providing a helper function,
+approach this task by providing a helper function,
 <code>tensorflow::install_tensorflow()</code>, and documenting that
 users can call this function to prepare the environment. For
 example:</p>
@@ -143,15 +143,15 @@ example:</p>
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/rstudio/tensorflow" class="external-link">tensorflow</a></span><span class="op">)</span></span>
 <span><span class="fu">install_tensorflow</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co"># use tensorflow</span></span></code></pre></div>
-<p>As a best practice, an R packages’ Python dependencies should default
+<p>As a best practice, an R package’s Python dependencies should default
 to installing in an isolated virtual environment specifically designated
 for the R package. This minimizes the risk of inadvertently disrupting
 another Python installation on the user’s system.</p>
 <p>As an example, <code>install_tensorflow()</code> takes an argument
-with a default value: <code>envname = "r-tensorflow"</code>. This
-default value ensures that <code>install_tensorflow()</code> will
-install into an environment named <code>"r-tensorflow"</code>,
-optionally creating it as needed.</p>
+<code>envname</code> with a default value of
+<code>"r-tensorflow"</code>. This default value ensures that
+<code>install_tensorflow()</code> will install into an environment named
+<code>"r-tensorflow"</code>, optionally creating it as needed.</p>
 <p>The counterpart to the default behavior of
 <code>install_tensorflow()</code> is the work that happens in
 <code>tensorflow::.onLoad()</code>, where the R package expresses a
@@ -179,7 +179,7 @@ actually creating the “r-tensorflow” environment.</p></li>
 <code>install_tensorflow()</code> once (creating a “r-tensorflow”
 environment). Subsequently, calls to <code><a href="https://github.com/rstudio/tensorflow" class="external-link">library(tensorflow)</a></code>
 will cause reticulate to use the <code>r-tensorflow</code> environment,
-and for everything to “just-work”. The risk of disrupting another Python
+and for everything to “just work”. The risk of disrupting another Python
 environment, or of this one being disrupting, is minimal, since the
 environment is designated for the R package. At the same time, if the
 environment is disrupted at some time later (perhaps because something
@@ -190,7 +190,7 @@ can easily revert to a working state by calling
 conflicting package versions are installed, and the most reliable way to
 get back to a working state is to delete the environment and start over
 with a fresh one. For this reason, <code>install_tensorflow()</code>
-removes any pre-existing “r-tensorflow” python environments first.
+removes any pre-existing “r-tensorflow” Python environments first.
 Deleting a Python environment however is not something to be done
 lightly, so the default is to only delete the default “r-tensorflow”
 environment. Here is an example of the helper
@@ -209,18 +209,18 @@ environment. Here is an example of the helper
 <span><span class="op">}</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="managing-multiple-package-dependencies-">Managing Multiple Package Dependencies.<a class="anchor" aria-label="anchor" href="#managing-multiple-package-dependencies-"></a>
+<h2 id="managing-multiple-package-dependencies">Managing Multiple Package Dependencies<a class="anchor" aria-label="anchor" href="#managing-multiple-package-dependencies"></a>
 </h2>
 <p>One drawback of the isolated-package-environments approach is that if
 multiple R packages using reticulate are in use, then those packages
 won’t all be able to use their preferred Python environment in the same
 R session (since there can only be one active Python environment at a
 time within an R session). To resolve this, users will have to take a
-slightly more active role in managing their python environments.
+slightly more active role in managing their Python environments.
 However, this can be as simple as supplying a unique environment
 name.</p>
 <p>The most straightforward approach is for users to create a dedicated
-python environment for a specific project. For example, a user can
+Python environment for a specific project. For example, a user can
 create a virtual environment in the project directory, like this:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">envname</span> <span class="op">&lt;-</span> <span class="st">"./venv"</span></span>
@@ -230,38 +230,40 @@ create a virtual environment in the project directory, like this:</p>
 Discovery</a> guide, reticulate will automatically discover and use a
 Python virtual environment in the current working directory like this.
 Alternatively, if the environment exists outside the project directory,
-the user could then place a .Renviron or .Rprofile file in the project
-directory, ensuring that reticulate will use always use the python
-configured for that project. For example, an .Renviron file in the
-project directory could contain:</p>
-<pre><code>RETICULATE_PYTHON_ENV=~/my/project/venv</code></pre>
-<p>Or a .Rprofile in the project directory could contain:</p>
+the user could then place an <code>.Renviron</code> or
+<code>.Rprofile</code> file in the project directory, ensuring that
+reticulate will use always use the Python environment configured for
+that project. For example, an <code>.Renviron</code> file in the project
+directory could contain:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="va">RETICULATE_PYTHON_ENV</span><span class="op">=</span>~/my/project/venv</span></code></pre></div>
+<p>Or an <code>.Rprofile</code> file in the project directory could
+contain:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span><span class="st">"RETICULATE_PYTHON_ENV"</span> <span class="op">=</span> <span class="st">"~/my/project/venv"</span><span class="op">)</span></span></code></pre></div>
 <p>This approach minimizes the risk that an existing, already working,
 Python environment will accidentally be broken by installing packages,
 due to inadvertently upgrading or downgrading other Python packages
 already installed in the environment.</p>
-<p>Another approach is for users to install your R packages Python
+<p>Another approach is for users to install your R packages’ Python
 dependencies into another Python environment that is already on the
 search path. For example, users can <em>opt-in</em> to installing into
 the default <code>r-reticulate</code> venv:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">tensorflow</span><span class="fu">::</span><span class="fu">install_tensorflow</span><span class="op">(</span>envname <span class="op">=</span> <span class="st">"r-reticulate"</span><span class="op">)</span></span></code></pre></div>
-<p>Or they can install one packages dependencies into another packages
+<p>Or they can install one package’s dependencies into another package’s
 default environment. For example, installing spark into the default
-“r-tensorflow” environment:</p>
+<code>"r-tensorflow"</code> environment:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">tensorflow</span><span class="fu">::</span><span class="fu">install_tensorflow</span><span class="op">(</span><span class="op">)</span> <span class="co"># creates an "r-tensorflow" env</span></span>
 <span><span class="fu">pysparklyr</span><span class="fu">::</span><span class="fu">install_pyspark</span><span class="op">(</span>envname <span class="op">=</span> <span class="st">"r-tensorflow"</span><span class="op">)</span></span></code></pre></div>
-<p>This approach—exporting a installation helper function that defaults
+<p>This approach—exporting an installation helper function that defaults
 to a particular environment, and a hint in <code>.onLoad()</code> to use
-that environment—is one way to create a “pit-of-success”. It encourages
-a default workflow that is robust and reliable, especially for users
-not-yet familiar with the mechanics of Python installation management.
-At the same time, an installation helper function empowers users to
-manage Python environments through simply providing an environment name.
-It makes it easy to combine dependencies of multiple R packages, and,
+that environment—is one way to create a “pit of success”. It encourages
+a default workflow that is robust and reliable, especially for users not
+yet familiar with the mechanics of Python installation management. At
+the same time, an installation helper function empowers users to manage
+Python environments through simply providing an environment name. It
+makes it easy to combine dependencies of multiple R packages, and,
 should anything go wrong due to conflicting Python dependencies, it also
 provides a straightforward way to revert to a working state at any time,
 by calling the helper function without arguments.</p>
@@ -269,13 +271,13 @@ by calling the helper function without arguments.</p>
 <div class="section level2">
 <h2 id="automatic-configuration">Automatic Configuration<a class="anchor" aria-label="anchor" href="#automatic-configuration"></a>
 </h2>
-<p>An alternative approach to the one describe above it to do automatic
+<p>An alternative approach to the one described above is to do automatic
 configuration. It’s possible for client packages to declare their Python
 dependencies in such a way that they are automatically installed in the
 currently activated Python environment. This is a maximally convenient
 approach; when it works it can feel a little bit magical, but it is also
 potentially dangerous and can result in frustration if something goes
-wrong. You can opt-in to this behavior as a package author through your
+wrong. You can opt in to this behavior as a package author through your
 packages <code>DESCRIPTION</code> file, with the use of the
 <code>Config/reticulate</code> field.</p>
 <p>With automatic configuration, <code>reticulate</code> envisions a
@@ -284,28 +286,29 @@ together in the same Python environment / R session. This approach only
 works when the Python packages being wrapped don’t have conflicting
 dependencies.</p>
 <p>You must be a judge of the Python dependencies your R package
-requires–if automatically bootstrapping an installation of the python
-package into the users active python environment, whatever it may
+requires–if automatically bootstrapping an installation of the Python
+package into the user’s active Python environment, whatever it may
 contain, is a safe action to perform by default. For example, this is
-most likely a safe action for a Python package like “requests”, but
-perhaps not a safe choice for a frequently updated package with many
-dependencies, like torch or tensorflow (e.g., it’s not uncommon for
-torch and tensorflow to have conflicting version requirements for
-dependencies like numpy or cuda). Keep in mind that, unlike CRAN, PyPI
-does not perform any compatibility or consistency checks across the
-package repository.</p>
+most likely a safe action for a Python package like
+<code>requests</code>, but perhaps not a safe choice for a frequently
+updated package with many dependencies, like <code>torch</code> or
+<code>tensorflow</code> (e.g., it’s not uncommon for <code>torch</code>
+and <code>tensorflow</code> to have conflicting version requirements for
+dependencies like <code>numpy</code> or <code>cuda</code>). Keep in mind
+that, unlike CRAN, PyPI does not perform any compatibility or
+consistency checks across the package repository.</p>
 <div class="section level3">
-<h3 id="using-configreticulate">Using Config/reticulate<a class="anchor" aria-label="anchor" href="#using-configreticulate"></a>
+<h3 id="using-configreticulate">Using <code>Config/reticulate</code><a class="anchor" aria-label="anchor" href="#using-configreticulate"></a>
 </h3>
-<p>As a package author, you can opt-in to automatic configuration like
+<p>As a package author, you can opt in to automatic configuration like
 this. For example, if we had a package <code>rscipy</code> that acted as
 an interface to the <a href="https://scipy.org" class="external-link">SciPy</a> Python
-package, we might use the following <code>DESCRIPTION</code>:</p>
+package, we might use the following <code>DESCRIPTION</code> file:</p>
 <pre><code>Package: rscipy
 Title: An R Interface to scipy
 Version: 1.0.0
 Description: Provides an R interface to the Python package scipy.
-Config/reticulate/autoconfigure:
+Config/reticulate:
   list(
     packages = list(
       list(package = "scipy")
@@ -320,7 +323,7 @@ Config/reticulate/autoconfigure:
 configuring a Python environment for the user when the
 <code>rscipy</code> package is loaded and used (i.e. it’s no longer
 necessary to provide the user with a special
-<code>install_tensorflow()</code> type function, though it’s still
+<code>install_tensorflow()</code>-type function, though it’s still
 recommended to do so).</p>
 <p>Specifically, after the <code>rscipy</code> package is loaded, the
 following will occur:</p>
@@ -346,19 +349,19 @@ Python already, then the required Python packages (in this case
 <code>scipy</code>) will be installed in the standard shared environment
 for R sessions (typically a virtual environment, or a Conda environment
 named “r-reticulate”).</p>
-<p>In effect, users have to pay a one-time, mostly-automated
+<p>In effect, users have to pay a one-time, mostly automated
 initialization cost in order to use your package, and then things will
-then work as any other R package would. In particular, users are
-otherwise insulated from details as to how <code>reticulate</code>
-works.</p>
+work as any other R package would. In particular, users are otherwise
+spared from details about how <code>reticulate</code> works.</p>
 </div>
 <div class="section level3">
-<h3 id="onload-configuration">.onLoad Configuration<a class="anchor" aria-label="anchor" href="#onload-configuration"></a>
+<h3 id="onload-configuration">
+<code>.onLoad</code> Configuration<a class="anchor" aria-label="anchor" href="#onload-configuration"></a>
 </h3>
 <p>In some cases, a user may try to load your package after Python has
 already been initialized. To ensure that <code>reticulate</code> can
 still configure the active Python environment, you can include the
-code:</p>
+following code:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">.onLoad</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">libname</span>, <span class="va">pkgname</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu">reticulate</span><span class="fu">::</span><span class="fu"><a href="../reference/configure_environment.html">configure_environment</a></span><span class="op">(</span><span class="va">pkgname</span><span class="op">)</span></span>
@@ -373,10 +376,10 @@ packages as necessary.</p>
 </h2>
 <p>The goal of these mechanisms is to allow easy interoperability
 between R packages that have Python dependencies, as well as to minimize
-specialized version/configuration steps for end-users. To that end,
+specialized version/configuration steps for end users. To that end,
 <code>reticulate</code> will (by default) track an older version of
-Python than the current release, giving Python packages time to adapt as
-is required. Python 2 will not be supported.</p>
+Python than the current release, giving Python packages time to adapt.
+Python 2 will not be supported.</p>
 <p>Tools for breaking these rules are not yet implemented, but will be
 provided as the need arises.</p>
 </div>
@@ -389,16 +392,17 @@ format:</p>
 <li><p><strong>package</strong>: The name of the Python
 package.</p></li>
 <li><p><strong>version</strong>: The version of the package that should
-be installed. When left unspecified, the latest-available version will
-be installed. This should only be set in exceptional cases – for
-example, if the most recently-released version of a Python package
-breaks compatibility with your package (or other Python packages) in a
+be installed. When left unspecified, the latest available version will
+be installed. This should only be set in exceptional cases—for example,
+if the most recently-released version of a Python package breaks
+compatibility with your package (or other Python packages) in a
 fundamental way. If multiple R packages request different versions of a
 particular Python package, <code>reticulate</code> will signal a
 warning.</p></li>
 <li><p><strong>pip</strong>: Whether this package should be retrieved
-from the <a href="https://pypi.org" class="external-link">PyPI</a> with <code>pip</code>, or
-(if <code>FALSE</code>) from the Anaconda repositories.</p></li>
+from the <a href="https://pypi.org" class="external-link">PyPI</a> using <code>pip</code>. If
+<code>FALSE</code>, it will be downloaded from the Anaconda repositories
+instead.</p></li>
 </ul>
 <p>For example, we could change the <code>Config/reticulate</code>
 directive from above to specify that <code>scipy [1.3.0]</code> be
@@ -429,7 +433,7 @@ installed from PyPI (with <code>pip</code>):</p>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.8.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.</p>
 </div>
 
       </footer>

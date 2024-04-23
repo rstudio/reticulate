@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.36.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.36.1</span>
       </span>
     </div>
 
@@ -97,7 +97,8 @@
 <span>  channel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  environment <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  conda <span class="op">=</span> <span class="st">"auto"</span>,</span>
-<span>  python_version <span class="op">=</span> <span class="fu">miniconda_python_version</span><span class="op">(</span><span class="op">)</span></span>
+<span>  python_version <span class="op">=</span> <span class="fu">miniconda_python_version</span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  additional_create_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">conda_clone</span><span class="op">(</span><span class="va">envname</span>, <span class="va">...</span>, clone <span class="op">=</span> <span class="st">"base"</span>, conda <span class="op">=</span> <span class="st">"auto"</span><span class="op">)</span></span>
@@ -122,6 +123,8 @@
 <span>  pip_ignore_installed <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  conda <span class="op">=</span> <span class="st">"auto"</span>,</span>
 <span>  python_version <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  additional_create_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  additional_install_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -194,6 +197,11 @@ you'd like to change the version of Python associated with a particular
 conda environment.</p></dd>
 
 
+<dt>additional_create_args</dt>
+<dd><p>An optional character vector of additional
+arguments to use in the call to <code>conda create</code>.</p></dd>
+
+
 <dt>clone</dt>
 <dd><p>The name of the conda environment to be cloned.</p></dd>
 
@@ -224,6 +232,11 @@ can be installed even if they are downgrades. The <code>FALSE</code> option is u
 for situations where you don't want a pip install to attempt an overwrite of
 a conda binary package (e.g. SciPy on Windows which is very difficult to
 install via pip due to compilation requirements).</p></dd>
+
+
+<dt>additional_install_args</dt>
+<dd><p>An optional character vector of additional
+arguments to use in the call to <code>conda install</code>.</p></dd>
 
 
 <dt>all</dt>
@@ -297,7 +310,7 @@ setting:</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.8.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.</p>
 </div>
 
       </footer></div>

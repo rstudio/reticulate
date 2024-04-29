@@ -2436,6 +2436,9 @@ PyObject* python_interrupt_handler(PyObject *module, PyObject *args)
 
   if (R_interrupts_suspended) {
     // Can't handle the interrupt right now, reschedule self
+    // Note, if this rescheduling approach ends up being too aggressive,
+    // we can alternatively reschedule from the event polling worker which runs on a throttled schedule.
+    // e.g, in the polling worker: `if(R_interrupts_pending) PyErr_SetInterrupt();`
     PyErr_SetInterrupt();
     Py_IncRef(Py_None); return Py_None;
   }
@@ -4283,4 +4286,3 @@ bool try_py_resolve_module_proxy(SEXP proxy) {
   Rcpp::Function py_resolve_module_proxy = pkgEnv["py_resolve_module_proxy"];
   return py_resolve_module_proxy(proxy);
 }
-

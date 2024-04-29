@@ -95,6 +95,7 @@ typedef int (*inquiry)(PyObject *);
 typedef int (*visitproc)(PyObject *, void *);
 typedef int (*traverseproc)(PyObject *, visitproc, void *);
 typedef void (*freefunc)(void *);
+typedef void (*PyOS_sighandler_t)(int);
 
 typedef struct PyModuleDef_Base {
   PyObject_HEAD3
@@ -193,7 +194,7 @@ void initialize_type_objects(bool python3);
 #define PyFunction_Check(op) ((PyTypeObject*)(Py_TYPE(op)) == PyFunction_Type)
 #define PyMethod_Check(op)   ((PyTypeObject *)(Py_TYPE(op)) == PyMethod_Type)
 
-LIBPYTHON_EXTERN void (*Py_Initialize)();
+LIBPYTHON_EXTERN void (*Py_InitializeEx)(int);
 LIBPYTHON_EXTERN int (*Py_IsInitialized)();
 LIBPYTHON_EXTERN const char* (*Py_GetVersion)();
 LIBPYTHON_EXTERN char* (*Py_GetProgramFullPath_v2)();
@@ -374,6 +375,8 @@ LIBPYTHON_EXTERN void (*Py_SetProgramName_v3)(wchar_t *);
 
 LIBPYTHON_EXTERN void (*Py_SetPythonHome)(char *);
 LIBPYTHON_EXTERN void (*Py_SetPythonHome_v3)(wchar_t *);
+
+LIBPYTHON_EXTERN PyOS_sighandler_t (*PyOS_setsig)(int i, PyOS_sighandler_t h);
 
 LIBPYTHON_EXTERN void (*PySys_SetArgv)(int, char **);
 LIBPYTHON_EXTERN void (*PySys_SetArgv_v3)(int, wchar_t **);

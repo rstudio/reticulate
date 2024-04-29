@@ -5,8 +5,6 @@
 namespace reticulate {
 namespace signals {
 
-bool getPythonInterruptsPending();
-void setPythonInterruptsPending(bool value);
 
 bool getInterruptsPending();
 void setInterruptsPending(bool value);
@@ -14,7 +12,6 @@ void setInterruptsPending(bool value);
 bool getInterruptsSuspended();
 void setInterruptsSuspended(bool value);
 
-void registerInterruptHandler();
 
 // NOTE: We also manage the interrupts pending flag here since calls to
 // R_ProcessEvents (on Windows) will check UserBreak without respecting

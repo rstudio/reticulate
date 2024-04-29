@@ -685,15 +685,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// py_set_interrupt_impl
-void py_set_interrupt_impl();
-RcppExport SEXP _reticulate_py_set_interrupt_impl() {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    py_set_interrupt_impl();
-    return R_NilValue;
-END_RCPP
-}
 // py_list_length
 SEXP py_list_length(PyObjectRef x);
 RcppExport SEXP _reticulate_py_list_length(SEXP xSEXP) {
@@ -823,26 +814,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// py_register_interrupt_handler
-void py_register_interrupt_handler();
-RcppExport SEXP _reticulate_py_register_interrupt_handler() {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    py_register_interrupt_handler();
-    return R_NilValue;
-END_RCPP
-}
-// py_interrupts_pending
-bool py_interrupts_pending(bool reset);
-RcppExport SEXP _reticulate_py_interrupts_pending(SEXP resetSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< bool >::type reset(resetSEXP);
-    rcpp_result_gen = Rcpp::wrap(py_interrupts_pending(reset));
-    return rcpp_result_gen;
-END_RCPP
-}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_reticulate_write_stdout", (DL_FUNC) &_reticulate_write_stdout, 1},
@@ -904,7 +875,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_reticulate_py_convert_pandas_df", (DL_FUNC) &_reticulate_py_convert_pandas_df, 1},
     {"_reticulate_r_convert_dataframe", (DL_FUNC) &_reticulate_r_convert_dataframe, 2},
     {"_reticulate_r_convert_date", (DL_FUNC) &_reticulate_r_convert_date, 2},
-    {"_reticulate_py_set_interrupt_impl", (DL_FUNC) &_reticulate_py_set_interrupt_impl, 0},
     {"_reticulate_py_list_length", (DL_FUNC) &_reticulate_py_list_length, 1},
     {"_reticulate_py_len_impl", (DL_FUNC) &_reticulate_py_len_impl, 2},
     {"_reticulate_py_bool_impl", (DL_FUNC) &_reticulate_py_bool_impl, 2},
@@ -916,8 +886,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_reticulate_py_iter_next", (DL_FUNC) &_reticulate_py_iter_next, 2},
     {"_reticulate_py_iterate", (DL_FUNC) &_reticulate_py_iterate, 3},
     {"_reticulate_readline", (DL_FUNC) &_reticulate_readline, 1},
-    {"_reticulate_py_register_interrupt_handler", (DL_FUNC) &_reticulate_py_register_interrupt_handler, 0},
-    {"_reticulate_py_interrupts_pending", (DL_FUNC) &_reticulate_py_interrupts_pending, 1},
     {NULL, NULL, 0}
 };
 

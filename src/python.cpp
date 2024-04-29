@@ -645,7 +645,9 @@ SEXP py_class_names(PyObject* object) {
   std::vector<std::string> classNames;
 
   Py_ssize_t len = PyTuple_Size(classes);
-  classNames.reserve(len+2); // +2 to possibly add python.builtin.object and python.builtin.iterator
+  classNames.reserve(len+2);
+  // +2 to possibly add python.builtin.object and python.builtin.iterator,
+  // or "error" and "condition"
 
   // add the bases to the R class attribute
   for (Py_ssize_t i = 0; i < len; i++) {
@@ -655,12 +657,22 @@ SEXP py_class_names(PyObject* object) {
 
   // add python.builtin.object if we don't already have it
   if (classNames.empty() || classNames.back() != "python.builtin.object") {
+    // typically already there for exceptions (most objects, actually)
     classNames.push_back("python.builtin.object");
   }
 
   // if it's an iterator, include python.builtin.iterator, before python.builtin.object
   if(PyIter_Check(object))
     classNames.insert(classNames.end() - 1, "python.builtin.iterator");
+
+  // if it's a BaseException instance, append "error", "condition"
+  if (PyExceptionInstance_Check(object)) {
+    if (PyErr_GivenExceptionMatches(type, PyExc_KeyboardInterrupt))
+      classNames.push_back("interrupt");
+    else
+      classNames.push_back("error");
+    classNames.push_back("condition");
+  }
 
   RObject classNames_robj = Rcpp::wrap(classNames); // convert + protect
   return eval_call(r_func_py_filter_classes, (SEXP) classNames_robj);
@@ -810,6 +822,11 @@ SEXP py_fetch_error(bool maybe_reuse_cached_r_trace) {
 
 
   if (PyErr_GivenExceptionMatches(excType, PyExc_KeyboardInterrupt)) {
+    // Technically, we can delete this if branch, let the KeyboardInterrupt fall
+    // through the standard codepath, treat it as a regular exception, augment
+    // it with a traceback and signal it as an interrupt condition that also
+    // inherits from "python.builtin.KeyBoardInterrupt". We intercept early just
+    // to avoid the overhead.
 
     if (excType) Py_DecRef(excType);
     if (excValue) Py_DecRef(excValue);
@@ -2268,7 +2285,6 @@ extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* k
 
   RObject call_r_func_call(Rf_lang4(call_r_function_s, rFunction, rArgs, rKeywords));
 
-  PyObject *out = PyTuple_New(2);
   try {
     // use current_env() here so that in case of error, rlang::trace_back()
     // prints this frame as a node of the parent rather than a top-level call.
@@ -2282,21 +2298,44 @@ extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* k
 
     // result is either
     // (return_value, NULL) or
-    // (NULL, Exception object converted from r_error_condition_object)
-    PyTuple_SetItem(out, 0, r_to_py(result[0], convert)); // value (or NULL)
-    PyTuple_SetItem(out, 1, r_to_py(result[1], true));   // Exception (or NULL)
+    // (NULL, Exception object converted from an R error condition object)
+    if (result[1] == R_NilValue)  // no error
+      return (r_to_py(result[0], convert));
+
+    // error
+    PyObject* value = r_to_py(result[1], true);
+    PyObjectPtr value_(value); // decref on scope exit
+
+    PyObject *exc_type;
+    if (PyExceptionInstance_Check(value)) {
+      exc_type = (PyObject *)Py_TYPE(value);
+    }
+    else if (PyUnicode_Check(value) &&
+             PyUnicode_CompareWithASCIIString(value, "KeyboardInterrupt") == 0) {
+      exc_type = PyExc_KeyboardInterrupt;
+      value = NULL;
+    }
+    // the following two cases should never happen, but catch them just in case
+    else if (PyExceptionClass_Check(value)) {
+      exc_type = value;
+      value = NULL;
+    }
+    else {
+      exc_type = PyExc_RuntimeError;
+    }
+
+    PyErr_SetObject(exc_type, value);
+
   } catch(const Rcpp::internal::InterruptedException& e) {
-    PyTuple_SetItem(out, 0, r_to_py(R_NilValue, true));
-    PyTuple_SetItem(out, 1, as_python_str("KeyboardInterrupt"));
+    // should rarely happen, since we also set an R level interrupt handler
+    PyErr_SetNone(PyExc_KeyboardInterrupt);
   } catch(const std::exception& e) {
-    PyTuple_SetItem(out, 0, r_to_py(R_NilValue, true));
-    PyTuple_SetItem(out, 1, as_python_str(e.what()));
+    PyErr_SetString(PyExc_RuntimeError, e.what());
   } catch(...) {
-    PyTuple_SetItem(out, 0, r_to_py(R_NilValue, true));
-    PyTuple_SetItem(out, 1, as_python_str("(Unknown exception occurred)"));
+    PyErr_SetString(PyExc_RuntimeError, "(Unknown exception occurred)");
   }
 
-  return out;
+  return NULL;
 }
 
 struct PythonCall {

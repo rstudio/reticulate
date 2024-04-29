@@ -24,7 +24,7 @@ LibExtern int UserBreak;
 // flag indicating if interrupts are suspended
 // note that R doesn't use this on Windows when checking
 // for interrupts in R_ProcessEvents
-LibExtern int R_interrupts_suspended;
+LibExtern Rboolean R_interrupts_suspended;
 
 }
 
@@ -55,7 +55,7 @@ bool getInterruptsSuspended() {
 }
 
 void setInterruptsSuspended(bool value) {
-  R_interrupts_suspended = value ? 1 : 0;
+  R_interrupts_suspended = value ? TRUE : FALSE;
 }
 
 } // end namespace signals

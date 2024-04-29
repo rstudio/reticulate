@@ -286,12 +286,12 @@ test_that("Conversion with unsorted values works in coo", {
 
   mat_py_to_r <- py_to_r(mat_py)
 
-  mat_r <- Matrix::sparseMatrix(
+  mat_r <- as.matrix(Matrix::sparseMatrix(
     i = row + 1,
     j = col + 1,
     x = data,
     dims = c(3L, 2L)
-  )
-
-  expect_equal(as.matrix(mat_py_to_r), as.matrix(mat_r))
+  ))
+  dimnames(mat_r) <- NULL
+  expect_equal(as.matrix(mat_py_to_r), mat_r)
 })

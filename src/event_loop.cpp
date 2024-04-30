@@ -104,6 +104,14 @@ int pollForEvents(void*) {
     R_ToplevelExec(processEvents, NULL);
   }
 
+  // Some front ends (e.g. RStudio) may not actually invoke the C-level
+  // interrupt handler reticulate installed when sending an interrupt; they only
+  // set R_interrupts_pending=1. In case that happened, we ensure that if
+  // R_interrupts_pending are pending, then a Python interrupt is pending too.
+  if(reticulate::signals::getInterruptsPending()) {
+    PyErr_SetInterrupt();
+  }
+
   // Success!
   return 0;
 

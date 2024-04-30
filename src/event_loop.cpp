@@ -52,7 +52,7 @@ void eventPollingWorker(void *) {
   while (true) {
 
     // Throttle via sleep
-    tthread::this_thread::sleep_for(tthread::chrono::milliseconds(200));
+    tthread::this_thread::sleep_for(tthread::chrono::milliseconds(500));
 
     // Schedule polling on the main thread if the interpeter is still running.
     // Note that Py_AddPendingCall is documented to be callable from a background

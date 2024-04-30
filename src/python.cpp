@@ -665,7 +665,7 @@ SEXP py_class_names(PyObject* object) {
   if(PyIter_Check(object))
     classNames.insert(classNames.end() - 1, "python.builtin.iterator");
 
-  // if it's a BaseException instance, append "error", "condition"
+  // if it's a BaseException instance, append "error"/"interrupt" and "condition"
   if (PyExceptionInstance_Check(object)) {
     if (PyErr_GivenExceptionMatches(type, PyExc_KeyboardInterrupt))
       classNames.push_back("interrupt");
@@ -2298,32 +2298,42 @@ extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* k
 
     // result is either
     // (return_value, NULL) or
-    // (NULL, Exception object converted from an R error condition object)
+    // (NULL, condition)
     if (result[1] == R_NilValue)  // no error
       return (r_to_py(result[0], convert));
 
-    // error
+    // R signaled an error
+    // Convert the R error condition to a Python Exception
     PyObject* value = r_to_py(result[1], true);
     PyObjectPtr value_(value); // decref on scope exit
 
+    // Prepare to raise the Exception
+    // The Python API requires that we separately provide the exception type
     PyObject *exc_type;
+
+    // If the condition converted to an Exception instance,
+    // Take the type from that. This is the most common path.
     if (PyExceptionInstance_Check(value)) {
       exc_type = (PyObject *)Py_TYPE(value);
     }
+    // The interrupt R calling handler returns a string for simplicity
     else if (PyUnicode_Check(value) &&
              PyUnicode_CompareWithASCIIString(value, "KeyboardInterrupt") == 0) {
       exc_type = PyExc_KeyboardInterrupt;
       value = NULL;
     }
     // the following two cases should never happen, but catch them just in case
+    // The calling handler returned a BaseException class, (not an instance of an Exception)
     else if (PyExceptionClass_Check(value)) {
       exc_type = value;
       value = NULL;
     }
+    // Catch-all fallback
     else {
       exc_type = PyExc_RuntimeError;
     }
 
+    // Raise the exception
     PyErr_SetObject(exc_type, value);
 
   } catch(const Rcpp::internal::InterruptedException& e) {
@@ -2335,6 +2345,7 @@ extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* k
     PyErr_SetString(PyExc_RuntimeError, "(Unknown exception occurred)");
   }
 
+  // Tell Python we raised an exception
   return NULL;
 }
 
@@ -2496,7 +2507,7 @@ PyObject* python_interrupt_handler(PyObject *module, PyObject *args)
 
   if (R_interrupts_pending == 0) {
     // R won the race to handle the interrupt. The interrupt has already been
-    // signaled as an R condition. There is nothing for this handler to do
+    // signaled as an R condition. There is nothing for this handler to do.
      Py_IncRef(Py_None); return Py_None;
   }
 
@@ -2511,7 +2522,7 @@ PyObject* python_interrupt_handler(PyObject *module, PyObject *args)
     Py_IncRef(Py_None); return Py_None;
   }
 
-  // Tell R we handled the interrupt and raise a KeyboardInterrupt exception
+  // Tell R we handled the interrupt and raise a KeyboardInterrupt exception.
   R_interrupts_pending = 0;
   PyErr_SetNone(PyExc_KeyboardInterrupt);
   return NULL;

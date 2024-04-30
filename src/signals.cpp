@@ -9,9 +9,9 @@
 #include "libpython.h"
 #include "signals.h"
 
-// import "common.h" last, so that <R_ext/Boolean.h> last,
-// otherwise, windows.h has a different definition of TRUE and FALSE
-// that is not an Rboolean.
+// import "common.h" last, so that <R_ext/Boolean.h> is included last.
+// Otherwise, windows.h defines TRUE and FALSE to values that are not
+// Rboolean types, leading to compilation failures.
 #include "common.h"
 
 using namespace reticulate::libpython;

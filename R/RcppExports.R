@@ -86,6 +86,10 @@ r_to_py_impl <- function(object, convert) {
     .Call(`_reticulate_r_to_py_impl`, object, convert)
 }
 
+install_interrupt_handlers <- function() {
+    invisible(.Call(`_reticulate_install_interrupt_handlers`))
+}
+
 py_activate_virtualenv <- function(script) {
     invisible(.Call(`_reticulate_py_activate_virtualenv`, script))
 }

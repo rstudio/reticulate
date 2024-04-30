@@ -2393,57 +2393,87 @@ extern "C" PyObject* call_python_function_on_main_thread(
 
 static void
 interrupt_handler(int signum) {
+  // This handler is called by the OS when signaling a SIGINT
+
+  // Tell R that an interrupt is pending. This will cause R to signal an
+  // "interrupt" R condition next time R_CheckUserInterrupt() is called
   R_interrupts_pending = 1;
 
-  // This does *not* need the GIL, is safe to call from the c handler.
-  // Internally Python calls trip_signal(), but does not raise the exception yet.
+  // Tell Python there is an interrupt pending. Internally, this calls Python
+  // trip_signal(), but does not raise the exception yet. This will cause Python
+  // to call the installed Python handler next time PyCheckSignals() is called.
+  // The installed Python handler will then be expected to raise a
+  // KeyboardInterrupt exception.
+  //
+  // This does *not* need the GIL, it is safe to call from the c handler.
   PyErr_SetInterrupt();
+
+  // Now, it is a race between R and Python to handle the interrupt.
+  // i.e., if R_CheckUserInterrupt() or PyCheckSignals(), is called first.
+
+  // Reinstall this C handler, as it may have been cleared when invoked by the OS
   PyOS_setsig(signum, interrupt_handler);
 }
 
-void init_interrupt_handlers()
-{
-    PyObject *main = PyImport_AddModule("__main__"); // borrowed ref
-    PyObject *main_dict = PyModule_GetDict(main); // borrowed ref
-    PyObjectPtr locals(PyDict_New());
+// [[Rcpp::export]]
+void install_interrupt_handlers() {
+  // Installs a C handler and a Python handler
+  //
+  // Exported as an R symbol in case the user did some action that cleared the
+  // handlers, e.g., calling signal.signal() in Python, and wants to restore
+  // the correct handler.
 
-    const char* string =
-      "from rpycall import python_interrupt_handler\n"
-      "from signal import signal, SIGINT\n"
-      "signal(SIGINT, python_interrupt_handler)\n";
+  // First, install the Python handler
+  PyObject *main = PyImport_AddModule("__main__"); // borrowed ref
+  PyObject *main_dict = PyModule_GetDict(main); // borrowed ref
+  PyObjectPtr locals(PyDict_New());
 
-    PyObjectPtr result(PyRun_StringFlags(string, Py_file_input, main_dict, locals, NULL));
-    if (result.is_null()) {
-      PyErr_Print();
-      Rcpp::warning("Failed to set interrupt signal handlers");
-      return;
-    }
+  const char* string =
+    "from rpycall import python_interrupt_handler\n"
+    "from signal import signal, SIGINT\n"
+    "signal(SIGINT, python_interrupt_handler)\n";
 
-    // This *must* be after setting the Python handler, because signal.signal() will
-    // also reset the OS C handler.
-    PyOS_setsig(SIGINT, interrupt_handler);
+  PyObjectPtr result(PyRun_StringFlags(string, Py_file_input, main_dict, locals, NULL));
+  if (result.is_null()) {
+    PyErr_Print();
+    Rcpp::warning("Failed to set interrupt signal handlers");
+    return;
+  }
+
+  // install the C handler.
+  //
+  // This *must* be after setting the Python handler, because signal.signal()
+  // will also reset the OS C handler to one that is not aware of R.
+  PyOS_setsig(SIGINT, interrupt_handler);
 }
 
 extern "C"
 PyObject* python_interrupt_handler(PyObject *module, PyObject *args)
 {
+  // This handler is called by Python from PyCheckSignals(), if
+  // it sees that trip_signals() had been called.
+
   // args will be (signalnum, frame), but we ignore them
 
   if (R_interrupts_pending == 0) {
-    // R won the race to handle the interrupt, nothing to do
+    // R won the race to handle the interrupt. The interrupt has already been
+    // signaled as an R condition. There is nothing for this handler to do
      Py_IncRef(Py_None); return Py_None;
   }
 
   if (R_interrupts_suspended) {
-    // Can't handle the interrupt right now, reschedule self
-    // Note, if this rescheduling approach ends up being too aggressive,
-    // we can alternatively reschedule from the event polling worker which runs on a throttled schedule.
-    // e.g, in the polling worker: `if(R_interrupts_pending) PyErr_SetInterrupt();`
+    // Can't handle the interrupt right now, reschedule self.
+    //
+    // Note, if this rescheduling approach ends up being too aggressive, we can
+    // alternatively reschedule from the event polling worker, which runs on a
+    // throttled schedule. (perhaps after `n` aggressive reschedules).
+    // e.g, in the polling worker:
+    //   if(R_interrupts_pending) PyErr_SetInterrupt();
     PyErr_SetInterrupt();
     Py_IncRef(Py_None); return Py_None;
   }
 
-  // handle the interrupt
+  // Tell R we handled the interrupt and raise a KeyboardInterrupt exception
   R_interrupts_pending = 0;
   PyErr_SetNone(PyExc_KeyboardInterrupt);
   return NULL;
@@ -2697,7 +2727,7 @@ void py_initialize(const std::string& python,
       const wchar_t *argv[1] = {s_python_v3.c_str()};
       PySys_SetArgv_v3(1, const_cast<wchar_t**>(argv));
 
-      init_interrupt_handlers();
+      install_interrupt_handlers();
     }
 
   } else { // python2
@@ -2724,7 +2754,7 @@ void py_initialize(const std::string& python,
     PySys_SetArgv(1, const_cast<char**>(argv));
 
     PyOS_setsig(SIGINT, interrupt_handler);
-    init_interrupt_handlers();
+    install_interrupt_handlers();
   }
 
   s_main_thread = tthread::this_thread::get_id();

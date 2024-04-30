@@ -161,6 +161,15 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// install_interrupt_handlers
+void install_interrupt_handlers();
+RcppExport SEXP _reticulate_install_interrupt_handlers() {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    install_interrupt_handlers();
+    return R_NilValue;
+END_RCPP
+}
 // py_activate_virtualenv
 void py_activate_virtualenv(const std::string& script);
 RcppExport SEXP _reticulate_py_activate_virtualenv(SEXP scriptSEXP) {
@@ -830,6 +839,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_reticulate_py_to_r_cpp", (DL_FUNC) &_reticulate_py_to_r_cpp, 1},
     {"_reticulate_py_get_formals", (DL_FUNC) &_reticulate_py_get_formals, 1},
     {"_reticulate_r_to_py_impl", (DL_FUNC) &_reticulate_r_to_py_impl, 2},
+    {"_reticulate_install_interrupt_handlers", (DL_FUNC) &_reticulate_install_interrupt_handlers, 0},
     {"_reticulate_py_activate_virtualenv", (DL_FUNC) &_reticulate_py_activate_virtualenv, 1},
     {"_reticulate_main_process_python_info", (DL_FUNC) &_reticulate_main_process_python_info, 0},
     {"_reticulate_py_clear_error", (DL_FUNC) &_reticulate_py_clear_error, 0},

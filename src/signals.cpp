@@ -1,7 +1,4 @@
 
-#include "signals.h"
-#include "common.h"
-
 #ifndef _WIN32
 # include <string.h>
 # include <signal.h>
@@ -10,6 +7,13 @@
 #endif
 
 #include "libpython.h"
+#include "signals.h"
+
+// import "common.h" last, so that <R_ext/Boolean.h> last,
+// otherwise, windows.h has a different definition of TRUE and FALSE
+// that is not an Rboolean.
+#include "common.h"
+
 using namespace reticulate::libpython;
 
 extern "C" {

@@ -820,17 +820,18 @@ SEXP py_fetch_error(bool maybe_reuse_cached_r_trace) {
     Rcpp::stop("Unknown Python error.");
   }
 
-
   if (PyErr_GivenExceptionMatches(excType, PyExc_KeyboardInterrupt)) {
-    // Technically, we can delete this if branch, let the KeyboardInterrupt fall
-    // through the standard codepath, treat it as a regular exception, augment
-    // it with a traceback and signal it as an interrupt condition that also
-    // inherits from "python.builtin.KeyBoardInterrupt". We intercept early just
-    // to avoid the overhead.
-
-    if (excType) Py_DecRef(excType);
-    if (excValue) Py_DecRef(excValue);
+    // Technically, we can safely delete this if branch and let the
+    // KeyboardInterrupt fall through the standard exception raising codepath.
+    // Meaning, we can treat it as a regular Exception, augment it with a
+    // traceback, and then signal it as an interrupt condition that also
+    // inherits from "python.builtin.KeyBoardInterrupt" (signaled via
+    // base::stop(<cond>) in the Rcpp wrapper).
+    //
+    // We intercept early here just to avoid the overhead.
     if (excTraceback) Py_DecRef(excTraceback);
+    if (excValue) Py_DecRef(excValue);
+    Py_DecRef(excType);
 
     throw Rcpp::internal::InterruptedException();
   }

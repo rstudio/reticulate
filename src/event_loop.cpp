@@ -104,10 +104,18 @@ int pollForEvents(void*) {
     R_ToplevelExec(processEvents, NULL);
   }
 
-  // Some front ends (e.g. RStudio) may not actually invoke the C-level
-  // interrupt handler reticulate installed when sending an interrupt; they only
-  // set R_interrupts_pending=1. In case that happened, we ensure that if
-  // R_interrupts_pending are pending, then a Python interrupt is pending too.
+  // Check if we need to set a python interrupt.
+  // This is a fallback in case:
+  //
+  // 1. User code overwrote the C handler reticulate registered and we received
+  // a SIGINT. This can easily happen if python code called signal.signal()
+  //
+  // 2. An R interrupt was only simulated by calling R_onintr() directly (e.g,
+  // rlang::interrupt()), and not actually received as an OS process signal.
+  //
+  // As a fail-safe for the C handler not being called, we also ensure here, in
+  // the background polling worker, that if R_interrupts_pending=1, then a Python
+  // interrupt is pending too.
   if(reticulate::signals::getInterruptsPending()) {
     PyErr_SetInterrupt();
   }

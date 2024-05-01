@@ -2465,10 +2465,9 @@ PyObject* python_interrupt_handler(PyObject *module, PyObject *args)
     // Can't handle the interrupt right now, reschedule self.
     //
     // Note, if this rescheduling approach ends up being too aggressive, we can
-    // alternatively reschedule from the event polling worker, which runs on a
-    // throttled schedule. (perhaps after `n` aggressive reschedules).
-    // e.g, in the polling worker:
-    //   if(R_interrupts_pending) PyErr_SetInterrupt();
+    // alternatively rely on rescheduling by the event polling worker, which
+    // already runs on a throttled schedule. (Perhaps deferring to that after `n`
+    // of these aggressive reschedules).
     PyErr_SetInterrupt();
     Py_IncRef(Py_None); return Py_None;
   }

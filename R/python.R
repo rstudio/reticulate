@@ -1,8 +1,49 @@
 
 #' @export
 print.python.builtin.object <- function(x, ...) {
-  writeLines(py_repr(x))
+  formatted <- if (py_is_callable(x))
+    py_format_callable(x, ...)
+  else
+    py_repr(x)
+
+  writeLines(formatted)
   invisible(x)
+}
+
+
+py_format_callable <- function(x, ...) {
+
+  type <- py_to_r(py_get_attr(py_get_attr(x, "__class__"), "__name__"))
+
+  name <- py_to_r(py_get_attr(x, "__qualname__", TRUE) %||%
+                    py_get_attr(x, "__name__", TRUE))
+
+  module <- py_to_r(py_get_attr(x, "__module__", TRUE))
+  if (!is.null(module))
+    name <- paste0(c(module, name), collapse = ".")
+
+  inspect_signature <- import("inspect")$signature
+  get_signature <- function(x) {
+    tryCatch(
+      py_str_impl(inspect_signature(x)),
+      error = function(e) NULL
+    )
+  }
+  sig <- get_signature(x) %||%
+    get_signature(py_get_attr(x, "__init__", TRUE)) %||%
+    get_signature(py_get_attr(x, "__new__", TRUE)) %||%
+    "(?)"
+
+  # break long signatures across multiple lines, so they're readable
+  if(nchar(sig) > 60) {
+    # take care to not split default tuple values (i.e., can't just gsub(",", ",\n"))
+    sig <- gsub("(\\(|, )([a-zA-Z_*][a-zA-Z0-9_*]*=?)", "\\1\n\\2", sig, perl = TRUE)
+    sig <- gsub("=\n", "=", fixed = TRUE, sig)
+    sig <- gsub("\n", "\n    ", fixed = TRUE, sig)
+    sig <- gsub(")$", "\n)", sig)
+  }
+
+  sprintf("<%s %s%s>", type, name, sig)
 }
 
 

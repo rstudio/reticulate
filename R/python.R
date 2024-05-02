@@ -23,15 +23,30 @@ py_format_callable <- function(x, ...) {
     name <- paste0(c(module, name), collapse = ".")
 
   inspect_signature <- import("inspect")$signature
-  get_signature <- function(x) {
-    tryCatch(
-      py_str_impl(inspect_signature(x)),
+  get_signature <- function(x, drop_first = FALSE) {
+    tryCatch({
+      sig <- py_str_impl(inspect_signature(x))
+      if(drop_first) {
+        # i.e., drop first positional arg, most typically: 'self'
+        #
+        # We only need to do this if inspect.signature() errored on the the
+        # callable itself, but succeeded on callable.__init__. This can happen
+        # for some built-in-C class where methods that are injected as slot
+        # wrappers. E.g., builtin exceptions like 'RuntimeError'.
+        #
+        # regex: anchor to start with (, capture to up to first non "," or ")"
+        # char, then maybe also eat  ", /, ", or ", " (if there is more than one
+        # arg in the signature)
+        sig <- sub("^\\([^,)]*(, /, |, )?", "(", sig)
+      }
+      sig
+    },
       error = function(e) NULL
     )
   }
   sig <- get_signature(x) %||%
-    get_signature(py_get_attr(x, "__init__", TRUE)) %||%
-    get_signature(py_get_attr(x, "__new__", TRUE)) %||%
+    get_signature(py_get_attr(x, "__init__", TRUE), TRUE) %||%
+    get_signature(py_get_attr(x, "__new__", TRUE), TRUE) %||%
     "(?)"
 
   # break long signatures across multiple lines, so they're readable

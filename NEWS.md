@@ -1,5 +1,7 @@
 # reticulate (development version)
 
+- Interrupting Python no longer leads to segfaults (#1601, fixed in #1602).
+
 - `virtualenv_starter()` no longer warns when encountering broken symlinks (#1598).
 
 # reticulate 1.36.1

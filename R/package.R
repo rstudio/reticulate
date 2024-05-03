@@ -86,13 +86,6 @@ ensure_python_initialized <- function(required_module = NULL) {
   if (is.function(callback))
     callback()
 
-  # set up a Python signal handler
-  signals <- import("rpytools.signals")
-  signals$initialize(py_interrupts_pending)
-
-  # register C-level interrupt handler
-  py_register_interrupt_handler()
-
   # call init hooks
   call_init_hooks()
 

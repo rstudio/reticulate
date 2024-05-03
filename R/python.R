@@ -1378,16 +1378,7 @@ py_inject_hooks <- function() {
 
   input <- function(prompt = "") {
 
-    response <- tryCatch(
-      readline(prompt),
-      interrupt = identity
-    )
-
-    if (inherits(response, "interrupt"))
-      stop("KeyboardInterrupt", call. = FALSE)
-
-    r_to_py(response)
-
+    readline(prompt)
   }
 
   # override input function
@@ -1487,9 +1478,6 @@ chooseOpsMethod.python.builtin.object <- function(x, y, mx, my, cl, reverse) {
   identical(environment(my), parent.env(environment()))
 }
 
-py_set_interrupt <- function() {
-  py_set_interrupt_impl()
-}
 
 #' @export
 format.python.builtin.traceback <- function(x, ..., limit = NULL) {

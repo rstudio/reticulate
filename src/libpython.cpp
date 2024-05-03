@@ -154,6 +154,16 @@ void initialize_type_objects(bool python3) {
   Py_Complex = PyComplex_FromDoubles(0.0, 0.0);
   Py_ByteArray = PyByteArray_FromStringAndSize("a", 1);
   Py_DictClass = PyObject_Type(Py_Dict);
+
+  PyObject* builtins = PyImport_AddModule(python3 ? "builtins" : "__builtin__"); // borrowed ref
+  if (builtins == NULL) goto error;
+  PyExc_KeyboardInterrupt = PyObject_GetAttrString(builtins, "KeyboardInterrupt"); // new ref
+
+  if (PyErr_Occurred()) { error:
+     // Should never happen. If you see this please report a bug
+     printf("initialize_type_objects() raised a Python exception.\n");
+     PyErr_Print();
+  }
 }
 
 #define LOAD_PYTHON_SYMBOL_AS(name, as)             \
@@ -182,14 +192,12 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
 {
   bool is64bit = sizeof(size_t) >= 8;
 
-  LOAD_PYTHON_SYMBOL(Py_Initialize)
+  LOAD_PYTHON_SYMBOL(Py_InitializeEx)
   LOAD_PYTHON_SYMBOL(Py_IsInitialized)
   LOAD_PYTHON_SYMBOL(Py_GetVersion)
   LOAD_PYTHON_SYMBOL(Py_AddPendingCall)
   LOAD_PYTHON_SYMBOL(PyErr_SetInterrupt)
   LOAD_PYTHON_SYMBOL(PyErr_CheckSignals)
-  LOAD_PYTHON_SYMBOL(PyExc_KeyboardInterrupt)
-  LOAD_PYTHON_SYMBOL(PyExc_ValueError)
   LOAD_PYTHON_SYMBOL(Py_IncRef)
   LOAD_PYTHON_SYMBOL(Py_DecRef)
   LOAD_PYTHON_SYMBOL(PyObject_Size)
@@ -274,6 +282,7 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
   LOAD_PYTHON_SYMBOL(PyType_IsSubtype)
   LOAD_PYTHON_SYMBOL(PyType_GetFlags)
   LOAD_PYTHON_SYMBOL(PyMapping_Items)
+  LOAD_PYTHON_SYMBOL(PyOS_setsig)
   LOAD_PYTHON_SYMBOL(PySys_WriteStderr)
   LOAD_PYTHON_SYMBOL(PySys_GetObject)
   LOAD_PYTHON_SYMBOL(PyEval_SetProfile)

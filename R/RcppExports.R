@@ -86,6 +86,10 @@ r_to_py_impl <- function(object, convert) {
     .Call(`_reticulate_r_to_py_impl`, object, convert)
 }
 
+install_interrupt_handlers <- function() {
+    invisible(.Call(`_reticulate_install_interrupt_handlers`))
+}
+
 py_activate_virtualenv <- function(script) {
     invisible(.Call(`_reticulate_py_activate_virtualenv`, script))
 }
@@ -307,10 +311,6 @@ r_convert_date <- function(dates, convert) {
     .Call(`_reticulate_r_convert_date`, dates, convert)
 }
 
-py_set_interrupt_impl <- function() {
-    invisible(.Call(`_reticulate_py_set_interrupt_impl`))
-}
-
 py_list_length <- function(x) {
     .Call(`_reticulate_py_list_length`, x)
 }
@@ -367,13 +367,5 @@ py_iterate <- function(x, f, simplify = TRUE) {
 
 readline <- function(prompt) {
     .Call(`_reticulate_readline`, prompt)
-}
-
-py_register_interrupt_handler <- function() {
-    invisible(.Call(`_reticulate_py_register_interrupt_handler`))
-}
-
-py_interrupts_pending <- function(reset) {
-    .Call(`_reticulate_py_interrupts_pending`, reset)
 }
 

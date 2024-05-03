@@ -800,24 +800,22 @@ SEXP py_fetch_error(bool maybe_reuse_cached_r_trace) {
   // TODO: we need to add a guardrail to catch cases when
   // this is being invoked from not the main thread
 
-  // check whether this error was signaled via an interrupt.
-  // the intention here is to catch cases where reticulate is running
-  // Python code, an interrupt is signaled and caught by that code,
-  // and then the associated error is returned. in such a case, we
-  // want to forward that interrupt back to R so that the user is then
-  // returned back to the top level.
-  if (reticulate::signals::getPythonInterruptsPending()) {
-    PyErr_Clear();
-    reticulate::signals::setInterruptsPending(false);
-    reticulate::signals::setPythonInterruptsPending(false);
-    throw Rcpp::internal::InterruptedException();
-  }
 
   PyObject *excType, *excValue, *excTraceback;
   PyErr_Fetch(&excType, &excValue, &excTraceback);  // we now own the PyObjects
 
   if (!excType) {
     Rcpp::stop("Unknown Python error.");
+  }
+
+
+  if (PyErr_GivenExceptionMatches(excType, PyExc_KeyboardInterrupt)) {
+
+    if (excType) Py_DecRef(excType);
+    if (excValue) Py_DecRef(excValue);
+    if (excTraceback) Py_DecRef(excTraceback);
+
+    throw Rcpp::internal::InterruptedException();
   }
 
   PyErr_NormalizeException(&excType, &excValue, &excTraceback);
@@ -2393,11 +2391,101 @@ extern "C" PyObject* call_python_function_on_main_thread(
 }
 
 
+static void
+interrupt_handler(int signum) {
+  // This handler is called by the OS when signaling a SIGINT
+
+  // Tell R that an interrupt is pending. This will cause R to signal an
+  // "interrupt" R condition next time R_CheckUserInterrupt() is called
+  R_interrupts_pending = 1;
+
+  // Tell Python there is an interrupt pending. Internally, this calls Python
+  // trip_signal(), but does not raise the exception yet. This will cause Python
+  // to call the installed Python handler next time PyCheckSignals() is called.
+  // The installed Python handler will then be expected to raise a
+  // KeyboardInterrupt exception.
+  //
+  // This does *not* need the GIL, it is safe to call from the c handler.
+  PyErr_SetInterrupt();
+
+  // Now, it is a race between R and Python to handle the interrupt.
+  // i.e., if R_CheckUserInterrupt() or PyCheckSignals(), is called first.
+
+  // Reinstall this C handler, as it may have been cleared when invoked by the OS
+  PyOS_setsig(signum, interrupt_handler);
+}
+
+// [[Rcpp::export]]
+void install_interrupt_handlers() {
+  // Installs a C handler and a Python handler
+  //
+  // Exported as an R symbol in case the user did some action that cleared the
+  // handlers, e.g., calling signal.signal() in Python, and wants to restore
+  // the correct handler.
+
+  // First, install the Python handler
+  PyObject *main = PyImport_AddModule("__main__"); // borrowed ref
+  PyObject *main_dict = PyModule_GetDict(main); // borrowed ref
+  PyObjectPtr locals(PyDict_New());
+
+  const char* string =
+    "from rpycall import python_interrupt_handler\n"
+    "from signal import signal, SIGINT\n"
+    "signal(SIGINT, python_interrupt_handler)\n";
+
+  PyObjectPtr result(PyRun_StringFlags(string, Py_file_input, main_dict, locals, NULL));
+  if (result.is_null()) {
+    PyErr_Print();
+    Rcpp::warning("Failed to set interrupt signal handlers");
+    return;
+  }
+
+  // install the C handler.
+  //
+  // This *must* be after setting the Python handler, because signal.signal()
+  // will also reset the OS C handler to one that is not aware of R.
+  PyOS_setsig(SIGINT, interrupt_handler);
+}
+
+extern "C"
+PyObject* python_interrupt_handler(PyObject *module, PyObject *args)
+{
+  // This handler is called by Python from PyCheckSignals(), if
+  // it sees that trip_signals() had been called.
+
+  // args will be (signalnum, frame), but we ignore them
+
+  if (R_interrupts_pending == 0) {
+    // R won the race to handle the interrupt. The interrupt has already been
+    // signaled as an R condition. There is nothing for this handler to do
+     Py_IncRef(Py_None); return Py_None;
+  }
+
+  if (R_interrupts_suspended) {
+    // Can't handle the interrupt right now, reschedule self.
+    //
+    // Note, if this rescheduling approach ends up being too aggressive, we can
+    // alternatively rely on rescheduling by the event polling worker, which
+    // already runs on a throttled schedule. (Perhaps deferring to that after `n`
+    // of these aggressive reschedules).
+    PyErr_SetInterrupt();
+    Py_IncRef(Py_None); return Py_None;
+  }
+
+  // Tell R we handled the interrupt and raise a KeyboardInterrupt exception
+  R_interrupts_pending = 0;
+  PyErr_SetNone(PyExc_KeyboardInterrupt);
+  return NULL;
+}
+
+
 PyMethodDef RPYCallMethods[] = {
   { "call_r_function", (PyCFunction)call_r_function,
     METH_VARARGS | METH_KEYWORDS, "Call an R function" },
   { "call_python_function_on_main_thread", (PyCFunction)call_python_function_on_main_thread,
     METH_VARARGS | METH_KEYWORDS, "Call a Python function on the main thread" },
+  { "python_interrupt_handler", (PyCFunction)python_interrupt_handler,
+    METH_VARARGS, "Handle an interrupt signal" },
   { NULL, NULL, 0, NULL }
 };
 
@@ -2633,11 +2721,12 @@ void py_initialize(const std::string& python,
       PyImport_AppendInittab("rpycall", &initializeRPYCall);
 
       // initialize python
-      Py_Initialize();
+      Py_InitializeEx(0); // 0 means "do not install signal handlers"
       s_was_python_initialized_by_reticulate = true;
       const wchar_t *argv[1] = {s_python_v3.c_str()};
       PySys_SetArgv_v3(1, const_cast<wchar_t**>(argv));
 
+      install_interrupt_handlers();
     }
 
   } else { // python2
@@ -2652,7 +2741,7 @@ void py_initialize(const std::string& python,
 
     if (!Py_IsInitialized()) {
       // initialize python
-      Py_Initialize();
+      Py_InitializeEx(0);
       s_was_python_initialized_by_reticulate = true;
     }
 
@@ -2662,6 +2751,9 @@ void py_initialize(const std::string& python,
 
     const char *argv[1] = {s_python.c_str()};
     PySys_SetArgv(1, const_cast<char**>(argv));
+
+    PyOS_setsig(SIGINT, interrupt_handler);
+    install_interrupt_handlers();
   }
 
   s_main_thread = tthread::this_thread::get_id();
@@ -3889,10 +3981,6 @@ PyObjectRef r_convert_date(DateVector dates, bool convert) {
 
 }
 
-// [[Rcpp::export]]
-void py_set_interrupt_impl() {
-  PyErr_SetInterrupt();
-}
 
 // [[Rcpp::export]]
 SEXP py_list_length(PyObjectRef x) {
@@ -4227,4 +4315,3 @@ bool try_py_resolve_module_proxy(SEXP proxy) {
   Rcpp::Function py_resolve_module_proxy = pkgEnv["py_resolve_module_proxy"];
   return py_resolve_module_proxy(proxy);
 }
-

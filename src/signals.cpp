@@ -1,7 +1,4 @@
 
-#include "signals.h"
-#include "common.h"
-
 #ifndef _WIN32
 # include <string.h>
 # include <signal.h>
@@ -10,6 +7,13 @@
 #endif
 
 #include "libpython.h"
+#include "signals.h"
+
+// import "common.h" last, so that <R_ext/Boolean.h> is included last.
+// Otherwise, windows.h defines TRUE and FALSE to values that are not
+// Rboolean types, leading to compilation failures.
+#include "common.h"
+
 using namespace reticulate::libpython;
 
 extern "C" {
@@ -24,7 +28,7 @@ LibExtern int UserBreak;
 // flag indicating if interrupts are suspended
 // note that R doesn't use this on Windows when checking
 // for interrupts in R_ProcessEvents
-LibExtern int R_interrupts_suspended;
+LibExtern Rboolean R_interrupts_suspended;
 
 }
 
@@ -55,7 +59,7 @@ bool getInterruptsSuspended() {
 }
 
 void setInterruptsSuspended(bool value) {
-  R_interrupts_suspended = value ? 1 : 0;
+  R_interrupts_suspended = value ? TRUE : FALSE;
 }
 
 } // end namespace signals

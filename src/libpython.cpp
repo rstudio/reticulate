@@ -158,6 +158,7 @@ void initialize_type_objects(bool python3) {
   PyObject* builtins = PyImport_AddModule(python3 ? "builtins" : "__builtin__"); // borrowed ref
   if (builtins == NULL) goto error;
   PyExc_KeyboardInterrupt = PyObject_GetAttrString(builtins, "KeyboardInterrupt"); // new ref
+  PyExc_RuntimeError = PyObject_GetAttrString(builtins, "RuntimeError"); // new ref
 
   if (PyErr_Occurred()) { error:
      // Should never happen. If you see this please report a bug
@@ -226,6 +227,8 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
   LOAD_PYTHON_SYMBOL(PyErr_Restore)
   LOAD_PYTHON_SYMBOL(PyErr_Occurred)
   LOAD_PYTHON_SYMBOL(PyErr_SetNone)
+  LOAD_PYTHON_SYMBOL(PyErr_SetString)
+  LOAD_PYTHON_SYMBOL(PyErr_SetObject)
   LOAD_PYTHON_SYMBOL(PyErr_BadArgument)
   LOAD_PYTHON_SYMBOL(PyErr_NormalizeException)
   LOAD_PYTHON_SYMBOL(PyErr_ExceptionMatches)
@@ -282,6 +285,7 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
   LOAD_PYTHON_SYMBOL(PyType_IsSubtype)
   LOAD_PYTHON_SYMBOL(PyType_GetFlags)
   LOAD_PYTHON_SYMBOL(PyMapping_Items)
+  LOAD_PYTHON_SYMBOL(PyOS_getsig)
   LOAD_PYTHON_SYMBOL(PyOS_setsig)
   LOAD_PYTHON_SYMBOL(PySys_WriteStderr)
   LOAD_PYTHON_SYMBOL(PySys_GetObject)
@@ -295,6 +299,7 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
   LOAD_PYTHON_SYMBOL(PyObject_IsTrue)
   LOAD_PYTHON_SYMBOL(PyCapsule_Import)
   LOAD_PYTHON_SYMBOL(PyUnicode_AsUTF8)
+  LOAD_PYTHON_SYMBOL(PyUnicode_CompareWithASCIIString)
 
   // PyUnicode_AsEncodedString may have several different names depending on the Python
   // version and the UCS build type

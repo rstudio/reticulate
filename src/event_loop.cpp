@@ -52,7 +52,7 @@ void eventPollingWorker(void *) {
   while (true) {
 
     // Throttle via sleep
-    tthread::this_thread::sleep_for(tthread::chrono::milliseconds(200));
+    tthread::this_thread::sleep_for(tthread::chrono::milliseconds(500));
 
     // Schedule polling on the main thread if the interpeter is still running.
     // Note that Py_AddPendingCall is documented to be callable from a background
@@ -82,6 +82,15 @@ void processEvents(void* data) {
 int pollForEvents(void*) {
 
   DBG("Polling for events.");
+  // Some guarantees for code that runs in this function scope:
+  //
+  // 1. We are on the main thread, we have the Python GIL, no other code is
+  // concurrently accessing R. i.e., we can safely use the full Python and R
+  // APIs.
+  //
+  // 2. The Python interpreter is currently on a byte code boundary
+  // (R is waiting on Python to finish). This mean that it is *not* safe to
+  // raise an Exception, risk an R/C lngjmp, or throw a C++ exception.
 
   // Request that the background thread schedule us to be called again
   // (this is delegated to a background thread so that these requests

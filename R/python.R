@@ -1376,13 +1376,14 @@ py_inject_hooks <- function() {
 
   builtins <- import_builtins(convert = TRUE)
 
-  input <- function(prompt = "") {
-
-    readline(prompt)
-  }
-
   # override input function
   if (interactive() && was_python_initialized_by_reticulate()) {
+    # PyOS_ReadlineFunctionPointer() is not part of the stable ABI.
+    # PyOS_InputHook() only has one slot - used by other thigns like tkinter.
+    input <- function(prompt = "") {
+      readline(prompt)
+    }
+
     name <- if (is_python3()) "input" else "raw_input"
     builtins[[name]] <- input
   }

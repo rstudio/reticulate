@@ -1,29 +1,21 @@
 
 #' @export
 print.python.builtin.object <- function(x, ...) {
-  formatted <- if (py_is_callable(x))
-    py_format_callable(x, ...)
-  else
-    py_repr(x)
+  formatted <- c(
+    py_repr(x),
+    py_format_signature(x)
+  )
 
   writeLines(formatted)
   invisible(x)
 }
 
 
-py_format_callable <- function(x, ...) {
-
-  type <- py_to_r(py_get_attr(py_get_attr(x, "__class__"), "__name__"))
-
-  name <- py_to_r(py_get_attr(x, "__qualname__", TRUE) %||%
-                  py_get_attr(x, "__name__", TRUE))
-
-  module <- py_to_r(py_get_attr(x, "__module__", TRUE))
-  if (!is.null(module))
-    name <- paste0(c(module, name), collapse = ".")
+py_format_signature <- function(x, ...) {
+  if (!py_is_callable(x))
+    return(NULL)
 
   inspect <- import("inspect")
-
   get_formatted_signature <- function(x, drop_first = FALSE) {
     tryCatch({
       sig <- inspect$signature(x)
@@ -43,14 +35,15 @@ py_format_callable <- function(x, ...) {
       formatted <- py_str_impl(sig)
 
       # split long signatures across multiple lines, so they're readable
-      if (py_len(sig$parameters) >= 4L) {
+      # if (py_len(sig$parameters) > 5L) {
+      if (nchar(formatted) > 60) {
         for (formatted_arg in iterate(sig$parameters$values(), py_str_impl))
           formatted <- sub(formatted_arg,
-                           paste0("\n  ", formatted_arg),
+                           paste0("\n   ", formatted_arg),
                            formatted, fixed = TRUE)
 
-        formatted <- sub(", /,", ",\n  /,", formatted, fixed = TRUE) # positional only separator
-        formatted <- sub(", *,", ",\n  *,", formatted, fixed = TRUE) # kw-only separator
+        formatted <- sub(", /,", ",\n   /,", formatted, fixed = TRUE) # positional only separator
+        formatted <- sub(", *,", ",\n   *,", formatted, fixed = TRUE) # kw-only separator
         formatted <- sub("\\)($| ->)", "\n)\\1", formatted) # final closing parens )
       }
       formatted
@@ -63,8 +56,9 @@ py_format_callable <- function(x, ...) {
     get_formatted_signature(py_get_attr(x, "__new__", TRUE), TRUE) %||%
     "(?)"
 
-  sprintf("<%s %s%s>", type, name, formatted_sig)
+  sprintf(" signature: %s", formatted_sig)
 }
+
 
 
 #' @importFrom utils str

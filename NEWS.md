@@ -2,7 +2,7 @@
 
 - Interrupting Python no longer leads to segfaults (#1601, fixed in #1602).
 
-- Print method for Python callables now includes the callable’s signature (#1605)
+- Print method for Python callables now includes the callable’s signature (#1605, #1607)
 
 - `virtualenv_starter()` no longer warns when encountering broken symlinks (#1598).
 

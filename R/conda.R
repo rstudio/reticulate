@@ -546,7 +546,7 @@ conda_binary <- function(conda = "auto") {
   # we rely on other tools typically bundled in the 'bin' folder
   # https://github.com/rstudio/keras/issues/691
   if (!is_windows()) {
-    altpath <- file.path(dirname(conda), "../bin/conda")
+    altpath <- file.path(dirname(conda), "../bin", basename(conda))
     if (file.exists(altpath))
       return(normalizePath(altpath, winslash = "/", mustWork = TRUE))
   } else {

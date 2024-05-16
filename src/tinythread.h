@@ -84,6 +84,9 @@ extern "C" void Rf_error(const char* fmt, ...);
     #undef WIN32_LEAN_AND_MEAN
     #undef __UNDEF_LEAN_AND_MEAN
   #endif
+  #ifdef __aarch64__
+    #include <csignal>
+  #endif
 #else
   #include <pthread.h>
   #include <signal.h>

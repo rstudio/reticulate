@@ -85,7 +85,7 @@ extern "C" void Rf_error(const char* fmt, ...);
     #undef __UNDEF_LEAN_AND_MEAN
   #endif
   #ifdef __aarch64__
-    #include <csignal>
+    #include <signal.h>
   #endif
 #else
   #include <pthread.h>

@@ -4,6 +4,8 @@
 
 - Print method for Python callables now includes the callable’s signature (#1605, #1607)
 
+- Reticulate now installs successfully on Windows ARM64 (#1609, contributed by @andrjohns).
+
 - `virtualenv_starter()` no longer warns when encountering broken symlinks (#1598).
 
 - Fixed issue where a configured `mamba` binary was overriden with `conda` (#1608).

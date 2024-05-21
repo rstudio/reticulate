@@ -1,13 +1,18 @@
 New features and fixes. See NEWS.md for details.
 
-This submission is a hot patch to fix an issue introduced by our
-previous release that broke compatibility with the {anndata} package.
-
-## R CMD check results
-
 ## revdepcheck results
 
-We checked 211 reverse dependencies, comparing R CMD check results across CRAN and dev versions of this package.
+We checked 211 reverse dependencies (210 from CRAN + 1 from Bioconductor), comparing R CMD check results across CRAN and dev versions of this package.
 
  * We saw 0 new problems
- * We failed to check 0 packages
+ * We failed to check 5 packages
+
+Issues with CRAN packages are summarised below.
+
+### Failed to check
+
+* bbknnR      (NA)
+* CRMetrics   (NA)
+* scCustomize (NA)
+* SCdeconR    (NA)
+* SCORPIUS    (NA)

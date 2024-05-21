@@ -1,14 +1,20 @@
 # reticulate (development version)
 
-- Interrupting Python no longer leads to segfaults (#1601, fixed in #1602).
+- Interrupting Python no longer leads to segfaults.
+  (#1601, fixed in #1602)
 
-- Print method for Python callables now includes the callable’s signature (#1605, #1607)
+- Print method for Python callables now includes the callable’s signature.
+  (#1605, #1607)
 
-- Reticulate now installs successfully on Windows ARM64 (#1609, contributed by @andrjohns).
+- Reticulate now installs successfully on Windows ARM64.
+  (#1609, contributed by @andrjohns)
 
-- `virtualenv_starter()` no longer warns when encountering broken symlinks (#1598).
+- `virtualenv_starter()` no longer warns when encountering broken symlinks.
+  (#1598)
 
-- Fixed issue where a configured `mamba` binary was overriden with `conda` (#1608).
+- Fixed issue where configuring reticulate `conda_*` functions 
+  to use the executable `mamba` instead of `conda` was ignored.
+  (#1608, contributed by @AlexandreGuinaudeau)
 
 # reticulate 1.36.1
 

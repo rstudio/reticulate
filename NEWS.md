@@ -1,4 +1,4 @@
-# reticulate (development version)
+# reticulate 1.37.0
 
 - Interrupting Python no longer leads to segfaults.
   (#1601, fixed in #1602)

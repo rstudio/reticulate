@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.36.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.37.0</span>
       </span>
     </div>
 
@@ -171,9 +171,9 @@ place.</p>
 <span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>y <span class="op">=</span> x    <span class="co"># `y` and `x` now refer to the same list!</span></span>
 <span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>x.append(<span class="dv">4</span>)</span>
 <span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"x is"</span>, x)</span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co">#&gt; x is [1, 2, 3, 4]</span></span>
-<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"y is"</span>, y)</span>
-<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co">#&gt; y is [1, 2, 3, 4]</span></span></code></pre></div>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co">#&gt; x is [1, 2, 3, 4]</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"y is"</span>, y)</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt; y is [1, 2, 3, 4]</span></span></code></pre></div>
 <p>One Python idiom that might be concerning to R users is that of
 growing lists through the <code><a href="https://rdrr.io/r/base/append.html" class="external-link">append()</a></code> method. Growing lists in
 R is typically slow and best avoided. But because Python’s list are
@@ -183,54 +183,54 @@ items), it is efficient to grow Python lists in place.</p>
 usage of <code>+</code> and <code>*</code> with lists. These are
 concatenation and replication operators, akin to R’s <code><a href="https://rdrr.io/r/base/c.html" class="external-link">c()</a></code>
 and <code><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep()</a></code>.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>x <span class="op">=</span> [<span class="dv">1</span>]</span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>x</span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt; [1]</span></span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>x <span class="op">+</span> x</span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; [1, 1]</span></span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>x <span class="op">*</span> <span class="dv">3</span></span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt; [1, 1, 1]</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>x <span class="op">=</span> [<span class="dv">1</span>]</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>x</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#&gt; [1]</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>x <span class="op">+</span> x</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="co">#&gt; [1, 1]</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>x <span class="op">*</span> <span class="dv">3</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="co">#&gt; [1, 1, 1]</span></span></code></pre></div>
 <p>You can index into lists with integers using trailing
 <code>[]</code>, but note that indexing is 0-based.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>x <span class="op">=</span> [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>]</span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>x[<span class="dv">0</span>]</span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#&gt; 1</span></span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>x[<span class="dv">1</span>]</span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt; 2</span></span>
-<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>x[<span class="dv">2</span>]</span>
-<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt; 3</span></span>
-<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a></span>
-<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="cf">try</span>:</span>
-<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a>  x[<span class="dv">3</span>]</span>
-<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="cf">except</span> <span class="pp">Exception</span> <span class="im">as</span> e:</span>
-<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a>  <span class="bu">print</span>(e)</span>
-<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt; list index out of range</span></span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>x <span class="op">=</span> [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>]</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>x[<span class="dv">0</span>]</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="co">#&gt; 1</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>x[<span class="dv">1</span>]</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="co">#&gt; 2</span></span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>x[<span class="dv">2</span>]</span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a><span class="co">#&gt; 3</span></span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a></span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a>  x[<span class="dv">3</span>]</span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a><span class="cf">except</span> <span class="pp">Exception</span> <span class="im">as</span> e:</span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a>  <span class="bu">print</span>(e)</span>
+<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a><span class="co">#&gt; list index out of range</span></span></code></pre></div>
 <p>When indexing, negative numbers count from the end of the
 container.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>x <span class="op">=</span> [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>]</span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>x[<span class="op">-</span><span class="dv">1</span>]</span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="co">#&gt; 3</span></span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>x[<span class="op">-</span><span class="dv">2</span>]</span>
-<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="co">#&gt; 2</span></span>
-<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>x[<span class="op">-</span><span class="dv">3</span>]</span>
-<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="co">#&gt; 1</span></span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>x <span class="op">=</span> [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>]</span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>x[<span class="op">-</span><span class="dv">1</span>]</span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a><span class="co">#&gt; 3</span></span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a>x[<span class="op">-</span><span class="dv">2</span>]</span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a><span class="co">#&gt; 2</span></span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a>x[<span class="op">-</span><span class="dv">3</span>]</span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a><span class="co">#&gt; 1</span></span></code></pre></div>
 <p>You can slice ranges of lists using the <code>:</code> inside
 brackets. Note that the slice syntax is <strong><em>not</em></strong>
 inclusive of the end of the slice range. You can optionally also specify
 a stride.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>x <span class="op">=</span> [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">6</span>]</span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>x[<span class="dv">0</span>:<span class="dv">2</span>] <span class="co"># get items at index positions 0, 1</span></span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="co">#&gt; [1, 2]</span></span>
-<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>x[<span class="dv">1</span>:]  <span class="co"># get items from index position 1 to the end</span></span>
-<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="co">#&gt; [2, 3, 4, 5, 6]</span></span>
-<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>x[:<span class="op">-</span><span class="dv">2</span>] <span class="co"># get items from beginning up to the 2nd to last.</span></span>
-<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="co">#&gt; [1, 2, 3, 4]</span></span>
-<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>x[:]   <span class="co"># get all the items (idiom used to copy the list so as not to modify in place)</span></span>
-<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="co">#&gt; [1, 2, 3, 4, 5, 6]</span></span>
-<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a>x[::<span class="dv">2</span>] <span class="co"># get all the items, with a stride of 2</span></span>
-<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="co">#&gt; [1, 3, 5]</span></span>
-<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a>x[<span class="dv">1</span>::<span class="dv">2</span>] <span class="co"># get all the items from index 1 to the end, with a stride of 2</span></span>
-<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a><span class="co">#&gt; [2, 4, 6]</span></span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a>x <span class="op">=</span> [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">6</span>]</span>
+<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a>x[<span class="dv">0</span>:<span class="dv">2</span>] <span class="co"># get items at index positions 0, 1</span></span>
+<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a><span class="co">#&gt; [1, 2]</span></span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a>x[<span class="dv">1</span>:]  <span class="co"># get items from index position 1 to the end</span></span>
+<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a><span class="co">#&gt; [2, 3, 4, 5, 6]</span></span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a>x[:<span class="op">-</span><span class="dv">2</span>] <span class="co"># get items from beginning up to the 2nd to last.</span></span>
+<span id="cb18-2"><a href="#cb18-2" tabindex="-1"></a><span class="co">#&gt; [1, 2, 3, 4]</span></span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a>x[:]   <span class="co"># get all the items (idiom used to copy the list so as not to modify in place)</span></span>
+<span id="cb19-2"><a href="#cb19-2" tabindex="-1"></a><span class="co">#&gt; [1, 2, 3, 4, 5, 6]</span></span></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a>x[::<span class="dv">2</span>] <span class="co"># get all the items, with a stride of 2</span></span>
+<span id="cb20-2"><a href="#cb20-2" tabindex="-1"></a><span class="co">#&gt; [1, 3, 5]</span></span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" tabindex="-1"></a>x[<span class="dv">1</span>::<span class="dv">2</span>] <span class="co"># get all the items from index 1 to the end, with a stride of 2</span></span>
+<span id="cb21-2"><a href="#cb21-2" tabindex="-1"></a><span class="co">#&gt; [2, 4, 6]</span></span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="tuples">Tuples<a class="anchor" aria-label="anchor" href="#tuples"></a>
@@ -244,38 +244,38 @@ parentheses can also be used to specify order of operations in
 expressions like <code>(x + 3) * 4</code>, a special syntax is required
 to define tuples of length 1: a trailing comma. Tuples are most commonly
 encountered in functions that take a variable number of arguments.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>x <span class="op">=</span> (<span class="dv">1</span>, <span class="dv">2</span>) <span class="co"># tuple of length 2</span></span>
-<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="bu">type</span>(x)</span>
-<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="co">#&gt; &lt;class 'tuple'&gt;</span></span>
-<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="bu">len</span>(x)</span>
-<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="co">#&gt; 2</span></span>
-<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>x</span>
-<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="co">#&gt; (1, 2)</span></span>
-<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a></span>
-<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a>x <span class="op">=</span> (<span class="dv">1</span>,) <span class="co"># tuple of length 1</span></span>
-<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a><span class="bu">type</span>(x)</span>
-<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a><span class="co">#&gt; &lt;class 'tuple'&gt;</span></span>
-<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a><span class="bu">len</span>(x)</span>
-<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a><span class="co">#&gt; 1</span></span>
-<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a>x</span>
-<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a><span class="co">#&gt; (1,)</span></span>
-<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a></span>
-<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a>x <span class="op">=</span> () <span class="co"># tuple of length 0</span></span>
-<span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span><span class="bu">type</span>(x) <span class="op">=</span> <span class="sc">}</span><span class="ss">; </span><span class="sc">{</span><span class="bu">len</span>(x) <span class="op">=</span> <span class="sc">}</span><span class="ss">; </span><span class="sc">{</span>x <span class="op">=</span> <span class="sc">}</span><span class="ss">"</span>)</span>
-<span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a><span class="co">#&gt; type(x) = &lt;class 'tuple'&gt;; len(x) = 0; x = ()</span></span>
-<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a><span class="co"># example of an interpolated string literals</span></span>
-<span id="cb9-21"><a href="#cb9-21" tabindex="-1"></a></span>
-<span id="cb9-22"><a href="#cb9-22" tabindex="-1"></a>x <span class="op">=</span> <span class="dv">1</span>, <span class="dv">2</span> <span class="co"># also a tuple</span></span>
-<span id="cb9-23"><a href="#cb9-23" tabindex="-1"></a><span class="bu">type</span>(x)</span>
-<span id="cb9-24"><a href="#cb9-24" tabindex="-1"></a><span class="co">#&gt; &lt;class 'tuple'&gt;</span></span>
-<span id="cb9-25"><a href="#cb9-25" tabindex="-1"></a><span class="bu">len</span>(x)</span>
-<span id="cb9-26"><a href="#cb9-26" tabindex="-1"></a><span class="co">#&gt; 2</span></span>
-<span id="cb9-27"><a href="#cb9-27" tabindex="-1"></a></span>
-<span id="cb9-28"><a href="#cb9-28" tabindex="-1"></a>x <span class="op">=</span> <span class="dv">1</span>, <span class="co"># beware a single trailing comma! This is a tuple!</span></span>
-<span id="cb9-29"><a href="#cb9-29" tabindex="-1"></a><span class="bu">type</span>(x)</span>
-<span id="cb9-30"><a href="#cb9-30" tabindex="-1"></a><span class="co">#&gt; &lt;class 'tuple'&gt;</span></span>
-<span id="cb9-31"><a href="#cb9-31" tabindex="-1"></a><span class="bu">len</span>(x)</span>
-<span id="cb9-32"><a href="#cb9-32" tabindex="-1"></a><span class="co">#&gt; 1</span></span></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" tabindex="-1"></a>x <span class="op">=</span> (<span class="dv">1</span>, <span class="dv">2</span>) <span class="co"># tuple of length 2</span></span>
+<span id="cb22-2"><a href="#cb22-2" tabindex="-1"></a><span class="bu">type</span>(x)</span>
+<span id="cb22-3"><a href="#cb22-3" tabindex="-1"></a><span class="co">#&gt; &lt;class 'tuple'&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" tabindex="-1"></a><span class="bu">len</span>(x)</span>
+<span id="cb23-2"><a href="#cb23-2" tabindex="-1"></a><span class="co">#&gt; 2</span></span></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" tabindex="-1"></a>x</span>
+<span id="cb24-2"><a href="#cb24-2" tabindex="-1"></a><span class="co">#&gt; (1, 2)</span></span></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" tabindex="-1"></a></span>
+<span id="cb25-2"><a href="#cb25-2" tabindex="-1"></a>x <span class="op">=</span> (<span class="dv">1</span>,) <span class="co"># tuple of length 1</span></span>
+<span id="cb25-3"><a href="#cb25-3" tabindex="-1"></a><span class="bu">type</span>(x)</span>
+<span id="cb25-4"><a href="#cb25-4" tabindex="-1"></a><span class="co">#&gt; &lt;class 'tuple'&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" tabindex="-1"></a><span class="bu">len</span>(x)</span>
+<span id="cb26-2"><a href="#cb26-2" tabindex="-1"></a><span class="co">#&gt; 1</span></span></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" tabindex="-1"></a>x</span>
+<span id="cb27-2"><a href="#cb27-2" tabindex="-1"></a><span class="co">#&gt; (1,)</span></span></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" tabindex="-1"></a></span>
+<span id="cb28-2"><a href="#cb28-2" tabindex="-1"></a>x <span class="op">=</span> () <span class="co"># tuple of length 0</span></span>
+<span id="cb28-3"><a href="#cb28-3" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"</span><span class="sc">{</span><span class="bu">type</span>(x) <span class="op">=</span> <span class="sc">}</span><span class="ss">; </span><span class="sc">{</span><span class="bu">len</span>(x) <span class="op">=</span> <span class="sc">}</span><span class="ss">; </span><span class="sc">{</span>x <span class="op">=</span> <span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb28-4"><a href="#cb28-4" tabindex="-1"></a><span class="co">#&gt; type(x) = &lt;class 'tuple'&gt;; len(x) = 0; x = ()</span></span></code></pre></div>
+<div class="sourceCode" id="cb29"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" tabindex="-1"></a><span class="co"># example of an interpolated string literals</span></span>
+<span id="cb29-2"><a href="#cb29-2" tabindex="-1"></a></span>
+<span id="cb29-3"><a href="#cb29-3" tabindex="-1"></a>x <span class="op">=</span> <span class="dv">1</span>, <span class="dv">2</span> <span class="co"># also a tuple</span></span>
+<span id="cb29-4"><a href="#cb29-4" tabindex="-1"></a><span class="bu">type</span>(x)</span>
+<span id="cb29-5"><a href="#cb29-5" tabindex="-1"></a><span class="co">#&gt; &lt;class 'tuple'&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb30"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" tabindex="-1"></a><span class="bu">len</span>(x)</span>
+<span id="cb30-2"><a href="#cb30-2" tabindex="-1"></a><span class="co">#&gt; 2</span></span></code></pre></div>
+<div class="sourceCode" id="cb31"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" tabindex="-1"></a></span>
+<span id="cb31-2"><a href="#cb31-2" tabindex="-1"></a>x <span class="op">=</span> <span class="dv">1</span>, <span class="co"># beware a single trailing comma! This is a tuple!</span></span>
+<span id="cb31-3"><a href="#cb31-3" tabindex="-1"></a><span class="bu">type</span>(x)</span>
+<span id="cb31-4"><a href="#cb31-4" tabindex="-1"></a><span class="co">#&gt; &lt;class 'tuple'&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb32"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" tabindex="-1"></a><span class="bu">len</span>(x)</span>
+<span id="cb32-2"><a href="#cb32-2" tabindex="-1"></a><span class="co">#&gt; 1</span></span></code></pre></div>
 <div class="section level5">
 <h5 id="packing-and-unpacking">Packing and Unpacking<a class="anchor" aria-label="anchor" href="#packing-and-unpacking"></a>
 </h5>
@@ -284,47 +284,47 @@ encountered in functions that take a variable number of arguments.</p>
 of allowing you to assign multiple symbols in one expression. This is
 called <em>unpacking</em>.</p>
 <p>For example:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>x <span class="op">=</span> (<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>)</span>
-<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>a, b, c <span class="op">=</span> x</span>
-<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>a</span>
-<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="co">#&gt; 1</span></span>
-<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>b</span>
-<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="co">#&gt; 2</span></span>
-<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a>c</span>
-<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a><span class="co">#&gt; 3</span></span></code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" tabindex="-1"></a>x <span class="op">=</span> (<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>)</span>
+<span id="cb33-2"><a href="#cb33-2" tabindex="-1"></a>a, b, c <span class="op">=</span> x</span>
+<span id="cb33-3"><a href="#cb33-3" tabindex="-1"></a>a</span>
+<span id="cb33-4"><a href="#cb33-4" tabindex="-1"></a><span class="co">#&gt; 1</span></span></code></pre></div>
+<div class="sourceCode" id="cb34"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" tabindex="-1"></a>b</span>
+<span id="cb34-2"><a href="#cb34-2" tabindex="-1"></a><span class="co">#&gt; 2</span></span></code></pre></div>
+<div class="sourceCode" id="cb35"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" tabindex="-1"></a>c</span>
+<span id="cb35-2"><a href="#cb35-2" tabindex="-1"></a><span class="co">#&gt; 3</span></span></code></pre></div>
 <p>(You can access similar unpacking behavior from R using
 <code>zeallot::`%&lt;-%`</code>).</p>
 <p>Tuple unpacking can occur in a variety of contexts, such as
 iteration:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>xx <span class="op">=</span> ((<span class="st">"a"</span>, <span class="dv">1</span>),</span>
-<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>      (<span class="st">"b"</span>, <span class="dv">2</span>))</span>
-<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a><span class="cf">for</span> x1, x2 <span class="kw">in</span> xx:</span>
-<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>  <span class="bu">print</span>(<span class="st">"x1 = "</span>, x1)</span>
-<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>  <span class="bu">print</span>(<span class="st">"x2 = "</span>, x2)</span>
-<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a><span class="co">#&gt; x1 =  a</span></span>
-<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a><span class="co">#&gt; x2 =  1</span></span>
-<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a><span class="co">#&gt; x1 =  b</span></span>
-<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a><span class="co">#&gt; x2 =  2</span></span></code></pre></div>
+<div class="sourceCode" id="cb36"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" tabindex="-1"></a>xx <span class="op">=</span> ((<span class="st">"a"</span>, <span class="dv">1</span>),</span>
+<span id="cb36-2"><a href="#cb36-2" tabindex="-1"></a>      (<span class="st">"b"</span>, <span class="dv">2</span>))</span>
+<span id="cb36-3"><a href="#cb36-3" tabindex="-1"></a><span class="cf">for</span> x1, x2 <span class="kw">in</span> xx:</span>
+<span id="cb36-4"><a href="#cb36-4" tabindex="-1"></a>  <span class="bu">print</span>(<span class="st">"x1 = "</span>, x1)</span>
+<span id="cb36-5"><a href="#cb36-5" tabindex="-1"></a>  <span class="bu">print</span>(<span class="st">"x2 = "</span>, x2)</span>
+<span id="cb36-6"><a href="#cb36-6" tabindex="-1"></a><span class="co">#&gt; x1 =  a</span></span>
+<span id="cb36-7"><a href="#cb36-7" tabindex="-1"></a><span class="co">#&gt; x2 =  1</span></span>
+<span id="cb36-8"><a href="#cb36-8" tabindex="-1"></a><span class="co">#&gt; x1 =  b</span></span>
+<span id="cb36-9"><a href="#cb36-9" tabindex="-1"></a><span class="co">#&gt; x2 =  2</span></span></code></pre></div>
 <p>If you attempt to unpack a container to the wrong number of symbols,
 Python raises an error:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>x <span class="op">=</span> (<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>)</span>
-<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a>a, b, c <span class="op">=</span> x <span class="co"># success</span></span>
-<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a>a, b <span class="op">=</span> x    <span class="co"># error, x has too many values to unpack</span></span>
-<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a><span class="co">#&gt; ValueError: too many values to unpack (expected 2)</span></span>
-<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a>a, b, c, d <span class="op">=</span> x <span class="co"># error, x has not enough values to unpack</span></span>
-<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a><span class="co">#&gt; ValueError: not enough values to unpack (expected 4, got 3)</span></span></code></pre></div>
+<div class="sourceCode" id="cb37"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" tabindex="-1"></a>x <span class="op">=</span> (<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>)</span>
+<span id="cb37-2"><a href="#cb37-2" tabindex="-1"></a>a, b, c <span class="op">=</span> x <span class="co"># success</span></span>
+<span id="cb37-3"><a href="#cb37-3" tabindex="-1"></a>a, b <span class="op">=</span> x    <span class="co"># error, x has too many values to unpack</span></span>
+<span id="cb37-4"><a href="#cb37-4" tabindex="-1"></a><span class="co">#&gt; ValueError: too many values to unpack (expected 2)</span></span></code></pre></div>
+<div class="sourceCode" id="cb38"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" tabindex="-1"></a>a, b, c, d <span class="op">=</span> x <span class="co"># error, x has not enough values to unpack</span></span>
+<span id="cb38-2"><a href="#cb38-2" tabindex="-1"></a><span class="co">#&gt; ValueError: not enough values to unpack (expected 4, got 3)</span></span></code></pre></div>
 <p>It is possible to unpack a variable number of arguments, using
 <code>*</code> as a prefix to a symbol. (You’ll see the <code>*</code>
 prefix again when we talk about functions)</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>x <span class="op">=</span> (<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>)</span>
-<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>a, <span class="op">*</span>the_rest <span class="op">=</span> x</span>
-<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>a</span>
-<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a><span class="co">#&gt; 1</span></span>
-<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a>the_rest</span>
-<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a><span class="co">#&gt; [2, 3]</span></span></code></pre></div>
+<div class="sourceCode" id="cb39"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" tabindex="-1"></a>x <span class="op">=</span> (<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>)</span>
+<span id="cb39-2"><a href="#cb39-2" tabindex="-1"></a>a, <span class="op">*</span>the_rest <span class="op">=</span> x</span>
+<span id="cb39-3"><a href="#cb39-3" tabindex="-1"></a>a</span>
+<span id="cb39-4"><a href="#cb39-4" tabindex="-1"></a><span class="co">#&gt; 1</span></span></code></pre></div>
+<div class="sourceCode" id="cb40"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" tabindex="-1"></a>the_rest</span>
+<span id="cb40-2"><a href="#cb40-2" tabindex="-1"></a><span class="co">#&gt; [2, 3]</span></span></code></pre></div>
 <p>You can also unpack nested structures:</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a>x <span class="op">=</span> ((<span class="dv">1</span>, <span class="dv">2</span>), (<span class="dv">3</span>, <span class="dv">4</span>))</span>
-<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a>(a, b), (c, d) <span class="op">=</span> x</span></code></pre></div>
+<div class="sourceCode" id="cb41"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" tabindex="-1"></a>x <span class="op">=</span> ((<span class="dv">1</span>, <span class="dv">2</span>), (<span class="dv">3</span>, <span class="dv">4</span>))</span>
+<span id="cb41-2"><a href="#cb41-2" tabindex="-1"></a>(a, b), (c, d) <span class="op">=</span> x</span></code></pre></div>
 </div>
 </div>
 <div class="section level4">
@@ -338,24 +338,24 @@ in R. It can be any Python object with a <code>hash()</code> method
 syntax like <code>{key: value}</code>. Like Python lists, they are
 modified in place. Note that <code><a href="../reference/r-py-conversion.html">r_to_py()</a></code> converts R named
 lists to dictionaries.</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a>d <span class="op">=</span> {<span class="st">"key1"</span>: <span class="dv">1</span>,</span>
-<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a>     <span class="st">"key2"</span>: <span class="dv">2</span>}</span>
-<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a>d2 <span class="op">=</span> d</span>
-<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a>d</span>
-<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a><span class="co">#&gt; {'key1': 1, 'key2': 2}</span></span>
-<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a>d[<span class="st">"key1"</span>]</span>
-<span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a><span class="co">#&gt; 1</span></span>
-<span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a>d[<span class="st">"key3"</span>] <span class="op">=</span> <span class="dv">3</span></span>
-<span id="cb15-9"><a href="#cb15-9" tabindex="-1"></a>d2 <span class="co"># modified in place!</span></span>
-<span id="cb15-10"><a href="#cb15-10" tabindex="-1"></a><span class="co">#&gt; {'key1': 1, 'key2': 2, 'key3': 3}</span></span></code></pre></div>
+<div class="sourceCode" id="cb42"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" tabindex="-1"></a>d <span class="op">=</span> {<span class="st">"key1"</span>: <span class="dv">1</span>,</span>
+<span id="cb42-2"><a href="#cb42-2" tabindex="-1"></a>     <span class="st">"key2"</span>: <span class="dv">2</span>}</span>
+<span id="cb42-3"><a href="#cb42-3" tabindex="-1"></a>d2 <span class="op">=</span> d</span>
+<span id="cb42-4"><a href="#cb42-4" tabindex="-1"></a>d</span>
+<span id="cb42-5"><a href="#cb42-5" tabindex="-1"></a><span class="co">#&gt; {'key1': 1, 'key2': 2}</span></span></code></pre></div>
+<div class="sourceCode" id="cb43"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" tabindex="-1"></a>d[<span class="st">"key1"</span>]</span>
+<span id="cb43-2"><a href="#cb43-2" tabindex="-1"></a><span class="co">#&gt; 1</span></span></code></pre></div>
+<div class="sourceCode" id="cb44"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" tabindex="-1"></a>d[<span class="st">"key3"</span>] <span class="op">=</span> <span class="dv">3</span></span>
+<span id="cb44-2"><a href="#cb44-2" tabindex="-1"></a>d2 <span class="co"># modified in place!</span></span>
+<span id="cb44-3"><a href="#cb44-3" tabindex="-1"></a><span class="co">#&gt; {'key1': 1, 'key2': 2, 'key3': 3}</span></span></code></pre></div>
 <p>Like R environments (and unlike R’s named lists), you cannot index
 into a dictionary with an integer to get an item at a specific index
 position. Dictionaries are <em>unordered</em> containers.
 (However—beginning with Python 3.7, dictionaries do preserve the item
 insertion order).</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a>d <span class="op">=</span> {<span class="st">"key1"</span>: <span class="dv">1</span>, <span class="st">"key2"</span>: <span class="dv">2</span>}</span>
-<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a>d[<span class="dv">1</span>] <span class="co"># error</span></span>
-<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a><span class="co">#&gt; KeyError: 1</span></span></code></pre></div>
+<div class="sourceCode" id="cb45"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb45-1"><a href="#cb45-1" tabindex="-1"></a>d <span class="op">=</span> {<span class="st">"key1"</span>: <span class="dv">1</span>, <span class="st">"key2"</span>: <span class="dv">2</span>}</span>
+<span id="cb45-2"><a href="#cb45-2" tabindex="-1"></a>d[<span class="dv">1</span>] <span class="co"># error</span></span>
+<span id="cb45-3"><a href="#cb45-3" tabindex="-1"></a><span class="co">#&gt; KeyError: 1</span></span></code></pre></div>
 <p>A container that closest matches the semantics of R’s named list is
 the <a href="https://docs.python.org/3/library/collections.html#collections.OrderedDict" class="external-link"><code>OrderedDict</code></a>,
 but that’s relatively uncommon in Python code so we don’t cover it
@@ -371,15 +371,15 @@ items or deduplicate lists. They are constructed using
 keys. Sets have many efficient methods for membership operations, like
 <code>intersection()</code>, <code>issubset()</code>,
 <code><a href="https://rdrr.io/r/base/sets.html" class="external-link">union()</a></code> and so on.</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a>s <span class="op">=</span> {<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>}</span>
-<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a><span class="bu">type</span>(s)</span>
-<span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a><span class="co">#&gt; &lt;class 'set'&gt;</span></span>
-<span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a>s</span>
-<span id="cb17-5"><a href="#cb17-5" tabindex="-1"></a><span class="co">#&gt; {1, 2, 3}</span></span>
-<span id="cb17-6"><a href="#cb17-6" tabindex="-1"></a></span>
-<span id="cb17-7"><a href="#cb17-7" tabindex="-1"></a>s.add(<span class="dv">1</span>)</span>
-<span id="cb17-8"><a href="#cb17-8" tabindex="-1"></a>s</span>
-<span id="cb17-9"><a href="#cb17-9" tabindex="-1"></a><span class="co">#&gt; {1, 2, 3}</span></span></code></pre></div>
+<div class="sourceCode" id="cb46"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb46-1"><a href="#cb46-1" tabindex="-1"></a>s <span class="op">=</span> {<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>}</span>
+<span id="cb46-2"><a href="#cb46-2" tabindex="-1"></a><span class="bu">type</span>(s)</span>
+<span id="cb46-3"><a href="#cb46-3" tabindex="-1"></a><span class="co">#&gt; &lt;class 'set'&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb47"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb47-1"><a href="#cb47-1" tabindex="-1"></a>s</span>
+<span id="cb47-2"><a href="#cb47-2" tabindex="-1"></a><span class="co">#&gt; {1, 2, 3}</span></span></code></pre></div>
+<div class="sourceCode" id="cb48"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb48-1"><a href="#cb48-1" tabindex="-1"></a></span>
+<span id="cb48-2"><a href="#cb48-2" tabindex="-1"></a>s.add(<span class="dv">1</span>)</span>
+<span id="cb48-3"><a href="#cb48-3" tabindex="-1"></a>s</span>
+<span id="cb48-4"><a href="#cb48-4" tabindex="-1"></a><span class="co">#&gt; {1, 2, 3}</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level3">
@@ -387,11 +387,11 @@ keys. Sets have many efficient methods for membership operations, like
 </h3>
 <p>The <code>for</code> statement in Python can be used to iterate over
 any kind of container.</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a><span class="cf">for</span> x <span class="kw">in</span> [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>]:</span>
-<span id="cb18-2"><a href="#cb18-2" tabindex="-1"></a>  <span class="bu">print</span>(x)</span>
-<span id="cb18-3"><a href="#cb18-3" tabindex="-1"></a><span class="co">#&gt; 1</span></span>
-<span id="cb18-4"><a href="#cb18-4" tabindex="-1"></a><span class="co">#&gt; 2</span></span>
-<span id="cb18-5"><a href="#cb18-5" tabindex="-1"></a><span class="co">#&gt; 3</span></span></code></pre></div>
+<div class="sourceCode" id="cb49"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb49-1"><a href="#cb49-1" tabindex="-1"></a><span class="cf">for</span> x <span class="kw">in</span> [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>]:</span>
+<span id="cb49-2"><a href="#cb49-2" tabindex="-1"></a>  <span class="bu">print</span>(x)</span>
+<span id="cb49-3"><a href="#cb49-3" tabindex="-1"></a><span class="co">#&gt; 1</span></span>
+<span id="cb49-4"><a href="#cb49-4" tabindex="-1"></a><span class="co">#&gt; 2</span></span>
+<span id="cb49-5"><a href="#cb49-5" tabindex="-1"></a><span class="co">#&gt; 3</span></span></code></pre></div>
 <p>R has a relatively limited set of objects that can be passed to
 <code>for</code>. Python by comparison, provides an iterator protocol
 interface, which means that authors can define custom objects, with
@@ -404,53 +404,56 @@ through it manually.</p>
 <p>There are two things that happen: first, an iterator is constructed
 from the supplied object. Then, the new iterator object is repeatedly
 called with <code>next()</code> until it is exhausted.</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a>l <span class="op">=</span> [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>]</span>
-<span id="cb19-2"><a href="#cb19-2" tabindex="-1"></a>it <span class="op">=</span> <span class="bu">iter</span>(l) <span class="co"># create an iterator object</span></span>
-<span id="cb19-3"><a href="#cb19-3" tabindex="-1"></a>it</span>
-<span id="cb19-4"><a href="#cb19-4" tabindex="-1"></a><span class="co">#&gt; &lt;list_iterator object at 0x7fb76190e3b0&gt;</span></span>
-<span id="cb19-5"><a href="#cb19-5" tabindex="-1"></a></span>
-<span id="cb19-6"><a href="#cb19-6" tabindex="-1"></a><span class="co"># call `next` on the iterator until it is exhausted:</span></span>
-<span id="cb19-7"><a href="#cb19-7" tabindex="-1"></a><span class="bu">next</span>(it)</span>
-<span id="cb19-8"><a href="#cb19-8" tabindex="-1"></a><span class="co">#&gt; 1</span></span>
-<span id="cb19-9"><a href="#cb19-9" tabindex="-1"></a><span class="bu">next</span>(it)</span>
-<span id="cb19-10"><a href="#cb19-10" tabindex="-1"></a><span class="co">#&gt; 2</span></span>
-<span id="cb19-11"><a href="#cb19-11" tabindex="-1"></a><span class="bu">next</span>(it)</span>
-<span id="cb19-12"><a href="#cb19-12" tabindex="-1"></a><span class="co">#&gt; 3</span></span>
-<span id="cb19-13"><a href="#cb19-13" tabindex="-1"></a><span class="bu">next</span>(it)</span>
-<span id="cb19-14"><a href="#cb19-14" tabindex="-1"></a><span class="co">#&gt; StopIteration</span></span></code></pre></div>
+<div class="sourceCode" id="cb50"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb50-1"><a href="#cb50-1" tabindex="-1"></a>l <span class="op">=</span> [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>]</span>
+<span id="cb50-2"><a href="#cb50-2" tabindex="-1"></a>it <span class="op">=</span> <span class="bu">iter</span>(l) <span class="co"># create an iterator object</span></span>
+<span id="cb50-3"><a href="#cb50-3" tabindex="-1"></a>it</span>
+<span id="cb50-4"><a href="#cb50-4" tabindex="-1"></a><span class="co">#&gt; &lt;list_iterator object at 0x7efd3a4e37f0&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb51"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb51-1"><a href="#cb51-1" tabindex="-1"></a></span>
+<span id="cb51-2"><a href="#cb51-2" tabindex="-1"></a><span class="co"># call `next` on the iterator until it is exhausted:</span></span>
+<span id="cb51-3"><a href="#cb51-3" tabindex="-1"></a><span class="bu">next</span>(it)</span>
+<span id="cb51-4"><a href="#cb51-4" tabindex="-1"></a><span class="co">#&gt; 1</span></span></code></pre></div>
+<div class="sourceCode" id="cb52"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb52-1"><a href="#cb52-1" tabindex="-1"></a><span class="bu">next</span>(it)</span>
+<span id="cb52-2"><a href="#cb52-2" tabindex="-1"></a><span class="co">#&gt; 2</span></span></code></pre></div>
+<div class="sourceCode" id="cb53"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb53-1"><a href="#cb53-1" tabindex="-1"></a><span class="bu">next</span>(it)</span>
+<span id="cb53-2"><a href="#cb53-2" tabindex="-1"></a><span class="co">#&gt; 3</span></span></code></pre></div>
+<div class="sourceCode" id="cb54"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb54-1"><a href="#cb54-1" tabindex="-1"></a><span class="bu">next</span>(it)</span>
+<span id="cb54-2"><a href="#cb54-2" tabindex="-1"></a><span class="co">#&gt; StopIteration</span></span></code></pre></div>
 <p>In R, you can use reticulate to step through an iterator the same
 way.</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb55"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span></span>
 <span><span class="va">l</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/r-py-conversion.html">r_to_py</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">it</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/iterate.html">as_iterator</a></span><span class="op">(</span><span class="va">l</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/iterate.html">iter_next</a></span><span class="op">(</span><span class="va">it</span><span class="op">)</span></span>
-<span><span class="co">#&gt; 1.0</span></span>
-<span><span class="fu"><a href="../reference/iterate.html">iter_next</a></span><span class="op">(</span><span class="va">it</span><span class="op">)</span></span>
-<span><span class="co">#&gt; 2.0</span></span>
-<span><span class="fu"><a href="../reference/iterate.html">iter_next</a></span><span class="op">(</span><span class="va">it</span><span class="op">)</span></span>
-<span><span class="co">#&gt; 3.0</span></span>
-<span><span class="fu"><a href="../reference/iterate.html">iter_next</a></span><span class="op">(</span><span class="va">it</span>, completed <span class="op">=</span> <span class="st">"StopIteration"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; 1.0</span></span></code></pre></div>
+<div class="sourceCode" id="cb56"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/iterate.html">iter_next</a></span><span class="op">(</span><span class="va">it</span><span class="op">)</span></span>
+<span><span class="co">#&gt; 2.0</span></span></code></pre></div>
+<div class="sourceCode" id="cb57"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/iterate.html">iter_next</a></span><span class="op">(</span><span class="va">it</span><span class="op">)</span></span>
+<span><span class="co">#&gt; 3.0</span></span></code></pre></div>
+<div class="sourceCode" id="cb58"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/iterate.html">iter_next</a></span><span class="op">(</span><span class="va">it</span>, completed <span class="op">=</span> <span class="st">"StopIteration"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "StopIteration"</span></span></code></pre></div>
 <p>Iterating over dictionaries first requires understanding if you are
 iterating over the keys, values, or both. Dictionaries have methods that
 allow you to specify which.</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" tabindex="-1"></a>d <span class="op">=</span> {<span class="st">"key1"</span>: <span class="dv">1</span>, <span class="st">"key2"</span>: <span class="dv">2</span>}</span>
-<span id="cb21-2"><a href="#cb21-2" tabindex="-1"></a><span class="cf">for</span> key <span class="kw">in</span> d:</span>
-<span id="cb21-3"><a href="#cb21-3" tabindex="-1"></a>  <span class="bu">print</span>(key)</span>
-<span id="cb21-4"><a href="#cb21-4" tabindex="-1"></a><span class="co">#&gt; key1</span></span>
-<span id="cb21-5"><a href="#cb21-5" tabindex="-1"></a><span class="co">#&gt; key2</span></span>
-<span id="cb21-6"><a href="#cb21-6" tabindex="-1"></a></span>
-<span id="cb21-7"><a href="#cb21-7" tabindex="-1"></a><span class="cf">for</span> value <span class="kw">in</span> d.values():</span>
-<span id="cb21-8"><a href="#cb21-8" tabindex="-1"></a>  <span class="bu">print</span>(value)</span>
-<span id="cb21-9"><a href="#cb21-9" tabindex="-1"></a><span class="co">#&gt; 1</span></span>
-<span id="cb21-10"><a href="#cb21-10" tabindex="-1"></a><span class="co">#&gt; 2</span></span>
-<span id="cb21-11"><a href="#cb21-11" tabindex="-1"></a></span>
-<span id="cb21-12"><a href="#cb21-12" tabindex="-1"></a><span class="cf">for</span> key, value <span class="kw">in</span> d.items():</span>
-<span id="cb21-13"><a href="#cb21-13" tabindex="-1"></a>  <span class="bu">print</span>(key, <span class="st">":"</span>, value)</span>
-<span id="cb21-14"><a href="#cb21-14" tabindex="-1"></a><span class="co">#&gt; key1 : 1</span></span>
-<span id="cb21-15"><a href="#cb21-15" tabindex="-1"></a><span class="co">#&gt; key2 : 2</span></span></code></pre></div>
+<div class="sourceCode" id="cb59"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb59-1"><a href="#cb59-1" tabindex="-1"></a>d <span class="op">=</span> {<span class="st">"key1"</span>: <span class="dv">1</span>, <span class="st">"key2"</span>: <span class="dv">2</span>}</span>
+<span id="cb59-2"><a href="#cb59-2" tabindex="-1"></a><span class="cf">for</span> key <span class="kw">in</span> d:</span>
+<span id="cb59-3"><a href="#cb59-3" tabindex="-1"></a>  <span class="bu">print</span>(key)</span>
+<span id="cb59-4"><a href="#cb59-4" tabindex="-1"></a><span class="co">#&gt; key1</span></span>
+<span id="cb59-5"><a href="#cb59-5" tabindex="-1"></a><span class="co">#&gt; key2</span></span></code></pre></div>
+<div class="sourceCode" id="cb60"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb60-1"><a href="#cb60-1" tabindex="-1"></a></span>
+<span id="cb60-2"><a href="#cb60-2" tabindex="-1"></a><span class="cf">for</span> value <span class="kw">in</span> d.values():</span>
+<span id="cb60-3"><a href="#cb60-3" tabindex="-1"></a>  <span class="bu">print</span>(value)</span>
+<span id="cb60-4"><a href="#cb60-4" tabindex="-1"></a><span class="co">#&gt; 1</span></span>
+<span id="cb60-5"><a href="#cb60-5" tabindex="-1"></a><span class="co">#&gt; 2</span></span></code></pre></div>
+<div class="sourceCode" id="cb61"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb61-1"><a href="#cb61-1" tabindex="-1"></a></span>
+<span id="cb61-2"><a href="#cb61-2" tabindex="-1"></a><span class="cf">for</span> key, value <span class="kw">in</span> d.items():</span>
+<span id="cb61-3"><a href="#cb61-3" tabindex="-1"></a>  <span class="bu">print</span>(key, <span class="st">":"</span>, value)</span>
+<span id="cb61-4"><a href="#cb61-4" tabindex="-1"></a><span class="co">#&gt; key1 : 1</span></span>
+<span id="cb61-5"><a href="#cb61-5" tabindex="-1"></a><span class="co">#&gt; key2 : 2</span></span></code></pre></div>
 <div class="section level4">
 <h4 id="comprehensions">Comprehensions<a class="anchor" aria-label="anchor" href="#comprehensions"></a>
 </h4>
@@ -459,19 +462,19 @@ container like a list or a dict, while also executing a small operation
 or single expression on each element. You can think of it as special
 syntax for R’s <code>lapply</code>.</p>
 <p>For example:</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" tabindex="-1"></a>x <span class="op">=</span> [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>]</span>
-<span id="cb22-2"><a href="#cb22-2" tabindex="-1"></a></span>
-<span id="cb22-3"><a href="#cb22-3" tabindex="-1"></a><span class="co"># a list comprehension built from x, where you add 100 to each element</span></span>
-<span id="cb22-4"><a href="#cb22-4" tabindex="-1"></a>l <span class="op">=</span> [element <span class="op">+</span> <span class="dv">100</span> <span class="cf">for</span> element <span class="kw">in</span> x]</span>
-<span id="cb22-5"><a href="#cb22-5" tabindex="-1"></a>l</span>
-<span id="cb22-6"><a href="#cb22-6" tabindex="-1"></a><span class="co">#&gt; [101, 102, 103]</span></span>
-<span id="cb22-7"><a href="#cb22-7" tabindex="-1"></a></span>
-<span id="cb22-8"><a href="#cb22-8" tabindex="-1"></a><span class="co"># a dict comprehension built from x, where the key is a string.</span></span>
-<span id="cb22-9"><a href="#cb22-9" tabindex="-1"></a><span class="co"># Python's str() is like R's as.character()</span></span>
-<span id="cb22-10"><a href="#cb22-10" tabindex="-1"></a>d <span class="op">=</span> {<span class="bu">str</span>(element) : element <span class="op">+</span> <span class="dv">100</span></span>
-<span id="cb22-11"><a href="#cb22-11" tabindex="-1"></a>     <span class="cf">for</span> element <span class="kw">in</span> x}</span>
-<span id="cb22-12"><a href="#cb22-12" tabindex="-1"></a>d</span>
-<span id="cb22-13"><a href="#cb22-13" tabindex="-1"></a><span class="co">#&gt; {'1': 101, '2': 102, '3': 103}</span></span></code></pre></div>
+<div class="sourceCode" id="cb62"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb62-1"><a href="#cb62-1" tabindex="-1"></a>x <span class="op">=</span> [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>]</span>
+<span id="cb62-2"><a href="#cb62-2" tabindex="-1"></a></span>
+<span id="cb62-3"><a href="#cb62-3" tabindex="-1"></a><span class="co"># a list comprehension built from x, where you add 100 to each element</span></span>
+<span id="cb62-4"><a href="#cb62-4" tabindex="-1"></a>l <span class="op">=</span> [element <span class="op">+</span> <span class="dv">100</span> <span class="cf">for</span> element <span class="kw">in</span> x]</span>
+<span id="cb62-5"><a href="#cb62-5" tabindex="-1"></a>l</span>
+<span id="cb62-6"><a href="#cb62-6" tabindex="-1"></a><span class="co">#&gt; [101, 102, 103]</span></span></code></pre></div>
+<div class="sourceCode" id="cb63"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb63-1"><a href="#cb63-1" tabindex="-1"></a></span>
+<span id="cb63-2"><a href="#cb63-2" tabindex="-1"></a><span class="co"># a dict comprehension built from x, where the key is a string.</span></span>
+<span id="cb63-3"><a href="#cb63-3" tabindex="-1"></a><span class="co"># Python's str() is like R's as.character()</span></span>
+<span id="cb63-4"><a href="#cb63-4" tabindex="-1"></a>d <span class="op">=</span> {<span class="bu">str</span>(element) : element <span class="op">+</span> <span class="dv">100</span></span>
+<span id="cb63-5"><a href="#cb63-5" tabindex="-1"></a>     <span class="cf">for</span> element <span class="kw">in</span> x}</span>
+<span id="cb63-6"><a href="#cb63-6" tabindex="-1"></a>d</span>
+<span id="cb63-7"><a href="#cb63-7" tabindex="-1"></a><span class="co">#&gt; {'1': 101, '2': 102, '3': 103}</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level3">
@@ -480,76 +483,77 @@ syntax for R’s <code>lapply</code>.</p>
 <p>Python functions are defined with the <code>def</code> statement. The
 syntax for specifying function arguments and default values is very
 similar to R.</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" tabindex="-1"></a><span class="kw">def</span> my_function(name <span class="op">=</span> <span class="st">"World"</span>):</span>
-<span id="cb23-2"><a href="#cb23-2" tabindex="-1"></a>  <span class="bu">print</span>(<span class="st">"Hello"</span>, name)</span>
-<span id="cb23-3"><a href="#cb23-3" tabindex="-1"></a></span>
-<span id="cb23-4"><a href="#cb23-4" tabindex="-1"></a>my_function()</span>
-<span id="cb23-5"><a href="#cb23-5" tabindex="-1"></a><span class="co">#&gt; Hello World</span></span>
-<span id="cb23-6"><a href="#cb23-6" tabindex="-1"></a>my_function(<span class="st">"Friend"</span>)</span>
-<span id="cb23-7"><a href="#cb23-7" tabindex="-1"></a><span class="co">#&gt; Hello Friend</span></span></code></pre></div>
+<div class="sourceCode" id="cb64"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb64-1"><a href="#cb64-1" tabindex="-1"></a><span class="kw">def</span> my_function(name <span class="op">=</span> <span class="st">"World"</span>):</span>
+<span id="cb64-2"><a href="#cb64-2" tabindex="-1"></a>  <span class="bu">print</span>(<span class="st">"Hello"</span>, name)</span>
+<span id="cb64-3"><a href="#cb64-3" tabindex="-1"></a></span>
+<span id="cb64-4"><a href="#cb64-4" tabindex="-1"></a>my_function()</span>
+<span id="cb64-5"><a href="#cb64-5" tabindex="-1"></a><span class="co">#&gt; Hello World</span></span></code></pre></div>
+<div class="sourceCode" id="cb65"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb65-1"><a href="#cb65-1" tabindex="-1"></a>my_function(<span class="st">"Friend"</span>)</span>
+<span id="cb65-2"><a href="#cb65-2" tabindex="-1"></a><span class="co">#&gt; Hello Friend</span></span></code></pre></div>
 <p>The equivalent R snippet would be</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb66"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">my_function</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">name</span> <span class="op">=</span> <span class="st">"World"</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Hello"</span>, <span class="va">name</span>, <span class="st">"\n"</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span></span>
 <span><span class="fu">my_function</span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Hello World</span></span>
-<span><span class="fu">my_function</span><span class="op">(</span><span class="st">"Friend"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Hello World</span></span></code></pre></div>
+<div class="sourceCode" id="cb67"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">my_function</span><span class="op">(</span><span class="st">"Friend"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Hello Friend</span></span></code></pre></div>
 <p>Unlike R functions, the last value in a function is not automatically
 returned. Python requires an explicit return statement.</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" tabindex="-1"></a><span class="kw">def</span> fn():</span>
-<span id="cb25-2"><a href="#cb25-2" tabindex="-1"></a>  <span class="dv">1</span></span>
-<span id="cb25-3"><a href="#cb25-3" tabindex="-1"></a><span class="bu">print</span>(fn())</span>
-<span id="cb25-4"><a href="#cb25-4" tabindex="-1"></a><span class="co">#&gt; None</span></span>
-<span id="cb25-5"><a href="#cb25-5" tabindex="-1"></a></span>
-<span id="cb25-6"><a href="#cb25-6" tabindex="-1"></a><span class="kw">def</span> fn():</span>
-<span id="cb25-7"><a href="#cb25-7" tabindex="-1"></a>  <span class="cf">return</span> <span class="dv">1</span></span>
-<span id="cb25-8"><a href="#cb25-8" tabindex="-1"></a><span class="bu">print</span>(fn())</span>
-<span id="cb25-9"><a href="#cb25-9" tabindex="-1"></a><span class="co">#&gt; 1</span></span></code></pre></div>
+<div class="sourceCode" id="cb68"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb68-1"><a href="#cb68-1" tabindex="-1"></a><span class="kw">def</span> fn():</span>
+<span id="cb68-2"><a href="#cb68-2" tabindex="-1"></a>  <span class="dv">1</span></span>
+<span id="cb68-3"><a href="#cb68-3" tabindex="-1"></a><span class="bu">print</span>(fn())</span>
+<span id="cb68-4"><a href="#cb68-4" tabindex="-1"></a><span class="co">#&gt; None</span></span></code></pre></div>
+<div class="sourceCode" id="cb69"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb69-1"><a href="#cb69-1" tabindex="-1"></a></span>
+<span id="cb69-2"><a href="#cb69-2" tabindex="-1"></a><span class="kw">def</span> fn():</span>
+<span id="cb69-3"><a href="#cb69-3" tabindex="-1"></a>  <span class="cf">return</span> <span class="dv">1</span></span>
+<span id="cb69-4"><a href="#cb69-4" tabindex="-1"></a><span class="bu">print</span>(fn())</span>
+<span id="cb69-5"><a href="#cb69-5" tabindex="-1"></a><span class="co">#&gt; 1</span></span></code></pre></div>
 <p>(Note for advanced R users: Python has no equivalent of R’s argument
 “promises”. Function argument default values are evaluated once, when
 the function is constructed. This can be surprising if you define a
 Python function with a mutable object as a default argument value, like
 a Python list!)</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" tabindex="-1"></a><span class="kw">def</span> my_func(x <span class="op">=</span> []):</span>
-<span id="cb26-2"><a href="#cb26-2" tabindex="-1"></a>  x.append(<span class="st">"was called"</span>)</span>
-<span id="cb26-3"><a href="#cb26-3" tabindex="-1"></a>  <span class="bu">print</span>(x)</span>
-<span id="cb26-4"><a href="#cb26-4" tabindex="-1"></a></span>
-<span id="cb26-5"><a href="#cb26-5" tabindex="-1"></a>my_func()</span>
-<span id="cb26-6"><a href="#cb26-6" tabindex="-1"></a><span class="co">#&gt; ['was called']</span></span>
-<span id="cb26-7"><a href="#cb26-7" tabindex="-1"></a>my_func()</span>
-<span id="cb26-8"><a href="#cb26-8" tabindex="-1"></a><span class="co">#&gt; ['was called', 'was called']</span></span>
-<span id="cb26-9"><a href="#cb26-9" tabindex="-1"></a>my_func()</span>
-<span id="cb26-10"><a href="#cb26-10" tabindex="-1"></a><span class="co">#&gt; ['was called', 'was called', 'was called']</span></span></code></pre></div>
+<div class="sourceCode" id="cb70"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb70-1"><a href="#cb70-1" tabindex="-1"></a><span class="kw">def</span> my_func(x <span class="op">=</span> []):</span>
+<span id="cb70-2"><a href="#cb70-2" tabindex="-1"></a>  x.append(<span class="st">"was called"</span>)</span>
+<span id="cb70-3"><a href="#cb70-3" tabindex="-1"></a>  <span class="bu">print</span>(x)</span>
+<span id="cb70-4"><a href="#cb70-4" tabindex="-1"></a></span>
+<span id="cb70-5"><a href="#cb70-5" tabindex="-1"></a>my_func()</span>
+<span id="cb70-6"><a href="#cb70-6" tabindex="-1"></a><span class="co">#&gt; ['was called']</span></span></code></pre></div>
+<div class="sourceCode" id="cb71"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb71-1"><a href="#cb71-1" tabindex="-1"></a>my_func()</span>
+<span id="cb71-2"><a href="#cb71-2" tabindex="-1"></a><span class="co">#&gt; ['was called', 'was called']</span></span></code></pre></div>
+<div class="sourceCode" id="cb72"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb72-1"><a href="#cb72-1" tabindex="-1"></a>my_func()</span>
+<span id="cb72-2"><a href="#cb72-2" tabindex="-1"></a><span class="co">#&gt; ['was called', 'was called', 'was called']</span></span></code></pre></div>
 <p>You can also define Python functions that take a variable number of
 arguments, similar to <code>...</code> in R. A notable difference is
 that R’s <code>...</code> makes no distinction between named and unnamed
 arguments, but Python does. In Python, prefixing a single <code>*</code>
 captures unnamed arguments, and two <code>**</code> signifies that
 <em>keyword</em> arguments are captured.</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" tabindex="-1"></a><span class="kw">def</span> my_func(<span class="op">*</span>args, <span class="op">**</span>kwargs):</span>
-<span id="cb27-2"><a href="#cb27-2" tabindex="-1"></a>  <span class="bu">print</span>(<span class="st">"args = "</span>, args) <span class="co"># args is a tuple</span></span>
-<span id="cb27-3"><a href="#cb27-3" tabindex="-1"></a>  <span class="bu">print</span>(<span class="st">"kwargs = "</span>, kwargs) <span class="co"># kwargs is a dictionary</span></span>
-<span id="cb27-4"><a href="#cb27-4" tabindex="-1"></a></span>
-<span id="cb27-5"><a href="#cb27-5" tabindex="-1"></a>my_func(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, a <span class="op">=</span> <span class="dv">4</span>, b <span class="op">=</span> <span class="dv">5</span>, c <span class="op">=</span> <span class="dv">6</span>)</span>
-<span id="cb27-6"><a href="#cb27-6" tabindex="-1"></a><span class="co">#&gt; args =  (1, 2, 3)</span></span>
-<span id="cb27-7"><a href="#cb27-7" tabindex="-1"></a><span class="co">#&gt; kwargs =  {'a': 4, 'b': 5, 'c': 6}</span></span></code></pre></div>
+<div class="sourceCode" id="cb73"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb73-1"><a href="#cb73-1" tabindex="-1"></a><span class="kw">def</span> my_func(<span class="op">*</span>args, <span class="op">**</span>kwargs):</span>
+<span id="cb73-2"><a href="#cb73-2" tabindex="-1"></a>  <span class="bu">print</span>(<span class="st">"args = "</span>, args) <span class="co"># args is a tuple</span></span>
+<span id="cb73-3"><a href="#cb73-3" tabindex="-1"></a>  <span class="bu">print</span>(<span class="st">"kwargs = "</span>, kwargs) <span class="co"># kwargs is a dictionary</span></span>
+<span id="cb73-4"><a href="#cb73-4" tabindex="-1"></a></span>
+<span id="cb73-5"><a href="#cb73-5" tabindex="-1"></a>my_func(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, a <span class="op">=</span> <span class="dv">4</span>, b <span class="op">=</span> <span class="dv">5</span>, c <span class="op">=</span> <span class="dv">6</span>)</span>
+<span id="cb73-6"><a href="#cb73-6" tabindex="-1"></a><span class="co">#&gt; args =  (1, 2, 3)</span></span>
+<span id="cb73-7"><a href="#cb73-7" tabindex="-1"></a><span class="co">#&gt; kwargs =  {'a': 4, 'b': 5, 'c': 6}</span></span></code></pre></div>
 <p>Whereas the <code>*</code> and <code>**</code> in a function
 definition signature <em>pack</em> arguments, in a function call they
 <em>unpack</em> arguments. Unpacking arguments in a function call is
 equivalent to using <code><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call()</a></code> in R.</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" tabindex="-1"></a><span class="kw">def</span> my_func(a, b, c):</span>
-<span id="cb28-2"><a href="#cb28-2" tabindex="-1"></a>  <span class="bu">print</span>(a, b, c)</span>
-<span id="cb28-3"><a href="#cb28-3" tabindex="-1"></a></span>
-<span id="cb28-4"><a href="#cb28-4" tabindex="-1"></a>args <span class="op">=</span> (<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>)</span>
-<span id="cb28-5"><a href="#cb28-5" tabindex="-1"></a>my_func(<span class="op">*</span>args)</span>
-<span id="cb28-6"><a href="#cb28-6" tabindex="-1"></a><span class="co">#&gt; 1 2 3</span></span>
-<span id="cb28-7"><a href="#cb28-7" tabindex="-1"></a></span>
-<span id="cb28-8"><a href="#cb28-8" tabindex="-1"></a>kwargs <span class="op">=</span> {<span class="st">"a"</span>: <span class="dv">1</span>, <span class="st">"b"</span>: <span class="dv">2</span>, <span class="st">"c"</span>: <span class="dv">3</span>}</span>
-<span id="cb28-9"><a href="#cb28-9" tabindex="-1"></a>my_func(<span class="op">**</span>kwargs)</span>
-<span id="cb28-10"><a href="#cb28-10" tabindex="-1"></a><span class="co">#&gt; 1 2 3</span></span></code></pre></div>
+<div class="sourceCode" id="cb74"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb74-1"><a href="#cb74-1" tabindex="-1"></a><span class="kw">def</span> my_func(a, b, c):</span>
+<span id="cb74-2"><a href="#cb74-2" tabindex="-1"></a>  <span class="bu">print</span>(a, b, c)</span>
+<span id="cb74-3"><a href="#cb74-3" tabindex="-1"></a></span>
+<span id="cb74-4"><a href="#cb74-4" tabindex="-1"></a>args <span class="op">=</span> (<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>)</span>
+<span id="cb74-5"><a href="#cb74-5" tabindex="-1"></a>my_func(<span class="op">*</span>args)</span>
+<span id="cb74-6"><a href="#cb74-6" tabindex="-1"></a><span class="co">#&gt; 1 2 3</span></span></code></pre></div>
+<div class="sourceCode" id="cb75"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb75-1"><a href="#cb75-1" tabindex="-1"></a></span>
+<span id="cb75-2"><a href="#cb75-2" tabindex="-1"></a>kwargs <span class="op">=</span> {<span class="st">"a"</span>: <span class="dv">1</span>, <span class="st">"b"</span>: <span class="dv">2</span>, <span class="st">"c"</span>: <span class="dv">3</span>}</span>
+<span id="cb75-3"><a href="#cb75-3" tabindex="-1"></a>my_func(<span class="op">**</span>kwargs)</span>
+<span id="cb75-4"><a href="#cb75-4" tabindex="-1"></a><span class="co">#&gt; 1 2 3</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="defining-classes-with-class">Defining Classes with <code>class</code><a class="anchor" aria-label="anchor" href="#defining-classes-with-class"></a>
@@ -568,19 +572,19 @@ accessible.</p>
 <p>Don’t be intimidated if this is your first exposure to object
 oriented programming. We’ll start by building up a simple Python class
 for demonstration purposes.</p>
-<div class="sourceCode" id="cb29"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" tabindex="-1"></a><span class="kw">class</span> MyClass:</span>
-<span id="cb29-2"><a href="#cb29-2" tabindex="-1"></a>  <span class="cf">pass</span> <span class="co"># `pass` means do nothing.</span></span>
-<span id="cb29-3"><a href="#cb29-3" tabindex="-1"></a></span>
-<span id="cb29-4"><a href="#cb29-4" tabindex="-1"></a>MyClass</span>
-<span id="cb29-5"><a href="#cb29-5" tabindex="-1"></a><span class="co">#&gt; &lt;class '__main__.MyClass'&gt;</span></span>
-<span id="cb29-6"><a href="#cb29-6" tabindex="-1"></a><span class="bu">type</span>(MyClass)</span>
-<span id="cb29-7"><a href="#cb29-7" tabindex="-1"></a><span class="co">#&gt; &lt;class 'type'&gt;</span></span>
-<span id="cb29-8"><a href="#cb29-8" tabindex="-1"></a></span>
-<span id="cb29-9"><a href="#cb29-9" tabindex="-1"></a>instance <span class="op">=</span> MyClass()</span>
-<span id="cb29-10"><a href="#cb29-10" tabindex="-1"></a>instance</span>
-<span id="cb29-11"><a href="#cb29-11" tabindex="-1"></a><span class="co">#&gt; &lt;__main__.MyClass object at 0x7fb7619c6a70&gt;</span></span>
-<span id="cb29-12"><a href="#cb29-12" tabindex="-1"></a><span class="bu">type</span>(instance)</span>
-<span id="cb29-13"><a href="#cb29-13" tabindex="-1"></a><span class="co">#&gt; &lt;class '__main__.MyClass'&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb76"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb76-1"><a href="#cb76-1" tabindex="-1"></a><span class="kw">class</span> MyClass:</span>
+<span id="cb76-2"><a href="#cb76-2" tabindex="-1"></a>  <span class="cf">pass</span> <span class="co"># `pass` means do nothing.</span></span>
+<span id="cb76-3"><a href="#cb76-3" tabindex="-1"></a></span>
+<span id="cb76-4"><a href="#cb76-4" tabindex="-1"></a>MyClass</span>
+<span id="cb76-5"><a href="#cb76-5" tabindex="-1"></a><span class="co">#&gt; &lt;class '__main__.MyClass'&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb77"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb77-1"><a href="#cb77-1" tabindex="-1"></a><span class="bu">type</span>(MyClass)</span>
+<span id="cb77-2"><a href="#cb77-2" tabindex="-1"></a><span class="co">#&gt; &lt;class 'type'&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb78"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb78-1"><a href="#cb78-1" tabindex="-1"></a></span>
+<span id="cb78-2"><a href="#cb78-2" tabindex="-1"></a>instance <span class="op">=</span> MyClass()</span>
+<span id="cb78-3"><a href="#cb78-3" tabindex="-1"></a>instance</span>
+<span id="cb78-4"><a href="#cb78-4" tabindex="-1"></a><span class="co">#&gt; &lt;__main__.MyClass object at 0x7efd3a4fed40&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb79"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb79-1"><a href="#cb79-1" tabindex="-1"></a><span class="bu">type</span>(instance)</span>
+<span id="cb79-2"><a href="#cb79-2" tabindex="-1"></a><span class="co">#&gt; &lt;class '__main__.MyClass'&gt;</span></span></code></pre></div>
 <p>Like the <code>def</code> statement, the <code>class</code> statement
 binds a new callable symbol, <code>MyClass</code>. First note the strong
 naming convention, classes are typically <code>CamelCase</code>, and
@@ -596,8 +600,8 @@ the instance is mutable (modified-in-place by default).</p>
 when we inspect it we see that it already comes with a bunch of
 attributes (<code><a href="https://rdrr.io/r/base/list.files.html" class="external-link">dir()</a></code> in Python is equivalent to
 <code><a href="https://rdrr.io/r/base/names.html" class="external-link">names()</a></code> in R):</p>
-<div class="sourceCode" id="cb30"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" tabindex="-1"></a><span class="bu">dir</span>(MyClass)</span>
-<span id="cb30-2"><a href="#cb30-2" tabindex="-1"></a><span class="co">#&gt; ['__class__', '__delattr__', '__dict__', '__dir__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__init_subclass__', '__le__', '__lt__', '__module__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__']</span></span></code></pre></div>
+<div class="sourceCode" id="cb80"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb80-1"><a href="#cb80-1" tabindex="-1"></a><span class="bu">dir</span>(MyClass)</span>
+<span id="cb80-2"><a href="#cb80-2" tabindex="-1"></a><span class="co">#&gt; ['__class__', '__delattr__', '__dict__', '__dir__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__gt__', '__hash__', '__init__', '__init_subclass__', '__le__', '__lt__', '__module__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__']</span></span></code></pre></div>
 <div class="section level4">
 <h4 id="what-are-all-the-underscores">What are all the underscores?<a class="anchor" aria-label="anchor" href="#what-are-all-the-underscores"></a>
 </h4>
@@ -619,26 +623,26 @@ the class constructor is called, that is, when a class is
 instance. (In very sophisticated code bases, you may also encounter
 classes where <code>__new__</code> is also defined, this is called
 before <code>__init__</code>).</p>
-<div class="sourceCode" id="cb31"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" tabindex="-1"></a><span class="kw">class</span> MyClass:</span>
-<span id="cb31-2"><a href="#cb31-2" tabindex="-1"></a></span>
-<span id="cb31-3"><a href="#cb31-3" tabindex="-1"></a>  <span class="bu">print</span>(<span class="st">"MyClass's definition body is being evaluated"</span>)</span>
-<span id="cb31-4"><a href="#cb31-4" tabindex="-1"></a></span>
-<span id="cb31-5"><a href="#cb31-5" tabindex="-1"></a>  <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
-<span id="cb31-6"><a href="#cb31-6" tabindex="-1"></a>    <span class="bu">print</span>(<span class="va">self</span>, <span class="st">"is initializing"</span>)</span>
-<span id="cb31-7"><a href="#cb31-7" tabindex="-1"></a><span class="co">#&gt; MyClass's definition body is being evaluated</span></span>
-<span id="cb31-8"><a href="#cb31-8" tabindex="-1"></a></span>
-<span id="cb31-9"><a href="#cb31-9" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"MyClass is finished being created"</span>)</span>
-<span id="cb31-10"><a href="#cb31-10" tabindex="-1"></a><span class="co">#&gt; MyClass is finished being created</span></span>
-<span id="cb31-11"><a href="#cb31-11" tabindex="-1"></a></span>
-<span id="cb31-12"><a href="#cb31-12" tabindex="-1"></a>instance <span class="op">=</span> MyClass()</span>
-<span id="cb31-13"><a href="#cb31-13" tabindex="-1"></a><span class="co">#&gt; &lt;__main__.MyClass object at 0x7fb7619c5990&gt; is initializing</span></span>
-<span id="cb31-14"><a href="#cb31-14" tabindex="-1"></a><span class="bu">print</span>(instance)</span>
-<span id="cb31-15"><a href="#cb31-15" tabindex="-1"></a><span class="co">#&gt; &lt;__main__.MyClass object at 0x7fb7619c5990&gt;</span></span>
-<span id="cb31-16"><a href="#cb31-16" tabindex="-1"></a></span>
-<span id="cb31-17"><a href="#cb31-17" tabindex="-1"></a>instance2 <span class="op">=</span> MyClass()</span>
-<span id="cb31-18"><a href="#cb31-18" tabindex="-1"></a><span class="co">#&gt; &lt;__main__.MyClass object at 0x7fb7619e6ad0&gt; is initializing</span></span>
-<span id="cb31-19"><a href="#cb31-19" tabindex="-1"></a><span class="bu">print</span>(instance2)</span>
-<span id="cb31-20"><a href="#cb31-20" tabindex="-1"></a><span class="co">#&gt; &lt;__main__.MyClass object at 0x7fb7619e6ad0&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb81"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb81-1"><a href="#cb81-1" tabindex="-1"></a><span class="kw">class</span> MyClass:</span>
+<span id="cb81-2"><a href="#cb81-2" tabindex="-1"></a></span>
+<span id="cb81-3"><a href="#cb81-3" tabindex="-1"></a>  <span class="bu">print</span>(<span class="st">"MyClass's definition body is being evaluated"</span>)</span>
+<span id="cb81-4"><a href="#cb81-4" tabindex="-1"></a></span>
+<span id="cb81-5"><a href="#cb81-5" tabindex="-1"></a>  <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
+<span id="cb81-6"><a href="#cb81-6" tabindex="-1"></a>    <span class="bu">print</span>(<span class="va">self</span>, <span class="st">"is initializing"</span>)</span>
+<span id="cb81-7"><a href="#cb81-7" tabindex="-1"></a><span class="co">#&gt; MyClass's definition body is being evaluated</span></span></code></pre></div>
+<div class="sourceCode" id="cb82"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb82-1"><a href="#cb82-1" tabindex="-1"></a></span>
+<span id="cb82-2"><a href="#cb82-2" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"MyClass is finished being created"</span>)</span>
+<span id="cb82-3"><a href="#cb82-3" tabindex="-1"></a><span class="co">#&gt; MyClass is finished being created</span></span></code></pre></div>
+<div class="sourceCode" id="cb83"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb83-1"><a href="#cb83-1" tabindex="-1"></a></span>
+<span id="cb83-2"><a href="#cb83-2" tabindex="-1"></a>instance <span class="op">=</span> MyClass()</span>
+<span id="cb83-3"><a href="#cb83-3" tabindex="-1"></a><span class="co">#&gt; &lt;__main__.MyClass object at 0x7efd3a4ff400&gt; is initializing</span></span></code></pre></div>
+<div class="sourceCode" id="cb84"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb84-1"><a href="#cb84-1" tabindex="-1"></a><span class="bu">print</span>(instance)</span>
+<span id="cb84-2"><a href="#cb84-2" tabindex="-1"></a><span class="co">#&gt; &lt;__main__.MyClass object at 0x7efd3a4ff400&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb85"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb85-1"><a href="#cb85-1" tabindex="-1"></a></span>
+<span id="cb85-2"><a href="#cb85-2" tabindex="-1"></a>instance2 <span class="op">=</span> MyClass()</span>
+<span id="cb85-3"><a href="#cb85-3" tabindex="-1"></a><span class="co">#&gt; &lt;__main__.MyClass object at 0x7efd3a4e20b0&gt; is initializing</span></span></code></pre></div>
+<div class="sourceCode" id="cb86"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb86-1"><a href="#cb86-1" tabindex="-1"></a><span class="bu">print</span>(instance2)</span>
+<span id="cb86-2"><a href="#cb86-2" tabindex="-1"></a><span class="co">#&gt; &lt;__main__.MyClass object at 0x7efd3a4e20b0&gt;</span></span></code></pre></div>
 <p>A few things to note:</p>
 <ul>
 <li><p>the <code>class</code> statement takes a code block that is
@@ -668,18 +672,18 @@ into the function call as the first argument. This applies to all
 functions defined in a class, including dunders. (The sole exception is
 if the function is decorated with something like
 <code>@classmethod</code> or <code>@staticmethod</code>).</p>
-<div class="sourceCode" id="cb32"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" tabindex="-1"></a><span class="kw">class</span> MyClass:</span>
-<span id="cb32-2"><a href="#cb32-2" tabindex="-1"></a>  <span class="kw">def</span> a_method(<span class="va">self</span>):</span>
-<span id="cb32-3"><a href="#cb32-3" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"MyClass.a_method() was called with"</span>, <span class="va">self</span>)</span>
-<span id="cb32-4"><a href="#cb32-4" tabindex="-1"></a></span>
-<span id="cb32-5"><a href="#cb32-5" tabindex="-1"></a>instance <span class="op">=</span> MyClass()</span>
-<span id="cb32-6"><a href="#cb32-6" tabindex="-1"></a>instance.a_method()</span>
-<span id="cb32-7"><a href="#cb32-7" tabindex="-1"></a><span class="co">#&gt; MyClass.a_method() was called with &lt;__main__.MyClass object at 0x7fb7619c4700&gt;</span></span>
-<span id="cb32-8"><a href="#cb32-8" tabindex="-1"></a></span>
-<span id="cb32-9"><a href="#cb32-9" tabindex="-1"></a>MyClass.a_method()     <span class="co"># error, missing required argument `self`</span></span>
-<span id="cb32-10"><a href="#cb32-10" tabindex="-1"></a><span class="co">#&gt; TypeError: MyClass.a_method() missing 1 required positional argument: 'self'</span></span>
-<span id="cb32-11"><a href="#cb32-11" tabindex="-1"></a>MyClass.a_method(instance) <span class="co"># identical to instance.a_method()</span></span>
-<span id="cb32-12"><a href="#cb32-12" tabindex="-1"></a><span class="co">#&gt; MyClass.a_method() was called with &lt;__main__.MyClass object at 0x7fb7619c4700&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb87"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb87-1"><a href="#cb87-1" tabindex="-1"></a><span class="kw">class</span> MyClass:</span>
+<span id="cb87-2"><a href="#cb87-2" tabindex="-1"></a>  <span class="kw">def</span> a_method(<span class="va">self</span>):</span>
+<span id="cb87-3"><a href="#cb87-3" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"MyClass.a_method() was called with"</span>, <span class="va">self</span>)</span>
+<span id="cb87-4"><a href="#cb87-4" tabindex="-1"></a></span>
+<span id="cb87-5"><a href="#cb87-5" tabindex="-1"></a>instance <span class="op">=</span> MyClass()</span>
+<span id="cb87-6"><a href="#cb87-6" tabindex="-1"></a>instance.a_method()</span>
+<span id="cb87-7"><a href="#cb87-7" tabindex="-1"></a><span class="co">#&gt; MyClass.a_method() was called with &lt;__main__.MyClass object at 0x7efd3a4fe2c0&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb88"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb88-1"><a href="#cb88-1" tabindex="-1"></a></span>
+<span id="cb88-2"><a href="#cb88-2" tabindex="-1"></a>MyClass.a_method()     <span class="co"># error, missing required argument `self`</span></span>
+<span id="cb88-3"><a href="#cb88-3" tabindex="-1"></a><span class="co">#&gt; TypeError: MyClass.a_method() missing 1 required positional argument: 'self'</span></span></code></pre></div>
+<div class="sourceCode" id="cb89"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb89-1"><a href="#cb89-1" tabindex="-1"></a>MyClass.a_method(instance) <span class="co"># identical to instance.a_method()</span></span>
+<span id="cb89-2"><a href="#cb89-2" tabindex="-1"></a><span class="co">#&gt; MyClass.a_method() was called with &lt;__main__.MyClass object at 0x7efd3a4fe2c0&gt;</span></span></code></pre></div>
 <p>Other dunder’s worth knowing about are:</p>
 <ul>
 <li><p><code>__getitem__</code>: the function invoked when subsetting an
@@ -726,40 +730,40 @@ where the <code>__iter__</code> method is just a stub that returns
 <code>self</code>.</p>
 <p>Here is a custom iterable / iterator implementation of Python’s
 <code>range</code> (similar to <code>seq</code> in R)</p>
-<div class="sourceCode" id="cb33"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" tabindex="-1"></a><span class="kw">class</span> MyRange:</span>
-<span id="cb33-2"><a href="#cb33-2" tabindex="-1"></a>  <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, start, end):</span>
-<span id="cb33-3"><a href="#cb33-3" tabindex="-1"></a>    <span class="va">self</span>.start <span class="op">=</span> start</span>
-<span id="cb33-4"><a href="#cb33-4" tabindex="-1"></a>    <span class="va">self</span>.end <span class="op">=</span> end</span>
-<span id="cb33-5"><a href="#cb33-5" tabindex="-1"></a></span>
-<span id="cb33-6"><a href="#cb33-6" tabindex="-1"></a>  <span class="kw">def</span> <span class="fu">__iter__</span>(<span class="va">self</span>):</span>
-<span id="cb33-7"><a href="#cb33-7" tabindex="-1"></a>    <span class="co"># reset our counter.</span></span>
-<span id="cb33-8"><a href="#cb33-8" tabindex="-1"></a>    <span class="va">self</span>._index <span class="op">=</span> <span class="va">self</span>.start <span class="op">-</span> <span class="dv">1</span></span>
-<span id="cb33-9"><a href="#cb33-9" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">self</span></span>
-<span id="cb33-10"><a href="#cb33-10" tabindex="-1"></a></span>
-<span id="cb33-11"><a href="#cb33-11" tabindex="-1"></a>  <span class="kw">def</span> <span class="fu">__next__</span>(<span class="va">self</span>):</span>
-<span id="cb33-12"><a href="#cb33-12" tabindex="-1"></a>    <span class="cf">if</span> <span class="va">self</span>._index <span class="op">&lt;</span> <span class="va">self</span>.end:</span>
-<span id="cb33-13"><a href="#cb33-13" tabindex="-1"></a>      <span class="va">self</span>._index <span class="op">+=</span> <span class="dv">1</span> <span class="co"># increment</span></span>
-<span id="cb33-14"><a href="#cb33-14" tabindex="-1"></a>      <span class="cf">return</span> <span class="va">self</span>._index</span>
-<span id="cb33-15"><a href="#cb33-15" tabindex="-1"></a>    <span class="cf">else</span>:</span>
-<span id="cb33-16"><a href="#cb33-16" tabindex="-1"></a>      <span class="cf">raise</span> <span class="pp">StopIteration</span></span>
-<span id="cb33-17"><a href="#cb33-17" tabindex="-1"></a></span>
-<span id="cb33-18"><a href="#cb33-18" tabindex="-1"></a><span class="cf">for</span> x <span class="kw">in</span> MyRange(<span class="dv">1</span>, <span class="dv">3</span>):</span>
-<span id="cb33-19"><a href="#cb33-19" tabindex="-1"></a>  <span class="bu">print</span>(x)</span>
-<span id="cb33-20"><a href="#cb33-20" tabindex="-1"></a><span class="co">#&gt; 1</span></span>
-<span id="cb33-21"><a href="#cb33-21" tabindex="-1"></a><span class="co">#&gt; 2</span></span>
-<span id="cb33-22"><a href="#cb33-22" tabindex="-1"></a><span class="co">#&gt; 3</span></span>
-<span id="cb33-23"><a href="#cb33-23" tabindex="-1"></a></span>
-<span id="cb33-24"><a href="#cb33-24" tabindex="-1"></a><span class="co"># doing what `for` does, but manually</span></span>
-<span id="cb33-25"><a href="#cb33-25" tabindex="-1"></a>r <span class="op">=</span> MyRange(<span class="dv">1</span>, <span class="dv">3</span>)</span>
-<span id="cb33-26"><a href="#cb33-26" tabindex="-1"></a>it <span class="op">=</span> <span class="bu">iter</span>(r)</span>
-<span id="cb33-27"><a href="#cb33-27" tabindex="-1"></a><span class="bu">next</span>(it)</span>
-<span id="cb33-28"><a href="#cb33-28" tabindex="-1"></a><span class="co">#&gt; 1</span></span>
-<span id="cb33-29"><a href="#cb33-29" tabindex="-1"></a><span class="bu">next</span>(it)</span>
-<span id="cb33-30"><a href="#cb33-30" tabindex="-1"></a><span class="co">#&gt; 2</span></span>
-<span id="cb33-31"><a href="#cb33-31" tabindex="-1"></a><span class="bu">next</span>(it)</span>
-<span id="cb33-32"><a href="#cb33-32" tabindex="-1"></a><span class="co">#&gt; 3</span></span>
-<span id="cb33-33"><a href="#cb33-33" tabindex="-1"></a><span class="bu">next</span>(it)</span>
-<span id="cb33-34"><a href="#cb33-34" tabindex="-1"></a><span class="co">#&gt; StopIteration</span></span></code></pre></div>
+<div class="sourceCode" id="cb90"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb90-1"><a href="#cb90-1" tabindex="-1"></a><span class="kw">class</span> MyRange:</span>
+<span id="cb90-2"><a href="#cb90-2" tabindex="-1"></a>  <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, start, end):</span>
+<span id="cb90-3"><a href="#cb90-3" tabindex="-1"></a>    <span class="va">self</span>.start <span class="op">=</span> start</span>
+<span id="cb90-4"><a href="#cb90-4" tabindex="-1"></a>    <span class="va">self</span>.end <span class="op">=</span> end</span>
+<span id="cb90-5"><a href="#cb90-5" tabindex="-1"></a></span>
+<span id="cb90-6"><a href="#cb90-6" tabindex="-1"></a>  <span class="kw">def</span> <span class="fu">__iter__</span>(<span class="va">self</span>):</span>
+<span id="cb90-7"><a href="#cb90-7" tabindex="-1"></a>    <span class="co"># reset our counter.</span></span>
+<span id="cb90-8"><a href="#cb90-8" tabindex="-1"></a>    <span class="va">self</span>._index <span class="op">=</span> <span class="va">self</span>.start <span class="op">-</span> <span class="dv">1</span></span>
+<span id="cb90-9"><a href="#cb90-9" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">self</span></span>
+<span id="cb90-10"><a href="#cb90-10" tabindex="-1"></a></span>
+<span id="cb90-11"><a href="#cb90-11" tabindex="-1"></a>  <span class="kw">def</span> <span class="fu">__next__</span>(<span class="va">self</span>):</span>
+<span id="cb90-12"><a href="#cb90-12" tabindex="-1"></a>    <span class="cf">if</span> <span class="va">self</span>._index <span class="op">&lt;</span> <span class="va">self</span>.end:</span>
+<span id="cb90-13"><a href="#cb90-13" tabindex="-1"></a>      <span class="va">self</span>._index <span class="op">+=</span> <span class="dv">1</span> <span class="co"># increment</span></span>
+<span id="cb90-14"><a href="#cb90-14" tabindex="-1"></a>      <span class="cf">return</span> <span class="va">self</span>._index</span>
+<span id="cb90-15"><a href="#cb90-15" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb90-16"><a href="#cb90-16" tabindex="-1"></a>      <span class="cf">raise</span> <span class="pp">StopIteration</span></span>
+<span id="cb90-17"><a href="#cb90-17" tabindex="-1"></a></span>
+<span id="cb90-18"><a href="#cb90-18" tabindex="-1"></a><span class="cf">for</span> x <span class="kw">in</span> MyRange(<span class="dv">1</span>, <span class="dv">3</span>):</span>
+<span id="cb90-19"><a href="#cb90-19" tabindex="-1"></a>  <span class="bu">print</span>(x)</span>
+<span id="cb90-20"><a href="#cb90-20" tabindex="-1"></a><span class="co">#&gt; 1</span></span>
+<span id="cb90-21"><a href="#cb90-21" tabindex="-1"></a><span class="co">#&gt; 2</span></span>
+<span id="cb90-22"><a href="#cb90-22" tabindex="-1"></a><span class="co">#&gt; 3</span></span></code></pre></div>
+<div class="sourceCode" id="cb91"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb91-1"><a href="#cb91-1" tabindex="-1"></a></span>
+<span id="cb91-2"><a href="#cb91-2" tabindex="-1"></a><span class="co"># doing what `for` does, but manually</span></span>
+<span id="cb91-3"><a href="#cb91-3" tabindex="-1"></a>r <span class="op">=</span> MyRange(<span class="dv">1</span>, <span class="dv">3</span>)</span>
+<span id="cb91-4"><a href="#cb91-4" tabindex="-1"></a>it <span class="op">=</span> <span class="bu">iter</span>(r)</span>
+<span id="cb91-5"><a href="#cb91-5" tabindex="-1"></a><span class="bu">next</span>(it)</span>
+<span id="cb91-6"><a href="#cb91-6" tabindex="-1"></a><span class="co">#&gt; 1</span></span></code></pre></div>
+<div class="sourceCode" id="cb92"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb92-1"><a href="#cb92-1" tabindex="-1"></a><span class="bu">next</span>(it)</span>
+<span id="cb92-2"><a href="#cb92-2" tabindex="-1"></a><span class="co">#&gt; 2</span></span></code></pre></div>
+<div class="sourceCode" id="cb93"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb93-1"><a href="#cb93-1" tabindex="-1"></a><span class="bu">next</span>(it)</span>
+<span id="cb93-2"><a href="#cb93-2" tabindex="-1"></a><span class="co">#&gt; 3</span></span></code></pre></div>
+<div class="sourceCode" id="cb94"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb94-1"><a href="#cb94-1" tabindex="-1"></a><span class="bu">next</span>(it)</span>
+<span id="cb94-2"><a href="#cb94-2" tabindex="-1"></a><span class="co">#&gt; StopIteration</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level3">
@@ -772,38 +776,38 @@ substantially. You’re no longer defining a mere function, but a
 generator constructor! In turn, calling a generator constructor creates
 a generator object, which is just another type of iterator.</p>
 <p>Here is an example:</p>
-<div class="sourceCode" id="cb34"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" tabindex="-1"></a><span class="kw">def</span> my_generator_constructor():</span>
-<span id="cb34-2"><a href="#cb34-2" tabindex="-1"></a>  <span class="cf">yield</span> <span class="dv">1</span></span>
-<span id="cb34-3"><a href="#cb34-3" tabindex="-1"></a>  <span class="cf">yield</span> <span class="dv">2</span></span>
-<span id="cb34-4"><a href="#cb34-4" tabindex="-1"></a>  <span class="cf">yield</span> <span class="dv">3</span></span>
-<span id="cb34-5"><a href="#cb34-5" tabindex="-1"></a></span>
-<span id="cb34-6"><a href="#cb34-6" tabindex="-1"></a><span class="co"># At first glance it presents like a regular function</span></span>
-<span id="cb34-7"><a href="#cb34-7" tabindex="-1"></a>my_generator_constructor</span>
-<span id="cb34-8"><a href="#cb34-8" tabindex="-1"></a><span class="co">#&gt; &lt;function my_generator_constructor at 0x7fb7619a39a0&gt;</span></span>
-<span id="cb34-9"><a href="#cb34-9" tabindex="-1"></a><span class="bu">type</span>(my_generator_constructor)</span>
-<span id="cb34-10"><a href="#cb34-10" tabindex="-1"></a><span class="co">#&gt; &lt;class 'function'&gt;</span></span>
-<span id="cb34-11"><a href="#cb34-11" tabindex="-1"></a></span>
-<span id="cb34-12"><a href="#cb34-12" tabindex="-1"></a><span class="co"># But calling it returns something special, a 'generator object'</span></span>
-<span id="cb34-13"><a href="#cb34-13" tabindex="-1"></a>my_generator <span class="op">=</span> my_generator_constructor()</span>
-<span id="cb34-14"><a href="#cb34-14" tabindex="-1"></a>my_generator</span>
-<span id="cb34-15"><a href="#cb34-15" tabindex="-1"></a><span class="co">#&gt; &lt;generator object my_generator_constructor at 0x7fb7620b3370&gt;</span></span>
-<span id="cb34-16"><a href="#cb34-16" tabindex="-1"></a><span class="bu">type</span>(my_generator)</span>
-<span id="cb34-17"><a href="#cb34-17" tabindex="-1"></a><span class="co">#&gt; &lt;class 'generator'&gt;</span></span>
-<span id="cb34-18"><a href="#cb34-18" tabindex="-1"></a></span>
-<span id="cb34-19"><a href="#cb34-19" tabindex="-1"></a><span class="co"># The generator object is both an iterable and an iterator</span></span>
-<span id="cb34-20"><a href="#cb34-20" tabindex="-1"></a><span class="co"># it's __iter__ method is just a stub that returns `self`</span></span>
-<span id="cb34-21"><a href="#cb34-21" tabindex="-1"></a><span class="bu">iter</span>(my_generator) <span class="op">==</span> my_generator <span class="op">==</span> my_generator.<span class="fu">__iter__</span>()</span>
-<span id="cb34-22"><a href="#cb34-22" tabindex="-1"></a><span class="co">#&gt; True</span></span>
-<span id="cb34-23"><a href="#cb34-23" tabindex="-1"></a></span>
-<span id="cb34-24"><a href="#cb34-24" tabindex="-1"></a><span class="co"># step through it like any other iterator</span></span>
-<span id="cb34-25"><a href="#cb34-25" tabindex="-1"></a><span class="bu">next</span>(my_generator)</span>
-<span id="cb34-26"><a href="#cb34-26" tabindex="-1"></a><span class="co">#&gt; 1</span></span>
-<span id="cb34-27"><a href="#cb34-27" tabindex="-1"></a>my_generator.<span class="fu">__next__</span>() <span class="co"># next() is just sugar for calling the dunder</span></span>
-<span id="cb34-28"><a href="#cb34-28" tabindex="-1"></a><span class="co">#&gt; 2</span></span>
-<span id="cb34-29"><a href="#cb34-29" tabindex="-1"></a><span class="bu">next</span>(my_generator)</span>
-<span id="cb34-30"><a href="#cb34-30" tabindex="-1"></a><span class="co">#&gt; 3</span></span>
-<span id="cb34-31"><a href="#cb34-31" tabindex="-1"></a><span class="bu">next</span>(my_generator)</span>
-<span id="cb34-32"><a href="#cb34-32" tabindex="-1"></a><span class="co">#&gt; StopIteration</span></span></code></pre></div>
+<div class="sourceCode" id="cb95"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb95-1"><a href="#cb95-1" tabindex="-1"></a><span class="kw">def</span> my_generator_constructor():</span>
+<span id="cb95-2"><a href="#cb95-2" tabindex="-1"></a>  <span class="cf">yield</span> <span class="dv">1</span></span>
+<span id="cb95-3"><a href="#cb95-3" tabindex="-1"></a>  <span class="cf">yield</span> <span class="dv">2</span></span>
+<span id="cb95-4"><a href="#cb95-4" tabindex="-1"></a>  <span class="cf">yield</span> <span class="dv">3</span></span>
+<span id="cb95-5"><a href="#cb95-5" tabindex="-1"></a></span>
+<span id="cb95-6"><a href="#cb95-6" tabindex="-1"></a><span class="co"># At first glance it presents like a regular function</span></span>
+<span id="cb95-7"><a href="#cb95-7" tabindex="-1"></a>my_generator_constructor</span>
+<span id="cb95-8"><a href="#cb95-8" tabindex="-1"></a><span class="co">#&gt; &lt;function my_generator_constructor at 0x7efd3a4b7c70&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb96"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb96-1"><a href="#cb96-1" tabindex="-1"></a><span class="bu">type</span>(my_generator_constructor)</span>
+<span id="cb96-2"><a href="#cb96-2" tabindex="-1"></a><span class="co">#&gt; &lt;class 'function'&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb97"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb97-1"><a href="#cb97-1" tabindex="-1"></a></span>
+<span id="cb97-2"><a href="#cb97-2" tabindex="-1"></a><span class="co"># But calling it returns something special, a 'generator object'</span></span>
+<span id="cb97-3"><a href="#cb97-3" tabindex="-1"></a>my_generator <span class="op">=</span> my_generator_constructor()</span>
+<span id="cb97-4"><a href="#cb97-4" tabindex="-1"></a>my_generator</span>
+<span id="cb97-5"><a href="#cb97-5" tabindex="-1"></a><span class="co">#&gt; &lt;generator object my_generator_constructor at 0x7efd3abb3370&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb98"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb98-1"><a href="#cb98-1" tabindex="-1"></a><span class="bu">type</span>(my_generator)</span>
+<span id="cb98-2"><a href="#cb98-2" tabindex="-1"></a><span class="co">#&gt; &lt;class 'generator'&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb99"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb99-1"><a href="#cb99-1" tabindex="-1"></a></span>
+<span id="cb99-2"><a href="#cb99-2" tabindex="-1"></a><span class="co"># The generator object is both an iterable and an iterator</span></span>
+<span id="cb99-3"><a href="#cb99-3" tabindex="-1"></a><span class="co"># it's __iter__ method is just a stub that returns `self`</span></span>
+<span id="cb99-4"><a href="#cb99-4" tabindex="-1"></a><span class="bu">iter</span>(my_generator) <span class="op">==</span> my_generator <span class="op">==</span> my_generator.<span class="fu">__iter__</span>()</span>
+<span id="cb99-5"><a href="#cb99-5" tabindex="-1"></a><span class="co">#&gt; True</span></span></code></pre></div>
+<div class="sourceCode" id="cb100"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb100-1"><a href="#cb100-1" tabindex="-1"></a></span>
+<span id="cb100-2"><a href="#cb100-2" tabindex="-1"></a><span class="co"># step through it like any other iterator</span></span>
+<span id="cb100-3"><a href="#cb100-3" tabindex="-1"></a><span class="bu">next</span>(my_generator)</span>
+<span id="cb100-4"><a href="#cb100-4" tabindex="-1"></a><span class="co">#&gt; 1</span></span></code></pre></div>
+<div class="sourceCode" id="cb101"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb101-1"><a href="#cb101-1" tabindex="-1"></a>my_generator.<span class="fu">__next__</span>() <span class="co"># next() is just sugar for calling the dunder</span></span>
+<span id="cb101-2"><a href="#cb101-2" tabindex="-1"></a><span class="co">#&gt; 2</span></span></code></pre></div>
+<div class="sourceCode" id="cb102"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb102-1"><a href="#cb102-1" tabindex="-1"></a><span class="bu">next</span>(my_generator)</span>
+<span id="cb102-2"><a href="#cb102-2" tabindex="-1"></a><span class="co">#&gt; 3</span></span></code></pre></div>
+<div class="sourceCode" id="cb103"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb103-1"><a href="#cb103-1" tabindex="-1"></a><span class="bu">next</span>(my_generator)</span>
+<span id="cb103-2"><a href="#cb103-2" tabindex="-1"></a><span class="co">#&gt; StopIteration</span></span></code></pre></div>
 <p>Encountering <code>yield</code> is like hitting the pause button on a
 functions execution, it preserves the state of everything in the
 function body and returns control to whatever is iterating over the
@@ -836,14 +840,14 @@ R packages, and R users can access objects from R packages via
 <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library()</a></code> or <code>::</code>. In Python, authors bundle
 code into <em>modules</em>, and users access modules using
 <code>import</code>. Consider the line:</p>
-<div class="sourceCode" id="cb35"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" tabindex="-1"></a><span class="im">import</span> numpy</span></code></pre></div>
+<div class="sourceCode" id="cb104"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb104-1"><a href="#cb104-1" tabindex="-1"></a><span class="im">import</span> numpy</span></code></pre></div>
 <p>This statement has Python go out to the file system, find an
 installed Python module named ‘numpy’, load it (commonly meaning:
 evaluate its <code>__init__.py</code> file and construct a
 <code>module</code> type), and bind it to the symbol
 <code>numpy</code>.</p>
 <p>The closest equivalent to this in R might be:</p>
-<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb105"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dplyr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">loadNamespace</a></span><span class="op">(</span><span class="st">"dplyr"</span><span class="op">)</span></span></code></pre></div>
 <div class="section level4">
 <h4 id="where-are-modules-found">Where are modules found?<a class="anchor" aria-label="anchor" href="#where-are-modules-found"></a>
@@ -858,43 +862,43 @@ modules, values from environment variables like <code>PYTHONPATH</code>,
 and any modifications made directly to <code>sys.path</code> by other
 code in the current Python session (though this is relatively uncommon
 in practice).</p>
-<div class="sourceCode" id="cb37"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" tabindex="-1"></a><span class="im">import</span> sys</span>
-<span id="cb37-2"><a href="#cb37-2" tabindex="-1"></a>sys.path</span>
-<span id="cb37-3"><a href="#cb37-3" tabindex="-1"></a><span class="co">#&gt; ['', '/opt/hostedtoolcache/Python/3.10.14/x64/bin', '/home/runner/work/_temp/Library/reticulate/config', '/opt/hostedtoolcache/Python/3.10.14/x64/lib/python310.zip', '/opt/hostedtoolcache/Python/3.10.14/x64/lib/python3.10', '/opt/hostedtoolcache/Python/3.10.14/x64/lib/python3.10/lib-dynload', '/home/runner/.virtualenvs/r-reticulate/lib/python3.10/site-packages', '/home/runner/work/_temp/Library/reticulate/python', '/home/runner/.virtualenvs/r-reticulate/lib/python310.zip', '/home/runner/.virtualenvs/r-reticulate/lib/python3.10', '/home/runner/.virtualenvs/r-reticulate/lib/python3.10/lib-dynload']</span></span></code></pre></div>
+<div class="sourceCode" id="cb106"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb106-1"><a href="#cb106-1" tabindex="-1"></a><span class="im">import</span> sys</span>
+<span id="cb106-2"><a href="#cb106-2" tabindex="-1"></a>sys.path</span>
+<span id="cb106-3"><a href="#cb106-3" tabindex="-1"></a><span class="co">#&gt; ['', '/opt/hostedtoolcache/Python/3.10.14/x64/bin', '/home/runner/work/_temp/Library/reticulate/config', '/opt/hostedtoolcache/Python/3.10.14/x64/lib/python310.zip', '/opt/hostedtoolcache/Python/3.10.14/x64/lib/python3.10', '/opt/hostedtoolcache/Python/3.10.14/x64/lib/python3.10/lib-dynload', '/home/runner/.virtualenvs/r-reticulate/lib/python3.10/site-packages', '/home/runner/work/_temp/Library/reticulate/python', '/home/runner/.virtualenvs/r-reticulate/lib/python310.zip', '/home/runner/.virtualenvs/r-reticulate/lib/python3.10', '/home/runner/.virtualenvs/r-reticulate/lib/python3.10/lib-dynload']</span></span></code></pre></div>
 <p>You can inspect where a module was loaded from by accessing the
 dunder <code>__path__</code> or <code>__file__</code> (especially useful
 when troubleshooting installation issues):</p>
-<div class="sourceCode" id="cb38"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" tabindex="-1"></a><span class="im">import</span> os</span>
-<span id="cb38-2"><a href="#cb38-2" tabindex="-1"></a>os.<span class="va">__file__</span></span>
-<span id="cb38-3"><a href="#cb38-3" tabindex="-1"></a><span class="co">#&gt; '/opt/hostedtoolcache/Python/3.10.14/x64/lib/python3.10/os.py'</span></span>
-<span id="cb38-4"><a href="#cb38-4" tabindex="-1"></a>numpy.__path__</span>
-<span id="cb38-5"><a href="#cb38-5" tabindex="-1"></a><span class="co">#&gt; ['/home/runner/.virtualenvs/r-reticulate/lib/python3.10/site-packages/numpy']</span></span></code></pre></div>
+<div class="sourceCode" id="cb107"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb107-1"><a href="#cb107-1" tabindex="-1"></a><span class="im">import</span> os</span>
+<span id="cb107-2"><a href="#cb107-2" tabindex="-1"></a>os.<span class="va">__file__</span></span>
+<span id="cb107-3"><a href="#cb107-3" tabindex="-1"></a><span class="co">#&gt; '/opt/hostedtoolcache/Python/3.10.14/x64/lib/python3.10/os.py'</span></span></code></pre></div>
+<div class="sourceCode" id="cb108"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb108-1"><a href="#cb108-1" tabindex="-1"></a>numpy.__path__</span>
+<span id="cb108-2"><a href="#cb108-2" tabindex="-1"></a><span class="co">#&gt; ['/home/runner/.virtualenvs/r-reticulate/lib/python3.10/site-packages/numpy']</span></span></code></pre></div>
 <p>Once a module is loaded, you can access symbols from the module using
 <code>.</code> (equivalent to <code>::</code>, or maybe
 <code>$.environment</code>, in R).</p>
-<div class="sourceCode" id="cb39"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" tabindex="-1"></a>numpy.<span class="bu">abs</span>(<span class="op">-</span><span class="dv">1</span>)</span>
-<span id="cb39-2"><a href="#cb39-2" tabindex="-1"></a><span class="co">#&gt; 1</span></span></code></pre></div>
+<div class="sourceCode" id="cb109"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb109-1"><a href="#cb109-1" tabindex="-1"></a>numpy.<span class="bu">abs</span>(<span class="op">-</span><span class="dv">1</span>)</span>
+<span id="cb109-2"><a href="#cb109-2" tabindex="-1"></a><span class="co">#&gt; 1</span></span></code></pre></div>
 <p>There is also special syntax for specifying the symbol a module is
 bound to upon import, and for importing only some specific symbols.</p>
-<div class="sourceCode" id="cb40"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" tabindex="-1"></a><span class="im">import</span> numpy        <span class="co"># import</span></span>
-<span id="cb40-2"><a href="#cb40-2" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np  <span class="co"># import and bind to a custom symbol `np`</span></span>
-<span id="cb40-3"><a href="#cb40-3" tabindex="-1"></a>np <span class="kw">is</span> numpy         <span class="co"># test for identicalness, similar to identical(np, numpy)</span></span>
-<span id="cb40-4"><a href="#cb40-4" tabindex="-1"></a><span class="co">#&gt; True</span></span>
-<span id="cb40-5"><a href="#cb40-5" tabindex="-1"></a></span>
-<span id="cb40-6"><a href="#cb40-6" tabindex="-1"></a><span class="im">from</span> numpy <span class="im">import</span> <span class="bu">abs</span> <span class="co"># import only `numpy.abs`, bind it to `abs`</span></span>
-<span id="cb40-7"><a href="#cb40-7" tabindex="-1"></a><span class="bu">abs</span> <span class="kw">is</span> numpy.<span class="bu">abs</span></span>
-<span id="cb40-8"><a href="#cb40-8" tabindex="-1"></a><span class="co">#&gt; True</span></span>
-<span id="cb40-9"><a href="#cb40-9" tabindex="-1"></a></span>
-<span id="cb40-10"><a href="#cb40-10" tabindex="-1"></a><span class="im">from</span> numpy <span class="im">import</span> <span class="bu">abs</span> <span class="im">as</span> abs2 <span class="co"># import only `numpy.abs`, bind it to `abs2`</span></span>
-<span id="cb40-11"><a href="#cb40-11" tabindex="-1"></a>abs2 <span class="kw">is</span> numpy.<span class="bu">abs</span></span>
-<span id="cb40-12"><a href="#cb40-12" tabindex="-1"></a><span class="co">#&gt; True</span></span></code></pre></div>
+<div class="sourceCode" id="cb110"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb110-1"><a href="#cb110-1" tabindex="-1"></a><span class="im">import</span> numpy        <span class="co"># import</span></span>
+<span id="cb110-2"><a href="#cb110-2" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np  <span class="co"># import and bind to a custom symbol `np`</span></span>
+<span id="cb110-3"><a href="#cb110-3" tabindex="-1"></a>np <span class="kw">is</span> numpy         <span class="co"># test for identicalness, similar to identical(np, numpy)</span></span>
+<span id="cb110-4"><a href="#cb110-4" tabindex="-1"></a><span class="co">#&gt; True</span></span></code></pre></div>
+<div class="sourceCode" id="cb111"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb111-1"><a href="#cb111-1" tabindex="-1"></a></span>
+<span id="cb111-2"><a href="#cb111-2" tabindex="-1"></a><span class="im">from</span> numpy <span class="im">import</span> <span class="bu">abs</span> <span class="co"># import only `numpy.abs`, bind it to `abs`</span></span>
+<span id="cb111-3"><a href="#cb111-3" tabindex="-1"></a><span class="bu">abs</span> <span class="kw">is</span> numpy.<span class="bu">abs</span></span>
+<span id="cb111-4"><a href="#cb111-4" tabindex="-1"></a><span class="co">#&gt; True</span></span></code></pre></div>
+<div class="sourceCode" id="cb112"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb112-1"><a href="#cb112-1" tabindex="-1"></a></span>
+<span id="cb112-2"><a href="#cb112-2" tabindex="-1"></a><span class="im">from</span> numpy <span class="im">import</span> <span class="bu">abs</span> <span class="im">as</span> abs2 <span class="co"># import only `numpy.abs`, bind it to `abs2`</span></span>
+<span id="cb112-3"><a href="#cb112-3" tabindex="-1"></a>abs2 <span class="kw">is</span> numpy.<span class="bu">abs</span></span>
+<span id="cb112-4"><a href="#cb112-4" tabindex="-1"></a><span class="co">#&gt; True</span></span></code></pre></div>
 <p>If you’re looking for the Python equivalent of R’s
 <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library()</a></code>, which makes all of a package’s exported symbols
 available, it might be using <code>import</code> with a <code>*</code>
 wildcard, though it’s relatively uncommon to do so. The <code>*</code>
 wildcard will expand to include all the symbols in module, or all the
 symbols listed in <code>__all__</code>, if it is defined.</p>
-<div class="sourceCode" id="cb41"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" tabindex="-1"></a><span class="im">from</span> numpy <span class="im">import</span> <span class="op">*</span></span></code></pre></div>
+<div class="sourceCode" id="cb113"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb113-1"><a href="#cb113-1" tabindex="-1"></a><span class="im">from</span> numpy <span class="im">import</span> <span class="op">*</span></span></code></pre></div>
 <p>Python doesn’t make a distinction like R does between package
 exported and internal symbols. In Python, all module symbols are equal,
 though there is the naming convention that intended-to-be-internal
@@ -924,18 +928,20 @@ produce an integer literal in R by appending an <code>L</code>, as in
 when provided a float.</p>
 <p>For example, say we have a Python function that expects an
 integer:</p>
-<div class="sourceCode" id="cb42"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" tabindex="-1"></a><span class="kw">def</span> a_strict_Python_function(x):</span>
-<span id="cb42-2"><a href="#cb42-2" tabindex="-1"></a>  <span class="cf">assert</span> <span class="bu">isinstance</span>(x, <span class="bu">int</span>), <span class="st">"x is not an int"</span></span>
-<span id="cb42-3"><a href="#cb42-3" tabindex="-1"></a>  <span class="bu">print</span>(<span class="st">"Yay! x was an int"</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb114"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb114-1"><a href="#cb114-1" tabindex="-1"></a><span class="kw">def</span> a_strict_Python_function(x):</span>
+<span id="cb114-2"><a href="#cb114-2" tabindex="-1"></a>  <span class="cf">assert</span> <span class="bu">isinstance</span>(x, <span class="bu">int</span>), <span class="st">"x is not an int"</span></span>
+<span id="cb114-3"><a href="#cb114-3" tabindex="-1"></a>  <span class="bu">print</span>(<span class="st">"Yay! x was an int"</span>)</span></code></pre></div>
 <p>When calling it from R, you must be sure to call it with an
 integer:</p>
-<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb115"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span></span>
 <span><span class="va">py</span><span class="op">$</span><span class="fu">a_strict_Python_function</span><span class="op">(</span><span class="fl">3</span><span class="op">)</span>             <span class="co"># error</span></span>
-<span><span class="co">#&gt; x is not an int</span></span>
-<span><span class="va">py</span><span class="op">$</span><span class="fu">a_strict_Python_function</span><span class="op">(</span><span class="fl">3L</span><span class="op">)</span>            <span class="co"># success</span></span>
-<span><span class="co">#&gt; Yay! x was an int</span></span>
-<span><span class="va">py</span><span class="op">$</span><span class="fu">a_strict_Python_function</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span><span class="op">)</span> <span class="co"># success</span></span>
+<span><span class="co">#&gt; x is not an int</span></span></code></pre></div>
+<div class="sourceCode" id="cb116"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">py</span><span class="op">$</span><span class="fu">a_strict_Python_function</span><span class="op">(</span><span class="fl">3L</span><span class="op">)</span>            <span class="co"># success</span></span>
+<span><span class="co">#&gt; Yay! x was an int</span></span></code></pre></div>
+<div class="sourceCode" id="cb117"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">py</span><span class="op">$</span><span class="fu">a_strict_Python_function</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span><span class="op">)</span> <span class="co"># success</span></span>
 <span><span class="co">#&gt; Yay! x was an int</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -962,22 +968,22 @@ dimensions can be omitted and are implicitly treated as missing. The
 consequence is that iterating over arrays means iterating over the first
 dimension. For example, this iterates over the rows of a matrix.</li>
 </ul>
-<div class="sourceCode" id="cb44"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb44-2"><a href="#cb44-2" tabindex="-1"></a>m <span class="op">=</span> np.arange(<span class="dv">12</span>).reshape((<span class="dv">3</span>,<span class="dv">4</span>))</span>
-<span id="cb44-3"><a href="#cb44-3" tabindex="-1"></a>m</span>
-<span id="cb44-4"><a href="#cb44-4" tabindex="-1"></a><span class="co">#&gt; array([[ 0,  1,  2,  3],</span></span>
-<span id="cb44-5"><a href="#cb44-5" tabindex="-1"></a><span class="co">#&gt;        [ 4,  5,  6,  7],</span></span>
-<span id="cb44-6"><a href="#cb44-6" tabindex="-1"></a><span class="co">#&gt;        [ 8,  9, 10, 11]])</span></span>
-<span id="cb44-7"><a href="#cb44-7" tabindex="-1"></a>m[<span class="dv">0</span>, :] <span class="co"># first row</span></span>
-<span id="cb44-8"><a href="#cb44-8" tabindex="-1"></a><span class="co">#&gt; array([0, 1, 2, 3])</span></span>
-<span id="cb44-9"><a href="#cb44-9" tabindex="-1"></a>m[<span class="dv">0</span>]    <span class="co"># also first row</span></span>
-<span id="cb44-10"><a href="#cb44-10" tabindex="-1"></a><span class="co">#&gt; array([0, 1, 2, 3])</span></span>
-<span id="cb44-11"><a href="#cb44-11" tabindex="-1"></a></span>
-<span id="cb44-12"><a href="#cb44-12" tabindex="-1"></a><span class="cf">for</span> row <span class="kw">in</span> m:</span>
-<span id="cb44-13"><a href="#cb44-13" tabindex="-1"></a>  <span class="bu">print</span>(row)</span>
-<span id="cb44-14"><a href="#cb44-14" tabindex="-1"></a><span class="co">#&gt; [0 1 2 3]</span></span>
-<span id="cb44-15"><a href="#cb44-15" tabindex="-1"></a><span class="co">#&gt; [4 5 6 7]</span></span>
-<span id="cb44-16"><a href="#cb44-16" tabindex="-1"></a><span class="co">#&gt; [ 8  9 10 11]</span></span></code></pre></div>
+<div class="sourceCode" id="cb118"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb118-1"><a href="#cb118-1" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb118-2"><a href="#cb118-2" tabindex="-1"></a>m <span class="op">=</span> np.arange(<span class="dv">12</span>).reshape((<span class="dv">3</span>,<span class="dv">4</span>))</span>
+<span id="cb118-3"><a href="#cb118-3" tabindex="-1"></a>m</span>
+<span id="cb118-4"><a href="#cb118-4" tabindex="-1"></a><span class="co">#&gt; array([[ 0,  1,  2,  3],</span></span>
+<span id="cb118-5"><a href="#cb118-5" tabindex="-1"></a><span class="co">#&gt;        [ 4,  5,  6,  7],</span></span>
+<span id="cb118-6"><a href="#cb118-6" tabindex="-1"></a><span class="co">#&gt;        [ 8,  9, 10, 11]])</span></span></code></pre></div>
+<div class="sourceCode" id="cb119"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb119-1"><a href="#cb119-1" tabindex="-1"></a>m[<span class="dv">0</span>, :] <span class="co"># first row</span></span>
+<span id="cb119-2"><a href="#cb119-2" tabindex="-1"></a><span class="co">#&gt; array([0, 1, 2, 3])</span></span></code></pre></div>
+<div class="sourceCode" id="cb120"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb120-1"><a href="#cb120-1" tabindex="-1"></a>m[<span class="dv">0</span>]    <span class="co"># also first row</span></span>
+<span id="cb120-2"><a href="#cb120-2" tabindex="-1"></a><span class="co">#&gt; array([0, 1, 2, 3])</span></span></code></pre></div>
+<div class="sourceCode" id="cb121"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb121-1"><a href="#cb121-1" tabindex="-1"></a></span>
+<span id="cb121-2"><a href="#cb121-2" tabindex="-1"></a><span class="cf">for</span> row <span class="kw">in</span> m:</span>
+<span id="cb121-3"><a href="#cb121-3" tabindex="-1"></a>  <span class="bu">print</span>(row)</span>
+<span id="cb121-4"><a href="#cb121-4" tabindex="-1"></a><span class="co">#&gt; [0 1 2 3]</span></span>
+<span id="cb121-5"><a href="#cb121-5" tabindex="-1"></a><span class="co">#&gt; [4 5 6 7]</span></span>
+<span id="cb121-6"><a href="#cb121-6" tabindex="-1"></a><span class="co">#&gt; [ 8  9 10 11]</span></span></code></pre></div>
 <ul>
 <li>Many numpy operations modify the array in place! This is surprising
 to R users, who are used to the convenience and safety of R’s
@@ -996,16 +1002,16 @@ and conduct small experiments at the
 and then typically returns another function. Any function can be invoked
 as a decorator with the <code>@</code> syntax, which is just sugar for
 this simple action:</p>
-<div class="sourceCode" id="cb45"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb45-1"><a href="#cb45-1" tabindex="-1"></a><span class="kw">def</span> my_decorator(func):</span>
-<span id="cb45-2"><a href="#cb45-2" tabindex="-1"></a>  func.x <span class="op">=</span> <span class="st">"a decorator modified this function by adding an attribute `x`"</span></span>
-<span id="cb45-3"><a href="#cb45-3" tabindex="-1"></a>  <span class="cf">return</span> func</span>
-<span id="cb45-4"><a href="#cb45-4" tabindex="-1"></a></span>
-<span id="cb45-5"><a href="#cb45-5" tabindex="-1"></a><span class="kw">def</span> my_function(): <span class="cf">pass</span></span>
-<span id="cb45-6"><a href="#cb45-6" tabindex="-1"></a>my_function <span class="op">=</span> my_decorator(my_function)</span>
-<span id="cb45-7"><a href="#cb45-7" tabindex="-1"></a></span>
-<span id="cb45-8"><a href="#cb45-8" tabindex="-1"></a><span class="co"># @ is just fancy syntax for the above two lines</span></span>
-<span id="cb45-9"><a href="#cb45-9" tabindex="-1"></a><span class="at">@my_decorator</span></span>
-<span id="cb45-10"><a href="#cb45-10" tabindex="-1"></a><span class="kw">def</span> my_function(): <span class="cf">pass</span></span></code></pre></div>
+<div class="sourceCode" id="cb122"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb122-1"><a href="#cb122-1" tabindex="-1"></a><span class="kw">def</span> my_decorator(func):</span>
+<span id="cb122-2"><a href="#cb122-2" tabindex="-1"></a>  func.x <span class="op">=</span> <span class="st">"a decorator modified this function by adding an attribute `x`"</span></span>
+<span id="cb122-3"><a href="#cb122-3" tabindex="-1"></a>  <span class="cf">return</span> func</span>
+<span id="cb122-4"><a href="#cb122-4" tabindex="-1"></a></span>
+<span id="cb122-5"><a href="#cb122-5" tabindex="-1"></a><span class="kw">def</span> my_function(): <span class="cf">pass</span></span>
+<span id="cb122-6"><a href="#cb122-6" tabindex="-1"></a>my_function <span class="op">=</span> my_decorator(my_function)</span>
+<span id="cb122-7"><a href="#cb122-7" tabindex="-1"></a></span>
+<span id="cb122-8"><a href="#cb122-8" tabindex="-1"></a><span class="co"># @ is just fancy syntax for the above two lines</span></span>
+<span id="cb122-9"><a href="#cb122-9" tabindex="-1"></a><span class="at">@my_decorator</span></span>
+<span id="cb122-10"><a href="#cb122-10" tabindex="-1"></a><span class="kw">def</span> my_function(): <span class="cf">pass</span></span></code></pre></div>
 <p>One decorator you might encounter frequently is:</p>
 <ul>
 <li>
@@ -1023,28 +1029,28 @@ when the attribute is accessed (similar to
 be passed to <code>with</code>. For example, here is a custom
 implementation of a context manager that temporarily changes the current
 working directory (equivalent to R’s <code><a href="https://withr.r-lib.org/reference/with_dir.html" class="external-link">withr::with_dir()</a></code>)</p>
-<div class="sourceCode" id="cb46"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb46-1"><a href="#cb46-1" tabindex="-1"></a><span class="im">from</span> os <span class="im">import</span> getcwd, chdir</span>
-<span id="cb46-2"><a href="#cb46-2" tabindex="-1"></a></span>
-<span id="cb46-3"><a href="#cb46-3" tabindex="-1"></a><span class="kw">class</span> wd_context:</span>
-<span id="cb46-4"><a href="#cb46-4" tabindex="-1"></a>  <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, wd):</span>
-<span id="cb46-5"><a href="#cb46-5" tabindex="-1"></a>    <span class="va">self</span>.new_wd <span class="op">=</span> wd</span>
-<span id="cb46-6"><a href="#cb46-6" tabindex="-1"></a></span>
-<span id="cb46-7"><a href="#cb46-7" tabindex="-1"></a>  <span class="kw">def</span> <span class="fu">__enter__</span>(<span class="va">self</span>):</span>
-<span id="cb46-8"><a href="#cb46-8" tabindex="-1"></a>    <span class="va">self</span>.original_wd <span class="op">=</span> getcwd()</span>
-<span id="cb46-9"><a href="#cb46-9" tabindex="-1"></a>    chdir(<span class="va">self</span>.new_wd)</span>
-<span id="cb46-10"><a href="#cb46-10" tabindex="-1"></a></span>
-<span id="cb46-11"><a href="#cb46-11" tabindex="-1"></a>  <span class="kw">def</span> <span class="fu">__exit__</span>(<span class="va">self</span>, <span class="op">*</span>args):</span>
-<span id="cb46-12"><a href="#cb46-12" tabindex="-1"></a>    <span class="co"># __exit__ takes some additional argument that are commonly ignored</span></span>
-<span id="cb46-13"><a href="#cb46-13" tabindex="-1"></a>    chdir(<span class="va">self</span>.original_wd)</span>
-<span id="cb46-14"><a href="#cb46-14" tabindex="-1"></a></span>
-<span id="cb46-15"><a href="#cb46-15" tabindex="-1"></a></span>
-<span id="cb46-16"><a href="#cb46-16" tabindex="-1"></a>getcwd()</span>
-<span id="cb46-17"><a href="#cb46-17" tabindex="-1"></a><span class="co">#&gt; '/home/runner/work/reticulate/reticulate/vignettes'</span></span>
-<span id="cb46-18"><a href="#cb46-18" tabindex="-1"></a><span class="cf">with</span> wd_context(<span class="st">".."</span>):</span>
-<span id="cb46-19"><a href="#cb46-19" tabindex="-1"></a>  <span class="bu">print</span>(<span class="st">"in the context, wd is:"</span>, getcwd())</span>
-<span id="cb46-20"><a href="#cb46-20" tabindex="-1"></a><span class="co">#&gt; in the context, wd is: /home/runner/work/reticulate/reticulate</span></span>
-<span id="cb46-21"><a href="#cb46-21" tabindex="-1"></a>getcwd()</span>
-<span id="cb46-22"><a href="#cb46-22" tabindex="-1"></a><span class="co">#&gt; '/home/runner/work/reticulate/reticulate/vignettes'</span></span></code></pre></div>
+<div class="sourceCode" id="cb123"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb123-1"><a href="#cb123-1" tabindex="-1"></a><span class="im">from</span> os <span class="im">import</span> getcwd, chdir</span>
+<span id="cb123-2"><a href="#cb123-2" tabindex="-1"></a></span>
+<span id="cb123-3"><a href="#cb123-3" tabindex="-1"></a><span class="kw">class</span> wd_context:</span>
+<span id="cb123-4"><a href="#cb123-4" tabindex="-1"></a>  <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, wd):</span>
+<span id="cb123-5"><a href="#cb123-5" tabindex="-1"></a>    <span class="va">self</span>.new_wd <span class="op">=</span> wd</span>
+<span id="cb123-6"><a href="#cb123-6" tabindex="-1"></a></span>
+<span id="cb123-7"><a href="#cb123-7" tabindex="-1"></a>  <span class="kw">def</span> <span class="fu">__enter__</span>(<span class="va">self</span>):</span>
+<span id="cb123-8"><a href="#cb123-8" tabindex="-1"></a>    <span class="va">self</span>.original_wd <span class="op">=</span> getcwd()</span>
+<span id="cb123-9"><a href="#cb123-9" tabindex="-1"></a>    chdir(<span class="va">self</span>.new_wd)</span>
+<span id="cb123-10"><a href="#cb123-10" tabindex="-1"></a></span>
+<span id="cb123-11"><a href="#cb123-11" tabindex="-1"></a>  <span class="kw">def</span> <span class="fu">__exit__</span>(<span class="va">self</span>, <span class="op">*</span>args):</span>
+<span id="cb123-12"><a href="#cb123-12" tabindex="-1"></a>    <span class="co"># __exit__ takes some additional argument that are commonly ignored</span></span>
+<span id="cb123-13"><a href="#cb123-13" tabindex="-1"></a>    chdir(<span class="va">self</span>.original_wd)</span>
+<span id="cb123-14"><a href="#cb123-14" tabindex="-1"></a></span>
+<span id="cb123-15"><a href="#cb123-15" tabindex="-1"></a></span>
+<span id="cb123-16"><a href="#cb123-16" tabindex="-1"></a>getcwd()</span>
+<span id="cb123-17"><a href="#cb123-17" tabindex="-1"></a><span class="co">#&gt; '/home/runner/work/reticulate/reticulate/vignettes'</span></span></code></pre></div>
+<div class="sourceCode" id="cb124"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb124-1"><a href="#cb124-1" tabindex="-1"></a><span class="cf">with</span> wd_context(<span class="st">".."</span>):</span>
+<span id="cb124-2"><a href="#cb124-2" tabindex="-1"></a>  <span class="bu">print</span>(<span class="st">"in the context, wd is:"</span>, getcwd())</span>
+<span id="cb124-3"><a href="#cb124-3" tabindex="-1"></a><span class="co">#&gt; in the context, wd is: /home/runner/work/reticulate/reticulate</span></span></code></pre></div>
+<div class="sourceCode" id="cb125"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb125-1"><a href="#cb125-1" tabindex="-1"></a>getcwd()</span>
+<span id="cb125-2"><a href="#cb125-2" tabindex="-1"></a><span class="co">#&gt; '/home/runner/work/reticulate/reticulate/vignettes'</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="learning-more">Learning More<a class="anchor" aria-label="anchor" href="#learning-more"></a>

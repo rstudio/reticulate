@@ -408,7 +408,7 @@ called with <code>next()</code> until it is exhausted.</p>
 <div class="sourceCode" id="cb50"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb50-1"><a href="#cb50-1" tabindex="-1"></a>l <span class="op">=</span> [<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>]</span>
 <span id="cb50-2"><a href="#cb50-2" tabindex="-1"></a>it <span class="op">=</span> <span class="bu">iter</span>(l) <span class="co"># create an iterator object</span></span>
 <span id="cb50-3"><a href="#cb50-3" tabindex="-1"></a>it</span>
-<span id="cb50-4"><a href="#cb50-4" tabindex="-1"></a><span class="co">#&gt; &lt;list_iterator object at 0x7fb5b16e0790&gt;</span></span></code></pre></div>
+<span id="cb50-4"><a href="#cb50-4" tabindex="-1"></a><span class="co">#&gt; &lt;list_iterator object at 0x7fe9ccab4790&gt;</span></span></code></pre></div>
 <div class="sourceCode" id="cb51"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb51-1"><a href="#cb51-1" tabindex="-1"></a></span>
 <span id="cb51-2"><a href="#cb51-2" tabindex="-1"></a><span class="co"># call `next` on the iterator until it is exhausted:</span></span>
 <span id="cb51-3"><a href="#cb51-3" tabindex="-1"></a><span class="bu">next</span>(it)</span>
@@ -583,7 +583,7 @@ for demonstration purposes.</p>
 <div class="sourceCode" id="cb78"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb78-1"><a href="#cb78-1" tabindex="-1"></a></span>
 <span id="cb78-2"><a href="#cb78-2" tabindex="-1"></a>instance <span class="op">=</span> MyClass()</span>
 <span id="cb78-3"><a href="#cb78-3" tabindex="-1"></a>instance</span>
-<span id="cb78-4"><a href="#cb78-4" tabindex="-1"></a><span class="co">#&gt; &lt;__main__.MyClass object at 0x7fb5b17002e0&gt;</span></span></code></pre></div>
+<span id="cb78-4"><a href="#cb78-4" tabindex="-1"></a><span class="co">#&gt; &lt;__main__.MyClass object at 0x7fe9ccad02e0&gt;</span></span></code></pre></div>
 <div class="sourceCode" id="cb79"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb79-1"><a href="#cb79-1" tabindex="-1"></a><span class="bu">type</span>(instance)</span>
 <span id="cb79-2"><a href="#cb79-2" tabindex="-1"></a><span class="co">#&gt; &lt;class '__main__.MyClass'&gt;</span></span></code></pre></div>
 <p>Like the <code>def</code> statement, the <code>class</code> statement
@@ -636,14 +636,14 @@ before <code>__init__</code>).</p>
 <span id="cb82-3"><a href="#cb82-3" tabindex="-1"></a><span class="co">#&gt; MyClass is finished being created</span></span></code></pre></div>
 <div class="sourceCode" id="cb83"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb83-1"><a href="#cb83-1" tabindex="-1"></a></span>
 <span id="cb83-2"><a href="#cb83-2" tabindex="-1"></a>instance <span class="op">=</span> MyClass()</span>
-<span id="cb83-3"><a href="#cb83-3" tabindex="-1"></a><span class="co">#&gt; &lt;__main__.MyClass object at 0x7fb5b17032b0&gt; is initializing</span></span></code></pre></div>
+<span id="cb83-3"><a href="#cb83-3" tabindex="-1"></a><span class="co">#&gt; &lt;__main__.MyClass object at 0x7fe9ccad32b0&gt; is initializing</span></span></code></pre></div>
 <div class="sourceCode" id="cb84"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb84-1"><a href="#cb84-1" tabindex="-1"></a><span class="bu">print</span>(instance)</span>
-<span id="cb84-2"><a href="#cb84-2" tabindex="-1"></a><span class="co">#&gt; &lt;__main__.MyClass object at 0x7fb5b17032b0&gt;</span></span></code></pre></div>
+<span id="cb84-2"><a href="#cb84-2" tabindex="-1"></a><span class="co">#&gt; &lt;__main__.MyClass object at 0x7fe9ccad32b0&gt;</span></span></code></pre></div>
 <div class="sourceCode" id="cb85"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb85-1"><a href="#cb85-1" tabindex="-1"></a></span>
 <span id="cb85-2"><a href="#cb85-2" tabindex="-1"></a>instance2 <span class="op">=</span> MyClass()</span>
-<span id="cb85-3"><a href="#cb85-3" tabindex="-1"></a><span class="co">#&gt; &lt;__main__.MyClass object at 0x7fb5b16e2770&gt; is initializing</span></span></code></pre></div>
+<span id="cb85-3"><a href="#cb85-3" tabindex="-1"></a><span class="co">#&gt; &lt;__main__.MyClass object at 0x7fe9ccab6770&gt; is initializing</span></span></code></pre></div>
 <div class="sourceCode" id="cb86"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb86-1"><a href="#cb86-1" tabindex="-1"></a><span class="bu">print</span>(instance2)</span>
-<span id="cb86-2"><a href="#cb86-2" tabindex="-1"></a><span class="co">#&gt; &lt;__main__.MyClass object at 0x7fb5b16e2770&gt;</span></span></code></pre></div>
+<span id="cb86-2"><a href="#cb86-2" tabindex="-1"></a><span class="co">#&gt; &lt;__main__.MyClass object at 0x7fe9ccab6770&gt;</span></span></code></pre></div>
 <p>A few things to note:</p>
 <ul>
 <li><p>the <code>class</code> statement takes a code block that is
@@ -679,12 +679,12 @@ if the function is decorated with something like
 <span id="cb87-4"><a href="#cb87-4" tabindex="-1"></a></span>
 <span id="cb87-5"><a href="#cb87-5" tabindex="-1"></a>instance <span class="op">=</span> MyClass()</span>
 <span id="cb87-6"><a href="#cb87-6" tabindex="-1"></a>instance.a_method()</span>
-<span id="cb87-7"><a href="#cb87-7" tabindex="-1"></a><span class="co">#&gt; MyClass.a_method() was called with &lt;__main__.MyClass object at 0x7fb5b17018a0&gt;</span></span></code></pre></div>
+<span id="cb87-7"><a href="#cb87-7" tabindex="-1"></a><span class="co">#&gt; MyClass.a_method() was called with &lt;__main__.MyClass object at 0x7fe9ccad18a0&gt;</span></span></code></pre></div>
 <div class="sourceCode" id="cb88"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb88-1"><a href="#cb88-1" tabindex="-1"></a></span>
 <span id="cb88-2"><a href="#cb88-2" tabindex="-1"></a>MyClass.a_method()     <span class="co"># error, missing required argument `self`</span></span>
 <span id="cb88-3"><a href="#cb88-3" tabindex="-1"></a><span class="co">#&gt; TypeError: MyClass.a_method() missing 1 required positional argument: 'self'</span></span></code></pre></div>
 <div class="sourceCode" id="cb89"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb89-1"><a href="#cb89-1" tabindex="-1"></a>MyClass.a_method(instance) <span class="co"># identical to instance.a_method()</span></span>
-<span id="cb89-2"><a href="#cb89-2" tabindex="-1"></a><span class="co">#&gt; MyClass.a_method() was called with &lt;__main__.MyClass object at 0x7fb5b17018a0&gt;</span></span></code></pre></div>
+<span id="cb89-2"><a href="#cb89-2" tabindex="-1"></a><span class="co">#&gt; MyClass.a_method() was called with &lt;__main__.MyClass object at 0x7fe9ccad18a0&gt;</span></span></code></pre></div>
 <p>Other dunder’s worth knowing about are:</p>
 <ul>
 <li><p><code>__getitem__</code>: the function invoked when subsetting an
@@ -784,14 +784,14 @@ a generator object, which is just another type of iterator.</p>
 <span id="cb95-5"><a href="#cb95-5" tabindex="-1"></a></span>
 <span id="cb95-6"><a href="#cb95-6" tabindex="-1"></a><span class="co"># At first glance it presents like a regular function</span></span>
 <span id="cb95-7"><a href="#cb95-7" tabindex="-1"></a>my_generator_constructor</span>
-<span id="cb95-8"><a href="#cb95-8" tabindex="-1"></a><span class="co">#&gt; &lt;function my_generator_constructor at 0x7fb5b16b7c70&gt;</span></span></code></pre></div>
+<span id="cb95-8"><a href="#cb95-8" tabindex="-1"></a><span class="co">#&gt; &lt;function my_generator_constructor at 0x7fe9cca8bc70&gt;</span></span></code></pre></div>
 <div class="sourceCode" id="cb96"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb96-1"><a href="#cb96-1" tabindex="-1"></a><span class="bu">type</span>(my_generator_constructor)</span>
 <span id="cb96-2"><a href="#cb96-2" tabindex="-1"></a><span class="co">#&gt; &lt;class 'function'&gt;</span></span></code></pre></div>
 <div class="sourceCode" id="cb97"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb97-1"><a href="#cb97-1" tabindex="-1"></a></span>
 <span id="cb97-2"><a href="#cb97-2" tabindex="-1"></a><span class="co"># But calling it returns something special, a 'generator object'</span></span>
 <span id="cb97-3"><a href="#cb97-3" tabindex="-1"></a>my_generator <span class="op">=</span> my_generator_constructor()</span>
 <span id="cb97-4"><a href="#cb97-4" tabindex="-1"></a>my_generator</span>
-<span id="cb97-5"><a href="#cb97-5" tabindex="-1"></a><span class="co">#&gt; &lt;generator object my_generator_constructor at 0x7fb5b1db3370&gt;</span></span></code></pre></div>
+<span id="cb97-5"><a href="#cb97-5" tabindex="-1"></a><span class="co">#&gt; &lt;generator object my_generator_constructor at 0x7fe9cd1b3370&gt;</span></span></code></pre></div>
 <div class="sourceCode" id="cb98"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb98-1"><a href="#cb98-1" tabindex="-1"></a><span class="bu">type</span>(my_generator)</span>
 <span id="cb98-2"><a href="#cb98-2" tabindex="-1"></a><span class="co">#&gt; &lt;class 'generator'&gt;</span></span></code></pre></div>
 <div class="sourceCode" id="cb99"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb99-1"><a href="#cb99-1" tabindex="-1"></a></span>

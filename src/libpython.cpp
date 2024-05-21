@@ -161,8 +161,7 @@ void initialize_type_objects(bool python3) {
   PyExc_RuntimeError = PyObject_GetAttrString(builtins, "RuntimeError"); // new ref
 
   if (PyErr_Occurred()) { error:
-     // Should never happen. If you see this please report a bug
-     printf("initialize_type_objects() raised a Python exception.\n");
+     // Should never happen. If you see this please report a bug.
      PyErr_Print();
   }
 }

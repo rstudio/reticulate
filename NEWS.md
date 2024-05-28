@@ -14,8 +14,8 @@
 - `virtualenv_starter()` no longer warns when encountering broken symlinks.
   (#1598)
 
-- Fixed issue where configuring reticulate `conda_*` functions 
-  to use the executable `mamba` instead of `conda` was ignored.
+- Fixed an issue where configuration for reticulate `conda_*` functions to use
+  the executable `mamba` instead of `conda` was ignored.
   (#1608, contributed by @AlexandreGuinaudeau)
 
 # reticulate 1.36.1

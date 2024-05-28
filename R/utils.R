@@ -246,16 +246,19 @@ defer <- function(expr, envir = parent.frame()) {
 
 #' @importFrom utils head
 disable_conversion_scope <- function(object) {
+  # Though this is not part of the exported API, but there are external packages
+  # that reach in with ::: to use this function. (e.g., {zellkonverter} on
+  # Bioconductor). Take care that symbols like `py_set_convert` and `object`
+  # don't need to be in the on.exit() expression search path.
 
-  if (!inherits(object, "python.builtin.object"))
+  if (!is_py_object(object) || !py_get_convert(object))
     return(FALSE)
 
-  envir <- as.environment(object)
-  if (exists("convert", envir = envir, inherits = FALSE)) {
-    convert <- get("convert", envir = envir)
-    assign("convert", FALSE, envir = envir)
-    defer(assign("convert", convert, envir = envir), envir = parent.frame())
-  }
+  envir <- parent.frame()
+  cl <- as.call(c(py_set_convert, object, TRUE))
+
+  py_set_convert(object, FALSE)
+  do.call(on.exit, list(cl, add = TRUE), envir = envir)
 
   TRUE
 }

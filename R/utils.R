@@ -246,7 +246,7 @@ defer <- function(expr, envir = parent.frame()) {
 
 #' @importFrom utils head
 disable_conversion_scope <- function(object) {
-  # Though this is not part of the exported API, but there are external packages
+  # Though this is not part of the exported API, there are external packages
   # that reach in with ::: to use this function. (e.g., {zellkonverter} on
   # Bioconductor). Take care that symbols like `py_set_convert` and `object`
   # don't need to be in the on.exit() expression search path.

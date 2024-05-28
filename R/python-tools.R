@@ -53,7 +53,7 @@ python_info <- function(path) {
   suffixes <- if (is_windows())
     "python.exe"
   else if (startsWith(basename(path), "python3"))
-    "python3" # don't resolve 'python' for 'python3' first.
+    "python3" # don't resolve 'python' for 'python3'
   else
     c("python", "python3")
 

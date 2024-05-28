@@ -17,6 +17,7 @@ README\.html
 ^issues$
 ^log$
 ^logs$
+^tools$
 ^pkgdown$
 ^revdep$
 ^tags$

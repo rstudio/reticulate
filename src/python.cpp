@@ -367,8 +367,8 @@ bool has_null_bytes(PyObject* str) {
 }
 
 // helpers to narrow python array type to something convertable from R,
-// guaranteed to return NPY_BOOL, NPY_LONG, NPY_DOUBLE, or NPY_CDOUBLE
-// (throws an exception if it's unable to return one of these types)
+// guaranteed to return NPY_BOOL, NPY_LONG, NPY_DOUBLE, NPY_CDOUBLE,
+// or -1 if it's unable to return one of these types.
 int narrow_array_typenum(int typenum) {
 
   switch(typenum) {
@@ -412,7 +412,7 @@ int narrow_array_typenum(int typenum) {
 
     // unsupported
   default:
-    stop("Conversion from numpy array type %d is not supported", typenum);
+    typenum = -1;
     break;
   }
 
@@ -1432,6 +1432,10 @@ SEXP py_to_r_cpp(PyObject* x, bool convert, bool simple) {
     // determine the target type of the array
     int og_typenum = PyArray_TYPE(array);
     int typenum = narrow_array_typenum(og_typenum);
+    if (typenum == -1) {
+      simple = false;
+      goto cant_convert;
+    }
 
     if(og_typenum == NPY_DATETIME) {
       PyObjectPtr dtype_str(as_python_str("datetime64[ns]"));
@@ -1581,6 +1585,10 @@ SEXP py_to_r_cpp(PyObject* x, bool convert, bool simple) {
     PyArray_DescrPtr descrPtr(PyArray_DescrFromScalar(x));
     int og_typenum = descrPtr.get()->type_num;
     int typenum = narrow_array_typenum(og_typenum);
+    if (typenum == -1) {
+      simple = false;
+      goto cant_convert;
+    }
 
     PyObjectPtr x_;
     if(og_typenum == NPY_DATETIME) {
@@ -1675,6 +1683,7 @@ SEXP py_to_r_cpp(PyObject* x, bool convert, bool simple) {
 
   } // end convert == true && simple == true
 
+  cant_convert:
   Py_IncRef(x);
   return PyObjectRef(x, convert, simple);
 

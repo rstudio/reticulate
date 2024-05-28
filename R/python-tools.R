@@ -50,7 +50,12 @@ python_info <- function(path) {
   # Some installations might not place Python within a 'Scripts' or 'bin'
   # sub-directory, so look in the root directory too.
   prefixes <- list(NULL, if (is_windows()) "Scripts" else "bin")
-  suffixes <- if (is_windows()) "python.exe" else c("python", "python3")
+  suffixes <- if (is_windows())
+    "python.exe"
+  else if (startsWith(basename(path), "python3"))
+    "python3" # don't resolve 'python' for 'python3' first.
+  else
+    c("python", "python3")
 
   # placeholder for a discovered system python
   systemPython <- NULL

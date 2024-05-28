@@ -1,5 +1,8 @@
 # reticulate (development version)
 
+- Fixed an issue where attempting to convert a non-simple NumPy array
+  to R would signal an error. (#1613, fixed in #1614).
+
 # reticulate 1.37.0
 
 - Interrupting Python no longer leads to segfaults.

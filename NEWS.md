@@ -1,5 +1,8 @@
 # reticulate (development version)
 
+- Fixed an issue where attempting to convert a non-simple NumPy array
+  to R would signal an error. (#1613, fixed in #1614).
+
 # reticulate 1.37.0
 
 - Interrupting Python no longer leads to segfaults.
@@ -14,8 +17,8 @@
 - `virtualenv_starter()` no longer warns when encountering broken symlinks.
   (#1598)
 
-- Fixed issue where configuring reticulate `conda_*` functions 
-  to use the executable `mamba` instead of `conda` was ignored.
+- Fixed an issue where configuration for reticulate `conda_*` functions to use
+  the executable `mamba` instead of `conda` was ignored.
   (#1608, contributed by @AlexandreGuinaudeau)
 
 # reticulate 1.36.1

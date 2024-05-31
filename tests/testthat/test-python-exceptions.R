@@ -139,3 +139,27 @@ def catch_clear_errstatus_then_raise_new_exception(fn):
 
 })
 
+
+test_that("confirm rlang/purrr can catch the exception", {
+  skip_if_no_python()
+
+  cnd <- tryCatch(
+    py_run_string("raise ZeroDivisionError"),
+    error = identity
+  )
+
+  # we already Suggests on rlang
+  expect_equal(rlang::cnd_type(cnd), "error")
+
+  # don't want to Suggests on purrr
+  requireNamespace_ <- requireNamespace
+  if (requireNamespace_("purrr", quietly = TRUE)) {
+    expect_error({
+      map <- yoink("purrr", "map")
+      map(1:3, function(i)
+        if (i == 2)
+          reticulate::py_run_string("raise Exception('fooobaar')"))
+    }, regexp = "In index: 2.*fooobaar")
+  }
+
+})

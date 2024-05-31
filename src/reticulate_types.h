@@ -11,11 +11,12 @@ using namespace reticulate::libpython;
 
 inline void python_object_finalize(SEXP object);
 SEXP py_callable_as_function(SEXP refenv, bool convert);
-SEXP py_class_names(PyObject*);
+SEXP py_class_names(PyObject*, bool exception);
 SEXP py_to_r_wrapper(SEXP ref);
 bool is_py_object(SEXP x);
 bool try_py_resolve_module_proxy(SEXP);
 SEXP new_refenv();
+SEXP py_exception_as_condition(PyObject*, SEXP refenv);
 
 extern SEXP sym_py_object;
 extern SEXP sym_convert;
@@ -41,19 +42,25 @@ public:
     SEXP xptr = PROTECT(R_MakeExternalPtr((void*) object, R_NilValue, R_NilValue));
     R_RegisterCFinalizer(xptr, python_object_finalize);
 
+
     SEXP refenv = PROTECT(new_refenv());
     Rf_defineVar(sym_pyobj, xptr, refenv);
     Rf_defineVar(sym_convert, Rf_ScalarLogical(convert), refenv);
     bool callable = PyCallable_Check(object);
-    if (callable || !simple)
+    bool exception = !callable && PyExceptionInstance_Check(object);
+    if (callable || exception || !simple)
       Rf_defineVar(sym_simple, Rf_ScalarLogical(false), refenv);
-    Rf_setAttrib(refenv, R_ClassSymbol, py_class_names(object));
+    Rf_setAttrib(refenv, R_ClassSymbol, py_class_names(object, exception));
 
     if (callable) {
       SEXP r_fn = PROTECT(py_callable_as_function(refenv, convert));
       r_fn = PROTECT(py_to_r_wrapper(r_fn));
       this->set__(r_fn); // PROTECT()
       UNPROTECT(4);
+    } else if (exception) {
+      SEXP r_cond = PROTECT(py_exception_as_condition(object, refenv));
+      this->set__(r_cond);
+      UNPROTECT(3);
     } else {
       this->set__(refenv);
       UNPROTECT(2);
@@ -97,11 +104,17 @@ public:
   SEXP get_refenv() const {
 
     SEXP sexp = this->get__();
-    while(TYPEOF(sexp) == CLOSXP)
+    unwrap:
+    switch(TYPEOF(sexp)) {
+    case ENVSXP:
+      break;
+    case CLOSXP:
+    case VECSXP:
       sexp = Rf_getAttrib(sexp, sym_py_object);
-
-    if (TYPEOF(sexp) != ENVSXP)
-      Rcpp::stop("malformed py_object, has type %s", Rf_type2char(TYPEOF(sexp)));
+      goto unwrap;
+    default:
+        Rcpp::stop("malformed py_object, has type %s", Rf_type2char(TYPEOF(sexp)));
+    }
 
     return sexp;
   }

@@ -3,6 +3,10 @@
 - Fixed an issue where attempting to convert a non-simple NumPy array
   to R would signal an error. (#1613, fixed in #1614).
 
+- Python Exceptions converted to R conditions are now R lists instead
+  of R environments, for compatability with {rlang} and {purrr}.
+  (tidyverse/purrr#1104, r-lib/rlang#1664, #1617)
+
 # reticulate 1.37.0
 
 - Interrupting Python no longer leads to segfaults.

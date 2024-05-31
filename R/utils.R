@@ -162,23 +162,16 @@ r_to_py.error <- function(x, convert = FALSE) {
   e
 }
 
-#' @export
-conditionCall.python.builtin.BaseException <- function(c) {
-  as_r_value(py_get_attr(c, "call", TRUE))
-}
-
-#' @export
-conditionMessage.python.builtin.BaseException <- function(c) {
-  conditionMessage_from_py_exception(c)
-}
-
 
 #' @export
 `$.python.builtin.BaseException` <- function(x, name) {
-  if(identical(name, "call"))
-    return(conditionCall(x))
-  if(identical(name, "message"))
-    return(conditionMessage(x))
+  if(typeof(x) == "list") {
+    if(identical(name, "call"))
+      return(unclass(x)[["call"]] %||% as_r_value(py_get_attr(x, "call", TRUE)))
+    if(identical(name, "message")) {
+      return(unclass(x)[["message"]] %||% conditionMessage_from_py_exception(x))
+    }
+  }
 
   py_maybe_convert(py_get_attr(x, name, TRUE), py_has_convert(x))
 }

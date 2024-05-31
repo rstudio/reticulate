@@ -918,10 +918,10 @@ SEXP py_fetch_error(bool maybe_reuse_cached_r_trace) {
   // for shallow call stacks. So we fetch the call directly
   // using the R API.
   if (!PyObject_HasAttrString(excValue, "call")) {
-    // Technically we don't need to protct call, since
+    // Technically we don't need to protect call, since
     // it would already be protected by it's inclusion in the R callstack,
     // but rchk flags it anyway, and so ...
-    RObject r_call(  get_current_call() );
+    RObject r_call( get_current_call() );
     PyObject* r_call_capsule(py_capsule_new(r_call));
     PyObject_SetAttrString(excValue, "call", r_call_capsule);
     Py_DecRef(r_call_capsule);
@@ -970,22 +970,35 @@ class PyFlushOutputOnScopeExit {
 };
 
 
-// [[Rcpp::export]]
-std::string conditionMessage_from_py_exception(PyObjectRef exc) {
-  // invoke 'traceback.format_exception_only(<traceback>)'
-  PyObjectPtr tb_module(py_import("traceback"));
-  if (tb_module.is_null())
-    return "<unknown python exception, traceback module not found>";
 
-  PyObjectPtr format_exception_only(
-      PyObject_GetAttrString(tb_module, "format_exception_only"));
-  if (format_exception_only.is_null())
-    return "<unknown python exception, traceback format fn not found>";
+std::string conditionMessage_from_py_exception(PyObject* exc) {
+  // invoke 'traceback.format_exception_only(<traceback>)'
+
+  static PyObject* format_exception_only = []() {
+    PyObjectPtr tb_module(py_import("traceback"));
+    if (tb_module.is_null()) {
+      PyErr_Print();
+      Rcpp::stop("Failed to format Python Exception; could not import traceback module");
+    }
+
+    PyObject* format_exception_only = PyObject_GetAttrString(tb_module, "format_exception_only");
+
+    if (format_exception_only == NULL) {
+      PyErr_Print();
+      Rcpp::stop("Failed to format Python Exception; could not get traceback.format_exception_only");
+    }
+
+    return format_exception_only;
+  }();
+
 
   PyObjectPtr formatted(PyObject_CallFunctionObjArgs(
-      format_exception_only, Py_TYPE(exc.get()), exc.get(), NULL));
-  if (formatted.is_null())
-    return "<unknown python exception, traceback format fn returned NULL>";
+      format_exception_only, Py_TYPE(exc), exc, NULL));
+
+  if (formatted.is_null()) {
+    PyErr_Print();
+    Rcpp::stop("Failed to format Python Exception; traceback.format_exception_only() raised an Exception");
+  }
 
   // build error text
   std::ostringstream oss;
@@ -994,14 +1007,12 @@ std::string conditionMessage_from_py_exception(PyObjectRef exc) {
   for (Py_ssize_t i = 0, n = PyList_Size(formatted); i < n; i++)
     oss << as_std_string(PyList_GetItem(formatted, i));
 
-  static std::string hint;
-
-  if (hint.empty()) {
+  static std::string hint = []() {
     Environment pkg_env(Environment::namespace_env("reticulate"));
     Function hint_fn = pkg_env[".py_last_error_hint"];
     CharacterVector r_result = hint_fn();
-    hint = Rcpp::as<std::string>(r_result[0]);
-  }
+    return Rcpp::as<std::string>(r_result[0]);
+  }();
 
   oss << hint;
   std::string error = oss.str();
@@ -1018,7 +1029,7 @@ std::string conditionMessage_from_py_exception(PyObjectRef exc) {
 
     std::string trunc("<...truncated...>");
 
-    // Tensorflow since ~2.6 has been including a currated traceback as part of
+    // TensorFlow since ~2.6 has been including a curated traceback as part of
     // the formatted exception message, with the most user-actionable content
     // towards the tail. Since the tail is the most useful part of the message,
     // truncate from the middle of the exception by default, after including the
@@ -1035,6 +1046,11 @@ std::string conditionMessage_from_py_exception(PyObjectRef exc) {
   }
 
   return error;
+}
+
+// [[Rcpp::export]]
+std::string conditionMessage_from_py_exception(PyObjectRef exc) {
+  return conditionMessage_from_py_exception(exc.get());
 }
 
 // check whether the PyObject can be mapped to an R scalar type
@@ -4417,7 +4433,7 @@ SEXP py_exception_as_condition(PyObject* object, SEXP refenv) {
   }();
   SEXP out = PROTECT(Rf_allocVector(VECSXP, 2));
 
-  SET_VECTOR_ELT(out, 0, Rcpp::wrap(conditionMessage_from_py_exception((PyObjectRef) refenv)));
+  SET_VECTOR_ELT(out, 0, Rcpp::wrap(conditionMessage_from_py_exception(object)));
   PyObject* call = py_get_attr(object, "call");
   if(call != NULL)
     SET_VECTOR_ELT(out, 1, py_to_r(call, true));
@@ -4427,4 +4443,4 @@ SEXP py_exception_as_condition(PyObject* object, SEXP refenv) {
   Rf_setAttrib(out, sym_py_object, refenv);
   UNPROTECT(1);
   return out;
-}
+  }

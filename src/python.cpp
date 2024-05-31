@@ -4443,4 +4443,4 @@ SEXP py_exception_as_condition(PyObject* object, SEXP refenv) {
   Rf_setAttrib(out, sym_py_object, refenv);
   UNPROTECT(1);
   return out;
-  }
+}

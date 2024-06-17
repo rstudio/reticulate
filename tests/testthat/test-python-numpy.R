@@ -159,13 +159,15 @@ test_that("numpy non-simple arrays work", {
   # Test that attempting to convert a non-simple array fails gracefully,
   # returns a PyObjectRef.
   rec_array <- py_to_r(result$rec_array)
-  expect_equal(class(rec_array),
-               c("numpy.recarray", "numpy.ndarray", "python.builtin.object"))
+                                      # numpy 1.0 vs 2.0
+  expect_s3_class(rec_array, c("numpy.recarray", "numpy.rec.recarray"))
+  expect_s3_class(rec_array, "numpy.ndarray")
+  expect_s3_class(rec_array, "python.builtin.object")
 
   # Test that a registered S3 method for the non-simple numpy array will be
   # called. (Note, some packages, like {zellkonverter}, will register this
   # directly for numpy.ndarray)
-  registerS3method("py_to_r", "numpy.recarray", function(x) {
+  py_to_r.numpy.recarray <- function(x) {
     tryCatch({
       pandas <- import("pandas", convert = FALSE)
       x <- pandas$DataFrame(x)$to_numpy()
@@ -173,10 +175,12 @@ test_that("numpy non-simple arrays work", {
       return(x)
     }, error = identity)
     NextMethod()
-  })
+  }
+  registerS3method("py_to_r", "numpy.recarray", py_to_r.numpy.recarray)
+  registerS3method("py_to_r", "numpy.rec.recarray", py_to_r.numpy.recarray)
 
   on.exit({
-    rm(list = "py_to_r.numpy.recarray",
+    rm(list = c("py_to_r.numpy.recarray", "py_to_r.numpy.rec.recarray"),
        envir = environment(py_to_r)$.__S3MethodsTable__.)
   })
 

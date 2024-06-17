@@ -508,7 +508,12 @@ LIBPYTHON_EXTERN void **PyArray_API;
 // has not changed in 6 years, if it changes then it implies that our PyArray_API
 // indexes may be off
 // see: https://github.com/numpy/numpy/blame/master/numpy/core/setup_common.py#L26
-#define NPY_VERSION 0x01000009
+// -- NumPy 2.0 has breaking ABI changes and a big migration guide:
+// https://github.com/numpy/numpy/blob/main/doc/source/numpy_2_0_migration_guide.rst#c-api-changes
+// At first glance it doesn't seem like indexes in PyArray_API have changed, but still need to do
+// a thorough reading of the migration guide.
+// https://github.com/numpy/numpy/blob/main/numpy/_core/code_generators/numpy_api.py
+#define NPY_VERSION 0x02000000
 
 // checks for numpy 1.6 / 1.7
 // see: https://github.com/numpy/numpy/blob/master/numpy/core/code_generators/cversions.txt

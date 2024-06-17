@@ -439,8 +439,10 @@ typedef struct {
   char byteorder;
   char flags;
   int type_num;
-  int elsize;
-  int alignment;
+
+  // These field above are common to NumPy 1.0 and 2.0. Subsequent fields (that we don't capture) differ.
+  // int elsize;
+  // int alignment;
 
   // ...more fields here we don't capture...
 

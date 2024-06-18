@@ -109,7 +109,7 @@ test_that("StringDtype arrays convert correctly", {
 
   np <- import("numpy", convert = FALSE)
 
-  StringDType <- py_get_attr(np$dtypes, "StringDType", TRUE)
+  StringDType <- tryCatch(np$dtypes$StringDType, error = function(e) NULL)
   if(is.null(StringDType))
     skip("No NumPy StringDType (numpy<2.0)")
 

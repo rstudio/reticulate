@@ -439,10 +439,12 @@ typedef struct {
   char byteorder;
   char flags;
   int type_num;
-  int elsize;
-  int alignment;
 
   // ...more fields here we don't capture...
+  // The field above are common to NumPy 1.0 and 2.0. Subsequent fields (that we don't capture) differ.
+  // int elsize;
+  // int alignment;
+
 
 } PyArray_Descr;
 
@@ -454,9 +456,15 @@ typedef struct tagPyArrayObject {
 typedef unsigned char npy_bool;
 typedef long npy_long;
 typedef double npy_double;
+// with numpy 2.0, direct field access of complex numbers is no longer valid.
+// accessors like npy_creal() and npy_cimag() are the recomended way.
+// However, the memory layout is unchanged, and we define the struct here, so access is still valid.
 typedef struct { double real, imag; } npy_cdouble;
 typedef npy_cdouble npy_complex128;
 
+
+// In Numpy 2.0, npy_intp changed to Py_ssize_t. Should still be the same size on all currently supported
+// platforms (we no longer support 32-bit Windows, which was the only platform where this could be an issue)
 typedef intptr_t npy_intp;
 
 
@@ -505,10 +513,15 @@ typedef struct tagPyArrayObject_fields {
 LIBPYTHON_EXTERN void **PyArray_API;
 
 
-// has not changed in 6 years, if it changes then it implies that our PyArray_API
-// indexes may be off
-// see: https://github.com/numpy/numpy/blame/master/numpy/core/setup_common.py#L26
-#define NPY_VERSION 0x01000009
+// -- NumPy 2.0 has breaking ABI changes and a big migration guide:
+// https://github.com/numpy/numpy/blob/main/doc/source/numpy_2_0_migration_guide.rst#c-api-changes
+// Confirmed that the PyArray_API indexes we use did not change between Numpy 1.x and 2.0.
+// If NPY_VERSION changes again, confirm that PyArray_API indexes are still valid.
+// https://github.com/numpy/numpy/blob/main/numpy/_core/code_generators/numpy_api.py
+// Current indexes in use: 0, 2, 10, 45, 49, 57, 63, 93, 158, 211, 282
+// update with: $ rg 'PyArray_API\['
+#define NPY_VERSION_1 0x01000009
+#define NPY_VERSION_2 0x02000000
 
 // checks for numpy 1.6 / 1.7
 // see: https://github.com/numpy/numpy/blob/master/numpy/core/code_generators/cversions.txt

@@ -406,10 +406,13 @@ bool import_numpy_api(bool python3, std::string* pError) {
   }
 
   // check C API version
-  if (NPY_VERSION != PyArray_GetNDArrayCVersion()) {
+  // we aim to compile a single binary compatible with both numpy 2.x and 1.x
+  auto runtime_npy_version = PyArray_GetNDArrayCVersion();
+  if (NPY_VERSION_2 != runtime_npy_version &&
+      NPY_VERSION_1 != runtime_npy_version) {
     std::ostringstream ostr;
     ostr << "incompatible NumPy binary version " << (int) PyArray_GetNDArrayCVersion() << " "
-    "(expecting version " << (int) NPY_VERSION << ")";
+    "(expecting version " << (int) NPY_VERSION_2 << " or " << (int) NPY_VERSION_1 << ")";
     *pError = ostr.str();
     return false;
   }

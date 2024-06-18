@@ -439,4 +439,11 @@ test_that("Additional S3 methods don't break pandas conversion", {
 
 })
 
+test_that("pandas from records convert successfully", {
+  pd <- import("pandas")
+  df <- pd$DataFrame$from_records(list(list(n = 1L),
+                                       list(n = 2L)))
+  attr(df, "pandas.index") <- NULL
+  expect_equal(df, data.frame(n = 1:2))
+})
 

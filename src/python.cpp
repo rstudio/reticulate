@@ -408,6 +408,7 @@ int narrow_array_typenum(int typenum) {
   case NPY_STRING:
   case NPY_UNICODE:
   case NPY_OBJECT:
+  case NPY_VSTRING:
     break;
 
     // unsupported
@@ -1553,9 +1554,18 @@ SEXP py_to_r_cpp(PyObject* x, bool convert, bool simple) {
       }
 
       case NPY_STRING:
+      case NPY_VSTRING:
       case NPY_UNICODE: {
 
-        PyObjectPtr nditerArgs(PyTuple_New(1));
+        static PyObject* nditerArgs = []() {
+          PyObject* flags = PyTuple_New(1);
+          // iterating over a StringDType requires us to pass 'refs_ok' flag,
+          // since StringDTypes are really refs under the hood.
+          PyTuple_SetItem(flags, 0, as_python_str("refs_ok")); // steals ref
+          PyObject* args = PyTuple_New(2);
+          PyTuple_SetItem(args, 1, flags); // steals ref
+          return args;
+        }();
         // PyTuple_SetItem steals reference the array, but it's already wraped
         // into PyObjectPtr earlier (so it gets deleted after the scope of this function)
         // To avoid trying to delete it twice, we need to increase its ref count here.
@@ -1563,6 +1573,7 @@ SEXP py_to_r_cpp(PyObject* x, bool convert, bool simple) {
         Py_IncRef((PyObject*)array);
 
         PyObjectPtr iter(PyObject_Call(get_np_nditer(), nditerArgs, NULL));
+        PyTuple_SetItem(nditerArgs, 0, NULL); // clear ref to array
 
         if (iter.is_null()) {
           throw PythonException(py_fetch_error());

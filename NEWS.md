@@ -1,5 +1,7 @@
 # reticulate (development version)
 
+- Added support for converting NumPy StringDType arrays to R character arrays. (#1623)
+
 - Internal updates for NumPy 2.0 (#1621)
 
 - Fixed an issue where attempting to convert a non-simple NumPy array

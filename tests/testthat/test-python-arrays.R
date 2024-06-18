@@ -103,3 +103,20 @@ def apply_mask(x, mask):
   }
 
 })
+
+
+test_that("StringDtype arrays convert correctly", {
+
+  np <- import("numpy", convert = FALSE)
+
+  StringDType <- py_get_attr(np$dtypes, "StringDType", TRUE)
+  if(is.null(StringDType))
+    skip("No NumPy StringDType (numpy<2.0)")
+
+  data <- c("this is a longer string", "short string")
+
+  x <- np$array(data, dtype=StringDType())
+  expect_true(startsWith(py_to_r(x$dtype$name), "StringDType"))
+
+  expect_identical(py_to_r(x), array(data))
+})

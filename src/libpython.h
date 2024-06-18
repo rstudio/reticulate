@@ -440,11 +440,11 @@ typedef struct {
   char flags;
   int type_num;
 
-  // These field above are common to NumPy 1.0 and 2.0. Subsequent fields (that we don't capture) differ.
+  // ...more fields here we don't capture...
+  // The field above are common to NumPy 1.0 and 2.0. Subsequent fields (that we don't capture) differ.
   // int elsize;
   // int alignment;
 
-  // ...more fields here we don't capture...
 
 } PyArray_Descr;
 
@@ -459,6 +459,9 @@ typedef double npy_double;
 typedef struct { double real, imag; } npy_cdouble;
 typedef npy_cdouble npy_complex128;
 
+
+// In Numpy 2.0, npy_intp changed to Py_ssize_t. Should still be the same size on all currently supported
+// platforms (we no longer support 32-bit Windows, which was the only platform where this could be an issue)
 typedef intptr_t npy_intp;
 
 
@@ -507,15 +510,15 @@ typedef struct tagPyArrayObject_fields {
 LIBPYTHON_EXTERN void **PyArray_API;
 
 
-// has not changed in 6 years, if it changes then it implies that our PyArray_API
-// indexes may be off
-// see: https://github.com/numpy/numpy/blame/master/numpy/core/setup_common.py#L26
 // -- NumPy 2.0 has breaking ABI changes and a big migration guide:
 // https://github.com/numpy/numpy/blob/main/doc/source/numpy_2_0_migration_guide.rst#c-api-changes
-// At first glance it doesn't seem like indexes in PyArray_API have changed, but still need to do
-// a thorough reading of the migration guide.
+// Confirmed that the PyArray_API indexes we use did not changed in Numpy 2.0.
+// If NPY_VERSION changes again, confirm that PyArray_API indexes are still valid.
 // https://github.com/numpy/numpy/blob/main/numpy/_core/code_generators/numpy_api.py
-#define NPY_VERSION 0x02000000
+// $ rg 'PyArray_API\['
+// 0, 2, 10, 45, 49, 57, 63, 93, 158, 211, 282,
+#define NPY_VERSION_1 0x01000009
+#define NPY_VERSION_2 0x02000000
 
 // checks for numpy 1.6 / 1.7
 // see: https://github.com/numpy/numpy/blob/master/numpy/core/code_generators/cversions.txt

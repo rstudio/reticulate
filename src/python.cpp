@@ -1541,12 +1541,13 @@ SEXP py_to_r_cpp(PyObject* x, bool convert, bool simple) {
       case NPY_CDOUBLE: {
         npy_complex128* pData = (npy_complex128*)PyArray_DATA(array);
         rArray = Rf_allocArray(CPLXSXP, dimsVector);
+        Rcomplex* rArray_ptr = COMPLEX(rArray);
         for (int i=0; i<len; i++) {
           npy_complex128 data = pData[i];
           Rcomplex cpx;
           cpx.r = data.real;
           cpx.i = data.imag;
-          COMPLEX(rArray)[i] = cpx;
+          rArray_ptr[i] = cpx;
         }
         break;
       }

@@ -456,6 +456,9 @@ typedef struct tagPyArrayObject {
 typedef unsigned char npy_bool;
 typedef long npy_long;
 typedef double npy_double;
+// with numpy 2.0, direct field access of complex numbers is no longer valid.
+// accessors like npy_creal() and npy_cimag() are the recomended way.
+// However, the memory layout is unchanged, and we define the struct here, so access is still valid.
 typedef struct { double real, imag; } npy_cdouble;
 typedef npy_cdouble npy_complex128;
 

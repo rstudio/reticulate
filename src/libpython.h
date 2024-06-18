@@ -512,11 +512,11 @@ LIBPYTHON_EXTERN void **PyArray_API;
 
 // -- NumPy 2.0 has breaking ABI changes and a big migration guide:
 // https://github.com/numpy/numpy/blob/main/doc/source/numpy_2_0_migration_guide.rst#c-api-changes
-// Confirmed that the PyArray_API indexes we use did not changed in Numpy 2.0.
+// Confirmed that the PyArray_API indexes we use did not change between Numpy 1.x and 2.0.
 // If NPY_VERSION changes again, confirm that PyArray_API indexes are still valid.
 // https://github.com/numpy/numpy/blob/main/numpy/_core/code_generators/numpy_api.py
-// $ rg 'PyArray_API\['
-// 0, 2, 10, 45, 49, 57, 63, 93, 158, 211, 282,
+// Current indexes in use: 0, 2, 10, 45, 49, 57, 63, 93, 158, 211, 282
+// update with: $ rg 'PyArray_API\['
 #define NPY_VERSION_1 0x01000009
 #define NPY_VERSION_2 0x02000000
 

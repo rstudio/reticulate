@@ -1,3 +1,5 @@
+# reticulate (development version)
+
 # reticulate 1.38.0
 
 - Python Exceptions converted to R conditions are now R lists instead

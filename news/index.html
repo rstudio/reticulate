@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.37.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.38.0</span>
       </span>
     </div>
 
@@ -82,12 +82,20 @@
     </div>
 
     <div class="section level2">
-<h2 class="page-header" data-toc-text="1.37.0" id="reticulate-1370">reticulate 1.37.0<a class="anchor" aria-label="anchor" href="#reticulate-1370"></a></h2>
+<h2 class="page-header" data-toc-text="1.38.0" id="reticulate-1380">reticulate 1.38.0<a class="anchor" aria-label="anchor" href="#reticulate-1380"></a></h2>
+<ul><li><p>Python Exceptions converted to R conditions are now R lists instead of R environments, for compatability with {rlang} and {purrr}. (tidyverse/purrr#1104, r-lib/rlang#1664, <a href="https://github.com/rstudio/reticulate/issues/1617" class="external-link">#1617</a>)</p></li>
+<li><p>Internal updates for NumPy 2.0 (<a href="https://github.com/rstudio/reticulate/issues/1621" class="external-link">#1621</a>)</p></li>
+<li><p>Added support for converting NumPy StringDType arrays to R character arrays. (<a href="https://github.com/rstudio/reticulate/issues/1623" class="external-link">#1623</a>)</p></li>
+<li><p>Internal updates for compliance with R’s upcoming formalized C API. (<a href="https://github.com/rstudio/reticulate/issues/1625" class="external-link">#1625</a>)</p></li>
+<li><p>Fixed an issue where attempting to convert a NumPy array with a non-simple dtype to R would signal an error. (<a href="https://github.com/rstudio/reticulate/issues/1613" class="external-link">#1613</a>, fixed in <a href="https://github.com/rstudio/reticulate/issues/1614" class="external-link">#1614</a>).</p></li>
+</ul></div>
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="1.37.0" id="reticulate-1370">reticulate 1.37.0<small>2024-05-21</small><a class="anchor" aria-label="anchor" href="#reticulate-1370"></a></h2>
 <ul><li><p>Interrupting Python no longer leads to segfaults. (<a href="https://github.com/rstudio/reticulate/issues/1601" class="external-link">#1601</a>, fixed in <a href="https://github.com/rstudio/reticulate/issues/1602" class="external-link">#1602</a>)</p></li>
 <li><p>Print method for Python callables now includes the callable’s signature. (<a href="https://github.com/rstudio/reticulate/issues/1605" class="external-link">#1605</a>, <a href="https://github.com/rstudio/reticulate/issues/1607" class="external-link">#1607</a>)</p></li>
 <li><p>Reticulate now installs successfully on Windows ARM64. (<a href="https://github.com/rstudio/reticulate/issues/1609" class="external-link">#1609</a>, contributed by <a href="https://github.com/andrjohns" class="external-link">@andrjohns</a>)</p></li>
 <li><p><code><a href="../reference/virtualenv-tools.html">virtualenv_starter()</a></code> no longer warns when encountering broken symlinks. (<a href="https://github.com/rstudio/reticulate/issues/1598" class="external-link">#1598</a>)</p></li>
-<li><p>Fixed issue where configuring reticulate <code>conda_*</code> functions to use the executable <code>mamba</code> instead of <code>conda</code> was ignored. (<a href="https://github.com/rstudio/reticulate/issues/1608" class="external-link">#1608</a>, contributed by <a href="https://github.com/AlexandreGuinaudeau" class="external-link">@AlexandreGuinaudeau</a>)</p></li>
+<li><p>Fixed an issue where configuration for reticulate <code>conda_*</code> functions to use the executable <code>mamba</code> instead of <code>conda</code> was ignored. (<a href="https://github.com/rstudio/reticulate/issues/1608" class="external-link">#1608</a>, contributed by <a href="https://github.com/AlexandreGuinaudeau" class="external-link">@AlexandreGuinaudeau</a>)</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="1.36.1" id="reticulate-1361">reticulate 1.36.1<small>2024-04-22</small><a class="anchor" aria-label="anchor" href="#reticulate-1361"></a></h2>

@@ -502,20 +502,11 @@ SEXP current_env(void) {
     // are looking for to begin with. We use instead this workaround:
     // Call `sys.frame()` from a closure to push a new frame on the
     // stack, and use negative indexing to get the previous frame.
-    ParseStatus status;
-    SEXP code = PROTECT(Rf_mkString("sys.frame(-1)"));
-    SEXP parsed = PROTECT(R_ParseVector(code, -1, &status, R_NilValue));
-    SEXP body = VECTOR_ELT(parsed, 0);
-
-    SEXP fn = PROTECT(Rf_allocSExp(CLOSXP));
-    SET_FORMALS(fn, R_NilValue);
-    SET_BODY(fn, body);
-    SET_CLOENV(fn, R_BaseEnv);
-
+    SEXP fn = PROTECT(R_ParseEvalString("function() sys.frame(-1)", R_BaseEnv));
     SEXP call = Rf_lang1(fn);
     R_PreserveObject(call);
 
-    UNPROTECT(3);
+    UNPROTECT(1);
     return call;
   }();
 
@@ -808,20 +799,13 @@ bool traceback_enabled() {
 
 SEXP get_current_call(void) {
   static SEXP call = []() {
-    ParseStatus status;
-    SEXP code = PROTECT(Rf_mkString("sys.call(-1)"));
-    SEXP parsed = PROTECT(R_ParseVector(code, -1, &status, R_NilValue));
-    SEXP body = VECTOR_ELT(parsed, 0);
 
-    SEXP fn = PROTECT(Rf_allocSExp(CLOSXP));
-    SET_FORMALS(fn, R_NilValue);
-    SET_BODY(fn, body);
-    SET_CLOENV(fn, R_BaseEnv);
+    SEXP fn = PROTECT(R_ParseEvalString("function() sys.call(-1)", R_BaseEnv));
 
     SEXP call = Rf_lang1(fn);
     R_PreserveObject(call);
 
-    UNPROTECT(3);
+    UNPROTECT(1);
     return call;
   }();
 

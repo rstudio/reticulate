@@ -1,17 +1,17 @@
 # reticulate (development version)
 
-- Internal updates for compliance with R's upcoming formalized C API. (#1625)
-
-- Added support for converting NumPy StringDType arrays to R character arrays. (#1623)
-
-- Internal updates for NumPy 2.0 (#1621)
-
-- Fixed an issue where attempting to convert a non-simple NumPy array
-  to R would signal an error. (#1613, fixed in #1614).
-
 - Python Exceptions converted to R conditions are now R lists instead
   of R environments, for compatability with {rlang} and {purrr}.
   (tidyverse/purrr#1104, r-lib/rlang#1664, #1617)
+  
+- Internal updates for NumPy 2.0 (#1621)
+
+- Added support for converting NumPy StringDType arrays to R character arrays. (#1623)
+
+- Internal updates for compliance with R's upcoming formalized C API. (#1625)
+
+- Fixed an issue where attempting to convert a NumPy array with a non-simple 
+  dtype would signal an error. (#1613, fixed in #1614).
 
 # reticulate 1.37.0
 

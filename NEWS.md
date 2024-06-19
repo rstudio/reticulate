@@ -1,5 +1,7 @@
 # reticulate (development version)
 
+- Internal updates for compliance with R's upcoming formalized C API. (#1625)
+
 - Added support for converting NumPy StringDType arrays to R character arrays. (#1623)
 
 - Internal updates for NumPy 2.0 (#1621)

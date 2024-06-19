@@ -11,7 +11,7 @@
 - Internal updates for compliance with R's upcoming formalized C API. (#1625)
 
 - Fixed an issue where attempting to convert a NumPy array with a non-simple 
-  dtype would signal an error. (#1613, fixed in #1614).
+  dtype to R would signal an error. (#1613, fixed in #1614).
 
 # reticulate 1.37.0
 

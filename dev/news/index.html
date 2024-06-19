@@ -83,11 +83,11 @@
 
     <div class="section level2">
 <h2 class="page-header" data-toc-text="development version" id="reticulate-development-version">reticulate (development version)<a class="anchor" aria-label="anchor" href="#reticulate-development-version"></a></h2>
-<ul><li><p>Internal updates for compliance with R’s upcoming formalized C API. (<a href="https://github.com/rstudio/reticulate/issues/1625" class="external-link">#1625</a>)</p></li>
-<li><p>Added support for converting NumPy StringDType arrays to R character arrays. (<a href="https://github.com/rstudio/reticulate/issues/1623" class="external-link">#1623</a>)</p></li>
+<ul><li><p>Python Exceptions converted to R conditions are now R lists instead of R environments, for compatability with {rlang} and {purrr}. (tidyverse/purrr#1104, r-lib/rlang#1664, <a href="https://github.com/rstudio/reticulate/issues/1617" class="external-link">#1617</a>)</p></li>
 <li><p>Internal updates for NumPy 2.0 (<a href="https://github.com/rstudio/reticulate/issues/1621" class="external-link">#1621</a>)</p></li>
-<li><p>Fixed an issue where attempting to convert a non-simple NumPy array to R would signal an error. (<a href="https://github.com/rstudio/reticulate/issues/1613" class="external-link">#1613</a>, fixed in <a href="https://github.com/rstudio/reticulate/issues/1614" class="external-link">#1614</a>).</p></li>
-<li><p>Python Exceptions converted to R conditions are now R lists instead of R environments, for compatability with {rlang} and {purrr}. (tidyverse/purrr#1104, r-lib/rlang#1664, <a href="https://github.com/rstudio/reticulate/issues/1617" class="external-link">#1617</a>)</p></li>
+<li><p>Added support for converting NumPy StringDType arrays to R character arrays. (<a href="https://github.com/rstudio/reticulate/issues/1623" class="external-link">#1623</a>)</p></li>
+<li><p>Internal updates for compliance with R’s upcoming formalized C API. (<a href="https://github.com/rstudio/reticulate/issues/1625" class="external-link">#1625</a>)</p></li>
+<li><p>Fixed an issue where attempting to convert a NumPy array with a non-simple dtype would signal an error. (<a href="https://github.com/rstudio/reticulate/issues/1613" class="external-link">#1613</a>, fixed in <a href="https://github.com/rstudio/reticulate/issues/1614" class="external-link">#1614</a>).</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="1.37.0" id="reticulate-1370">reticulate 1.37.0<small>2024-05-21</small><a class="anchor" aria-label="anchor" href="#reticulate-1370"></a></h2>

@@ -1,5 +1,7 @@
 # reticulate (development version)
 
+- Fixed error when importing a module named `config` (#1628)
+
 # reticulate 1.38.0
 
 - Python Exceptions converted to R conditions are now R lists instead

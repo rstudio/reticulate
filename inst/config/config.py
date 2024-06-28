@@ -33,6 +33,7 @@ else:
 
 # Get appropriate path-entry separator for platform
 pathsep = ";" if os.name == "nt" else ":"
+this_script_dir = os.path.dirname(__file__)
 
 # Read default configuration values
 # fmt: off
@@ -43,7 +44,8 @@ config = {
   "Prefix"           : getattr(sys, "prefix", ""),
   "ExecPrefix"       : getattr(sys, "exec_prefix", ""),
   "BaseExecPrefix"   : getattr(sys, "base_exec_prefix", ""),
-  "PythonPath"       : pathsep.join((x or "." for x in sys.path)),
+  "PythonPath"       : pathsep.join((x or "." for x in sys.path
+                                     if x != this_script_dir)),
   "LIBPL"            : sysconfig.get_config_var("LIBPL"),
   "LIBDIR"           : sysconfig.get_config_var("LIBDIR"),
   "SharedLibrary"    : sysconfig.get_config_var("Py_ENABLE_SHARED"),

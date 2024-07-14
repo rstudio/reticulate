@@ -929,13 +929,36 @@ Run `miniconda_update('%s')` to update conda.", conda)
                    shQuote(cmd), args), ...)
 }
 
+#' @param cmd the system command to be invoked, as a character string.
+#' @param args a character vector of arguments to command. The arguments have to be quoted
+#' e.g. by shQuote in case they contain space or other special characters
+#' (a double quote or backslash on Windows, shell-specific special characters on Unix).
+#' @param cmd_line the command line to be executed, as a character string. This is automatically
+#' generated from `cmd` and `args`, but can be provided directly if needed (if provided, it overrides
+#' `cmd` and `args`.
+#' @param intern a logical (not NA) which indicates whether to capture the output of the
+#' command as an R character vector. If FALSE, the return value is the error code (0 for success).
+#' @param echo a logical (not NA) which indicates whether to echo the command to the console before
+#' running it.
+#' @returns `conda_run2()` runs a command in the desired conda environment via [shell()];
+#' if `intern = TRUE` the output is returned as a character vector; if `intern = FALSE`,
+#' then the return value is the error code (0 for success). See [shell()] for more details.
+#' @export
+#' @rdname conda-tools
 # executes a cmd with a conda env active, implemented directly to avoid using `conda run`
 # https://github.com/conda/conda/issues/10972
-conda_run2 <- function(...) {
-  if (is_windows())
-    conda_run2_windows(...)
-  else
-    conda_run2_nix(...)
+conda_run2 <- function(cmd, args = c(), conda = "auto", envname = NULL,
+                       cmd_line = paste(shQuote(cmd), paste(args, collapse = " ")),
+                       intern = FALSE, echo = !intern) {
+  if (is_windows()){
+    conda_run2_windows(cmd = cmd, args = args, conda = conda, envname = envname,
+                       cmd_line = cmd_line, intern = intern, echo = echo)
+
+  } else {
+    conda_run2_nix(cmd = cmd, args = args, conda = conda, envname = envname,
+                   cmd_line = cmd_line, intern = intern, echo = echo)
+  }
+
 }
 
 conda_run2_windows <-

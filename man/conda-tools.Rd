@@ -15,6 +15,7 @@
 \alias{conda_python}
 \alias{conda_search}
 \alias{condaenv_exists}
+\alias{conda_run2}
 \title{Conda Tools}
 \usage{
 conda_list(conda = "auto")
@@ -77,6 +78,16 @@ conda_search(
 )
 
 condaenv_exists(envname = NULL, conda = "auto")
+
+conda_run2(
+  cmd,
+  args = c(),
+  conda = "auto",
+  envname = NULL,
+  cmd_line = paste(shQuote(cmd), paste(args, collapse = " ")),
+  intern = FALSE,
+  echo = !intern
+)
 }
 \arguments{
 \item{conda}{The path to a \code{conda} executable. Use \code{"auto"} to allow
@@ -138,6 +149,22 @@ arguments to use in the call to \verb{conda install}.}
 \item{all}{Boolean; report all instances of Python found?}
 
 \item{matchspec}{A conda MatchSpec query string.}
+
+\item{cmd}{the system command to be invoked, as a character string.}
+
+\item{args}{a character vector of arguments to command. The arguments have to be quoted
+e.g. by shQuote in case they contain space or other special characters
+(a double quote or backslash on Windows, shell-specific special characters on Unix).}
+
+\item{cmd_line}{the command line to be executed, as a character string. This is automatically
+generated from \code{cmd} and \code{args}, but can be provided directly if needed (if provided, it overrides
+\code{cmd} and \code{args}.}
+
+\item{intern}{a logical (not NA) which indicates whether to capture the output of the
+command as an R character vector. If FALSE, the return value is the error code (0 for success).}
+
+\item{echo}{a logical (not NA) which indicates whether to echo the command to the console before
+running it.}
 }
 \value{
 \code{conda_list()} returns an \R \code{data.frame}, with \code{name} giving the name of
@@ -158,6 +185,10 @@ matched against \code{matchspec}. The data frame will usually include
 fields \code{name} giving the package name, \code{version} giving the package
 version, \code{build} giving the package build, and \code{channel} giving the
 channel the package is hosted on.
+
+\code{conda_run2()} runs a command in the desired conda environment via \code{\link[=shell]{shell()}};
+if \code{intern = TRUE} the output is returned as a character vector; if \code{intern = FALSE},
+then the return value is the error code (0 for success). See \code{\link[=shell]{shell()}} for more details.
 }
 \description{
 Tools for managing Python \code{conda} environments.

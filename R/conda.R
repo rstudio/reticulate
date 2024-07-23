@@ -934,7 +934,7 @@ Run `miniconda_update('%s')` to update conda.", conda)
 #' This functions allows to run a command in a chosen conda environment.
 #'
 #' Note that,
-#' whilst the syntax is similar to `system2()`, the function uses `shell()` to run
+#' whilst the syntax is similar to [`system2()`], the function uses [`shell()`] to run
 #' a shell file that is generated on the fly. This avoids issues with quoting, as
 #' discussed in this [GitHub issue](https://github.com/conda/conda/issues/10972).
 #'

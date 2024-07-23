@@ -929,6 +929,15 @@ Run `miniconda_update('%s')` to update conda.", conda)
                    shQuote(cmd), args), ...)
 }
 
+#' Run a command in a conda environment
+#'
+#' This functions allows to run a command in a chosen conda environment.
+#'
+#' Note that,
+#' whilst the syntax is similar to `system2()`, the function uses `shell()` to run
+#' a shell file that is generated on the fly. This avoids issues with quoting, as
+#' discussed in this [GitHub issue](https://github.com/conda/conda/issues/10972).
+#'
 #' @param cmd the system command to be invoked, as a character string.
 #' @param args a character vector of arguments to command. The arguments have to be quoted
 #' e.g. by shQuote in case they contain space or other special characters
@@ -936,15 +945,19 @@ Run `miniconda_update('%s')` to update conda.", conda)
 #' @param cmd_line the command line to be executed, as a character string. This is automatically
 #' generated from `cmd` and `args`, but can be provided directly if needed (if provided, it overrides
 #' `cmd` and `args`.
+#' @param conda The path to a `conda` executable. Use `"auto"` to allow
+#'   `reticulate` to automatically find an appropriate `conda` binary.
+#'   See **Finding Conda** and [conda_binary()] for more details.
+#' @param envname The name of, or path to, a conda environment.
 #' @param intern a logical (not NA) which indicates whether to capture the output of the
-#' command as an R character vector. If FALSE, the return value is the error code (0 for success).
+#' command as an R character vector. If FALSE (the default), the return value is the error code (0 for success).
 #' @param echo a logical (not NA) which indicates whether to echo the command to the console before
 #' running it.
 #' @returns `conda_run2()` runs a command in the desired conda environment via [shell()];
-#' if `intern = TRUE` the output is returned as a character vector; if `intern = FALSE`,
+#' if `intern = TRUE` the output is returned as a character vector; if `intern = FALSE` (the deafult),
 #' then the return value is the error code (0 for success). See [shell()] for more details.
 #' @export
-#' @rdname conda-tools
+#' @seealso [`conda-tools`]
 # executes a cmd with a conda env active, implemented directly to avoid using `conda run`
 # https://github.com/conda/conda/issues/10972
 conda_run2 <- function(cmd, args = c(), conda = "auto", envname = NULL,

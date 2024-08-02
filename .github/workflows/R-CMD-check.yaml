@@ -25,6 +25,9 @@ jobs:
           - { os: windows-latest, r: 'release', python: '3.10' }
           - { os: ubuntu-latest , r: 'release', python: '3.10' }
 
+          # test R oldrel on mac too: https://github.com/RcppCore/RcppArmadillo/issues/447
+          - { os: macOS-latest , r: 'oldrel'  , python: '3.10' }
+
           - { os: ubuntu-latest, r: 'oldrel-1', python: '3.9' }
           - { os: ubuntu-latest, r: 'oldrel-2', python: '3.9' }
           - { os: ubuntu-20.04,  r: 'oldrel-3', python: '3.8' }

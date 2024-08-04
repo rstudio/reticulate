@@ -175,6 +175,15 @@ class GILScope {
     }
   }
 
+  GILScope(bool force, PyGILState_STATE restore_state) {
+    if (force) {
+      PyGILState_Ensure();
+      gstate = restore_state;
+      acquired = true;
+    }
+  }
+
+
   ~GILScope() {
     if (acquired) PyGILState_Release(gstate);
   }

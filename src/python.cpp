@@ -565,10 +565,13 @@ bool was_python_initialized_by_reticulate() {
 }
 
 static inline
-void ensure_python_initialized() {
-  if (s_is_python_initialized) return;
+GILScope ensure_python_initialized() {
+  if (s_is_python_initialized) {
+    return GILScope(false);
+  }
   Function initialize = Environment::namespace_env("reticulate")["ensure_python_initialized"];
   initialize();
+  return GILScope(true);
 }
 
 
@@ -1174,7 +1177,7 @@ bool py_is_callable(PyObject* x) {
 
 // [[Rcpp::export]]
 PyObjectRef py_none_impl() {
-  ensure_python_initialized();
+  auto _guard = ensure_python_initialized();
   Py_IncRef(Py_None);
   return py_ref(Py_None, false);
 }
@@ -1755,7 +1758,7 @@ void GrowList(SEXP args_list, SEXP tag, SEXP dflt) {
 // [[Rcpp::export]]
 SEXP py_get_formals(PyObjectRef callable)
 {
-
+  auto _guard = ensure_python_initialized();
   PyObject* callable_ = callable.get();
 
   static PyObject *inspect_module = NULL;
@@ -2037,7 +2040,7 @@ PyObject* r_to_py(RObject x, bool convert) {
 // will have an active reference count on it)
 // the convert arg is only applicable to R functions that will being wrapped in python functions.
 PyObject* r_to_py_cpp(RObject x, bool convert) {
-  ensure_python_initialized();
+  auto _guard = ensure_python_initialized();
 
   int type = x.sexp_type();
   SEXP sexp = x.get__();
@@ -2859,7 +2862,7 @@ void py_initialize(const std::string& python,
 
   s_main_thread = tthread::this_thread::get_id();
   s_is_python_initialized = true;
-  GILScope scope;
+  GILScope scope(/*force=*/ true, /*restore=*/ PyGILState_UNLOCKED);
 
   // initialize type objects
   initialize_type_objects(is_python3());
@@ -2988,6 +2991,7 @@ bool py_numpy_available_impl() {
 
 // [[Rcpp::export]]
 std::vector<std::string> py_list_attributes_impl(PyObjectRef x) {
+  auto _guard = ensure_python_initialized();
   PyObject* x_ = x.get(); // ensure python initialized, module proxy resolved
   std::vector<std::string> attributes;
   PyObjectPtr attrs(PyObject_Dir(x_));
@@ -3041,6 +3045,7 @@ PyObjectRef py_new_ref(PyObjectRef x, SEXP convert) {
 //' @export
 // [[Rcpp::export]]
 bool py_has_attr(PyObjectRef x, const std::string& name) {
+  auto _guard = ensure_python_initialized();
   PyObject* x_ = x.get(); // ensure python initialized, module proxy resolved
   return PyObject_HasAttrString(x_, name.c_str());
 }
@@ -3060,6 +3065,7 @@ PyObjectRef py_get_attr(PyObjectRef x,
                         const std::string& name,
                         bool silent = false)
 {
+  auto _guard = ensure_python_initialized();
   PyObject* x_ = x.get(); // ensure python initialized, module proxy resolved
   PyObject *attr = PyObject_GetAttrString(x_, name.c_str()); // new ref
 
@@ -3088,6 +3094,7 @@ PyObjectRef py_set_attr(PyObjectRef x,
                         const std::string& name,
                         RObject value)
 {
+  auto _guard = ensure_python_initialized();
   PyObject* x_ = x.get(); // ensure python initialized, module proxy resolved
   PyObjectPtr value_(r_to_py(value, x.convert()));
   int res = PyObject_SetAttrString(x_, name.c_str(), value_);
@@ -3105,6 +3112,7 @@ PyObjectRef py_set_attr(PyObjectRef x,
 // [[Rcpp::export(invisible = true)]]
 PyObjectRef py_del_attr(PyObjectRef x, const std::string& name)
 {
+  auto _guard = ensure_python_initialized();
   PyObject* x_ = x.get(); // ensure python initialized, module proxy resolved
   int res = PyObject_SetAttrString(x_, name.c_str(), NULL);
   if (res != 0)
@@ -3117,6 +3125,7 @@ PyObjectRef py_del_attr(PyObjectRef x, const std::string& name)
 // [[Rcpp::export]]
 PyObjectRef py_get_item(PyObjectRef x, RObject key, bool silent = false)
 {
+  auto _guard = ensure_python_initialized();
   PyObject* x_ = x.get(); // ensure python initialized, module proxy resolved
   PyObjectPtr py_key(r_to_py(key, false));
   PyObject *item = PyObject_GetItem(x_, py_key);
@@ -3135,6 +3144,7 @@ PyObjectRef py_get_item(PyObjectRef x, RObject key, bool silent = false)
 // [[Rcpp::export(invisible = true)]]
 PyObjectRef py_set_item(PyObjectRef x, RObject key, RObject value)
 {
+  auto _guard = ensure_python_initialized();
   PyObject* x_ = x.get(); // ensure python initialized, module proxy resolved
   PyObjectPtr py_key(r_to_py(key, true));
   PyObjectPtr py_val(r_to_py(value, true));
@@ -3149,6 +3159,7 @@ PyObjectRef py_set_item(PyObjectRef x, RObject key, RObject value)
 //' @export
 // [[Rcpp::export(invisible = true)]]
 PyObjectRef py_del_item(PyObjectRef x, RObject key) {
+  auto _guard = ensure_python_initialized();
   PyObject* x_ = x.get(); // ensure python initialized, module proxy resolved
   PyObjectPtr pyKey(r_to_py(key, true));
   int res = PyObject_DelItem(x_, pyKey.get());
@@ -3164,6 +3175,7 @@ IntegerVector py_get_attr_types(
     const std::vector<std::string>& attrs,
     bool resolve_properties = false)
 {
+  auto _guard = ensure_python_initialized();
   PyObject* x_ = x.get(); // ensure python initialized, module proxy resolved
   const int UNKNOWN     =  0;
   const int VECTOR      =  1;
@@ -3242,7 +3254,7 @@ SEXP py_ref_to_r(PyObjectRef x) {
 // [[Rcpp::export]]
 SEXP py_call_impl(PyObjectRef x, List args = R_NilValue, List keywords = R_NilValue) {
 
-  ensure_python_initialized();
+  auto _guard = ensure_python_initialized();
   bool convert = x.convert();
 
   // unnamed arguments
@@ -3284,7 +3296,7 @@ SEXP py_call_impl(PyObjectRef x, List args = R_NilValue, List keywords = R_NilVa
 
 // [[Rcpp::export]]
 PyObjectRef py_dict_impl(const List& keys, const List& items, bool convert) {
-  ensure_python_initialized();
+  auto _guard = ensure_python_initialized();
 
   PyObject* dict = PyDict_New();
 
@@ -3301,6 +3313,7 @@ PyObjectRef py_dict_impl(const List& keys, const List& items, bool convert) {
 
 // [[Rcpp::export]]
 SEXP py_dict_get_item(PyObjectRef dict, RObject key) {
+  auto _guard = ensure_python_initialized();
   PyObject* dict_ = dict.get(); // ensure python initialized, module proxy resolved
 
   if (!PyDict_CheckExact(dict_)) {
@@ -3328,6 +3341,7 @@ SEXP py_dict_get_item(PyObjectRef dict, RObject key) {
 
 // [[Rcpp::export]]
 void py_dict_set_item(PyObjectRef dict, RObject key, RObject val) {
+  auto _guard = ensure_python_initialized();
   PyObject* dict_ = dict.get(); // ensure python initialized, module proxy resolved
 
   if (!PyDict_CheckExact(dict_)) {
@@ -3421,7 +3435,7 @@ CharacterVector py_dict_get_keys_as_str(PyObjectRef dict) {
 
 // [[Rcpp::export]]
 PyObjectRef py_tuple(const List& items, bool convert) {
-  ensure_python_initialized();
+  auto _guard = ensure_python_initialized();
 
   R_xlen_t n = items.length();
   PyObject* tuple = PyTuple_New(n);
@@ -3507,7 +3521,7 @@ SEXP py_run_string_impl(const std::string& code,
                         bool local = false,
                         bool convert = true)
 {
-  ensure_python_initialized();
+  auto _guard = ensure_python_initialized();
   PyFlushOutputOnScopeExit flush_;
   // retrieve reference to main module dictionary
   // note: both PyImport_AddModule() and PyModule_GetDict()
@@ -3547,7 +3561,7 @@ SEXP py_run_string_impl(const std::string& code,
 PyObjectRef py_run_file_impl(const std::string& file,
                       bool local = false,
                       bool convert = true) {
-  ensure_python_initialized();
+  auto _guard = ensure_python_initialized();
   FILE* fp = fopen(file.c_str(), "rb");
   if (fp == NULL) stop("Unable to open file '%s'", file);
 
@@ -3590,7 +3604,7 @@ PyObjectRef py_run_file_impl(const std::string& file,
 
 // [[Rcpp::export]]
 SEXP py_eval_impl(const std::string& code, bool convert = true) {
-  ensure_python_initialized();
+  auto _guard = ensure_python_initialized();
   // compile the code
   PyObjectPtr compiledCode;
   if (Py_CompileStringExFlags != NULL)
@@ -4150,6 +4164,7 @@ SEXP py_bool_impl(PyObjectRef x, bool silent = false) {
 
 // [[Rcpp::export]]
 SEXP py_has_method(PyObjectRef object, const std::string& name) {
+  auto _guard = ensure_python_initialized();
   PyObject* object_ = object.get(); // ensure python initialized, module proxy resolved
 
   PyObjectPtr attr(PyObject_GetAttrString(object_, name.c_str()));
@@ -4189,7 +4204,7 @@ SEXP py_id(PyObjectRef object) {
 
 // [[Rcpp::export]]
 PyObjectRef py_capsule(SEXP x) {
-  ensure_python_initialized();
+  auto _guard = ensure_python_initialized();
 
   return py_ref(py_capsule_new(x), false);
 }
@@ -4197,7 +4212,7 @@ PyObjectRef py_capsule(SEXP x) {
 
 // [[Rcpp::export]]
 PyObjectRef py_slice(SEXP start = R_NilValue, SEXP stop = R_NilValue, SEXP step = R_NilValue) {
-  ensure_python_initialized();
+  auto _guard = ensure_python_initialized();
 
   PyObjectPtr start_, stop_, step_;
 
@@ -4219,7 +4234,7 @@ PyObjectRef py_slice(SEXP start = R_NilValue, SEXP stop = R_NilValue, SEXP step 
 //' @export
 // [[Rcpp::export]]
 SEXP as_iterator(SEXP x) {
-  ensure_python_initialized();
+  auto _guard = ensure_python_initialized();
 
   // If already inherits from iterator, return as is
   if (inherits2(x, "python.builtin.iterator"))
@@ -4280,7 +4295,7 @@ SEXP py_iter_next(PyObjectRef iterator, RObject completed) {
 // [[Rcpp::export]]
 SEXP py_iterate(PyObjectRef x, Function f, bool simplify = true) {
 
-  ensure_python_initialized();
+  auto _guard = ensure_python_initialized();
 
   SEXP out;
   { // open scope so we can invoke c++ destructors before

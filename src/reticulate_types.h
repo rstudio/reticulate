@@ -164,11 +164,6 @@ class GILScope {
       gstate = PyGILState_Ensure();
     }
 
-  GILScope(PyGILState_STATE restore_state) {
-      PyGILState_Ensure();
-      gstate = restore_state;
-    }
-
   ~GILScope() {
      PyGILState_Release(gstate);
   }

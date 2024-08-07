@@ -1,0 +1,16 @@
+
+
+py_allow_threads <- function(allow = TRUE) {
+  if (allow) {
+    reticulate_ns <- environment(sys.function())
+    for (f in sys.frames()) {
+      if (identical(parent.env(f), reticulate_ns) &&
+          !identical(f, environment()))
+        # Can't release the gil as unlocked while we're holding it
+        # elsewhere on the callstack.
+        stop("Unblocking python threads only allowed from as a top-level reticulate call")
+    }
+  }
+  invisible(py_allow_threads_impl(allow))
+}
+

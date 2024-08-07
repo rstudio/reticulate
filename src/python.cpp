@@ -2868,7 +2868,7 @@ void py_initialize(const std::string& python,
 
   s_main_thread = tthread::this_thread::get_id();
   s_is_python_initialized = true;
-  GILScope scope(/*restore=*/ PyGILState_UNLOCKED);
+  GILScope _gil;
 
   // initialize type objects
   initialize_type_objects(is_python3());
@@ -4477,3 +4477,17 @@ SEXP py_exception_as_condition(PyObject* object, SEXP refenv) {
   UNPROTECT(1);
   return out;
 }
+
+
+// [[Rcpp::export]]
+bool py_allow_threads_impl(bool allow) {
+  PyGILState_STATE gstate = PyGILState_Ensure();
+  if (allow) {
+    PyGILState_Release(PyGILState_UNLOCKED);
+  } else {
+    PyGILState_Release(PyGILState_LOCKED);
+  }
+  return gstate == PyGILState_UNLOCKED;
+}
+
+

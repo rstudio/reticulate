@@ -31,6 +31,13 @@ int _Py_Check(PyObject* o) {
   return 0;
 }
 
+
+PyGILState_STATE _initialize_python_and_PyGILState_Ensure() {
+  Function initialize_python = Environment::namespace_env("reticulate")["ensure_python_initialized"];
+  initialize_python();
+  return PyGILState_Ensure();
+}
+
 SEXP sym_pyobj;
 SEXP sym_py_object;
 SEXP sym_simple;
@@ -50,6 +57,7 @@ void reticulate_init(DllInfo *dll) {
   // before python is initialized, make these symbols safe to call (always return false)
   PyIter_Check = &_Py_Check;
   PyCallable_Check = &_Py_Check;
+  PyGILState_Ensure = &_initialize_python_and_PyGILState_Ensure;
 
   sym_py_object = Rf_install("py_object");
   sym_simple = Rf_install("simple");
@@ -564,15 +572,6 @@ bool was_python_initialized_by_reticulate() {
   return s_was_python_initialized_by_reticulate;
 }
 
-static inline
-GILScope ensure_python_initialized() {
-  if (s_is_python_initialized) {
-    return GILScope(false);
-  }
-  Function initialize = Environment::namespace_env("reticulate")["ensure_python_initialized"];
-  initialize();
-  return GILScope(true);
-}
 
 
 
@@ -941,8 +940,10 @@ SEXP py_fetch_error(bool maybe_reuse_cached_r_trace) {
 
 // [[Rcpp::export]]
 SEXP py_flush_output() {
-  if(s_is_python_initialized)
+  if(s_is_python_initialized) {
+    GILScope _gil;
     flush_std_buffers();
+  }
   return R_NilValue;
 }
 
@@ -1038,6 +1039,7 @@ std::string conditionMessage_from_py_exception(PyObject* exc) {
 
 // [[Rcpp::export]]
 std::string conditionMessage_from_py_exception(PyObjectRef exc) {
+  GILScope _gil;
   return conditionMessage_from_py_exception(exc.get());
 }
 
@@ -1177,7 +1179,7 @@ bool py_is_callable(PyObject* x) {
 
 // [[Rcpp::export]]
 PyObjectRef py_none_impl() {
-  auto _guard = ensure_python_initialized();
+  GILScope _gil;
   Py_IncRef(Py_None);
   return py_ref(Py_None, false);
 }
@@ -1186,8 +1188,8 @@ PyObjectRef py_none_impl() {
 bool py_is_callable(PyObjectRef x) {
   if (x.is_null_xptr())
     return false;
-  else
-    return py_is_callable(x.get());
+  GILScope _gil;
+  return py_is_callable(x.get());
 }
 
 // caches np.nditer function so we don't need to obtain it everytime we want to
@@ -1265,6 +1267,7 @@ bool is_py_object(SEXP x) {
 // if we fail to convert, this creates a new reference to x
 // (i.e, caller should call Py_DecRef() / PyObjectPtr.detach() for any refs caller created)
 SEXP py_to_r(PyObject* x, bool convert) {
+  GILScope _gil;
   if(!convert) {
     Py_IncRef(x);
     return py_ref(x, convert);
@@ -1294,6 +1297,7 @@ SEXP py_to_r_cpp(SEXP x) {
   // return x unmodified
   if(!simple && ref.convert()) return x;
 
+  GILScope _gil;
   // if simple = true, call py_to_r_cpp(PyObject) to (try to) simplify
   // if convert = false, call py_to_r_cpp(PyObject) to get a new ref with convert = true
   SEXP ret = py_to_r_cpp(ref.get(), /*convert =*/ true, simple);
@@ -1758,7 +1762,7 @@ void GrowList(SEXP args_list, SEXP tag, SEXP dflt) {
 // [[Rcpp::export]]
 SEXP py_get_formals(PyObjectRef callable)
 {
-  auto _guard = ensure_python_initialized();
+  GILScope _gil;
   PyObject* callable_ = callable.get();
 
   static PyObject *inspect_module = NULL;
@@ -2040,7 +2044,7 @@ PyObject* r_to_py(RObject x, bool convert) {
 // will have an active reference count on it)
 // the convert arg is only applicable to R functions that will being wrapped in python functions.
 PyObject* r_to_py_cpp(RObject x, bool convert) {
-  auto _guard = ensure_python_initialized();
+  GILScope _gil;
 
   int type = x.sexp_type();
   SEXP sexp = x.get__();
@@ -2266,6 +2270,7 @@ PyObject* r_to_py_cpp(RObject x, bool convert) {
 
 // [[Rcpp::export]]
 PyObjectRef r_to_py_impl(RObject object, bool convert) {
+  GILScope _gil;
   return py_ref(r_to_py_cpp(object, convert), convert);
 }
 
@@ -2729,7 +2734,7 @@ SEXP main_process_python_info_unix() {
   if (PyGILState_Release == NULL)
     loadSymbol(pLib, "PyGILState_Release", (void**)&PyGILState_Release);
 
-  GILScope scope(true);
+  GILScope scope;
 
   // read Python program path
   std::string python_path;
@@ -2777,6 +2782,7 @@ SEXP main_process_python_info() {
 
 // [[Rcpp::export]]
 void py_clear_error() {
+  GILScope _gil;
   DBG("Clearing Python errors.");
   PyErr_Clear();
 }
@@ -2807,7 +2813,7 @@ void py_initialize(const std::string& python,
     if (Py_IsInitialized()) {
       // if R is embedded in a python environment, rpycall has to be loaded as a regular
       // module.
-      GILScope scope(true);
+      GILScope scope;
       PyImport_AddModule("rpycall");
       PyDict_SetItemString(PyImport_GetModuleDict(), "rpycall", initializeRPYCall());
 
@@ -2862,7 +2868,7 @@ void py_initialize(const std::string& python,
 
   s_main_thread = tthread::this_thread::get_id();
   s_is_python_initialized = true;
-  GILScope scope(/*force=*/ true, /*restore=*/ PyGILState_UNLOCKED);
+  GILScope scope(/*restore=*/ PyGILState_UNLOCKED);
 
   // initialize type objects
   initialize_type_objects(is_python3());
@@ -2903,12 +2909,14 @@ void py_finalize() {
 
 // [[Rcpp::export]]
 bool py_is_none(PyObjectRef x) {
+  GILScope _gil;
   return py_is_none(x.get());
 }
 
 // [[Rcpp::export]]
 bool py_compare_impl(PyObjectRef a, PyObjectRef b, const std::string& op) {
 
+  GILScope _gil;
   int opcode;
   if (op == "==")
     opcode = Py_EQ;
@@ -2935,7 +2943,7 @@ bool py_compare_impl(PyObjectRef a, PyObjectRef b, const std::string& op) {
 
 // [[Rcpp::export]]
 CharacterVector py_str_impl(PyObjectRef x) {
-
+  GILScope _gil;
   if (!is_python_str(x)) {
 
     PyObjectPtr str(PyObject_Str(x));
@@ -2955,6 +2963,7 @@ CharacterVector py_str_impl(PyObjectRef x) {
 //' @rdname py_str
 // [[Rcpp::export]]
 SEXP py_repr(PyObjectRef object) {
+  GILScope _gil;
 
   if(py_is_null_xptr(object))
     return CharacterVector::create(String("<pointer: 0x0>"));
@@ -2977,6 +2986,7 @@ void py_print(PyObjectRef x) {
 
 // [[Rcpp::export]]
 bool py_is_function(PyObjectRef x) {
+  GILScope _gil;
   return PyFunction_Check(x) == 1;
 }
 
@@ -2991,7 +3001,7 @@ bool py_numpy_available_impl() {
 
 // [[Rcpp::export]]
 std::vector<std::string> py_list_attributes_impl(PyObjectRef x) {
-  auto _guard = ensure_python_initialized();
+  GILScope _gil;
   PyObject* x_ = x.get(); // ensure python initialized, module proxy resolved
   std::vector<std::string> attributes;
   PyObjectPtr attrs(PyObject_Dir(x_));
@@ -3026,6 +3036,7 @@ PyObjectRef py_new_ref(PyObjectRef x, SEXP convert) {
   ? x.convert() :
   ((bool) Rf_asLogical(convert));
 
+  GILScope _gil;
   PyObject* pyobj = x.get();
   Py_IncRef(pyobj);
   return py_ref(pyobj, convert_);
@@ -3045,7 +3056,7 @@ PyObjectRef py_new_ref(PyObjectRef x, SEXP convert) {
 //' @export
 // [[Rcpp::export]]
 bool py_has_attr(PyObjectRef x, const std::string& name) {
-  auto _guard = ensure_python_initialized();
+  GILScope _gil;
   PyObject* x_ = x.get(); // ensure python initialized, module proxy resolved
   return PyObject_HasAttrString(x_, name.c_str());
 }
@@ -3065,7 +3076,7 @@ PyObjectRef py_get_attr(PyObjectRef x,
                         const std::string& name,
                         bool silent = false)
 {
-  auto _guard = ensure_python_initialized();
+  GILScope _gil;
   PyObject* x_ = x.get(); // ensure python initialized, module proxy resolved
   PyObject *attr = PyObject_GetAttrString(x_, name.c_str()); // new ref
 
@@ -3094,7 +3105,7 @@ PyObjectRef py_set_attr(PyObjectRef x,
                         const std::string& name,
                         RObject value)
 {
-  auto _guard = ensure_python_initialized();
+  GILScope _gil;
   PyObject* x_ = x.get(); // ensure python initialized, module proxy resolved
   PyObjectPtr value_(r_to_py(value, x.convert()));
   int res = PyObject_SetAttrString(x_, name.c_str(), value_);
@@ -3112,7 +3123,7 @@ PyObjectRef py_set_attr(PyObjectRef x,
 // [[Rcpp::export(invisible = true)]]
 PyObjectRef py_del_attr(PyObjectRef x, const std::string& name)
 {
-  auto _guard = ensure_python_initialized();
+  GILScope _gil;
   PyObject* x_ = x.get(); // ensure python initialized, module proxy resolved
   int res = PyObject_SetAttrString(x_, name.c_str(), NULL);
   if (res != 0)
@@ -3125,7 +3136,7 @@ PyObjectRef py_del_attr(PyObjectRef x, const std::string& name)
 // [[Rcpp::export]]
 PyObjectRef py_get_item(PyObjectRef x, RObject key, bool silent = false)
 {
-  auto _guard = ensure_python_initialized();
+  GILScope _gil;
   PyObject* x_ = x.get(); // ensure python initialized, module proxy resolved
   PyObjectPtr py_key(r_to_py(key, false));
   PyObject *item = PyObject_GetItem(x_, py_key);
@@ -3144,7 +3155,7 @@ PyObjectRef py_get_item(PyObjectRef x, RObject key, bool silent = false)
 // [[Rcpp::export(invisible = true)]]
 PyObjectRef py_set_item(PyObjectRef x, RObject key, RObject value)
 {
-  auto _guard = ensure_python_initialized();
+  GILScope _gil;
   PyObject* x_ = x.get(); // ensure python initialized, module proxy resolved
   PyObjectPtr py_key(r_to_py(key, true));
   PyObjectPtr py_val(r_to_py(value, true));
@@ -3159,7 +3170,7 @@ PyObjectRef py_set_item(PyObjectRef x, RObject key, RObject value)
 //' @export
 // [[Rcpp::export(invisible = true)]]
 PyObjectRef py_del_item(PyObjectRef x, RObject key) {
-  auto _guard = ensure_python_initialized();
+  GILScope _gil;
   PyObject* x_ = x.get(); // ensure python initialized, module proxy resolved
   PyObjectPtr pyKey(r_to_py(key, true));
   int res = PyObject_DelItem(x_, pyKey.get());
@@ -3175,7 +3186,7 @@ IntegerVector py_get_attr_types(
     const std::vector<std::string>& attrs,
     bool resolve_properties = false)
 {
-  auto _guard = ensure_python_initialized();
+  GILScope _gil;
   PyObject* x_ = x.get(); // ensure python initialized, module proxy resolved
   const int UNKNOWN     =  0;
   const int VECTOR      =  1;
@@ -3254,7 +3265,7 @@ SEXP py_ref_to_r(PyObjectRef x) {
 // [[Rcpp::export]]
 SEXP py_call_impl(PyObjectRef x, List args = R_NilValue, List keywords = R_NilValue) {
 
-  auto _guard = ensure_python_initialized();
+  GILScope _gil;
   bool convert = x.convert();
 
   // unnamed arguments
@@ -3296,7 +3307,7 @@ SEXP py_call_impl(PyObjectRef x, List args = R_NilValue, List keywords = R_NilVa
 
 // [[Rcpp::export]]
 PyObjectRef py_dict_impl(const List& keys, const List& items, bool convert) {
-  auto _guard = ensure_python_initialized();
+  GILScope _gil;
 
   PyObject* dict = PyDict_New();
 
@@ -3313,7 +3324,7 @@ PyObjectRef py_dict_impl(const List& keys, const List& items, bool convert) {
 
 // [[Rcpp::export]]
 SEXP py_dict_get_item(PyObjectRef dict, RObject key) {
-  auto _guard = ensure_python_initialized();
+  GILScope _gil;
   PyObject* dict_ = dict.get(); // ensure python initialized, module proxy resolved
 
   if (!PyDict_CheckExact(dict_)) {
@@ -3341,7 +3352,7 @@ SEXP py_dict_get_item(PyObjectRef dict, RObject key) {
 
 // [[Rcpp::export]]
 void py_dict_set_item(PyObjectRef dict, RObject key, RObject val) {
-  auto _guard = ensure_python_initialized();
+  GILScope _gil;
   PyObject* dict_ = dict.get(); // ensure python initialized, module proxy resolved
 
   if (!PyDict_CheckExact(dict_)) {
@@ -3357,6 +3368,7 @@ void py_dict_set_item(PyObjectRef dict, RObject key, RObject val) {
 
 // [[Rcpp::export]]
 int py_dict_length(PyObjectRef dict) {
+  GILScope _gil;
 
   if (!PyDict_CheckExact(dict))
     return PyObject_Size(dict);
@@ -3386,12 +3398,14 @@ PyObject* py_dict_get_keys_impl(PyObject* dict) {
 
 // [[Rcpp::export]]
 PyObjectRef py_dict_get_keys(PyObjectRef dict) {
+  GILScope _gil;
   PyObject* keys = py_dict_get_keys_impl(dict);
   return py_ref(keys, dict.convert());
 }
 
 // [[Rcpp::export]]
 CharacterVector py_dict_get_keys_as_str(PyObjectRef dict) {
+  GILScope _gil;
 
   // get the dictionary keys
   PyObjectPtr py_keys(py_dict_get_keys_impl(dict));
@@ -3435,7 +3449,7 @@ CharacterVector py_dict_get_keys_as_str(PyObjectRef dict) {
 
 // [[Rcpp::export]]
 PyObjectRef py_tuple(const List& items, bool convert) {
-  auto _guard = ensure_python_initialized();
+  GILScope _gil;
 
   R_xlen_t n = items.length();
   PyObject* tuple = PyTuple_New(n);
@@ -3453,7 +3467,7 @@ PyObjectRef py_tuple(const List& items, bool convert) {
 
 // [[Rcpp::export]]
 int py_tuple_length(PyObjectRef tuple) {
-
+  GILScope _gil;
   if (!PyTuple_CheckExact(tuple))
     return PyObject_Size(tuple);
 
@@ -3464,7 +3478,7 @@ int py_tuple_length(PyObjectRef tuple) {
 
 // [[Rcpp::export]]
 PyObjectRef py_module_import(const std::string& module, bool convert) {
-
+  GILScope _gil;
   PyObject* pModule = py_import(module);
   if (pModule == NULL)
     throw PythonException(py_fetch_error());
@@ -3477,6 +3491,7 @@ PyObjectRef py_module_import(const std::string& module, bool convert) {
 void py_module_proxy_import(PyObjectRef proxy) {
   Rcpp::Environment refenv = proxy.get_refenv();
   if (refenv.exists("module")) {
+    GILScope _gil;
     Rcpp::RObject r_module = refenv.get("module");
     std::string module = as<std::string>(r_module);
     PyObject* pModule = py_import(module);
@@ -3495,6 +3510,7 @@ void py_module_proxy_import(PyObjectRef proxy) {
 // [[Rcpp::export]]
 CharacterVector py_list_submodules(const std::string& module) {
 
+  GILScope _gil;
   std::vector<std::string> modules;
 
   PyObject* modulesDict = PyImport_GetModuleDict();
@@ -3521,7 +3537,7 @@ SEXP py_run_string_impl(const std::string& code,
                         bool local = false,
                         bool convert = true)
 {
-  auto _guard = ensure_python_initialized();
+  GILScope _gil;
   PyFlushOutputOnScopeExit flush_;
   // retrieve reference to main module dictionary
   // note: both PyImport_AddModule() and PyModule_GetDict()
@@ -3561,7 +3577,7 @@ SEXP py_run_string_impl(const std::string& code,
 PyObjectRef py_run_file_impl(const std::string& file,
                       bool local = false,
                       bool convert = true) {
-  auto _guard = ensure_python_initialized();
+  GILScope _gil;
   FILE* fp = fopen(file.c_str(), "rb");
   if (fp == NULL) stop("Unable to open file '%s'", file);
 
@@ -3604,7 +3620,7 @@ PyObjectRef py_run_file_impl(const std::string& file,
 
 // [[Rcpp::export]]
 SEXP py_eval_impl(const std::string& code, bool convert = true) {
-  auto _guard = ensure_python_initialized();
+  GILScope _gil;
   // compile the code
   PyObjectPtr compiledCode;
   if (Py_CompileStringExFlags != NULL)
@@ -3689,6 +3705,7 @@ SEXPTYPE nullable_typename_to_sexptype (const std::string& name) {
 
 // [[Rcpp::export]]
 SEXP py_convert_pandas_series(PyObjectRef series) {
+  GILScope _gil;
 
   // extract dtype
   PyObjectPtr dtype(PyObject_GetAttrString(series, "dtype"));
@@ -3827,6 +3844,7 @@ SEXP py_convert_pandas_series(PyObjectRef series) {
 
 // [[Rcpp::export]]
 SEXP py_convert_pandas_df(PyObjectRef df) {
+  GILScope _gil;
 
   // pd.DataFrame.items() returns an iterator over (column name, Series) pairs
   PyObjectPtr items(PyObject_CallMethod(df, "items", NULL));
@@ -3989,7 +4007,7 @@ PyObject* r_to_py_pandas_nullable_series (const RObject& column, const bool conv
 
 // [[Rcpp::export]]
 PyObjectRef r_convert_dataframe(RObject dataframe, bool convert) {
-
+  GILScope _gil;
   Function r_convert_dataframe_column =
     Environment::namespace_env("reticulate")["r_convert_dataframe_column"];
 
@@ -4075,6 +4093,7 @@ PyObject* r_convert_date_impl(PyObject* datetime,
 // [[Rcpp::export]]
 PyObjectRef r_convert_date(DateVector dates, bool convert) {
 
+  GILScope _gil;
   PyObjectPtr datetime(PyImport_ImportModule("datetime"));
 
   // short path for n == 1
@@ -4099,6 +4118,7 @@ PyObjectRef r_convert_date(DateVector dates, bool convert) {
 
 // [[Rcpp::export]]
 SEXP py_list_length(PyObjectRef x) {
+  GILScope _gil;
 
   Py_ssize_t value;
   if (PyList_CheckExact(x))
@@ -4114,7 +4134,7 @@ SEXP py_list_length(PyObjectRef x) {
 
 // [[Rcpp::export]]
 SEXP py_len_impl(PyObjectRef x, SEXP defaultValue = R_NilValue) {
-
+  GILScope _gil;
   PyObject *er_type, *er_value, *er_traceback;
   if (defaultValue != R_NilValue)
     PyErr_Fetch(&er_type, &er_value, &er_traceback);
@@ -4139,6 +4159,7 @@ SEXP py_len_impl(PyObjectRef x, SEXP defaultValue = R_NilValue) {
 
 // [[Rcpp::export]]
 SEXP py_bool_impl(PyObjectRef x, bool silent = false) {
+  GILScope _gil;
   int result;
   if(silent) {
     PyErrorScopeGuard _g;
@@ -4164,7 +4185,7 @@ SEXP py_bool_impl(PyObjectRef x, bool silent = false) {
 
 // [[Rcpp::export]]
 SEXP py_has_method(PyObjectRef object, const std::string& name) {
-  auto _guard = ensure_python_initialized();
+  GILScope _gil;
   PyObject* object_ = object.get(); // ensure python initialized, module proxy resolved
 
   PyObjectPtr attr(PyObject_GetAttrString(object_, name.c_str()));
@@ -4194,6 +4215,7 @@ SEXP py_has_method(PyObjectRef object, const std::string& name) {
 SEXP py_id(PyObjectRef object) {
   if (py_is_null_xptr(object))
     return R_NilValue;
+  GILScope _gil;
 
   std::stringstream id;
   id << (uintptr_t) object.get();
@@ -4204,7 +4226,7 @@ SEXP py_id(PyObjectRef object) {
 
 // [[Rcpp::export]]
 PyObjectRef py_capsule(SEXP x) {
-  auto _guard = ensure_python_initialized();
+  GILScope _gil;
 
   return py_ref(py_capsule_new(x), false);
 }
@@ -4212,7 +4234,7 @@ PyObjectRef py_capsule(SEXP x) {
 
 // [[Rcpp::export]]
 PyObjectRef py_slice(SEXP start = R_NilValue, SEXP stop = R_NilValue, SEXP step = R_NilValue) {
-  auto _guard = ensure_python_initialized();
+  GILScope _gil;
 
   PyObjectPtr start_, stop_, step_;
 
@@ -4234,7 +4256,7 @@ PyObjectRef py_slice(SEXP start = R_NilValue, SEXP stop = R_NilValue, SEXP step 
 //' @export
 // [[Rcpp::export]]
 SEXP as_iterator(SEXP x) {
-  auto _guard = ensure_python_initialized();
+  GILScope _gil;
 
   // If already inherits from iterator, return as is
   if (inherits2(x, "python.builtin.iterator"))
@@ -4267,10 +4289,10 @@ SEXP as_iterator(SEXP x) {
 
 // [[Rcpp::export]]
 SEXP py_iter_next(PyObjectRef iterator, RObject completed) {
-
   if(!PyIter_Check(iterator))
     stop("object is not an iterator");
 
+  GILScope _gil;
   PyObjectPtr item(PyIter_Next(iterator));
   if (item.is_null()) {
 
@@ -4295,7 +4317,7 @@ SEXP py_iter_next(PyObjectRef iterator, RObject completed) {
 // [[Rcpp::export]]
 SEXP py_iterate(PyObjectRef x, Function f, bool simplify = true) {
 
-  auto _guard = ensure_python_initialized();
+  GILScope _gil;
 
   SEXP out;
   { // open scope so we can invoke c++ destructors before

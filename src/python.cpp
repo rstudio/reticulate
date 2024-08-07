@@ -4289,10 +4289,11 @@ SEXP as_iterator(SEXP x) {
 
 // [[Rcpp::export]]
 SEXP py_iter_next(PyObjectRef iterator, RObject completed) {
+  GILScope _gil;
+
   if(!PyIter_Check(iterator))
     stop("object is not an iterator");
 
-  GILScope _gil;
   PyObjectPtr item(PyIter_Next(iterator));
   if (item.is_null()) {
 

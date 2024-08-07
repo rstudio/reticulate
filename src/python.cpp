@@ -4489,5 +4489,3 @@ bool py_allow_threads_impl(bool allow) {
   }
   return gstate == PyGILState_UNLOCKED;
 }
-
-

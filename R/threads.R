@@ -11,6 +11,9 @@ py_allow_threads <- function(allow = TRUE) {
         stop("Unblocking python threads only allowed from as a top-level reticulate call")
     }
   }
+
+  if (!was_python_initialized_by_reticulate())
+    stop("Can't safely unblock threads when R is running embedded")
+
   invisible(py_allow_threads_impl(allow))
 }
-

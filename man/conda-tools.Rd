@@ -187,3 +187,6 @@ This can be useful if your conda installation lives in a location that
 \code{reticulate} is unable to automatically discover.
 }
 
+\seealso{
+\code{\link[=conda_run2]{conda_run2()}}
+}

@@ -15,11 +15,12 @@ conda_run2(
 )
 }
 \arguments{
-\item{cmd}{the system command to be invoked, as a character string.}
+\item{cmd}{The system command to be invoked, as a character string.}
 
-\item{args}{a character vector of arguments to command. The arguments have to be quoted
-e.g. by shQuote in case they contain space or other special characters
-(a double quote or backslash on Windows, shell-specific special characters on Unix).}
+\item{args}{A character vector of arguments to the command. The arguments should
+be quoted e.g. by \code{shQuote()} in case they contain space or other special
+characters (a double quote or backslash on Windows, shell-specific special
+characters on Unix).}
 
 \item{conda}{The path to a \code{conda} executable. Use \code{"auto"} to allow
 \code{reticulate} to automatically find an appropriate \code{conda} binary.
@@ -27,29 +28,31 @@ See \strong{Finding Conda} and \code{\link[=conda_binary]{conda_binary()}} for m
 
 \item{envname}{The name of, or path to, a conda environment.}
 
-\item{cmd_line}{the command line to be executed, as a character string. This is automatically
-generated from \code{cmd} and \code{args}, but can be provided directly if needed (if provided, it overrides
-\code{cmd} and \code{args}.}
+\item{cmd_line}{The command line to be executed, as a character string. This
+is automatically generated from \code{cmd} and \code{args}, but can be provided
+directly if needed (if provided, it overrides \code{cmd} and \code{args}).}
 
-\item{intern}{a logical (not NA) which indicates whether to capture the output of the
-command as an R character vector. If FALSE (the default), the return value is the error code (0 for success).}
+\item{intern}{A logical (not \code{NA}) which indicates whether to capture the
+output of the command as an R character vector. If \code{FALSE} (the default), the
+return value is the error code (\code{0} for success).}
 
-\item{echo}{a logical (not NA) which indicates whether to echo the command to the console before
-running it.}
+\item{echo}{A logical (not \code{NA}) which indicates whether to echo the command to
+the console before running it.}
 }
 \value{
-\code{conda_run2()} runs a command in the desired conda environment via \code{\link[=shell]{shell()}};
-if \code{intern = TRUE} the output is returned as a character vector; if \code{intern = FALSE} (the deafult),
-then the return value is the error code (0 for success). See \code{\link[=shell]{shell()}} for more details.
+\code{conda_run2()} runs a command in the desired conda environment. If
+\code{intern = TRUE} the output is returned as a character vector; if \code{intern = FALSE} (the
+deafult), then the return value is the error code (0 for success). See
+\code{\link[=shell]{shell()}} (on windows) or \code{\link[=system2]{system2()}} on macOS or Linux for more details.
 }
 \description{
-This functions allows to run a command in a chosen conda environment.
+This function runs a command in a chosen conda environment.
 }
 \details{
-Note that,
-whilst the syntax is similar to \code{system2()}, the function uses \code{shell()} to run
-a shell file that is generated on the fly. This avoids issues with quoting, as
-discussed in this \href{https://github.com/conda/conda/issues/10972}{GitHub issue}.
+Note that, whilst the syntax is similar to \code{\link[=system2]{system2()}}, the function
+dynamically generates a shell script with commands to activate the chosen
+conda environent. This avoids issues with quoting, as discussed in this
+\href{https://github.com/conda/conda/issues/10972}{GitHub issue}.
 }
 \seealso{
 \code{\link{conda-tools}}

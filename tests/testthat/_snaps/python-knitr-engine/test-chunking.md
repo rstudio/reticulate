@@ -23,7 +23,6 @@ prose
     print(len(y))
     ## 3
 
-
     # Comment about type should be attached to the code below (like R). 
     # The output from the previous command should not be part of this
     print(type(y))
@@ -48,7 +47,6 @@ prose
     # Output of length() is given just after the command (as expected)
     print(length(x))
     ## [1] 3
-
 
     # Comment about class is attached to the code below (as expected)
     print(class(x))

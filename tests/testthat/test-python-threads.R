@@ -21,11 +21,11 @@ def write_to_file_from_thread(path, lines):
 
   reticulate:::py_allow_threads_impl(FALSE)
   write_to_file_from_thread(file, letters)
-  Sys.sleep(.3)
+  Sys.sleep(.5)
   # confirm background thread did not run while R was sleeping
   expect_false(file.exists(file))
   # explicitly enter python and release the gil
-  import("time")$sleep(.1)
+  import("time")$sleep(.3)
   # confirm the background thread ran on py_sleep()
   expect_identical(readLines(file), letters)
 

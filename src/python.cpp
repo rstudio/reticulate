@@ -2274,6 +2274,21 @@ PyObjectRef r_to_py_impl(RObject object, bool convert) {
   return py_ref(r_to_py_cpp(object, convert), convert);
 }
 
+class AllowPyThreadsScope
+{
+private:
+  PyThreadState *_save;
+
+public:
+  AllowPyThreadsScope() {
+    _save = PyEval_SaveThread();
+  }
+
+  ~AllowPyThreadsScope() {
+    PyEval_RestoreThread(_save);
+  }
+};
+
 // custom module used for calling R functions from python wrappers
 
 extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* keywords)
@@ -2353,7 +2368,11 @@ extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* k
     // it would already be protected by it's inclusion in the R callstack frames,
     // but rchk flags it anyway, and so ...
     RObject env(current_env());
-    Rcpp::List result(Rf_eval(call_r_func_call, env));
+    Rcpp::List result;
+    {
+      AllowPyThreadsScope _allow_threads;
+      result = Rf_eval(call_r_func_call, env);
+    }
 
     // result is either
     // (return_value, NULL) or

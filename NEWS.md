@@ -2,6 +2,8 @@
 
 - Fixed error when importing a module named `config` (#1628)
 
+- `conda_run2()` is now exported (#1637, contributed by @dramanica)
+
 # reticulate 1.38.0
 
 - Python Exceptions converted to R conditions are now R lists instead

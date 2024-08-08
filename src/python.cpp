@@ -4481,7 +4481,7 @@ SEXP py_exception_as_condition(PyObject* object, SEXP refenv) {
 
 
 // [[Rcpp::export]]
-bool py_allow_threads_impl(bool allow) {
+bool py_allow_threads_impl(bool allow = true) {
   PyGILState_STATE gstate = PyGILState_Ensure();
   if (allow) {
     PyGILState_Release(PyGILState_UNLOCKED);

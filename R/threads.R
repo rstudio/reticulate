@@ -8,7 +8,7 @@ py_allow_threads <- function(allow = TRUE) {
           !identical(f, environment()))
         # Can't release the gil as unlocked while we're holding it
         # elsewhere on the callstack.
-        stop("Unblocking python threads only allowed from as a top-level reticulate call")
+        stop("Python threads can only be unblocked from a top-level reticulate call")
     }
   }
 

@@ -42,7 +42,7 @@ def _run_file_on_thread(path, args=None):
     _thread.start_new_thread(run_file, (path, args))
 
 
-def _launch_lsp_on_thread(path, args):
+def _launch_lsp_server_on_thread(path, args):
     # for now, leave sys.argv and sys.path permanently modified.
     # Later, revisit if it's desirable/safe to restore after the initial
     # lsp event loop startup.

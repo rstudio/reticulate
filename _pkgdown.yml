@@ -90,9 +90,10 @@ reference:
     contents:
       - py_install
       - py_list_packages
-      - configure_environment
       - virtualenv-tools
+      - configure_environment
       - conda-tools
+      - conda_run2
 
   - title: "Miniconda"
     contents:

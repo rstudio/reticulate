@@ -255,6 +255,14 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
   # https://github.com/rstudio/reticulate/issues/586
   py_set_qt_qpa_platform_plugin_path(config)
 
+  if (was_python_initialized_by_reticulate()) {
+    allow_threads <- Sys.getenv("RETICULATE_ALLOW_THREADS", "true")
+    allow_threads <- tolower(allow_threads) %in% c("true", "1", "yes")
+    if (allow_threads) {
+      py_allow_threads_impl(TRUE)
+    }
+  }
+
   # return config
   config
 }

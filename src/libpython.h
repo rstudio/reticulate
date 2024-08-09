@@ -790,6 +790,8 @@ LIBPYTHON_EXTERN PyThreadState* (*PyGILState_GetThisThreadState)(void);
 LIBPYTHON_EXTERN PyGILState_STATE (*PyGILState_Ensure)(void);
 LIBPYTHON_EXTERN void (*PyGILState_Release)(PyGILState_STATE);
 LIBPYTHON_EXTERN PyThreadState* (*PyThreadState_Next)(PyThreadState*);
+LIBPYTHON_EXTERN PyThreadState* (*PyEval_SaveThread)();
+LIBPYTHON_EXTERN void (*PyEval_RestoreThread)(PyThreadState*);
 
 /* End PyFrameObject */
 

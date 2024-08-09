@@ -39,7 +39,7 @@ def _run_file_on_thread(path, args=None):
 
     import _thread
 
-    _thread.start_new_thread(run_file, (path, args))
+    _thread.start_new_thread(run_file, (path, ))
 
 
 def _launch_lsp_server_on_thread(path, args):

@@ -164,6 +164,7 @@ test_that("numpy non-simple arrays work", {
   expect_s3_class(rec_array, "numpy.ndarray")
   expect_s3_class(rec_array, "python.builtin.object")
 
+  skip_if_no_pandas()
   # Test that a registered S3 method for the non-simple numpy array will be
   # called. (Note, some packages, like {zellkonverter}, will register this
   # directly for numpy.ndarray)

@@ -812,6 +812,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// py_allow_threads_impl
+bool py_allow_threads_impl(bool allow);
+RcppExport SEXP _reticulate_py_allow_threads_impl(SEXP allowSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< bool >::type allow(allowSEXP);
+    rcpp_result_gen = Rcpp::wrap(py_allow_threads_impl(allow));
+    return rcpp_result_gen;
+END_RCPP
+}
 // readline
 SEXP readline(const std::string& prompt);
 RcppExport SEXP _reticulate_readline(SEXP promptSEXP) {
@@ -895,6 +906,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_reticulate_as_iterator", (DL_FUNC) &_reticulate_as_iterator, 1},
     {"_reticulate_py_iter_next", (DL_FUNC) &_reticulate_py_iter_next, 2},
     {"_reticulate_py_iterate", (DL_FUNC) &_reticulate_py_iterate, 3},
+    {"_reticulate_py_allow_threads_impl", (DL_FUNC) &_reticulate_py_allow_threads_impl, 1},
     {"_reticulate_readline", (DL_FUNC) &_reticulate_readline, 1},
     {NULL, NULL, 0}
 };

@@ -365,6 +365,10 @@ py_iterate <- function(x, f, simplify = TRUE) {
     .Call(`_reticulate_py_iterate`, x, f, simplify)
 }
 
+py_allow_threads_impl <- function(allow = TRUE) {
+    .Call(`_reticulate_py_allow_threads_impl`, allow)
+}
+
 readline <- function(prompt) {
     .Call(`_reticulate_readline`, prompt)
 }

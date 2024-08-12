@@ -8,7 +8,7 @@ test_that("Python scripts can be sourced from local file", {
 
 test_that("Python scripts can be sourced from a URL", {
   skip_if_no_python()
-  skip_if_offline()
+  # skip_if_offline() ## needs {curl}
   source_python('https://raw.githubusercontent.com/rstudio/reticulate/main/tests/testthat/script.py')
   expect_equal(add(2, 4), 6)
 })

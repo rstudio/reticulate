@@ -8,6 +8,7 @@ test_that("Python scripts can be sourced from local file", {
 
 test_that("Python scripts can be sourced from a URL", {
   skip_if_no_python()
+  skip_if_offline()
   source_python('https://raw.githubusercontent.com/rstudio/reticulate/main/tests/testthat/script.py')
   expect_equal(add(2, 4), 6)
 })
@@ -38,4 +39,3 @@ test_that("source_python() overlays in the main module", {
   main <- import_main()
   expect_equal(main$value, 42)
 })
-

@@ -8,10 +8,6 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(eval = FALSE)
-```
-
 ## Overview
 
 Python packages are typically installed from one of two package repositories:
@@ -60,7 +56,7 @@ Virtual environments are by default located at `~/.virtualenvs`. You can change 
 
 Here's an example of using these functions to create an environment, install packages within it, then use the environment from R:
 
-```{r}
+```r
 library(reticulate)
 
 # create a new environment 
@@ -75,7 +71,7 @@ scipy <- import("scipy")
 
 Note that you may have a given Python package installed in multiple environments, in that case you may want to call the `use_virtualenv()` function to ensure that a specific virtualenv is utilized by reticulate:
 
-```{r}
+```r
 library(reticulate)
 
 # indicate that we want to use a specific virtualenv
@@ -108,7 +104,7 @@ The following functions are available for managing Conda environments:
 
 Here's an example of using these functions to create an environment, install packages within it, then use the environment from R:
 
-```{r}
+```r
 library(reticulate)
 
 # create a new environment 
@@ -123,7 +119,7 @@ scipy <- import("scipy")
 
 Note that you may have a given Python package installed in multiple Conda environments, in that case you may want to call the `use_condaenv()` function to ensure that a specific Conda environment is utilized by reticulate:
 
-```{r}
+```r
 library(reticulate)
 
 # indicate that we want to use a specific condaenv

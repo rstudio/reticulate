@@ -8,9 +8,6 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(eval = FALSE)
-```
 
 Dense data are stored contiguously in memory, addressed by a single index (the
 memory address). Array memory ordering schemes translate that single index into

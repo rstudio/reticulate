@@ -9,16 +9,11 @@ vignette: >
 ---
 
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(eval = FALSE)
-```
-
-
 ## Overview
 
 The **reticulate** package provides an R interface to Python modules, classes, and functions. For example, this code imports the Python `os` module and calls some functions within it:
 
-```{r, eval=FALSE}
+```r
 library(reticulate)
 os <- import("os")
 os$listdir(".")
@@ -81,7 +76,7 @@ If a Python object of a custom class is returned then an R reference to that obj
 
 The `import()` function can be used to import any Python module. For example:
 
-```{r}
+```r
 difflib <- import("difflib")
 difflib$ndiff(foo, bar)
 
@@ -91,7 +86,7 @@ filecmp$cmp(dir1, dir2)
 
 The `import_main()` and `import_builtins()` functions give you access to the main module where code is executed by default and the collection of built in Python functions. For example:
 
-```{r}
+```r
 main <- import_main()
 
 builtins <- import_builtins()
@@ -111,7 +106,7 @@ def add(x, y):
 
 We source it using the `source_python()` function and then can call the `add()` function directly from R:
 
-```{r}
+```r
 source_python('add.py')
 add(5, 10)
 ```
@@ -123,7 +118,7 @@ add(5, 10)
 
 You can execute Python code within the main module using the `py_run_file` and `py_run_string` functions. You can then access any objects created using the `py` object exported by reticulate:
 
-```{r}
+```r
 library(reticulate)
 
 py_run_file("script.py")
@@ -138,7 +133,7 @@ py$x
 
 By default when Python objects are returned to R they are converted to their equivalent R types. However, if you'd rather make conversion from Python to R explicit and deal in native Python objects by default you can pass `convert = FALSE` to the `import` function. In this case Python to R conversion will be disabled for the module returned from `import`. For example:
 
-```{r}
+```r
 # import numpy and specify no automatic Python to R conversion
 np <- import("numpy", convert = FALSE)
 
@@ -326,7 +321,7 @@ We can also use `py_to_r()` to convert the CSC matrix back to `Matrix::dgCMatrix
 
 The R `with` generic function can be used to interact with Python context manager objects (in Python you use the `with` keyword to do the same). For example:
 
-```{r}
+```r
 py <- import_builtins()
 with(py$open("output.txt", "w") %as% file, {
   file$write("Hello, there!")
@@ -339,19 +334,19 @@ This example opens a file and ensures that it is automatically closed at the end
 
 If a Python API returns an iterator or a generator, you can interact with it using the `iterate()` function. The `iterate()` function can be used to apply an R function to each item yielded by the iterator:
 
-```{r}
+```r
 iterate(iter, print)
 ```
 
 If you don't pass a function to `iterate` the results will be collected into an R vector:
 
-```{r}
+```r
 results <- iterate(iter)
 ```
 
 Note that the `Iterators` will be drained of their values by `iterate()`:
 
-```{r}
+```r
 a <- iterate(iter) # results are not empty
 b <- iterate(iter) # results are empty since items have already been drained
 ```
@@ -360,7 +355,7 @@ b <- iterate(iter) # results are empty since items have already been drained
 
 You can also iterate on an element-by-element basis using the `iter_next()` function. For example:
 
-```{r}
+```r
 while (TRUE) {
   item <- iter_next(iter)
   if (is.null(item))
@@ -370,7 +365,7 @@ while (TRUE) {
 
 By default `iter_next()` will return `NULL` when the iteration is complete but you can provide a custom `completed` value it will be returned instead. For example:
 
-```{r}
+```r
 while (TRUE) {
   item <- iter_next(iter, completed = NA)
   if (is.na(item))
@@ -387,7 +382,7 @@ Python [generators](https://wiki.python.org/moin/Generators) are functions that 
 
 In Python, generators produce values using the `yield` keyword. In R, values are simply returned from the function. One benefit of the `yield` keyword is that it enables successive iterations to use the state of previous iterations. In R, this can be done by returning a function that mutates its enclosing environment via the <<- operator. For example:
 
-```{r}
+```r
 # define a generator function
 sequence_generator <-function(start) {
   value <- start
@@ -403,7 +398,7 @@ iter <- py_iterator(sequence_generator(10))
 
 If you want to indicate the end of the iteration, return `NULL` from the function:
 
-```{r}
+```r
 sequence_generator <-function(start) {
   value <- start
   function() {

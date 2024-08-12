@@ -8,9 +8,6 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(eval = FALSE)
-```
 
 ## Locating Python
 
@@ -20,7 +17,7 @@ Note that for reticulate to bind to a version of Python it must have been compil
 
 Consider the following code:
 
-```{r}
+```r
 library(reticulate)
 py_eval("1+1")
 ```
@@ -29,7 +26,7 @@ In this case, reticulate will search for a suitable Python installation. In the 
 
 Consider another case:
 
-```{r}
+```r
 library(reticulate)
 scipy <- import("scipy")
 scipy$amin(c(1,3,5,7))
@@ -53,7 +50,7 @@ There are a few ways you can provide hints as to which version of Python should 
 
 For example:
 
-```{r}
+```r
 library(reticulate)
 use_python("/usr/local/bin/python")
 use_virtualenv("~/myenv")
@@ -64,7 +61,7 @@ If the `use_virtualenv()` function is supplied a name of a virtual environment (
 
 The `use_condaenv()` function will use whatever conda binary is found on the `PATH`. If you want to use a specific alternate version you can use the `conda` parameter. For example:
 
-```{r}
+```r
 use_condaenv(condaenv = "r-nlp", conda = "/opt/anaconda3/bin/conda")
 ```
 
@@ -111,12 +108,12 @@ You can learn more about installing Python packages into virtualenvs or Conda en
 
 You can use the `py_config()` function to query for information about the specific version of Python in use as well as a list of other Python versions discovered on the system:
 
-```{r}
+```r
 py_config()
 ```
 
 You can also use the `py_discover_config()` function to see what version of Python will be used without actually loading Python:
 
-```{r}
+```r
 py_discover_config()
 ```

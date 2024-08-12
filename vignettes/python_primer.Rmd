@@ -10,23 +10,23 @@ editor_options:
     wrap: 72
 ---
 
-```{r setup, include=FALSE}
-library(reticulate)
+<!-- ```{r setup, include=FALSE} -->
+<!-- library(reticulate) -->
 
-# this vignette requires python 3.8 or newer
-eval <- tryCatch({
-  config <- py_config()
-  numeric_version(config$version) >= "3.8" && py_numpy_available()
-}, error = function(e) FALSE)
+<!-- # this vignette requires python 3.8 or newer -->
+<!-- eval <- tryCatch({ -->
+<!--   config <- py_config() -->
+<!--   numeric_version(config$version) >= "3.8" && py_numpy_available() -->
+<!-- }, error = function(e) FALSE) -->
 
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  eval = eval
-)
-```
+<!-- knitr::opts_chunk$set( -->
+<!--   collapse = TRUE, -->
+<!--   comment = "#>", -->
+<!--   eval = eval -->
+<!-- ) -->
+<!-- ``` -->
 
-```{r}
+``` r
 library(reticulate)
 ```
 
@@ -47,19 +47,25 @@ block with `{}`. In Python, that is done by making the expressions share
 an indentation level. For example, an expression with an R code block
 might be:
 
-```{r}
+
+``` r
 if (TRUE) {
   cat("This is one expression. \n")
   cat("This is another expression. \n")
 }
+#> This is one expression.
+#> This is another expression.
 ```
 
 The equivalent in Python:
 
-```{python}
+
+``` python
 if True:
   print("This is one expression.")
   print("This is another expression.")
+#> This is one expression.
+#> This is another expression.
 ```
 
 Python accepts tabs or spaces as the indentation spacer, but the rules
@@ -83,12 +89,15 @@ lists is that they are modified in place. Note in the example below that
 `y` reflects the changes made to `x`, because the underlying list object
 which both symbols point to is modified in place.
 
-```{python}
+
+``` python
 x = [1, 2, 3]
 y = x    # `y` and `x` now refer to the same list!
 x.append(4)
 print("x is", x)
+#> x is [1, 2, 3, 4]
 print("y is", y)
+#> y is [1, 2, 3, 4]
 ```
 
 One Python idiom that might be concerning to R users is that of growing
@@ -101,49 +110,69 @@ Some syntactic sugar around Python lists you might encounter is the
 usage of `+` and `*` with lists. These are concatenation and replication
 operators, akin to R's `c()` and `rep()`.
 
-```{python}
+
+``` python
 x = [1]
 x
+#> [1]
 x + x
+#> [1, 1]
 x * 3
+#> [1, 1, 1]
 ```
 
 You can index into lists with integers using trailing `[]`, but note
 that indexing is 0-based.
 
-```{python}
+
+``` python
 x = [1, 2, 3]
 x[0]
+#> 1
 x[1]
+#> 2
 x[2]
+#> 3
 
 try:
   x[3]
 except Exception as e:
   print(e)
+#> list index out of range
 ```
 
 When indexing, negative numbers count from the end of the container.
 
-```{python}
+
+``` python
 x = [1, 2, 3]
 x[-1]
+#> 3
 x[-2]
+#> 2
 x[-3]
+#> 1
 ```
 
 You can slice ranges of lists using the `:` inside brackets. Note that
 the slice syntax is ***not*** inclusive of the end of the slice range.
 You can optionally also specify a stride.
 
-```{python}
+
+``` python
 x = [1, 2, 3, 4, 5, 6]
 x[0:2] # get items at index positions 0, 1
+#> [1, 2]
 x[1:]  # get items from index position 1 to the end
+#> [2, 3, 4, 5, 6]
 x[:-2] # get items from beginning up to the 2nd to last.
+#> [1, 2, 3, 4]
 x[:]   # get all the items (idiom used to copy the list so as not to modify in place)
+#> [1, 2, 3, 4, 5, 6]
 x[::2] # get all the items, with a stride of 2
+#> [1, 3, 5]
 x[1::2] # get all the items from index 1 to the end, with a stride of 2
+#> [2, 4, 6]
 ```
 
 #### Tuples
@@ -158,28 +187,40 @@ special syntax is required to define tuples of length 1: a trailing
 comma. Tuples are most commonly encountered in functions that take a
 variable number of arguments.
 
-```{python}
+
+``` python
 x = (1, 2) # tuple of length 2
 type(x)
+#> <class 'tuple'>
 len(x)
+#> 2
 x
+#> (1, 2)
 
 x = (1,) # tuple of length 1
 type(x)
+#> <class 'tuple'>
 len(x)
+#> 1
 x
+#> (1,)
 
 x = () # tuple of length 0
 print(f"{type(x) = }; {len(x) = }; {x = }")
+#> type(x) = <class 'tuple'>; len(x) = 0; x = ()
 # example of an interpolated string literals
 
 x = 1, 2 # also a tuple
 type(x)
+#> <class 'tuple'>
 len(x)
+#> 2
 
 x = 1, # beware a single trailing comma! This is a tuple!
 type(x)
+#> <class 'tuple'>
 len(x)
+#> 1
 ```
 
 ##### Packing and Unpacking
@@ -190,12 +231,16 @@ assign multiple symbols in one expression. This is called *unpacking*.
 
 For example:
 
-```{python}
+
+``` python
 x = (1, 2, 3)
 a, b, c = x
 a
+#> 1
 b
+#> 2
 c
+#> 3
 ```
 
 (You can access similar unpacking behavior from R using
@@ -203,38 +248,50 @@ c
 
 Tuple unpacking can occur in a variety of contexts, such as iteration:
 
-```{python}
+
+``` python
 xx = (("a", 1),
       ("b", 2))
 for x1, x2 in xx:
   print("x1 = ", x1)
   print("x2 = ", x2)
+#> x1 =  a
+#> x2 =  1
+#> x1 =  b
+#> x2 =  2
 ```
 
 If you attempt to unpack a container to the wrong number of symbols,
 Python raises an error:
 
-```{python, error = TRUE}
+
+``` python
 x = (1, 2, 3)
 a, b, c = x # success
 a, b = x    # error, x has too many values to unpack
+#> ValueError: too many values to unpack (expected 2)
 a, b, c, d = x # error, x has not enough values to unpack
+#> ValueError: not enough values to unpack (expected 4, got 3)
 ```
 
 It is possible to unpack a variable number of arguments, using `*` as a
 prefix to a symbol. (You'll see the `*` prefix again when we talk about
 functions)
 
-```{python}
+
+``` python
 x = (1, 2, 3)
 a, *the_rest = x
 a
+#> 1
 the_rest
+#> [2, 3]
 ```
 
 You can also unpack nested structures:
 
-```{python}
+
+``` python
 x = ((1, 2), (3, 4))
 (a, b), (c, d) = x
 ```
@@ -249,14 +306,18 @@ almost any Python object). They can be created using syntax like
 `{key: value}`. Like Python lists, they are modified in place. Note that
 `r_to_py()` converts R named lists to dictionaries.
 
-```{python}
+
+``` python
 d = {"key1": 1,
      "key2": 2}
 d2 = d
 d
+#> {'key1': 1, 'key2': 2}
 d["key1"]
+#> 1
 d["key3"] = 3
 d2 # modified in place!
+#> {'key1': 1, 'key2': 2, 'key3': 3}
 ```
 
 Like R environments (and unlike R's named lists), you cannot index into
@@ -264,9 +325,11 @@ a dictionary with an integer to get an item at a specific index
 position. Dictionaries are *unordered* containers. (However---beginning
 with Python 3.7, dictionaries do preserve the item insertion order).
 
-```{python, error = TRUE}
+
+``` python
 d = {"key1": 1, "key2": 2}
 d[1] # error
+#> KeyError: 1
 ```
 
 A container that closest matches the semantics of R's named list is the
@@ -282,13 +345,17 @@ dictionary, but without `:`). Think of them as dictionary where you only
 use the keys. Sets have many efficient methods for membership
 operations, like `intersection()`, `issubset()`, `union()` and so on.
 
-```{python}
+
+``` python
 s = {1, 2, 3}
 type(s)
+#> <class 'set'>
 s
+#> {1, 2, 3}
 
 s.add(1)
 s
+#> {1, 2, 3}
 ```
 
 ### Iteration with `for`
@@ -296,9 +363,13 @@ s
 The `for` statement in Python can be used to iterate over any kind of
 container.
 
-```{python}
+
+``` python
 for x in [1, 2, 3]:
   print(x)
+#> 1
+#> 2
+#> 3
 ```
 
 R has a relatively limited set of objects that can be passed to `for`.
@@ -314,45 +385,63 @@ There are two things that happen: first, an iterator is constructed from
 the supplied object. Then, the new iterator object is repeatedly called
 with `next()` until it is exhausted.
 
-```{python, error = TRUE}
+
+``` python
 l = [1, 2, 3]
 it = iter(l) # create an iterator object
 it
+#> <list_iterator object at 0x1402267a0>
 
 # call `next` on the iterator until it is exhausted:
 next(it)
+#> 1
 next(it)
+#> 2
 next(it)
+#> 3
 next(it)
+#> StopIteration
 ```
 
 In R, you can use reticulate to step through an iterator the same way.
 
-```{r}
+
+``` r
 library(reticulate)
 l <- r_to_py(list(1, 2, 3))
 it <- as_iterator(l)
 
 iter_next(it)
+#> 1.0
 iter_next(it)
+#> 2.0
 iter_next(it)
+#> 3.0
 iter_next(it, completed = "StopIteration")
+#> [1] "StopIteration"
 ```
 
 Iterating over dictionaries first requires understanding if you are
 iterating over the keys, values, or both. Dictionaries have methods that
 allow you to specify which.
 
-```{python}
+
+``` python
 d = {"key1": 1, "key2": 2}
 for key in d:
   print(key)
+#> key1
+#> key2
 
 for value in d.values():
   print(value)
+#> 1
+#> 2
 
 for key, value in d.items():
   print(key, ":", value)
+#> key1 : 1
+#> key2 : 2
 ```
 
 #### Comprehensions
@@ -364,18 +453,21 @@ syntax for R's `lapply`.
 
 For example:
 
-```{python}
+
+``` python
 x = [1, 2, 3]
 
 # a list comprehension built from x, where you add 100 to each element
 l = [element + 100 for element in x]
 l
+#> [101, 102, 103]
 
 # a dict comprehension built from x, where the key is a string.
 # Python's str() is like R's as.character()
 d = {str(element) : element + 100
      for element in x}
 d
+#> {'1': 101, '2': 102, '3': 103}
 ```
 
 ### Defining Functions with `def`
@@ -383,36 +475,45 @@ d
 Python functions are defined with the `def` statement. The syntax for
 specifying function arguments and default values is very similar to R.
 
-```{python}
+
+``` python
 def my_function(name = "World"):
   print("Hello", name)
 
 my_function()
+#> Hello World
 my_function("Friend")
+#> Hello Friend
 ```
 
 The equivalent R snippet would be
 
-```{r}
+
+``` r
 my_function <- function(name = "World") {
   cat("Hello", name, "\n")
 }
 
 my_function()
+#> Hello World
 my_function("Friend")
+#> Hello Friend
 ```
 
 Unlike R functions, the last value in a function is not automatically
 returned. Python requires an explicit return statement.
 
-```{python}
+
+``` python
 def fn():
   1
 print(fn())
+#> None
 
 def fn():
   return 1
 print(fn())
+#> 1
 ```
 
 (Note for advanced R users: Python has no equivalent of R's argument
@@ -421,14 +522,18 @@ the function is constructed. This can be surprising if you define a
 Python function with a mutable object as a default argument value, like
 a Python list!)
 
-```{python}
+
+``` python
 def my_func(x = []):
   x.append("was called")
   print(x)
 
 my_func()
+#> ['was called']
 my_func()
+#> ['was called', 'was called']
 my_func()
+#> ['was called', 'was called', 'was called']
 ```
 
 You can also define Python functions that take a variable number of
@@ -437,27 +542,33 @@ makes no distinction between named and unnamed arguments, but Python
 does. In Python, prefixing a single `*` captures unnamed arguments, and
 two `**` signifies that *keyword* arguments are captured.
 
-```{python}
+
+``` python
 def my_func(*args, **kwargs):
   print("args = ", args) # args is a tuple
   print("kwargs = ", kwargs) # kwargs is a dictionary
 
 my_func(1, 2, 3, a = 4, b = 5, c = 6)
+#> args =  (1, 2, 3)
+#> kwargs =  {'a': 4, 'b': 5, 'c': 6}
 ```
 
 Whereas the `*` and `**` in a function definition signature *pack*
 arguments, in a function call they *unpack* arguments. Unpacking
 arguments in a function call is equivalent to using `do.call()` in R.
 
-```{python}
+
+``` python
 def my_func(a, b, c):
   print(a, b, c)
 
 args = (1, 2, 3)
 my_func(*args)
+#> 1 2 3
 
 kwargs = {"a": 1, "b": 2, "c": 3}
 my_func(**kwargs)
+#> 1 2 3
 ```
 
 ### Defining Classes with `class`
@@ -477,16 +588,21 @@ Don't be intimidated if this is your first exposure to object oriented
 programming. We'll start by building up a simple Python class for
 demonstration purposes.
 
-```{python}
+
+``` python
 class MyClass:
   pass # `pass` means do nothing.
 
 MyClass
+#> <class '__main__.MyClass'>
 type(MyClass)
+#> <class 'type'>
 
 instance = MyClass()
 instance
+#> <__main__.MyClass object at 0x14023b260>
 type(instance)
+#> <class '__main__.MyClass'>
 ```
 
 Like the `def` statement, the `class` statement binds a new callable
@@ -503,8 +619,10 @@ In the first example, we defined an empty `class`, but when we inspect
 it we see that it already comes with a bunch of attributes (`dir()` in
 Python is equivalent to `names()` in R):
 
-```{python}
+
+``` python
 dir(MyClass)
+#> ['__class__', '__delattr__', '__dict__', '__dir__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__getstate__', '__gt__', '__hash__', '__init__', '__init_subclass__', '__le__', '__lt__', '__module__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__']
 ```
 
 #### What are all the underscores?
@@ -528,21 +646,28 @@ meant to initialize the new class instance. (In very sophisticated code
 bases, you may also encounter classes where `__new__` is also defined,
 this is called before `__init__`).
 
-```{python}
+
+``` python
 class MyClass:
 
   print("MyClass's definition body is being evaluated")
 
   def __init__(self):
     print(self, "is initializing")
+#> MyClass's definition body is being evaluated
 
 print("MyClass is finished being created")
+#> MyClass is finished being created
 
 instance = MyClass()
+#> <__main__.MyClass object at 0x140266330> is initializing
 print(instance)
+#> <__main__.MyClass object at 0x140266330>
 
 instance2 = MyClass()
+#> <__main__.MyClass object at 0x11e3ad490> is initializing
 print(instance2)
+#> <__main__.MyClass object at 0x11e3ad490>
 ```
 
 A few things to note:
@@ -572,16 +697,20 @@ call as the first argument. This applies to all functions defined in a
 class, including dunders. (The sole exception is if the function is
 decorated with something like `@classmethod` or `@staticmethod`).
 
-```{python, error = TRUE}
+
+``` python
 class MyClass:
   def a_method(self):
     print("MyClass.a_method() was called with", self)
 
 instance = MyClass()
 instance.a_method()
+#> MyClass.a_method() was called with <__main__.MyClass object at 0x11e3c7f20>
 
 MyClass.a_method()     # error, missing required argument `self`
+#> TypeError: MyClass.a_method() missing 1 required positional argument: 'self'
 MyClass.a_method(instance) # identical to instance.a_method()
+#> MyClass.a_method() was called with <__main__.MyClass object at 0x11e3c7f20>
 ```
 
 Other dunder's worth knowing about are:
@@ -631,7 +760,8 @@ the `__iter__` method is just a stub that returns `self`.
 Here is a custom iterable / iterator implementation of Python's `range`
 (similar to `seq` in R)
 
-```{python, error = TRUE}
+
+``` python
 class MyRange:
   def __init__(self, start, end):
     self.start = start
@@ -651,14 +781,21 @@ class MyRange:
 
 for x in MyRange(1, 3):
   print(x)
+#> 1
+#> 2
+#> 3
 
 # doing what `for` does, but manually
 r = MyRange(1, 3)
 it = iter(r)
 next(it)
+#> 1
 next(it)
+#> 2
 next(it)
+#> 3
 next(it)
+#> StopIteration
 ```
 
 ### Defining Generators with `yield`.
@@ -672,7 +809,8 @@ iterator.
 
 Here is an example:
 
-```{python, error = TRUE}
+
+``` python
 def my_generator_constructor():
   yield 1
   yield 2
@@ -680,22 +818,31 @@ def my_generator_constructor():
 
 # At first glance it presents like a regular function
 my_generator_constructor
+#> <function my_generator_constructor at 0x1402579c0>
 type(my_generator_constructor)
+#> <class 'function'>
 
 # But calling it returns something special, a 'generator object'
 my_generator = my_generator_constructor()
 my_generator
+#> <generator object my_generator_constructor at 0x11e3ff530>
 type(my_generator)
+#> <class 'generator'>
 
 # The generator object is both an iterable and an iterator
 # it's __iter__ method is just a stub that returns `self`
 iter(my_generator) == my_generator == my_generator.__iter__()
+#> True
 
 # step through it like any other iterator
 next(my_generator)
+#> 1
 my_generator.__next__() # next() is just sugar for calling the dunder
+#> 2
 next(my_generator)
+#> 3
 next(my_generator)
+#> StopIteration
 ```
 
 Encountering `yield` is like hitting the pause button on a functions
@@ -727,7 +874,8 @@ packages, and R users can access objects from R packages via `library()`
 or `::`. In Python, authors bundle code into *modules*, and users access
 modules using `import`. Consider the line:
 
-```{python}
+
+``` python
 import numpy
 ```
 
@@ -738,7 +886,8 @@ symbol `numpy`.
 
 The closest equivalent to this in R might be:
 
-```{r, eval = FALSE}
+
+``` r
 dplyr <- loadNamespace("dplyr")
 ```
 
@@ -754,41 +903,52 @@ modules, user installed modules, values from environment variables like
 code in the current Python session (though this is relatively uncommon
 in practice).
 
-```{python}
+
+``` python
 import sys
 sys.path
+#> ['', '/Users/tomasz/.pyenv/versions/3.12.4/bin', '/Users/tomasz/.pyenv/versions/3.12.4/lib/python312.zip', '/Users/tomasz/.pyenv/versions/3.12.4/lib/python3.12', '/Users/tomasz/.pyenv/versions/3.12.4/lib/python3.12/lib-dynload', '/Users/tomasz/.virtualenvs/r-reticulate/lib/python3.12/site-packages', '/Users/tomasz/github/rstudio/reticulate/inst/python', '/Users/tomasz/.virtualenvs/r-reticulate/lib/python312.zip', '/Users/tomasz/.virtualenvs/r-reticulate/lib/python3.12', '/Users/tomasz/.virtualenvs/r-reticulate/lib/python3.12/lib-dynload']
 ```
 
 You can inspect where a module was loaded from by accessing the dunder
 `__path__` or `__file__` (especially useful when troubleshooting
 installation issues):
 
-```{python}
+
+``` python
 import os
 os.__file__
+#> '/Users/tomasz/.virtualenvs/r-reticulate/lib/python3.12/os.py'
 numpy.__path__
+#> ['/Users/tomasz/.virtualenvs/r-reticulate/lib/python3.12/site-packages/numpy']
 ```
 
 Once a module is loaded, you can access symbols from the module using
 `.` (equivalent to `::`, or maybe `$.environment`, in R).
 
-```{python}
+
+``` python
 numpy.abs(-1)
+#> 1
 ```
 
 There is also special syntax for specifying the symbol a module is bound
 to upon import, and for importing only some specific symbols.
 
-```{python}
+
+``` python
 import numpy        # import
 import numpy as np  # import and bind to a custom symbol `np`
 np is numpy         # test for identicalness, similar to identical(np, numpy)
+#> True
 
 from numpy import abs # import only `numpy.abs`, bind it to `abs`
 abs is numpy.abs
+#> True
 
 from numpy import abs as abs2 # import only `numpy.abs`, bind it to `abs2`
 abs2 is numpy.abs
+#> True
 ```
 
 If you're looking for the Python equivalent of R's `library()`, which
@@ -797,7 +957,8 @@ makes all of a package's exported symbols available, it might be using
 The `*` wildcard will expand to include all the symbols in module, or
 all the symbols listed in `__all__`, if it is defined.
 
-```{python}
+
+``` python
 from numpy import *
 ```
 
@@ -828,7 +989,8 @@ functions expect integers, and will error when provided a float.
 
 For example, say we have a Python function that expects an integer:
 
-```{python}
+
+``` python
 def a_strict_Python_function(x):
   assert isinstance(x, int), "x is not an int"
   print("Yay! x was an int")
@@ -836,11 +998,15 @@ def a_strict_Python_function(x):
 
 When calling it from R, you must be sure to call it with an integer:
 
-```{r, error = TRUE}
+
+``` r
 library(reticulate)
 py$a_strict_Python_function(3)             # error
+#> x is not an int
 py$a_strict_Python_function(3L)            # success
+#> Yay! x was an int
 py$a_strict_Python_function(as.integer(3)) # success
+#> Yay! x was an int
 ```
 
 ### What about R vectors?
@@ -867,15 +1033,24 @@ accustomed to R arrays:
     first dimension. For example, this iterates over the rows of a
     matrix.
 
-```{python}
+
+``` python
 import numpy as np
 m = np.arange(12).reshape((3,4))
 m
+#> array([[ 0,  1,  2,  3],
+#>        [ 4,  5,  6,  7],
+#>        [ 8,  9, 10, 11]])
 m[0, :] # first row
+#> array([0, 1, 2, 3])
 m[0]    # also first row
+#> array([0, 1, 2, 3])
 
 for row in m:
   print(row)
+#> [0 1 2 3]
+#> [4 5 6 7]
+#> [ 8  9 10 11]
 ```
 
 -   Many numpy operations modify the array in place! This is surprising
@@ -894,7 +1069,8 @@ then typically returns another function. Any function can be invoked as
 a decorator with the `@` syntax, which is just sugar for this simple
 action:
 
-```{python}
+
+``` python
 def my_decorator(func):
   func.x = "a decorator modified this function by adding an attribute `x`"
   return func
@@ -919,7 +1095,8 @@ the "context" protocol, and can be passed to `with`. For example, here
 is a custom implementation of a context manager that temporarily changes
 the current working directory (equivalent to R's `withr::with_dir()`)
 
-```{python}
+
+``` python
 from os import getcwd, chdir
 
 class wd_context:
@@ -936,9 +1113,12 @@ class wd_context:
 
 
 getcwd()
+#> '/Users/tomasz/github/rstudio/reticulate/vignettes'
 with wd_context(".."):
   print("in the context, wd is:", getcwd())
+#> in the context, wd is: /Users/tomasz/github/rstudio/reticulate
 getcwd()
+#> '/Users/tomasz/github/rstudio/reticulate/vignettes'
 ```
 
 ### Learning More

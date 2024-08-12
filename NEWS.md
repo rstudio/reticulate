@@ -7,6 +7,8 @@
 
 - `conda_run2()` is now exported (#1637, contributed by @dramanica)
 
+- Fixes for CRAN check failures (#1645)
+
 # reticulate 1.38.0
 
 - Python Exceptions converted to R conditions are now R lists instead

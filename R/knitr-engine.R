@@ -767,22 +767,18 @@ eng_python_autoprint <- function(captured, options) {
 
   } else if (eng_python_is_altair_chart(value)) {
 
-    # set width if it's not already set
+    # set width and height if it's not already set
     # This only applies to Chart objects, compound charts like HConcatChart
     # don't have a 'width' or 'height' property attribute.
     # TODO: add support for propagating width/height options from knitr to
     # altair compound charts
     width <- py_get_attr(value, "width", TRUE)
-    if (inherits(width, "altair.utils.schemapi.UndefinedType")) {
-      width <- options$altair.fig.width %||% options$out.width.px %||% 810L
-      value <- value$properties(width = width)
+    if (!is.null(options$altair.fig.width)) {
+      value <- value$properties(width = options$altair.fig.width)
     }
-
-    # set height if it's not already set
     height <- py_get_attr(value, "height", TRUE)
-    if (inherits(height, "altair.utils.schemapi.UndefinedType")) {
-      height <- options$altair.fig.height %||% options$out.height.px %||% 400L
-      value <- value$properties(height = height)
+    if (!is.null(options$altair.fig.height)) {
+      value <- value$properties(height = options$altair.fig.height)
     }
 
     # set a unique id (used for div container for figure)

@@ -18,7 +18,7 @@ def main_thread_func(f):
             res = f(*args, **kwargs)
         else:
             result = queue.Queue()
-            rpycall.call_python_function_on_main_thread(
+            rpycall.schedule_python_function_on_main_thread(
                 lambda: result.put(f(*args, **kwargs)), None
             )
             res = result.get()
@@ -26,3 +26,12 @@ def main_thread_func(f):
         return res
 
     return python_function
+
+
+def call_python_function_on_main_thread_and_get_result(r_func_capsule, *args, **kwargs):
+    result = queue.Queue()
+    rpycall.schedule_python_function_on_main_thread(
+        lambda: result.put(rpycall.call_r_function(r_func_capsule, *args, **kwargs)),
+        None,
+    )
+    return result.get()

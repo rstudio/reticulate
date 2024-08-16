@@ -52,6 +52,8 @@ SEXP r_func_r_to_py;
 SEXP r_func_py_to_r;
 SEXP r_func_py_to_r_wrapper;
 
+tthread::thread::id s_main_thread = 0;
+
 // [[Rcpp::init]]
 void reticulate_init(DllInfo *dll) {
   // before python is initialized, make these symbols safe to call (always return false)
@@ -72,8 +74,14 @@ void reticulate_init(DllInfo *dll) {
   r_func_py_to_r = Rf_findVar(Rf_install("py_to_r"), ns_reticulate);
   r_func_py_to_r_wrapper = Rf_findVar(Rf_install("py_to_r_wrapper"), ns_reticulate);
   r_func_get_r_trace = Rf_findVar(Rf_install("get_r_trace"), ns_reticulate);
+
+  s_main_thread = tthread::this_thread::get_id();
 }
 
+inline
+bool is_main_thread() {
+  return s_main_thread == tthread::this_thread::get_id();
+}
 
 // track whether we are using python 3 (set during py_initialize)
 bool s_isPython3 = false;
@@ -168,13 +176,6 @@ SEXP py_capsule_read(PyObject* capsule) {
   // with the original object preserved in the cell TAG().
   return TAG(object);
 
-}
-
-tthread::thread::id s_main_thread = 0;
-bool is_main_thread() {
-  if (s_main_thread == 0)
-    return true;
-  return s_main_thread == tthread::this_thread::get_id();
 }
 
 
@@ -826,6 +827,12 @@ SEXP py_fetch_error(bool maybe_reuse_cached_r_trace) {
   // TODO: we need to add a guardrail to catch cases when
   // this is being invoked from not the main thread
 
+  if(!is_main_thread()) {
+    GILScope _gil;
+    PyErr_Print();
+    PySys_WriteStderr("\nUnable to fetch R backtrace from Python thread\n"); // TODO:
+    return R_NilValue;
+  }
 
   PyObject *excType, *excValue, *excTraceback;
   PyErr_Fetch(&excType, &excValue, &excTraceback);  // we now own the PyObjects
@@ -2293,6 +2300,11 @@ public:
 
 extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* keywords)
 {
+  if(!is_main_thread()) {
+      PyObjectPtr tools(PyImport_ImportModule("rpytools.thread"));
+      PyObjectPtr call_on_main_thread(PyObject_GetAttrString(tools, "call_python_function_on_main_thread_and_get_result"));
+      return PyObject_Call(call_on_main_thread, args, keywords);
+  }
   // the first argument is always the capsule containing the R function to call
   PyObject* capsule = PyTuple_GetItem(args, 0);
   RObject rFunction = py_capsule_read(capsule);
@@ -2463,7 +2475,7 @@ int call_python_function(void* data) {
 }
 
 
-extern "C" PyObject* call_python_function_on_main_thread(
+extern "C" PyObject* schedule_python_function_on_main_thread(
                 PyObject *self, PyObject* args, PyObject* keywords) {
 
 
@@ -2610,7 +2622,7 @@ PyObject* python_interrupt_handler(PyObject *module, PyObject *args)
 PyMethodDef RPYCallMethods[] = {
   { "call_r_function", (PyCFunction)call_r_function,
     METH_VARARGS | METH_KEYWORDS, "Call an R function" },
-  { "call_python_function_on_main_thread", (PyCFunction)call_python_function_on_main_thread,
+  { "schedule_python_function_on_main_thread", (PyCFunction)schedule_python_function_on_main_thread,
     METH_VARARGS | METH_KEYWORDS, "Call a Python function on the main thread" },
   { "python_interrupt_handler", (PyCFunction)python_interrupt_handler,
     METH_VARARGS, "Handle an interrupt signal" },

@@ -38,3 +38,22 @@ def write_to_file_from_thread(path, lines):
   expect_identical(readLines(file), letters)
 
 })
+
+
+
+test_that("Python calls into R from a background thread are evaluated", {
+
+  x <- 0L
+  py$r_func <- function() x <<- x+1
+  py_file <- withr::local_tempfile(lines = "r_func()", fileext = ".py")
+
+  reticulate:::py_run_file_on_thread(py_file)
+
+  # Simulate the main R thread doing non-Python work (e.g., sleeping)
+  for(i in 1:10) {
+    Sys.sleep(.01 * i)
+    if (x != 0L) break
+  }
+
+  expect_equal(x, 1L)
+})

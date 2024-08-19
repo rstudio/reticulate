@@ -40,7 +40,7 @@ py_allow_threads <- function(allow = TRUE) {
 
 
 py_run_file_on_thread <- function(file, ..., args = NULL) {
-  if (!is.null(argv))
+  if (!is.null(args))
     args <- as.list(as.character(args))
   import("rpytools.run")$`_launch_lsp_server_on_thread`(file, args)
 }

@@ -13,6 +13,7 @@ using namespace Rcpp;
 
 #include "event_loop.h"
 #include "tinythread.h"
+#include "pending_py_calls_notifier.h"
 
 #include <fstream>
 #include <time.h>
@@ -60,6 +61,7 @@ void reticulate_init(DllInfo *dll) {
   PyIter_Check = &_Py_Check;
   PyCallable_Check = &_Py_Check;
   PyGILState_Ensure = &_initialize_python_and_PyGILState_Ensure;
+  // Py_MakePendingCallsRun = &_Py_Check;
 
   sym_py_object = Rf_install("py_object");
   sym_simple = Rf_install("simple");
@@ -2303,7 +2305,7 @@ extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* k
   if(!is_main_thread()) {
       PyObjectPtr tools(PyImport_ImportModule("rpytools.thread"));
       PyObjectPtr call_on_main_thread(PyObject_GetAttrString(tools, "call_python_function_on_main_thread_and_get_result"));
-      return PyObject_Call(call_on_main_thread, args, keywords);
+      return PyObject_Call(call_on_main_thread, args, keywords); // TODO: propogate errors ...
   }
   // the first argument is always the capsule containing the R function to call
   PyObject* capsule = PyTuple_GetItem(args, 0);
@@ -2524,6 +2526,8 @@ extern "C" PyObject* schedule_python_function_on_main_thread(
     if ((waited_ms % 60000) == 0)
       PySys_WriteStderr("Waiting to schedule call on main R interpeter thread...\n");
   }
+
+  pending_py_calls_notifier::notify();
 
   // return none
   Py_IncRef(Py_None);
@@ -2925,6 +2929,14 @@ void py_initialize(const std::string& python,
   // poll for events while executing python code
   reticulate::event_loop::initialize();
 
+  pending_py_calls_notifier::initialize([]() {
+    GILScope _gil;
+    R_ToplevelExec([](void* data) {
+      // TODO: report back errors to the python thread
+      Py_MakePendingCalls();
+    }, nullptr);
+    flush_std_buffers();
+  });
 }
 
 // [[Rcpp::export]]

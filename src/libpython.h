@@ -206,6 +206,7 @@ LIBPYTHON_EXTERN wchar_t* (*Py_GetProgramFullPath)();
 
 
 LIBPYTHON_EXTERN int (*Py_AddPendingCall)(int (*func)(void *), void *arg);
+LIBPYTHON_EXTERN int (*Py_MakePendingCalls)();
 LIBPYTHON_EXTERN void (*PyErr_SetInterrupt)();
 LIBPYTHON_EXTERN void (*PyErr_CheckSignals)();
 

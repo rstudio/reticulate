@@ -81,10 +81,28 @@ void notify() {
 
 }
 
+
 void deinitialize() {
 #ifdef _WIN32
+  if (message_window) {
+    DestroyWindow(message_window);
+    message_window = nullptr;
+  }
 #else
-  removeInputHandler(&R_InputHandlers, input_handler);
+  if (input_handler) {
+    removeInputHandler(&R_InputHandlers, input_handler);
+    input_handler = nullptr;
+  }
+
+  if (pipe_fds[0] != -1) {
+    close(pipe_fds[0]);
+    pipe_fds[0] = -1;
+  }
+
+  if (pipe_fds[1] != -1) {
+    close(pipe_fds[1]);
+    pipe_fds[1] = -1;
+  }
 #endif
 }
 

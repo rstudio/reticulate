@@ -77,6 +77,14 @@ void notify() {
     }
 #endif
   }
+
+}
+
+void deinitialize() {
+#ifdef _WIN32
+#else
+  removeInputHandler(&R_InputHandlers, input_handler);
+#endif
 }
 
 } // namespace pending_py_calls_notifier

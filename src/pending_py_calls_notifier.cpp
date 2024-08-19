@@ -41,7 +41,8 @@ InputHandler* input_handler = nullptr;
 
 void input_handler_function(void* userData) {
   char buffer[1];
-  read(pipe_fds[0], buffer, 1); // Clear the pipe
+  if (read(pipe_fds[0], buffer, 2) == -1) // Clear the pipe
+    REprintf("Failed to read from pipe for pending Python calls notifier");
   if (notification_pending.exchange(false)) {
     run_pending_calls_func();
   }

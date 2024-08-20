@@ -40,12 +40,12 @@ void initialize_windows_message_window() {
 }
 
 #else
-int pipe_fds[4]; // Pipe file descriptors for inter-thread communication
+int pipe_fds[2]; // Pipe file descriptors for inter-thread communication
 InputHandler* input_handler = nullptr;
 
 void input_handler_function(void* userData) {
-  char buffer[1];
-  if (read(pipe_fds[0], buffer, 4) == -1) // Clear the pipe
+  char buffer[4];
+  if (read(pipe_fds[0], buffer, sizeof(buffer)) == -1) // Clear the pipe
     REprintf("Failed to read from pipe for pending Python calls notifier");
   if (notification_pending.exchange(false)) {
     run_pending_calls_func();

@@ -60,3 +60,4 @@ LinkingTo: Rcpp
 RoxygenNote: 7.3.2
 Roxygen: list(markdown = TRUE)
 VignetteBuilder: knitr
+Config/build/compilation-database: true

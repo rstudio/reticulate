@@ -13,6 +13,7 @@ namespace pending_py_calls_notifier {
     // Notify the main thread to run pending calls.
     void notify();
 
+    // Undo initialize
     void deinitialize();
 
 } // namespace pending_py_calls_notifier

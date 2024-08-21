@@ -2300,14 +2300,26 @@ public:
 
 // custom module used for calling R functions from python wrappers
 
-extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* keywords)
-{
-  if(!is_main_thread()) {
-      PyObjectPtr tools(PyImport_ImportModule("rpytools.thread"));
-      PyObjectPtr call_on_main_thread(PyObject_GetAttrString(tools, "call_python_function_on_main_thread_and_get_result"));
-      return PyObject_Call(call_on_main_thread, args, keywords); // TODO: propogate errors ...
-  }
-  // the first argument is always the capsule containing the R function to call
+
+void safe_print_value(SEXP value, const char* warn_print_failed) {
+    // Use R_ToplevelExec to safely execute Rf_PrintValue with an inlined lambda
+    if (!R_ToplevelExec([](void* data) -> void {
+            Rf_PrintValue(static_cast<SEXP>(data));
+        }, value)) {
+        // Handle the case where Rf_PrintValue failed due to an error
+        Rf_warning("%s", warn_print_failed);
+    }
+}
+
+// must be called from the main thread, accesses the R api
+// returns length 2 tuple: (<return-value>, None), or (None, <signaled-error>)
+struct PythonCallResult {
+  PyObject* value;
+  PyObject* exception;
+};
+
+PythonCallResult actually_call_r_function(PyObject* args, PyObject* keywords) {
+  GILScope _gil;
   PyObject* capsule = PyTuple_GetItem(args, 0);
   RObject rFunction = py_capsule_read(capsule);
 
@@ -2332,7 +2344,6 @@ extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* k
 
   // get keyword arguments
   List rKeywords;
-
   if (keywords != NULL) {
 
     if (convert) {
@@ -2373,6 +2384,10 @@ extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* k
 
   RObject call_r_func_call(Rf_lang4(call_r_function_s, rFunction, rArgs, rKeywords));
 
+  // PythonCallResult res = {NULL, NULL};
+  PyObject* exception = NULL;
+  SEXP err_cnd = NULL;
+
   try {
     // use current_env() here so that in case of error, rlang::trace_back()
     // prints this frame as a node of the parent rather than a top-level call.
@@ -2391,51 +2406,107 @@ extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* k
     // result is either
     // (return_value, NULL) or
     // (NULL, condition)
-    if (result[1] == R_NilValue)  // no error
-      return (r_to_py(result[0], convert));
+    if (result[1] == R_NilValue) { // no error
+      PyObject* value = r_to_py(result[0], convert);
+      return PythonCallResult {value, NULL};
+    }
+
 
     // R signaled an error
     // Convert the R error condition to a Python Exception
-    PyObject* value = r_to_py(result[1], true);
-    PyObjectPtr value_(value); // decref on scope exit
-
-    // Prepare to raise the Exception
-    // The Python API requires that we separately provide the exception type
-    PyObject *exc_type;
-
-    // If the condition converted to an Exception instance,
-    // Take the type from that. This is the most common path.
-    if (PyExceptionInstance_Check(value)) {
-      exc_type = (PyObject *)Py_TYPE(value);
-    }
-    // The interrupt R calling handler returns a string for simplicity
-    else if (PyUnicode_Check(value) &&
-             PyUnicode_CompareWithASCIIString(value, "KeyboardInterrupt") == 0) {
-      exc_type = PyExc_KeyboardInterrupt;
-      value = NULL;
-    }
-    // the following two cases should never happen, but catch them just in case
-    // The calling handler returned a BaseException class, (not an instance of an Exception)
-    else if (PyExceptionClass_Check(value)) {
-      exc_type = value;
-      value = NULL;
-    }
-    // Catch-all fallback
-    else {
-      exc_type = PyExc_RuntimeError;
-    }
-
-    // Raise the exception
-    PyErr_SetObject(exc_type, value);
+    err_cnd = result[1];
+    exception = r_to_py(err_cnd, true);
 
   } catch(const Rcpp::internal::InterruptedException& e) {
     // should rarely happen, since we also set an R level interrupt handler
-    PyErr_SetNone(PyExc_KeyboardInterrupt);
+    exception = PyExc_KeyboardInterrupt;
   } catch(const std::exception& e) {
-    PyErr_SetString(PyExc_RuntimeError, e.what());
+    exception = PyUnicode_FromString(e.what());
   } catch(...) {
-    PyErr_SetString(PyExc_RuntimeError, "(Unknown exception occurred)");
+    exception = PyUnicode_FromString("(Unknown exception occurred)");
   }
+
+  if (exception == NULL) {
+    REprintf("Exception raised when converting R error to Python Exception.");
+    if (PyErr_Occurred()) PyErr_Print();
+    safe_print_value(err_cnd, "Printing the R error condition raised an error");
+  }
+
+  return PythonCallResult{NULL, exception};
+}
+
+extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* keywords)
+{
+
+  GILScope _gil;
+  PythonCallResult res;
+  if(is_main_thread()) {
+    res = actually_call_r_function(args, keywords);
+  } else {
+    static PyObject* safe_call_r_function_on_main_thread = []() -> PyObject* {
+      PyObjectPtr thread_tools(PyImport_ImportModule("rpytools.thread"));
+      return PyObject_GetAttrString(thread_tools, "safe_call_r_function_on_main_thread");
+    }();
+
+    PyObjectPtr res_(PyObject_Call(safe_call_r_function_on_main_thread, args, keywords));
+
+    PyObject *exception = PyTuple_GetItem(res_, 1);
+    if (exception == Py_None) { // No Exception raised
+
+      PyObject *value = PyTuple_GetItem(res_, 0);
+      Py_IncRef(value);
+      res = PythonCallResult{value, NULL};
+
+    } else { // Exception raised
+
+      Py_IncRef(exception);
+      res = PythonCallResult {NULL, exception};
+
+    }
+  }
+
+  if (res.value)
+    return res.value;
+
+  // Prepare to raise the Exception
+  // The Python API requires that we separately provide the exception type
+  PyObject* exc = res.exception;
+  PyObject* exc_type;
+
+  // If the condition converted to an Exception instance,
+  // Take the type from that. This is the most common path.
+  if (PyExceptionInstance_Check(exc)) {
+    exc_type = (PyObject *)Py_TYPE(exc);
+  }
+
+  // Also accept a string for simplicity.
+  else if (PyUnicode_Check(exc)) {
+
+    if (PyUnicode_CompareWithASCIIString(exc, "KeyboardInterrupt") == 0) {
+      exc_type = PyExc_KeyboardInterrupt;
+      Py_DecRef(exc);
+      exc = NULL;
+    } else {
+      exc_type = PyExc_RuntimeError;
+    }
+
+  }
+  // the following two cases should never happen, but catch them just in case
+  // The calling handler returned a BaseException class, (not an instance of an Exception)
+  else if (PyExceptionClass_Check(exc)) {
+    exc_type = exc;
+    exc = NULL;
+  }
+  // Catch-all fallback
+  else {
+    exc_type = PyExc_RuntimeError;
+    if (exc == NULL) {
+      exc = PyUnicode_FromString("(Unknown exception)");
+    }
+  }
+
+  // Raise the exception
+  PyErr_SetObject(exc_type, exc);
 
   // Tell Python we raised an exception
   return NULL;

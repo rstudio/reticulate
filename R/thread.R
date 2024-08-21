@@ -14,8 +14,7 @@
 #'
 #' @export
 py_main_thread_func <- function(f) {
-  tools <- import("rpytools")
-  tools$thread$main_thread_func(f)
+  r_to_py(f, TRUE) # every R func is a main thread func.
 }
 
 
@@ -39,6 +38,12 @@ py_allow_threads <- function(allow = TRUE) {
 
 
 
+## TODO: document how to use sys.unraisablehook() to customize handling of exceptions
+## from background threads. Alternativey, can use threading module, which
+## has more options for customizing exceptions hooks.
+## TODO: use threading module with a meaning name for the thread, which
+##   is printed in tracebacks.
+##   Otherwise, can also set py_func.__name__
 py_run_file_on_thread <- function(file, ..., args = NULL) {
   if (!is.null(args))
     args <- as.list(as.character(args))

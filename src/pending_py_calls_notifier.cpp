@@ -79,6 +79,7 @@ namespace {
 
 int pipe_fds[2]; // Pipe file descriptors for inter-thread communication
 InputHandler* input_handler = nullptr;
+const int kReticulateBackgroundThreadActivity = 88;
 
 void input_handler_function(void* userData) {
   char buffer[4];
@@ -97,7 +98,9 @@ void initialize(std::function<void()> run_pending_calls_func) {
   if (pipe(pipe_fds) == -1)
     Rf_error("Failed to create pipe for pending Python calls notifier");
 
-  input_handler = addInputHandler(R_InputHandlers, pipe_fds[0], input_handler_function, 88);
+  input_handler = addInputHandler(R_InputHandlers,
+                                  pipe_fds[0], input_handler_function,
+                                  kReticulateBackgroundThreadActivity);
 }
 
 void notify() {

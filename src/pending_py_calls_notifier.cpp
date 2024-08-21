@@ -1,27 +1,44 @@
-#include "pending_py_calls_notifier.h"
-#include <Rinternals.h>
 
-#ifndef _WIN32
-#include <R_ext/eventloop.h> // for addInputHandler()
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
 #endif
 
 #include <atomic>
+#include <functional>
+
+// tinythread.h is only used for its includes. It does platform-specific includes
+// nicely like <windows.h>, <unistd.h>, etc.
+#include "tinythread.h"
+
+#define R_NO_REMAP
+#include <Rinternals.h>
+
+#ifndef _WIN32
+#include <R_ext/eventloop.h> // for addInputHandler(), removeInputHandler()
+#endif
+
+#include "pending_py_calls_notifier.h"
 
 namespace pending_py_calls_notifier {
 
 namespace {
 
 std::atomic<bool> notification_pending(false);
-std::function<void()> run_pending_calls_func;
+std::function<void()> run_pending_calls;
+
+}
 
 #ifdef _WIN32
+
+namespace {
+
 HWND message_window;
 const UINT WM_PY_PENDING_CALLS = WM_USER + 1;
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
   if (uMsg == WM_PY_PENDING_CALLS) {
     if (notification_pending.exchange(false)) {
-      run_pending_calls_func();
+      run_pending_calls();
     }
     return 0;
   }
@@ -39,7 +56,26 @@ void initialize_windows_message_window() {
   message_window = CreateWindow(TEXT("ReticulatePyPendingCallsNotifier"), NULL, 0, 0, 0, 0, 0, HWND_MESSAGE, NULL, hInstance, NULL);
 }
 
-#else
+} // end anonymous namespace, windows-specific
+
+
+void initialize(std::function<void()> run_pending_calls_func) {
+  initialize_windows_message_window();
+}
+void notify() {
+    PostMessage(message_window, WM_PY_PENDING_CALLS, 0, 0);
+}
+
+void deinitialize() {
+  if (message_window) {
+    DestroyWindow(message_window);
+    message_window = nullptr;
+  }
+
+#else // end windows, start unix
+
+namespace {
+
 int pipe_fds[2]; // Pipe file descriptors for inter-thread communication
 InputHandler* input_handler = nullptr;
 
@@ -48,51 +84,31 @@ void input_handler_function(void* userData) {
   if (read(pipe_fds[0], buffer, sizeof(buffer)) == -1) // Clear the pipe
     REprintf("Failed to read from pipe for pending Python calls notifier");
   if (notification_pending.exchange(false)) {
-    run_pending_calls_func();
+    run_pending_calls();
   }
 }
-#endif
 
-} // anonymous namespace
+} // end anonymous namespace, unix-specific
 
-void initialize(std::function<void()> run_pending_calls) {
-  // Set the function for running pending Python calls
-  run_pending_calls_func = run_pending_calls;
 
-#ifdef _WIN32
-  initialize_windows_message_window();
-#else
-  // Create a pipe for inter-thread communication (POSIX)
-  if (pipe(pipe_fds) == -1) {
+void initialize(std::function<void()> run_pending_calls_func) {
+  run_pending_calls = run_pending_calls_func;
+  if (pipe(pipe_fds) == -1)
     Rf_error("Failed to create pipe for pending Python calls notifier");
-  }
 
-  // Add the input handler to the R event loop
-  input_handler = addInputHandler(R_InputHandlers, pipe_fds[0], input_handler_function, 88); // Choose an appropriate activity ID
-#endif
+  input_handler = addInputHandler(R_InputHandlers, pipe_fds[0], input_handler_function, 88);
 }
 
 void notify() {
   if (!notification_pending.exchange(true)) {
-#ifdef _WIN32
-    PostMessage(message_window, WM_PY_PENDING_CALLS, 0, 0);
-#else
     if (write(pipe_fds[1], "x", 1) == -1) {
+      // Called from background threads, can't throw R error.
       REprintf("Failed to write to pipe for pending Python calls notifier\n");
     }
-#endif
   }
-
 }
 
-
 void deinitialize() {
-#ifdef _WIN32
-  if (message_window) {
-    DestroyWindow(message_window);
-    message_window = nullptr;
-  }
-#else
   if (input_handler) {
     removeInputHandler(&R_InputHandlers, input_handler);
     input_handler = nullptr;
@@ -107,7 +123,8 @@ void deinitialize() {
     close(pipe_fds[1]);
     pipe_fds[1] = -1;
   }
-#endif
 }
+
+#endif // end unix
 
 } // namespace pending_py_calls_notifier

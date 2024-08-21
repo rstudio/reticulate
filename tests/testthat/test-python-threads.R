@@ -65,9 +65,8 @@ test_that("Errors from background threads calling into main thread are handled",
   py$signal_r_error <- function() stop("foo-bar-baz")
   on.exit(py_del_attr(py, "signal_r_error"), add = TRUE)
 
-  # {testthat} messes with the globalenv() somehow during `test_that()`,
-  # the test fails if we try to communicate by assigning in the globalenv via
-  #   r.val = 'foo'
+  # when testing, `r` in Python resolves `getOption("rlang_trace_top_env"), not
+  # the R globalenv(). Avoid using it to communicate.
   val <- NULL
   py$set_val <-  function(v) val <<- v
   on.exit(py_del_attr(py, "set_val"), add = TRUE)

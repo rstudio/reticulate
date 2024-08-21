@@ -2,8 +2,6 @@
 #define PENDING_PY_CALLS_NOTIFIER_H
 
 #include <functional>
-#include <atomic>
-#include "tinythread.h"
 
 namespace pending_py_calls_notifier {
 

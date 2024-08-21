@@ -24,7 +24,20 @@ namespace pending_py_calls_notifier {
 namespace {
 
 std::atomic<bool> notification_pending(false);
-std::function<void()> run_pending_calls;
+std::function<void()> run_pending_calls_inner;
+
+void run_pending_calls(int max_retries = 4) {
+  notification_pending.exchange(false);
+
+  // loop through a few times in case more calls were added while
+  // running previous calls.
+  for (int i = 0; i <= max_retries; ++i) {
+    run_pending_calls_inner();
+
+    if (!notification_pending.exchange(false))
+      break;
+  }
+}
 
 }
 
@@ -37,9 +50,7 @@ const UINT WM_PY_PENDING_CALLS = WM_USER + 1;
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
   if (uMsg == WM_PY_PENDING_CALLS) {
-    if (notification_pending.exchange(false)) {
-      run_pending_calls();
-    }
+    run_pending_calls();
     return 0;
   }
   return DefWindowProc(hwnd, uMsg, wParam, lParam);
@@ -50,16 +61,18 @@ void initialize_windows_message_window() {
   WNDCLASS wc = {0};
   wc.lpfnWndProc = WindowProc;
   wc.hInstance = hInstance;
-  wc.lpszClassName = TEXT("ReticulatePyPendingCallsNotifier");
+  wc.lpszClassName = TEXT("ReticulatePythonPendingCallsNotifier");
 
   RegisterClass(&wc);
-  message_window = CreateWindow(TEXT("ReticulatePyPendingCallsNotifier"), NULL, 0, 0, 0, 0, 0, HWND_MESSAGE, NULL, hInstance, NULL);
+  message_window = CreateWindow(TEXT("ReticulatePythonPendingCallsNotifier"), NULL,
+                                0, 0, 0, 0, 0, HWND_MESSAGE, NULL, hInstance, NULL);
 }
 
 } // end anonymous namespace, windows-specific
 
 
 void initialize(std::function<void()> run_pending_calls_func) {
+  run_pending_calls_inner = run_pending_calls_func;
   initialize_windows_message_window();
 }
 void notify() {
@@ -83,18 +96,18 @@ const int kReticulateBackgroundThreadActivity = 88;
 
 void input_handler_function(void* userData) {
   char buffer[4];
+
   if (read(pipe_fds[0], buffer, sizeof(buffer)) == -1) // Clear the pipe
     REprintf("Failed to read from pipe for pending Python calls notifier");
-  if (notification_pending.exchange(false)) {
-    run_pending_calls();
-  }
+
+  run_pending_calls();
 }
 
 } // end anonymous namespace, unix-specific
 
 
 void initialize(std::function<void()> run_pending_calls_func) {
-  run_pending_calls = run_pending_calls_func;
+  run_pending_calls_inner = run_pending_calls_func;
   if (pipe(pipe_fds) == -1)
     Rf_error("Failed to create pipe for pending Python calls notifier");
 

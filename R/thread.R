@@ -39,11 +39,13 @@ py_allow_threads <- function(allow = TRUE) {
 
 
 ## TODO: document how to use sys.unraisablehook() to customize handling of exceptions
-## from background threads. Alternativey, can use threading module, which
-## has more options for customizing exceptions hooks.
-## TODO: use threading module with a meaning name for the thread, which
-##   is printed in tracebacks.
-##   Otherwise, can also set py_func.__name__
+## from background threads. Or, switch to using the threading module, which
+## has more options for customizing exceptions hooks, and document that.
+## TODO: give a meaningful name for the thread that appears in tracebacks.
+## Either use the threading module and pass name=,
+##   or do something like
+##     f = lambda file: run_file(file)
+##     f.__name__ = "run: " + os.path.basename(file)
 py_run_file_on_thread <- function(file, ..., args = NULL) {
   if (!is.null(args))
     args <- as.list(as.character(args))

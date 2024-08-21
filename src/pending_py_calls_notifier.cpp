@@ -71,6 +71,7 @@ void deinitialize() {
     DestroyWindow(message_window);
     message_window = nullptr;
   }
+}
 
 #else // end windows, start unix
 

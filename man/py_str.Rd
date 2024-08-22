@@ -34,3 +34,6 @@ for python objects instead.
 
 The default implementation will call \code{PyObject_Str} on the object.
 }
+\seealso{
+\code{\link[=as.character.python.builtin.bytes]{as.character.python.builtin.bytes()}} For discussion on dealing with embedded \code{NUL}s in Python strings.
+}

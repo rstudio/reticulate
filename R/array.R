@@ -96,4 +96,3 @@ array_reshape <- function(x, dim, order = c("C", "F")) {
     reshaped <- py_to_r(reshaped)
   reshaped
 }
-

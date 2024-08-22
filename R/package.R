@@ -31,12 +31,18 @@ is_python_initialized <- function() {
   !is.null(.globals$py_config)
 }
 
+is_python_finalized <- function() {
+  identical(.globals$finalized, TRUE)
+}
 
 ensure_python_initialized <- function(required_module = NULL) {
 
   # nothing to do if python is initialized
   if (is_python_initialized())
     return()
+
+  if (is_python_finalized())
+    stop("py_initialize() cannot be called more than once per R session or after py_finalize(). Please start a new R session.")
 
   # notify front-end (if any) that Python is about to be initialized
   callback <- getOption("reticulate.python.beforeInitialized")
@@ -217,6 +223,8 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
     }
 
   )
+
+  reg.finalizer(.globals, \(e) py_finalize(), onexit = TRUE)
 
   # set available flag indicating we have py bindings
   config$available <- TRUE

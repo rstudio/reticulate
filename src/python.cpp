@@ -2630,10 +2630,11 @@ interrupt_handler(int signum) {
   PyOS_setsig(signum, interrupt_handler);
 }
 
-// [[Rcpp::export]]
-void install_interrupt_handlers() {
+
+PyOS_sighandler_t orig_interrupt_handler = NULL;
+
+PyOS_sighandler_t install_interrupt_handlers_() {
   // Installs a C handler and a Python handler
-  //
   // Exported as an R symbol in case the user did some action that cleared the
   // handlers, e.g., calling signal.signal() in Python, and wants to restore
   // the correct handler.
@@ -2652,14 +2653,19 @@ void install_interrupt_handlers() {
   if (result.is_null()) {
     PyErr_Print();
     Rcpp::warning("Failed to set interrupt signal handlers");
-    return;
+    return NULL;
   }
 
   // install the C handler.
   //
   // This *must* be after setting the Python handler, because signal.signal()
   // will also reset the OS C handler to one that is not aware of R.
-  PyOS_setsig(SIGINT, interrupt_handler);
+  return PyOS_setsig(SIGINT, interrupt_handler);
+}
+
+// [[Rcpp::export]]
+void install_interrupt_handlers() {
+  install_interrupt_handlers_();
 }
 
 extern "C"
@@ -2942,7 +2948,7 @@ void py_initialize(const std::string& python,
       const wchar_t *argv[1] = {s_python_v3.c_str()};
       PySys_SetArgv_v3(1, const_cast<wchar_t**>(argv));
 
-      install_interrupt_handlers();
+      orig_interrupt_handler = install_interrupt_handlers_();
     }
 
   } else { // python2
@@ -2968,8 +2974,8 @@ void py_initialize(const std::string& python,
     const char *argv[1] = {s_python.c_str()};
     PySys_SetArgv(1, const_cast<char**>(argv));
 
+    orig_interrupt_handler = install_interrupt_handlers_();
     PyOS_setsig(SIGINT, interrupt_handler);
-    install_interrupt_handlers();
   }
 
   s_main_thread = tthread::this_thread::get_id();
@@ -3012,13 +3018,50 @@ void py_initialize(const std::string& python,
 
 // [[Rcpp::export]]
 void py_finalize() {
+
+  if (R_ParseEvalString(".globals$finalized", ns_reticulate) != R_NilValue)
+    stop("py_finalize() can only be called once per R session");
+
+  reticulate::event_loop::deinitialize(/*wait =*/ false);
+  pending_py_calls_notifier::deinitialize();
+
   // We shouldn't call PyFinalize() if R is embedded in Python. https://github.com/rpy2/rpy2/issues/872
-  // if(!s_is_python_initialized && !s_was_python_initialized_by_reticulate)
-  //   return;
-  //
-  // ::Py_Finalize();
-  // s_is_python_initialized = false;
-  // s_was_python_initialized_by_reticulate = false;
+  if(!s_is_python_initialized || !s_was_python_initialized_by_reticulate)
+    return;
+
+  {
+    PyGILState_Ensure();
+    Py_MakePendingCalls();
+    if (orig_interrupt_handler)
+      PyOS_setsig(SIGINT, orig_interrupt_handler);
+    Py_Finalize();
+  }
+
+  {
+    // To allow to call py_initialize() again would take:
+    // - tracking and invalidating all objects declared in functions with
+    //   `static PyObject*` (including static modules like numpy).
+    // - unloading the library: libpython::SharedLibrary::unload(&error);
+    // - setting all loaded symbols to NULL;
+    // - check if internal symbols Python loads persist in the process, and
+    //   if they need to be somehow discovered and unloaded.
+    // - ... problably other things too.
+  }
+
+  s_is_python_initialized = false;
+  s_was_python_initialized_by_reticulate = false;
+
+  // Make sure that attempting to get the gil again will call
+  // `ensure_python_initialized()`, which will now throw an error.
+  R_ParseEvalString("local({ "
+      "rm(list = names(.globals), envir = .globals); " // clear R-level references to previous config or python objects
+      ".globals$finalized <- TRUE; "
+      ".globals$py_repl_active <- FALSE; " // used by IDE?
+    "})",
+    ns_reticulate);
+  PyGILState_Ensure = &_initialize_python_and_PyGILState_Ensure;
+
+  // reticulate::event_loop::deinitialize(/*wait =*/ true);
 }
 
 // [[Rcpp::export]]

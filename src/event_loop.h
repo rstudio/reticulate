@@ -7,6 +7,8 @@ namespace event_loop {
 
 void initialize();
 
+void deinitialize(bool wait = false);
+
 } // namespace event_loop
 } // namespace reticulate
 

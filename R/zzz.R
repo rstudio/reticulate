@@ -65,7 +65,5 @@
 
 
 # .onUnload <- function(libpath) {
-#   ## Don't acquire GIL if we're embedded; https://github.com/rpy2/rpy2/issues/872
-#   # py_finalize()
-#   # py_clear_last_error()
+#   py_finalize() # called from reg.finalizer(.globals) instead.
 # }

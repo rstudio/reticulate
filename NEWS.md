@@ -10,6 +10,8 @@
   R's native event loop, ensuring that these calls are handled even when 
   the main thread is engaged in non-Python tasks. (#1648)
   
+- The Python session is now finalized when the R session exits (#1648).
+
 - Internal updates for NumPy 2.1 (#1651)
 
 - Fixed error when importing a module named `config` (#1628)

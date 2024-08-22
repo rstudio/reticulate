@@ -2,6 +2,8 @@
 
 - Python background threads can now run in parallel with
   the R session (#1641).
+  
+- Internal updates for NumPy 2.1 (#1651)
 
 - Fixed error when importing a module named `config` (#1628)
 

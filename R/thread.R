@@ -1,6 +1,9 @@
 
 
-#' Create a Python function that will always be called on the main thread
+#' [Deprecated] Create a Python function that will always be called on the main thread
+#'
+#' Beginning with reticulate v1.39.0, every R function is a "main thread func". Usage of `py_main_thread_func()`
+#' is no longer necessary.
 #'
 #' This function is helpful when you need to provide a callback to a Python
 #' library which may invoke the callback on a background thread. As R functions
@@ -13,6 +16,7 @@
 #'
 #'
 #' @export
+#' @keywords internal
 py_main_thread_func <- function(f) {
   r_to_py(f, TRUE) # every R func is a main thread func.
 }

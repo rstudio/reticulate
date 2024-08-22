@@ -224,7 +224,7 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
 
   )
 
-  reg.finalizer(.globals, \(e) py_finalize(), onexit = TRUE)
+  reg.finalizer(.globals, function(e) py_finalize(), onexit = TRUE)
 
   # set available flag indicating we have py bindings
   config$available <- TRUE

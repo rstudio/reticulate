@@ -89,12 +89,11 @@ repl_python <- function(
     on.exit(teardown(), add = TRUE)
   }
 
-  if(Sys.getenv("POSITRON") == "1" &&
-     numeric_version(Sys.getenv("POSITRON_VERSION")) > "2024.8.0") {
-    if(!is.null(input))
-      warning("`input` to repl_python() ignored.") # TODO: fix
-    eval(call(".ps.reticulate_open"))
-    return()
+  if (Sys.getenv("POSITRON") == "1") {
+    if (exists(".ps.reticulate_open", inherits = TRUE)) {
+      eval(call(".ps.reticulate_open", input))
+      return()
+    }
   }
 
   # split provided code on newlines

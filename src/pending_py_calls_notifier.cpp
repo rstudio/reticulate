@@ -11,6 +11,7 @@
 #include "tinythread.h"
 
 #define R_NO_REMAP
+#include <R.h>  // R-devel (4.5) errors if you include Rinternals.h but not R.h in c++ modules.
 #include <Rinternals.h>
 
 #ifndef _WIN32

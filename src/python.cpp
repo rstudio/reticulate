@@ -1152,11 +1152,11 @@ bool is_pandas_na(PyObject* x) {
 }
 
 #define STATIC_MODULE(module)                                      \
-  const static PyObjectPtr mod(PyImport_ImportModule(module));     \
-  if (mod.is_null()) {                                             \
+  const static PyObject* mod = PyImport_ImportModule(module);      \
+  if (mod == NULL) {                                               \
     throw PythonException(py_fetch_error());                       \
   }                                                                \
-  return mod;
+  return const_cast<PyObject*>(mod);
 
 PyObject* numpy () {
   STATIC_MODULE("numpy")
@@ -3016,6 +3016,8 @@ void py_initialize(const std::string& python,
   });
 }
 
+bool is_py_finalized = false;
+
 // [[Rcpp::export]]
 void py_finalize() {
 
@@ -3034,6 +3036,7 @@ void py_finalize() {
     Py_MakePendingCalls();
     if (orig_interrupt_handler)
       PyOS_setsig(SIGINT, orig_interrupt_handler);
+    is_py_finalized = true;
     Py_Finalize();
   }
 
@@ -4087,28 +4090,28 @@ PyObject* r_to_py_pandas_nullable_series (const RObject& column, const bool conv
   PyObject* constructor;
   switch (TYPEOF(column)) {
   case INTSXP:
-    const static PyObjectPtr IntArray(
+    const static PyObject* IntArray(
         PyObject_GetAttrString(pandas_arrays(), "IntegerArray")
     );
-    constructor = IntArray.get();
+    constructor = const_cast<PyObject*>(IntArray);
     break;
   case REALSXP:
-    const static PyObjectPtr FloatArray(
+    const static PyObject* FloatArray(
         PyObject_GetAttrString(pandas_arrays(), "FloatingArray")
     );
-    constructor = FloatArray.get();
+    constructor =  const_cast<PyObject*>(FloatArray);
     break;
   case LGLSXP:
-    const static PyObjectPtr BoolArray(
+    const static PyObject* BoolArray(
         PyObject_GetAttrString(pandas_arrays(), "BooleanArray")
     );
-    constructor = BoolArray.get();
+    constructor =  const_cast<PyObject*>(BoolArray);
     break;
   case STRSXP:
-    const static PyObjectPtr StringArray(
+    const static PyObject* StringArray(
         PyObject_GetAttrString(pandas_arrays(), "StringArray")
     );
-    constructor = StringArray.get();
+    constructor =  const_cast<PyObject*>(StringArray);
     break;
   default:
     Rcpp::stop("R type not handled. Please supply one of int, double, logical or character");

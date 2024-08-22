@@ -1703,12 +1703,12 @@ SEXP py_to_r_cpp(PyObject* x, bool convert, bool simple) {
   // bytearray
   if (PyByteArray_Check(x)) {
 
-    if (PyByteArray_Size(x) == 0)
+    auto size = PyByteArray_Size(x);
+    if (size == 0)
       return RawVector();
 
-    return RawVector(
-      PyByteArray_AsString(x),
-      PyByteArray_AsString(x) + PyByteArray_Size(x));
+    char* data = PyByteArray_AsString(x);
+    return RawVector(data, data + size);
 
   }
 

@@ -11,6 +11,11 @@
 
 - Fixes for CRAN check failures (#1645)
 
+- New `as.raw()` method for `python.builtin.bytes` (#1649, #1652)
+
+- `as.character()` method for `python.builtin.bytes` gains a `nul` argument,
+  allowing for convenient handling of embedded NULs in the string. (#1652)
+
 # reticulate 1.38.0
 
 - Python Exceptions converted to R conditions are now R lists instead

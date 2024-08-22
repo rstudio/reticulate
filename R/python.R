@@ -84,19 +84,61 @@ as.character.python.builtin.object <- function(x, ...) {
   py_str(x)
 }
 
-#' Convert Python bytes to an R character vector
+#' Convert Python bytes to an R character or raw vector
 #'
 #' @inheritParams base::as.character
 #'
 #' @param encoding Encoding to use for conversion (defaults to utf-8)
 #' @param errors Policy for handling conversion errors. Default is 'strict'
 #'  which raises an error. Other possible values are 'ignore' and 'replace'.
+#' @param nul Action to take if the bytes contain an embedded NUL (`\x00`).
+#' Python allows embedded `NUL`s in strings, while R does not. There are four
+#' options for handling embedded `NUL`s:
+#'
+#'   1. Error: This is the default
+#'   2. Replace: Supply a replacement string: `nul = "<NUL>"`
+#'   3. Remove: Supply an empty string: `nul = ""`
+#'   4. Split: Supply an R `NULL` to indicate that string should be split at embedded `NUL` bytes: `nul = NULL`
 #'
 #' @export
-as.character.python.builtin.bytes <- function(x, encoding = "utf-8", errors = "strict", ...) {
-  x$decode(encoding = encoding, errors = errors)
+#' @examplesIf reticulate::py_available()
+#' # A bytes object with embedded NULLs
+#' b <- import_builtins(convert = FALSE)$bytes(
+#'   as.raw(c(0x61, 0x20, 0x62, 0x00, 0x63, 0x20, 0x64)) # "a b<NUL>c d"
+#' )
+#'
+#' try(as.character(b))            # Error : Embedded NUL in string.
+#' as.character(b, nul = "<NUL>")  # Replace: "a b<NUL>c d"
+#' as.character(b, nul = "")       # Remove: "a bc d"
+#' as.character(b, nul = NULL)     # Split: "a b" "c d"
+as.character.python.builtin.bytes <-
+  function(x, encoding = "utf-8", errors = "strict",
+           nul = stop("Embedded NUL in string."), ...) {
+    local_conversion_scope(x, TRUE)
+    if(missing(nul))
+      # will throw an error if bytes contain embedded nul
+      x$decode(encoding = encoding, errors = errors)
+
+    else if(is.null(nul)) {
+      # split string at embedded nulls.
+      vapply(x$split(import("builtins")$bytes(list(0L))),
+             function(slice) slice$decode(encoding = encoding, errors = errors),
+             "")
+
+    } else {
+      # replace embedded nulls with supplied string
+      bt <- import("builtins", convert = FALSE)
+      nul <- bt$str(as.character(nul))$encode()
+      x$replace(bt$bytes(list(0L)), nul)$decode(encoding = encoding, errors = errors)
+    }
+
 }
 
+#' @export
+#' @rdname as.character.python.builtin.bytes
+as.raw.python.builtin.bytes <- function(x) {
+  import_builtins()$bytearray(x)
+}
 
 .operators <- new.env(parent = emptyenv())
 
@@ -942,6 +984,8 @@ py_list_attributes <- function(x) {
 #' @return Character vector
 #'
 #' @details The default implementation will call `PyObject_Str` on the object.
+#'
+#' @seealso [as.character.python.builtin.bytes()] For discussion on dealing with embedded `NUL`s in Python strings.
 #'
 #' @export
 py_str <- function(object, ...) {

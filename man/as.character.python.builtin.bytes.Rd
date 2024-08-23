@@ -40,7 +40,7 @@ Convert Python bytes to an R character or raw vector
 }
 \examples{
 \dontshow{if (reticulate::py_available()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-# A bytes object with embedded NULLs
+# A bytes object with embedded NULs
 b <- import_builtins(convert = FALSE)$bytes(
   as.raw(c(0x61, 0x20, 0x62, 0x00, 0x63, 0x20, 0x64)) # "a b<NUL>c d"
 )
@@ -50,4 +50,7 @@ as.character(b, nul = "<NUL>")  # Replace: "a b<NUL>c d"
 as.character(b, nul = "")       # Remove: "a bc d"
 as.character(b, nul = NULL)     # Split: "a b" "c d"
 \dontshow{\}) # examplesIf}
+}
+\seealso{
+\code{\link[=as.character.python.builtin.str]{as.character.python.builtin.str()}}
 }

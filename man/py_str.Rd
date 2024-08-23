@@ -35,5 +35,7 @@ for python objects instead.
 The default implementation will call \code{PyObject_Str} on the object.
 }
 \seealso{
-\code{\link[=as.character.python.builtin.bytes]{as.character.python.builtin.bytes()}} For discussion on dealing with embedded \code{NUL}s in Python strings.
+\code{\link[=as.character.python.builtin.str]{as.character.python.builtin.str()}}
+\code{\link[=as.character.python.builtin.bytes]{as.character.python.builtin.bytes()}} for handling
+\verb{Error : Embedded NUL in string.} if the Python string contains an embedded \code{NUL}.
 }

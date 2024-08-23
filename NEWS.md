@@ -11,11 +11,11 @@
 
 - Fixes for CRAN check failures (#1645)
 
-- Avoid overwriting Altair's default chart dimensions
+- The knitr engine now avoids overwriting Altair's default chart dimensions
   with the values of `ut.width.px` and `ut.height.px`.
   Instead, use `altair.fig.height`, `altair.fig.width`,
   or Altair's `width` and `height` parameters
-  to adjust chart dimensions.
+  to adjust chart dimensions. (#1646, contributed by @joelostblom)
 
 - New `as.raw()` method for `python.builtin.bytes` (#1649, #1652)
 

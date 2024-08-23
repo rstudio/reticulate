@@ -2,9 +2,18 @@
 % Please edit documentation in R/python.R
 \name{as.character.python.builtin.bytes}
 \alias{as.character.python.builtin.bytes}
-\title{Convert Python bytes to an R character vector}
+\alias{as.raw.python.builtin.bytes}
+\title{Convert Python bytes to an R character or raw vector}
 \usage{
-\method{as.character}{python.builtin.bytes}(x, encoding = "utf-8", errors = "strict", ...)
+\method{as.character}{python.builtin.bytes}(
+  x,
+  encoding = "utf-8",
+  errors = "strict",
+  nul = stop("Embedded NUL in string."),
+  ...
+)
+
+\method{as.raw}{python.builtin.bytes}(x)
 }
 \arguments{
 \item{x}{object to be coerced or tested.}
@@ -14,8 +23,31 @@
 \item{errors}{Policy for handling conversion errors. Default is 'strict'
 which raises an error. Other possible values are 'ignore' and 'replace'.}
 
+\item{nul}{Action to take if the bytes contain an embedded NUL (\verb{\\x00}).
+Python allows embedded \code{NUL}s in strings, while R does not. There are four
+options for handling embedded \code{NUL}s:
+\enumerate{
+\item Error: This is the default
+\item Replace: Supply a replacement string: \code{nul = "<NUL>"}
+\item Remove: Supply an empty string: \code{nul = ""}
+\item Split: Supply an R \code{NULL} to indicate that string should be split at embedded \code{NUL} bytes: \code{nul = NULL}
+}}
+
 \item{...}{further arguments passed to or from other methods.}
 }
 \description{
-Convert Python bytes to an R character vector
+Convert Python bytes to an R character or raw vector
+}
+\examples{
+\dontshow{if (reticulate::py_available()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+# A bytes object with embedded NULLs
+b <- import_builtins(convert = FALSE)$bytes(
+  as.raw(c(0x61, 0x20, 0x62, 0x00, 0x63, 0x20, 0x64)) # "a b<NUL>c d"
+)
+
+try(as.character(b))            # Error : Embedded NUL in string.
+as.character(b, nul = "<NUL>")  # Replace: "a b<NUL>c d"
+as.character(b, nul = "")       # Remove: "a bc d"
+as.character(b, nul = NULL)     # Split: "a b" "c d"
+\dontshow{\}) # examplesIf}
 }

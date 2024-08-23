@@ -25,20 +25,7 @@ namespace pending_py_calls_notifier {
 namespace {
 
 std::atomic<bool> notification_pending(false);
-std::function<void()> run_pending_calls_inner;
-
-void run_pending_calls(int max_retries = 4) {
-  notification_pending.exchange(false);
-
-  // loop through a few times in case more calls were added while
-  // running previous calls.
-  for (int i = 0; i <= max_retries; ++i) {
-    run_pending_calls_inner();
-
-    if (!notification_pending.exchange(false))
-      break;
-  }
-}
+std::function<void()> run_pending_calls;
 
 }
 
@@ -51,6 +38,7 @@ const UINT WM_PY_PENDING_CALLS = WM_USER + 1;
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
   if (uMsg == WM_PY_PENDING_CALLS) {
+    notification_pending.store(false);
     run_pending_calls();
     return 0;
   }
@@ -73,7 +61,7 @@ void initialize_windows_message_window() {
 
 
 void initialize(std::function<void()> run_pending_calls_func) {
-  run_pending_calls_inner = run_pending_calls_func;
+  run_pending_calls = run_pending_calls_func;
   initialize_windows_message_window();
 }
 void notify() {
@@ -101,6 +89,7 @@ void input_handler_function(void* userData) {
   if (read(pipe_fds[0], buffer, sizeof(buffer)) == -1) // Clear the pipe
     REprintf("Failed to read from pipe for pending Python calls notifier");
 
+  notification_pending.store(false);
   run_pending_calls();
 }
 
@@ -108,7 +97,7 @@ void input_handler_function(void* userData) {
 
 
 void initialize(std::function<void()> run_pending_calls_func) {
-  run_pending_calls_inner = run_pending_calls_func;
+  run_pending_calls = run_pending_calls_func;
   if (pipe(pipe_fds) == -1)
     Rf_error("Failed to create pipe for pending Python calls notifier");
 

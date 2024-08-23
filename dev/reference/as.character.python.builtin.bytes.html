@@ -131,11 +131,15 @@ options for handling embedded <code>NUL</code>s:</p><ol><li><p>Error: This is th
 <dd><p>further arguments passed to or from other methods.</p></dd>
 
 </dl></div>
+    <div id="see-also">
+    <h2>See also</h2>
+    <div class="dont-index"><p><code><a href="as.character.python.builtin.str.html">as.character.python.builtin.str()</a></code></p></div>
+    </div>
 
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># reticulate::py_available()</span></span></span>
-<span class="r-in"><span><span class="co"># A bytes object with embedded NULLs</span></span></span>
+<span class="r-in"><span><span class="co"># A bytes object with embedded NULs</span></span></span>
 <span class="r-in"><span><span class="va">b</span> <span class="op">&lt;-</span> <span class="fu"><a href="import.html">import_builtins</a></span><span class="op">(</span>convert <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">$</span><span class="fu">bytes</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/raw.html" class="external-link">as.raw</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0x61</span>, <span class="fl">0x20</span>, <span class="fl">0x62</span>, <span class="fl">0x00</span>, <span class="fl">0x63</span>, <span class="fl">0x20</span>, <span class="fl">0x64</span><span class="op">)</span><span class="op">)</span> <span class="co"># "a b&lt;NUL&gt;c d"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>

@@ -101,8 +101,9 @@ as.character.python.builtin.object <- function(x, ...) {
 #'   4. Split: Supply an R `NULL` to indicate that string should be split at embedded `NUL` bytes: `nul = NULL`
 #'
 #' @export
+#' @seealso [as.character.python.builtin.str()]
 #' @examplesIf reticulate::py_available()
-#' # A bytes object with embedded NULLs
+#' # A bytes object with embedded NULs
 #' b <- import_builtins(convert = FALSE)$bytes(
 #'   as.raw(c(0x61, 0x20, 0x62, 0x00, 0x63, 0x20, 0x64)) # "a b<NUL>c d"
 #' )
@@ -138,6 +139,61 @@ as.character.python.builtin.bytes <-
 #' @rdname as.character.python.builtin.bytes
 as.raw.python.builtin.bytes <- function(x) {
   import_builtins()$bytearray(x)
+}
+
+
+#' Convert a Python string to an R Character Vector
+#'
+#' @param x A Python string
+#' @param nul Action to take if the Python string contains an embedded NUL (`\x00`).
+#' Python allows embedded `NUL`s in strings, while R does not. There are four
+#' options for handling embedded `NUL`s:
+#'
+#'   1. Error: This is the default
+#'   2. Replace: Supply a replacement string: `nul = "<NUL>"`
+#'   3. Remove: Supply an empty string: `nul = ""`
+#'   4. Split: Supply an R `NULL` to indicate that string should be split at embedded `NUL` bytes: `nul = NULL`
+#'
+#' @param ... Unused
+#' @export
+#' @return An R character vector. The returned vector will always of length 1,
+#'   unless `nul = NULL` was supplied.
+#' @examplesIf reticulate::py_available()
+#' # Given a Python function that errors when it attempts to return
+#' # a string with an embedded NUL
+#' py_run_string('
+#' def get_string_w_nul():
+#'    return "a b" + chr(0) + "c d"
+#' ')
+#' get_string_w_nul <- py$get_string_w_nul
+#'
+#' try(get_string_w_nul()) # Error : Embedded NUL in string.
+#'
+#' # To get the string into R, use `r_to_py()` on the function to stop it from
+#' # eagerly converting the Python string to R, and then call `as.character()` with
+#' # a `nul` argument supplied to convert the string to R.
+#' get_string_w_nul <- r_to_py(get_string_w_nul)
+#' get_string_w_nul() # unconverted python string: inherits(x, 'python.builtin.str')
+#' as.character(get_string_w_nul(), nul = "<NUL>")  # Replace: "a b<NUL>c d"
+#' as.character(get_string_w_nul(), nul = "")       # Remove: "a bc d"
+#' as.character(get_string_w_nul(), nul = NULL)     # Split: "a b" "c d"
+#'
+#' # cleanup example
+#' rm(get_string_w_nul); py$get_string_w_nul <- NULL
+as.character.python.builtin.str <-
+function(x, nul = stop("Embedded NUL in string."), ...) {
+  if (missing(nul))
+    return(py_str_impl(x))
+
+  local_conversion_scope(x, TRUE)
+  py_nul_str <- import("builtins", convert = FALSE)$chr(0L)
+
+  if (is.null(nul)) # split string at embedded nulls.
+    return(x$split(py_nul_str))
+
+  # else: replace embedded nulls with supplied string
+  x$replace(py_nul_str, as.character(nul))
+
 }
 
 .operators <- new.env(parent = emptyenv())
@@ -985,7 +1041,9 @@ py_list_attributes <- function(x) {
 #'
 #' @details The default implementation will call `PyObject_Str` on the object.
 #'
-#' @seealso [as.character.python.builtin.bytes()] For discussion on dealing with embedded `NUL`s in Python strings.
+#' @seealso [as.character.python.builtin.str()]
+#'   [as.character.python.builtin.bytes()] for handling
+#'   `Error : Embedded NUL in string.` if the Python string contains an embedded `NUL`.
 #'
 #' @export
 py_str <- function(object, ...) {

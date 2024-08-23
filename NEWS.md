@@ -9,6 +9,12 @@
 
 - Fixes for CRAN check failures (#1645)
 
+- Avoid overwriting Altair's default chart dimensions
+  with the values of `ut.width.px` and `ut.height.px`.
+  Instead, use `altair.fig.height`, `altair.fig.width`,
+  or Altair's `width` and `height` parameters
+  to adjust chart dimensions.
+
 # reticulate 1.38.0
 
 - Python Exceptions converted to R conditions are now R lists instead

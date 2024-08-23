@@ -68,6 +68,7 @@ reference:
       - py_to_r
       - r_to_py
       - as.character.python.builtin.bytes
+      - as.character.python.builtin.str
       - py_is_null_xptr
       - py_id
       - py_len

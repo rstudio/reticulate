@@ -1484,6 +1484,7 @@ py_inject_hooks <- function() {
     }
 
     name <- if (is_python3()) "input" else "raw_input"
+    .globals$og_input_builtin <- builtins[[name]]
     builtins[[name]] <- input
   }
 

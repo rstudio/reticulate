@@ -333,6 +333,10 @@ virtualenv_list <- function() {
 #' @rdname virtualenv-tools
 #' @export
 virtualenv_root <- function() {
+  root <- Sys.getenv("RETICULATE_VIRTUALENV_ROOT", NA_character_)
+  if (!is.na(root))
+    return(root)
+
   Sys.getenv("WORKON_HOME", unset = "~/.virtualenvs")
 }
 

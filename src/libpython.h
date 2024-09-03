@@ -199,6 +199,7 @@ void initialize_type_objects(bool python3);
      PyType_FastSubclass((PyTypeObject*)(x), Py_TPFLAGS_BASE_EXC_SUBCLASS))
 
 LIBPYTHON_EXTERN void (*Py_InitializeEx)(int);
+LIBPYTHON_EXTERN void (*Py_Finalize)();
 LIBPYTHON_EXTERN int (*Py_IsInitialized)();
 LIBPYTHON_EXTERN const char* (*Py_GetVersion)();
 LIBPYTHON_EXTERN char* (*Py_GetProgramFullPath_v2)();
@@ -206,6 +207,7 @@ LIBPYTHON_EXTERN wchar_t* (*Py_GetProgramFullPath)();
 
 
 LIBPYTHON_EXTERN int (*Py_AddPendingCall)(int (*func)(void *), void *arg);
+LIBPYTHON_EXTERN int (*Py_MakePendingCalls)();
 LIBPYTHON_EXTERN void (*PyErr_SetInterrupt)();
 LIBPYTHON_EXTERN void (*PyErr_CheckSignals)();
 

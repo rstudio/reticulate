@@ -40,6 +40,9 @@ namespace {
 volatile sig_atomic_t s_pollingRequested;
 bool s_flush_std_buffers = true;
 
+bool running = true;
+tthread::thread* t = nullptr;
+
 // Forward declarations
 int pollForEvents(void*);
 
@@ -49,10 +52,7 @@ int pollForEvents(void*);
 // the polling signal will not be set).
 void eventPollingWorker(void *) {
 
-  while (true) {
-
-    // Throttle via sleep
-    tthread::this_thread::sleep_for(tthread::chrono::milliseconds(500));
+  while (running) {
 
     // Schedule polling on the main thread if the interpeter is still running.
     // Note that Py_AddPendingCall is documented to be callable from a background
@@ -64,6 +64,9 @@ void eventPollingWorker(void *) {
       s_pollingRequested = 1;
       Py_AddPendingCall(pollForEvents, NULL);
     }
+
+    // Throttle via sleep
+    tthread::this_thread::sleep_for(tthread::chrono::milliseconds(500));
 
   }
 
@@ -138,9 +141,24 @@ int pollForEvents(void*) {
 
 // Initialize event loop polling background thread
 void initialize() {
-  tthread::thread t(eventPollingWorker, NULL);
-  t.detach();
+  running = true;
+  t = new tthread::thread(eventPollingWorker, NULL);
 }
+
+void deinitialize(bool wait) {
+  // signal the thread to stop
+  running = false;
+
+  // clear the ref
+  if (t) {
+    if (wait) { // default: false
+      t->join();
+      delete t;  // Clean up the thread object
+      t = nullptr;
+    }
+  }
+}
+
 
 } // namespace event_loop
 } // namespace reticulate

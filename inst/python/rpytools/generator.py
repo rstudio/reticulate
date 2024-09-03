@@ -46,7 +46,7 @@ class RGenerator(object):
         if threading.current_thread() is not threading.main_thread():
             if not self._pending_tend_queue:
                 self._pending_tend_queue = True
-                rpycall.call_python_function_on_main_thread(
+                rpycall.schedule_python_function_on_main_thread(
                     self._tend_queue, min_fetch
                 )
             return

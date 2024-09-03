@@ -2,7 +2,7 @@
 % Please edit documentation in R/thread.R
 \name{py_main_thread_func}
 \alias{py_main_thread_func}
-\title{Create a Python function that will always be called on the main thread}
+\title{\link{Deprecated} Create a Python function that will always be called on the main thread}
 \usage{
 py_main_thread_func(f)
 }
@@ -14,8 +14,13 @@ A Python function that delegates to the passed R function, which
 is guaranteed to always be called on the main thread.
 }
 \description{
+Beginning with reticulate v1.39.0, every R function is a "main thread func". Usage of \code{py_main_thread_func()}
+is no longer necessary.
+}
+\details{
 This function is helpful when you need to provide a callback to a Python
 library which may invoke the callback on a background thread. As R functions
 must run on the main thread, wrapping the R function with \code{py_main_thread_func()}
 will ensure that R code is only executed on the main thread.
 }
+\keyword{internal}

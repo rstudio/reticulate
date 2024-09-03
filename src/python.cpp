@@ -13,6 +13,7 @@ using namespace Rcpp;
 
 #include "event_loop.h"
 #include "tinythread.h"
+#include "pending_py_calls_notifier.h"
 
 #include <fstream>
 #include <time.h>
@@ -52,12 +53,15 @@ SEXP r_func_r_to_py;
 SEXP r_func_py_to_r;
 SEXP r_func_py_to_r_wrapper;
 
+tthread::thread::id s_main_thread = 0;
+
 // [[Rcpp::init]]
 void reticulate_init(DllInfo *dll) {
   // before python is initialized, make these symbols safe to call (always return false)
   PyIter_Check = &_Py_Check;
   PyCallable_Check = &_Py_Check;
   PyGILState_Ensure = &_initialize_python_and_PyGILState_Ensure;
+  // Py_MakePendingCallsRun = &_Py_Check;
 
   sym_py_object = Rf_install("py_object");
   sym_simple = Rf_install("simple");
@@ -72,8 +76,14 @@ void reticulate_init(DllInfo *dll) {
   r_func_py_to_r = Rf_findVar(Rf_install("py_to_r"), ns_reticulate);
   r_func_py_to_r_wrapper = Rf_findVar(Rf_install("py_to_r_wrapper"), ns_reticulate);
   r_func_get_r_trace = Rf_findVar(Rf_install("get_r_trace"), ns_reticulate);
+
+  s_main_thread = tthread::this_thread::get_id();
 }
 
+inline
+bool is_main_thread() {
+  return s_main_thread == tthread::this_thread::get_id();
+}
 
 // track whether we are using python 3 (set during py_initialize)
 bool s_isPython3 = false;
@@ -168,13 +178,6 @@ SEXP py_capsule_read(PyObject* capsule) {
   // with the original object preserved in the cell TAG().
   return TAG(object);
 
-}
-
-tthread::thread::id s_main_thread = 0;
-bool is_main_thread() {
-  if (s_main_thread == 0)
-    return true;
-  return s_main_thread == tthread::this_thread::get_id();
 }
 
 
@@ -826,6 +829,12 @@ SEXP py_fetch_error(bool maybe_reuse_cached_r_trace) {
   // TODO: we need to add a guardrail to catch cases when
   // this is being invoked from not the main thread
 
+  if(!is_main_thread()) {
+    GILScope _gil;
+    PyErr_Print();
+    PySys_WriteStderr("\nUnable to fetch R backtrace from Python thread\n"); // TODO:
+    return R_NilValue;
+  }
 
   PyObject *excType, *excValue, *excTraceback;
   PyErr_Fetch(&excType, &excValue, &excTraceback);  // we now own the PyObjects
@@ -1143,11 +1152,11 @@ bool is_pandas_na(PyObject* x) {
 }
 
 #define STATIC_MODULE(module)                                      \
-  const static PyObjectPtr mod(PyImport_ImportModule(module));     \
-  if (mod.is_null()) {                                             \
+  const static PyObject* mod = PyImport_ImportModule(module);      \
+  if (mod == NULL) {                                               \
     throw PythonException(py_fetch_error());                       \
   }                                                                \
-  return mod;
+  return const_cast<PyObject*>(mod);
 
 PyObject* numpy () {
   STATIC_MODULE("numpy")
@@ -2291,9 +2300,26 @@ public:
 
 // custom module used for calling R functions from python wrappers
 
-extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* keywords)
-{
-  // the first argument is always the capsule containing the R function to call
+
+void safe_print_value(SEXP value, const char* warn_print_failed) {
+    // Use R_ToplevelExec to safely execute Rf_PrintValue with an inlined lambda
+    if (!R_ToplevelExec([](void* data) -> void {
+            Rf_PrintValue(static_cast<SEXP>(data));
+        }, value)) {
+        // Handle the case where Rf_PrintValue failed due to an error
+        Rf_warning("%s", warn_print_failed);
+    }
+}
+
+// must be called from the main thread, accesses the R api
+// returns length 2 tuple: (<return-value>, None), or (None, <signaled-error>)
+struct PythonCallResult {
+  PyObject* value;
+  PyObject* exception;
+};
+
+PythonCallResult actually_call_r_function(PyObject* args, PyObject* keywords) {
+  GILScope _gil;
   PyObject* capsule = PyTuple_GetItem(args, 0);
   RObject rFunction = py_capsule_read(capsule);
 
@@ -2318,7 +2344,6 @@ extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* k
 
   // get keyword arguments
   List rKeywords;
-
   if (keywords != NULL) {
 
     if (convert) {
@@ -2359,6 +2384,10 @@ extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* k
 
   RObject call_r_func_call(Rf_lang4(call_r_function_s, rFunction, rArgs, rKeywords));
 
+  // PythonCallResult res = {NULL, NULL};
+  PyObject* exception = NULL;
+  SEXP err_cnd = NULL;
+
   try {
     // use current_env() here so that in case of error, rlang::trace_back()
     // prints this frame as a node of the parent rather than a top-level call.
@@ -2377,51 +2406,107 @@ extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* k
     // result is either
     // (return_value, NULL) or
     // (NULL, condition)
-    if (result[1] == R_NilValue)  // no error
-      return (r_to_py(result[0], convert));
+    if (result[1] == R_NilValue) { // no error
+      PyObject* value = r_to_py(result[0], convert);
+      return PythonCallResult {value, NULL};
+    }
+
 
     // R signaled an error
     // Convert the R error condition to a Python Exception
-    PyObject* value = r_to_py(result[1], true);
-    PyObjectPtr value_(value); // decref on scope exit
-
-    // Prepare to raise the Exception
-    // The Python API requires that we separately provide the exception type
-    PyObject *exc_type;
-
-    // If the condition converted to an Exception instance,
-    // Take the type from that. This is the most common path.
-    if (PyExceptionInstance_Check(value)) {
-      exc_type = (PyObject *)Py_TYPE(value);
-    }
-    // The interrupt R calling handler returns a string for simplicity
-    else if (PyUnicode_Check(value) &&
-             PyUnicode_CompareWithASCIIString(value, "KeyboardInterrupt") == 0) {
-      exc_type = PyExc_KeyboardInterrupt;
-      value = NULL;
-    }
-    // the following two cases should never happen, but catch them just in case
-    // The calling handler returned a BaseException class, (not an instance of an Exception)
-    else if (PyExceptionClass_Check(value)) {
-      exc_type = value;
-      value = NULL;
-    }
-    // Catch-all fallback
-    else {
-      exc_type = PyExc_RuntimeError;
-    }
-
-    // Raise the exception
-    PyErr_SetObject(exc_type, value);
+    err_cnd = result[1];
+    exception = r_to_py(err_cnd, true);
 
   } catch(const Rcpp::internal::InterruptedException& e) {
     // should rarely happen, since we also set an R level interrupt handler
-    PyErr_SetNone(PyExc_KeyboardInterrupt);
+    exception = PyExc_KeyboardInterrupt;
   } catch(const std::exception& e) {
-    PyErr_SetString(PyExc_RuntimeError, e.what());
+    exception = PyUnicode_FromString(e.what());
   } catch(...) {
-    PyErr_SetString(PyExc_RuntimeError, "(Unknown exception occurred)");
+    exception = PyUnicode_FromString("(Unknown exception occurred)");
   }
+
+  if (exception == NULL) {
+    REprintf("Exception raised when converting R error to Python Exception.");
+    if (PyErr_Occurred()) PyErr_Print();
+    safe_print_value(err_cnd, "Printing the R error condition raised an error");
+  }
+
+  return PythonCallResult{NULL, exception};
+}
+
+extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* keywords)
+{
+
+  GILScope _gil;
+  PythonCallResult res;
+  if(is_main_thread()) {
+    res = actually_call_r_function(args, keywords);
+  } else {
+    static PyObject* safe_call_r_function_on_main_thread = []() -> PyObject* {
+      PyObjectPtr thread_tools(PyImport_ImportModule("rpytools.thread"));
+      return PyObject_GetAttrString(thread_tools, "safe_call_r_function_on_main_thread");
+    }();
+
+    PyObjectPtr res_(PyObject_Call(safe_call_r_function_on_main_thread, args, keywords));
+
+    PyObject *exception = PyTuple_GetItem(res_, 1);
+    if (exception == Py_None) { // No Exception raised
+
+      PyObject *value = PyTuple_GetItem(res_, 0);
+      Py_IncRef(value);
+      res = PythonCallResult{value, NULL};
+
+    } else { // Exception raised
+
+      Py_IncRef(exception);
+      res = PythonCallResult {NULL, exception};
+
+    }
+  }
+
+  if (res.value)
+    return res.value;
+
+  // Prepare to raise the Exception
+  // The Python API requires that we separately provide the exception type
+  PyObject* exc = res.exception;
+  PyObject* exc_type;
+
+  // If the condition converted to an Exception instance,
+  // Take the type from that. This is the most common path.
+  if (PyExceptionInstance_Check(exc)) {
+    exc_type = (PyObject *)Py_TYPE(exc);
+  }
+
+  // Also accept a string for simplicity.
+  else if (PyUnicode_Check(exc)) {
+
+    if (PyUnicode_CompareWithASCIIString(exc, "KeyboardInterrupt") == 0) {
+      exc_type = PyExc_KeyboardInterrupt;
+      Py_DecRef(exc);
+      exc = NULL;
+    } else {
+      exc_type = PyExc_RuntimeError;
+    }
+
+  }
+  // the following two cases should never happen, but catch them just in case
+  // The calling handler returned a BaseException class, (not an instance of an Exception)
+  else if (PyExceptionClass_Check(exc)) {
+    exc_type = exc;
+    exc = NULL;
+  }
+  // Catch-all fallback
+  else {
+    exc_type = PyExc_RuntimeError;
+    if (exc == NULL) {
+      exc = PyUnicode_FromString("(Unknown exception)");
+    }
+  }
+
+  // Raise the exception
+  PyErr_SetObject(exc_type, exc);
 
   // Tell Python we raised an exception
   return NULL;
@@ -2463,7 +2548,7 @@ int call_python_function(void* data) {
 }
 
 
-extern "C" PyObject* call_python_function_on_main_thread(
+extern "C" PyObject* schedule_python_function_on_main_thread(
                 PyObject *self, PyObject* args, PyObject* keywords) {
 
 
@@ -2513,6 +2598,8 @@ extern "C" PyObject* call_python_function_on_main_thread(
       PySys_WriteStderr("Waiting to schedule call on main R interpeter thread...\n");
   }
 
+  pending_py_calls_notifier::notify();
+
   // return none
   Py_IncRef(Py_None);
   return Py_None;
@@ -2543,10 +2630,11 @@ interrupt_handler(int signum) {
   PyOS_setsig(signum, interrupt_handler);
 }
 
-// [[Rcpp::export]]
-void install_interrupt_handlers() {
+
+PyOS_sighandler_t orig_interrupt_handler = NULL;
+
+PyOS_sighandler_t install_interrupt_handlers_() {
   // Installs a C handler and a Python handler
-  //
   // Exported as an R symbol in case the user did some action that cleared the
   // handlers, e.g., calling signal.signal() in Python, and wants to restore
   // the correct handler.
@@ -2565,14 +2653,19 @@ void install_interrupt_handlers() {
   if (result.is_null()) {
     PyErr_Print();
     Rcpp::warning("Failed to set interrupt signal handlers");
-    return;
+    return NULL;
   }
 
   // install the C handler.
   //
   // This *must* be after setting the Python handler, because signal.signal()
   // will also reset the OS C handler to one that is not aware of R.
-  PyOS_setsig(SIGINT, interrupt_handler);
+  return PyOS_setsig(SIGINT, interrupt_handler);
+}
+
+// [[Rcpp::export]]
+void install_interrupt_handlers() {
+  install_interrupt_handlers_();
 }
 
 extern "C"
@@ -2610,7 +2703,7 @@ PyObject* python_interrupt_handler(PyObject *module, PyObject *args)
 PyMethodDef RPYCallMethods[] = {
   { "call_r_function", (PyCFunction)call_r_function,
     METH_VARARGS | METH_KEYWORDS, "Call an R function" },
-  { "call_python_function_on_main_thread", (PyCFunction)call_python_function_on_main_thread,
+  { "schedule_python_function_on_main_thread", (PyCFunction)schedule_python_function_on_main_thread,
     METH_VARARGS | METH_KEYWORDS, "Call a Python function on the main thread" },
   { "python_interrupt_handler", (PyCFunction)python_interrupt_handler,
     METH_VARARGS, "Handle an interrupt signal" },
@@ -2855,7 +2948,7 @@ void py_initialize(const std::string& python,
       const wchar_t *argv[1] = {s_python_v3.c_str()};
       PySys_SetArgv_v3(1, const_cast<wchar_t**>(argv));
 
-      install_interrupt_handlers();
+      orig_interrupt_handler = install_interrupt_handlers_();
     }
 
   } else { // python2
@@ -2881,8 +2974,8 @@ void py_initialize(const std::string& python,
     const char *argv[1] = {s_python.c_str()};
     PySys_SetArgv(1, const_cast<char**>(argv));
 
+    orig_interrupt_handler = install_interrupt_handlers_();
     PyOS_setsig(SIGINT, interrupt_handler);
-    install_interrupt_handlers();
   }
 
   s_main_thread = tthread::this_thread::get_id();
@@ -2913,17 +3006,65 @@ void py_initialize(const std::string& python,
   // poll for events while executing python code
   reticulate::event_loop::initialize();
 
+  pending_py_calls_notifier::initialize([]() {
+    GILScope _gil;
+    R_ToplevelExec([](void* data) {
+      // TODO: report back errors to the python thread
+      Py_MakePendingCalls();
+    }, nullptr);
+    flush_std_buffers();
+  });
 }
+
+bool is_py_finalized = false;
 
 // [[Rcpp::export]]
 void py_finalize() {
+
+  if (R_ParseEvalString(".globals$finalized", ns_reticulate) != R_NilValue)
+    stop("py_finalize() can only be called once per R session");
+
+  reticulate::event_loop::deinitialize(/*wait =*/ false);
+  pending_py_calls_notifier::deinitialize();
+
   // We shouldn't call PyFinalize() if R is embedded in Python. https://github.com/rpy2/rpy2/issues/872
-  // if(!s_is_python_initialized && !s_was_python_initialized_by_reticulate)
-  //   return;
-  //
-  // ::Py_Finalize();
-  // s_is_python_initialized = false;
-  // s_was_python_initialized_by_reticulate = false;
+  if(!s_is_python_initialized || !s_was_python_initialized_by_reticulate)
+    return;
+
+  {
+    PyGILState_Ensure();
+    Py_MakePendingCalls();
+    if (orig_interrupt_handler)
+      PyOS_setsig(SIGINT, orig_interrupt_handler);
+    is_py_finalized = true;
+    Py_Finalize();
+  }
+
+  {
+    // To allow to call py_initialize() again would take:
+    // - tracking and invalidating all objects declared in functions with
+    //   `static PyObject*` (including static modules like numpy).
+    // - unloading the library: libpython::SharedLibrary::unload(&error);
+    // - setting all loaded symbols to NULL;
+    // - check if internal symbols Python loads persist in the process, and
+    //   if they need to be somehow discovered and unloaded.
+    // - ... problably other things too.
+  }
+
+  s_is_python_initialized = false;
+  s_was_python_initialized_by_reticulate = false;
+
+  // Make sure that attempting to get the gil again will call
+  // `ensure_python_initialized()`, which will now throw an error.
+  R_ParseEvalString("local({ "
+      "rm(list = names(.globals), envir = .globals); " // clear R-level references to previous config or python objects
+      ".globals$finalized <- TRUE; "
+      ".globals$py_repl_active <- FALSE; " // used by IDE?
+    "})",
+    ns_reticulate);
+  PyGILState_Ensure = &_initialize_python_and_PyGILState_Ensure;
+
+  // reticulate::event_loop::deinitialize(/*wait =*/ true);
 }
 
 // [[Rcpp::export]]
@@ -3949,28 +4090,28 @@ PyObject* r_to_py_pandas_nullable_series (const RObject& column, const bool conv
   PyObject* constructor;
   switch (TYPEOF(column)) {
   case INTSXP:
-    const static PyObjectPtr IntArray(
+    const static PyObject* IntArray(
         PyObject_GetAttrString(pandas_arrays(), "IntegerArray")
     );
-    constructor = IntArray.get();
+    constructor = const_cast<PyObject*>(IntArray);
     break;
   case REALSXP:
-    const static PyObjectPtr FloatArray(
+    const static PyObject* FloatArray(
         PyObject_GetAttrString(pandas_arrays(), "FloatingArray")
     );
-    constructor = FloatArray.get();
+    constructor =  const_cast<PyObject*>(FloatArray);
     break;
   case LGLSXP:
-    const static PyObjectPtr BoolArray(
+    const static PyObject* BoolArray(
         PyObject_GetAttrString(pandas_arrays(), "BooleanArray")
     );
-    constructor = BoolArray.get();
+    constructor =  const_cast<PyObject*>(BoolArray);
     break;
   case STRSXP:
-    const static PyObjectPtr StringArray(
+    const static PyObject* StringArray(
         PyObject_GetAttrString(pandas_arrays(), "StringArray")
     );
-    constructor = StringArray.get();
+    constructor =  const_cast<PyObject*>(StringArray);
     break;
   default:
     Rcpp::stop("R type not handled. Please supply one of int, double, logical or character");

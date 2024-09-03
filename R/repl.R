@@ -89,6 +89,19 @@ repl_python <- function(
     on.exit(teardown(), add = TRUE)
   }
 
+
+  ensure_python_initialized()
+  if (is.null(input) &&
+      Sys.getenv("POSITRON") == "1" &&
+      exists(".ps.reticulate_open", inherits = TRUE)) {
+
+    eval(call(".ps.reticulate_open"))
+
+    # TODO: seems we need to rerun py_inject_r(), possibly other init hooks.
+    # TODO: kernal initializion drops pre-existing objects in __main__
+    return(invisible())
+  }
+
   # split provided code on newlines
   if (!is.null(input))
     input <- unlist(strsplit(input, "\n", fixed = TRUE))

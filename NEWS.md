@@ -2,7 +2,18 @@
 
 - Python background threads can now run in parallel with
   the R session (#1641).
-  
+
+- In Positron, `repl_python()` will now use the Positron Python console. (#1648)
+
+- `py_main_thread_func()` is deprecated; every R function can now safely be
+  called from background Python threads. (#1648)
+
+- Calls from a Python thread into R will now notify the main thread using
+  R's native event loop, ensuring that these calls are handled even when
+  the main thread is engaged in non-Python tasks. (#1648)
+
+- The Python session is now finalized when the R session exits (#1648).
+
 - Internal updates for NumPy 2.1 (#1651)
 
 - Fixed error when importing a module named `config` (#1628)

@@ -39,3 +39,5 @@ __pycache__
 ^\.dockerignore$
 ^\.git-blame-ignore-revs$
 ^rchk$
+^\.cache$
+^compile_commands\.json$

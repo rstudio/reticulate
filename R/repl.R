@@ -95,41 +95,10 @@ repl_python <- function(
       Sys.getenv("POSITRON") == "1" &&
       exists(".ps.reticulate_open", inherits = TRUE)) {
 
-
-    if(is.null(.globals$positron_repl_initialized)) {
-      ## some initialization we only need to run on the first launch of ipykernel
-
-      # ipykernel clear __main__, so we'll want to reinject user defined variables and `r`
-      restore_main <- py_run_string("
-def new_main_restorer():
-    from time import sleep
-    from __main__ import __dict__
-
-    og_d = {n:v for n, v in __dict__.items() if not n.startswith('__')}
-
-    def restore_main(after = 1):
-        sleep(after)
-        from __main__ import __dict__ as d
-        # print('restoring: ', og_d)
-        d.update(og_d)
-
-    return restore_main
-", local = TRUE)$new_main_restorer()
-
-      import("_thread")$start_new_thread(restore_main, tuple(1))
-
-      ## TODO: invalidate cached __main__ in the R pkg `py` active binding.
-
-      ## TODO: for ipykernel, do we also need to restore the python builtin
-      ## `input()` function, which we replaced in py_inject_hooks()?
-      # bt <- import_builtins
-      # bt[["input"]] <- .globals$og_input_builtin
-
-      .globals$positron_repl_initialized <- TRUE
-    }
     eval(call(".ps.reticulate_open"))
 
-    # Currently, need to rerun py_inject_r(), possibly other init hooks.
+    # TODO: seems we need to rerun py_inject_r(), possibly other init hooks.
+    # TODO: kernal initializion drops pre-existing objects in __main__
     return(invisible())
   }
 

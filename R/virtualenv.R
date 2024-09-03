@@ -5,7 +5,7 @@
 #'
 #' Virtual environments are by default located at `~/.virtualenvs` (accessed
 #' with the `virtualenv_root()` function). You can change the default location
-#' by defining the `WORKON_HOME` environment variable.
+#' by defining the `RETICULATE_VIRTUALENV_ROOT` or `WORKON_HOME` environment variables.
 #'
 #' Virtual environments are created from another "starter" or "seed" Python
 #' already installed on the system. Suitable Pythons installed on the system are

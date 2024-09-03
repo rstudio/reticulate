@@ -84,6 +84,10 @@
     <div class="section level2">
 <h2 class="page-header" data-toc-text="development version" id="reticulate-development-version">reticulate (development version)<a class="anchor" aria-label="anchor" href="#reticulate-development-version"></a></h2>
 <ul><li><p>Python background threads can now run in parallel with the R session (<a href="https://github.com/rstudio/reticulate/issues/1641" class="external-link">#1641</a>).</p></li>
+<li><p>In Positron, <code><a href="../reference/repl_python.html">repl_python()</a></code> will now use the Positron Python console. (<a href="https://github.com/rstudio/reticulate/issues/1648" class="external-link">#1648</a>)</p></li>
+<li><p><code><a href="../reference/py_main_thread_func.html">py_main_thread_func()</a></code> is deprecated; every R function can now safely be called from background Python threads. (<a href="https://github.com/rstudio/reticulate/issues/1648" class="external-link">#1648</a>)</p></li>
+<li><p>Calls from a Python thread into R will now notify the main thread using R’s native event loop, ensuring that these calls are handled even when the main thread is engaged in non-Python tasks. (<a href="https://github.com/rstudio/reticulate/issues/1648" class="external-link">#1648</a>)</p></li>
+<li><p>The Python session is now finalized when the R session exits (<a href="https://github.com/rstudio/reticulate/issues/1648" class="external-link">#1648</a>).</p></li>
 <li><p>Internal updates for NumPy 2.1 (<a href="https://github.com/rstudio/reticulate/issues/1651" class="external-link">#1651</a>)</p></li>
 <li><p>Fixed error when importing a module named <code>config</code> (<a href="https://github.com/rstudio/reticulate/issues/1628" class="external-link">#1628</a>)</p></li>
 <li><p><code><a href="../reference/conda_run2.html">conda_run2()</a></code> is now exported (<a href="https://github.com/rstudio/reticulate/issues/1637" class="external-link">#1637</a>, contributed by <a href="https://github.com/dramanica" class="external-link">@dramanica</a>)</p></li>

@@ -35,6 +35,9 @@
   
 - New `as.character()` method for `python.builtin.str` with support for handling
   embedded NULs in strings. (#1653)
+  
+- Reticulate will now use the `RETICULATE_VIRTUALENV_ROOT` environment variable 
+  when determining where to resolve virtual environments. (#1657)
 
 # reticulate 1.38.0
 

@@ -63,7 +63,7 @@ ensure_python_initialized <- function(required_module = NULL) {
   remap_output_streams()
   set_knitr_python_stdout_hook()
 
-  if (is_windows() && identical(.Platform$GUI, "RStudio"))
+  if (is_windows() && ( is_rstudio() || is_positron() ))
     import("rpytools.subprocess")$patch_subprocess_Popen()
 
   # generate 'R' helper object

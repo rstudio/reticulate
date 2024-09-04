@@ -32,12 +32,16 @@
 
 - `as.character()` method for `python.builtin.bytes` gains a `nul` argument,
   allowing for convenient handling of embedded NULs in the string. (#1652)
-  
+
 - New `as.character()` method for `python.builtin.str` with support for handling
   embedded NULs in strings. (#1653)
   
 - Reticulate will now use the `RETICULATE_VIRTUALENV_ROOT` environment variable 
   when determining where to resolve virtual environments. (#1657)
+
+- Fixed an error where opening a Python subprocess in Positron on Windows
+  resulted in "OSError: [WinError 6] The handle is invalid."
+  (#1658, posit-dev/positron#4457)
 
 # reticulate 1.38.0
 

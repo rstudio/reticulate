@@ -1005,6 +1005,10 @@ is_rstudio_desktop <- function() {
   identical(version$mode, "desktop")
 }
 
+is_positron <- function() {
+  exists(".ps.ark.version", envir = globalenv())
+}
+
 clean_version <- function(version) {
   gsub("\\.$", "", gsub("[A-Za-z_+].*$", "", version))
 }

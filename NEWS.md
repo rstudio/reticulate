@@ -1,4 +1,4 @@
-# reticulate (development version)
+# reticulate 1.39.0
 
 - Python background threads can now run in parallel with the R session (#1641).
 

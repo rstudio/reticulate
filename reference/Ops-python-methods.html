@@ -4,7 +4,7 @@ invoke the equivalent python method of the object."><!-- mathjax --><script src=
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]--></head><body data-spy="scroll" data-target="#toc">
-    
+
 
     <div class="container template-reference-topic">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -18,7 +18,7 @@ invoke the equivalent python method of the object."><!-- mathjax --><script src=
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.38.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.39.0</span>
       </span>
     </div>
 
@@ -29,7 +29,7 @@ invoke the equivalent python method of the object."><!-- mathjax --><script src=
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
-     
+
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
@@ -66,20 +66,20 @@ invoke the equivalent python method of the object."><!-- mathjax --><script src=
       </ul><ul class="nav navbar-nav navbar-right"><li>
   <a href="https://github.com/rstudio/reticulate/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
-     
+
   </a>
 </li>
       </ul></div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
 
-      
+
 
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>S3 Ops Methods for Python Objects</h1>
-    <small class="dont-index">Source: <a href="https://github.com/rstudio/reticulate/blob/HEAD/R/python.R" class="external-link"><code>R/python.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/rstudio/reticulate/blob/v1.39.0/R/python.R" class="external-link"><code>R/python.R</code></a></small>
     <div class="hidden name"><code>Ops-python-methods.Rd</code></div>
     </div>
 
@@ -89,76 +89,76 @@ invoke the equivalent python method of the object.</p>
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre><code># S3 method for python.builtin.object
-==(e1, e2)
-
-# S3 method for python.builtin.object
-!=(e1, e2)
-
-# S3 method for python.builtin.object
-&amp;lt;(e1, e2)
-
-# S3 method for python.builtin.object
-&amp;gt;(e1, e2)
-
-# S3 method for python.builtin.object
-&amp;gt;=(e1, e2)
-
-# S3 method for python.builtin.object
-&amp;lt;=(e1, e2)
-
-# S3 method for python.builtin.object
-+(e1, e2)
-
-# S3 method for python.builtin.object
--(e1, e2)
-
-# S3 method for python.builtin.object
-*(e1, e2)
-
-# S3 method for python.builtin.object
-/(e1, e2)
-
-# S3 method for python.builtin.object
-%/%(e1, e2)
-
-# S3 method for python.builtin.object
-%%(e1, e2)
-
-# S3 method for python.builtin.object
-^(e1, e2)
-
-# S3 method for python.builtin.object
-&amp;amp;(e1, e2)
-
-# S3 method for python.builtin.object
-|(e1, e2)
-
-# S3 method for python.builtin.object
-!(e1)
-
-# S3 method for python.builtin.object
-%*%(x, y)</code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S3 method for class 'python.builtin.object'</span></span>
+<span><span class="va">e1</span> <span class="op">==</span> <span class="va">e2</span></span>
+<span></span>
+<span><span class="co"># S3 method for class 'python.builtin.object'</span></span>
+<span><span class="va">e1</span> <span class="op">!=</span> <span class="va">e2</span></span>
+<span></span>
+<span><span class="co"># S3 method for class 'python.builtin.object'</span></span>
+<span><span class="va">e1</span> <span class="op">&lt;</span> <span class="va">e2</span></span>
+<span></span>
+<span><span class="co"># S3 method for class 'python.builtin.object'</span></span>
+<span><span class="va">e1</span> <span class="op">&gt;</span> <span class="va">e2</span></span>
+<span></span>
+<span><span class="co"># S3 method for class 'python.builtin.object'</span></span>
+<span><span class="va">e1</span> <span class="op">&gt;=</span> <span class="va">e2</span></span>
+<span></span>
+<span><span class="co"># S3 method for class 'python.builtin.object'</span></span>
+<span><span class="va">e1</span> <span class="op">&lt;=</span> <span class="va">e2</span></span>
+<span></span>
+<span><span class="co"># S3 method for class 'python.builtin.object'</span></span>
+<span><span class="va">e1</span> <span class="op">+</span> <span class="va">e2</span></span>
+<span></span>
+<span><span class="co"># S3 method for class 'python.builtin.object'</span></span>
+<span><span class="va">e1</span> <span class="op">-</span> <span class="va">e2</span></span>
+<span></span>
+<span><span class="co"># S3 method for class 'python.builtin.object'</span></span>
+<span><span class="va">e1</span> <span class="op">*</span> <span class="va">e2</span></span>
+<span></span>
+<span><span class="co"># S3 method for class 'python.builtin.object'</span></span>
+<span><span class="va">e1</span><span class="op">/</span><span class="va">e2</span></span>
+<span></span>
+<span><span class="co"># S3 method for class 'python.builtin.object'</span></span>
+<span><span class="va">e1</span><span class="op"><a href="https://rdrr.io/r/base/Arithmetic.html" class="external-link">%/%</a></span><span class="va">e2</span></span>
+<span></span>
+<span><span class="co"># S3 method for class 'python.builtin.object'</span></span>
+<span><span class="va">e1</span><span class="op"><a href="https://rdrr.io/r/base/Arithmetic.html" class="external-link">%%</a></span><span class="va">e2</span></span>
+<span></span>
+<span><span class="co"># S3 method for class 'python.builtin.object'</span></span>
+<span><span class="va">e1</span><span class="op">^</span><span class="va">e2</span></span>
+<span></span>
+<span><span class="co"># S3 method for class 'python.builtin.object'</span></span>
+<span><span class="va">e1</span> <span class="op">&amp;</span> <span class="va">e2</span></span>
+<span></span>
+<span><span class="co"># S3 method for class 'python.builtin.object'</span></span>
+<span><span class="va">e1</span> <span class="op">|</span> <span class="va">e2</span></span>
+<span></span>
+<span><span class="co"># S3 method for class 'python.builtin.object'</span></span>
+<span><span class="op">!</span><span class="va">e1</span></span>
+<span></span>
+<span><span class="co"># S3 method for class 'python.builtin.object'</span></span>
+<span><span class="va">x</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="va">y</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <dl><dt>e1, e2, x, y</dt>
+
+
+<dl><dt id="arg-e-e-x-y">e1, e2, x, y<a class="anchor" aria-label="anchor" href="#arg-e-e-x-y"></a></dt>
 <dd><p>A python object.</p></dd>
 
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    
-
-<p>Result from evaluating the Python expression. If either of the
+    <p>Result from evaluating the Python expression. If either of the
 arguments to the operator was a Python object with <code>convert=FALSE</code>, then
 the result will also be a Python object with <code>convert=FALSE</code> set.
 Otherwise, the result will be converted to an R object if possible.</p>
     </div>
     <div id="operator-mappings">
     <h2>Operator Mappings</h2>
-    
+
 <table class="table table"><tr><td>R expression</td><td>Python expression</td><td>First python method invoked</td></tr><tr><td><code>x == y</code></td><td><code>x == y</code></td><td><code>type(x).__eq__(x, y)</code></td></tr><tr><td><code>x != y</code></td><td><code>x != y</code></td><td><code>type(x).__ne__(x, y)</code></td></tr><tr><td><code>x &lt; y</code></td><td><code>x &lt; y</code></td><td><code>type(x).__lt__(x, y)</code></td></tr><tr><td><code>x &gt; y</code></td><td><code>x &gt; y</code></td><td><code>type(x).__gt__(x, y)</code></td></tr><tr><td><code>x &gt;= y</code></td><td><code>x &gt;= y</code></td><td><code>type(x).__ge__(x, y)</code></td></tr><tr><td><code>x &lt;= y</code></td><td><code>x &lt;= y</code></td><td><code>type(x).__le__(x, y)</code></td></tr><tr><td><code>+ x </code></td><td><code>+ x</code></td><td><code>type(x).__pos__(x)</code></td></tr><tr><td><code>- y</code></td><td><code>- x</code></td><td><code>type(x).__neg__(x)</code></td></tr><tr><td><code>x + y</code></td><td><code>x + y</code></td><td><code>type(x).__add__(x, y)</code></td></tr><tr><td><code>x - y</code></td><td><code>x - y</code></td><td><code>type(x).__sub__(x, y)</code></td></tr><tr><td><code>x * y</code></td><td><code>x * y</code></td><td><code>type(x).__mul__(x, y)</code></td></tr><tr><td><code>x / y</code></td><td><code>x / y</code></td><td><code>type(x).__truediv__(x, y)</code></td></tr><tr><td><code>x %/% y</code></td><td><code>x // y</code></td><td><code>type(x).__floordiv__(x, y)</code></td></tr><tr><td><code>x %% y</code></td><td><code>x % y</code></td><td><code>type(x).__mod__(x, y)</code></td></tr><tr><td><code>x ^ y</code></td><td><code>x ** y</code></td><td><code>type(x).__pow__(x, y)</code></td></tr><tr><td><code>x &amp; y</code></td><td><code>x &amp; y</code></td><td><code>type(x).__and__(x, y)</code></td></tr><tr><td><code>x | y</code></td><td><code>x | y</code></td><td><code>type(x).__or__(x, y)</code></td></tr><tr><td><code>!x</code></td><td><code>~x</code></td><td><code>type(x).__not__(x)</code></td></tr><tr><td><code>x %*% y</code></td><td><code>x @ y</code></td><td><code>type(x).__matmul__(x, y)</code></td></tr></table><p>Note: If the initial Python method invoked raises a <code>NotImplemented</code>
 Exception, the Python interpreter will attempt to use the reflected
 variant of the method from the second argument. The arithmetic operators
@@ -181,15 +181,15 @@ sequence of fallbacks; refer to the Python documentation for more details.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
 </div>
 
       </footer></div>
 
-  
 
 
-  
+
+
 
   </body></html>
 

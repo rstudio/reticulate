@@ -3,7 +3,7 @@
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]--></head><body data-spy="scroll" data-target="#toc">
-    
+
 
     <div class="container template-reference-topic">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.38.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.39.0</span>
       </span>
     </div>
 
@@ -28,7 +28,7 @@
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
-     
+
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
@@ -65,20 +65,20 @@
       </ul><ul class="nav navbar-nav navbar-right"><li>
   <a href="https://github.com/rstudio/reticulate/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
-     
+
   </a>
 </li>
       </ul></div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
 
-      
+
 
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Run Python code</h1>
-    <small class="dont-index">Source: <a href="https://github.com/rstudio/reticulate/blob/HEAD/R/python.R" class="external-link"><code>R/python.R</code></a></small>
+    <small class="dont-index">Source: <a href="https://github.com/rstudio/reticulate/blob/v1.39.0/R/python.R" class="external-link"><code>R/python.R</code></a></small>
     <div class="hidden name"><code>py_run.Rd</code></div>
     </div>
 
@@ -94,27 +94,29 @@
 
     <div id="arguments">
     <h2>Arguments</h2>
-    <dl><dt>code</dt>
+
+
+<dl><dt id="arg-code">code<a class="anchor" aria-label="anchor" href="#arg-code"></a></dt>
 <dd><p>The Python code to be executed.</p></dd>
 
 
-<dt>local</dt>
+<dt id="arg-local">local<a class="anchor" aria-label="anchor" href="#arg-local"></a></dt>
 <dd><p>Boolean; should Python objects be created as part of
 a local / private dictionary? If <code>FALSE</code>, objects will be created within
 the scope of the Python main module.</p></dd>
 
 
-<dt>convert</dt>
+<dt id="arg-convert">convert<a class="anchor" aria-label="anchor" href="#arg-convert"></a></dt>
 <dd><p>Boolean; should Python objects be automatically converted
 to their <span style="R">R</span> equivalent? If set to <code>FALSE</code>, you can still manually convert
 Python objects to <span style="R">R</span> via the <code><a href="r-py-conversion.html">py_to_r()</a></code> function.</p></dd>
 
 
-<dt>file</dt>
+<dt id="arg-file">file<a class="anchor" aria-label="anchor" href="#arg-file"></a></dt>
 <dd><p>The Python script to be executed.</p></dd>
 
 
-<dt>prepend_path</dt>
+<dt id="arg-prepend-path">prepend_path<a class="anchor" aria-label="anchor" href="#arg-prepend-path"></a></dt>
 <dd><p>Boolean; should the script directory be added to the
 Python module search path? The default, <code>TRUE</code>, matches the behavior of
 <code>python &lt;path/to/script.py&gt;</code> at the command line.</p></dd>
@@ -122,9 +124,7 @@ Python module search path? The default, <code>TRUE</code>, matches the behavior 
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    
-
-<p>A Python dictionary of objects. When <code>local</code> is <code>FALSE</code>, this
+    <p>A Python dictionary of objects. When <code>local</code> is <code>FALSE</code>, this
 dictionary captures the state of the Python main module after running
 the provided code. Otherwise, only the variables defined and used are
 captured.</p>
@@ -142,15 +142,15 @@ captured.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
 </div>
 
       </footer></div>
 
-  
 
 
-  
+
+
 
   </body></html>
 

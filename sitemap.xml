@@ -1,273 +1,95 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://rstudio.github.io/reticulate/404.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/LICENSE-text.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/articles/arrays.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/articles/calling_python.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/articles/index.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/articles/package.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/articles/python_dependencies.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/articles/python_packages.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/articles/python_primer.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/articles/r_markdown.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/articles/rstudio_ide.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/articles/versions.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/authors.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/index.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/news/index.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/Ops-python-methods.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/PyClass.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/array_reshape.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/as.character.python.builtin.bytes.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/conda-tools.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/configure_environment.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/dict.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/eng_python.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/import.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/index.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/install_miniconda.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/install_python.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/ipython.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/is_py_object.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/iterate.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/miniconda-params.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/miniconda_path.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/miniconda_uninstall.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/miniconda_update.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/nameOfClass.python.builtin.type.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/np_array.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/py.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/py_available.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/py_bool.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/py_call.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/py_capture_output.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/py_config.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/py_config_error_message.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/py_del_attr.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/py_discover_config.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/py_ellipsis.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/py_eval.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/py_exe.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/py_func.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/py_function_custom_scaffold.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/py_function_wrapper.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/py_get_attr.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/py_get_item.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/py_has_attr.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/py_help.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/py_help_handler.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/py_id.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/py_install.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/py_is_null_xptr.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/py_iterator.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/py_last_error.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/py_len.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/py_list_attributes.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/py_list_packages.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/py_main_thread_func.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/py_module_available.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/py_none.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/py_run.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/py_save_object.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/py_set_attr.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/py_set_seed.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/py_str.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/py_suppress_warnings.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/py_to_r_wrapper.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/py_unicode.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/py_version.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/py_versions_windows.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/r-py-conversion.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/register_class_filter.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/register_help_topics.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/register_module_help_handler.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/register_suppress_warnings_handler.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/repl_python.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/reticulate.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/source_python.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/tuple.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/use_python.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/virtualenv-tools.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/with-as-operator.html</loc>
-  </url>
-  <url>
-    <loc>https://rstudio.github.io/reticulate/reference/with.python.builtin.object.html</loc>
-  </url>
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>https://rstudio.github.io/reticulate/404.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/LICENSE-text.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/articles/arrays.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/articles/calling_python.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/articles/index.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/articles/package.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/articles/python_dependencies.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/articles/python_packages.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/articles/python_primer.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/articles/r_markdown.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/articles/rstudio_ide.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/articles/versions.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/authors.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/index.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/news/index.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/Ops-python-methods.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/PyClass.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/array_reshape.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/as.character.python.builtin.bytes.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/as.character.python.builtin.str.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/conda-tools.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/conda_run2.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/configure_environment.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/dict.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/eng_python.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/import.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/index.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/install_miniconda.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/install_python.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/ipython.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/is_py_object.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/iterate.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/miniconda-params.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/miniconda_path.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/miniconda_uninstall.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/miniconda_update.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/nameOfClass.python.builtin.type.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/np_array.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/py.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/py_available.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/py_bool.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/py_call.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/py_capture_output.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/py_config.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/py_config_error_message.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/py_del_attr.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/py_discover_config.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/py_ellipsis.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/py_eval.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/py_exe.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/py_func.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/py_function_custom_scaffold.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/py_function_wrapper.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/py_get_attr.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/py_get_item.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/py_has_attr.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/py_help.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/py_help_handler.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/py_id.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/py_install.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/py_is_null_xptr.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/py_iterator.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/py_last_error.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/py_len.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/py_list_attributes.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/py_list_packages.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/py_main_thread_func.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/py_module_available.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/py_none.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/py_run.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/py_save_object.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/py_set_attr.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/py_set_seed.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/py_str.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/py_suppress_warnings.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/py_to_r_wrapper.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/py_unicode.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/py_version.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/py_versions_windows.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/r-py-conversion.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/register_class_filter.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/register_help_topics.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/register_module_help_handler.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/register_suppress_warnings_handler.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/repl_python.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/reticulate.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/source_python.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/tuple.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/use_python.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/virtualenv-tools.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/with-as-operator.html</loc></url>
+<url><loc>https://rstudio.github.io/reticulate/reference/with.python.builtin.object.html</loc></url>
 </urlset>
+

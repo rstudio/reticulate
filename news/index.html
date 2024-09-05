@@ -3,7 +3,7 @@
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]--></head><body data-spy="scroll" data-target="#toc">
-    
+
 
     <div class="container template-news">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.38.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.39.0</span>
       </span>
     </div>
 
@@ -28,7 +28,7 @@
 <li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
-     
+
     <span class="caret"></span>
   </a>
   <ul class="dropdown-menu" role="menu"><li>
@@ -65,24 +65,41 @@
       </ul><ul class="nav navbar-nav navbar-right"><li>
   <a href="https://github.com/rstudio/reticulate/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
-     
+
   </a>
 </li>
       </ul></div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
 
-      
+
 
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
       <h1 data-toc-skip>Changelog <small></small></h1>
-      <small>Source: <a href="https://github.com/rstudio/reticulate/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/rstudio/reticulate/blob/v1.39.0/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
     <div class="section level2">
-<h2 class="page-header" data-toc-text="1.38.0" id="reticulate-1380">reticulate 1.38.0<a class="anchor" aria-label="anchor" href="#reticulate-1380"></a></h2>
+<h2 class="page-header" data-toc-text="1.39.0" id="reticulate-1390">reticulate 1.39.0<small>2024-09-05</small><a class="anchor" aria-label="anchor" href="#reticulate-1390"></a></h2>
+<ul><li><p>Python background threads can now run in parallel with the R session (<a href="https://github.com/rstudio/reticulate/issues/1641" class="external-link">#1641</a>).</p></li>
+<li><p><code><a href="../reference/py_main_thread_func.html">py_main_thread_func()</a></code> is deprecated; every R function can now safely be called from background Python threads (<a href="https://github.com/rstudio/reticulate/issues/1648" class="external-link">#1648</a>).</p></li>
+<li><p>Calls from Python threads into R now notify the main thread using R’s native event loop, ensuring that these calls are handled even when the main thread is engaged in non-Python tasks (<a href="https://github.com/rstudio/reticulate/issues/1648" class="external-link">#1648</a>).</p></li>
+<li><p>The knitr engine now avoids overwriting Altair’s default chart dimensions with the values of <code>ut.width.px</code> and <code>ut.height.px</code>. Use <code>altair.fig.height</code>, <code>altair.fig.width</code>, or Altair’s <code>width</code> and <code>height</code> parameters to adjust chart dimensions (contributed by <a href="https://github.com/joelostblom" class="external-link">@joelostblom</a>, <a href="https://github.com/rstudio/reticulate/issues/1646" class="external-link">#1646</a>).</p></li>
+<li><p>New <code><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character()</a></code> method for <code>python.builtin.str</code> with support for handling embedded NULs in strings (<a href="https://github.com/rstudio/reticulate/issues/1653" class="external-link">#1653</a>).</p></li>
+<li><p>New <code><a href="https://rdrr.io/r/base/raw.html" class="external-link">as.raw()</a></code> method for <code>python.builtin.bytes</code> (<a href="https://github.com/rstudio/reticulate/issues/1649" class="external-link">#1649</a>, <a href="https://github.com/rstudio/reticulate/issues/1652" class="external-link">#1652</a>).</p></li>
+<li><p><code><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character()</a></code> method for <code>python.builtin.bytes</code> gains a <code>nul</code> argument, allowing for convenient handling of embedded NULs in the string (<a href="https://github.com/rstudio/reticulate/issues/1652" class="external-link">#1652</a>).</p></li>
+<li><p>Reticulate now uses the <code>RETICULATE_VIRTUALENV_ROOT</code> environment variable when determining where to resolve virtual environments (<a href="https://github.com/rstudio/reticulate/issues/1657" class="external-link">#1657</a>).</p></li>
+<li><p><code><a href="../reference/conda_run2.html">conda_run2()</a></code> is now exported (contributed by <a href="https://github.com/dramanica" class="external-link">@dramanica</a>, <a href="https://github.com/rstudio/reticulate/issues/1637" class="external-link">#1637</a>).</p></li>
+<li><p>The Python session is now finalized when the R session exits (<a href="https://github.com/rstudio/reticulate/issues/1648" class="external-link">#1648</a>).</p></li>
+<li><p>Internal updates for NumPy 2.1 (<a href="https://github.com/rstudio/reticulate/issues/1651" class="external-link">#1651</a>).</p></li>
+<li><p>Fixed error when importing a module named <code>config</code> (<a href="https://github.com/rstudio/reticulate/issues/1628" class="external-link">#1628</a>).</p></li>
+<li><p>Fixes for CRAN check failures on macOS-oldrel (<a href="https://github.com/rstudio/reticulate/issues/1645" class="external-link">#1645</a>).</p></li>
+<li><p>Fixed an error where opening a Python subprocess in Positron on Windows resulted in “OSError: [WinError 6] The handle is invalid.” (<a href="https://github.com/rstudio/reticulate/issues/1658" class="external-link">#1658</a>, posit-dev/positron#4457).</p></li>
+</ul></div>
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="1.38.0" id="reticulate-1380">reticulate 1.38.0<small>2024-06-19</small><a class="anchor" aria-label="anchor" href="#reticulate-1380"></a></h2>
 <ul><li><p>Python Exceptions converted to R conditions are now R lists instead of R environments, for compatability with {rlang} and {purrr}. (tidyverse/purrr#1104, r-lib/rlang#1664, <a href="https://github.com/rstudio/reticulate/issues/1617" class="external-link">#1617</a>)</p></li>
 <li><p>Internal updates for NumPy 2.0 (<a href="https://github.com/rstudio/reticulate/issues/1621" class="external-link">#1621</a>)</p></li>
 <li><p>Added support for converting NumPy StringDType arrays to R character arrays. (<a href="https://github.com/rstudio/reticulate/issues/1623" class="external-link">#1623</a>)</p></li>
@@ -245,8 +262,7 @@
 <li>
 <p>New Ops group generics for Python objects: <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, <code>^</code>, <code>%%</code>, <code>%/%</code>, <code>&amp;</code>, <code>|</code>, <code>!</code>, <code>%*%</code>. Methods for all the Ops group generics are now defined for Python objects. (<a href="https://github.com/rstudio/reticulate/issues/1187" class="external-link">#1187</a>, <a href="https://github.com/rstudio/reticulate/issues/1363" class="external-link">#1363</a>) E.g., this now works:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="va">np</span> <span class="op">&lt;-</span> <span class="fu">reticulate</span><span class="fu">::</span><span class="fu"><a href="../reference/import.html">import</a></span><span class="op">(</span><span class="st">"numpy"</span>, convert <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">np</span> <span class="op">&lt;-</span> <span class="fu">reticulate</span><span class="fu">::</span><span class="fu"><a href="../reference/import.html">import</a></span><span class="op">(</span><span class="st">"numpy"</span>, convert <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="va">x</span> <span class="op">&lt;-</span> <span class="va">np</span><span class="op">$</span><span class="fu">array</span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span></span>
 <span><span class="va">y</span> <span class="op">&lt;-</span> <span class="va">np</span><span class="op">$</span><span class="fu">array</span><span class="op">(</span><span class="fl">6</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span></span>
 <span><span class="va">x</span> <span class="op">+</span> <span class="va">y</span></span></code></pre></div>
@@ -736,15 +752,15 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
 </div>
 
       </footer></div>
 
-  
 
 
-  
+
+
 
   </body></html>
 

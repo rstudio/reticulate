@@ -1,5 +1,7 @@
 # reticulate (development version)
 
+- Fixed segfault encountered when running Python finalizer (#1663, #1664)
+
 # reticulate 1.39.0
 
 - Python background threads can now run in parallel with the R session (#1641).

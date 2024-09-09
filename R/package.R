@@ -224,7 +224,9 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
 
   )
 
-  reg.finalizer(.globals, function(e) py_finalize(), onexit = TRUE)
+  # allow disabling the Python finalizer
+  if (!tolower(Sys.getenv("RETICULATE_DISABLE_PYTHON_FINALIZER")) %in% c("true", "1", "yes"))
+    reg.finalizer(.globals, function(e) py_finalize(), onexit = TRUE)
 
   # set available flag indicating we have py bindings
   config$available <- TRUE

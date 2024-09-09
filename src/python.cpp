@@ -1167,7 +1167,7 @@ PyObject* pandas_arrays () {
 }
 
 bool is_pandas_na_like(PyObject* x) {
-  const static PyObjectPtr np_nan(PyObject_GetAttrString(numpy(), "nan"));
+  const static PyObject* np_nan = PyObject_GetAttrString(numpy(), "nan");
   return is_pandas_na(x) || (x == Py_None) || (x == (PyObject*)np_nan);
 }
 
@@ -1203,11 +1203,16 @@ bool py_is_callable(PyObjectRef x) {
 
 // caches np.nditer function so we don't need to obtain it everytime we want to
 // cast numpy string arrays into R objects.
-PyObject* get_np_nditer () {
-  const static PyObjectPtr np_nditer(PyObject_GetAttrString(numpy(), "nditer"));
-  if (np_nditer.is_null()) {
-    throw PythonException(py_fetch_error());
-  }
+PyObject* get_np_nditer() {
+  static PyObject* np_nditer = []() -> PyObject* {
+    PyObject* np_nditer = PyObject_GetAttrString(numpy(), "nditer");
+    if (np_nditer == NULL) {
+      throw PythonException(py_fetch_error());
+    }
+    return np_nditer;
+  }();
+
+  // Return the static np_nditer
   return np_nditer;
 }
 

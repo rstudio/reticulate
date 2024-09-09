@@ -2,6 +2,9 @@
 
 - Fixed segfault encountered when running Python finalizer (#1663, #1664)
 
+- Fixed segfault encountered in RStudio when rapidly switching 
+  between R and Python chunks in a Quarto document (#1665).
+
 # reticulate 1.39.0
 
 - Python background threads can now run in parallel with the R session (#1641).

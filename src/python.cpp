@@ -99,18 +99,6 @@ bool is_interactive() {
   return s_isInteractive;
 }
 
-// a simplified version of loadSymbol adopted from libpython.cpp
-void loadSymbol(void* pLib, const std::string& name, void** ppSymbol)
-{
-  *ppSymbol = NULL;
-#ifdef _WIN32
-  *ppSymbol = (void*) ::GetProcAddress((HINSTANCE)pLib, name.c_str());
-#else
-  *ppSymbol = ::dlsym(pLib, name.c_str());
-#endif
-}
-
-
 // track whether we have required numpy
 std::string s_numpy_load_error;
 bool haveNumPy() {
@@ -2811,6 +2799,13 @@ SEXP main_process_python_info_win32() {
 
 #else
 
+// a simplified version of loadSymbol adopted from libpython.cpp
+void loadSymbol(void* pLib, const std::string& name, void** ppSymbol)
+{
+  *ppSymbol = NULL;
+  *ppSymbol = ::dlsym(pLib, name.c_str());
+}
+
 SEXP main_process_python_info_unix() {
 
   // bail early if we already know that Python symbols are not available
@@ -2845,6 +2840,7 @@ SEXP main_process_python_info_unix() {
   }
 
   if (PyGILState_Release == NULL) {
+    // PyGILState_Ensure is always not NULL, since we set it in reticulate_init()
     loadSymbol(pLib, "PyGILState_Release", (void**)&PyGILState_Release);
     loadSymbol(pLib, "PyGILState_Ensure", (void**)&PyGILState_Ensure);
   }
@@ -2929,17 +2925,6 @@ void py_initialize(const std::string& python,
       // if R is embedded in a python environment, rpycall has to be loaded as a regular
       // module.
 
-      // We don't currently support running embedded on windows?
-      #ifndef _WIN32
-      void* pLib = NULL;
-      pLib = ::dlopen(NULL, RTLD_NOW | RTLD_GLOBAL);
-      // replace symbols that we initialized with dummy functions
-      // in reticulate_init
-      loadSymbol(pLib, "PyIter_Check", (void**) &PyIter_Check);
-      loadSymbol(pLib, "PyCallable_Check", (void**) &PyCallable_Check);
-      loadSymbol(pLib, "PyGILState_Ensure", (void**) &PyGILState_Ensure);
-      ::dlclose(pLib);
-      #endif
 
       GILScope scope;
       PyImport_AddModule("rpycall");

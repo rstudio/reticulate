@@ -462,8 +462,8 @@ virtualenv_module <- function(python) {
   # then, recommend installation of virtualenv or venv with pip
   commands$push(paste("Install", modules[[1]], "with:"))
   if (is_ubuntu() && dirname(python) == "/usr/bin") {
-    package <- if (py_version < "3") "python-virtualenv" else "python3-venv"
-    commands$push(paste("$ sudo apt-get install", package))
+    packages <- if (py_version < "3") "python-virtualenv" else "python3-venv python3-pip python3-dev"
+    commands$push(paste("$ sudo apt-get install", packages))
   } else {
     commands$push(paste("$", python, "-m pip install --upgrade --user", module))
   }
@@ -762,7 +762,7 @@ stop_no_virtualenv_starter <- function(version = NULL, python = NULL) {
       file.exists(python) &&
       !python_has_modules(python, c("pip", "venv"))) {
     if (is_ubuntu())
-      w("- sudo apt install python3-venv")
+      w("- sudo apt install python3-venv python3-pip python3-dev")
     else if (is_fedora())
       w("- sudo dnf install python3-pip")
     else

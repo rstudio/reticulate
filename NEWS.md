@@ -1,5 +1,7 @@
 # reticulate (development version)
 
+- Fixed error when using reticulate with radian (#1668, #1670).
+
 - Fixed segfault encountered when running Python finalizer (#1663, #1664)
 
 - Fixed segfault encountered in RStudio when rapidly switching 

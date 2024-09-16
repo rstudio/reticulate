@@ -2800,8 +2800,7 @@ SEXP main_process_python_info_win32() {
 #else
 
 // a simplified version of loadSymbol adopted from libpython.cpp
-void loadSymbol(void* pLib, const std::string& name, void** ppSymbol)
-{
+void loadSymbol(void* pLib, const std::string& name, void** ppSymbol) {
   *ppSymbol = NULL;
   *ppSymbol = ::dlsym(pLib, name.c_str());
 }
@@ -2840,8 +2839,8 @@ SEXP main_process_python_info_unix() {
   }
 
   if (PyGILState_Release == NULL) {
-    // PyGILState_Ensure is always not NULL, since we set it in reticulate_init()
     loadSymbol(pLib, "PyGILState_Release", (void**)&PyGILState_Release);
+    // PyGILState_Ensure is always not NULL, since we set it in reticulate_init()
     loadSymbol(pLib, "PyGILState_Ensure", (void**)&PyGILState_Ensure);
   }
 
@@ -2924,8 +2923,6 @@ void py_initialize(const std::string& python,
     if (Py_IsInitialized()) {
       // if R is embedded in a python environment, rpycall has to be loaded as a regular
       // module.
-
-
       GILScope scope;
       PyImport_AddModule("rpycall");
       PyDict_SetItemString(PyImport_GetModuleDict(), "rpycall", initializeRPYCall());

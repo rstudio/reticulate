@@ -2844,12 +2844,10 @@ SEXP main_process_python_info_unix() {
     return R_NilValue;
   }
 
-
-  if (PyGILState_Ensure == NULL)
-    loadSymbol(pLib, "PyGILState_Ensure", (void**)&PyGILState_Ensure);
-
-  if (PyGILState_Release == NULL)
+  if (PyGILState_Release == NULL) {
     loadSymbol(pLib, "PyGILState_Release", (void**)&PyGILState_Release);
+    loadSymbol(pLib, "PyGILState_Ensure", (void**)&PyGILState_Ensure);
+  }
 
   GILScope scope;
 
@@ -2930,6 +2928,19 @@ void py_initialize(const std::string& python,
     if (Py_IsInitialized()) {
       // if R is embedded in a python environment, rpycall has to be loaded as a regular
       // module.
+
+      // We don't currently support running embedded on windows?
+      #ifndef _WIN32
+      void* pLib = NULL;
+      pLib = ::dlopen(NULL, RTLD_NOW | RTLD_GLOBAL);
+      // replace symbols that we initialized with dummy functions
+      // in reticulate_init
+      loadSymbol(pLib, "PyIter_Check", (void**) &PyIter_Check);
+      loadSymbol(pLib, "PyCallable_Check", (void**) &PyCallable_Check);
+      loadSymbol(pLib, "PyGILState_Ensure", (void**) &PyGILState_Ensure);
+      ::dlclose(pLib);
+      #endif
+
       GILScope scope;
       PyImport_AddModule("rpycall");
       PyDict_SetItemString(PyImport_GetModuleDict(), "rpycall", initializeRPYCall());

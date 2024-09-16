@@ -450,7 +450,7 @@ virtualenv_module <- function(python) {
     if (python_has_module(python, "easy_install")) {
       commands$push(paste("$", python, "-m easy_install --upgrade --user pip"))
     } else if (is_ubuntu() && dirname(python) == "/usr/bin") {
-      package <- if (py_version < 3) "python-pip" else "python3-pip"
+      package <- if (py_version < "3") "python-pip" else "python3-pip"
       commands$push(paste("$ sudo apt-get install", package))
     } else {
       commands$push("$ curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py")
@@ -462,7 +462,7 @@ virtualenv_module <- function(python) {
   # then, recommend installation of virtualenv or venv with pip
   commands$push(paste("Install", modules[[1]], "with:"))
   if (is_ubuntu() && dirname(python) == "/usr/bin") {
-    package <- if (py_version < 3) "python-virtualenv" else "python3-venv"
+    package <- if (py_version < "3") "python-virtualenv" else "python3-venv"
     commands$push(paste("$ sudo apt-get install", package))
   } else {
     commands$push(paste("$", python, "-m pip install --upgrade --user", module))

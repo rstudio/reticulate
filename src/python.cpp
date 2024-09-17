@@ -99,18 +99,6 @@ bool is_interactive() {
   return s_isInteractive;
 }
 
-// a simplified version of loadSymbol adopted from libpython.cpp
-void loadSymbol(void* pLib, const std::string& name, void** ppSymbol)
-{
-  *ppSymbol = NULL;
-#ifdef _WIN32
-  *ppSymbol = (void*) ::GetProcAddress((HINSTANCE)pLib, name.c_str());
-#else
-  *ppSymbol = ::dlsym(pLib, name.c_str());
-#endif
-}
-
-
 // track whether we have required numpy
 std::string s_numpy_load_error;
 bool haveNumPy() {
@@ -2811,6 +2799,12 @@ SEXP main_process_python_info_win32() {
 
 #else
 
+// a simplified version of loadSymbol adopted from libpython.cpp
+void loadSymbol(void* pLib, const std::string& name, void** ppSymbol) {
+  *ppSymbol = NULL;
+  *ppSymbol = ::dlsym(pLib, name.c_str());
+}
+
 SEXP main_process_python_info_unix() {
 
   // bail early if we already know that Python symbols are not available
@@ -2844,12 +2838,11 @@ SEXP main_process_python_info_unix() {
     return R_NilValue;
   }
 
-
-  if (PyGILState_Ensure == NULL)
-    loadSymbol(pLib, "PyGILState_Ensure", (void**)&PyGILState_Ensure);
-
-  if (PyGILState_Release == NULL)
+  if (PyGILState_Release == NULL) {
     loadSymbol(pLib, "PyGILState_Release", (void**)&PyGILState_Release);
+    // PyGILState_Ensure is always not NULL, since we set it in reticulate_init()
+    loadSymbol(pLib, "PyGILState_Ensure", (void**)&PyGILState_Ensure);
+  }
 
   GILScope scope;
 

@@ -1,10 +1,12 @@
 # reticulate (development version)
 
+- Fixed error when converting an empty NumPy char array to R (#1662).
+
 - Fixed error when using reticulate with radian (#1668, #1670).
 
 - Fixed segfault encountered when running Python finalizer (#1663, #1664)
 
-- Fixed segfault encountered in RStudio when rapidly switching 
+- Fixed segfault encountered in RStudio when rapidly switching
   between R and Python chunks in a Quarto document (#1665).
 
 # reticulate 1.39.0

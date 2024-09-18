@@ -1550,6 +1550,14 @@ SEXP py_to_r_cpp(PyObject* x, bool convert, bool simple) {
       case NPY_VSTRING:
       case NPY_UNICODE: {
 
+        rArray = Rf_allocArray(STRSXP, dimsVector);
+        RObject protectArray(rArray);
+
+        // special case 0-size vectors, because np.nditer() throws:
+        // ValueError: Iteration of zero-sized operands is not enabled
+        if (Rf_length(rArray) == 0)
+          break;
+
         static PyObject* nditerArgs = []() {
           PyObject* flags = PyTuple_New(1);
           // iterating over a StringDType requires us to pass 'refs_ok' flag,
@@ -1559,7 +1567,7 @@ SEXP py_to_r_cpp(PyObject* x, bool convert, bool simple) {
           PyTuple_SetItem(args, 1, flags); // steals ref
           return args;
         }();
-        // PyTuple_SetItem steals reference the array, but it's already wraped
+        // PyTuple_SetItem steals reference the array, but it's already wrapped
         // into PyObjectPtr earlier (so it gets deleted after the scope of this function)
         // To avoid trying to delete it twice, we need to increase its ref count here.
         PyTuple_SetItem(nditerArgs, 0, (PyObject*)array);
@@ -1571,10 +1579,6 @@ SEXP py_to_r_cpp(PyObject* x, bool convert, bool simple) {
         if (iter.is_null()) {
           throw PythonException(py_fetch_error());
         }
-
-        rArray = Rf_allocArray(STRSXP, dimsVector);
-        RObject protectArray(rArray);
-
 
         for (int i=0; i<len; i++) {
           PyObjectPtr el(PyIter_Next(iter)); // returns an scalar array.

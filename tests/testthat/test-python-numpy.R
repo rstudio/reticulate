@@ -190,3 +190,15 @@ test_that("numpy non-simple arrays work", {
                               c(3, 4)))
 
 })
+
+test_that("0-length character arrays are handled correctly", {
+  # https://github.com/rstudio/reticulate/issues/1662
+  skip_if_no_numpy()
+  np <- import("numpy")
+
+  for (dtype in c("U", "U1", "U10", "O", "S", "S1", "S10")) {
+    expect_equal(np$array(character(), dtype = dtype),
+                 array(character()))
+  }
+})
+

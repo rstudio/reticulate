@@ -137,7 +137,7 @@ below.</p>
 to use an alternate version you should add one of the
 <code><a href="../reference/use_python.html">use_python()</a></code> family of functions to your R Markdown setup
 chunk, for example:</p>
-<p><img src="images/python_version.png" class="screenshot" style="width:98.0%"></p>
+<p><img src="images%2Fpython_version.png" class="screenshot" style="width:98.0%"></p>
 <p>See the article on <a href="versions.html">Python Version
 Configuration</a> for additional details on configuring Python versions
 (including the use of conda or virtualenv environments).</p>
@@ -152,7 +152,7 @@ within the document.</p>
 access to all objects created in previous chunks. Chunk options like
 <code>echo</code>, <code>include</code>, etc. all work as expected.</p>
 <p>Here’s an R Markdown document that demonstrates this:</p>
-<p><img src="images/python_chunks.png" class="screenshot" style="width:98.0%"></p>
+<p><img src="images%2Fpython_chunks.png" class="screenshot" style="width:98.0%"></p>
 <p><a href="https://posit.co/download/rstudio-desktop/" class="external-link">RStudio v1.2</a>
 or greater for reticulate IDE support.</p>
 </div>
@@ -163,7 +163,7 @@ or greater for reticulate IDE support.</p>
 <code>py</code> object exported by the reticulate package. For example,
 the following code demonstrates reading and filtering a CSV file using
 Pandas then plotting the resulting data frame using ggplot2:</p>
-<p><img src="images/rmarkdown_engine_zoomed.png" class="screenshot" style="width:98.0%"></p>
+<p><img src="images%2Frmarkdown_engine_zoomed.png" class="screenshot" style="width:98.0%"></p>
 <p>See the <a href="calling_python.html">Calling Python from R</a>
 article for additional details on how to interact with Python types from
 within R</p>
@@ -173,17 +173,17 @@ within R</p>
 </h2>
 <p>You can analogously access R objects within Python chunks via the
 <code>r</code> object. For example:</p>
-<p><img src="images/r_from_python.png" class="screenshot" style="width:98.0%"></p>
+<p><img src="images%2Fr_from_python.png" class="screenshot" style="width:98.0%"></p>
 </div>
 <div class="section level2">
 <h2 id="engine-setup">Engine Setup<a class="anchor" aria-label="anchor" href="#engine-setup"></a>
 </h2>
 <p>If you are using a version of knitr prior to 1.18 then add this code
 to your setup chunk to enable the reticulate Python engine:</p>
-<p><img src="images/reticulate_enable.png" class="screenshot" style="width:98.0%"></p>
+<p><img src="images%2Freticulate_enable.png" class="screenshot" style="width:98.0%"></p>
 <p>If you do not wish to use the reticulate Python engine then set the
 <code>python.reticulate</code> chunk option to <code>FALSE</code>:</p>
-<p><img src="images/reticulate_disable.png" class="screenshot" style="width:98.0%"></p>
+<p><img src="images%2Freticulate_disable.png" class="screenshot" style="width:98.0%"></p>
 </div>
   </div>
 
@@ -202,7 +202,7 @@ to your setup chunk to enable the reticulate Python engine:</p>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
       </footer>

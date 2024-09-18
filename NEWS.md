@@ -1,5 +1,10 @@
 # reticulate (development version)
 
+- Fixed error where `py_discover_config()` attempted to detect
+  Windows App Store Python installations, which are now excluded
+  from discovery by both `py_discover_config()` and `virtualenv_starter()`
+  (#1656, #1673).
+
 - Fixed error when converting an empty NumPy char array to R (#1662).
 
 - Fixed error when using reticulate with radian (#1668, #1670).

@@ -1256,3 +1256,8 @@ is_windows_app_store_python <- function(python) {
 }
 
 
+find_all_pythons <- function(root = "/") {
+  cmd <- sprintf("find %s -type f -regex '.*/python[0-9.]*$' -executable 2>/dev/null",
+                 root)
+  as.character(suppressWarnings(system(cmd, intern = TRUE)))
+}

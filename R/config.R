@@ -364,15 +364,25 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
     size <- ifelse(is.na(info$size), 0, info$size)
     python_versions <- python_versions[size != 0]
 
+
+    # We should not automatically discover windows app store python
+    python_versions <-
+      python_versions[!is_windows_app_store_python(python_versions)]
+
     # remove msys2 / cygwin python executables.
     # path translation going to and from msys2 currently not implemented.
     # E.g.: "C:\foo\bar" -> "/c/foo/bar" and  "/foo/bar" -> "C:\rtools43\foo\bar"
     # https://github.com/rstudio/reticulate/issues/1325
-    python_sys_platforms <- vapply(
-      python_versions, system2, "",
-      args = c("-c", shQuote("import sys; print(sys.platform)")),
-      stdout = TRUE)
+    get_platform <- function(python) {
+      tryCatch({
+        system2(python,
+                args = c("-c", shQuote("import sys; print(sys.platform)")),
+                stdout = TRUE, stderr = FALSE)
+      }, warning = function(w) "", error = function(e) "")
+    }
+    python_sys_platforms <- vapply(python_versions, get_platform, "")
 
+    python_versions <- python_versions[python_sys_platforms != ""]
     python_versions <- python_versions[python_sys_platforms != "cygwin"]
   }
 
@@ -1234,4 +1244,20 @@ py_session_initialized_binary <- function() {
 
   # return
   python_binary
+}
+
+
+is_windows_app_store_python <- function(python) {
+  # There is probably a better way, but don't currently have
+  # access to a windows machine with the app store installed.
+  python <- normalizePath(python, winslash = "/", mustWork = FALSE)
+  grepl("/Program Files/WindowsApps/PythonSoftwareFoundation.Python",
+        python, fixed = TRUE)
+}
+
+
+find_all_pythons <- function(root = "/") {
+  cmd <- sprintf("find %s -type f -regex '.*/python[0-9.]*$' -executable 2>/dev/null",
+                 root)
+  as.character(suppressWarnings(system(cmd, intern = TRUE)))
 }

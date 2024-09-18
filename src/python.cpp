@@ -99,18 +99,6 @@ bool is_interactive() {
   return s_isInteractive;
 }
 
-// a simplified version of loadSymbol adopted from libpython.cpp
-void loadSymbol(void* pLib, const std::string& name, void** ppSymbol)
-{
-  *ppSymbol = NULL;
-#ifdef _WIN32
-  *ppSymbol = (void*) ::GetProcAddress((HINSTANCE)pLib, name.c_str());
-#else
-  *ppSymbol = ::dlsym(pLib, name.c_str());
-#endif
-}
-
-
 // track whether we have required numpy
 std::string s_numpy_load_error;
 bool haveNumPy() {
@@ -1167,7 +1155,7 @@ PyObject* pandas_arrays () {
 }
 
 bool is_pandas_na_like(PyObject* x) {
-  const static PyObjectPtr np_nan(PyObject_GetAttrString(numpy(), "nan"));
+  const static PyObject* np_nan = PyObject_GetAttrString(numpy(), "nan");
   return is_pandas_na(x) || (x == Py_None) || (x == (PyObject*)np_nan);
 }
 
@@ -1203,11 +1191,16 @@ bool py_is_callable(PyObjectRef x) {
 
 // caches np.nditer function so we don't need to obtain it everytime we want to
 // cast numpy string arrays into R objects.
-PyObject* get_np_nditer () {
-  const static PyObjectPtr np_nditer(PyObject_GetAttrString(numpy(), "nditer"));
-  if (np_nditer.is_null()) {
-    throw PythonException(py_fetch_error());
-  }
+PyObject* get_np_nditer() {
+  static PyObject* np_nditer = []() -> PyObject* {
+    PyObject* np_nditer = PyObject_GetAttrString(numpy(), "nditer");
+    if (np_nditer == NULL) {
+      throw PythonException(py_fetch_error());
+    }
+    return np_nditer;
+  }();
+
+  // Return the static np_nditer
   return np_nditer;
 }
 
@@ -2806,6 +2799,12 @@ SEXP main_process_python_info_win32() {
 
 #else
 
+// a simplified version of loadSymbol adopted from libpython.cpp
+void loadSymbol(void* pLib, const std::string& name, void** ppSymbol) {
+  *ppSymbol = NULL;
+  *ppSymbol = ::dlsym(pLib, name.c_str());
+}
+
 SEXP main_process_python_info_unix() {
 
   // bail early if we already know that Python symbols are not available
@@ -2839,12 +2838,11 @@ SEXP main_process_python_info_unix() {
     return R_NilValue;
   }
 
-
-  if (PyGILState_Ensure == NULL)
-    loadSymbol(pLib, "PyGILState_Ensure", (void**)&PyGILState_Ensure);
-
-  if (PyGILState_Release == NULL)
+  if (PyGILState_Release == NULL) {
     loadSymbol(pLib, "PyGILState_Release", (void**)&PyGILState_Release);
+    // PyGILState_Ensure is always not NULL, since we set it in reticulate_init()
+    loadSymbol(pLib, "PyGILState_Ensure", (void**)&PyGILState_Ensure);
+  }
 
   GILScope scope;
 

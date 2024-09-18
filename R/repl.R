@@ -92,7 +92,7 @@ repl_python <- function(
 
   ensure_python_initialized()
   if (is.null(input) &&
-      Sys.getenv("POSITRON") == "1" &&
+      is_positron() &&
       exists(".ps.reticulate_open", inherits = TRUE)) {
 
     eval(call(".ps.reticulate_open"))

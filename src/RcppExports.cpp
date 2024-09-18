@@ -824,12 +824,12 @@ BEGIN_RCPP
 END_RCPP
 }
 // readline
-SEXP readline(const std::string& prompt);
+SEXP readline(const char* prompt);
 RcppExport SEXP _reticulate_readline(SEXP promptSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const std::string& >::type prompt(promptSEXP);
+    Rcpp::traits::input_parameter< const char* >::type prompt(promptSEXP);
     rcpp_result_gen = Rcpp::wrap(readline(prompt));
     return rcpp_result_gen;
 END_RCPP

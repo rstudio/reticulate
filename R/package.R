@@ -63,7 +63,7 @@ ensure_python_initialized <- function(required_module = NULL) {
   remap_output_streams()
   set_knitr_python_stdout_hook()
 
-  if (is_windows() && identical(.Platform$GUI, "RStudio"))
+  if (is_windows() && ( is_rstudio() || is_positron() ))
     import("rpytools.subprocess")$patch_subprocess_Popen()
 
   # generate 'R' helper object
@@ -224,7 +224,9 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
 
   )
 
-  reg.finalizer(.globals, function(e) py_finalize(), onexit = TRUE)
+  # allow disabling the Python finalizer
+  if (!tolower(Sys.getenv("RETICULATE_DISABLE_PYTHON_FINALIZER")) %in% c("true", "1", "yes"))
+    reg.finalizer(.globals, function(e) py_finalize(), onexit = TRUE)
 
   # set available flag indicating we have py bindings
   config$available <- TRUE

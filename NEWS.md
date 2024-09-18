@@ -1,40 +1,52 @@
 # reticulate (development version)
 
-- Python background threads can now run in parallel with
-  the R session (#1641).
+- Fixed error when using reticulate with radian (#1668, #1670).
 
-- In Positron, `repl_python()` will now use the Positron Python console. (#1648)
+- Fixed segfault encountered when running Python finalizer (#1663, #1664)
+
+- Fixed segfault encountered in RStudio when rapidly switching 
+  between R and Python chunks in a Quarto document (#1665).
+
+# reticulate 1.39.0
+
+- Python background threads can now run in parallel with the R session (#1641).
 
 - `py_main_thread_func()` is deprecated; every R function can now safely be
-  called from background Python threads. (#1648)
+  called from background Python threads (#1648).
 
-- Calls from a Python thread into R will now notify the main thread using
-  R's native event loop, ensuring that these calls are handled even when
-  the main thread is engaged in non-Python tasks. (#1648)
+- Calls from Python threads into R now notify the main thread using R's native
+  event loop, ensuring that these calls are handled even when the main thread
+  is engaged in non-Python tasks (#1648).
+
+- The knitr engine now avoids overwriting Altair's default chart dimensions with
+  the values of `ut.width.px` and `ut.height.px`. Use `altair.fig.height`,
+  `altair.fig.width`, or Altair's `width` and `height` parameters to adjust
+  chart dimensions (contributed by @joelostblom, #1646).
+
+- New `as.character()` method for `python.builtin.str` with support for handling
+  embedded NULs in strings (#1653).
+
+- New `as.raw()` method for `python.builtin.bytes` (#1649, #1652).
+
+- `as.character()` method for `python.builtin.bytes` gains a `nul` argument,
+  allowing for convenient handling of embedded NULs in the string (#1652).
+
+- Reticulate now uses the `RETICULATE_VIRTUALENV_ROOT` environment variable when
+  determining where to resolve virtual environments (#1657).
+
+- `conda_run2()` is now exported (contributed by @dramanica, #1637).
 
 - The Python session is now finalized when the R session exits (#1648).
 
-- Internal updates for NumPy 2.1 (#1651)
+- Internal updates for NumPy 2.1 (#1651).
 
-- Fixed error when importing a module named `config` (#1628)
+- Fixed error when importing a module named `config` (#1628).
 
-- `conda_run2()` is now exported (#1637, contributed by @dramanica)
+- Fixes for CRAN check failures on macOS-oldrel (#1645).
 
-- Fixes for CRAN check failures (#1645)
-
-- The knitr engine now avoids overwriting Altair's default chart dimensions
-  with the values of `ut.width.px` and `ut.height.px`.
-  Instead, use `altair.fig.height`, `altair.fig.width`,
-  or Altair's `width` and `height` parameters
-  to adjust chart dimensions. (#1646, contributed by @joelostblom)
-
-- New `as.raw()` method for `python.builtin.bytes` (#1649, #1652)
-
-- `as.character()` method for `python.builtin.bytes` gains a `nul` argument,
-  allowing for convenient handling of embedded NULs in the string. (#1652)
-  
-- New `as.character()` method for `python.builtin.str` with support for handling
-  embedded NULs in strings. (#1653)
+- Fixed an error where opening a Python subprocess in Positron on Windows
+  resulted in "OSError: [WinError 6] The handle is invalid."
+  (#1658, posit-dev/positron#4457).
 
 # reticulate 1.38.0
 

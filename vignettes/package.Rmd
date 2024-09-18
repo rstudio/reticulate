@@ -115,17 +115,6 @@ method.MyModule.MyPythonClass <- function(x, y, ...) {
 
 Note that this check isn't required, as by default an R error will occur. If it's desirable to avoid this error for any reason then you can use `py_is_null_xptr()` to do so.
 
-The **reticulate** package exports a `py_str` generic method which is called from the `str` method only after doing appropriate validation (if the object is NULL then `<pointer: 0x0>` is returned). You can implement the `py_str` method as follows:
-
-```r
-#' @importFrom reticulate py_str
-#' @export
-py_str.MyModule.MyPythonClass <- function(object, ...) {
-  # interact with the object to generate the string
-}
-```
-
-The `print` and `summary` methods for Python objects both call the `str` method by default, so if you implement `py_str()` you will automatically inherit implementations for those methods.
 
 ### Converting between R and Python
 

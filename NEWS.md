@@ -7,6 +7,9 @@
 - Fixed segfault encountered in RStudio when rapidly switching 
   between R and Python chunks in a Quarto document (#1665).
 
+- Improved behavior when the conda binary used to create an environment
+  could not be resolved (contributed by @tl-hbk, #1654, #1659)
+
 # reticulate 1.39.0
 
 - Python background threads can now run in parallel with the R session (#1641).

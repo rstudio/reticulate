@@ -648,6 +648,11 @@ virtualenv_starter <- function(version = NULL, all = FALSE) {
     rownames(starters) <- NULL
   }
 
+  if (is_windows()) {
+    # Windows App Store Python should never be used.
+    starters <- starters[!is_windows_app_store_python(starters$path), ]
+  }
+
   if (all)
     starters
   else if (nrow(starters))

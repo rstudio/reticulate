@@ -364,6 +364,11 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
     size <- ifelse(is.na(info$size), 0, info$size)
     python_versions <- python_versions[size != 0]
 
+
+    # We should not automatically discover windows app store python
+    python_versions <-
+      python_versions[!is_windows_app_store_python(python_versions)]
+
     # remove msys2 / cygwin python executables.
     # path translation going to and from msys2 currently not implemented.
     # E.g.: "C:\foo\bar" -> "/c/foo/bar" and  "/foo/bar" -> "C:\rtools43\foo\bar"
@@ -1240,3 +1245,14 @@ py_session_initialized_binary <- function() {
   # return
   python_binary
 }
+
+
+is_windows_app_store_python <- function(python) {
+  # There is probably a better way, but don't currently have
+  # access to a windows machine with the app store installed.
+  python <- normalizePath(python, winslash = "/", mustWork = FALSE)
+  grepl("/Program Files/WindowsApps/PythonSoftwareFoundation.Python",
+        python, fixed = TRUE)
+}
+
+

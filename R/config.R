@@ -368,11 +368,16 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
     # path translation going to and from msys2 currently not implemented.
     # E.g.: "C:\foo\bar" -> "/c/foo/bar" and  "/foo/bar" -> "C:\rtools43\foo\bar"
     # https://github.com/rstudio/reticulate/issues/1325
-    python_sys_platforms <- vapply(
-      python_versions, system2, "",
-      args = c("-c", shQuote("import sys; print(sys.platform)")),
-      stdout = TRUE)
+    get_platform <- function(python) {
+      tryCatch({
+        system2(python,
+                args = c("-c", shQuote("import sys; print(sys.platform)")),
+                stdout = TRUE, stderr = FALSE)
+      }, warning = function(w) "", error = function(e) "")
+    }
+    python_sys_platforms <- vapply(python_versions, get_platform, "")
 
+    python_versions <- python_versions[python_sys_platforms != ""]
     python_versions <- python_versions[python_sys_platforms != "cygwin"]
   }
 

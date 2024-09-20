@@ -50,6 +50,11 @@ install_miniconda <- function(path = miniconda_path(),
   url <- miniconda_installer_url()
   installer <- miniconda_installer_download(url)
 
+  if (force) {
+    # miniconda installer '-u' (update) flag frequently does not work, errors.
+    miniconda_uninstall(path)
+  }
+
   # run the installer
   miniconda_installer_run(installer, update, path)
 

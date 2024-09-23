@@ -375,9 +375,11 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
     # https://github.com/rstudio/reticulate/issues/1325
     get_platform <- function(python) {
       tryCatch({
-        system2(python,
-                args = c("-c", shQuote("import sys; print(sys.platform)")),
-                stdout = TRUE, stderr = FALSE)
+        plat <- system2(python,
+          args = c("-c", shQuote("import sys; print(sys.platform)")),
+          stdout = TRUE, stderr = FALSE
+        )
+        if (rlang::is_string(plat)) plat else ""
       }, warning = function(w) "", error = function(e) "")
     }
     python_sys_platforms <- vapply(python_versions, get_platform, "")

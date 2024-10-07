@@ -831,7 +831,8 @@ python_config <- function(python,
 
       # try to resolve libpython in this location
       pattern <- sprintf("^libpython%sd?m?%s", version, ext)
-      candidates <- list.files(src, pattern = pattern, full.names = TRUE)
+      candidates <- list.files(c(src, file.path(src, "lib")),
+                               pattern = pattern, full.names = TRUE)
       if (length(candidates)) {
         libpython <- candidates
         break

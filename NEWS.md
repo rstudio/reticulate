@@ -1,5 +1,7 @@
 # reticulate (development version)
 
+- Fixed error when attempting to use a python venv created with `uv` (#1678)
+
 - Fixed error where `py_discover_config()` attempted to detect
   Windows App Store Python installations, which are now excluded
   from discovery by both `py_discover_config()` and `virtualenv_starter()`

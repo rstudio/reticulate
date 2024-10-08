@@ -2725,30 +2725,28 @@ extern "C" PyObject* initializeRPYCall(void) {
 
 
 // [[Rcpp::export]]
-void py_activate_virtualenv(const std::string& script)
-{
+void py_activate_virtualenv(const std::string& script) {
 
-  // get main dict
-  PyObject* main = PyImport_AddModule("__main__");
-  PyObject* mainDict = PyModule_GetDict(main);
-
-  // inject __file__
-  PyObjectPtr file(as_python_str(script));
-  int res = PyDict_SetItemString(mainDict, "__file__", file);
-  if (res != 0)
+  // import runpy
+  PyObjectPtr runpy_module(PyImport_ImportModule("runpy"));
+  if (runpy_module.is_null())
     throw PythonException(py_fetch_error());
 
-  // read the code in the script
-  std::ifstream ifs(script.c_str());
-  if (!ifs)
-    stop("Unable to open file '%s' (does it exist?)", script);
-  std::string code((std::istreambuf_iterator<char>(ifs)),
-                   (std::istreambuf_iterator<char>()));
-
-  // run string
-  PyObjectPtr runRes(PyRun_StringFlags(code.c_str(), Py_file_input, mainDict, NULL, NULL));
-  if (runRes.is_null())
+  // get ref to runpy.run_path()
+  PyObjectPtr run_path_func(PyObject_GetAttrString(runpy_module, "run_path"));
+  if (run_path_func.is_null())
     throw PythonException(py_fetch_error());
+
+  // make a Python string of the script path
+  PyObjectPtr py_script_path(PyUnicode_FromString(script.c_str()));
+  if (py_script_path.is_null())
+    throw PythonException(py_fetch_error());
+
+  // Call runpy.run_path(script_path) function
+  PyObjectPtr result(PyObject_CallFunctionObjArgs(run_path_func, py_script_path.get(), NULL));
+  if (result.is_null())
+    throw PythonException(py_fetch_error());
+
 }
 
 void trace_print(int threadId, PyFrameObject *frame) {

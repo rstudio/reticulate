@@ -53,7 +53,30 @@ py_allow_threads <- function(allow = TRUE) {
 py_run_file_on_thread <- function(file, ..., args = NULL) {
   if (!is.null(args))
     args <- as.list(as.character(args))
-  import("rpytools.run")$`_launch_lsp_server_on_thread`(file, args)
+
+  # TODO: we should have a dedicated entry point in reticulate for this.
+  # Needs to be updated in ark and positron.
+  launching_lsp <- (basename(file) == 'positron_language_server.py' &&
+                      is_positron() &&
+                      basename(dirname(file)) == "positron")
+
+  if (launching_lsp) {
+    main_dict <- py_eval("__import__('__main__').__dict__.copy()", FALSE)
+    py_get_attr(main_dict, "pop")("__annotations__")
+  }
+
+  import("rpytools.run")$run_file_on_thread(file, args)
+
+  if (launching_lsp) {
+
+    PositronIPKernelApp <- import("positron_ipykernel.positron_ipkernel")$PositronIPKernelApp
+    while(!PositronIPKernelApp$initialized())
+      Sys.sleep(.5)
+    Sys.sleep(1)
+
+    py_eval("__import__('__main__').__dict__.update", FALSE)(main_dict)
+  }
+  invisible()
 }
 
 ## used in Positron:

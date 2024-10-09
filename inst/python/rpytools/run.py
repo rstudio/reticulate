@@ -50,14 +50,19 @@ def _launch_lsp_server_on_thread(path, args):
     return run_file_on_thread(path, args)
 
 
-
-def run_file_on_thread(path, args=None):
+def run_file_on_thread(path, argv=None, init_globals=None, run_name="__main__"):
     # for now, leave sys.argv and sys.path permanently modified.
     # Later, revisit if it's desirable/safe to restore after the initial
     # lsp event loop startup.
     import _thread
     from runpy import run_path
 
-    RunMainScriptContext(path, args).__enter__()
-
-    _thread.start_new_thread(run_path, (path,), {'run_name': "__main__"})
+    RunMainScriptContext(path, argv).__enter__()
+    _thread.start_new_thread(
+        run_path,
+        (path,),
+        {
+            "run_name": run_name,
+            "init_globals": init_globals,
+        },
+    )

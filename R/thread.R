@@ -65,7 +65,7 @@ py_run_file_on_thread <- function(file, ..., args = NULL) {
     py_get_attr(main_dict, "pop")("__annotations__")
   }
 
-  import("rpytools.run")$run_file_on_thread(file, args)
+  import("rpytools.run")$run_file_on_thread(file, args, ...)
 
   if (launching_lsp) {
 

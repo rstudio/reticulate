@@ -70,8 +70,10 @@ py_run_file_on_thread <- function(file, ..., args = NULL) {
   if (launching_lsp) {
 
     PositronIPKernelApp <- import("positron_ipykernel.positron_ipkernel")$PositronIPKernelApp
-    while(!PositronIPKernelApp$initialized())
+    for(i in 1:40) { # Positron timeout is 20 seconds
+      if (PositronIPKernelApp$initialized()) break
       Sys.sleep(.5)
+    }
     Sys.sleep(1)
 
     py_eval("__import__('__main__').__dict__.update", FALSE)(main_dict)

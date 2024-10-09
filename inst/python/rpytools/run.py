@@ -38,7 +38,7 @@ class RunMainScriptContext:
         if self.argv is not None:
             # restore sys.argv if it's unmodified from what we set it to.
             # otherwise, leave it as-is.
-            patched_argv = [self.path] + list(self.args)
+            patched_argv = [self.path] + list(self.argv)
             if sys.argv == patched_argv:
                 sys.argv = self._orig_sys_argv
 
@@ -50,12 +50,19 @@ def _launch_lsp_server_on_thread(path, args):
     return run_file_on_thread(path, args)
 
 
-
-def run_file_on_thread(path, args=None):
+def run_file_on_thread(path, argv=None, init_globals=None, run_name="__main__"):
     # for now, leave sys.argv and sys.path permanently modified.
     # Later, revisit if it's desirable/safe to restore after the initial
     # lsp event loop startup.
-    RunMainScriptContext(path, args).__enter__()
     import _thread
+    from runpy import run_path
 
-    _thread.start_new_thread(run_file, (path,))
+    RunMainScriptContext(path, argv).__enter__()
+    _thread.start_new_thread(
+        run_path,
+        (path,),
+        {
+            "run_name": run_name,
+            "init_globals": init_globals,
+        },
+    )

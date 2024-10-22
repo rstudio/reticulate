@@ -18,3 +18,4 @@ inst/doc
 rchk
 .cache
 compile_commands.json
+*.Dockerfile

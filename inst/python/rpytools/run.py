@@ -50,6 +50,13 @@ def _launch_lsp_server_on_thread(path, args):
     return run_file_on_thread(path, args)
 
 
+def set_blank_io_streams():
+    import sys
+    import os
+    sys.stdout = open(os.devnull, "w")
+    sys.stderr = open(os.devnull, "w")
+
+
 def run_file_on_thread(path, argv=None, init_globals=None, run_name="__main__"):
     # for now, leave sys.argv and sys.path permanently modified.
     # Later, revisit if it's desirable/safe to restore after the initial

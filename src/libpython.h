@@ -636,12 +636,12 @@ bool import_numpy_api(bool python3, std::string* pError);
 class SharedLibrary {
 
 public:
-  bool load(const std::string& libPath, bool python3, std::string* pError);
+  bool load(const std::string& libPath, int major_ver, int minor_ver, std::string* pError);
   bool unload(std::string* pError);
   virtual ~SharedLibrary() {}
 
 private:
-  virtual bool loadSymbols(bool python3, std::string* pError) = 0;
+  virtual bool loadSymbols(int major_ver, int minor_ver, std::string* pError) = 0;
 
 protected:
   SharedLibrary() : pLib_(NULL) {}
@@ -656,7 +656,7 @@ class LibPython : public SharedLibrary {
 private:
   LibPython() : SharedLibrary() {}
   friend SharedLibrary& libPython();
-  virtual bool loadSymbols(bool python3, std::string* pError);
+  virtual bool loadSymbols(int major_ver, int minor_ver, std::string* pError);
 };
 
 inline SharedLibrary& libPython() {

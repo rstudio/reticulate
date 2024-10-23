@@ -2904,12 +2904,13 @@ void py_initialize(const std::string& python,
                    const std::string& libpython,
                    const std::string& pythonhome,
                    const std::string& virtualenv_activate,
-                   bool python3,
+                   int python_major_version,
+                   int python_minor_version,
                    bool interactive,
                    const std::string& numpy_load_error) {
 
   // set python3 and interactive flags
-  s_isPython3 = python3;
+  s_isPython3 = python_major_version == 3;
   s_isInteractive = interactive;
 
   if(!s_isPython3)
@@ -2917,7 +2918,7 @@ void py_initialize(const std::string& python,
 
   // load the library
   std::string err;
-  if (!libPython().load(libpython, is_python3(), &err))
+  if (!libPython().load(libpython, python_major_version, python_minor_version, &err))
     stop(err);
 
   if (is_python3()) {

@@ -174,12 +174,12 @@ if (!loadSymbol(pLib_, #name, (void**)&as, pError)) \
 if (!loadSymbol(pLib_, #name, (void**) &libpython::name, pError)) \
   return false;
 
-bool SharedLibrary::load(const std::string& libPath, bool python3, std::string* pError)
+bool SharedLibrary::load(const std::string& libPath, int major_ver, int minor_ver, std::string* pError)
 {
   if (!loadLibrary(libPath, &pLib_, pError))
     return false;
 
-  return loadSymbols(python3, pError);
+  return loadSymbols(major_ver, minor_ver, pError);
 }
 
 // Define "slow" fallback implementation for Py version <= 3.9
@@ -188,7 +188,7 @@ int _PyIter_Check(PyObject* o) {
 }
 
 
-bool LibPython::loadSymbols(bool python3, std::string* pError)
+bool LibPython::loadSymbols(int python_major_ver, int python_minor_ver, std::string* pError)
 {
   bool is64bit = sizeof(size_t) >= 8;
 
@@ -314,7 +314,7 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
   if (!loadSymbol(pLib_, names, (void**)&PyUnicode_AsEncodedString, pError) )
     return false;
 
-  if (python3) {
+  if (python_major_ver >= 3) {
     LOAD_PYTHON_SYMBOL(PyException_SetTraceback)
     LOAD_PYTHON_SYMBOL(Py_GetProgramFullPath)
 

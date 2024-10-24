@@ -1,5 +1,7 @@
 # reticulate (development version)
 
+- Added preliminary support for Python 3.13 (#1686)
+
 - Fixed error when attempting to use a python venv created with `uv` (#1678)
 
 - Fixed error where `py_discover_config()` attempted to detect

@@ -145,6 +145,7 @@ LIBPYTHON_EXTERN PyObject* Py_Tuple;
 LIBPYTHON_EXTERN PyObject* Py_Complex;
 LIBPYTHON_EXTERN PyObject* Py_ByteArray;
 LIBPYTHON_EXTERN PyObject* PyExc_KeyboardInterrupt;
+LIBPYTHON_EXTERN PyObject* PyExc_AttributeError;
 LIBPYTHON_EXTERN PyObject* PyExc_RuntimeError;
 LIBPYTHON_EXTERN PyObject* PyExc_ValueError;
 

@@ -2851,7 +2851,7 @@ SEXP main_process_python_info_unix() {
   // read Python program path
   std::string python_path;
   if (Py_GetVersion()[0] >= '3') {
-    loadSymbol(pLib, "Py_GetProgramFullPath", (void**) &Py_GetProgramFullPath);
+    loadSymbol(pLib, "Py_GetProgramFullPath", (void**) &Py_GetProgramFullPath); // deprecated in 3.13
     const std::wstring wide_python_path(Py_GetProgramFullPath());
     python_path = to_string(wide_python_path);
   } else {

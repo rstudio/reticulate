@@ -1,6 +1,6 @@
 # reticulate (development version)
 
-- `[[` now loads delayed modules (#1688).
+- `py_is_null_xptr()` and `[[` now load delayed modules (#1688).
 
 - Fixed error when attempting to use a python venv created with `uv` (#1678)
 

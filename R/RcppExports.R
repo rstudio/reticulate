@@ -102,8 +102,8 @@ py_clear_error <- function() {
     invisible(.Call(`_reticulate_py_clear_error`))
 }
 
-py_initialize <- function(python, libpython, pythonhome, virtualenv_activate, python3, interactive, numpy_load_error) {
-    invisible(.Call(`_reticulate_py_initialize`, python, libpython, pythonhome, virtualenv_activate, python3, interactive, numpy_load_error))
+py_initialize <- function(python, libpython, pythonhome, virtualenv_activate, python_major_version, python_minor_version, interactive, numpy_load_error) {
+    invisible(.Call(`_reticulate_py_initialize`, python, libpython, pythonhome, virtualenv_activate, python_major_version, python_minor_version, interactive, numpy_load_error))
 }
 
 py_finalize <- function() {

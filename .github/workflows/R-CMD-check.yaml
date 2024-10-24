@@ -21,26 +21,26 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - { os: macOS-latest  , r: 'release', python: '3.10' }
-          - { os: windows-latest, r: 'release', python: '3.10' }
-          - { os: ubuntu-latest , r: 'release', python: '3.10' }
+          - { os: macOS-latest  , r: 'release', python: '3.11' }
+          - { os: windows-latest, r: 'release', python: '3.11' }
+          - { os: ubuntu-latest , r: 'release', python: '3.11' }
 
           # test R oldrel on mac too: https://github.com/RcppCore/RcppArmadillo/issues/447
-          - { os: macOS-latest , r: 'oldrel'  , python: '3.10' }
+          - { os: macOS-latest , r: 'oldrel'  , python: '3.11' }
 
-          - { os: ubuntu-latest, r: 'oldrel-1', python: '3.9' }
-          - { os: ubuntu-latest, r: 'oldrel-2', python: '3.9' }
-          - { os: ubuntu-20.04,  r: 'oldrel-3', python: '3.8' }
-          - { os: ubuntu-20.04,  r: 'oldrel-4', python: '3.8' }
+          - { os: ubuntu-latest, r: 'oldrel-1', python: '3.10' }
+          - { os: ubuntu-latest, r: 'oldrel-2', python: '3.10' }
+          - { os: ubuntu-20.04,  r: 'oldrel-3', python: '3.9' }
+          - { os: ubuntu-20.04,  r: 'oldrel-4', python: '3.9' }
           # https://api.r-hub.io/rversions/resolve/oldrel/4
 
-          - { os: ubuntu-latest, r: 'release', python: '3.7'  }
           - { os: ubuntu-latest, r: 'release', python: '3.8'  }
           - { os: ubuntu-latest, r: 'release', python: '3.9' }
           - { os: ubuntu-latest, r: 'release', python: '3.11' }
           - { os: ubuntu-latest, r: 'release', python: '3.12' }
+          - { os: ubuntu-latest, r: 'release', python: '3.13' }
 
-          - { os: ubuntu-latest, r: 'devel', python: '3.12', http-user-agent: 'release' }
+          - { os: ubuntu-latest, r: 'devel', python: '3.13', http-user-agent: 'release' }
 
           # test with one debug build of python
           # disabled; failing presently

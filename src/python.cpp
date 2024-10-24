@@ -600,6 +600,32 @@ SEXP py_class_names(PyObject* object, bool exception) {
   // In CPython, the definition of Py_TYPE() changed in Python 3.10
   // from a macro with no return type to a inline static function returning PyTypeObject*.
   // for back compat, we continue to define Py_TYPE as a macro in reticulate/src/libpython.h
+
+  // Note in Python 3.13, building the class character vector for
+  // `wrapt.ObjectProxy()` instances is broken yet again. Attribute access and
+  // metaclass construction in Python 3.13 has changed, and now when iterating
+  // over [cls.__module__ in inspect.getmro(type(obj))], the __module__
+  // objects are `property` objects that can't be evaluated (not bound to an
+  // instance, and often, evaluating them anyway with propert.fget(obj) raises
+  // an exception.
+  //
+  // It seems that defining something like `class Foo(wrapt.ObjectProxy): pass`,
+  // there is then no way to get back the actual Foo.__module__, only the
+  // module name of the instance, with the appropriate gymnastics.
+  //
+  // TensorFlow 2.18 does not yet support Python 3.13, and hopefully this will
+  // sort itself out upstream before we have to accomodate for it here.
+  //
+  // Likely, we'll need to compare if `type(obj) == obj.__class__`, and if not,
+  // we will need to concat the class names derived from both. So that, given
+  //   class Dict(wrapt.ObjectProxy): pass; d = Dict({})
+  // we generate an R class vector for d:
+  //   __main__.Dict, wrapt.wrappers.ObjectProxy, python.builtin.dict, python.builtin.object
+  // It's not clear this is possible yet without direct comparison to a reified `wrapt.ObjectProxy`,
+  // (and special-casing support for wrapt.ObjectProxy, not metaclasses in general)
+  // and doing that efficiently and robustly on this hot code path is not worth the effort yet.
+  // Will wait for TF 2.19 and see if this sorts itself out upstream.
+
   PyObject* type = (PyObject*) Py_TYPE(object);
   if (type == NULL)
     // this code path gets heavily excercised by py_fetch_error()
@@ -2851,7 +2877,7 @@ SEXP main_process_python_info_unix() {
   // read Python program path
   std::string python_path;
   if (Py_GetVersion()[0] >= '3') {
-    loadSymbol(pLib, "Py_GetProgramFullPath", (void**) &Py_GetProgramFullPath);
+    loadSymbol(pLib, "Py_GetProgramFullPath", (void**) &Py_GetProgramFullPath); // deprecated in 3.13
     const std::wstring wide_python_path(Py_GetProgramFullPath());
     python_path = to_string(wide_python_path);
   } else {
@@ -2904,12 +2930,13 @@ void py_initialize(const std::string& python,
                    const std::string& libpython,
                    const std::string& pythonhome,
                    const std::string& virtualenv_activate,
-                   bool python3,
+                   int python_major_version,
+                   int python_minor_version,
                    bool interactive,
                    const std::string& numpy_load_error) {
 
   // set python3 and interactive flags
-  s_isPython3 = python3;
+  s_isPython3 = python_major_version == 3;
   s_isInteractive = interactive;
 
   if(!s_isPython3)
@@ -2917,7 +2944,7 @@ void py_initialize(const std::string& python,
 
   // load the library
   std::string err;
-  if (!libPython().load(libpython, is_python3(), &err))
+  if (!libPython().load(libpython, python_major_version, python_minor_version, &err))
     stop(err);
 
   if (is_python3()) {

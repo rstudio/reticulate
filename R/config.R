@@ -896,7 +896,7 @@ python_config <- function(python,
     executable           = config$Executable, # sys.executable
     base_executable      = config$BaseExecutable, # sys._base_executable; exe for venv starter
     version_string       = version_string,
-    version              = version,
+    version              = as.package_version(version),
     architecture         = architecture,
     anaconda             = anaconda,
     conda                = config$IsConda,

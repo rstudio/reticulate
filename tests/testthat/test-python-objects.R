@@ -87,6 +87,7 @@ class List(Sequence, list):
 test_that("wrapt.ProxyObject dicts can be converted", {
   skip_if_no_python()
   skip_if(!py_module_available("wrapt"))
+  skip_if(py_version() >= "3.13")
 
   # something similar to tensorflow _DictWrapper() class
   # https://github.com/tensorflow/tensorflow/blob/r2.12/tensorflow/python/trackable/data_structures.py#L784

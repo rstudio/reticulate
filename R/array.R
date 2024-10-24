@@ -89,10 +89,7 @@ length.numpy.ndarray <- function(x) {
 #' }
 #' @export
 array_reshape <- function(x, dim, order = c("C", "F")) {
-  np <- import("numpy", convert = FALSE)
   order <- match.arg(order)
-  reshaped <- np$reshape(x, as.integer(dim), order = order)
-  if (!is_py_object(x))
-    reshaped <- py_to_r(reshaped)
-  reshaped
+  np <- import("numpy", convert = !is_py_object(x))
+  np$reshape(x, as.integer(dim), order = order)
 }

@@ -129,8 +129,10 @@ public:
     SEXP xptr = Rf_findVarInFrame(get_refenv(), sym_pyobj);
     if(TYPEOF(xptr) == EXTPTRSXP)
       return ((PyObject*) R_ExternalPtrAddr(xptr) == NULL);
-    if(xptr == R_UnboundValue || xptr == R_NilValue)
-      return true; // return true for lazy module proxy
+    if(xptr == R_UnboundValue)
+      return false; // return false for lazy module proxy
+    if(xptr == R_NilValue)
+      return true; // ??? manually finalized obj? ??? should never happen ???
     return false; // should never happen
   }
 

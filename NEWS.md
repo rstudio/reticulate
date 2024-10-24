@@ -1,5 +1,7 @@
 # reticulate (development version)
 
+- `[[` now loads delayed modules (#1688).
+
 - Fixed error when attempting to use a python venv created with `uv` (#1678)
 
 - Fixed error where `py_discover_config()` attempted to detect

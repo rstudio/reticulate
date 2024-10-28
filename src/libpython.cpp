@@ -188,6 +188,18 @@ int _PyIter_Check(PyObject* o) {
   return PyObject_HasAttrString(o, "__next__");
 }
 
+int _PyObject_GetOptionalAttrString(PyObject* obj, const char* attr_name, PyObject** result) {
+  *result = PyObject_GetAttrString(obj, attr_name);
+  if (*result == NULL) {
+    if (PyErr_ExceptionMatches(PyExc_AttributeError)) {
+      PyErr_Clear();
+      return 0;
+    }
+    return -1;
+  }
+  return 1;
+}
+
 
 bool LibPython::loadSymbols(int python_major_ver, int python_minor_ver, std::string* pError)
 {
@@ -210,6 +222,13 @@ bool LibPython::loadSymbols(int python_major_ver, int python_minor_ver, std::str
   LOAD_PYTHON_SYMBOL(PyObject_SetAttr)
   LOAD_PYTHON_SYMBOL(PyObject_GetAttrString)
   LOAD_PYTHON_SYMBOL(PyObject_HasAttrString)
+  if (python_major_ver >= 3 && python_minor_ver >= 13) {
+    LOAD_PYTHON_SYMBOL(PyObject_HasAttrStringWithError)
+    LOAD_PYTHON_SYMBOL(PyObject_GetOptionalAttrString)
+  } else {
+    LOAD_PYTHON_SYMBOL_AS(PyObject_HasAttrStringWithError, PyObject_HasAttrString)
+    PyObject_GetOptionalAttrString = &_PyObject_GetOptionalAttrString;
+  }
   LOAD_PYTHON_SYMBOL(PyObject_SetAttrString)
   LOAD_PYTHON_SYMBOL(PyObject_GetItem)
   LOAD_PYTHON_SYMBOL(PyObject_SetItem)

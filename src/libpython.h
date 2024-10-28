@@ -260,6 +260,11 @@ LIBPYTHON_EXTERN PyObject* (*PyObject_GetAttrString)(PyObject*, const char *);
 LIBPYTHON_EXTERN int (*PyObject_HasAttrString)(PyObject*, const char *);
 LIBPYTHON_EXTERN int (*PyObject_SetAttrString)(PyObject*, const char *, PyObject*);
 
+// added in Python 3.13
+LIBPYTHON_EXTERN int (*PyObject_HasAttrStringWithError)(PyObject*, const char *);
+LIBPYTHON_EXTERN int (*PyObject_GetOptionalAttrString)(PyObject* obj, const char* attr_name, PyObject** result);
+
+
 LIBPYTHON_EXTERN PyObject* (*PyObject_GetItem)(PyObject*, PyObject*);
 LIBPYTHON_EXTERN int (*PyObject_SetItem)(PyObject*, PyObject*, PyObject*);
 LIBPYTHON_EXTERN int (*PyObject_DelItem)(PyObject*, PyObject*);

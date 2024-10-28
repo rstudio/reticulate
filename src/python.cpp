@@ -563,32 +563,87 @@ bool was_python_initialized_by_reticulate() {
   return s_was_python_initialized_by_reticulate;
 }
 
+namespace {
+const std::string PYTHON_BUILTIN = "python.builtin";
 
+std::string get_module_name(PyObject* classPtr) {
+   // Can't throw exceptions here, since we hit this while fetching exceptions.
+    PyObject* moduleObj;
+    switch (PyObject_GetOptionalAttrString(classPtr, "__module__", &moduleObj)) {
+    case 1: break;
+    case 0: return "";
+    case -1:
+      // REprintf("fetching __module__ raised exception\n");
+      // if (PyErr_Occurred()) PyErr_Print();
+      PyErr_Clear();
+      return "";
+    }
 
-
-std::string as_r_class(PyObject* classPtr) {
-
-  PyObjectPtr namePtr(PyObject_GetAttrString(classPtr, "__name__"));
-  std::ostringstream ostr;
-  std::string module;
-
-  PyObjectPtr modulePtr(PyObject_GetAttrString(classPtr, "__module__"));
-  if (modulePtr) {
-    module = as_std_string(modulePtr) + ".";
-    std::string builtin("__builtin__"); // python2 only?
-    if (module.find(builtin) == 0)
-      module.replace(0, builtin.length(), "python.builtin");
-    std::string builtins("builtins");
-    if (module.find(builtins) == 0)
-      module.replace(0, builtins.length(), "python.builtin");
-  } else {
-    PyErr_Clear();
-    module = "python.builtin.";
+    PyObjectPtr modulePtr(moduleObj);
+    if (PyUnicode_Check(moduleObj)) {
+      const char* moduleStr = PyUnicode_AsUTF8(moduleObj);
+      if (moduleStr == NULL) {
+        // if (PyErr_Occurred()) PyErr_Print();
+        // REprintf("as_r_class(): failed to convert __module__ unicode object to string\n");
+        PyErr_Clear();
+        return "";
+      }
+      if (strcmp(moduleStr, "builtins") == 0) {
+        return PYTHON_BUILTIN;
+      } else {
+        std::string module(moduleStr);
+        return module;
+      }
   }
 
-  ostr << module << as_std_string(namePtr);
-  return ostr.str();
+    // if (PyErr_Occurred()) PyErr_Print();
+    // REprintf("__module__ not a string\n");
+    // fallback for when __module__ is not a python string.
+    // E.g., a property obj of a metacalss (wrapt.ProxyObject)
+    // We can maybe try harder if type(class) != type and fetch
+    // type(class).__module__.
+    return "";
+}
 
+std::string get_class_name(PyObject* classPtr) {
+   // Can't throw exceptions here, since we hit this while fetching exceptions.
+    PyObject* nameObj;
+    switch (PyObject_GetOptionalAttrString(classPtr, "__name__", &nameObj)) {
+    case 1: break;
+    case 0: return "<missing-python-type-name>";
+    case -1:
+        // REprintf("fetching __name__ raised exception\n");
+        // if (PyErr_Occurred()) PyErr_Print();
+        PyErr_Clear();
+        return "<missing-python-type-name>";
+    }
+
+    PyObjectPtr namePtr(nameObj);
+    if (PyUnicode_Check(nameObj)) {
+        const char* nameStr = PyUnicode_AsUTF8(nameObj);
+        if (nameStr == NULL) {
+            // if (PyErr_Occurred()) PyErr_Print();
+            // REprintf("as_r_class(): failed to convert __name__ unicode object to string\n");
+            PyErr_Clear();
+            return "<missing-python-type-name>";
+        }
+        std::string name(nameStr);
+        return name;
+    }
+
+    // if (PyErr_Occurred()) PyErr_Print();
+    // REprintf("__name__ not a string\n");
+    PyErr_Clear();
+    return "<missing-python-type-name>";
+}
+
+}  // anonymous namespace
+
+std::string as_r_class(PyObject* classObj) {
+    std::string module(get_module_name(classObj));
+    std::string name(get_class_name(classObj));
+
+    return module.empty() ? name : module + '.' + name;
 }
 
 SEXP py_class_names(PyObject* object, bool exception) {
@@ -606,12 +661,12 @@ SEXP py_class_names(PyObject* object, bool exception) {
   // metaclass construction in Python 3.13 has changed, and now when iterating
   // over [cls.__module__ in inspect.getmro(type(obj))], the __module__
   // objects are `property` objects that can't be evaluated (not bound to an
-  // instance, and often, evaluating them anyway with propert.fget(obj) raises
+  // instance, and often, evaluating them anyway with property.fget(obj) raises
   // an exception.
   //
-  // It seems that defining something like `class Foo(wrapt.ObjectProxy): pass`,
+  // It seems that when defining something like `class Foo(wrapt.ObjectProxy): pass`,
   // there is then no way to get back the actual Foo.__module__, only the
-  // module name of the instance, with the appropriate gymnastics.
+  // module name of the proxied object instance, with the appropriate gymnastics.
   //
   // TensorFlow 2.18 does not yet support Python 3.13, and hopefully this will
   // sort itself out upstream before we have to accomodate for it here.
@@ -627,30 +682,34 @@ SEXP py_class_names(PyObject* object, bool exception) {
   // Will wait for TF 2.19 and see if this sorts itself out upstream.
 
   PyObject* type = (PyObject*) Py_TYPE(object);
-  if (type == NULL)
+  if (type == NULL) {
+
     // this code path gets heavily excercised by py_fetch_error()
     // Something going wrong here, then py_fetch_error() will be of no help.
     // Fortunatly, an Exception here should be an exceedingly rare occurance.
+    if (PyErr_Occurred()) PyErr_Print();
     Rcpp::stop("Unable to resolve PyObject type.");
-    // throw PythonException(py_fetch_error());
+  }
 
   // call inspect.getmro to get the class and it's bases in
   // method resolution order
-  static PyObject* getmro = NULL;
-  if (getmro == NULL) {
+  static PyObject* getmro = []() -> PyObject* {
     PyObjectPtr inspect(py_import("inspect"));
     if (inspect.is_null())
       throw PythonException(py_fetch_error());
 
-    getmro = PyObject_GetAttrString(inspect, "getmro");
+    PyObject* getmro = PyObject_GetAttrString(inspect, "getmro");
     if (getmro == NULL)
       throw PythonException(py_fetch_error());
-  }
+
+    return getmro;
+  }();
 
   PyObjectPtr classes(PyObject_CallFunctionObjArgs(getmro, type, NULL));
-  if (classes.is_null())
+  if (classes.is_null()) {
+    if (PyErr_Occurred()) PyErr_Print();
     Rcpp::stop("Exception raised by 'inspect.getmro(<pyobj>)'; unable to build R 'class' attribute");
-    // throw PythonException(py_fetch_error());
+  }
 
   // start adding class names
   std::vector<std::string> classNames;

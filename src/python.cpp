@@ -565,6 +565,7 @@ bool was_python_initialized_by_reticulate() {
 
 namespace {
 const std::string PYTHON_BUILTIN = "python.builtin";
+const std::string UNRESOLVABLE_NAME = "<missing-python-type-name>";
 
 class ScopedAssign {
     bool& flag;
@@ -579,7 +580,7 @@ public:
 };
 
 std::string get_module_name(PyObject* classPtr) {
-   // Can't throw exceptions here, since we hit this while fetching exceptions.
+    // Can't throw exceptions here, since we call this while unwinding due to an exception.
     PyObject* moduleObj;
     switch (PyObject_GetOptionalAttrString(classPtr, "__module__", &moduleObj)) {
     case 1: break;
@@ -642,16 +643,16 @@ std::string get_module_name(PyObject* classPtr) {
 }
 
 std::string get_class_name(PyObject* classPtr) {
-   // Can't throw exceptions here, since we hit this while fetching exceptions.
+    // Can't throw exceptions here, since we call this while unwinding due to an exception.
     PyObject* nameObj;
     switch (PyObject_GetOptionalAttrString(classPtr, "__name__", &nameObj)) {
     case 1: break;
-    case 0: return "<missing-python-type-name>";
+    case 0: return UNRESOLVABLE_NAME;
     case -1:
         // REprintf("fetching __name__ raised exception\n");
         // if (PyErr_Occurred()) PyErr_Print();
         PyErr_Clear();
-        return "<missing-python-type-name>";
+        return UNRESOLVABLE_NAME;
     }
 
     PyObjectPtr namePtr(nameObj);
@@ -661,7 +662,7 @@ std::string get_class_name(PyObject* classPtr) {
             // if (PyErr_Occurred()) PyErr_Print();
             // REprintf("as_r_class(): failed to convert __name__ unicode object to string\n");
             PyErr_Clear();
-            return "<missing-python-type-name>";
+            return UNRESOLVABLE_NAME;
         }
         std::string name(nameStr);
         return name;
@@ -670,7 +671,7 @@ std::string get_class_name(PyObject* classPtr) {
     // if (PyErr_Occurred()) PyErr_Print();
     // REprintf("__name__ not a string\n");
     PyErr_Clear();
-    return "<missing-python-type-name>";
+    return UNRESOLVABLE_NAME;
 }
 
 }  // anonymous namespace

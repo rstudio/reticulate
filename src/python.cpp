@@ -594,7 +594,23 @@ std::string get_module_name(PyObject* classPtr) {
         std::string module(moduleStr);
         return module;
       }
-  }
+    }
+
+    if (PyBytes_Check(moduleObj)) {
+      // I'm pretty sure this only happened in Python 2, but we keep the check in case not.
+      Py_ssize_t size;
+      char* moduleStr;
+      if (PyBytes_AsStringAndSize(moduleObj, &moduleStr, &size) == 0) {
+        if (strcmp(moduleStr, "__builtin__") == 0) {
+          return PYTHON_BUILTIN;
+        }
+        std::string module(moduleStr, size);
+        return module;
+      }
+      if (PyErr_Occurred()) PyErr_Print();
+      REprintf("as_r_class: failed to convert __module__ bytes object to string\n");
+      return NULL;
+    }
 
     // if (PyErr_Occurred()) PyErr_Print();
     // REprintf("__module__ not a string\n");

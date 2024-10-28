@@ -83,7 +83,13 @@
 
     <div class="section level2">
 <h2 class="page-header" data-toc-text="development version" id="reticulate-development-version">reticulate (development version)<a class="anchor" aria-label="anchor" href="#reticulate-development-version"></a></h2>
-<ul><li><p><code><a href="../reference/py_is_null_xptr.html">py_is_null_xptr()</a></code> and <code>[[</code> now load delayed modules (<a href="https://github.com/rstudio/reticulate/issues/1688" class="external-link">#1688</a>).</p></li>
+<ul><li>
+<p>The S3 classes for some (rarely encountered) Python objects have changed. Only Python objects with non-standard <code>__module__</code> values are affected. If a Python object’s parent class’s <code>__module__</code> attribute does not resolve to a string, reticulate:</p>
+<ul><li>Attempts to resolve it from the class’s class, if it’s a metaclass.</li>
+<li>If no string can be resolved, reticulate no longer implicitly prepends ‘python.builtin.’ as the class prefix, instead it uses just the <code>__name__</code>. (See <a href="https://github.com/rstudio/reticulate/issues/1686" class="external-link">#1686</a> for more context)</li>
+</ul></li>
+<li><p>Added support for Python 3.13. Note that Python 3.13 removed support for <code>classmethod</code> descriptors, which may affect the S3 class of some Python objects that use metaclass properties to resolve a class’s <code>__module__</code> or <code>__name__</code> attribute. (<a href="https://github.com/rstudio/reticulate/issues/1686" class="external-link">#1686</a>)</p></li>
+<li><p><code><a href="../reference/py_is_null_xptr.html">py_is_null_xptr()</a></code> and <code>[[</code> now load delayed modules (<a href="https://github.com/rstudio/reticulate/issues/1688" class="external-link">#1688</a>).</p></li>
 <li><p>Fixed error when attempting to use a python venv created with <code>uv</code> (<a href="https://github.com/rstudio/reticulate/issues/1678" class="external-link">#1678</a>)</p></li>
 <li><p>Fixed error where <code><a href="../reference/py_discover_config.html">py_discover_config()</a></code> attempted to detect Windows App Store Python installations, which are now excluded from discovery by both <code><a href="../reference/py_discover_config.html">py_discover_config()</a></code> and <code><a href="../reference/virtualenv-tools.html">virtualenv_starter()</a></code> (<a href="https://github.com/rstudio/reticulate/issues/1656" class="external-link">#1656</a>, <a href="https://github.com/rstudio/reticulate/issues/1673" class="external-link">#1673</a>).</p></li>
 <li><p>Fixed error when converting an empty NumPy char array to R (<a href="https://github.com/rstudio/reticulate/issues/1662" class="external-link">#1662</a>).</p></li>

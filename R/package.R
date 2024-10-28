@@ -204,7 +204,8 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
                     config$libpython,
                     config$pythonhome,
                     config$virtualenv_activate,
-                    config$version >= "3.0",
+                    config$version$major,
+                    config$version$minor,
                     interactive(),
                     numpy_load_error)
 

@@ -100,10 +100,39 @@ assert isinstance(Dict({}), dict)
 
 ")$Dict
 
-  expect_contains(class(Dict(dict())),
-                  c("__main__.Dict",
-                    "python.builtin.ObjectProxy",
-                    "python.builtin.object"))
+  classes <- class(Dict(dict()))
+  # This unit test is somewhat clunky because in Python 3.13, the precedence
+  # between class data descriptors and regular attributes has changed. This has
+  # consequences for classes like wrapt.ObjectProxy that use metaclasses in
+  # __new__ in two ways:
+  #
+  # 1. Dict.__module__ fails to resolve correctly
+  # 2. inspect.getmro(Dict) return value changes.
+  #
+  # Python < 3.13:
+  # - Dict.__module__ returns "__main__" correctly.
+  # - inspect.getmro(type(Dict({})) does not contain `NewBase`
+  # - We can build an R class vector as:
+  #     classes <- c("__main__.Dict", "ObjectProxy", "python.builtin.object")
+  #
+  # Python >= 3.13:
+  # - Dict.__module__ returns <property object at 0x133f7e5c0>
+  # - Dict(dict()).__module__ raises:
+  #     AttributeError: 'dict' object has no attribute '__module__'. Did you mean:
+  #     '__reduce__'?
+  # - Note: dict.__module__ still returns 'builtins', the above Exceptoin is a
+  #   metaclass/ObjectProxy issue
+  # - So for metaclasses like this we do the best we can and try to resolve
+  #   __module__ from the type(type(cls)) and build an R class vector as:
+  #      classes <- c("wrapt.wrappers.Dict", "wrapt.wrappers.ObjectProxy", "wrapt.wrappers.NewBase",
+  #                   "python.builtin.object")
+  #   (we could instead fail earlier and instead build:
+  #      classes <- c("Dict", "ObjectProxy", "NewBase", "python.builtin.object")
+  #    it's not clear which is a better approach)
+
+  expect_true(grepl("Dict$", classes[1]))
+  expect_true(grepl("ObjectProxy$", classes[2]))
+  expect_equal(tail(classes, 1), "python.builtin.object")
 
   x <- list("abc" = 1:3)
   py_bt_dict <- import_builtins()$dict

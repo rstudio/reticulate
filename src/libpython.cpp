@@ -159,6 +159,7 @@ void initialize_type_objects(bool python3) {
   if (builtins == NULL) goto error;
   PyExc_KeyboardInterrupt = PyObject_GetAttrString(builtins, "KeyboardInterrupt"); // new ref
   PyExc_RuntimeError = PyObject_GetAttrString(builtins, "RuntimeError"); // new ref
+  PyExc_AttributeError = PyObject_GetAttrString(builtins, "AttributeError"); // new ref
 
   if (PyErr_Occurred()) { error:
      // Should never happen. If you see this please report a bug.
@@ -174,12 +175,12 @@ if (!loadSymbol(pLib_, #name, (void**)&as, pError)) \
 if (!loadSymbol(pLib_, #name, (void**) &libpython::name, pError)) \
   return false;
 
-bool SharedLibrary::load(const std::string& libPath, bool python3, std::string* pError)
+bool SharedLibrary::load(const std::string& libPath, int major_ver, int minor_ver, std::string* pError)
 {
   if (!loadLibrary(libPath, &pLib_, pError))
     return false;
 
-  return loadSymbols(python3, pError);
+  return loadSymbols(major_ver, minor_ver, pError);
 }
 
 // Define "slow" fallback implementation for Py version <= 3.9
@@ -187,15 +188,27 @@ int _PyIter_Check(PyObject* o) {
   return PyObject_HasAttrString(o, "__next__");
 }
 
+int _PyObject_GetOptionalAttrString(PyObject* obj, const char* attr_name, PyObject** result) {
+  *result = PyObject_GetAttrString(obj, attr_name);
+  if (*result == NULL) {
+    if (PyErr_ExceptionMatches(PyExc_AttributeError)) {
+      PyErr_Clear();
+      return 0;
+    }
+    return -1;
+  }
+  return 1;
+}
 
-bool LibPython::loadSymbols(bool python3, std::string* pError)
+
+bool LibPython::loadSymbols(int python_major_ver, int python_minor_ver, std::string* pError)
 {
   bool is64bit = sizeof(size_t) >= 8;
 
   LOAD_PYTHON_SYMBOL(Py_InitializeEx)
   LOAD_PYTHON_SYMBOL(Py_Finalize)
   LOAD_PYTHON_SYMBOL(Py_IsInitialized)
-  LOAD_PYTHON_SYMBOL(Py_GetVersion)
+  LOAD_PYTHON_SYMBOL(Py_GetVersion)          // Deprecated in 3.13
   LOAD_PYTHON_SYMBOL(Py_AddPendingCall)
   LOAD_PYTHON_SYMBOL(Py_MakePendingCalls)
   LOAD_PYTHON_SYMBOL(PyErr_SetInterrupt)
@@ -209,6 +222,13 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
   LOAD_PYTHON_SYMBOL(PyObject_SetAttr)
   LOAD_PYTHON_SYMBOL(PyObject_GetAttrString)
   LOAD_PYTHON_SYMBOL(PyObject_HasAttrString)
+  if (python_major_ver >= 3 && python_minor_ver >= 13) {
+    LOAD_PYTHON_SYMBOL(PyObject_HasAttrStringWithError)
+    LOAD_PYTHON_SYMBOL(PyObject_GetOptionalAttrString)
+  } else {
+    LOAD_PYTHON_SYMBOL_AS(PyObject_HasAttrStringWithError, PyObject_HasAttrString)
+    PyObject_GetOptionalAttrString = &_PyObject_GetOptionalAttrString;
+  }
   LOAD_PYTHON_SYMBOL(PyObject_SetAttrString)
   LOAD_PYTHON_SYMBOL(PyObject_GetItem)
   LOAD_PYTHON_SYMBOL(PyObject_SetItem)
@@ -314,9 +334,9 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
   if (!loadSymbol(pLib_, names, (void**)&PyUnicode_AsEncodedString, pError) )
     return false;
 
-  if (python3) {
+  if (python_major_ver >= 3) {
     LOAD_PYTHON_SYMBOL(PyException_SetTraceback)
-    LOAD_PYTHON_SYMBOL(Py_GetProgramFullPath)
+    LOAD_PYTHON_SYMBOL(Py_GetProgramFullPath)   // Deprecated in 3.13
 
     // Debug versions of Python will provide PyModule_Create2TraceRefs,
     // while release versions will provide PyModule_Create
@@ -346,7 +366,7 @@ bool LibPython::loadSymbols(bool python3, std::string* pError)
     } else {
       LOAD_PYTHON_SYMBOL(Py_InitModule4)
     }
-    LOAD_PYTHON_SYMBOL_AS(Py_GetProgramFullPath, Py_GetProgramFullPath_v2)
+    LOAD_PYTHON_SYMBOL_AS(Py_GetProgramFullPath, Py_GetProgramFullPath_v2)  // Deprecated in 3.13
     LOAD_PYTHON_SYMBOL(PyString_AsStringAndSize)
     LOAD_PYTHON_SYMBOL(PyString_FromStringAndSize)
     LOAD_PYTHON_SYMBOL(PyString_FromString)

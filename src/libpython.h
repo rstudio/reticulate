@@ -145,6 +145,7 @@ LIBPYTHON_EXTERN PyObject* Py_Tuple;
 LIBPYTHON_EXTERN PyObject* Py_Complex;
 LIBPYTHON_EXTERN PyObject* Py_ByteArray;
 LIBPYTHON_EXTERN PyObject* PyExc_KeyboardInterrupt;
+LIBPYTHON_EXTERN PyObject* PyExc_AttributeError;
 LIBPYTHON_EXTERN PyObject* PyExc_RuntimeError;
 LIBPYTHON_EXTERN PyObject* PyExc_ValueError;
 
@@ -258,6 +259,11 @@ LIBPYTHON_EXTERN int (*PyObject_SetAttr)(PyObject*, PyObject*, PyObject*);
 LIBPYTHON_EXTERN PyObject* (*PyObject_GetAttrString)(PyObject*, const char *);
 LIBPYTHON_EXTERN int (*PyObject_HasAttrString)(PyObject*, const char *);
 LIBPYTHON_EXTERN int (*PyObject_SetAttrString)(PyObject*, const char *, PyObject*);
+
+// added in Python 3.13
+LIBPYTHON_EXTERN int (*PyObject_HasAttrStringWithError)(PyObject*, const char *);
+LIBPYTHON_EXTERN int (*PyObject_GetOptionalAttrString)(PyObject* obj, const char* attr_name, PyObject** result);
+
 
 LIBPYTHON_EXTERN PyObject* (*PyObject_GetItem)(PyObject*, PyObject*);
 LIBPYTHON_EXTERN int (*PyObject_SetItem)(PyObject*, PyObject*, PyObject*);
@@ -636,12 +642,12 @@ bool import_numpy_api(bool python3, std::string* pError);
 class SharedLibrary {
 
 public:
-  bool load(const std::string& libPath, bool python3, std::string* pError);
+  bool load(const std::string& libPath, int major_ver, int minor_ver, std::string* pError);
   bool unload(std::string* pError);
   virtual ~SharedLibrary() {}
 
 private:
-  virtual bool loadSymbols(bool python3, std::string* pError) = 0;
+  virtual bool loadSymbols(int major_ver, int minor_ver, std::string* pError) = 0;
 
 protected:
   SharedLibrary() : pLib_(NULL) {}
@@ -656,7 +662,7 @@ class LibPython : public SharedLibrary {
 private:
   LibPython() : SharedLibrary() {}
   friend SharedLibrary& libPython();
-  virtual bool loadSymbols(bool python3, std::string* pError);
+  virtual bool loadSymbols(int major_ver, int minor_ver, std::string* pError);
 };
 
 inline SharedLibrary& libPython() {

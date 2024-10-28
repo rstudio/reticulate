@@ -563,32 +563,124 @@ bool was_python_initialized_by_reticulate() {
   return s_was_python_initialized_by_reticulate;
 }
 
+namespace {
+const std::string PYTHON_BUILTIN = "python.builtin";
+const std::string UNRESOLVABLE_NAME = "<missing-python-type-name>";
 
+class ScopedAssign {
+    bool& flag;
+    bool oldValue;
+public:
+    explicit ScopedAssign(bool* f, bool newValue) : flag(*f), oldValue(*f) {
+        flag = newValue;
+    }
+    ~ScopedAssign() {
+        flag = oldValue;
+    }
+};
 
+std::string get_module_name(PyObject* classPtr) {
+    // Can't throw exceptions here, since we call this while unwinding due to an exception.
+    PyObject* moduleObj;
+    switch (PyObject_GetOptionalAttrString(classPtr, "__module__", &moduleObj)) {
+    case 1: break;
+    case 0: return "";
+    case -1:
+      // REprintf("fetching __module__ raised exception\n");
+      // if (PyErr_Occurred()) PyErr_Print();
+      PyErr_Clear();
+      return "";
+    }
 
-std::string as_r_class(PyObject* classPtr) {
+    PyObjectPtr modulePtr(moduleObj);
+    if (PyUnicode_Check(moduleObj)) {
+      const char* moduleStr = PyUnicode_AsUTF8(moduleObj);
+      if (moduleStr == NULL) {
+        // if (PyErr_Occurred()) PyErr_Print();
+        // REprintf("as_r_class(): failed to convert __module__ unicode object to string\n");
+        PyErr_Clear();
+        return "";
+      }
+      if (strcmp(moduleStr, "builtins") == 0) {
+        return PYTHON_BUILTIN;
+      } else {
+        std::string module(moduleStr);
+        return module;
+      }
+    }
 
-  PyObjectPtr namePtr(PyObject_GetAttrString(classPtr, "__name__"));
-  std::ostringstream ostr;
-  std::string module;
+    if (PyBytes_Check(moduleObj)) {
+      // I'm pretty sure this only happened in Python 2, but we keep the check in case not.
+      Py_ssize_t size;
+      char* moduleStr;
+      if (PyBytes_AsStringAndSize(moduleObj, &moduleStr, &size) == 0) {
+        if (strcmp(moduleStr, "__builtin__") == 0) {
+          return PYTHON_BUILTIN;
+        }
+        std::string module(moduleStr, size);
+        return module;
+      }
+      if (PyErr_Occurred()) PyErr_Print();
+      REprintf("as_r_class: failed to convert __module__ bytes object to string\n");
+      return NULL;
+    }
 
-  PyObjectPtr modulePtr(PyObject_GetAttrString(classPtr, "__module__"));
-  if (modulePtr) {
-    module = as_std_string(modulePtr) + ".";
-    std::string builtin("__builtin__"); // python2 only?
-    if (module.find(builtin) == 0)
-      module.replace(0, builtin.length(), "python.builtin");
-    std::string builtins("builtins");
-    if (module.find(builtins) == 0)
-      module.replace(0, builtins.length(), "python.builtin");
-  } else {
+    // Fallback, if type(class) != type (i.e., it's a metaclass),
+    // try to to fetch type(class).__module__. But make sure we're not recursing more than once
+    static bool recursing = false;
+    if (!recursing && !PyType_CheckExact(classPtr)) {
+      auto _recursion_guard = ScopedAssign(&recursing, true);
+      return get_module_name((PyObject*) Py_TYPE(classPtr));
+    }
+
+    // if (PyErr_Occurred()) PyErr_Print();
+    // REprintf("__module__ not a string\n");
+    // fallback for when __module__ is not a python string, or resolvable
+    // from type(cls).__module__.
+    // Note, we don't want to throw an exception here, as this is a hot code path
+    // excercised heavily when already handling exceptions.
+    return "";
+}
+
+std::string get_class_name(PyObject* classPtr) {
+    // Can't throw exceptions here, since we call this while unwinding due to an exception.
+    PyObject* nameObj;
+    switch (PyObject_GetOptionalAttrString(classPtr, "__name__", &nameObj)) {
+    case 1: break;
+    case 0: return UNRESOLVABLE_NAME;
+    case -1:
+        // REprintf("fetching __name__ raised exception\n");
+        // if (PyErr_Occurred()) PyErr_Print();
+        PyErr_Clear();
+        return UNRESOLVABLE_NAME;
+    }
+
+    PyObjectPtr namePtr(nameObj);
+    if (PyUnicode_Check(nameObj)) {
+        const char* nameStr = PyUnicode_AsUTF8(nameObj);
+        if (nameStr == NULL) {
+            // if (PyErr_Occurred()) PyErr_Print();
+            // REprintf("as_r_class(): failed to convert __name__ unicode object to string\n");
+            PyErr_Clear();
+            return UNRESOLVABLE_NAME;
+        }
+        std::string name(nameStr);
+        return name;
+    }
+
+    // if (PyErr_Occurred()) PyErr_Print();
+    // REprintf("__name__ not a string\n");
     PyErr_Clear();
-    module = "python.builtin.";
-  }
+    return UNRESOLVABLE_NAME;
+}
 
-  ostr << module << as_std_string(namePtr);
-  return ostr.str();
+}  // anonymous namespace
 
+std::string as_r_class(PyObject* classObj) {
+    std::string module(get_module_name(classObj));
+    std::string name(get_class_name(classObj));
+
+    return module.empty() ? name : module + '.' + name;
 }
 
 SEXP py_class_names(PyObject* object, bool exception) {
@@ -600,31 +692,63 @@ SEXP py_class_names(PyObject* object, bool exception) {
   // In CPython, the definition of Py_TYPE() changed in Python 3.10
   // from a macro with no return type to a inline static function returning PyTypeObject*.
   // for back compat, we continue to define Py_TYPE as a macro in reticulate/src/libpython.h
+
+  // Note in Python 3.13, building the class character vector for
+  // `wrapt.ObjectProxy()` instances broke/changed yet again. Attribute access and
+  // metaclass construction in Python 3.13 has changed, because support for
+  // classmethod descriptors was removed. In Python 3.13, when iterating
+  // over [cls.__module__ in inspect.getmro(type(obj))], the __module__
+  // objects are `property` objects that can't be evaluated (not bound to an
+  // instance, and, evaluating them anyway with property.fget(obj) raises
+  // an exception.
+  //
+  // It seems that in 3.13, when defining a class that subclasses a class that
+  // uses a metaclass, like `class Foo(wrapt.ObjectProxy): pass`,
+  // there is then no way to get back the actual Foo.__module__, only the
+  // module name of the proxied object instance, with the appropriate gymnastics.
+  //
+  // TensorFlow 2.18 does not yet support Python 3.13, and hopefully this will
+  // sort itself out upstream before we have to accomodate for it here.
+  //
+  // We might end up needing to compare if `type(obj) == obj.__class__`, and if not,
+  // we will need to concat the class names derived from both. So that, given
+  //   class Dict(wrapt.ObjectProxy): pass; d = Dict({})
+  // Ideally, we generate an R class vector for d:
+  //   __main__.Dict, wrapt.wrappers.ObjectProxy, python.builtin.dict, python.builtin.object
+  // It's not clear this is possible yet without direct comparison of `id` to a reified `wrapt.ObjectProxy`,
+  // (and special-casing support for wrapt.ObjectProxy, not metaclasses in general)
+  // and doing that efficiently and robustly on this hot code path is not worth the effort yet.
+  // Will wait for TF 2.19 and see if this sorts itself out upstream.
+
   PyObject* type = (PyObject*) Py_TYPE(object);
-  if (type == NULL)
+  if (type == NULL) {
+
     // this code path gets heavily excercised by py_fetch_error()
     // Something going wrong here, then py_fetch_error() will be of no help.
     // Fortunatly, an Exception here should be an exceedingly rare occurance.
+    if (PyErr_Occurred()) PyErr_Print();
     Rcpp::stop("Unable to resolve PyObject type.");
-    // throw PythonException(py_fetch_error());
+  }
 
   // call inspect.getmro to get the class and it's bases in
   // method resolution order
-  static PyObject* getmro = NULL;
-  if (getmro == NULL) {
+  static PyObject* getmro = []() -> PyObject* {
     PyObjectPtr inspect(py_import("inspect"));
     if (inspect.is_null())
       throw PythonException(py_fetch_error());
 
-    getmro = PyObject_GetAttrString(inspect, "getmro");
+    PyObject* getmro = PyObject_GetAttrString(inspect, "getmro");
     if (getmro == NULL)
       throw PythonException(py_fetch_error());
-  }
+
+    return getmro;
+  }();
 
   PyObjectPtr classes(PyObject_CallFunctionObjArgs(getmro, type, NULL));
-  if (classes.is_null())
+  if (classes.is_null()) {
+    if (PyErr_Occurred()) PyErr_Print();
     Rcpp::stop("Exception raised by 'inspect.getmro(<pyobj>)'; unable to build R 'class' attribute");
-    // throw PythonException(py_fetch_error());
+  }
 
   // start adding class names
   std::vector<std::string> classNames;
@@ -856,7 +980,8 @@ SEXP py_fetch_error(bool maybe_reuse_cached_r_trace) {
 
   PyObjectPtr pExcType(excType);  // decref on exit
 
-  if (!PyObject_HasAttrString(excValue, "call")) {
+  switch (PyObject_HasAttrStringWithError(excValue, "call")) {
+  case 0:   { // attr missing
     // check if this exception originated in python using the `raise from`
     // statement with an exception that we've already augmented with the full
     // r_trace. (or similarly, raised a new exception inside an `except:` block
@@ -882,16 +1007,27 @@ SEXP py_fetch_error(bool maybe_reuse_cached_r_trace) {
       }
     }
   }
+   case -1: // Exception raised when checking for attr
+     PyErr_Clear();
+   case 1: // has attr
+     break;
+  }
 
 
 
   // make sure the exception object has some some attrs: call, trace
-  if (!PyObject_HasAttrString(excValue, "trace")) {
+  switch (PyObject_HasAttrStringWithError(excValue, "trace")) {
+  case 0: { // attr missing
     SEXP r_trace = PROTECT(get_r_trace(maybe_reuse_cached_r_trace));
     PyObject* r_trace_capsule(py_capsule_new(r_trace));
     PyObject_SetAttrString(excValue, "trace", r_trace_capsule);
     Py_DecRef(r_trace_capsule);
     UNPROTECT(1);
+  }
+  case -1: // Exception raised when checking for attr
+    PyErr_Clear();
+  case 1: // has attr
+    break;
   }
 
   // Otherwise, try to capture the current call.
@@ -901,7 +1037,8 @@ SEXP py_fetch_error(bool maybe_reuse_cached_r_trace) {
   // skip over the actual call of interest, and frequently return NULL
   // for shallow call stacks. So we fetch the call directly
   // using the R API.
-  if (!PyObject_HasAttrString(excValue, "call")) {
+  switch (PyObject_HasAttrStringWithError(excValue, "call")) {
+  case 0: {  // attr present
     // Technically we don't need to protect call, since
     // it would already be protected by it's inclusion in the R callstack,
     // but rchk flags it anyway, and so ...
@@ -909,6 +1046,11 @@ SEXP py_fetch_error(bool maybe_reuse_cached_r_trace) {
     PyObject* r_call_capsule(py_capsule_new(r_call));
     PyObject_SetAttrString(excValue, "call", r_call_capsule);
     Py_DecRef(r_call_capsule);
+  }
+  case -1: // Exception raised when checking for attr
+    PyErr_Clear();
+  case 1: // has attr
+    break;
   }
 
 
@@ -2851,7 +2993,7 @@ SEXP main_process_python_info_unix() {
   // read Python program path
   std::string python_path;
   if (Py_GetVersion()[0] >= '3') {
-    loadSymbol(pLib, "Py_GetProgramFullPath", (void**) &Py_GetProgramFullPath);
+    loadSymbol(pLib, "Py_GetProgramFullPath", (void**) &Py_GetProgramFullPath); // deprecated in 3.13
     const std::wstring wide_python_path(Py_GetProgramFullPath());
     python_path = to_string(wide_python_path);
   } else {
@@ -2904,12 +3046,13 @@ void py_initialize(const std::string& python,
                    const std::string& libpython,
                    const std::string& pythonhome,
                    const std::string& virtualenv_activate,
-                   bool python3,
+                   int python_major_version,
+                   int python_minor_version,
                    bool interactive,
                    const std::string& numpy_load_error) {
 
   // set python3 and interactive flags
-  s_isPython3 = python3;
+  s_isPython3 = python_major_version == 3;
   s_isInteractive = interactive;
 
   if(!s_isPython3)
@@ -2917,7 +3060,7 @@ void py_initialize(const std::string& python,
 
   // load the library
   std::string err;
-  if (!libPython().load(libpython, is_python3(), &err))
+  if (!libPython().load(libpython, python_major_version, python_minor_version, &err))
     stop(err);
 
   if (is_python3()) {
@@ -3218,9 +3361,15 @@ PyObjectRef py_new_ref(PyObjectRef x, SEXP convert) {
 bool py_has_attr(PyObjectRef x, const std::string& name) {
   GILScope _gil;
   PyObject* x_ = x.get(); // ensure python initialized, module proxy resolved
-  return PyObject_HasAttrString(x_, name.c_str());
+  switch (PyObject_HasAttrStringWithError(x_, name.c_str())) {
+  case 1: return true;
+  case 0: return false;
+  case -1:
+  default:
+    PyErr_Clear();
+    return false;
+  }
 }
-
 
 //' Get an attribute of a Python object
 //'

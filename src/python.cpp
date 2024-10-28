@@ -628,7 +628,6 @@ std::string get_module_name(PyObject* classPtr) {
     // try to to fetch type(class).__module__. But make sure we're not recursing more than once
     static bool recursing = false;
     if (!recursing && !PyType_CheckExact(classPtr)) {
-      // get_module_name is marked as noexcept, so recursing = false is guaranteed to be executed
       auto _recursion_guard = ScopedAssign(&recursing, true);
       return get_module_name((PyObject*) Py_TYPE(classPtr));
     }

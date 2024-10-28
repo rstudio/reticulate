@@ -694,26 +694,28 @@ SEXP py_class_names(PyObject* object, bool exception) {
   // for back compat, we continue to define Py_TYPE as a macro in reticulate/src/libpython.h
 
   // Note in Python 3.13, building the class character vector for
-  // `wrapt.ObjectProxy()` instances is broken yet again. Attribute access and
-  // metaclass construction in Python 3.13 has changed, and now when iterating
+  // `wrapt.ObjectProxy()` instances broke/changed yet again. Attribute access and
+  // metaclass construction in Python 3.13 has changed, because support for
+  // classmethod descriptors was removed. In Python 3.13, when iterating
   // over [cls.__module__ in inspect.getmro(type(obj))], the __module__
   // objects are `property` objects that can't be evaluated (not bound to an
-  // instance, and often, evaluating them anyway with property.fget(obj) raises
+  // instance, and, evaluating them anyway with property.fget(obj) raises
   // an exception.
   //
-  // It seems that when defining something like `class Foo(wrapt.ObjectProxy): pass`,
+  // It seems that in 3.13, when defining a class that subclasses a class that
+  // uses a metaclass, like `class Foo(wrapt.ObjectProxy): pass`,
   // there is then no way to get back the actual Foo.__module__, only the
   // module name of the proxied object instance, with the appropriate gymnastics.
   //
   // TensorFlow 2.18 does not yet support Python 3.13, and hopefully this will
   // sort itself out upstream before we have to accomodate for it here.
   //
-  // Likely, we'll need to compare if `type(obj) == obj.__class__`, and if not,
+  // We might end up needing to compare if `type(obj) == obj.__class__`, and if not,
   // we will need to concat the class names derived from both. So that, given
   //   class Dict(wrapt.ObjectProxy): pass; d = Dict({})
-  // we generate an R class vector for d:
+  // Ideally, we generate an R class vector for d:
   //   __main__.Dict, wrapt.wrappers.ObjectProxy, python.builtin.dict, python.builtin.object
-  // It's not clear this is possible yet without direct comparison to a reified `wrapt.ObjectProxy`,
+  // It's not clear this is possible yet without direct comparison of `id` to a reified `wrapt.ObjectProxy`,
   // (and special-casing support for wrapt.ObjectProxy, not metaclasses in general)
   // and doing that efficiently and robustly on this hot code path is not worth the effort yet.
   // Will wait for TF 2.19 and see if this sorts itself out upstream.

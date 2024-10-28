@@ -226,7 +226,7 @@ bool LibPython::loadSymbols(int python_major_ver, int python_minor_ver, std::str
     LOAD_PYTHON_SYMBOL(PyObject_HasAttrStringWithError)
     LOAD_PYTHON_SYMBOL(PyObject_GetOptionalAttrString)
   } else {
-    LOAD_PYTHON_SYMBOL_AS(PyObject_HasAttrStringWithError, PyObject_HasAttrString)
+    LOAD_PYTHON_SYMBOL_AS(PyObject_HasAttrString, PyObject_HasAttrStringWithError)
     PyObject_GetOptionalAttrString = &_PyObject_GetOptionalAttrString;
   }
   LOAD_PYTHON_SYMBOL(PyObject_SetAttrString)

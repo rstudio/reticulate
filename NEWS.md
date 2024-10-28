@@ -2,15 +2,17 @@
 
 - The S3 classes for some (rarely encountered) Python objects have changed.
   Only Python objects with non-standard `__module__` values are affected.
-  If a Python class's `__module__` does not resolve to a string, reticulate:
-    - Attempts to resolve it from the class's class, if it's a metaclass
+  If a Python object’s parent class’s `__module__` attribute does not resolve to a string,
+  reticulate:
+    - Attempts to resolve it from the class's class, if it's a metaclass.
     - If no string can be resolved, reticulate no longer implicitly prepends
       'python.builtin.' as the class prefix, instead it uses just the `__name__`.
+  (See #1686 for more context)
 
-- Added preliminary support for Python 3.13. Note that the behavior of class descriptors
-  has changed in Python 3.13, which affects how metaclasses are constructed
-  and may change the S3 class of some Python objects that make heavy use of metaclasses to
-  resolve a classes `__module__` or `__name__` attribute. (#1686)
+- Added support for Python 3.13. Note that Python 3.13 removed support
+  for `classmethod` descriptors, which may affect the S3 class of
+  some Python objects that use metaclass properties to resolve a class’s
+  `__module__` or `__name__` attribute. (#1686)
 
 - `py_is_null_xptr()` and `[[` now load delayed modules (#1688).
 

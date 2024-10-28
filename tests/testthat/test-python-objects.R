@@ -122,8 +122,13 @@ assert isinstance(Dict({}), dict)
   #     '__reduce__'?
   # - Note: dict.__module__ still returns 'builtins', the above Exceptoin is a
   #   metaclass/ObjectProxy issue
-  # - We do the best we can and build an R class vector as:
-  #     classes <- c("Dict", "ObjectProxy", "NewBase", "python.builtin.object")
+  # - So for metaclasses like this we do the best we can and try to resolve
+  #   __module__ from the type(type(cls)) and build an R class vector as:
+  #      classes <- c("wrapt.wrappers.Dict", "wrapt.wrappers.ObjectProxy", "wrapt.wrappers.NewBase",
+  #                   "python.builtin.object")
+  #   (we could instead fail earlier and instead build:
+  #      classes <- c("Dict", "ObjectProxy", "NewBase", "python.builtin.object")
+  #    it's not clear which is a better approach)
 
   expect_true(grepl("Dict$", classes[1]))
   expect_true(grepl("ObjectProxy$", classes[2]))

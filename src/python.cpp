@@ -566,6 +566,18 @@ bool was_python_initialized_by_reticulate() {
 namespace {
 const std::string PYTHON_BUILTIN = "python.builtin";
 
+class ScopedAssign {
+    bool& flag;
+    bool oldValue;
+public:
+    explicit ScopedAssign(bool* f, bool newValue) : flag(*f), oldValue(*f) {
+        flag = newValue;
+    }
+    ~ScopedAssign() {
+        flag = oldValue;
+    }
+};
+
 std::string get_module_name(PyObject* classPtr) {
    // Can't throw exceptions here, since we hit this while fetching exceptions.
     PyObject* moduleObj;
@@ -612,12 +624,21 @@ std::string get_module_name(PyObject* classPtr) {
       return NULL;
     }
 
+    // Fallback, if type(class) != type (i.e., it's a metaclass),
+    // try to to fetch type(class).__module__. But make sure we're not recursing more than once
+    static bool recursing = false;
+    if (!recursing && !PyType_CheckExact(classPtr)) {
+      // get_module_name is marked as noexcept, so recursing = false is guaranteed to be executed
+      auto _recursion_guard = ScopedAssign(&recursing, true);
+      return get_module_name((PyObject*) Py_TYPE(classPtr));
+    }
+
     // if (PyErr_Occurred()) PyErr_Print();
     // REprintf("__module__ not a string\n");
-    // fallback for when __module__ is not a python string.
-    // E.g., a property obj of a metacalss (wrapt.ProxyObject)
-    // We can maybe try harder if type(class) != type and fetch
-    // type(class).__module__.
+    // fallback for when __module__ is not a python string, or resolvable
+    // from type(cls).__module__.
+    // Note, we don't want to throw an exception here, as this is a hot code path
+    // excercised heavily when already handling exceptions.
     return "";
 }
 

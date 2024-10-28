@@ -882,7 +882,8 @@ SEXP py_fetch_error(bool maybe_reuse_cached_r_trace) {
 
   PyObjectPtr pExcType(excType);  // decref on exit
 
-  if (!PyObject_HasAttrString(excValue, "call")) {
+  switch (PyObject_HasAttrStringWithError(excValue, "call")) {
+  case 0:   { // attr missing
     // check if this exception originated in python using the `raise from`
     // statement with an exception that we've already augmented with the full
     // r_trace. (or similarly, raised a new exception inside an `except:` block
@@ -908,16 +909,27 @@ SEXP py_fetch_error(bool maybe_reuse_cached_r_trace) {
       }
     }
   }
+   case -1: // Exception raised when checking for attr
+     PyErr_Clear();
+   case 1: // has attr
+     break;
+  }
 
 
 
   // make sure the exception object has some some attrs: call, trace
-  if (!PyObject_HasAttrString(excValue, "trace")) {
+  switch (PyObject_HasAttrStringWithError(excValue, "trace")) {
+  case 0: { // attr missing
     SEXP r_trace = PROTECT(get_r_trace(maybe_reuse_cached_r_trace));
     PyObject* r_trace_capsule(py_capsule_new(r_trace));
     PyObject_SetAttrString(excValue, "trace", r_trace_capsule);
     Py_DecRef(r_trace_capsule);
     UNPROTECT(1);
+  }
+  case -1: // Exception raised when checking for attr
+    PyErr_Clear();
+  case 1: // has attr
+    break;
   }
 
   // Otherwise, try to capture the current call.
@@ -927,7 +939,8 @@ SEXP py_fetch_error(bool maybe_reuse_cached_r_trace) {
   // skip over the actual call of interest, and frequently return NULL
   // for shallow call stacks. So we fetch the call directly
   // using the R API.
-  if (!PyObject_HasAttrString(excValue, "call")) {
+  switch (PyObject_HasAttrStringWithError(excValue, "call")) {
+  case 0: {  // attr present
     // Technically we don't need to protect call, since
     // it would already be protected by it's inclusion in the R callstack,
     // but rchk flags it anyway, and so ...
@@ -935,6 +948,11 @@ SEXP py_fetch_error(bool maybe_reuse_cached_r_trace) {
     PyObject* r_call_capsule(py_capsule_new(r_call));
     PyObject_SetAttrString(excValue, "call", r_call_capsule);
     Py_DecRef(r_call_capsule);
+  }
+  case -1: // Exception raised when checking for attr
+    PyErr_Clear();
+  case 1: // has attr
+    break;
   }
 
 
@@ -3245,9 +3263,15 @@ PyObjectRef py_new_ref(PyObjectRef x, SEXP convert) {
 bool py_has_attr(PyObjectRef x, const std::string& name) {
   GILScope _gil;
   PyObject* x_ = x.get(); // ensure python initialized, module proxy resolved
-  return PyObject_HasAttrString(x_, name.c_str());
+  switch (PyObject_HasAttrStringWithError(x_, name.c_str())) {
+  case 1: return true;
+  case 0: return false;
+  case -1:
+  default:
+    PyErr_Clear();
+    return false;
+  }
 }
-
 
 //' Get an attribute of a Python object
 //'

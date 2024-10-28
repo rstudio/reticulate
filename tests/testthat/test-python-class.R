@@ -102,7 +102,7 @@ test_that("Can define and instantiate empty classes", {
   x <- Hi()
   x$name <- "Hi"
 
-  expect_s3_class(x, "python.builtin.Hi")
+  expect_s3_class(x, "Hi")
   expect_equal(x$name, "Hi")
 })
 
@@ -205,14 +205,14 @@ test_that("self is not converted when there's a py_to_r method for it", {
     }
   ))
 
-  assign("py_to_r.python.builtin.Base", value = function(x) {
+  assign("py_to_r.Base", value = function(x) {
     "base"
   }, envir = .GlobalEnv)
 
   x <- Hi(2)
   expect_equal(x, "base")
 
-  rm(py_to_r.python.builtin.Base, envir = .GlobalEnv)
+  rm(py_to_r.Base, envir = .GlobalEnv)
 })
 
 test_that("can call super from an inherited class", {

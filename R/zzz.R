@@ -61,9 +61,61 @@
   s3_register <- asNamespace("rlang")$s3_register
   s3_register("pillar::type_sum", "python.builtin.object")
 
+  if (is_positron()) {
+
+    setHook("reticulate.onPyInit", function() {
+
+      # options("ark.testing" = TRUE)
+      inspectors <- import_positron_ipykernel_inspectors()
+      if(is.null(inspectors)) {
+        # warning("positron_ipykernel.inspectors could not be found, variables pane support for Python objects will be limited")
+        return()
+      }
+
+      .globals$get_positron_variable_inspector <- inspectors$get_inspector
+
+      .ark.register_method <- get(".ark.register_method", envir = globalenv())
+
+      for (method_name in c(
+        "ark_positron_variable_display_value",
+        "ark_positron_variable_display_type",
+        "ark_positron_variable_has_children",
+        "ark_positron_variable_kind",
+        "ark_positron_variable_get_child_at",
+        "ark_positron_variable_get_children"
+      )) {
+        method_sym <- as.name(paste0(method_name, ".python.builtin.object"))
+        .ark.register_method(
+          method_name, "python.builtin.object",
+          call(":::", quote(reticulate), method_sym))
+      }
+    })
+  }
 }
 
 
 # .onUnload <- function(libpath) {
 #   py_finalize() # called from reg.finalizer(.globals) instead.
 # }
+
+
+import_positron_ipykernel_inspectors <- function() {
+  if(!is_positron())
+    return (NULL)
+
+  x <- Sys.getenv("_")
+  # x ==
+  # on mac: "/Applications/Positron.app/Contents/Resources/app/extensions/positron-r/resources/ark/ark"
+  if (grepl("positron-r", x, ignore.case = TRUE)) {
+    inspectors_path <- list.files(
+      path =  sub("positron-r.*$", "positron-python", x),
+      pattern = "^inspectors.py$",
+      recursive = TRUE, full.names = TRUE
+    )
+    # inspectors_path ==
+    # on mac: "/Applications/Positron.app/Contents/Resources/app/extensions/positron-python/python_files/positron/positron_ipykernel/inspectors.py"
+    if (length(inspectors_path) == 1) {
+      import_from_path("positron_ipykernel.inspectors", path = dirname(dirname(inspectors_path)))
+    }
+  }
+}

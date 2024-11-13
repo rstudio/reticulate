@@ -84,10 +84,13 @@
         "ark_positron_variable_get_child_at",
         "ark_positron_variable_get_children"
       )) {
-        method_sym <- as.name(paste0(method_name, ".python.builtin.object"))
-        .ark.register_method(
-          method_name, "python.builtin.object",
-          call(":::", quote(reticulate), method_sym))
+        for (class_name in c("python.builtin.object",
+                             "rpytools.ark_variables.ChildrenOverflow")) {
+          method <- get0(paste0(method_name, ".", class_name))
+          if (!is.null(method)) {
+            .ark.register_method(method_name, class_name, method)
+          }
+        }
       }
     })
   }

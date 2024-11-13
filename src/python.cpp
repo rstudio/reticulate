@@ -1312,8 +1312,21 @@ void set_string_element(SEXP rArray, int i, PyObject* pyStr) {
   SET_STRING_ELT(rArray, i, strSEXP);
 }
 
+static inline
+bool py_has_attr(PyObject* x_, const char* name) {
+  switch (PyObject_HasAttrStringWithError(x_, name)) {
+  case 1: return true;
+  case 0: return false;
+  case -1:
+  default:
+    PyErr_Clear();
+    return false;
+  }
+}
+
+
 bool py_is_callable(PyObject* x) {
-  return PyCallable_Check(x) == 1 || PyObject_HasAttrString(x, "__call__");
+  return PyCallable_Check(x) == 1 || py_has_attr(x, "__call__");
 }
 
 // [[Rcpp::export]]
@@ -1546,7 +1559,7 @@ SEXP py_to_r_cpp(PyObject* x, bool convert, bool simple) {
   }
 
   // tuple (but don't convert namedtuple as it's often a custom class)
-  if (PyTuple_CheckExact(x) && !PyObject_HasAttrString(x, "_fields")) {
+  if (PyTuple_CheckExact(x) && !py_has_attr(x, "_fields")) {
     Py_ssize_t len = PyTuple_Size(x);
     Rcpp::List list(len);
     for (Py_ssize_t i = 0; i<len; i++)
@@ -3361,14 +3374,7 @@ PyObjectRef py_new_ref(PyObjectRef x, SEXP convert) {
 bool py_has_attr(PyObjectRef x, const std::string& name) {
   GILScope _gil;
   PyObject* x_ = x.get(); // ensure python initialized, module proxy resolved
-  switch (PyObject_HasAttrStringWithError(x_, name.c_str())) {
-  case 1: return true;
-  case 0: return false;
-  case -1:
-  default:
-    PyErr_Clear();
-    return false;
-  }
+  return py_has_attr(x_, name.c_str());
 }
 
 //' Get an attribute of a Python object
@@ -4013,8 +4019,9 @@ SEXPTYPE nullable_typename_to_sexptype (const std::string& name) {
 }
 
 // [[Rcpp::export]]
-SEXP py_convert_pandas_series(PyObjectRef series) {
+SEXP py_convert_pandas_series(PyObjectRef series_) {
   GILScope _gil;
+  PyObject* series = series_.get();
 
   // extract dtype
   PyObjectPtr dtype(PyObject_GetAttrString(series, "dtype"));
@@ -4078,7 +4085,7 @@ SEXP py_convert_pandas_series(PyObjectRef series) {
   } else if (name == "datetime64[ns]" ||
 
     // if a time zone is present, dtype is "object"
-    PyObject_HasAttrString(series, "dt")) {
+    py_has_attr(series, "dt")) {
 
     // pd.Series.items() returns an iterator over (index, value) pairs
     PyObjectPtr items(PyObject_CallMethod(series, "items", NULL));

@@ -106,6 +106,17 @@ import_positron_ipykernel_inspectors <- function() {
   if(!is_positron())
     return (NULL)
 
+  .ps.positron_ipykernel_path <- get0(".ps.positron_ipykernel_path", globalenv())
+  if (!is.null(.ps.positron_ipykernel_path)) {
+    path <- .ps.positron_ipykernel_path()
+    if (grepl("positron_ipykernel[/\\]?$", path))
+      path <- dirname(path)
+    inspectors <- import_from_path("positron_ipykernel.inspectors", path = path)
+    return(inspectors)
+  }
+
+  # hacky fallback by inspecting `_` env var, until ark is updated.
+  # Only works in some contexts.
   x <- Sys.getenv("_")
   # x ==
   # on mac: "/Applications/Positron.app/Contents/Resources/app/extensions/positron-r/resources/ark/ark"

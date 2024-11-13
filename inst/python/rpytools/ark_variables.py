@@ -2,24 +2,26 @@ from itertools import islice
 
 MAX_DISPLAY = 100
 
+
 def get_keys_and_children(inspector):
+    # positron frontend only displays the first 100 items, then the count of the rest.
     keys, values = [], []
     keys_iterator = iter(inspector.get_children())
-    # positron frontend only displays the first 100 items, then the length of the rest.
-    try:
-        for _ in range(MAX_DISPLAY):
-            key = next(keys_iterator)
-            keys.append(str(key))
-            values.append(inspector.get_child(key))
-    except StopIteration:
-        return keys, values
+    for key in islice(keys_iterator, MAX_DISPLAY):
+        keys.append(str(key))
+        values.append(inspector.get_child(key))
 
-    n_remaining = 0
-    for n_remaining, _ in enumerate(keys_iterator, 1):
-        pass
-    if n_remaining > 0:
-        keys.append("[[...]]")
-        values.append(ChildrenOverflow(n_remaining))
+    if len(keys) == MAX_DISPLAY:
+        # check if there are more children
+        n_children = inspector.get_length()
+        if n_children == 0:
+            # no len() method, finish iteratoring over keys_iterator to get the true size
+            for n_children, _ in enumerate(keys_iterator, MAX_DISPLAY + 1):
+                pass
+        n_remaining = n_children - MAX_DISPLAY
+        if n_remaining > 0:
+            keys.append("[[...]]")
+            values.append(ChildrenOverflow(n_remaining))
 
     return keys, values
 
@@ -27,6 +29,7 @@ def get_keys_and_children(inspector):
 def get_child(inspector, index):
     key = next(islice(inspector.get_children(), index - 1, None))
     return inspector.get_child(key)
+
 
 class ChildrenOverflow:
     def __init__(self, n_remaining):

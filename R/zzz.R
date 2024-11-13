@@ -65,8 +65,12 @@
 
     setHook("reticulate.onPyInit", function() {
 
+      disable <- nzchar(Sys.getenv("_RETICULATE_POSITRON_DISABLE_VARIABLE_INSPECTORS_"))
+      if (disable)
+        return()
+
       # options("ark.testing" = TRUE)
-      inspectors <- import_positron_ipykernel_inspectors()
+      inspectors <- tryCatch(import_positron_ipykernel_inspectors(), error = function(e) NULL)
       if(is.null(inspectors)) {
         # warning("positron_ipykernel.inspectors could not be found, variables pane support for Python objects will be limited")
         return()

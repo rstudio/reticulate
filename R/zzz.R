@@ -119,8 +119,10 @@ import_positron_ipykernel_inspectors <- function() {
     return(inspectors)
   }
 
-  # hacky fallback by inspecting `_` env var, until ark is updated.
-  # Only works in some contexts.
+  # hacky "usually work" fallbacks for finding the positron-python extension,
+  # until ark+positron are updated and can reliably provide the canonical path
+
+  # Try inspecting `_` env var. Only works in some contexts.
   x <- Sys.getenv("_")
   # x ==
   # on mac: "/Applications/Positron.app/Contents/Resources/app/extensions/positron-r/resources/ark/ark"
@@ -133,7 +135,29 @@ import_positron_ipykernel_inspectors <- function() {
     # inspectors_path ==
     # on mac: "/Applications/Positron.app/Contents/Resources/app/extensions/positron-python/python_files/positron/positron_ipykernel/inspectors.py"
     if (length(inspectors_path) == 1) {
-      import_from_path("positron_ipykernel.inspectors", path = dirname(dirname(inspectors_path)))
+      return(import_from_path("positron_ipykernel.inspectors",
+                              path = dirname(dirname(inspectors_path))))
+
     }
   }
+
+  # vscode/positron-python will place itself on the PATH sometimes
+  PATH <- Sys.getenv("PATH")
+  PATH <- strsplit(PATH, .Platform$path.sep, fixed = TRUE)[[1L]]
+  PATH <- grep("positron-python", PATH, value = TRUE, ignore.case = TRUE)
+  # PATH ==
+  # on mac: "/Applications/Positron.app/Contents/Resources/app/extensions/positron-python/python_files/deactivate/zsh"
+  for (path in PATH) {
+    inspectors_path <- list.files(
+      path =  sub("^(.*positron-python)(.*)$", "\\1", path),
+      pattern = "^inspectors.py$",
+      recursive = TRUE, full.names = TRUE
+    )
+    if (length(inspectors_path) == 1) {
+      return(import_from_path("positron_ipykernel.inspectors",
+                              path = dirname(dirname(inspectors_path))))
+    }
+  }
+
+  NULL
 }

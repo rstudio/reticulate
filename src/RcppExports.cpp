@@ -650,13 +650,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // py_convert_pandas_series
-SEXP py_convert_pandas_series(PyObjectRef series);
-RcppExport SEXP _reticulate_py_convert_pandas_series(SEXP seriesSEXP) {
+SEXP py_convert_pandas_series(PyObjectRef series_);
+RcppExport SEXP _reticulate_py_convert_pandas_series(SEXP series_SEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< PyObjectRef >::type series(seriesSEXP);
-    rcpp_result_gen = Rcpp::wrap(py_convert_pandas_series(series));
+    Rcpp::traits::input_parameter< PyObjectRef >::type series_(series_SEXP);
+    rcpp_result_gen = Rcpp::wrap(py_convert_pandas_series(series_));
     return rcpp_result_gen;
 END_RCPP
 }

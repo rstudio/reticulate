@@ -14,7 +14,7 @@ Python packages are typically installed from one of two package repositories:
 
 1)  [PyPI](https://pypi.org/); or
 
-2)  [Conda](https://conda.io/docs/)
+2)  [Conda](https://docs.conda.io/docs/)
 
 Any Python package you install from PyPI or Conda can be used from R with reticulate.
 

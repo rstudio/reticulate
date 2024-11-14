@@ -2,12 +2,14 @@
 
 package_dir <- Sys.getenv("R_PACKAGE_DIR", NA)
 if (is.na(package_dir))
-  package_dir <- path.package("reticulate")
+  package_dir <- find.package("reticulate")
 
 tryCatch({
   owd <- setwd(package_dir)
-  for (stale_pycache in grep("__pycache__$", list.dirs(recursive = TRUE), value = TRUE))
+  for (stale_pycache in grep("__pycache__$", list.dirs(recursive = TRUE), value = TRUE)) {
+    message("deleting: ", stale_pycache)
     unlink(stale_pycache, recursive = TRUE)
+  }
 
   df <- reticulate::virtualenv_starter(all = TRUE)
   df <- df[order(df$version, decreasing = TRUE), ]

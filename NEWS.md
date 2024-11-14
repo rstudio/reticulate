@@ -35,6 +35,9 @@
 - Improved behavior when the conda binary used to create an environment
   could not be resolved (contributed by @tl-hbk, #1654, #1659)
 
+- Added Positron support for the Variables Pane and `repl_python()`
+  (#1692, #1641, #1648, #1658, #1681, #1687).
+
 # reticulate 1.39.0
 
 - Python background threads can now run in parallel with the R session (#1641).

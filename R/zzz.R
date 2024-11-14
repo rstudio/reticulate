@@ -110,17 +110,20 @@ import_positron_ipykernel_inspectors <- function() {
   if(!is_positron())
     return (NULL)
 
-  .ps.positron_ipykernel_path <- get0(".ps.positron_ipykernel_path", globalenv())
-  if (!is.null(.ps.positron_ipykernel_path)) {
-    path <- .ps.positron_ipykernel_path()
-    if (grepl("positron_ipykernel[/\\]?$", path))
-      path <- dirname(path)
-    inspectors <- import_from_path("positron_ipykernel.inspectors", path = path)
+  tryCatch({
+    # https://github.com/posit-dev/positron/pull/5368
+    .ps.ui.executeCommand <- get(".ps.ui.executeCommand", globalenv())
+    ipykernel_path <- .ps.ui.executeCommand("positron.reticulate.getIPykernelPath")
+    inspectors <- import_from_path("positron_ipykernel.inspectors",
+                                   path = dirname(ipykernel_path))
     return(inspectors)
-  }
+  },
+  error = function(e) NULL)
+
 
   # hacky "usually work" fallbacks for finding the positron-python extension,
   # until ark+positron are updated and can reliably provide the canonical path
+  # (i.e., until https://github.com/posit-dev/positron/pull/5368 is in the release build)
 
   # Try inspecting `_` env var. Only works in some contexts.
   x <- Sys.getenv("_")

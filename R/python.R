@@ -819,7 +819,10 @@ length.python.builtin.list <- function(x) {
 length.python.builtin.object <- function(x) {
 
   # return 0 if Python not yet available
-  if (py_is_null_xptr(x) || !py_available())
+  # Note: some packages (rgeedim) use `length(module) == 0` as a way to check if
+  # an object is a delayed module without forcing it to load.
+  # Note, a better way to check is: reticulate::py_module_available("module_name")
+  if (py_is_module_proxy(x) || !py_available() || py_is_null_xptr(x))
     return(0L)
 
   # otherwise, try to invoke the object's __len__ method
@@ -1067,7 +1070,7 @@ py_str.python.builtin.object <- function(object, ...) {
 
 #' @export
 format.python.builtin.module <- function(x, ...) {
-  if(py_is_module_proxy(x))
+  if (py_is_module_proxy(x))
     return(paste0("Module(", get("module", envir = x), ")", sep = ""))
   NextMethod()
 }

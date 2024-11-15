@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.39.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.40.0</span>
       </span>
     </div>
 
@@ -78,9 +78,27 @@
   <div class="col-md-9 contents">
     <div class="page-header">
       <h1 data-toc-skip>Changelog <small></small></h1>
-      <small>Source: <a href="https://github.com/rstudio/reticulate/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/rstudio/reticulate/blob/v1.40.0/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="1.40.0" id="reticulate-1400">reticulate 1.40.0<small>2024-11-15</small><a class="anchor" aria-label="anchor" href="#reticulate-1400"></a></h2>
+<ul><li>
+<p>The S3 classes for some (rarely encountered) Python objects have changed. Only Python objects with non-standard <code>__module__</code> values are affected. If a Python object’s parent class’s <code>__module__</code> attribute does not resolve to a string, reticulate:</p>
+<ul><li>Attempts to resolve it from the class’s class, if it’s a metaclass.</li>
+<li>If no string can be resolved, reticulate no longer implicitly prepends ‘python.builtin.’ as the class prefix, instead it uses just the <code>__name__</code>. (See <a href="https://github.com/rstudio/reticulate/issues/1686" class="external-link">#1686</a> for more context)</li>
+</ul></li>
+<li><p>Added support for Python 3.13. Note that Python 3.13 removed support for <code>classmethod</code> descriptors, which may affect the S3 class of some Python objects that use metaclass properties to resolve a class’s <code>__module__</code> or <code>__name__</code> attribute. (<a href="https://github.com/rstudio/reticulate/issues/1686" class="external-link">#1686</a>, <a href="https://github.com/rstudio/reticulate/issues/1698" class="external-link">#1698</a>)</p></li>
+<li><p><code><a href="../reference/py_is_null_xptr.html">py_is_null_xptr()</a></code> and <code>[[</code> now load delayed modules (<a href="https://github.com/rstudio/reticulate/issues/1688" class="external-link">#1688</a>).</p></li>
+<li><p>Fixed error when attempting to use a python venv created with <code>uv</code> (<a href="https://github.com/rstudio/reticulate/issues/1678" class="external-link">#1678</a>)</p></li>
+<li><p>Resolved an issue where <code><a href="../reference/py_discover_config.html">py_discover_config()</a></code> attempted to detect Windows App Store Python installations. These are now excluded from discovery by both <code><a href="../reference/py_discover_config.html">py_discover_config()</a></code> and <code><a href="../reference/virtualenv-tools.html">virtualenv_starter()</a></code> (<a href="https://github.com/rstudio/reticulate/issues/1656" class="external-link">#1656</a>, <a href="https://github.com/rstudio/reticulate/issues/1673" class="external-link">#1673</a>).</p></li>
+<li><p>Fixed an error when converting an empty NumPy char array to R (<a href="https://github.com/rstudio/reticulate/issues/1662" class="external-link">#1662</a>).</p></li>
+<li><p>Fixed an error when using reticulate with radian (<a href="https://github.com/rstudio/reticulate/issues/1668" class="external-link">#1668</a>, <a href="https://github.com/rstudio/reticulate/issues/1670" class="external-link">#1670</a>).</p></li>
+<li><p>Fixed a segfault encountered when running the Python session finalizer (<a href="https://github.com/rstudio/reticulate/issues/1663" class="external-link">#1663</a>, <a href="https://github.com/rstudio/reticulate/issues/1664" class="external-link">#1664</a>).</p></li>
+<li><p>Resolved a segfault in RStudio when rapidly switching between R and Python chunks in a Quarto document (<a href="https://github.com/rstudio/reticulate/issues/1665" class="external-link">#1665</a>).</p></li>
+<li><p>Improved behavior when the conda binary used to create an environment cannot be resolved (contributed by <a href="https://github.com/tl-hbk" class="external-link">@tl-hbk</a>, <a href="https://github.com/rstudio/reticulate/issues/1654" class="external-link">#1654</a>, <a href="https://github.com/rstudio/reticulate/issues/1659" class="external-link">#1659</a>).</p></li>
+<li><p>Added Positron support for the Variables Pane and <code><a href="../reference/repl_python.html">repl_python()</a></code> (<a href="https://github.com/rstudio/reticulate/issues/1692" class="external-link">#1692</a>, <a href="https://github.com/rstudio/reticulate/issues/1641" class="external-link">#1641</a>, <a href="https://github.com/rstudio/reticulate/issues/1648" class="external-link">#1648</a>, <a href="https://github.com/rstudio/reticulate/issues/1658" class="external-link">#1658</a>, <a href="https://github.com/rstudio/reticulate/issues/1681" class="external-link">#1681</a>, <a href="https://github.com/rstudio/reticulate/issues/1687" class="external-link">#1687</a>).</p></li>
+</ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="1.39.0" id="reticulate-1390">reticulate 1.39.0<small>2024-09-05</small><a class="anchor" aria-label="anchor" href="#reticulate-1390"></a></h2>
 <ul><li><p>Python background threads can now run in parallel with the R session (<a href="https://github.com/rstudio/reticulate/issues/1641" class="external-link">#1641</a>).</p></li>
@@ -752,7 +770,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
       </footer></div>

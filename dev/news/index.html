@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.39.0.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.40.0.9000</span>
       </span>
     </div>
 
@@ -83,6 +83,9 @@
 
     <div class="section level2">
 <h2 class="page-header" data-toc-text="development version" id="reticulate-development-version">reticulate (development version)<a class="anchor" aria-label="anchor" href="#reticulate-development-version"></a></h2>
+</div>
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="1.40.0" id="reticulate-1400">reticulate 1.40.0<small>2024-11-15</small><a class="anchor" aria-label="anchor" href="#reticulate-1400"></a></h2>
 <ul><li>
 <p>The S3 classes for some (rarely encountered) Python objects have changed. Only Python objects with non-standard <code>__module__</code> values are affected. If a Python object’s parent class’s <code>__module__</code> attribute does not resolve to a string, reticulate:</p>
 <ul><li>Attempts to resolve it from the class’s class, if it’s a metaclass.</li>

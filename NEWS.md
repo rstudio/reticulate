@@ -1,5 +1,8 @@
 # reticulate (development version)
 
+- Fixed an issue where `virtualenv_starter()` would not discover a 
+  custom built Python (#1704).
+
 # reticulate 1.40.0
 
 - The S3 classes for some (rarely encountered) Python objects have changed.

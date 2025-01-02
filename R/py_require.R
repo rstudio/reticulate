@@ -1,13 +1,165 @@
+
+
+uv_binary <- function() {
+  uv <- Sys.getenv("RETICULATE_UV", NA)
+  if(!is.na(uv))
+    return(uv)
+
+  uv <- getOption("reticulate.uv_binary")
+  if(!is.null(uv))
+    return(uv)
+
+  uv <- as.character(Sys.which("uv"))
+  if (uv != "")
+    return(uv)
+
+  uv <- path.expand("~/.local/bin/uv")
+  if(file.exists(uv))
+    return(uv)
+
+  uv <- file.path(rappdirs::user_cache_dir("r-reticulate", NULL), "bin", "uv")
+  if (file.exists(uv))
+    return(uv)
+
+
+  if(is_windows()) {
+
+  } else if (is_macos() || is_linux()) {
+    install_uv.sh <- tempfile("install-uv-", fileext = ".sh")
+    download.file("https://astral.sh/uv/install.sh", install_uv.sh, quiet = TRUE)
+    Sys.chmod(install_uv.sh, mode = "0755")
+
+    dir.create(dirname(uv), showWarnings = FALSE)
+              # https://github.com/astral-sh/uv/blob/main/docs/configuration/installer.md
+    system2(install_uv.sh, c("--quiet"), env = c(
+      "INSTALLER_NO_MODIFY_PATH=1", paste0("UV_INSTALL_DIR=", maybe_shQuote(dirname(uv)))
+    ))
+    return(uv)
+  }
+}
+
+# TODO: we should pass --cache-dir=file.path(rappdirs::user_cache_dir("r-reticulate"), "uv-cache")
+# if we are using a reticulate-managed uv installation.
+
+get_or_create_venv <- function(requirements = NULL, python_version = "3.10", exclude_newer = NULL) {
+  if (length(requirements)) {
+    if (length(requirements) == 1 &&
+        grepl("[/\\]", requirements) &&
+        file.exists(requirements)) {
+      # path to a requirements.txt
+      requirements <- c("--with-requirements", maybe_shQuote(requirements))
+    } else {
+      # character vector of package requirements
+      requirements <- as.vector(rbind("--with", maybe_shQuote(requirements)))
+    }
+  }
+
+  if (length(python_version))
+    python_version <- c("--python", maybe_shQuote(python_version))
+
+  if(!is.null(exclude_newer)) {
+    # todo, accept a POSIXct/lt, format correctly
+    exclude_newer <- c("--exclude-newer", maybe_shQuote(exclude_newer))
+  }
+
+#   outfile <- tempfile(fileext = ".txt")
+#   on.exit(unlink(outfile), add = TRUE)
+#   input <- sprintf("
+# import sys
+# with open('%s', 'w') as f:
+#     print(sys.executable, file=f, flush=True)
+#
+# ", outfile)
+  input <- "import sys; print(sys.executable);"
+
+  result <- suppressWarnings(system2t(
+    uv_binary(),
+    c(
+      # "--verbose",
+      "run",
+      "--color=always",
+      "--no-project",
+      "--python-preference=only-managed",
+      python_version,
+      requirements,
+      "-"
+    ), env = c(
+      "UV_NO_CONFIG=1"
+    ),
+    stdout = TRUE, stderr = TRUE,
+    input = input))
+
+
+  if (!is.null(attr(result, "status"))) {
+    uv_error_msg <- sub(
+      "No solution found when resolving `--with` dependencies:",
+      "No solution found when resolving dependencies:",
+      result,
+      fixed = TRUE
+    )
+
+    # write out uv error message separately, since stop() might truncate.
+    writeLines(uv_error_msg, stderr())
+    msg <- c(
+      "Python requirements could not be satisfied.",
+      "Call `py_require()` to omit or replace conflicting requirements."
+    )
+
+    msg <- paste0(msg, collapse = "\n")
+    stop(msg)
+  }
+
+  result
+  # readLines(outfile)
+}
+
+new_requirement_history_entry <- function(packages, python_version, action, env) {
+  cl <- call("py_require")
+  if (!is.null(packages))
+    cl[[2L]] <- packages
+  if (!is.null(python_version))
+    cl$python_version <- python_version
+  if (action != "add")
+    cl$action <- action
+  topenv_name <- environmentName(topenv(parent.frame()))
+  list(call = cl, topenv = topenv_name)
+}
+
 #' @export
 py_require <- function(packages = NULL,
                        python_version = NULL,
-                       action = c("add", "omit", "replace"),
-                       silent = FALSE) {
-  if (missing(packages) && missing(python_version)) {
+                       action = c("add", "omit")) {
+  if (is.null(packages) && is.null(python_version)) {
     return(get_python_reqs())
   }
 
   action <- match.arg(action)
+
+
+
+  switch(action,
+
+         add = {
+           if (!is.null(packages))
+             append(.globals$python_requirements$packages) <- packages
+           if (!is.null(python_version)) {
+             # TODO:
+             # prev_python_ver_requests <- lapply(attr(.globals$python_requirements, "history"),
+             #                                    "[[", "python_version")
+             # python <- reduce_python_version_from_constraints(prev_python_ver_requests, python_version)
+           }
+
+           append1(attr(.globals$python_requirements, "history")) <-
+             new_requirement_history_entry(packages, python_version, action, parent.frame())
+         },
+
+         omit = {
+           pkgs <- .globals$python_requirements$packages
+           pkgs <- setdiff(pkgs, packages)
+           .globals$python_requirements$packages <- pkgs
+         })
+
+  return(invisible(get_python_reqs()))
 
   err_packages <- NULL
   err_python <- NULL
@@ -159,14 +311,19 @@ add_dash <- function(x) {
   paste0(dashed, x, collapse = "\n")
 }
 
-resolve_python <- function(constraints) {
-  constraints <- paste0(constraints, collapse = ",")
+resolve_python <- function(...) {
+  constraints <- paste0(unlist(c(...)), collapse = ",")
   candidates <- paste0("3.", 9:13)
+  # prefer versions closer to Python 3.11
+  candidates <- candidates[order(abs(11 - as.numeric(sub("3.", "", candidates))))]
   for (check in as_version_constraint_checkers(constraints)) {
     satisfies_constraint <- check(candidates)
     candidates <- candidates[satisfies_constraint]
   }
-  candidates[1]
+  if(length(candidates))
+    candidates[1]
+  else
+    stop("Python version constraints could not be satisified: ", constraints)
 }
 
 
@@ -221,10 +378,10 @@ print.python_requirements <- function(x, ...) {
   if(python_version == "") {
     python_version <- "[No version of Python selected yet]"
   }
-  cat("Setup ------------------------------\n")
+  cat("Requested Python Requirements ------------------------------\n")
   cat(" Packages:", packages, "\n")
   cat(" Python:  ", python_version, "\n")
-  cat("History ----------------------------\n")
+  cat("Requests History ----------------------------\n")
   for (item in x$history) {
     args <- list()
     if (!is.null(item$packages)) {

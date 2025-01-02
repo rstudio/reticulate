@@ -21,7 +21,6 @@ uv_binary <- function() {
   if (file.exists(uv))
     return(uv)
 
-
   if(is_windows()) {
 
   } else if (is_macos() || is_linux()) {
@@ -62,15 +61,15 @@ get_or_create_venv <- function(requirements = NULL, python_version = "3.10", exc
     exclude_newer <- c("--exclude-newer", maybe_shQuote(exclude_newer))
   }
 
-#   outfile <- tempfile(fileext = ".txt")
-#   on.exit(unlink(outfile), add = TRUE)
-#   input <- sprintf("
-# import sys
-# with open('%s', 'w') as f:
-#     print(sys.executable, file=f, flush=True)
-#
-# ", outfile)
-  input <- "import sys; print(sys.executable);"
+  outfile <- tempfile(fileext = ".txt")
+  on.exit(unlink(outfile), add = TRUE)
+  input <- sprintf("
+import sys
+with open('%s', 'w') as f:
+    print(sys.executable, file=f)
+
+", outfile)
+  # input <- "import sys; print(sys.executable);"
 
   result <- suppressWarnings(system2t(
     uv_binary(),
@@ -109,8 +108,8 @@ get_or_create_venv <- function(requirements = NULL, python_version = "3.10", exc
     stop(msg)
   }
 
-  result
-  # readLines(outfile)
+  # result
+  readLines(outfile)
 }
 
 new_requirement_history_entry <- function(packages, python_version, action, env) {

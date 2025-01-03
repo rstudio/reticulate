@@ -127,38 +127,13 @@ new_requirement_history_entry <- function(packages, python_version, action, env)
 #' @export
 py_require <- function(packages = NULL,
                        python_version = NULL,
-                       action = c("add", "omit")) {
-  if (is.null(packages) && is.null(python_version)) {
+                       action = c("add", "omit", "replace"),
+                       silent = TRUE) {
+  if (missing(packages) && missing(python_version)) {
     return(get_python_reqs())
   }
 
   action <- match.arg(action)
-
-
-
-  switch(action,
-
-         add = {
-           if (!is.null(packages))
-             append(.globals$python_requirements$packages) <- packages
-           if (!is.null(python_version)) {
-             # TODO:
-             # prev_python_ver_requests <- lapply(attr(.globals$python_requirements, "history"),
-             #                                    "[[", "python_version")
-             # python <- reduce_python_version_from_constraints(prev_python_ver_requests, python_version)
-           }
-
-           append1(attr(.globals$python_requirements, "history")) <-
-             new_requirement_history_entry(packages, python_version, action, parent.frame())
-         },
-
-         omit = {
-           pkgs <- .globals$python_requirements$packages
-           pkgs <- setdiff(pkgs, packages)
-           .globals$python_requirements$packages <- pkgs
-         })
-
-  return(invisible(get_python_reqs()))
 
   err_packages <- NULL
   err_python <- NULL
@@ -282,21 +257,22 @@ py_require <- function(packages = NULL,
     }
   }
 
-  if (has_error) {
-    stop("\n", add_dash(c(err_packages, err_python)), "\n", call. = FALSE)
-  } else {
-    set_python_reqs(
-      packages = final_packages,
-      python_version = final_python,
-      history = new_history
-    )
-    if (!silent) {
+  if (!silent) {
+    if (has_error) {
+      stop("\n", add_dash(c(err_packages, err_python)), "\n", call. = FALSE)
+    } else {
+      set_python_reqs(
+        packages = final_packages,
+        python_version = final_python,
+        history = new_history
+      )
       cat(add_dash(c(msg_packages, msg_python)), "\n")
     }
   }
 
   invisible()
 }
+
 
 add_dash <- function(x) {
   if (length(x) == 1) {

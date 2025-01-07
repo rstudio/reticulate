@@ -338,7 +338,7 @@ get_or_create_venv <- function(requirements = NULL, python_version = "3.10", exc
 
   if (length(python_version)) {
     if (length(python_version) != 1) {
-      has_const <- substr(python_version, 1, 1) %in% c(">", "<", "=")
+      has_const <- substr(python_version, 1, 1) %in% c(">", "<", "=", "!")
       python_version[!has_const] <- paste0("==", python_version[!has_const])
       python_version <- paste0(python_version, collapse = ",")
     }

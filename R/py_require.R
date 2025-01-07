@@ -331,18 +331,16 @@ get_or_create_venv <- function(requirements = NULL, python_version = "3.10", exc
       # path to a requirements.txt
       requirements <- c("--with-requirements", maybe_shQuote(requirements))
     } else {
-      # character vector of package requirements
-      requirements <- as.vector(rbind("--with", maybe_shQuote(requirements)))
+      requirements <- paste0("\"", requirements, "\"", collapse = ", ")
+      requirements <- sprintf("# dependencies =[%s]", requirements)
     }
   }
 
-  if (length(python_version)) {
-    if (length(python_version) != 1) {
-      has_const <- substr(python_version, 1, 1) %in% c(">", "<", "=", "!")
-      python_version[!has_const] <- paste0("==", python_version[!has_const])
-      python_version <- paste0(python_version, collapse = ",")
-    }
-    python_version <- c("--python", maybe_shQuote(python_version))
+  if (!is.null(python_version)) {
+    has_const <- substr(python_version, 1, 1) %in% c(">", "<", "=", "!")
+    python_version[!has_const] <- paste0("==", python_version[!has_const])
+    python_version <- paste0(python_version, collapse = ",")
+    python_version <- sprintf("# requires-python = \"%s\"", python_version)
   }
 
   if (!is.null(exclude_newer)) {
@@ -352,24 +350,23 @@ get_or_create_venv <- function(requirements = NULL, python_version = "3.10", exc
 
   outfile <- tempfile(fileext = ".txt")
   on.exit(unlink(outfile), add = TRUE)
-  input <- sprintf("
-import sys
-with open('%s', 'w') as f:
-    print(sys.executable, file=f)
-
-", outfile)
-  # input <- "import sys; print(sys.executable);"
-
+  input <- paste(
+    "# /// script",
+    python_version,
+    requirements,
+    "# ///",
+    "import sys",
+    sprintf("with open('%s', 'w') as f:", outfile),
+    "  print(sys.executable, file=f)",
+    sep = "\n"
+  )
   result <- suppressWarnings(system2t(
     uv_binary(),
     c(
-      # "--verbose",
       "run",
       "--color=always",
       "--no-project",
-      # "--python-preference=only-managed",
-      python_version,
-      requirements,
+      "--python-preference=only-managed",
       "-"
     ),
     env = c(

@@ -6,10 +6,14 @@ py_require <- function(packages = NULL,
                        silent = TRUE) {
   action <- match.arg(action)
 
-  if (!is.null(exclude_newer) && action != "set") {
-    stop("`exclude_newer` can only be used when `action` is 'set'")
-  } else if ((!is.null(packages) | !is.null(python_version)) && action == "set") {
-    stop("`action` 'set' can only be used with `exclude_newer`")
+  current_exclude <- get_python_reqs("exclude_newer")
+
+  if (!is.null(exclude_newer) && action != "set" && !is.null(current_exclude)) {
+    stop(
+      "`exclude_newer` is already set to '",
+      current_exclude,
+      "', use `action` 'set' to override"
+    )
   }
 
   # Priming with `numpy` if empty
@@ -33,27 +37,25 @@ py_require <- function(packages = NULL,
   req_packages <- NULL
   if (!is.null(packages)) {
     req_packages <- get_python_reqs("packages")
-    if (action == "omit") {
-      for (pkg in packages) {
-        pkg_name <- extract_name(pkg)
-        if (pkg_name != pkg) {
+    packages <- switch(action,
+      add = unique(c(req_packages, packages)),
+      omit = {
+        for (pkg in packages) {
           matches <- pkg == req_packages
-        } else {
-          matches <- pkg_name == extract_name(req_packages)
+          req_packages <- req_packages[!matches]
         }
-        req_packages <- req_packages[!matches]
-      }
-      packages <- req_packages
-    } else {
-      packages <- unique(c(req_packages, packages))
-    }
+        req_packages
+      },
+      set = packages
+    )
   }
 
   if (!is.null(python_version)) {
     req_python_versions <- get_python_reqs("python_version")
     python_version <- switch(action,
-                             add = unique(c(python_version, req_python_versions)),
-                             omit = req_python_versions[req_python_versions != python_version]
+      add = unique(c(python_version, req_python_versions)),
+      omit = req_python_versions[req_python_versions != python_version],
+      set = python_version
     )
   }
 
@@ -79,36 +81,6 @@ py_require <- function(packages = NULL,
   )
 
   invisible()
-}
-
-extract_name <- function(x) {
-  as.character(lapply(x, function(x) {
-    # If it's a URL or path to a binary or source distribution
-    # (e.g., .whl, .sdist), try to extract the name
-    is_dist <- grepl("/", x) ||
-      grepl("\\.(whl|tar\\.gz|.zip|.tgz)$", x)
-    if (is_dist) {
-      # Remove path or URL leading up to the file name
-      x <- sub(".*/", "", x)
-      # Remove everything after the first "-", which
-      # by the spec should be the *distribution* name.
-      x <- sub("-.*$", "", x)
-
-      # a whl/tar.gz or other package format
-      # should have name standardized already
-      # with `-` substituted with `_` already.
-      return(x)
-    }
-    # If it's a package name with a version
-    # constraint, remove the version constraint
-    x <- sub("[=<>].*$", "", x) # Remove ver constraints like `=`, `<`, `>`
-
-    # If it's a package name with a modifier like
-    # `tensorflow[and-cuda]`, remove the modifier
-    x <- sub("\\[.*$", "", x) # Remove modifiers like `[and-cuda]`
-    # standardize, replace "-" with "_"
-    gsub("-", "_", x, fixed = TRUE)
-  }))
 }
 
 # Print ------------------------------------------------------------------------
@@ -164,11 +136,11 @@ get_python_reqs <- function(
   pr <- .globals$python_requirements
   x <- match.arg(x)
   switch(x,
-         all = pr,
-         python_versions = pr$python_versions,
-         packages = pr$packages,
-         exclude_newer = pr$exclude_newer,
-         history = pr$history
+    all = pr,
+    python_versions = pr$python_versions,
+    packages = pr$packages,
+    exclude_newer = pr$exclude_newer,
+    history = pr$history
   )
 }
 
@@ -246,8 +218,8 @@ uv_binary <- function() {
 get_or_create_venv <- function(requirements = NULL, python_version = "3.10", exclude_newer = NULL) {
   if (length(requirements)) {
     if (length(requirements) == 1 &&
-        grepl("[/\\]", requirements) &&
-        file.exists(requirements)) {
+      grepl("[/\\]", requirements) &&
+      file.exists(requirements)) {
       # path to a requirements.txt
       requirements <- c("--with-requirements", maybe_shQuote(requirements))
     } else {
@@ -280,7 +252,7 @@ get_or_create_venv <- function(requirements = NULL, python_version = "3.10", exc
     "  print(sys.executable, file=f)",
     sep = "\n"
   )
-  result <- suppressWarnings(system2t(
+  result <- suppressWarnings(system2(
     uv_binary(),
     c(
       "run",

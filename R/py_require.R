@@ -1,8 +1,17 @@
 #' @export
 py_require <- function(packages = NULL,
                        python_version = NULL,
-                       action = c("add", "omit", "replace"),
+                       exclude_newer = NULL,
+                       action = c("add", "omit", "set"),
                        silent = TRUE) {
+  action <- match.arg(action)
+
+  if (!is.null(exclude_newer) && action != "set") {
+    stop("`exclude_newer` can only be used when `action` is 'set'")
+  } else if ((!is.null(packages) | !is.null(python_version)) && action == "set") {
+    stop("`action` 'set' can only be used with `exclude_newer`")
+  }
+
   # Priming with `numpy` if empty
   if (is.null(get_python_reqs("packages"))) {
     set_python_reqs(
@@ -17,117 +26,57 @@ py_require <- function(packages = NULL,
     )
   }
 
-  if (missing(packages) && missing(python_version)) {
+  if (missing(packages) && missing(python_version) && missing(exclude_newer)) {
     return(get_python_reqs())
   }
 
-  action <- match.arg(action)
-
-  err_packages <- NULL
-  err_python <- NULL
-
-  msg_packages <- NULL
-  msg_python <- NULL
-
-  final_packages <- NULL
-  final_python <- NULL
-
-  has_error <- FALSE
-
+  req_packages <- NULL
   if (!is.null(packages)) {
     req_packages <- get_python_reqs("packages")
-    if (action %in% c("replace", "omit")) {
+    if (action == "omit") {
       for (pkg in packages) {
         pkg_name <- extract_name(pkg)
-        if (action == "omit" && pkg_name != pkg) {
+        if (pkg_name != pkg) {
           matches <- pkg == req_packages
         } else {
           matches <- pkg_name == extract_name(req_packages)
         }
-        if (any(matches)) {
-          match_pkgs <- req_packages[matches]
-          match_pkgs <- ennumerate_packages(match_pkgs)
-          req_packages <- req_packages[!matches]
-          if (action == "replace") {
-            req_packages <- c(req_packages, pkg)
-            msg_packages <- c(msg_packages, paste(
-              "Replaced", match_pkgs, "with", sprintf("\"%s\"", pkg)
-            ))
-          } else {
-            msg_packages <- c(msg_packages, paste("Ommiting", match_pkgs))
-          }
-        } else {
-          has_error <- TRUE
-          err_msg <- sprintf("\"%s\"", pkg)
-          if (action == "replace" && pkg != pkg_name) {
-            err_msg <- sprintf("%s(searched for: \"%s\")", err_msg, pkg_name)
-          }
-          err_packages <- c(err_packages, err_msg)
-        }
+        req_packages <- req_packages[!matches]
       }
-      final_packages <- req_packages
+      packages <- req_packages
     } else {
-      msg_packages <- paste("Added", ennumerate_packages(packages))
-      final_packages <- unique(c(req_packages, packages))
-    }
-    if (length(err_packages) > 0) {
-      err_packages <- c(
-        "Could not match",
-        ennumerate_packages(err_packages, FALSE)
-      )
-      if (action == "replace") {
-        err_packages <- c(
-          err_packages,
-          "\nTip: Check spelling, or remove from your command, and try again"
-        )
-      }
-      if (action == "omit") {
-        err_packages <- c(
-          err_packages,
-          "\nTip: Remove from your command, and try again"
-        )
-      }
-      err_packages <- paste0(err_packages, collapse = " ")
+      packages <- unique(c(req_packages, packages))
     }
   }
 
   if (!is.null(python_version)) {
     req_python_versions <- get_python_reqs("python_version")
-    final_python <- switch(action,
-      add = unique(c(python_version, req_python_versions)),
-      omit = req_python_versions[req_python_versions != python_version],
-      replace = python_version
+    python_version <- switch(action,
+                             add = unique(c(python_version, req_python_versions)),
+                             omit = req_python_versions[req_python_versions != python_version]
     )
   }
 
-  if (!silent) {
-    if (has_error) {
-      stop("\n", add_dash(c(err_packages, err_python)), "\n", call. = FALSE)
-    } else {
-      cat(add_dash(c(msg_packages, msg_python)), "\n")
-    }
-  }
+  top_env <- topenv(parent.frame())
 
-  if (!has_error) {
-    top_env <- topenv(parent.frame())
+  new_history <- c(
+    get_python_reqs("history"),
+    list(list(
+      requested_from = environmentName(top_env),
+      requested_is_package = isNamespace(top_env),
+      packages = packages,
+      action = action,
+      python_version = python_version,
+      exclude_newer = exclude_newer
+    ))
+  )
 
-    new_history <- c(
-      get_python_reqs("history"),
-      list(list(
-        requested_from = environmentName(top_env),
-        requested_is_package = isNamespace(top_env),
-        packages = packages,
-        action = action,
-        python_version = python_version
-      ))
-    )
-
-    set_python_reqs(
-      packages = final_packages,
-      python_versions = final_python,
-      history = new_history
-    )
-  }
+  set_python_reqs(
+    packages = packages,
+    python_versions = python_version,
+    exclude_newer = exclude_newer,
+    history = new_history
+  )
 
   invisible()
 }
@@ -162,42 +111,6 @@ extract_name <- function(x) {
   }))
 }
 
-# Message helpers --------------------------------------------------------------
-
-add_dash <- function(x) {
-  if (length(x) == 1) {
-    dashed <- ""
-    spaces <- ""
-  } else {
-    dashed <- "- "
-    spaces <- "  "
-  }
-  x <- gsub("\n", paste0("\n", spaces), x)
-  paste0(dashed, x, collapse = "\n")
-}
-
-ennumerate_packages <- function(x, add_quotes = TRUE) {
-  out <- NULL
-  len_x <- length(x)
-  for (i in seq_along(x)) {
-    i_x <- len_x - i
-    if (i_x > 1) {
-      join <- ", "
-    } else if (i_x == 1) {
-      join <- ", and "
-    } else {
-      join <- NULL
-    }
-    if (add_quotes) {
-      xi <- sprintf("\"%s\"", x[i])
-    } else {
-      xi <- x[i]
-    }
-    out <- c(out, xi, join)
-  }
-  paste0(out, collapse = "")
-}
-
 # Print ------------------------------------------------------------------------
 
 #' @export
@@ -218,6 +131,9 @@ print.python_requirements <- function(x, ...) {
   cat("Current requirements ----------------------------------------\n")
   cat(" Packages:", packages, "\n")
   cat(" Python:  ", python_versions, "\n")
+  if (!is.null(x$exclude_newer)) {
+    cat(" Exclude: After", x$exclude_newer, "\n")
+  }
   cat("Non-user requirements ---------------------------------------\n")
   reqs <- data.frame()
   for (item in x$history) {
@@ -244,24 +160,27 @@ print.python_requirements <- function(x, ...) {
 # Get/set requirements ---------------------------------------------------------
 
 get_python_reqs <- function(
-    x = c("all", "python_versions", "packages", "history")) {
+    x = c("all", "python_versions", "packages", "exclude_newer", "history")) {
   pr <- .globals$python_requirements
   x <- match.arg(x)
   switch(x,
-    all = pr,
-    python_versions = pr$python_versions,
-    packages = pr$packages,
-    history = pr$history
+         all = pr,
+         python_versions = pr$python_versions,
+         packages = pr$packages,
+         exclude_newer = pr$exclude_newer,
+         history = pr$history
   )
 }
 
 set_python_reqs <- function(
     python_versions = NULL,
     packages = NULL,
+    exclude_newer = NULL,
     history = NULL) {
   pr <- get_python_reqs("all")
   pr$python_versions <- python_versions %||% pr$python_versions
   pr$packages <- packages %||% pr$packages
+  pr$exclude_newer <- exclude_newer %||% pr$exclude_newer
   pr$history <- history %||% pr$history
   .globals$python_requirements <- pr
   get_python_reqs("all")
@@ -271,6 +190,7 @@ set_python_reqs <- function(
   .Data = list(
     python_versions = c(),
     packages = c(),
+    exclude_newer = NULL,
     history = list()
   ),
   class = "python_requirements"
@@ -326,8 +246,8 @@ uv_binary <- function() {
 get_or_create_venv <- function(requirements = NULL, python_version = "3.10", exclude_newer = NULL) {
   if (length(requirements)) {
     if (length(requirements) == 1 &&
-      grepl("[/\\]", requirements) &&
-      file.exists(requirements)) {
+        grepl("[/\\]", requirements) &&
+        file.exists(requirements)) {
       # path to a requirements.txt
       requirements <- c("--with-requirements", maybe_shQuote(requirements))
     } else {
@@ -367,6 +287,7 @@ get_or_create_venv <- function(requirements = NULL, python_version = "3.10", exc
       "--color=always",
       "--no-project",
       "--python-preference=only-managed",
+      exclude_newer,
       "-"
     ),
     env = c(

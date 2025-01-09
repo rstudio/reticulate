@@ -2,31 +2,17 @@
 py_require <- function(packages = NULL,
                        python_version = NULL,
                        exclude_newer = NULL,
-                       action = c("add", "omit", "set"),
-                       silent = TRUE) {
+                       action = c("add", "remove", "set")) {
   action <- match.arg(action)
 
-  current_exclude <- get_python_reqs("exclude_newer")
-
-  if (!is.null(exclude_newer) && action != "set" && !is.null(current_exclude)) {
+  if (!is.null(exclude_newer) &&
+    action != "set" &&
+    !is.null(get_python_reqs("exclude_newer"))
+  ) {
     stop(
       "`exclude_newer` is already set to '",
-      current_exclude,
+      get_python_reqs("exclude_newer"),
       "', use `action` 'set' to override"
-    )
-  }
-
-  # Priming with `numpy` if empty
-  if (is.null(get_python_reqs("packages"))) {
-    set_python_reqs(
-      packages = "numpy",
-      history = list(list(
-        requested_from = "reticulate",
-        requested_is_package = TRUE,
-        packages = "numpy",
-        action = "add",
-        python_version = NULL
-      ))
     )
   }
 
@@ -34,51 +20,46 @@ py_require <- function(packages = NULL,
     return(get_python_reqs())
   }
 
-  req_packages <- NULL
+  remove_these <- function(items, from) {
+    for (item in items) {
+      from <- from[from != item]
+    }
+    from
+  }
+
+  req_packages <- get_python_reqs("packages")
   if (!is.null(packages)) {
-    req_packages <- get_python_reqs("packages")
-    packages <- switch(action,
+    req_packages <- switch(action,
       add = unique(c(req_packages, packages)),
-      omit = {
-        for (pkg in packages) {
-          matches <- pkg == req_packages
-          req_packages <- req_packages[!matches]
-        }
-        req_packages
-      },
+      remove = remove_these(packages, req_packages),
       set = packages
     )
   }
 
+  req_python <- get_python_reqs("python_version")
   if (!is.null(python_version)) {
-    req_python_versions <- get_python_reqs("python_version")
-    python_version <- switch(action,
-      add = unique(c(python_version, req_python_versions)),
-      omit = req_python_versions[req_python_versions != python_version],
+    req_python <- switch(action,
+      add = unique(c(python_version, req_python)),
+      remove = remove_these(python_version, req_python),
       set = python_version
     )
   }
 
   top_env <- topenv(parent.frame())
 
-  new_history <- c(
-    get_python_reqs("history"),
-    list(list(
-      requested_from = environmentName(top_env),
-      requested_is_package = isNamespace(top_env),
-      packages = packages,
-      action = action,
-      python_version = python_version,
-      exclude_newer = exclude_newer
-    ))
-  )
-
-  set_python_reqs(
+  pr <- .globals$python_requirements
+  pr$packages <- req_packages
+  pr$python_version <- req_python
+  pr$exclude_newer <- pr$exclude_newer %||% exclude_newer
+  pr$history <- c(pr$history, list(list(
+    requested_from = environmentName(top_env),
+    requested_is_package = isNamespace(top_env),
     packages = packages,
-    python_versions = python_version,
+    python_version = python_version,
     exclude_newer = exclude_newer,
-    history = new_history
-  )
+    action = action
+  )))
+  .globals$python_requirements <- pr
 
   invisible()
 }
@@ -93,18 +74,18 @@ print.python_requirements <- function(x, ...) {
   } else {
     packages <- paste0(packages, collapse = ", ")
   }
-  python_versions <- x$python_versions
-  if (is.null(python_versions)) {
-    python_versions <- "[No version of Python selected yet]"
+  python_version <- x$python_version
+  if (is.null(python_version)) {
+    python_version <- "[No version of Python selected yet]"
   } else {
-    python_versions <- paste0(python_versions, collapse = ", ")
+    python_version <- paste0(python_version, collapse = ", ")
   }
   cat("------------------ Python requirements ----------------------\n")
   cat("Current requirements ----------------------------------------\n")
   cat(" Packages:", packages, "\n")
-  cat(" Python:  ", python_versions, "\n")
+  cat(" Python:  ", python_version, "\n")
   if (!is.null(x$exclude_newer)) {
-    cat(" Exclude: After", x$exclude_newer, "\n")
+    cat(" Exclude: Updates after", x$exclude_newer, "\n")
   }
   cat("Non-user requirements ---------------------------------------\n")
   reqs <- data.frame()
@@ -129,44 +110,36 @@ print.python_requirements <- function(x, ...) {
   return(invisible())
 }
 
-# Get/set requirements ---------------------------------------------------------
+# Get requirements ---------------------------------------------------------
 
-get_python_reqs <- function(
-    x = c("all", "python_versions", "packages", "exclude_newer", "history")) {
+get_python_reqs <- function(x = NULL) {
   pr <- .globals$python_requirements
-  x <- match.arg(x)
-  switch(x,
-    all = pr,
-    python_versions = pr$python_versions,
-    packages = pr$packages,
-    exclude_newer = pr$exclude_newer,
-    history = pr$history
-  )
+  if (is.null(pr)) {
+    pr <- structure(
+      .Data = list(
+        python_version = c(),
+        packages = c(),
+        exclude_newer = NULL,
+        history = list()
+      ),
+      class = "python_requirements"
+    )
+    pkg_prime <- "numpy"
+    pr$packages <- pkg_prime
+    pr$history <- list(list(
+      requested_from = "reticulate",
+      requested_is_package = TRUE,
+      action = "add",
+      packages = pkg_prime
+    ))
+    .globals$python_requirements <- pr
+  }
+  if (!is.null(x)) {
+    pr[[x]]
+  } else {
+    pr
+  }
 }
-
-set_python_reqs <- function(
-    python_versions = NULL,
-    packages = NULL,
-    exclude_newer = NULL,
-    history = NULL) {
-  pr <- get_python_reqs("all")
-  pr$python_versions <- python_versions %||% pr$python_versions
-  pr$packages <- packages %||% pr$packages
-  pr$exclude_newer <- exclude_newer %||% pr$exclude_newer
-  pr$history <- history %||% pr$history
-  .globals$python_requirements <- pr
-  get_python_reqs("all")
-}
-
-.globals$python_requirements <- structure(
-  .Data = list(
-    python_versions = c(),
-    packages = c(),
-    exclude_newer = NULL,
-    history = list()
-  ),
-  class = "python_requirements"
-)
 
 # uv ---------------------------------------------------------------------------
 
@@ -282,7 +255,7 @@ get_or_create_venv <- function(requirements = NULL, python_version = "3.10", exc
     writeLines(uv_error_msg, stderr())
     msg <- c(
       "Python requirements could not be satisfied.",
-      "Call `py_require()` to omit or replace conflicting requirements."
+      "Call `py_require()` to remove or replace conflicting requirements."
     )
 
     msg <- paste0(msg, collapse = "\n")

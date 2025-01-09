@@ -199,71 +199,92 @@ get_or_create_venv <- function(
       # path to a requirements.txt
       requirements <- c("--with-requirements", maybe_shQuote(requirements))
     } else {
-      requirements <- paste0("\"", requirements, "\"", collapse = ", ")
-      requirements <- sprintf("# dependencies =[%s]", requirements)
+      packages <- paste0("\"", requirements, "\"", collapse = ", ")
+      packages <- sprintf("# dependencies =[%s]", packages)
     }
   }
 
+  py_ver <- NULL
   if (!is.null(python_version)) {
     has_const <- substr(python_version, 1, 1) %in% c(">", "<", "=", "!")
     python_version[!has_const] <- paste0("==", python_version[!has_const])
-    python_version <- paste0(python_version, collapse = ",")
-    python_version <- sprintf("# requires-python = \"%s\"", python_version)
+    py_ver <- paste0(python_version, collapse = ",")
+    py_ver <- sprintf("# requires-python = \"%s\"", py_ver)
   }
 
   if (!is.null(exclude_newer)) {
     # todo, accept a POSIXct/lt, format correctly
-    exclude_newer <- c("--exclude-newer", maybe_shQuote(exclude_newer))
+    excl_newer <- c("--exclude-newer", maybe_shQuote(exclude_newer))
   }
 
   outfile <- tempfile(fileext = ".txt")
   on.exit(unlink(outfile), add = TRUE)
   input <- paste(
     "# /// script",
-    python_version,
-    requirements,
+    py_ver %||% "#",
+    packages %||% "#",
     "# ///",
     "import sys",
     sprintf("with open('%s', 'w') as f:", outfile),
     "  print(sys.executable, file=f)",
     sep = "\n"
   )
+
+  std <- ifelse(interactive(), "", TRUE)
   result <- suppressWarnings(system2(
     uv_binary(),
     c(
       "run",
-      "--color=always",
+      "--color=never",
       "--no-project",
       "--python-preference=only-managed",
-      exclude_newer,
+      excl_newer,
       "-"
     ),
     env = c(
       "UV_NO_CONFIG=1"
     ),
-    stdout = TRUE, stderr = TRUE,
+    stdout = std,
+    stderr = std,
     input = input
   ))
 
+  error_msg <- c(
+    "Python requirements could not be satisfied.",
+    "Call `py_require()` to remove or replace conflicting requirements."
+  )
 
-  if (!is.null(attr(result, "status"))) {
-    uv_error_msg <- sub(
-      "No solution found when resolving `--with` dependencies:",
-      "No solution found when resolving dependencies:",
-      result,
-      fixed = TRUE
-    )
-
-    # write out uv error message separately, since stop() might truncate.
-    writeLines(uv_error_msg, stderr())
-    msg <- c(
-      "Python requirements could not be satisfied.",
-      "Call `py_require()` to remove or replace conflicting requirements."
-    )
-
-    msg <- paste0(msg, collapse = "\n")
-    stop(msg)
+  if (interactive()) {
+    # Determines there was an error by checking if the out file exists
+    if (!file.exists(outfile)) {
+      # Assumes `uv` output informing what the error was has already been
+      # resturned by system2()
+      stop(
+        "Python requirements could not be satisfied.\n",
+        "  Call `py_require()` to remove or replace conflicting requirements."
+      )
+    }
+  } else {
+    if (!is.null(attr(result, "status"))) {
+      uv_error_msg <- sub(
+        "No solution found when resolving `--with` dependencies:",
+        "No solution found when resolving dependencies:",
+        result,
+        fixed = TRUE
+      )
+      rlang::abort(
+        c("Python requirements could not be satisfied.",
+          "x" = "Requirements:",
+          " " = paste(" Packages:", requirements),
+          " " = paste(" Python:", python_version),
+          " " = paste(" Exclude newer:", exclude_newer),
+          "x" = "Output from 'uv':",
+          uv_error_msg
+        )
+      )
+    }
   }
+
 
   # result
   readLines(outfile)

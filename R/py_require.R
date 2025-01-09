@@ -188,7 +188,10 @@ uv_binary <- function() {
 # TODO: we should pass --cache-dir=file.path(rappdirs::user_cache_dir("r-reticulate"), "uv-cache")
 # if we are using a reticulate-managed uv installation.
 
-get_or_create_venv <- function(requirements = NULL, python_version = "3.10", exclude_newer = NULL) {
+get_or_create_venv <- function(
+    requirements = get_python_reqs("packages"),
+    python_version = get_python_reqs("python_version"),
+    exclude_newer = get_python_reqs("exclude_newer")) {
   if (length(requirements)) {
     if (length(requirements) == 1 &&
       grepl("[/\\]", requirements) &&

@@ -199,8 +199,8 @@ get_or_create_venv <- function(
       # path to a requirements.txt
       requirements <- c("--with-requirements", maybe_shQuote(requirements))
     } else {
-      packages <- paste0("\"", requirements, "\"", collapse = ", ")
-      packages <- sprintf("# dependencies =[%s]", packages)
+      requirements <- paste0("\"", requirements, "\"", collapse = ", ")
+      packages <- sprintf("# dependencies =[%s]", requirements)
     }
   }
 
@@ -208,10 +208,11 @@ get_or_create_venv <- function(
   if (!is.null(python_version)) {
     has_const <- substr(python_version, 1, 1) %in% c(">", "<", "=", "!")
     python_version[!has_const] <- paste0("==", python_version[!has_const])
-    py_ver <- paste0(python_version, collapse = ",")
-    py_ver <- sprintf("# requires-python = \"%s\"", py_ver)
+    python_version <- paste0(python_version, collapse = ",")
+    py_ver <- sprintf("# requires-python = \"%s\"", python_version)
   }
 
+  excl_newer <- NULL
   if (!is.null(exclude_newer)) {
     # todo, accept a POSIXct/lt, format correctly
     excl_newer <- c("--exclude-newer", maybe_shQuote(exclude_newer))

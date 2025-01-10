@@ -188,105 +188,45 @@ uv_binary <- function() {
 # TODO: we should pass --cache-dir=file.path(rappdirs::user_cache_dir("r-reticulate"), "uv-cache")
 # if we are using a reticulate-managed uv installation.
 
-get_or_create_venv <- function(
-    requirements = get_python_reqs("packages"),
-    python_version = get_python_reqs("python_version"),
-    exclude_newer = get_python_reqs("exclude_newer")) {
-  if (length(requirements)) {
-    if (length(requirements) == 1 &&
-      grepl("[/\\]", requirements) &&
-      file.exists(requirements)) {
-      # path to a requirements.txt
-      requirements <- c("--with-requirements", maybe_shQuote(requirements))
-    } else {
-      requirements <- paste0("\"", requirements, "\"", collapse = ", ")
-      packages <- sprintf("# dependencies =[%s]", requirements)
-    }
-  }
+get_or_create_venv <- function(packages = "numpy",
+                               python_version = NULL,
+                               exclude_newer = NULL) {
+  if (length(packages))
+    packages <- as.vector(rbind("--with", maybe_shQuote(packages)))
 
-  py_ver <- NULL
-  if (!is.null(python_version)) {
-    has_const <- substr(python_version, 1, 1) %in% c(">", "<", "=", "!")
-    python_version[!has_const] <- paste0("==", python_version[!has_const])
-    python_version <- paste0(python_version, collapse = ",")
-    py_ver <- sprintf("# requires-python = \"%s\"", python_version)
-  }
+  if (length(python_version))
+    python_version <- c("--python", maybe_shQuote(python_version))
 
-  excl_newer <- NULL
   if (!is.null(exclude_newer)) {
     # todo, accept a POSIXct/lt, format correctly
-    excl_newer <- c("--exclude-newer", maybe_shQuote(exclude_newer))
+    exclude_newer <- c("--exclude-newer", maybe_shQuote(exclude_newer))
   }
 
-  outfile <- tempfile(fileext = ".txt")
-  on.exit(unlink(outfile), add = TRUE)
-  input <- paste(
-    "# /// script",
-    py_ver %||% "#",
-    packages %||% "#",
-    "# ///",
-    "import sys",
-    sprintf("with open('%s', 'w') as f:", outfile),
-    "  print(sys.executable, file=f)",
-    sep = "\n"
-  )
+  input <- "import sys; print(sys.executable);"
 
-  std <- ifelse(interactive(), "", TRUE)
   result <- suppressWarnings(system2(
-    uv_binary(),
-    c(
+    uv_binary(), c(
       "run",
-      "--color=never",
       "--no-project",
       "--python-preference=only-managed",
-      excl_newer,
-      "-"
-    ),
-    env = c(
+      python_version,
+      packages,
+      "python",
+      "-c",
+      shQuote("import sys; print(sys.executable);")
+    ), env = c(
       "UV_NO_CONFIG=1"
     ),
-    stdout = std,
-    stderr = std,
-    input = input
+    stdout = TRUE,
   ))
-
-  error_msg <- c(
-    "Python requirements could not be satisfied.",
-    "Call `py_require()` to remove or replace conflicting requirements."
-  )
-
-  if (interactive()) {
-    # Determines there was an error by checking if the out file exists
-    if (!file.exists(outfile)) {
-      # Assumes `uv` output informing what the error was has already been
-      # resturned by system2()
-      stop(
-        "Python requirements could not be satisfied.\n",
-        "  Call `py_require()` to remove or replace conflicting requirements."
-      )
-    }
-  } else {
-    if (!is.null(attr(result, "status"))) {
-      uv_error_msg <- sub(
-        "No solution found when resolving `--with` dependencies:",
-        "No solution found when resolving dependencies:",
-        result,
-        fixed = TRUE
-      )
-      rlang::abort(
-        c("Python requirements could not be satisfied.",
-          "x" = "Requirements:",
-          " " = paste(" Packages:", requirements),
-          " " = paste(" Python:", python_version),
-          " " = paste(" Exclude newer:", exclude_newer),
-          "x" = "Output from 'uv':",
-          uv_error_msg
-        )
-      )
-    }
+  if (!is.null(attr(result, "status"))) {
+    msg <- c(
+      "Python requirements could not be satisfied.",
+      "Call `py_require()` to remove or replace conflicting requirements."
+    )
+    msg <- paste0(msg, collapse = "\n")
+    stop(msg)
   }
 
-
-  # result
-  readLines(outfile)
+  result
 }

@@ -20,18 +20,11 @@ py_require <- function(packages = NULL,
     return(get_python_reqs())
   }
 
-  remove_these <- function(items, from) {
-    for (item in items) {
-      from <- from[from != item]
-    }
-    from
-  }
-
   req_packages <- get_python_reqs("packages")
   if (!is.null(packages)) {
     req_packages <- switch(action,
       add = unique(c(req_packages, packages)),
-      remove = remove_these(packages, req_packages),
+      remove = setdiff(req_packages, packages),
       set = packages
     )
   }
@@ -40,7 +33,7 @@ py_require <- function(packages = NULL,
   if (!is.null(python_version)) {
     req_python <- switch(action,
       add = unique(c(python_version, req_python)),
-      remove = remove_these(python_version, req_python),
+      remove = setdiff(req_python, python_version),
       set = python_version
     )
   }

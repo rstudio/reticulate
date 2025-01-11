@@ -4,8 +4,7 @@
 
 test_that("Error requesting newer package version against an older snapshot", {
   local_edition(3)
-  withr::local_envvar(c("NO_COLOR" = 1))
-  expect_snapshot(eval_remote(error = TRUE, {
+  expect_snapshot(r_session({
     reticulate:::get_or_create_venv(c("numpy<2", "numpy>=2"))
   }))
 })

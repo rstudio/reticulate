@@ -188,7 +188,7 @@ get_or_create_venv <- function(packages = "numpy",
     packages <- as.vector(rbind("--with", maybe_shQuote(packages)))
 
   if (length(python_version))
-    python_version <- c("--python", maybe_shQuote(python_version))
+    python_version <- c("--python", maybe_shQuote(paste0(python_version, collapse = ",")))
 
   if (!is.null(exclude_newer)) {
     # todo, accept a POSIXct/lt, format correctly
@@ -202,6 +202,7 @@ get_or_create_venv <- function(packages = "numpy",
       "run",
       "--no-project",
       "--python-preference=only-managed",
+      exclude_newer,
       python_version,
       packages,
       "python",
@@ -215,9 +216,17 @@ get_or_create_venv <- function(packages = "numpy",
   if (!is.null(attr(result, "status"))) {
     msg <- c(
       "Python requirements could not be satisfied.",
+      if (!is.null(python_version))
+        paste0("Python version: ", python_version[2]),
+      # TODO: wrap+indent+un_shQuote python packages
+      paste0(c("Python dependencies: ", matrix(packages, nrow = 2)[2, ]),
+             collapse = " "),
+      if (!is.null(exclude_newer))
+        paste0("Exclude newer: ", exclude_newer[2]),
       "Call `py_require()` to remove or replace conflicting requirements."
     )
     msg <- paste0(msg, collapse = "\n")
+    # TODO: check if `stop()` will truncate msg, fix-up hint if yes.
     stop(msg)
   }
 

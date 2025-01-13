@@ -181,9 +181,9 @@ uv_binary <- function() {
 # TODO: we should pass --cache-dir=file.path(rappdirs::user_cache_dir("r-reticulate"), "uv-cache")
 # if we are using a reticulate-managed uv installation.
 
-get_or_create_venv <- function(packages = "numpy",
-                               python_version = NULL,
-                               exclude_newer = NULL) {
+get_or_create_venv <- function(packages = get_python_reqs("packages"),
+                               python_version = get_python_reqs("python_version"),
+                               exclude_newer = get_python_reqs("exclude_newer")) {
   if (length(packages))
     packages <- as.vector(rbind("--with", maybe_shQuote(packages)))
 
@@ -218,9 +218,10 @@ get_or_create_venv <- function(packages = "numpy",
       "Python requirements could not be satisfied.",
       if (!is.null(python_version))
         paste0("Python version: ", python_version[2]),
-      # TODO: wrap+indent+un_shQuote python packages
-      paste0(c("Python dependencies: ", matrix(packages, nrow = 2)[2, ]),
-             collapse = " "),
+      if (!is.null(packages))
+        # TODO: wrap+indent+un_shQuote python packages
+        paste0(c("Python dependencies: ", matrix(packages, nrow = 2)[2, ]),
+               collapse = " "),
       if (!is.null(exclude_newer))
         paste0("Exclude newer: ", exclude_newer[2]),
       "Call `py_require()` to remove or replace conflicting requirements."

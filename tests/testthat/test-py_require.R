@@ -1,32 +1,37 @@
-
-
-
+test_that("Error requesting conflicting package versions", {
+  local_edition(3)
+  expect_snapshot(r_session(attach_namespace = TRUE, {
+    py_require("numpy<2")
+    py_require("numpy>=2")
+    get_or_create_venv()
+  }))
+})
 
 test_that("Error requesting newer package version against an older snapshot", {
   local_edition(3)
   expect_snapshot(r_session(attach_namespace = TRUE, {
-    get_or_create_venv(c("numpy<2", "numpy>=2"))
+    py_require("tensorflow==2.18.*")
+    py_require(exclude_newer = "2024-10-20")
+    get_or_create_venv()
   }))
 })
-  # test_py_require_reset()
-  # py_require("tensorflow==2.18.*", exclude_newer = "2024-10-20")
-  # expect_snapshot({
-  #   get_or_create_venv("tensorflow==2.18.*", exclude_newer = "2024-10-20")
-  #   get_or_create_venv("tensorflow==2.18.*")#, exclude_newer = "2024-10-20")
-  # }, error = TRUE)
-#
-# test_that("Error requesting conflicting package versions", {
-#   local_edition(3)
-#   test_py_require_reset()
-#   py_require("pandas==2.2.3")
-#   py_require("pandas==2.2.2")
-#   expect_snapshot(get_or_create_venv(), error = TRUE)
-# })
-#
-# test_that("Error requesting conflicting Python versions", {
-#   local_edition(3)
-#   test_py_require_reset()
-#   py_require(python_version = ">=3.10")
-#   py_require(python_version = "3.11")
-#   expect_snapshot(get_or_create_venv(), error = TRUE)
-# })
+
+test_that("Error requesting a package that does not exists", {
+  local_edition(3)
+  expect_snapshot(r_session(attach_namespace = TRUE, {
+    py_require(c("pandas", "numpy", "notexists"))
+    get_or_create_venv()
+  }))
+})
+
+test_that("Error requesting conflicting Python versions", {
+  local_edition(3)
+  expect_snapshot(r_session(attach_namespace = TRUE, {
+    py_require(python_version = ">=3.10")
+    py_require(python_version = "<3.10")
+    get_or_create_venv()
+  }))
+})
+
+
+

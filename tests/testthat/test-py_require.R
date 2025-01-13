@@ -4,8 +4,8 @@
 
 test_that("Error requesting newer package version against an older snapshot", {
   local_edition(3)
-  expect_snapshot(r_session({
-    reticulate:::get_or_create_venv(c("numpy<2", "numpy>=2"))
+  expect_snapshot(r_session(attach_namespace = TRUE, {
+    get_or_create_venv(c("numpy<2", "numpy>=2"))
   }))
 })
   # test_py_require_reset()

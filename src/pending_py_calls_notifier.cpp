@@ -10,7 +10,9 @@
 // nicely like <windows.h>, <unistd.h>, etc.
 #include "tinythread.h"
 
+#ifndef R_NO_REMAP
 #define R_NO_REMAP
+#endif
 #include <R.h>  // R-devel (4.5) errors if you include Rinternals.h but not R.h in c++ modules.
 #include <Rinternals.h>
 

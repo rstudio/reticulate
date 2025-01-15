@@ -221,14 +221,15 @@ get_or_create_venv <- function(packages = get_python_reqs("packages"),
     Sys.sleep(.2)
     if (p$is_alive()) {
       sp <- cli::make_spinner(template = "Downloading Python dependencies {spin}")
-      while (p$is_alive()) {
+      repeat {
+        pr <- p$poll_io(100)
+        if (pr[["output"]] == "ready" && pr[["error"]] == "ready") break
         sp$spin()
-        Sys.sleep(0.05)
       }
       sp$finish()
-      cmd_failed <- p$get_exit_status() == 1
-      cmd_err <- p$read_all_error()
-      cmd_out <- p$read_all_output()
+      cmd_err <- p$read_error()
+      cmd_out <- p$read_output()
+      cmd_failed <- cmd_out == ""
     }
   } else {
     args[length(args)] <- maybe_shQuote(args[length(args)])

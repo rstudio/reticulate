@@ -26,16 +26,6 @@
 .globals$suppress_warnings_handlers <- list()
 .globals$class_filters <- list()
 .globals$py_repl_active <- FALSE
-.globals$python_requirements <- structure(
-  list(
-    dependencies = character(),
-    python = NULL
-  ),
-  class = "python_requirements",
-  history = list()
-)
-
-
 
 is_python_initialized <- function() {
   !is.null(.globals$py_config)

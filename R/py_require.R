@@ -184,52 +184,91 @@ uv_binary <- function() {
 get_or_create_venv <- function(packages = get_python_reqs("packages"),
                                python_version = get_python_reqs("python_version"),
                                exclude_newer = get_python_reqs("exclude_newer")) {
-  if (length(packages))
+  if (length(packages)) {
     packages <- as.vector(rbind("--with", maybe_shQuote(packages)))
+  }
 
-  if (length(python_version))
+  if (length(python_version)) {
     python_version <- c("--python", maybe_shQuote(paste0(python_version, collapse = ",")))
+  }
 
   if (!is.null(exclude_newer)) {
     # todo, accept a POSIXct/lt, format correctly
     exclude_newer <- c("--exclude-newer", maybe_shQuote(exclude_newer))
   }
 
-  input <- "import sys; print(sys.executable);"
+  args <- c(
+    "run",
+    "--color", "never",
+    "--no-project",
+    "--no-cache",
+    "--python-preference=only-managed",
+    exclude_newer,
+    python_version,
+    packages,
+    "python", "-c", "import sys; print(sys.executable);"
+  )
 
-  result <- suppressWarnings(system2(
-    uv_binary(), c(
-      "run",
-      "--no-project",
-      "--python-preference=only-managed",
-      exclude_newer,
-      python_version,
-      packages,
-      "python",
-      "-c",
-      shQuote("import sys; print(sys.executable);")
-    ), env = c(
-      "UV_NO_CONFIG=1"
-    ),
-    stdout = TRUE,
-  ))
-  if (!is.null(attr(result, "status"))) {
+  if (interactive() && !isatty(stderr()) &&
+    (is_rstudio() || is_positron()) &&
+    requireNamespace("cli") && requireNamespace("processx")) {
+    p <- processx::process$new(
+      command = uv_binary(),
+      args = args,
+      stderr = "|",
+      stdout = "|"
+    )
+    Sys.sleep(.2)
+    if (p$is_alive()) {
+      sp <- cli::make_spinner(template = "Downloading Python dependencies {spin}")
+      while (p$is_alive()) {
+        sp$spin()
+        Sys.sleep(0.05)
+      }
+      sp$finish()
+      cmd_failed <- p$get_exit_status() == 1
+      cmd_err <- p$read_all_error()
+      cmd_out <- p$read_all_output()
+    }
+  } else {
+    args[length(args)] <- maybe_shQuote(args[length(args)])
+    result <- suppressWarnings(system2(
+      command = uv_binary(),
+      args = args,
+      stderr = TRUE,
+      stdout = TRUE
+    ))
+    cmd_failed <- !is.null(attributes(result))
+    if (cmd_failed) {
+      cmd_err <- paste0(result, collapse = "\n")
+    } else {
+      cmd_err <- result[[1]]
+      cmd_out <- result[[2]]
+    }
+  }
+
+  if (cmd_failed) {
+    writeLines(cmd_err, con = stderr())
     msg <- c(
       "Python requirements could not be satisfied.",
-      if (!is.null(python_version))
-        paste0("Python version: ", python_version[2]),
-      if (!is.null(packages))
+      if (!is.null(python_version)) {
+        paste0("   Python version: ", python_version[2])
+      },
+      if (!is.null(packages)) {
         # TODO: wrap+indent+un_shQuote python packages
-        paste0(c("Python dependencies: ", matrix(packages, nrow = 2)[2, ]),
-               collapse = " "),
-      if (!is.null(exclude_newer))
-        paste0("Exclude newer: ", exclude_newer[2]),
+        paste0(c("   Python dependencies: ", matrix(packages, nrow = 2)[2, ]),
+          collapse = " "
+        )
+      },
+      if (!is.null(exclude_newer)) {
+        paste0("   Exclude newer: ", exclude_newer[2])
+      },
       "Call `py_require()` to remove or replace conflicting requirements."
     )
     msg <- paste0(msg, collapse = "\n")
     # TODO: check if `stop()` will truncate msg, fix-up hint if yes.
     stop(msg)
   }
-
-  result
+  cat(cmd_err)
+  capture.output(cat(cmd_out))
 }

@@ -185,7 +185,6 @@ will_use_processx <- function() {
   interactive() && !isatty(stderr()) &&
     (is_rstudio() || is_positron()) &&
     requireNamespace("cli") && requireNamespace("processx")
-  FALSE
 }
 
 get_or_create_venv <- function(packages = get_python_reqs("packages"),
@@ -205,7 +204,12 @@ get_or_create_venv <- function(packages = get_python_reqs("packages"),
   if (length(python_version)) {
     has_const <- substr(python_version, 1, 1) %in% c(">", "<", "=", "!")
     python_version[!has_const] <- paste0("==", python_version[!has_const])
-    python_arg <- c("--python", maybe_shQuote(paste0(python_version, collapse = ",")))
+    if (will_use_processx()) {
+      python_args <- python_version
+    } else {
+      python_args <- maybe_shQuote(python_version)
+    }
+    python_arg <- c("--python", paste0(python_args, collapse = ","))
   } else {
     python_arg <- NULL
   }
@@ -235,6 +239,10 @@ get_or_create_venv <- function(packages = get_python_reqs("packages"),
   )
 
   if (will_use_processx()) {
+    on.exit(
+      try(p$kill(), silent = TRUE),
+      add = TRUE
+    )
     p <- processx::process$new(
       command = uv_binary(),
       args = args,

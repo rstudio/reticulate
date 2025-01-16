@@ -272,9 +272,9 @@ get_or_create_venv <- function(packages = get_python_reqs("packages"),
       if (!is.null(packages)) {
         # TODO: wrap+indent+un_shQuote python packages
         pkg_lines <- strwrap(paste0(packages, collapse = ", "), 60)
-        pkg_col <- c(" Packages: ", rep("           ", length(package_lines) - 1))
+        pkg_col <- c(" Packages: ", rep("           ", length(pkg_lines) - 1))
         out <- NULL
-        for (i in seq_along(package_lines)) {
+        for (i in seq_along(pkg_lines)) {
           out <- c(out, paste0(pkg_col[[i]], pkg_lines[[i]]))
         }
         out

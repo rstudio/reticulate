@@ -181,22 +181,11 @@ uv_binary <- function() {
 # TODO: we should pass --cache-dir=file.path(rappdirs::user_cache_dir("r-reticulate"), "uv-cache")
 # if we are using a reticulate-managed uv installation.
 
-will_use_processx <- function() {
-  interactive() && !isatty(stderr()) &&
-    (is_rstudio() || is_positron()) &&
-    requireNamespace("cli") && requireNamespace("processx")
-}
-
 get_or_create_venv <- function(packages = get_python_reqs("packages"),
                                python_version = get_python_reqs("python_version"),
                                exclude_newer = get_python_reqs("exclude_newer")) {
   if (length(packages)) {
-    if (will_use_processx()) {
-      pkg_args <- packages
-    } else {
-      pkg_args <- maybe_shQuote(packages)
-    }
-    pkg_arg <- as.vector(rbind("--with", pkg_args))
+    pkg_arg <- as.vector(rbind("--with", maybe_processx(packages)))
   } else {
     pkg_arg <- NULL
   }
@@ -204,12 +193,7 @@ get_or_create_venv <- function(packages = get_python_reqs("packages"),
   if (length(python_version)) {
     has_const <- substr(python_version, 1, 1) %in% c(">", "<", "=", "!")
     python_version[!has_const] <- paste0("==", python_version[!has_const])
-    if (will_use_processx()) {
-      python_args <- python_version
-    } else {
-      python_args <- maybe_shQuote(python_version)
-    }
-    python_arg <- c("--python", paste0(python_args, collapse = ","))
+    python_arg <- c("--python", paste0(maybe_processx(python_version), collapse = ","))
   } else {
     python_arg <- NULL
   }
@@ -252,13 +236,13 @@ get_or_create_venv <- function(packages = get_python_reqs("packages"),
     sp <- cli::make_spinner(template = "Downloading Python dependencies {spin}")
     repeat {
       pr <- p$poll_io(100)
-      if (pr[["output"]] == "ready" && pr[["error"]] == "ready") break
+      if (all(as.vector(pr[c("error", "output")]) == "ready")) break
       sp$spin()
     }
     sp$finish()
     cmd_err <- p$read_error()
     cmd_out <- p$read_output()
-    cmd_failed <- cmd_out == ""
+    cmd_failed <- identical(cmd_out, "")
   } else {
     result <- suppressWarnings(system2(
       command = uv_binary(),
@@ -278,17 +262,27 @@ get_or_create_venv <- function(packages = get_python_reqs("packages"),
   if (cmd_failed) {
     writeLines(cmd_err, con = stderr())
     msg <- c(
-      "------------- Python requirements could not be satisfied -------------",
+      paste0(
+        "-- Current requirements:", paste0(rep("-", 49), collapse = ""),
+        collapse = ""
+      ),
       if (!is.null(python_version)) {
-        paste0(" Python: ", paste0(python_version, collapse = ", "))
+        paste0(" Python:   ", paste0(python_version, collapse = ", "))
       },
       if (!is.null(packages)) {
         # TODO: wrap+indent+un_shQuote python packages
-        paste0(" Packages: ", paste0(packages, collapse = ", "))
+        pkg_lines <- strwrap(paste0(packages, collapse = ", "), 60)
+        pkg_col <- c(" Packages: ", rep("           ", length(package_lines) - 1))
+        out <- NULL
+        for (i in seq_along(package_lines)) {
+          out <- c(out, paste0(pkg_col[[i]], pkg_lines[[i]]))
+        }
+        out
       },
       if (!is.null(exclude_newer)) {
-        paste0(" Exclude newer: ", exclude_newer)
-      }
+        paste0(" Exclude:  Anything newer than ", exclude_newer)
+      },
+      paste0(rep("-", 73), collapse = "")
     )
     msg <- paste0(msg, collapse = "\n")
     writeLines(msg, con = stderr())
@@ -299,4 +293,17 @@ get_or_create_venv <- function(packages = get_python_reqs("packages"),
   }
   cat(cmd_err)
   capture.output(cat(cmd_out))
+}
+
+will_use_processx <- function() {
+  interactive() && !isatty(stderr()) &&
+    (is_rstudio() || is_positron()) &&
+    requireNamespace("cli") && requireNamespace("processx")
+}
+
+maybe_processx <- function(x) {
+  if (!will_use_processx()) {
+    x <- maybe_shQuote(x)
+  }
+  x
 }

@@ -46,7 +46,7 @@ py_require <- function(packages = NULL,
   pr$exclude_newer <- pr$exclude_newer %||% exclude_newer
   pr$history <- c(pr$history, list(list(
     requested_from = environmentName(top_env),
-    requested_is_package = isNamespace(top_env),
+    env_is_package = isNamespace(top_env),
     packages = packages,
     python_version = python_version,
     exclude_newer = exclude_newer,
@@ -63,44 +63,80 @@ py_require <- function(packages = NULL,
 print.python_requirements <- function(x, ...) {
   packages <- x$packages
   if (is.null(packages)) {
-    packages <- "[No packages added yet]"
-  } else {
-    packages <- paste0(packages, collapse = ", ")
+    packages <- "[No package(s) specified]"
   }
   python_version <- x$python_version
   if (is.null(python_version)) {
-    python_version <- "[No version of Python selected yet]"
-  } else {
-    python_version <- paste0(python_version, collapse = ", ")
+    python_version <- "[No Python version specified]"
   }
-  cat("------------------ Python requirements ----------------------\n")
-  cat("Current requirements ----------------------------------------\n")
-  cat(" Packages:", packages, "\n")
-  cat(" Python:  ", python_version, "\n")
-  if (!is.null(x$exclude_newer)) {
-    cat(" Exclude: Updates after", x$exclude_newer, "\n")
+  cat(paste0(rep("=", 26), collapse = ""))
+  cat(" Python requirements ")
+  cat(paste0(rep("=", 26), collapse = ""), "\n")
+  cat(requirements_print(
+    packages = packages,
+    python_version = python_version,
+    exclude_newer = x$exclude_newer
+  ))
+  cat("\n")
+
+  # TODO - Add support for "remove" action (will require a full parsing of history)
+  requested_from <- as.character(lapply(x$history, function(x) x$requested_from))
+  history <- x$history[requested_from != "R_GlobalEnv"]
+  is_package <- as.logical(lapply(history, function(x) x$env_is_package))
+  if (any(is_package)) {
+    cat("-- R package requests ")
+    cat(paste0(rep("-", 51), collapse = ""), "\n")
+    requirements_table(history[is_package], "R package")
   }
-  cat("Non-user requirements ---------------------------------------\n")
-  reqs <- data.frame()
-  for (item in x$history) {
-    if (item$requested_from != "R_GlobalEnv") {
-      if (item$requested_is_package) {
-        req_label <- paste0("package:", item$requested_from)
-      } else {
-        req_label <- item$requested_from
-      }
-      row_x <- data.frame(
-        requestor = paste(req_label, "|"),
-        packages = paste(paste0(item$packages, collapse = ", "), "|"),
-        python = paste(paste0(item$python, collapse = ", "), "|")
-      )
-      reqs <- rbind(reqs, row_x)
+
+  if (any(!is_package)) {
+    cat("-- Environment requests ")
+    cat(paste0(rep("-", 49), collapse = ""), "\n")
+    requirements_table(history[is_package], "R package")
+  }
+
+  return(invisible())
+}
+
+
+pad_length <- function(x = "", len) {
+  padding <- paste0(rep(" ", len - nchar(x)), collapse = "")
+  paste0(x, padding)
+}
+
+requirements_table <- function(history, from_label) {
+  console_width <- 73
+  python_width <- 20
+  requested_from <- as.character(lapply(history, function(x) x$requested_from))
+  pkg_names <- c(unique(requested_from), from_label)
+  name_width <- max(nchar(pkg_names)) + 1
+  pkg_width <- console_width - python_width - name_width
+  header <- list(list(
+    requested_from = from_label,
+    packages = "Python package(s)",
+    python_version = "Python version"
+  ))
+  history <- c(header, history)
+  for (pkg_entry in history) {
+    pkg_lines <- strwrap(
+      x = paste0(pkg_entry$packages, collapse = ", "),
+      width = pkg_width
+    )
+    python_lines <- strwrap(
+      x = paste0(pkg_entry$python_version, collapse = ", "),
+      width = python_width
+    )
+    max_lines <- max(c(length(python_lines), length(pkg_lines)))
+    for (i in seq_len(max_lines)) {
+      nm <- ifelse(i == 1, pkg_entry$requested_from, "")
+      pk <- ifelse(i <= length(pkg_lines), pkg_lines[i], "")
+      py <- ifelse(i <= length(python_lines), python_lines[i], "")
+      cat(pad_length(nm, name_width))
+      cat(pad_length(pk, pkg_width))
+      cat(pad_length(py, python_width))
+      cat("\n")
     }
   }
-  if (!is.null(reqs)) {
-    print(reqs)
-  }
-  return(invisible())
 }
 
 # Get requirements ---------------------------------------------------------
@@ -121,7 +157,7 @@ get_python_reqs <- function(x = NULL) {
     pr$packages <- pkg_prime
     pr$history <- list(list(
       requested_from = "reticulate",
-      requested_is_package = TRUE,
+      env_is_package = TRUE,
       action = "add",
       packages = pkg_prime
     ))
@@ -261,30 +297,12 @@ get_or_create_venv <- function(packages = get_python_reqs("packages"),
 
   if (cmd_failed) {
     writeLines(cmd_err, con = stderr())
-    msg <- c(
-      paste0(
-        "-- Current requirements:", paste0(rep("-", 49), collapse = ""),
-        collapse = ""
-      ),
-      if (!is.null(python_version)) {
-        paste0(" Python:   ", paste0(python_version, collapse = ", "))
-      },
-      if (!is.null(packages)) {
-        # TODO: wrap+indent+un_shQuote python packages
-        pkg_lines <- strwrap(paste0(packages, collapse = ", "), 60)
-        pkg_col <- c(" Packages: ", rep("           ", length(pkg_lines) - 1))
-        out <- NULL
-        for (i in seq_along(pkg_lines)) {
-          out <- c(out, paste0(pkg_col[[i]], pkg_lines[[i]]))
-        }
-        out
-      },
-      if (!is.null(exclude_newer)) {
-        paste0(" Exclude:  Anything newer than ", exclude_newer)
-      },
-      paste0(rep("-", 73), collapse = "")
+    msg <- requirements_print(
+      package = packages,
+      python_version = python_version,
+      exclude_newer = exclude_newer
     )
-    msg <- paste0(msg, collapse = "\n")
+    msg <- c(msg, paste0(rep("-", 73), collapse = ""))
     writeLines(msg, con = stderr())
     stop(
       "Call `py_require()` to remove or replace conflicting requirements.",
@@ -306,4 +324,32 @@ maybe_processx <- function(x) {
     x <- maybe_shQuote(x)
   }
   x
+}
+
+requirements_print <- function(packages = NULL,
+                               python_version = NULL,
+                               exclude_newer = NULL) {
+  msg <- c(
+    paste0(
+      "-- Current requirements ", paste0(rep("-", 49), collapse = ""),
+      collapse = ""
+    ),
+    if (!is.null(python_version)) {
+      paste0(" Python:   ", paste0(python_version, collapse = ", "))
+    },
+    if (!is.null(packages)) {
+      # TODO: wrap+indent+un_shQuote python packages
+      pkg_lines <- strwrap(paste0(packages, collapse = ", "), 60)
+      pkg_col <- c(" Packages: ", rep("           ", length(pkg_lines) - 1))
+      out <- NULL
+      for (i in seq_along(pkg_lines)) {
+        out <- c(out, paste0(pkg_col[[i]], pkg_lines[[i]]))
+      }
+      out
+    },
+    if (!is.null(exclude_newer)) {
+      paste0(" Exclude:  Anything newer than ", exclude_newer)
+    }
+  )
+  paste0(msg, collapse = "\n")
 }

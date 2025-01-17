@@ -52,6 +52,17 @@ py_require <- function(packages = NULL,
     exclude_newer = exclude_newer,
     action = action
   )))
+
+  if(is_python_initialized() &&
+     is_uv_environment(dirname(dirname(py_exe())))) {
+    new_path <- get_or_create_venv(
+      packages = pr$packages,
+      python_version = pr$python_version,
+      exclude_newer = pr$exclude_newer
+    )
+    new_venv_path(new_path)
+  }
+
   .globals$python_requirements <- pr
 
   invisible()
@@ -364,4 +375,14 @@ new_venv_path <- function(path) {
     stop("New environment does not use the same Python binary")
   }
   invisible()
+}
+
+is_uv_environment <- function(dir) {
+  cfg_file <- file.path(dir, "pyvenv.cfg")
+  if (file.exists(cfg_file)) {
+    cfg <- readLines(cfg_file)
+    return(any(grepl("uv = ", cfg)))
+  } else {
+    return(FALSE)
+  }
 }

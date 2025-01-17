@@ -5,6 +5,16 @@ py_require <- function(packages = NULL,
                        action = c("add", "remove", "set")) {
   action <- match.arg(action)
 
+  uv_initialized <- is_python_initialized() &&
+    is_uv_environment(dirname(dirname(py_exe())))
+
+  if (uv_initialized && !is.null(python_version)) {
+    stop(
+      "Python version requirements cannot be ",
+      "changed after Python has been initialized"
+    )
+  }
+
   if (!is.null(exclude_newer) &&
     action != "set" &&
     !is.null(get_python_reqs("exclude_newer"))
@@ -53,8 +63,7 @@ py_require <- function(packages = NULL,
     action = action
   )))
 
-  if(is_python_initialized() &&
-     is_uv_environment(dirname(dirname(py_exe())))) {
+  if (uv_initialized) {
     new_path <- get_or_create_venv(
       packages = pr$packages,
       python_version = pr$python_version,

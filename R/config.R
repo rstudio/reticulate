@@ -325,6 +325,12 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
     else
       e
   })
+
+  return(
+    python_config(get_or_create_venv())
+  )
+
+
   if (!inherits(python, "error"))
     try(return(python_config(python, required_module)))
 

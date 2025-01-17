@@ -352,3 +352,16 @@ requirements_print <- function(packages = NULL,
   )
   paste0(msg, collapse = "\n")
 }
+
+new_venv_path <- function(path) {
+  new_config <- python_config(path)
+  if (new_config$libpython == .globals$py_config$libpython) {
+    py_activate_virtualenv(file.path(dirname(path), "activate_this.py"))
+    .globals$py_config <- new_config
+    .globals$py_config$available <- TRUE
+  } else {
+    # TODO: Better error message?
+    stop("New environment does not use the same Python binary")
+  }
+  invisible()
+}

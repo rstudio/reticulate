@@ -222,9 +222,11 @@ uv_binary <- function() {
 
   } else if (is_macos() || is_linux()) {
     install_uv.sh <- tempfile("install-uv-", fileext = ".sh")
-    download.file("https://astral.sh/uv/install.sh", install_uv.sh, quiet = TRUE)
+    tryCatch(
+      download.file("https://astral.sh/uv/install.sh", install_uv.sh, quiet = TRUE),
+      error = return(NULL)
+    )
     Sys.chmod(install_uv.sh, mode = "0755")
-
     dir.create(dirname(uv), showWarnings = FALSE)
     # https://github.com/astral-sh/uv/blob/main/docs/configuration/installer.md
     system2(install_uv.sh, c("--quiet"), env = c(
@@ -240,6 +242,13 @@ uv_binary <- function() {
 get_or_create_venv <- function(packages = get_python_reqs("packages"),
                                python_version = get_python_reqs("python_version"),
                                exclude_newer = get_python_reqs("exclude_newer")) {
+
+  uv_binary_path <- uv_binary()
+
+  if(is.null(uv_binary_path)) {
+    return(NULL)
+  }
+
   if (length(packages)) {
     pkg_arg <- as.vector(rbind("--with", maybe_processx(packages)))
   } else {
@@ -283,7 +292,7 @@ get_or_create_venv <- function(packages = get_python_reqs("packages"),
       add = TRUE
     )
     p <- processx::process$new(
-      command = uv_binary(),
+      command = uv_binary_path,
       args = args,
       stderr = "|",
       stdout = "|"

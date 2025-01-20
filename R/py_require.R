@@ -239,44 +239,48 @@ get_python_reqs <- function(x = NULL) {
 uv_binary <- function() {
   uv <- Sys.getenv("RETICULATE_UV", NA)
   if (!is.na(uv)) {
-    return(uv)
+    return(path.expand(uv))
   }
 
   uv <- getOption("reticulate.uv_binary")
   if (!is.null(uv)) {
-    return(uv)
+    return(path.expand(uv))
   }
 
   uv <- as.character(Sys.which("uv"))
   if (uv != "") {
-    return(uv)
+    return(path.expand(uv))
   }
 
   uv <- path.expand("~/.local/bin/uv")
   if (file.exists(uv)) {
-    return(uv)
+    return(path.expand(uv))
   }
 
   uv <- file.path(rappdirs::user_cache_dir("r-reticulate", NULL), "bin", "uv")
   if (file.exists(uv)) {
-    return(uv)
+    return(path.expand(uv))
   }
 
   if (is_windows()) {
 
   } else if (is_macos() || is_linux()) {
     install_uv.sh <- tempfile("install-uv-", fileext = ".sh")
-    tryCatch(
+    res <-tryCatch(
       download.file("https://astral.sh/uv/install.sh", install_uv.sh, quiet = TRUE),
-      error = return(NULL)
+      warning = function(x) NULL,
+      error = function(x) NULL
     )
+    if(is.null(res)) {
+      return(NULL)
+    }
     Sys.chmod(install_uv.sh, mode = "0755")
     dir.create(dirname(uv), showWarnings = FALSE)
     # https://github.com/astral-sh/uv/blob/main/docs/configuration/installer.md
     system2(install_uv.sh, c("--quiet"), env = c(
       "INSTALLER_NO_MODIFY_PATH=1", paste0("UV_INSTALL_DIR=", maybe_shQuote(dirname(uv)))
     ))
-    return(uv)
+    return(path.expand(uv))
   }
 }
 

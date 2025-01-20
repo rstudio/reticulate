@@ -50,7 +50,7 @@ py_require <- function(packages = NULL,
   action <- match.arg(action)
 
   uv_initialized <- is_python_initialized() &&
-    is_uv_environment(dirname(dirname(py_exe())))
+    is_uv_reticulate_managed_env(py_exe())
 
   if (uv_initialized && !is.null(python_version)) {
     stop(
@@ -284,8 +284,10 @@ uv_binary <- function() {
   }
 }
 
-# TODO: we should pass --cache-dir=file.path(rappdirs::user_cache_dir("r-reticulate"), "uv-cache")
-# if we are using a reticulate-managed uv installation.
+uv_cache_dir <- function(...) {
+  path <- file.path(rappdirs::user_cache_dir("r-reticulate"), "uv-cache", ...)
+  path.expand(path)
+}
 
 get_or_create_venv <- function(packages = get_python_reqs("packages"),
                                python_version = get_python_reqs("python_version"),
@@ -327,6 +329,7 @@ get_or_create_venv <- function(packages = get_python_reqs("packages"),
     "run",
     "--color", "never",
     "--no-project",
+    "--cache-dir", uv_cache_dir(),
     "--python-preference=only-managed",
     exclude_arg,
     python_arg,
@@ -441,6 +444,13 @@ new_venv_path <- function(path) {
     stop("New environment does not use the same Python binary")
   }
   invisible()
+}
+
+is_uv_reticulate_managed_env <- function(dir) {
+  str_cache <- as.character(uv_cache_dir())
+  str_path <- as.character(dir)
+  sub_path <- substr(str_path, 1, nchar(str_cache))
+  str_cache == sub_path
 }
 
 is_uv_environment <- function(dir) {

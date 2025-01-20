@@ -1,3 +1,47 @@
+#' Declare Python requirements
+#'
+#' It allows you to specify the Python packages, and their versions, to use
+#' during your working session. It also allows to specify Python version
+#' requirements. It uses [uv](https://docs.astral.sh/uv/) to automatically
+#' resolves multiple version requirements of the same package (e.g.:
+#' 'numpy>=2.2.0', numpy==2.2.2'), as well as resolve multiple Python version
+#' requirements (e.g.: '>=3.10', '3.11').  `uv` will automatically download and
+#' install the resulting Python version and packages, so there is no need to
+#' take any steps prior to starting the Python session.
+#'
+#'
+#' The virtual environment will not be initialized until the users attempts to
+#' interacts with Python for the first time during the session. Typically,
+#' that would be the first time `import()` is called.
+#'
+#' If `uv` is not installed, `reticulate` will attempt to download and install
+#' a version of it in an isolated folder. This will allow you to get the
+#' advantages of `uv`, without modifying your computer's environment.
+#'
+#'
+#' @param packages A vector of Python packages to make available during the
+#' working session.
+#'
+#' @param python_version A vector of one, or multiple, Python versions to
+#' consider. `uv` will not be able to process conflicting Python versions
+#' (e.g.: '>=3.11', '3.10').
+#'
+#' @param action What `py_require()` should do with the packages and Python
+#' version provided during the given command call. There are three options:
+#' - add - Adds the requirement to the list
+#' - remove - Removes the requirement form the list. It has to be an exact match
+#' to an existing requirement. For example, if 'numpy==2.2.2' is currently on
+#' the list, passing 'numpy' with a 'remove' action will affect the list.
+#' - set - Deletes any requirement already defined, and replaces them with what
+#' is provided in the command call. Packages and Python version can be
+#' independently set.
+#'
+#' @param exclude_newer Leverages a feature from `uv` that allows you to limit
+#' the candidate package versions to those that were uploaded prior to a given
+#' date. During the working session, the date can be "added" only one time.
+#' After the first time the argument is used, only the 'set' `action` can
+#' override the date afterwards.
+#'
 #' @export
 py_require <- function(packages = NULL,
                        python_version = NULL,

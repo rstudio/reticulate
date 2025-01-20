@@ -4,12 +4,12 @@
       r_session(attach_namespace = TRUE, {
         py_require("numpy<2")
         py_require("numpy>=2")
-        get_or_create_venv()
+        uv_get_or_create_env()
       })
     Output
       > py_require("numpy<2")
       > py_require("numpy>=2")
-      > get_or_create_venv()
+      > uv_get_or_create_env()
         × No solution found when resolving `--with` dependencies:
         ╰─▶ Because you require numpy<2 and numpy>=2, we can conclude that your
             requirements are unsatisfiable.
@@ -28,12 +28,12 @@
       r_session(attach_namespace = TRUE, {
         py_require("tensorflow==2.18.*")
         py_require(exclude_newer = "2024-10-20")
-        get_or_create_venv()
+        uv_get_or_create_env()
       })
     Output
       > py_require("tensorflow==2.18.*")
       > py_require(exclude_newer = "2024-10-20")
-      > get_or_create_venv()
+      > uv_get_or_create_env()
         × No solution found when resolving `--with` dependencies:
         ╰─▶ Because only tensorflow<2.18.dev0 is available and you require
             tensorflow>=2.18.dev0, we can conclude that your requirements are
@@ -57,11 +57,11 @@
     Code
       r_session(attach_namespace = TRUE, {
         py_require(c("pandas", "numpy", "notexists"))
-        get_or_create_venv()
+        uv_get_or_create_env()
       })
     Output
       > py_require(c("pandas", "numpy", "notexists"))
-      > get_or_create_venv()
+      > uv_get_or_create_env()
         × No solution found when resolving `--with` dependencies:
         ╰─▶ Because notexists was not found in the package registry and you require
             notexists, we can conclude that your requirements are unsatisfiable.
@@ -80,12 +80,12 @@
       r_session(attach_namespace = TRUE, {
         py_require(python_version = ">=3.10")
         py_require(python_version = "<3.10")
-        get_or_create_venv()
+        uv_get_or_create_env()
       })
     Output
       > py_require(python_version = ">=3.10")
       > py_require(python_version = "<3.10")
-      > get_or_create_venv()
+      > uv_get_or_create_env()
       error: No interpreter found for Python <3.10, >=3.10 in virtual environments or managed installations
       -- Current requirements -------------------------------------------------
        Python:   <3.10, >=3.10

@@ -61,20 +61,20 @@ py_require <- function(packages = NULL,
 
   if (!is.null(exclude_newer) &&
     action != "set" &&
-    !is.null(get_python_reqs("exclude_newer"))
+    !is.null(py_reqs_get("exclude_newer"))
   ) {
     stop(
       "`exclude_newer` is already set to '",
-      get_python_reqs("exclude_newer"),
+      py_reqs_get("exclude_newer"),
       "', use `action` 'set' to override"
     )
   }
 
   if (missing(packages) && missing(python_version) && missing(exclude_newer)) {
-    return(get_python_reqs())
+    return(py_reqs_get())
   }
 
-  req_packages <- get_python_reqs("packages")
+  req_packages <- py_reqs_get("packages")
   if (!is.null(packages)) {
     req_packages <- switch(action,
       add = unique(c(req_packages, packages)),
@@ -83,7 +83,7 @@ py_require <- function(packages = NULL,
     )
   }
 
-  req_python <- get_python_reqs("python_version")
+  req_python <- py_reqs_get("python_version")
   if (!is.null(python_version)) {
     req_python <- switch(action,
       add = unique(c(python_version, req_python)),
@@ -108,20 +108,26 @@ py_require <- function(packages = NULL,
   )))
 
   if (uv_initialized) {
-    new_path <- get_or_create_venv(
+    new_path <- uv_get_or_create_env(
       packages = pr$packages,
       python_version = pr$python_version,
       exclude_newer = pr$exclude_newer
     )
-    new_venv_path(new_path)
+    new_config <- python_config(new_path)
+    if (new_config$libpython == .globals$py_config$libpython) {
+      py_activate_virtualenv(file.path(dirname(new_path), "activate_this.py"))
+      .globals$py_config <- new_config
+      .globals$py_config$available <- TRUE
+    } else {
+      # TODO: Better error message?
+      stop("New environment does not use the same Python binary")
+    }
   }
 
   .globals$python_requirements <- pr
 
   invisible()
 }
-
-# Print ------------------------------------------------------------------------
 
 #' @export
 print.python_requirements <- function(x, ...) {
@@ -136,7 +142,7 @@ print.python_requirements <- function(x, ...) {
   cat(paste0(rep("=", 26), collapse = ""))
   cat(" Python requirements ")
   cat(paste0(rep("=", 26), collapse = ""), "\n")
-  cat(requirements_print(
+  cat(py_reqs_print(
     packages = packages,
     python_version = python_version,
     exclude_newer = x$exclude_newer
@@ -150,25 +156,26 @@ print.python_requirements <- function(x, ...) {
   if (any(is_package)) {
     cat("-- R package requests ")
     cat(paste0(rep("-", 51), collapse = ""), "\n")
-    requirements_table(history[is_package], "R package")
+    py_reqs_table(history[is_package], "R package")
   }
 
   if (any(!is_package)) {
     cat("-- Environment requests ")
     cat(paste0(rep("-", 49), collapse = ""), "\n")
-    requirements_table(history[is_package], "R package")
+    py_reqs_table(history[is_package], "R package")
   }
 
   return(invisible())
 }
 
+# Python requirements - utils --------------------------------------------------
 
-pad_length <- function(x = "", len) {
+py_reqs_pad <- function(x = "", len) {
   padding <- paste0(rep(" ", len - nchar(x)), collapse = "")
   paste0(x, padding)
 }
 
-requirements_table <- function(history, from_label) {
+py_reqs_table <- function(history, from_label) {
   console_width <- 73
   python_width <- 20
   requested_from <- as.character(lapply(history, function(x) x$requested_from))
@@ -195,17 +202,43 @@ requirements_table <- function(history, from_label) {
       nm <- ifelse(i == 1, pkg_entry$requested_from, "")
       pk <- ifelse(i <= length(pkg_lines), pkg_lines[i], "")
       py <- ifelse(i <= length(python_lines), python_lines[i], "")
-      cat(pad_length(nm, name_width))
-      cat(pad_length(pk, pkg_width))
-      cat(pad_length(py, python_width))
+      cat(py_reqs_pad(nm, name_width))
+      cat(py_reqs_pad(pk, pkg_width))
+      cat(py_reqs_pad(py, python_width))
       cat("\n")
     }
   }
 }
 
-# Get requirements ---------------------------------------------------------
+py_reqs_print <- function(packages = NULL,
+                          python_version = NULL,
+                          exclude_newer = NULL) {
+  msg <- c(
+    paste0(
+      "-- Current requirements ", paste0(rep("-", 49), collapse = ""),
+      collapse = ""
+    ),
+    if (!is.null(python_version)) {
+      paste0(" Python:   ", paste0(python_version, collapse = ", "))
+    },
+    if (!is.null(packages)) {
+      # TODO: wrap+indent+un_shQuote python packages
+      pkg_lines <- strwrap(paste0(packages, collapse = ", "), 60)
+      pkg_col <- c(" Packages: ", rep("           ", length(pkg_lines) - 1))
+      out <- NULL
+      for (i in seq_along(pkg_lines)) {
+        out <- c(out, paste0(pkg_col[[i]], pkg_lines[[i]]))
+      }
+      out
+    },
+    if (!is.null(exclude_newer)) {
+      paste0(" Exclude:  Anything newer than ", exclude_newer)
+    }
+  )
+  paste0(msg, collapse = "\n")
+}
 
-get_python_reqs <- function(x = NULL) {
+py_reqs_get <- function(x = NULL) {
   pr <- .globals$python_requirements
   if (is.null(pr)) {
     pr <- structure(
@@ -266,12 +299,12 @@ uv_binary <- function() {
 
   } else if (is_macos() || is_linux()) {
     install_uv.sh <- tempfile("install-uv-", fileext = ".sh")
-    res <-tryCatch(
+    res <- tryCatch(
       download.file("https://astral.sh/uv/install.sh", install_uv.sh, quiet = TRUE),
       warning = function(x) NULL,
       error = function(x) NULL
     )
-    if(is.null(res)) {
+    if (is.null(res)) {
       return(NULL)
     }
     Sys.chmod(install_uv.sh, mode = "0755")
@@ -289,18 +322,17 @@ uv_cache_dir <- function(...) {
   path.expand(path)
 }
 
-get_or_create_venv <- function(packages = get_python_reqs("packages"),
-                               python_version = get_python_reqs("python_version"),
-                               exclude_newer = get_python_reqs("exclude_newer")) {
-
+uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
+                                 python_version = py_reqs_get("python_version"),
+                                 exclude_newer = py_reqs_get("exclude_newer")) {
   uv_binary_path <- uv_binary()
 
-  if(is.null(uv_binary_path)) {
+  if (is.null(uv_binary_path)) {
     return(NULL)
   }
 
   if (length(packages)) {
-    pkg_arg <- as.vector(rbind("--with", maybe_processx(packages)))
+    pkg_arg <- as.vector(rbind("--with", uv_maybe_processx(packages)))
   } else {
     pkg_arg <- NULL
   }
@@ -308,7 +340,7 @@ get_or_create_venv <- function(packages = get_python_reqs("packages"),
   if (length(python_version)) {
     has_const <- substr(python_version, 1, 1) %in% c(">", "<", "=", "!")
     python_version[!has_const] <- paste0("==", python_version[!has_const])
-    python_arg <- c("--python", paste0(maybe_processx(python_version), collapse = ","))
+    python_arg <- c("--python", paste0(uv_maybe_processx(python_version), collapse = ","))
   } else {
     python_arg <- NULL
   }
@@ -321,7 +353,7 @@ get_or_create_venv <- function(packages = get_python_reqs("packages"),
   }
 
   command_arg <- "import sys; print(sys.executable);"
-  if (!will_use_processx()) {
+  if (!uv_will_use_processx()) {
     command_arg <- maybe_shQuote(command_arg)
   }
 
@@ -337,7 +369,7 @@ get_or_create_venv <- function(packages = get_python_reqs("packages"),
     "python", "-c", command_arg
   )
 
-  if (will_use_processx()) {
+  if (uv_will_use_processx()) {
     on.exit(
       try(p$kill(), silent = TRUE),
       add = TRUE
@@ -376,7 +408,7 @@ get_or_create_venv <- function(packages = get_python_reqs("packages"),
 
   if (cmd_failed) {
     writeLines(cmd_err, con = stderr())
-    msg <- requirements_print(
+    msg <- py_reqs_print(
       packages = packages,
       python_version = python_version,
       exclude_newer = exclude_newer
@@ -392,58 +424,19 @@ get_or_create_venv <- function(packages = get_python_reqs("packages"),
   capture.output(cat(cmd_out))
 }
 
-will_use_processx <- function() {
+# uv - utils -------------------------------------------------------------------
+
+uv_will_use_processx <- function() {
   interactive() && !isatty(stderr()) &&
     (is_rstudio() || is_positron()) &&
     requireNamespace("cli") && requireNamespace("processx")
 }
 
-maybe_processx <- function(x) {
-  if (!will_use_processx()) {
+uv_maybe_processx <- function(x) {
+  if (!uv_will_use_processx()) {
     x <- maybe_shQuote(x)
   }
   x
-}
-
-requirements_print <- function(packages = NULL,
-                               python_version = NULL,
-                               exclude_newer = NULL) {
-  msg <- c(
-    paste0(
-      "-- Current requirements ", paste0(rep("-", 49), collapse = ""),
-      collapse = ""
-    ),
-    if (!is.null(python_version)) {
-      paste0(" Python:   ", paste0(python_version, collapse = ", "))
-    },
-    if (!is.null(packages)) {
-      # TODO: wrap+indent+un_shQuote python packages
-      pkg_lines <- strwrap(paste0(packages, collapse = ", "), 60)
-      pkg_col <- c(" Packages: ", rep("           ", length(pkg_lines) - 1))
-      out <- NULL
-      for (i in seq_along(pkg_lines)) {
-        out <- c(out, paste0(pkg_col[[i]], pkg_lines[[i]]))
-      }
-      out
-    },
-    if (!is.null(exclude_newer)) {
-      paste0(" Exclude:  Anything newer than ", exclude_newer)
-    }
-  )
-  paste0(msg, collapse = "\n")
-}
-
-new_venv_path <- function(path) {
-  new_config <- python_config(path)
-  if (new_config$libpython == .globals$py_config$libpython) {
-    py_activate_virtualenv(file.path(dirname(path), "activate_this.py"))
-    .globals$py_config <- new_config
-    .globals$py_config$available <- TRUE
-  } else {
-    # TODO: Better error message?
-    stop("New environment does not use the same Python binary")
-  }
-  invisible()
 }
 
 is_uv_reticulate_managed_env <- function(dir) {
@@ -451,14 +444,4 @@ is_uv_reticulate_managed_env <- function(dir) {
   str_path <- as.character(dir)
   sub_path <- substr(str_path, 1, nchar(str_cache))
   str_cache == sub_path
-}
-
-is_uv_environment <- function(dir) {
-  cfg_file <- file.path(dir, "pyvenv.cfg")
-  if (file.exists(cfg_file)) {
-    cfg <- readLines(cfg_file)
-    return(any(grepl("uv = ", cfg)))
-  } else {
-    return(FALSE)
-  }
 }

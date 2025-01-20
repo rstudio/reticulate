@@ -326,7 +326,7 @@ get_or_create_venv <- function(packages = get_python_reqs("packages"),
   if (cmd_failed) {
     writeLines(cmd_err, con = stderr())
     msg <- requirements_print(
-      package = packages,
+      packages = packages,
       python_version = python_version,
       exclude_newer = exclude_newer
     )

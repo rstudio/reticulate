@@ -1,4 +1,4 @@
-test_that("Error requesting conflicting package versions", {
+testthat::test_that("Error requesting conflicting package versions", {
   local_edition(3)
   expect_snapshot(r_session(attach_namespace = TRUE, {
     py_require("numpy<2")
@@ -7,7 +7,7 @@ test_that("Error requesting conflicting package versions", {
   }))
 })
 
-test_that("Error requesting newer package version against an older snapshot", {
+testthat::test_that("Error requesting newer package version against an older snapshot", {
   local_edition(3)
   expect_snapshot(r_session(attach_namespace = TRUE, {
     py_require("tensorflow==2.18.*")
@@ -16,7 +16,7 @@ test_that("Error requesting newer package version against an older snapshot", {
   }))
 })
 
-test_that("Error requesting a package that does not exists", {
+testthat::test_that("Error requesting a package that does not exists", {
   local_edition(3)
   expect_snapshot(r_session(attach_namespace = TRUE, {
     py_require(c("pandas", "numpy", "notexists"))
@@ -24,7 +24,7 @@ test_that("Error requesting a package that does not exists", {
   }))
 })
 
-test_that("Error requesting conflicting Python versions", {
+testthat::test_that("Error requesting conflicting Python versions", {
   local_edition(3)
   expect_snapshot(r_session(attach_namespace = TRUE, {
     py_require(python_version = ">=3.10")

@@ -13,10 +13,10 @@
         × No solution found when resolving `--with` dependencies:
         ╰─▶ Because you require numpy<2 and numpy>=2, we can conclude that your
             requirements are unsatisfiable.
-      Error in get_or_create_venv() : 
-        Python requirements could not be satisfied.
-      Python dependencies:  'numpy<2' 'numpy>=2'
-      Call `py_require()` to remove or replace conflicting requirements.
+      -- Current requirements -------------------------------------------------
+       Packages: numpy, numpy<2, numpy>=2
+      -------------------------------------------------------------------------
+      Error: Call `py_require()` to remove or replace conflicting requirements.
       Execution halted
       ------- session end -------
       success: false
@@ -42,11 +42,11 @@
             hint: `tensorflow` was requested with a pre-release marker (e.g.,
             tensorflow>=2.18.dev0), but pre-releases weren't enabled (try:
             `--prerelease=allow`)
-      Error in get_or_create_venv() : 
-        Python requirements could not be satisfied.
-      Python dependencies:  'tensorflow==2.18.*'
-      Exclude newer: 2024-10-20
-      Call `py_require()` to remove or replace conflicting requirements.
+      -- Current requirements -------------------------------------------------
+       Packages: numpy, tensorflow==2.18.*
+       Exclude:  Anything newer than 2024-10-20
+      -------------------------------------------------------------------------
+      Error: Call `py_require()` to remove or replace conflicting requirements.
       Execution halted
       ------- session end -------
       success: false
@@ -65,10 +65,10 @@
         × No solution found when resolving `--with` dependencies:
         ╰─▶ Because notexists was not found in the package registry and you require
             notexists, we can conclude that your requirements are unsatisfiable.
-      Error in get_or_create_venv() : 
-        Python requirements could not be satisfied.
-      Python dependencies:  pandas numpy notexists
-      Call `py_require()` to remove or replace conflicting requirements.
+      -- Current requirements -------------------------------------------------
+       Packages: numpy, pandas, notexists
+      -------------------------------------------------------------------------
+      Error: Call `py_require()` to remove or replace conflicting requirements.
       Execution halted
       ------- session end -------
       success: false
@@ -87,10 +87,11 @@
       > py_require(python_version = "<3.10")
       > get_or_create_venv()
       error: No interpreter found for Python <3.10, >=3.10 in virtual environments or managed installations
-      Error in get_or_create_venv() : 
-        Python requirements could not be satisfied.
-      Python version: '<3.10,>=3.10'
-      Call `py_require()` to remove or replace conflicting requirements.
+      -- Current requirements -------------------------------------------------
+       Python:   <3.10, >=3.10
+       Packages: numpy
+      -------------------------------------------------------------------------
+      Error: Call `py_require()` to remove or replace conflicting requirements.
       Execution halted
       ------- session end -------
       success: false

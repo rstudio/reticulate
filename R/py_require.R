@@ -413,6 +413,14 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
     cmd_err <- p$read_error()
     cmd_out <- p$read_output()
     cmd_failed <- identical(cmd_out, "")
+    # This extra check is needed for Windows machines
+    # p$read_error may come back empty, so using p$read_all_error
+    # ensures forces the extraction. Running it as as the default
+    # will make the process run slower on successful runs, which is
+    # not ideal
+    if(trimws(cmd_err) == "") {
+      cmd_err <- p$read_all_error()
+    }
   } else {
     result <- suppressWarnings(system2(
       command = uv_binary(),

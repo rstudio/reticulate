@@ -444,7 +444,9 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
     )
   }
   cat(cmd_err)
-  capture.output(cat(cmd_out))
+  if(substr(cmd_out, nchar(cmd_out), nchar(cmd_out)) == "\n") {
+    substr(cmd_out, 1, nchar(cmd_out) - 1)
+  }
 }
 
 # uv - utils -------------------------------------------------------------------

@@ -291,30 +291,53 @@ uv_binary <- function() {
   }
 
   uv <- file.path(rappdirs::user_cache_dir("r-reticulate", NULL), "bin", "uv")
-  if (file.exists(uv)) {
+  uv_file <- ifelse(is_windows(), paste0(uv, ".exe"), uv)
+  if (file.exists(uv_file)) {
     return(path.expand(uv))
   }
 
+  # Installing 'uv' in the 'r-reticulate' sub-folder inside the user's
+  # cache directory
+  # https://github.com/astral-sh/uv/blob/main/docs/configuration/installer.md
+  file_ext <- ifelse(is_windows(), ".ps1", ".sh")
+  target_url <- paste0("https://astral.sh/uv/install", file_ext)
+  install_uv <- tempfile("install-uv-", fileext = file_ext)
+  res <- tryCatch(
+    download.file(target_url, install_uv, quiet = TRUE),
+    warning = function(x) NULL,
+    error = function(x) NULL
+  )
+  if (is.null(res)) {
+    return(NULL)
+  }
   if (is_windows()) {
-
-  } else if (is_macos() || is_linux()) {
-    install_uv.sh <- tempfile("install-uv-", fileext = ".sh")
-    res <- tryCatch(
-      download.file("https://astral.sh/uv/install.sh", install_uv.sh, quiet = TRUE),
-      warning = function(x) NULL,
-      error = function(x) NULL
+    system2(
+      command = "powershell",
+      args = c(
+        "-ExecutionPolicy",
+        "ByPass",
+        "-c",
+        paste0(
+          "$env:UV_INSTALL_DIR='", dirname(uv), "';",
+          "$env:INSTALLER_NO_MODIFY_PATH= 1;",
+          # 'Out-Null' makes installation silent
+          "irm ", install_uv, " | iex *> Out-Null"
+        )
+      )
     )
-    if (is.null(res)) {
-      return(NULL)
-    }
-    Sys.chmod(install_uv.sh, mode = "0755")
+  } else if (is_macos() || is_linux()) {
+    Sys.chmod(install_uv, mode = "0755")
     dir.create(dirname(uv), showWarnings = FALSE)
-    # https://github.com/astral-sh/uv/blob/main/docs/configuration/installer.md
-    system2(install_uv.sh, c("--quiet"), env = c(
-      "INSTALLER_NO_MODIFY_PATH=1", paste0("UV_INSTALL_DIR=", maybe_shQuote(dirname(uv)))
-    ))
-    return(path.expand(uv))
+    system2(
+      command = install_uv,
+      args = c("--quiet"),
+      env = c(
+        "INSTALLER_NO_MODIFY_PATH=1",
+        paste0("UV_INSTALL_DIR=", maybe_shQuote(dirname(uv)))
+      )
+    )
   }
+  return(path.expand(uv))
 }
 
 uv_cache_dir <- function(...) {

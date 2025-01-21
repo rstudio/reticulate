@@ -341,7 +341,7 @@ uv_binary <- function() {
 }
 
 uv_cache_dir <- function(...) {
-  path <- file.path(rappdirs::user_cache_dir("r-reticulate"), "uv-cache", ...)
+  path <- file.path(rappdirs::user_cache_dir("r-reticulate", NULL), "uv-cache", ...)
   path.expand(path)
 }
 
@@ -445,8 +445,12 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
   }
   cat(cmd_err)
   if(substr(cmd_out, nchar(cmd_out), nchar(cmd_out)) == "\n") {
-    substr(cmd_out, 1, nchar(cmd_out) - 1)
+    cmd_out <- substr(cmd_out, 1, nchar(cmd_out) - 1)
   }
+  if(substr(cmd_out, nchar(cmd_out), nchar(cmd_out)) == "\r") {
+    cmd_out <- substr(cmd_out, 1, nchar(cmd_out) - 1)
+  }
+  cmd_out
 }
 
 # uv - utils -------------------------------------------------------------------

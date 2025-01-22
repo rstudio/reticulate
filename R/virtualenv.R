@@ -131,6 +131,7 @@ virtualenv_create <- function(
     python <- virtualenv_starter(version)
 
 
+  local_prefix_python_lib_to_ld_library_path(python)
   check_can_be_virtualenv_starter(python, version)
 
   module <- module %||% virtualenv_module(python)
@@ -551,6 +552,7 @@ virtualenv_starter <- function(version = NULL, all = FALSE) {
             length(v) != 1L ||
             !startsWith(v, "Python "))
           return(NA_character_)
+        v <- sub("\\+.*$", "", v)
         substr(v, 8L, 999L)
       }, error = function(e) NA_character_), ""), strict = FALSE)
     df <- data.frame(version = v, path = p,

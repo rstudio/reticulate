@@ -188,6 +188,7 @@ py_reqs_table <- function(history, from_label) {
     python_version = "Python version"
   ))
   history <- c(header, history)
+  history <- lapply(unique(requested_from), py_reqs_flatten, history)
   for (pkg_entry in history) {
     pkg_lines <- strwrap(
       x = paste0(pkg_entry$packages, collapse = ", "),
@@ -208,6 +209,34 @@ py_reqs_table <- function(history, from_label) {
       cat("\n")
     }
   }
+}
+
+
+py_reqs_action <- function(action, x, y = NULL) {
+  if (is.null(x)) {
+    return(y)
+  }
+  switch(action,
+    add = unique(c(x, y)),
+    remove = setdiff(y, x),
+    set = x
+  )
+}
+
+py_reqs_flatten <- function(r_pkg = "", history) {
+  req_packages <- NULL
+  req_python <- NULL
+  for (entry in history) {
+    if (entry$requested_from == r_pkg | r_pkg == "") {
+      req_packages <- py_reqs_action(entry$action, entry$packages, req_packages)
+      req_python <- py_reqs_action(entry$action, entry$python_version, req_python)
+    }
+  }
+  list(
+    requested_from = r_pkg,
+    packages = req_packages,
+    python_version = req_python
+  )
 }
 
 py_reqs_print <- function(packages = NULL,
@@ -418,7 +447,7 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
     # ensures forces the extraction. Running it as as the default
     # will make the process run slower on successful runs, which is
     # not ideal
-    if(trimws(cmd_err) == "") {
+    if (trimws(cmd_err) == "") {
       cmd_err <- p$read_all_error()
     }
   } else {
@@ -452,10 +481,10 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
     )
   }
   cat(cmd_err)
-  if(substr(cmd_out, nchar(cmd_out), nchar(cmd_out)) == "\n") {
+  if (substr(cmd_out, nchar(cmd_out), nchar(cmd_out)) == "\n") {
     cmd_out <- substr(cmd_out, 1, nchar(cmd_out) - 1)
   }
-  if(substr(cmd_out, nchar(cmd_out), nchar(cmd_out)) == "\r") {
+  if (substr(cmd_out, nchar(cmd_out), nchar(cmd_out)) == "\r") {
     cmd_out <- substr(cmd_out, 1, nchar(cmd_out) - 1)
   }
   cmd_out

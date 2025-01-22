@@ -724,6 +724,40 @@ python_config_impl <- function(python) {
 
 }
 
+
+local_prefix_python_lib_to_ld_library_path <- function(python, envir = parent.frame()) {
+  if(!is_linux())
+    return(invisible())
+
+  oldlibpath <- prefix_python_lib_to_ld_library_path(python)
+  if (is.na(oldlibpath)) {
+    defer(Sys.unsetenv("LD_LIBRARY_PATH"), envir = envir)
+  } else {
+    defer(Sys.setenv(LD_LIBRARY_PATH = oldlibpath), envir = envir)
+  }
+
+}
+
+prefix_python_lib_to_ld_library_path <- function(python) {
+  # might need to do something similar on macOS too, eventually.
+  if(!is_linux())
+    return(invisible())
+
+  # resolve the <prefix>/lib path for both the venv, and the venv starter
+  python <- c(python, normalizePath(python, mustWork = FALSE))
+  libpath <- file.path(dirname(dirname(python)), "lib")
+  libpath <- libpath[file.exists(libpath)]
+  if (length(libpath)) {
+    oldlibpath <- Sys.getenv("LD_LIBRARY_PATH", unset = NA)
+    newlibpath <- paste0(c(libpath, oldlibpath), collapse = ":")
+    Sys.setenv(LD_LIBRARY_PATH = newlibpath)
+  }
+  invisible(oldlibpath)
+}
+
+
+
+
 python_config <- function(python,
                           required_module = NULL,
                           python_versions = python,
@@ -741,20 +775,8 @@ python_config <- function(python,
   # set LD_LIBRARY_PATH on Linux as well, just to make sure Python libraries
   # can be resolved if necessary (also need to guard against users who munge
   # LD_LIBRARY_PATH in a way that breaks dynamic lookup of Python libraries)
-  if (is_linux()) {
-    libpath <- file.path(dirname(dirname(python)), "lib")
-    if (file.exists(libpath)) {
-      oldlibpath <- Sys.getenv("LD_LIBRARY_PATH", unset = NA)
-      newlibpath <- paste(libpath, oldlibpath, sep = ":")
-      Sys.setenv(LD_LIBRARY_PATH = newlibpath)
-      on.exit({
-        if (is.na(oldlibpath))
-          Sys.unsetenv("LD_LIBRARY_PATH")
-        else
-          Sys.setenv(LD_LIBRARY_PATH = oldlibpath)
-      }, add = TRUE)
-    }
-  }
+  if (is_linux())
+    local_prefix_python_lib_to_ld_library_path(python)
 
   # collect configuration information
   if (!is.null(required_module)) {

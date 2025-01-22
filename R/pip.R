@@ -5,6 +5,8 @@ pip_version <- function(python) {
   if (!file.exists(python))
     return(numeric_version("0.0"))
 
+  local_prefix_python_lib_to_ld_library_path(python)
+
   # otherwise, ask pip what version it is
   command <- "import sys; import pip; sys.stdout.write(pip.__version__)"
   version <- system2(python, c("-c", shQuote(command)), stdout = TRUE, stderr = TRUE)
@@ -54,9 +56,10 @@ pip_install <- function(python,
       conda <- NULL
   }
 
-  result <- if (is.null(conda) || identical(conda, FALSE))
+  result <- if (is.null(conda) || identical(conda, FALSE)) {
+    local_prefix_python_lib_to_ld_library_path(python)
     system2t(python, args)
-  else
+  } else
     conda_run2(python, args, conda = conda, envname = envname)
 
 
@@ -71,6 +74,7 @@ pip_install <- function(python,
 
 pip_uninstall <- function(python, packages) {
 
+  local_prefix_python_lib_to_ld_library_path(python)
   # run it
   args <- c("-m", "pip", "uninstall", "--yes", packages)
   result <- system2t(python, args)
@@ -85,6 +89,8 @@ pip_uninstall <- function(python, packages) {
 }
 
 pip_freeze <- function(python) {
+
+  local_prefix_python_lib_to_ld_library_path(python)
 
   # run pip freeze to list dependencies
   args <- c("-m", "pip", "freeze")

@@ -97,3 +97,62 @@
       success: false
       exit_code: 1
 
+# Simple tests
+
+    Code
+      py_require("pandas")
+      py_require("numpy==2")
+      py_require()
+    Output
+      ========================== Python requirements ========================== 
+      -- Current requirements -------------------------------------------------
+       Python:   [No Python version specified]
+       Packages: numpy, pandas, numpy==2
+      -- R package requests --------------------------------------------------- 
+      R package  Python package(s)                         Python version      
+      reticulate numpy                                                         
+
+---
+
+    Code
+      py_require("numpy==2", action = "remove")
+      py_require()
+    Output
+      ========================== Python requirements ========================== 
+      -- Current requirements -------------------------------------------------
+       Python:   [No Python version specified]
+       Packages: numpy, pandas
+      -- R package requests --------------------------------------------------- 
+      R package  Python package(s)                         Python version      
+      reticulate numpy                                                         
+
+---
+
+    Code
+      py_require(exclude_newer = "1990-01-01")
+      py_require()
+    Output
+      ========================== Python requirements ========================== 
+      -- Current requirements -------------------------------------------------
+       Python:   [No Python version specified]
+       Packages: numpy, pandas
+       Exclude:  Anything newer than 1990-01-01
+      -- R package requests --------------------------------------------------- 
+      R package  Python package(s)                         Python version      
+      reticulate numpy                                                         
+
+---
+
+    Code
+      py_require(python_version = c("3.11", ">=3.10"))
+      py_require()
+    Output
+      ========================== Python requirements ========================== 
+      -- Current requirements -------------------------------------------------
+       Python:   3.11, >=3.10
+       Packages: numpy, pandas
+       Exclude:  Anything newer than 1990-01-01
+      -- R package requests --------------------------------------------------- 
+      R package  Python package(s)                         Python version      
+      reticulate numpy                                                         
+

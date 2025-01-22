@@ -35,24 +35,32 @@ test_that("Error requesting conflicting Python versions", {
 
 test_that("Simple tests", {
   local_edition(3)
-  test_py_require_reset()
-  expect_snapshot({
+  expect_snapshot(r_session(attach_namespace = TRUE, {
     py_require("pandas")
     py_require("numpy==2")
     py_require()
-  })
-  expect_snapshot({
+  }))
+  expect_snapshot(r_session(attach_namespace = TRUE, {
+    py_require("pandas")
+    py_require("numpy==2")
     py_require("numpy==2", action = "remove")
     py_require()
-  })
-  expect_snapshot({
+  }))
+  expect_snapshot(r_session(attach_namespace = TRUE, {
+    py_require("pandas")
+    py_require("numpy==2")
+    py_require("numpy==2", action = "remove")
     py_require(exclude_newer = "1990-01-01")
     py_require()
-  })
-  expect_snapshot({
+  }))
+  expect_snapshot(r_session(attach_namespace = TRUE, {
+    py_require("pandas")
+    py_require("numpy==2")
+    py_require("numpy==2", action = "remove")
+    py_require(exclude_newer = "1990-01-01")
     py_require(python_version = c("3.11", ">=3.10"))
     py_require()
-  })
+  }))
 })
 
 test_that("uv cache testing", {

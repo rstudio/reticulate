@@ -100,10 +100,15 @@
 # Simple tests
 
     Code
-      py_require("pandas")
-      py_require("numpy==2")
-      py_require()
+      r_session(attach_namespace = TRUE, {
+        py_require("pandas")
+        py_require("numpy==2")
+        py_require()
+      })
     Output
+      > py_require("pandas")
+      > py_require("numpy==2")
+      > py_require()
       ========================== Python requirements ========================== 
       -- Current requirements -------------------------------------------------
        Python:   [No Python version specified]
@@ -111,13 +116,25 @@
       -- R package requests --------------------------------------------------- 
       R package  Python package(s)                         Python version      
       reticulate numpy                                                         
+      > 
+      ------- session end -------
+      success: true
+      exit_code: 0
 
 ---
 
     Code
-      py_require("numpy==2", action = "remove")
-      py_require()
+      r_session(attach_namespace = TRUE, {
+        py_require("pandas")
+        py_require("numpy==2")
+        py_require("numpy==2", action = "remove")
+        py_require()
+      })
     Output
+      > py_require("pandas")
+      > py_require("numpy==2")
+      > py_require("numpy==2", action = "remove")
+      > py_require()
       ========================== Python requirements ========================== 
       -- Current requirements -------------------------------------------------
        Python:   [No Python version specified]
@@ -125,13 +142,27 @@
       -- R package requests --------------------------------------------------- 
       R package  Python package(s)                         Python version      
       reticulate numpy                                                         
+      > 
+      ------- session end -------
+      success: true
+      exit_code: 0
 
 ---
 
     Code
-      py_require(exclude_newer = "1990-01-01")
-      py_require()
+      r_session(attach_namespace = TRUE, {
+        py_require("pandas")
+        py_require("numpy==2")
+        py_require("numpy==2", action = "remove")
+        py_require(exclude_newer = "1990-01-01")
+        py_require()
+      })
     Output
+      > py_require("pandas")
+      > py_require("numpy==2")
+      > py_require("numpy==2", action = "remove")
+      > py_require(exclude_newer = "1990-01-01")
+      > py_require()
       ========================== Python requirements ========================== 
       -- Current requirements -------------------------------------------------
        Python:   [No Python version specified]
@@ -140,13 +171,29 @@
       -- R package requests --------------------------------------------------- 
       R package  Python package(s)                         Python version      
       reticulate numpy                                                         
+      > 
+      ------- session end -------
+      success: true
+      exit_code: 0
 
 ---
 
     Code
-      py_require(python_version = c("3.11", ">=3.10"))
-      py_require()
+      r_session(attach_namespace = TRUE, {
+        py_require("pandas")
+        py_require("numpy==2")
+        py_require("numpy==2", action = "remove")
+        py_require(exclude_newer = "1990-01-01")
+        py_require(python_version = c("3.11", ">=3.10"))
+        py_require()
+      })
     Output
+      > py_require("pandas")
+      > py_require("numpy==2")
+      > py_require("numpy==2", action = "remove")
+      > py_require(exclude_newer = "1990-01-01")
+      > py_require(python_version = c("3.11", ">=3.10"))
+      > py_require()
       ========================== Python requirements ========================== 
       -- Current requirements -------------------------------------------------
        Python:   3.11, >=3.10
@@ -155,4 +202,8 @@
       -- R package requests --------------------------------------------------- 
       R package  Python package(s)                         Python version      
       reticulate numpy                                                         
+      > 
+      ------- session end -------
+      success: true
+      exit_code: 0
 

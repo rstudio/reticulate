@@ -1,5 +1,7 @@
 # reticulate (development version)
 
+- Fixed an issue with using Python 3.12 on Linux (#1712, #1714).
+
 - Fixed an issue where `virtualenv_starter()` would not discover a 
   custom built Python (#1704).
 

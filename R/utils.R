@@ -231,12 +231,10 @@ yoink <- function(package, symbol) {
   do.call(":::", list(package, symbol))
 }
 
-defer <- function(expr, envir = parent.frame()) {
-  call <- substitute(
-    evalq(expr, envir = envir),
-    list(expr = substitute(expr), envir = parent.frame())
-  )
-  do.call(base::on.exit, list(substitute(call), add = TRUE), envir = envir)
+defer <- function(expr, envir = parent.frame(), priority = c("first", "last")) {
+  thunk <- as.call(list(function() expr))
+  after <- priority == "last"
+  do.call(base::on.exit, list(thunk, TRUE, after), envir = envir)
 }
 
 #' @importFrom utils head

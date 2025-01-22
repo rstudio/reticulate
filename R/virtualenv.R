@@ -131,6 +131,7 @@ virtualenv_create <- function(
     python <- virtualenv_starter(version)
 
 
+  local_prefix_python_lib_to_ld_library_path(python)
   check_can_be_virtualenv_starter(python, version)
 
   module <- module %||% virtualenv_module(python)

@@ -58,12 +58,12 @@ test_that("Simple tests", {
 test_that("uv cache testing", {
   local_edition(3)
   test_py_require_reset()
+  uv_exec <- ifelse(is_windows(), "uv.exe", "uv")
+  target_path <- path.expand(
+    file.path(rappdirs::user_cache_dir("r-reticulate", NULL), "bin", uv_exec)
+  )
   expect_equal(
-    path.expand(
-      file.path(rappdirs::user_cache_dir("r-reticulate", NULL), "bin", "uv")
-      ),
-    uv_binary()
+    normalizePath(target_path),
+    normalizePath(uv_binary())
   )
 })
-
-

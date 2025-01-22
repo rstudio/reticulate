@@ -544,9 +544,18 @@ virtualenv_starter <- function(version = NULL, all = FALSE) {
     p <- p[utils::file_test("-f", p)]
     v <- numeric_version(vapply(p, function(python_path)
       tryCatch({
+        env <- character()
+        if (is_linux()) {
+          libpath <- file.path(dirname(dirname(python_path)), "lib")
+          if (file.exists(libpath)) {
+            ldpath <- paste(libpath, Sys.getenv("LD_LIBRARY_PATH"), sep = ":")
+            env <- paste("LD_LIBRARY_PATH=", ldpath, sep = "")
+          }
+        }
         v <- suppressWarnings(system2(
           python_path, "-EV",
-          stdout = TRUE, stderr = TRUE))
+          stdout = TRUE, stderr = TRUE,
+          env = env))
         # v should be something like "Python 3.10.6"
         if ((attr(v, "status") %||% 0) ||
             length(v) != 1L ||

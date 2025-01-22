@@ -938,9 +938,6 @@ SEXP get_r_trace(bool maybe_use_cached = false) {
 
 SEXP py_fetch_error(bool maybe_reuse_cached_r_trace) {
 
-  // TODO: we need to add a guardrail to catch cases when
-  // this is being invoked from not the main thread
-
   if(!is_main_thread()) {
     GILScope _gil;
     PyErr_Print();

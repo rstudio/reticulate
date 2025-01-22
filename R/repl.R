@@ -247,7 +247,7 @@ repl_python <- function(
     if (buffer$empty()) {
 
       # handle user requests to quit
-      if (trimmed %in% c("quit", "exit")) {
+      if (trimmed %in% c("quit", "exit", "quit()", "exit()")) {
         quit_requested <<- TRUE
         return()
       }

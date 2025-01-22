@@ -86,9 +86,9 @@
       > py_require(python_version = ">=3.10")
       > py_require(python_version = "<3.10")
       > uv_get_or_create_env()
-      error: No interpreter found for Python <3.10, >=3.10 in virtual environments or managed installations
+      error: No interpreter found for Python >=3.10, <3.10 in virtual environments or managed installations
       -- Current requirements -------------------------------------------------
-       Python:   <3.10, >=3.10
+       Python:   >=3.10, <3.10
        Packages: numpy
       -------------------------------------------------------------------------
       Error: Call `py_require()` to remove or replace conflicting requirements.

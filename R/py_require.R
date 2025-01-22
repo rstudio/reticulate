@@ -74,45 +74,22 @@ py_require <- function(packages = NULL,
     return(py_reqs_get())
   }
 
-  req_packages <- py_reqs_get("packages")
-  if (!is.null(packages)) {
-    req_packages <- switch(action,
-      add = unique(c(req_packages, packages)),
-      remove = setdiff(req_packages, packages),
-      set = packages
-    )
-  }
-
-  req_python <- py_reqs_get("python_version")
-  if (!is.null(python_version)) {
-    req_python <- switch(action,
-      add = unique(c(python_version, req_python)),
-      remove = setdiff(req_python, python_version),
-      set = python_version
-    )
-  }
-
-  top_env <- topenv(parent.frame())
-
-  pr <- .globals$python_requirements
-  pr$packages <- req_packages
-  pr$python_version <- req_python
+  pr <- py_reqs_get()
+  pr$packages <- py_reqs_action(action, packages, py_reqs_get("packages"))
+  pr$python_version <- py_reqs_action(action, python_version, py_reqs_get("python_version"))
   pr$exclude_newer <- pr$exclude_newer %||% exclude_newer
   pr$history <- c(pr$history, list(list(
-    requested_from = environmentName(top_env),
-    env_is_package = isNamespace(top_env),
+    requested_from = environmentName(topenv(parent.frame())),
+    env_is_package = isNamespace(topenv(parent.frame())),
     packages = packages,
     python_version = python_version,
     exclude_newer = exclude_newer,
     action = action
   )))
+  .globals$python_requirements <- pr
 
   if (uv_initialized) {
-    new_path <- uv_get_or_create_env(
-      packages = pr$packages,
-      python_version = pr$python_version,
-      exclude_newer = pr$exclude_newer
-    )
+    new_path <- uv_get_or_create_env()
     new_config <- python_config(new_path)
     if (new_config$libpython == .globals$py_config$libpython) {
       py_activate_virtualenv(file.path(dirname(new_path), "activate_this.py"))
@@ -123,8 +100,6 @@ py_require <- function(packages = NULL,
       stop("New environment does not use the same Python binary")
     }
   }
-
-  .globals$python_requirements <- pr
 
   invisible()
 }
@@ -217,7 +192,7 @@ py_reqs_action <- function(action, x, y = NULL) {
     return(y)
   }
   switch(action,
-    add = unique(c(x, y)),
+    add = unique(c(y, x)),
     remove = setdiff(y, x),
     set = x
   )

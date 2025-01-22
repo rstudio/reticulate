@@ -187,8 +187,8 @@ py_reqs_table <- function(history, from_label) {
     packages = "Python package(s)",
     python_version = "Python version"
   ))
-  history <- c(header, history)
   history <- lapply(unique(requested_from), py_reqs_flatten, history)
+  history <- c(header, history)
   for (pkg_entry in history) {
     pkg_lines <- strwrap(
       x = paste0(pkg_entry$packages, collapse = ", "),

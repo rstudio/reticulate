@@ -123,14 +123,14 @@ print.python_requirements <- function(x, ...) {
 
   if (py_reqs_use_cli()) {
     withr::with_options(
-      list("cli.width" = 70),
+      list("cli.width" = 73),
       {
         cli::cli_div(
           theme = list(rule = list(color = "cyan", "line-type" = "double"))
         )
         cli::cli_rule(center = "Python requirements")
         cli::cli_div(
-          theme = list(rule = list(color = "cyan", "line-type" = "single"))
+          theme = list(rule = list("line-type" = "single"))
         )
         cli::cli_rule("Current requirements")
         cat(py_reqs_print(
@@ -141,15 +141,11 @@ print.python_requirements <- function(x, ...) {
         ))
         cat("\n")
         if (any(is_package)) {
-          withr::with_options(
-            list("cli.width" = 70), cli::cli_rule("R package requests")
-          )
+          cli::cli_rule("R package requests")
           py_reqs_table(history[is_package], "R package")
         }
         if (any(!is_package)) {
-          withr::with_options(
-            list("cli.width" = 70), cli::cli_rule("Environment requests")
-          )
+          cli::cli_rule("Environment requests")
           py_reqs_table(history[!is_package], "R package")
         }
       }

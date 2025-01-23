@@ -121,7 +121,7 @@ print.python_requirements <- function(x, ...) {
   history <- x$history[requested_from != "R_GlobalEnv"]
   is_package <- as.logical(lapply(history, function(x) x$env_is_package))
 
-  if (py_reqs_use_cli()) {
+  if (uv_will_use_processx()) {
     withr::with_options(
       list("cli.width" = 73),
       {
@@ -142,11 +142,11 @@ print.python_requirements <- function(x, ...) {
         cat("\n")
         if (any(is_package)) {
           cli::cli_rule("R package requests")
-          py_reqs_table(history[is_package], "R package")
+          py_reqs_table(history[is_package], "R package", use_cli = TRUE)
         }
         if (any(!is_package)) {
           cli::cli_rule("Environment requests")
-          py_reqs_table(history[!is_package], "R package")
+          py_reqs_table(history[!is_package], "R package", use_cli = TRUE)
         }
       }
     )
@@ -174,16 +174,12 @@ print.python_requirements <- function(x, ...) {
   invisible()
 }
 
-py_reqs_use_cli <- function() {
-  interactive() && requireNamespace("cli", quietly = TRUE)
-}
-
 # Python requirements - utils --------------------------------------------------
 
-py_reqs_pad <- function(x = "", len, is_title = FALSE) {
+py_reqs_pad <- function(x = "", len, use_cli, is_title = FALSE) {
   padding <- paste0(rep(" ", len - nchar(x)), collapse = "")
   ret <- paste0(x, padding)
-  if (py_reqs_use_cli()) {
+  if (use_cli) {
     if (is_title) {
       ret <- cli::col_blue(ret)
     } else {
@@ -193,7 +189,7 @@ py_reqs_pad <- function(x = "", len, is_title = FALSE) {
   ret
 }
 
-py_reqs_table <- function(history, from_label) {
+py_reqs_table <- function(history, from_label, use_cli = FALSE) {
   console_width <- 73
   python_width <- 20
   requested_from <- as.character(lapply(history, function(x) x$requested_from))
@@ -222,9 +218,9 @@ py_reqs_table <- function(history, from_label) {
       nm <- ifelse(i == 1, pkg_entry$requested_from, "")
       pk <- ifelse(i <= length(pkg_lines), pkg_lines[i], "")
       py <- ifelse(i <= length(python_lines), python_lines[i], "")
-      cat(py_reqs_pad(nm, name_width, !is.null(pkg_entry$is_title)))
-      cat(py_reqs_pad(pk, pkg_width, !is.null(pkg_entry$is_title)))
-      cat(py_reqs_pad(py, python_width, !is.null(pkg_entry$is_title)))
+      cat(py_reqs_pad(nm, name_width, use_cli, !is.null(pkg_entry$is_title)))
+      cat(py_reqs_pad(pk, pkg_width, use_cli, !is.null(pkg_entry$is_title)))
+      cat(py_reqs_pad(py, python_width, use_cli, !is.null(pkg_entry$is_title)))
       cat("\n")
     }
   }

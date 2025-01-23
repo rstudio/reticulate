@@ -114,40 +114,85 @@ print.python_requirements <- function(x, ...) {
   if (is.null(python_version)) {
     python_version <- "[No Python version specified]"
   }
-  cat(paste0(rep("=", 26), collapse = ""))
-  cat(" Python requirements ")
-  cat(paste0(rep("=", 26), collapse = ""), "\n")
-  cat(py_reqs_print(
-    packages = packages,
-    python_version = python_version,
-    exclude_newer = x$exclude_newer
-  ))
-  cat("\n")
 
-  # TODO - Add support for "remove" action (will require a full parsing of history)
   requested_from <- as.character(lapply(x$history, function(x) x$requested_from))
   history <- x$history[requested_from != "R_GlobalEnv"]
   is_package <- as.logical(lapply(history, function(x) x$env_is_package))
-  if (any(is_package)) {
-    cat("-- R package requests ")
-    cat(paste0(rep("-", 51), collapse = ""), "\n")
-    py_reqs_table(history[is_package], "R package")
-  }
 
-  if (any(!is_package)) {
-    cat("-- Environment requests ")
-    cat(paste0(rep("-", 49), collapse = ""), "\n")
-    py_reqs_table(history[is_package], "R package")
+  if (py_reqs_use_cli()) {
+    withr::with_options(
+      list("cli.width" = 70),
+      {
+        cli::cli_div(
+          theme = list(rule = list(color = "cyan", "line-type" = "double"))
+        )
+        cli::cli_rule(center = "Python requirements")
+        cli::cli_div(
+          theme = list(rule = list(color = "cyan", "line-type" = "single"))
+        )
+        cli::cli_rule("Current requirements")
+        cat(py_reqs_print(
+          packages = packages,
+          python_version = python_version,
+          exclude_newer = x$exclude_newer,
+          use_cli = TRUE
+        ))
+        cat("\n")
+        if (any(is_package)) {
+          withr::with_options(
+            list("cli.width" = 70), cli::cli_rule("R package requests")
+          )
+          py_reqs_table(history[is_package], "R package")
+        }
+        if (any(!is_package)) {
+          withr::with_options(
+            list("cli.width" = 70), cli::cli_rule("Environment requests")
+          )
+          py_reqs_table(history[!is_package], "R package")
+        }
+      }
+    )
+  } else {
+    cat(paste0(rep("=", 26), collapse = ""))
+    cat(" Python requirements ")
+    cat(paste0(rep("=", 26), collapse = ""), "\n")
+    cat(py_reqs_print(
+      packages = packages,
+      python_version = python_version,
+      exclude_newer = x$exclude_newer
+    ))
+    cat("\n")
+    if (any(is_package)) {
+      cat("-- R package requests ")
+      cat(paste0(rep("-", 51), collapse = ""), "\n")
+      py_reqs_table(history[is_package], "R package")
+    }
+    if (any(!is_package)) {
+      cat("-- Environment requests ")
+      cat(paste0(rep("-", 49), collapse = ""), "\n")
+      py_reqs_table(history[!is_package], "R package")
+    }
   }
+  invisible()
+}
 
-  return(invisible())
+py_reqs_use_cli <- function() {
+  interactive() && requireNamespace("cli", quietly = TRUE)
 }
 
 # Python requirements - utils --------------------------------------------------
 
-py_reqs_pad <- function(x = "", len) {
+py_reqs_pad <- function(x = "", len, is_title = FALSE) {
   padding <- paste0(rep(" ", len - nchar(x)), collapse = "")
-  paste0(x, padding)
+  ret <- paste0(x, padding)
+  if (py_reqs_use_cli()) {
+    if (is_title) {
+      ret <- cli::col_blue(ret)
+    } else {
+      ret <- cli::col_grey(ret)
+    }
+  }
+  ret
 }
 
 py_reqs_table <- function(history, from_label) {
@@ -159,8 +204,9 @@ py_reqs_table <- function(history, from_label) {
   pkg_width <- console_width - python_width - name_width
   header <- list(list(
     requested_from = from_label,
-    packages = "Python package(s)",
-    python_version = "Python version"
+    packages = "Python packages",
+    python_version = "Python version",
+    is_title = 1
   ))
   history <- lapply(unique(requested_from), py_reqs_flatten, history)
   history <- c(header, history)
@@ -178,9 +224,9 @@ py_reqs_table <- function(history, from_label) {
       nm <- ifelse(i == 1, pkg_entry$requested_from, "")
       pk <- ifelse(i <= length(pkg_lines), pkg_lines[i], "")
       py <- ifelse(i <= length(python_lines), python_lines[i], "")
-      cat(py_reqs_pad(nm, name_width))
-      cat(py_reqs_pad(pk, pkg_width))
-      cat(py_reqs_pad(py, python_width))
+      cat(py_reqs_pad(nm, name_width, !is.null(pkg_entry$is_title)))
+      cat(py_reqs_pad(pk, pkg_width, !is.null(pkg_entry$is_title)))
+      cat(py_reqs_pad(py, python_width, !is.null(pkg_entry$is_title)))
       cat("\n")
     }
   }
@@ -216,19 +262,29 @@ py_reqs_flatten <- function(r_pkg = "", history) {
 
 py_reqs_print <- function(packages = NULL,
                           python_version = NULL,
-                          exclude_newer = NULL) {
+                          exclude_newer = NULL,
+                          use_cli = FALSE) {
   msg <- c(
-    paste0(
-      "-- Current requirements ", paste0(rep("-", 49), collapse = ""),
-      collapse = ""
-    ),
+    if (!use_cli) {
+      paste0(
+        "-- Current requirements ", paste0(rep("-", 49), collapse = ""),
+        collapse = ""
+      )
+    },
     if (!is.null(python_version)) {
-      paste0(" Python:   ", paste0(python_version, collapse = ", "))
+      python <- ifelse(use_cli, cli::col_blue("Python:"), "Python")
+      python_version <- paste0(python_version, collapse = ", ")
+      python_version <- ifelse(use_cli, cli::col_grey(python_version), python_version)
+      paste0(" ", python, "   ", python_version)
     },
     if (!is.null(packages)) {
-      # TODO: wrap+indent+un_shQuote python packages
       pkg_lines <- strwrap(paste0(packages, collapse = ", "), 60)
-      pkg_col <- c(" Packages: ", rep("           ", length(pkg_lines) - 1))
+      pkgs <- "Packages:"
+      if(use_cli) {
+        pkgs <- cli::col_blue(pkgs)
+        pkg_lines <- as.character(lapply(pkg_lines, cli::col_grey))
+      }
+      pkg_col <- c(paste0(" ", pkgs, " "), rep("           ", length(pkg_lines) - 1))
       out <- NULL
       for (i in seq_along(pkg_lines)) {
         out <- c(out, paste0(pkg_col[[i]], pkg_lines[[i]]))
@@ -236,7 +292,10 @@ py_reqs_print <- function(packages = NULL,
       out
     },
     if (!is.null(exclude_newer)) {
-      paste0(" Exclude:  Anything newer than ", exclude_newer)
+      exclude <- ifelse(use_cli, cli::col_blue("Exclude:"), "Exclude")
+      exclude_newer <- paste0("  Anything newer than ", exclude_newer)
+      exclude_newer <- ifelse(use_cli, cli::col_grey(exclude_newer), exclude_newer)
+      paste0(" ", exclude, exclude_newer)
     }
   )
   paste0(msg, collapse = "\n")
@@ -468,9 +527,11 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
 # uv - utils -------------------------------------------------------------------
 
 uv_will_use_processx <- function() {
-  interactive() && !isatty(stderr()) &&
+  interactive() && !
+  isatty(stderr()) &&
     (is_rstudio() || is_positron()) &&
-    requireNamespace("cli") && requireNamespace("processx")
+    requireNamespace("cli", quietly = TRUE) &&
+    requireNamespace("processx", quietly = TRUE)
 }
 
 uv_maybe_processx <- function(x) {

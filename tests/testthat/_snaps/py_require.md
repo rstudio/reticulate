@@ -114,7 +114,7 @@
        Python:   [No Python version specified]
        Packages: numpy, pandas, numpy==2
       -- R package requests --------------------------------------------------- 
-      R package  Python package(s)                         Python version      
+      R package  Python packages                           Python version      
       reticulate numpy                                                         
       > 
       ------- session end -------
@@ -140,7 +140,7 @@
        Python:   [No Python version specified]
        Packages: numpy, pandas
       -- R package requests --------------------------------------------------- 
-      R package  Python package(s)                         Python version      
+      R package  Python packages                           Python version      
       reticulate numpy                                                         
       > 
       ------- session end -------
@@ -169,7 +169,7 @@
        Packages: numpy, pandas
        Exclude:  Anything newer than 1990-01-01
       -- R package requests --------------------------------------------------- 
-      R package  Python package(s)                         Python version      
+      R package  Python packages                           Python version      
       reticulate numpy                                                         
       > 
       ------- session end -------
@@ -200,7 +200,7 @@
        Packages: numpy, pandas
        Exclude:  Anything newer than 1990-01-01
       -- R package requests --------------------------------------------------- 
-      R package  Python package(s)                         Python version      
+      R package  Python packages                           Python version      
       reticulate numpy                                                         
       > 
       ------- session end -------

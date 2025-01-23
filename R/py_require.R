@@ -272,7 +272,7 @@ py_reqs_print <- function(packages = NULL,
       )
     },
     if (!is.null(python_version)) {
-      python <- ifelse(use_cli, cli::col_blue("Python:"), "Python")
+      python <- ifelse(use_cli, cli::col_blue("Python:"), "Python:")
       python_version <- paste0(python_version, collapse = ", ")
       python_version <- ifelse(use_cli, cli::col_grey(python_version), python_version)
       paste0(" ", python, "   ", python_version)
@@ -280,7 +280,7 @@ py_reqs_print <- function(packages = NULL,
     if (!is.null(packages)) {
       pkg_lines <- strwrap(paste0(packages, collapse = ", "), 60)
       pkgs <- "Packages:"
-      if(use_cli) {
+      if (use_cli) {
         pkgs <- cli::col_blue(pkgs)
         pkg_lines <- as.character(lapply(pkg_lines, cli::col_grey))
       }
@@ -292,7 +292,7 @@ py_reqs_print <- function(packages = NULL,
       out
     },
     if (!is.null(exclude_newer)) {
-      exclude <- ifelse(use_cli, cli::col_blue("Exclude:"), "Exclude")
+      exclude <- ifelse(use_cli, cli::col_blue("Exclude:"), "Exclude:")
       exclude_newer <- paste0("  Anything newer than ", exclude_newer)
       exclude_newer <- ifelse(use_cli, cli::col_grey(exclude_newer), exclude_newer)
       paste0(" ", exclude, exclude_newer)

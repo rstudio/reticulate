@@ -207,3 +207,43 @@
       success: true
       exit_code: 0
 
+# Multiple py_require() calls from package are shows in one row
+
+    Code
+      r_session(attach_namespace = TRUE, {
+        gr_package <- (function() {
+          py_require(paste0("package", 1:20))
+          py_require(paste0("package", 1:10), action = "remove")
+          py_require(python_version = c("3.11", ">=3.10"))
+        })
+        environment(gr_package) <- asNamespace("graphics")
+        gr_package()
+        py_require()
+      })
+    Output
+      > gr_package <- (function() {
+      +     py_require(paste0("package", 1:20))
+      +     py_require(paste0("package", 1:10), action = "remove")
+      +     py_require(python_version = c("3.11", ">=3.10"))
+      + })
+      > environment(gr_package) <- asNamespace("graphics")
+      > gr_package()
+      > py_require()
+      ========================== Python requirements ========================== 
+      -- Current requirements -------------------------------------------------
+       Python:   3.11, >=3.10
+       Packages: numpy, package11, package12, package13, package14,
+                 package15, package16, package17, package18, package19,
+                 package20
+      -- R package requests --------------------------------------------------- 
+      R package  Python packages                           Python version      
+      reticulate numpy                                                         
+      graphics   package11, package12, package13,          3.11, >=3.10        
+                 package14, package15, package16,                              
+                 package17, package18, package19,                              
+                 package20                                                     
+      > 
+      ------- session end -------
+      success: true
+      exit_code: 0
+

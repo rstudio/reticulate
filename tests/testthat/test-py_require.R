@@ -75,3 +75,17 @@ test_that("uv cache testing", {
     normalizePath(uv_binary())
   )
 })
+
+test_that("Multiple py_require() calls from package are shows in one row", {
+  local_edition(3)
+  expect_snapshot(r_session(attach_namespace = TRUE, {
+    gr_package <- function() {
+      py_require(paste0("package", 1:20))
+      py_require(paste0("package", 1:10), action = "remove")
+      py_require(python_version = c("3.11", ">=3.10"))
+    }
+    environment(gr_package) <- asNamespace("graphics")
+    gr_package()
+    py_require()
+  }))
+})

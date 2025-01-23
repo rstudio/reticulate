@@ -48,7 +48,7 @@ py_require <- function(packages = NULL,
                        exclude_newer = NULL,
                        action = c("add", "remove", "set")) {
   action <- match.arg(action)
-
+  env_is_package <- isNamespace(topenv(parent.frame()))
   uv_initialized <- is_python_initialized() &&
     is_uv_reticulate_managed_env(py_exe())
 
@@ -59,15 +59,17 @@ py_require <- function(packages = NULL,
     )
   }
 
-  if (!is.null(exclude_newer) &&
-    action != "set" &&
-    !is.null(py_reqs_get("exclude_newer"))
-  ) {
-    stop(
-      "`exclude_newer` is already set to '",
-      py_reqs_get("exclude_newer"),
-      "', use `action` 'set' to override"
-    )
+  if (!is.null(exclude_newer)) {
+    if (env_is_package) {
+      stop("`exclude_newer` cannot be set inside a package")
+    }
+    if (action != "set" && !is.null(py_reqs_get("exclude_newer"))) {
+      stop(
+        "`exclude_newer` is already set to '",
+        py_reqs_get("exclude_newer"),
+        "', use `action` 'set' to override"
+      )
+    }
   }
 
   if (missing(packages) && missing(python_version) && missing(exclude_newer)) {
@@ -80,7 +82,7 @@ py_require <- function(packages = NULL,
   pr$exclude_newer <- pr$exclude_newer %||% exclude_newer
   pr$history <- c(pr$history, list(list(
     requested_from = environmentName(topenv(parent.frame())),
-    env_is_package = isNamespace(topenv(parent.frame())),
+    env_is_package = env_is_package,
     packages = packages,
     python_version = python_version,
     exclude_newer = exclude_newer,
@@ -231,7 +233,6 @@ py_reqs_table <- function(history, from_label) {
     }
   }
 }
-
 
 py_reqs_action <- function(action, x, y = NULL) {
   if (is.null(x)) {

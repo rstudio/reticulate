@@ -488,8 +488,13 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
     if (cmd_failed) {
       cmd_err <- paste0(result, collapse = "\n")
     } else {
-      cmd_err <- paste0(result[[1]], "\n")
-      cmd_out <- result[[2]]
+      if (length(result) == 1) {
+        cmd_out <- result[[1]]
+        cmd_err <- NULL
+      } else {
+        cmd_out <- result[[2]]
+        cmd_err <- paste0(result[[1]], "\n")
+      }
     }
   }
 

@@ -2878,7 +2878,8 @@ extern "C" PyObject* initializeRPYCall(void) {
 
 // [[Rcpp::export]]
 void py_activate_virtualenv(const std::string& script) {
-
+  GILScope _gil;
+  
   // import runpy
   PyObjectPtr runpy_module(PyImport_ImportModule("runpy"));
   if (runpy_module.is_null())

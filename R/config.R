@@ -325,6 +325,14 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
     else
       e
   })
+
+  uv_python <- uv_get_or_create_env()
+  if(!is.null(uv_python)) {
+    return(
+      python_config(uv_python)
+    )
+  }
+
   if (!inherits(python, "error"))
     try(return(python_config(python, required_module)))
 

@@ -255,6 +255,14 @@ python binary)</p></li>
 ways outlined above, reticulate falls back to using a virtual
 environment named <code>"r-reticulate"</code>. If one does not exist,
 reticulate will offer to create one.</p></li>
+<li><p>reticulate will attempt to use <a href="https://docs.astral.sh/uv/" class="external-link">uv</a> to setup the Python
+environment. If reticulate does not find an existing ‘uv’ installation,
+it will attempt to download and install in a safe location in your
+computer. By safe, we mean that the installation will not modify any
+system level settings. If the installation is successful, or ‘uv’ is
+already present, reticulate will pass the Python requirements (Python
+packages and Python version) so that ‘uv’ can find or create a suitable
+virtual environment that matches those requirements.</p></li>
 <li><p>If the “r-reticulate” environment is not available and cannot be
 created, then we fall back to using the Python on the <code>PATH</code>,
 or on Windows, the Python referenced by the registry. If both

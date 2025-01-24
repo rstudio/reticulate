@@ -492,14 +492,15 @@ try_create_default_virtualenv <- function(package = "reticulate", ...) {
     return(NULL)
 
   if (permission == "") {
-    if (is_interactive()) {
-      permission <- utils::askYesNo(sprintf(
-        "Would you like to create a default Python environment for the %s package?",
-        package))
-      if (!isTRUE(permission))
-        return(NULL)
-      permission <- "true"
-    }
+    return(NULL)
+    # if (is_interactive()) {
+    #   permission <- utils::askYesNo(sprintf(
+    #     "Would you like to create a default Python environment for the %s package?",
+    #     package))
+    #   if (!isTRUE(permission))
+    #     return(NULL)
+    #   permission <- "true"
+    # }
   }
 
   if (!permission %in% c("true", "yes", "1"))

@@ -302,7 +302,7 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
   }
 
   # Look for a "r-reticulate" venv or condaenv. if found, use that.
-  python <- tryCatch(py_resolve("r-reticulate"), error = identity)
+  python <- tryCatch(py_resolve("r-reticulate", type = "virtualenv"), error = identity)
   if (!inherits(python, "error"))
     try(return(python_config(python, required_module)))
 

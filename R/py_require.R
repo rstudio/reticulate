@@ -52,11 +52,16 @@ py_require <- function(packages = NULL,
   uv_initialized <- is_python_initialized() &&
     is_uv_reticulate_managed_env(py_exe())
 
-  if (uv_initialized && !is.null(python_version)) {
-    stop(
-      "Python version requirements cannot be ",
-      "changed after Python has been initialized"
-    )
+  if (!is.null(python_version)) {
+    if(uv_initialized) {
+      stop(
+        "Python version requirements cannot be ",
+        "changed after Python has been initialized"
+      )
+    }
+    if(substr(python_version, 1, 2) == "==") {
+      python_version <- substr(python_version, 3, nchar(python_version))
+    }
   }
 
   if (!is.null(exclude_newer)) {
@@ -441,8 +446,6 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
   }
 
   if (length(python_version)) {
-    has_const <- substr(python_version, 1, 1) %in% c(">", "<", "=", "!")
-    python_version[!has_const] <- paste0("==", python_version[!has_const])
     python_arg <- c("--python", paste0(uv_maybe_processx(python_version), collapse = ","))
   } else {
     python_arg <- NULL

@@ -59,9 +59,12 @@ py_require <- function(packages = NULL,
         "changed after Python has been initialized"
       )
     }
-    if(substr(python_version, 1, 2) == "==") {
-      python_version <- substr(python_version, 3, nchar(python_version))
-    }
+    py_equal <- substr(python_version, 1, 2) == "=="
+    python_version[py_equal] <- substr(
+      x = python_version[py_equal],
+      start = 3,
+      stop =  nchar(python_version[py_equal])
+      )
   }
 
   if (!is.null(exclude_newer)) {

@@ -76,9 +76,33 @@ py_require <- function(packages = NULL,
     return(py_reqs_get())
   }
 
+  py_versions <- py_reqs_action(action, python_version, py_reqs_get("python_version"))
+
+  ver_equal <- substr(py_versions, 1, 1) %in% c("=", 0:9)
+  ver_not_equal <- substr(py_versions, 1, 1) %in% c(">", "<", "!")
+
+  if (any(ver_equal) && any(ver_not_equal)) {
+    stop(
+      "Python version requirements cannot combine\n  'non-equal to' (",
+      paste0(py_versions[ver_not_equal], collapse = ", "),
+      ") and 'equal to' (",
+      paste0(py_versions[ver_equal], collapse = ", "),
+      ")\n  specifications"
+    )
+  }
+
+  if (sum(ver_equal) > 1) {
+    stop(
+      "Python version requirements cannot contain\n",
+      "  more than one 'equal to' specifications (",
+      paste0(py_versions[ver_equal], collapse = ", "),
+      ")"
+    )
+  }
+
   pr <- py_reqs_get()
   pr$packages <- py_reqs_action(action, packages, py_reqs_get("packages"))
-  pr$python_version <- py_reqs_action(action, python_version, py_reqs_get("python_version"))
+  pr$python_version <- py_versions
   pr$exclude_newer <- pr$exclude_newer %||% exclude_newer
   pr$history <- c(pr$history, list(list(
     requested_from = environmentName(topenv(parent.frame())),

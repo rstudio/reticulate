@@ -53,7 +53,7 @@ py_require <- function(packages = NULL,
     is_uv_reticulate_managed_env(py_exe())
 
   if (!is.null(python_version)) {
-    if(uv_initialized) {
+    if (uv_initialized) {
       stop(
         "Python version requirements cannot be ",
         "changed after Python has been initialized"
@@ -63,8 +63,8 @@ py_require <- function(packages = NULL,
     python_version[py_equal] <- substr(
       x = python_version[py_equal],
       start = 3,
-      stop =  nchar(python_version[py_equal])
-      )
+      stop = nchar(python_version[py_equal])
+    )
   }
 
   if (!is.null(exclude_newer)) {

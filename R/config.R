@@ -308,10 +308,10 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
 
   ## At this point, the user, (and package authors on behalf of the user), has
   ## expressed no preference for any particular python installation, or the
-  ## preference expressed is for a python environment that don't exist.
+  ## preference expressed is for a python environment that does not exist.
   ##
   ## In other words,
-  ##  - no use_python(), use_virtualenv(), use_condaenv()
+  ##  - no use_python(), use_virtualenv(), use_condaenv() calls
   ##  - no RETICULATE_PYTHON, RETICULATE_PYTHON_ENV, or RETICULATE_PYTHON_FALLBACK env vars
   ##  - no existing venv in the current working directory named: venv .venv virtualenv or .virtualenv
   ##  - no env named 'r-bar' if there was a call like `import('foo', delay_load = list(environment = "r-bar"))`
@@ -325,12 +325,12 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
   user_opted_out <- tolower(Sys.getenv("RETICULATE_USE_MANAGED_VENV")) %in% c("false", "0", "no")
   if (!user_opted_out) {
     if (isTRUE(getOption("reticulate.python.initializing"))) {
-      python <- uv_get_or_create_env()
-      return(python)
-    } else {
-      # most likely called from py_exe()
-      return(NULL)
+      python <- try(uv_get_or_create_env())
+      if (!is.null(python) && !inherits(python, "try-error"))
+        try(return(python_config(python, required_module, forced = "py_require()")))
     }
+    # most likely called from py_exe()
+    return(NULL)
   }
 
   # fall back to using the PATH python, or fail.

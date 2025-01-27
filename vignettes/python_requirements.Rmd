@@ -34,12 +34,34 @@ are:
 
 Starting with version 1.41, `reticulate` will to use **uv** as the default
 Python virtual environment manager. When you start interacting with Python, 
-`reticulate` will "ask" **uv** for a virtual environment for you to use.  
-The main goal is for you as an user, especially if a new user, is to start using 
-Python easily and painlessly.  
+`reticulate` will request **uv** for a virtual environment for you to use.  
+This means that if your computer does not have Python installed, **uv** will
+install download and install it for you automatically. The main goal is for you
+as an user, especially if new user, is to begin using Python easily and
+painlessly.  
+
+```r
+library(reticulate)
+
+import("numpy")
+Downloading Python dependencies :.
+```
 
 
-## 'uv' binary order of discovery
+
+## **uv** installation 
+
+If `reticulate` cannot find **uv** in your computer, it will attempt to 
+automatically download  and install it for you. It will install it the a 
+sub-folder inside your user's cache directory (`rappdirs::user_cache_dir()`). 
+`reticulate` installs **uv** in such a way that it will not change any
+system level path values in your computer. This also means that if you ever wish 
+to call `> uv [COMMAND]` from your terminal, you will have to download and install 
+it manually following the instructions from its 
+[website](https://docs.astral.sh/uv/getting-started/installation/). 
+
+
+### Order of discovery
 
 In order, `reticulate` will look for an **uv** installation path in the following
 order:
@@ -48,18 +70,12 @@ order:
 
 2. `reticulate.uv_binary` option
 
-3. System level path for 'uv' (`Sys.which("uv")`)As
+3. System level path for 'uv' (`Sys.which("uv")`)
 
-4. Default location where 'uv' installs its binary (*'~/.local/bin/uv'*)
+4. The default location where 'uv' installs its binary (*'~/.local/bin/uv'*)
 
 5. *'r-reticulate/bin'* sub-folder inside your user's cache directory 
 (`rappdirs::user_cache_dir()`)
-
-If no path is found, then `reticulate` will attempt to download and install 
-**uv** in the a sub-folder inside your user's cache directory (No. 5). 
-`reticulate` will install **uv** in such a way that it will not change any
-system level path values in your computer. 
-
 
 
 

@@ -8,13 +8,17 @@ test_that("Error requesting conflicting package versions", {
 })
 
 test_that("Error requesting newer package version against an older snapshot", {
-  expect_error(
+  session <- r_session(attach_namespace = TRUE, {
     uv_get_or_create_env(
       packages = "tensorflow==2.18.*",
       exclude_newer = "2024-10-20"
-      ),
-    regexp = "Call \`py_require\\(\\)\` to remove or replace conflicting requirements"
+    )
+  })
+  expect_match(session,
+    "Call `py_require()` to remove or replace conflicting requirements",
+    fixed = TRUE, all = FALSE
   )
+  expect_true(attr(session, "status", TRUE) != 0L)
 })
 
 test_that("Error requesting a package that does not exists", {

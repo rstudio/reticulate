@@ -54,7 +54,7 @@ py_require <- function(packages = NULL,
 
   action <- match.arg(action)
   called_from_package <- isNamespace(topenv(parent.frame()))
-  uv_initialized <- is_python_initialized() && is_uv_reticulate_managed_env(py_exe())
+  uv_initialized <- is_python_initialized() && is_ephemeral_reticulate_uv_env(py_exe())
 
   if (!is.null(python_version)) {
     if (uv_initialized) {
@@ -452,10 +452,16 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
     exclude_newer <- c("--exclude-newer", exclude_newer)
   }
 
+  # TODO?: use default uv cache if using user-installed uv?
+  # need to refactor detecting approach in py_install() and py_require()
+  cache_dir <- #if (is_reticulate_managed_uv(uv))
+    c("--cache-dir", reticulate_managed_uv_cache_dir())
+
   uv_args <- c(
     "run",
     "--no-project",
     "--python-preference=only-managed",
+    cache_dir,
     python_version,
     exclude_newer,
     packages,
@@ -527,9 +533,42 @@ should_use_cli_spinner <- function() {
     requireNamespace("processx", quietly = TRUE)
 }
 
-is_uv_reticulate_managed_env <- function(dir) {
-  str_cache <- as.character(uv_cache_dir())
-  str_path <- as.character(dir)
-  sub_path <- substr(str_path, 1, nchar(str_cache))
-  str_cache == sub_path
+
+is_reticulate_managed_uv <- function(uv = uv_binary(bootstrap_install = FALSE)) {
+  if(is.null(uv) || !file.exists(uv)) {
+    # no user-installed uv - uv will be bootstrapped by reticulate
+    return(TRUE)
+  }
+
+  managed_uv_path <- path.expand(file.path(
+    rappdirs::user_cache_dir("r-reticulate", NULL),
+    "bin", if (is_windows()) "uv.exe" else "uv"
+  ))
+
+  uv == managed_uv_path
 }
+
+is_ephemeral_reticulate_uv_env <- function(path) {
+  startsWith(path, reticulate_managed_uv_cache_dir())
+}
+
+reticulate_managed_uv_cache_dir <- function() {
+  path.expand(file.path(
+    rappdirs::user_cache_dir("r-reticulate", NULL),
+    "uv-cache"
+  ))
+}
+
+uv_cache_dir <- function(uv = uv_binary(bootstrap_install = FALSE)) {
+  if (is_reticulate_managed_uv(uv)) {
+    return(reticulate_managed_uv_cache_dir())
+  }
+  tryCatch(
+    system2(uv, "cache dir",
+            stdout = TRUE, stderr = FALSE,
+            env = "NO_COLOR=1"),
+    warning = function(w) NULL,
+    error = function(e) NULL
+  )
+}
+

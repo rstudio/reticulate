@@ -44,3 +44,15 @@ print.r_session_record <- function(record, echo = TRUE) {
 }
 registerS3method("print", "r_session_record", print.r_session_record,
                  envir = environment(print))
+
+
+py_require_tested_packages <- function() {
+  message("Declaring py requirements")
+  message("py_available: ", py_available())
+  py_require(c(
+    "docutils", "pandas", "scipy", "matplotlib", "ipython",
+    "tabulate", "plotly", "psutil", "kaleido", "wrapt"
+  ))
+}
+
+py_require_tested_packages()

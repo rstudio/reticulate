@@ -100,6 +100,11 @@ test_that("Multiple py_require() calls from package are shows in one row", {
 })
 
 test_that("'Equal to' and 'Non-equal to' Python requirements fail",{
+  if (py_available()) {
+    skip("Can't test py_require(python_version) declarations after python initialized")
+    # TODO: fix test to actually test this
+  }
+
   test_py_require_reset()
   py_require(python_version = "==3.11")
   x <- py_require()

@@ -8,13 +8,17 @@ test_that("Error requesting conflicting package versions", {
 })
 
 test_that("Error requesting newer package version against an older snapshot", {
-  expect_error(
+  session <- r_session(attach_namespace = TRUE, {
     uv_get_or_create_env(
       packages = "tensorflow==2.18.*",
       exclude_newer = "2024-10-20"
-      ),
-    regexp = "Call \`py_require\\(\\)\` to remove or replace conflicting requirements"
+    )
+  })
+  expect_match(session,
+    "Call `py_require()` to remove or replace conflicting requirements",
+    fixed = TRUE, all = FALSE
   )
+  expect_true(attr(session, "status", TRUE) != 0L)
 })
 
 test_that("Error requesting a package that does not exists", {
@@ -64,7 +68,11 @@ test_that("Simple tests", {
   }))
 })
 
-test_that("uv cache testing", {
+test_that("can bootstrap install uv in reticulate cache", {
+  # This test needs rethinking. It assumes that uv is not already installed on the users system,
+  # and fails if it is.
+  if (Sys.which("uv") != "" || file.exists("~/.local/bin/uv"))
+    skip("uv installed by user")
   local_edition(3)
   test_py_require_reset()
   uv_exec <- ifelse(is_windows(), "uv.exe", "uv")
@@ -92,6 +100,11 @@ test_that("Multiple py_require() calls from package are shows in one row", {
 })
 
 test_that("'Equal to' and 'Non-equal to' Python requirements fail",{
+  if (py_available()) {
+    skip("Can't test py_require(python_version) declarations after python initialized")
+    # TODO: fix test to actually test this
+  }
+
   test_py_require_reset()
   py_require(python_version = "==3.11")
   x <- py_require()

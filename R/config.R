@@ -301,44 +301,37 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
                              forced = "RETICULATE_PYTHON_FALLBACK")))
   }
 
+  # Look for a "r-reticulate" venv or condaenv. if found, use that.
+  python <- tryCatch(py_resolve("r-reticulate", type = "virtualenv"), error = identity)
+  if (!inherits(python, "error"))
+    try(return(python_config(python, required_module)))
 
   ## At this point, the user, (and package authors on behalf of the user), has
   ## expressed no preference for any particular python installation, or the
-  ## preference expressed is for a python environment that don't exist.
+  ## preference expressed is for a python environment that does not exist.
   ##
   ## In other words,
-  ##  - no use_python(), use_virtualenv(), use_condaenv()
+  ##  - no use_python(), use_virtualenv(), use_condaenv() calls
   ##  - no RETICULATE_PYTHON, RETICULATE_PYTHON_ENV, or RETICULATE_PYTHON_FALLBACK env vars
   ##  - no existing venv in the current working directory named: venv .venv virtualenv or .virtualenv
   ##  - no env named 'r-bar' if there was a call like `import('foo', delay_load = list(environment = "r-bar"))`
   ##  - no env named 'r-foo' if there was a call like `import('foo')`
   ##  - we're not running under an already activated venv (i.e., no VIRTUAL_ENV env var)
   ##  - no configured poetry or pipfile or venv in the current working directory
+  ##  - no env named 'r-reticulate'
 
-  # Look for a "r-reticulate" venv or condaenv. if found, use that.
-  # If not found, try to get permission to create one.
-  # This is the default in the absence of any expressed preference by the user.
-  python <- tryCatch(py_resolve("r-reticulate"), error = function(e) {
-    envpath <- try_create_default_virtualenv(package = "reticulate")
-    if (!is.null(envpath))
-      virtualenv_python(envpath)
-    else
-      e
-  })
-
-  uv_python <- uv_get_or_create_env()
-  if(!is.null(uv_python)) {
-    return(
-      python_config(uv_python)
-    )
+  ## Default to using a reticulate-managed ephemeral venv that satisfies
+  ## the Python requirements declared via `py_require()`.
+  user_opted_out <- tolower(Sys.getenv("RETICULATE_USE_MANAGED_VENV")) %in% c("false", "0", "no")
+  if (!user_opted_out) {
+    if (isTRUE(getOption("reticulate.python.initializing"))) {
+      python <- try(uv_get_or_create_env())
+      if (!is.null(python) && !inherits(python, "try-error"))
+        try(return(python_config(python, required_module, forced = "py_require()")))
+    }
+    # most likely called from py_exe()
+    return(NULL)
   }
-
-  if (!inherits(python, "error"))
-    try(return(python_config(python, required_module)))
-
-
-  # At this point, user has expressed no preference, and we do not have user permission
-  # to create the "r-reticulate" venv
 
   # fall back to using the PATH python, or fail.
   # We intentionally do not go on a fishing expedition for every possible python,
@@ -493,14 +486,14 @@ try_create_default_virtualenv <- function(package = "reticulate", ...) {
 
   if (permission == "") {
     return(NULL)
-    # if (is_interactive()) {
-    #   permission <- utils::askYesNo(sprintf(
-    #     "Would you like to create a default Python environment for the %s package?",
-    #     package))
-    #   if (!isTRUE(permission))
-    #     return(NULL)
-    #   permission <- "true"
-    # }
+    if (is_interactive()) {
+      permission <- utils::askYesNo(sprintf(
+        "Would you like to create a default Python environment for the %s package?",
+        package))
+      if (!isTRUE(permission))
+        return(NULL)
+      permission <- "true"
+    }
   }
 
   if (!permission %in% c("true", "yes", "1"))

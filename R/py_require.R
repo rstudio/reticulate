@@ -47,10 +47,14 @@ py_require <- function(packages = NULL,
                        python_version = NULL,
                        exclude_newer = NULL,
                        action = c("add", "remove", "set")) {
+
+  if (missing(packages) && missing(python_version) && missing(exclude_newer)) {
+    return(py_reqs_get())
+  }
+
   action <- match.arg(action)
-  env_is_package <- isNamespace(topenv(parent.frame()))
-  uv_initialized <- is_python_initialized() &&
-    is_uv_reticulate_managed_env(py_exe())
+  called_from_package <- isNamespace(topenv(parent.frame()))
+  uv_initialized <- is_python_initialized() && is_ephemeral_reticulate_uv_env(py_exe())
 
   if (!is.null(python_version)) {
     if (uv_initialized) {
@@ -68,21 +72,18 @@ py_require <- function(packages = NULL,
   }
 
   if (!is.null(exclude_newer)) {
-    if (env_is_package) {
+    if (called_from_package) {
       stop("`exclude_newer` cannot be set inside a package")
     }
     if (action != "set" && !is.null(py_reqs_get("exclude_newer"))) {
       stop(
         "`exclude_newer` is already set to '",
         py_reqs_get("exclude_newer"),
-        "', use `action` 'set' to override"
+        "', use `action = 'set'` to override"
       )
     }
   }
 
-  if (missing(packages) && missing(python_version) && missing(exclude_newer)) {
-    return(py_reqs_get())
-  }
 
   py_versions <- py_reqs_action(action, python_version, py_reqs_get("python_version"))
 
@@ -114,7 +115,7 @@ py_require <- function(packages = NULL,
   pr$exclude_newer <- pr$exclude_newer %||% exclude_newer
   pr$history <- c(pr$history, list(list(
     requested_from = environmentName(topenv(parent.frame())),
-    env_is_package = env_is_package,
+    env_is_package = called_from_package,
     packages = packages,
     python_version = python_version,
     exclude_newer = exclude_newer,
@@ -153,7 +154,7 @@ print.python_requirements <- function(x, ...) {
   history <- x$history[requested_from != "R_GlobalEnv"]
   is_package <- as.logical(lapply(history, function(x) x$env_is_package))
 
-  if (uv_will_use_processx()) {
+  if (requireNamespace("cli", quietly = TRUE)) {
     withr::with_options(
       list("cli.width" = 73),
       {
@@ -165,7 +166,7 @@ print.python_requirements <- function(x, ...) {
           theme = list(rule = list("line-type" = "single"))
         )
         cli::cli_rule("Current requirements")
-        cat(py_reqs_print(
+        cat(py_reqs_format(
           packages = packages,
           python_version = python_version,
           exclude_newer = x$exclude_newer,
@@ -186,7 +187,7 @@ print.python_requirements <- function(x, ...) {
     cat(paste0(rep("=", 26), collapse = ""))
     cat(" Python requirements ")
     cat(paste0(rep("=", 26), collapse = ""), "\n")
-    cat(py_reqs_print(
+    cat(py_reqs_format(
       packages = packages,
       python_version = python_version,
       exclude_newer = x$exclude_newer
@@ -285,7 +286,7 @@ py_reqs_flatten <- function(r_pkg = "", history) {
   )
 }
 
-py_reqs_print <- function(packages = NULL,
+py_reqs_format <- function(packages = NULL,
                           python_version = NULL,
                           exclude_newer = NULL,
                           use_cli = FALSE) {
@@ -330,9 +331,9 @@ py_reqs_get <- function(x = NULL) {
   pr <- .globals$python_requirements
   if (is.null(pr)) {
     pr <- structure(
-      .Data = list(
-        python_version = c(),
-        packages = c(),
+      list(
+        python_version = NULL,
+        packages = NULL,
         exclude_newer = NULL,
         history = list()
       ),
@@ -357,7 +358,7 @@ py_reqs_get <- function(x = NULL) {
 
 # uv ---------------------------------------------------------------------------
 
-uv_binary <- function() {
+uv_binary <- function(bootstrap_install = TRUE) {
   uv <- Sys.getenv("RETICULATE_UV", NA)
   if (!is.na(uv)) {
     return(path.expand(uv))
@@ -378,30 +379,28 @@ uv_binary <- function() {
     return(path.expand(uv))
   }
 
-  uv <- file.path(rappdirs::user_cache_dir("r-reticulate", NULL), "bin", "uv")
-  uv_file <- ifelse(is_windows(), paste0(uv, ".exe"), uv)
-  if (file.exists(uv_file)) {
-    return(path.expand(uv))
+  uv <- path.expand(file.path(
+    rappdirs::user_cache_dir("r-reticulate", NULL),
+    "bin", if (is_windows()) "uv.exe" else "uv"
+  ))
+  if (file.exists(uv)) {
+    return(uv)
   }
 
-  # Installing 'uv' in the 'r-reticulate' sub-folder inside the user's
-  # cache directory
-  # https://github.com/astral-sh/uv/blob/main/docs/configuration/installer.md
-  file_ext <- ifelse(is_windows(), ".ps1", ".sh")
-  target_url <- paste0("https://astral.sh/uv/install", file_ext)
-  install_uv <- tempfile("install-uv-", fileext = file_ext)
-  res <- tryCatch(
-    download.file(target_url, install_uv, quiet = TRUE),
-    warning = function(x) NULL,
-    error = function(x) NULL
-  )
-  if (is.null(res)) {
-    return(NULL)
-  }
-  if (is_windows()) {
-    system2(
-      command = "powershell",
-      args = c(
+  if (bootstrap_install) {
+    # Install 'uv' in the 'r-reticulate' sub-folder inside the user's cache directory
+    # https://github.com/astral-sh/uv/blob/main/docs/configuration/installer.md
+    file_ext <- if (is_windows()) ".ps1" else ".sh"
+    url <- paste0("https://astral.sh/uv/install", file_ext)
+    install_uv <- tempfile("install-uv-", fileext = file_ext)
+    download.file(url, install_uv, quiet = TRUE)
+    if (!file.exists(install_uv)) {
+      return(NULL)
+      # stop("Unable to download Python dependencies. Please install `uv` manually.")
+    }
+
+    if (is_windows()) {
+      system2("powershell", c(
         "-ExecutionPolicy",
         "ByPass",
         "-c",
@@ -411,167 +410,165 @@ uv_binary <- function() {
           # 'Out-Null' makes installation silent
           "irm ", install_uv, " | iex *> Out-Null"
         )
+      ))
+    } else if (is_macos() || is_linux()) {
+      Sys.chmod(install_uv, mode = "0755")
+      dir.create(dirname(uv), showWarnings = FALSE, recursive = TRUE)
+      system2(install_uv, c("--quiet"),
+        env = c(
+          "INSTALLER_NO_MODIFY_PATH=1",
+          paste0("UV_INSTALL_DIR=", maybe_shQuote(dirname(uv)))
+        )
       )
-    )
-  } else if (is_macos() || is_linux()) {
-    Sys.chmod(install_uv, mode = "0755")
-    dir.create(dirname(uv), showWarnings = FALSE)
-    system2(
-      command = install_uv,
-      args = c("--quiet"),
-      env = c(
-        "INSTALLER_NO_MODIFY_PATH=1",
-        paste0("UV_INSTALL_DIR=", maybe_shQuote(dirname(uv)))
-      )
-    )
+    }
   }
-  return(path.expand(uv))
-}
 
-uv_cache_dir <- function(...) {
-  path <- file.path(rappdirs::user_cache_dir("r-reticulate", NULL), "uv-cache", ...)
-  path.expand(path)
+  if (file.exists(uv)) uv else NULL # print visible
 }
 
 uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
                                  python_version = py_reqs_get("python_version"),
                                  exclude_newer = py_reqs_get("exclude_newer")) {
-  uv_binary_path <- uv_binary()
 
-  if (is.null(uv_binary_path)) {
-    return(NULL)
-  }
+  uv <- uv_binary() %||% return() # error?
 
-  if (length(packages)) {
-    pkg_arg <- as.vector(rbind("--with", uv_maybe_processx(packages)))
-  } else {
-    pkg_arg <- NULL
-  }
+  # capture args; maybe used in error message later
+  call_args <- list(
+    packages = packages,
+    python_version = python_version,
+    exclude_newer = exclude_newer
+  )
+
+  if (length(packages))
+    packages <- as.vector(rbind("--with", packages))
 
   if (length(python_version)) {
-    python_arg <- c("--python", paste0(uv_maybe_processx(python_version), collapse = ","))
-  } else {
-    python_arg <- NULL
+    constraints <- unlist(strsplit(python_version, ",", fixed = TRUE))
+    python_version <- c("--python", paste0(constraints, collapse = ","))
   }
 
   if (!is.null(exclude_newer)) {
     # todo, accept a POSIXct/lt, format correctly
-    exclude_arg <- c("--exclude-newer", maybe_shQuote(exclude_newer))
-  } else {
-    exclude_arg <- NULL
+    exclude_newer <- c("--exclude-newer", exclude_newer)
   }
 
-  command_arg <- "import sys; print(sys.executable);"
-  if (!uv_will_use_processx()) {
-    command_arg <- maybe_shQuote(command_arg)
-  }
+  # TODO?: use default uv cache if using user-installed uv?
+  # need to refactor detecting approach in py_install() and py_require()
+  cache_dir <- #if (is_reticulate_managed_uv(uv))
+    c("--cache-dir", reticulate_managed_uv_cache_dir())
 
-  args <- c(
+  uv_args <- c(
     "run",
-    "--color", "never",
     "--no-project",
-    "--cache-dir", uv_cache_dir(),
     "--python-preference=only-managed",
-    exclude_arg,
-    python_arg,
-    pkg_arg,
-    "python", "-c", command_arg
+    cache_dir,
+    python_version,
+    exclude_newer,
+    packages,
+    "python", "-c", "import sys; print(sys.executable);"
   )
 
-  if (uv_will_use_processx()) {
-    on.exit(
-      try(p$kill(), silent = TRUE),
-      add = TRUE
-    )
+  ## debug print system call:
+  # message(paste0(c(uv, maybe_shQuote(uv_args)), collapse = " "))
+
+  if (should_use_cli_spinner()) {
+    # This is an interactive session, but uv will not display any progress bar
+    # during long downloads because isatty() == FALSE. So we use processx and
+    # cli to display a calming spinner.
     p <- processx::process$new(
-      command = uv_binary_path,
-      args = args,
+      uv, uv_args,
       stderr = "|",
       stdout = "|"
     )
-    sp <- cli::make_spinner(template = "Downloading Python dependencies {spin}")
-    repeat {
-      pr <- p$poll_io(100)
-      if (all(as.vector(pr[c("error", "output")]) == "ready")) break
-      sp$spin()
-    }
-    sp$finish()
-    cmd_err <- p$read_error()
-    cmd_out <- p$read_output()
-    cmd_failed <- identical(cmd_out, "")
-    # This extra check is needed for Windows machines
-    # p$read_error may come back empty, so using p$read_all_error
-    # ensures forces the extraction. Running it as as the default
-    # will make the process run slower on successful runs, which is
-    # not ideal
-    if (trimws(cmd_err) == "") {
-      cmd_err <- p$read_all_error()
-    }
-  } else {
-    result <- suppressWarnings(system2(
-      command = uv_binary(),
-      args = args,
-      stderr = TRUE,
-      stdout = TRUE
-    ))
-    cmd_failed <- !is.null(attributes(result))
-    if (cmd_failed) {
-      cmd_err <- paste0(result, collapse = "\n")
-    } else {
-      if (length(result) == 1) {
-        cmd_out <- result[[1]]
-        cmd_err <- NULL
-      } else {
-        cmd_out <- result[[2]]
-        cmd_err <- paste0(result[[1]], "\n")
+    uv_stderr <- character()
+    p$wait(500)
+    if (p$is_alive()) {
+      sp <- cli::make_spinner(template = "Downloading Python dependencies {spin}")
+      while (p$is_alive()) {
+        sp$spin()
+        pr <- p$poll_io(100)
+        if (pr[["error"]] == "ready") {
+          # proactively clear pipe to ensure process isn't blocked on write
+          uv_stderr[[length(uv_stderr) + 1L]] <- p$read_error()
+        }
       }
+      sp$finish()
     }
+
+    uv_stderr <- paste0(c(uv_stderr, p$read_all_error()), collapse = "")
+    if (nzchar(uv_stderr))
+      cat(uv_stderr, if(!endsWith(uv_stderr, "\n")) "\n", file = stderr())
+
+    exit_status <- p$get_exit_status()
+    env_python <- sub("[\r\n]*$", "", p$read_all_output())
+
+  } else {
+    # uv will display a progress bar during long downloads, and we can simply
+    # pass through stderr from uv for users to see it.
+    env_python <- suppressWarnings(system2(uv, maybe_shQuote(uv_args), stdout = TRUE))
+    exit_status <- attr(env_python, "status", TRUE) %||% 0L
   }
 
-  if (cmd_failed) {
-    writeLines(cmd_err, con = stderr())
-    msg <- py_reqs_print(
-      packages = packages,
-      python_version = python_version,
-      exclude_newer = exclude_newer
-    )
-    msg <- c(msg, paste0(rep("-", 73), collapse = ""))
-    writeLines(msg, con = stderr())
-    stop(
-      "Call `py_require()` to remove or replace conflicting requirements.",
-      call. = FALSE
-    )
+  if (exit_status != 0L) {
+    msg <- do.call(py_reqs_format, call_args)
+    writeLines(c(msg, strrep("-", 73L)), con = stderr())
+    stop("Call `py_require()` to remove or replace conflicting requirements.")
   }
-  cat(cmd_err)
-  if (substr(cmd_out, nchar(cmd_out), nchar(cmd_out)) == "\n") {
-    cmd_out <- substr(cmd_out, 1, nchar(cmd_out) - 1)
-  }
-  if (substr(cmd_out, nchar(cmd_out), nchar(cmd_out)) == "\r") {
-    cmd_out <- substr(cmd_out, 1, nchar(cmd_out) - 1)
-  }
-  cmd_out
+
+  env_python
 }
 
 # uv - utils -------------------------------------------------------------------
 
-uv_will_use_processx <- function() {
-  interactive() && !
-  isatty(stderr()) &&
+should_use_cli_spinner <- function() {
+  # In RStudio Console, uv will not display a progress bar during long downloads,
+  # (This is because isatty(stderr()) is FALSE)
+  # So we use processx and cli to help us display a spinner during potentially
+  # long downloads.
+  # In all other contexts, we simply pass through the progress bar that
+  # uv outputs to stderr.
+  interactive() && !isatty(stderr()) &&
     (is_rstudio() || is_positron()) &&
     requireNamespace("cli", quietly = TRUE) &&
     requireNamespace("processx", quietly = TRUE)
 }
 
-uv_maybe_processx <- function(x) {
-  if (!uv_will_use_processx()) {
-    x <- maybe_shQuote(x)
+
+is_reticulate_managed_uv <- function(uv = uv_binary(bootstrap_install = FALSE)) {
+  if(is.null(uv) || !file.exists(uv)) {
+    # no user-installed uv - uv will be bootstrapped by reticulate
+    return(TRUE)
   }
-  x
+
+  managed_uv_path <- path.expand(file.path(
+    rappdirs::user_cache_dir("r-reticulate", NULL),
+    "bin", if (is_windows()) "uv.exe" else "uv"
+  ))
+
+  uv == managed_uv_path
 }
 
-is_uv_reticulate_managed_env <- function(dir) {
-  str_cache <- as.character(uv_cache_dir())
-  str_path <- as.character(dir)
-  sub_path <- substr(str_path, 1, nchar(str_cache))
-  str_cache == sub_path
+is_ephemeral_reticulate_uv_env <- function(path) {
+  startsWith(path, reticulate_managed_uv_cache_dir())
 }
+
+reticulate_managed_uv_cache_dir <- function() {
+  path.expand(file.path(
+    rappdirs::user_cache_dir("r-reticulate", NULL),
+    "uv-cache"
+  ))
+}
+
+uv_cache_dir <- function(uv = uv_binary(bootstrap_install = FALSE)) {
+  if (is_reticulate_managed_uv(uv)) {
+    return(reticulate_managed_uv_cache_dir())
+  }
+  tryCatch(
+    system2(uv, "cache dir",
+            stdout = TRUE, stderr = FALSE,
+            env = "NO_COLOR=1"),
+    warning = function(w) NULL,
+    error = function(e) NULL
+  )
+}
+

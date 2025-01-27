@@ -86,7 +86,7 @@ py_install <- function(packages,
   check_forbidden_install("Python packages")
 
   if (is_python_initialized() &&
-      is_uv_reticulate_managed_env(py_exe()) &&
+      is_ephemeral_reticulate_uv_env(py_exe()) &&
       is.null(envname)) {
     if (!is.null(python_version)) {
       stop(

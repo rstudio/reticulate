@@ -358,7 +358,7 @@ py_reqs_get <- function(x = NULL) {
 
 # uv ---------------------------------------------------------------------------
 
-uv_binary <- function() {
+uv_binary <- function(bootstrap_install = TRUE) {
   uv <- Sys.getenv("RETICULATE_UV", NA)
   if (!is.na(uv)) {
     return(path.expand(uv))
@@ -379,54 +379,52 @@ uv_binary <- function() {
     return(path.expand(uv))
   }
 
-  uv <- file.path(rappdirs::user_cache_dir("r-reticulate", NULL), "bin",
-                  if (is_windows()) "uv.exe" else "uv")
+  uv <- path.expand(file.path(
+    rappdirs::user_cache_dir("r-reticulate", NULL),
+    "bin", if (is_windows()) "uv.exe" else "uv"
+  ))
   if (file.exists(uv)) {
     return(uv)
   }
 
-  # Install 'uv' in the 'r-reticulate' sub-folder inside the user's cache directory
-  # https://github.com/astral-sh/uv/blob/main/docs/configuration/installer.md
-  file_ext <- if (is_windows()) ".ps1" else ".sh"
-  url <- paste0("https://astral.sh/uv/install", file_ext)
-  install_uv <- tempfile("install-uv-", fileext = file_ext)
-  download.file(url, install_uv, quiet = TRUE)
-  if (!file.exists(install_uv)) {
-    return(NULL)
-    # stop("Unable to download Python dependencies. Please install `uv` manually.")
-  }
+  if (bootstrap_install) {
+    # Install 'uv' in the 'r-reticulate' sub-folder inside the user's cache directory
+    # https://github.com/astral-sh/uv/blob/main/docs/configuration/installer.md
+    file_ext <- if (is_windows()) ".ps1" else ".sh"
+    url <- paste0("https://astral.sh/uv/install", file_ext)
+    install_uv <- tempfile("install-uv-", fileext = file_ext)
+    download.file(url, install_uv, quiet = TRUE)
+    if (!file.exists(install_uv)) {
+      return(NULL)
+      # stop("Unable to download Python dependencies. Please install `uv` manually.")
+    }
 
-  if (is_windows()) {
-    system2("powershell", c(
-      "-ExecutionPolicy",
-      "ByPass",
-      "-c",
-      paste0(
-        "$env:UV_INSTALL_DIR='", dirname(uv), "';",
-        "$env:INSTALLER_NO_MODIFY_PATH= 1;",
-        # 'Out-Null' makes installation silent
-        "irm ", install_uv, " | iex *> Out-Null"
+    if (is_windows()) {
+      system2("powershell", c(
+        "-ExecutionPolicy",
+        "ByPass",
+        "-c",
+        paste0(
+          "$env:UV_INSTALL_DIR='", dirname(uv), "';",
+          "$env:INSTALLER_NO_MODIFY_PATH= 1;",
+          # 'Out-Null' makes installation silent
+          "irm ", install_uv, " | iex *> Out-Null"
+        )
+      ))
+    } else if (is_macos() || is_linux()) {
+      Sys.chmod(install_uv, mode = "0755")
+      dir.create(dirname(uv), showWarnings = FALSE, recursive = TRUE)
+      system2(install_uv, c("--quiet"),
+        env = c(
+          "INSTALLER_NO_MODIFY_PATH=1",
+          paste0("UV_INSTALL_DIR=", maybe_shQuote(dirname(uv)))
+        )
       )
-    ))
-  } else if (is_macos() || is_linux()) {
-    Sys.chmod(install_uv, mode = "0755")
-    dir.create(dirname(uv), showWarnings = FALSE, recursive = TRUE)
-    system2(install_uv, c("--quiet"),
-      env = c(
-        "INSTALLER_NO_MODIFY_PATH=1",
-        paste0("UV_INSTALL_DIR=", maybe_shQuote(dirname(uv)))
-      )
-    )
+    }
   }
 
   if (file.exists(uv)) uv else NULL # print visible
 }
-
-uv_cache_dir <- function(...) {
-  path <- file.path(rappdirs::user_cache_dir("r-reticulate", NULL), "uv-cache", ...)
-  path.expand(path)
-}
-
 
 uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
                                  python_version = py_reqs_get("python_version"),

@@ -68,7 +68,11 @@ test_that("Simple tests", {
   }))
 })
 
-test_that("uv cache testing", {
+test_that("can bootstrap install uv in reticulate cache", {
+  # This test needs rethinking. It assumes that uv is not already installed on the users system,
+  # and fails if it is.
+  if (Sys.which("uv") != "" || file.exists("~/.local/bin/uv"))
+    skip("uv installed by user")
   local_edition(3)
   test_py_require_reset()
   uv_exec <- ifelse(is_windows(), "uv.exe", "uv")

@@ -8,12 +8,13 @@ test_that("Error requesting conflicting package versions", {
 })
 
 test_that("Error requesting newer package version against an older snapshot", {
-  local_edition(3)
-  expect_snapshot(r_session(attach_namespace = TRUE, {
-    py_require("tensorflow==2.18.*")
-    py_require(exclude_newer = "2024-10-20")
-    uv_get_or_create_env()
-  }))
+  expect_error(
+    uv_get_or_create_env(
+      packages = "tensorflow==2.18.*",
+      exclude_newer = "2024-10-20"
+      ),
+    regexp = "Call \`py_require\\(\\)\` to remove or replace conflicting requirements"
+  )
 })
 
 test_that("Error requesting a package that does not exists", {
@@ -58,7 +59,7 @@ test_that("Simple tests", {
     py_require("numpy==2")
     py_require("numpy==2", action = "remove")
     py_require(exclude_newer = "1990-01-01")
-    py_require(python_version = c("3.11", ">=3.10"))
+    py_require(python_version = c("<=3.11", ">=3.10"))
     py_require()
   }))
 })
@@ -82,10 +83,27 @@ test_that("Multiple py_require() calls from package are shows in one row", {
     gr_package <- function() {
       py_require(paste0("package", 1:20))
       py_require(paste0("package", 1:10), action = "remove")
-      py_require(python_version = c("3.11", ">=3.10"))
+      py_require(python_version = c("<=3.11", ">=3.10"))
     }
     environment(gr_package) <- asNamespace("graphics")
     gr_package()
     py_require()
   }))
 })
+
+test_that("'Equal to' and 'Non-equal to' Python requirements fail",{
+  test_py_require_reset()
+  py_require(python_version = "==3.11")
+  x <- py_require()
+  expect_equal(x$python_version, "3.11")
+  expect_error(
+    py_require(python_version = ">=3.10"),
+    regexp = "Python version requirements cannot combine"
+    )
+  expect_error(
+    py_require(python_version = "3.10"),
+    regexp = "Python version requirements cannot contain"
+  )
+})
+
+

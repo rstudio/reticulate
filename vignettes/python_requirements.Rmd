@@ -1,0 +1,65 @@
+---
+title: "Python Requirements"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{python_requirements}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+
+## Introducing 'uv'
+
+[uv](https://docs.astral.sh/uv/) is a fast Python package manager written in 
+[Rust](https://www.rust-lang.org/).  Important features that relate to `reticulate` 
+are:
+
+- Creates and manages Python virtual environments
+
+- Installs Python packages much faster than other alternatives
+
+- Installs and manages Python versions
+
+- It's cross-platform, meaning it works on Windows, Mac OS and Linux. 
+
+- Installation is very light, and essentially dependency free. 
+
+
+Starting with version 1.41, `reticulate` will to use **uv** as the default
+Python virtual environment manager. When you start interacting with Python, 
+`reticulate` will "ask" **uv** for a virtual environment for you to use.  
+The main goal is for you as an user, especially if a new user, is to start using 
+Python easily and painlessly.  
+
+
+## 'uv' binary order of discovery
+
+In order, `reticulate` will look for an **uv** installation path in the following
+order:
+
+1. `RETICULATE_UV` environment variable
+
+2. `reticulate.uv_binary` option
+
+3. System level path for 'uv' (`Sys.which("uv")`)As
+
+4. Default location where 'uv' installs its binary (*'~/.local/bin/uv'*)
+
+5. *'r-reticulate/bin'* sub-folder inside your user's cache directory 
+(`rappdirs::user_cache_dir()`)
+
+If no path is found, then `reticulate` will attempt to download and install 
+**uv** in the a sub-folder inside your user's cache directory (No. 5). 
+`reticulate` will install **uv** in such a way that it will not change any
+system level path values in your computer. 
+
+
+
+

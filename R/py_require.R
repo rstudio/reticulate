@@ -461,9 +461,12 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
   cache_dir <- #if (is_reticulate_managed_uv(uv))
     c("--cache-dir", reticulate_managed_uv_cache_dir())
 
+  if (is_positron())
+    withr::local_envvar(c(RUST_LOG=NA))
+
   uv_args <- c(
     "run",
-    "--no-project",
+    "--no-config",
     "--python-preference=only-managed",
     cache_dir,
     python_version,
@@ -575,4 +578,3 @@ uv_cache_dir <- function(uv = uv_binary(bootstrap_install = FALSE)) {
     error = function(e) NULL
   )
 }
-

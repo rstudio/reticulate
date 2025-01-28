@@ -147,7 +147,7 @@ print.python_requirements <- function(x, ...) {
   }
   python_version <- x$python_version
   if (is.null(python_version)) {
-    python_version <- "[No Python version specified]"
+    python_version <- paste0("[No Python version specified. Will default to '", reticulate_default_python() , "']")
   }
 
   requested_from <- as.character(lapply(x$history, function(x) x$requested_from))
@@ -435,7 +435,8 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
   # capture args; maybe used in error message later
   call_args <- list(
     packages = packages,
-    python_version = python_version,
+    python_version = python_version %||%
+      paste(reticulate_default_python(), "(`reticulate` default)"),
     exclude_newer = exclude_newer
   )
 
@@ -444,8 +445,11 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
 
   if (length(python_version)) {
     constraints <- unlist(strsplit(python_version, ",", fixed = TRUE))
-    python_version <- c("--python", paste0(constraints, collapse = ","))
+    constraints <- paste0(constraints, collapse = ",")
+  } else {
+    constraints <- reticulate_default_python()
   }
+  python_version <- c("--python", constraints)
 
   if (!is.null(exclude_newer)) {
     # todo, accept a POSIXct/lt, format correctly

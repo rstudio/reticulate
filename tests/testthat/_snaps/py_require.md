@@ -14,6 +14,7 @@
         ╰─▶ Because you require numpy<2 and numpy>=2, we can conclude that your
             requirements are unsatisfiable.
       -- Current requirements -------------------------------------------------
+       Python:   3.11 (reticulate default)
        Packages: numpy, numpy<2, numpy>=2
       -------------------------------------------------------------------------
       Error in uv_get_or_create_env() : 
@@ -37,6 +38,7 @@
         ╰─▶ Because notexists was not found in the package registry and you require
             notexists, we can conclude that your requirements are unsatisfiable.
       -- Current requirements -------------------------------------------------
+       Python:   3.11 (reticulate default)
        Packages: numpy, pandas, notexists
       -------------------------------------------------------------------------
       Error in uv_get_or_create_env() : 
@@ -84,7 +86,7 @@
       > py_require()
       ══════════════════════════ Python requirements ══════════════════════════
       ── Current requirements ─────────────────────────────────────────────────
-       Python:   [No Python version specified]
+       Python:   [No Python version specified. Will default to '3.11']
        Packages: numpy, pandas, numpy==2
       ── R package requests ───────────────────────────────────────────────────
       R package  Python packages                           Python version      
@@ -110,7 +112,7 @@
       > py_require()
       ══════════════════════════ Python requirements ══════════════════════════
       ── Current requirements ─────────────────────────────────────────────────
-       Python:   [No Python version specified]
+       Python:   [No Python version specified. Will default to '3.11']
        Packages: numpy, pandas
       ── R package requests ───────────────────────────────────────────────────
       R package  Python packages                           Python version      
@@ -138,7 +140,7 @@
       > py_require()
       ══════════════════════════ Python requirements ══════════════════════════
       ── Current requirements ─────────────────────────────────────────────────
-       Python:   [No Python version specified]
+       Python:   [No Python version specified. Will default to '3.11']
        Packages: numpy, pandas
        Exclude:  Anything newer than 1990-01-01
       ── R package requests ───────────────────────────────────────────────────

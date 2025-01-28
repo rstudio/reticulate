@@ -436,7 +436,7 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
   call_args <- list(
     packages = packages,
     python_version = python_version %||%
-      paste(reticulate_default_python(), "(`reticulate` default)"),
+      paste(reticulate_default_python(), "(reticulate default)"),
     exclude_newer = exclude_newer
   )
 

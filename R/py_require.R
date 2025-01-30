@@ -616,6 +616,13 @@ resolve_python_version <- function(constraints = NULL) {
   ord <- union(ord, seq_along(candidates))
   candidates <- candidates[ord]
 
+  # Maybe add non-latest patch levels to candidates if they're explicitly
+  # mentioned in constraints
+  additional_candidates <- sub("^[<>=!]{1,2}", "", constraints)
+  additional_candidates <- numeric_version(additional_candidates, strict = FALSE)
+  additional_candidates <- additional_candidates[!is.na(additional_candidates)]
+  candidates <- c(candidates, additional_candidates)
+
   for (check in as_version_constraint_checkers(constraints)) {
     satisfies_constraint <- check(candidates)
     candidates <- candidates[satisfies_constraint]

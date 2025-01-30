@@ -147,7 +147,7 @@ print.python_requirements <- function(x, ...) {
   }
   python_version <- x$python_version
   if (is.null(python_version)) {
-    python_version <- paste0("[No Python version specified. Will default to '", reticulate_default_python() , "']")
+    python_version <- paste0("[No Python version specified. Will default to '", resolve_python_version() , "']")
   }
 
   requested_from <- as.character(lapply(x$history, function(x) x$requested_from))
@@ -436,20 +436,14 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
   call_args <- list(
     packages = packages,
     python_version = python_version %||%
-      paste(reticulate_default_python(), "(reticulate default)"),
+      paste(resolve_python_version(), "(reticulate default)"),
     exclude_newer = exclude_newer
   )
 
   if (length(packages))
     packages <- as.vector(rbind("--with", packages))
 
-  if (length(python_version)) {
-    constraints <- unlist(strsplit(python_version, ",", fixed = TRUE))
-    constraints <- paste0(constraints, collapse = ",")
-  } else {
-    constraints <- reticulate_default_python()
-  }
-  python_version <- c("--python", constraints)
+  python_version <- c("--python", resolve_python_version(constraints = python_version))
 
   if (!is.null(exclude_newer)) {
     # todo, accept a POSIXct/lt, format correctly
@@ -462,7 +456,7 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
     c("--cache-dir", reticulate_managed_uv_cache_dir())
 
   if (is_positron())
-    withr::local_envvar(c(RUST_LOG=NA))
+    withr::local_envvar(c(RUST_LOG = NA))
 
   uv_args <- c(
     "run",
@@ -482,32 +476,30 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
     # This is an interactive session, but uv will not display any progress bar
     # during long downloads because isatty() == FALSE. So we use processx and
     # cli to display a calming spinner.
-    p <- processx::process$new(
-      uv, uv_args,
-      stderr = "|",
-      stdout = "|"
-    )
-    uv_stderr <- character()
+    p <- processx::process$new(uv, uv_args, stderr = "|", stdout = "|")
+    uv_stdout <- uv_stderr <- character()
     p$wait(500)
     if (p$is_alive()) {
       sp <- cli::make_spinner(template = "Downloading Python dependencies {spin}")
       while (p$is_alive()) {
         sp$spin()
         pr <- p$poll_io(100)
-        if (pr[["error"]] == "ready") {
-          # proactively clear pipe to ensure process isn't blocked on write
+        if (pr[["error"]] == "ready")
           uv_stderr[[length(uv_stderr) + 1L]] <- p$read_error()
-        }
+        if (pr[["output"]] == "ready")
+          uv_stdout[[length(uv_stdout) + 1L]] <- p$read_output()
       }
       sp$finish()
     }
 
     uv_stderr <- paste0(c(uv_stderr, p$read_all_error()), collapse = "")
+    uv_stdout <- paste0(c(uv_stdout, p$read_all_output()), collapse = "")
+
     if (nzchar(uv_stderr))
       cat(uv_stderr, if(!endsWith(uv_stderr, "\n")) "\n", file = stderr())
 
     exit_status <- p$get_exit_status()
-    env_python <- sub("[\r\n]*$", "", p$read_all_output())
+    env_python <- sub("[\r\n]*$", "", uv_stdout)
 
   } else {
     # uv will display a progress bar during long downloads, and we can simply
@@ -577,4 +569,63 @@ uv_cache_dir <- function(uv = uv_binary(bootstrap_install = FALSE)) {
     warning = function(w) NULL,
     error = function(e) NULL
   )
+}
+
+
+uv_python_list <- function() {
+  x <- system2(uv_binary(), c(
+      "python list --no-config --python-preference only-managed",
+      "--only-downloads --color never"
+    ),
+    stdout = TRUE
+  )
+
+  x <- grep("^cpython-", x, value = TRUE)
+  x <- sub("^cpython-([^-]+)-.*", "\\1", x)
+  x <- numeric_version(x, strict = FALSE)
+  x <- x[!is.na(x)]
+  x <- sort(x, decreasing = TRUE)
+  x
+}
+
+resolve_python_version <- function(constraints = NULL) {
+  constraints <- as.character(constraints %||% "")
+  constraints <- trimws(unlist(strsplit(constraints, ",", fixed = TRUE)))
+  constraints <- constraints[nzchar(constraints)]
+
+  if (length(constraints) == 0) {
+    return(as.character(uv_python_list()[3L])) # default
+  }
+
+  # reflect a direct version specification like "3.11" or "3.14.0a3"
+  if (length(constraints) == 1 && !substr(constraints, 1, 1) %in% c("=", ">", "<", "!")) {
+    return(constraints)
+  }
+
+  # We perform custom constraint resolution to prefer slightly older Python releases.
+  # uv tends to select the latest version, which often lack package support
+  # See: https://devguide.python.org/versions/
+
+  # Get latest patch for each minor version
+  candidates <- uv_python_list()
+  # E.g., candidates might be:
+  #  c("3.13.1", "3.12.8", "3.11.11", "3.10.16", "3.9.21", "3.8.20")
+
+  # Reorder candidates to prefer stable versions over bleeding edge
+  ord <- as.integer(c(3, 4, 2, 5, 1))
+  ord <- union(ord, seq_along(candidates))
+  candidates <- candidates[ord]
+
+  for (check in as_version_constraint_checkers(constraints)) {
+    satisfies_constraint <- check(candidates)
+    candidates <- candidates[satisfies_constraint]
+  }
+
+  if (!length(candidates)) {
+    stop("Requested Python version constraints could not be satisfied.\n",
+         '  constraints: "', paste0(constraints, collapse = ","), '"\n',
+         'Hint: Call `py_require(<version>, action = "set")` to select a specific Python version.')
+    }
+
+  as.character(candidates[1L])
 }

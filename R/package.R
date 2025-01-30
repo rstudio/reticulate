@@ -390,7 +390,3 @@ py_set_qt_qpa_platform_plugin_path <- function(config) {
   FALSE
 
 }
-
-reticulate_default_python <- function() {
-  "3.11"
-}

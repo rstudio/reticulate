@@ -14,7 +14,7 @@
         ╰─▶ Because you require numpy<2 and numpy>=2, we can conclude that your
             requirements are unsatisfiable.
       -- Current requirements -------------------------------------------------
-       Python:   3.11 (reticulate default)
+       Python:   3.11.11 (reticulate default)
        Packages: numpy, numpy<2, numpy>=2
       -------------------------------------------------------------------------
       Error in uv_get_or_create_env() : 
@@ -38,7 +38,7 @@
         ╰─▶ Because notexists was not found in the package registry and you require
             notexists, we can conclude that your requirements are unsatisfiable.
       -- Current requirements -------------------------------------------------
-       Python:   3.11 (reticulate default)
+       Python:   3.11.11 (reticulate default)
        Packages: numpy, pandas, notexists
       -------------------------------------------------------------------------
       Error in uv_get_or_create_env() : 
@@ -60,13 +60,11 @@
       > py_require(python_version = ">=3.10")
       > py_require(python_version = "<3.10")
       > uv_get_or_create_env()
-      error: No interpreter found for Python >=3.10, <3.10 in virtual environments or managed installations
-      -- Current requirements -------------------------------------------------
-       Python:   >=3.10, <3.10
-       Packages: numpy
-      -------------------------------------------------------------------------
-      Error in uv_get_or_create_env() : 
-        Call `py_require()` to remove or replace conflicting requirements.
+      Error in resolve_python_version(constraints = python_version) : 
+        Requested Python version constraints could not be satisfied.
+        constraints: ">=3.10,<3.10"
+      Hint: Call `py_require(python_version = <string>, action = "set")` to replace constraints.
+      Calls: uv_get_or_create_env -> resolve_python_version
       Execution halted
       ------- session end -------
       success: false
@@ -86,7 +84,7 @@
       > py_require()
       ══════════════════════════ Python requirements ══════════════════════════
       ── Current requirements ─────────────────────────────────────────────────
-       Python:   [No Python version specified. Will default to '3.11']
+       Python:   [No Python version specified. Will default to '3.11.11']
        Packages: numpy, pandas, numpy==2
       ── R package requests ───────────────────────────────────────────────────
       R package  Python packages                           Python version      
@@ -112,7 +110,7 @@
       > py_require()
       ══════════════════════════ Python requirements ══════════════════════════
       ── Current requirements ─────────────────────────────────────────────────
-       Python:   [No Python version specified. Will default to '3.11']
+       Python:   [No Python version specified. Will default to '3.11.11']
        Packages: numpy, pandas
       ── R package requests ───────────────────────────────────────────────────
       R package  Python packages                           Python version      
@@ -140,7 +138,7 @@
       > py_require()
       ══════════════════════════ Python requirements ══════════════════════════
       ── Current requirements ─────────────────────────────────────────────────
-       Python:   [No Python version specified. Will default to '3.11']
+       Python:   [No Python version specified. Will default to '3.11.11']
        Packages: numpy, pandas
        Exclude:  Anything newer than 1990-01-01
       ── R package requests ───────────────────────────────────────────────────

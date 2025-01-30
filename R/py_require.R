@@ -629,10 +629,17 @@ resolve_python_version <- function(constraints = NULL) {
   }
 
   if (!length(candidates)) {
-    stop("Requested Python version constraints could not be satisfied.\n",
-         '  constraints: "', paste0(constraints, collapse = ","), '"\n',
-         'Hint: Call `py_require(<version>, action = "set")` to select a specific Python version.')
-    }
+    msg <- paste0(
+      'Requested Python version constraints could not be satisfied.\n',
+      'Hint: Call `py_require(<version>, action = "set")` to select a specific Python version.'
+    )
+    cl <- call("resolve_python_version", constraints = paste0(constraints, collapse = ","))
+    stop(simpleError(msg, cl))
+
+    # stop("Requested Python version constraints could not be satisfied.\n",
+    #      '  constraints: "', paste0(constraints, collapse = ","), '"\n',
+
+  }
 
   as.character(candidates[1L])
 }

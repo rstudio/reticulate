@@ -60,9 +60,10 @@
       > py_require(python_version = ">=3.10")
       > py_require(python_version = "<3.10")
       > uv_get_or_create_env()
-      Error in resolve_python_version(constraints = ">=3.10,<3.10") : 
+      Error in resolve_python_version(constraints = python_version) : 
         Requested Python version constraints could not be satisfied.
-      Hint: Call `py_require(<version>, action = "set")` to select a specific Python version.
+        constraints: ">=3.10,<3.10"
+      Hint: Call `py_require(python_version = <string>, action = "set")` to replace constraints.
       Calls: uv_get_or_create_env -> resolve_python_version
       Execution halted
       ------- session end -------

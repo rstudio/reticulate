@@ -339,7 +339,7 @@ py_reqs_get <- function(x = NULL) {
       ),
       class = "python_requirements"
     )
-    pkg_prime <- "numpy"
+    pkg_prime <- c("numpy", if (is_positron()) "ipykernel")
     pr$packages <- pkg_prime
     pr$history <- list(list(
       requested_from = "reticulate",

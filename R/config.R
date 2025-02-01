@@ -186,6 +186,10 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
   reticulate_env <- Sys.getenv("RETICULATE_PYTHON", unset = NA)
   if (!is.na(reticulate_env)) {
 
+    if (reticulate_env == "managed") {
+      return(python_config_ephemeral_uv_venv(required_module))
+    }
+
     python_version <- normalize_python_path(reticulate_env)
     if (!python_version$exists)
       stop("Python specified in RETICULATE_PYTHON (", reticulate_env, ") does not exist")
@@ -220,6 +224,10 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
     python_version <- normalize_python_path(required_version)$path
     try(return(python_config(python_version, required_module,
                              forced = "use_python() function")))
+  }
+
+  if (tolower(Sys.getenv("RETICULATE_USE_MANAGED_VENV")) %in% c("true", "1", "yes")) {
+    return(python_config_ephemeral_uv_venv(required_module))
   }
 
   # check if we're running in an activated venv
@@ -324,13 +332,7 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
   ## the Python requirements declared via `py_require()`.
   user_opted_out <- tolower(Sys.getenv("RETICULATE_USE_MANAGED_VENV")) %in% c("false", "0", "no")
   if (!user_opted_out) {
-    if (isTRUE(getOption("reticulate.python.initializing"))) {
-      python <- try(uv_get_or_create_env())
-      if (!is.null(python) && !inherits(python, "try-error"))
-        try(return(python_config(python, required_module, forced = "py_require()")))
-    }
-    # most likely called from py_exe()
-    return(NULL)
+    return(python_config_ephemeral_uv_venv(required_module))
   }
 
   # fall back to using the PATH python, or fail.
@@ -419,6 +421,16 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
     try(return(python_config(python_versions[[1]], required_module, python_versions)))
   else
     return(NULL)
+}
+
+python_config_ephemeral_uv_venv <- function(required_module) {
+  if (isTRUE(getOption("reticulate.python.initializing"))) {
+    python <- try(uv_get_or_create_env())
+    if (!is.null(python) && !inherits(python, "try-error"))
+      try(return(python_config(python, required_module, forced = "py_require()")))
+  }
+  # most likely called from py_exe()
+  NULL
 }
 
 py_discover_config_fallbacks <- function() {

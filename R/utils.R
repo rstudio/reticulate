@@ -645,10 +645,14 @@ maybe_shQuote <- function(x) {
 
 
 rm_all_reticulate_state <- function() {
-  unlink(user_data_dir("r-reticulate", NULL), recursive = TRUE, force = TRUE)
-  unlink(user_data_dir("r-miniconda", NULL), recursive = TRUE, force = TRUE)
-  unlink(user_data_dir("r-miniconda-arm64", NULL), recursive = TRUE, force = TRUE)
-  unlink(miniconda_path_default(), recursive = TRUE, force = TRUE)
+  rm_rf <- function(...)
+    unlink(path.expand(c(...)), recursive = TRUE, force = TRUE)
+  rm_rf(user_data_dir("r-reticulate", NULL))
+  rm_rf(user_data_dir("r-miniconda", NULL))
+  rm_rf(user_data_dir("r-miniconda-arm64", NULL))
+  rm_rf(rappdirs::user_cache_dir("r-reticulate", NULL))
+  rm_rf(miniconda_path_default())
+  rm_rf(virtualenv_path("r-reticulate"))
 }
 
 

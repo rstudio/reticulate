@@ -644,9 +644,24 @@ maybe_shQuote <- function(x) {
 }
 
 
-rm_all_reticulate_state <- function() {
+rm_all_reticulate_state <- function(external = FALSE) {
+
   rm_rf <- function(...)
     unlink(path.expand(c(...)), recursive = TRUE, force = TRUE)
+
+  if (external) {
+    if (!is.null(uv <- uv_binary(FALSE))) {
+      system2(uv, c("cache", "clean"))
+      rm_rf(system2(uv, c("python", "dir"),
+                    env = "NO_COLOR=1", stdout = TRUE))
+      # rm_rf(system2(uv, c("tool", "dir"),
+      #               env = "NO_COLOR=1", stdout = TRUE))
+    }
+
+    if (nzchar(Sys.which("pip3")))
+      system2("pip3", c("cache", "purge"))
+  }
+
   rm_rf(user_data_dir("r-reticulate", NULL))
   rm_rf(user_data_dir("r-miniconda", NULL))
   rm_rf(user_data_dir("r-miniconda-arm64", NULL))

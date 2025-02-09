@@ -1,5 +1,13 @@
+
+
+
 test_that("Error requesting conflicting package versions", {
   local_edition(3)
+
+  # dry run before snapshot tests, so download progress updates aren't
+  # in the snapshot
+  try(uv_get_or_create_env())
+
   expect_snapshot(r_session(attach_namespace = TRUE, {
     py_require("numpy<2")
     py_require("numpy>=2")

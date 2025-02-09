@@ -55,7 +55,6 @@ Suggests:
     cli,
     rmarkdown,
     pillar,
-    processx,
     testthat
 LinkingTo: Rcpp
 RoxygenNote: 7.3.2

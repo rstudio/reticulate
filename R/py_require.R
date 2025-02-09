@@ -472,41 +472,8 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
   ## debug print system call:
   # message(paste0(c(uv, maybe_shQuote(uv_args)), collapse = " "))
 
-  if (should_use_cli_spinner()) {
-    # This is an interactive session, but uv will not display any progress bar
-    # during long downloads because isatty() == FALSE. So we use processx and
-    # cli to display a calming spinner.
-    p <- processx::process$new(uv, uv_args, stderr = "|", stdout = "|")
-    uv_stdout <- uv_stderr <- character()
-    p$wait(500)
-    if (p$is_alive()) {
-      sp <- cli::make_spinner(template = "Downloading Python dependencies {spin}")
-      while (p$is_alive()) {
-        sp$spin()
-        pr <- p$poll_io(100)
-        if (pr[["error"]] == "ready")
-          uv_stderr[[length(uv_stderr) + 1L]] <- p$read_error()
-        if (pr[["output"]] == "ready")
-          uv_stdout[[length(uv_stdout) + 1L]] <- p$read_output()
-      }
-      sp$finish()
-    }
-
-    uv_stderr <- paste0(c(uv_stderr, p$read_all_error()), collapse = "")
-    uv_stdout <- paste0(c(uv_stdout, p$read_all_output()), collapse = "")
-
-    if (nzchar(uv_stderr))
-      cat(uv_stderr, if(!endsWith(uv_stderr, "\n")) "\n", file = stderr())
-
-    exit_status <- p$get_exit_status()
-    env_python <- sub("[\r\n]*$", "", uv_stdout)
-
-  } else {
-    # uv will display a progress bar during long downloads, and we can simply
-    # pass through stderr from uv for users to see it.
-    env_python <- suppressWarnings(system2(uv, maybe_shQuote(uv_args), stdout = TRUE))
-    exit_status <- attr(env_python, "status", TRUE) %||% 0L
-  }
+  env_python <- suppressWarnings(system2(uv, maybe_shQuote(uv_args), stdout = TRUE))
+  exit_status <- attr(env_python, "status", TRUE) %||% 0L
 
   if (exit_status != 0L) {
     msg <- do.call(py_reqs_format, call_args)
@@ -518,19 +485,6 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
 }
 
 # uv - utils -------------------------------------------------------------------
-
-should_use_cli_spinner <- function() {
-  # In RStudio Console, uv will not display a progress bar during long downloads,
-  # (This is because isatty(stderr()) is FALSE)
-  # So we use processx and cli to help us display a spinner during potentially
-  # long downloads.
-  # In all other contexts, we simply pass through the progress bar that
-  # uv outputs to stderr.
-  interactive() && !isatty(stderr()) &&
-    (is_rstudio() || is_positron()) &&
-    requireNamespace("cli", quietly = TRUE) &&
-    requireNamespace("processx", quietly = TRUE)
-}
 
 
 is_reticulate_managed_uv <- function(uv = uv_binary(bootstrap_install = FALSE)) {

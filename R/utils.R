@@ -668,6 +668,10 @@ rm_all_reticulate_state <- function(external = FALSE) {
   rm_rf(rappdirs::user_cache_dir("r-reticulate", NULL))
   rm_rf(miniconda_path_default())
   rm_rf(virtualenv_path("r-reticulate"))
+  for (venv in virtualenv_list()) {
+    if (startsWith(venv, "r-"))
+      virtualenv_remove(venv, confirm = FALSE)
+  }
 }
 
 

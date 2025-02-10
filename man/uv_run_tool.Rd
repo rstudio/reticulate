@@ -63,7 +63,8 @@ version constraints.}
 Return value of \code{\link[=system2]{system2()}}
 }
 \description{
-Run a Command Line Tool distributed as a Python package.
+Run a Command Line Tool distributed as a Python package. Packages are automatically
+download and installed into a cached, ephemeral, and isolated environment on the first run.
 }
 \details{
 \subsection{Examples}{

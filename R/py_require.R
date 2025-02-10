@@ -495,7 +495,8 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
 
 #' uv run tool
 #'
-#' Run a Command Line Tool distributed as a Python package.
+#' Run a Command Line Tool distributed as a Python package. Packages are automatically
+#' download and installed into a cached, ephemeral, and isolated environment on the first run.
 #'
 #' @param tool,args A character vector of command and arguments. Arguments are
 #'   not quoted for the shell, so you may need to use [`shQuote()`].

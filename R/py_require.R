@@ -512,6 +512,7 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
 #' ## Examples
 #' ```r
 #' uv_run_tool("pycowsay", shQuote("hello from reticulate"))
+#' uv_run_tool("markitdown", shQuote(file.path(R.home("doc"), "NEWS.pdf")), stdout = TRUE)
 #' uv_run_tool("kaggle competitions download -c dogs-vs-cats")
 #' uv_run_tool("ruff", "--help")
 #' uv_run_tool("ruff format", shQuote(Sys.glob("**.py")))

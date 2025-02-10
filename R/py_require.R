@@ -580,17 +580,22 @@ uv_cache_dir <- function(uv = uv_binary(bootstrap_install = FALSE)) {
 
 uv_python_list <- function() {
   x <- system2(uv_binary(), c(
-      "python list --no-config --python-preference only-managed",
-      "--only-downloads --color never"
-    ),
-    stdout = TRUE
+    "python list --python-preference only-managed",
+    "--only-downloads --color never --output-format json"
+  ),
+  stdout = TRUE
   )
 
-  x <- grep("^cpython-", x, value = TRUE)
-  x <- sub("^cpython-([^-]+)-.*", "\\1", x)
-  x <- numeric_version(x, strict = FALSE)
-  x <- x[!is.na(x)]
-  x <- sort(x, decreasing = TRUE)
+  x <- jsonlite::parse_json(x)
+  x <- unlist(lapply(x, `[[`, "version"))
+
+  # to parse default `--output-format text`
+  # x <- grep("^cpython-", x, value = TRUE)
+  # x <- sub("^cpython-([^-]+)-.*", "\\1", x)
+
+  xv <- numeric_version(x, strict = FALSE)
+  latest_minor_patch <- !duplicated(xv[, 1:2]) & !is.na(xv)
+  x <- x[order(latest_minor_patch, xv, decreasing = TRUE)]
   x
 }
 

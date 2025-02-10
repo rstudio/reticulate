@@ -455,8 +455,11 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
   cache_dir <- #if (is_reticulate_managed_uv(uv))
     c("--cache-dir", reticulate_managed_uv_cache_dir())
 
-  if (is_positron())
-    withr::local_envvar(c(RUST_LOG = NA))
+  withr::local_envvar(c(
+    VIRTUAL_ENV = NA,
+    if (is_positron())
+      c(RUST_LOG = NA)
+  ))
 
   # "tool",
   # "--no-config",

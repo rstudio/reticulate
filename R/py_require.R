@@ -597,7 +597,7 @@ uv_python_list <- function() {
   # x <- sub("^cpython-([^-]+)-.*", "\\1", x)
 
   xv <- numeric_version(x, strict = FALSE)
-  latest_minor_patch <- !duplicated(xv[, 1:2]) & !is.na(xv)
+  latest_minor_patch <- !duplicated(xv[, -3L]) & !is.na(xv)
   x <- x[order(latest_minor_patch, xv, decreasing = TRUE)]
   x
 }

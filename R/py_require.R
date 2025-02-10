@@ -455,17 +455,26 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
   cache_dir <- #if (is_reticulate_managed_uv(uv))
     c("--cache-dir", reticulate_managed_uv_cache_dir())
 
-  if (is_positron())
-    withr::local_envvar(c(RUST_LOG = NA))
+  withr::local_envvar(c(
+    VIRTUAL_ENV = NA,
+    if (is_positron())
+      c(RUST_LOG = NA)
+  ))
+
+  # "tool",
+  # "--no-config",
+  # "--isolated",
+  # "--upgrade",
 
   uv_args <- c(
     "run",
-    "--no-config",
-    "--python-preference=only-managed",
+    "--no-project",
+    "--python-preference", "only-managed",
     cache_dir,
     python_version,
     exclude_newer,
     packages,
+    "--",
     "python", "-c", "import sys; print(sys.executable);"
   )
 
@@ -483,6 +492,53 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
 
   env_python
 }
+
+#' uv run tool
+#'
+#' Run a Command Line Tool distributed as a Python package. Packages are automatically
+#' download and installed into a cached, ephemeral, and isolated environment on the first run.
+#'
+#' @param tool,args A character vector of command and arguments. Arguments are
+#'   not quoted for the shell, so you may need to use [`shQuote()`].
+#' @param from Use the given python package to provide the command.
+#' @param with Run with the given Python packages installed. You can also
+#'   specify version constraints like `"ruff>=0.3.0"`.
+#' @param python_version A python version string, or character vector of python
+#'   version constraints.
+#'
+#' @inheritDotParams base::system2 -command
+#'
+#' @details
+#' ## Examples
+#' ```r
+#' uv_run_tool("pycowsay", shQuote("hello from reticulate"))
+#' uv_run_tool("markitdown", shQuote(file.path(R.home("doc"), "NEWS.pdf")), stdout = TRUE)
+#' uv_run_tool("kaggle competitions download -c dogs-vs-cats")
+#' uv_run_tool("ruff", "--help")
+#' uv_run_tool("ruff format", shQuote(Sys.glob("**.py")))
+#' uv_run_tool("http", from = "httpie")
+#' uv_run_tool("http", "--version", from = "httpie<3.2.4", stdout = TRUE)
+#' uv_run_tool("saved_model_cli", "--help", from = "tensorflow")
+#' ```
+#' @seealso <https://docs.astral.sh/uv/guides/tools/>
+#' @returns Return value of [`system2()`]
+#' @export
+#' @md
+uv_run_tool <- function(tool, args = character(), ..., from = NULL, with = NULL, python_version = NULL) {
+  system2(uv_binary(), c(
+    "tool",
+    "run",
+    "--isolated",
+    "--python-preference=only-managed",
+    "--python", resolve_python_version(constraints = python_version),
+    if (length(from)) c("--from", maybe_shQuote(from)),
+    if (length(with)) c(rbind("--with", maybe_shQuote(with))),
+    "--",
+    tool,
+    args
+  ), ...)
+}
+
 
 # uv - utils -------------------------------------------------------------------
 
@@ -527,18 +583,25 @@ uv_cache_dir <- function(uv = uv_binary(bootstrap_install = FALSE)) {
 
 
 uv_python_list <- function() {
-  x <- system2(uv_binary(), c(
-      "python list --no-config --python-preference only-managed",
-      "--only-downloads --color never"
+  x <- system2(uv_binary(), c("python list",
+    "--python-preference only-managed",
+    "--only-downloads",
+    "--color never",
+    "--output-format json"
     ),
     stdout = TRUE
   )
 
-  x <- grep("^cpython-", x, value = TRUE)
-  x <- sub("^cpython-([^-]+)-.*", "\\1", x)
-  x <- numeric_version(x, strict = FALSE)
-  x <- x[!is.na(x)]
-  x <- sort(x, decreasing = TRUE)
+  x <- jsonlite::parse_json(x)
+  x <- unlist(lapply(x, `[[`, "version"))
+
+  # to parse default `--output-format text`
+  # x <- grep("^cpython-", x, value = TRUE)
+  # x <- sub("^cpython-([^-]+)-.*", "\\1", x)
+
+  xv <- numeric_version(x, strict = FALSE)
+  latest_minor_patch <- !duplicated(xv[, -3L]) & !is.na(xv)
+  x <- x[order(latest_minor_patch, xv, decreasing = TRUE)]
   x
 }
 
@@ -572,10 +635,10 @@ resolve_python_version <- function(constraints = NULL) {
 
   # Maybe add non-latest patch levels to candidates if they're explicitly
   # mentioned in constraints
-  additional_candidates <- sub("^[<>=!]{1,2}", "", constraints)
-  additional_candidates <- numeric_version(additional_candidates, strict = FALSE)
-  additional_candidates <- additional_candidates[!is.na(additional_candidates)]
-  candidates <- c(candidates, additional_candidates)
+  append(candidates) <- sub("^[<>=!]{1,2}", "", constraints)
+
+  candidates <- numeric_version(candidates, strict = FALSE)
+  candidates <- candidates[!is.na(candidates)]
 
   for (check in as_version_constraint_checkers(constraints)) {
     satisfies_constraint <- check(candidates)

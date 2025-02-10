@@ -95,6 +95,7 @@ reference:
       - configure_environment
       - conda-tools
       - conda_run2
+      - uv_run_tool
 
   - title: "Miniconda"
     contents:

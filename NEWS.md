@@ -1,5 +1,9 @@
 # reticulate (development version)
 
+- New `py_require()` function for declaring Python requirements for the current R session.
+
+- New `uv_run_tool()` function for running command line tools distributed via Python packages.
+
 - Fixed an issue with using Python 3.12 on Linux (#1712, #1714).
 
 - Fixed an issue where `virtualenv_starter()` would not discover a

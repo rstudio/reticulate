@@ -102,7 +102,7 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
 
   # provide hint to install Miniconda if no Python is found
   python_not_found <- function(msg) {
-    hint <- "Please create a default virtual environment with `reticulate::virtualenv_create('r-reticulate')`."
+    hint <- 'See the Python "Order of Discovery" here: https://rstudio.github.io/reticulate/articles/versions.html#order-of-discovery.'
     stop(paste(msg, hint, sep = "\n"), call. = FALSE)
   }
 

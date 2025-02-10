@@ -458,14 +458,20 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
   if (is_positron())
     withr::local_envvar(c(RUST_LOG = NA))
 
+  # "tool",
+  # "--no-config",
+  # "--isolated",
+  # "--upgrade",
+
   uv_args <- c(
     "run",
-    "--no-config",
-    "--python-preference=only-managed",
+    "--no-project",
+    "--python-preference", "only-managed",
     cache_dir,
     python_version,
     exclude_newer,
     packages,
+    "--",
     "python", "-c", "import sys; print(sys.executable);"
   )
 

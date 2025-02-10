@@ -497,17 +497,19 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
 #'
 #' Run a Command Line Tool distributed as a Python package.
 #'
-#' @param tool,args a character vector of command and arguments. Arguments are
+#' @param tool,args A character vector of command and arguments. Arguments are
 #'   not quoted for the shell, so you may need to use [`shQuote()`].
 #' @param from Use the given python package to provide the command.
-#' @param with Run with the given Python packages installed. You can also specify
-#'   version constraints like `ruff>=0.3.0`.
+#' @param with Run with the given Python packages installed. You can also
+#'   specify version constraints like `"ruff>=0.3.0"`.
+#' @param python_version A python version string, or character vector of python
+#'   version constraints.
 #'
 #' @inheritDotParams base::system2 -command
 #'
 #' @details
 #' ## Examples
-#' ```
+#' ```r
 #' uv_run_tool("pycowsay", shQuote("hello from reticulate"))
 #' uv_run_tool("kaggle competitions download -c dogs-vs-cats")
 #' uv_run_tool("ruff", "--help")
@@ -520,13 +522,13 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
 #' @returns Return value of [`system2()`]
 #' @export
 #' @md
-uv_run_tool <- function(tool, args = character(), ..., from = NULL, with = NULL, python = NULL) {
+uv_run_tool <- function(tool, args = character(), ..., from = NULL, with = NULL, python_version = NULL) {
   system2(uv_binary(), c(
     "tool",
     "run",
     "--isolated",
     "--python-preference=only-managed",
-    "--python", resolve_python_version(constraints = python),
+    "--python", resolve_python_version(constraints = python_version),
     if (length(from)) c("--from", maybe_shQuote(from)),
     if (length(with)) c(rbind("--with", maybe_shQuote(with))),
     "--",

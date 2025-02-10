@@ -10,11 +10,11 @@ uv_run_tool(
   ...,
   from = NULL,
   with = NULL,
-  python = NULL
+  python_version = NULL
 )
 }
 \arguments{
-\item{tool, args}{a character vector of command and arguments. Arguments are
+\item{tool, args}{A character vector of command and arguments. Arguments are
 not quoted for the shell, so you may need to use \code{\link[=shQuote]{shQuote()}}.}
 
 \item{...}{
@@ -53,8 +53,11 @@ not quoted for the shell, so you may need to use \code{\link[=shQuote]{shQuote()
 
 \item{from}{Use the given python package to provide the command.}
 
-\item{with}{Run with the given Python packages installed. You can also specify
-version constraints like \verb{ruff>=0.3.0}.}
+\item{with}{Run with the given Python packages installed. You can also
+specify version constraints like \code{"ruff>=0.3.0"}.}
+
+\item{python_version}{A python version string, or character vector of python
+version constraints.}
 }
 \value{
 Return value of \code{\link[=system2]{system2()}}
@@ -65,7 +68,7 @@ Run a Command Line Tool distributed as a Python package.
 \details{
 \subsection{Examples}{
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{uv_run_tool("pycowsay", shQuote("hello from reticulate"))
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{uv_run_tool("pycowsay", shQuote("hello from reticulate"))
 uv_run_tool("kaggle competitions download -c dogs-vs-cats")
 uv_run_tool("ruff", "--help")
 uv_run_tool("ruff format", shQuote(Sys.glob("**.py")))

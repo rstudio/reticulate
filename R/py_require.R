@@ -582,11 +582,13 @@ uv_cache_dir <- function(uv = uv_binary(bootstrap_install = FALSE)) {
 
 
 uv_python_list <- function() {
-  x <- system2(uv_binary(), c(
-    "python list --python-preference only-managed",
-    "--only-downloads --color never --output-format json"
-  ),
-  stdout = TRUE
+  x <- system2(uv_binary(), c("python list",
+    "--python-preference only-managed",
+    "--only-downloads",
+    "--color never",
+    "--output-format json"
+    ),
+    stdout = TRUE
   )
 
   x <- jsonlite::parse_json(x)

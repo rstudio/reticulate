@@ -157,11 +157,22 @@ py_require <- function(packages = NULL,
 
   if (!is.null(packages)) {
     if (uv_initialized) {
-      if (action == "add") {
-        pr$packages <- py_reqs_action(action, packages, py_reqs_get("packages"))
-      } else {
-        signal_condition("After Python has initialized, only `action = 'add'` is supported.")
-      }
+      switch(action,
+        add = {
+          if(all(packages %in% pr$packages)) {
+            packages <- NULL # no-op, skip activating new env
+          } else {
+            pr$packages <- unique(c(packages, pr$packages))
+          }
+        },
+        remove = {
+          if (any(packages %in% pr$packages))
+            signal_condition("After Python has initialized, only `action = 'add'` is supported.")
+        },
+        set = {
+          if (!base::setequal(packages, pr$packages))
+            signal_condition("After Python has initialized, only `action = 'add'` is supported.")
+        })
     } else {
       pr$packages <- py_reqs_action(action, packages, py_reqs_get("packages"))
     }

@@ -24,6 +24,7 @@ test_that("Setting py_require(python_version) after initializing Python ", {
     pkg_py_require <- function(ver)
       reticulate::py_require(python_version = ver)
     environment(pkg_py_require) <- asNamespace("stats")
+    Sys.setenv(RETICULATE_USE_MANAGED_VENV = "yes")
 
     library(reticulate)
 
@@ -35,19 +36,12 @@ test_that("Setting py_require(python_version) after initializing Python ", {
 
     # initialize python
     import("numpy")
-    py_version(patch = TRUE)
-    py_exe()
-    normalizePath(py_exe())
 
     # already satisfied requests are no-ops
     py_require(python_version = ">=3.9.1")
     py_require(python_version = ">=3.8.1,<3.14")
     py_require(python_version = "3.11")
     pkg_py_require(">=3.10")
-
-    py_version(patch = TRUE)
-    py_exe()
-    normalizePath(py_exe())
 
     # unsatisfied requests from a package generate a warning
     # (it might make sense to narrow this to target just .onLoad() calls)

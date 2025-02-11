@@ -12,47 +12,57 @@ py_require(
 )
 }
 \arguments{
-\item{packages}{A vector of Python packages to make available during the
-working session.}
+\item{packages}{A character vector of Python packages to make available
+during the working session. These can be bare python package names like
+\code{"jax"}, or package names with version constraints like \code{"jax[cpu]>=0.5"}}
 
-\item{python_version}{A vector of one, or multiple, Python versions to
-consider. \code{uv} will not be able to process conflicting Python versions
-(e.g.: '>=3.11', '3.10').}
+\item{python_version}{A character vector of Python version constraints.
+(e.g.: \code{"3.10"} or \code{">=3.9,<3.13,!=3.11"}).}
 
-\item{exclude_newer}{Leverages a feature from \code{uv} that allows you to limit
-the candidate package versions to those that were uploaded prior to a given
-date. During the working session, the date can be "added" only one time.
-After the first time the argument is used, only the 'set' \code{action} can
+\item{exclude_newer}{Only use package versions that were published prior to a
+given date. This provides a light-weight alternative to "freezing" Python
+package versions, to guard against future package versions breaking a
+workflow. After the first time \code{exclude_newer}, only the 'set' \code{action} can
 override the date afterwards.}
 
-\item{action}{What \code{py_require()} should do with the packages and Python
-version provided during the given command call. There are three options:
+\item{action}{What \code{py_require()} should do with the provided \code{packages} and
+\code{python_version}. There are three options:
 \itemize{
-\item add - Adds the requirement to the list
-\item remove - Removes the requirement form the list. It has to be an exact match
-to an existing requirement. For example, if 'numpy==2.2.2' is currently on
-the list, passing 'numpy' with a 'remove' action will affect the list.
-\item set - Deletes any requirement already defined, and replaces them with what
+\item \code{add}: Adds the entries to the current set of requirements.
+\item \code{remove}: Removes the entries from the list of requirements. Strings must
+be an exact match to an existing requirement. For example, if
+\code{"numpy==2.2.2"} is currently on the list, passing \code{"numpy"} with a
+'remove' action will not affect the list. Requests to remove entries that
+are not present are silently ignored.
+\item \code{set}: Deletes any requirement already defined, and replaces them with what
 is provided in the command call. Packages and Python version can be
 independently set.
 }}
 }
 \description{
-It allows you to specify the Python packages, and their versions, to use
-during your working session. It also allows to specify Python version
-requirements. It uses \href{https://docs.astral.sh/uv/}{uv} to automatically
-resolves multiple version requirements of the same package (e.g.:
-'numpy>=2.2.0', numpy==2.2.2'), as well as resolve multiple Python version
-requirements (e.g.: '>=3.10', '3.11').  \code{uv} will automatically download and
-install the resulting Python version and packages, so there is no need to
-take any steps prior to starting the Python session.
+\code{py_require()} allows you to declare Python requirements for the R session,
+including Python packages, any version constraints on those packages, and any
+version constraints on Python itself. Reticulate can then automatically
+create and use an ephemeral Python environment that satisfies all the Python
+requirements.
 }
 \details{
-The virtual environment will not be initialized until the users attempts to
-interacts with Python for the first time during the session. Typically,
+The virtual environment will not be created until the users attempts to
+interacts with Python for the first time during the R session. Typically,
 that would be the first time \code{import()} is called.
 
-If \code{uv} is not installed, \code{reticulate} will attempt to download and install
-a version of it in an isolated folder. This will allow you to get the
-advantages of \code{uv}, without modifying your computer's environment.
+If \code{py_require()} is called with new requirements after reticulate has
+already initialized an ephemeral Python environment, then a new ephemeral
+environment is activated, layered atop of the existing one. Note that after
+initializing Python, only adding python packages is supported. Removing
+python packages, changing the Python version, or changing \code{excluding_newer}
+cannot change after reticulate has initialized Python.
+
+If \code{py_require()} is called without arguments, then a list is returned with
+the currently declared requirements.
+
+\code{py_require()} can also be called from R packages (e.g., in \code{.onLoad()} or
+elsewhere) to declare Python requirements. You can view which Python
+dependencies have been been declared by R packages in the current R session
+by printing with \code{py_require()} by printing \code{py_require()}.
 }

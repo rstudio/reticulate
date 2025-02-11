@@ -1,46 +1,63 @@
-#' Declare Python requirements
+#' Declare Python Requirements
 #'
-#' It allows you to specify the Python packages, and their versions, to use
-#' during your working session. It also allows to specify Python version
-#' requirements. It uses [uv](https://docs.astral.sh/uv/) to automatically
-#' resolves multiple version requirements of the same package (e.g.:
-#' 'numpy>=2.2.0', numpy==2.2.2'), as well as resolve multiple Python version
-#' requirements (e.g.: '>=3.10', '3.11').  `uv` will automatically download and
-#' install the resulting Python version and packages, so there is no need to
-#' take any steps prior to starting the Python session.
+#' `py_require()` allows you to declare Python requirements for the R session,
+#' including Python packages, any version constraints on those packages, and any
+#' version constraints on Python itself. Reticulate can then automatically
+#' create and use an ephemeral Python environment that satisfies all these
+#' requirements.
 #'
+#' Reticulate will only use an ephemeral environment if no other Python
+#' installation is found earlier in the [Order of
+#' Discovery](https://rstudio.github.io/reticulate/articles/versions.html#order-of-discovery).
+#' You can also force reticulate to use an ephemeral environment by setting
+#' `Sys.setenv(RETICULATE_USE_MANAGED_VENV = "yes")`.
 #'
-#' The virtual environment will not be initialized until the users attempts to
-#' interacts with Python for the first time during the session. Typically,
-#' that would be the first time `import()` is called.
+#' The ephemeral virtual environment is not created until the user interacts
+#' with Python for the first time in the R session. Typically, this occurs when
+#' `import()` is first called.
 #'
-#' If `uv` is not installed, `reticulate` will attempt to download and install
-#' a version of it in an isolated folder. This will allow you to get the
-#' advantages of `uv`, without modifying your computer's environment.
+#' If `py_require()` is called with new requirements after Reticulate has
+#' already initialized an ephemeral Python environment, a new ephemeral
+#' environment is activated on top of the existing one. Once Python is
+#' initialized, only adding packages is supported--removing packages, changing
+#' the Python version, or modifying `exclude_newer` is not possible.
 #'
+#' Calling `py_require()` without arguments returns a list of the currently
+#' declared requirements.
 #'
-#' @param packages A vector of Python packages to make available during the
-#' working session.
+#' `py_require()` can also be used in R packages (e.g., in `.onLoad()` or
+#' elsewhere) to declare Python dependencies. The print method for
+#' `py_require()` shows the Python dependencies declared by R packages in the
+#' current session.
 #'
-#' @param python_version A vector of one, or multiple, Python versions to
-#' consider. `uv` will not be able to process conflicting Python versions
-#' (e.g.: '>=3.11', '3.10').
+#' @note Reticulate uses [`uv`](https://docs.astral.sh/uv/) to resolve Python
+#'   dependencies. Many `uv` options can be customized via environment
+#'   variables, as described
+#'   [here](https://docs.astral.sh/uv/configuration/environment/). For example,
+#'   you can set `Sys.setenv(UV_OFFLINE=1)` or `Sys.setenv(UV_INDEX =
+#'   "https://download.pytorch.org/whl/cpu")`.
 #'
-#' @param action What `py_require()` should do with the packages and Python
-#' version provided during the given command call. There are three options:
-#' - add - Adds the requirement to the list
-#' - remove - Removes the requirement form the list. It has to be an exact match
-#' to an existing requirement. For example, if 'numpy==2.2.2' is currently on
-#' the list, passing 'numpy' with a 'remove' action will affect the list.
-#' - set - Deletes any requirement already defined, and replaces them with what
-#' is provided in the command call. Packages and Python version can be
-#' independently set.
+#' @param packages A character vector of Python packages to be available during
+#'   the session. These can be simple package names like `"jax"` or names with
+#'   version constraints like `"jax[cpu]>=0.5"`.
 #'
-#' @param exclude_newer Leverages a feature from `uv` that allows you to limit
-#' the candidate package versions to those that were uploaded prior to a given
-#' date. During the working session, the date can be "added" only one time.
-#' After the first time the argument is used, only the 'set' `action` can
-#' override the date afterwards.
+#' @param python_version A character vector of Python version constraints \cr
+#'   (e.g., `"3.10"` or `">=3.9,<3.13,!=3.11"`).
+#'
+#' @param action Defines how `py_require()` handles the provided requirements.
+#'   Options are:
+#'   - `add`: Add the entries to the current set of requirements.
+#'   - `remove`: Remove exact matches from the requirements list. For example, if
+#'   `"numpy==2.2.2"` is in the list, passing `"numpy"` with `action = "remove"`
+#'   will not remove it. Requests to remove nonexistent entries are ignored.
+#'   - `set`: Clear all existing requirements and replaces them with the
+#'   provided ones. Packages and the Python version can be set independently.
+#'
+#' @param exclude_newer Restricts package versions to those published before a
+#'   specified date. This offers a lightweight alternative to freezing package
+#'   versions, to guard against future published package versions breaking a
+#'   workflow. Once  `exclude_newer` is set, only the `set` action can override
+#'   it.
 #'
 #' @export
 py_require <- function(packages = NULL,
@@ -427,6 +444,7 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
                                  python_version = py_reqs_get("python_version"),
                                  exclude_newer = py_reqs_get("exclude_newer")) {
 
+  # print(rlang::trace_back())
   uv <- uv_binary() %||% return() # error?
 
   # capture args; maybe used in error message later
@@ -588,6 +606,15 @@ uv_python_list <- function() {
     ),
     stdout = TRUE
   )
+  # x <- tryCatch(
+    # system2(
+      # uv_binary(),
+      # c("python list --no-config --python-preference only-managed",
+        # "--only-downloads --color never"),
+      # stdout = TRUE
+    # ),
+    # warning = function(w) character()
+  # )
 
   x <- jsonlite::parse_json(x)
   x <- unlist(lapply(x, `[[`, "version"))

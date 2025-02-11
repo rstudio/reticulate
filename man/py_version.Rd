@@ -4,7 +4,7 @@
 \alias{py_version}
 \title{Python version}
 \usage{
-py_version()
+py_version(patch = FALSE)
 }
 \value{
 The version of Python currently used, or \code{NULL} if Python has

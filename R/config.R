@@ -21,6 +21,8 @@ py_config <- function() {
 #'
 #' Get the version of Python currently being used by `reticulate`.
 #'
+#' @param patch boolean, whether to include the patch level in the returned version.
+#'
 #' @return The version of Python currently used, or `NULL` if Python has
 #'   not yet been initialized by `reticulate`.
 #'

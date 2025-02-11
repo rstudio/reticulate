@@ -24,6 +24,56 @@
       success: false
       exit_code: 1
 
+# Setting py_require(python_version) after initializing Python 
+
+    Code
+      r_session({
+        pkg_py_require <- (function(ver) reticulate::py_require(python_version = ver))
+        environment(pkg_py_require) <- asNamespace("stats")
+        library(reticulate)
+        py_require(python_version = ">=3.9")
+        py_require(python_version = ">=3.8,<3.14")
+        py_require(python_version = "3.11")
+        pkg_py_require(">=3.10")
+        import("numpy")
+        py_require(python_version = ">=3.9.1")
+        py_require(python_version = ">=3.8.1,<3.14")
+        py_require(python_version = "3.11")
+        pkg_py_require(">=3.10")
+        pkg_py_require(">=3.12")
+        py_require(python_version = ">=3.12")
+      })
+    Output
+      > pkg_py_require <- (function(ver) reticulate::py_require(python_version = ver))
+      > environment(pkg_py_require) <- asNamespace("stats")
+      > library(reticulate)
+      > py_require(python_version = ">=3.9")
+      > py_require(python_version = ">=3.8,<3.14")
+      > py_require(python_version = "3.11")
+      > pkg_py_require(">=3.10")
+      > import("numpy")
+      Module(numpy)
+      > py_require(python_version = ">=3.9.1")
+      > py_require(python_version = ">=3.8.1,<3.14")
+      > py_require(python_version = "3.11")
+      > pkg_py_require(">=3.10")
+      > pkg_py_require(">=3.12")
+      Warning message:
+      In reticulate::py_require(python_version = ver) :
+        Python version requirements cannot be changed after Python has been initialized.
+      * Python version request: '>=3.12' (from package:stats)
+      * Python version initialized: '3.11.11'
+      > py_require(python_version = ">=3.12")
+      Error in py_require(python_version = ">=3.12") : 
+        Python version requirements cannot be changed after Python has been initialized.
+      * Python version request: '>=3.12'
+      * Python version initialized: '3.11.11'
+      Calls: py_require -> signal_condition
+      Execution halted
+      ------- session end -------
+      success: false
+      exit_code: 1
+
 # Error requesting a package that does not exists
 
     Code
@@ -219,54 +269,4 @@
       ------- session end -------
       success: true
       exit_code: 0
-
-# Setting py_require(python_version) after initializing Python 
-
-    Code
-      r_session({
-        pkg_py_require <- (function(ver) reticulate::py_require(python_version = ver))
-        environment(pkg_py_require) <- asNamespace("stats")
-        library(reticulate)
-        py_require(python_version = ">=3.9")
-        py_require(python_version = ">=3.8,<3.14")
-        py_require(python_version = "3.11")
-        pkg_py_require(">=3.10")
-        import("numpy")
-        py_require(python_version = ">=3.9.1")
-        py_require(python_version = ">=3.8.1,<3.14")
-        py_require(python_version = "3.11")
-        pkg_py_require(">=3.10")
-        pkg_py_require(">=3.12")
-        py_require(python_version = ">=3.12")
-      })
-    Output
-      > pkg_py_require <- (function(ver) reticulate::py_require(python_version = ver))
-      > environment(pkg_py_require) <- asNamespace("stats")
-      > library(reticulate)
-      > py_require(python_version = ">=3.9")
-      > py_require(python_version = ">=3.8,<3.14")
-      > py_require(python_version = "3.11")
-      > pkg_py_require(">=3.10")
-      > import("numpy")
-      Module(numpy)
-      > py_require(python_version = ">=3.9.1")
-      > py_require(python_version = ">=3.8.1,<3.14")
-      > py_require(python_version = "3.11")
-      > pkg_py_require(">=3.10")
-      > pkg_py_require(">=3.12")
-      Warning message:
-      In reticulate::py_require(python_version = ver) :
-        Python version requirements cannot be changed after Python has been initialized.
-      * Python version request: '>=3.12' (from package:stats)
-      * Python version initialized: '3.11.11'
-      > py_require(python_version = ">=3.12")
-      Error in py_require(python_version = ">=3.12") : 
-        Python version requirements cannot be changed after Python has been initialized.
-      * Python version request: '>=3.12'
-      * Python version initialized: '3.11.11'
-      Calls: py_require -> signal_condition
-      Execution halted
-      ------- session end -------
-      success: false
-      exit_code: 1
 

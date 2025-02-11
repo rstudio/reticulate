@@ -6,6 +6,9 @@
 \usage{
 py_version(patch = FALSE)
 }
+\arguments{
+\item{patch}{boolean, whether to include the patch level in the returned version.}
+}
 \value{
 The version of Python currently used, or \code{NULL} if Python has
 not yet been initialized by \code{reticulate}.

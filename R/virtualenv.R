@@ -692,12 +692,14 @@ as_version_constraint_checkers <- function(version) {
   ver <- numeric_version(ver)
 
   .mapply(function(op, ver) {
-    op <- get(op, mode = "function")
+    op <- as.symbol(op)
     force(ver)
 
     # return a "checker" function that takes a vector of versions and returns
     # a logical vector of if the version satisfies the constraint.
-    function(x) {
+    rlang::zap_srcref(eval(bquote(function(x) {
+      op <- .(op)
+      ver <- .(ver)
       x <- numeric_version(x)
       # if the constraint version is missing minor or patch level, set
       # to 0, so we can match on all, equivalent to pip style syntax like '3.8.*'
@@ -707,7 +709,7 @@ as_version_constraint_checkers <- function(version) {
           x[, lvl] <- 0L
         }
       op(x, ver)
-    }
+    })))
   }, list(op, ver), NULL)
 }
 

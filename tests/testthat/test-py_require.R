@@ -35,6 +35,9 @@ test_that("Setting py_require(python_version) after initializing Python ", {
 
     # initialize python
     import("numpy")
+    py_version(patch = TRUE)
+    py_exe()
+    normalizePath(py_exe())
 
     # already satisfied requests are no-ops
     py_require(python_version = ">=3.9.1")
@@ -42,6 +45,9 @@ test_that("Setting py_require(python_version) after initializing Python ", {
     py_require(python_version = "3.11")
     pkg_py_require(">=3.10")
 
+    py_version(patch = TRUE)
+    py_exe()
+    normalizePath(py_exe())
 
     # unsatisfied requests from a package generate a warning
     # (it might make sense to narrow this to target just .onLoad() calls)

@@ -19,12 +19,16 @@ test_that("Error requesting conflicting package versions", {
 test_that("Setting py_require(python_version) after initializing Python ", {
   test_py_require_reset()
   local_edition(3)
+  # dry run to avoid installation messages in snapshot
+  try(uv_get_or_create_env("numpy", "3.11"))
 
   expect_snapshot(r_session({
     pkg_py_require <- function(ver)
       reticulate::py_require(python_version = ver)
     environment(pkg_py_require) <- asNamespace("stats")
-    Sys.setenv(RETICULATE_USE_MANAGED_VENV = "yes")
+    Sys.setenv("RETICULATE_USE_MANAGED_VENV" = "yes")
+    Sys.unsetenv("RETICULATE_PYTHON")
+    # Sys.setenv("RETICULATE_PYTHON"="managed")
 
     library(reticulate)
 

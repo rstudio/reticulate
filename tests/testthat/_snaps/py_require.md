@@ -30,6 +30,8 @@
       r_session({
         pkg_py_require <- (function(ver) reticulate::py_require(python_version = ver))
         environment(pkg_py_require) <- asNamespace("stats")
+        Sys.setenv(RETICULATE_USE_MANAGED_VENV = "yes")
+        Sys.unsetenv("RETICULATE_PYTHON")
         library(reticulate)
         py_require(python_version = ">=3.9")
         py_require(python_version = ">=3.8,<3.14")
@@ -46,6 +48,8 @@
     Output
       > pkg_py_require <- (function(ver) reticulate::py_require(python_version = ver))
       > environment(pkg_py_require) <- asNamespace("stats")
+      > Sys.setenv(RETICULATE_USE_MANAGED_VENV = "yes")
+      > Sys.unsetenv("RETICULATE_PYTHON")
       > library(reticulate)
       > py_require(python_version = ">=3.9")
       > py_require(python_version = ">=3.8,<3.14")

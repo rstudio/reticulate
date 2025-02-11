@@ -75,6 +75,8 @@ py_require <- function(packages = NULL,
   called_from_package <- isNamespace(topenv(parent.frame()))
   uv_initialized <- is_python_initialized() && is_ephemeral_reticulate_uv_env(py_exe())
 
+  signal_condition <- if (called_from_package) warning else stop
+
   if (!is.null(python_version)) {
     python_version <- unlist(strsplit(python_version, ",", fixed = TRUE))
 
@@ -83,8 +85,7 @@ py_require <- function(packages = NULL,
       current_py_version <- py_version(patch = TRUE)
       for (check in as_version_constraint_checkers(python_version)) {
         if (!isTRUE(check(current_py_version))) {
-          signal <- if(called_from_package) warning else stop
-          signal(
+          signal_condition(
             "Python version requirements cannot be ",
             "changed after Python has been initialized.\n",
             "- Python version request: '", python_version, "'",
@@ -110,18 +111,56 @@ py_require <- function(packages = NULL,
     if (called_from_package) {
       stop("`exclude_newer` cannot be set inside a package")
     }
-    if (action != "set" && !is.null(py_reqs_get("exclude_newer"))) {
-      stop(
-        "`exclude_newer` is already set to '",
-        py_reqs_get("exclude_newer"),
-        "', use `action = 'set'` to override"
+
+    if (uv_initialized) {
+
+      signal_condition("`exclude_newer` cannot be changed after Python has initialized.")
+
+    } else {
+
+      switch(action,
+        add = {
+          if (!is.null(pr$exclude_newer)) {
+            # TODO: we can check if the new request is already satisfied
+            # by the old request. e.g.,
+            #   as.POSIXct(exclude_newer) >= as.POSIXct(pr$exclude_newer)
+            stop(
+              "`exclude_newer` is already set to '",
+              py_reqs_get("exclude_newer"),
+              "', use `action = 'set'` to override"
+            )
+          }
+        },
+        remove = {
+          if (identical(exclude_newer, pr$exclude_newer)) {
+            exclude_newer <- NA
+          }
+        },
+        set = {}
       )
+
+      if (is.na(exclude_newer) || identical(exclude_newer, "")) {
+        # NA or "" are the sentinel for removing exclude_newer
+        # (since NULL sentinel already is taken)
+        exclude_newer <- NULL
+      }
+
+      pr$exclude_newer <- exclude_newer
     }
   }
 
+  if (!is.null(packages)) {
+    if (uv_initialized) {
+      if (action == "add") {
+        pr$packages <- py_reqs_action(action, packages, py_reqs_get("packages"))
+      } else {
+        signal_condition("After Python has initialized, only `action = 'add'` is supported.")
+      }
+    } else {
+      pr$packages <- py_reqs_action(action, packages, py_reqs_get("packages"))
+    }
+  }
 
-  pr$packages <- py_reqs_action(action, packages, py_reqs_get("packages"))
-  pr$exclude_newer <- pr$exclude_newer %||% exclude_newer
   pr$history <- c(pr$history, list(list(
     requested_from = environmentName(topenv(parent.frame())),
     env_is_package = called_from_package,
@@ -132,14 +171,14 @@ py_require <- function(packages = NULL,
   )))
   .globals$python_requirements <- pr
 
-  if (uv_initialized) {
+  if (uv_initialized && action == "add" && !is.null(packages)) {
     new_path <- uv_get_or_create_env()
     new_config <- python_config(new_path)
     if (new_config$libpython == .globals$py_config$libpython) {
       py_activate_virtualenv(file.path(dirname(new_path), "activate_this.py"))
       .globals$py_config <- new_config
       .globals$py_config$available <- TRUE
-      # TODO: sync os.environ with R Sys.setvar?
+      # TODO: sync os.environ with R Sys.getenv()?
     } else {
       # TODO: Better error message?
       stop("New environment does not use the same Python binary")

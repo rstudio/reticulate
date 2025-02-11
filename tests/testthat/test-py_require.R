@@ -107,6 +107,46 @@ test_that("Multiple py_require() calls from package are shows in one row", {
   }))
 })
 
+
+test_that("Setting py_require(python_version) after initializing Python ", {
+  test_py_require_reset()
+  local_edition(3)
+
+  expect_snapshot(r_session({
+    pkg_py_require <- function(ver)
+      reticulate::py_require(python_version = ver)
+    environment(pkg_py_require) <- asNamespace("stats")
+
+    library(reticulate)
+
+    # multiple requests are fine
+    py_require(python_version = ">=3.9")
+    py_require(python_version = ">=3.8,<3.14")
+    py_require(python_version = "3.11")
+    pkg_py_require(">=3.10")
+
+    # initialize python
+    import("numpy")
+
+    # already satisfied requests are no-ops
+    py_require(python_version = ">=3.9.1")
+    py_require(python_version = ">=3.8.1,<3.14")
+    py_require(python_version = "3.11")
+    pkg_py_require(">=3.10")
+
+
+    # unsatisfied requests from a package generate a warning
+    # (it might make sense to narrow this to target just .onLoad() calls)
+    pkg_py_require(">=3.12")
+
+    # unsatisfied requests from not a package error
+    py_require(python_version = ">=3.12")
+
+  }))
+
+})
+
+
 test_that("'Equal to' and 'Non-equal to' Python requirements fail",{
   if (py_available()) {
     skip("Can't test py_require(python_version) declarations after python initialized")

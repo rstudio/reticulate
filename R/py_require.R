@@ -44,6 +44,8 @@
 #' @param python_version A character vector of Python version constraints \cr
 #'   (e.g., `"3.10"` or `">=3.9,<3.13,!=3.11"`).
 #'
+#' @param ... Dots are for future extensions, must be empty.
+#'
 #' @param action Defines how `py_require()` handles the provided requirements.
 #'   Options are:
 #'   - `add`: Add the entries to the current set of requirements.
@@ -62,8 +64,12 @@
 #' @export
 py_require <- function(packages = NULL,
                        python_version = NULL,
+                       ...,
                        exclude_newer = NULL,
                        action = c("add", "remove", "set")) {
+
+  if (length(list(...)))
+    stop("... must be empty")
 
   pr <- py_reqs_get()
 

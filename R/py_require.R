@@ -48,8 +48,10 @@ py_require <- function(packages = NULL,
                        exclude_newer = NULL,
                        action = c("add", "remove", "set")) {
 
+  pr <- py_reqs_get()
+
   if (missing(packages) && missing(python_version) && missing(exclude_newer)) {
-    return(py_reqs_get())
+    return(pr)
   }
 
   action <- match.arg(action)
@@ -57,18 +59,34 @@ py_require <- function(packages = NULL,
   uv_initialized <- is_python_initialized() && is_ephemeral_reticulate_uv_env(py_exe())
 
   if (!is.null(python_version)) {
+    python_version <- unlist(strsplit(python_version, ",", fixed = TRUE))
+
     if (uv_initialized) {
-      stop(
-        "Python version requirements cannot be ",
-        "changed after Python has been initialized"
-      )
+
+      current_py_version <- py_version(patch = TRUE)
+      for (check in as_version_constraint_checkers(python_version)) {
+        if (!isTRUE(check(current_py_version))) {
+          signal <- if(called_from_package) warning else stop
+          signal(
+            "Python version requirements cannot be ",
+            "changed after Python has been initialized.\n",
+            "- Python version request: '", python_version, "'",
+            if (called_from_package) paste0(" (from package:", parent.pkg(), ")"),
+            "\n",
+            "- Python version initialized: '", as.character(current_py_version), "'"
+          )
+          break
+        }
+      }
+
+    } else {
+
+      pr$python_version <- py_reqs_action(action,
+                                          python_version,
+                                          py_reqs_get("python_version"))
+
     }
-    py_equal <- substr(python_version, 1, 2) == "=="
-    python_version[py_equal] <- substr(
-      x = python_version[py_equal],
-      start = 3,
-      stop = nchar(python_version[py_equal])
-    )
+
   }
 
   if (!is.null(exclude_newer)) {
@@ -85,33 +103,7 @@ py_require <- function(packages = NULL,
   }
 
 
-  py_versions <- py_reqs_action(action, python_version, py_reqs_get("python_version"))
-
-  ver_equal <- substr(py_versions, 1, 1) %in% c("=", 0:9)
-  ver_not_equal <- substr(py_versions, 1, 1) %in% c(">", "<", "!")
-
-  if (any(ver_equal) && any(ver_not_equal)) {
-    stop(
-      "Python version requirements cannot combine\n  'non-equal to' (",
-      paste0(py_versions[ver_not_equal], collapse = ", "),
-      ") and 'equal to' (",
-      paste0(py_versions[ver_equal], collapse = ", "),
-      ")\n  specifications"
-    )
-  }
-
-  if (sum(ver_equal) > 1) {
-    stop(
-      "Python version requirements cannot contain\n",
-      "  more than one 'equal to' specifications (",
-      paste0(py_versions[ver_equal], collapse = ", "),
-      ")"
-    )
-  }
-
-  pr <- py_reqs_get()
   pr$packages <- py_reqs_action(action, packages, py_reqs_get("packages"))
-  pr$python_version <- py_versions
   pr$exclude_newer <- pr$exclude_newer %||% exclude_newer
   pr$history <- c(pr$history, list(list(
     requested_from = environmentName(topenv(parent.frame())),
@@ -130,6 +122,7 @@ py_require <- function(packages = NULL,
       py_activate_virtualenv(file.path(dirname(new_path), "activate_this.py"))
       .globals$py_config <- new_config
       .globals$py_config$available <- TRUE
+      # TODO: sync os.environ with R Sys.setvar?
     } else {
       # TODO: Better error message?
       stop("New environment does not use the same Python binary")
@@ -349,11 +342,15 @@ py_reqs_get <- function(x = NULL) {
     ))
     .globals$python_requirements <- pr
   }
-  if (!is.null(x)) {
-    pr[[x]]
-  } else {
-    pr
+  if (is.null(x)) {
+    return(pr)
   }
+  if (x == "python_version") {
+    uv_initialized <- is_python_initialized() && is_ephemeral_reticulate_uv_env(py_exe())
+    if (uv_initialized)
+      return(as.character(py_version(TRUE)))
+  }
+  pr[[x]]
 }
 
 # uv ---------------------------------------------------------------------------

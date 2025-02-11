@@ -2,67 +2,78 @@
 % Please edit documentation in R/py_require.R
 \name{py_require}
 \alias{py_require}
-\title{Declare Python requirements}
+\title{Declare Python Requirements}
 \usage{
 py_require(
   packages = NULL,
   python_version = NULL,
+  ...,
   exclude_newer = NULL,
   action = c("add", "remove", "set")
 )
 }
 \arguments{
-\item{packages}{A character vector of Python packages to make available
-during the working session. These can be bare python package names like
-\code{"jax"}, or package names with version constraints like \code{"jax[cpu]>=0.5"}}
+\item{packages}{A character vector of Python packages to be available during
+the session. These can be simple package names like \code{"jax"} or names with
+version constraints like \code{"jax[cpu]>=0.5"}.}
 
-\item{python_version}{A character vector of Python version constraints.
-(e.g.: \code{"3.10"} or \code{">=3.9,<3.13,!=3.11"}).}
+\item{python_version}{A character vector of Python version constraints \cr
+(e.g., \code{"3.10"} or \code{">=3.9,<3.13,!=3.11"}).}
 
-\item{exclude_newer}{Only use package versions that were published prior to a
-given date. This provides a light-weight alternative to "freezing" Python
-package versions, to guard against future package versions breaking a
-workflow. After the first time \code{exclude_newer}, only the 'set' \code{action} can
-override the date afterwards.}
+\item{...}{Dots are for future extensions, must be empty.}
 
-\item{action}{What \code{py_require()} should do with the provided \code{packages} and
-\code{python_version}. There are three options:
+\item{exclude_newer}{Restricts package versions to those published before a
+specified date. This offers a lightweight alternative to freezing package
+versions, to guard against future published package versions breaking a
+workflow. Once  \code{exclude_newer} is set, only the \code{set} action can override
+it.}
+
+\item{action}{Defines how \code{py_require()} handles the provided requirements.
+Options are:
 \itemize{
-\item \code{add}: Adds the entries to the current set of requirements.
-\item \code{remove}: Removes the entries from the list of requirements. Strings must
-be an exact match to an existing requirement. For example, if
-\code{"numpy==2.2.2"} is currently on the list, passing \code{"numpy"} with a
-'remove' action will not affect the list. Requests to remove entries that
-are not present are silently ignored.
-\item \code{set}: Deletes any requirement already defined, and replaces them with what
-is provided in the command call. Packages and Python version can be
-independently set.
+\item \code{add}: Add the entries to the current set of requirements.
+\item \code{remove}: Remove exact matches from the requirements list. For example, if
+\code{"numpy==2.2.2"} is in the list, passing \code{"numpy"} with \code{action = "remove"}
+will not remove it. Requests to remove nonexistent entries are ignored.
+\item \code{set}: Clear all existing requirements and replaces them with the
+provided ones. Packages and the Python version can be set independently.
 }}
 }
 \description{
 \code{py_require()} allows you to declare Python requirements for the R session,
 including Python packages, any version constraints on those packages, and any
 version constraints on Python itself. Reticulate can then automatically
-create and use an ephemeral Python environment that satisfies all the Python
+create and use an ephemeral Python environment that satisfies all these
 requirements.
 }
 \details{
-The virtual environment will not be created until the users attempts to
-interacts with Python for the first time during the R session. Typically,
-that would be the first time \code{import()} is called.
+Reticulate will only use an ephemeral environment if no other Python
+installation is found earlier in the \href{https://rstudio.github.io/reticulate/articles/versions.html#order-of-discovery}{Order of Discovery}.
+You can also force reticulate to use an ephemeral environment by setting
+\code{Sys.setenv(RETICULATE_USE_MANAGED_VENV = "yes")}.
 
-If \code{py_require()} is called with new requirements after reticulate has
-already initialized an ephemeral Python environment, then a new ephemeral
-environment is activated, layered atop of the existing one. Note that after
-initializing Python, only adding python packages is supported. Removing
-python packages, changing the Python version, or changing \code{excluding_newer}
-cannot change after reticulate has initialized Python.
+The ephemeral virtual environment is not created until the user interacts
+with Python for the first time in the R session. Typically, this occurs when
+\code{import()} is first called.
 
-If \code{py_require()} is called without arguments, then a list is returned with
-the currently declared requirements.
+If \code{py_require()} is called with new requirements after Reticulate has
+already initialized an ephemeral Python environment, a new ephemeral
+environment is activated on top of the existing one. Once Python is
+initialized, only adding packages is supported--removing packages, changing
+the Python version, or modifying \code{exclude_newer} is not possible.
 
-\code{py_require()} can also be called from R packages (e.g., in \code{.onLoad()} or
-elsewhere) to declare Python requirements. You can view which Python
-dependencies have been been declared by R packages in the current R session
-by printing with \code{py_require()} by printing \code{py_require()}.
+Calling \code{py_require()} without arguments returns a list of the currently
+declared requirements.
+
+\code{py_require()} can also be used in R packages (e.g., in \code{.onLoad()} or
+elsewhere) to declare Python dependencies. The print method for
+\code{py_require()} shows the Python dependencies declared by R packages in the
+current session.
+}
+\note{
+Reticulate uses \href{https://docs.astral.sh/uv/}{\code{uv}} to resolve Python
+dependencies. Many \code{uv} options can be customized via environment
+variables, as described
+\href{https://docs.astral.sh/uv/configuration/environment/}{here}. For example,
+you can set \code{Sys.setenv(UV_OFFLINE=1)} or \code{Sys.setenv(UV_INDEX = "https://download.pytorch.org/whl/cpu")}.
 }

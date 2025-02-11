@@ -500,7 +500,6 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
                                  python_version = py_reqs_get("python_version"),
                                  exclude_newer = py_reqs_get("exclude_newer")) {
 
-  # print(rlang::trace_back())
   uv <- uv_binary() %||% return() # error?
 
   # capture args; maybe used in error message later
@@ -662,15 +661,6 @@ uv_python_list <- function() {
     ),
     stdout = TRUE
   )
-  # x <- tryCatch(
-    # system2(
-      # uv_binary(),
-      # c("python list --no-config --python-preference only-managed",
-        # "--only-downloads --color never"),
-      # stdout = TRUE
-    # ),
-    # warning = function(w) character()
-  # )
 
   x <- jsonlite::parse_json(x)
   x <- unlist(lapply(x, `[[`, "version"))

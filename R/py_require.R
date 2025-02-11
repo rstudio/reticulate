@@ -91,14 +91,14 @@ py_require <- function(packages = NULL,
       current_py_version <- py_version(patch = TRUE)
       for (check in as_version_constraint_checkers(python_version)) {
         if (!isTRUE(check(current_py_version))) {
-          signal_condition(
+          signal_condition(paste0(collapse = "",
             "Python version requirements cannot be ",
             "changed after Python has been initialized.\n",
-            "- Python version request: '", python_version, "'",
+            "* Python version request: '", python_version, "'",
             if (called_from_package) paste0(" (from package:", parent.pkg(), ")"),
             "\n",
-            "- Python version initialized: '", as.character(current_py_version), "'"
-          )
+            "* Python version initialized: '", as.character(current_py_version), "'"
+          ))
           break
         }
       }

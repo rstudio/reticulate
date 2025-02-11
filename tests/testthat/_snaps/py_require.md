@@ -257,13 +257,13 @@
       Warning message:
       In reticulate::py_require(python_version = ver) :
         Python version requirements cannot be changed after Python has been initialized.
-      - Python version request: '>=3.12' (from package:stats)
-      - Python version initialized: '3.11.11'
+      * Python version request: '>=3.12' (from package:stats)
+      * Python version initialized: '3.11.11'
       > py_require(python_version = ">=3.12")
       Error in py_require(python_version = ">=3.12") : 
         Python version requirements cannot be changed after Python has been initialized.
-      - Python version request: '>=3.12'
-      - Python version initialized: '3.11.11'
+      * Python version request: '>=3.12'
+      * Python version initialized: '3.11.11'
       Calls: py_require -> signal_condition
       Execution halted
       ------- session end -------

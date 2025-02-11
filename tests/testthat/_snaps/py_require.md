@@ -264,7 +264,7 @@
         Python version requirements cannot be changed after Python has been initialized.
       - Python version request: '>=3.12'
       - Python version initialized: '3.11.11'
-      Calls: py_require -> signal
+      Calls: py_require -> signal_condition
       Execution halted
       ------- session end -------
       success: false

@@ -24,6 +24,101 @@
       success: false
       exit_code: 1
 
+# Setting py_require(python_version) after initializing Python 
+
+    Code
+      r_session({
+        Sys.unsetenv("RETICULATE_PYTHON")
+        Sys.setenv(RETICULATE_USE_MANAGED_VENV = "yes")
+        pkg_py_require <- (function(...) reticulate::py_require(...))
+        environment(pkg_py_require) <- asNamespace("stats")
+        library(reticulate)
+        py_require(python_version = ">=3.9", "pandas")
+        py_require(python_version = ">=3.8,<3.14")
+        py_require(python_version = "3.11")
+        pkg_py_require(packages = c("pandas", "numpy"), python_version = ">=3.10")
+        prefix <- import("sys")$prefix
+        import("numpy")
+        import("pandas")
+        stopifnot(py_version() == "3.11")
+        py_require(python_version = ">=3.9.1")
+        py_require(python_version = ">=3.8.1,<3.14")
+        py_require(python_version = "3.11")
+        pkg_py_require(python_version = ">=3.10")
+        py_require("numpy")
+        py_require("pandas")
+        py_require(c("numpy", "pandas"), action = "set")
+        py_require(c("notexist"), action = "remove")
+        try(import("requests"))
+        py_require("requests")
+        import("requests")
+        prefix2 <- import("sys")$prefix
+        stopifnot(prefix != prefix2)
+        pkg_py_require(python_version = ">=3.12")
+        pkg_py_require("pandas", action = "remove")
+        try(py_require(exclude_newer = "2020-01-01"))
+        try(py_require(python_version = ">=3.12"))
+        try(py_require("pandas", action = "remove"))
+      })
+    Output
+      > Sys.unsetenv("RETICULATE_PYTHON")
+      > Sys.setenv(RETICULATE_USE_MANAGED_VENV = "yes")
+      > pkg_py_require <- (function(...) reticulate::py_require(...))
+      > environment(pkg_py_require) <- asNamespace("stats")
+      > library(reticulate)
+      > py_require(python_version = ">=3.9", "pandas")
+      > py_require(python_version = ">=3.8,<3.14")
+      > py_require(python_version = "3.11")
+      > pkg_py_require(packages = c("pandas", "numpy"), python_version = ">=3.10")
+      > prefix <- import("sys")$prefix
+      > import("numpy")
+      Module(numpy)
+      > import("pandas")
+      Module(pandas)
+      > stopifnot(py_version() == "3.11")
+      > py_require(python_version = ">=3.9.1")
+      > py_require(python_version = ">=3.8.1,<3.14")
+      > py_require(python_version = "3.11")
+      > pkg_py_require(python_version = ">=3.10")
+      > py_require("numpy")
+      > py_require("pandas")
+      > py_require(c("numpy", "pandas"), action = "set")
+      > py_require(c("notexist"), action = "remove")
+      > try(import("requests"))
+      Error in py_module_import(module, convert = convert) : 
+        ModuleNotFoundError: No module named 'requests'
+      Run `reticulate::py_last_error()` for details.
+      > py_require("requests")
+      > import("requests")
+      Module(requests)
+      > prefix2 <- import("sys")$prefix
+      > stopifnot(prefix != prefix2)
+      > pkg_py_require(python_version = ">=3.12")
+      Warning message:
+      In reticulate::py_require(...) :
+        Python version requirements cannot be changed after Python has been initialized.
+      * Python version request: '>=3.12' (from package:stats)
+      * Python version initialized: '3.11.11'
+      > pkg_py_require("pandas", action = "remove")
+      Warning message:
+      In reticulate::py_require(...) :
+        After Python has initialized, only `action = 'add'` is supported.
+      > try(py_require(exclude_newer = "2020-01-01"))
+      Error in py_require(exclude_newer = "2020-01-01") : 
+        `exclude_newer` cannot be changed after Python has initialized.
+      > try(py_require(python_version = ">=3.12"))
+      Error in py_require(python_version = ">=3.12") : 
+        Python version requirements cannot be changed after Python has been initialized.
+      * Python version request: '>=3.12'
+      * Python version initialized: '3.11.11'
+      > try(py_require("pandas", action = "remove"))
+      Error in py_require("pandas", action = "remove") : 
+        After Python has initialized, only `action = 'add'` is supported.
+      > 
+      ------- session end -------
+      success: true
+      exit_code: 0
+
 # Error requesting a package that does not exists
 
     Code

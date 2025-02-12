@@ -1,118 +1,183 @@
-#' Declare Python requirements
+#' Declare Python Requirements
 #'
-#' It allows you to specify the Python packages, and their versions, to use
-#' during your working session. It also allows to specify Python version
-#' requirements. It uses [uv](https://docs.astral.sh/uv/) to automatically
-#' resolves multiple version requirements of the same package (e.g.:
-#' 'numpy>=2.2.0', numpy==2.2.2'), as well as resolve multiple Python version
-#' requirements (e.g.: '>=3.10', '3.11').  `uv` will automatically download and
-#' install the resulting Python version and packages, so there is no need to
-#' take any steps prior to starting the Python session.
+#' `py_require()` allows you to declare Python requirements for the R session,
+#' including Python packages, any version constraints on those packages, and any
+#' version constraints on Python itself. Reticulate can then automatically
+#' create and use an ephemeral Python environment that satisfies all these
+#' requirements.
 #'
+#' Reticulate will only use an ephemeral environment if no other Python
+#' installation is found earlier in the [Order of
+#' Discovery](https://rstudio.github.io/reticulate/articles/versions.html#order-of-discovery).
+#' You can also force reticulate to use an ephemeral environment by setting
+#' `Sys.setenv(RETICULATE_USE_MANAGED_VENV = "yes")`.
 #'
-#' The virtual environment will not be initialized until the users attempts to
-#' interacts with Python for the first time during the session. Typically,
-#' that would be the first time `import()` is called.
+#' The ephemeral virtual environment is not created until the user interacts
+#' with Python for the first time in the R session. Typically, this occurs when
+#' `import()` is first called.
 #'
-#' If `uv` is not installed, `reticulate` will attempt to download and install
-#' a version of it in an isolated folder. This will allow you to get the
-#' advantages of `uv`, without modifying your computer's environment.
+#' If `py_require()` is called with new requirements after reticulate has
+#' already initialized an ephemeral Python environment, a new ephemeral
+#' environment is activated on top of the existing one. Once Python is
+#' initialized, only adding packages is supported---removing packages, changing
+#' the Python version, or modifying `exclude_newer` is not possible.
 #'
+#' Calling `py_require()` without arguments returns a list of the currently
+#' declared requirements.
 #'
-#' @param packages A vector of Python packages to make available during the
-#' working session.
+#' `py_require()` can also be called by R packages (e.g., in `.onLoad()` or
+#' elsewhere) to declare Python dependencies. The print method for
+#' `py_require()` displays the Python dependencies declared by R packages in the
+#' current session.
 #'
-#' @param python_version A vector of one, or multiple, Python versions to
-#' consider. `uv` will not be able to process conflicting Python versions
-#' (e.g.: '>=3.11', '3.10').
+#' @note Reticulate uses [`uv`](https://docs.astral.sh/uv/) to resolve Python
+#'   dependencies. Many `uv` options can be customized via environment
+#'   variables, as described
+#'   [here](https://docs.astral.sh/uv/configuration/environment/). For example,
+#'   you can set `Sys.setenv(UV_OFFLINE=1)` or `Sys.setenv(UV_INDEX =
+#'   "https://download.pytorch.org/whl/cpu")`.
 #'
-#' @param action What `py_require()` should do with the packages and Python
-#' version provided during the given command call. There are three options:
-#' - add - Adds the requirement to the list
-#' - remove - Removes the requirement form the list. It has to be an exact match
-#' to an existing requirement. For example, if 'numpy==2.2.2' is currently on
-#' the list, passing 'numpy' with a 'remove' action will affect the list.
-#' - set - Deletes any requirement already defined, and replaces them with what
-#' is provided in the command call. Packages and Python version can be
-#' independently set.
+#' @param packages A character vector of Python packages to be available during
+#'   the session. These can be simple package names like `"jax"` or names with
+#'   version constraints like `"jax[cpu]>=0.5"`.
 #'
-#' @param exclude_newer Leverages a feature from `uv` that allows you to limit
-#' the candidate package versions to those that were uploaded prior to a given
-#' date. During the working session, the date can be "added" only one time.
-#' After the first time the argument is used, only the 'set' `action` can
-#' override the date afterwards.
+#' @param python_version A character vector of Python version constraints \cr
+#'   (e.g., `"3.10"` or `">=3.9,<3.13,!=3.11"`).
+#'
+#' @param ... Dots are for future extensions, must be empty.
+#'
+#' @param action Defines how `py_require()` handles the provided requirements.
+#'   Options are:
+#'   - `add`: Add the entries to the current set of requirements.
+#'   - `remove`: Remove exact matches from the requirements list. For example, if
+#'   `"numpy==2.2.2"` is in the list, passing `"numpy"` with `action = "remove"`
+#'   will not remove it. Requests to remove nonexistent entries are ignored.
+#'   - `set`: Clear all existing requirements and replaces them with the
+#'   provided ones. Packages and the Python version can be set independently.
+#'
+#' @param exclude_newer Restricts package versions to those published before a
+#'   specified date. This offers a lightweight alternative to freezing package
+#'   versions, to guard against future published package versions breaking a
+#'   workflow. Once  `exclude_newer` is set, only the `set` action can override
+#'   it.
 #'
 #' @export
 py_require <- function(packages = NULL,
                        python_version = NULL,
+                       ...,
                        exclude_newer = NULL,
                        action = c("add", "remove", "set")) {
 
+  if (length(list(...)))
+    stop("... must be empty")
+
+  pr <- py_reqs_get()
+
   if (missing(packages) && missing(python_version) && missing(exclude_newer)) {
-    return(py_reqs_get())
+    return(pr)
   }
 
   action <- match.arg(action)
   called_from_package <- isNamespace(topenv(parent.frame()))
   uv_initialized <- is_python_initialized() && is_ephemeral_reticulate_uv_env(py_exe())
 
+  signal_condition <- if (called_from_package) warning else stop
+
   if (!is.null(python_version)) {
+    python_version <- unlist(strsplit(python_version, ",", fixed = TRUE))
+
     if (uv_initialized) {
-      stop(
-        "Python version requirements cannot be ",
-        "changed after Python has been initialized"
-      )
+
+      current_py_version <- py_version(patch = TRUE)
+      for (check in as_version_constraint_checkers(python_version)) {
+        if (!isTRUE(check(current_py_version))) {
+          signal_condition(paste0(collapse = "",
+            "Python version requirements cannot be ",
+            "changed after Python has been initialized.\n",
+            "* Python version request: '", python_version, "'",
+            if (called_from_package) paste0(" (from package:", parent.pkg(), ")"),
+            "\n",
+            "* Python version initialized: '", as.character(current_py_version), "'"
+          ))
+          break
+        }
+      }
+
+    } else {
+
+      pr$python_version <- py_reqs_action(action,
+                                          python_version,
+                                          py_reqs_get("python_version"))
+
     }
-    py_equal <- substr(python_version, 1, 2) == "=="
-    python_version[py_equal] <- substr(
-      x = python_version[py_equal],
-      start = 3,
-      stop = nchar(python_version[py_equal])
-    )
+
   }
 
   if (!is.null(exclude_newer)) {
     if (called_from_package) {
       stop("`exclude_newer` cannot be set inside a package")
     }
-    if (action != "set" && !is.null(py_reqs_get("exclude_newer"))) {
-      stop(
-        "`exclude_newer` is already set to '",
-        py_reqs_get("exclude_newer"),
-        "', use `action = 'set'` to override"
+
+    if (uv_initialized) {
+
+      signal_condition("`exclude_newer` cannot be changed after Python has initialized.")
+
+    } else {
+
+      switch(action,
+        add = {
+          if (!is.null(pr$exclude_newer)) {
+            # TODO: we can check if the new request is already satisfied
+            # by the old request. e.g.,
+            #   as.POSIXct(exclude_newer) >= as.POSIXct(pr$exclude_newer)
+            stop(
+              "`exclude_newer` is already set to '",
+              py_reqs_get("exclude_newer"),
+              "', use `action = 'set'` to override"
+            )
+          }
+        },
+        remove = {
+          if (identical(exclude_newer, pr$exclude_newer)) {
+            exclude_newer <- NA
+          }
+        },
+        set = {}
       )
+
+      if (is.na(exclude_newer) || identical(exclude_newer, "")) {
+        # NA or "" are the sentinel for removing exclude_newer
+        # (since NULL sentinel already is taken)
+        exclude_newer <- NULL
+      }
+
+      pr$exclude_newer <- exclude_newer
     }
   }
 
-
-  py_versions <- py_reqs_action(action, python_version, py_reqs_get("python_version"))
-
-  ver_equal <- substr(py_versions, 1, 1) %in% c("=", 0:9)
-  ver_not_equal <- substr(py_versions, 1, 1) %in% c(">", "<", "!")
-
-  if (any(ver_equal) && any(ver_not_equal)) {
-    stop(
-      "Python version requirements cannot combine\n  'non-equal to' (",
-      paste0(py_versions[ver_not_equal], collapse = ", "),
-      ") and 'equal to' (",
-      paste0(py_versions[ver_equal], collapse = ", "),
-      ")\n  specifications"
-    )
+  if (!is.null(packages)) {
+    if (uv_initialized) {
+      switch(action,
+        add = {
+          if(all(packages %in% pr$packages)) {
+            packages <- NULL # no-op, skip activating new env
+          } else {
+            pr$packages <- unique(c(packages, pr$packages))
+          }
+        },
+        remove = {
+          if (any(packages %in% pr$packages))
+            signal_condition("After Python has initialized, only `action = 'add'` is supported.")
+        },
+        set = {
+          if (!base::setequal(packages, pr$packages))
+            signal_condition("After Python has initialized, only `action = 'add'` is supported.")
+        })
+    } else {
+      pr$packages <- py_reqs_action(action, packages, py_reqs_get("packages"))
+    }
   }
 
-  if (sum(ver_equal) > 1) {
-    stop(
-      "Python version requirements cannot contain\n",
-      "  more than one 'equal to' specifications (",
-      paste0(py_versions[ver_equal], collapse = ", "),
-      ")"
-    )
-  }
-
-  pr <- py_reqs_get()
-  pr$packages <- py_reqs_action(action, packages, py_reqs_get("packages"))
-  pr$python_version <- py_versions
-  pr$exclude_newer <- pr$exclude_newer %||% exclude_newer
   pr$history <- c(pr$history, list(list(
     requested_from = environmentName(topenv(parent.frame())),
     env_is_package = called_from_package,
@@ -123,13 +188,14 @@ py_require <- function(packages = NULL,
   )))
   .globals$python_requirements <- pr
 
-  if (uv_initialized) {
+  if (uv_initialized && action == "add" && !is.null(packages)) {
     new_path <- uv_get_or_create_env()
     new_config <- python_config(new_path)
     if (new_config$libpython == .globals$py_config$libpython) {
       py_activate_virtualenv(file.path(dirname(new_path), "activate_this.py"))
       .globals$py_config <- new_config
       .globals$py_config$available <- TRUE
+      # TODO: sync os.environ with R Sys.getenv()?
     } else {
       # TODO: Better error message?
       stop("New environment does not use the same Python binary")
@@ -349,11 +415,15 @@ py_reqs_get <- function(x = NULL) {
     ))
     .globals$python_requirements <- pr
   }
-  if (!is.null(x)) {
-    pr[[x]]
-  } else {
-    pr
+  if (is.null(x)) {
+    return(pr)
   }
+  if (x == "python_version") {
+    uv_initialized <- is_python_initialized() && is_ephemeral_reticulate_uv_env(py_exe())
+    if (uv_initialized)
+      return(as.character(py_version(TRUE)))
+  }
+  pr[[x]]
 }
 
 # uv ---------------------------------------------------------------------------

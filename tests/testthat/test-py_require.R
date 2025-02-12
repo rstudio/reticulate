@@ -15,6 +15,70 @@ test_that("Error requesting conflicting package versions", {
   }))
 })
 
+
+test_that("Setting py_require(python_version) after initializing Python ", {
+  test_py_require_reset()
+  local_edition(3)
+  # dry run to avoid installation messages in snapshot
+  try(uv_get_or_create_env(c("numpy", "pandas"), "3.11"))
+  try(uv_get_or_create_env(c("numpy", "pandas", "requests"), "3.11"))
+
+  expect_snapshot(r_session({
+
+    Sys.unsetenv("RETICULATE_PYTHON")
+    Sys.setenv("RETICULATE_USE_MANAGED_VENV" = "yes")
+    # Sys.setenv("RETICULATE_PYTHON"="managed")
+
+    pkg_py_require <- function(...) reticulate::py_require(...)
+    environment(pkg_py_require) <- asNamespace("stats")
+
+    library(reticulate)
+
+    # multiple requests are fine
+    py_require(python_version = ">=3.9", "pandas")
+    py_require(python_version = ">=3.8,<3.14")
+    py_require(python_version = "3.11")
+    pkg_py_require(packages = c("pandas", "numpy"), python_version = ">=3.10")
+
+    # initialize python, ensure packages are there
+    prefix <- import("sys")$prefix
+    import("numpy")
+    import("pandas")
+    stopifnot(py_version() == "3.11")
+
+    # already satisfied requests are no-ops
+    py_require(python_version = ">=3.9.1")
+    py_require(python_version = ">=3.8.1,<3.14")
+    py_require(python_version = "3.11")
+    pkg_py_require(python_version = ">=3.10")
+    py_require("numpy")
+    py_require("pandas")
+    py_require(c("numpy", "pandas"), action = "set")
+    py_require(c("notexist"), action = "remove")
+
+    try(import("requests"))
+
+    # additional packages requests result in a new venv being activated
+    py_require("requests")
+    import("requests")
+    prefix2 <- import("sys")$prefix
+    stopifnot(prefix != prefix2)
+
+    # unsatisfied requests from a package generate a warning
+    # (it might make sense to narrow this to target just .onLoad() calls)
+    pkg_py_require(python_version = ">=3.12")
+    pkg_py_require("pandas", action = "remove")
+
+    # unsatisfied requests called from outisde a package error
+    try(py_require(exclude_newer = "2020-01-01"))
+    try(py_require(python_version = ">=3.12"))
+    try(py_require("pandas", action = "remove"))
+
+  }))
+
+})
+
+
 test_that("Error requesting newer package version against an older snapshot", {
   session <- r_session(attach_namespace = TRUE, {
     uv_get_or_create_env(
@@ -106,25 +170,4 @@ test_that("Multiple py_require() calls from package are shows in one row", {
     py_require()
   }))
 })
-
-test_that("'Equal to' and 'Non-equal to' Python requirements fail",{
-  if (py_available()) {
-    skip("Can't test py_require(python_version) declarations after python initialized")
-    # TODO: fix test to actually test this
-  }
-
-  test_py_require_reset()
-  py_require(python_version = "==3.11")
-  x <- py_require()
-  expect_equal(x$python_version, "3.11")
-  expect_error(
-    py_require(python_version = ">=3.10"),
-    regexp = "Python version requirements cannot combine"
-    )
-  expect_error(
-    py_require(python_version = "3.10"),
-    regexp = "Python version requirements cannot contain"
-  )
-})
-
 

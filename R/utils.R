@@ -708,3 +708,10 @@ expand_env_vars <- function(x) {
 }
 
 `%""%` <- function(x, y) if(identical(x, "")) y else x
+
+parent.pkg <- function(env = parent.frame(2)) {
+  if (isNamespace(env <- topenv(env)))
+    as.character(getNamespaceName(env)) # unname
+  else
+    NULL # print visible
+}

@@ -21,14 +21,23 @@ py_config <- function() {
 #'
 #' Get the version of Python currently being used by `reticulate`.
 #'
+#' @param patch boolean, whether to include the patch level in the returned version.
+#'
 #' @return The version of Python currently used, or `NULL` if Python has
 #'   not yet been initialized by `reticulate`.
 #'
 #' @export
-py_version <- function() {
+py_version <- function(patch = FALSE) {
 
   if (!py_available(initialize = FALSE))
     return(NULL)
+
+  if (patch) {
+    sys <- import("sys")
+    minor_major_patch <- sys$version_info[NA:3]
+    version <- paste0(unlist(minor_major_patch), collapse = ".")
+    return(numeric_version(version))
+  }
 
   config <- py_config()
   numeric_version(config$version)

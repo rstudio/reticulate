@@ -19,7 +19,7 @@ r_session <- function(exprs, echo = TRUE, color = FALSE,
     if (echo)
       "options(echo = TRUE)",
     lapply(exprs, deparse)
-    ))
+  ))
 
   writeLines(exprs, file <- tempfile(fileext = ".R"))
   on.exit(unlink(file), add = TRUE)

@@ -16,18 +16,18 @@
 #' with Python for the first time in the R session. Typically, this occurs when
 #' `import()` is first called.
 #'
-#' If `py_require()` is called with new requirements after Reticulate has
+#' If `py_require()` is called with new requirements after reticulate has
 #' already initialized an ephemeral Python environment, a new ephemeral
 #' environment is activated on top of the existing one. Once Python is
-#' initialized, only adding packages is supported--removing packages, changing
+#' initialized, only adding packages is supported---removing packages, changing
 #' the Python version, or modifying `exclude_newer` is not possible.
 #'
 #' Calling `py_require()` without arguments returns a list of the currently
 #' declared requirements.
 #'
-#' `py_require()` can also be used in R packages (e.g., in `.onLoad()` or
+#' `py_require()` can also be called by R packages (e.g., in `.onLoad()` or
 #' elsewhere) to declare Python dependencies. The print method for
-#' `py_require()` shows the Python dependencies declared by R packages in the
+#' `py_require()` displays the Python dependencies declared by R packages in the
 #' current session.
 #'
 #' @note Reticulate uses [`uv`](https://docs.astral.sh/uv/) to resolve Python

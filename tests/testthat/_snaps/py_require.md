@@ -13,6 +13,7 @@
         × No solution found when resolving `--with` dependencies:
         ╰─▶ Because you require numpy<2 and numpy>=2, we can conclude that your
             requirements are unsatisfiable.
+      uv error code: 1
       -- Current requirements -------------------------------------------------
        Python:   3.11.11 (reticulate default)
        Packages: numpy, numpy<2, numpy>=2
@@ -132,6 +133,7 @@
         × No solution found when resolving `--with` dependencies:
         ╰─▶ Because notexists was not found in the package registry and you require
             notexists, we can conclude that your requirements are unsatisfiable.
+      uv error code: 1
       -- Current requirements -------------------------------------------------
        Python:   3.11.11 (reticulate default)
        Packages: numpy, pandas, notexists

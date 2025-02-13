@@ -532,11 +532,6 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
       c(RUST_LOG = NA)
   ))
 
-  # "tool",
-  # "--no-config",
-  # "--isolated",
-  # "--upgrade",
-
   uv_args <- c(
     "run",
     "--no-project",
@@ -549,8 +544,9 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
     "python", "-c", "import sys; print(sys.executable);"
   )
 
-  ## debug print system call:
-  # message(paste0(c(uv, maybe_shQuote(uv_args)), collapse = " "))
+  # debug print system call
+  if (Sys.getenv("_RETICULATE_DEBUG_UV_") == "1")
+    message(paste0(c(shQuote(uv), maybe_shQuote(uv_args)), collapse = " "))
 
   env_python <- suppressWarnings(system2(uv, maybe_shQuote(uv_args), stdout = TRUE))
   exit_status <- attr(env_python, "status", TRUE) %||% 0L

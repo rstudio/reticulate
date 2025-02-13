@@ -120,7 +120,8 @@ py_require <- function(packages = NULL,
 
     if (uv_initialized) {
 
-      signal_condition("`exclude_newer` cannot be changed after Python has initialized.")
+      if (!identical(exclude_newer, pr$exclude_newer))
+        stop("`exclude_newer` cannot be changed after Python has initialized.")
 
     } else {
 

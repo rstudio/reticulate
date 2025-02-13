@@ -13,8 +13,8 @@
 #' `Sys.setenv(RETICULATE_USE_MANAGED_VENV = "yes")`.
 #'
 #' The ephemeral virtual environment is not created until the user interacts
-#' with Python for the first time in the R session. Typically, this occurs when
-#' `import()` is first called.
+#' with Python for the first time in the R session, typically when `import()` is
+#' first called.
 #'
 #' If `py_require()` is called with new requirements after reticulate has
 #' already initialized an ephemeral Python environment, a new ephemeral
@@ -25,17 +25,17 @@
 #' Calling `py_require()` without arguments returns a list of the currently
 #' declared requirements.
 #'
-#' `py_require()` can also be called by R packages (e.g., in `.onLoad()` or
-#' elsewhere) to declare Python dependencies. The print method for
-#' `py_require()` displays the Python dependencies declared by R packages in the
-#' current session.
+#' R packages can also call `py_require()` (e.g., in `.onLoad()` or elsewhere)
+#' to declare Python dependencies. The print method for `py_require()` displays
+#' the Python dependencies declared by R packages in the current session.
 #'
 #' @note Reticulate uses [`uv`](https://docs.astral.sh/uv/) to resolve Python
 #'   dependencies. Many `uv` options can be customized via environment
 #'   variables, as described
-#'   [here](https://docs.astral.sh/uv/configuration/environment/). For example,
-#'   you can set `Sys.setenv(UV_OFFLINE=1)` or `Sys.setenv(UV_INDEX =
-#'   "https://download.pytorch.org/whl/cpu")`.
+#'   [here](https://docs.astral.sh/uv/configuration/environment/). For example:
+#'   - If temporarily offline, set `Sys.setenv(UV_OFFLINE=1)`.
+#'   - To use a different index: `Sys.setenv(UV_INDEX = "https://download.pytorch.org/whl/cpu")`.
+#'   - To allow resolving a prerelease dependency: `Sys.setenv(UV_PRERELEASE="allow")`.
 #'
 #' @param packages A character vector of Python packages to be available during
 #'   the session. These can be simple package names like `"jax"` or names with
@@ -44,21 +44,22 @@
 #' @param python_version A character vector of Python version constraints \cr
 #'   (e.g., `"3.10"` or `">=3.9,<3.13,!=3.11"`).
 #'
-#' @param ... Dots are for future extensions, must be empty.
+#' @param ... Reserved for future extensions; must be empty.
 #'
-#' @param action Defines how `py_require()` handles the provided requirements.
-#'   Options are:
-#'   - `add`: Add the entries to the current set of requirements.
-#'   - `remove`: Remove exact matches from the requirements list. For example, if
-#'   `"numpy==2.2.2"` is in the list, passing `"numpy"` with `action = "remove"`
-#'   will not remove it. Requests to remove nonexistent entries are ignored.
-#'   - `set`: Clear all existing requirements and replaces them with the
+#' @param action Determines how `py_require()` processes the provided
+#'   requirements. Options are:
+#'   - `add`: Adds the entries to the current set of requirements.
+#'   - `remove`: Removes__exact_ matches from the requirements list. For example,
+#'   if `"numpy==2.2.2"` is in the list, passing `"numpy"` with `action =
+#'   "remove"` will not remove it. Requests to remove nonexistent entries are
+#'   ignored.
+#'   - `set`: Clears all existing requirements and replaces them with the
 #'   provided ones. Packages and the Python version can be set independently.
 #'
 #' @param exclude_newer Restricts package versions to those published before a
 #'   specified date. This offers a lightweight alternative to freezing package
-#'   versions, to guard against future published package versions breaking a
-#'   workflow. Once  `exclude_newer` is set, only the `set` action can override
+#'   versions, helping guard against Python package updates that break a
+#'   workflow. Once `exclude_newer` is set, only the `set` action can override
 #'   it.
 #'
 #' @export
@@ -120,7 +121,8 @@ py_require <- function(packages = NULL,
 
     if (uv_initialized) {
 
-      signal_condition("`exclude_newer` cannot be changed after Python has initialized.")
+      if (!identical(exclude_newer, pr$exclude_newer))
+        stop("`exclude_newer` cannot be changed after Python has initialized.")
 
     } else {
 
@@ -159,9 +161,16 @@ py_require <- function(packages = NULL,
     if (uv_initialized) {
       switch(action,
         add = {
+
           if(all(packages %in% pr$packages)) {
             packages <- NULL # no-op, skip activating new env
           } else {
+            bare_name <- function(x) sub("^([^[!=><]+).*", "\\1", x)
+            if (any(bare_name(packages) %in% bare_name(pr$packages))) {
+              # e.g., if user calls 'numpy<2' after already initialized with 'numpy>2'
+              signal_condition("After Python has initialized, only `action = 'add'` with new packages is supported.")
+              packages <- NULL
+            }
             pr$packages <- unique(c(packages, pr$packages))
           }
         },
@@ -531,11 +540,6 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
       c(RUST_LOG = NA)
   ))
 
-  # "tool",
-  # "--no-config",
-  # "--isolated",
-  # "--upgrade",
-
   uv_args <- c(
     "run",
     "--no-project",
@@ -548,15 +552,23 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
     "python", "-c", "import sys; print(sys.executable);"
   )
 
-  ## debug print system call:
-  # message(paste0(c(uv, maybe_shQuote(uv_args)), collapse = " "))
+  # debug print system call
+  if (Sys.getenv("_RETICULATE_DEBUG_UV_") == "1")
+    message(paste0(c(shQuote(uv), maybe_shQuote(uv_args)), collapse = " "))
 
   env_python <- suppressWarnings(system2(uv, maybe_shQuote(uv_args), stdout = TRUE))
-  exit_status <- attr(env_python, "status", TRUE) %||% 0L
+  error_code <- attr(env_python, "status", TRUE)
 
-  if (exit_status != 0L) {
+  if (!is.null(error_code)) {
+    cat("uv error code: ", error_code, "\n", sep = "", file = stderr())
     msg <- do.call(py_reqs_format, call_args)
     writeLines(c(msg, strrep("-", 73L)), con = stderr())
+    if (error_code == 2) {
+      cat(
+        "Hint: If you are temporarily offline, try setting `Sys.setenv(UV_OFFLINE=1)`.\n",
+        file = stderr()
+      )
+    }
     stop("Call `py_require()` to remove or replace conflicting requirements.")
   }
 

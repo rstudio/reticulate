@@ -20,22 +20,22 @@ version constraints like \code{"jax[cpu]>=0.5"}.}
 \item{python_version}{A character vector of Python version constraints \cr
 (e.g., \code{"3.10"} or \code{">=3.9,<3.13,!=3.11"}).}
 
-\item{...}{Dots are for future extensions, must be empty.}
+\item{...}{Reserved for future extensions; must be empty.}
 
 \item{exclude_newer}{Restricts package versions to those published before a
 specified date. This offers a lightweight alternative to freezing package
-versions, to guard against future published package versions breaking a
-workflow. Once  \code{exclude_newer} is set, only the \code{set} action can override
+versions, helping guard against Python package updates that break a
+workflow. Once \code{exclude_newer} is set, only the \code{set} action can override
 it.}
 
-\item{action}{Defines how \code{py_require()} handles the provided requirements.
-Options are:
+\item{action}{Determines how \code{py_require()} processes the provided
+requirements. Options are:
 \itemize{
-\item \code{add}: Add the entries to the current set of requirements.
-\item \code{remove}: Remove exact matches from the requirements list. For example, if
-\code{"numpy==2.2.2"} is in the list, passing \code{"numpy"} with \code{action = "remove"}
-will not remove it. Requests to remove nonexistent entries are ignored.
-\item \code{set}: Clear all existing requirements and replaces them with the
+\item \code{add}: Adds the entries to the current set of requirements.
+\item \code{remove}: Removes__exact_ matches from the requirements list. For example,
+if \code{"numpy==2.2.2"} is in the list, passing \code{"numpy"} with \code{action =   "remove"} will not remove it. Requests to remove nonexistent entries are
+ignored.
+\item \code{set}: Clears all existing requirements and replaces them with the
 provided ones. Packages and the Python version can be set independently.
 }}
 }
@@ -53,8 +53,8 @@ You can also force reticulate to use an ephemeral environment by setting
 \code{Sys.setenv(RETICULATE_USE_MANAGED_VENV = "yes")}.
 
 The ephemeral virtual environment is not created until the user interacts
-with Python for the first time in the R session. Typically, this occurs when
-\code{import()} is first called.
+with Python for the first time in the R session, typically when \code{import()} is
+first called.
 
 If \code{py_require()} is called with new requirements after reticulate has
 already initialized an ephemeral Python environment, a new ephemeral
@@ -65,15 +65,18 @@ the Python version, or modifying \code{exclude_newer} is not possible.
 Calling \code{py_require()} without arguments returns a list of the currently
 declared requirements.
 
-\code{py_require()} can also be called by R packages (e.g., in \code{.onLoad()} or
-elsewhere) to declare Python dependencies. The print method for
-\code{py_require()} displays the Python dependencies declared by R packages in the
-current session.
+R packages can also call \code{py_require()} (e.g., in \code{.onLoad()} or elsewhere)
+to declare Python dependencies. The print method for \code{py_require()} displays
+the Python dependencies declared by R packages in the current session.
 }
 \note{
 Reticulate uses \href{https://docs.astral.sh/uv/}{\code{uv}} to resolve Python
 dependencies. Many \code{uv} options can be customized via environment
 variables, as described
-\href{https://docs.astral.sh/uv/configuration/environment/}{here}. For example,
-you can set \code{Sys.setenv(UV_OFFLINE=1)} or \code{Sys.setenv(UV_INDEX = "https://download.pytorch.org/whl/cpu")}.
+\href{https://docs.astral.sh/uv/configuration/environment/}{here}. For example:
+\itemize{
+\item If temporarily offline, set \code{Sys.setenv(UV_OFFLINE=1)}.
+\item To use a different index: \code{Sys.setenv(UV_INDEX = "https://download.pytorch.org/whl/cpu")}.
+\item To allow resolving a prerelease dependency: \code{Sys.setenv(UV_PRERELEASE="allow")}.
+}
 }

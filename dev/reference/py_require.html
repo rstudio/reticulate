@@ -120,24 +120,24 @@ version constraints like <code>"jax[cpu]&gt;=0.5"</code>.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Dots are for future extensions, must be empty.</p></dd>
+<dd><p>Reserved for future extensions; must be empty.</p></dd>
 
 
 <dt id="arg-exclude-newer">exclude_newer<a class="anchor" aria-label="anchor" href="#arg-exclude-newer"></a></dt>
 <dd><p>Restricts package versions to those published before a
 specified date. This offers a lightweight alternative to freezing package
-versions, to guard against future published package versions breaking a
-workflow. Once  <code>exclude_newer</code> is set, only the <code>set</code> action can override
+versions, helping guard against Python package updates that break a
+workflow. Once <code>exclude_newer</code> is set, only the <code>set</code> action can override
 it.</p></dd>
 
 
 <dt id="arg-action">action<a class="anchor" aria-label="anchor" href="#arg-action"></a></dt>
-<dd><p>Defines how <code>py_require()</code> handles the provided requirements.
-Options are:</p><ul><li><p><code>add</code>: Add the entries to the current set of requirements.</p></li>
-<li><p><code>remove</code>: Remove exact matches from the requirements list. For example, if
-<code>"numpy==2.2.2"</code> is in the list, passing <code>"numpy"</code> with <code>action = "remove"</code>
-will not remove it. Requests to remove nonexistent entries are ignored.</p></li>
-<li><p><code>set</code>: Clear all existing requirements and replaces them with the
+<dd><p>Determines how <code>py_require()</code> processes the provided
+requirements. Options are:</p><ul><li><p><code>add</code>: Adds the entries to the current set of requirements.</p></li>
+<li><p><code>remove</code>: Removes__exact_ matches from the requirements list. For example,
+if <code>"numpy==2.2.2"</code> is in the list, passing <code>"numpy"</code> with <code>action =   "remove"</code> will not remove it. Requests to remove nonexistent entries are
+ignored.</p></li>
+<li><p><code>set</code>: Clears all existing requirements and replaces them with the
 provided ones. Packages and the Python version can be set independently.</p></li>
 </ul></dd>
 
@@ -149,8 +149,8 @@ installation is found earlier in the <a href="https://rstudio.github.io/reticula
 You can also force reticulate to use an ephemeral environment by setting
 <code>Sys.setenv(RETICULATE_USE_MANAGED_VENV = "yes")</code>.</p>
 <p>The ephemeral virtual environment is not created until the user interacts
-with Python for the first time in the R session. Typically, this occurs when
-<code><a href="import.html">import()</a></code> is first called.</p>
+with Python for the first time in the R session, typically when <code><a href="import.html">import()</a></code> is
+first called.</p>
 <p>If <code>py_require()</code> is called with new requirements after reticulate has
 already initialized an ephemeral Python environment, a new ephemeral
 environment is activated on top of the existing one. Once Python is
@@ -158,19 +158,19 @@ initialized, only adding packages is supported—removing packages, changing
 the Python version, or modifying <code>exclude_newer</code> is not possible.</p>
 <p>Calling <code>py_require()</code> without arguments returns a list of the currently
 declared requirements.</p>
-<p><code>py_require()</code> can also be called by R packages (e.g., in <code>.onLoad()</code> or
-elsewhere) to declare Python dependencies. The print method for
-<code>py_require()</code> displays the Python dependencies declared by R packages in the
-current session.</p>
+<p>R packages can also call <code>py_require()</code> (e.g., in <code>.onLoad()</code> or elsewhere)
+to declare Python dependencies. The print method for <code>py_require()</code> displays
+the Python dependencies declared by R packages in the current session.</p>
     </div>
     <div id="note">
     <h2>Note</h2>
     <p>Reticulate uses <a href="https://docs.astral.sh/uv/" class="external-link"><code>uv</code></a> to resolve Python
 dependencies. Many <code>uv</code> options can be customized via environment
 variables, as described
-<a href="https://docs.astral.sh/uv/configuration/environment/" class="external-link">here</a>. For example,
-you can set <code>Sys.setenv(UV_OFFLINE=1)</code> or <code>Sys.setenv(UV_INDEX = "https://download.pytorch.org/whl/cpu")</code>.</p>
-    </div>
+<a href="https://docs.astral.sh/uv/configuration/environment/" class="external-link">here</a>. For example:</p><ul><li><p>If temporarily offline, set <code>Sys.setenv(UV_OFFLINE=1)</code>.</p></li>
+<li><p>To use a different index: <code>Sys.setenv(UV_INDEX = "https://download.pytorch.org/whl/cpu")</code>.</p></li>
+<li><p>To allow resolving a prerelease dependency: <code>Sys.setenv(UV_PRERELEASE="allow")</code>.</p></li>
+</ul></div>
 
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

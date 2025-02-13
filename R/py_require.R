@@ -13,8 +13,8 @@
 #' `Sys.setenv(RETICULATE_USE_MANAGED_VENV = "yes")`.
 #'
 #' The ephemeral virtual environment is not created until the user interacts
-#' with Python for the first time in the R session. Typically, this occurs when
-#' `import()` is first called.
+#' with Python for the first time in the R session, typically when `import()` is
+#' first called.
 #'
 #' If `py_require()` is called with new requirements after reticulate has
 #' already initialized an ephemeral Python environment, a new ephemeral
@@ -25,17 +25,17 @@
 #' Calling `py_require()` without arguments returns a list of the currently
 #' declared requirements.
 #'
-#' `py_require()` can also be called by R packages (e.g., in `.onLoad()` or
-#' elsewhere) to declare Python dependencies. The print method for
-#' `py_require()` displays the Python dependencies declared by R packages in the
-#' current session.
+#' R packages can also call `py_require()` (e.g., in `.onLoad()` or elsewhere)
+#' to declare Python dependencies. The print method for `py_require()` displays
+#' the Python dependencies declared by R packages in the current session.
 #'
 #' @note Reticulate uses [`uv`](https://docs.astral.sh/uv/) to resolve Python
 #'   dependencies. Many `uv` options can be customized via environment
 #'   variables, as described
-#'   [here](https://docs.astral.sh/uv/configuration/environment/). For example,
-#'   you can set `Sys.setenv(UV_OFFLINE=1)` or `Sys.setenv(UV_INDEX =
-#'   "https://download.pytorch.org/whl/cpu")`.
+#'   [here](https://docs.astral.sh/uv/configuration/environment/). For example:
+#'   - If temporarily offline, set `Sys.setenv(UV_OFFLINE=1)`.
+#'   - To use a different index: `Sys.setenv(UV_INDEX = "https://download.pytorch.org/whl/cpu")`.
+#'   - To allow resolving a prerelease dependency: `Sys.setenv(UV_PRERELEASE="allow")`.
 #'
 #' @param packages A character vector of Python packages to be available during
 #'   the session. These can be simple package names like `"jax"` or names with
@@ -44,21 +44,22 @@
 #' @param python_version A character vector of Python version constraints \cr
 #'   (e.g., `"3.10"` or `">=3.9,<3.13,!=3.11"`).
 #'
-#' @param ... Dots are for future extensions, must be empty.
+#' @param ... Reserved for future extensions; must be empty.
 #'
-#' @param action Defines how `py_require()` handles the provided requirements.
-#'   Options are:
-#'   - `add`: Add the entries to the current set of requirements.
-#'   - `remove`: Remove exact matches from the requirements list. For example, if
-#'   `"numpy==2.2.2"` is in the list, passing `"numpy"` with `action = "remove"`
-#'   will not remove it. Requests to remove nonexistent entries are ignored.
-#'   - `set`: Clear all existing requirements and replaces them with the
+#' @param action Determines how `py_require()` processes the provided
+#'   requirements. Options are:
+#'   - `add`: Adds the entries to the current set of requirements.
+#'   - `remove`: Removes__exact_ matches from the requirements list. For example,
+#'   if `"numpy==2.2.2"` is in the list, passing `"numpy"` with `action =
+#'   "remove"` will not remove it. Requests to remove nonexistent entries are
+#'   ignored.
+#'   - `set`: Clears all existing requirements and replaces them with the
 #'   provided ones. Packages and the Python version can be set independently.
 #'
 #' @param exclude_newer Restricts package versions to those published before a
 #'   specified date. This offers a lightweight alternative to freezing package
-#'   versions, to guard against future published package versions breaking a
-#'   workflow. Once  `exclude_newer` is set, only the `set` action can override
+#'   versions, helping guard against Python package updates that break a
+#'   workflow. Once `exclude_newer` is set, only the `set` action can override
 #'   it.
 #'
 #' @export

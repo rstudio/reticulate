@@ -161,9 +161,16 @@ py_require <- function(packages = NULL,
     if (uv_initialized) {
       switch(action,
         add = {
+
           if(all(packages %in% pr$packages)) {
             packages <- NULL # no-op, skip activating new env
           } else {
+            bare_name <- function(x) sub("^([^[!=><]+).*", "\\1", x)
+            if (any(bare_name(packages) %in% bare_name(pr$packages))) {
+              # e.g., if user calls 'numpy<2' after already initialized with 'numpy>2'
+              signal_condition("After Python has initialized, only `action = 'add'` with new packages is supported.")
+              packages <- NULL
+            }
             pr$packages <- unique(c(packages, pr$packages))
           }
         },

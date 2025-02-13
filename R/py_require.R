@@ -549,11 +549,18 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
     message(paste0(c(shQuote(uv), maybe_shQuote(uv_args)), collapse = " "))
 
   env_python <- suppressWarnings(system2(uv, maybe_shQuote(uv_args), stdout = TRUE))
-  exit_status <- attr(env_python, "status", TRUE) %||% 0L
+  error_code <- attr(env_python, "status", TRUE)
 
-  if (exit_status != 0L) {
+  if (!is.null(error_code)) {
+    cat("uv error code: ", error_code, "\n", sep = "", file = stderr())
     msg <- do.call(py_reqs_format, call_args)
     writeLines(c(msg, strrep("-", 73L)), con = stderr())
+    if (error_code == 2) {
+      cat(
+        "Hint: If you are temporarily offline, try setting `Sys.setenv(UV_OFFLINE=1)`.\n",
+        file = stderr()
+      )
+    }
     stop("Call `py_require()` to remove or replace conflicting requirements.")
   }
 

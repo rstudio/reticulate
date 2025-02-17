@@ -4,6 +4,10 @@
 
 - New `uv_run_tool()` function for running command line tools distributed via Python packages.
 
+- Raw R arrays now convert to NumPy arrays with dtype "V1" ("void8") (#1734).
+
+- NumPy arrays with dtype "V1" ("void8") now convert to R raw arrays (#1734).
+
 - Fixed an issue with using Python 3.12 on Linux (#1712, #1714).
 
 - Fixed an issue where `virtualenv_starter()` would not discover a

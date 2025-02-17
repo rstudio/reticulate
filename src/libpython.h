@@ -439,7 +439,7 @@ enum NPY_TYPES {
 
 
 // PyArray_Descr is opaque to our code so we just get the header
-
+// 1.x and 2.x compatible version (only shared fields):
 typedef struct {
   PyObject_HEAD
   PyTypeObject *typeobj;
@@ -465,6 +465,7 @@ typedef struct tagPyArrayObject {
 typedef unsigned char npy_bool;
 typedef long npy_long;
 typedef double npy_double;
+typedef unsigned char npy_ubyte;
 // with numpy 2.0, direct field access of complex numbers is no longer valid.
 // accessors like npy_creal() and npy_cimag() are the recomended way.
 // However, the memory layout is unchanged, and we define the struct here, so access is still valid.
@@ -475,6 +476,55 @@ typedef npy_cdouble npy_complex128;
 // In Numpy 2.0, npy_intp changed to Py_ssize_t. Should still be the same size on all currently supported
 // platforms (we no longer support 32-bit Windows, which was the only platform where this could be an issue)
 typedef intptr_t npy_intp;
+typedef uint64_t npy_uint64;
+typedef Py_hash_t npy_hash_t;
+
+
+/* To be able to access modified fields, define the full 2.0 struct: */
+typedef struct {
+  PyObject_HEAD
+  PyTypeObject *typeobj;
+  char kind;
+  char type;
+  char byteorder;
+  char _former_flags;
+  int type_num;
+  npy_uint64 flags;
+  npy_intp elsize;
+  // npy_intp alignment;
+  // PyObject *metadata;
+  // npy_hash_t hash;
+  // void *reserved_null[2];
+} _PyArray_DescrNumPy2;
+
+
+/*
+* Semi-private struct with additional field of legacy descriptors (must
+* check NPY_DT_is_legacy before casting/accessing).  The struct is also not
+* valid when running on 1.x (i.e. in public API use).
+*/
+
+typedef struct _PyArray_Descr {
+  PyObject_HEAD
+   PyTypeObject *typeobj;
+  char kind;
+  char type;
+  char byteorder;
+  char flags;
+  int type_num;
+  int elsize;
+  // int alignment;
+  // struct _arr_descr *subarray;
+  // PyObject *fields;
+  // PyObject *names;
+  // PyArray_ArrFuncs *f;
+  // PyObject *metadata;
+  // NpyAuxData *c_metadata;
+  // npy_hash_t hash;
+} _PyArray_DescrNumPy1;
+
+// #define NPY_DT_LEGACY 1 << 0
+// #define NPY_DT_is_legacy(dtype) (((dtype)->flags & NPY_DT_LEGACY) != 0)
 
 
 typedef struct tagPyArrayObject_fields {
@@ -520,6 +570,7 @@ typedef struct tagPyArrayObject_fields {
 
 
 LIBPYTHON_EXTERN void **PyArray_API;
+LIBPYTHON_EXTERN unsigned int PyArray_RUNTIME_VERSION;
 
 
 // -- NumPy 2.0 has breaking ABI changes and a big migration guide:

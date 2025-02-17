@@ -85,6 +85,8 @@
 <h2 class="page-header" data-toc-text="development version" id="reticulate-development-version">reticulate (development version)<a class="anchor" aria-label="anchor" href="#reticulate-development-version"></a></h2>
 <ul><li><p>New <code><a href="../reference/py_require.html">py_require()</a></code> function for declaring Python requirements for the current R session.</p></li>
 <li><p>New <code><a href="../reference/uv_run_tool.html">uv_run_tool()</a></code> function for running command line tools distributed via Python packages.</p></li>
+<li><p>Raw R arrays now convert to NumPy arrays with dtype “V1” (“void8”) (<a href="https://github.com/rstudio/reticulate/issues/1734" class="external-link">#1734</a>).</p></li>
+<li><p>NumPy arrays with dtype “V1” (“void8”) now convert to R raw arrays (<a href="https://github.com/rstudio/reticulate/issues/1734" class="external-link">#1734</a>).</p></li>
 <li><p>Fixed an issue with using Python 3.12 on Linux (<a href="https://github.com/rstudio/reticulate/issues/1712" class="external-link">#1712</a>, <a href="https://github.com/rstudio/reticulate/issues/1714" class="external-link">#1714</a>).</p></li>
 <li><p>Fixed an issue where <code><a href="../reference/virtualenv-tools.html">virtualenv_starter()</a></code> would not discover a custom built Python (<a href="https://github.com/rstudio/reticulate/issues/1704" class="external-link">#1704</a>).</p></li>
 </ul></div>

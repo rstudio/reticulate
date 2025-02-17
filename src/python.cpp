@@ -2124,8 +2124,9 @@ PyObject* r_to_py_numpy(RObject x, bool convert) {
     typenum = NPY_OBJECT;
     data = NULL;
   } else if (type == RAWSXP) {
-    typenum = NPY_VOID; // NPY_UBYTE is np.uint8. Not picking that so we can roundtrip
-    // typenum = NPY_UBYTE;
+    // NPY_UBYTE (np.uint8) might be a more natural choice,
+    // but it can't roundtrip.
+    typenum = NPY_VOID;
     data = &(RAW(sexp)[0]);
   } else {
     stop("Matrix type cannot be converted to python (only integer, "
@@ -2160,9 +2161,10 @@ PyObject* r_to_py_numpy(RObject x, bool convert) {
                                 typenum,
                                 strides,
                                 data,
-                                // int itemsize, in bytes. Only consulted if
+                                // itemsize, in bytes. Only consulted if
                                 // typenum is unsized (e.g., V, U, S). Otherwise ignored.
-                                typenum == NPY_VOID ? 1 : 0,
+                                // RAWSXP is converted to void8 (i.e., V1)
+                                typenum == NPY_VOID ? 1 : 0, // itemsize
                                 flags,
                                 NULL);
 

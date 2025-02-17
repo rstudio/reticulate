@@ -224,7 +224,7 @@ test_that("raw arrays convert", {
   expect_equal(py_to_r(px$shape), list(18L))
   expect_identical(rx, py_to_r(px))
 
-  # Void types with itemsize > 1 don't convert.
+  # "void" types with itemsize > 1 don't convert.
   px2 <- px$view("V9")
   expect_s3_class(py_to_r(px$view("V9")), "numpy.ndarray")
 
@@ -258,7 +258,7 @@ test_that("raw arrays convert", {
       stopifnot(identical(py_to_r(px$shape), list(18L)))
       stopifnot(identical(rx, py_to_r(px)))
 
-      # Void types with itemsize > 1 don't convert.
+      # "void" types with itemsize > 1 don't convert.
       px2 <- px$view("V9")
       stopifnot(inherits(py_to_r(px$view("V9")), "numpy.ndarray"))
 

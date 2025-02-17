@@ -366,7 +366,7 @@ bool has_null_bytes(PyObject* str) {
 }
 
 // helpers to narrow python array type to something convertable from R,
-// guaranteed to return NPY_BOOL, NPY_LONG, NPY_DOUBLE, NPY_CDOUBLE,
+// guaranteed to return NPY_BOOL, NPY_LONG, NPY_DOUBLE, NPY_CDOUBLE, or NPY_VOID
 // or -1 if it's unable to return one of these types.
 int narrow_array_typenum(int typenum) {
 
@@ -410,6 +410,10 @@ int narrow_array_typenum(int typenum) {
   case NPY_VSTRING:
     break;
 
+  // raw
+  case NPY_VOID:
+    break;
+
     // unsupported
   default:
     typenum = -1;
@@ -417,6 +421,15 @@ int narrow_array_typenum(int typenum) {
   }
 
   return typenum;
+}
+
+npy_intp PyArray_ITEMSIZE(PyArrayObject *array) {
+  PyArray_Descr* descr = ((PyArrayObject_fields*) array)->descr;
+  if (NPY_DT_is_legacy(descr)) {
+    return ((_PyArray_LegacyDescr *) descr)->elsize;
+  } else {
+    return ((_PyArray_DescrNumPy2 *) descr)->elsize;
+  }
 }
 
 int narrow_array_typenum(PyArrayObject* array) {
@@ -1777,6 +1790,25 @@ SEXP py_to_r_cpp(PyObject* x, bool convert, bool simple) {
 
         break;
       }
+
+    case NPY_VOID: {
+      // convert to raw, but only if itemsize is 1.
+      // We can probably treat itemsize>1 implicitly as one of the
+      // dimensions, but we just don't support it.
+      // figureing out how to make that not surprising w.r.t. Fortran or C
+      // ordering is non-trivial.
+
+      if (PyArray_ITEMSIZE(array) != 1) {
+        simple = false;
+        goto cant_convert;
+      }
+      // ?? do we need to check allignment or endianness?
+
+      npy_ubyte* pData = (npy_ubyte*)PyArray_DATA(array);
+      rArray = Rf_allocArray(RAWSXP, dimsVector);
+      Rbyte* rArray_ptr = RAW(rArray);
+      memcpy(rArray_ptr, pData, len * sizeof(npy_ubyte));
+    }
     }
 
     // return the R Array

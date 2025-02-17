@@ -231,4 +231,39 @@ test_that("raw arrays convert", {
   # confirm bytes decode to the same string in Python.
   expect_identical(string, py_to_r(px$tobytes()$decode()))
 
+  # run the same tests as above, but w/ numpy<2
+  if(py_version() <= "3.11")
+    expect_no_error(callr::r(function(python_version) {
+
+      # python_version = "3.10"
+      Sys.setenv("RETICULATE_PYTHON" = "managed")
+      library(reticulate)
+      py_require("numpy<2", python_version)
+
+      string <- sQuote("Hello World!", "UTF-8")
+      rx <- charToRaw(string)
+
+      # roundtrip through bytearray
+      stopifnot(identical(rx, py_to_r(r_to_py(rx))))
+
+      # roundtrip through np.array(dtype = "V1")
+      rx <- as.array(rx)
+      stopifnot(identical(rx, py_to_r(r_to_py(rx))))
+
+      np <- import("numpy", convert = FALSE)
+      px <- r_to_py(as.array(rx))
+
+      stopifnot(inherits(px, "numpy.ndarray"))
+      stopifnot(identical(py_to_r(px$dtype$name), "void8"))
+      stopifnot(identical(py_to_r(px$shape), list(18L)))
+      stopifnot(identical(rx, py_to_r(px)))
+
+      # Void types with itemsize > 1 don't convert.
+      px2 <- px$view("V9")
+      stopifnot(inherits(py_to_r(px$view("V9")), "numpy.ndarray"))
+
+      # confirm bytes decode to the same string in Python.
+      stopifnot(identical(string, py_to_r(px$tobytes()$decode())))
+    }, list(as.character(py_version()))))
+
 })

@@ -2088,6 +2088,10 @@ PyObject* r_to_py_numpy(RObject x, bool convert) {
   } else if (type == STRSXP) {
     typenum = NPY_OBJECT;
     data = NULL;
+  } else if (type == RAWSXP) {
+    typenum = NPY_VOID; // NPY_UBYTE is np.uint8. Not picking that so we can roundtrip
+    // typenum = NPY_UBYTE;
+    data = &(RAW(sexp)[0]);
   } else {
     stop("Matrix type cannot be converted to python (only integer, "
            "numeric, complex, logical, and character matrixes can be "
@@ -2103,7 +2107,7 @@ PyObject* r_to_py_numpy(RObject x, bool convert) {
   if (typenum == NPY_BOOL) {
     // Hack to allocate some memory
     SEXP strides_s = PROTECT(Rf_allocVector(INTSXP, nd * (sizeof(npy_intp) / sizeof(int))));
-    // note: npy_intp is typicall 8 bytes, int is 4 bytes. Could hardcode to nd*2 if I
+    // note: npy_intp is typically 8 bytes, int is 4 bytes. Could hardcode to nd*2 if I
     // had more confidence in npy_intp always being 8 bytes.
     strides = (npy_intp*) INTEGER(strides_s);
     int element_size = sizeof(int);
@@ -2121,7 +2125,9 @@ PyObject* r_to_py_numpy(RObject x, bool convert) {
                                 typenum,
                                 strides,
                                 data,
-                                0,
+                                // int itemsize, in bytes. Only consulted if
+                                // typenum is unsized (e.g., V, U, S). Otherwise ignored.
+                                typenum == NPY_VOID ? 1 : 0,
                                 flags,
                                 NULL);
 

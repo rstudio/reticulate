@@ -491,7 +491,7 @@ typedef struct {
   int type_num;
   npy_uint64 flags;
   npy_intp elsize;
-  npy_intp alignment;
+  // npy_intp alignment;
   // PyObject *metadata;
   // npy_hash_t hash;
   // void *reserved_null[2];
@@ -503,28 +503,28 @@ typedef struct {
 * check NPY_DT_is_legacy before casting/accessing).  The struct is also not
 * valid when running on 1.x (i.e. in public API use).
 */
-typedef struct {
+
+typedef struct _PyArray_Descr {
   PyObject_HEAD
-  PyTypeObject *typeobj;
+   PyTypeObject *typeobj;
   char kind;
   char type;
   char byteorder;
-  char _former_flags;
+  char flags;
   int type_num;
-  npy_uint64 flags;
-  npy_intp elsize;
-  npy_intp alignment;
-  // PyObject *metadata;
-  // npy_hash_t hash;
-  // void *reserved_null[2];
+  int elsize;
+  // int alignment;
   // struct _arr_descr *subarray;
   // PyObject *fields;
   // PyObject *names;
+  // PyArray_ArrFuncs *f;
+  // PyObject *metadata;
   // NpyAuxData *c_metadata;
-} _PyArray_LegacyDescr;
+  // npy_hash_t hash;
+} _PyArray_DescrNumPy1;
 
-#define NPY_DT_LEGACY 1 << 0
-#define NPY_DT_is_legacy(dtype) (((dtype)->flags & NPY_DT_LEGACY) != 0)
+// #define NPY_DT_LEGACY 1 << 0
+// #define NPY_DT_is_legacy(dtype) (((dtype)->flags & NPY_DT_LEGACY) != 0)
 
 
 typedef struct tagPyArrayObject_fields {
@@ -570,6 +570,7 @@ typedef struct tagPyArrayObject_fields {
 
 
 LIBPYTHON_EXTERN void **PyArray_API;
+LIBPYTHON_EXTERN unsigned int PyArray_RUNTIME_VERSION;
 
 
 // -- NumPy 2.0 has breaking ABI changes and a big migration guide:

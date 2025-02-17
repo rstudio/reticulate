@@ -423,12 +423,15 @@ int narrow_array_typenum(int typenum) {
   return typenum;
 }
 
-npy_intp PyArray_ITEMSIZE(PyArrayObject *array) {
-  PyArray_Descr* descr = ((PyArrayObject_fields*) array)->descr;
-  if (NPY_DT_is_legacy(descr)) {
-    return ((_PyArray_LegacyDescr *) descr)->elsize;
-  } else {
-    return ((_PyArray_DescrNumPy2 *) descr)->elsize;
+npy_intp PyArray_ITEMSIZE(PyArrayObject* array) {
+  PyArray_Descr *descr = ((PyArrayObject_fields*)array)->descr;
+  switch (PyArray_RUNTIME_VERSION) {
+  case NPY_VERSION_2:
+    return ((_PyArray_DescrNumPy2*)descr)->elsize;
+  case NPY_VERSION_1:
+    return ((_PyArray_DescrNumPy1*)descr)->elsize;
+  default:
+    return -1;
   }
 }
 

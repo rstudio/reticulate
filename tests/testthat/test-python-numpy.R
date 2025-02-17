@@ -202,3 +202,33 @@ test_that("0-length character arrays are handled correctly", {
   }
 })
 
+
+test_that("raw arrays convert", {
+  skip_if_no_numpy()
+
+  string <- sQuote("Hello World!", "UTF-8")
+  rx <- charToRaw(string)
+
+  # roundtrip through bytearray
+  expect_identical(rx, py_to_r(r_to_py(rx)))
+
+  # roundtrip through np.array(dtype = "V1")
+  rx <- as.array(rx)
+  expect_identical(rx, py_to_r(r_to_py(rx)))
+
+  np <- import("numpy", convert = FALSE)
+  px <- r_to_py(as.array(rx))
+
+  expect_s3_class(px, "numpy.ndarray")
+  expect_equal(py_to_r(px$dtype$name), "void8")
+  expect_equal(py_to_r(px$shape), list(18L))
+  expect_identical(rx, py_to_r(px))
+
+  # Void types with itemsize > 1 don't convert.
+  px2 <- px$view("V9")
+  expect_s3_class(py_to_r(px$view("V9")), "numpy.ndarray")
+
+  # confirm bytes decode to the same string in Python.
+  expect_identical(string, py_to_r(px$tobytes()$decode()))
+
+})

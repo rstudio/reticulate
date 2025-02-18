@@ -81,6 +81,8 @@ py_require <- function(packages = NULL,
   action <- match.arg(action)
   called_from_package <- isNamespace(topenv(parent.frame()))
   uv_initialized <- is_python_initialized() && is_ephemeral_reticulate_uv_env(py_exe())
+  if (missing(packages))
+    packages <- NULL
 
   # TODO: called_from_package_onLoad <- in_onload()
   signal_and_exit <- if (called_from_package) warn_and_return else stop

@@ -485,7 +485,7 @@ uv_binary <- function(bootstrap_install = TRUE) {
     if (!is.null(attr(ver, "status"))) {
       return(FALSE)
     }
-    ver <- numeric_version(sub("uv ([0-9.]+) .*", "\\1", ver), strict = FALSE)
+    ver <- numeric_version(sub("uv ([0-9.]+).*", "\\1", ver), strict = FALSE)
     !is.na(ver) && ver >= required_version
   }
 

@@ -715,3 +715,8 @@ parent.pkg <- function(env = parent.frame(2)) {
   else
     NULL # print visible
 }
+
+warn_and_return <- function(...) {
+  warning()
+  rlang::eval_bare(quote(return(invisible())), parent.frame())
+}

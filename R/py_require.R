@@ -82,7 +82,8 @@ py_require <- function(packages = NULL,
   called_from_package <- isNamespace(topenv(parent.frame()))
   uv_initialized <- is_python_initialized() && is_ephemeral_reticulate_uv_env(py_exe())
 
-  signal_condition <- if (called_from_package) warning else stop
+  # TODO: called_from_package_onLoad <- in_onload()
+  signal_and_exit <- if (called_from_package) warn_and_return else stop
 
   if (!is.null(python_version)) {
     python_version <- unlist(strsplit(python_version, ",", fixed = TRUE))
@@ -92,7 +93,7 @@ py_require <- function(packages = NULL,
       current_py_version <- py_version(patch = TRUE)
       for (check in as_version_constraint_checkers(python_version)) {
         if (!isTRUE(check(current_py_version))) {
-          signal_condition(paste0(collapse = "",
+          signal_and_exit(paste0(collapse = "",
             "Python version requirements cannot be ",
             "changed after Python has been initialized.\n",
             "* Python version request: '", python_version, "'",
@@ -100,7 +101,6 @@ py_require <- function(packages = NULL,
             "\n",
             "* Python version initialized: '", as.character(current_py_version), "'"
           ))
-          break
         }
       }
 
@@ -161,14 +161,13 @@ py_require <- function(packages = NULL,
     if (uv_initialized) {
       switch(action,
         add = {
-
           if(all(packages %in% pr$packages)) {
             packages <- NULL # no-op, skip activating new env
           } else {
             bare_name <- function(x) sub("^([^[!=><]+).*", "\\1", x)
             if (any(bare_name(packages) %in% bare_name(pr$packages))) {
               # e.g., if user calls 'numpy<2' after already initialized with 'numpy>2'
-              signal_condition("After Python has initialized, only `action = 'add'` with new packages is supported.")
+              signal_and_exit("After Python has initialized, only `action = 'add'` with new packages is supported.")
               packages <- NULL
             }
             pr$packages <- unique(c(packages, pr$packages))
@@ -176,15 +175,31 @@ py_require <- function(packages = NULL,
         },
         remove = {
           if (any(packages %in% pr$packages))
-            signal_condition("After Python has initialized, only `action = 'add'` is supported.")
+            signal_and_exit("After Python has initialized, only `action = 'add'` is supported.")
         },
         set = {
           if (!base::setequal(packages, pr$packages))
-            signal_condition("After Python has initialized, only `action = 'add'` is supported.")
+            signal_and_exit("After Python has initialized, only `action = 'add'` is supported.")
         })
     } else {
       pr$packages <- py_reqs_action(action, packages, py_reqs_get("packages"))
     }
+  }
+
+  if (uv_initialized && action == "add" && !is.null(packages)) {
+    tryCatch({
+      new_path <- uv_get_or_create_env()
+      new_config <- python_config(new_path)
+      if (new_config$libpython == .globals$py_config$libpython) {
+        py_activate_virtualenv(file.path(dirname(new_path), "activate_this.py"))
+        .globals$py_config <- new_config
+        .globals$py_config$available <- TRUE
+        # TODO: sync os.environ with R Sys.getenv()?
+      } else {
+        # TODO: Better error message?
+        stop("New environment does not use the same Python binary")
+      }
+    }, error = signal_and_exit)
   }
 
   pr$history <- c(pr$history, list(list(
@@ -197,19 +212,6 @@ py_require <- function(packages = NULL,
   )))
   .globals$python_requirements <- pr
 
-  if (uv_initialized && action == "add" && !is.null(packages)) {
-    new_path <- uv_get_or_create_env()
-    new_config <- python_config(new_path)
-    if (new_config$libpython == .globals$py_config$libpython) {
-      py_activate_virtualenv(file.path(dirname(new_path), "activate_this.py"))
-      .globals$py_config <- new_config
-      .globals$py_config$available <- TRUE
-      # TODO: sync os.environ with R Sys.getenv()?
-    } else {
-      # TODO: Better error message?
-      stop("New environment does not use the same Python binary")
-    }
-  }
 
   invisible()
 }

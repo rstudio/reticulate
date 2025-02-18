@@ -438,23 +438,36 @@ py_reqs_get <- function(x = NULL) {
 # uv ---------------------------------------------------------------------------
 
 uv_binary <- function(bootstrap_install = TRUE) {
+  required_version <- numeric_version("0.6.1")
+  is_usable_uv <- function(uv) {
+    if(is.null(uv) || is.na(uv) || uv == "" || !file.exists(uv)) {
+      return(FALSE)
+    }
+    ver <- suppressWarnings(system2(uv, "--version", stderr = TRUE, stdout = TRUE))
+    if (!is.null(attr(ver, "status"))) {
+      return(FALSE)
+    }
+    ver <- numeric_version(sub("uv ([0-9.]+) .*", "\\1", ver), strict = FALSE)
+    !is.na(ver) && ver >= required_version
+  }
+
   uv <- Sys.getenv("RETICULATE_UV", NA)
-  if (!is.na(uv)) {
+  if (is_usable_uv(uv)) {
     return(path.expand(uv))
   }
 
   uv <- getOption("reticulate.uv_binary")
-  if (!is.null(uv)) {
+  if (is_usable_uv(uv)) {
     return(path.expand(uv))
   }
 
   uv <- as.character(Sys.which("uv"))
-  if (uv != "") {
+  if (is_usable_uv(uv)) {
     return(path.expand(uv))
   }
 
   uv <- path.expand("~/.local/bin/uv")
-  if (file.exists(uv)) {
+  if (is_usable_uv(uv)) {
     return(path.expand(uv))
   }
 
@@ -463,6 +476,8 @@ uv_binary <- function(bootstrap_install = TRUE) {
     "bin", if (is_windows()) "uv.exe" else "uv"
   ))
   if (file.exists(uv)) {
+    if (!is_usable_uv(uv)) # exists, but version too old
+      system2(uv, "self update")
     return(uv)
   }
 

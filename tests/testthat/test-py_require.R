@@ -30,6 +30,7 @@ test_that("Setting py_require(python_version) after initializing Python ", {
     # Sys.setenv("RETICULATE_PYTHON"="managed")
 
     pkg_py_require <- function(...) reticulate::py_require(...)
+    pkg_py_require <- rlang::zap_srcref(pkg_py_require)
     environment(pkg_py_require) <- asNamespace("stats")
 
     library(reticulate)
@@ -170,4 +171,3 @@ test_that("Multiple py_require() calls from package are shows in one row", {
     py_require()
   }))
 })
-

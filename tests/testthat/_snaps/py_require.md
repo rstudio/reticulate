@@ -32,6 +32,7 @@
         Sys.unsetenv("RETICULATE_PYTHON")
         Sys.setenv(RETICULATE_USE_MANAGED_VENV = "yes")
         pkg_py_require <- (function(...) reticulate::py_require(...))
+        pkg_py_require <- rlang::zap_srcref(pkg_py_require)
         environment(pkg_py_require) <- asNamespace("stats")
         library(reticulate)
         py_require(python_version = ">=3.9", "pandas")
@@ -65,6 +66,7 @@
       > Sys.unsetenv("RETICULATE_PYTHON")
       > Sys.setenv(RETICULATE_USE_MANAGED_VENV = "yes")
       > pkg_py_require <- (function(...) reticulate::py_require(...))
+      > pkg_py_require <- rlang::zap_srcref(pkg_py_require)
       > environment(pkg_py_require) <- asNamespace("stats")
       > library(reticulate)
       > py_require(python_version = ">=3.9", "pandas")
@@ -157,7 +159,7 @@
       > py_require(python_version = ">=3.10")
       > py_require(python_version = "<3.10")
       > uv_get_or_create_env()
-      Error in resolve_python_version(constraints = python_version) : 
+      Error in resolve_python_version(constraints = python_version, uv = uv) : 
         Requested Python version constraints could not be satisfied.
         constraints: ">=3.10,<3.10"
       Hint: Call `py_require(python_version = <string>, action = "set")` to replace constraints.

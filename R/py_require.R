@@ -10,7 +10,7 @@
 #' installation is found earlier in the [Order of
 #' Discovery](https://rstudio.github.io/reticulate/articles/versions.html#order-of-discovery).
 #' You can also force reticulate to use an ephemeral environment by setting
-#' `Sys.setenv(RETICULATE_USE_MANAGED_VENV = "yes")`.
+#' `Sys.setenv(RETICULATE_USE_MANAGED_VENV="yes")`.
 #'
 #' The ephemeral virtual environment is not created until the user interacts
 #' with Python for the first time in the R session, typically when `import()` is
@@ -37,19 +37,54 @@
 #'   - To use a different index: `Sys.setenv(UV_INDEX = "https://download.pytorch.org/whl/cpu")`.
 #'   - To allow resolving a prerelease dependency: `Sys.setenv(UV_PRERELEASE="allow")`.
 #'
+#' ## Installing from alternate sources
+#'
+#' The `packages` argument also supports declaring a dependency from a Git
+#' repository or a local file. Below are some examples of valid `packages`
+#' strings:
+#'
+#' Install Ruff from a specific Git tag:
+#' ```
+#'     "git+https://github.com/astral-sh/ruff@v0.2.0"
+#' ```
+#'
+#' Install Ruff from a specific Git commit:
+#' ```
+#'     "git+https://github.com/astral-sh/ruff@1fadefa67b26508cc59cf38e6130bde2243c929d"
+#' ```
+#'
+#' Install Ruff from a specific Git branch:
+#' ```
+#'     "git+https://github.com/astral-sh/ruff@main"
+#' ```
+#'
+#' Install MarkItDown from the `main` branch---find the package in the subdirectory 'packages/markitdown':
+#' ```
+#'     "markitdown@git+https://github.com/microsoft/markitdown.git@main#subdirectory=packages/markitdown"
+#' ```
+#'
+#' Install MarkItDown from the local filesystem by providing an absolute path
+#' to a directory containing a `pyproject.toml` or `setup.py` file:
+#' ```
+#'     "markitdown@/Users/tomasz/github/microsoft/markitdown/packages/markitdown/"
+#' ```
+#'
+#' See more examples [here](https://docs.astral.sh/uv/pip/packages/#installing-a-package) and [here](https://pip.pypa.io/en/stable/cli/pip_install/#examples).
+#'
 #' @param packages A character vector of Python packages to be available during
 #'   the session. These can be simple package names like `"jax"` or names with
-#'   version constraints like `"jax[cpu]>=0.5"`.
+#'   version constraints like `"jax[cpu]>=0.5"`. Pip style syntax for installing
+#'   from local files or a git repository is also supported (see details).
 #'
 #' @param python_version A character vector of Python version constraints \cr
-#'   (e.g., `"3.10"` or `">=3.9,<3.13,!=3.11"`).
+#'   (e.g., `"3.10"` or `">=3.9,<3.13"`).
 #'
 #' @param ... Reserved for future extensions; must be empty.
 #'
 #' @param action Determines how `py_require()` processes the provided
 #'   requirements. Options are:
 #'   - `add`: Adds the entries to the current set of requirements.
-#'   - `remove`: Removes__exact_ matches from the requirements list. For example,
+#'   - `remove`: Removes _exact_ matches from the requirements list. For example,
 #'   if `"numpy==2.2.2"` is in the list, passing `"numpy"` with `action =
 #'   "remove"` will not remove it. Requests to remove nonexistent entries are
 #'   ignored.
@@ -81,8 +116,11 @@ py_require <- function(packages = NULL,
   action <- match.arg(action)
   called_from_package <- isNamespace(topenv(parent.frame()))
   uv_initialized <- is_python_initialized() && is_ephemeral_reticulate_uv_env(py_exe())
+  if (missing(packages))
+    packages <- NULL
 
-  signal_condition <- if (called_from_package) warning else stop
+  # TODO: called_from_package_onLoad <- in_onload()
+  signal_and_exit <- if (called_from_package) warn_and_return else stop
 
   if (!is.null(python_version)) {
     python_version <- unlist(strsplit(python_version, ",", fixed = TRUE))
@@ -92,7 +130,7 @@ py_require <- function(packages = NULL,
       current_py_version <- py_version(patch = TRUE)
       for (check in as_version_constraint_checkers(python_version)) {
         if (!isTRUE(check(current_py_version))) {
-          signal_condition(paste0(collapse = "",
+          signal_and_exit(paste0(collapse = "",
             "Python version requirements cannot be ",
             "changed after Python has been initialized.\n",
             "* Python version request: '", python_version, "'",
@@ -100,7 +138,6 @@ py_require <- function(packages = NULL,
             "\n",
             "* Python version initialized: '", as.character(current_py_version), "'"
           ))
-          break
         }
       }
 
@@ -161,14 +198,13 @@ py_require <- function(packages = NULL,
     if (uv_initialized) {
       switch(action,
         add = {
-
           if(all(packages %in% pr$packages)) {
             packages <- NULL # no-op, skip activating new env
           } else {
             bare_name <- function(x) sub("^([^[!=><]+).*", "\\1", x)
             if (any(bare_name(packages) %in% bare_name(pr$packages))) {
               # e.g., if user calls 'numpy<2' after already initialized with 'numpy>2'
-              signal_condition("After Python has initialized, only `action = 'add'` with new packages is supported.")
+              signal_and_exit("After Python has initialized, only `action = 'add'` with new packages is supported.")
               packages <- NULL
             }
             pr$packages <- unique(c(packages, pr$packages))
@@ -176,15 +212,31 @@ py_require <- function(packages = NULL,
         },
         remove = {
           if (any(packages %in% pr$packages))
-            signal_condition("After Python has initialized, only `action = 'add'` is supported.")
+            signal_and_exit("After Python has initialized, only `action = 'add'` is supported.")
         },
         set = {
           if (!base::setequal(packages, pr$packages))
-            signal_condition("After Python has initialized, only `action = 'add'` is supported.")
+            signal_and_exit("After Python has initialized, only `action = 'add'` is supported.")
         })
     } else {
       pr$packages <- py_reqs_action(action, packages, py_reqs_get("packages"))
     }
+  }
+
+  if (uv_initialized && action == "add" && !is.null(packages)) {
+    tryCatch({
+      new_path <- uv_get_or_create_env(pr$packages, pr$python_version, pr$exclude_newer)
+      new_config <- python_config(new_path)
+      if (new_config$libpython == .globals$py_config$libpython) {
+        py_activate_virtualenv(file.path(dirname(new_path), "activate_this.py"))
+        .globals$py_config <- new_config
+        .globals$py_config$available <- TRUE
+        # TODO: sync os.environ with R Sys.getenv()?
+      } else {
+        # TODO: Better error message?
+        stop("New environment does not use the same Python binary")
+      }
+    }, error = signal_and_exit)
   }
 
   pr$history <- c(pr$history, list(list(
@@ -197,19 +249,6 @@ py_require <- function(packages = NULL,
   )))
   .globals$python_requirements <- pr
 
-  if (uv_initialized && action == "add" && !is.null(packages)) {
-    new_path <- uv_get_or_create_env()
-    new_config <- python_config(new_path)
-    if (new_config$libpython == .globals$py_config$libpython) {
-      py_activate_virtualenv(file.path(dirname(new_path), "activate_this.py"))
-      .globals$py_config <- new_config
-      .globals$py_config$available <- TRUE
-      # TODO: sync os.environ with R Sys.getenv()?
-    } else {
-      # TODO: Better error message?
-      stop("New environment does not use the same Python binary")
-    }
-  }
 
   invisible()
 }
@@ -438,23 +477,36 @@ py_reqs_get <- function(x = NULL) {
 # uv ---------------------------------------------------------------------------
 
 uv_binary <- function(bootstrap_install = TRUE) {
+  required_version <- numeric_version("0.6.1")
+  is_usable_uv <- function(uv) {
+    if (is.null(uv) || is.na(uv) || uv == "" || !file.exists(uv)) {
+      return(FALSE)
+    }
+    ver <- suppressWarnings(system2(uv, "--version", stderr = TRUE, stdout = TRUE))
+    if (!is.null(attr(ver, "status"))) {
+      return(FALSE)
+    }
+    ver <- numeric_version(sub("uv ([0-9.]+).*", "\\1", ver), strict = FALSE)
+    !is.na(ver) && ver >= required_version
+  }
+
   uv <- Sys.getenv("RETICULATE_UV", NA)
-  if (!is.na(uv)) {
+  if (is_usable_uv(uv)) {
     return(path.expand(uv))
   }
 
   uv <- getOption("reticulate.uv_binary")
-  if (!is.null(uv)) {
+  if (is_usable_uv(uv)) {
     return(path.expand(uv))
   }
 
   uv <- as.character(Sys.which("uv"))
-  if (uv != "") {
+  if (is_usable_uv(uv)) {
     return(path.expand(uv))
   }
 
   uv <- path.expand("~/.local/bin/uv")
-  if (file.exists(uv)) {
+  if (is_usable_uv(uv)) {
     return(path.expand(uv))
   }
 
@@ -463,6 +515,8 @@ uv_binary <- function(bootstrap_install = TRUE) {
     "bin", if (is_windows()) "uv.exe" else "uv"
   ))
   if (file.exists(uv)) {
+    if (!is_usable_uv(uv)) # exists, but version too old
+      system2(uv, "self update")
     return(uv)
   }
 
@@ -511,18 +565,20 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
 
   uv <- uv_binary() %||% return() # error?
 
+  resolved_python_version <- resolve_python_version(constraints = python_version, uv = uv)
+
   # capture args; maybe used in error message later
   call_args <- list(
     packages = packages,
     python_version = python_version %||%
-      paste(resolve_python_version(), "(reticulate default)"),
+      paste(resolved_python_version, "(reticulate default)"),
     exclude_newer = exclude_newer
   )
 
   if (length(packages))
     packages <- as.vector(rbind("--with", packages))
 
-  python_version <- c("--python", resolve_python_version(constraints = python_version))
+  python_version <- c("--python", resolved_python_version)
 
   if (!is.null(exclude_newer)) {
     # todo, accept a POSIXct/lt, format correctly
@@ -664,8 +720,8 @@ uv_cache_dir <- function(uv = uv_binary(bootstrap_install = FALSE)) {
 }
 
 
-uv_python_list <- function() {
-  x <- system2(uv_binary(), c("python list",
+uv_python_list <- function(uv = uv_binary()) {
+  x <- system2(uv, c("python list",
     "--python-preference only-managed",
     "--only-downloads",
     "--color never",
@@ -687,7 +743,7 @@ uv_python_list <- function() {
   x
 }
 
-resolve_python_version <- function(constraints = NULL) {
+resolve_python_version <- function(constraints = NULL, uv = uv_binary()) {
   constraints <- as.character(constraints %||% "")
   constraints <- trimws(unlist(strsplit(constraints, ",", fixed = TRUE)))
   constraints <- constraints[nzchar(constraints)]
@@ -706,7 +762,7 @@ resolve_python_version <- function(constraints = NULL) {
   # See: https://devguide.python.org/versions/
 
   # Get latest patch for each minor version
-  candidates <- uv_python_list()
+  candidates <- uv_python_list(uv)
   # E.g., candidates might be:
   #  c("3.13.1", "3.12.8", "3.11.11", "3.10.16", "3.9.21", "3.8.20")
 

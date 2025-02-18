@@ -716,7 +716,15 @@ parent.pkg <- function(env = parent.frame(2)) {
     NULL # print visible
 }
 
-warn_and_return <- function(...) {
-  warning()
+warn_and_return <- function(..., call. = TRUE) {
+  cond <- if (inherits(..1, "condition")) {
+    ..1
+  } else {
+    simpleWarning(.makeMessage(...))
+  }
+
+  cond$call <- if (call.) sys.call(-1L) else NULL
+
+  warning(cond)
   rlang::eval_bare(quote(return(invisible())), parent.frame())
 }

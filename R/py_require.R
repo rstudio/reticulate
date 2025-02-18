@@ -224,7 +224,7 @@ py_require <- function(packages = NULL,
 
   if (uv_initialized && action == "add" && !is.null(packages)) {
     tryCatch({
-      new_path <- uv_get_or_create_env()
+      new_path <- uv_get_or_create_env(pr$packages, pr$python_version, pr$exclude_newer)
       new_config <- python_config(new_path)
       if (new_config$libpython == .globals$py_config$libpython) {
         py_activate_virtualenv(file.path(dirname(new_path), "activate_this.py"))

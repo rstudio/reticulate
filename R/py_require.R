@@ -10,7 +10,7 @@
 #' installation is found earlier in the [Order of
 #' Discovery](https://rstudio.github.io/reticulate/articles/versions.html#order-of-discovery).
 #' You can also force reticulate to use an ephemeral environment by setting
-#' `Sys.setenv(RETICULATE_USE_MANAGED_VENV = "yes")`.
+#' `Sys.setenv(RETICULATE_USE_MANAGED_VENV="yes")`.
 #'
 #' The ephemeral virtual environment is not created until the user interacts
 #' with Python for the first time in the R session, typically when `import()` is
@@ -37,19 +37,53 @@
 #'   - To use a different index: `Sys.setenv(UV_INDEX = "https://download.pytorch.org/whl/cpu")`.
 #'   - To allow resolving a prerelease dependency: `Sys.setenv(UV_PRERELEASE="allow")`.
 #'
+#' ## Installing from alternate sources
+#'
+#' The `packages` argument can also support declaring a dependency from a git repository or local file.
+#' Some examples of valid `packages` strings:
+#'
+#' Install ruff with a version constraint
+#' ```
+#'     "git+https://github.com/astral-sh/ruff@v0.2.0"
+#' ```
+#'
+#' Install ruff from a specific git commit
+#' ```
+#'     "git+https://github.com/astral-sh/ruff@1fadefa67b26508cc59cf38e6130bde2243c929d"
+#' ```
+#'
+#' Install ruff from a specific git branch
+#' ```
+#'     "git+https://github.com/astral-sh/ruff@main"
+#' ```
+#'
+#' Install markitdown from the 'main' branch, find the package in subdirectory `packages/markitdown`.
+#' ```
+#'     "markitdown@git+https://github.com/microsoft/markitdown.git@main#subdirectory=packages/markitdown"
+#' ```
+#'
+#' Install markitdown from the local filesystem by providing an absolute path
+#' to a directory with a pyproject.toml or setup.py file.
+#' ```
+#'     "markitdown@/Users/tomasz/github/microsoft/markitdown/packages/markitdown/"
+#' ```
+#'
+#' See more examples [here](https://docs.astral.sh/uv/pip/packages/#installing-a-package) and [here](https://pip.pypa.io/en/stable/cli/pip_install/#examples).
+#'
 #' @param packages A character vector of Python packages to be available during
 #'   the session. These can be simple package names like `"jax"` or names with
-#'   version constraints like `"jax[cpu]>=0.5"`.
+#'   version constraints like `"jax[cpu]>=0.5"`. Pip style syntax for installing
+#'   from local files or a git repository is also supported (see details).
 #'
 #' @param python_version A character vector of Python version constraints \cr
-#'   (e.g., `"3.10"` or `">=3.9,<3.13,!=3.11"`).
+#'   (e.g., `"3.10"` or `">=3.9,<3.13"`).
 #'
 #' @param ... Reserved for future extensions; must be empty.
 #'
 #' @param action Determines how `py_require()` processes the provided
 #'   requirements. Options are:
 #'   - `add`: Adds the entries to the current set of requirements.
-#'   - `remove`: Removes__exact_ matches from the requirements list. For example,
+#'   - `remove`: Removes _exact_ matches from the requirements list. For example,
 #'   if `"numpy==2.2.2"` is in the list, passing `"numpy"` with `action =
 #'   "remove"` will not remove it. Requests to remove nonexistent entries are
 #'   ignored.

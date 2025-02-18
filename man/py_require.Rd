@@ -15,10 +15,11 @@ py_require(
 \arguments{
 \item{packages}{A character vector of Python packages to be available during
 the session. These can be simple package names like \code{"jax"} or names with
-version constraints like \code{"jax[cpu]>=0.5"}.}
+version constraints like \code{"jax[cpu]>=0.5"}. Pip style syntax for installing
+from local files or a git repository is also supported (see details).}
 
 \item{python_version}{A character vector of Python version constraints \cr
-(e.g., \code{"3.10"} or \code{">=3.9,<3.13,!=3.11"}).}
+(e.g., \code{"3.10"} or \code{">=3.9,<3.13"}).}
 
 \item{...}{Reserved for future extensions; must be empty.}
 
@@ -32,7 +33,7 @@ it.}
 requirements. Options are:
 \itemize{
 \item \code{add}: Adds the entries to the current set of requirements.
-\item \code{remove}: Removes__exact_ matches from the requirements list. For example,
+\item \code{remove}: Removes \emph{exact} matches from the requirements list. For example,
 if \code{"numpy==2.2.2"} is in the list, passing \code{"numpy"} with \code{action =   "remove"} will not remove it. Requests to remove nonexistent entries are
 ignored.
 \item \code{set}: Clears all existing requirements and replaces them with the
@@ -50,7 +51,7 @@ requirements.
 Reticulate will only use an ephemeral environment if no other Python
 installation is found earlier in the \href{https://rstudio.github.io/reticulate/articles/versions.html#order-of-discovery}{Order of Discovery}.
 You can also force reticulate to use an ephemeral environment by setting
-\code{Sys.setenv(RETICULATE_USE_MANAGED_VENV = "yes")}.
+\code{Sys.setenv(RETICULATE_USE_MANAGED_VENV="yes")}.
 
 The ephemeral virtual environment is not created until the user interacts
 with Python for the first time in the R session, typically when \code{import()} is
@@ -78,5 +79,38 @@ variables, as described
 \item If temporarily offline, set \code{Sys.setenv(UV_OFFLINE=1)}.
 \item To use a different index: \code{Sys.setenv(UV_INDEX = "https://download.pytorch.org/whl/cpu")}.
 \item To allow resolving a prerelease dependency: \code{Sys.setenv(UV_PRERELEASE="allow")}.
+}
+\subsection{Installing from alternate sources}{
+
+The \code{packages} argument can also support declaring a dependency from a git repository or local file.
+Some examples of valid \code{packages} strings:
+
+Install ruff with a version constraint
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{    "git+https://github.com/astral-sh/ruff@v0.2.0"
+}\if{html}{\out{</div>}}
+
+Install ruff from a specific git commit
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{    "git+https://github.com/astral-sh/ruff@1fadefa67b26508cc59cf38e6130bde2243c929d"
+}\if{html}{\out{</div>}}
+
+Install ruff from a specific git branch
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{    "git+https://github.com/astral-sh/ruff@main"
+}\if{html}{\out{</div>}}
+
+Install markitdown from the 'main' branch, find the package in subdirectory \code{packages/markitdown}.
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{    "markitdown@git+https://github.com/microsoft/markitdown.git@main#subdirectory=packages/markitdown"
+}\if{html}{\out{</div>}}
+
+Install markitdown from the local filesystem by providing an absolute path
+to a directory with a pyproject.toml or setup.py file.
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{    "markitdown@/Users/tomasz/github/microsoft/markitdown/packages/markitdown/"
+}\if{html}{\out{</div>}}
+
+See more examples \href{https://docs.astral.sh/uv/pip/packages/#installing-a-package}{here} and \href{https://pip.pypa.io/en/stable/cli/pip_install/#examples}{here}.
 }
 }

@@ -442,7 +442,7 @@ py_reqs_get <- function(x = NULL) {
 uv_binary <- function(bootstrap_install = TRUE) {
   required_version <- numeric_version("0.6.1")
   is_usable_uv <- function(uv) {
-    if(is.null(uv) || is.na(uv) || uv == "" || !file.exists(uv)) {
+    if (is.null(uv) || is.na(uv) || uv == "" || !file.exists(uv)) {
       return(FALSE)
     }
     ver <- suppressWarnings(system2(uv, "--version", stderr = TRUE, stdout = TRUE))
@@ -528,18 +528,20 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
 
   uv <- uv_binary() %||% return() # error?
 
+  resolved_python_version <- resolve_python_version(constraints = python_version, uv = uv)
+
   # capture args; maybe used in error message later
   call_args <- list(
     packages = packages,
     python_version = python_version %||%
-      paste(resolve_python_version(), "(reticulate default)"),
+      paste(resolved_python_version, "(reticulate default)"),
     exclude_newer = exclude_newer
   )
 
   if (length(packages))
     packages <- as.vector(rbind("--with", packages))
 
-  python_version <- c("--python", resolve_python_version(constraints = python_version))
+  python_version <- c("--python", resolved_python_version)
 
   if (!is.null(exclude_newer)) {
     # todo, accept a POSIXct/lt, format correctly
@@ -681,8 +683,8 @@ uv_cache_dir <- function(uv = uv_binary(bootstrap_install = FALSE)) {
 }
 
 
-uv_python_list <- function() {
-  x <- system2(uv_binary(), c("python list",
+uv_python_list <- function(uv = uv_binary()) {
+  x <- system2(uv, c("python list",
     "--python-preference only-managed",
     "--only-downloads",
     "--color never",
@@ -704,7 +706,7 @@ uv_python_list <- function() {
   x
 }
 
-resolve_python_version <- function(constraints = NULL) {
+resolve_python_version <- function(constraints = NULL, uv = uv_binary()) {
   constraints <- as.character(constraints %||% "")
   constraints <- trimws(unlist(strsplit(constraints, ",", fixed = TRUE)))
   constraints <- constraints[nzchar(constraints)]
@@ -723,7 +725,7 @@ resolve_python_version <- function(constraints = NULL) {
   # See: https://devguide.python.org/versions/
 
   # Get latest patch for each minor version
-  candidates <- uv_python_list()
+  candidates <- uv_python_list(uv)
   # E.g., candidates might be:
   #  c("3.13.1", "3.12.8", "3.11.11", "3.10.16", "3.9.21", "3.8.20")
 

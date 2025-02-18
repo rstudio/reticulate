@@ -39,31 +39,32 @@
 #'
 #' ## Installing from alternate sources
 #'
-#' The `packages` argument can also support declaring a dependency from a git repository or local file.
-#' Some examples of valid `packages` strings:
+#' The `packages` argument also supports declaring a dependency from a Git
+#' repository or a local file. Below are some examples of valid `packages`
+#' strings:
 #'
-#' Install ruff with a version constraint
+#' Install Ruff from a specific Git tag:
 #' ```
 #'     "git+https://github.com/astral-sh/ruff@v0.2.0"
 #' ```
 #'
-#' Install ruff from a specific git commit
+#' Install Ruff from a specific Git commit:
 #' ```
 #'     "git+https://github.com/astral-sh/ruff@1fadefa67b26508cc59cf38e6130bde2243c929d"
 #' ```
 #'
-#' Install ruff from a specific git branch
+#' Install Ruff from a specific Git branch:
 #' ```
 #'     "git+https://github.com/astral-sh/ruff@main"
 #' ```
 #'
-#' Install markitdown from the 'main' branch, find the package in subdirectory `packages/markitdown`.
+#' Install MarkItDown from the `main` branch---find the package in the subdirectory 'packages/markitdown':
 #' ```
 #'     "markitdown@git+https://github.com/microsoft/markitdown.git@main#subdirectory=packages/markitdown"
 #' ```
 #'
-#' Install markitdown from the local filesystem by providing an absolute path
-#' to a directory with a pyproject.toml or setup.py file.
+#' Install MarkItDown from the local filesystem by providing an absolute path
+#' to a directory containing a `pyproject.toml` or `setup.py` file:
 #' ```
 #'     "markitdown@/Users/tomasz/github/microsoft/markitdown/packages/markitdown/"
 #' ```

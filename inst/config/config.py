@@ -28,7 +28,7 @@ else:
             return "[builtin module]"
         spec = util.find_spec(name)
         origin = spec.origin
-        return origin[: origin.rfind("/")]
+        return os.path.dirname(origin)
 
 
 # Get appropriate path-entry separator for platform

@@ -133,7 +133,7 @@ possible by specifying a date with `exclude_newer`.
     # install python package 'markitdown' from github
     py_require("markitdown@git+https://github.com/microsoft/markitdown.git@main#subdirectory=packages/markitdown")
     # install it from the local filesystem
-    py_require("markitdown@"markitdown@/Users/tomasz/github/microsoft/markitdown/packages/markitdown/")
+    py_require("markitdown@/Users/tomasz/github/microsoft/markitdown/packages/markitdown/")
     ```
 
     See `py_require()` for more examples.

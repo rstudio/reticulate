@@ -41,7 +41,12 @@ the one installed by \code{install_miniconda()}.}
 \code{PATH}, as well as other standard locations for Anaconda installations.}
 }
 \description{
-Select the version of Python to be used by \code{reticulate}.
+Manually select the version of Python to be used by \code{reticulate}.
+
+Note that beginning with Reticulate version 1.41, manually selecting a Python
+installation is generally not necessary, as reticulate is able to
+automatically resolve an ephemeral Python environment with all necessary
+Python requirements declared via \code{py_require()}.
 }
 \details{
 The \code{reticulate} package initializes its Python bindings lazily -- that is,

@@ -1,7 +1,15 @@
 
 #' Use Python
 #'
-#' Select the version of Python to be used by `reticulate`.
+#' @description
+#' Manually select the version of Python to be used by `reticulate`.
+#'
+#' Note that beginning with Reticulate version 1.41, manually selecting a Python
+#' installation is generally not necessary, as reticulate is able to
+#' automatically resolve an ephemeral Python environment with all necessary
+#' Python requirements declared via `py_require()`.
+#'
+#' @details
 #'
 #' The `reticulate` package initializes its Python bindings lazily -- that is,
 #' it does not initialize its Python bindings until an API that explicitly

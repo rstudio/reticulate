@@ -71,7 +71,7 @@ py_require("numpy<2")
 import("numpy")
 ```
 
-```
+```         
   × No solution found when resolving `--with` dependencies:
   ╰─▶ Because you require numpy>2 and numpy<2, we can conclude that your
       requirements are unsatisfiable.

@@ -5,8 +5,10 @@
 - New `uv_run_tool()` function for running command line tools distributed via Python packages.
 
 - Raw R arrays now convert to NumPy arrays with dtype "V1" ("void8") (#1734).
+  Use `r_to_py(as.array(x))` to efficiently convert raw vectors to numpy arrays.
 
 - NumPy arrays with dtype "V1" ("void8") now convert to R raw arrays (#1734).
+  Use `py_to_r(array$view("V1"))` to efficiently convert numpy arrays to raw vectors. 
 
 - Fixed an issue with using Python 3.12 on Linux (#1712, #1714).
 

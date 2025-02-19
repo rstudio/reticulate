@@ -2,119 +2,250 @@
 title: "Using reticulate in an R Package"
 output:
   rmarkdown::html_vignette
+editor_options:
+  markdown:
+    wrap: 80
 vignette: >
   %\VignetteIndexEntry{Using reticulate in an R Package}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
+## Declaring Python Requirements
+
+Beginning with Reticulate version 1.41, R packages can declare Python
+requirements with `py_require()`. Reticulate can then resolve these requirements
+at runtime using an ephemeral Python environment.
+
+Calling `py_require()` is always recommended because it has no effect if the
+user is using a manually managed Python environment, making it generally safe to
+use.
+
+### Typical Usage
+
+`py_require()` is typically called from `.onLoad()`, like this:
+
+``` r
+.onLoad <- function(libname, pkgname) {
+  reticulate::py_require("scipy")
+}
+```
+
+It can also be called from other package functions. For example, the `keras3` R
+package defines a `use_backend()` function that calls `py_require()` with
+different values based on the user-requested backend:
+
+``` r
+.onLoad <- function(...) {
+  py_require(c("keras", "tensorflow")) # default tensorflow backend
+}
+
+use_backend <- function(backend, gpu = TRUE) {
+  py_require("tensorflow", action = "remove") # remove default backend
+
+  switch(paste0(backend, "_", get_os()),
+    Linux_jax = if (gpu) py_require("jax[cuda12]") else py_require("jax[cpu]"),
+    macOS_jax = py_require(c("jax", if (gpu) "jax-metal")),
+    Windows_jax = py_require("jax"),
+    Linux_tensorflow = { ... },
+    macOS_tensorflow = { ... },
+    Windows_tensorflow = { ... },
+    Linux_torch = { ... },
+    macOS_torch = { ... },
+    Windows_torch = { ... }
+  )
+}
+```
+
+keras3 users can then specify a backend like this:
+
+``` r
+library(keras3)
+use_backend("jax")
+```
+
+### Best Practices
+
+Be mindful that other R packages and users may also declare Python requirements.
+Avoid restrictive version constraints. If a version constraint is necessary,
+prefer `>=` and `!=` over `<=`, as the latter can quickly become outdated.
+
+An example user script header:
+
+``` r
+library(pysparklyr) # declares requirements for PySpark
+library(keras3)     # declares requirements for default 'tensorflow' backend
+use_backend("jax")  # removes 'tensorflow' requirements, adds 'jax' requirements
+
+library(reticulate)
+py_require(c("scipy", "polars"))         # user-declared requirements
+py_require(python_version = ">=3.12")
+py_require(exclude_newer = "2025-01-19")
+
+np <- import("numpy")  # <-- Python initialized
+...
+```
+
+### Declaring Optional Dependencies
+
+It's recommended that all `py_require()` calls be made before reticulate
+initializes the Python session. However, for rarely used optional dependencies,
+the requirement can be declared right before use:
+
+``` r
+model_to_dot <- function(x, ...) {
+  reticulate::py_require("pydot")
+  keras$utils$model_to_dot(x, ...)
+}
+```
+
+Calling `py_require()` after Python has initialized causes reticulate to
+activate a new ephemeral virtual environment containing the additional
+requirements. Only adding packages is permitted after Python has initialized;
+calling `py_require()` with `action="set"` or `action="remove"` is not possible.
 
 ## Delay Loading Python Modules
 
-If you write an R package that wraps one or more Python packages, it's likely that you'll be importing Python modules within the `.onLoad` method of your package so that you can have convenient access to them within the rest of the package source code.
+If your R package wraps Python modules, it's common to import them within
+`.onLoad()`. Use the `delay_load` flag in `import()` to allow:
 
-When you do this, you should use the `delay_load` flag to the `import()` function, for example:
+1.  Successful R package loading even when Python packages are not installed
+    (important for CRAN testing).
+2.  Users to specify their Python installation before using your package.
+
+Example:
 
 ``` r
-# global reference to scipy (will be initialized in .onLoad)
 scipy <- NULL
 
 .onLoad <- function(libname, pkgname) {
-  # use superassignment to update global reference to scipy
+  reticulate::py_require("scipy")
   scipy <<- reticulate::import("scipy", delay_load = TRUE)
 }
 ```
 
-Using the `delay_load` flag has two important benefits:
-
-1.  It allows you to successfully load your package even when Python / Python packages are not installed on the target system (this is particularly important when testing on CRAN build machines).
-
-2.  It allows users to specify a desired location for Python before interacting with your package. For example:
-
-    ``` r
-    library(mypackage)
-    reticulate::use_virtualenv("~/pythonenvs/userenv")
-    # call functions from mypackage
-    ```
-
-Without the `delay_load`, Python would be loaded immediately and the user's call to `use_virtualenv` would have no effect.
+Without `delay_load`, Python would load immediately, preventing users from
+configuring their environment.
 
 ## Installing Python Dependencies
 
-Your R package likely depends on the installation of one or more Python packages. As a convenience to your users, you may want to provide a high-level R function to allow users to install these Python packages. By default, the Python packages should be installed in an isolated virtual environment, but it's beneficial if users could easily configure multiple R packages to depend on a common Python environment (so that they can be easily used together).
+`py_require()` is the recommended approach for managing Python dependencies.
+However, for users who prefer to manually manage a Python installation, you can
+document what Python packages are required.
 
-The `py_install()` function provides a high-level interface for installing one or more Python packages. The packages will by default be installed within the currently active virtual environment or conda environment, (which is, by default, an environent named "r-reticulate"). For example:
+The `py_install()` function provides a high-level interface for installing
+Python packages. The packages will by default be installed within the currently
+active Python installation.
 
 ``` r
 library(reticulate)
 py_install("scipy")
 ```
 
-You can document the use of this function along with your package, or alternatively you can provide a wrapper function for `py_install()` that defaults to installing in a Python environment created specifically for your R package. For example:
+Alternatively, create a wrapper function for `py_install()` (or
+`virtualenv_create()`) that installs dependencies in a dedicated environment:
 
-```r
+``` r
 install_scipy <- function(envname = "r-scipy", method = "auto", ...) {
-  reticulate::py_install("scipy", envname = envname, 
-                         method = method, ...)
+  reticulate::py_install("scipy", envname = envname, method = method, ...)
 }
 ```
 
-For a fuller discussion of how to use reticulate in an R package, include alternative approaches, and how to create a "pit of success" for R users with regards to managing Python installations, see the guide on [Python Dependencies](python_dependencies.html)
+Note that calling `py_install()` on an ephemeral environment generated from
+`py_require()` declared requirements will generate a warning.
 
 ## Checking and Testing on CRAN
 
-If you use **reticulate** in another R package you need to account for the fact that when your package is submitted to CRAN, the CRAN test servers may not have Python, NumPy, or whatever other Python modules you are wrapping in your package. If you don't do this then your package may fail to load and/or pass its tests when run on CRAN.
+To ensure your package is well behaved on CRAN:
 
-There are two things you should do to ensure your package is well behaved on CRAN:
+1.  Use `delay_load` to defer module loading:
 
-1.  Use the `delay_load` option (as described above) to ensure that the module (and Python) is loaded only on its first use. For example:
-
-    ```r
-    # python 'scipy' module I want to use in my package
+    ``` r
     scipy <- NULL
 
     .onLoad <- function(libname, pkgname) {
       # delay load foo module (will only be loaded when accessed via $)
-      scipy <<- import("scipy", delay_load = TRUE)
+      scipy <<- reticulate::import("scipy", delay_load = TRUE)
     }
     ```
 
-2.  When writing tests, check to see if your module is available and if it isn't then skip the test. For example, if you are using the **testthat** package, you might do this:
+2.  Skip tests when required modules are unavailable:
 
-    ```r
-    # helper function to skip tests if we don't have the 'foo' module
+    ``` r
     skip_if_no_scipy <- function() {
-      have_scipy <- py_module_available("scipy")
-      if (!have_scipy)
+      if (!reticulate::py_module_available("scipy"))
         skip("scipy not available for testing")
     }
 
-    # then call this function from all of your tests
     test_that("Things work as expected", {
       skip_if_no_scipy()
       # test code here...
     })
     ```
 
+
 ## Implementing S3 Methods
 
-Python objects exposed by **reticulate** carry their Python classes into R, so it's possible to write S3 methods to customize e.g. the `str` or `print` behavior for a given class (note that it's not typically necessary that you do this since the default `str` and `print` methods call `PyObject_Str`, which typically provides an acceptable default behavior).
+Python objects exposed by **reticulate** retain their Python classes in R,
+allowing you to define S3 methods for them. This can be useful for customizing
+how objects are printed or structured in R. However, Python objects do not
+persist across R sessions, meaning an R object that previously pointed to a
+Python object will become a `NULL` external pointer when reloaded.
 
-If you do decide to implement custom S3 methods for a Python class it's important to keep in mind that when an R session ends the connection to Python objects is lost, so when the .RData saved from one R session is restored in a subsequent R session the Python objects are effectively lost (technically they become `NULL` R `externalptr` objects).
+To safely handle these cases, use `py_is_null_xptr()`, as shown in this example:
 
-By default when you attempt to interact with a Python object from a previous session (a `NULL` R `externalptr`) an error is thrown. If you want to do something more customized in your S3 method you can use the `py_is_null_xptr()` function. For example:
-
-```r
-method.MyModule.MyPythonClass <- function(x, y, ...) {
-  if (py_is_null_xptr(x))
-    # whatever is appropriate
-  else
-    # interact with the object
+``` r
+print.my_python_object <- function(x, ...) {
+  if (py_is_null_xptr(x)) {
+    cat("<Python object is no longer available>\n")
+  } else {
+    cat(py_to_r(x))
+  }
 }
 ```
 
-Note that this check isn't required, as by default an R error will occur. If it's desirable to avoid this error for any reason then you can use `py_is_null_xptr()` to do so.
+This prevents errors when interacting with a Python object from a previous
+session.
 
+This prevents errors when attempting to interact with a Python object from a
+previous session.
+
+### Supporting Versions with Different S3 Classes
+
+The Python S3 method for an object is generated from the Python modules and
+submodules where the object is defined. In sophisticated Python packages, this
+path might change between package versions. For instance, you can access the
+`Model` object from `keras.Model` in Python. However, depending on the Keras
+Python package version, the actual class definition for `Model` may be located
+in a submodule like `keras._internals.src` or `keras._internals.models`, and
+since the class module path is considered an internal implementation detail of
+the Python package, it can vary across Python package versions. As a result, the
+S3 class for the Python object will also change, depending on the Python package
+version.
+
+To support changing S3 classes, instead of registering methods in NAMESPACE with
+roxygen, manually register them in `.onLoad()`:
+
+``` r
+# Python class `DocumentConverterResult` changes with different MarkItDown versions.
+py_to_r.markitdown.DocumentConverterResult <- function(x) {
+  paste0("# ", x$title, "\n\n", x$text_content)
+}
+
+.onLoad <- function(libname, pkgname) {
+  reticulate::py_require("markitdown")
+
+  reticulate:::py_register_load_hook("markitdown", function() {
+    markitdown <- reticulate::import("markitdown")
+    registerS3method(
+      "py_to_r",
+      nameOfClass(markitdown$DocumentConverterResult),
+      py_to_r.markitdown.DocumentConverterResult,
+      environment(reticulate::py_to_r)
+    )
+  })
+}
+```
 
 ### Converting between R and Python
 
@@ -165,38 +296,60 @@ r_to_py.my_r_object <- function(x, convert) {
 }
 ```
 
-## Using Github Actions
+## Using GitHub Actions
 
-[Github Actions](https://github.com/features/actions) are commonly used for continuous integration and testing of R packages. Making it work with **reticulate** is pretty simple - all you need to do is ensure that there is a valid Python installation on the runner, and that reticulate knows to use it. You can do this all with shell commands, or you can use functions in reticulate to do this. Here is an example sequence of `steps` demonstrating how you can do this with reticulate functions:
+For testing R packages with GitHub Actions, dependencies declared via `py_require()` will
+resolve automatically with no additional steps. If there are extra Python test
+dependencies, declare them using `py_require()` in `tests/testthat/helper.R`.
+The standard R-CMD-check workflow should work:
 
 ``` yaml
+- uses: r-lib/actions/setup-r@v2
 
-      - uses: r-lib/actions/setup-r@v2
-        with:
-          r-version: release
+- uses: r-lib/actions/setup-r-dependencies@v2
+  with:
+    extra-packages: rcmdcheck
 
-      - uses: r-lib/actions/setup-r-dependencies@v2
-        with:
-          extra-packages: rcmdcheck reticulate
+- uses: r-lib/actions/check-r-package@v2
+```
 
-      - uses: actions/setup-python@v4
-        with:
-          python-version: "3.x"
+Optionally, you can pre-download Python dependencies in a separate step for
+cleaner CI logs:
 
-      - name: setup r-reticulate venv
-        shell: Rscript {0}
-        run: |
+``` yaml
+- uses: r-lib/actions/setup-r@v2
+  with:
+    r-version: release
 
-          path_to_python <- reticulate::virtualenv_create(
-            envname = "r-reticulate",
-            python = Sys.which("python"), # placed on PATH by the setup-python action
-            packages = c(
-              "numpy", "any-other-python-packages-you-want-go-here"
-            )
-          )
+- uses: r-lib/actions/setup-r-dependencies@v2
+  with:
+    extra-packages: rcmdcheck local::.
 
-          writeLines(sprintf("RETICULATE_PYTHON=%s", path_to_python),
-                     Sys.getenv("GITHUB_ENV"))
+- run: |
+    library(mypackage)      # <-- declare requirements in .onLoad()
+    reticulate::py_config() # <-- resolves the ephemeral python environment
 
-      - uses: r-lib/actions/check-r-package@v2
+- uses: r-lib/actions/check-r-package@v2
+  # The ephemeral python environment from previous step is reused from cache.
+```
+
+If you prefer to use a manually managed Python environment, you can do this:
+
+``` yaml
+- uses: actions/setup-python@v4
+  with:
+    python-version: "3.x"
+
+- name: setup r-reticulate venv
+  shell: Rscript {0}
+  run: |
+    path_to_python <- reticulate::virtualenv_create(
+      envname = "r-reticulate",
+      python = Sys.which("python"),
+      packages = c("numpy", "other-packages")
+    )
+    writeLines(sprintf("RETICULATE_PYTHON=%s", path_to_python),
+               Sys.getenv("GITHUB_ENV"))
+
+- uses: r-lib/actions/check-r-package@v2
 ```

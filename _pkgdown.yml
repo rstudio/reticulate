@@ -10,6 +10,10 @@ development:
 
 reference:
 
+  - title: "Python Requirements"
+    contents:
+      - py_require
+
   - title: "Python Execution"
     contents:
       - import
@@ -104,6 +108,3 @@ reference:
       - miniconda_path
       - miniconda_update
 
-  - title: "Python Requirements"
-    contents:
-      - py_require

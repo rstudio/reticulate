@@ -149,9 +149,7 @@ test_that("can bootstrap install uv in reticulate cache", {
   local_edition(3)
   test_py_require_reset()
   uv_exec <- ifelse(is_windows(), "uv.exe", "uv")
-  target_path <- path.expand(
-    file.path(rappdirs::user_cache_dir("r-reticulate", NULL), "bin", uv_exec)
-  )
+  target_path <- reticulate_cache_dir("uv", "bin", uv_exec)
   expect_equal(
     normalizePath(target_path),
     normalizePath(uv_binary())

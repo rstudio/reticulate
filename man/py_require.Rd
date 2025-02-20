@@ -40,6 +40,15 @@ ignored.
 provided ones. Packages and the Python version can be set independently.
 }}
 }
+\value{
+\code{py_require()} is primarily called for its side effect of modifying
+the manifest of "Python requirements" for the current R session  that
+reticulate maintains internally. \code{py_require()} usually returns \code{NULL}
+invisibly. If \code{py_require()} is called with no arguments, it returns the
+current manifest--a list with names \code{packages}, \code{python_version}, and
+\code{exclude_newer.} The list also has a class attribute, to provide a print
+method.
+}
 \description{
 \code{py_require()} allows you to declare Python requirements for the R session,
 including Python packages, any version constraints on those packages, and any
@@ -88,30 +97,33 @@ strings:
 
 Install Ruff from a specific Git tag:
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{    "git+https://github.com/astral-sh/ruff@v0.2.0"
+\if{html}{\out{<div class="sourceCode">}}\preformatted{  "git+https://github.com/astral-sh/ruff@v0.2.0"
 }\if{html}{\out{</div>}}
 
 Install Ruff from a specific Git commit:
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{    "git+https://github.com/astral-sh/ruff@1fadefa67b26508cc59cf38e6130bde2243c929d"
+\if{html}{\out{<div class="sourceCode">}}\preformatted{  "git+https://github.com/astral-sh/ruff@1fadefa67b26508cc59cf38e6130bde2243c929d"
 }\if{html}{\out{</div>}}
 
 Install Ruff from a specific Git branch:
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{    "git+https://github.com/astral-sh/ruff@main"
+\if{html}{\out{<div class="sourceCode">}}\preformatted{  "git+https://github.com/astral-sh/ruff@main"
 }\if{html}{\out{</div>}}
 
-Install MarkItDown from the \code{main} branch---find the package in the subdirectory 'packages/markitdown':
+Install MarkItDown from the \code{main} branch---find the package in the
+subdirectory 'packages/markitdown':
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{    "markitdown@git+https://github.com/microsoft/markitdown.git@main#subdirectory=packages/markitdown"
+\if{html}{\out{<div class="sourceCode">}}\preformatted{  "markitdown@git+https://github.com/microsoft/markitdown.git@main#subdirectory=packages/markitdown"
 }\if{html}{\out{</div>}}
 
 Install MarkItDown from the local filesystem by providing an absolute path
 to a directory containing a \code{pyproject.toml} or \code{setup.py} file:
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{    "markitdown@/Users/tomasz/github/microsoft/markitdown/packages/markitdown/"
+\if{html}{\out{<div class="sourceCode">}}\preformatted{  "markitdown@/Users/tomasz/github/microsoft/markitdown/packages/markitdown/"
 }\if{html}{\out{</div>}}
 
-See more examples \href{https://docs.astral.sh/uv/pip/packages/#installing-a-package}{here} and \href{https://pip.pypa.io/en/stable/cli/pip_install/#examples}{here}.
+See more examples
+\href{https://docs.astral.sh/uv/pip/packages/#installing-a-package}{here} and
+\href{https://pip.pypa.io/en/stable/cli/pip_install/#examples}{here}.
 }
 }

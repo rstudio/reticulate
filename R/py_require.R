@@ -37,39 +37,42 @@
 #'   - To use a different index: `Sys.setenv(UV_INDEX = "https://download.pytorch.org/whl/cpu")`.
 #'   - To allow resolving a prerelease dependency: `Sys.setenv(UV_PRERELEASE="allow")`.
 #'
-#' ## Installing from alternate sources
+#'   ## Installing from alternate sources
 #'
-#' The `packages` argument also supports declaring a dependency from a Git
-#' repository or a local file. Below are some examples of valid `packages`
-#' strings:
+#'   The `packages` argument also supports declaring a dependency from a Git
+#'   repository or a local file. Below are some examples of valid `packages`
+#'   strings:
 #'
-#' Install Ruff from a specific Git tag:
-#' ```
+#'   Install Ruff from a specific Git tag:
+#'   ```
 #'     "git+https://github.com/astral-sh/ruff@v0.2.0"
-#' ```
+#'   ```
 #'
-#' Install Ruff from a specific Git commit:
-#' ```
+#'   Install Ruff from a specific Git commit:
+#'   ```
 #'     "git+https://github.com/astral-sh/ruff@1fadefa67b26508cc59cf38e6130bde2243c929d"
-#' ```
+#'   ```
 #'
-#' Install Ruff from a specific Git branch:
-#' ```
+#'   Install Ruff from a specific Git branch:
+#'   ```
 #'     "git+https://github.com/astral-sh/ruff@main"
-#' ```
+#'   ```
 #'
-#' Install MarkItDown from the `main` branch---find the package in the subdirectory 'packages/markitdown':
-#' ```
+#'   Install MarkItDown from the `main` branch---find the package in the
+#'   subdirectory 'packages/markitdown':
+#'   ```
 #'     "markitdown@git+https://github.com/microsoft/markitdown.git@main#subdirectory=packages/markitdown"
-#' ```
+#'   ```
 #'
-#' Install MarkItDown from the local filesystem by providing an absolute path
-#' to a directory containing a `pyproject.toml` or `setup.py` file:
-#' ```
+#'   Install MarkItDown from the local filesystem by providing an absolute path
+#'   to a directory containing a `pyproject.toml` or `setup.py` file:
+#'   ```
 #'     "markitdown@/Users/tomasz/github/microsoft/markitdown/packages/markitdown/"
-#' ```
+#'   ```
 #'
-#' See more examples [here](https://docs.astral.sh/uv/pip/packages/#installing-a-package) and [here](https://pip.pypa.io/en/stable/cli/pip_install/#examples).
+#'   See more examples
+#'   [here](https://docs.astral.sh/uv/pip/packages/#installing-a-package) and
+#'   [here](https://pip.pypa.io/en/stable/cli/pip_install/#examples).
 #'
 #' @param packages A character vector of Python packages to be available during
 #'   the session. These can be simple package names like `"jax"` or names with
@@ -96,6 +99,14 @@
 #'   versions, helping guard against Python package updates that break a
 #'   workflow. Once `exclude_newer` is set, only the `set` action can override
 #'   it.
+#'
+#' @returns `py_require()` is primarily called for its side effect of modifying
+#'   the manifest of "Python requirements" for the current R session  that
+#'   reticulate maintains internally. `py_require()` usually returns `NULL`
+#'   invisibly. If `py_require()` is called with no arguments, it returns the
+#'   current manifest--a list with names `packages`, `python_version`, and
+#'   `exclude_newer.` The list also has a class attribute, to provide a print
+#'   method.
 #'
 #' @export
 py_require <- function(packages = NULL,

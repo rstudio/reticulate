@@ -18,27 +18,35 @@ vignette: >
 
 `py_require()`:
 
--   Should appear at the start of an R script.
--   Declares the Python dependencies needed by the script.
--   Is limited in scope to the current R session.
--   Has no effect if called multiple times.
+-   Should appear near the beginning of an R script.
+-   Declares the Python dependencies needed for the script.
+-   Applies only to the current R session.
+-   Has no effect if called multiple times with the same arguments.
 
-Additionally, R packages may call `py_require()` with their own dependencies
-when loaded. Requirements declared by an R package are combined with those
-declared by users.
+R packages can also call `py_require()` when loaded, and their declared
+dependencies are combined with those declared by the user and other loaded R
+packages.
 
-It is generally recommended, though not required, to declare all Python
-dependencies before reticulate initializes Python. The simplest way to ensure
-this is by grouping all `py_require()` calls at the start of a script, alongside
-`library()` calls.
+Calling `py_require("pkg")` updates the Python requirements manifest that
+reticulate maintains for the current R session. This manifest is used only if no
+manually managed Python environment is found earlier in the Python [Order of
+Discovery](../versions#order-of-discovery). The manifest is not consulted and
+requirements are not resolved until reticulate needs to initialize Python,
+typically at the first `import()` call. Requirements are resolved into a cached
+ephemeral environment specific to the unique set of dependencies declared.
+
+While not required, it is generally recommended to declare all Python
+dependencies before reticulate initializes Python. The simplest approach is to
+place all `py_require()` calls at the start of the script, alongside `library()`
+calls.
 
 Usage example:
 
 ``` r
 library(reticulate)
-py_require("jax")
+py_require("jax")    # Declare jax is a requirement
 
-jax <- import("jax") # <-- initializes Python
+jax <- import("jax") # <-- initialize Python with declared requirements
 ```
 
 ### Unsatisfiable requirements.
@@ -71,7 +79,7 @@ py_require("numpy<2")
 import("numpy")
 ```
 
-```         
+```
   × No solution found when resolving `--with` dependencies:
   ╰─▶ Because you require numpy>2 and numpy<2, we can conclude that your
       requirements are unsatisfiable.

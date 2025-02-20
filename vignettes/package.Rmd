@@ -13,17 +13,27 @@ vignette: >
 
 ## Declaring Python Requirements
 
-Beginning with Reticulate version 1.41, R packages can declare Python
-requirements with `py_require()`. Reticulate can then resolve these requirements
-at runtime using an ephemeral Python environment.
+R package authors can use reticulate to make Python packages accessible to users
+from R. This vignette documents best practices for how package authors can
+declare and import their package's Python dependencies.
 
-Calling `py_require()` is always recommended because it has no effect if the
-user is using a manually managed Python environment, making it generally safe to
-use.
+While `reticulate::import()` can be used to load a Python module, it does not
+provide any mechanism for installing a Python package and actually making sure
+the module is available. `reticulate::py_require()` helps fill that gap, by
+giving R package authors a way to declare their Python package dependencies in a
+way that can be collated and respected across multiple packages using
+reticulate, each with their own unique requirements.
+
+Beginning with Reticulate version 1.41, R packages can declare Python
+requirements with `py_require()`. Python package dependencies requested via
+`py_require()` will automatically be provisioned and made available for the user
+when the Python session is later initialized, via an ephemeral Python virtual
+environment. These requested packages can then be imported and used within your
+R package as required.
 
 ### Typical Usage
 
-`py_require()` is typically called from `.onLoad()`, like this:
+`py_require()` is typically called from `.onLoad()`, as shown below:
 
 ``` r
 .onLoad <- function(libname, pkgname) {
@@ -31,17 +41,24 @@ use.
 }
 ```
 
-It can also be called from other package functions. For example, the `keras3` R
-package defines a `use_backend()` function that calls `py_require()` with
-different values based on the user-requested backend:
+`py_require()` can also be called from other package functions to modify
+dependencies after the package has loaded. This is useful for packages that
+support multiple configurations.
+
+For example, the `keras3` R package supports multiple backends. In `.onLoad()`,
+`keras3` configures a default backend, but users can choose a different one
+using the `use_backend()` function. This function calls `py_require()` with
+different values based on the selected backend:
 
 ``` r
 .onLoad <- function(...) {
-  py_require(c("keras", "tensorflow")) # default tensorflow backend
+  py_require("keras")
+  use_backend("tensorflow") # Default to TensorFlow
 }
 
+#' @export
 use_backend <- function(backend, gpu = TRUE) {
-  py_require("tensorflow", action = "remove") # remove default backend
+  py_require("tensorflow", action = "remove") # Remove default backend
 
   switch(paste0(backend, "_", get_os()),
     Linux_jax = if (gpu) py_require("jax[cuda12]") else py_require("jax[cpu]"),
@@ -57,7 +74,7 @@ use_backend <- function(backend, gpu = TRUE) {
 }
 ```
 
-keras3 users can then specify a backend like this:
+`keras3` users can then specify a backend like this:
 
 ``` r
 library(keras3)
@@ -66,9 +83,17 @@ use_backend("jax")
 
 ### Best Practices
 
+Calling `py_require()` from a package is generally safe and recommended. It
+ensures dependencies are declared while having no effect on users who manage
+their own Python environments. `py_require()` replaces older approaches, such as
+listing dependencies in the `DESCRIPTION` file or calling
+`use_virtualenv(required = FALSE)` in `.onLoad()`.
+
 Be mindful that other R packages and users may also declare Python requirements.
 Avoid restrictive version constraints. If a version constraint is necessary,
-prefer `>=` and `!=` over `<=`, as the latter can quickly become outdated.
+prefer `>=` and `!=` over `<=`, as the latter can quickly become outdated. Also,
+be mindful that an R package's requirements will be combined with a potentially
+wide variety of user requirements, like `exclude_newer`.
 
 An example user script header:
 
@@ -80,7 +105,7 @@ use_backend("jax")  # removes 'tensorflow' requirements, adds 'jax' requirements
 library(reticulate)
 py_require(c("scipy", "polars"))         # user-declared requirements
 py_require(python_version = ">=3.12")
-py_require(exclude_newer = "2025-01-19")
+py_require(exclude_newer = "2025-02-20")
 
 np <- import("numpy")  # <-- Python initialized
 ...
@@ -183,7 +208,6 @@ To ensure your package is well behaved on CRAN:
     })
     ```
 
-
 ## Implementing S3 Methods
 
 Python objects exposed by **reticulate** retain their Python classes in R,
@@ -249,22 +273,32 @@ py_to_r.markitdown.DocumentConverterResult <- function(x) {
 
 ### Converting between R and Python
 
-**reticulate** provides the generics `r_to_py()` for converting R objects into Python objects, and `py_to_r()` for converting Python objects back into R objects. Package authors can provide methods for these generics to convert Python and R objects otherwise not handled by **reticulate**.
+**reticulate** provides the generics `r_to_py()` for converting R objects into
+Python objects, and `py_to_r()` for converting Python objects back into R
+objects. Package authors can provide methods for these generics to convert
+Python and R objects otherwise not handled by **reticulate**.
 
-**reticulate** provides conversion operators for some of the most commonly used Python objects, including:
+**reticulate** provides conversion operators for some of the most commonly used
+Python objects, including:
 
 -   Built-in Python objects (lists, dictionaries, numbers, strings, tuples)
 -   NumPy arrays,
 -   Pandas objects (`Index`, `Series`, `DataFrame`),
 -   Python `datetime` objects.
 
-If you see that **reticulate** is missing support for conversion of one or more objects from these packages, please [let us know](https://github.com/rstudio/reticulate/issues) and we'll try to implement the missing converter. For Python packages not in this set, you can provide conversion operators in your own extension package.
+If you see that **reticulate** is missing support for conversion of one or more
+objects from these packages, please [let us
+know](https://github.com/rstudio/reticulate/issues) and we'll try to implement
+the missing converter. For Python packages not in this set, you can provide
+conversion operators in your own extension package.
 
 ### Writing your own `r_to_py()` methods
 
-`r_to_py()` accepts a `convert` argument, which controls how objects generated from the created Python object are converted. To illustrate, consider the difference between these two cases:
+`r_to_py()` accepts a `convert` argument, which controls how objects generated
+from the created Python object are converted. To illustrate, consider the
+difference between these two cases:
 
-```r
+``` r
 library(reticulate)
 
 # [convert = TRUE] => convert Python objects to R when appropriate
@@ -278,7 +312,10 @@ class(sys$path)
 # [1] "python.builtin.list" "python.builtin.object"
 ```
 
-This is accomplished through the use of a `convert` flag, which is set on the Python object wrappers used by `reticulate`. Therefore, if you're writing a method `r_to_py.foo()` for an object of class `foo`, you should take care to preserve the `convert` flag on the generated object. This is typically done by:
+This is accomplished through the use of a `convert` flag, which is set on the
+Python object wrappers used by `reticulate`. Therefore, if you're writing a
+method `r_to_py.foo()` for an object of class `foo`, you should take care to
+preserve the `convert` flag on the generated object. This is typically done by:
 
 1.  Passing `convert` along to the appropriate lower-level `r_to_py()` method;
 
@@ -286,7 +323,7 @@ This is accomplished through the use of a `convert` flag, which is set on the Py
 
 As an example of the second:
 
-```r
+``` r
 # suppose 'make_python_object()' creates a Python object
 # from R objects of class 'my_r_object'.
 r_to_py.my_r_object <- function(x, convert) {
@@ -298,10 +335,10 @@ r_to_py.my_r_object <- function(x, convert) {
 
 ## Using GitHub Actions
 
-For testing R packages with GitHub Actions, dependencies declared via `py_require()` will
-resolve automatically with no additional steps. If there are extra Python test
-dependencies, declare them using `py_require()` in `tests/testthat/helper.R`.
-The standard R-CMD-check workflow should work:
+For testing R packages with GitHub Actions, dependencies declared via
+`py_require()` will resolve automatically with no additional steps. If there are
+extra Python test dependencies, declare them using `py_require()` in
+`tests/testthat/helper.R`. The standard R-CMD-check workflow should work:
 
 ``` yaml
 - uses: r-lib/actions/setup-r@v2

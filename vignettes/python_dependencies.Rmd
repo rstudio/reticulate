@@ -10,6 +10,14 @@ editor_options:
     wrap: 72
 ---
 
+::: {.alert .alert-warning}
+> ## **⚠ Deprecated Vignette**
+> This vignette is retained for reference but outlines an outdated method for managing Python dependencies in R packages.
+>
+> It is now recommended to use `py_require()` to specify Python dependencies.
+> For details, see `?py_require()` and the [Using reticulate in an R Package](package.html) vignette.
+:::
+
 If you're writing an R package that uses `reticulate` as an interface to
 a Python session, you likely also need one or more Python packages
 installed on the user's machine for your package to work properly. In

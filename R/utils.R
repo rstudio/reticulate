@@ -672,7 +672,23 @@ rm_all_reticulate_state <- function(external = FALSE) {
     if (startsWith(venv, "r-"))
       virtualenv_remove(venv, confirm = FALSE)
   }
+  rm_rf(reticulate_cache_dir())
+  try(tools::R_user_dir("reticulate", "cache"))
+  try(tools::R_user_dir("reticulate", "data"))
+  try(tools::R_user_dir("reticulate", "config"))
 }
+
+
+reticulate_cache_dir <- function(...) {
+  root <- if (getRversion() > "4.0") {
+    tools::R_user_dir("reticulate", "cache")
+  } else {
+    path.expand(rappdirs::user_cache_dir("r-reticulate", NULL))
+  }
+
+  file.path(root, ...)
+}
+
 
 
 user_data_dir <- function(...) {

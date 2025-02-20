@@ -84,55 +84,73 @@ Error in uv_get_or_create_env() :
   Call `py_require()` to remove or replace conflicting requirements.
 ```
 
-You can call `py_require()` again with `action = "remove"` or `action = "set"`
-to update the requirements to make them satisfiable. Options for resolving are:
+You can call `py_require()` again to update the requirements and make them
+satisfiable. Options for resolving issues include:
 
-If requirements were previously satisfiable but recently broke, it may be due to
-a newly published package version. Rolling back to a known working state is
-possible by specifying a date with `exclude_newer`.
+1.  **Rolling Back to a Known Working State**
 
-1.  If your set of requirements was previously satisfiable but recently broke,
-    it's most likely due to a recently published package version. You can
-    "roll-back" to a known working set of packages by passing a specific date to
-    `exclude_newer`.
+    If your requirements were previously satisfiable but recently broke, it is
+    likely due to a newly published package version. You can roll back to a
+    known working state by specifying a date with `exclude_newer`.
 
     ``` r
-    # roll back to a known working state.
+    # Roll back to a known working state.
     py_require(exclude_newer = "2025-01-19")
     ```
 
-2.  If your requirements are truly unsatisfiable, you can remove specific
-    packages as needed.
+2.  **Removing Conflicting Requirements**
+
+    If your requirements cannot be satisfied due to conflicts, you can use
+    `action = "remove"` or `action = "set"` to update or remove specific
+    packages.
 
     ``` r
     py_require("numpy<2", action = "remove")
     ```
 
-    For more comprehensive processing of requirements, it's possible to retreive
-    the full set of current requirements. For example:
+    You can also retrieve and modify the full set of current requirements if
+    needed. For example, given a larger set of conflicting tensorflow
+    requirements:
 
     ``` r
-    # declare heterogenous unsatisfiable requirements
+    # Declare conflicting requirements.
     py_require(c("tensorflow==2.17.*",
                  "tensorflow<=2.16",
                  "tensorflow[and-cuda]",
                  "tensorflow-cpu",
                  "tensorflow<=2.18"))
+    ```
 
-    # remove all tensorflow reqirements.
+    You can use `action = "remove"` to remove all TensorFlow-related
+    requirements:
+
+    ``` r
+    # Remove all TensorFlow requirements.
     all_py_pkgs <- py_require()$packages
     tf_pkgs <- grep("tensorflow", all_py_pkgs, value = TRUE)
     py_require(tf_pkgs, action = "remove")
     ```
 
-    If a development version of the Python package has fixed the issue but not
-    yet been published to PyPi, you can declare a requirement on a development
-    version available on github or the local filesystem.
+    Or you can use `action = "set"` to replace all declared requirements:
 
     ``` r
-    # install python package 'markitdown' from github
+    # Replace all package requirements except TensorFlow.
+    all_py_pkgs <- py_require()$packages
+    all_py_pkgs_sans_tf <- grep("tensorflow", all_py_pkgs, value = TRUE, invert = TRUE)
+    py_require(all_py_pkgs_sans_tf, action = "set")
+    ```
+
+3.  **Installing a Development Version**
+
+    If a development version of a package has fixed the issue but has not yet
+    been published to PyPi, you can install it directly from GitHub or the local
+    filesystem.
+
+    ``` r
+    # Install the 'markitdown' package from GitHub.
     py_require("markitdown@git+https://github.com/microsoft/markitdown.git@main#subdirectory=packages/markitdown")
-    # install it from the local filesystem
+
+    # Install it from the local filesystem.
     py_require("markitdown@/Users/tomasz/github/microsoft/markitdown/packages/markitdown/")
     ```
 
@@ -143,7 +161,7 @@ possible by specifying a date with `exclude_newer`.
 ::: {.alert .alert-info}
 > ## **⚠ Updated Guidance**
 >
-> The remaineder of this vignette describes how to manually manage a Python
+> The remainder of this vignette describes how to manually manage Python
 > installations. Manually managing Python installations is no longer necessary
 > nor recommended.
 >

@@ -143,6 +143,16 @@ provided ones. Packages and the Python version can be set independently.</p></li
 </ul></dd>
 
 </dl></div>
+    <div id="value">
+    <h2>Value</h2>
+    <p><code>py_require()</code> is primarily called for its side effect of modifying
+the manifest of "Python requirements" for the current R session  that
+reticulate maintains internally. <code>py_require()</code> usually returns <code>NULL</code>
+invisibly. If <code>py_require()</code> is called with no arguments, it returns the
+current manifest–a list with names <code>packages</code>, <code>python_version</code>, and
+<code>exclude_newer.</code> The list also has a class attribute, to provide a print
+method.</p>
+    </div>
     <div id="details">
     <h2>Details</h2>
     <p>Reticulate will only use an ephemeral environment if no other Python
@@ -179,17 +189,20 @@ variables, as described
 repository or a local file. Below are some examples of valid <code>packages</code>
 strings:</p>
 <p>Install Ruff from a specific Git tag:</p>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>    <span class="st">"git+https://github.com/astral-sh/ruff@v0.2.0"</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>  <span class="st">"git+https://github.com/astral-sh/ruff@v0.2.0"</span></span></code></pre><p></p></div>
 <p>Install Ruff from a specific Git commit:</p>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>    <span class="st">"git+https://github.com/astral-sh/ruff@1fadefa67b26508cc59cf38e6130bde2243c929d"</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>  <span class="st">"git+https://github.com/astral-sh/ruff@1fadefa67b26508cc59cf38e6130bde2243c929d"</span></span></code></pre><p></p></div>
 <p>Install Ruff from a specific Git branch:</p>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>    <span class="st">"git+https://github.com/astral-sh/ruff@main"</span></span></code></pre><p></p></div>
-<p>Install MarkItDown from the <code>main</code> branch—find the package in the subdirectory 'packages/markitdown':</p>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>    <span class="st">"markitdown@git+https://github.com/microsoft/markitdown.git@main#subdirectory=packages/markitdown"</span></span></code></pre><p></p></div>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>  <span class="st">"git+https://github.com/astral-sh/ruff@main"</span></span></code></pre><p></p></div>
+<p>Install MarkItDown from the <code>main</code> branch—find the package in the
+subdirectory 'packages/markitdown':</p>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>  <span class="st">"markitdown@git+https://github.com/microsoft/markitdown.git@main#subdirectory=packages/markitdown"</span></span></code></pre><p></p></div>
 <p>Install MarkItDown from the local filesystem by providing an absolute path
 to a directory containing a <code>pyproject.toml</code> or <code>setup.py</code> file:</p>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>    <span class="st">"markitdown@/Users/tomasz/github/microsoft/markitdown/packages/markitdown/"</span></span></code></pre><p></p></div>
-<p>See more examples <a href="https://docs.astral.sh/uv/pip/packages/#installing-a-package" class="external-link">here</a> and <a href="https://pip.pypa.io/en/stable/cli/pip_install/#examples" class="external-link">here</a>.</p>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>  <span class="st">"markitdown@/Users/tomasz/github/microsoft/markitdown/packages/markitdown/"</span></span></code></pre><p></p></div>
+<p>See more examples
+<a href="https://docs.astral.sh/uv/pip/packages/#installing-a-package" class="external-link">here</a> and
+<a href="https://pip.pypa.io/en/stable/cli/pip_install/#examples" class="external-link">here</a>.</p>
 </div>
 
     </div>

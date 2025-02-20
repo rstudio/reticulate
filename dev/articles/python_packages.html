@@ -120,24 +120,33 @@ dependencies. A <code><a href="../reference/py_require.html">py_require()</a></c
 <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library()</a></code> call for Python packages.</p>
 <p><code><a href="../reference/py_require.html">py_require()</a></code>:</p>
 <ul>
-<li>Should appear at the start of an R script.</li>
-<li>Declares the Python dependencies needed by the script.</li>
-<li>Is limited in scope to the current R session.</li>
-<li>Has no effect if called multiple times.</li>
+<li>Should appear near the beginning of an R script.</li>
+<li>Declares the Python dependencies needed for the script.</li>
+<li>Applies only to the current R session.</li>
+<li>Has no effect if called multiple times with the same arguments.</li>
 </ul>
-<p>Additionally, R packages may call <code><a href="../reference/py_require.html">py_require()</a></code> with
-their own dependencies when loaded. Requirements declared by an R
-package are combined with those declared by users.</p>
-<p>It is generally recommended, though not required, to declare all
-Python dependencies before reticulate initializes Python. The simplest
-way to ensure this is by grouping all <code><a href="../reference/py_require.html">py_require()</a></code> calls at
-the start of a script, alongside <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library()</a></code> calls.</p>
+<p>R packages can also call <code><a href="../reference/py_require.html">py_require()</a></code> when loaded, and
+their declared dependencies are combined with those declared by the user
+and other loaded R packages.</p>
+<p>Calling <code>py_require("pkg")</code> updates the Python
+requirements manifest that reticulate maintains for the current R
+session. This manifest is used only if no manually managed Python
+environment is found earlier in the Python <a href="../versions#order-of-discovery">Order of Discovery</a>. The
+manifest is not consulted and requirements are not resolved until
+reticulate needs to initialize Python, typically at the first
+<code><a href="../reference/import.html">import()</a></code> call. Requirements are resolved into a cached
+ephemeral environment specific to the unique set of dependencies
+declared.</p>
+<p>While not required, it is generally recommended to declare all Python
+dependencies before reticulate initializes Python. The simplest approach
+is to place all <code><a href="../reference/py_require.html">py_require()</a></code> calls at the start of the
+script, alongside <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library()</a></code> calls.</p>
 <p>Usage example:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/py_require.html">py_require</a></span><span class="op">(</span><span class="st">"jax"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/py_require.html">py_require</a></span><span class="op">(</span><span class="st">"jax"</span><span class="op">)</span>    <span class="co"># Declare jax is a requirement</span></span>
 <span></span>
-<span><span class="va">jax</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/import.html">import</a></span><span class="op">(</span><span class="st">"jax"</span><span class="op">)</span> <span class="co"># &lt;-- initializes Python</span></span></code></pre></div>
+<span><span class="va">jax</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/import.html">import</a></span><span class="op">(</span><span class="st">"jax"</span><span class="op">)</span> <span class="co"># &lt;-- initialize Python with declared requirements</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="unsatisfiable-requirements-">Unsatisfiable requirements.<a class="anchor" aria-label="anchor" href="#unsatisfiable-requirements-"></a>
 </h3>

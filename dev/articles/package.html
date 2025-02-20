@@ -115,32 +115,51 @@
 <div class="section level2">
 <h2 id="declaring-python-requirements">Declaring Python Requirements<a class="anchor" aria-label="anchor" href="#declaring-python-requirements"></a>
 </h2>
+<p>R package authors can use reticulate to make Python packages
+accessible to users from R. This vignette documents best practices for
+how package authors can declare and import their package’s Python
+dependencies.</p>
+<p>While <code><a href="../reference/import.html">reticulate::import()</a></code> can be used to load a Python
+module, it does not provide any mechanism for installing a Python
+package and actually making sure the module is available.
+<code><a href="../reference/py_require.html">reticulate::py_require()</a></code> helps fill that gap, by giving R
+package authors a way to declare their Python package dependencies in a
+way that can be collated and respected across multiple packages using
+reticulate, each with their own unique requirements.</p>
 <p>Beginning with Reticulate version 1.41, R packages can declare Python
-requirements with <code><a href="../reference/py_require.html">py_require()</a></code>. Reticulate can then resolve
-these requirements at runtime using an ephemeral Python environment.</p>
-<p>Calling <code><a href="../reference/py_require.html">py_require()</a></code> is always recommended because it
-has no effect if the user is using a manually managed Python
-environment, making it generally safe to use.</p>
+requirements with <code><a href="../reference/py_require.html">py_require()</a></code>. Python package dependencies
+requested via <code><a href="../reference/py_require.html">py_require()</a></code> will automatically be
+provisioned and made available for the user when the Python session is
+later initialized, via an ephemeral Python virtual environment. These
+requested packages can then be imported and used within your R package
+as required.</p>
 <div class="section level3">
 <h3 id="typical-usage">Typical Usage<a class="anchor" aria-label="anchor" href="#typical-usage"></a>
 </h3>
 <p><code><a href="../reference/py_require.html">py_require()</a></code> is typically called from
-<code>.onLoad()</code>, like this:</p>
+<code>.onLoad()</code>, as shown below:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">.onLoad</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">libname</span>, <span class="va">pkgname</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu">reticulate</span><span class="fu">::</span><span class="fu"><a href="../reference/py_require.html">py_require</a></span><span class="op">(</span><span class="st">"scipy"</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>It can also be called from other package functions. For example, the
-<code>keras3</code> R package defines a <code>use_backend()</code>
-function that calls <code><a href="../reference/py_require.html">py_require()</a></code> with different values
-based on the user-requested backend:</p>
+<p><code><a href="../reference/py_require.html">py_require()</a></code> can also be called from other package
+functions to modify dependencies after the package has loaded. This is
+useful for packages that support multiple configurations.</p>
+<p>For example, the <code>keras3</code> R package supports multiple
+backends. In <code>.onLoad()</code>, <code>keras3</code> configures a
+default backend, but users can choose a different one using the
+<code>use_backend()</code> function. This function calls
+<code><a href="../reference/py_require.html">py_require()</a></code> with different values based on the selected
+backend:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">.onLoad</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="../reference/py_require.html">py_require</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"keras"</span>, <span class="st">"tensorflow"</span><span class="op">)</span><span class="op">)</span> <span class="co"># default tensorflow backend</span></span>
+<span>  <span class="fu"><a href="../reference/py_require.html">py_require</a></span><span class="op">(</span><span class="st">"keras"</span><span class="op">)</span></span>
+<span>  <span class="fu">use_backend</span><span class="op">(</span><span class="st">"tensorflow"</span><span class="op">)</span> <span class="co"># Default to TensorFlow</span></span>
 <span><span class="op">}</span></span>
 <span></span>
+<span><span class="co">#' @export</span></span>
 <span><span class="va">use_backend</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">backend</span>, <span class="va">gpu</span> <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="../reference/py_require.html">py_require</a></span><span class="op">(</span><span class="st">"tensorflow"</span>, action <span class="op">=</span> <span class="st">"remove"</span><span class="op">)</span> <span class="co"># remove default backend</span></span>
+<span>  <span class="fu"><a href="../reference/py_require.html">py_require</a></span><span class="op">(</span><span class="st">"tensorflow"</span>, action <span class="op">=</span> <span class="st">"remove"</span><span class="op">)</span> <span class="co"># Remove default backend</span></span>
 <span></span>
 <span>  <span class="kw"><a href="https://rdrr.io/r/base/switch.html" class="external-link">switch</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">backend</span>, <span class="st">"_"</span>, <span class="fu">get_os</span><span class="op">(</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>    Linux_jax <span class="op">=</span> <span class="kw">if</span> <span class="op">(</span><span class="va">gpu</span><span class="op">)</span> <span class="fu"><a href="../reference/py_require.html">py_require</a></span><span class="op">(</span><span class="st">"jax[cuda12]"</span><span class="op">)</span> <span class="kw">else</span> <span class="fu"><a href="../reference/py_require.html">py_require</a></span><span class="op">(</span><span class="st">"jax[cpu]"</span><span class="op">)</span>,</span>
@@ -154,7 +173,7 @@ based on the user-requested backend:</p>
 <span>    Windows_torch <span class="op">=</span> <span class="op">{</span> <span class="va">...</span> <span class="op">}</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>keras3 users can then specify a backend like this:</p>
+<p><code>keras3</code> users can then specify a backend like this:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://keras3.posit.co/" class="external-link">keras3</a></span><span class="op">)</span></span>
 <span><span class="fu">use_backend</span><span class="op">(</span><span class="st">"jax"</span><span class="op">)</span></span></code></pre></div>
@@ -162,10 +181,20 @@ based on the user-requested backend:</p>
 <div class="section level3">
 <h3 id="best-practices">Best Practices<a class="anchor" aria-label="anchor" href="#best-practices"></a>
 </h3>
+<p>Calling <code><a href="../reference/py_require.html">py_require()</a></code> from a package is generally safe
+and recommended. It ensures dependencies are declared while having no
+effect on users who manage their own Python environments.
+<code><a href="../reference/py_require.html">py_require()</a></code> replaces older approaches, such as listing
+dependencies in the <code>DESCRIPTION</code> file or calling
+<code>use_virtualenv(required = FALSE)</code> in
+<code>.onLoad()</code>.</p>
 <p>Be mindful that other R packages and users may also declare Python
 requirements. Avoid restrictive version constraints. If a version
 constraint is necessary, prefer <code>&gt;=</code> and <code>!=</code>
-over <code>&lt;=</code>, as the latter can quickly become outdated.</p>
+over <code>&lt;=</code>, as the latter can quickly become outdated.
+Also, be mindful that an R package’s requirements will be combined with
+a potentially wide variety of user requirements, like
+<code>exclude_newer</code>.</p>
 <p>An example user script header:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mlverse/pysparklyr" class="external-link">pysparklyr</a></span><span class="op">)</span> <span class="co"># declares requirements for PySpark</span></span>
@@ -175,7 +204,7 @@ over <code>&lt;=</code>, as the latter can quickly become outdated.</p>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/py_require.html">py_require</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"scipy"</span>, <span class="st">"polars"</span><span class="op">)</span><span class="op">)</span>         <span class="co"># user-declared requirements</span></span>
 <span><span class="fu"><a href="../reference/py_require.html">py_require</a></span><span class="op">(</span>python_version <span class="op">=</span> <span class="st">"&gt;=3.12"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/py_require.html">py_require</a></span><span class="op">(</span>exclude_newer <span class="op">=</span> <span class="st">"2025-01-19"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/py_require.html">py_require</a></span><span class="op">(</span>exclude_newer <span class="op">=</span> <span class="st">"2025-02-20"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">np</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/import.html">import</a></span><span class="op">(</span><span class="st">"numpy"</span><span class="op">)</span>  <span class="co"># &lt;-- Python initialized</span></span>
 <span><span class="va">...</span></span></code></pre></div>

@@ -13,9 +13,23 @@ vignette: >
 
 ## Declaring Python Requirements
 
+R package authors can use reticulate to make Python packages accessible to users
+from R. This vignette documents best practices for how package authors can
+declare and import their package's Python dependencies.
+
+While `reticulate::import()` can be used to load a Python module, it does not
+provide any mechanism for installing a Python package and actually making sure
+the module is available. `reticulate::py_require()` helps fill that gap, by
+giving R package authors a way to declare their Python package dependencies in a
+way that can be collated and respected across multiple packages using
+reticulate, each with their own unique requirements.
+
 Beginning with Reticulate version 1.41, R packages can declare Python
-requirements with `py_require()`. Reticulate can then resolve these requirements
-at runtime using an ephemeral Python environment.
+requirements with `py_require()`. Python package dependencies requested via
+`py_require()` will automatically be provisioned and made available for the user
+when the Python session is later initialized, via an ephemeral Python virtual
+environment. These requested packages can then be imported and used within your
+R package as required.
 
 ### Typical Usage
 

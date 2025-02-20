@@ -85,9 +85,7 @@ py_install <- function(packages,
 {
   check_forbidden_install("Python packages")
 
-  if (is_python_initialized() &&
-      is_ephemeral_reticulate_uv_env(py_exe()) &&
-      is.null(envname)) {
+  if (is.null(envname) && is_epheremal_venv_initialized()) {
     if (!is.null(python_version)) {
       stop(
         "Python version requirements cannot be ",
@@ -95,7 +93,7 @@ py_install <- function(packages,
       )
     }
     warning(
-      "An 'uv' virtual environment managed by 'reticulate' is currently in use.\n",
+      "An ephemeral virtual environment managed by 'reticulate' is currently in use.\n",
       "To add more packages to your current session, call `py_require()` instead\n",
       "of `py_install()`. Running:\n  ",
       paste0(

@@ -126,7 +126,7 @@ py_require <- function(packages = NULL,
 
   action <- match.arg(action)
   called_from_package <- isNamespace(topenv(parent.frame()))
-  uv_initialized <- is_python_initialized() && is_ephemeral_reticulate_uv_env(py_exe())
+  ephemeral_venv_initialized <- is_epheremal_venv_initialized()
   if (missing(packages))
     packages <- NULL
 
@@ -136,7 +136,7 @@ py_require <- function(packages = NULL,
   if (!is.null(python_version)) {
     python_version <- unlist(strsplit(python_version, ",", fixed = TRUE))
 
-    if (uv_initialized) {
+    if (ephemeral_venv_initialized) {
 
       current_py_version <- py_version(patch = TRUE)
       for (check in as_version_constraint_checkers(python_version)) {
@@ -167,7 +167,7 @@ py_require <- function(packages = NULL,
       stop("`exclude_newer` cannot be set inside a package")
     }
 
-    if (uv_initialized) {
+    if (ephemeral_venv_initialized) {
 
       if (!identical(exclude_newer, pr$exclude_newer))
         stop("`exclude_newer` cannot be changed after Python has initialized.")
@@ -206,7 +206,7 @@ py_require <- function(packages = NULL,
   }
 
   if (!is.null(packages)) {
-    if (uv_initialized) {
+    if (ephemeral_venv_initialized) {
       switch(action,
         add = {
           if(all(packages %in% pr$packages)) {
@@ -234,10 +234,11 @@ py_require <- function(packages = NULL,
     }
   }
 
-  if (uv_initialized && action == "add" && !is.null(packages)) {
+  if (ephemeral_venv_initialized && action == "add" && !is.null(packages)) {
     tryCatch({
       new_path <- uv_get_or_create_env(pr$packages, pr$python_version, pr$exclude_newer)
       new_config <- python_config(new_path)
+      new_config$ephemeral <- TRUE
       if (new_config$libpython == .globals$py_config$libpython) {
         py_activate_virtualenv(file.path(dirname(new_path), "activate_this.py"))
         .globals$py_config <- new_config
@@ -478,8 +479,7 @@ py_reqs_get <- function(x = NULL) {
     return(pr)
   }
   if (x == "python_version") {
-    uv_initialized <- is_python_initialized() && is_ephemeral_reticulate_uv_env(py_exe())
-    if (uv_initialized)
+    if (is_epheremal_venv_initialized())
       return(as.character(py_version(TRUE)))
   }
   pr[[x]]
@@ -521,10 +521,7 @@ uv_binary <- function(bootstrap_install = TRUE) {
     return(path.expand(uv))
   }
 
-  uv <- path.expand(file.path(
-    rappdirs::user_cache_dir("r-reticulate", NULL),
-    "bin", if (is_windows()) "uv.exe" else "uv"
-  ))
+  uv <- reticulate_cache_dir("uv", "bin", if (is_windows()) "uv.exe" else "uv")
   if (file.exists(uv)) {
     if (!is_usable_uv(uv)) # exists, but version too old
       system2(uv, "self update")
@@ -598,8 +595,7 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
 
   # TODO?: use default uv cache if using user-installed uv?
   # need to refactor detecting approach in py_install() and py_require()
-  cache_dir <- #if (is_reticulate_managed_uv(uv))
-    c("--cache-dir", reticulate_managed_uv_cache_dir())
+  cache_dir <- c("--cache-dir", reticulate_cache_dir("uv", "cache"))
 
   withr::local_envvar(c(
     VIRTUAL_ENV = NA,
@@ -693,42 +689,18 @@ uv_run_tool <- function(tool, args = character(), ..., from = NULL, with = NULL,
 
 
 is_reticulate_managed_uv <- function(uv = uv_binary(bootstrap_install = FALSE)) {
-  if(is.null(uv) || !file.exists(uv)) {
+  if (is.null(uv) || !file.exists(uv)) {
     # no user-installed uv - uv will be bootstrapped by reticulate
     return(TRUE)
   }
 
-  managed_uv_path <- path.expand(file.path(
-    rappdirs::user_cache_dir("r-reticulate", NULL),
-    "bin", if (is_windows()) "uv.exe" else "uv"
-  ))
+  managed_uv <-
+    reticulate_cache_dir("uv", "bin", if (is_windows()) "uv.exe" else "uv")
 
-  uv == managed_uv_path
+  uv == managed_uv
 }
 
-is_ephemeral_reticulate_uv_env <- function(path) {
-  startsWith(path, reticulate_managed_uv_cache_dir())
-}
 
-reticulate_managed_uv_cache_dir <- function() {
-  path.expand(file.path(
-    rappdirs::user_cache_dir("r-reticulate", NULL),
-    "uv-cache"
-  ))
-}
-
-uv_cache_dir <- function(uv = uv_binary(bootstrap_install = FALSE)) {
-  if (is_reticulate_managed_uv(uv)) {
-    return(reticulate_managed_uv_cache_dir())
-  }
-  tryCatch(
-    system2(uv, "cache dir",
-            stdout = TRUE, stderr = FALSE,
-            env = "NO_COLOR=1"),
-    warning = function(w) NULL,
-    error = function(e) NULL
-  )
-}
 
 
 uv_python_list <- function(uv = uv_binary()) {

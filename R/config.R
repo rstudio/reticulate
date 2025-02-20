@@ -436,7 +436,11 @@ python_config_ephemeral_uv_venv <- function(required_module) {
   if (isTRUE(getOption("reticulate.python.initializing"))) {
     python <- try(uv_get_or_create_env())
     if (!is.null(python) && !inherits(python, "try-error"))
-      try(return(python_config(python, required_module, forced = "py_require()")))
+      try({
+        config <- python_config(python, required_module, forced = "py_require()")
+        config$ephemeral <- TRUE
+        return(config)
+        })
   }
   # most likely called from py_exe()
   NULL

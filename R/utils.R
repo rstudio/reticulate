@@ -654,8 +654,8 @@ rm_all_reticulate_state <- function(external = FALSE) {
       system2(uv, c("cache", "clean"))
       rm_rf(system2(uv, c("python", "dir"),
                     env = "NO_COLOR=1", stdout = TRUE))
-      # rm_rf(system2(uv, c("tool", "dir"),
-      #               env = "NO_COLOR=1", stdout = TRUE))
+      rm_rf(system2(uv, c("tool", "dir"),
+                    env = "NO_COLOR=1", stdout = TRUE))
     }
 
     if (nzchar(Sys.which("pip3")))
@@ -676,6 +676,7 @@ rm_all_reticulate_state <- function(external = FALSE) {
   try(tools::R_user_dir("reticulate", "cache"))
   try(tools::R_user_dir("reticulate", "data"))
   try(tools::R_user_dir("reticulate", "config"))
+  invisible()
 }
 
 

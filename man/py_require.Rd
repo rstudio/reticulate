@@ -126,4 +126,14 @@ See more examples
 \href{https://docs.astral.sh/uv/pip/packages/#installing-a-package}{here} and
 \href{https://pip.pypa.io/en/stable/cli/pip_install/#examples}{here}.
 }
+
+\subsection{Clearing the Cache}{
+
+\code{reticulate} caches ephemeral environments in the directory returned by
+\code{tools::R_user_dir("reticulate", "cache")}. To clear the cache, delete the
+directory:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{unlink(tools::R_user_dir("reticulate", "cache"), recursive = TRUE)
+}\if{html}{\out{</div>}}
+}
 }

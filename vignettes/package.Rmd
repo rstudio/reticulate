@@ -61,15 +61,15 @@ use_backend <- function(backend, gpu = TRUE) {
   py_require("tensorflow", action = "remove") # Remove default backend
 
   switch(paste0(backend, "_", get_os()),
-    Linux_jax = if (gpu) py_require("jax[cuda12]") else py_require("jax[cpu]"),
-    macOS_jax = py_require(c("jax", if (gpu) "jax-metal")),
-    Windows_jax = py_require("jax"),
-    Linux_tensorflow = { ... },
-    macOS_tensorflow = { ... },
-    Windows_tensorflow = { ... },
-    Linux_torch = { ... },
-    macOS_torch = { ... },
-    Windows_torch = { ... }
+    jax_Linux = if (gpu) py_require("jax[cuda12]") else py_require("jax[cpu]"),
+    jax_macOS = py_require(c("jax", if (gpu) "jax-metal")),
+    jax_Windows = py_require("jax"),
+    tensorflow_Linux = { ... },
+    tensorflow_macOS = { ... },
+    tensorflow_Windows = { ... },
+    torch_Linux = { ... },
+    torch_macOS = { ... },
+    torch_Windows = { ... }
   )
 }
 ```

@@ -205,6 +205,16 @@ to a directory containing a <code>pyproject.toml</code> or <code>setup.py</code>
 <a href="https://pip.pypa.io/en/stable/cli/pip_install/#examples" class="external-link">here</a>.</p>
 </div>
 
+<div class="section">
+<h3 id="clearing-the-cache">Clearing the Cache<a class="anchor" aria-label="anchor" href="#clearing-the-cache"></a></h3>
+
+
+<p><code>reticulate</code> caches ephemeral environments in the directory returned by
+<code>tools::R_user_dir("reticulate", "cache")</code>. To clear the cache, delete the
+directory:</p>
+<p></p><div class="sourceCode r"><pre><code><span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="fu">tools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/tools/userdir.html" class="external-link">R_user_dir</a></span><span class="op">(</span><span class="st">"reticulate"</span>, <span class="st">"cache"</span><span class="op">)</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre><p></p></div>
+</div>
+
     </div>
 
   </div>

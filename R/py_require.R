@@ -74,6 +74,17 @@
 #'   [here](https://docs.astral.sh/uv/pip/packages/#installing-a-package) and
 #'   [here](https://pip.pypa.io/en/stable/cli/pip_install/#examples).
 #'
+#'
+#'   ## Clearing the Cache
+#'
+#'   `reticulate` caches ephemeral environments in the directory returned by
+#'   `tools::R_user_dir("reticulate", "cache")`. To clear the cache, delete the
+#'   directory:
+#'
+#'   ```r
+#'   unlink(tools::R_user_dir("reticulate", "cache"), recursive = TRUE)
+#'   ```
+#'
 #' @param packages A character vector of Python packages to be available during
 #'   the session. These can be simple package names like `"jax"` or names with
 #'   version constraints like `"jax[cpu]>=0.5"`. Pip style syntax for installing

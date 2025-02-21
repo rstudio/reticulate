@@ -522,10 +522,17 @@ uv_binary <- function(bootstrap_install = TRUE) {
   }
 
   uv <- reticulate_cache_dir("uv", "bin", if (is_windows()) "uv.exe" else "uv")
-  if (file.exists(uv)) {
-    if (!is_usable_uv(uv)) # exists, but version too old
-      system2(uv, "self update")
+  if (is_usable_uv(uv))
     return(uv)
+
+  if (file.exists(uv)) {
+    # exists, but version too old
+    unlink(dirname(uv), recursive = TRUE)
+    ## We don't do `system2(uv, "self update")` because self update is only
+    ## supported on a "managed" uv installations, and uv only supports one
+    ## managed installation per system. uv installs and maintains a config file
+    ## for the auto updater in XDG_CONFIG_DIRS/uv/uv-receipt.json and errors if
+    ## multiple uv installations attempt to modify that config file.
   }
 
   if (bootstrap_install) {
@@ -542,12 +549,10 @@ uv_binary <- function(bootstrap_install = TRUE) {
 
     if (is_windows()) {
       system2("powershell", c(
-        "-ExecutionPolicy",
-        "ByPass",
+        "-ExecutionPolicy", "ByPass",
         "-c",
         paste0(
-          "$env:UV_INSTALL_DIR='", dirname(uv), "';",
-          "$env:INSTALLER_NO_MODIFY_PATH= 1;",
+          "$env:UV_UNMANAGED_INSTALL='", dirname(uv), "';", # shQuote()?
           # 'Out-Null' makes installation silent
           "irm ", install_uv, " | iex *> Out-Null"
         )
@@ -557,8 +562,7 @@ uv_binary <- function(bootstrap_install = TRUE) {
       dir.create(dirname(uv), showWarnings = FALSE, recursive = TRUE)
       system2(install_uv, c("--quiet"),
         env = c(
-          "INSTALLER_NO_MODIFY_PATH=1",
-          paste0("UV_INSTALL_DIR=", maybe_shQuote(dirname(uv)))
+          paste0("UV_UNMANAGED_INSTALL=", maybe_shQuote(dirname(uv)))
         )
       )
     }

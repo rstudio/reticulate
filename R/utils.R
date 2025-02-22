@@ -647,15 +647,15 @@ maybe_shQuote <- function(x) {
 rm_all_reticulate_state <- function(external = FALSE) {
 
   rm_rf <- function(...)
-    unlink(path.expand(c(...)), recursive = TRUE, force = TRUE)
+    try(unlink(path.expand(c(...)), recursive = TRUE, force = TRUE))
 
   if (external) {
     if (!is.null(uv <- uv_binary(FALSE))) {
       system2(uv, c("cache", "clean"))
-      rm_rf(system2(uv, c("python", "dir"),
-                    env = "NO_COLOR=1", stdout = TRUE))
-      rm_rf(system2(uv, c("tool", "dir"),
-                    env = "NO_COLOR=1", stdout = TRUE))
+      withr::with_envvar(c("NO_COLOR"="1"), {
+        rm_rf(system2(uv, c("python", "dir"), stdout = TRUE))
+        rm_rf(system2(uv, c("tool", "dir"), stdout = TRUE))
+      })
     }
 
     if (nzchar(Sys.which("pip3")))
@@ -670,12 +670,12 @@ rm_all_reticulate_state <- function(external = FALSE) {
   rm_rf(virtualenv_path("r-reticulate"))
   for (venv in virtualenv_list()) {
     if (startsWith(venv, "r-"))
-      virtualenv_remove(venv, confirm = FALSE)
+      rm_rf(virtualenv_path(venv))
   }
   rm_rf(reticulate_cache_dir())
-  try(tools::R_user_dir("reticulate", "cache"))
-  try(tools::R_user_dir("reticulate", "data"))
-  try(tools::R_user_dir("reticulate", "config"))
+  rm_rf(tools::R_user_dir("reticulate", "cache"))
+  rm_rf(tools::R_user_dir("reticulate", "data"))
+  rm_rf(tools::R_user_dir("reticulate", "config"))
   invisible()
 }
 
@@ -687,7 +687,7 @@ reticulate_cache_dir <- function(...) {
     path.expand(rappdirs::user_cache_dir("r-reticulate", NULL))
   }
 
-  file.path(root, ...)
+  normalizePath(file.path(root, ...), mustWork = FALSE)
 }
 
 

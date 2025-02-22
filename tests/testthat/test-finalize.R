@@ -14,12 +14,12 @@ class Foo:
     weakref.finalize(self, self.on_finalize)
 
   def on_finalize(self):
-    with open('%s', 'a') as f:
+    with open(r'%s', 'a') as f:
       f.write('Foo.finalize ran\\n')
 
 import atexit
 def on_exit():
-  with open('%s', 'a') as f:
+  with open(r'%s', 'a') as f:
     f.write('on_exit finalizer ran\\n')
 
 atexit.register(on_exit)

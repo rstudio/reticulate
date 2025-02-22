@@ -8,7 +8,8 @@ test_that("Running Python scripts can be interrupted", {
   # interrupt this process shortly
   interruptor <- callr::r_bg(args = list(pid = Sys.getpid()), function(pid) {
     Sys.sleep(1)
-    ps::ps_interrupt(ps::ps_handle(pid))
+    system2("kill", c("-s", "INT", pid))
+    # ps::ps_interrupt(ps::ps_handle(pid))
   })
 
   # tell Python to sleep
@@ -189,7 +190,7 @@ test_that("interrupts can be caught by Python while calling R", {
 
   expect_identical(p$get_exit_status(), 0L)
   expect_identical(
-    p$read_output(),
+    p$read_all_output(),
     "Caught interrupt; Running finally; Python finished; R Finished!")
 
 })

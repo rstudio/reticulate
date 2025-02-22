@@ -76,6 +76,8 @@ def apply_mask(x, mask):
     py_logical_array <- r_to_py(r_logical_array)
     py_index_array <- r_to_py(r_index_array)
 
+    if (is_windows()) # not sure why ints cast to doubles on windows 
+       storage.mode(r_index_array) <- "double"
     # check that round-triping gives an identical array
     expect_identical(r_logical_array, py_to_r(py_logical_array))
     expect_identical(r_index_array, py_to_r(py_index_array))

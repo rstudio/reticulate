@@ -6,7 +6,11 @@ test_that("Running Python scripts can be interrupted", {
   time <- import("time", convert = TRUE)
 
   # interrupt this process shortly
-  system(paste("sleep 1 && kill -s INT", Sys.getpid()), wait = FALSE)
+  interruptor <- callr::r_bg(args = list(pid = Sys.getpid()), function(pid) {
+    Sys.sleep(1)
+    system2("kill", c("-s", "INT", pid))
+    # ps::ps_interrupt(ps::ps_handle(pid))
+  })
 
   # tell Python to sleep
   before <- Sys.time()
@@ -70,7 +74,7 @@ test_that("interrupts work when Python is running", {
   p$wait()
 
   expect_identical(p$get_exit_status(), 0L)
-  expect_identical(p$read_output(), "Caught interrupt; Finished!")
+  expect_identical(p$read_all_output(), "Caught interrupt; Finished!")
 
 })
 
@@ -124,7 +128,7 @@ test_that("interrupts can be caught by Python", {
 
   expect_identical(p$get_exit_status(), 0L)
   expect_identical(
-    p$read_output(),
+    p$read_all_output(),
     "Caught interrupt; Running finally; Python finished; R Finished!")
 
 })
@@ -186,7 +190,7 @@ test_that("interrupts can be caught by Python while calling R", {
 
   expect_identical(p$get_exit_status(), 0L)
   expect_identical(
-    p$read_output(),
+    p$read_all_output(),
     "Caught interrupt; Running finally; Python finished; R Finished!")
 
 })

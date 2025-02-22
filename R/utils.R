@@ -687,7 +687,7 @@ reticulate_cache_dir <- function(...) {
     path.expand(rappdirs::user_cache_dir("r-reticulate", NULL))
   }
 
-  file.path(root, ...)
+  normalizePath(file.path(root, ...), mustWork = FALSE)
 }
 
 

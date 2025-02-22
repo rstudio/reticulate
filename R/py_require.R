@@ -549,6 +549,7 @@ uv_binary <- function(bootstrap_install = TRUE) {
   if (bootstrap_install) {
     # Install 'uv' in the 'r-reticulate' sub-folder inside the user's cache directory
     # https://github.com/astral-sh/uv/blob/main/docs/configuration/installer.md
+    dir.create(dirname(uv), showWarnings = FALSE, recursive = TRUE)
     file_ext <- if (is_windows()) ".ps1" else ".sh"
     url <- paste0("https://astral.sh/uv/install", file_ext)
     install_uv <- tempfile("install-uv-", fileext = file_ext)
@@ -557,25 +558,27 @@ uv_binary <- function(bootstrap_install = TRUE) {
       return(NULL)
       # stop("Unable to download Python dependencies. Please install `uv` manually.")
     }
+    if(debug <- Sys.getenv("_RETICULATE_DEBUG_UV_") == "1")
+      system2 <- system2t
 
     if (is_windows()) {
-      system2("powershell", c(
-        "-ExecutionPolicy", "ByPass",
-        "-c",
-        paste0(
-          "$env:UV_UNMANAGED_INSTALL='", dirname(uv), "';", # shQuote()?
-          # 'Out-Null' makes installation silent
-          "irm ", install_uv, " | iex *> Out-Null"
+
+      withr::with_envvar(c("UV_UNMANAGED_INSTALL" = shortPathName(dirname(uv))), {
+        system2("powershell", c(
+          "-ExecutionPolicy", "ByPass", "-c",
+          sprintf("irm %s | iex", shortPathName(install_uv))),
+          stdout = if (debug) "" else FALSE,
+          stderr = if (debug) "" else FALSE
         )
-      ))
-    } else if (is_macos() || is_linux()) {
+      })
+
+    } else {
+
       Sys.chmod(install_uv, mode = "0755")
-      dir.create(dirname(uv), showWarnings = FALSE, recursive = TRUE)
-      system2(install_uv, c("--quiet"),
-        env = c(
-          paste0("UV_UNMANAGED_INSTALL=", maybe_shQuote(dirname(uv)))
-        )
-      )
+      withr::with_envvar(c("UV_UNMANAGED_INSTALL" = dirname(uv)), {
+        system2(install_uv, c(if (!debug) "--quiet"))
+      })
+
     }
   }
 

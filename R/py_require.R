@@ -752,6 +752,15 @@ uv_python_list <- function(uv = uv_binary()) {
   x
 }
 
+uvx_binary <- function(...) {
+  uv <- uv_binary(...)
+  if(is.null(uv)) {
+    return()
+  }
+  uvx <- file.path(dirname(uv), if (is_windows()) "uvx.exe" else "uvx")
+  if (file.exists(uvx)) uvx else NULL # print visible
+}
+
 resolve_python_version <- function(constraints = NULL, uv = uv_binary()) {
   constraints <- as.character(constraints %||% "")
   constraints <- trimws(unlist(strsplit(constraints, ",", fixed = TRUE)))

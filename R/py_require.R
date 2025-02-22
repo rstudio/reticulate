@@ -617,6 +617,8 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
     if (is_positron())
       c(RUST_LOG = NA)
   ))
+  uv_output_file <- tempfile()
+  on.exit(unlink(uv_output_file), add = TRUE)
 
   uv_args <- c(
     "run",
@@ -627,17 +629,20 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
     exclude_newer,
     packages,
     "--",
-    "python", "-c", "import sys; print(sys.executable);"
+    "python", "-c",
+    # chr(119) == "w", but avoiding a string literal to minimize the need for
+    # shell quoting shenanigans
+    "import sys; f=open(sys.argv[-1], chr(119)); f.write(sys.executable); f.close();",
+    uv_output_file
   )
 
   # debug print system call
-  if (Sys.getenv("_RETICULATE_DEBUG_UV_") == "1")
+  if (debug <- Sys.getenv("_RETICULATE_DEBUG_UV_") == "1")
     message(paste0(c(shQuote(uv), maybe_shQuote(uv_args)), collapse = " "))
 
-  env_python <- suppressWarnings(system2(uv, maybe_shQuote(uv_args), stdout = TRUE))
-  error_code <- attr(env_python, "status", TRUE)
+  error_code <- suppressWarnings(system2(uv, maybe_shQuote(uv_args)))
 
-  if (!is.null(error_code)) {
+  if (error_code) {
     cat("uv error code: ", error_code, "\n", sep = "", file = stderr())
     msg <- do.call(py_reqs_format, call_args)
     writeLines(c(msg, strrep("-", 73L)), con = stderr())
@@ -650,7 +655,10 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
     stop("Call `py_require()` to remove or replace conflicting requirements.")
   }
 
-  env_python
+  ephemeral_python <- readLines(uv_output_file, warn = FALSE)
+  if (debug)
+    message("resolved ephemeral python: ", ephemeral_python)
+  ephemeral_python
 }
 
 #' uv run tool

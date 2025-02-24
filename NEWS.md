@@ -1,14 +1,17 @@
 # reticulate (development version)
 
-- New `py_require()` function for declaring Python requirements for the current R session.
+- New `py_require()` function for declaring Python requirements for
+  the current R session. For details, see updated vignettes and help:
+
+  - Installing Python Packages: https://rstudio.github.io/reticulate/dev/articles/python_packages.html
+  - Using reticulate in an R Package: https://rstudio.github.io/reticulate/dev/articles/package.html
+  - `py_require()` help: https://rstudio.github.io/reticulate/dev/reference/py_require.html
 
 - New `uv_run_tool()` function for running command line tools distributed via Python packages.
 
-- Raw R arrays now convert to NumPy arrays with dtype "V1" ("void8") (#1734).
-  Use `r_to_py(as.array(x))` to efficiently convert raw vectors to numpy arrays.
-
-- NumPy arrays with dtype "V1" ("void8") now convert to R raw arrays (#1734).
-  Use `py_to_r(array$view("V1"))` to efficiently convert numpy arrays to raw vectors. 
+- Raw R arrays and NumPy arrays with dtype "V1" ("void8") now convert between each other.
+  Use `r_to_py(as.array(x))` to efficiently convert raw vectors to NumPy arrays, and
+  `py_to_r(array$view("V1"))` to efficiently convert NumPy arrays to raw vectors. (#1734)
 
 - Fixed an issue with using Python 3.12 on Linux (#1712, #1714).
 

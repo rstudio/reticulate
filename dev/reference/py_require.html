@@ -125,19 +125,21 @@ from local files or a git repository is also supported (see details).</p></dd>
 
 
 <dt id="arg-exclude-newer">exclude_newer<a class="anchor" aria-label="anchor" href="#arg-exclude-newer"></a></dt>
-<dd><p>Restricts package versions to those published before a
+<dd><p>Limit package versions to those published before a
 specified date. This offers a lightweight alternative to freezing package
 versions, helping guard against Python package updates that break a
-workflow. Once <code>exclude_newer</code> is set, only the <code>set</code> action can override
-it.</p></dd>
+workflow. Accepts strings formatted as RFC 3339 timestamps (e.g.,
+"2006-12-02T02:07:43Z") and local dates in the same format (e.g.,
+"2006-12-02") in your system's configured time zone. Once <code>exclude_newer</code>
+is set, only the <code>set</code> action can override it.</p></dd>
 
 
 <dt id="arg-action">action<a class="anchor" aria-label="anchor" href="#arg-action"></a></dt>
 <dd><p>Determines how <code>py_require()</code> processes the provided
 requirements. Options are:</p><ul><li><p><code>add</code>: Adds the entries to the current set of requirements.</p></li>
-<li><p><code>remove</code>: Removes <em>exact</em> matches from the requirements list. For example,
-if <code>"numpy==2.2.2"</code> is in the list, passing <code>"numpy"</code> with <code>action =   "remove"</code> will not remove it. Requests to remove nonexistent entries are
-ignored.</p></li>
+<li><p><code>remove</code>: Removes <em>exact</em> matches from the requirements list. Requests to remove nonexistent entries are
+ignored. For example, if <code>"numpy==2.2.2"</code> is in the list, passing <code>"numpy"</code>
+with <code>action = "remove"</code> will not remove it.</p></li>
 <li><p><code>set</code>: Clears all existing requirements and replaces them with the
 provided ones. Packages and the Python version can be set independently.</p></li>
 </ul></dd>
@@ -178,9 +180,9 @@ the Python dependencies declared by R packages in the current session.</p>
     <p>Reticulate uses <a href="https://docs.astral.sh/uv/" class="external-link"><code>uv</code></a> to resolve Python
 dependencies. Many <code>uv</code> options can be customized via environment
 variables, as described
-<a href="https://docs.astral.sh/uv/configuration/environment/" class="external-link">here</a>. For example:</p><ul><li><p>If temporarily offline, set <code>Sys.setenv(UV_OFFLINE=1)</code>.</p></li>
+<a href="https://docs.astral.sh/uv/configuration/environment/" class="external-link">here</a>. For example:</p><ul><li><p>If temporarily offline, set <code>Sys.setenv(UV_OFFLINE = "1")</code>.</p></li>
 <li><p>To use a different index: <code>Sys.setenv(UV_INDEX = "https://download.pytorch.org/whl/cpu")</code>.</p></li>
-<li><p>To allow resolving a prerelease dependency: <code>Sys.setenv(UV_PRERELEASE="allow")</code>.</p></li>
+<li><p>To allow resolving a prerelease dependency: <code>Sys.setenv(UV_PRERELEASE = "allow")</code>.</p></li>
 </ul><div class="section">
 <h3 id="installing-from-alternate-sources">Installing from alternate sources<a class="anchor" aria-label="anchor" href="#installing-from-alternate-sources"></a></h3>
 

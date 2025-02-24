@@ -33,9 +33,9 @@
 #'   dependencies. Many `uv` options can be customized via environment
 #'   variables, as described
 #'   [here](https://docs.astral.sh/uv/configuration/environment/). For example:
-#'   - If temporarily offline, set `Sys.setenv(UV_OFFLINE=1)`.
+#'   - If temporarily offline, set `Sys.setenv(UV_OFFLINE = "1")`.
 #'   - To use a different index: `Sys.setenv(UV_INDEX = "https://download.pytorch.org/whl/cpu")`.
-#'   - To allow resolving a prerelease dependency: `Sys.setenv(UV_PRERELEASE="allow")`.
+#'   - To allow resolving a prerelease dependency: `Sys.setenv(UV_PRERELEASE = "allow")`.
 #'
 #'   ## Installing from alternate sources
 #'
@@ -98,18 +98,19 @@
 #' @param action Determines how `py_require()` processes the provided
 #'   requirements. Options are:
 #'   - `add`: Adds the entries to the current set of requirements.
-#'   - `remove`: Removes _exact_ matches from the requirements list. For example,
-#'   if `"numpy==2.2.2"` is in the list, passing `"numpy"` with `action =
-#'   "remove"` will not remove it. Requests to remove nonexistent entries are
-#'   ignored.
+#'   - `remove`: Removes _exact_ matches from the requirements list. Requests to remove nonexistent entries are
+#'   ignored. For example, if `"numpy==2.2.2"` is in the list, passing `"numpy"`
+#'   with `action = "remove"` will not remove it.
 #'   - `set`: Clears all existing requirements and replaces them with the
 #'   provided ones. Packages and the Python version can be set independently.
 #'
-#' @param exclude_newer Restricts package versions to those published before a
+#' @param exclude_newer Limit package versions to those published before a
 #'   specified date. This offers a lightweight alternative to freezing package
 #'   versions, helping guard against Python package updates that break a
-#'   workflow. Once `exclude_newer` is set, only the `set` action can override
-#'   it.
+#'   workflow. Accepts strings formatted as RFC 3339 timestamps (e.g.,
+#'   "2006-12-02T02:07:43Z") and local dates in the same format (e.g.,
+#'   "2006-12-02") in your system's configured time zone. Once `exclude_newer`
+#'   is set, only the `set` action can override it.
 #'
 #' @returns `py_require()` is primarily called for its side effect of modifying
 #'   the manifest of "Python requirements" for the current R session  that

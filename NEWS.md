@@ -1,4 +1,4 @@
-# reticulate (development version)
+# reticulate 1.41.0
 
 - New `py_require()` function for declaring Python requirements for
   the current R session. For details, see updated vignettes and help:

@@ -33,9 +33,9 @@
 #'   dependencies. Many `uv` options can be customized via environment
 #'   variables, as described
 #'   [here](https://docs.astral.sh/uv/configuration/environment/). For example:
-#'   - If temporarily offline, set `Sys.setenv(UV_OFFLINE=1)`.
+#'   - If temporarily offline, set `Sys.setenv(UV_OFFLINE = "1")`.
 #'   - To use a different index: `Sys.setenv(UV_INDEX = "https://download.pytorch.org/whl/cpu")`.
-#'   - To allow resolving a prerelease dependency: `Sys.setenv(UV_PRERELEASE="allow")`.
+#'   - To allow resolving a prerelease dependency: `Sys.setenv(UV_PRERELEASE = "allow")`.
 #'
 #'   ## Installing from alternate sources
 #'
@@ -98,18 +98,19 @@
 #' @param action Determines how `py_require()` processes the provided
 #'   requirements. Options are:
 #'   - `add`: Adds the entries to the current set of requirements.
-#'   - `remove`: Removes _exact_ matches from the requirements list. For example,
-#'   if `"numpy==2.2.2"` is in the list, passing `"numpy"` with `action =
-#'   "remove"` will not remove it. Requests to remove nonexistent entries are
-#'   ignored.
+#'   - `remove`: Removes _exact_ matches from the requirements list. Requests to remove nonexistent entries are
+#'   ignored. For example, if `"numpy==2.2.2"` is in the list, passing `"numpy"`
+#'   with `action = "remove"` will not remove it.
 #'   - `set`: Clears all existing requirements and replaces them with the
 #'   provided ones. Packages and the Python version can be set independently.
 #'
-#' @param exclude_newer Restricts package versions to those published before a
+#' @param exclude_newer Limit package versions to those published before a
 #'   specified date. This offers a lightweight alternative to freezing package
 #'   versions, helping guard against Python package updates that break a
-#'   workflow. Once `exclude_newer` is set, only the `set` action can override
-#'   it.
+#'   workflow. Accepts strings formatted as RFC 3339 timestamps (e.g.,
+#'   "2006-12-02T02:07:43Z") and local dates in the same format (e.g.,
+#'   "2006-12-02") in your system's configured time zone. Once `exclude_newer`
+#'   is set, only the `set` action can override it.
 #'
 #' @returns `py_require()` is primarily called for its side effect of modifying
 #'   the manifest of "Python requirements" for the current R session  that
@@ -549,6 +550,7 @@ uv_binary <- function(bootstrap_install = TRUE) {
   if (bootstrap_install) {
     # Install 'uv' in the 'r-reticulate' sub-folder inside the user's cache directory
     # https://github.com/astral-sh/uv/blob/main/docs/configuration/installer.md
+    dir.create(dirname(uv), showWarnings = FALSE, recursive = TRUE)
     file_ext <- if (is_windows()) ".ps1" else ".sh"
     url <- paste0("https://astral.sh/uv/install", file_ext)
     install_uv <- tempfile("install-uv-", fileext = file_ext)
@@ -557,25 +559,27 @@ uv_binary <- function(bootstrap_install = TRUE) {
       return(NULL)
       # stop("Unable to download Python dependencies. Please install `uv` manually.")
     }
+    if(debug <- Sys.getenv("_RETICULATE_DEBUG_UV_") == "1")
+      system2 <- system2t
 
     if (is_windows()) {
-      system2("powershell", c(
-        "-ExecutionPolicy", "ByPass",
-        "-c",
-        paste0(
-          "$env:UV_UNMANAGED_INSTALL='", dirname(uv), "';", # shQuote()?
-          # 'Out-Null' makes installation silent
-          "irm ", install_uv, " | iex *> Out-Null"
+
+      withr::with_envvar(c("UV_UNMANAGED_INSTALL" = shortPathName(dirname(uv))), {
+        system2("powershell", c(
+          "-ExecutionPolicy", "ByPass", "-c",
+          sprintf("irm %s | iex", shortPathName(install_uv))),
+          stdout = if (debug) "" else FALSE,
+          stderr = if (debug) "" else FALSE
         )
-      ))
-    } else if (is_macos() || is_linux()) {
+      })
+
+    } else {
+
       Sys.chmod(install_uv, mode = "0755")
-      dir.create(dirname(uv), showWarnings = FALSE, recursive = TRUE)
-      system2(install_uv, c("--quiet"),
-        env = c(
-          paste0("UV_UNMANAGED_INSTALL=", maybe_shQuote(dirname(uv)))
-        )
-      )
+      withr::with_envvar(c("UV_UNMANAGED_INSTALL" = dirname(uv)), {
+        system2(install_uv, c(if (!debug) "--quiet"))
+      })
+
     }
   }
 
@@ -617,6 +621,8 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
     if (is_positron())
       c(RUST_LOG = NA)
   ))
+  uv_output_file <- tempfile()
+  on.exit(unlink(uv_output_file), add = TRUE)
 
   uv_args <- c(
     "run",
@@ -627,17 +633,20 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
     exclude_newer,
     packages,
     "--",
-    "python", "-c", "import sys; print(sys.executable);"
+    "python", "-c",
+    # chr(119) == "w", but avoiding a string literal to minimize the need for
+    # shell quoting shenanigans
+    "import sys; f=open(sys.argv[-1], chr(119)); f.write(sys.executable); f.close();",
+    uv_output_file
   )
 
   # debug print system call
-  if (Sys.getenv("_RETICULATE_DEBUG_UV_") == "1")
+  if (debug <- Sys.getenv("_RETICULATE_DEBUG_UV_") == "1")
     message(paste0(c(shQuote(uv), maybe_shQuote(uv_args)), collapse = " "))
 
-  env_python <- suppressWarnings(system2(uv, maybe_shQuote(uv_args), stdout = TRUE))
-  error_code <- attr(env_python, "status", TRUE)
+  error_code <- suppressWarnings(system2(uv, maybe_shQuote(uv_args)))
 
-  if (!is.null(error_code)) {
+  if (error_code) {
     cat("uv error code: ", error_code, "\n", sep = "", file = stderr())
     msg <- do.call(py_reqs_format, call_args)
     writeLines(c(msg, strrep("-", 73L)), con = stderr())
@@ -650,7 +659,10 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
     stop("Call `py_require()` to remove or replace conflicting requirements.")
   }
 
-  env_python
+  ephemeral_python <- readLines(uv_output_file, warn = FALSE)
+  if (debug)
+    message("resolved ephemeral python: ", ephemeral_python)
+  ephemeral_python
 }
 
 #' uv run tool
@@ -739,6 +751,15 @@ uv_python_list <- function(uv = uv_binary()) {
   latest_minor_patch <- !duplicated(xv[, -3L]) & !is.na(xv)
   x <- x[order(latest_minor_patch, xv, decreasing = TRUE)]
   x
+}
+
+uvx_binary <- function(...) {
+  uv <- uv_binary(...)
+  if(is.null(uv)) {
+    return()
+  }
+  uvx <- file.path(dirname(uv), if (is_windows()) "uvx.exe" else "uvx")
+  if (file.exists(uvx)) uvx else NULL # print visible
 }
 
 resolve_python_version <- function(constraints = NULL, uv = uv_binary()) {

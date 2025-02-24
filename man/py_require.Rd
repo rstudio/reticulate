@@ -23,19 +23,21 @@ from local files or a git repository is also supported (see details).}
 
 \item{...}{Reserved for future extensions; must be empty.}
 
-\item{exclude_newer}{Restricts package versions to those published before a
+\item{exclude_newer}{Limit package versions to those published before a
 specified date. This offers a lightweight alternative to freezing package
 versions, helping guard against Python package updates that break a
-workflow. Once \code{exclude_newer} is set, only the \code{set} action can override
-it.}
+workflow. Accepts strings formatted as RFC 3339 timestamps (e.g.,
+"2006-12-02T02:07:43Z") and local dates in the same format (e.g.,
+"2006-12-02") in your system's configured time zone. Once \code{exclude_newer}
+is set, only the \code{set} action can override it.}
 
 \item{action}{Determines how \code{py_require()} processes the provided
 requirements. Options are:
 \itemize{
 \item \code{add}: Adds the entries to the current set of requirements.
-\item \code{remove}: Removes \emph{exact} matches from the requirements list. For example,
-if \code{"numpy==2.2.2"} is in the list, passing \code{"numpy"} with \code{action =   "remove"} will not remove it. Requests to remove nonexistent entries are
-ignored.
+\item \code{remove}: Removes \emph{exact} matches from the requirements list. Requests to remove nonexistent entries are
+ignored. For example, if \code{"numpy==2.2.2"} is in the list, passing \code{"numpy"}
+with \code{action = "remove"} will not remove it.
 \item \code{set}: Clears all existing requirements and replaces them with the
 provided ones. Packages and the Python version can be set independently.
 }}
@@ -85,9 +87,9 @@ dependencies. Many \code{uv} options can be customized via environment
 variables, as described
 \href{https://docs.astral.sh/uv/configuration/environment/}{here}. For example:
 \itemize{
-\item If temporarily offline, set \code{Sys.setenv(UV_OFFLINE=1)}.
+\item If temporarily offline, set \code{Sys.setenv(UV_OFFLINE = "1")}.
 \item To use a different index: \code{Sys.setenv(UV_INDEX = "https://download.pytorch.org/whl/cpu")}.
-\item To allow resolving a prerelease dependency: \code{Sys.setenv(UV_PRERELEASE="allow")}.
+\item To allow resolving a prerelease dependency: \code{Sys.setenv(UV_PRERELEASE = "allow")}.
 }
 \subsection{Installing from alternate sources}{
 

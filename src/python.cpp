@@ -2832,6 +2832,7 @@ PyOS_sighandler_t install_interrupt_handlers_() {
   // the correct handler.
 
   // First, install the Python handler
+  GILScope _gil;
   PyObject *main = PyImport_AddModule("__main__"); // borrowed ref
   PyObject *main_dict = PyModule_GetDict(main); // borrowed ref
   PyObjectPtr locals(PyDict_New());
@@ -2867,7 +2868,7 @@ PyObject* python_interrupt_handler(PyObject *module, PyObject *args)
   // it sees that trip_signals() had been called.
 
   // args will be (signalnum, frame), but we ignore them
-
+  GILScope _gil;
   if (R_interrupts_pending == 0) {
     // R won the race to handle the interrupt. The interrupt has already been
     // signaled as an R condition. There is nothing for this handler to do.

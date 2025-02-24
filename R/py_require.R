@@ -564,10 +564,10 @@ uv_binary <- function(bootstrap_install = TRUE) {
 
     if (is_windows()) {
 
-      withr::with_envvar(c("UV_UNMANAGED_INSTALL" = shortPathName(dirname(uv))), {
+      withr::with_envvar(c("UV_UNMANAGED_INSTALL" = utils::shortPathName(dirname(uv))), {
         system2("powershell", c(
           "-ExecutionPolicy", "ByPass", "-c",
-          sprintf("irm %s | iex", shortPathName(install_uv))),
+          sprintf("irm %s | iex", utils::shortPathName(install_uv))),
           stdout = if (debug) "" else FALSE,
           stderr = if (debug) "" else FALSE
         )

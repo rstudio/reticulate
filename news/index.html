@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.40.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.41.0</span>
       </span>
     </div>
 
@@ -78,9 +78,26 @@
   <div class="col-md-9 contents">
     <div class="page-header">
       <h1 data-toc-skip>Changelog <small></small></h1>
-      <small>Source: <a href="https://github.com/rstudio/reticulate/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/rstudio/reticulate/blob/v1.41.0/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="1.41.0" id="reticulate-1410">reticulate 1.41.0<small>2025-02-24</small><a class="anchor" aria-label="anchor" href="#reticulate-1410"></a></h2>
+<ul><li>
+<p>New <code><a href="../reference/py_require.html">py_require()</a></code> function for declaring Python requirements for the current R session. For details, see updated vignettes and help:</p>
+<ul><li>Installing Python Packages: <a href="https://rstudio.github.io/reticulate/dev/articles/python_packages.html" class="uri">https://rstudio.github.io/reticulate/dev/articles/python_packages.html</a>
+</li>
+<li>Using reticulate in an R Package: <a href="https://rstudio.github.io/reticulate/dev/articles/package.html" class="uri">https://rstudio.github.io/reticulate/dev/articles/package.html</a>
+</li>
+<li>
+<code><a href="../reference/py_require.html">py_require()</a></code> help: <a href="https://rstudio.github.io/reticulate/dev/reference/py_require.html" class="uri">https://rstudio.github.io/reticulate/dev/reference/py_require.html</a>
+</li>
+</ul></li>
+<li><p>New <code><a href="../reference/uv_run_tool.html">uv_run_tool()</a></code> function for running command line tools distributed via Python packages.</p></li>
+<li><p>Raw R arrays and NumPy arrays with dtype “V1” (“void8”) now convert between each other. Use <code>r_to_py(as.array(x))</code> to efficiently convert raw vectors to NumPy arrays, and <code>py_to_r(array$view("V1"))</code> to efficiently convert NumPy arrays to raw vectors. (<a href="https://github.com/rstudio/reticulate/issues/1734" class="external-link">#1734</a>)</p></li>
+<li><p>Fixed an issue with using Python 3.12 on Linux (<a href="https://github.com/rstudio/reticulate/issues/1712" class="external-link">#1712</a>, <a href="https://github.com/rstudio/reticulate/issues/1714" class="external-link">#1714</a>).</p></li>
+<li><p>Fixed an issue where <code><a href="../reference/virtualenv-tools.html">virtualenv_starter()</a></code> would not discover a custom built Python (<a href="https://github.com/rstudio/reticulate/issues/1704" class="external-link">#1704</a>).</p></li>
+</ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="1.40.0" id="reticulate-1400">reticulate 1.40.0<small>2024-11-15</small><a class="anchor" aria-label="anchor" href="#reticulate-1400"></a></h2>
 <ul><li>

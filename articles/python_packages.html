@@ -32,7 +32,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.40.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.41.0</span>
       </span>
     </div>
 
@@ -104,13 +104,164 @@
       <h1 data-toc-skip>Installing Python Packages</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/rstudio/reticulate/blob/main/vignettes/python_packages.Rmd" class="external-link"><code>vignettes/python_packages.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/rstudio/reticulate/blob/v1.41.0/vignettes/python_packages.Rmd" class="external-link"><code>vignettes/python_packages.Rmd</code></a></small>
       <div class="hidden name"><code>python_packages.Rmd</code></div>
 
     </div>
 
     
     
+<div class="section level2">
+<h2 id="declaring-python-requirements-with-py_require">Declaring Python Requirements with <code>py_require()</code><a class="anchor" aria-label="anchor" href="#declaring-python-requirements-with-py_require"></a>
+</h2>
+<p><code><a href="../reference/py_require.html">py_require()</a></code> is the recommended way to declare Python
+dependencies. A <code><a href="../reference/py_require.html">py_require()</a></code> call is similar to a
+<code><a href="https://rdrr.io/r/base/library.html" class="external-link">library()</a></code> call for Python packages.</p>
+<p><code><a href="../reference/py_require.html">py_require()</a></code>:</p>
+<ul>
+<li>Should appear near the beginning of an R script.</li>
+<li>Declares the Python dependencies needed for the script.</li>
+<li>Applies only to the current R session.</li>
+<li>Has no effect if called multiple times with the same arguments.</li>
+</ul>
+<p>R packages can also call <code><a href="../reference/py_require.html">py_require()</a></code> when loaded, and
+their declared dependencies are combined with those declared by the user
+and other loaded R packages.</p>
+<p>Calling <code>py_require("pkg")</code> updates the Python
+requirements manifest that reticulate maintains for the current R
+session. This manifest is used only if no manually managed Python
+environment is found earlier in the Python <a href="../versions#order-of-discovery">Order of Discovery</a>. The
+manifest is not consulted and requirements are not resolved until
+reticulate needs to initialize Python, typically at the first
+<code><a href="../reference/import.html">import()</a></code> call. Requirements are resolved into a cached
+ephemeral environment specific to the unique set of dependencies
+declared.</p>
+<p>While not required, it is generally recommended to declare all Python
+dependencies before reticulate initializes Python. The simplest approach
+is to place all <code><a href="../reference/py_require.html">py_require()</a></code> calls at the start of the
+script, alongside <code><a href="https://rdrr.io/r/base/library.html" class="external-link">library()</a></code> calls.</p>
+<p>Usage example:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/py_require.html">py_require</a></span><span class="op">(</span><span class="st">"jax"</span><span class="op">)</span>    <span class="co"># Declare jax is a requirement</span></span>
+<span></span>
+<span><span class="va">jax</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/import.html">import</a></span><span class="op">(</span><span class="st">"jax"</span><span class="op">)</span> <span class="co"># &lt;-- initialize Python with declared requirements</span></span></code></pre></div>
+<div class="section level3">
+<h3 id="unsatisfiable-requirements-">Unsatisfiable requirements.<a class="anchor" aria-label="anchor" href="#unsatisfiable-requirements-"></a>
+</h3>
+<p>It’s possible to inadvertently declare an unsatisfiable set of Python
+requirements. This can happen for a variety of reasons, most often due
+to:</p>
+<ul>
+<li>Incompatible requirements declared by different R packages.</li>
+<li>A recently published Python package version that introduces
+conflicts.</li>
+</ul>
+<p>To troubleshoot:</p>
+<ol style="list-style-type: decimal">
+<li>Figure out what the conflicting requirements are and where they are
+coming from.</li>
+<li>Update the requirements to resolve conflicts.</li>
+</ol>
+<p>To help with step 1, calling <code><a href="../reference/py_require.html">py_require()</a></code> with no
+arguments will print out a manifest of the current requirements, as well
+as a table showing what requirements were declared by different R
+packages.</p>
+<p>Additionally, attempting to initialize Python will print out a
+detailed error message.</p>
+<p>For example:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/py_require.html">py_require</a></span><span class="op">(</span><span class="st">"numpy&gt;2"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/py_require.html">py_require</a></span><span class="op">(</span><span class="st">"numpy&lt;2"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/import.html">import</a></span><span class="op">(</span><span class="st">"numpy"</span><span class="op">)</span></span></code></pre></div>
+<pre><code>  × No solution found when resolving `--with` dependencies:
+  ╰─▶ Because you require numpy&gt;2 and numpy&lt;2, we can conclude that your
+      requirements are unsatisfiable.
+uv error code: 1
+-- Current requirements -------------------------------------------------
+ Python:   3.11.11 (reticulate default)
+ Packages: numpy, numpy&gt;2, numpy&lt;2
+-------------------------------------------------------------------------
+Error in uv_get_or_create_env() :
+  Call `py_require()` to remove or replace conflicting requirements.</code></pre>
+<p>You can call <code><a href="../reference/py_require.html">py_require()</a></code> again to update the
+requirements and make them satisfiable. Options for resolving issues
+include:</p>
+<ol style="list-style-type: decimal">
+<li>
+<p><strong>Rolling Back to a Known Working State</strong></p>
+<p>If your requirements were previously satisfiable but recently broke,
+it is likely due to a newly published package version. You can roll back
+to a known working state by specifying a date with
+<code>exclude_newer</code>.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Roll back to a known working state.</span></span>
+<span><span class="fu"><a href="../reference/py_require.html">py_require</a></span><span class="op">(</span>exclude_newer <span class="op">=</span> <span class="st">"2025-01-19"</span><span class="op">)</span></span></code></pre></div>
+</li>
+<li>
+<p><strong>Removing Conflicting Requirements</strong></p>
+<p>If your requirements cannot be satisfied due to conflicts, you can
+use <code>action = "remove"</code> or <code>action = "set"</code> to
+update or remove specific packages.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/py_require.html">py_require</a></span><span class="op">(</span><span class="st">"numpy&lt;2"</span>, action <span class="op">=</span> <span class="st">"remove"</span><span class="op">)</span></span></code></pre></div>
+<p>You can also retrieve and modify the full set of current requirements
+if needed. For example, given a larger set of conflicting tensorflow
+requirements:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Declare conflicting requirements.</span></span>
+<span><span class="fu"><a href="../reference/py_require.html">py_require</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"tensorflow==2.17.*"</span>,</span>
+<span>             <span class="st">"tensorflow&lt;=2.16"</span>,</span>
+<span>             <span class="st">"tensorflow[and-cuda]"</span>,</span>
+<span>             <span class="st">"tensorflow-cpu"</span>,</span>
+<span>             <span class="st">"tensorflow&lt;=2.18"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p>You can use <code>action = "remove"</code> to remove all
+TensorFlow-related requirements:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Remove all TensorFlow requirements.</span></span>
+<span><span class="va">all_py_pkgs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/py_require.html">py_require</a></span><span class="op">(</span><span class="op">)</span><span class="op">$</span><span class="va">packages</span></span>
+<span><span class="va">tf_pkgs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grep</a></span><span class="op">(</span><span class="st">"tensorflow"</span>, <span class="va">all_py_pkgs</span>, value <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/py_require.html">py_require</a></span><span class="op">(</span><span class="va">tf_pkgs</span>, action <span class="op">=</span> <span class="st">"remove"</span><span class="op">)</span></span></code></pre></div>
+<p>Or you can use <code>action = "set"</code> to replace all declared
+requirements:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Replace all package requirements except TensorFlow.</span></span>
+<span><span class="va">all_py_pkgs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/py_require.html">py_require</a></span><span class="op">(</span><span class="op">)</span><span class="op">$</span><span class="va">packages</span></span>
+<span><span class="va">all_py_pkgs_sans_tf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grep</a></span><span class="op">(</span><span class="st">"tensorflow"</span>, <span class="va">all_py_pkgs</span>, value <span class="op">=</span> <span class="cn">TRUE</span>, invert <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/py_require.html">py_require</a></span><span class="op">(</span><span class="va">all_py_pkgs_sans_tf</span>, action <span class="op">=</span> <span class="st">"set"</span><span class="op">)</span></span></code></pre></div>
+</li>
+<li>
+<p><strong>Installing a Development Version</strong></p>
+<p>If a development version of a package has fixed the issue but has not
+yet been published to PyPi, you can install it directly from GitHub or
+the local filesystem.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Install the 'markitdown' package from GitHub.</span></span>
+<span><span class="fu"><a href="../reference/py_require.html">py_require</a></span><span class="op">(</span><span class="st">"markitdown@git+https://github.com/microsoft/markitdown.git@main#subdirectory=packages/markitdown"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Install it from the local filesystem.</span></span>
+<span><span class="fu"><a href="../reference/py_require.html">py_require</a></span><span class="op">(</span><span class="st">"markitdown@/Users/tomasz/github/microsoft/markitdown/packages/markitdown/"</span><span class="op">)</span></span></code></pre></div>
+<p>See <code><a href="../reference/py_require.html">py_require()</a></code> for more examples.</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="section level2">
+<h2 id="manually-managing-python-installations">Manually managing Python installations<a class="anchor" aria-label="anchor" href="#manually-managing-python-installations"></a>
+</h2>
+<div class="alert alert-info">
+<blockquote>
+<h2 id="updated-guidance"><strong>⚠ Updated Guidance</strong></h2>
+<p>The remainder of this vignette describes how to manually manage
+Python installations. Manually managing Python installations is no
+longer necessary nor recommended.</p>
+<p>It is instead recommended to use <code><a href="../reference/py_require.html">py_require()</a></code> to specify
+Python dependencies. Note that <code><a href="../reference/py_require.html">py_require()</a></code> has no effect
+if using a self-managed Python installation.</p>
+</blockquote>
+</div>
+</div>
 <div class="section level2">
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
@@ -155,7 +306,7 @@ packages built by conda and packages built outside of conda (e.g., <a href="http
 that can be used to install one or more Python packages. The packages
 will be by default be installed within a virtualenv or Conda environment
 named “r-reticulate”. For example:</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/py_install.html">py_install</a></span><span class="op">(</span><span class="st">"pandas"</span><span class="op">)</span></span></code></pre></div>
 <p>This provides a straightforward high-level interface to package
@@ -205,10 +356,10 @@ virtualenvs:</p>
 the <code>WORKON_HOME</code> environment variable.</p>
 <p>Here’s an example of using these functions to create an environment,
 install packages within it, then use the environment from R:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># create a new environment </span></span>
+<span><span class="co"># create a new environment</span></span>
 <span><span class="fu"><a href="../reference/virtualenv-tools.html">virtualenv_create</a></span><span class="op">(</span><span class="st">"r-reticulate"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># install SciPy</span></span>
@@ -220,7 +371,7 @@ install packages within it, then use the environment from R:</p>
 environments, in that case you may want to call the
 <code><a href="../reference/use_python.html">use_virtualenv()</a></code> function to ensure that a specific
 virtualenv is utilized by reticulate:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># indicate that we want to use a specific virtualenv</span></span>
@@ -263,8 +414,8 @@ inform reticulate where to look by setting the environment variable
 environments:</p>
 <table class="table">
 <colgroup>
-<col width="26%">
-<col width="73%">
+<col width="24%">
+<col width="75%">
 </colgroup>
 <thead><tr class="header">
 <th>Function</th>
@@ -291,10 +442,10 @@ environments:</p>
 </table>
 <p>Here’s an example of using these functions to create an environment,
 install packages within it, then use the environment from R:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># create a new environment </span></span>
+<span><span class="co"># create a new environment</span></span>
 <span><span class="fu"><a href="../reference/conda-tools.html">conda_create</a></span><span class="op">(</span><span class="st">"r-reticulate"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># install SciPy</span></span>
@@ -306,7 +457,7 @@ install packages within it, then use the environment from R:</p>
 Conda environments, in that case you may want to call the
 <code><a href="../reference/use_python.html">use_condaenv()</a></code> function to ensure that a specific Conda
 environment is utilized by reticulate:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># indicate that we want to use a specific condaenv</span></span>
@@ -320,11 +471,11 @@ environment is utilized by reticulate:</p>
 </h2>
 <p>You can also use standard shell installation utilities
 (<code>pip</code> or <code>conda</code>) to install Python packages:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># install into system level Python</span></span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="ex">$</span> sudo pip install SciPy</span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a></span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co"># install into active Conda environment</span></span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="ex">$</span> conda install SciPy</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="co"># install into system level Python</span></span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a><span class="ex">$</span> sudo pip install SciPy</span>
+<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a><span class="co"># install into active Conda environment</span></span>
+<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a><span class="ex">$</span> conda install SciPy</span></code></pre></div>
 <p>When doing this, be sure to make note of which version of Python your
 package has been installed within, and call <code><a href="../reference/use_python.html">use_python()</a></code>
 functions as appropriate to ensure that this version is used by

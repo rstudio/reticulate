@@ -32,7 +32,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.40.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.41.0</span>
       </span>
     </div>
 
@@ -104,13 +104,24 @@
       <h1 data-toc-skip>Managing an R Package’s Python Dependencies</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/rstudio/reticulate/blob/main/vignettes/python_dependencies.Rmd" class="external-link"><code>vignettes/python_dependencies.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/rstudio/reticulate/blob/v1.41.0/vignettes/python_dependencies.Rmd" class="external-link"><code>vignettes/python_dependencies.Rmd</code></a></small>
       <div class="hidden name"><code>python_dependencies.Rmd</code></div>
 
     </div>
 
     
     
+<div class="alert alert-warning">
+<blockquote>
+<h2 id="deprecated-vignette"><strong>⚠ Deprecated Vignette</strong></h2>
+<p>This vignette is retained for reference but outlines an outdated
+method for managing Python dependencies in R packages.</p>
+<p>It is now recommended to use <code><a href="../reference/py_require.html">py_require()</a></code> to specify
+Python dependencies. For details, see <code>?py_require()</code> and the
+<a href="package.html">Using reticulate in an R Package</a>
+vignette.</p>
+</blockquote>
+</div>
 <p>If you’re writing an R package that uses <code>reticulate</code> as
 an interface to a Python session, you likely also need one or more
 Python packages installed on the user’s machine for your package to work

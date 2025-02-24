@@ -32,7 +32,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.40.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.41.0</span>
       </span>
     </div>
 
@@ -104,7 +104,7 @@
       <h1 data-toc-skip>Using reticulate in an R Package</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/rstudio/reticulate/blob/main/vignettes/package.Rmd" class="external-link"><code>vignettes/package.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/rstudio/reticulate/blob/v1.41.0/vignettes/package.Rmd" class="external-link"><code>vignettes/package.Rmd</code></a></small>
       <div class="hidden name"><code>package.Rmd</code></div>
 
     </div>
@@ -112,111 +112,192 @@
     
     
 <div class="section level2">
+<h2 id="declaring-python-requirements">Declaring Python Requirements<a class="anchor" aria-label="anchor" href="#declaring-python-requirements"></a>
+</h2>
+<p>R package authors can use reticulate to make Python packages
+accessible to users from R. This vignette documents best practices for
+how package authors can declare and import their package’s Python
+dependencies.</p>
+<p>While <code><a href="../reference/import.html">reticulate::import()</a></code> can be used to load a Python
+module, it does not provide any mechanism for installing a Python
+package and actually making sure the module is available.
+<code><a href="../reference/py_require.html">reticulate::py_require()</a></code> helps fill that gap, by giving R
+package authors a way to declare their Python package dependencies in a
+way that can be collated and respected across multiple packages using
+reticulate, each with their own unique requirements.</p>
+<p>Beginning with Reticulate version 1.41, R packages can declare Python
+requirements with <code><a href="../reference/py_require.html">py_require()</a></code>. Python package dependencies
+requested via <code><a href="../reference/py_require.html">py_require()</a></code> will automatically be
+provisioned and made available for the user when the Python session is
+later initialized, via an ephemeral Python virtual environment. These
+requested packages can then be imported and used within your R package
+as required.</p>
+<div class="section level3">
+<h3 id="typical-usage">Typical Usage<a class="anchor" aria-label="anchor" href="#typical-usage"></a>
+</h3>
+<p><code><a href="../reference/py_require.html">py_require()</a></code> is typically called from
+<code>.onLoad()</code>, as shown below:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">.onLoad</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">libname</span>, <span class="va">pkgname</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu">reticulate</span><span class="fu">::</span><span class="fu"><a href="../reference/py_require.html">py_require</a></span><span class="op">(</span><span class="st">"scipy"</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+<p><code><a href="../reference/py_require.html">py_require()</a></code> can also be called from other package
+functions to modify dependencies after the package has loaded. This is
+useful for packages that support multiple configurations.</p>
+<p>For example, the <code>keras3</code> R package supports multiple
+backends. In <code>.onLoad()</code>, <code>keras3</code> configures a
+default backend, but users can choose a different one using the
+<code>use_backend()</code> function. This function calls
+<code><a href="../reference/py_require.html">py_require()</a></code> with different values based on the selected
+backend:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">.onLoad</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="../reference/py_require.html">py_require</a></span><span class="op">(</span><span class="st">"keras"</span><span class="op">)</span></span>
+<span>  <span class="fu">use_backend</span><span class="op">(</span><span class="st">"tensorflow"</span><span class="op">)</span> <span class="co"># Default to TensorFlow</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="co">#' @export</span></span>
+<span><span class="va">use_backend</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">backend</span>, <span class="va">gpu</span> <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="../reference/py_require.html">py_require</a></span><span class="op">(</span><span class="st">"tensorflow"</span>, action <span class="op">=</span> <span class="st">"remove"</span><span class="op">)</span> <span class="co"># Remove default backend</span></span>
+<span></span>
+<span>  <span class="kw"><a href="https://rdrr.io/r/base/switch.html" class="external-link">switch</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">backend</span>, <span class="st">"_"</span>, <span class="fu">get_os</span><span class="op">(</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>    jax_Linux <span class="op">=</span> <span class="kw">if</span> <span class="op">(</span><span class="va">gpu</span><span class="op">)</span> <span class="fu"><a href="../reference/py_require.html">py_require</a></span><span class="op">(</span><span class="st">"jax[cuda12]"</span><span class="op">)</span> <span class="kw">else</span> <span class="fu"><a href="../reference/py_require.html">py_require</a></span><span class="op">(</span><span class="st">"jax[cpu]"</span><span class="op">)</span>,</span>
+<span>    jax_macOS <span class="op">=</span> <span class="fu"><a href="../reference/py_require.html">py_require</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"jax"</span>, <span class="kw">if</span> <span class="op">(</span><span class="va">gpu</span><span class="op">)</span> <span class="st">"jax-metal"</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>    jax_Windows <span class="op">=</span> <span class="fu"><a href="../reference/py_require.html">py_require</a></span><span class="op">(</span><span class="st">"jax"</span><span class="op">)</span>,</span>
+<span>    tensorflow_Linux <span class="op">=</span> <span class="op">{</span> <span class="va">...</span> <span class="op">}</span>,</span>
+<span>    tensorflow_macOS <span class="op">=</span> <span class="op">{</span> <span class="va">...</span> <span class="op">}</span>,</span>
+<span>    tensorflow_Windows <span class="op">=</span> <span class="op">{</span> <span class="va">...</span> <span class="op">}</span>,</span>
+<span>    torch_Linux <span class="op">=</span> <span class="op">{</span> <span class="va">...</span> <span class="op">}</span>,</span>
+<span>    torch_macOS <span class="op">=</span> <span class="op">{</span> <span class="va">...</span> <span class="op">}</span>,</span>
+<span>    torch_Windows <span class="op">=</span> <span class="op">{</span> <span class="va">...</span> <span class="op">}</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+<p><code>keras3</code> users can then specify a backend like this:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://keras3.posit.co/" class="external-link">keras3</a></span><span class="op">)</span></span>
+<span><span class="fu">use_backend</span><span class="op">(</span><span class="st">"jax"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="best-practices">Best Practices<a class="anchor" aria-label="anchor" href="#best-practices"></a>
+</h3>
+<p>Calling <code><a href="../reference/py_require.html">py_require()</a></code> from a package is generally safe
+and recommended. It ensures dependencies are declared while having no
+effect on users who manage their own Python environments.
+<code><a href="../reference/py_require.html">py_require()</a></code> replaces older approaches, such as listing
+dependencies in the <code>DESCRIPTION</code> file or calling
+<code>use_virtualenv(required = FALSE)</code> in
+<code>.onLoad()</code>.</p>
+<p>Be mindful that other R packages and users may also declare Python
+requirements. Avoid restrictive version constraints. If a version
+constraint is necessary, prefer <code>&gt;=</code> and <code>!=</code>
+over <code>&lt;=</code>, as the latter can quickly become outdated.
+Also, be mindful that an R package’s requirements will be combined with
+a potentially wide variety of user requirements, like
+<code>exclude_newer</code>.</p>
+<p>An example user script header:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/mlverse/pysparklyr" class="external-link">pysparklyr</a></span><span class="op">)</span> <span class="co"># declares requirements for PySpark</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://keras3.posit.co/" class="external-link">keras3</a></span><span class="op">)</span>     <span class="co"># declares requirements for default 'tensorflow' backend</span></span>
+<span><span class="fu">use_backend</span><span class="op">(</span><span class="st">"jax"</span><span class="op">)</span>  <span class="co"># removes 'tensorflow' requirements, adds 'jax' requirements</span></span>
+<span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/py_require.html">py_require</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"scipy"</span>, <span class="st">"polars"</span><span class="op">)</span><span class="op">)</span>         <span class="co"># user-declared requirements</span></span>
+<span><span class="fu"><a href="../reference/py_require.html">py_require</a></span><span class="op">(</span>python_version <span class="op">=</span> <span class="st">"&gt;=3.12"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/py_require.html">py_require</a></span><span class="op">(</span>exclude_newer <span class="op">=</span> <span class="st">"2025-02-20"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">np</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/import.html">import</a></span><span class="op">(</span><span class="st">"numpy"</span><span class="op">)</span>  <span class="co"># &lt;-- Python initialized</span></span>
+<span><span class="va">...</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="declaring-optional-dependencies">Declaring Optional Dependencies<a class="anchor" aria-label="anchor" href="#declaring-optional-dependencies"></a>
+</h3>
+<p>It’s recommended that all <code><a href="../reference/py_require.html">py_require()</a></code> calls be made
+before reticulate initializes the Python session. However, for rarely
+used optional dependencies, the requirement can be declared right before
+use:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">model_to_dot</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu">reticulate</span><span class="fu">::</span><span class="fu"><a href="../reference/py_require.html">py_require</a></span><span class="op">(</span><span class="st">"pydot"</span><span class="op">)</span></span>
+<span>  <span class="va">keras</span><span class="op">$</span><span class="va">utils</span><span class="op">$</span><span class="fu">model_to_dot</span><span class="op">(</span><span class="va">x</span>, <span class="va">...</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+<p>Calling <code><a href="../reference/py_require.html">py_require()</a></code> after Python has initialized causes
+reticulate to activate a new ephemeral virtual environment containing
+the additional requirements. Only adding packages is permitted after
+Python has initialized; calling <code><a href="../reference/py_require.html">py_require()</a></code> with
+<code>action="set"</code> or <code>action="remove"</code> is not
+possible.</p>
+</div>
+</div>
+<div class="section level2">
 <h2 id="delay-loading-python-modules">Delay Loading Python Modules<a class="anchor" aria-label="anchor" href="#delay-loading-python-modules"></a>
 </h2>
-<p>If you write an R package that wraps one or more Python packages,
-it’s likely that you’ll be importing Python modules within the
-<code>.onLoad</code> method of your package so that you can have
-convenient access to them within the rest of the package source
-code.</p>
-<p>When you do this, you should use the <code>delay_load</code> flag to
-the <code><a href="../reference/import.html">import()</a></code> function, for example:</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># global reference to scipy (will be initialized in .onLoad)</span></span>
-<span><span class="va">scipy</span> <span class="op">&lt;-</span> <span class="cn">NULL</span></span>
+<p>If your R package wraps Python modules, it’s common to import them
+within <code>.onLoad()</code>. Use the <code>delay_load</code> flag in
+<code><a href="../reference/import.html">import()</a></code> to allow:</p>
+<ol style="list-style-type: decimal">
+<li>Successful R package loading even when Python packages are not
+installed (important for CRAN testing).</li>
+<li>Users to specify their Python installation before using your
+package.</li>
+</ol>
+<p>Example:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">scipy</span> <span class="op">&lt;-</span> <span class="cn">NULL</span></span>
 <span></span>
 <span><span class="va">.onLoad</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">libname</span>, <span class="va">pkgname</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="co"># use superassignment to update global reference to scipy</span></span>
+<span>  <span class="fu">reticulate</span><span class="fu">::</span><span class="fu"><a href="../reference/py_require.html">py_require</a></span><span class="op">(</span><span class="st">"scipy"</span><span class="op">)</span></span>
 <span>  <span class="va">scipy</span> <span class="op">&lt;&lt;-</span> <span class="fu">reticulate</span><span class="fu">::</span><span class="fu"><a href="../reference/import.html">import</a></span><span class="op">(</span><span class="st">"scipy"</span>, delay_load <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>Using the <code>delay_load</code> flag has two important
-benefits:</p>
-<ol style="list-style-type: decimal">
-<li><p>It allows you to successfully load your package even when Python
-/ Python packages are not installed on the target system (this is
-particularly important when testing on CRAN build machines).</p></li>
-<li>
-<p>It allows users to specify a desired location for Python before
-interacting with your package. For example:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">mypackage</span><span class="op">)</span></span>
-<span><span class="fu">reticulate</span><span class="fu">::</span><span class="fu"><a href="../reference/use_python.html">use_virtualenv</a></span><span class="op">(</span><span class="st">"~/pythonenvs/userenv"</span><span class="op">)</span></span>
-<span><span class="co"># call functions from mypackage</span></span></code></pre></div>
-</li>
-</ol>
-<p>Without the <code>delay_load</code>, Python would be loaded
-immediately and the user’s call to <code>use_virtualenv</code> would
-have no effect.</p>
+<p>Without <code>delay_load</code>, Python would load immediately,
+preventing users from configuring their environment.</p>
 </div>
 <div class="section level2">
 <h2 id="installing-python-dependencies">Installing Python Dependencies<a class="anchor" aria-label="anchor" href="#installing-python-dependencies"></a>
 </h2>
-<p>Your R package likely depends on the installation of one or more
-Python packages. As a convenience to your users, you may want to provide
-a high-level R function to allow users to install these Python packages.
-By default, the Python packages should be installed in an isolated
-virtual environment, but it’s beneficial if users could easily configure
-multiple R packages to depend on a common Python environment (so that
-they can be easily used together).</p>
+<p><code><a href="../reference/py_require.html">py_require()</a></code> is the recommended approach for managing
+Python dependencies. However, for users who prefer to manually manage a
+Python installation, you can document what Python packages are
+required.</p>
 <p>The <code><a href="../reference/py_install.html">py_install()</a></code> function provides a high-level
-interface for installing one or more Python packages. The packages will
-by default be installed within the currently active virtual environment
-or conda environment, (which is, by default, an environent named
-“r-reticulate”). For example:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+interface for installing Python packages. The packages will by default
+be installed within the currently active Python installation.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/py_install.html">py_install</a></span><span class="op">(</span><span class="st">"scipy"</span><span class="op">)</span></span></code></pre></div>
-<p>You can document the use of this function along with your package, or
-alternatively you can provide a wrapper function for
-<code><a href="../reference/py_install.html">py_install()</a></code> that defaults to installing in a Python
-environment created specifically for your R package. For example:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<p>Alternatively, create a wrapper function for
+<code><a href="../reference/py_install.html">py_install()</a></code> (or <code><a href="../reference/virtualenv-tools.html">virtualenv_create()</a></code>) that
+installs dependencies in a dedicated environment:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">install_scipy</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">envname</span> <span class="op">=</span> <span class="st">"r-scipy"</span>, <span class="va">method</span> <span class="op">=</span> <span class="st">"auto"</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu">reticulate</span><span class="fu">::</span><span class="fu"><a href="../reference/py_install.html">py_install</a></span><span class="op">(</span><span class="st">"scipy"</span>, envname <span class="op">=</span> <span class="va">envname</span>, </span>
-<span>                         method <span class="op">=</span> <span class="va">method</span>, <span class="va">...</span><span class="op">)</span></span>
+<span>  <span class="fu">reticulate</span><span class="fu">::</span><span class="fu"><a href="../reference/py_install.html">py_install</a></span><span class="op">(</span><span class="st">"scipy"</span>, envname <span class="op">=</span> <span class="va">envname</span>, method <span class="op">=</span> <span class="va">method</span>, <span class="va">...</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>For a fuller discussion of how to use reticulate in an R package,
-include alternative approaches, and how to create a “pit of success” for
-R users with regards to managing Python installations, see the guide on
-<a href="python_dependencies.html">Python Dependencies</a></p>
+<p>Note that calling <code><a href="../reference/py_install.html">py_install()</a></code> on an ephemeral
+environment generated from <code><a href="../reference/py_require.html">py_require()</a></code> declared
+requirements will generate a warning.</p>
 </div>
 <div class="section level2">
 <h2 id="checking-and-testing-on-cran">Checking and Testing on CRAN<a class="anchor" aria-label="anchor" href="#checking-and-testing-on-cran"></a>
 </h2>
-<p>If you use <strong>reticulate</strong> in another R package you need
-to account for the fact that when your package is submitted to CRAN, the
-CRAN test servers may not have Python, NumPy, or whatever other Python
-modules you are wrapping in your package. If you don’t do this then your
-package may fail to load and/or pass its tests when run on CRAN.</p>
-<p>There are two things you should do to ensure your package is well
-behaved on CRAN:</p>
+<p>To ensure your package is well behaved on CRAN:</p>
 <ol style="list-style-type: decimal">
 <li>
-<p>Use the <code>delay_load</code> option (as described above) to
-ensure that the module (and Python) is loaded only on its first use. For
-example:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># python 'scipy' module I want to use in my package</span></span>
-<span><span class="va">scipy</span> <span class="op">&lt;-</span> <span class="cn">NULL</span></span>
+<p>Use <code>delay_load</code> to defer module loading:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">scipy</span> <span class="op">&lt;-</span> <span class="cn">NULL</span></span>
 <span></span>
 <span><span class="va">.onLoad</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">libname</span>, <span class="va">pkgname</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="co"># delay load foo module (will only be loaded when accessed via $)</span></span>
-<span>  <span class="va">scipy</span> <span class="op">&lt;&lt;-</span> <span class="fu"><a href="../reference/import.html">import</a></span><span class="op">(</span><span class="st">"scipy"</span>, delay_load <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span>  <span class="va">scipy</span> <span class="op">&lt;&lt;-</span> <span class="fu">reticulate</span><span class="fu">::</span><span class="fu"><a href="../reference/import.html">import</a></span><span class="op">(</span><span class="st">"scipy"</span>, delay_load <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 </li>
 <li>
-<p>When writing tests, check to see if your module is available and
-if it isn’t then skip the test. For example, if you are using the
-<strong>testthat</strong> package, you might do this:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># helper function to skip tests if we don't have the 'foo' module</span></span>
-<span><span class="va">skip_if_no_scipy</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">have_scipy</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/py_module_available.html">py_module_available</a></span><span class="op">(</span><span class="st">"scipy"</span><span class="op">)</span></span>
-<span>  <span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="va">have_scipy</span><span class="op">)</span></span>
+<p>Skip tests when required modules are unavailable:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">skip_if_no_scipy</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu">reticulate</span><span class="fu">::</span><span class="fu"><a href="../reference/py_module_available.html">py_module_available</a></span><span class="op">(</span><span class="st">"scipy"</span><span class="op">)</span><span class="op">)</span></span>
 <span>    <span class="fu">skip</span><span class="op">(</span><span class="st">"scipy not available for testing"</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span></span>
-<span><span class="co"># then call this function from all of your tests</span></span>
 <span><span class="fu">test_that</span><span class="op">(</span><span class="st">"Things work as expected"</span>, <span class="op">{</span></span>
 <span>  <span class="fu">skip_if_no_scipy</span><span class="op">(</span><span class="op">)</span></span>
 <span>  <span class="co"># test code here...</span></span>
@@ -227,33 +308,65 @@ if it isn’t then skip the test. For example, if you are using the
 <div class="section level2">
 <h2 id="implementing-s3-methods">Implementing S3 Methods<a class="anchor" aria-label="anchor" href="#implementing-s3-methods"></a>
 </h2>
-<p>Python objects exposed by <strong>reticulate</strong> carry their
-Python classes into R, so it’s possible to write S3 methods to customize
-e.g. the <code>str</code> or <code>print</code> behavior for a given
-class (note that it’s not typically necessary that you do this since the
-default <code>str</code> and <code>print</code> methods call
-<code>PyObject_Str</code>, which typically provides an acceptable
-default behavior).</p>
-<p>If you do decide to implement custom S3 methods for a Python class
-it’s important to keep in mind that when an R session ends the
-connection to Python objects is lost, so when the .RData saved from one
-R session is restored in a subsequent R session the Python objects are
-effectively lost (technically they become <code>NULL</code> R
-<code>externalptr</code> objects).</p>
-<p>By default when you attempt to interact with a Python object from a
-previous session (a <code>NULL</code> R <code>externalptr</code>) an
-error is thrown. If you want to do something more customized in your S3
-method you can use the <code><a href="../reference/py_is_null_xptr.html">py_is_null_xptr()</a></code> function. For
-example:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>method.MyModule.MyPythonClass <span class="ot">&lt;-</span> <span class="cf">function</span>(x, y, ...) {</span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">py_is_null_xptr</span>(x))</span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>    <span class="co"># whatever is appropriate</span></span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>  <span class="cf">else</span></span>
-<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>    <span class="co"># interact with the object</span></span>
-<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>}</span></code></pre></div>
-<p>Note that this check isn’t required, as by default an R error will
-occur. If it’s desirable to avoid this error for any reason then you can
-use <code><a href="../reference/py_is_null_xptr.html">py_is_null_xptr()</a></code> to do so.</p>
+<p>Python objects exposed by <strong>reticulate</strong> retain their
+Python classes in R, allowing you to define S3 methods for them. This
+can be useful for customizing how objects are printed or structured in
+R. However, Python objects do not persist across R sessions, meaning an
+R object that previously pointed to a Python object will become a
+<code>NULL</code> external pointer when reloaded.</p>
+<p>To safely handle these cases, use <code><a href="../reference/py_is_null_xptr.html">py_is_null_xptr()</a></code>, as
+shown in this example:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">print.my_python_object</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="../reference/py_is_null_xptr.html">py_is_null_xptr</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"&lt;Python object is no longer available&gt;\n"</span><span class="op">)</span></span>
+<span>  <span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="../reference/r-py-conversion.html">py_to_r</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="op">}</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+<p>This prevents errors when interacting with a Python object from a
+previous session.</p>
+<p>This prevents errors when attempting to interact with a Python object
+from a previous session.</p>
+<div class="section level3">
+<h3 id="supporting-versions-with-different-s3-classes">Supporting Versions with Different S3 Classes<a class="anchor" aria-label="anchor" href="#supporting-versions-with-different-s3-classes"></a>
+</h3>
+<p>The Python S3 method for an object is generated from the Python
+modules and submodules where the object is defined. In sophisticated
+Python packages, this path might change between package versions. For
+instance, you can access the <code>Model</code> object from
+<code>keras.Model</code> in Python. However, depending on the Keras
+Python package version, the actual class definition for
+<code>Model</code> may be located in a submodule like
+<code>keras._internals.src</code> or
+<code>keras._internals.models</code>, and since the class module path is
+considered an internal implementation detail of the Python package, it
+can vary across Python package versions. As a result, the S3 class for
+the Python object will also change, depending on the Python package
+version.</p>
+<p>To support changing S3 classes, instead of registering methods in
+NAMESPACE with roxygen, manually register them in
+<code>.onLoad()</code>:</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Python class `DocumentConverterResult` changes with different MarkItDown versions.</span></span>
+<span><span class="va">py_to_r.markitdown.DocumentConverterResult</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"# "</span>, <span class="va">x</span><span class="op">$</span><span class="va">title</span>, <span class="st">"\n\n"</span>, <span class="va">x</span><span class="op">$</span><span class="va">text_content</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span></span>
+<span><span class="va">.onLoad</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">libname</span>, <span class="va">pkgname</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu">reticulate</span><span class="fu">::</span><span class="fu"><a href="../reference/py_require.html">py_require</a></span><span class="op">(</span><span class="st">"markitdown"</span><span class="op">)</span></span>
+<span></span>
+<span>  <span class="fu">reticulate</span><span class="fu">:::</span><span class="fu">py_register_load_hook</span><span class="op">(</span><span class="st">"markitdown"</span>, <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">markitdown</span> <span class="op">&lt;-</span> <span class="fu">reticulate</span><span class="fu">::</span><span class="fu"><a href="../reference/import.html">import</a></span><span class="op">(</span><span class="st">"markitdown"</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/ns-internal.html" class="external-link">registerS3method</a></span><span class="op">(</span></span>
+<span>      <span class="st">"py_to_r"</span>,</span>
+<span>      <span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">nameOfClass</a></span><span class="op">(</span><span class="va">markitdown</span><span class="op">$</span><span class="va">DocumentConverterResult</span><span class="op">)</span>,</span>
+<span>      <span class="va">py_to_r.markitdown.DocumentConverterResult</span>,</span>
+<span>      <span class="fu"><a href="https://rdrr.io/r/base/environment.html" class="external-link">environment</a></span><span class="op">(</span><span class="fu">reticulate</span><span class="fu">::</span><span class="va"><a href="../reference/r-py-conversion.html">py_to_r</a></span><span class="op">)</span></span>
+<span>    <span class="op">)</span></span>
+<span>  <span class="op">}</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+</div>
 <div class="section level3">
 <h3 id="converting-between-r-and-python">Converting between R and Python<a class="anchor" aria-label="anchor" href="#converting-between-r-and-python"></a>
 </h3>
@@ -286,7 +399,7 @@ package.</p>
 controls how objects generated from the created Python object are
 converted. To illustrate, consider the difference between these two
 cases:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># [convert = TRUE] =&gt; convert Python objects to R when appropriate</span></span>
@@ -311,7 +424,7 @@ generated object. This is typically done by:</p>
 returned Python object.</p></li>
 </ol>
 <p>As an example of the second:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># suppose 'make_python_object()' creates a Python object</span></span>
 <span><span class="co"># from R objects of class 'my_r_object'.</span></span>
 <span><span class="va">r_to_py.my_r_object</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">convert</span><span class="op">)</span> <span class="op">{</span></span>
@@ -322,45 +435,54 @@ returned Python object.</p></li>
 </div>
 </div>
 <div class="section level2">
-<h2 id="using-github-actions">Using Github Actions<a class="anchor" aria-label="anchor" href="#using-github-actions"></a>
+<h2 id="using-github-actions">Using GitHub Actions<a class="anchor" aria-label="anchor" href="#using-github-actions"></a>
 </h2>
-<p><a href="https://github.com/features/actions" class="external-link">Github Actions</a> are
-commonly used for continuous integration and testing of R packages.
-Making it work with <strong>reticulate</strong> is pretty simple - all
-you need to do is ensure that there is a valid Python installation on
-the runner, and that reticulate knows to use it. You can do this all
-with shell commands, or you can use functions in reticulate to do this.
-Here is an example sequence of <code>steps</code> demonstrating how you
-can do this with reticulate functions:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a></span>
-<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">uses</span><span class="kw">:</span><span class="at"> r-lib/actions/setup-r@v2</span></span>
-<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="at">        </span><span class="fu">with</span><span class="kw">:</span></span>
-<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="at">          </span><span class="fu">r-version</span><span class="kw">:</span><span class="at"> release</span></span>
-<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a></span>
-<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">uses</span><span class="kw">:</span><span class="at"> r-lib/actions/setup-r-dependencies@v2</span></span>
-<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="at">        </span><span class="fu">with</span><span class="kw">:</span></span>
-<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a><span class="at">          </span><span class="fu">extra-packages</span><span class="kw">:</span><span class="at"> rcmdcheck reticulate</span></span>
-<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a></span>
-<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">uses</span><span class="kw">:</span><span class="at"> actions/setup-python@v4</span></span>
-<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a><span class="at">        </span><span class="fu">with</span><span class="kw">:</span></span>
-<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a><span class="at">          </span><span class="fu">python-version</span><span class="kw">:</span><span class="at"> </span><span class="st">"3.x"</span></span>
-<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a></span>
-<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> setup r-reticulate venv</span></span>
-<span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a><span class="at">        </span><span class="fu">shell</span><span class="kw">:</span><span class="at"> Rscript {0}</span></span>
-<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a><span class="fu">        run</span><span class="kw">: </span><span class="ch">|</span></span>
-<span id="cb10-17"><a href="#cb10-17" tabindex="-1"></a></span>
-<span id="cb10-18"><a href="#cb10-18" tabindex="-1"></a>          path_to_python &lt;- reticulate::virtualenv_create(</span>
-<span id="cb10-19"><a href="#cb10-19" tabindex="-1"></a>            envname = "r-reticulate",</span>
-<span id="cb10-20"><a href="#cb10-20" tabindex="-1"></a>            python = Sys.which("python"), # placed on PATH by the setup-python action</span>
-<span id="cb10-21"><a href="#cb10-21" tabindex="-1"></a>            packages = c(</span>
-<span id="cb10-22"><a href="#cb10-22" tabindex="-1"></a>              "numpy", "any-other-python-packages-you-want-go-here"</span>
-<span id="cb10-23"><a href="#cb10-23" tabindex="-1"></a>            )</span>
-<span id="cb10-24"><a href="#cb10-24" tabindex="-1"></a>          )</span>
-<span id="cb10-25"><a href="#cb10-25" tabindex="-1"></a></span>
-<span id="cb10-26"><a href="#cb10-26" tabindex="-1"></a>          writeLines(sprintf("RETICULATE_PYTHON=%s", path_to_python),</span>
-<span id="cb10-27"><a href="#cb10-27" tabindex="-1"></a>                     Sys.getenv("GITHUB_ENV"))</span>
-<span id="cb10-28"><a href="#cb10-28" tabindex="-1"></a></span>
-<span id="cb10-29"><a href="#cb10-29" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">uses</span><span class="kw">:</span><span class="at"> r-lib/actions/check-r-package@v2</span></span></code></pre></div>
+<p>For testing R packages with GitHub Actions, dependencies declared via
+<code><a href="../reference/py_require.html">py_require()</a></code> will resolve automatically with no additional
+steps. If there are extra Python test dependencies, declare them using
+<code><a href="../reference/py_require.html">py_require()</a></code> in <code>tests/testthat/helper.R</code>. The
+standard R-CMD-check workflow should work:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">uses</span><span class="kw">:</span><span class="at"> r-lib/actions/setup-r@v2</span></span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">uses</span><span class="kw">:</span><span class="at"> r-lib/actions/setup-r-dependencies@v2</span></span>
+<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a><span class="at">  </span><span class="fu">with</span><span class="kw">:</span></span>
+<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a><span class="at">    </span><span class="fu">extra-packages</span><span class="kw">:</span><span class="at"> rcmdcheck</span></span>
+<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a></span>
+<span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">uses</span><span class="kw">:</span><span class="at"> r-lib/actions/check-r-package@v2</span></span></code></pre></div>
+<p>Optionally, you can pre-download Python dependencies in a separate
+step for cleaner CI logs:</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">uses</span><span class="kw">:</span><span class="at"> r-lib/actions/setup-r@v2</span></span>
+<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a><span class="at">  </span><span class="fu">with</span><span class="kw">:</span></span>
+<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a><span class="at">    </span><span class="fu">r-version</span><span class="kw">:</span><span class="at"> release</span></span>
+<span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a></span>
+<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">uses</span><span class="kw">:</span><span class="at"> r-lib/actions/setup-r-dependencies@v2</span></span>
+<span id="cb16-6"><a href="#cb16-6" tabindex="-1"></a><span class="at">  </span><span class="fu">with</span><span class="kw">:</span></span>
+<span id="cb16-7"><a href="#cb16-7" tabindex="-1"></a><span class="at">    </span><span class="fu">extra-packages</span><span class="kw">:</span><span class="at"> rcmdcheck local::.</span></span>
+<span id="cb16-8"><a href="#cb16-8" tabindex="-1"></a></span>
+<span id="cb16-9"><a href="#cb16-9" tabindex="-1"></a><span class="kw">- </span><span class="fu">run</span><span class="kw">:</span><span class="at"> </span><span class="ch">|</span></span>
+<span id="cb16-10"><a href="#cb16-10" tabindex="-1"></a>    library(mypackage)      # &lt;-- declare requirements in .onLoad()</span>
+<span id="cb16-11"><a href="#cb16-11" tabindex="-1"></a>    reticulate::py_config() # &lt;-- resolves the ephemeral python environment</span>
+<span id="cb16-12"><a href="#cb16-12" tabindex="-1"></a></span>
+<span id="cb16-13"><a href="#cb16-13" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">uses</span><span class="kw">:</span><span class="at"> r-lib/actions/check-r-package@v2</span></span>
+<span id="cb16-14"><a href="#cb16-14" tabindex="-1"></a><span class="co">  # The ephemeral python environment from previous step is reused from cache.</span></span></code></pre></div>
+<p>If you prefer to use a manually managed Python environment, you can
+do this:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">uses</span><span class="kw">:</span><span class="at"> actions/setup-python@v4</span></span>
+<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a><span class="at">  </span><span class="fu">with</span><span class="kw">:</span></span>
+<span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a><span class="at">    </span><span class="fu">python-version</span><span class="kw">:</span><span class="at"> </span><span class="st">"3.x"</span></span>
+<span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a></span>
+<span id="cb17-5"><a href="#cb17-5" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> setup r-reticulate venv</span></span>
+<span id="cb17-6"><a href="#cb17-6" tabindex="-1"></a><span class="at">  </span><span class="fu">shell</span><span class="kw">:</span><span class="at"> Rscript {0}</span></span>
+<span id="cb17-7"><a href="#cb17-7" tabindex="-1"></a><span class="fu">  run</span><span class="kw">: </span><span class="ch">|</span></span>
+<span id="cb17-8"><a href="#cb17-8" tabindex="-1"></a>    path_to_python &lt;- reticulate::virtualenv_create(</span>
+<span id="cb17-9"><a href="#cb17-9" tabindex="-1"></a>      envname = "r-reticulate",</span>
+<span id="cb17-10"><a href="#cb17-10" tabindex="-1"></a>      python = Sys.which("python"),</span>
+<span id="cb17-11"><a href="#cb17-11" tabindex="-1"></a>      packages = c("numpy", "other-packages")</span>
+<span id="cb17-12"><a href="#cb17-12" tabindex="-1"></a>    )</span>
+<span id="cb17-13"><a href="#cb17-13" tabindex="-1"></a>    writeLines(sprintf("RETICULATE_PYTHON=%s", path_to_python),</span>
+<span id="cb17-14"><a href="#cb17-14" tabindex="-1"></a>               Sys.getenv("GITHUB_ENV"))</span>
+<span id="cb17-15"><a href="#cb17-15" tabindex="-1"></a></span>
+<span id="cb17-16"><a href="#cb17-16" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">uses</span><span class="kw">:</span><span class="at"> r-lib/actions/check-r-package@v2</span></span></code></pre></div>
 </div>
   </div>
 

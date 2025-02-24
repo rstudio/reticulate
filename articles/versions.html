@@ -32,7 +32,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.40.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.41.0</span>
       </span>
     </div>
 
@@ -104,13 +104,34 @@
       <h1 data-toc-skip>Python Version Configuration</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/rstudio/reticulate/blob/main/vignettes/versions.Rmd" class="external-link"><code>vignettes/versions.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/rstudio/reticulate/blob/v1.41.0/vignettes/versions.Rmd" class="external-link"><code>vignettes/versions.Rmd</code></a></small>
       <div class="hidden name"><code>versions.Rmd</code></div>
 
     </div>
 
     
     
+<div class="alert alert-info">
+<blockquote>
+<h2 id="updated-guidance"><strong>⚠ Updated Guidance</strong></h2>
+<p>This vignette provides guidance for how to help reticulate discover
+and use self-managed Python installations. This is generally no longer
+necessary nor recommended beginning with Reticulate version 1.41.</p>
+<p>We now recommend using <code><a href="../reference/py_require.html">py_require()</a></code> to declare Python
+dependencies and leting reticulate automatically resolve
+dependencies.</p>
+<p>If you are attempting to use <code><a href="../reference/py_require.html">py_require()</a></code> but reticulate
+is not resolving the correct environment, Consult the <a href="#order-of-discovery">Order Of Discovery</a> section below and
+ensure no Python installations higher in the order of discovery are
+present.</p>
+<p>For example, if the <code>r-reticulate</code> virtualenv is being
+discovered in favor of <code><a href="../reference/py_require.html">py_require()</a></code>’s ephemeral env, you
+can remove it:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/virtualenv-tools.html">virtualenv_remove</a></span><span class="op">(</span><span class="st">"r-reticulate"</span><span class="op">)</span></span></code></pre></div>
+<p>For more details, see the <code><a href="../reference/py_require.html">py_require()</a></code> docs and the <a href="python_packages.html">Installing Python Packages</a> vignette.</p>
+</blockquote>
+</div>
 <div class="section level2">
 <h2 id="locating-python">Locating Python<a class="anchor" aria-label="anchor" href="#locating-python"></a>
 </h2>
@@ -123,7 +144,7 @@ which Python installation to select.</p>
 been compiled with shared library support (i.e. with the
 <code>--enable-shared</code> flag).</p>
 <p>Consider the following code:</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/py_eval.html">py_eval</a></span><span class="op">(</span><span class="st">"1+1"</span><span class="op">)</span></span></code></pre></div>
 <p>In this case, reticulate will search for a suitable Python
@@ -131,7 +152,7 @@ installation. In the absence of other hints (detailed below), reticulate
 will fallback to an environment named “r-reticulate”, creating it if
 necessary.</p>
 <p>Consider another case:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span></span>
 <span><span class="va">scipy</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/import.html">import</a></span><span class="op">(</span><span class="st">"scipy"</span><span class="op">)</span></span>
 <span><span class="va">scipy</span><span class="op">$</span><span class="fu">amin</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">3</span>,<span class="fl">5</span>,<span class="fl">7</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
@@ -157,8 +178,8 @@ binary.</p></li>
 </ol>
 <table class="table">
 <colgroup>
-<col width="29%">
-<col width="70%">
+<col width="26%">
+<col width="73%">
 </colgroup>
 <thead><tr class="header">
 <th>Function</th>
@@ -180,7 +201,7 @@ binary.</p></li>
 </tbody>
 </table>
 <p>For example:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/reticulate/">reticulate</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/use_python.html">use_python</a></span><span class="op">(</span><span class="st">"/usr/local/bin/python"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/use_python.html">use_virtualenv</a></span><span class="op">(</span><span class="st">"~/myenv"</span><span class="op">)</span></span>
@@ -194,7 +215,7 @@ configurable by setting the environment variable
 binary is found on the <code>PATH</code>. If you want to use a specific
 alternate version you can use the <code>conda</code> parameter. For
 example:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/use_python.html">use_condaenv</a></span><span class="op">(</span>condaenv <span class="op">=</span> <span class="st">"r-nlp"</span>, conda <span class="op">=</span> <span class="st">"/opt/anaconda3/bin/conda"</span><span class="op">)</span></span></code></pre></div>
 <p>Note that the <code>use_*()</code> functions take an optional
 <code>required</code> argument. By default, a value of
@@ -220,6 +241,10 @@ name of a virtual environment or conda environment)</p></li>
 <code><a href="../reference/use_python.html">use_python()</a></code>, <code><a href="../reference/use_python.html">use_virtualenv()</a></code>, and
 <code><a href="../reference/use_python.html">use_condaenv()</a></code> with <code>required = TRUE</code> (the
 default).</p></li>
+<li><p>If the environment variable
+<code>RETICULATE_USE_MANAGED_VENV="yes"</code> is set, then reticulate
+will use an ephemeral virtual environment that satisfies all the
+requirements declared via <code><a href="../reference/py_require.html">py_require()</a></code></p></li>
 <li><p>If the environment variable <code>VIRTUAL_ENV</code> is defined
 (typically from running an <code>activate</code> script before R
 started, or from having the “Automatically activate project-local Python
@@ -250,18 +275,20 @@ exists a virtual environment or conda environment named
 <li><p>If specified, the location referenced by the
 <code>RETICULATE_PYTHON_FALLBACK</code> environment variable. (Path to a
 python binary)</p></li>
+<li><p>If a virtual environment named <code>"r-reticulate"</code>
+exists, it is used.</p></li>
 <li><p>In the absence of any expression of preference via one of the
-ways outlined above, reticulate falls back to using a virtual
-environment named <code>"r-reticulate"</code>. If one does not exist,
-reticulate will offer to create one.</p></li>
-<li><p>If the “r-reticulate” environment is not available and cannot be
-created, then we fall back to using the Python on the <code>PATH</code>,
-or on Windows, the Python referenced by the registry. If both
-<code>python</code> and <code>python3</code> are on the
-<code>PATH</code>, then reticulate will prefer <code>python3</code>,
-unless only <code>python</code> has NumPy installed, or
-<code>python3</code> is built for a different architecture than R (e.g.,
-x86).</p></li>
+ways outlined above, reticulate falls back to resolving an ephemeral
+virtual environment that satisfies all the requirement declared via
+<code><a href="../reference/py_require.html">py_require()</a></code>. To disable this feature, you can set env var
+<code>RETICULATE_USE_MANAGED_VENV="no"</code></p></li>
+<li><p>If none of the above Python installations can be used, then we
+fall back to using the Python on the <code>PATH</code>, or on Windows,
+the Python referenced by the registry. If both <code>python</code> and
+<code>python3</code> are on the <code>PATH</code>, then reticulate will
+prefer <code>python3</code>, unless only <code>python</code> has NumPy
+installed, or <code>python3</code> is built for a different architecture
+than R (e.g., x86).</p></li>
 </ol>
 </div>
 <div class="section level2">
@@ -276,12 +303,12 @@ or Conda environments in the article on <a href="python_packages.html">Installin
 <p>You can use the <code><a href="../reference/py_config.html">py_config()</a></code> function to query for
 information about the specific version of Python in use as well as a
 list of other Python versions discovered on the system:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/py_config.html">py_config</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>You can also use the <code><a href="../reference/py_discover_config.html">py_discover_config()</a></code> function to
 see what version of Python will be used without actually loading
 Python:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/py_discover_config.html">py_discover_config</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
   </div>

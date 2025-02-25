@@ -83,9 +83,9 @@ the Python dependencies declared by R packages in the current session.
 }
 \note{
 Reticulate uses \href{https://docs.astral.sh/uv/}{\code{uv}} to resolve Python
-dependencies. Many \code{uv} options can be customized via environment
-variables, as described
-\href{https://docs.astral.sh/uv/configuration/environment/}{here}. For example:
+dependencies. Many \code{uv} options can be customized via environment variables,
+as described \href{https://docs.astral.sh/uv/configuration/environment/}{here}.
+For example:
 \itemize{
 \item If temporarily offline, set \code{Sys.setenv(UV_OFFLINE = "1")}.
 \item To use a different index: \code{Sys.setenv(UV_INDEX = "https://download.pytorch.org/whl/cpu")}.
@@ -118,8 +118,8 @@ subdirectory 'packages/markitdown':
 \if{html}{\out{<div class="sourceCode">}}\preformatted{  "markitdown@git+https://github.com/microsoft/markitdown.git@main#subdirectory=packages/markitdown"
 }\if{html}{\out{</div>}}
 
-Install MarkItDown from the local filesystem by providing an absolute path
-to a directory containing a \code{pyproject.toml} or \code{setup.py} file:
+Install MarkItDown from the local filesystem by providing an absolute path to
+a directory containing a \code{pyproject.toml} or \code{setup.py} file:
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{  "markitdown@/Users/tomasz/github/microsoft/markitdown/packages/markitdown/"
 }\if{html}{\out{</div>}}
@@ -131,9 +131,20 @@ See more examples
 
 \subsection{Clearing the Cache}{
 
-\code{reticulate} caches ephemeral environments in the directory returned by
-\code{tools::R_user_dir("reticulate", "cache")}. To clear the cache, delete the
-directory:
+If \code{uv} is already installed on your machine, \code{reticulate} will use the
+existing \code{uv} installation as-is, including its default \code{cache} location. To
+clear the caches of a self-managed \code{uv} installation, send the following
+system commands to \code{uv}:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{uv cache clean
+rm -r "$(uv python dir)"
+rm -r "$(uv tool dir)"
+}\if{html}{\out{</div>}}
+
+If \code{uv} is not previously installed, \code{reticulate} will automatically download
+\code{uv} and store it along with ephemeral environments and all downloaded
+artifacts in the \code{tools::R_user_dir("reticulate", "cache")} directory. To
+clear this cache, simply delete the directory:
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{unlink(tools::R_user_dir("reticulate", "cache"), recursive = TRUE)
 }\if{html}{\out{</div>}}

@@ -1,5 +1,8 @@
 # reticulate (development version)
 
+- Internal fixes to prevent reticulate-managed `uv` from writing outside 
+  reticulates cache directory (#1745).
+
 # reticulate 1.41.0
 
 - New `py_require()` function for declaring Python requirements for

@@ -80,7 +80,7 @@
 #' ## Clearing the Cache
 #'
 #' If `uv` is already installed on your machine, `reticulate` will use the
-#' existing `uv` installation as-is, including its default `cache` location. To
+#' existing `uv` installation as-is, including its default `cache dir` location. To
 #' clear the caches of a self-managed `uv` installation, send the following
 #' system commands to `uv`:
 #'
@@ -611,7 +611,7 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
     VIRTUAL_ENV = NA,
     if (is_positron())
       c(RUST_LOG = NA),
-    if (isTRUE(attr(uv, "reticulate-managed")))
+    if (isTRUE(attr(uv, "reticulate-managed", TRUE)))
       c(
         UV_CACHE_DIR = reticulate_cache_dir("uv", "cache"),
         UV_PYTHON_INSTALL_DIR = reticulate_cache_dir("uv", "python")
@@ -719,7 +719,7 @@ uv_run_tool <- function(tool, args = character(), ..., from = NULL, with = NULL,
     VIRTUAL_ENV = NA,
     if (is_positron())
       c(RUST_LOG = NA),
-    if (isTRUE(attr(uv, "reticulate-managed")))
+    if (isTRUE(attr(uv, "reticulate-managed", TRUE)))
       c(
         UV_CACHE_DIR = reticulate_cache_dir("uv", "cache"),
         UV_PYTHON_INSTALL_DIR = reticulate_cache_dir("uv", "python")
@@ -744,15 +744,12 @@ uv_run_tool <- function(tool, args = character(), ..., from = NULL, with = NULL,
 
 
 is_reticulate_managed_uv <- function(uv = uv_binary(bootstrap_install = FALSE)) {
-  if (is.null(uv) || !file.exists(uv)) {
+  if (is.null(uv)) {
     # no user-installed uv - uv will be bootstrapped by reticulate
     return(TRUE)
   }
 
-  managed_uv <-
-    reticulate_cache_dir("uv", "bin", if (is_windows()) "uv.exe" else "uv")
-
-  uv == managed_uv
+  isTRUE(attr(uv, "reticulate-managed", TRUE))
 }
 
 
@@ -788,6 +785,22 @@ uvx_binary <- function(...) {
   }
   uvx <- file.path(dirname(uv), if (is_windows()) "uvx.exe" else "uvx")
   if (file.exists(uvx)) uvx else NULL # print visible
+}
+
+uv_exec <- function(args, ...) {
+  uv <- uv_binary()
+  withr::local_envvar(c(
+    VIRTUAL_ENV = NA,
+    if (is_positron())
+      c(RUST_LOG = NA),
+    if (isTRUE(attr(uv, "reticulate-managed", TRUE)))
+      c(
+        UV_CACHE_DIR = reticulate_cache_dir("uv", "cache"),
+        UV_PYTHON_INSTALL_DIR = reticulate_cache_dir("uv", "python")
+      )
+  ))
+
+  system2(uv, args, ...)
 }
 
 resolve_python_version <- function(constraints = NULL, uv = uv_binary()) {

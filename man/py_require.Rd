@@ -132,7 +132,7 @@ See more examples
 \subsection{Clearing the Cache}{
 
 If \code{uv} is already installed on your machine, \code{reticulate} will use the
-existing \code{uv} installation as-is, including its default \code{cache} location. To
+existing \code{uv} installation as-is, including its default \verb{cache dir} location. To
 clear the caches of a self-managed \code{uv} installation, send the following
 system commands to \code{uv}:
 
@@ -141,7 +141,7 @@ rm -r "$(uv python dir)"
 rm -r "$(uv tool dir)"
 }\if{html}{\out{</div>}}
 
-If \code{uv} is not previously installed, \code{reticulate} will automatically download
+If \code{uv} is not installed, \code{reticulate} will automatically download
 \code{uv} and store it along with ephemeral environments and all downloaded
 artifacts in the \code{tools::R_user_dir("reticulate", "cache")} directory. To
 clear this cache, simply delete the directory:

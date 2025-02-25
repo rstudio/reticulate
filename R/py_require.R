@@ -299,7 +299,17 @@ print.python_requirements <- function(x, ...) {
   }
   python_version <- x$python_version
   if (is.null(python_version)) {
-    python_version <- paste0("[No Python version specified. Will default to '", resolve_python_version() , "']")
+    if(is_epheremal_venv_initialized()) {
+      python_version <- paste0(
+        "[No Python version specified. Defaulted to '",
+        resolve_python_version() , "']"
+      )
+    } else {
+      python_version <- paste0(
+        "[No Python version specified. Will default to '",
+        resolve_python_version() , "']"
+      )
+    }
   }
 
   requested_from <- as.character(lapply(x$history, function(x) x$requested_from))
@@ -362,6 +372,11 @@ print.python_requirements <- function(x, ...) {
 # Python requirements - utils --------------------------------------------------
 
 py_reqs_pad <- function(x = "", len, use_cli, is_title = FALSE) {
+
+  if(nchar(x) > len) {
+    x <- paste0(substr(x, 1, len-3), "...")
+  }
+
   padding <- paste0(rep(" ", len - nchar(x)), collapse = "")
   ret <- paste0(x, padding)
   if (use_cli) {

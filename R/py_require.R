@@ -471,7 +471,11 @@ py_reqs_format <- function(packages = NULL,
       paste0(" ", python, "   ", python_version)
     },
     if (!is.null(packages)) {
-      pkg_lines <- strwrap(paste0(packages, collapse = ", "), 60)
+      tbl_width <- 60
+      long_pkgs <- nchar(packages) > tbl_width
+      packages[long_pkgs] <- substr(packages[long_pkgs], 1, tbl_width - 3)
+      packages[long_pkgs] <- paste0(packages[long_pkgs], "...")
+      pkg_lines <- strwrap(paste0(packages, collapse = ", "), tbl_width)
       pkgs <- "Packages:"
       if (use_cli) {
         pkgs <- cli::col_blue(pkgs)

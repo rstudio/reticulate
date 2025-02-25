@@ -178,9 +178,9 @@ the Python dependencies declared by R packages in the current session.</p>
     <div id="note">
     <h2>Note</h2>
     <p>Reticulate uses <a href="https://docs.astral.sh/uv/" class="external-link"><code>uv</code></a> to resolve Python
-dependencies. Many <code>uv</code> options can be customized via environment
-variables, as described
-<a href="https://docs.astral.sh/uv/configuration/environment/" class="external-link">here</a>. For example:</p><ul><li><p>If temporarily offline, set <code>Sys.setenv(UV_OFFLINE = "1")</code>.</p></li>
+dependencies. Many <code>uv</code> options can be customized via environment variables,
+as described <a href="https://docs.astral.sh/uv/configuration/environment/" class="external-link">here</a>.
+For example:</p><ul><li><p>If temporarily offline, set <code>Sys.setenv(UV_OFFLINE = "1")</code>.</p></li>
 <li><p>To use a different index: <code>Sys.setenv(UV_INDEX = "https://download.pytorch.org/whl/cpu")</code>.</p></li>
 <li><p>To allow resolving a prerelease dependency: <code>Sys.setenv(UV_PRERELEASE = "allow")</code>.</p></li>
 </ul><div class="section">
@@ -199,8 +199,8 @@ strings:</p>
 <p>Install MarkItDown from the <code>main</code> branch—find the package in the
 subdirectory 'packages/markitdown':</p>
 <p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>  <span class="st">"markitdown@git+https://github.com/microsoft/markitdown.git@main#subdirectory=packages/markitdown"</span></span></code></pre><p></p></div>
-<p>Install MarkItDown from the local filesystem by providing an absolute path
-to a directory containing a <code>pyproject.toml</code> or <code>setup.py</code> file:</p>
+<p>Install MarkItDown from the local filesystem by providing an absolute path to
+a directory containing a <code>pyproject.toml</code> or <code>setup.py</code> file:</p>
 <p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>  <span class="st">"markitdown@/Users/tomasz/github/microsoft/markitdown/packages/markitdown/"</span></span></code></pre><p></p></div>
 <p>See more examples
 <a href="https://docs.astral.sh/uv/pip/packages/#installing-a-package" class="external-link">here</a> and
@@ -211,9 +211,17 @@ to a directory containing a <code>pyproject.toml</code> or <code>setup.py</code>
 <h3 id="clearing-the-cache">Clearing the Cache<a class="anchor" aria-label="anchor" href="#clearing-the-cache"></a></h3>
 
 
-<p><code>reticulate</code> caches ephemeral environments in the directory returned by
-<code>tools::R_user_dir("reticulate", "cache")</code>. To clear the cache, delete the
-directory:</p>
+<p>If <code>uv</code> is already installed on your machine, <code>reticulate</code> will use the
+existing <code>uv</code> installation as-is, including its default <code>cache dir</code> location. To
+clear the caches of a self-managed <code>uv</code> installation, send the following
+system commands to <code>uv</code>:</p>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>uv cache clean</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>rm <span class="sc">-</span>r <span class="st">"$(uv python dir)"</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>rm <span class="sc">-</span>r <span class="st">"$(uv tool dir)"</span></span></code></pre><p></p></div>
+<p>If <code>uv</code> is not installed, <code>reticulate</code> will automatically download
+<code>uv</code> and store it along with ephemeral environments and all downloaded
+artifacts in the <code>tools::R_user_dir("reticulate", "cache")</code> directory. To
+clear this cache, simply delete the directory:</p>
 <p></p><div class="sourceCode r"><pre><code><span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="fu">tools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/tools/userdir.html" class="external-link">R_user_dir</a></span><span class="op">(</span><span class="st">"reticulate"</span>, <span class="st">"cache"</span><span class="op">)</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre><p></p></div>
 </div>
 

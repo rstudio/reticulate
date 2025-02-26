@@ -27,8 +27,8 @@ from local files or a git repository is also supported (see details).}
 specified date. This offers a lightweight alternative to freezing package
 versions, helping guard against Python package updates that break a
 workflow. Accepts strings formatted as RFC 3339 timestamps (e.g.,
-"2006-12-02T02:07:43Z") and local dates in the same format (e.g.,
-"2006-12-02") in your system's configured time zone. Once \code{exclude_newer}
+\code{"2006-12-02T02:07:43Z"}) and local dates in the same format (e.g.,
+\code{"2006-12-02"}) in your system's configured time zone. Once \code{exclude_newer}
 is set, only the \code{set} action can override it.}
 
 \item{action}{Determines how \code{py_require()} processes the provided
@@ -132,8 +132,8 @@ See more examples
 \subsection{Clearing the Cache}{
 
 If \code{uv} is already installed on your machine, \code{reticulate} will use the
-existing \code{uv} installation as-is, including its default \verb{cache dir} location. To
-clear the caches of a self-managed \code{uv} installation, send the following
+existing \code{uv} installation as-is, including its default \verb{cache dir} location.
+To clear the caches of a self-managed \code{uv} installation, send the following
 system commands to \code{uv}:
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{uv cache clean
@@ -141,10 +141,10 @@ rm -r "$(uv python dir)"
 rm -r "$(uv tool dir)"
 }\if{html}{\out{</div>}}
 
-If \code{uv} is not installed, \code{reticulate} will automatically download
-\code{uv} and store it along with ephemeral environments and all downloaded
-artifacts in the \code{tools::R_user_dir("reticulate", "cache")} directory. To
-clear this cache, simply delete the directory:
+If \code{uv} is not installed, \code{reticulate} will automatically download \code{uv} and
+store it along with ephemeral environments and all downloaded artifacts in
+the \code{tools::R_user_dir("reticulate", "cache")} directory. To clear this
+cache, simply delete the directory:
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{unlink(tools::R_user_dir("reticulate", "cache"), recursive = TRUE)
 }\if{html}{\out{</div>}}

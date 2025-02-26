@@ -1,6 +1,10 @@
 # reticulate (development version)
 
-- Internal fixes to prevent reticulate-managed `uv` from writing outside 
+- `uv_run_tool()` gains an `exclude_newer` argument (#1748).
+
+- Internal changes to support R-devel (4.5) (#1747).
+
+- Internal fixes to prevent reticulate-managed `uv` from writing outside
   reticulates cache directory (#1745).
 
 # reticulate 1.41.0

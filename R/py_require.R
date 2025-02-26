@@ -80,8 +80,8 @@
 #' ## Clearing the Cache
 #'
 #' If `uv` is already installed on your machine, `reticulate` will use the
-#' existing `uv` installation as-is, including its default `cache dir` location. To
-#' clear the caches of a self-managed `uv` installation, send the following
+#' existing `uv` installation as-is, including its default `cache dir` location.
+#' To clear the caches of a self-managed `uv` installation, send the following
 #' system commands to `uv`:
 #'
 #' ```
@@ -90,10 +90,10 @@
 #' rm -r "$(uv tool dir)"
 #' ```
 #'
-#' If `uv` is not installed, `reticulate` will automatically download
-#' `uv` and store it along with ephemeral environments and all downloaded
-#' artifacts in the `tools::R_user_dir("reticulate", "cache")` directory. To
-#' clear this cache, simply delete the directory:
+#' If `uv` is not installed, `reticulate` will automatically download `uv` and
+#' store it along with ephemeral environments and all downloaded artifacts in
+#' the `tools::R_user_dir("reticulate", "cache")` directory. To clear this
+#' cache, simply delete the directory:
 #'
 #' ```r
 #' unlink(tools::R_user_dir("reticulate", "cache"), recursive = TRUE)
@@ -122,8 +122,8 @@
 #'   specified date. This offers a lightweight alternative to freezing package
 #'   versions, helping guard against Python package updates that break a
 #'   workflow. Accepts strings formatted as RFC 3339 timestamps (e.g.,
-#'   "2006-12-02T02:07:43Z") and local dates in the same format (e.g.,
-#'   "2006-12-02") in your system's configured time zone. Once `exclude_newer`
+#'   `"2006-12-02T02:07:43Z"`) and local dates in the same format (e.g.,
+#'   `"2006-12-02"`) in your system's configured time zone. Once `exclude_newer`
 #'   is set, only the `set` action can override it.
 #'
 #' @returns `py_require()` is primarily called for its side effect of modifying
@@ -684,20 +684,27 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
 
 #' uv run tool
 #'
-#' Run a Command Line Tool distributed as a Python package. Packages are automatically
-#' download and installed into a cached, ephemeral, and isolated environment on the first run.
+#' Run a Command Line Tool distributed as a Python package. Packages are
+#' automatically download and installed into a cached, ephemeral, and isolated
+#' environment on the first run.
 #'
 #' @param tool,args A character vector of command and arguments. Arguments are
 #'   not quoted for the shell, so you may need to use [`shQuote()`].
-#' @param from Use the given python package to provide the command.
+#' @param from Use the given Python package to provide the command.
 #' @param with Run with the given Python packages installed. You can also
 #'   specify version constraints like `"ruff>=0.3.0"`.
-#' @param python_version A python version string, or character vector of python
+#' @param python_version A Python version string, or character vector of Python
 #'   version constraints.
-#'
+#' @param exclude_newer String. Limit package versions to those published before
+#'   a specified date. This offers a lightweight alternative to freezing package
+#'   versions, helping guard against Python package updates that break a
+#'   workflow. Accepts strings formatted as RFC 3339 timestamps (e.g.,
+#'   `"2006-12-02T02:07:43Z"`) and local dates in the same format (e.g.,
+#'   `"2006-12-02"`) in your system's configured time zone.
 #' @inheritDotParams base::system2 -command
 #'
 #' @details
+#'
 #' ## Examples
 #' ```r
 #' uv_run_tool("pycowsay", shQuote("hello from reticulate"))
@@ -713,7 +720,13 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
 #' @returns Return value of [`system2()`]
 #' @export
 #' @md
-uv_run_tool <- function(tool, args = character(), ..., from = NULL, with = NULL, python_version = NULL) {
+uv_run_tool <- function(tool,
+                        args = character(),
+                        ...,
+                        from = NULL,
+                        with = NULL,
+                        python_version = NULL,
+                        exclude_newer = NULL) {
   uv <- uv_binary()
   withr::local_envvar(c(
     VIRTUAL_ENV = NA,
@@ -731,6 +744,7 @@ uv_run_tool <- function(tool, args = character(), ..., from = NULL, with = NULL,
     "--isolated",
     "--python-preference=only-managed",
     "--python", resolve_python_version(constraints = python_version),
+    if (length(exclude_newer)) c("--exclude-newer", exclude_newer),
     if (length(from)) c("--from", maybe_shQuote(from)),
     if (length(with)) c(rbind("--with", maybe_shQuote(with))),
     "--",

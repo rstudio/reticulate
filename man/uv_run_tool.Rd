@@ -10,7 +10,8 @@ uv_run_tool(
   ...,
   from = NULL,
   with = NULL,
-  python_version = NULL
+  python_version = NULL,
+  exclude_newer = NULL
 )
 }
 \arguments{
@@ -51,20 +52,28 @@ not quoted for the shell, so you may need to use \code{\link[=shQuote]{shQuote()
     ignored on this platform, with a warning.}
   }}
 
-\item{from}{Use the given python package to provide the command.}
+\item{from}{Use the given Python package to provide the command.}
 
 \item{with}{Run with the given Python packages installed. You can also
 specify version constraints like \code{"ruff>=0.3.0"}.}
 
-\item{python_version}{A python version string, or character vector of python
+\item{python_version}{A Python version string, or character vector of Python
 version constraints.}
+
+\item{exclude_newer}{String. Limit package versions to those published before
+a specified date. This offers a lightweight alternative to freezing package
+versions, helping guard against Python package updates that break a
+workflow. Accepts strings formatted as RFC 3339 timestamps (e.g.,
+\code{"2006-12-02T02:07:43Z"}) and local dates in the same format (e.g.,
+\code{"2006-12-02"}) in your system's configured time zone.}
 }
 \value{
 Return value of \code{\link[=system2]{system2()}}
 }
 \description{
-Run a Command Line Tool distributed as a Python package. Packages are automatically
-download and installed into a cached, ephemeral, and isolated environment on the first run.
+Run a Command Line Tool distributed as a Python package. Packages are
+automatically download and installed into a cached, ephemeral, and isolated
+environment on the first run.
 }
 \details{
 \subsection{Examples}{

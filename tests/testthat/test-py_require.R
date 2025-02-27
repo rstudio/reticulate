@@ -8,10 +8,11 @@ test_that("Error requesting conflicting package versions", {
   # in the snapshot
   try(uv_get_or_create_env())
 
-  expect_snapshot(r_session(attach_namespace = TRUE, {
+  expect_snapshot(r_session({
+    library(reticulate)
     py_require("numpy<2")
     py_require("numpy>=2")
-    uv_get_or_create_env()
+    import("numpy")
   }))
 })
 

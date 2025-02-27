@@ -1,15 +1,17 @@
 # Error requesting conflicting package versions
 
     Code
-      r_session(attach_namespace = TRUE, {
+      r_session({
+        library(reticulate)
         py_require("numpy<2")
         py_require("numpy>=2")
-        uv_get_or_create_env()
+        import("numpy")
       })
     Output
+      > library(reticulate)
       > py_require("numpy<2")
       > py_require("numpy>=2")
-      > uv_get_or_create_env()
+      > import("numpy")
         × No solution found when resolving `--with` dependencies:
         ╰─▶ Because you require numpy<2 and numpy>=2, we can conclude that your
             requirements are unsatisfiable.
@@ -20,6 +22,8 @@
       -------------------------------------------------------------------------
       Error in uv_get_or_create_env() : 
         Call `py_require()` to remove or replace conflicting requirements.
+      Error: Installation of Python not found, Python bindings not loaded.
+      See the Python "Order of Discovery" here: https://rstudio.github.io/reticulate/articles/versions.html#order-of-discovery.
       Execution halted
       ------- session end -------
       success: false

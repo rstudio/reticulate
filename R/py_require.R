@@ -847,7 +847,15 @@ uv_python_list <- function(uv = uv_binary()) {
 
   # x$path is local file path, NA if not downloaded yet.
   # x$url is populated if not downloaded yet.
-  x$is_managed <- grepl("[\\\\/]uv[\\\\/]", x$path) | !is.na(x$url)
+
+  is_uv_downloadable <- !is.na(x$url)
+  is_uv_downloaded <- grepl(
+    "/uv/python/",
+    normalizePath(x$path, winslash = "/", mustWork = FALSE),
+    fixed = TRUE
+  )
+  x$is_uv_downloaded <- is_uv_downloaded
+  x$is_managed <- is_uv_downloadable | is_uv_downloaded
 
   x <- x[order(
     x$is_managed,

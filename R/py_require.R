@@ -655,6 +655,11 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
   resolved_python_version <-
     resolve_python_version(constraints = python_version, uv = uv)
 
+  if (!length(resolved_python_version)) {
+    return()
+    # error?
+  }
+
   # capture args; maybe used in error message later
   call_args <- list(
     packages = packages,
@@ -772,12 +777,13 @@ uv_run_tool <- function(tool,
         UV_PYTHON_INSTALL_DIR = reticulate_data_dir("uv", "python")
       )
   ))
+  python <- resolve_python_version(constraints = python_version, uv = uv)
   system2(uv, c(
     "tool",
     "run",
     "--isolated",
     # "--python-preference managed",
-    "--python", resolve_python_version(constraints = python_version),
+    if (length(python)) c("--python", python),
     if (length(exclude_newer)) c("--exclude-newer", exclude_newer),
     if (length(from)) c("--from", maybe_shQuote(from)),
     if (length(with)) c(rbind("--with", maybe_shQuote(with))),

@@ -847,7 +847,7 @@ uv_python_list <- function(uv = uv_binary()) {
 
   # x$path is local file path, NA if not downloaded yet.
   # x$url is populated if not downloaded yet.
-  x$is_managed <- grepl("[\\\\/]uv[\\\\/]", x$path, fixed = TRUE) | !is.na(x$url)
+  x$is_managed <- grepl("[\\\\/]uv[\\\\/]", x$path) | !is.na(x$url)
 
   x <- x[order(
     x$is_managed,
@@ -858,13 +858,13 @@ uv_python_list <- function(uv = uv_binary()) {
     decreasing = TRUE
   ), ]
 
-  latest_minor <- max(x$version_parts$minor)
-  preferred_minor <- latest_minor - 2L
-
   # order so the latest patch level for each minor level is first,
   # with preference for 2 versions behind the latest minor release,
   # breaking ties with preference for older minor levels.
+  latest_minor <- max(x$version_parts$minor)
+  preferred_minor <- latest_minor - 2L
   x$is_latest_patch <- !duplicated(x$version_parts[c("major", "minor")])
+
   x <- x[order(
     x$is_managed,
     # !x$is_prerelease,

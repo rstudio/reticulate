@@ -554,24 +554,28 @@ uv_binary <- function(bootstrap_install = TRUE) {
     !is.na(ver) && ver >= required_version
   }
 
-  uv <- Sys.getenv("RETICULATE_UV", NA)
-  if (is_usable_uv(uv)) {
-    return(path.expand(uv))
-  }
+  repeat {
+    uv <- Sys.getenv("RETICULATE_UV", NA)
+    if (!is.na(uv)) {
+      if (uv == "managed") break else return(path.expand(uv))
+    }
 
-  uv <- getOption("reticulate.uv_binary")
-  if (is_usable_uv(uv)) {
-    return(path.expand(uv))
-  }
+    uv <- getOption("reticulate.uv_binary")
+    if (!is.null(uv)) {
+      if (uv == "managed") break else return(path.expand(uv))
+    }
 
-  uv <- as.character(Sys.which("uv"))
-  if (is_usable_uv(uv)) {
-    return(path.expand(uv))
-  }
+    uv <- as.character(Sys.which("uv"))
+    if (is_usable_uv(uv)) {
+      return(path.expand(uv))
+    }
 
-  uv <- path.expand("~/.local/bin/uv")
-  if (is_usable_uv(uv)) {
-    return(path.expand(uv))
+    uv <- path.expand("~/.local/bin/uv")
+    if (is_usable_uv(uv)) {
+      return(path.expand(uv))
+    }
+
+    break
   }
 
   uv <- reticulate_cache_dir("uv", "bin", if (is_windows()) "uv.exe" else "uv")
@@ -601,7 +605,7 @@ uv_binary <- function(bootstrap_install = TRUE) {
       return(NULL)
       # stop("Unable to download Python dependencies. Please install `uv` manually.")
     }
-    if(debug <- Sys.getenv("_RETICULATE_DEBUG_UV_") == "1")
+    if (debug_uv <- Sys.getenv("_RETICULATE_DEBUG_UV_") == "1")
       system2 <- system2t
 
     if (is_windows()) {
@@ -610,8 +614,8 @@ uv_binary <- function(bootstrap_install = TRUE) {
         system2("powershell", c(
           "-ExecutionPolicy", "ByPass", "-c",
           sprintf("irm %s | iex", utils::shortPathName(install_uv))),
-          stdout = if (debug) "" else FALSE,
-          stderr = if (debug) "" else FALSE
+          stdout = if (debug_uv) "" else FALSE,
+          stderr = if (debug_uv) "" else FALSE
         )
       })
 
@@ -619,7 +623,9 @@ uv_binary <- function(bootstrap_install = TRUE) {
 
       Sys.chmod(install_uv, mode = "0755")
       withr::with_envvar(c("UV_UNMANAGED_INSTALL" = dirname(uv)), {
-        system2(install_uv, c(if (!debug) "--quiet"))
+        system2(install_uv,
+                stdout = if (debug_uv) "" else FALSE,
+                stderr = if (debug_uv) "" else FALSE)
       })
 
     }
@@ -641,7 +647,8 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
     if (isTRUE(attr(uv, "reticulate-managed", TRUE)))
       c(
         UV_CACHE_DIR = reticulate_cache_dir("uv", "cache"),
-        UV_PYTHON_INSTALL_DIR = reticulate_cache_dir("uv", "python")
+        UV_PYTHON_INSTALL_DIR = reticulate_data_dir("uv", "python")
+        # UV_PYTHON_PREFERENCE = "only-managed"
       )
   ))
 
@@ -672,7 +679,7 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
   uv_args <- c(
     "run",
     "--no-project",
-    "--python-preference", "only-managed",
+    # "--python-preference", "managed",
     python_version,
     exclude_newer,
     packages,
@@ -762,14 +769,14 @@ uv_run_tool <- function(tool,
     if (isTRUE(attr(uv, "reticulate-managed", TRUE)))
       c(
         UV_CACHE_DIR = reticulate_cache_dir("uv", "cache"),
-        UV_PYTHON_INSTALL_DIR = reticulate_cache_dir("uv", "python")
+        UV_PYTHON_INSTALL_DIR = reticulate_data_dir("uv", "python")
       )
   ))
   system2(uv, c(
     "tool",
     "run",
     "--isolated",
-    "--python-preference=only-managed",
+    # "--python-preference managed",
     "--python", resolve_python_version(constraints = python_version),
     if (length(exclude_newer)) c("--exclude-newer", exclude_newer),
     if (length(from)) c("--from", maybe_shQuote(from)),
@@ -797,25 +804,73 @@ is_reticulate_managed_uv <- function(uv = uv_binary(bootstrap_install = FALSE)) 
 
 
 uv_python_list <- function(uv = uv_binary()) {
+
+  if (isTRUE(attr(uv, "reticulate-managed", TRUE)))
+    withr::local_envvar(c(
+      UV_CACHE_DIR = reticulate_cache_dir("uv", "cache"),
+      UV_PYTHON_INSTALL_DIR = reticulate_data_dir("uv", "python")
+    ))
+
+  # Note, for debuggers, this is typically called from
+  # uv_get_or_create_env(), which sets env vars that modify how uv finds Python.
+  # This function returns a dataframe sorted by default reticulate preference
+  if (Sys.getenv("_RETICULATE_DEBUG_UV_") == "1") {
+    system2 <- system2t
+  }
   x <- system2(uv, c("python list",
-    "--python-preference only-managed",
-    "--only-downloads",
+    # "--python-preference managed",
+    "--all-versions",
+    # "--only-downloads",
     "--color never",
     "--output-format json"
     ),
     stdout = TRUE
   )
 
-  x <- jsonlite::parse_json(x)
-  x <- unlist(lapply(x, `[[`, "version"))
+  x <- jsonlite::parse_json(x, simplifyVector = TRUE)
+  # x <- tibble::as_tibble(x)
+  x <- x[is.na(x$symlink) , ]             # ignore local filesystem symlinks
+  x <- x[x$variant == "default", ]        # ignore "freethreaded"
+  x <- x[x$implementation == "cpython", ] # ignore "pypy"
 
-  # to parse default `--output-format text`
-  # x <- grep("^cpython-", x, value = TRUE)
-  # x <- sub("^cpython-([^-]+)-.*", "\\1", x)
+  x$is_prerelease <- x$version != paste(x$version_parts$major,
+                                        x$version_parts$minor,
+                                        x$version_parts$patch,
+                                        sep = ".")
+  x <- x[!x$is_prerelease, ] # ignore versions like "3.14.0a5"
 
-  xv <- numeric_version(x, strict = FALSE)
-  latest_minor_patch <- !duplicated(xv[, -3L]) & !is.na(xv)
-  x <- x[order(latest_minor_patch, xv, decreasing = TRUE)]
+  # x$path is local file path, NA if not downloaded yet.
+  # x$url is populated if not downloaded yet.
+  x$is_managed <- grepl("[\\\\/]uv[\\\\/]", x$path, fixed = TRUE) | !is.na(x$url)
+
+  x <- x[order(
+    x$is_managed,
+    # !x$is_prerelease,
+    x$version_parts$major,
+    x$version_parts$minor,
+    x$version_parts$patch,
+    decreasing = TRUE
+  ), ]
+
+  latest_minor <- max(x$version_parts$minor)
+  preferred_minor <- latest_minor - 2L
+
+  # order so the latest patch level for each minor level is first,
+  # with preference for 2 versions behind the latest minor release,
+  # breaking ties with preference for older minor levels.
+  x$is_latest_patch <- !duplicated(x$version_parts[c("major", "minor")])
+  x <- x[order(
+    x$is_managed,
+    # !x$is_prerelease,
+    x$is_latest_patch,
+    -abs(x$version_parts$minor - preferred_minor) +
+      (-0.5 * (x$version_parts$minor > preferred_minor)),
+    x$version_parts$major == 3L,
+    x$version_parts$minor,
+    x$version_parts$patch,
+    decreasing = TRUE
+  ), ]
+
   x
 }
 
@@ -837,7 +892,7 @@ uv_exec <- function(args, ...) {
     if (isTRUE(attr(uv, "reticulate-managed", TRUE)))
       c(
         UV_CACHE_DIR = reticulate_cache_dir("uv", "cache"),
-        UV_PYTHON_INSTALL_DIR = reticulate_cache_dir("uv", "python")
+        UV_PYTHON_INSTALL_DIR = reticulate_data_dir("uv", "python")
       )
   ))
 
@@ -849,12 +904,8 @@ resolve_python_version <- function(constraints = NULL, uv = uv_binary()) {
   constraints <- trimws(unlist(strsplit(constraints, ",", fixed = TRUE)))
   constraints <- constraints[nzchar(constraints)]
 
-  if (length(constraints) == 0) {
-    return(as.character(uv_python_list()[3L])) # default
-  }
-
   # reflect a direct version specification like "3.11" or "3.14.0a3"
-  if (length(constraints) == 1 && !substr(constraints, 1, 1) %in% c("=", ">", "<", "!")) {
+  if (length(constraints) == 1L && !substr(constraints, 1L, 1L) %in% c("=", ">", "<", "!")) {
     return(constraints)
   }
 
@@ -863,18 +914,13 @@ resolve_python_version <- function(constraints = NULL, uv = uv_binary()) {
   # See: https://devguide.python.org/versions/
 
   # Get latest patch for each minor version
-  candidates <- uv_python_list(uv)
   # E.g., candidates might be:
-  #  c("3.13.1", "3.12.8", "3.11.11", "3.10.16", "3.9.21", "3.8.20")
+  #  c("3.13.1", "3.12.8", "3.11.11", "3.10.16", "3.9.21", "3.8.20" , ...)
+  candidates <- uv_python_list(uv)$version
 
-  # Reorder candidates to prefer stable versions over bleeding edge
-  ord <- as.integer(c(3, 4, 2, 5, 1))
-  ord <- union(ord, seq_along(candidates))
-  candidates <- candidates[ord]
-
-  # Maybe add non-latest patch levels to candidates if they're explicitly
-  # mentioned in constraints
-  append(candidates) <- sub("^[<>=!]{1,2}", "", constraints)
+  if (length(constraints) == 0L) {
+    return(as.character(candidates[1L])) # default
+  }
 
   candidates <- numeric_version(candidates, strict = FALSE)
   candidates <- candidates[!is.na(candidates)]

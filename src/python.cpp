@@ -2797,10 +2797,37 @@ extern "C" PyObject* schedule_python_function_on_main_thread(
   return Py_None;
 }
 
+static void (*s_interrupt_handler)(int) = nullptr;
 
-static void
-interrupt_handler(int signum) {
+static int win32_interrupt_handler(long unsigned int ignored) {
+  std::cerr << __func__ << std::endl;
+  if (s_interrupt_handler != nullptr) {
+    s_interrupt_handler(SIGINT);
+  }
+  return TRUE;
+}
+
+template <typename T>
+static PyOS_sighandler_t reticulate_setsig(int signum, T&& handler) {
+
+#ifdef _WIN32
+    std::cerr << "Setting up console handler" << std::endl;
+    s_interrupt_handler = handler;
+    SetConsoleCtrlHandler(NULL, FALSE);
+    SetConsoleCtrlHandler(win32_interrupt_handler, FALSE);
+    SetConsoleCtrlHandler(win32_interrupt_handler, TRUE);
+#endif
+
+  std::cerr << "Setting signal handler" << std::endl;
+  return PyOS_setsig(signum, handler);
+
+}
+
+
+static void interrupt_handler(int signum) {
+
   // This handler is called by the OS when signaling a SIGINT
+  std::cerr << "Hello from interrupt handler" << std::endl;
 
   // Tell R that an interrupt is pending. This will cause R to signal an
   // "interrupt" R condition next time R_CheckUserInterrupt() is called
@@ -2819,7 +2846,8 @@ interrupt_handler(int signum) {
   // i.e., if R_CheckUserInterrupt() or PyCheckSignals(), is called first.
 
   // Reinstall this C handler, as it may have been cleared when invoked by the OS
-  PyOS_setsig(signum, interrupt_handler);
+  reticulate_setsig(signum, interrupt_handler);
+
 }
 
 
@@ -2853,7 +2881,7 @@ PyOS_sighandler_t install_interrupt_handlers_() {
   //
   // This *must* be after setting the Python handler, because signal.signal()
   // will also reset the OS C handler to one that is not aware of R.
-  return PyOS_setsig(SIGINT, interrupt_handler);
+  return reticulate_setsig(SIGINT, interrupt_handler);
 }
 
 // [[Rcpp::export]]
@@ -3173,7 +3201,7 @@ void py_initialize(const std::string& python,
     PySys_SetArgv(1, const_cast<char**>(argv));
 
     orig_interrupt_handler = install_interrupt_handlers_();
-    PyOS_setsig(SIGINT, interrupt_handler);
+    reticulate_setsig(SIGINT, interrupt_handler);
   }
 
   s_main_thread = tthread::this_thread::get_id();
@@ -3233,7 +3261,7 @@ void py_finalize() {
     PyGILState_Ensure();
     Py_MakePendingCalls();
     if (orig_interrupt_handler)
-      PyOS_setsig(SIGINT, orig_interrupt_handler);
+      reticulate_setsig(SIGINT, orig_interrupt_handler);
     is_py_finalized = true;
     Py_Finalize();
   }

@@ -2800,7 +2800,6 @@ extern "C" PyObject* schedule_python_function_on_main_thread(
 static void (*s_interrupt_handler)(int) = nullptr;
 
 static int win32_interrupt_handler(long unsigned int ignored) {
-  std::cerr << __func__ << std::endl;
   if (s_interrupt_handler != nullptr) {
     s_interrupt_handler(SIGINT);
   }
@@ -2811,14 +2810,12 @@ template <typename T>
 static PyOS_sighandler_t reticulate_setsig(int signum, T&& handler) {
 
 #ifdef _WIN32
-    std::cerr << "Setting up console handler" << std::endl;
     s_interrupt_handler = handler;
     SetConsoleCtrlHandler(NULL, FALSE);
     SetConsoleCtrlHandler(win32_interrupt_handler, FALSE);
     SetConsoleCtrlHandler(win32_interrupt_handler, TRUE);
 #endif
 
-  std::cerr << "Setting signal handler" << std::endl;
   return PyOS_setsig(signum, handler);
 
 }

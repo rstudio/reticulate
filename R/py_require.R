@@ -835,7 +835,7 @@ uv_python_list <- function(uv = uv_binary()) {
     ),
     stdout = TRUE
   )
-
+  x <- paste0(x, collapse = "")
   x <- jsonlite::parse_json(x, simplifyVector = TRUE)
 
   x <- x[is.na(x$symlink) , ]             # ignore local filesystem symlinks

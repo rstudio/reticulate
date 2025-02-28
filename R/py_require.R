@@ -781,12 +781,19 @@ uv_run_tool <- function(tool,
         UV_PYTHON_INSTALL_DIR = reticulate_data_dir("uv", "python")
       )
   ))
-  python <- resolve_python_version(constraints = python_version, uv = uv)
+
+  python <- .globals$cached_uv_run_tool_python_version[[python_version %||% "default"]]
+  if (is.null(python)) {
+    .globals$cached_uv_run_tool_python_version[[python_version %||% "default"]] <-
+      python <-
+      resolve_python_version(constraints = python_version, uv = uv)
+  }
+
   system2(uv, c(
     "tool",
     "run",
     "--isolated",
-    if (length(python)) c("--python", python),
+    "--python", python,
     if (length(exclude_newer)) c("--exclude-newer", exclude_newer),
     if (length(from)) c("--from", maybe_shQuote(from)),
     if (length(with)) c(rbind("--with", maybe_shQuote(with))),

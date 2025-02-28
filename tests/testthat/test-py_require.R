@@ -110,7 +110,11 @@ test_that("Error requesting conflicting Python versions", {
     py_require(python_version = ">=3.10")
     py_require(python_version = "<3.10")
     uv_get_or_create_env()
-  }))
+  }), transform = function(x) {
+    sub("^Available Python versions found: 3\\.11\\..*",
+        "Available Python versions found: 3.11.xx ....",
+        x)
+  })
 })
 
 test_that("Simple tests", {

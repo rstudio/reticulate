@@ -167,6 +167,7 @@
       Error in resolve_python_version(constraints = python_version, uv = uv) : 
         Requested Python version constraints could not be satisfied.
         constraints: ">=3.10,<3.10"
+      Available Python versions found: 3.11.xx ....
       Hint: Call `py_require(python_version = <string>, action = "set")` to replace constraints.
       Calls: uv_get_or_create_env -> resolve_python_version
       Execution halted

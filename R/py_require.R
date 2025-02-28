@@ -846,7 +846,7 @@ uv_python_list <- function(uv = uv_binary()) {
                                         x$version_parts$minor,
                                         x$version_parts$patch,
                                         sep = ".")
-  x <- x[!x$is_prerelease, ] # ignore versions like "3.14.0a5"
+  # x <- x[!x$is_prerelease, ] # ignore versions like "3.14.0a5"
 
   # x$path is local file path, NA if not downloaded yet.
   # x$url is populated if not downloaded yet.
@@ -860,6 +860,7 @@ uv_python_list <- function(uv = uv_binary()) {
 
   # order first to easily resolve the latest preferred patch for each minor version
   x <- x[order(
+    !x$is_prerelease,
     x$is_uv_python,
     x$version_parts$major,
     x$version_parts$minor,
@@ -871,11 +872,12 @@ uv_python_list <- function(uv = uv_binary()) {
   # prioritizing two versions behind the latest minor release.
   # Sort by the distance of the minor version from the preferred minor version,
   # breaking ties in favor of older minor versions.
-  latest_minor <- max(x$version_parts$minor)
+  latest_minor <- max(x$version_parts$minor[!x$is_prerelease])
   preferred_minor <- latest_minor - 2L
   x$is_latest_patch <- !duplicated(x$version_parts[c("major", "minor")])
 
   x <- x[order(
+    !x$is_prerelease,
     x$is_uv_python,
     x$is_latest_patch,
     -abs(x$version_parts$minor - preferred_minor) +
@@ -919,11 +921,6 @@ resolve_python_version <- function(constraints = NULL, uv = uv_binary()) {
   constraints <- trimws(unlist(strsplit(constraints, ",", fixed = TRUE)))
   constraints <- constraints[nzchar(constraints)]
 
-  # reflect a direct version specification like "3.11" or "3.14.0a3"
-  if (length(constraints) == 1L && !substr(constraints, 1L, 1L) %in% c("=", ">", "<", "!")) {
-    return(constraints)
-  }
-
   # We perform custom constraint resolution to prefer slightly older Python releases.
   # uv tends to select the latest version, which often lack package support
   # See: https://devguide.python.org/versions/
@@ -931,10 +928,15 @@ resolve_python_version <- function(constraints = NULL, uv = uv_binary()) {
   # Get latest patch for each minor version
   # E.g., candidates might be:
   #  c("3.13.1", "3.12.8", "3.11.11", "3.10.16", "3.9.21", "3.8.20" , ...)
-  candidates <- uv_python_list(uv)$version
+  all_candidates <- candidates <- uv_python_list(uv)$version
 
   if (length(constraints) == 0L) {
     return(as.character(candidates[1L])) # default
+  }
+
+  # reflect a direct version specification like "3.14.0a3"
+  if (length(constraints) == 1L && constraints %in% candidates) {
+    return(constraints)
   }
 
   candidates <- numeric_version(candidates, strict = FALSE)
@@ -950,6 +952,7 @@ resolve_python_version <- function(constraints = NULL, uv = uv_binary()) {
     msg <- paste0(
       'Requested Python version constraints could not be satisfied.\n',
       '  constraints: "', constraints, '"\n',
+      'Available Python versions found: ', paste0(all_candidates, collapse = ", "), "\n",
       'Hint: Call `py_require(python_version = <string>, action = "set")` to replace constraints.'
     )
     stop(msg)

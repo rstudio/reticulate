@@ -683,23 +683,26 @@ as_version_constraint_checkers <- function(version) {
   version <- unlist(strsplit(version, ",", fixed = TRUE))
 
   # given string like ">=3.8", match two groups, on ">=" and "3.8"
-  pattern <- "^([><=!]{0,2})\\s*([0-9.]*)"
+  pattern <- "^([><=!]{0,2})\\s*([0-9.a-zA-Z]*)"
 
   op <- sub(pattern, "\\1",  version)
   op[op == ""] <- "=="
 
-  ver <- sub(pattern, "\\2",  version)
-  ver <- numeric_version(ver)
+  ver_string <- sub(pattern, "\\2",  version)
+  ver <- numeric_version(ver_string, strict = FALSE)
 
-  .mapply(function(op, ver) {
+  .mapply(function(op, ver, ver_string) {
     op <- as.symbol(op)
     force(ver)
+    force(ver_string)
 
     # return a "checker" function that takes a vector of versions and returns
     # a logical vector of if the version satisfies the constraint.
     rlang::zap_srcref(eval(bquote(function(x) {
       op <- .(op)
       ver <- .(ver)
+      if (is.na(ver))
+        return(.(ver_string) %in% as.character(x))
       x <- numeric_version(x)
       # if the constraint version is missing minor or patch level, set
       # to 0, so we can match on all, equivalent to pip style syntax like '3.8.*'
@@ -710,7 +713,7 @@ as_version_constraint_checkers <- function(version) {
         }
       op(x, ver)
     })))
-  }, list(op, ver), NULL)
+  }, list(op, ver, ver_string), NULL)
 }
 
 

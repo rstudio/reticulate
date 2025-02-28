@@ -808,7 +808,7 @@ is_reticulate_managed_uv <- function(uv = uv_binary(bootstrap_install = FALSE)) 
 
 
 
-
+# return a dataframe of python options sorted by default reticulate preference
 uv_python_list <- function(uv = uv_binary()) {
 
   if (isTRUE(attr(uv, "reticulate-managed", TRUE)))
@@ -817,16 +817,15 @@ uv_python_list <- function(uv = uv_binary()) {
       UV_PYTHON_INSTALL_DIR = reticulate_data_dir("uv", "python")
     ))
 
-  # Note, for debuggers, this is typically called from
-  # uv_get_or_create_env(), which sets env vars that modify how uv finds Python.
-  # This function returns a dataframe sorted by default reticulate preference
-  if (Sys.getenv("_RETICULATE_DEBUG_UV_") == "1") {
+
+  if (Sys.getenv("_RETICULATE_DEBUG_UV_") == "1")
     system2 <- system2t
-  }
+
   x <- system2(uv, c("python list",
-    # "--python-preference managed",
     "--all-versions",
     # "--only-downloads",
+    # "--only-installed",
+    # "--python-preference managed",
     "--color never",
     "--output-format json"
     ),
@@ -834,7 +833,7 @@ uv_python_list <- function(uv = uv_binary()) {
   )
 
   x <- jsonlite::parse_json(x, simplifyVector = TRUE)
-  # x <- tibble::as_tibble(x)
+
   x <- x[is.na(x$symlink) , ]             # ignore local filesystem symlinks
   x <- x[x$variant == "default", ]        # ignore "freethreaded"
   x <- x[x$implementation == "cpython", ] # ignore "pypy"
@@ -847,35 +846,33 @@ uv_python_list <- function(uv = uv_binary()) {
 
   # x$path is local file path, NA if not downloaded yet.
   # x$url is populated if not downloaded yet.
-
   is_uv_downloadable <- !is.na(x$url)
   is_uv_downloaded <- grepl(
     "/uv/python/",
     normalizePath(x$path, winslash = "/", mustWork = FALSE),
     fixed = TRUE
   )
-  x$is_uv_downloaded <- is_uv_downloaded
-  x$is_managed <- is_uv_downloadable | is_uv_downloaded
+  x$is_uv_python <- is_uv_downloadable | is_uv_downloaded
 
+  # order first to easily resolve the latest preferred patch for each minor version
   x <- x[order(
-    x$is_managed,
-    # !x$is_prerelease,
+    x$is_uv_python,
     x$version_parts$major,
     x$version_parts$minor,
     x$version_parts$patch,
     decreasing = TRUE
   ), ]
 
-  # order so the latest patch level for each minor level is first,
-  # with preference for 2 versions behind the latest minor release,
-  # breaking ties with preference for older minor levels.
+  # Order so the latest patch level for each minor version appears first,
+  # prioritizing two versions behind the latest minor release.
+  # Sort by the distance of the minor version from the preferred minor version,
+  # breaking ties in favor of older minor versions.
   latest_minor <- max(x$version_parts$minor)
   preferred_minor <- latest_minor - 2L
   x$is_latest_patch <- !duplicated(x$version_parts[c("major", "minor")])
 
   x <- x[order(
-    x$is_managed,
-    # !x$is_prerelease,
+    x$is_uv_python,
     x$is_latest_patch,
     -abs(x$version_parts$minor - preferred_minor) +
       (-0.5 * (x$version_parts$minor > preferred_minor)),

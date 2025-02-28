@@ -1,5 +1,9 @@
 # reticulate (development version)
 
+- Reticulate-managed `uv` can now resolve system-installed Pythons, 
+  supporting platforms where pre-built binaries are unavailable, such as 
+  musl-based Alpine Linux (#1751, #1752).
+
 - `uv_run_tool()` gains an `exclude_newer` argument (#1748).
 
 - Internal changes to support R-devel (4.5) (#1747).

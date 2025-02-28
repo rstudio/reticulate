@@ -547,7 +547,7 @@ py_reqs_get <- function(x = NULL) {
 # uv ---------------------------------------------------------------------------
 
 uv_binary <- function(bootstrap_install = TRUE) {
-  required_version <- numeric_version("0.6.1")
+  required_version <- numeric_version("0.6.3")
   is_usable_uv <- function(uv) {
     if (is.null(uv) || is.na(uv) || uv == "" || !file.exists(uv)) {
       return(FALSE)

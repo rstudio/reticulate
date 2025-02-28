@@ -2797,6 +2797,8 @@ extern "C" PyObject* schedule_python_function_on_main_thread(
   return Py_None;
 }
 
+#ifdef _WIN32
+
 static void (*s_interrupt_handler)(int) = nullptr;
 
 static int win32_interrupt_handler(long unsigned int ignored) {
@@ -2805,6 +2807,8 @@ static int win32_interrupt_handler(long unsigned int ignored) {
   }
   return TRUE;
 }
+
+#endif
 
 static PyOS_sighandler_t reticulate_setsig(int signum, PyOS_sighandler_t handler) {
 
@@ -2821,9 +2825,6 @@ static PyOS_sighandler_t reticulate_setsig(int signum, PyOS_sighandler_t handler
 
 
 static void interrupt_handler(int signum) {
-
-  // This handler is called by the OS when signaling a SIGINT
-  std::cerr << "Hello from interrupt handler" << std::endl;
 
   // Tell R that an interrupt is pending. This will cause R to signal an
   // "interrupt" R condition next time R_CheckUserInterrupt() is called

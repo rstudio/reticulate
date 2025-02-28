@@ -461,15 +461,13 @@ bool import_numpy_api(bool python3, std::string* pError) {
 // objects within 'sys' did not contain 'flush' methods
 bool flush_std_buffer(const char* name) {
 
-  PyErr_Clear();
-
   // returns borrowed reference
   PyObject* buffer(PySys_GetObject(name));
   if (buffer == NULL || buffer == Py_None)
     return true;
 
   // try to invoke flush method
-  if (!PyObject_HasAttrString(buffer, ""))
+  if (!PyObject_HasAttrString(buffer, "flush"))
     return true;
 
   PyObject* result = PyObject_CallMethod(buffer, "flush", NULL);
@@ -503,7 +501,9 @@ int flush_std_buffers() {
 
   PyObject *error_type, *error_value, *error_traceback;
   PyErr_Fetch(&error_type, &error_value, &error_traceback);
-  bool ok = flush_std_buffer("stdout") && flush_std_buffer("stderr");
+  bool stdout_ok = flush_std_buffer("stdout");
+  bool stderr_ok = flush_std_buffer("stderr");
+  bool ok = stdout_ok && stderr_ok;
   PyErr_Restore(error_type, error_value, error_traceback);
 
   return ok ? 0 : -1;

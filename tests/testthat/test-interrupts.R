@@ -83,6 +83,7 @@ test_that("interrupts can be caught by Python", {
   skip_on_cran()
 
   p <- callr::r_bg(args = list(python = py_exe()), function(python) {
+
     Sys.setenv(RETICULATE_PYTHON = python)
     library(reticulate)
     get_frames <- function() {
@@ -112,6 +113,7 @@ test_that("interrupts can be caught by Python", {
     stopifnot(identical(frames_before, frames_after))
 
     cat("R Finished!")
+
   })
 
   p$poll_io(5000)
@@ -127,9 +129,9 @@ test_that("interrupts can be caught by Python", {
   p$wait()
 
   expect_identical(p$get_exit_status(), 0L)
-  expect_identical(
-    p$read_all_output(),
-    "Caught interrupt; Running finally; Python finished; R Finished!")
+  output <- p$read_all_output()
+  expected <- "Caught interrupt; Running finally; Python finished; R Finished!"
+  expect_identical(output, expected)
 
 })
 

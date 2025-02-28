@@ -87,6 +87,11 @@ ensure_python_initialized <- function(required_module = NULL) {
   if (is.function(callback))
     callback()
 
+  # re-install interrupt handler -- note that RStudio tries to re-install its
+  # own interrupt handler when reticulate is initialized, but reticulate needs
+  # to handle interrupts itself (and it can do so compatibly with RStudio)
+  install_interrupt_handlers()
+
   # call init hooks
   call_init_hooks()
 

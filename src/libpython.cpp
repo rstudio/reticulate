@@ -3,11 +3,15 @@
 #include "libpython.h"
 
 #ifndef _WIN32
-#include <dlfcn.h>
+# include <dlfcn.h>
 #else
-#define WIN32_LEAN_AND_MEAN 1
-#include <windows.h>
+# define WIN32_LEAN_AND_MEAN 1
+# include <windows.h>
 #endif
+
+#include <R.h>
+#include <Rinternals.h>
+
 
 #include <string>
 #include <vector>
@@ -453,39 +457,54 @@ bool import_numpy_api(bool python3, std::string* pError) {
   return true;
 }
 
+// returns 'true' if the buffer was flushed, or if the stdout / stderr
+// objects within 'sys' did not contain 'flush' methods
+bool flush_std_buffer(const char* name) {
 
-int flush_std_buffers() {
-  int status = 0;
-  PyObject* tmp = NULL;
-  PyObject *error_type, *error_value, *error_traceback;
-  PyErr_Fetch(&error_type, &error_value, &error_traceback);
+  // returns borrowed reference
+  PyObject* buffer(PySys_GetObject(name));
+  if (buffer == NULL || buffer == Py_None)
+    return true;
 
-  PyObject* sys_stdout(PySys_GetObject("stdout"));  // returns borrowed reference
-  if (sys_stdout == NULL)
-    status = -1;
-  else
-    tmp = PyObject_CallMethod(sys_stdout, "flush", NULL);
-
-  if (tmp == NULL)
-    status = -1;
-  else {
-    Py_DecRef(tmp);
-    tmp = NULL;
+  // try to invoke flush method
+  PyObject* result = PyObject_CallMethod(buffer, "flush", NULL);
+  if (result != NULL) {
+    Py_DecRef(result);
+    return true;
   }
 
-  PyObject* sys_stderr(PySys_GetObject("stderr"));  // returns borrowed reference
-  if (sys_stderr == NULL)
-    status = -1;
-  else
-    tmp = PyObject_CallMethod(sys_stderr, "flush", NULL);
+  // if we got here, an error must have occurred; print it
+  PyObject *ptype, *pvalue, *ptraceback;
+  PyErr_Fetch(&ptype, &pvalue, &ptraceback);
+  PyErr_NormalizeException(&ptype, &pvalue, &ptraceback);
+  if (pvalue) {
+    PyObject* pvalue_str = PyObject_Str(pvalue);
+    if (pvalue_str) {
+      REprintf("Error flushing Python %s: %s\n", name, PyUnicode_AsUTF8(pvalue_str));
+      Py_DecRef(pvalue_str);
+    }
+  }
 
-  if (tmp == NULL)
-    status = -1;
-  else
-    Py_DecRef(tmp);
+  // clean up
+  if (ptype)      Py_DecRef(ptype);
+  if (pvalue)     Py_DecRef(pvalue);
+  if (ptraceback) Py_DecRef(ptraceback);
 
+  return false;
+
+}
+
+int flush_std_buffers() {
+
+  PyObject *error_type, *error_value, *error_traceback;
+  PyErr_Fetch(&error_type, &error_value, &error_traceback);
+  bool stdout_ok = flush_std_buffer("stdout");
+  bool stderr_ok = flush_std_buffer("stderr");
+  bool ok = stdout_ok && stderr_ok;
   PyErr_Restore(error_type, error_value, error_traceback);
-  return status;
+
+  return ok ? 0 : -1;
+
 }
 
 

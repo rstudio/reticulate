@@ -259,7 +259,7 @@ py_to_r.markitdown.DocumentConverterResult <- function(x) {
 .onLoad <- function(libname, pkgname) {
   reticulate::py_require("markitdown")
 
-  reticulate:::py_register_load_hook("markitdown", function() {
+  reticulate::py_register_load_hook("markitdown", function() {
     markitdown <- reticulate::import("markitdown")
     registerS3method(
       "py_to_r",

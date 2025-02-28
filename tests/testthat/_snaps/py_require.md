@@ -6,6 +6,7 @@
         py_require("numpy<2")
         py_require("numpy>=2")
         import("numpy")
+        py_config()
       })
     Output
       > library(reticulate)

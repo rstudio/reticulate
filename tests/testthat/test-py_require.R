@@ -13,6 +13,7 @@ test_that("Error requesting conflicting package versions", {
     py_require("numpy<2")
     py_require("numpy>=2")
     import("numpy")
+    py_config()
   }))
 })
 

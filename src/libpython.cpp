@@ -457,6 +457,8 @@ bool import_numpy_api(bool python3, std::string* pError) {
   return true;
 }
 
+// returns 'true' if the buffer was flushed, or if the stdout / stderr
+// objects within 'sys' did not contain 'flush' methods
 bool flush_std_buffer(const char* name) {
 
   PyErr_Clear();
@@ -464,16 +466,16 @@ bool flush_std_buffer(const char* name) {
   // returns borrowed reference
   PyObject* buffer(PySys_GetObject(name));
   if (buffer == NULL || buffer == Py_None)
-    return 0;
+    return true;
 
   // try to invoke flush method
   if (!PyObject_HasAttrString(buffer, ""))
-    return 0;
+    return true;
 
   PyObject* result = PyObject_CallMethod(buffer, "flush", NULL);
   if (result != NULL) {
     Py_DecRef(result);
-    return 0;
+    return true;
   }
 
   // if we got here, an error must have occurred; print it
@@ -483,7 +485,7 @@ bool flush_std_buffer(const char* name) {
   if (pvalue) {
     PyObject* pvalue_str = PyObject_Str(pvalue);
     if (pvalue_str) {
-      REprintf("Error flushing Python buffer: %s\n", PyUnicode_AsUTF8(pvalue_str));
+      REprintf("Error flushing Python %s: %s\n", name, PyUnicode_AsUTF8(pvalue_str));
       Py_DecRef(pvalue_str);
     }
   }
@@ -493,7 +495,7 @@ bool flush_std_buffer(const char* name) {
   if (pvalue)     Py_DecRef(pvalue);
   if (ptraceback) Py_DecRef(ptraceback);
 
-  return -1;
+  return false;
 
 }
 
@@ -501,13 +503,10 @@ int flush_std_buffers() {
 
   PyObject *error_type, *error_value, *error_traceback;
   PyErr_Fetch(&error_type, &error_value, &error_traceback);
-
-  bool status =
-    flush_std_buffer("stdout") ||
-    flush_std_buffer("stderr");
-
+  bool ok = flush_std_buffer("stdout") && flush_std_buffer("stderr");
   PyErr_Restore(error_type, error_value, error_traceback);
-  return status ? -1 : 0;
+
+  return ok ? 0 : -1;
 
 }
 

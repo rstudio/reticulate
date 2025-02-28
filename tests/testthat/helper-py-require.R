@@ -8,6 +8,12 @@ r_session <- function(exprs, echo = TRUE, color = FALSE,
   withr::local_envvar(c(
     "VIRTUAL_ENV" = NA,
     "RETICULATE_PYTHON" = if (force_managed_python) "managed" else NA
+    "VIRTUAL_ENV_PROMPT" = NA,
+    "RETICULATE_MINICONDA_ENABLED" = NA,
+    "RUST_LOG" = NA,
+    "PYTHONPATH" = NA,
+    "PYTHONIOENCODING" = "utf-8",
+    if (isFALSE(color)) c("NO_COLOR" = "1")
   ))
   exprs <- substitute(exprs)
   if (!is.call(exprs))
@@ -32,8 +38,7 @@ r_session <- function(exprs, echo = TRUE, color = FALSE,
   result <- suppressWarnings(system2(
     R.home("bin/R"),
     c("--quiet", "--no-save", "--no-restore", "--no-echo", "-f", file),
-    stdout = TRUE, stderr = TRUE,
-    env = c(character(), if (isFALSE(color)) "NO_COLOR=1")
+    stdout = TRUE, stderr = TRUE
   ))
   class(result) <- "r_session_record"
   result

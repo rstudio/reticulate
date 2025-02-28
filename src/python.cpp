@@ -2806,14 +2806,13 @@ static int win32_interrupt_handler(long unsigned int ignored) {
   return TRUE;
 }
 
-template <typename T>
-static PyOS_sighandler_t reticulate_setsig(int signum, T&& handler) {
+static PyOS_sighandler_t reticulate_setsig(int signum, PyOS_sighandler_t handler) {
 
 #ifdef _WIN32
-    s_interrupt_handler = handler;
-    SetConsoleCtrlHandler(NULL, FALSE);
-    SetConsoleCtrlHandler(win32_interrupt_handler, FALSE);
-    SetConsoleCtrlHandler(win32_interrupt_handler, TRUE);
+  s_interrupt_handler = handler;
+  SetConsoleCtrlHandler(NULL, FALSE);
+  SetConsoleCtrlHandler(win32_interrupt_handler, FALSE);
+  SetConsoleCtrlHandler(win32_interrupt_handler, TRUE);
 #endif
 
   return PyOS_setsig(signum, handler);

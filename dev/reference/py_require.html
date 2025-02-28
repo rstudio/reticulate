@@ -218,11 +218,17 @@ system commands to <code>uv</code>:</p>
 <p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>uv cache clean</span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>rm <span class="sc">-</span>r <span class="st">"$(uv python dir)"</span></span>
 <span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>rm <span class="sc">-</span>r <span class="st">"$(uv tool dir)"</span></span></code></pre><p></p></div>
-<p>If <code>uv</code> is not installed, <code>reticulate</code> will automatically download <code>uv</code> and
-store it along with ephemeral environments and all downloaded artifacts in
-the <code>tools::R_user_dir("reticulate", "cache")</code> directory. To clear this
-cache, simply delete the directory:</p>
-<p></p><div class="sourceCode r"><pre><code><span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="fu">tools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/tools/userdir.html" class="external-link">R_user_dir</a></span><span class="op">(</span><span class="st">"reticulate"</span>, <span class="st">"cache"</span><span class="op">)</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre><p></p></div>
+<p>If <code>uv</code> is not installed, <code>reticulate</code> will automatically download it and
+store it along with ephemeral environments in the
+<code>tools::R_user_dir("reticulate", "cache")</code> directory. Python binaries
+downloaded by <code>uv</code> to create ephemeral virtual environments are stored in
+<code>tools::R_user_dir("reticulate", "data")</code>. To clear this cache, simply delete
+these directories:</p>
+<p></p><div class="sourceCode r"><pre><code><span><span class="co"># delete uv and ephemeral virtual environments</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="fu">tools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/tools/userdir.html" class="external-link">R_user_dir</a></span><span class="op">(</span><span class="st">"reticulate"</span>, <span class="st">"cache"</span><span class="op">)</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># delete python binaries</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="fu">tools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/tools/userdir.html" class="external-link">R_user_dir</a></span><span class="op">(</span><span class="st">"reticulate"</span>, <span class="st">"data"</span><span class="op">)</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre><p></p></div>
 </div>
 
     </div>

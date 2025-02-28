@@ -547,7 +547,7 @@ py_reqs_get <- function(x = NULL) {
 # uv ---------------------------------------------------------------------------
 
 uv_binary <- function(bootstrap_install = TRUE) {
-  required_version <- numeric_version("0.6.1")
+  required_version <- numeric_version("0.6.3")
   is_usable_uv <- function(uv) {
     if (is.null(uv) || is.na(uv) || uv == "" || !file.exists(uv)) {
       return(FALSE)
@@ -781,12 +781,19 @@ uv_run_tool <- function(tool,
         UV_PYTHON_INSTALL_DIR = reticulate_data_dir("uv", "python")
       )
   ))
-  python <- resolve_python_version(constraints = python_version, uv = uv)
+
+  python <- .globals$cached_uv_run_tool_python_version[[python_version %||% "default"]]
+  if (is.null(python)) {
+    .globals$cached_uv_run_tool_python_version[[python_version %||% "default"]] <-
+      python <-
+      resolve_python_version(constraints = python_version, uv = uv)
+  }
+
   system2(uv, c(
     "tool",
     "run",
     "--isolated",
-    if (length(python)) c("--python", python),
+    "--python", python,
     if (length(exclude_newer)) c("--exclude-newer", exclude_newer),
     if (length(from)) c("--from", maybe_shQuote(from)),
     if (length(with)) c(rbind("--with", maybe_shQuote(with))),
@@ -835,7 +842,7 @@ uv_python_list <- function(uv = uv_binary()) {
     ),
     stdout = TRUE
   )
-
+  x <- paste0(x, collapse = "")
   x <- jsonlite::parse_json(x, simplifyVector = TRUE)
 
   x <- x[is.na(x$symlink) , ]             # ignore local filesystem symlinks

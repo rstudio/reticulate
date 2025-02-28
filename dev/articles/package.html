@@ -357,7 +357,7 @@ NAMESPACE with roxygen, manually register them in
 <span><span class="va">.onLoad</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">libname</span>, <span class="va">pkgname</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu">reticulate</span><span class="fu">::</span><span class="fu"><a href="../reference/py_require.html">py_require</a></span><span class="op">(</span><span class="st">"markitdown"</span><span class="op">)</span></span>
 <span></span>
-<span>  <span class="fu">reticulate</span><span class="fu">:::</span><span class="fu">py_register_load_hook</span><span class="op">(</span><span class="st">"markitdown"</span>, <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu">reticulate</span><span class="fu">::</span><span class="fu"><a href="../reference/py_register_load_hook.html">py_register_load_hook</a></span><span class="op">(</span><span class="st">"markitdown"</span>, <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="va">markitdown</span> <span class="op">&lt;-</span> <span class="fu">reticulate</span><span class="fu">::</span><span class="fu"><a href="../reference/import.html">import</a></span><span class="op">(</span><span class="st">"markitdown"</span><span class="op">)</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/ns-internal.html" class="external-link">registerS3method</a></span><span class="op">(</span></span>
 <span>      <span class="st">"py_to_r"</span>,</span>

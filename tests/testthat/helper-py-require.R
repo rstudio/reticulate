@@ -3,7 +3,12 @@ test_py_require_reset <- function() {
 }
 
 r_session <- function(exprs, echo = TRUE, color = FALSE,
-                      attach_namespace = FALSE) {
+                      attach_namespace = FALSE,
+                      force_managed_python = TRUE) {
+  withr::local_envvar(c(
+    "VIRTUAL_ENV" = NA,
+    "RETICULATE_PYTHON" = if (force_managed_python) "managed" else NA
+  ))
   exprs <- substitute(exprs)
   if (!is.call(exprs))
     stop("exprs must be a call")

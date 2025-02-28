@@ -141,12 +141,18 @@ rm -r "$(uv python dir)"
 rm -r "$(uv tool dir)"
 }\if{html}{\out{</div>}}
 
-If \code{uv} is not installed, \code{reticulate} will automatically download \code{uv} and
-store it along with ephemeral environments and all downloaded artifacts in
-the \code{tools::R_user_dir("reticulate", "cache")} directory. To clear this
-cache, simply delete the directory:
+If \code{uv} is not installed, \code{reticulate} will automatically download it and
+store it along with ephemeral environments in the
+\code{tools::R_user_dir("reticulate", "cache")} directory. Python binaries
+downloaded by \code{uv} to create ephemeral virtual environments are stored in
+\code{tools::R_user_dir("reticulate", "data")}. To clear this cache, simply delete
+these directories:
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{unlink(tools::R_user_dir("reticulate", "cache"), recursive = TRUE)
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{# delete uv and ephemeral virtual environments
+unlink(tools::R_user_dir("reticulate", "cache"), recursive = TRUE)
+
+# delete python binaries
+unlink(tools::R_user_dir("reticulate", "data"), recursive = TRUE)
 }\if{html}{\out{</div>}}
 }
 }

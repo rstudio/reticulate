@@ -691,6 +691,15 @@ reticulate_cache_dir <- function(...) {
 }
 
 
+reticulate_data_dir <- function(...) {
+  root <- if (getRversion() > "4.0") {
+    tools::R_user_dir("reticulate", "data")
+  } else {
+    path.expand(user_data_dir("r-reticulate", NULL))
+  }
+
+  normalizePath(file.path(root, ...), mustWork = FALSE)
+}
 
 user_data_dir <- function(...) {
   expand_env_vars(rappdirs::user_data_dir(...))

@@ -7,7 +7,7 @@ r_session <- function(exprs, echo = TRUE, color = FALSE,
                       force_managed_python = TRUE) {
   withr::local_envvar(c(
     "VIRTUAL_ENV" = NA,
-    "RETICULATE_PYTHON" = if (force_managed_python) "managed" else NA
+    "RETICULATE_PYTHON" = if (force_managed_python) "managed" else NA,
     "VIRTUAL_ENV_PROMPT" = NA,
     "RETICULATE_MINICONDA_ENABLED" = NA,
     "RUST_LOG" = NA,

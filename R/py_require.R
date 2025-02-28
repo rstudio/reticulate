@@ -90,13 +90,19 @@
 #' rm -r "$(uv tool dir)"
 #' ```
 #'
-#' If `uv` is not installed, `reticulate` will automatically download `uv` and
-#' store it along with ephemeral environments and all downloaded artifacts in
-#' the `tools::R_user_dir("reticulate", "cache")` directory. To clear this
-#' cache, simply delete the directory:
+#' If `uv` is not installed, `reticulate` will automatically download it and
+#' store it along with ephemeral environments in the
+#' `tools::R_user_dir("reticulate", "cache")` directory. Python binaries
+#' downloaded by `uv` to create ephemeral virtual environments are stored in
+#' `tools::R_user_dir("reticulate", "data")`. To clear this cache, simply delete
+#' these directories:
 #'
 #' ```r
+#' # delete uv and ephemeral virtual environments
 #' unlink(tools::R_user_dir("reticulate", "cache"), recursive = TRUE)
+#'
+#' # delete python binaries
+#' unlink(tools::R_user_dir("reticulate", "data"), recursive = TRUE)
 #' ```
 #'
 #' @param packages A character vector of Python packages to be available during

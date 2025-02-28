@@ -467,9 +467,6 @@ bool flush_std_buffer(const char* name) {
     return true;
 
   // try to invoke flush method
-  if (!PyObject_HasAttrString(buffer, "flush"))
-    return true;
-
   PyObject* result = PyObject_CallMethod(buffer, "flush", NULL);
   if (result != NULL) {
     Py_DecRef(result);

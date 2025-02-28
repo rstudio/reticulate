@@ -701,10 +701,6 @@ reticulate_data_dir <- function(...) {
   normalizePath(file.path(root, ...), mustWork = FALSE)
 }
 
-
-
-
-
 user_data_dir <- function(...) {
   expand_env_vars(rappdirs::user_data_dir(...))
 }

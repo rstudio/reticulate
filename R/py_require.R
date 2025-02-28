@@ -648,7 +648,6 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
       c(
         UV_CACHE_DIR = reticulate_cache_dir("uv", "cache"),
         UV_PYTHON_INSTALL_DIR = reticulate_data_dir("uv", "python")
-        # UV_PYTHON_PREFERENCE = "only-managed"
       )
   ))
 
@@ -656,8 +655,7 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
     resolve_python_version(constraints = python_version, uv = uv)
 
   if (!length(resolved_python_version)) {
-    return()
-    # error?
+    return() # error?
   }
 
   # capture args; maybe used in error message later
@@ -782,7 +780,6 @@ uv_run_tool <- function(tool,
     "tool",
     "run",
     "--isolated",
-    # "--python-preference managed",
     if (length(python)) c("--python", python),
     if (length(exclude_newer)) c("--exclude-newer", exclude_newer),
     if (length(from)) c("--from", maybe_shQuote(from)),
@@ -825,7 +822,8 @@ uv_python_list <- function(uv = uv_binary()) {
     "--all-versions",
     # "--only-downloads",
     # "--only-installed",
-    # "--python-preference managed",
+    # "--python-preference only-managed",
+    # "--python-preference only-system",
     "--color never",
     "--output-format json"
     ),

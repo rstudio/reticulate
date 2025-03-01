@@ -110,6 +110,16 @@ import_positron_ipykernel_inspectors <- function() {
   if(!is_positron())
     return (NULL)
 
+  # in 2025.03 release, inspectors module moved to here
+  tryCatch({
+    .ps.ui.executeCommand <- get(".ps.ui.executeCommand", globalenv())
+    ipykernel_path <- .ps.ui.executeCommand("positron.reticulate.getIPykernelPath")
+    inspectors <- import_from_path("positron.inspectors", path = dirname(ipykernel_path))
+    return(inspectors)
+  },
+  error = function(e) NULL)
+
+  # inspectors module pre-2025.03
   tryCatch({
     # https://github.com/posit-dev/positron/pull/5368
     .ps.ui.executeCommand <- get(".ps.ui.executeCommand", globalenv())

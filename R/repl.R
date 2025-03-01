@@ -94,7 +94,7 @@ repl_python <- function(
   if (is_positron() &&
       exists(".ps.reticulate_open", inherits = TRUE)) {
 
-    eval(call(".ps.reticulate_open", input))
+    eval(call(".ps.reticulate_open", input %||% ""))
 
     # TODO: seems we need to rerun py_inject_r(), possibly other init hooks.
     # TODO: kernal initializion drops pre-existing objects in __main__

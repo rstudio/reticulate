@@ -2,6 +2,8 @@
 
 - Fixed an issue in RStudio on Windows where interrupts were
   ignored while Python code was executing (#1753).
+  
+- Updates for Positron to fix issues with `repl_python()` and Variables Pane (#1755).
 
 - Reticulate-managed `uv` can now resolve system-installed Pythons,
   supporting platforms where pre-built binaries are unavailable, such as

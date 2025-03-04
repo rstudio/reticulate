@@ -19,6 +19,8 @@
 
 - Internal fixes to prevent reticulate-managed `uv` from writing outside
   reticulates cache directory (#1745).
+  
+- Fixed an issue with pointing reticulate at a pyenv shim python (#1758)
 
 # reticulate 1.41.0
 

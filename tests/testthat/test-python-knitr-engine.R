@@ -86,6 +86,23 @@ test_that("knitr 'warning=FALSE' option", {
 
 })
 
+test_that("knitr results='hide' and include = FALSE options", {
+
+  skip_on_cran()
+  skip_if_not_installed("rmarkdown")
+
+  local_edition(3) # needed for expect_snapshot_file()
+
+  owd <- setwd(test_path("resources"))
+  rmarkdown::render("knitr-results-hide.Rmd", quiet = TRUE)
+  setwd(owd)
+
+  rendered <- test_path("resources", "knitr-results-hide.md")
+
+  expect_snapshot_file(rendered)
+
+})
+
 test_that("Output streams are remaped when kniting", {
 
   skip_on_cran()

@@ -4619,20 +4619,32 @@ PyObjectRef py_capsule(SEXP x) {
 PyObjectRef py_slice(SEXP start = R_NilValue, SEXP stop = R_NilValue, SEXP step = R_NilValue) {
   GILScope _gil;
 
-  PyObjectPtr start_, stop_, step_;
+  auto coerce_slice_arg = [](SEXP x) -> PyObject* {
+    if (x == R_NilValue) {
+      return NULL;
+    }
+    if (TYPEOF(x) == INTSXP || TYPEOF(x) == REALSXP) {
+      return PyLong_FromLong(Rf_asInteger(x));
+    }
+    if (is_py_object(x)) {
+      PyObject* pyobj = PyObjectRef(x, false).get();
+      Py_IncRef(pyobj);
+      return pyobj;
+    }
+    return r_to_py(x, false);
+  };
 
-  if (start != R_NilValue)
-    start_.assign(PyLong_FromLong(Rf_asInteger(start)));
-  if (stop != R_NilValue)
-    stop_.assign(PyLong_FromLong(Rf_asInteger(stop)));
-  if (step != R_NilValue)
-    step_.assign(PyLong_FromLong(Rf_asInteger(step)));
+  PyObjectPtr start_(coerce_slice_arg(start));
+  PyObjectPtr  stop_(coerce_slice_arg(stop));
+  PyObjectPtr  step_(coerce_slice_arg(step));
 
-  PyObject* out(PySlice_New(start_, stop_, step_));
+  PyObject* out = PySlice_New(start_, stop_, step_);
   if (out == NULL)
     throw PythonException(py_fetch_error());
+
   return py_ref(out, false);
 }
+
 
 
 //' @rdname iterate

@@ -173,7 +173,7 @@ test_that("[ can infer slices, multiple args", {
 
 test_that("[ passes through python objects", {
 
-  skip_if_no_numpy("numpy")
+  skip_if_no_numpy()
 
   np <- import("numpy", convert = FALSE)
 

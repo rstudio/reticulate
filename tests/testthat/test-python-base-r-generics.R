@@ -169,3 +169,24 @@ test_that("[ can infer slices, multiple args", {
   expect_identical(py_eval("x"), py_to_r(x))
 
 })
+
+
+test_that("[ passes through python objects", {
+
+  skip_if_no_numpy()
+
+  np <- import("numpy", convert = FALSE)
+
+  x <- np$arange(10L)
+  ir <- 3L
+  ip <- np$array(3L)
+
+  expect_equal(py_to_r(x[ir]), 3L)
+  expect_equal(py_to_r(x[ip]), 3L)
+
+  expect_equal(py_to_r(x[ir:NA]), array(3:9))
+  expect_equal(py_to_r(x[ip:NA]), array(3:9))
+  expect_equal(py_to_r(x[NA:ir]), array(0:2))
+  expect_equal(py_to_r(x[NA:ip]), array(0:2))
+
+})

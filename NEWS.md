@@ -5,6 +5,9 @@
   
 - Updates for Positron to fix issues with `repl_python()` and Variables Pane (#1755).
 
+- Fixed an issue where `[` received Python objects as slice arguments.
+  e.g., `x[start:end]` when `start` or `end` were Python objects (#1731).
+
 - Reticulate-managed `uv` can now resolve system-installed Pythons,
   supporting platforms where pre-built binaries are unavailable, such as
   musl-based Alpine Linux (#1751, #1752).

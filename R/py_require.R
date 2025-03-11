@@ -576,22 +576,28 @@ uv_binary <- function(bootstrap_install = TRUE) {
   repeat {
     uv <- Sys.getenv("RETICULATE_UV", NA)
     if (!is.na(uv)) {
-      if (uv == "managed") break else return(path.expand(uv))
+      if (uv == "managed") break else return(uv)
     }
 
     uv <- getOption("reticulate.uv_binary")
     if (!is.null(uv)) {
-      if (uv == "managed") break else return(path.expand(uv))
+      if (uv == "managed") break else return(uv)
     }
+
+    # on Windows, the invocation cost of `uv`` is non-negligable.
+    # observed to be 0.2s for just `uv --version`
+    # This is a an approach to avoid paying that cost on each invocation
+    # This is mostly motivated by uv_run_tool(),
+    on.exit(options(reticulate.uv_binary = uv))
 
     uv <- as.character(Sys.which("uv"))
     if (is_usable_uv(uv)) {
-      return(path.expand(uv))
+      return(uv)
     }
 
     uv <- path.expand("~/.local/bin/uv")
     if (is_usable_uv(uv)) {
-      return(path.expand(uv))
+      return(uv)
     }
 
     break
@@ -599,8 +605,9 @@ uv_binary <- function(bootstrap_install = TRUE) {
 
   uv <- reticulate_cache_dir("uv", "bin", if (is_windows()) "uv.exe" else "uv")
   attr(uv, "reticulate-managed") <- TRUE
-  if (is_usable_uv(uv))
+  if (is_usable_uv(uv)) {
     return(uv)
+  }
 
   if (file.exists(uv)) {
     # exists, but version too old
@@ -666,7 +673,7 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
     if (isTRUE(attr(uv, "reticulate-managed", TRUE)))
       c(
         UV_CACHE_DIR = reticulate_cache_dir("uv", "cache"),
-        UV_PYTHON_INSTALL_DIR = reticulate_data_dir("uv", "python")
+        UV_PYTHON_INSTALL_DIR = reticulate_cache_dir("uv", "python")
       )
   ))
 
@@ -791,7 +798,7 @@ uv_run_tool <- function(tool,
     if (isTRUE(attr(uv, "reticulate-managed", TRUE)))
       c(
         UV_CACHE_DIR = reticulate_cache_dir("uv", "cache"),
-        UV_PYTHON_INSTALL_DIR = reticulate_data_dir("uv", "python")
+        UV_PYTHON_INSTALL_DIR = reticulate_cache_dir("uv", "python")
       )
   ))
 
@@ -837,7 +844,7 @@ uv_python_list <- function(uv = uv_binary()) {
   if (isTRUE(attr(uv, "reticulate-managed", TRUE)))
     withr::local_envvar(c(
       UV_CACHE_DIR = reticulate_cache_dir("uv", "cache"),
-      UV_PYTHON_INSTALL_DIR = reticulate_data_dir("uv", "python")
+      UV_PYTHON_INSTALL_DIR = reticulate_cache_dir("uv", "python")
     ))
 
 
@@ -929,7 +936,7 @@ uv_exec <- function(args, ...) {
     if (isTRUE(attr(uv, "reticulate-managed", TRUE)))
       c(
         UV_CACHE_DIR = reticulate_cache_dir("uv", "cache"),
-        UV_PYTHON_INSTALL_DIR = reticulate_data_dir("uv", "python")
+        UV_PYTHON_INSTALL_DIR = reticulate_cache_dir("uv", "python")
       )
   ))
 

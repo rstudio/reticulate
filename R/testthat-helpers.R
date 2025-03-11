@@ -144,3 +144,13 @@ skip_if_no_matplotlib <- function() {
     skip("matplotlib not available for testing")
 
 }
+
+skip_if_module_not_available <- function(module) {
+
+  skip_on_cran()
+  skip_if_no_python()
+
+  if (!py_module_available(module))
+    skip(paste(module, "not available for testing"))
+
+}

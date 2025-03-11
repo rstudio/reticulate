@@ -34,11 +34,12 @@ is set, only the \code{set} action can override it.}
 \item{action}{Determines how \code{py_require()} processes the provided
 requirements. Options are:
 \itemize{
-\item \code{add}: Adds the entries to the current set of requirements.
-\item \code{remove}: Removes \emph{exact} matches from the requirements list. Requests to remove nonexistent entries are
-ignored. For example, if \code{"numpy==2.2.2"} is in the list, passing \code{"numpy"}
-with \code{action = "remove"} will not remove it.
-\item \code{set}: Clears all existing requirements and replaces them with the
+\item \code{"add"} (the default): Adds the entries to the current set of requirements.
+\item \code{"remove"}: Removes \emph{exact} matches from the requirements list.
+Requests to remove nonexistent entries are ignored. For example, if
+\code{"numpy==2.2.2"} is in the list, passing \code{"numpy"} with \code{action="remove"}
+will not remove it.
+\item \code{"set"}: Clears all existing requirements and replaces them with the
 provided ones. Packages and the Python version can be set independently.
 }}
 }
@@ -62,7 +63,9 @@ requirements.
 Reticulate will only use an ephemeral environment if no other Python
 installation is found earlier in the \href{https://rstudio.github.io/reticulate/articles/versions.html#order-of-discovery}{Order of Discovery}.
 You can also force reticulate to use an ephemeral environment by setting
-\code{Sys.setenv(RETICULATE_USE_MANAGED_VENV="yes")}.
+\code{Sys.setenv(RETICULATE_PYTHON="managed")}, or you can disable reticulate from
+using an ephemeral environment by setting
+\code{Sys.setenv(RETICULATE_USE_MANAGED_VENV="no")}.
 
 The ephemeral virtual environment is not created until the user interacts
 with Python for the first time in the R session, typically when \code{import()} is
@@ -87,10 +90,22 @@ dependencies. Many \code{uv} options can be customized via environment variables
 as described \href{https://docs.astral.sh/uv/configuration/environment/}{here}.
 For example:
 \itemize{
-\item If temporarily offline, set \code{Sys.setenv(UV_OFFLINE = "1")}.
-\item To use a different index: \code{Sys.setenv(UV_INDEX = "https://download.pytorch.org/whl/cpu")}.
-\item To allow resolving a prerelease dependency: \code{Sys.setenv(UV_PRERELEASE = "allow")}.
+\item If temporarily offline, to resolve packages from cache without checking for updates, set: \cr
+\code{Sys.setenv(UV_OFFLINE = "1")}.
+\item To use an additional package index: \cr
+\code{Sys.setenv(UV_INDEX = "https://download.pytorch.org/whl/cpu")}. \cr (To add
+multiple additional indexes, \code{UV_INDEX} can be a list of space-separated
+urls).
+\item To change the default package index: \cr
+\code{Sys.setenv(UV_DEFAULT_INDEX = "https://my.org/python-packages-index/")}
+\item To allow resolving a prerelease dependency: \cr
+\code{Sys.setenv(UV_PRERELEASE = "allow")}.
+\item To force \code{uv} to create ephemeral environments using the system python: \cr
+\code{Sys.setenv(UV_PYTHON_PREFERENCE = "only-system")}
 }
+
+For more advanced customization needs, there’s also the option to configure
+\code{uv} with a user-level or system-level \code{uv.toml} file.
 \subsection{Installing from alternate sources}{
 
 The \code{packages} argument also supports declaring a dependency from a Git
@@ -141,18 +156,13 @@ rm -r "$(uv python dir)"
 rm -r "$(uv tool dir)"
 }\if{html}{\out{</div>}}
 
-If \code{uv} is not installed, \code{reticulate} will automatically download it and
-store it along with ephemeral environments in the
-\code{tools::R_user_dir("reticulate", "cache")} directory. Python binaries
-downloaded by \code{uv} to create ephemeral virtual environments are stored in
-\code{tools::R_user_dir("reticulate", "data")}. To clear this cache, simply delete
-these directories:
+If \code{uv} is not installed, \code{reticulate} will automatically download and store
+it, along with other downloaded artifacts and ephemeral environments, in the
+\code{tools::R_user_dir("reticulate", "cache")} directory. To clear this cache,
+delete the directory:
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{# delete uv and ephemeral virtual environments
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{# Delete uv, ephemeral virtual environments, and all downloaded artifacts
 unlink(tools::R_user_dir("reticulate", "cache"), recursive = TRUE)
-
-# delete python binaries
-unlink(tools::R_user_dir("reticulate", "data"), recursive = TRUE)
 }\if{html}{\out{</div>}}
 }
 }

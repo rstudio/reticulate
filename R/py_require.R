@@ -10,7 +10,9 @@
 #' installation is found earlier in the [Order of
 #' Discovery](https://rstudio.github.io/reticulate/articles/versions.html#order-of-discovery).
 #' You can also force reticulate to use an ephemeral environment by setting
-#' `Sys.setenv(RETICULATE_USE_MANAGED_VENV="yes")`.
+#' `Sys.setenv(RETICULATE_PYTHON="managed")`, or you can disable reticulate from
+#' using an ephemeral environment by setting
+#' `Sys.setenv(RETICULATE_USE_MANAGED_VENV="no")`.
 #'
 #' The ephemeral virtual environment is not created until the user interacts
 #' with Python for the first time in the R session, typically when `import()` is
@@ -35,9 +37,21 @@
 #' dependencies. Many `uv` options can be customized via environment variables,
 #' as described [here](https://docs.astral.sh/uv/configuration/environment/).
 #' For example:
-#'   - If temporarily offline, set `Sys.setenv(UV_OFFLINE = "1")`.
-#'   - To use a different index: `Sys.setenv(UV_INDEX = "https://download.pytorch.org/whl/cpu")`.
-#'   - To allow resolving a prerelease dependency: `Sys.setenv(UV_PRERELEASE = "allow")`.
+#'   - If temporarily offline, to resolve packages from cache without checking for updates, set: \cr
+#' `Sys.setenv(UV_OFFLINE = "1")`.
+#'   - To use an additional package index: \cr
+#' `Sys.setenv(UV_INDEX = "https://download.pytorch.org/whl/cpu")`. \cr (To add
+#' multiple additional indexes, `UV_INDEX` can be a list of space-separated
+#' urls).
+#'   - To change the default package index: \cr
+#' `Sys.setenv(UV_DEFAULT_INDEX = "https://my.org/python-packages-index/")`
+#'   - To allow resolving a prerelease dependency: \cr
+#' `Sys.setenv(UV_PRERELEASE = "allow")`.
+#'   - To force `uv` to create ephemeral environments using the system python: \cr
+#' `Sys.setenv(UV_PYTHON_PREFERENCE = "only-system")`
+#'
+#' For more advanced customization needs, there’s also the option to configure
+#' `uv` with a user-level or system-level `uv.toml` file.
 #'
 #' ## Installing from alternate sources
 #'
@@ -90,19 +104,14 @@
 #' rm -r "$(uv tool dir)"
 #' ```
 #'
-#' If `uv` is not installed, `reticulate` will automatically download it and
-#' store it along with ephemeral environments in the
-#' `tools::R_user_dir("reticulate", "cache")` directory. Python binaries
-#' downloaded by `uv` to create ephemeral virtual environments are stored in
-#' `tools::R_user_dir("reticulate", "data")`. To clear this cache, simply delete
-#' these directories:
+#' If `uv` is not installed, `reticulate` will automatically download and store
+#' it, along with other downloaded artifacts and ephemeral environments, in the
+#' `tools::R_user_dir("reticulate", "cache")` directory. To clear this cache,
+#' delete the directory:
 #'
 #' ```r
-#' # delete uv and ephemeral virtual environments
+#' # Delete uv, ephemeral virtual environments, and all downloaded artifacts
 #' unlink(tools::R_user_dir("reticulate", "cache"), recursive = TRUE)
-#'
-#' # delete python binaries
-#' unlink(tools::R_user_dir("reticulate", "data"), recursive = TRUE)
 #' ```
 #'
 #' @param packages A character vector of Python packages to be available during
@@ -117,11 +126,12 @@
 #'
 #' @param action Determines how `py_require()` processes the provided
 #'   requirements. Options are:
-#'   - `add`: Adds the entries to the current set of requirements.
-#'   - `remove`: Removes _exact_ matches from the requirements list. Requests to remove nonexistent entries are
-#'   ignored. For example, if `"numpy==2.2.2"` is in the list, passing `"numpy"`
-#'   with `action = "remove"` will not remove it.
-#'   - `set`: Clears all existing requirements and replaces them with the
+#'   - `"add"` (the default): Adds the entries to the current set of requirements.
+#'   - `"remove"`: Removes _exact_ matches from the requirements list.
+#'   Requests to remove nonexistent entries are ignored. For example, if
+#'   `"numpy==2.2.2"` is in the list, passing `"numpy"` with `action="remove"`
+#'   will not remove it.
+#'   - `"set"`: Clears all existing requirements and replaces them with the
 #'   provided ones. Packages and the Python version can be set independently.
 #'
 #' @param exclude_newer Limit package versions to those published before a

@@ -288,7 +288,10 @@ py_require <- function(packages = NULL,
         # TODO: sync os.environ with R Sys.getenv()?
       } else {
         # TODO: Better error message?
-        stop("New environment does not use the same Python binary")
+        signal_and_exit(
+          "New environment does not use the same Python binary\n",
+          "new libpython: ", new_config$libpython, "\n",
+          "old libpython: ", .globals$py_config$libpython)
       }
     }, error = signal_and_exit)
   }

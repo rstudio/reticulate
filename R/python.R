@@ -1850,6 +1850,13 @@ print.py_error <- function(x, ...) {
 
   py_error_message <- x$message
 
+  # Try to unescape newline and ANSI escape character if needed. This is usually
+  # unnecessary, but is been occasionally required, notably with Keras.
+  msg <- py_error_message
+  msg <- gsub("\\\\n", "\n", msg, useBytes = TRUE)
+  msg <- gsub("\\\\x1b", "\x1b", msg, useBytes = TRUE)
+  py_error_message <- msg
+
   if (identical(.Platform$GUI, "RStudio") &&
       requireNamespace("cli", quietly = TRUE) &&
       length(etb <- attr(x, "exception")$`__traceback__`))

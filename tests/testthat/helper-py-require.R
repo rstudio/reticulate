@@ -64,3 +64,26 @@ py_require_tested_packages <- function() {
 }
 
 py_require_tested_packages()
+
+
+uninstall_system_uv <- function() {
+  withr::local_envvar(c("NO_COLOR" = "1"))
+  cache_dir <- system("uv cache dir", intern = TRUE) %error% NULL
+  python_dir <- system("uv python dir", intern = TRUE) %error% NULL
+  tool_dir <- system("uv tool dir", intern = TRUE) %error% NULL
+  dirs <- c(cache_dir, python_dir, tool_dir)
+  uv <- Sys.which("uv")
+  uvx <- Sys.which("uvx")
+  todelete <- c(dirs, uv, uvx)
+  todelete <- todelete[nzchar(todelete) &
+                         !is.na(todelete) & file.exists(todelete)]
+  if (!length(todelete)) {
+    message("nothing to delete")
+    return()
+  }
+  todelete <- normalizePath(todelete)
+  msg <- paste0("Delete?:\n", paste0("- ", todelete, collapse = "\n"), "\n")
+  if (askYesNo(msg)) {
+    unlink(todelete, recursive = TRUE, force = TRUE)
+  }
+}

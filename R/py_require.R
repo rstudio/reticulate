@@ -10,7 +10,9 @@
 #' installation is found earlier in the [Order of
 #' Discovery](https://rstudio.github.io/reticulate/articles/versions.html#order-of-discovery).
 #' You can also force reticulate to use an ephemeral environment by setting
-#' `Sys.setenv(RETICULATE_USE_MANAGED_VENV="yes")`.
+#' `Sys.setenv(RETICULATE_PYTHON="managed")`, or you can disable reticulate from
+#' using an ephemeral environment by setting
+#' `Sys.setenv(RETICULATE_USE_MANAGED_VENV="no")`.
 #'
 #' The ephemeral virtual environment is not created until the user interacts
 #' with Python for the first time in the R session, typically when `import()` is
@@ -35,9 +37,21 @@
 #' dependencies. Many `uv` options can be customized via environment variables,
 #' as described [here](https://docs.astral.sh/uv/configuration/environment/).
 #' For example:
-#'   - If temporarily offline, set `Sys.setenv(UV_OFFLINE = "1")`.
-#'   - To use a different index: `Sys.setenv(UV_INDEX = "https://download.pytorch.org/whl/cpu")`.
-#'   - To allow resolving a prerelease dependency: `Sys.setenv(UV_PRERELEASE = "allow")`.
+#'   - If temporarily offline, to resolve packages from cache without checking for updates, set: \cr
+#' `Sys.setenv(UV_OFFLINE = "1")`.
+#'   - To use an additional package index: \cr
+#' `Sys.setenv(UV_INDEX = "https://download.pytorch.org/whl/cpu")`. \cr (To add
+#' multiple additional indexes, `UV_INDEX` can be a list of space-separated
+#' urls).
+#'   - To change the default package index: \cr
+#' `Sys.setenv(UV_DEFAULT_INDEX = "https://my.org/python-packages-index/")`
+#'   - To allow resolving a prerelease dependency: \cr
+#' `Sys.setenv(UV_PRERELEASE = "allow")`.
+#'   - To force `uv` to create ephemeral environments using the system python: \cr
+#' `Sys.setenv(UV_PYTHON_PREFERENCE = "only-system")`
+#'
+#' For more advanced customization needs, there’s also the option to configure
+#' `uv` with a user-level or system-level `uv.toml` file.
 #'
 #' ## Installing from alternate sources
 #'
@@ -45,31 +59,31 @@
 #' repository or a local file. Below are some examples of valid `packages`
 #' strings:
 #'
-#' Install Ruff from a specific Git tag:
+#' - Install Ruff from a specific Git tag:
 #'   ```
-#'     "git+https://github.com/astral-sh/ruff@v0.2.0"
-#'   ```
-#'
-#' Install Ruff from a specific Git commit:
-#'   ```
-#'     "git+https://github.com/astral-sh/ruff@1fadefa67b26508cc59cf38e6130bde2243c929d"
+#'   "git+https://github.com/astral-sh/ruff@v0.2.0"
 #'   ```
 #'
-#' Install Ruff from a specific Git branch:
+#' - Install Ruff from a specific Git commit:
 #'   ```
-#'     "git+https://github.com/astral-sh/ruff@main"
+#'   "git+https://github.com/astral-sh/ruff@1fadefa67b26508cc59cf38e6130bde2243c929d"
 #'   ```
 #'
-#' Install MarkItDown from the `main` branch---find the package in the
+#' - Install Ruff from a specific Git branch:
+#'   ```
+#'   "git+https://github.com/astral-sh/ruff@main"
+#'   ```
+#'
+#' - Install MarkItDown from the `main` branch---find the package in the
 #' subdirectory 'packages/markitdown':
 #'   ```
-#'     "markitdown@git+https://github.com/microsoft/markitdown.git@main#subdirectory=packages/markitdown"
+#'   "markitdown@git+https://github.com/microsoft/markitdown.git@main#subdirectory=packages/markitdown"
 #'   ```
 #'
-#' Install MarkItDown from the local filesystem by providing an absolute path to
+#' - Install MarkItDown from the local filesystem by providing an absolute path to
 #' a directory containing a `pyproject.toml` or `setup.py` file:
 #'   ```
-#'     "markitdown@/Users/tomasz/github/microsoft/markitdown/packages/markitdown/"
+#'   "markitdown@/Users/tomasz/github/microsoft/markitdown/packages/markitdown/"
 #'   ```
 #'
 #' See more examples
@@ -90,19 +104,14 @@
 #' rm -r "$(uv tool dir)"
 #' ```
 #'
-#' If `uv` is not installed, `reticulate` will automatically download it and
-#' store it along with ephemeral environments in the
-#' `tools::R_user_dir("reticulate", "cache")` directory. Python binaries
-#' downloaded by `uv` to create ephemeral virtual environments are stored in
-#' `tools::R_user_dir("reticulate", "data")`. To clear this cache, simply delete
-#' these directories:
+#' If an existing installation of `uv` is not found, `reticulate` will
+#' automatically download and store it, along with other downloaded artifacts
+#' and ephemeral environments, in the `tools::R_user_dir("reticulate", "cache")`
+#' directory. To clear this cache, delete the directory:
 #'
 #' ```r
-#' # delete uv and ephemeral virtual environments
+#' # delete uv, ephemeral virtual environments, and all downloaded artifacts
 #' unlink(tools::R_user_dir("reticulate", "cache"), recursive = TRUE)
-#'
-#' # delete python binaries
-#' unlink(tools::R_user_dir("reticulate", "data"), recursive = TRUE)
 #' ```
 #'
 #' @param packages A character vector of Python packages to be available during
@@ -117,11 +126,12 @@
 #'
 #' @param action Determines how `py_require()` processes the provided
 #'   requirements. Options are:
-#'   - `add`: Adds the entries to the current set of requirements.
-#'   - `remove`: Removes _exact_ matches from the requirements list. Requests to remove nonexistent entries are
-#'   ignored. For example, if `"numpy==2.2.2"` is in the list, passing `"numpy"`
-#'   with `action = "remove"` will not remove it.
-#'   - `set`: Clears all existing requirements and replaces them with the
+#'   - `"add"` (the default): Adds the entries to the current set of requirements.
+#'   - `"remove"`: Removes _exact_ matches from the requirements list.
+#'   Requests to remove nonexistent entries are ignored. For example, if
+#'   `"numpy==2.2.2"` is in the list, passing `"numpy"` with `action="remove"`
+#'   will not remove it.
+#'   - `"set"`: Clears all existing requirements and replaces them with the
 #'   provided ones. Packages and the Python version can be set independently.
 #'
 #' @param exclude_newer Limit package versions to those published before a
@@ -278,7 +288,10 @@ py_require <- function(packages = NULL,
         # TODO: sync os.environ with R Sys.getenv()?
       } else {
         # TODO: Better error message?
-        stop("New environment does not use the same Python binary")
+        signal_and_exit(
+          "New environment does not use the same Python binary\n",
+          "new libpython: ", new_config$libpython, "\n",
+          "old libpython: ", .globals$py_config$libpython)
       }
     }, error = signal_and_exit)
   }
@@ -563,22 +576,28 @@ uv_binary <- function(bootstrap_install = TRUE) {
   repeat {
     uv <- Sys.getenv("RETICULATE_UV", NA)
     if (!is.na(uv)) {
-      if (uv == "managed") break else return(path.expand(uv))
+      if (uv == "managed") break else return(uv)
     }
 
     uv <- getOption("reticulate.uv_binary")
     if (!is.null(uv)) {
-      if (uv == "managed") break else return(path.expand(uv))
+      if (uv == "managed") break else return(uv)
     }
+
+    # on Windows, the invocation cost of `uv`` is non-negligable.
+    # observed to be 0.2s for just `uv --version`
+    # This is a an approach to avoid paying that cost on each invocation
+    # This is mostly motivated by uv_run_tool(),
+    on.exit(options(reticulate.uv_binary = uv))
 
     uv <- as.character(Sys.which("uv"))
     if (is_usable_uv(uv)) {
-      return(path.expand(uv))
+      return(uv)
     }
 
     uv <- path.expand("~/.local/bin/uv")
     if (is_usable_uv(uv)) {
-      return(path.expand(uv))
+      return(uv)
     }
 
     break
@@ -586,8 +605,9 @@ uv_binary <- function(bootstrap_install = TRUE) {
 
   uv <- reticulate_cache_dir("uv", "bin", if (is_windows()) "uv.exe" else "uv")
   attr(uv, "reticulate-managed") <- TRUE
-  if (is_usable_uv(uv))
+  if (is_usable_uv(uv)) {
     return(uv)
+  }
 
   if (file.exists(uv)) {
     # exists, but version too old
@@ -653,7 +673,7 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
     if (isTRUE(attr(uv, "reticulate-managed", TRUE)))
       c(
         UV_CACHE_DIR = reticulate_cache_dir("uv", "cache"),
-        UV_PYTHON_INSTALL_DIR = reticulate_data_dir("uv", "python")
+        UV_PYTHON_INSTALL_DIR = reticulate_cache_dir("uv", "python")
       )
   ))
 
@@ -778,7 +798,7 @@ uv_run_tool <- function(tool,
     if (isTRUE(attr(uv, "reticulate-managed", TRUE)))
       c(
         UV_CACHE_DIR = reticulate_cache_dir("uv", "cache"),
-        UV_PYTHON_INSTALL_DIR = reticulate_data_dir("uv", "python")
+        UV_PYTHON_INSTALL_DIR = reticulate_cache_dir("uv", "python")
       )
   ))
 
@@ -824,7 +844,7 @@ uv_python_list <- function(uv = uv_binary()) {
   if (isTRUE(attr(uv, "reticulate-managed", TRUE)))
     withr::local_envvar(c(
       UV_CACHE_DIR = reticulate_cache_dir("uv", "cache"),
-      UV_PYTHON_INSTALL_DIR = reticulate_data_dir("uv", "python")
+      UV_PYTHON_INSTALL_DIR = reticulate_cache_dir("uv", "python")
     ))
 
 
@@ -916,7 +936,7 @@ uv_exec <- function(args, ...) {
     if (isTRUE(attr(uv, "reticulate-managed", TRUE)))
       c(
         UV_CACHE_DIR = reticulate_cache_dir("uv", "cache"),
-        UV_PYTHON_INSTALL_DIR = reticulate_data_dir("uv", "python")
+        UV_PYTHON_INSTALL_DIR = reticulate_cache_dir("uv", "python")
       )
   ))
 

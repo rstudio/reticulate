@@ -136,11 +136,12 @@ is set, only the <code>set</code> action can override it.</p></dd>
 
 <dt id="arg-action">action<a class="anchor" aria-label="anchor" href="#arg-action"></a></dt>
 <dd><p>Determines how <code>py_require()</code> processes the provided
-requirements. Options are:</p><ul><li><p><code>add</code>: Adds the entries to the current set of requirements.</p></li>
-<li><p><code>remove</code>: Removes <em>exact</em> matches from the requirements list. Requests to remove nonexistent entries are
-ignored. For example, if <code>"numpy==2.2.2"</code> is in the list, passing <code>"numpy"</code>
-with <code>action = "remove"</code> will not remove it.</p></li>
-<li><p><code>set</code>: Clears all existing requirements and replaces them with the
+requirements. Options are:</p><ul><li><p><code>"add"</code> (the default): Adds the entries to the current set of requirements.</p></li>
+<li><p><code>"remove"</code>: Removes <em>exact</em> matches from the requirements list.
+Requests to remove nonexistent entries are ignored. For example, if
+<code>"numpy==2.2.2"</code> is in the list, passing <code>"numpy"</code> with <code>action="remove"</code>
+will not remove it.</p></li>
+<li><p><code>"set"</code>: Clears all existing requirements and replaces them with the
 provided ones. Packages and the Python version can be set independently.</p></li>
 </ul></dd>
 
@@ -160,7 +161,9 @@ method.</p>
     <p>Reticulate will only use an ephemeral environment if no other Python
 installation is found earlier in the <a href="https://rstudio.github.io/reticulate/articles/versions.html#order-of-discovery">Order of Discovery</a>.
 You can also force reticulate to use an ephemeral environment by setting
-<code>Sys.setenv(RETICULATE_USE_MANAGED_VENV="yes")</code>.</p>
+<code>Sys.setenv(RETICULATE_PYTHON="managed")</code>, or you can disable reticulate from
+using an ephemeral environment by setting
+<code>Sys.setenv(RETICULATE_USE_MANAGED_VENV="no")</code>.</p>
 <p>The ephemeral virtual environment is not created until the user interacts
 with Python for the first time in the R session, typically when <code><a href="import.html">import()</a></code> is
 first called.</p>
@@ -180,29 +183,33 @@ the Python dependencies declared by R packages in the current session.</p>
     <p>Reticulate uses <a href="https://docs.astral.sh/uv/" class="external-link"><code>uv</code></a> to resolve Python
 dependencies. Many <code>uv</code> options can be customized via environment variables,
 as described <a href="https://docs.astral.sh/uv/configuration/environment/" class="external-link">here</a>.
-For example:</p><ul><li><p>If temporarily offline, set <code>Sys.setenv(UV_OFFLINE = "1")</code>.</p></li>
-<li><p>To use a different index: <code>Sys.setenv(UV_INDEX = "https://download.pytorch.org/whl/cpu")</code>.</p></li>
-<li><p>To allow resolving a prerelease dependency: <code>Sys.setenv(UV_PRERELEASE = "allow")</code>.</p></li>
-</ul><div class="section">
+For example:</p><ul><li><p>If temporarily offline, to resolve packages from cache without checking for updates, set: <br><code>Sys.setenv(UV_OFFLINE = "1")</code>.</p></li>
+<li><p>To use an additional package index: <br><code>Sys.setenv(UV_INDEX = "https://download.pytorch.org/whl/cpu")</code>. <br> (To add
+multiple additional indexes, <code>UV_INDEX</code> can be a list of space-separated
+urls).</p></li>
+<li><p>To change the default package index: <br><code>Sys.setenv(UV_DEFAULT_INDEX = "https://my.org/python-packages-index/")</code></p></li>
+<li><p>To allow resolving a prerelease dependency: <br><code>Sys.setenv(UV_PRERELEASE = "allow")</code>.</p></li>
+<li><p>To force <code>uv</code> to create ephemeral environments using the system python: <br><code>Sys.setenv(UV_PYTHON_PREFERENCE = "only-system")</code></p></li>
+</ul><p>For more advanced customization needs, there’s also the option to configure
+<code>uv</code> with a user-level or system-level <code>uv.toml</code> file.</p><div class="section">
 <h3 id="installing-from-alternate-sources">Installing from alternate sources<a class="anchor" aria-label="anchor" href="#installing-from-alternate-sources"></a></h3>
 
 
 <p>The <code>packages</code> argument also supports declaring a dependency from a Git
 repository or a local file. Below are some examples of valid <code>packages</code>
-strings:</p>
-<p>Install Ruff from a specific Git tag:</p>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>  <span class="st">"git+https://github.com/astral-sh/ruff@v0.2.0"</span></span></code></pre><p></p></div>
-<p>Install Ruff from a specific Git commit:</p>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>  <span class="st">"git+https://github.com/astral-sh/ruff@1fadefa67b26508cc59cf38e6130bde2243c929d"</span></span></code></pre><p></p></div>
-<p>Install Ruff from a specific Git branch:</p>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>  <span class="st">"git+https://github.com/astral-sh/ruff@main"</span></span></code></pre><p></p></div>
-<p>Install MarkItDown from the <code>main</code> branch—find the package in the
+strings:</p><ul><li><p>Install Ruff from a specific Git tag:</p>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="st">"git+https://github.com/astral-sh/ruff@v0.2.0"</span></span></code></pre><p></p></div></li>
+<li><p>Install Ruff from a specific Git commit:</p>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="st">"git+https://github.com/astral-sh/ruff@1fadefa67b26508cc59cf38e6130bde2243c929d"</span></span></code></pre><p></p></div></li>
+<li><p>Install Ruff from a specific Git branch:</p>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="st">"git+https://github.com/astral-sh/ruff@main"</span></span></code></pre><p></p></div></li>
+<li><p>Install MarkItDown from the <code>main</code> branch—find the package in the
 subdirectory 'packages/markitdown':</p>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>  <span class="st">"markitdown@git+https://github.com/microsoft/markitdown.git@main#subdirectory=packages/markitdown"</span></span></code></pre><p></p></div>
-<p>Install MarkItDown from the local filesystem by providing an absolute path to
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="st">"markitdown@git+https://github.com/microsoft/markitdown.git@main#subdirectory=packages/markitdown"</span></span></code></pre><p></p></div></li>
+<li><p>Install MarkItDown from the local filesystem by providing an absolute path to
 a directory containing a <code>pyproject.toml</code> or <code>setup.py</code> file:</p>
-<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>  <span class="st">"markitdown@/Users/tomasz/github/microsoft/markitdown/packages/markitdown/"</span></span></code></pre><p></p></div>
-<p>See more examples
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="st">"markitdown@/Users/tomasz/github/microsoft/markitdown/packages/markitdown/"</span></span></code></pre><p></p></div></li>
+</ul><p>See more examples
 <a href="https://docs.astral.sh/uv/pip/packages/#installing-a-package" class="external-link">here</a> and
 <a href="https://pip.pypa.io/en/stable/cli/pip_install/#examples" class="external-link">here</a>.</p>
 </div>
@@ -218,17 +225,12 @@ system commands to <code>uv</code>:</p>
 <p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>uv cache clean</span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>rm <span class="sc">-</span>r <span class="st">"$(uv python dir)"</span></span>
 <span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>rm <span class="sc">-</span>r <span class="st">"$(uv tool dir)"</span></span></code></pre><p></p></div>
-<p>If <code>uv</code> is not installed, <code>reticulate</code> will automatically download it and
-store it along with ephemeral environments in the
-<code>tools::R_user_dir("reticulate", "cache")</code> directory. Python binaries
-downloaded by <code>uv</code> to create ephemeral virtual environments are stored in
-<code>tools::R_user_dir("reticulate", "data")</code>. To clear this cache, simply delete
-these directories:</p>
-<p></p><div class="sourceCode r"><pre><code><span><span class="co"># delete uv and ephemeral virtual environments</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="fu">tools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/tools/userdir.html" class="external-link">R_user_dir</a></span><span class="op">(</span><span class="st">"reticulate"</span>, <span class="st">"cache"</span><span class="op">)</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># delete python binaries</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="fu">tools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/tools/userdir.html" class="external-link">R_user_dir</a></span><span class="op">(</span><span class="st">"reticulate"</span>, <span class="st">"data"</span><span class="op">)</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre><p></p></div>
+<p>If an existing installation of <code>uv</code> is not found, <code>reticulate</code> will
+automatically download and store it, along with other downloaded artifacts
+and ephemeral environments, in the <code>tools::R_user_dir("reticulate", "cache")</code>
+directory. To clear this cache, delete the directory:</p>
+<p></p><div class="sourceCode r"><pre><code><span><span class="co"># delete uv, ephemeral virtual environments, and all downloaded artifacts</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="fu">tools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/tools/userdir.html" class="external-link">R_user_dir</a></span><span class="op">(</span><span class="st">"reticulate"</span>, <span class="st">"cache"</span><span class="op">)</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre><p></p></div>
 </div>
 
     </div>

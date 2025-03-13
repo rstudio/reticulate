@@ -111,33 +111,30 @@ For more advanced customization needs, there’s also the option to configure
 The \code{packages} argument also supports declaring a dependency from a Git
 repository or a local file. Below are some examples of valid \code{packages}
 strings:
+\itemize{
+\item Install Ruff from a specific Git tag:
 
-Install Ruff from a specific Git tag:
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{  "git+https://github.com/astral-sh/ruff@v0.2.0"
+\if{html}{\out{<div class="sourceCode">}}\preformatted{"git+https://github.com/astral-sh/ruff@v0.2.0"
 }\if{html}{\out{</div>}}
+\item Install Ruff from a specific Git commit:
 
-Install Ruff from a specific Git commit:
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{  "git+https://github.com/astral-sh/ruff@1fadefa67b26508cc59cf38e6130bde2243c929d"
+\if{html}{\out{<div class="sourceCode">}}\preformatted{"git+https://github.com/astral-sh/ruff@1fadefa67b26508cc59cf38e6130bde2243c929d"
 }\if{html}{\out{</div>}}
+\item Install Ruff from a specific Git branch:
 
-Install Ruff from a specific Git branch:
-
-\if{html}{\out{<div class="sourceCode">}}\preformatted{  "git+https://github.com/astral-sh/ruff@main"
+\if{html}{\out{<div class="sourceCode">}}\preformatted{"git+https://github.com/astral-sh/ruff@main"
 }\if{html}{\out{</div>}}
-
-Install MarkItDown from the \code{main} branch---find the package in the
+\item Install MarkItDown from the \code{main} branch---find the package in the
 subdirectory 'packages/markitdown':
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{  "markitdown@git+https://github.com/microsoft/markitdown.git@main#subdirectory=packages/markitdown"
+\if{html}{\out{<div class="sourceCode">}}\preformatted{"markitdown@git+https://github.com/microsoft/markitdown.git@main#subdirectory=packages/markitdown"
 }\if{html}{\out{</div>}}
-
-Install MarkItDown from the local filesystem by providing an absolute path to
+\item Install MarkItDown from the local filesystem by providing an absolute path to
 a directory containing a \code{pyproject.toml} or \code{setup.py} file:
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{  "markitdown@/Users/tomasz/github/microsoft/markitdown/packages/markitdown/"
+\if{html}{\out{<div class="sourceCode">}}\preformatted{"markitdown@/Users/tomasz/github/microsoft/markitdown/packages/markitdown/"
 }\if{html}{\out{</div>}}
+}
 
 See more examples
 \href{https://docs.astral.sh/uv/pip/packages/#installing-a-package}{here} and
@@ -156,12 +153,12 @@ rm -r "$(uv python dir)"
 rm -r "$(uv tool dir)"
 }\if{html}{\out{</div>}}
 
-If \code{uv} is not installed, \code{reticulate} will automatically download and store
-it, along with other downloaded artifacts and ephemeral environments, in the
-\code{tools::R_user_dir("reticulate", "cache")} directory. To clear this cache,
-delete the directory:
+If an existing installation of \code{uv} is not found, \code{reticulate} will
+automatically download and store it, along with other downloaded artifacts
+and ephemeral environments, in the \code{tools::R_user_dir("reticulate", "cache")}
+directory. To clear this cache, delete the directory:
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{# Delete uv, ephemeral virtual environments, and all downloaded artifacts
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{# delete uv, ephemeral virtual environments, and all downloaded artifacts
 unlink(tools::R_user_dir("reticulate", "cache"), recursive = TRUE)
 }\if{html}{\out{</div>}}
 }

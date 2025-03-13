@@ -59,31 +59,31 @@
 #' repository or a local file. Below are some examples of valid `packages`
 #' strings:
 #'
-#' Install Ruff from a specific Git tag:
+#' - Install Ruff from a specific Git tag:
 #'   ```
-#'     "git+https://github.com/astral-sh/ruff@v0.2.0"
-#'   ```
-#'
-#' Install Ruff from a specific Git commit:
-#'   ```
-#'     "git+https://github.com/astral-sh/ruff@1fadefa67b26508cc59cf38e6130bde2243c929d"
+#'   "git+https://github.com/astral-sh/ruff@v0.2.0"
 #'   ```
 #'
-#' Install Ruff from a specific Git branch:
+#' - Install Ruff from a specific Git commit:
 #'   ```
-#'     "git+https://github.com/astral-sh/ruff@main"
+#'   "git+https://github.com/astral-sh/ruff@1fadefa67b26508cc59cf38e6130bde2243c929d"
 #'   ```
 #'
-#' Install MarkItDown from the `main` branch---find the package in the
+#' - Install Ruff from a specific Git branch:
+#'   ```
+#'   "git+https://github.com/astral-sh/ruff@main"
+#'   ```
+#'
+#' - Install MarkItDown from the `main` branch---find the package in the
 #' subdirectory 'packages/markitdown':
 #'   ```
-#'     "markitdown@git+https://github.com/microsoft/markitdown.git@main#subdirectory=packages/markitdown"
+#'   "markitdown@git+https://github.com/microsoft/markitdown.git@main#subdirectory=packages/markitdown"
 #'   ```
 #'
-#' Install MarkItDown from the local filesystem by providing an absolute path to
+#' - Install MarkItDown from the local filesystem by providing an absolute path to
 #' a directory containing a `pyproject.toml` or `setup.py` file:
 #'   ```
-#'     "markitdown@/Users/tomasz/github/microsoft/markitdown/packages/markitdown/"
+#'   "markitdown@/Users/tomasz/github/microsoft/markitdown/packages/markitdown/"
 #'   ```
 #'
 #' See more examples
@@ -104,13 +104,13 @@
 #' rm -r "$(uv tool dir)"
 #' ```
 #'
-#' If `uv` is not installed, `reticulate` will automatically download and store
-#' it, along with other downloaded artifacts and ephemeral environments, in the
-#' `tools::R_user_dir("reticulate", "cache")` directory. To clear this cache,
-#' delete the directory:
+#' If an existing installation of `uv` is not found, `reticulate` will
+#' automatically download and store it, along with other downloaded artifacts
+#' and ephemeral environments, in the `tools::R_user_dir("reticulate", "cache")`
+#' directory. To clear this cache, delete the directory:
 #'
 #' ```r
-#' # Delete uv, ephemeral virtual environments, and all downloaded artifacts
+#' # delete uv, ephemeral virtual environments, and all downloaded artifacts
 #' unlink(tools::R_user_dir("reticulate", "cache"), recursive = TRUE)
 #' ```
 #'

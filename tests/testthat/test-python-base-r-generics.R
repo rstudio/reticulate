@@ -155,6 +155,10 @@ test_that("[ can infer slices, multiple args", {
   expect_identical(py_eval("x[:, ::2, :]"), py_to_r(x[, NULL:NULL:2, ]))
   expect_identical(py_eval("x[:, ::2, :]"), py_to_r(x[, NA:NA:2, ]))
 
+  expect_identical(py_eval("x[..., 1]"), py_to_r(x[.., 1]))
+  expect_identical(py_eval("x[0, ..., 1]"), py_to_r(x[0, .., 1]))
+  expect_identical(py_eval("x[0, 1, ...]"), py_to_r(x[0, 1L, ..]))
+
   # test the test is actually comparing R arrays
   py$x <- x <- np_array(x, dtype = "float64") # https://github.com/rstudio/reticulate/issues/1473
   expect_identical(py_to_r(x[, , 0]), array(as.double(1:16), c(4, 4)))

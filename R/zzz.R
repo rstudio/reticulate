@@ -111,6 +111,7 @@ import_positron_ipykernel_inspectors <- function() {
     return (NULL)
 
   # in 2025.03 release, inspectors module moved to here
+  # NOTE: Update `py_run_file_on_thread` when changing here
   tryCatch({
     .ps.ui.executeCommand <- get(".ps.ui.executeCommand", globalenv())
     ipykernel_path <- .ps.ui.executeCommand("positron.reticulate.getIPykernelPath")

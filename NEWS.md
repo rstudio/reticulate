@@ -7,6 +7,9 @@
 
 - Fixed an issue where `[` received Python objects as slice arguments.
   e.g., `x[start:end]` when `start` or `end` were Python objects (#1731).
+  
+- The `[` method will now translate symbol `..` to a 
+  Python Ellipsis `...`. (#1763)
 
 - Reticulate-managed `uv` can now resolve system-installed Pythons,
   supporting platforms where pre-built binaries are unavailable, such as

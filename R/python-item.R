@@ -64,6 +64,9 @@
 #'   x[1:3:2]     # x[1:3:2]
 #'   x[`1:3:2`]   # x[1:3:2]
 #'
+#'   x[.., 1]     # x[..., 1]
+#'   x[0, .., 1]  # x[0, ..., 1]
+#'
 #' }
 #' @rdname py_get_item
 #' @export
@@ -98,6 +101,9 @@ dots_to__getitem__key <- function(..., .envir) {
 
     if(is_missing(d))
       return(py_slice())
+
+    if (identical(d, quote(..)))
+      return(py_eval("...", convert = FALSE))
 
     if (is_has_colon(d)) {
 

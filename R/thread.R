@@ -57,8 +57,9 @@ py_run_file_on_thread <- function(file, ..., args = NULL) {
   # TODO: we should have a dedicated entry point in reticulate for this.
   # Needs to be updated in ark and positron.
   launching_lsp <- (basename(file) == 'positron_language_server.py' &&
-                      is_positron() &&
-                      basename(dirname(file)) == "positron")
+                    is_positron() &&
+                    # The basename changed to 'posit' in recent Positron 2025.03
+                    basename(dirname(file)) %in% c("positron", "posit"))
 
   if (launching_lsp) {
     main_dict <- py_eval("__import__('__main__').__dict__.copy()", FALSE)
@@ -73,8 +74,15 @@ py_run_file_on_thread <- function(file, ..., args = NULL) {
   import("rpytools.run")$run_file_on_thread(file, args, ...)
 
   if (launching_lsp) {
+    PositronIPKernelApp <- tryCatch(
+      # NOTE: Update `import_positron_ipykernel_inspectors` when changing here
+      import("positron.positron_ipkernel")$PositronIPKernelApp,
+      error = function(err) {
+        # Prior to Positron v2025.03 this was used to access PositronIPKernelApp
+        import("positron_ipykernel.positron_ipkernel")$PositronIPKernelApp
+      }
+    )
 
-    PositronIPKernelApp <- import("positron_ipykernel.positron_ipkernel")$PositronIPKernelApp
     for(i in 1:40) { # Positron timeout is 20 seconds
       if (PositronIPKernelApp$initialized()) break
       Sys.sleep(.5)

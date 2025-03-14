@@ -99,6 +99,9 @@ dots_to__getitem__key <- function(..., .envir) {
     if(is_missing(d))
       return(py_slice())
 
+    if (identical(d, quote(..)))
+      return(py_eval("...", convert = FALSE))
+
     if (is_has_colon(d)) {
 
       if (is_colon_call(d)) {

@@ -97,7 +97,7 @@ py_install <- function(packages,
       "To add more packages to your current session, call `py_require()` instead\n",
       "of `py_install()`. Running:\n  ",
       paste0(
-        "`py_require(", paste0(sprintf("\"%s\"", packages), collapse = ", "), ")`"
+        "`py_require(c(", paste0(sprintf("\"%s\"", packages), collapse = ", "), "))`"
       )
     )
     py_require(packages)

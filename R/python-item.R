@@ -95,7 +95,7 @@
     py_set_item(x, key, value)
 }
 
-
+#' @importFrom rlang is_scalar_integerish
 dots_to__getitem__key <- function(..., .envir) {
   dots <- lapply(eval(substitute(alist(...))), function(d) {
 
@@ -135,8 +135,13 @@ dots_to__getitem__key <- function(..., .envir) {
 
     # else, eval normally
     d <- eval(d, envir = .envir)
-    if(rlang::is_scalar_integerish(d))
-      d <- as.integer(d)
+    if (is_scalar_integerish(d, finite = TRUE)) {
+      if (abs(d) >= .Machine$integer.max) {
+        d <- py_int(d)
+      } else {
+        d <- as.integer(d)
+      }
+    }
     d
   })
 
@@ -157,3 +162,6 @@ is_missing <- function(x) identical(x, quote(expr =))
 
 parse1 <- function (text)  parse(text = text, keep.source = FALSE)[[1L]]
 
+py_int <- function(x) {
+  py_get_attr(import("builtins", convert = FALSE), "int")(x)
+}

@@ -10,6 +10,8 @@
   
 - The `[` method will now translate symbol `..` to a 
   Python Ellipsis `...`. (#1763)
+  
+- The `[` method can now accept index values greater than 2^31 (#1769)
 
 - Reticulate-managed `uv` can now resolve system-installed Pythons,
   supporting platforms where pre-built binaries are unavailable, such as

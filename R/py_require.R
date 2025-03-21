@@ -878,7 +878,7 @@ uv_python_list <- function(uv = uv_binary()) {
   is_uv_downloadable <- !is.na(x$url)
   is_uv_downloaded <- grepl(
     "/uv/python/",
-    normalizePath(x$path, winslash = "/", mustWork = FALSE),
+    normalizePath(as.character(x$path), winslash = "/", mustWork = FALSE),
     fixed = TRUE
   )
   x$is_uv_python <- is_uv_downloadable | is_uv_downloaded

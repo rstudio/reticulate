@@ -4,6 +4,7 @@ test_that("py_finalize() works", {
   file <- tempfile()
 
   callr::r(function(file) {
+    Sys.setenv("RETICULATE_ENABLE_PYTHON_FINALIZER" = "yes")
     library(reticulate)
 
     py_run_string(sprintf("

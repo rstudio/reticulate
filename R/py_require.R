@@ -853,10 +853,6 @@ uv_python_list <- function(uv = uv_binary()) {
 
   x <- system2(uv, c("python list",
     "--all-versions",
-    # "--only-downloads",
-    # "--only-installed",
-    # "--python-preference only-managed",
-    # "--python-preference only-system",
     "--color never",
     "--output-format json"
     ),
@@ -864,6 +860,8 @@ uv_python_list <- function(uv = uv_binary()) {
   )
   x <- paste0(x, collapse = "")
   x <- jsonlite::parse_json(x, simplifyVector = TRUE)
+  if (!length(x))
+    return()
 
   x <- x[is.na(x$symlink) , ]             # ignore local filesystem symlinks
   x <- x[x$variant == "default", ]        # ignore "freethreaded"
@@ -880,7 +878,7 @@ uv_python_list <- function(uv = uv_binary()) {
   is_uv_downloadable <- !is.na(x$url)
   is_uv_downloaded <- grepl(
     "/uv/python/",
-    normalizePath(x$path, winslash = "/", mustWork = FALSE),
+    normalizePath(as.character(x$path), winslash = "/", mustWork = FALSE),
     fixed = TRUE
   )
   x$is_uv_python <- is_uv_downloadable | is_uv_downloaded

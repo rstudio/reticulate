@@ -1421,7 +1421,7 @@ SEXP py_to_r_cpp(PyObject* x, bool convert, bool simple = true);
 //' @keywords internal
 // [[Rcpp::export]]
 bool is_py_object(SEXP x) {
-  if(OBJECT(x)) {
+  if(Rf_isObject(x)) {
     switch (TYPEOF(x)) {
     case ENVSXP:
     case CLOSXP:
@@ -2211,7 +2211,7 @@ PyObject* r_to_py_cpp(RObject x, bool convert);
 // returns a new reference
 PyObject* r_to_py(RObject x, bool convert) {
   // if the object bit is not set, we can skip R dispatch
-  if (OBJECT(x) == 0)
+  if (Rf_isObject(x) == 0)
     return r_to_py_cpp(x, convert);
 
   if(is_py_object(x)) {
@@ -4410,7 +4410,7 @@ PyObjectRef r_convert_dataframe(RObject dataframe, bool convert) {
 
     int status = 0;
 
-    if (OBJECT(column) != 0) {
+    if (Rf_isObject(column) != 0) {
       // An object with a class attribute, we dispatch to the S3 method
       // and continue to the next column.
       // see comment in r_to_py() for why indirection in constructor is needed.
@@ -4772,7 +4772,7 @@ SEXP py_iterate(PyObjectRef x, Function f, bool simplify = true) {
           {
               SEXP item = list[i];
               if (TYPEOF(item) != outType ||
-                  OBJECT(item) ||
+                  Rf_isObject(item) ||
                   Rf_length(item) != 1)
               {
                   outType = VECSXP;

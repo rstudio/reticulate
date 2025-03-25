@@ -23,7 +23,7 @@
   described in the "Using reticulate in an R package vignette" (#1754).
   https://rstudio.github.io/reticulate/articles/package.html
 
-- Internal changes to support R-devel (4.5) (#1747).
+- Internal changes to support R-devel (4.5) and R API updates (#1747, #1774).
 
 - Internal fixes to prevent reticulate-managed `uv` from writing outside
   reticulates cache directory (#1745).

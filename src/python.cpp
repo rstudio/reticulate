@@ -918,7 +918,7 @@ void py_validate_xptr(PyObjectRef x)
 }
 
 bool option_is_true(const std::string& name) {
-  SEXP valueSEXP = Rf_GetOption(Rf_install(name.c_str()), R_BaseEnv);
+  SEXP valueSEXP = Rf_GetOption1(Rf_install(name.c_str()));
   return Rf_isLogical(valueSEXP) && (as<bool>(valueSEXP) == true);
 }
 

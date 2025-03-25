@@ -1,4 +1,4 @@
-# reticulate (development version)
+# reticulate 1.42.0
 
 - Fixed an issue in RStudio on Windows where interrupts were
   ignored while Python code was executing (#1753).

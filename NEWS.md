@@ -1,18 +1,21 @@
 # reticulate (development version)
 
+- Fixed usage of micromamba and mamba, next-generation conda environment management tools.
+  reticulate now prefers to use micromamba, mamba, then conda when managing environments
+
 # reticulate 1.42.0
 
 - Fixed an issue in RStudio on Windows where interrupts were
   ignored while Python code was executing (#1753).
-  
+
 - Updates for Positron to fix issues with `repl_python()` and Variables Pane (#1755).
 
 - Fixed an issue where `[` received Python objects as slice arguments.
   e.g., `x[start:end]` when `start` or `end` were Python objects (#1731).
-  
-- The `[` method will now translate symbol `..` to a 
+
+- The `[` method will now translate symbol `..` to a
   Python Ellipsis `...`. (#1763)
-  
+
 - The `[` method can now accept index values greater than 2^31 (#1769)
 
 - Reticulate-managed `uv` can now resolve system-installed Pythons,
@@ -29,7 +32,7 @@
 
 - Internal fixes to prevent reticulate-managed `uv` from writing outside
   reticulates cache directory (#1745).
-  
+
 - Fixed an issue with pointing reticulate at a pyenv shim python (#1758)
 
 # reticulate 1.41.0

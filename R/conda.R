@@ -741,6 +741,21 @@ find_conda <- function() {
   if (miniconda_exists())
     return(miniconda_conda())
 
+  # The preferred order of conda environment managers is
+  # micromamba (fastest)
+  # mamba (fast)
+  # conda (slow)
+
+  # if there is a micromamba executable on the PATH, use it
+  conda <- Sys.which("micromamba")
+  if (nzchar(conda))
+    return(conda)
+
+  # if there is a mamba executable on the PATH, use it
+  conda <- Sys.which("mamba")
+  if (nzchar(conda))
+    return(conda)
+
   # if there is a conda executable on the PATH, use it
   conda <- Sys.which("conda")
   if (nzchar(conda))

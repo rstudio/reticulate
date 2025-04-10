@@ -18,7 +18,7 @@
             requirements are unsatisfiable.
       uv error code: 1
       -- Current requirements -------------------------------------------------
-       Python:   3.11.11 (reticulate default)
+       Python:   3.11.xx (reticulate default)
        Packages: numpy, numpy<2, numpy>=2
       -------------------------------------------------------------------------
       Error in uv_get_or_create_env() : 
@@ -84,8 +84,8 @@
       > import("pandas")
       Module(pandas)
       > stopifnot(py_version() == "3.11")
-      > py_require(python_version = ">=3.9.1")
-      > py_require(python_version = ">=3.8.1,<3.14")
+      > py_require(python_version = ">=3.9.xx")
+      > py_require(python_version = ">=3.8.xx,<3.14")
       > py_require(python_version = "3.11")
       > pkg_py_require(python_version = ">=3.10")
       > py_require("numpy")
@@ -106,7 +106,7 @@
       In reticulate::py_require(...) :
         Python version requirements cannot be changed after Python has been initialized.
       * Python version request: '>=3.12' (from package:stats)
-      * Python version initialized: '3.11.11'
+      * Python version initialized: '3.11.xx'
       > pkg_py_require("pandas", action = "remove")
       Warning message:
       In reticulate::py_require(...) :
@@ -118,7 +118,7 @@
       Error in py_require(python_version = ">=3.12") : 
         Python version requirements cannot be changed after Python has been initialized.
       * Python version request: '>=3.12'
-      * Python version initialized: '3.11.11'
+      * Python version initialized: '3.11.xx'
       > try(py_require("pandas", action = "remove"))
       Error in py_require("pandas", action = "remove") : 
         After Python has initialized, only `action = 'add'` is supported.
@@ -142,7 +142,7 @@
             notexists, we can conclude that your requirements are unsatisfiable.
       uv error code: 1
       -- Current requirements -------------------------------------------------
-       Python:   3.11.11 (reticulate default)
+       Python:   3.11.xx (reticulate default)
        Packages: numpy, pandas, notexists
       -------------------------------------------------------------------------
       Error in uv_get_or_create_env() : 
@@ -189,7 +189,7 @@
       > py_require()
       ══════════════════════════ Python requirements ══════════════════════════
       ── Current requirements ─────────────────────────────────────────────────
-       Python:   [No Python version specified. Will default to '3.11.11']
+       Python:   [No Python version specified. Will default to '3.11.xx']
        Packages: numpy, pandas, numpy==2
       ── R package requests ───────────────────────────────────────────────────
       R package  Python packages                           Python version      
@@ -215,7 +215,7 @@
       > py_require()
       ══════════════════════════ Python requirements ══════════════════════════
       ── Current requirements ─────────────────────────────────────────────────
-       Python:   [No Python version specified. Will default to '3.11.11']
+       Python:   [No Python version specified. Will default to '3.11.xx']
        Packages: numpy, pandas
       ── R package requests ───────────────────────────────────────────────────
       R package  Python packages                           Python version      
@@ -243,7 +243,7 @@
       > py_require()
       ══════════════════════════ Python requirements ══════════════════════════
       ── Current requirements ─────────────────────────────────────────────────
-       Python:   [No Python version specified. Will default to '3.11.11']
+       Python:   [No Python version specified. Will default to '3.11.xx']
        Packages: numpy, pandas
        Exclude:  Anything newer than 1990-01-01
       ── R package requests ───────────────────────────────────────────────────

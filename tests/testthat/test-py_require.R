@@ -1,5 +1,13 @@
 
 
+transform_scrub_python_patch <- function(x) {
+  sub("3\\.([0-9]{1,2})\\.[0-9]{1,2}", "3.\\1.xx", x)
+}
+
+expect_snapshot2 <- function(..., transform = transform_scrub_python_patch) {
+  expect_snapshot(..., transform = transform)
+}
+
 
 test_that("Error requesting conflicting package versions", {
   local_edition(3)
@@ -8,7 +16,7 @@ test_that("Error requesting conflicting package versions", {
   # in the snapshot
   try(uv_get_or_create_env())
 
-  expect_snapshot(r_session({
+  expect_snapshot2(r_session({
     library(reticulate)
     py_require("numpy<2")
     py_require("numpy>=2")
@@ -25,7 +33,7 @@ test_that("Setting py_require(python_version) after initializing Python ", {
   try(uv_get_or_create_env(c("numpy", "pandas"), "3.11"))
   try(uv_get_or_create_env(c("numpy", "pandas", "requests"), "3.11"))
 
-  expect_snapshot(r_session({
+  expect_snapshot2(r_session({
 
     Sys.unsetenv("RETICULATE_PYTHON")
     Sys.setenv("RETICULATE_USE_MANAGED_VENV" = "yes")
@@ -98,7 +106,7 @@ test_that("Error requesting newer package version against an older snapshot", {
 
 test_that("Error requesting a package that does not exists", {
   local_edition(3)
-  expect_snapshot(r_session(attach_namespace = TRUE, {
+  expect_snapshot2(r_session(attach_namespace = TRUE, {
     py_require(c("pandas", "numpy", "notexists"))
     uv_get_or_create_env()
   }))
@@ -106,7 +114,7 @@ test_that("Error requesting a package that does not exists", {
 
 test_that("Error requesting conflicting Python versions", {
   local_edition(3)
-  expect_snapshot(r_session(attach_namespace = TRUE, {
+  expect_snapshot2(r_session(attach_namespace = TRUE, {
     py_require(python_version = ">=3.10")
     py_require(python_version = "<3.10")
     uv_get_or_create_env()
@@ -119,25 +127,25 @@ test_that("Error requesting conflicting Python versions", {
 
 test_that("Simple tests", {
   local_edition(3)
-  expect_snapshot(r_session(attach_namespace = TRUE, {
+  expect_snapshot2(r_session(attach_namespace = TRUE, {
     py_require("pandas")
     py_require("numpy==2")
     py_require()
   }))
-  expect_snapshot(r_session(attach_namespace = TRUE, {
+  expect_snapshot2(r_session(attach_namespace = TRUE, {
     py_require("pandas")
     py_require("numpy==2")
     py_require("numpy==2", action = "remove")
     py_require()
   }))
-  expect_snapshot(r_session(attach_namespace = TRUE, {
+  expect_snapshot2(r_session(attach_namespace = TRUE, {
     py_require("pandas")
     py_require("numpy==2")
     py_require("numpy==2", action = "remove")
     py_require(exclude_newer = "1990-01-01")
     py_require()
   }))
-  expect_snapshot(r_session(attach_namespace = TRUE, {
+  expect_snapshot2(r_session(attach_namespace = TRUE, {
     py_require("pandas")
     py_require("numpy==2")
     py_require("numpy==2", action = "remove")
@@ -164,7 +172,7 @@ test_that("can bootstrap install uv in reticulate cache", {
 
 test_that("Multiple py_require() calls from package are shows in one row", {
   local_edition(3)
-  expect_snapshot(r_session(attach_namespace = TRUE, {
+  expect_snapshot2(r_session(attach_namespace = TRUE, {
     gr_package <- function() {
       py_require(paste0("package", 1:20))
       py_require(paste0("package", 1:10), action = "remove")

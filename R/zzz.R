@@ -102,6 +102,7 @@
 
 
 # .onUnload <- function(libpath) {
+# # .onUnLoad() hook is not run by default on R session exit
 #   py_finalize() # called from reg.finalizer(.globals) instead.
 # }
 

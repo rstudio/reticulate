@@ -5,6 +5,8 @@
   
 - Added `str()`, `dim()`, and `t()` S3 methods for NumPy Arrays.
 
+- Fixed a segfault observed on R session exit (#1785, #1786).
+
 # reticulate 1.42.0
 
 - Fixed an issue in RStudio on Windows where interrupts were

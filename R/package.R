@@ -238,8 +238,11 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
   )
 
   # allow enabling the Python finalizer
-  if (tolower(Sys.getenv("RETICULATE_ENABLE_PYTHON_FINALIZER")) %in% c("true", "1", "yes"))
-    reg.finalizer(.globals, function(e) py_finalize(), onexit = TRUE)
+  reg.finalizer(.globals, function(e) {
+    try(py_allow_threads_impl(FALSE))
+    if (tolower(Sys.getenv("RETICULATE_ENABLE_PYTHON_FINALIZER")) %in% c("true", "1", "yes"))
+      py_finalize()
+  }, onexit = TRUE)
 
   # set available flag indicating we have py bindings
   config$available <- TRUE

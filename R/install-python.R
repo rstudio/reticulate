@@ -1,8 +1,9 @@
 
 #' Install Python
 #'
-#' Download and install Python, using the [pyenv](https://github.com/pyenv/pyenv).
-#' and [pyenv-win](https://github.com/pyenv-win/pyenv-win) projects.
+#' Download and install Python, using the
+#' [pyenv](https://github.com/pyenv/pyenv). and
+#' [pyenv-win](https://github.com/pyenv-win/pyenv-win) projects.
 #'
 #' In general, it is recommended that Python virtual environments are created
 #' using the copies of Python installed by [install_python()]. For example:
@@ -25,31 +26,39 @@
 #'
 #' @param list Boolean; if set, list the set of available Python versions?
 #'
-#' @param force Boolean; force re-installation even if the requested version
-#'   of Python is already installed?
+#' @param force Boolean; force re-installation even if the requested version of
+#'   Python is already installed?
 #'
-#' @param optimized Boolean; if `TRUE`, installation will take significantly longer but
-#'  should result in a faster Python interpreter. Only applicable on macOS and Linux.
+#' @param optimized Boolean; if `TRUE`, installation will take significantly
+#'   longer but should result in a faster Python interpreter. Only applicable on
+#'   macOS and Linux.
 #'
-#' @note On macOS and Linux this will build Python from sources, which may
-#'   take a few minutes. Installation will be faster if some build
-#'   dependencies are preinstalled. See
-#'   <https://github.com/pyenv/pyenv/wiki#suggested-build-environment> for
-#'   example commands you can run to pre-install system dependencies
-#'   (requires administrator privileges).
+#' @note
 #'
-#'  If `optimized = TRUE`, (the default) Python is build with:
-#'   ```
-#'   PYTHON_CONFIGURE_OPTS="--enable-shared --enable-optimizations --with-lto"
-#'   PYTHON_CFLAGS="-march=native -mtune=native"
-#'   ```
+#' On macOS and Linux this will build Python from sources, which may take a few
+#' minutes. Installation will be faster if some build dependencies are
+#' preinstalled. See
+#' <https://github.com/pyenv/pyenv/wiki#suggested-build-environment> for example
+#' commands you can run to pre-install system dependencies (requires
+#' administrator privileges).
 #'
-#'  If `optimized = FALSE`, Python is built with:
-#'   ```
-#'   PYTHON_CONFIGURE_OPTS=--enable-shared
-#'   ```
+#' For example, on macOS you can pre-run:
+#' ```
+#' brew install openssl readline sqlite3 xz zlib tcl-tk@8 libb2
+#' ```
 #'
-#'   On Windows, prebuilt installers from <https://www.python.org> are used.
+#' If `optimized = TRUE`, (the default) Python is build with:
+#' ```
+#' PYTHON_CONFIGURE_OPTS="--enable-shared --enable-optimizations --with-lto"
+#' PYTHON_CFLAGS="-march=native -mtune=native"
+#' ```
+#'
+#' If `optimized = FALSE`, Python is built with:
+#' ```
+#' PYTHON_CONFIGURE_OPTS=--enable-shared
+#' ```
+#'
+#' On Windows, prebuilt installers from <https://www.python.org> are used.
 #'
 #' @export
 install_python <- function(version = "3.11:latest",

@@ -18,8 +18,10 @@ pyenv_resolve_latest_patch <- function(version, installed = TRUE, pyenv = pyenv_
 
   available <- pyenv_list(pyenv, installed)
   available <- available[startsWith(available, version)]
-  out <- as.character(max(numeric_version(available, strict = FALSE),
-                          na.rm = TRUE))
+  available <- numeric_version(available, strict = FALSE)
+  available <- available[!is.na(available)]
+  out <- max(available)
+  out <- as.character(out)
 
   if (!length(out))
     stop(

@@ -123,7 +123,16 @@ install_miniconda_preflight <- function(path, force) {
     )
 
     stopf(fmt, pretty_path(path))
+  }
 
+  if (length(list.files(path))) {
+    fmt <- paste(
+      "Directory %s is not empty.",
+      "- Existing files will be permanently deleted during installation.",
+      sep = "\n"
+    )
+
+    stopf(fmt, pretty_path(path))
   }
 
   # ok to proceed

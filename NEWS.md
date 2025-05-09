@@ -2,10 +2,12 @@
 
 - Fixed usage of micromamba and mamba, next-generation conda environment management tools.
   reticulate now prefers to use micromamba, mamba, then conda when managing environments
-  
+
 - Added `str()`, `dim()`, and `t()` S3 methods for NumPy Arrays.
 
 - Fixed a segfault observed on R session exit (#1785, #1786).
+
+- Added check in `install_miniconda()` if existing files will be overwritten. (#1794, #1796)
 
 # reticulate 1.42.0
 

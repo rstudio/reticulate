@@ -5,7 +5,7 @@
 \title{Install Python}
 \usage{
 install_python(
-  version = "3.10:latest",
+  version = "3.11:latest",
   list = FALSE,
   force = FALSE,
   optimized = TRUE

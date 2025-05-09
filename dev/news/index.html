@@ -86,6 +86,7 @@
 <ul><li><p>Fixed usage of micromamba and mamba, next-generation conda environment management tools. reticulate now prefers to use micromamba, mamba, then conda when managing environments</p></li>
 <li><p>Added <code><a href="https://rdrr.io/r/utils/str.html" class="external-link">str()</a></code>, <code><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim()</a></code>, and <code><a href="https://rdrr.io/r/base/t.html" class="external-link">t()</a></code> S3 methods for NumPy Arrays.</p></li>
 <li><p>Fixed a segfault observed on R session exit (<a href="https://github.com/rstudio/reticulate/issues/1785" class="external-link">#1785</a>, <a href="https://github.com/rstudio/reticulate/issues/1786" class="external-link">#1786</a>).</p></li>
+<li><p>Added check in <code><a href="../reference/install_miniconda.html">install_miniconda()</a></code> if existing files will be overwritten. (<a href="https://github.com/rstudio/reticulate/issues/1794" class="external-link">#1794</a>, <a href="https://github.com/rstudio/reticulate/issues/1796" class="external-link">#1796</a>)</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="1.42.0" id="reticulate-1420">reticulate 1.42.0<small>2025-03-25</small><a class="anchor" aria-label="anchor" href="#reticulate-1420"></a></h2>
@@ -807,7 +808,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
 </div>
 
       </footer></div>

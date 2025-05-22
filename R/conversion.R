@@ -65,11 +65,10 @@ r_to_py.factor <- function(x, convert = FALSE) {
 
 #' @export
 r_to_py.POSIXt <- function(x, convert = FALSE) {
-
   tz <- attr(x, "tzone", TRUE)
 
   ## POSIXlt tzone is a length-3 vec, where "" means local/missing tzone
-  if(length(tz))
+  if (length(tz))
     tz <- tz[[1L]] %""% NULL
 
   # we prefer numpy datetime64 for efficiency
@@ -80,14 +79,22 @@ r_to_py.POSIXt <- function(x, convert = FALSE) {
     return(np_array$astype(dtype = "datetime64[ns]"))
   }
 
-  if(!is.null(tz)) {
-    if(py_version() >= "3.9")
+  if (!is.null(tz)) {
+    if (py_version() >= "3.9")
       tz <- import("zoneinfo", convert = FALSE)$ZoneInfo(tz)
     else
       tz <- import("pytz")$timezone(tz)
   }
   datetime <- import("datetime", convert = FALSE)
-  datetime$datetime$fromtimestamp(as.double(x), tz = tz)
+  x <- as.double(x)
+  if (length(x) == 1L) {
+    datetime$datetime$fromtimestamp(x, tz = tz)
+  } else {
+    r_to_py_impl(
+      lapply(x, datetime$datetime$fromtimestamp, tz = tz),
+      convert = FALSE
+    )
+  }
 }
 
 

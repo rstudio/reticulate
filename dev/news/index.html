@@ -88,6 +88,7 @@
 <li><p>Fixed a segfault observed on R session exit (<a href="https://github.com/rstudio/reticulate/issues/1785" class="external-link">#1785</a>, <a href="https://github.com/rstudio/reticulate/issues/1786" class="external-link">#1786</a>).</p></li>
 <li><p>Added check in <code><a href="../reference/install_miniconda.html">install_miniconda()</a></code> if existing files will be overwritten. (<a href="https://github.com/rstudio/reticulate/issues/1794" class="external-link">#1794</a>, <a href="https://github.com/rstudio/reticulate/issues/1796" class="external-link">#1796</a>)</p></li>
 <li><p>Fixed error in <code><a href="../reference/install_python.html">install_python()</a></code> under R 4.5 when the requested Python version has a <code>":latest"</code> suffix, as it does by default. (<a href="https://github.com/rstudio/reticulate/issues/1792" class="external-link">#1792</a>, <a href="https://github.com/rstudio/reticulate/issues/1797" class="external-link">#1797</a>)</p></li>
+<li><p>Fixed error in <code>get_python_conda_info()</code> when conda not found through <code>conda-meta/history</code> and <code>NULL</code> is passed to <code>normalizePath</code> (<a href="https://github.com/rstudio/reticulate/issues/1184" class="external-link">#1184</a>)</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="1.42.0" id="reticulate-1420">reticulate 1.42.0<small>2025-03-25</small><a class="anchor" aria-label="anchor" href="#reticulate-1420"></a></h2>
@@ -809,7 +810,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
       </footer></div>

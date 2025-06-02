@@ -12,6 +12,9 @@
 - Fixed error in `install_python()` under R 4.5 when the requested Python
   version has a `":latest"` suffix, as it does by default. (#1792, #1797)
 
+- Fixed error in `get_python_conda_info()` when conda not found through `conda-meta/history` 
+  and `NULL` is passed to `normalizePath` (#1184)
+
 # reticulate 1.42.0
 
 - Fixed an issue in RStudio on Windows where interrupts were

@@ -1133,9 +1133,13 @@ get_python_conda_info <- function(python) {
     }
   }
 
-  conda <- normalizePath(conda, winslash = "/", mustWork = FALSE)
-  if(!file.exists(conda))
+  if (is.null(conda)) {
     conda <- NA
+  } else {
+    conda <- normalizePath(conda, winslash = "/", mustWork = FALSE)
+    if(!file.exists(conda))
+      conda <- NA
+  }
 
   list(
     conda = conda,

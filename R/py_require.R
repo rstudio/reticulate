@@ -985,3 +985,39 @@ resolve_python_version <- function(constraints = NULL, uv = uv_binary()) {
 
   as.character(candidates[1L])
 }
+
+
+uv_diff_exclude_newer <- function(from = -3L, to = Sys.Date(),
+                                  packages = py_reqs_get("packages"),
+                                  python_version = py_reqs_get("python_version"),
+                                  show = TRUE) {
+  uv <- uv_binary()
+  if(rlang::is_bare_numeric(from))
+    from <- to + from
+  from <- format(from)
+  to <- format(to)
+  manifest <- lapply(list(from = from, to = to), function(exclude_newer) {
+    python <- uv_get_or_create_env(packages, python_version, exclude_newer)
+    manifest <- jsonlite::parse_json(system2(
+      uv,
+      c("pip list --quiet --format json --python", shQuote(python)),
+      stdout = TRUE
+    ), simplifyVector = TRUE)
+    attr(manifest, "python") <- python
+    attr(manifest, "exclude_newer") <- exclude_newer
+    manifest
+  })
+
+  if (show) {
+    rlang::check_installed("diffobj")
+    print(
+      asNamespace("diffobj")$diffPrint(
+        manifest$from,
+        manifest$to,
+        tar.banner = sprintf("from: %s", from),
+        cur.banner = sprintf("to: %s", to)
+      )
+    )
+  }
+  manifest
+}

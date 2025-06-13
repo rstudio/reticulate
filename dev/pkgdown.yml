@@ -11,7 +11,7 @@ articles:
   r_markdown: r_markdown.html
   rstudio_ide: rstudio_ide.html
   versions: versions.html
-last_built: 2025-06-02T21:04Z
+last_built: 2025-06-13T15:00Z
 urls:
   reference: https://rstudio.github.io/reticulate/reference
   article: https://rstudio.github.io/reticulate/articles

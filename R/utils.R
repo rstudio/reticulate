@@ -628,7 +628,7 @@ debuglog <- function(fmt, ...) {
   cat(msg, file = "/tmp/reticulate.log", sep = "\n", append = TRUE)
 }
 
-system2t <- function(command, args, ...) {
+system2t <- function(command, args = character(), ...) {
   # system2, with a trace
   # mimic bash's set -x usage of a "+" prefix for now
   # maybe someday take a dep on {cli} and make it prettier

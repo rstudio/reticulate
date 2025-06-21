@@ -736,7 +736,14 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
         file = stderr()
       )
     }
-    stop("Call `py_require()` to remove or replace conflicting requirements.")
+    stop(paste(
+      "Call `py_require()` to remove or replace conflicting requirements.",
+      paste(
+        "`py_require()` expects Python packages rather than module names and",
+        "standard modules such as `sys` or `os` should not be passed to `py_require()`."
+      ),
+      sep = "\n"
+    ))
   }
 
   ephemeral_python <- readLines(uv_output_file, warn = FALSE)

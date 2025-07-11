@@ -839,29 +839,34 @@ is_reticulate_managed_uv <- function(uv = uv_binary(bootstrap_install = FALSE)) 
 
 
 # return a dataframe of python options sorted by default reticulate preference
-uv_python_list <- function(uv = uv_binary()) {
+uv_python_list <- function(uv = uv_binary(), python_preference = NULL) {
 
   if (isTRUE(attr(uv, "reticulate-managed", TRUE)))
     withr::local_envvar(c(
       UV_CACHE_DIR = reticulate_cache_dir("uv", "cache"),
       UV_PYTHON_INSTALL_DIR = reticulate_cache_dir("uv", "python")
     ))
-
-
+  
+  # if (is.null(uv) || !file.exists(uv)) {
   if (Sys.getenv("_RETICULATE_DEBUG_UV_") == "1")
     system2 <- system2t
 
+  withr::local_envvar(c(
+    UV_PYTHON_PREFERENCE = python_preference %||% Sys.getenv("UV_PYTHON_PREFERENCE", "only-managed")
+  ))
+  
   x <- system2(uv, c("python list",
-    "--all-versions",
-    "--color never",
-    "--output-format json"
+      "--all-versions",
+      "--color never",
+      "--output-format json"
     ),
     stdout = TRUE
   )
   x <- paste0(x, collapse = "")
   x <- jsonlite::parse_json(x, simplifyVector = TRUE)
-  if (!length(x))
-    return()
+  if (!length(x) && is.null(python_preference)) {
+    return(uv_python_list(uv, python_preference = "only-system"))
+  }
 
   x <- x[is.na(x$symlink) , ]             # ignore local filesystem symlinks
   x <- x[x$variant == "default", ]        # ignore "freethreaded"

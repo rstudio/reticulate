@@ -839,8 +839,10 @@ is_reticulate_managed_uv <- function(uv = uv_binary(bootstrap_install = FALSE)) 
 
 
 # return a dataframe of python options sorted by default reticulate preference
-uv_python_list <- function(uv = uv_binary()) {
-
+uv_python_list <- function(
+  uv = uv_binary(),
+  python_preference = Sys.getenv("UV_PYTHON_PREFERENCE", "only-managed")
+) {
   if (isTRUE(attr(uv, "reticulate-managed", TRUE)))
     withr::local_envvar(c(
       UV_CACHE_DIR = reticulate_cache_dir("uv", "cache"),
@@ -851,17 +853,36 @@ uv_python_list <- function(uv = uv_binary()) {
   if (Sys.getenv("_RETICULATE_DEBUG_UV_") == "1")
     system2 <- system2t
 
-  x <- system2(uv, c("python list",
+  # valid values of python_preference are: only-managed, managed, system, only-system
+  # https://docs.astral.sh/uv/reference/settings/#python-preference
+  if (python_preference != "only-managed") {
+    # uv does not find many pythons that are found by `virtualenv_starter(all=T)`,
+    # including pythons installed by `install_python()`
+    # To help uv find them, we temporarily place them on the PATH.
+    withr::local_path(
+      dirname(virtualenv_starter(all = TRUE)$path),
+      action = "suffix"
+    )
+  }
+
+  x <- system2(uv, c(
+    "python list",
     "--all-versions",
     "--color never",
-    "--output-format json"
+    "--output-format json",
+    "--python-preference ", python_preference
     ),
     stdout = TRUE
   )
+
   x <- paste0(x, collapse = "")
   x <- jsonlite::parse_json(x, simplifyVector = TRUE)
-  if (!length(x))
-    return()
+
+  if (!length(x) &&
+        missing(python_preference) &&
+        is.na(Sys.getenv("UV_PYTHON_PREFERENCE", NA))) {
+    return(uv_python_list(uv, "only-system"))
+  }
 
   x <- x[is.na(x$symlink) , ]             # ignore local filesystem symlinks
   x <- x[x$variant == "default", ]        # ignore "freethreaded"

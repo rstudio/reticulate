@@ -15,6 +15,11 @@
 - Fixed error in `get_python_conda_info()` when conda not found through `conda-meta/history` 
   and `NULL` is passed to `normalizePath` (#1184)
 
+- `uv_python_list()` now tries managed python environments before system-installed
+  Python environments. This makes it much faster as system discovery can be slow. 
+  Users can still control their preference using the `UV_PYTHON_PREFERENCE` environment
+  variable. (#1810)
+
 # reticulate 1.42.0
 
 - Fixed an issue in RStudio on Windows where interrupts were

@@ -849,20 +849,25 @@ uv_python_list <- function(uv = uv_binary(), python_preference = NULL) {
   if (Sys.getenv("_RETICULATE_DEBUG_UV_") == "1")
     system2 <- system2t
 
-  withr::local_envvar(c(
-    UV_PYTHON_PREFERENCE = python_preference %||% Sys.getenv("UV_PYTHON_PREFERENCE", "only-managed")
-  ))
-
-  x <- system2(uv, c("python list",
-      "--all-versions",
-      "--color never",
-      "--output-format json"
+  
+  x <- withr::with_envvar(
+    c(
+      UV_PYTHON_PREFERENCE = python_preference %||% Sys.getenv("UV_PYTHON_PREFERENCE", "only-managed")
     ),
-    stdout = TRUE
+    {
+      system2(uv, c("python list",
+          "--all-versions",
+          "--color never",
+          "--output-format json"
+        ),
+        stdout = TRUE
+      )
+    }
   )
+ 
   x <- paste0(x, collapse = "")
   x <- jsonlite::parse_json(x, simplifyVector = TRUE)
-  if (!length(x) && is.null(python_preference)) {
+  if (!length(x) && is.null(python_preference) && !nzchar(Sys.getenv("UV_PYTHON_PREFERENCE", ""))) {
     return(uv_python_list(uv, python_preference = "only-system"))
   }
 

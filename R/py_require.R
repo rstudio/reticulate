@@ -560,7 +560,8 @@ py_reqs_get <- function(x = NULL) {
 # uv ---------------------------------------------------------------------------
 
 uv_binary <- function(bootstrap_install = TRUE) {
-  required_version <- numeric_version("0.6.3")
+  min_uv_version <- numeric_version("0.6.3")
+  max_uv_version <- numeric_version("0.8.0")
   is_usable_uv <- function(uv) {
     if (is.null(uv) || is.na(uv) || uv == "" || !file.exists(uv)) {
       return(FALSE)
@@ -570,7 +571,7 @@ uv_binary <- function(bootstrap_install = TRUE) {
       return(FALSE)
     }
     ver <- numeric_version(sub("uv ([0-9.]+).*", "\\1", ver), strict = FALSE)
-    !is.na(ver) && ver >= required_version
+    !is.na(ver) && ver >= min_uv_version && ver < max_uv_version
   }
 
   repeat {
@@ -624,7 +625,7 @@ uv_binary <- function(bootstrap_install = TRUE) {
     # https://github.com/astral-sh/uv/blob/main/docs/configuration/installer.md
     dir.create(dirname(uv), showWarnings = FALSE, recursive = TRUE)
     file_ext <- if (is_windows()) ".ps1" else ".sh"
-    url <- paste0("https://astral.sh/uv/install", file_ext)
+    url <- paste0("https://astral.sh/uv/0.7.22/install", file_ext)
     install_uv <- tempfile("install-uv-", fileext = file_ext)
     download.file(url, install_uv, quiet = TRUE)
     if (!file.exists(install_uv)) {

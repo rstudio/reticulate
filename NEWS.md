@@ -20,6 +20,8 @@
   Users can still control their preference using the `UV_PYTHON_PREFERENCE` environment
   variable. (#1810)
 
+- Hotfix to pin `uv` version resolved by reticulate to `<0.8.0`. (#1812)
+
 # reticulate 1.42.0
 
 - Fixed an issue in RStudio on Windows where interrupts were

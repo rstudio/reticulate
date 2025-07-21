@@ -1,4 +1,4 @@
-# reticulate (development version)
+# reticulate 1.43.0
 
 - Fixed usage of micromamba and mamba, next-generation conda environment management tools.
   reticulate now prefers to use micromamba, mamba, then conda when managing environments (@gdevenyi, #1771).

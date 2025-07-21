@@ -1,7 +1,7 @@
 # reticulate (development version)
 
 - Fixed usage of micromamba and mamba, next-generation conda environment management tools.
-  reticulate now prefers to use micromamba, mamba, then conda when managing environments
+  reticulate now prefers to use micromamba, mamba, then conda when managing environments (@gdevenyi, #1771).
 
 - Added `str()`, `dim()`, and `t()` S3 methods for NumPy Arrays.
 
@@ -15,12 +15,12 @@
 - Fixed error in `get_python_conda_info()` when conda not found through `conda-meta/history` 
   and `NULL` is passed to `normalizePath` (#1184)
 
-- `uv_python_list()` now tries managed python environments before system-installed
-  Python environments. This makes it much faster as system discovery can be slow. 
-  Users can still control their preference using the `UV_PYTHON_PREFERENCE` environment
-  variable. (#1810)
-
 - Hotfix to pin `uv` version resolved by reticulate to `<0.8.0`. (#1812)
+
+- Python discovery by `uv` is much faster now. The internal utility `uv_python_list()` 
+  searches only for managed python environments by default. Users can request discovery of 
+  system pythons by setting `UV_PYTHON_PREFERENCE`. Also, `uv_python_list()` will now discover 
+  pyenv pythons and python binaries installed by `install_python()` if a system python is requested. (#1810)
 
 # reticulate 1.42.0
 

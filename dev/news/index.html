@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.42.0.9000</span>
+        <span class="version label label-danger" data-toggle="tooltip" data-placement="bottom" title="In-development version">1.43.0.9000</span>
       </span>
     </div>
 
@@ -78,19 +78,22 @@
   <div class="col-md-9 contents">
     <div class="page-header">
       <h1 data-toc-skip>Changelog <small></small></h1>
-      <small>Source: <a href="https://github.com/rstudio/reticulate/blob/v1.42.0.9000/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/rstudio/reticulate/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
     <div class="section level2">
 <h2 class="page-header" data-toc-text="development version" id="reticulate-development-version">reticulate (development version)<a class="anchor" aria-label="anchor" href="#reticulate-development-version"></a></h2>
-<ul><li><p>Fixed usage of micromamba and mamba, next-generation conda environment management tools. reticulate now prefers to use micromamba, mamba, then conda when managing environments</p></li>
+</div>
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="1.43.0" id="reticulate-1430">reticulate 1.43.0<small>2025-07-21</small><a class="anchor" aria-label="anchor" href="#reticulate-1430"></a></h2>
+<ul><li><p>Fixed usage of micromamba and mamba, next-generation conda environment management tools. reticulate now prefers to use micromamba, mamba, then conda when managing environments (<a href="https://github.com/gdevenyi" class="external-link">@gdevenyi</a>, <a href="https://github.com/rstudio/reticulate/issues/1771" class="external-link">#1771</a>).</p></li>
 <li><p>Added <code><a href="https://rdrr.io/r/utils/str.html" class="external-link">str()</a></code>, <code><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim()</a></code>, and <code><a href="https://rdrr.io/r/base/t.html" class="external-link">t()</a></code> S3 methods for NumPy Arrays.</p></li>
 <li><p>Fixed a segfault observed on R session exit (<a href="https://github.com/rstudio/reticulate/issues/1785" class="external-link">#1785</a>, <a href="https://github.com/rstudio/reticulate/issues/1786" class="external-link">#1786</a>).</p></li>
 <li><p>Added check in <code><a href="../reference/install_miniconda.html">install_miniconda()</a></code> if existing files will be overwritten. (<a href="https://github.com/rstudio/reticulate/issues/1794" class="external-link">#1794</a>, <a href="https://github.com/rstudio/reticulate/issues/1796" class="external-link">#1796</a>)</p></li>
 <li><p>Fixed error in <code><a href="../reference/install_python.html">install_python()</a></code> under R 4.5 when the requested Python version has a <code>":latest"</code> suffix, as it does by default. (<a href="https://github.com/rstudio/reticulate/issues/1792" class="external-link">#1792</a>, <a href="https://github.com/rstudio/reticulate/issues/1797" class="external-link">#1797</a>)</p></li>
 <li><p>Fixed error in <code>get_python_conda_info()</code> when conda not found through <code>conda-meta/history</code> and <code>NULL</code> is passed to <code>normalizePath</code> (<a href="https://github.com/rstudio/reticulate/issues/1184" class="external-link">#1184</a>)</p></li>
-<li><p><code>uv_python_list()</code> now tries managed python environments before system-installed Python environments. This makes it much faster as system discovery can be slow. Users can still control their preference using the <code>UV_PYTHON_PREFERENCE</code> environment variable. (<a href="https://github.com/rstudio/reticulate/issues/1810" class="external-link">#1810</a>)</p></li>
 <li><p>Hotfix to pin <code>uv</code> version resolved by reticulate to <code>&lt;0.8.0</code>. (<a href="https://github.com/rstudio/reticulate/issues/1812" class="external-link">#1812</a>)</p></li>
+<li><p>Python discovery by <code>uv</code> is much faster now. The internal utility <code>uv_python_list()</code> searches only for managed python environments by default. Users can request discovery of system pythons by setting <code>UV_PYTHON_PREFERENCE</code>. Also, <code>uv_python_list()</code> will now discover pyenv pythons and python binaries installed by <code><a href="../reference/install_python.html">install_python()</a></code> if a system python is requested. (<a href="https://github.com/rstudio/reticulate/issues/1810" class="external-link">#1810</a>)</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="1.42.0" id="reticulate-1420">reticulate 1.42.0<small>2025-03-25</small><a class="anchor" aria-label="anchor" href="#reticulate-1420"></a></h2>

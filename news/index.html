@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">reticulate</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.42.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.43.0</span>
       </span>
     </div>
 
@@ -78,9 +78,20 @@
   <div class="col-md-9 contents">
     <div class="page-header">
       <h1 data-toc-skip>Changelog <small></small></h1>
-      <small>Source: <a href="https://github.com/rstudio/reticulate/blob/v1.42.0/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/rstudio/reticulate/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="1.43.0" id="reticulate-1430">reticulate 1.43.0<small>2025-07-21</small><a class="anchor" aria-label="anchor" href="#reticulate-1430"></a></h2>
+<ul><li><p>Fixed usage of micromamba and mamba, next-generation conda environment management tools. reticulate now prefers to use micromamba, mamba, then conda when managing environments (<a href="https://github.com/gdevenyi" class="external-link">@gdevenyi</a>, <a href="https://github.com/rstudio/reticulate/issues/1771" class="external-link">#1771</a>).</p></li>
+<li><p>Added <code><a href="https://rdrr.io/r/utils/str.html" class="external-link">str()</a></code>, <code><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim()</a></code>, and <code><a href="https://rdrr.io/r/base/t.html" class="external-link">t()</a></code> S3 methods for NumPy Arrays.</p></li>
+<li><p>Fixed a segfault observed on R session exit (<a href="https://github.com/rstudio/reticulate/issues/1785" class="external-link">#1785</a>, <a href="https://github.com/rstudio/reticulate/issues/1786" class="external-link">#1786</a>).</p></li>
+<li><p>Added check in <code><a href="../reference/install_miniconda.html">install_miniconda()</a></code> if existing files will be overwritten. (<a href="https://github.com/rstudio/reticulate/issues/1794" class="external-link">#1794</a>, <a href="https://github.com/rstudio/reticulate/issues/1796" class="external-link">#1796</a>)</p></li>
+<li><p>Fixed error in <code><a href="../reference/install_python.html">install_python()</a></code> under R 4.5 when the requested Python version has a <code>":latest"</code> suffix, as it does by default. (<a href="https://github.com/rstudio/reticulate/issues/1792" class="external-link">#1792</a>, <a href="https://github.com/rstudio/reticulate/issues/1797" class="external-link">#1797</a>)</p></li>
+<li><p>Fixed error in <code>get_python_conda_info()</code> when conda not found through <code>conda-meta/history</code> and <code>NULL</code> is passed to <code>normalizePath</code> (<a href="https://github.com/rstudio/reticulate/issues/1184" class="external-link">#1184</a>)</p></li>
+<li><p>Hotfix to pin <code>uv</code> version resolved by reticulate to <code>&lt;0.8.0</code>. (<a href="https://github.com/rstudio/reticulate/issues/1812" class="external-link">#1812</a>)</p></li>
+<li><p>Python discovery by <code>uv</code> is much faster now. The internal utility <code>uv_python_list()</code> searches only for managed python environments by default. Users can request discovery of system pythons by setting <code>UV_PYTHON_PREFERENCE</code>. Also, <code>uv_python_list()</code> will now discover pyenv pythons and python binaries installed by <code><a href="../reference/install_python.html">install_python()</a></code> if a system python is requested. (<a href="https://github.com/rstudio/reticulate/issues/1810" class="external-link">#1810</a>)</p></li>
+</ul></div>
     <div class="section level2">
 <h2 class="page-header" data-toc-text="1.42.0" id="reticulate-1420">reticulate 1.42.0<small>2025-03-25</small><a class="anchor" aria-label="anchor" href="#reticulate-1420"></a></h2>
 <ul><li><p>Fixed an issue in RStudio on Windows where interrupts were ignored while Python code was executing (<a href="https://github.com/rstudio/reticulate/issues/1753" class="external-link">#1753</a>).</p></li>
@@ -452,7 +463,7 @@
 <li><p>The <code>reticulate</code> Python REPL no longer exits when a top-level interrupt is sent (e.g. via Ctrl + C).</p></li>
 <li><p>The miniconda auto-installer now supports aarch64 Linux machines. (<a href="https://github.com/rstudio/reticulate/issues/1012" class="external-link">#1012</a>)</p></li>
 <li><p>Fixed an issue where matplotlib plots were incorrectly overwritten when multiple Python chunks in the same R Markdown document included plot output. (<a href="https://github.com/rstudio/reticulate/issues/1010" class="external-link">#1010</a>)</p></li>
-<li><p><code>reticulate</code> can now use the version of Python configured in projects using <a href="https://pypi.org/project/pipenv/" class="external-link">pipenv</a>. If the project contains a <code>Pipfile</code> at the root directory (as understood by <code><a href="https://here.r-lib.org//reference/here.html" class="external-link">here::here()</a></code>), then <code>reticulate</code> will invoke <code>pipenv --venv</code> to determine the path to the Python virtual environment associated with the project. Note that the <code>RETICULATE_PYTHON</code> environment variable, as well as usages of <code>use_python(..., force = TRUE)</code>, will still take precedence. (<a href="https://github.com/rstudio/reticulate/issues/1006" class="external-link">#1006</a>)</p></li>
+<li><p><code>reticulate</code> can now use the version of Python configured in projects using <a href="https://pypi.org/project/pipenv/" class="external-link">pipenv</a>. If the project contains a <code>Pipfile</code> at the root directory (as understood by <code><a href="https://here.r-lib.org/reference/here.html" class="external-link">here::here()</a></code>), then <code>reticulate</code> will invoke <code>pipenv --venv</code> to determine the path to the Python virtual environment associated with the project. Note that the <code>RETICULATE_PYTHON</code> environment variable, as well as usages of <code>use_python(..., force = TRUE)</code>, will still take precedence. (<a href="https://github.com/rstudio/reticulate/issues/1006" class="external-link">#1006</a>)</p></li>
 <li><p>Fixed an issue where <code>reticulate::py_run_string(..., local = TRUE)</code> failed to return the dictionary of defined Python objects in some cases.</p></li>
 </ul></div>
     <div class="section level2">
@@ -801,7 +812,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
       </footer></div>

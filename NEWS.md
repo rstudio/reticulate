@@ -1,5 +1,7 @@
 # reticulate (development version)
 
+- Restored compatability with `uv` versions >= 0.8.0 (#1818).
+
 # reticulate 1.43.0
 
 - Fixed usage of micromamba and mamba, next-generation conda environment management tools.
@@ -14,14 +16,14 @@
 - Fixed error in `install_python()` under R 4.5 when the requested Python
   version has a `":latest"` suffix, as it does by default. (#1792, #1797)
 
-- Fixed error in `get_python_conda_info()` when conda not found through `conda-meta/history` 
+- Fixed error in `get_python_conda_info()` when conda not found through `conda-meta/history`
   and `NULL` is passed to `normalizePath` (#1184)
 
 - Hotfix to pin `uv` version resolved by reticulate to `<0.8.0`. (#1812)
 
-- Python discovery by `uv` is much faster now. The internal utility `uv_python_list()` 
-  searches only for managed python environments by default. Users can request discovery of 
-  system pythons by setting `UV_PYTHON_PREFERENCE`. Also, `uv_python_list()` will now discover 
+- Python discovery by `uv` is much faster now. The internal utility `uv_python_list()`
+  searches only for managed python environments by default. Users can request discovery of
+  system pythons by setting `UV_PYTHON_PREFERENCE`. Also, `uv_python_list()` will now discover
   pyenv pythons and python binaries installed by `install_python()` if a system python is requested. (#1810)
 
 # reticulate 1.42.0

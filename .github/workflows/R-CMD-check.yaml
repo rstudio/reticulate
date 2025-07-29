@@ -21,20 +21,16 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - { os: macOS-latest  , r: 'release', python: '3.11' }
-          - { os: windows-latest, r: 'release', python: '3.11' }
-          - { os: ubuntu-latest , r: 'release', python: '3.11' }
-
-          # test R oldrel on mac too: https://github.com/RcppCore/RcppArmadillo/issues/447
-          - { os: macOS-latest , r: 'oldrel'  , python: '3.11' }
+          - { os: macOS-latest  , r: 'release', python: '' }
+          - { os: windows-latest, r: 'release', python: '' }
+          - { os: ubuntu-latest , r: 'release', python: '' }
 
           - { os: ubuntu-latest, r: 'oldrel-1', python: '3.10' }
           - { os: ubuntu-latest, r: 'oldrel-2', python: '3.10' }
-          - { os: ubuntu-20.04,  r: 'oldrel-3', python: '3.9' }
-          - { os: ubuntu-20.04,  r: 'oldrel-4', python: '3.9' }
+          - { os: ubuntu-latest, r: 'oldrel-3', python: '3.10' }
+          - { os: ubuntu-latest, r: 'oldrel-4', python: '3.10' }
           # https://api.r-hub.io/rversions/resolve/oldrel/4
 
-          - { os: ubuntu-latest, r: 'release', python: '3.8'  }
           - { os: ubuntu-latest, r: 'release', python: '3.9' }
           - { os: ubuntu-latest, r: 'release', python: '3.11' }
           - { os: ubuntu-latest, r: 'release', python: '3.12' }
@@ -53,6 +49,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - uses: actions/setup-python@v4
+        if: matrix.config.python != '' && matrix.config.python != 'debug'
+        with:
+          python-version: ${{ matrix.config.python }}
+
       - uses: r-lib/actions/setup-pandoc@v2
 
       - uses: r-lib/actions/setup-r@v2
@@ -60,11 +61,6 @@ jobs:
           r-version: ${{ matrix.config.r }}
           use-public-rspm: true
           # http-user-agent: ${{ matrix.config.http-user-agent }}
-
-      - uses: actions/setup-python@v4
-        if: matrix.config.python != 'debug'
-        with:
-          python-version: ${{ matrix.config.python }}
 
       - if: matrix.config.python == 'debug'
         name: setup python3-dbg
@@ -74,19 +70,19 @@ jobs:
           # sudo rm -f /usr/bin/python3 /usr/bin/python
           sudo ln -sf /usr/bin/python3-dbg /usr/bin/python3
           sudo ln -sf /usr/bin/python3-dbg /usr/bin/python
+          echo 'RETICULATE_PYTHON=/usr/bin/python' >> ~/.Renviron
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: any::rcmdcheck local::.
-          cache-version: 4
+          cache-version: 5
           upgrade: 'TRUE'
 
       - name: setup r-reticulate venv
+        if: matrix.config.python != '' && matrix.config.python != 'debug'
         shell: Rscript {0}
         run: |
-
           library(reticulate)
-
           path_to_venv <- virtualenv_create(
             envname = "r-reticulate",
             python = Sys.which("python"), # placed on PATH by the setup-python action
@@ -95,10 +91,8 @@ jobs:
               "tabulate", "plotly", "psutil", "kaleido", "wrapt"
             )
           )
-
           writeLines(
             paste0("RETICULATE_PYTHON=", virtualenv_python(path_to_venv)),
             Sys.getenv("GITHUB_ENV"))
-
 
       - uses: r-lib/actions/check-r-package@v2

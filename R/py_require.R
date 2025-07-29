@@ -561,7 +561,6 @@ py_reqs_get <- function(x = NULL) {
 
 uv_binary <- function(bootstrap_install = TRUE) {
   min_uv_version <- numeric_version("0.6.3")
-  max_uv_version <- numeric_version("0.8.0")
   is_usable_uv <- function(uv) {
     if (is.null(uv) || is.na(uv) || uv == "" || !file.exists(uv)) {
       return(FALSE)
@@ -571,7 +570,7 @@ uv_binary <- function(bootstrap_install = TRUE) {
       return(FALSE)
     }
     ver <- numeric_version(sub("uv ([0-9.]+).*", "\\1", ver), strict = FALSE)
-    !is.na(ver) && ver >= min_uv_version && ver < max_uv_version
+    !is.na(ver) && ver >= min_uv_version
   }
 
   repeat {
@@ -585,7 +584,7 @@ uv_binary <- function(bootstrap_install = TRUE) {
       if (uv == "managed") break else return(uv)
     }
 
-    # on Windows, the invocation cost of `uv`` is non-negligable.
+    # on Windows, the invocation cost of `uv`` is non-negligible.
     # observed to be 0.2s for just `uv --version`
     # This is a an approach to avoid paying that cost on each invocation
     # This is mostly motivated by uv_run_tool(),
@@ -707,9 +706,8 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
   on.exit(unlink(uv_output_file), add = TRUE)
 
   uv_args <- c(
-    "run",
-    "--no-project",
-    # "--python-preference", "managed",
+    "tool", "run",
+    "--isolated",
     python_version,
     exclude_newer,
     packages,
@@ -740,10 +738,10 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
     stop("Call `py_require()` to remove or replace conflicting requirements.")
   }
 
-  ephemeral_python <- readLines(uv_output_file, warn = FALSE)
+  cached_python <- readLines(uv_output_file, warn = FALSE)
   if (debug)
-    message("resolved ephemeral python: ", ephemeral_python)
-  ephemeral_python
+    message("resolved ephemeral python: ", cached_python)
+  cached_python
 }
 
 #' uv run tool

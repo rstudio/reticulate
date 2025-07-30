@@ -183,3 +183,14 @@ test_that("Multiple py_require() calls from package are shows in one row", {
     py_require()
   }))
 })
+
+test_that("py_require() standard library module", {
+  local_edition(3)
+  expect_snapshot2(r_session({
+    library(reticulate)
+    py_require("os")
+
+    os <- import("os")
+  }))
+})
+

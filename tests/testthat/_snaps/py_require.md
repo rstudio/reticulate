@@ -325,3 +325,35 @@
       success: true
       exit_code: 0
 
+# py_require() standard library module
+
+    Code
+      r_session({
+        library(reticulate)
+        py_require("os")
+        os <- import("os")
+      })
+    Output
+      > library(reticulate)
+      > py_require("os")
+      > os <- import("os")
+        × No solution found when resolving `--with` dependencies:
+        ╰─▶ Because os was not found in the package registry and you require os, we
+            can conclude that your requirements are unsatisfiable.
+      uv error code: 1
+      -- Current requirements -------------------------------------------------
+       Python:   3.11.xx (reticulate default)
+       Packages: numpy, os
+      -------------------------------------------------------------------------
+      Hint: `py_require()` expects Python package names rather than Python module names.
+      Modules provided by the Python standard library such as `sys` and `os` should not be passed to `py_require()`.
+      -------------------------------------------------------------------------
+      Error in uv_get_or_create_env() : 
+        Call `py_require()` to remove or replace conflicting requirements.
+      Error: Installation of Python not found, Python bindings not loaded.
+      See the Python "Order of Discovery" here: https://rstudio.github.io/reticulate/articles/versions.html#order-of-discovery.
+      Execution halted
+      ------- session end -------
+      success: false
+      exit_code: 1
+

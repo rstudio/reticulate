@@ -5,7 +5,7 @@
 \title{Install Python}
 \usage{
 install_python(
-  version = "3.10:latest",
+  version = "3.11:latest",
   list = FALSE,
   force = FALSE,
   optimized = TRUE
@@ -16,15 +16,17 @@ install_python(
 
 \item{list}{Boolean; if set, list the set of available Python versions?}
 
-\item{force}{Boolean; force re-installation even if the requested version
-of Python is already installed?}
+\item{force}{Boolean; force re-installation even if the requested version of
+Python is already installed?}
 
-\item{optimized}{Boolean; if \code{TRUE}, installation will take significantly longer but
-should result in a faster Python interpreter. Only applicable on macOS and Linux.}
+\item{optimized}{Boolean; if \code{TRUE}, installation will take significantly
+longer but should result in a faster Python interpreter. Only applicable on
+macOS and Linux.}
 }
 \description{
-Download and install Python, using the \href{https://github.com/pyenv/pyenv}{pyenv}.
-and \href{https://github.com/pyenv-win/pyenv-win}{pyenv-win} projects.
+Download and install Python, using the
+\href{https://github.com/pyenv/pyenv}{pyenv}. and
+\href{https://github.com/pyenv-win/pyenv-win}{pyenv-win} projects.
 }
 \details{
 In general, it is recommended that Python virtual environments are created
@@ -44,12 +46,17 @@ virtualenv_create("my-environment", version = "3.9:latest")
 }\if{html}{\out{</div>}}
 }
 \note{
-On macOS and Linux this will build Python from sources, which may
-take a few minutes. Installation will be faster if some build
-dependencies are preinstalled. See
-\url{https://github.com/pyenv/pyenv/wiki#suggested-build-environment} for
-example commands you can run to pre-install system dependencies
-(requires administrator privileges).
+On macOS and Linux this will build Python from sources, which may take a few
+minutes. Installation will be faster if some build dependencies are
+preinstalled. See
+\url{https://github.com/pyenv/pyenv/wiki#suggested-build-environment} for example
+commands you can run to pre-install system dependencies (requires
+administrator privileges).
+
+For example, on macOS you can pre-run:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{brew install openssl readline sqlite3 xz zlib tcl-tk@8 libb2
+}\if{html}{\out{</div>}}
 
 If \code{optimized = TRUE}, (the default) Python is build with:
 

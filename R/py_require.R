@@ -560,7 +560,8 @@ py_reqs_get <- function(x = NULL) {
 # uv ---------------------------------------------------------------------------
 
 uv_binary <- function(bootstrap_install = TRUE) {
-  required_version <- numeric_version("0.6.3")
+  min_uv_version <- numeric_version("0.6.3")
+  max_uv_version <- numeric_version("0.8.0")
   is_usable_uv <- function(uv) {
     if (is.null(uv) || is.na(uv) || uv == "" || !file.exists(uv)) {
       return(FALSE)
@@ -570,7 +571,7 @@ uv_binary <- function(bootstrap_install = TRUE) {
       return(FALSE)
     }
     ver <- numeric_version(sub("uv ([0-9.]+).*", "\\1", ver), strict = FALSE)
-    !is.na(ver) && ver >= required_version
+    !is.na(ver) && ver >= min_uv_version && ver < max_uv_version
   }
 
   repeat {
@@ -624,7 +625,7 @@ uv_binary <- function(bootstrap_install = TRUE) {
     # https://github.com/astral-sh/uv/blob/main/docs/configuration/installer.md
     dir.create(dirname(uv), showWarnings = FALSE, recursive = TRUE)
     file_ext <- if (is_windows()) ".ps1" else ".sh"
-    url <- paste0("https://astral.sh/uv/install", file_ext)
+    url <- paste0("https://astral.sh/uv/0.7.22/install", file_ext)
     install_uv <- tempfile("install-uv-", fileext = file_ext)
     download.file(url, install_uv, quiet = TRUE)
     if (!file.exists(install_uv)) {
@@ -846,8 +847,10 @@ is_reticulate_managed_uv <- function(uv = uv_binary(bootstrap_install = FALSE)) 
 
 
 # return a dataframe of python options sorted by default reticulate preference
-uv_python_list <- function(uv = uv_binary()) {
-
+uv_python_list <- function(
+  uv = uv_binary(),
+  python_preference = Sys.getenv("UV_PYTHON_PREFERENCE", "only-managed")
+) {
   if (isTRUE(attr(uv, "reticulate-managed", TRUE)))
     withr::local_envvar(c(
       UV_CACHE_DIR = reticulate_cache_dir("uv", "cache"),
@@ -858,17 +861,36 @@ uv_python_list <- function(uv = uv_binary()) {
   if (Sys.getenv("_RETICULATE_DEBUG_UV_") == "1")
     system2 <- system2t
 
-  x <- system2(uv, c("python list",
+  # valid values of python_preference are: only-managed, managed, system, only-system
+  # https://docs.astral.sh/uv/reference/settings/#python-preference
+  if (python_preference != "only-managed") {
+    # uv does not find many pythons that are found by `virtualenv_starter(all=T)`,
+    # including pythons installed by `install_python()`
+    # To help uv find them, we temporarily place them on the PATH.
+    withr::local_path(
+      dirname(virtualenv_starter(all = TRUE)$path),
+      action = "suffix"
+    )
+  }
+
+  x <- system2(uv, c(
+    "python list",
     "--all-versions",
     "--color never",
-    "--output-format json"
+    "--output-format json",
+    "--python-preference ", python_preference
     ),
     stdout = TRUE
   )
+
   x <- paste0(x, collapse = "")
   x <- jsonlite::parse_json(x, simplifyVector = TRUE)
-  if (!length(x))
-    return()
+
+  if (!length(x) &&
+        missing(python_preference) &&
+        is.na(Sys.getenv("UV_PYTHON_PREFERENCE", NA))) {
+    return(uv_python_list(uv, "only-system"))
+  }
 
   x <- x[is.na(x$symlink) , ]             # ignore local filesystem symlinks
   x <- x[x$variant == "default", ]        # ignore "freethreaded"
@@ -991,4 +1013,40 @@ resolve_python_version <- function(constraints = NULL, uv = uv_binary()) {
   }
 
   as.character(candidates[1L])
+}
+
+
+uv_diff_exclude_newer <- function(from = -3L, to = Sys.Date(),
+                                  packages = py_reqs_get("packages"),
+                                  python_version = py_reqs_get("python_version"),
+                                  show = TRUE) {
+  uv <- uv_binary()
+  if(rlang::is_bare_numeric(from))
+    from <- to + from
+  from <- format(from)
+  to <- format(to)
+  manifest <- lapply(list(from = from, to = to), function(exclude_newer) {
+    python <- uv_get_or_create_env(packages, python_version, exclude_newer)
+    manifest <- jsonlite::parse_json(system2(
+      uv,
+      c("pip list --quiet --format json --python", shQuote(python)),
+      stdout = TRUE
+    ), simplifyVector = TRUE)
+    attr(manifest, "python") <- python
+    attr(manifest, "exclude_newer") <- exclude_newer
+    manifest
+  })
+
+  if (show) {
+    rlang::check_installed("diffobj")
+    print(
+      asNamespace("diffobj")$diffPrint(
+        manifest$from,
+        manifest$to,
+        tar.banner = sprintf("from: %s", from),
+        cur.banner = sprintf("to: %s", to)
+      )
+    )
+  }
+  manifest
 }

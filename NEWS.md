@@ -1,5 +1,8 @@
 # reticulate (development version)
 
+- `py_require()` now gives a better message when a user erroneously declares
+   a module from the Python standard library as a required package (@lazappi, #1788)
+
 # reticulate 1.43.0
 
 - Fixed usage of micromamba and mamba, next-generation conda environment management tools.

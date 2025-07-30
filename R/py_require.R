@@ -737,14 +737,21 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
         file = stderr()
       )
     }
-    stop(paste(
-      "Call `py_require()` to remove or replace conflicting requirements.",
-      paste(
-        "`py_require()` expects Python packages rather than module names and",
-        "standard modules such as `sys` or `os` should not be passed to `py_require()`."
-      ),
-      sep = "\n"
-    ))
+
+    if (any(call_args$packages %in% builtin_module_names)) {
+      requested_builtin_modules <- intersect(call_args$packages, builtin_module_names)
+      invalid <- unique(c("sys", "os", requested_builtin_modules))
+      writeLines(con = stderr(), c(
+        "Hint: `py_require()` expects Python package names rather than Python module names.",
+        sprintf(
+          "Modules provided by the Python standard library such as %s should not be passed to `py_require()`.",
+          pc_and("`", invalid, "`")
+        ),
+        strrep("-", 73L)
+      ))
+    }
+
+    stop("Call `py_require()` to remove or replace conflicting requirements.")
   }
 
   ephemeral_python <- readLines(uv_output_file, warn = FALSE)
@@ -752,6 +759,23 @@ uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
     message("resolved ephemeral python: ", ephemeral_python)
   ephemeral_python
 }
+
+
+# uv_get_or_create_env(packages = NULL) |>
+#   system2("-", stdout = TRUE, input = '
+# import pkgutil
+#
+# modules = [
+#     module.name
+#     for module in pkgutil.iter_modules()
+#     if not module.name.startswith("_")
+# ]
+#
+# print("c", tuple(sorted(modules)), sep = "")
+# ') |>
+#   clipr::write_clip()
+
+builtin_module_names <- c('abc', 'aifc', 'antigravity', 'argparse', 'ast', 'asynchat', 'asyncio', 'asyncore', 'base64', 'bdb', 'bisect', 'bz2', 'cProfile', 'calendar', 'cgi', 'cgitb', 'chunk', 'cmd', 'code', 'codecs', 'codeop', 'collections', 'colorsys', 'compileall', 'concurrent', 'configparser', 'contextlib', 'contextvars', 'copy', 'copyreg', 'crypt', 'csv', 'ctypes', 'curses', 'dataclasses', 'datetime', 'dbm', 'decimal', 'difflib', 'dis', 'distutils', 'doctest', 'email', 'encodings', 'ensurepip', 'enum', 'filecmp', 'fileinput', 'fnmatch', 'fractions', 'ftplib', 'functools', 'genericpath', 'getopt', 'getpass', 'gettext', 'glob', 'graphlib', 'gzip', 'hashlib', 'heapq', 'hmac', 'html', 'http', 'idlelib', 'imaplib', 'imghdr', 'imp', 'importlib', 'inspect', 'io', 'ipaddress', 'json', 'keyword', 'lib2to3', 'linecache', 'locale', 'logging', 'lzma', 'mailbox', 'mailcap', 'mimetypes', 'modulefinder', 'multiprocessing', 'netrc', 'nntplib', 'ntpath', 'nturl2path', 'numbers', 'opcode', 'operator', 'optparse', 'os', 'pathlib', 'pdb', 'pickle', 'pickletools', 'pip', 'pipes', 'pkg_resources', 'pkgutil', 'platform', 'plistlib', 'poplib', 'posixpath', 'pprint', 'profile', 'pstats', 'pty', 'py_compile', 'pyclbr', 'pydoc', 'pydoc_data', 'queue', 'quopri', 'random', 're', 'reprlib', 'rlcompleter', 'runpy', 'sched', 'secrets', 'selectors', 'setuptools', 'shelve', 'shlex', 'shutil', 'signal', 'site', 'smtpd', 'smtplib', 'sndhdr', 'socket', 'socketserver', 'sqlite3', 'sre_compile', 'sre_constants', 'sre_parse', 'ssl', 'stat', 'statistics', 'string', 'stringprep', 'struct', 'subprocess', 'sunau', 'symtable', 'sysconfig', 'tabnanny', 'tarfile', 'telnetlib', 'tempfile', 'textwrap', 'this', 'threading', 'timeit', 'tkinter', 'tm', 'token', 'tokenize', 'tomllib', 'trace', 'traceback', 'tracemalloc', 'tty', 'turtle', 'turtledemo', 'types', 'typing', 'unittest', 'urllib', 'uu', 'uuid', 'venv', 'warnings', 'wave', 'weakref', 'webbrowser', 'wsgiref', 'xdrlib', 'xml', 'xmlrpc', 'zipapp', 'zipfile', 'zipimport', 'zoneinfo')
 
 #' uv run tool
 #'

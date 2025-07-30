@@ -337,7 +337,7 @@
       > library(reticulate)
       > py_require("os")
       > os <- import("os")
-        × No solution found when resolving `--with` dependencies:
+        × No solution found when resolving tool dependencies:
         ╰─▶ Because os was not found in the package registry and you require os, we
             can conclude that your requirements are unsatisfiable.
       uv error code: 1

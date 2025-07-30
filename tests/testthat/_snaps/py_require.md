@@ -13,7 +13,7 @@
       > py_require("numpy<2")
       > py_require("numpy>=2")
       > import("numpy")
-        × No solution found when resolving `--with` dependencies:
+        × No solution found when resolving tool dependencies:
         ╰─▶ Because you require numpy<2 and numpy>=2, we can conclude that your
             requirements are unsatisfiable.
       uv error code: 1
@@ -137,7 +137,7 @@
     Output
       > py_require(c("pandas", "numpy", "notexists"))
       > uv_get_or_create_env()
-        × No solution found when resolving `--with` dependencies:
+        × No solution found when resolving tool dependencies:
         ╰─▶ Because notexists was not found in the package registry and you require
             notexists, we can conclude that your requirements are unsatisfiable.
       uv error code: 1
@@ -337,7 +337,7 @@
       > library(reticulate)
       > py_require("os")
       > os <- import("os")
-        × No solution found when resolving `--with` dependencies:
+        × No solution found when resolving tool dependencies:
         ╰─▶ Because os was not found in the package registry and you require os, we
             can conclude that your requirements are unsatisfiable.
       uv error code: 1

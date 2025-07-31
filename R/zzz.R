@@ -108,12 +108,12 @@
 
 
 maybe_enable_positron_reticulate_integration <- function() {
-  enabled <- .ps.ui.evaluateWhenClause("config.positron.reticulate.enabled")
+  enabled <- eval(call(".ps.ui.evaluateWhenClause", "config.positron.reticulate.enabled"))
   if (!enabled) {
     # when not enabled, we check if the user has explicitly disabled or if
     # it's just set false by default.
     explicitly_disabled <- tryCatch({
-      .ps.ui.executeCommand("positron.reticulate.isEnabledExplicitlySet")
+      eval(call(".ps.ui.executeCommand", "positron.reticulate.isEnabledExplicitlySet"))
     }, error = function(e) {
       # if error, the command is not available, it's likely that we are running an old Positron version
       # so we treat it as explicitly disabled, as we won't be able to turn it on.
@@ -122,8 +122,7 @@ maybe_enable_positron_reticulate_integration <- function() {
 
     if (!explicitly_disabled) {
       tryCatch({
-        .ps.ui.executeCommand("positron.reticulate.toggleEnabled")
-
+        eval(call(".ps.ui.executeCommand", "positron.reticulate.toggleEnabled"))
         if (requireNamespace("cli", quietly = TRUE)) {
           cli::cli_inform(
             "Positron's reticulate integration is now enabled. To disable, set {.url positron://settings/positron.reticulate.enabled} to {.val false}.",

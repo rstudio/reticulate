@@ -6,7 +6,7 @@
    a module from the Python standard library as a required package (@lazappi, #1788)
 
 - Positron's reticulate integration will now be automatically enabled when 
-  the reticulate package is attached (#1822).
+  the reticulate package is loaded in Positron (#1822).
 
 # reticulate 1.43.0
 

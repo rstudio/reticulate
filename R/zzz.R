@@ -63,6 +63,12 @@
 
   if (is_positron()) {
 
+    tryCatch({
+      maybe_enable_positron_reticulate_integration()
+    }, error = function(e) {
+      # if we fail to enable, it's likely running in a incompatible Positron version
+    })
+
     setHook("reticulate.onPyInit", function() {
 
       disable <- nzchar(Sys.getenv("_RETICULATE_POSITRON_DISABLE_VARIABLE_INSPECTORS_"))
@@ -100,17 +106,6 @@
   }
 }
 
-.onAttach <- function(libname, pkgname) {
-  if (is_positron()) {
-    # on Positron we want to enable the reticulate integration.
-    tryCatch({
-      maybe_enable_positron_reticulate_integration()
-    }, error = function(e) {
-      # if we fail to enable, we don't want to throw any errors.
-      # it's likely running in a incompatible Positron version
-    })
-  }
-}
 
 maybe_enable_positron_reticulate_integration <- function() {
   enabled <- .ps.ui.evaluateWhenClause("config.positron.reticulate.enabled")
@@ -121,17 +116,17 @@ maybe_enable_positron_reticulate_integration <- function() {
       .ps.ui.executeCommand("positron.reticulate.isEnabledExplicitlySet")
     }, error = function(e) {
       # if error, the command is not available, it's likely that we are running an old Positron version
-      # so we treat it as explicily disabled, as we won't be able to turn it on.
-      TRUE 
+      # so we treat it as explicitly disabled, as we won't be able to turn it on.
+      TRUE
     })
 
     if (!explicitly_disabled) {
       tryCatch({
         .ps.ui.executeCommand("positron.reticulate.toggleEnabled")
-      
+
         if (requireNamespace("cli", quietly = TRUE)) {
           cli::cli_inform(
-            "Positron's reticulate integration is now enabled. To disable, set {.url positron://settings/positron.reticulate.enabled} to {.val false}.", 
+            "Positron's reticulate integration is now enabled. To disable, set {.url positron://settings/positron.reticulate.enabled} to {.val false}.",
             class = "packageStartupMessage"
           )
         } else {

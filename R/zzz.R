@@ -100,6 +100,52 @@
   }
 }
 
+.onAttach <- function(libname, pkgname) {
+  if (is_positron()) {
+    # on Positron we want to enable the reticulate integration.
+    tryCatch({
+      maybe_enable_positron_reticulate_integration()
+    }, error = function(e) {
+      # if we fail to enable, we don't want to throw any errors.
+      # it's likely running in a incompatible Positron version
+    })
+  }
+}
+
+maybe_enable_positron_reticulate_integration <- function() {
+  enabled <- .ps.ui.evaluateWhenClause("config.positron.reticulate.enabled")
+  if (!enabled) {
+    # when not enabled, we check if the user has explicitly disabled or if
+    # it's just set false by default.
+    explicitly_disabled <- tryCatch({
+      .ps.ui.executeCommand("positron.reticulate.isEnabledExplicitlySet")
+    }, error = function(e) {
+      # if error, the command is not available, it's likely that we are running an old Positron version
+      # so we treat it as explicily disabled, as we won't be able to turn it on.
+      TRUE 
+    })
+
+    if (!explicitly_disabled) {
+      tryCatch({
+        .ps.ui.executeCommand("positron.reticulate.toggleEnabled")
+      
+        if (requireNamespace("cli", quietly = TRUE)) {
+          cli::cli_inform(
+            "Reticulate integration has been enabled, to disable set {.url positron://settings/positron.reticulate.enabled} to {.val false}.", 
+            class = "packageStartupMessage"
+          )
+        } else {
+          packageStartupMessage(
+            "Reticulate integration has been enabled, to disable set positron://settings/positron.reticulate.enabled to `false`."
+          )
+        }
+      }, error = function(e) {
+        # ignore errors, likely an old positron
+      })
+    }
+  }
+}
+
 
 # .onUnload <- function(libpath) {
 # # .onUnLoad() hook is not run by default on R session exit

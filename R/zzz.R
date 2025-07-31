@@ -131,12 +131,12 @@ maybe_enable_positron_reticulate_integration <- function() {
       
         if (requireNamespace("cli", quietly = TRUE)) {
           cli::cli_inform(
-            "Reticulate integration has been enabled, to disable set {.url positron://settings/positron.reticulate.enabled} to {.val false}.", 
+            "Positron's reticulate integration is now enabled. To disable, set {.url positron://settings/positron.reticulate.enabled} to {.val false}.", 
             class = "packageStartupMessage"
           )
         } else {
           packageStartupMessage(
-            "Reticulate integration has been enabled, to disable set positron://settings/positron.reticulate.enabled to `false`."
+            "Positron's reticulate integration is now enabled. To disable, set positron://settings/positron.reticulate.enabled to `false`."
           )
         }
       }, error = function(e) {

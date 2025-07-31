@@ -5,6 +5,9 @@
 - `py_require()` now gives a better message when a user erroneously declares
    a module from the Python standard library as a required package (@lazappi, #1788)
 
+- Positron's reticulate integration will now be automatically enabled when 
+  the reticulate package is attached (#1822).
+
 # reticulate 1.43.0
 
 - Fixed usage of micromamba and mamba, next-generation conda environment management tools.

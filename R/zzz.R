@@ -108,36 +108,23 @@
 
 
 maybe_enable_positron_reticulate_integration <- function() {
-  enabled <- eval(call(".ps.ui.evaluateWhenClause", "config.positron.reticulate.enabled"))
-  if (!enabled) {
-    # when not enabled, we check if the user has explicitly disabled or if
-    # it's just set false by default.
-    explicitly_disabled <- tryCatch({
-      eval(call(".ps.ui.executeCommand", "positron.reticulate.isEnabledExplicitlySet"))
-    }, error = function(e) {
-      # if error, the command is not available, it's likely that we are running an old Positron version
-      # so we treat it as explicitly disabled, as we won't be able to turn it on.
-      TRUE
-    })
+  is_not_auto <- eval(call(
+    ".ps.ui.evaluateWhenClause", 
+    "config.positron.reticulate.enabled != 'auto'"
+  ))
 
-    if (!explicitly_disabled) {
-      tryCatch({
-        eval(call(".ps.ui.executeCommand", "positron.reticulate.toggleEnabled"))
-        if (requireNamespace("cli", quietly = TRUE)) {
-          cli::cli_inform(
-            "Positron's reticulate integration is now enabled. To disable, set {.url positron://settings/positron.reticulate.enabled} to {.val false}.",
-            class = "packageStartupMessage"
-          )
-        } else {
-          packageStartupMessage(
-            "Positron's reticulate integration is now enabled. To disable, set positron://settings/positron.reticulate.enabled to `false`."
-          )
-        }
-      }, error = function(e) {
-        # ignore errors, likely an old positron
-      })
-    }
+  if (is_not_auto) {
+    return() # user has explicitly set it to always or never
   }
+
+  # is it auto enabled in this project?
+  is_auto_enabled <- eval(call(".ps.ui.executeCommand", "positron.reticulate.isAutoEnabled"))
+  if (is_auto_enabled) {
+    return() # already auto-enabled
+  }
+
+  # enable reticulate when in auto mode for this project
+  eval(call(".ps.ui.executeCommand", "positron.reticulate.setAutoEnabled"))
 }
 
 

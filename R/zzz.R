@@ -63,6 +63,12 @@
 
   if (is_positron()) {
 
+    tryCatch({
+      maybe_enable_positron_reticulate_integration()
+    }, error = function(e) {
+      # if we fail to enable, it's likely running in a incompatible Positron version
+    })
+
     setHook("reticulate.onPyInit", function() {
 
       disable <- nzchar(Sys.getenv("_RETICULATE_POSITRON_DISABLE_VARIABLE_INSPECTORS_"))
@@ -98,6 +104,27 @@
       }
     })
   }
+}
+
+
+maybe_enable_positron_reticulate_integration <- function() {
+  is_not_auto <- eval(call(
+    ".ps.ui.evaluateWhenClause", 
+    "config.positron.reticulate.enabled != 'auto'"
+  ))
+
+  if (is_not_auto) {
+    return() # user has explicitly set it to always or never
+  }
+
+  # is it auto enabled in this project?
+  is_auto_enabled <- eval(call(".ps.ui.executeCommand", "positron.reticulate.isAutoEnabled"))
+  if (is_auto_enabled) {
+    return() # already auto-enabled
+  }
+
+  # enable reticulate when in auto mode for this project
+  eval(call(".ps.ui.executeCommand", "positron.reticulate.setAutoEnabled"))
 }
 
 

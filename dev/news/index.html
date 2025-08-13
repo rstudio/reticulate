@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">reticulate</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">1.43.0.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">1.43.0.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,7 +46,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="reticulate-development-version">reticulate (development version)<a class="anchor" aria-label="anchor" href="#reticulate-development-version"></a></h2>
-<ul><li><p>Restored compatability with <code>uv</code> versions &gt;= 0.8.0 (<a href="https://github.com/rstudio/reticulate/issues/1818" class="external-link">#1818</a>).</p></li>
+<ul><li><p>Adds support for requesting Python versions with a wildcard pattern <code>x.x.*</code> such as <code>==3.12.*</code> in <code><a href="../reference/virtualenv-tools.html">virtualenv_starter()</a></code>, <code><a href="../reference/py_require.html">py_require()</a></code>, and related functions (<a href="https://github.com/rstudio/reticulate/issues/1825" class="external-link">#1825</a>)</p></li>
+<li><p>Restored compatability with <code>uv</code> versions &gt;= 0.8.0 (<a href="https://github.com/rstudio/reticulate/issues/1818" class="external-link">#1818</a>).</p></li>
 <li><p><code><a href="../reference/py_require.html">py_require()</a></code> now gives a better message when a user erroneously declares a module from the Python standard library as a required package (<a href="https://github.com/lazappi" class="external-link">@lazappi</a>, <a href="https://github.com/rstudio/reticulate/issues/1788" class="external-link">#1788</a>)</p></li>
 <li><p>Positron’s reticulate integration will now be automatically enabled when the reticulate package is loaded in Positron (<a href="https://github.com/rstudio/reticulate/issues/1822" class="external-link">#1822</a>).</p></li>
 </ul></div>

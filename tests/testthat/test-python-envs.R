@@ -49,3 +49,21 @@ test_that("virtualenv utility functions work as expected", {
   expect_false('reticulate-testthat' %in% virtualenv_list())
 
 })
+
+test_that("Python version checker support a 'x.x.*' pattern", {
+  check <- as_version_constraint_checkers("==3.12.*")
+  expect_false(check[[1]]("3.9"))
+  expect_true(check[[1]]("3.12"))
+})
+
+test_that("Python version checker returns expected error message", {
+  check <- as_version_constraint_checkers("==3.12.-")
+  expect_error(check[[1]]("3.12"), "Version `==3.12.-` is not valid.")
+})
+
+test_that("Python version checker does not support pattern 'x.*.x'", {
+  check <- as_version_constraint_checkers(">=3.*.11")
+  expect_false(check[[1]]("3.12"))
+  expect_false(check[[1]]("4.1"))
+})
+

@@ -1,6 +1,6 @@
 # reticulate (development version)
 
-- Adds support for Python versions with a pattern of `x.x.*` such as `==3.12.*`.
+- Adds support for requesting Python versions with a wildcard pattern `x.x.*` such as `==3.12.*` in `virtualenv_starter()`, `py_require()`, and related functions (#1825)
 
 - Restored compatability with `uv` versions >= 0.8.0 (#1818).
 

@@ -1,11 +1,13 @@
 # reticulate (development version)
 
+- Cleanup of internal miniconda-related code paths (@nathanweeks, #1824)
+
 - Restored compatability with `uv` versions >= 0.8.0 (#1818).
 
 - `py_require()` now gives a better message when a user erroneously declares
    a module from the Python standard library as a required package (@lazappi, #1788)
 
-- Positron's reticulate integration will now be automatically enabled when 
+- Positron's reticulate integration will now be automatically enabled when
   the reticulate package is loaded in Positron (#1822).
 
 # reticulate 1.43.0

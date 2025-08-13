@@ -683,12 +683,15 @@ as_version_constraint_checkers <- function(version) {
   version <- unlist(strsplit(version, ",", fixed = TRUE))
 
   # given string like ">=3.8", match two groups, on ">=" and "3.8"
-  pattern <- "^([><=!]{0,2})\\s*([0-9.a-zA-Z]*)"
+  pattern <- "^([><=!]{0,2})\\s*([0-9.a-zA-Z*]*)"
 
   op <- sub(pattern, "\\1",  version)
   op[op == ""] <- "=="
 
   ver_string <- sub(pattern, "\\2",  version)
+
+  ver_string <- sub('\\.\\*$', '', ver_string)
+
   ver <- numeric_version(ver_string, strict = FALSE)
 
   .mapply(function(op, ver, ver_string) {

@@ -1,5 +1,7 @@
 # reticulate (development version)
 
+- Adds support for Python versions with a pattern of `x.x.*` such as `==3.12.*`.
+
 - Restored compatability with `uv` versions >= 0.8.0 (#1818).
 
 - `py_require()` now gives a better message when a user erroneously declares

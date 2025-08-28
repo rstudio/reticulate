@@ -61,8 +61,9 @@
 #' The conda environment to use. For `use_condaenv()`, this can be the name,
 #' the absolute prefix path, or the absolute path to the python binary. If
 #' the name is ambiguous, the first environment is used and a warning is
-#' issued. For `use_miniconda()`, the only conda installation searched is
-#' the one installed by `install_miniconda()`.
+#' issued. For `use_miniconda()` or `use_miniforge()`, the only conda 
+#' installation searched is the one installed by `install_miniconda()` or 
+#' `install_miniforge()`.
 #'
 #' @param conda
 #'   The path to a `conda` executable. By default, `reticulate` will check the
@@ -274,6 +275,33 @@ use_miniconda <- function(condaenv = NULL, required = NULL) {
     required = required
   )
 
+}
+
+#' @rdname use_python
+#' @export
+use_miniforge <- function(condaenv = NULL, required = NULL) {
+  
+  required <- required %||% use_python_required()
+  
+  # check that Miniforge is installed
+  if (!miniforge_exists()) {
+    
+    msg <- paste(
+      "Miniforge is not installed.",
+      "Use reticulate::install_miniforge() to install Miniforge",
+      sep = "\n"
+    )
+    stop(msg)
+    
+  }
+  
+  # use it
+  use_condaenv(
+    condaenv = condaenv,
+    conda = miniforge_conda(),
+    required = required
+  )
+  
 }
 
 use_python_required <- function() {

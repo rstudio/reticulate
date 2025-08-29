@@ -103,6 +103,7 @@
         }
       }
     })
+  }
 
   maybe_clear_uv_cache()
 

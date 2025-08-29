@@ -103,13 +103,56 @@
         }
       }
     })
+
+  maybe_clear_uv_cache()
+
+}
+
+
+maybe_clear_uv_cache <- function() {
+
+  cache_dir <- reticulate_cache_dir("uv")
+  if (!dir.exists(cache_dir))
+    return()
+
+  if (is_windows()) {
+    # windows records a 'file creation time', so we can just access that
+    # (also, file system ops are painfully slow on windows)
+    created <- file.info(cache_dir, extra_cols = FALSE)$ctime
+  } else {
+    path <- file.path(cache_dir, "created-time")
+    created <- tryCatch(
+      suppressWarnings(
+        .POSIXct(scan(path, n = 1, quiet = TRUE))
+      ),
+      error = function(e) {
+        cat(created <- Sys.time(), file = path)
+        created
+      }
+    )
   }
+
+  max_age <- getOption(
+    "reticulate.max_cache_age",
+    as.difftime(120, units = "days")
+  )
+
+  actual_age <- difftime(Sys.time(), created, units = units(max_age))
+
+  if (actual_age > max_age) {
+    if (Sys.getenv("UV_OFFLINE") == "1")
+      return()
+    packageStartupMessage("Clearing reticulate cache...", appendLF = FALSE)
+    unlink(cache_dir, recursive = TRUE, force = TRUE)
+    packageStartupMessage("Done!")
+  }
+
 }
 
 
 maybe_enable_positron_reticulate_integration <- function() {
   is_not_auto <- eval(call(
-    ".ps.ui.evaluateWhenClause", 
+    ".ps.ui.evaluateWhenClause",
     "config.positron.reticulate.enabled != 'auto'"
   ))
 

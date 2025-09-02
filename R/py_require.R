@@ -602,7 +602,12 @@ uv_binary <- function(bootstrap_install = TRUE) {
   repeat {
     uv <- Sys.getenv("RETICULATE_UV", NA)
     if (!is.na(uv)) {
-      if (uv == "managed") break else return(uv)
+      if (uv == "managed") {
+        on.exit(Sys.setenv(RETICULATE_UV = uv), add = TRUE)
+        break
+      } else {
+        return(uv)
+      }
     }
 
     uv <- getOption("reticulate.uv_binary")
@@ -614,7 +619,7 @@ uv_binary <- function(bootstrap_install = TRUE) {
     # observed to be 0.2s for just `uv --version`
     # This is a an approach to avoid paying that cost on each invocation
     # This is mostly motivated by uv_run_tool(),
-    on.exit(options(reticulate.uv_binary = uv))
+    on.exit(options(reticulate.uv_binary = uv), add = TRUE)
 
     uv <- as.character(Sys.which("uv"))
     if (is_usable_uv(uv)) {
@@ -640,7 +645,7 @@ uv_binary <- function(bootstrap_install = TRUE) {
 
   if (file.exists(uv)) {
     # exists, but version too old
-    unlink(dirname(uv), recursive = TRUE)
+    unlink(reticulate_cache_dir("uv"), recursive = TRUE, force = TRUE)
     ## We don't do `system2(uv, "self update")` because self update is only
     ## supported on a "managed" uv installations, and uv only supports one
     ## managed installation per system. uv installs and maintains a config file

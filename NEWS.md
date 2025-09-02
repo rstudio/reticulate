@@ -1,5 +1,7 @@
 # reticulate (development version)
 
+- `install_miniconda()` now installs miniforge instead of miniconda (#1800, #1820).
+
 - Adds support for requesting Python versions with a wildcard pattern `x.x.*` such as `==3.12.*` in `virtualenv_starter()`, `py_require()`, and related functions (#1825)
 
 - Restored compatability with `uv` versions >= 0.8.0 (#1818).

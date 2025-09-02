@@ -559,6 +559,32 @@ py_reqs_get <- function(x = NULL) {
 
 # uv ---------------------------------------------------------------------------
 
+maybe_clear_reticulate_uv_cache <- function(uv_exe) {
+  if (!file.exists(uv_exe))
+    return()
+
+  max_age <- getOption(
+    "reticulate.max_cache_age",
+    as.difftime(120, units = "days")
+  )
+  uv_exe_mtime <- file.info(uv_exe, extra_cols = FALSE)$mtime
+  actual_age <- difftime(Sys.time(), uv_exe_mtime, units = units(max_age))
+
+  if (actual_age > max_age) {
+    if (Sys.getenv("UV_OFFLINE") == "1")
+      return()
+
+    cache_dir <- reticulate_cache_dir("uv")
+    # best-effort; avoid surfacing errors
+    message("Clearing reticulate's uv cache...", appendLF = FALSE)
+    suppressWarnings(tryCatch(
+      unlink(cache_dir, recursive = TRUE, force = TRUE),
+      error = function(e) NULL
+    ))
+    message("Done!")
+  }
+}
+
 uv_binary <- function(bootstrap_install = TRUE) {
   min_uv_version <- numeric_version("0.6.3")
   is_usable_uv <- function(uv) {
@@ -605,6 +631,9 @@ uv_binary <- function(bootstrap_install = TRUE) {
 
   uv <- reticulate_cache_dir("uv", "bin", if (is_windows()) "uv.exe" else "uv")
   attr(uv, "reticulate-managed") <- TRUE
+
+  maybe_clear_reticulate_uv_cache(uv)
+
   if (is_usable_uv(uv)) {
     return(uv)
   }

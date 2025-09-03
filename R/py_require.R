@@ -646,7 +646,7 @@ uv_binary <- function(bootstrap_install = TRUE) {
       return(NULL)
       # stop("Unable to download Python dependencies. Please install `uv` manually.")
     }
-    message("Done!", appendLF = FALSE)
+    message("Done!")
     if (debug_uv <- Sys.getenv("_RETICULATE_DEBUG_UV_") == "1")
       system2 <- system2t
 

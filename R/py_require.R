@@ -601,6 +601,7 @@ uv_binary <- function(bootstrap_install = TRUE) {
     # This is a an approach to avoid paying that cost on each invocation
     # This is mostly motivated by uv_run_tool(),
     on.exit(options(reticulate.uv_binary = uv), add = TRUE)
+    maybe_clear_reticulate_uv_cache()
 
     uv <- as.character(Sys.which("uv"))
     if (is_usable_uv(uv)) {
@@ -617,8 +618,6 @@ uv_binary <- function(bootstrap_install = TRUE) {
 
   uv <- reticulate_cache_dir("uv", "bin", if (is_windows()) "uv.exe" else "uv")
   attr(uv, "reticulate-managed") <- TRUE
-
-  maybe_clear_reticulate_uv_cache(uv)
 
   if (is_usable_uv(uv)) {
     return(uv)
@@ -1091,8 +1090,9 @@ uv_diff_exclude_newer <- function(from = -3L, to = Sys.Date(),
 }
 
 
-maybe_clear_reticulate_uv_cache <- function(uv_exe) {
-  if (!file.exists(uv_exe))
+maybe_clear_reticulate_uv_cache <- function() {
+  uv <- reticulate_cache_dir("uv", "bin", if (is_windows()) "uv.exe" else "uv")
+  if (!file.exists(uv))
     return()
 
   max_age <- getOption(
@@ -1104,8 +1104,8 @@ maybe_clear_reticulate_uv_cache <- function(uv_exe) {
   if (!inherits(max_age, "difftime"))
     return()
 
-  uv_exe_ctime <- file.info(uv_exe, extra_cols = FALSE)$ctime
-  actual_age <- difftime(Sys.time(), uv_exe_ctime, units = units(max_age))
+  uv_ctime <- file.info(uv, extra_cols = FALSE)$ctime
+  actual_age <- difftime(Sys.time(), uv_ctime, units = units(max_age))
 
   if (actual_age > max_age) {
     if (Sys.getenv("UV_OFFLINE") == "1")

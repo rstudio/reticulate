@@ -196,9 +196,12 @@ system commands to <code>uv</code>:</p>
 <p>If an existing installation of <code>uv</code> is not found, <code>reticulate</code> will
 automatically download and store it, along with other downloaded artifacts
 and ephemeral environments, in the <code>tools::R_user_dir("reticulate", "cache")</code>
-directory. To clear this cache, delete the directory:</p>
+directory. To clear this cache manually, delete the directory:</p>
 <p></p><div class="sourceCode r"><pre><code><span><span class="co"># delete uv, ephemeral virtual environments, and all downloaded artifacts</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="fu">tools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/tools/userdir.html" class="external-link">R_user_dir</a></span><span class="op">(</span><span class="st">"reticulate"</span>, <span class="st">"cache"</span><span class="op">)</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre><p></p></div>
+<p>Reticulate also clears its managed cache automatically on an interval,
+defaulting to every 120 days. Configure this interval in <code>.Rprofile</code> with:</p>
+<p></p><div class="sourceCode r"><pre><code><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>reticulate.max_cache_age <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/difftime.html" class="external-link">as.difftime</a></span><span class="op">(</span><span class="fl">30</span>, units <span class="op">=</span> <span class="st">"days"</span><span class="op">)</span><span class="op">)</span></span></code></pre><p></p></div>
 </div>
 
     </div>

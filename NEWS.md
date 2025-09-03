@@ -1,5 +1,8 @@
 # reticulate (development version)
 
+- Reticulate now clears its cache automatically every 120 days. Configure the interval 
+  in `.Rprofile` with: `options(reticulate.max_cache_age = as.difftime(30, units = "days"))`.
+
 - Adds support for requesting Python versions with a wildcard pattern `x.x.*` such as `==3.12.*` in `virtualenv_starter()`, `py_require()`, and related functions (#1825)
 
 - Restored compatability with `uv` versions >= 0.8.0 (#1818).

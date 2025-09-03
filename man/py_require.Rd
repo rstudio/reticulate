@@ -156,10 +156,16 @@ rm -r "$(uv tool dir)"
 If an existing installation of \code{uv} is not found, \code{reticulate} will
 automatically download and store it, along with other downloaded artifacts
 and ephemeral environments, in the \code{tools::R_user_dir("reticulate", "cache")}
-directory. To clear this cache, delete the directory:
+directory. To clear this cache manually, delete the directory:
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{# delete uv, ephemeral virtual environments, and all downloaded artifacts
 unlink(tools::R_user_dir("reticulate", "cache"), recursive = TRUE)
+}\if{html}{\out{</div>}}
+
+Reticulate also clears its managed cache automatically on an interval,
+defaulting to every 120 days. Configure this interval in \code{.Rprofile} with:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{options(reticulate.max_cache_age = as.difftime(30, units = "days"))
 }\if{html}{\out{</div>}}
 }
 }

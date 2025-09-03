@@ -107,11 +107,18 @@
 #' If an existing installation of `uv` is not found, `reticulate` will
 #' automatically download and store it, along with other downloaded artifacts
 #' and ephemeral environments, in the `tools::R_user_dir("reticulate", "cache")`
-#' directory. To clear this cache, delete the directory:
+#' directory. To clear this cache manually, delete the directory:
 #'
 #' ```r
 #' # delete uv, ephemeral virtual environments, and all downloaded artifacts
 #' unlink(tools::R_user_dir("reticulate", "cache"), recursive = TRUE)
+#' ```
+#'
+#' Reticulate also clears its managed cache automatically on an interval,
+#' defaulting to every 120 days. Configure this interval in `.Rprofile` with:
+#'
+#' ```r
+#' options(reticulate.max_cache_age = as.difftime(30, units = "days"))
 #' ```
 #'
 #' @param packages A character vector of Python packages to be available during
@@ -576,7 +583,12 @@ uv_binary <- function(bootstrap_install = TRUE) {
   repeat {
     uv <- Sys.getenv("RETICULATE_UV", NA)
     if (!is.na(uv)) {
-      if (uv == "managed") break else return(uv)
+      if (uv == "managed") {
+        on.exit(Sys.setenv(RETICULATE_UV = uv), add = TRUE)
+        break
+      } else {
+        return(uv)
+      }
     }
 
     uv <- getOption("reticulate.uv_binary")
@@ -584,11 +596,12 @@ uv_binary <- function(bootstrap_install = TRUE) {
       if (uv == "managed") break else return(uv)
     }
 
-    # on Windows, the invocation cost of `uv`` is non-negligible.
-    # observed to be 0.2s for just `uv --version`
-    # This is a an approach to avoid paying that cost on each invocation
-    # This is mostly motivated by uv_run_tool(),
-    on.exit(options(reticulate.uv_binary = uv))
+    # on Windows, the invocation cost of `uv` is non-negligible,
+    # observed to be 0.2s for just `uv --version`.
+    # This is an approach to avoid paying that cost on each invocation, mostly
+    # motivated by uv_run_tool()
+    on.exit(options(reticulate.uv_binary = uv), add = TRUE)
+    maybe_clear_reticulate_uv_cache()
 
     uv <- as.character(Sys.which("uv"))
     if (is_usable_uv(uv)) {
@@ -605,13 +618,14 @@ uv_binary <- function(bootstrap_install = TRUE) {
 
   uv <- reticulate_cache_dir("uv", "bin", if (is_windows()) "uv.exe" else "uv")
   attr(uv, "reticulate-managed") <- TRUE
+
   if (is_usable_uv(uv)) {
     return(uv)
   }
 
   if (file.exists(uv)) {
     # exists, but version too old
-    unlink(dirname(uv), recursive = TRUE)
+    unlink(reticulate_cache_dir("uv"), recursive = TRUE, force = TRUE)
     ## We don't do `system2(uv, "self update")` because self update is only
     ## supported on a "managed" uv installations, and uv only supports one
     ## managed installation per system. uv installs and maintains a config file
@@ -624,13 +638,15 @@ uv_binary <- function(bootstrap_install = TRUE) {
     # https://github.com/astral-sh/uv/blob/main/docs/configuration/installer.md
     dir.create(dirname(uv), showWarnings = FALSE, recursive = TRUE)
     file_ext <- if (is_windows()) ".ps1" else ".sh"
-    url <- paste0("https://astral.sh/uv/0.7.22/install", file_ext)
+    url <- paste0("https://astral.sh/uv/install", file_ext)
     install_uv <- tempfile("install-uv-", fileext = file_ext)
+    message("Downloading uv...", appendLF = FALSE)
     download.file(url, install_uv, quiet = TRUE)
     if (!file.exists(install_uv)) {
       return(NULL)
       # stop("Unable to download Python dependencies. Please install `uv` manually.")
     }
+    message("Done!")
     if (debug_uv <- Sys.getenv("_RETICULATE_DEBUG_UV_") == "1")
       system2 <- system2t
 
@@ -1071,4 +1087,37 @@ uv_diff_exclude_newer <- function(from = -3L, to = Sys.Date(),
     )
   }
   manifest
+}
+
+
+maybe_clear_reticulate_uv_cache <- function() {
+  uv <- reticulate_cache_dir("uv", "bin", if (is_windows()) "uv.exe" else "uv")
+  if (!file.exists(uv))
+    return()
+
+  max_age <- getOption(
+    "reticulate.max_cache_age",
+    as.difftime(120, units = "days")
+  )
+  if (is.na(max_age))
+    return()
+  if (!inherits(max_age, "difftime"))
+    return()
+
+  uv_ctime <- file.info(uv, extra_cols = FALSE)$ctime
+  actual_age <- difftime(Sys.time(), uv_ctime, units = units(max_age))
+
+  if (actual_age > max_age) {
+    if (Sys.getenv("UV_OFFLINE") == "1")
+      return()
+
+    cache_dir <- reticulate_cache_dir("uv")
+    # best-effort; avoid surfacing errors
+    message("Clearing reticulate's uv cache...", appendLF = FALSE)
+    suppressWarnings(tryCatch(
+      unlink(cache_dir, recursive = TRUE, force = TRUE),
+      error = function(e) NULL
+    ))
+    message("Done!")
+  }
 }

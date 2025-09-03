@@ -67,6 +67,7 @@ py_require_tested_packages()
 
 uninstall_system_uv <- function() {
   withr::local_envvar(c("NO_COLOR" = "1"))
+  withr::local_path(path.expand("~/.local/bin"), action = "suffix")
   cache_dir <- system("uv cache dir", intern = TRUE) %error% NULL
   python_dir <- system("uv python dir", intern = TRUE) %error% NULL
   tool_dir <- system("uv tool dir", intern = TRUE) %error% NULL

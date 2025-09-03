@@ -104,12 +104,14 @@
       }
     })
   }
+
+
 }
 
 
 maybe_enable_positron_reticulate_integration <- function() {
   is_not_auto <- eval(call(
-    ".ps.ui.evaluateWhenClause", 
+    ".ps.ui.evaluateWhenClause",
     "config.positron.reticulate.enabled != 'auto'"
   ))
 

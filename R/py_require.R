@@ -107,11 +107,18 @@
 #' If an existing installation of `uv` is not found, `reticulate` will
 #' automatically download and store it, along with other downloaded artifacts
 #' and ephemeral environments, in the `tools::R_user_dir("reticulate", "cache")`
-#' directory. To clear this cache, delete the directory:
+#' directory. To clear this cache manually, delete the directory:
 #'
 #' ```r
 #' # delete uv, ephemeral virtual environments, and all downloaded artifacts
 #' unlink(tools::R_user_dir("reticulate", "cache"), recursive = TRUE)
+#' ```
+#'
+#' Reticulate also clears its managed cache automatically on an interval,
+#' defaulting to every 120 days. Configure this interval in `.Rprofile` with:
+#'
+#' ```r
+#' options(reticulate.max_cache_age = as.difftime(30, units = "days"))
 #' ```
 #'
 #' @param packages A character vector of Python packages to be available during

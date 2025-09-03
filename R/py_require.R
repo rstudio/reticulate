@@ -1090,6 +1090,11 @@ maybe_clear_reticulate_uv_cache <- function(uv_exe) {
     "reticulate.max_cache_age",
     as.difftime(120, units = "days")
   )
+  if (is.na(max_age))
+    return()
+  if (!inherits(max_age, "difftime"))
+    return()
+
   uv_exe_mtime <- file.info(uv_exe, extra_cols = FALSE)$mtime
   actual_age <- difftime(Sys.time(), uv_exe_mtime, units = units(max_age))
 

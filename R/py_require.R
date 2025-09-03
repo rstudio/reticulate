@@ -596,10 +596,10 @@ uv_binary <- function(bootstrap_install = TRUE) {
       if (uv == "managed") break else return(uv)
     }
 
-    # on Windows, the invocation cost of `uv`` is non-negligible.
-    # observed to be 0.2s for just `uv --version`
-    # This is a an approach to avoid paying that cost on each invocation
-    # This is mostly motivated by uv_run_tool(),
+    # on Windows, the invocation cost of `uv` is non-negligible,
+    # observed to be 0.2s for just `uv --version`.
+    # This is an approach to avoid paying that cost on each invocation, mostly
+    # motivated by uv_run_tool()
     on.exit(options(reticulate.uv_binary = uv), add = TRUE)
     maybe_clear_reticulate_uv_cache()
 

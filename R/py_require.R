@@ -1095,8 +1095,8 @@ maybe_clear_reticulate_uv_cache <- function(uv_exe) {
   if (!inherits(max_age, "difftime"))
     return()
 
-  uv_exe_mtime <- file.info(uv_exe, extra_cols = FALSE)$mtime
-  actual_age <- difftime(Sys.time(), uv_exe_mtime, units = units(max_age))
+  uv_exe_ctime <- file.info(uv_exe, extra_cols = FALSE)$ctime
+  actual_age <- difftime(Sys.time(), uv_exe_ctime, units = units(max_age))
 
   if (actual_age > max_age) {
     if (Sys.getenv("UV_OFFLINE") == "1")

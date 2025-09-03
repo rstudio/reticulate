@@ -641,11 +641,13 @@ uv_binary <- function(bootstrap_install = TRUE) {
     file_ext <- if (is_windows()) ".ps1" else ".sh"
     url <- paste0("https://astral.sh/uv/install", file_ext)
     install_uv <- tempfile("install-uv-", fileext = file_ext)
+    message("Downloading uv...", appendLF = FALSE)
     download.file(url, install_uv, quiet = TRUE)
     if (!file.exists(install_uv)) {
       return(NULL)
       # stop("Unable to download Python dependencies. Please install `uv` manually.")
     }
+    message("Done!", appendLF = FALSE)
     if (debug_uv <- Sys.getenv("_RETICULATE_DEBUG_UV_") == "1")
       system2 <- system2t
 

@@ -636,6 +636,11 @@ uv_binary <- function(bootstrap_install = TRUE) {
   if (bootstrap_install) {
     # Install 'uv' in the 'r-reticulate' sub-folder inside the user's cache directory
     # https://github.com/astral-sh/uv/blob/main/docs/configuration/installer.md
+
+    # Ensure the cache directory is empty, in case an earlier
+    # cache clear action was interrupted.
+    unlink(dirname(dirname(uv)), recursive = TRUE, force = TRUE)
+
     dir.create(dirname(uv), showWarnings = FALSE, recursive = TRUE)
     file_ext <- if (is_windows()) ".ps1" else ".sh"
     url <- paste0("https://astral.sh/uv/install", file_ext)
@@ -1114,10 +1119,17 @@ maybe_clear_reticulate_uv_cache <- function() {
     cache_dir <- reticulate_cache_dir("uv")
     # best-effort; avoid surfacing errors
     message("Clearing reticulate's uv cache...", appendLF = FALSE)
-    suppressWarnings(tryCatch(
-      unlink(cache_dir, recursive = TRUE, force = TRUE),
-      error = function(e) NULL
-    ))
+    tryCatch(
+      {
+        # Delete the uv binary first, so if the unlink(cache_dir) call is interrupted,
+        # the cache is still invalidated and we trigger a fresh bootstrap install on next run.
+        # The delete command is re-run before bootstrapping to double-check/confirm
+        # the cache_dir is empty.
+        unlink(uv, force = TRUE)
+        unlink(cache_dir, recursive = TRUE, force = TRUE)
+      },
+      error = warning
+    )
     message("Done!")
   }
 }

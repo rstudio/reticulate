@@ -17,6 +17,7 @@ using namespace Rcpp;
 
 #include <fstream>
 #include <time.h>
+#include <cstdint>
 
 #ifndef _WIN32
 #include <dlfcn.h>
@@ -1195,6 +1196,24 @@ std::string conditionMessage_from_py_exception(PyObjectRef exc) {
   return conditionMessage_from_py_exception(exc.get());
 }
 
+// check if a Python integer fits in R integer range (32-bit signed: -2^31 to 2^31-1)
+bool python_int_fits_r_int(PyObject* x) {
+  if (!PyInt_Check(x) && !PyLong_Check(x))
+    return false;
+  
+  // Try to get the value as a long long to check range
+  long long val = PyLong_AsLongLong(x);
+  
+  // Check for Python error (overflow during conversion)
+  if (PyErr_Occurred()) {
+    PyErr_Clear();
+    return false;
+  }
+  
+  // R integers are 32-bit signed: range from -2,147,483,648 to 2,147,483,647
+  return (val >= INT32_MIN && val <= INT32_MAX);
+}
+
 // check whether the PyObject can be mapped to an R scalar type
 int r_scalar_type(PyObject* x) {
 
@@ -1202,8 +1221,13 @@ int r_scalar_type(PyObject* x) {
     return LGLSXP;
 
   // integer
-  else if (PyInt_Check(x) || PyLong_Check(x))
-    return INTSXP;
+  else if (PyInt_Check(x) || PyLong_Check(x)) {
+    // Check if the integer fits in R integer range
+    if (python_int_fits_r_int(x))
+      return INTSXP;
+    else
+      return REALSXP;  // Large integers become R numeric (double)
+  }
 
   // double
   else if (PyFloat_Check(x))
@@ -1228,18 +1252,72 @@ int scalar_list_type(PyObject* x) {
   if (len == 0)
     return NILSXP;
 
-  PyObject* first = PyList_GetItem(x, 0);
-  int scalarType = r_scalar_type(first);
-  if (scalarType == NILSXP)
-    return NILSXP;
-
-  for (Py_ssize_t i = 1; i<len; i++) {
-    PyObject* next = PyList_GetItem(x, i);
-    if (r_scalar_type(next) != scalarType)
-      return NILSXP;
+  // Check if all items are numeric (int or float)
+  bool all_numeric = true;
+  bool has_reals = false;
+  bool has_complex = false;
+  bool has_logical = false;
+  bool has_string = false;
+  
+  for (Py_ssize_t i = 0; i < len; i++) {
+    PyObject* item = PyList_GetItem(x, i);
+    int itemType = r_scalar_type(item);
+    
+    if (itemType == NILSXP) {
+      all_numeric = false;
+      break;
+    } else if (itemType == REALSXP) {
+      has_reals = true;
+    } else if (itemType == CPLXSXP) {
+      has_complex = true;
+      all_numeric = false;
+    } else if (itemType == LGLSXP) {
+      has_logical = true;
+      all_numeric = false;
+    } else if (itemType == STRSXP) {
+      has_string = true;
+      all_numeric = false;
+    }
+    // INTSXP is always numeric, no special handling needed
+  }
+  
+  // If we have any reals (including large integers), return REALSXP
+  if (all_numeric && has_reals)
+    return REALSXP;
+  
+  // If all are integers (small enough to fit in R integers), return INTSXP  
+  if (all_numeric && !has_reals)
+    return INTSXP;
+    
+  // Check for other homogeneous types
+  if (has_complex && !has_reals && !has_logical && !has_string) {
+    // Check if all are complex
+    for (Py_ssize_t i = 0; i < len; i++) {
+      if (r_scalar_type(PyList_GetItem(x, i)) != CPLXSXP)
+        return NILSXP;
+    }
+    return CPLXSXP;
+  }
+  
+  if (has_logical && !has_reals && !has_complex && !has_string) {
+    // Check if all are logical  
+    for (Py_ssize_t i = 0; i < len; i++) {
+      if (r_scalar_type(PyList_GetItem(x, i)) != LGLSXP)
+        return NILSXP;
+    }
+    return LGLSXP;
+  }
+  
+  if (has_string && !has_reals && !has_complex && !has_logical) {
+    // Check if all are strings
+    for (Py_ssize_t i = 0; i < len; i++) {
+      if (r_scalar_type(PyList_GetItem(x, i)) != STRSXP)
+        return NILSXP;
+    }
+    return STRSXP;
   }
 
-  return scalarType;
+  return NILSXP;
 }
 
 bool py_equal(PyObject* x, const std::string& str) {
@@ -1509,8 +1587,17 @@ SEXP py_to_r_cpp(PyObject* x, bool convert, bool simple) {
       return IntegerVector::create(PyInt_AsLong(x));
 
     // double
-    else if (scalarType == REALSXP)
-      return NumericVector::create(PyFloat_AsDouble(x));
+    else if (scalarType == REALSXP) {
+      if (PyFloat_Check(x))
+        return NumericVector::create(PyFloat_AsDouble(x));
+      else if (PyInt_Check(x) || PyLong_Check(x)) {
+        // Large integer that doesn't fit in R integer - convert to double
+        // Warning disabled for now to avoid noise - users can check type in R
+        // Rcpp::warning("Large Python integer converted to R numeric (double) to avoid overflow");
+        return NumericVector::create(PyLong_AsDouble(x));
+      } else
+        return NumericVector::create(PyFloat_AsDouble(x)); // fallback
+    }
 
     // complex
     else if (scalarType == CPLXSXP) {
@@ -1535,8 +1622,15 @@ SEXP py_to_r_cpp(PyObject* x, bool convert, bool simple) {
     int scalarType = scalar_list_type(x);
     if (scalarType == REALSXP) {
       Rcpp::NumericVector vec(len);
-      for (Py_ssize_t i = 0; i<len; i++)
-        vec[i] = PyFloat_AsDouble(PyList_GetItem(x, i));
+      for (Py_ssize_t i = 0; i<len; i++) {
+        PyObject* item = PyList_GetItem(x, i);
+        if (PyFloat_Check(item))
+          vec[i] = PyFloat_AsDouble(item);
+        else if (PyInt_Check(item) || PyLong_Check(item))
+          vec[i] = PyLong_AsDouble(item);  // Large integer converted to double
+        else
+          vec[i] = PyFloat_AsDouble(item); // fallback
+      }
       return vec;
     } else if (scalarType == INTSXP) {
       Rcpp::IntegerVector vec(len);

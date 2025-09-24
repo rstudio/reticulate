@@ -903,9 +903,15 @@ py_unicode <- function(str) {
 #'
 #' @export
 with.python.builtin.object <- function(data, expr, as = NULL, ...) {
-
   # enter the context
   context <- data$`__enter__`()
+
+  # ensure __exit__ sees real exception information when errors bubble out
+  exc_type <- exc_value <- exc_tb <- NULL
+  on.exit({
+    data$`__exit__`(exc_type, exc_value, exc_tb)
+  }, add = TRUE)
+
 
   # check for as and as_envir
   if (!missing(as)) {
@@ -923,12 +929,20 @@ with.python.builtin.object <- function(data, expr, as = NULL, ...) {
     assign(as, context, envir = envir)
   }
 
-  # evaluate the expression and exit the context
-  tryCatch(force(expr),
-           finally = {
-             data$`__exit__`(NULL, NULL, NULL)
-           }
-          )
+  tryCatch(
+    force(expr),
+    interrupt = function(e) {
+      exc_type <<- py_eval("__builtins__.KeyboardInterrupt")
+      exc_value <<- py_eval("__builtins__.KeyboardInterrupt()")
+      stop(e)
+    },
+    error = function(e) {
+      exc_value <<- if (is_py_object(e)) e else r_to_py(e)
+      exc_type <<- py_get_attr(exc_value, "__class__", TRUE)
+      exc_tb <<- py_get_attr(exc_value, "__traceback__", silent = TRUE)
+      stop(e)
+    }
+  )
 }
 
 #' Create local alias for objects in \code{with} statements.

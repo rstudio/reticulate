@@ -1,6 +1,6 @@
 # reticulate (development version)
 
-- Reticulate now clears its cache automatically every 120 days. Configure the interval 
+- Reticulate now clears its cache automatically every 120 days. Configure the interval
   in `.Rprofile` with: `options(reticulate.max_cache_age = as.difftime(30, units = "days"))`.
 
 - `install_miniconda()` now installs miniforge instead of miniconda (#1800, #1820).
@@ -12,8 +12,11 @@
 - `py_require()` now gives a better message when a user erroneously declares
    a module from the Python standard library as a required package (@lazappi, #1788)
 
-- Positron's reticulate integration will now be automatically enabled when 
+- Positron's reticulate integration will now be automatically enabled when
   the reticulate package is loaded in Positron (#1822).
+
+- `with()` now forwards errors to Python context manager exit handlers
+  (e.g., so database transactions can roll back cleanly) (#1840, #1841)
 
 # reticulate 1.43.0
 

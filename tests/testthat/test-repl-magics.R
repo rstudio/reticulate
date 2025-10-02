@@ -137,3 +137,42 @@ test_that("%conda", {
   # info <- get("get_python_conda_info",asNamespace("reticulate"))(python)
   # unlink(info$root, recursive = TRUE)
 })
+
+test_that("!! respects string literals", {
+
+  local_quiet_repl()
+
+  repl_python(input = '"!!"')
+  expect_identical(py_eval("_"), "!!")
+
+  repl_python(input = '"ab!!cd!!ef"')
+
+  expect_identical(py_eval("_"), "ab!!cd!!ef")
+
+  repl_python(input = "lines = !!ls")
+  expect_equal(py_eval("lines"), system("ls", intern = TRUE))
+
+})
+
+test_that("repl_expand_bangbang handles assignment forms", {
+  expect_identical(
+    reticulate:::repl_expand_bangbang("obj.attr = !!cmd"),
+    "obj.attr = %system cmd"
+  )
+  expect_identical(
+    reticulate:::repl_expand_bangbang("first, second = !!cmd"),
+    "first, second = %system cmd"
+  )
+  expect_identical(
+    reticulate:::repl_expand_bangbang("single, = !!cmd"),
+    "single, = %system cmd"
+  )
+  expect_identical(
+    reticulate:::repl_expand_bangbang("  result = !!cmd"),
+    "  result = %system cmd"
+  )
+  expect_identical(
+    reticulate:::repl_expand_bangbang("value = \"!!\""),
+    "value = \"!!\""
+  )
+})

@@ -18,6 +18,10 @@
 - `with()` now forwards errors to Python context manager exit handlers
   (e.g., so database transactions can roll back cleanly) (#1840, #1841)
 
+- Fixed `!!` in string literals being wrongly expanded to a `%system` magic in
+  `repl_python()`. Added support for assigning `%system` command output to multiple
+  variables via unpacking (#1844).
+
 # reticulate 1.43.0
 
 - Fixed usage of micromamba and mamba, next-generation conda environment management tools.

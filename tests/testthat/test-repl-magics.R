@@ -137,3 +137,50 @@ test_that("%conda", {
   # info <- get("get_python_conda_info",asNamespace("reticulate"))(python)
   # unlink(info$root, recursive = TRUE)
 })
+
+test_that("!! respects string literals", {
+
+  local_quiet_repl()
+
+  repl_python(input = 'x = "!!"')
+  expect_identical(py_eval("x"), "!!")
+
+  repl_python(input = '_ = "ab!!cd!!ef"')
+
+  expect_identical(py_eval("_"), "ab!!cd!!ef")
+
+  files <- system("ls", intern = TRUE)
+  repl_python(input = "files = !!ls")
+  expect_equal(py_eval("files"), files)
+
+  repl_python(input = "first_file, *other_files = !!ls")
+  expect_equal(py_eval("first_file"), files[1])
+  expect_equal(py_eval("other_files"), files[-1])
+
+  repl_python(input = "(first_file, *other_files) = !!ls")
+  expect_equal(py_eval("first_file"), files[1])
+  expect_equal(py_eval("other_files"), files[-1])
+})
+
+test_that("repl_expand_bangbang handles assignment forms", {
+  expect_identical(
+    reticulate:::repl_expand_bangbang("obj.attr = !!cmd"),
+    "obj.attr = %system cmd"
+  )
+  expect_identical(
+    reticulate:::repl_expand_bangbang("first, second = !!cmd"),
+    "first, second = %system cmd"
+  )
+  expect_identical(
+    reticulate:::repl_expand_bangbang("single, = !!cmd"),
+    "single, = %system cmd"
+  )
+  expect_identical(
+    reticulate:::repl_expand_bangbang("  result = !!cmd"),
+    "  result = %system cmd"
+  )
+  expect_identical(
+    reticulate:::repl_expand_bangbang("value = \"!!\""),
+    "value = \"!!\""
+  )
+})

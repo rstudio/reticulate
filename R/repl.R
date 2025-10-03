@@ -268,8 +268,8 @@ repl_python <- function(
 
       if (getOption("reticulate.repl.use_magics", TRUE)) {
 
-        # expand any "!!" as system commands that capture output
-        trimmed <- gsub("!!", "%system ", trimmed)
+        # expand "!!" into %system
+        trimmed <- repl_expand_bangbang(trimmed)
 
         # user intends to capture output from system command in var
         # e.g.:   x = !ls
@@ -290,7 +290,7 @@ repl_python <- function(
 
         # capture output from magic command in var
         #   # e.g.:   x = %env USER
-        if (grepl("^[[:alnum:]_.]\\s*=\\s*%", trimmed)) {
+        if (grepl("^[[:alnum:][:blank:]()_,.*]+=\\s*%", trimmed)) {
           s <- str_split1_on_first(trimmed, "\\s*=\\s*")
           target <- s[[1]]
           magic <- str_drop_prefix(s[2L], "%")
@@ -581,6 +581,15 @@ invoke_magic <- function(command) {
 }
 
 
+# expand bare `!!` magics or `lhs = !!` where lhs is a dotted name or tuple
+repl_expand_bangbang <- function(line) {
+  sub(
+    "^([[:alnum:][:blank:]()_,.*]+=\\s*)!!",
+    "\\1%system ",
+    line,
+    perl = TRUE
+  )
+}
 
 #' IPython console
 #'

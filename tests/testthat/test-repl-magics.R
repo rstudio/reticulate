@@ -142,16 +142,24 @@ test_that("!! respects string literals", {
 
   local_quiet_repl()
 
-  repl_python(input = '"!!"')
-  expect_identical(py_eval("_"), "!!")
+  repl_python(input = 'x = "!!"')
+  expect_identical(py_eval("x"), "!!")
 
-  repl_python(input = '"ab!!cd!!ef"')
+  repl_python(input = '_ = "ab!!cd!!ef"')
 
   expect_identical(py_eval("_"), "ab!!cd!!ef")
 
-  repl_python(input = "lines = !!ls")
-  expect_equal(py_eval("lines"), system("ls", intern = TRUE))
+  files <- system("ls", intern = TRUE)
+  repl_python(input = "files = !!ls")
+  expect_equal(py_eval("files"), files)
 
+  repl_python(input = "first_file, *other_files = !!ls")
+  expect_equal(py_eval("first_file"), files[1])
+  expect_equal(py_eval("other_files"), files[-1])
+
+  repl_python(input = "(first_file, *other_files) = !!ls")
+  expect_equal(py_eval("first_file"), files[1])
+  expect_equal(py_eval("other_files"), files[-1])
 })
 
 test_that("repl_expand_bangbang handles assignment forms", {

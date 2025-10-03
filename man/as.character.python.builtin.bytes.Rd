@@ -39,7 +39,7 @@ options for handling embedded \code{NUL}s:
 Convert Python bytes to an R character or raw vector
 }
 \examples{
-\dontshow{if (reticulate::py_available()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (reticulate::py_available()) withAutoprint(\{ # examplesIf}
 # A bytes object with embedded NULs
 b <- import_builtins(convert = FALSE)$bytes(
   as.raw(c(0x61, 0x20, 0x62, 0x00, 0x63, 0x20, 0x64)) # "a b<NUL>c d"

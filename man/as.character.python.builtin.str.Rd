@@ -29,7 +29,7 @@ unless \code{nul = NULL} was supplied.
 Convert a Python string to an R Character Vector
 }
 \examples{
-\dontshow{if (reticulate::py_available()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (reticulate::py_available()) withAutoprint(\{ # examplesIf}
 # Given a Python function that errors when it attempts to return
 # a string with an embedded NUL
 py_run_string('

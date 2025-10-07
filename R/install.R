@@ -261,19 +261,23 @@ py_list_packages <- function(envname = NULL,
   pip_freeze(python)
 }
 
-
 #' Write and read Python requirements files
 #'
-#' - `py_write_requirements()` writes the requirements tracked by [py_require()]
-#' to the working directory. With `freeze = TRUE`, it writes a fully resolved
-#' set of packages using `uv pip freeze`.
-#' - `py_read_requirements()` reads `requirements.txt` and `.python-version`
+#' @description
+#'
+#' `py_write_requirements()` writes the requirements tracked by [py_require()]
+#' when a reticulate ephemeral virtual environment is active. When `freeze = TRUE`
+#' or when the `python` environment is not ephemeral, it writes a fully resolved
+#' set of packages using `pip freeze`.
+#'
+#' `py_read_requirements()` reads `requirements.txt` and `.python-version`
 #' files and applies them via [py_require()].
 #'
-#' These functions provide an alternative interface to `py_require()`. For users
-#' who prefer to manage their own Python environments, a local virtual
-#' environment can be created from `"requirements.txt"` and `".python-version"`
-#' using [virtualenv_create()], for example:
+#' These functions provide an alternative interface to `py_require()`, but can
+#' also be used with non-ephemeral virtual environments. Users who prefer to
+#' manage their own Python environments can create a local virtual environment
+#' from `"requirements.txt"` and `".python-version"` using [virtualenv_create()],
+#' for example:
 #'
 #' ```r
 #' virtualenv_create(
@@ -291,16 +295,17 @@ py_list_packages <- function(envname = NULL,
 #'   `".python-version"`. Use `NULL` to skip.
 #' @param freeze Logical. If `TRUE`, writes a fully resolved list of installed
 #'   packages using `pip freeze`. If `FALSE`, writes only the requirements
-#'   tracked by [py_require()] (typically when using reticulate's managed
+#'   tracked by [py_require()] (typically when using reticulate’s managed
 #'   ephemeral environment).
 #' @param python Python executable to use.
-#' @param action How to apply the read requirements in `py_read_requirements()`:
-#'   `"add"` (default) adds to existing requirements, `"set"` replaces them, or
-#'   `"remove"` removes matching entries. `"none"` does not call `py_require()`,
-#'   and just returns the read requirements.
+#' @param action How to apply requirements read by `py_read_requirements()`:
+#'   `"add"` (default) adds to existing requirements, `"set"` replaces them,
+#'   `"remove"` removes matching entries, or `"none"` skips applying them and
+#'   returns the read values.
+#' @param ... Unused; must be empty.
 #'
-#' @param ... Unused, must be empty.
-#' @return An invisible list with two named elements:
+#' @return
+#' Invisibly, a list with two named elements:
 #' \describe{
 #'   \item{`packages`}{Character vector of package requirements.}
 #'   \item{`python_version`}{Character vector specifying the Python version.}

@@ -28,41 +28,41 @@ py_read_requirements(
 \item{python_version}{Path to the Python version file. Defaults to
 \code{".python-version"}. Use \code{NULL} to skip.}
 
-\item{...}{Unused, must be empty.}
+\item{...}{Unused; must be empty.}
 
 \item{freeze}{Logical. If \code{TRUE}, writes a fully resolved list of installed
 packages using \verb{pip freeze}. If \code{FALSE}, writes only the requirements
-tracked by \code{\link[=py_require]{py_require()}} (typically when using reticulate's managed
+tracked by \code{\link[=py_require]{py_require()}} (typically when using reticulate’s managed
 ephemeral environment).}
 
 \item{python}{Python executable to use.}
 
-\item{action}{How to apply the read requirements in \code{py_read_requirements()}:
-\code{"add"} (default) adds to existing requirements, \code{"set"} replaces them, or
-\code{"remove"} removes matching entries. \code{"none"} does not call \code{py_require()},
-and just returns the read requirements.}
+\item{action}{How to apply requirements read by \code{py_read_requirements()}:
+\code{"add"} (default) adds to existing requirements, \code{"set"} replaces them,
+\code{"remove"} removes matching entries, or \code{"none"} skips applying them and
+returns the read values.}
 }
 \value{
-An invisible list with two named elements:
+Invisibly, a list with two named elements:
 \describe{
 \item{\code{packages}}{Character vector of package requirements.}
 \item{\code{python_version}}{Character vector specifying the Python version.}
 }
 }
 \description{
-\itemize{
-\item \code{py_write_requirements()} writes the requirements tracked by \code{\link[=py_require]{py_require()}}
-to the working directory. With \code{freeze = TRUE}, it writes a fully resolved
-set of packages using \verb{uv pip freeze}.
-\item \code{py_read_requirements()} reads \code{requirements.txt} and \code{.python-version}
+\code{py_write_requirements()} writes the requirements tracked by \code{\link[=py_require]{py_require()}}
+when a reticulate ephemeral virtual environment is active. When \code{freeze = TRUE}
+or when the \code{python} environment is not ephemeral, it writes a fully resolved
+set of packages using \verb{pip freeze}.
+
+\code{py_read_requirements()} reads \code{requirements.txt} and \code{.python-version}
 files and applies them via \code{\link[=py_require]{py_require()}}.
-}
-}
-\details{
-These functions provide an alternative interface to \code{py_require()}. For users
-who prefer to manage their own Python environments, a local virtual
-environment can be created from \code{"requirements.txt"} and \code{".python-version"}
-using \code{\link[=virtualenv_create]{virtualenv_create()}}, for example:
+
+These functions provide an alternative interface to \code{py_require()}, but can
+also be used with non-ephemeral virtual environments. Users who prefer to
+manage their own Python environments can create a local virtual environment
+from \code{"requirements.txt"} and \code{".python-version"} using \code{\link[=virtualenv_create]{virtualenv_create()}},
+for example:
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{virtualenv_create(
   ".venv",  # auto-discovered by reticulate

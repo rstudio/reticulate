@@ -175,7 +175,7 @@ py_require <- function(packages = NULL,
 
   action <- match.arg(action)
   called_from_package <- isNamespace(topenv(parent.frame()))
-  ephemeral_venv_initialized <- is_epheremal_venv_initialized()
+  ephemeral_venv_initialized <- is_ephemeral_venv_initialized()
   if (missing(packages))
     packages <- NULL
 
@@ -325,7 +325,7 @@ print.python_requirements <- function(x, ...) {
   }
   python_version <- x$python_version
   if (is.null(python_version)) {
-    if(is_epheremal_venv_initialized()) {
+    if(is_ephemeral_venv_initialized()) {
       python_version <- paste0(
         "[No Python version specified. Defaulted to '",
         resolve_python_version() , "']"
@@ -558,7 +558,7 @@ py_reqs_get <- function(x = NULL) {
     return(pr)
   }
   if (x == "python_version") {
-    if (is_epheremal_venv_initialized())
+    if (is_ephemeral_venv_initialized())
       return(as.character(py_version(TRUE)))
   }
   pr[[x]]

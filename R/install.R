@@ -85,7 +85,7 @@ py_install <- function(packages,
 {
   check_forbidden_install("Python packages")
 
-  if (is.null(envname) && is_epheremal_venv_initialized()) {
+  if (is.null(envname) && is_ephemeral_venv_initialized()) {
     if (!is.null(python_version)) {
       stop(
         "Python version requirements cannot be ",
@@ -259,4 +259,132 @@ py_list_packages <- function(envname = NULL,
     return(conda_list_packages(info$root))
 
   pip_freeze(python)
+}
+
+
+#' Write and read Python requirements files
+#'
+#' - `py_write_requirements()` writes the requirements tracked by [py_require()]
+#'   to the working directory. With `freeze = TRUE`, it writes a fully resolved
+#'   set of packages using `uv pip freeze`.
+#' - `py_read_requirements()` reads `requirements.txt` and `.python-version`
+#'   files and applies them via [py_require()].
+#'
+#' These functions provide an alternative interface to `py_require()`. For users
+#' who prefer to manage their own Python environments, a local virtual
+#' environment can be created from `"requirements.txt"` and `".python-version"`
+#' using [virtualenv_create()], for example:
+#'
+#' ```r
+#' virtualenv_create(
+#'   ".venv",  # auto-discovered by reticulate
+#'   version = readLines(".python-version"),
+#'   requirements = "requirements.txt"
+#' )
+#' ```
+#'
+#' @name py_requirements_files
+#'
+#' @param packages Path to the package requirements file. Defaults to
+#'   `"requirements.txt"`. Use `NULL` to skip.
+#' @param python_version Path to the Python version file. Defaults to
+#'   `".python-version"`. Use `NULL` to skip.
+#' @param freeze Logical. If `TRUE`, writes a fully resolved list of installed
+#'   packages using `pip freeze`. If `FALSE`, writes only the requirements
+#'   tracked by [py_require()] (typically when using reticulate's managed
+#'   ephemeral environment).
+#' @param python Python executable to use.
+#' @param action How to apply the read requirements in `py_read_requirements()`:
+#'   `"add"` (default) adds to existing requirements, `"set"` replaces them,
+#'   or `"remove"` removes matching entries.
+#'
+#' @param ... Unused, must be empty.
+#' @return
+#' An invisible list with two named elements:
+#' \describe{
+#'   \item{`packages`}{Character vector of package requirements.}
+#'   \item{`python_version`}{Character vector specifying the Python version.}
+#' }
+#'
+#' @export
+py_write_requirements <- function(
+  packages = "requirements.txt",
+  python_version = ".python-version",
+  ...,
+  freeze = NULL,
+  python = py_exe()
+) {
+  rlang::check_dots_empty()
+  if (
+    (is.null(python) || is_ephemeral_venv_initialized(python)) &&
+    (is.null(freeze) || isFALSE(freeze))
+  ) {
+    reqs <- py_require()
+
+    pkgs <- reqs$packages
+    ver <- reqs$python_version
+    ver <- resolve_python_version(ver)
+    if (is.null(reqs$python_version)) {
+      ver <- sub("\\.[0-9]+$", "", ver)
+    }
+  } else {
+    if (isFALSE(freeze)) {
+      stop(
+        "freeze = FALSE is only supported for environments assembled via py_require()."
+      )
+    }
+
+    pkgs <- uv_exec(
+      c("pip freeze --no-progress --color never --python",
+        maybe_shQuote(python)),
+      stdout = TRUE, stderr = FALSE
+    )
+    ver <- system2(python, c("-E", "-V"), stdout = TRUE)
+    ver <- sub("^Python\\s+", "", ver)
+  }
+
+  if (!is.null(packages))
+    writeLines(pkgs, packages)
+
+  if (!is.null(python_version))
+    writeLines(ver, python_version)
+
+  invisible(list(packages = pkgs, python_version = ver))
+}
+
+#' @rdname py_requirements_files
+#' @export
+py_read_requirements <- function(
+  packages = "requirements.txt",
+  python_version = ".python-version",
+  ...,
+  action = c("add", "set", "remove")
+) {
+  rlang::check_dots_empty()
+  action <- match.arg(action)
+
+  read_requirements <- function(path, stop_if_missing = TRUE) {
+    if (is.null(path)) return(NULL)
+    if (!file.exists(path)) {
+      if (as.logical(stop_if_missing)) {
+        stop(
+          "File '", path, "' does not exist in the current working directory.\n",
+          "Call py_write_requirements() first, or provide a custom path."
+        )
+      } else {
+        return(NULL)
+      }
+    }
+    lines <- readLines(path, warn = FALSE)
+    lines <- trimws(lines)
+    lines <- lines[nzchar(lines) & !startsWith(lines, "#")]
+    lines
+  }
+
+  pkgs <- read_requirements(packages, stop_if_missing = length(packages))
+  py_ver <- read_requirements(python_version, stop_if_missing = FALSE)
+  if (!length(py_ver)) py_ver <- NULL
+
+  py_require(pkgs, py_ver, action = action)
+  invisible(list(packages = pkgs, python_version = py_ver))
 }

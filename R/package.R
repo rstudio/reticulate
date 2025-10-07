@@ -31,8 +31,10 @@ is_python_initialized <- function() {
   !is.null(.globals$py_config)
 }
 
-is_epheremal_venv_initialized <- function() {
-  isTRUE(.globals$py_config$ephemeral)
+is_ephemeral_venv_initialized <- function(python = NULL) {
+  isTRUE(.globals$py_config$ephemeral) && (
+    is.null(python) || python == .globals$py_config$python
+  )
 }
 
 is_python_finalized <- function() {

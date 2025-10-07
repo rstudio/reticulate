@@ -13,6 +13,8 @@ reference:
   - title: "Python Requirements"
     contents:
       - py_require
+      - py_write_requirements
+      - py_read_requirements
 
   - title: "Python Execution"
     contents:

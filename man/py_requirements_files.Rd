@@ -18,7 +18,7 @@ py_read_requirements(
   packages = "requirements.txt",
   python_version = ".python-version",
   ...,
-  action = c("add", "set", "remove")
+  action = c("add", "set", "remove", "none")
 )
 }
 \arguments{
@@ -38,8 +38,9 @@ ephemeral environment).}
 \item{python}{Python executable to use.}
 
 \item{action}{How to apply the read requirements in \code{py_read_requirements()}:
-\code{"add"} (default) adds to existing requirements, \code{"set"} replaces them,
-or \code{"remove"} removes matching entries.}
+\code{"add"} (default) adds to existing requirements, \code{"set"} replaces them, or
+\code{"remove"} removes matching entries. \code{"none"} does not call \code{py_require()},
+and just returns the read requirements.}
 }
 \value{
 An invisible list with two named elements:

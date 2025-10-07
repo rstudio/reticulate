@@ -265,10 +265,10 @@ py_list_packages <- function(envname = NULL,
 #' Write and read Python requirements files
 #'
 #' - `py_write_requirements()` writes the requirements tracked by [py_require()]
-#'   to the working directory. With `freeze = TRUE`, it writes a fully resolved
-#'   set of packages using `uv pip freeze`.
+#' to the working directory. With `freeze = TRUE`, it writes a fully resolved
+#' set of packages using `uv pip freeze`.
 #' - `py_read_requirements()` reads `requirements.txt` and `.python-version`
-#'   files and applies them via [py_require()].
+#' files and applies them via [py_require()].
 #'
 #' These functions provide an alternative interface to `py_require()`. For users
 #' who prefer to manage their own Python environments, a local virtual
@@ -295,12 +295,12 @@ py_list_packages <- function(envname = NULL,
 #'   ephemeral environment).
 #' @param python Python executable to use.
 #' @param action How to apply the read requirements in `py_read_requirements()`:
-#'   `"add"` (default) adds to existing requirements, `"set"` replaces them,
-#'   or `"remove"` removes matching entries.
+#'   `"add"` (default) adds to existing requirements, `"set"` replaces them, or
+#'   `"remove"` removes matching entries. `"none"` does not call `py_require()`,
+#'   and just returns the read requirements.
 #'
 #' @param ... Unused, must be empty.
-#' @return
-#' An invisible list with two named elements:
+#' @return An invisible list with two named elements:
 #' \describe{
 #'   \item{`packages`}{Character vector of package requirements.}
 #'   \item{`python_version`}{Character vector specifying the Python version.}
@@ -358,7 +358,7 @@ py_read_requirements <- function(
   packages = "requirements.txt",
   python_version = ".python-version",
   ...,
-  action = c("add", "set", "remove")
+  action = c("add", "set", "remove", "none")
 ) {
   rlang::check_dots_empty()
   action <- match.arg(action)
@@ -385,6 +385,9 @@ py_read_requirements <- function(
   py_ver <- read_requirements(python_version, stop_if_missing = FALSE)
   if (!length(py_ver)) py_ver <- NULL
 
+  out <- list(packages = pkgs, python_version = py_ver)
+  if (action == "none")
+    return(out)
   py_require(pkgs, py_ver, action = action)
-  invisible(list(packages = pkgs, python_version = py_ver))
+  invisible(out)
 }

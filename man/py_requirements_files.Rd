@@ -51,6 +51,12 @@ Invisibly, a list with two named elements:
 \item{\code{packages}}{Character vector of package requirements.}
 \item{\code{python_version}}{String specifying the Python version.}
 }
+
+To get just the return value without writing any files, you can pass \code{NULL} for file paths, like this:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{py_write_requirements(NULL, NULL)
+py_write_requirements(NULL, NULL, freeze = TRUE)
+}\if{html}{\out{</div>}}
 }
 \description{
 \itemize{
@@ -63,12 +69,15 @@ applies them with \code{\link[=py_require]{py_require()}}. By default, entries a
 
 These are primarily an alternative interface to \code{py_require()}, but can also
 work with non-ephemeral virtual environments.
-
-Note: you can create a local virtual environment from \code{requirements.txt} and
+}
+\note{
+You can create a local virtual environment from \code{requirements.txt} and
 \code{.python-version} using \code{\link[=virtualenv_create]{virtualenv_create()}}:
 
-\if{html}{\out{<div class="sourceCode r">}}\preformatted{virtualenv_create(
-  "./.venv",  # auto-discovered by reticulate
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{# Note: '.venv' in the current directory is auto-discovered by reticulate.
+# https://rstudio.github.io/reticulate/articles/versions.html#order-of-discovery
+virtualenv_create(
+  "./.venv",
   version = readLines(".python-version"),
   requirements = "requirements.txt"
 )

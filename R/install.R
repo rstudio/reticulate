@@ -277,12 +277,15 @@ py_list_packages <- function(envname = NULL,
 #' These are primarily an alternative interface to `py_require()`, but can also
 #' work with non-ephemeral virtual environments.
 #'
-#' Note: you can create a local virtual environment from `requirements.txt` and
+#' @note
+#' You can create a local virtual environment from `requirements.txt` and
 #' `.python-version` using [virtualenv_create()]:
 #'
 #' ```r
+#' # Note: '.venv' in the current directory is auto-discovered by reticulate.
+#' # https://rstudio.github.io/reticulate/articles/versions.html#order-of-discovery
 #' virtualenv_create(
-#'   "./.venv",  # auto-discovered by reticulate
+#'   "./.venv",
 #'   version = readLines(".python-version"),
 #'   requirements = "requirements.txt"
 #' )
@@ -311,6 +314,13 @@ py_list_packages <- function(envname = NULL,
 #'   \item{`packages`}{Character vector of package requirements.}
 #'   \item{`python_version`}{String specifying the Python version.}
 #' }
+#'
+#' To get just the return value without writing any files, you can pass `NULL` for file paths, like this:
+#'
+#' ```r
+#' py_write_requirements(NULL, NULL)
+#' py_write_requirements(NULL, NULL, freeze = TRUE)
+#' ```
 #'
 #' @export
 py_write_requirements <- function(
@@ -363,7 +373,8 @@ py_write_requirements <- function(
     if (!quiet) message("Wrote '", python_version, "'")
   }
 
-  invisible(list(packages = pkgs, python_version = ver))
+  out <- list(packages = pkgs, python_version = ver)
+  if (is.null(packages) && is.null(python_version)) out else invisible(out)
 }
 
 #' @rdname py_requirements_files

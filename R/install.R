@@ -261,27 +261,28 @@ py_list_packages <- function(envname = NULL,
   pip_freeze(python)
 }
 
+
 #' Write and read Python requirements files
 #'
 #' @description
 #'
-#' `py_write_requirements()` writes the requirements tracked by [py_require()]
-#' when a reticulate ephemeral virtual environment is active. When `freeze = TRUE`
-#' or when the `python` environment is not ephemeral, it writes a fully resolved
-#' set of packages using `pip freeze`.
+#' - `py_write_requirements()` writes the requirements currently tracked by
+#' [py_require()]. If `freeze = TRUE` or if the `python` environment is not
+#' ephemeral, it writes a fully resolved manifest via `pip freeze`.
 #'
-#' `py_read_requirements()` reads `requirements.txt` and `.python-version`
-#' files and applies them via [py_require()].
+#' - `py_read_requirements()` reads `requirements.txt` and `.python-version`, and
+#' applies them with [py_require()]. By default, entries are added (`action =
+#' "add"`).
 #'
-#' These functions provide an alternative interface to `py_require()`, but can
-#' also be used with non-ephemeral virtual environments. Users who prefer to
-#' manage their own Python environments can create a local virtual environment
-#' from `"requirements.txt"` and `".python-version"` using [virtualenv_create()],
-#' for example:
+#' These are primarily an alternative interface to `py_require()`, but can also
+#' work with non-ephemeral virtual environments.
+#'
+#' Note: you can create a local virtual environment from `requirements.txt` and
+#' `.python-version` using [virtualenv_create()]:
 #'
 #' ```r
 #' virtualenv_create(
-#'   ".venv",  # auto-discovered by reticulate
+#'   "./.venv",  # auto-discovered by reticulate
 #'   version = readLines(".python-version"),
 #'   requirements = "requirements.txt"
 #' )
@@ -295,20 +296,20 @@ py_list_packages <- function(envname = NULL,
 #'   `".python-version"`. Use `NULL` to skip.
 #' @param freeze Logical. If `TRUE`, writes a fully resolved list of installed
 #'   packages using `pip freeze`. If `FALSE`, writes only the requirements
-#'   tracked by [py_require()] (typically when using reticulate’s managed
-#'   ephemeral environment).
-#' @param python Python executable to use.
+#'   tracked by [py_require()].
+#' @param python Path to the Python executable to use.
 #' @param action How to apply requirements read by `py_read_requirements()`:
 #'   `"add"` (default) adds to existing requirements, `"set"` replaces them,
 #'   `"remove"` removes matching entries, or `"none"` skips applying them and
 #'   returns the read values.
 #' @param ... Unused; must be empty.
+#' @param quiet Logical; if `TRUE`, suppresses the informational messages that
+#'   print `wrote '<path>'` for each file written.
 #'
-#' @return
-#' Invisibly, a list with two named elements:
+#' @return Invisibly, a list with two named elements:
 #' \describe{
 #'   \item{`packages`}{Character vector of package requirements.}
-#'   \item{`python_version`}{Character vector specifying the Python version.}
+#'   \item{`python_version`}{String specifying the Python version.}
 #' }
 #'
 #' @export
@@ -317,7 +318,8 @@ py_write_requirements <- function(
   python_version = ".python-version",
   ...,
   freeze = NULL,
-  python = py_exe()
+  python = py_exe(),
+  quiet = FALSE
 ) {
   rlang::check_dots_empty()
   if (
@@ -348,11 +350,15 @@ py_write_requirements <- function(
     ver <- sub("^Python\\s+", "", ver)
   }
 
-  if (!is.null(packages))
+  if (!is.null(packages)) {
     writeLines(pkgs, packages)
+    if (!quiet) message("Wrote '", packages, "'")
+  }
 
-  if (!is.null(python_version))
+  if (!is.null(python_version)) {
     writeLines(ver, python_version)
+    if (!quiet) message("Wrote '", python_version, "'")
+  }
 
   invisible(list(packages = pkgs, python_version = ver))
 }
@@ -373,8 +379,7 @@ py_read_requirements <- function(
     if (!file.exists(path)) {
       if (as.logical(stop_if_missing)) {
         stop(
-          "File '", path, "' does not exist in the current working directory.\n",
-          "Call py_write_requirements() first, or provide a custom path."
+          "File '", path, "' does not exist in the current working directory.",
         )
       } else {
         return(NULL)
@@ -382,7 +387,8 @@ py_read_requirements <- function(
     }
     lines <- readLines(path, warn = FALSE)
     lines <- trimws(lines)
-    lines <- lines[nzchar(lines) & !startsWith(lines, "#")]
+    lines <- lines[nzchar(lines)]
+    lines <- lines[!startsWith(lines, "#")]
     lines
   }
 
@@ -391,8 +397,10 @@ py_read_requirements <- function(
   if (!length(py_ver)) py_ver <- NULL
 
   out <- list(packages = pkgs, python_version = py_ver)
-  if (action == "none")
-    return(out)
-  py_require(pkgs, py_ver, action = action)
-  invisible(out)
+  if (action == "none") {
+    out
+  } else {
+    py_require(pkgs, py_ver, action = action)
+    invisible(out)
+  }
 }

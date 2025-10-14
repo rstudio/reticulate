@@ -340,13 +340,16 @@ py_write_requirements <- function(
         "freeze = FALSE is only supported for environments assembled via py_require()."
       )
     }
+    if (is.null(python)) {
+      python <- uv_get_or_create_env()
+    }
 
     pkgs <- uv_exec(
       c("pip freeze --no-progress --color never --python",
         maybe_shQuote(python)),
       stdout = TRUE, stderr = FALSE
     )
-    ver <- system2(python, c("-E", "-V"), stdout = TRUE)
+    ver <- system2(python, c("-E -V"), stdout = TRUE)
     ver <- sub("^Python\\s+", "", ver)
   }
 

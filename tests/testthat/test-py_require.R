@@ -119,7 +119,7 @@ test_that("Error requesting conflicting Python versions", {
     py_require(python_version = "<3.10")
     uv_get_or_create_env()
   }), transform = function(x) {
-    sub("^Available Python versions found: 3\\.11\\..*",
+    sub("^Available Python versions found: 3\\.1[1-9]\\..*",
         "Available Python versions found: 3.11.xx ....",
         x)
   })
@@ -193,4 +193,3 @@ test_that("py_require() standard library module", {
     os <- import("os")
   }))
 })
-

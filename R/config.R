@@ -770,11 +770,15 @@ prefix_python_lib_to_ld_library_path <- function(python) {
   if(!is_linux())
     return(invisible())
 
+
   # resolve the <prefix>/lib path for both the venv, and the venv starter
   python <- c(python, normalizePath(python, mustWork = FALSE))
   libpath <- file.path(dirname(dirname(python)), "lib")
   libpath <- libpath[file.exists(libpath)]
   oldlibpath <- Sys.getenv("LD_LIBRARY_PATH", unset = NA)
+  if (Sys.getenv("RETICULATE_MUNGE_LD_PATH") == "0") {
+    return(oldlibpath)
+  }
   if (length(libpath)) {
     newlibpath <- paste0(c(libpath, oldlibpath), collapse = ":")
     Sys.setenv(LD_LIBRARY_PATH = newlibpath)

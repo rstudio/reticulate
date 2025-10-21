@@ -656,8 +656,11 @@ uv_binary <- function(bootstrap_install = TRUE) {
       system2 <- system2t
 
     if (is_windows()) {
-
-      withr::with_envvar(c("UV_UNMANAGED_INSTALL" = utils::shortPathName(dirname(uv))), {
+      install_dir <- utils::shortPathName(dirname(uv))
+      withr::with_envvar(c(
+        "UV_UNMANAGED_INSTALL" = install_dir,
+        "UV_INSTALL_DIR" = install_dir
+        ), {
         system2("powershell", c(
           "-ExecutionPolicy", "ByPass", "-c",
           sprintf("irm %s | iex", utils::shortPathName(install_uv))),
@@ -669,7 +672,11 @@ uv_binary <- function(bootstrap_install = TRUE) {
     } else {
 
       Sys.chmod(install_uv, mode = "0755")
-      withr::with_envvar(c("UV_UNMANAGED_INSTALL" = dirname(uv)), {
+      install_dir <- dirname(uv)
+      withr::with_envvar(c(
+        "UV_UNMANAGED_INSTALL" = install_dir,
+        "UV_INSTALL_DIR" = install_dir
+        ), {
         system2(install_uv,
                 stdout = if (debug_uv) "" else FALSE,
                 stderr = if (debug_uv) "" else FALSE)

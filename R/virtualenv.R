@@ -650,6 +650,18 @@ virtualenv_starter <- function(version = NULL, all = FALSE) {
   find_starters(Sys.which("python3"))
   find_starters(Sys.which("python"))
 
+  # if user-installed uv, use we can use uv-managed pythons.
+  # (we don't use reticualte-managed pythons since those get auto-deleted
+  # when reticulate clears its cache)
+  if (!isTRUE(attr(uv_binary(FALSE), "reticulate-managed", TRUE))) {
+    find_starters(uv_exec(c(
+      "python dir --managed-python",
+      "--color never --quiet --offline --no-config --no-progress"),
+      stdout = TRUE
+    ))
+    # lapply(uv_python_list(uv, "only-managed")$path, find_starters)
+  }
+
   # if specific version requested, filter for that.
   if (!is.null(version)) {
     for (check in as_version_constraint_checkers(version)) {

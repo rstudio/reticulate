@@ -291,8 +291,78 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
     }
   }
 
+  if (nzchar(config$virtualenv)) {
+    tryCatch(check_virtualenv_required_packages(config), error = function(e) {
+      # ignore errors, this should never block initialization
+    })
+  }
+
   # return config
   config
+}
+
+#' @returns Invisibly returns TRUE if all required packages are installed.
+#'  It returns `NULL` if it is unable to perform the check.
+#'  Returns `FALSE` if required packages are missing, but also issues warnings
+#'  containing more details about the missing packages.
+check_virtualenv_required_packages <- function(config) {
+  packages <- py_reqs_get()$packages
+  
+  if (length(packages) == 0) {
+    return(invisible(TRUE))
+  }
+    
+  args <- c("pip", "install", packages, "--dry-run",  "--no-deps")
+  
+  # force uv to use the selected python binary.
+  # in principle this could be ommited assuming that VIRTUAL_ENV is set
+  args <- c(args, "--python", config$python)
+  
+  # we don't install uv if it's not yet installed
+  cmd <- uv_binary(bootstrap_install = FALSE)
+  if (is.null(cmd)) {
+    return(invisible(NULL))
+  }
+
+  suppressWarnings({
+    out <- system2(cmd, args, stdout = TRUE, stderr = TRUE)
+  })
+
+  status <- attr(out, "status") %||% 0L
+  if (status != 0L) {
+    # check failed.
+    # there are a few possible reasons:
+    # 1) a requiremed package is not availble in the index.
+    # No solution found when resolving dependencies:
+    #   ╰─▶ Because <pkg> was not found in the package registry and you require <pkg>, 
+    #       we can conclude that your requirements are unsatisfiable.
+    # 2) Any faillure to access the index (timeouts, network issues, etc)
+    #    same error as above. Since there's no way to differentiate these cases,
+    #    we just return NULL.
+    return(invisible(NULL)) 
+  }
+
+  # uv pip doesn't have an option to produce structured output,
+  # the best we can do is parse using a regex.
+  # the output contains lines like:
+  # > Would install <n> packages
+  # we use that to determine if any packages would be installed
+  pattern <- "Would install (\\d+) package(s)?"
+  would_install <- any(grepl(pattern, out))
+
+  if (would_install) {
+    out <- sub("Would install", "Missing", out)
+    out <- sub("Would install", "Missing", out)
+    warning(
+      "Some packages were required with `py_require()` but are not installed in the",
+      "resolved virtual environment.\n",
+      paste0(out, collapse="\n"),
+      call. = FALSE
+    )
+    return(invisible(FALSE))
+  }
+
+  invisible(TRUE)
 }
 
 # unused presently, formerly called from initialize_python()

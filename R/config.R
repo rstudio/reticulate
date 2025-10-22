@@ -87,7 +87,7 @@ py_config_error_message <- function(prefix) {
   config <- py_config()
   if (!is.null(config)) {
     message <- paste0(message, "\n\nDetected Python configuration:\n\n",
-                      str(config), "\n")
+                      format(config), "\n")
   }
   message
 }

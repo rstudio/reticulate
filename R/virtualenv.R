@@ -646,7 +646,7 @@ virtualenv_starter <- function(version = NULL, all = FALSE) {
   # venv to resolve the starter used.
   find_starters(Sys.getenv("RETICULATE_PYTHON"))
   find_starters(Sys.getenv("RETICULATE_PYTHON_ENV"))
-  find_starters(py_exe())
+  suppressWarnings(tryCatch(find_starters(py_exe()), error = identity))
   find_starters(Sys.which("python3"))
   find_starters(Sys.which("python"))
 

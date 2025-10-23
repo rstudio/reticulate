@@ -1049,8 +1049,8 @@ resolve_python_version <- function(constraints = NULL, uv = uv_binary()) {
     msg <- paste0(
       'Requested Python version constraints could not be satisfied.\n',
       '  constraints: "', constraints, '"\n',
-      'Available Python versions found: ', paste0(all_candidates, collapse = ", "), "\n",
-      'Hint: Call `py_require(python_version = <string>, action = "set")` to replace constraints.'
+      'Hint: Call `py_require(python_version = <string>, action = "set")` to replace constraints.\n',
+      'Available Python versions found: ', paste0(all_candidates, collapse = ", "), "\n"
     )
     stop(msg)
   }

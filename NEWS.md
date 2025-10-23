@@ -12,6 +12,9 @@
 
 - Restored compatability with `uv` versions >= 0.8.0 (#1818).
 
+- `virtualenv_starter()` now discovers Python installations managed by
+  external `uv` installations (#1849).
+
 - `py_require()` now gives a better message when a user erroneously declares
    a module from the Python standard library as a required package (@lazappi, #1788)
 

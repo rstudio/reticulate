@@ -646,9 +646,20 @@ virtualenv_starter <- function(version = NULL, all = FALSE) {
   # venv to resolve the starter used.
   find_starters(Sys.getenv("RETICULATE_PYTHON"))
   find_starters(Sys.getenv("RETICULATE_PYTHON_ENV"))
-  find_starters(py_exe())
+  suppressWarnings(tryCatch(find_starters(py_exe()), error = identity))
   find_starters(Sys.which("python3"))
   find_starters(Sys.which("python"))
+
+  # If the user has installed uv, we can use its managed Python interpreters.
+  # We skip reticulate-managed uv installs because reticulate deletes their Pythons when it clears its cache.
+  if (!isTRUE(attr(uv_binary(FALSE), "reticulate-managed", TRUE))) {
+    find_starters(uv_exec(c(
+      "python dir --managed-python",
+      "--color never --quiet --offline --no-config --no-progress"),
+      stdout = TRUE
+    ))
+    # lapply(uv_python_list(uv, "only-managed")$path, find_starters)
+  }
 
   # if specific version requested, filter for that.
   if (!is.null(version)) {

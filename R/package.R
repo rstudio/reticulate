@@ -290,11 +290,14 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
       py_allow_threads_impl(TRUE)
     }
   }
-
   if (nzchar(config$virtualenv)) {
-    tryCatch(check_virtualenv_required_packages(config), error = function(e) {
-      # ignore errors, this should never block initialization
-    })
+    check_required_packages <- Sys.getenv("RETICULATE_CHECK_REQUIRED_PACKAGES", "true")
+    check_required_packages <- tolower(check_required_packages) %in% c("true", "1", "yes")
+    if (check_required_packages) {
+      tryCatch(check_virtualenv_required_packages(config), error = function(e) {
+        # ignore errors, this should never block initialization
+      })
+    }
   }
 
   # return config

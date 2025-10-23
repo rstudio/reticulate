@@ -650,9 +650,8 @@ virtualenv_starter <- function(version = NULL, all = FALSE) {
   find_starters(Sys.which("python3"))
   find_starters(Sys.which("python"))
 
-  # if user-installed uv, use we can use uv-managed pythons.
-  # (we don't use reticualte-managed pythons since those get auto-deleted
-  # when reticulate clears its cache)
+  # If the user has installed uv, we can use its managed Python interpreters.
+  # We skip reticulate-managed uv installs because reticulate deletes their Pythons when it clears its cache.
   if (!isTRUE(attr(uv_binary(FALSE), "reticulate-managed", TRUE))) {
     find_starters(uv_exec(c(
       "python dir --managed-python",

@@ -310,41 +310,47 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
 #'  Returns `FALSE` if required packages are missing, but also issues warnings
 #'  containing more details about the missing packages.
 check_virtualenv_required_packages <- function(config) {
-  packages <- py_reqs_get()$packages
-  
+
+  # TODO: also check py_require()$python_version.
+  # TODO: also warn if py_require() is called after reticulate has initialize Python.
+
+  # we don't install uv if it's not yet installed
+  uv <- uv_binary(bootstrap_install = FALSE)
+  if (is.null(uv)) {
+    return(invisible(NULL))
+  }
+  # force uv to use the selected python binary.
+  # in principle this could be ommited assuming that VIRTUAL_ENV is set
+
+  packages <- py_require()$packages
   if (length(packages) == 0) {
     return(invisible(TRUE))
   }
-    
-  args <- c("pip", "install", packages, "--dry-run",  "--no-deps")
-  
-  # force uv to use the selected python binary.
-  # in principle this could be ommited assuming that VIRTUAL_ENV is set
-  print(config$python)
-  args <- c(args, "--python", config$python)
-  
-  # we don't install uv if it's not yet installed
-  cmd <- uv_binary(bootstrap_install = FALSE)
-  if (is.null(cmd)) {
-    return(invisible(NULL))
-  }
+
+  args <- c("pip install --dry-run --no-deps",
+            "--color never --no-progress",
+            "--no-build",
+            # "--verbose",
+            "--offline", "--no-config",
+            "--python", maybe_shQuote(config$python),
+            maybe_shQuote(packages))
 
   suppressWarnings({
-    out <- system2(cmd, args, stdout = TRUE, stderr = TRUE)
+    pip_output <- uv_exec(args, stdout = TRUE, stderr = TRUE)
   })
 
-  status <- attr(out, "status") %||% 0L
+  status <- attr(pip_output, "status") %||% 0L
   if (status != 0L) {
     # check failed.
     # there are a few possible reasons:
-    # 1) a requiremed package is not availble in the index.
+    # 1) a required package is not available in the index.
     # No solution found when resolving dependencies:
-    #   ╰─▶ Because <pkg> was not found in the package registry and you require <pkg>, 
+    #   ╰─▶ Because <pkg> was not found in the package registry and you require <pkg>,
     #       we can conclude that your requirements are unsatisfiable.
-    # 2) Any faillure to access the index (timeouts, network issues, etc)
+    # 2) Any failure to access the index (timeouts, network issues, etc)
     #    same error as above. Since there's no way to differentiate these cases,
     #    we just return NULL.
-    return(invisible(NULL)) 
+    return(invisible(NULL))
   }
 
   # uv pip doesn't have an option to produce structured output,
@@ -353,15 +359,27 @@ check_virtualenv_required_packages <- function(config) {
   # > Would install <n> packages
   # we use that to determine if any packages would be installed
   pattern <- "Would install (\\d+) package(s)?"
-  would_install <- any(grepl(pattern, out))
+  would_install <- any(grepl(pattern, pip_output))
 
   if (would_install) {
-    out <- sub("Would install", "Missing", out)
-    out <- sub("Would install", "Missing", out)
+    # subset the py_require()$packages vector to keep only those that
+    # match output from `uv pip install`.
+
+    # keep lines that list package versions like " + docutils==1.2.3"
+    would_install_pkgs <- grep("==", pip_output, fixed = TRUE, value = TRUE)
+
+    # extract just the package name like "docutils"
+    would_install_pkgs <- sub("(...)([^=]+)(==.*)", "\\2", would_install_pkgs)
+
+    # subset packages to keep only entries found in `uv pip` output.
+    would_install_pkgs <- packages[
+      vapply(packages, function(pkg) any(startsWith(pkg, would_install_pkgs)), TRUE,
+             USE.NAMES = FALSE)
+    ]
     warning(
-      "Some packages were required with `py_require()` but are not installed in the",
-      "resolved virtual environment.\n",
-      paste0(out, collapse="\n"),
+      "Some Python package requirements declared via `py_require()` are not",
+      " installed in the selected Python environment: (", config$python, ")\n",
+      "  ", paste0(would_install_pkgs, collapse=" "),
       call. = FALSE
     )
     return(invisible(FALSE))

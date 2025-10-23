@@ -633,7 +633,11 @@ uv_binary <- function(bootstrap_install = TRUE) {
     ## multiple uv installations attempt to modify that config file.
   }
 
-  if (bootstrap_install) {
+  if (!bootstrap_install) {
+    uv <- NULL
+    return()
+  }
+
     # Install 'uv' in the 'r-reticulate' sub-folder inside the user's cache directory
     # https://github.com/astral-sh/uv/blob/main/docs/configuration/installer.md
 
@@ -676,10 +680,6 @@ uv_binary <- function(bootstrap_install = TRUE) {
       })
 
     }
-  } else {
-    # bootstrap_install == FALSE
-    uv <- NULL
-  }
 
   if (file.exists(uv)) uv else NULL # print visible
 }

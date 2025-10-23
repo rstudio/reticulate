@@ -676,6 +676,9 @@ uv_binary <- function(bootstrap_install = TRUE) {
       })
 
     }
+  } else {
+    # bootstrap_install == FALSE
+    uv <- NULL
   }
 
   if (file.exists(uv)) uv else NULL # print visible

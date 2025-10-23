@@ -95,4 +95,13 @@ jobs:
             paste0("RETICULATE_PYTHON=", virtualenv_python(path_to_venv)),
             Sys.getenv("GITHUB_ENV"))
 
+      - name: debug
+        shell: Rscript {0}
+        run: |
+          Sys.setenv("_RETICULATE_DEBUG_UV_" = "1")
+          print(reticulate:::uv_binary(FALSE))
+          print(reticulate:::uv_binary())
+          list.files(reticulate:::reticulate_cache_dir(), recursive = TRUE, full.names = TRUE)
+          print(reticulate:::uv_get_or_create_env())
+
       - uses: r-lib/actions/check-r-package@v2

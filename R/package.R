@@ -290,6 +290,7 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
       py_allow_threads_impl(TRUE)
     }
   }
+
   if (nzchar(config$virtualenv)) {
     check_required_packages <- Sys.getenv("RETICULATE_CHECK_REQUIRED_PACKAGES", "true")
     check_required_packages <- tolower(check_required_packages) %in% c("true", "1", "yes")
@@ -319,6 +320,7 @@ check_virtualenv_required_packages <- function(config) {
   
   # force uv to use the selected python binary.
   # in principle this could be ommited assuming that VIRTUAL_ENV is set
+  print(config$python)
   args <- c(args, "--python", config$python)
   
   # we don't install uv if it's not yet installed

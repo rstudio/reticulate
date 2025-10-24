@@ -678,7 +678,9 @@ uv_binary <- function(bootstrap_install = TRUE) {
     }
   }
 
-  if (file.exists(uv)) uv else NULL # print visible
+  # if we bootstrap-installed successfully, return the path to the uv binary
+  # if not, reset `uv` for the on.exit() hook and return NULL visibly
+  if (file.exists(uv)) uv else (uv <- NULL)
 }
 
 uv_get_or_create_env <- function(packages = py_reqs_get("packages"),

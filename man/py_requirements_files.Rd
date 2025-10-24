@@ -31,19 +31,19 @@ py_read_requirements(
 
 \item{...}{Unused; must be empty.}
 
-\item{freeze}{Logical. If \code{TRUE}, writes a fully resolved list of installed
-packages using \verb{pip freeze}. If \code{FALSE}, writes only the requirements
-tracked by \code{\link[=py_require]{py_require()}}.}
+\item{freeze}{Logical. If \code{TRUE}, writes a fully resolved list of
+installed packages using \verb{pip freeze}. If \code{FALSE}, writes only the
+requirements tracked by \code{\link[=py_require]{py_require()}}.}
 
 \item{python}{Path to the Python executable to use.}
 
-\item{quiet}{Logical; if \code{TRUE}, suppresses the informational messages that
-print \verb{wrote '<path>'} for each file written.}
+\item{quiet}{Logical; if \code{TRUE}, suppresses the informational messages
+that print \verb{wrote '<path>'} for each file written.}
 
 \item{action}{How to apply requirements read by \code{py_read_requirements()}:
 \code{"add"} (default) adds to existing requirements, \code{"set"} replaces them,
-\code{"remove"} removes matching entries, or \code{"none"} skips applying them and
-returns the read values.}
+\code{"remove"} removes matching entries, or \code{"none"} skips applying them
+and returns the read values.}
 }
 \value{
 Invisibly, a list with two named elements:
@@ -52,7 +52,8 @@ Invisibly, a list with two named elements:
 \item{\code{python_version}}{String specifying the Python version.}
 }
 
-To get just the return value without writing any files, you can pass \code{NULL} for file paths, like this:
+To get just the return value without writing any files, you can pass
+\code{NULL} for file paths, like this:
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{py_write_requirements(NULL, NULL)
 py_write_requirements(NULL, NULL, freeze = TRUE)
@@ -67,12 +68,34 @@ ephemeral, it writes a fully resolved manifest via \verb{pip freeze}.
 applies them with \code{\link[=py_require]{py_require()}}. By default, entries are added (\code{action = "add"}).
 }
 
-These are primarily an alternative interface to \code{py_require()}, but can also
-work with non-ephemeral virtual environments.
+These are primarily an alternative interface to \code{py_require()}, but can
+also work with non-ephemeral virtual environments.
 }
 \note{
-You can create a local virtual environment from \code{requirements.txt} and
-\code{.python-version} using \code{\link[=virtualenv_create]{virtualenv_create()}}:
+To continue using \code{py_require()} locally while keeping a
+\code{requirements.txt} up-to-date for deployments, you can register
+an exit handler in \code{.Rprofile} like this:
+
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{reg.finalizer(
+  asNamespace("reticulate"),
+  function(ns) \{
+    if (
+      reticulate::py_available() &&
+        isTRUE(reticulate::py_config()$ephemeral)
+    ) \{
+      reticulate::py_write_requirements(quiet = TRUE)
+    \}
+  \},
+  onexit = TRUE
+)
+}\if{html}{\out{</div>}}
+
+This approach is only recommended if you are using \code{git}.
+
+Alternatively, you can transition away from using ephemeral python
+environemnts via \code{py_require()} to using a persistent local virtual
+environment you manage. You can create a local virtual environment from
+\code{requirements.txt} and \code{.python-version} using \code{\link[=virtualenv_create]{virtualenv_create()}}:
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{# Note: '.venv' in the current directory is auto-discovered by reticulate.
 # https://rstudio.github.io/reticulate/articles/versions.html#order-of-discovery
@@ -82,4 +105,9 @@ virtualenv_create(
   requirements = "requirements.txt"
 )
 }\if{html}{\out{</div>}}
+
+If you run into issues, be aware that \code{requirements.txt} and
+\code{.python-version} may not contain all the information necessary to
+reproduce the Python environment if the R code sets environment variables
+like \code{UV_INDEX} or \code{UV_CONSTRAINT}.
 }

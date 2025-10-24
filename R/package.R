@@ -331,7 +331,8 @@ check_virtualenv_required_packages <- function(config) {
             "--color never --no-progress",
             "--no-build",
             # "--verbose",
-            "--offline", "--no-config",
+            # "--offline", # we don't set offline because it blocks env resolution
+            "--no-config",
             "--python", maybe_shQuote(config$python),
             maybe_shQuote(packages))
 
@@ -351,6 +352,28 @@ check_virtualenv_required_packages <- function(config) {
     #    same error as above. Since there's no way to differentiate these cases,
     #    we just return NULL.
     return(invisible(NULL))
+  }
+
+  # we don't want this to trigger package downloads. we forward
+  # downloading lines to warnings so that we can detect if a download
+  # happened on CI.
+  # In case uv downloads a package with the --no-progress option it would show something
+  # like:
+  # Resolved 3 packages in 2ms
+  # Downloading numba (2.6MiB) <-
+  # Downloading numba <-
+  # Prepared 1 package in 579ms
+  # Uninstalled 2 packages in 61ms
+  # Installed 2 packages in 11ms
+  # - llvmlite==0.43.0
+  # + llvmlite==0.44.0
+  # - numba==0.60.0
+  # + numba==0.61.0
+  if (any(grepl("downloading", pip_output, ignore.case = TRUE))) {
+    warning(paste(
+      pip_output[grepl("downloading", pip_output, ignore.case = TRUE)],
+      collapse = "\n"
+    ))
   }
 
   # uv pip doesn't have an option to produce structured output,

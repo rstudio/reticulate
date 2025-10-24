@@ -135,14 +135,20 @@ test_that("Time zones are respected if available", {
 
   pd <- import("pandas", convert = FALSE)
 
-  before <- pd$DataFrame(list('TZ' = pd$Series(
-    c(
-      pd$Timestamp('20130102003020', tz = 'US/Pacific'),
-      pd$Timestamp('20130102003020', tz = 'CET'),
-      pd$Timestamp('20130102003020', tz = 'UTC'),
-      pd$Timestamp('20130102003020', tz = 'Hongkong')
-    )
-  )))
+  base_stamp <- "20130102003020"
+  timezones <- c(
+    "America/Los_Angeles",
+    "CET",
+    "UTC",
+    "Asia/Hong_Kong"
+  )
+  timestamp_with_tz <- function(tz) {
+    pd$Timestamp(base_stamp, tz = tz)
+  }
+
+  before <- pd$DataFrame(list(
+    TZ = pd$Series(lapply(timezones, timestamp_with_tz))
+  ))
 
   converted <- py_to_r(before)
   after <- r_to_py(converted)
@@ -157,13 +163,16 @@ test_that("Time zones are respected if available", {
   expect_type(unlist(py_to_r(after)), "double") # py_ref / env would fail to simplify
 
   attr(converted, "pandas.index") <- NULL
+  as_posixct_tz <- function(tz) {
+    as.POSIXct(
+      base_stamp,
+      format = "%Y%m%d%H%M%OS",
+      tz = tz
+    )
+  }
+
   expect_identical(converted, structure(
-    list(TZ = list(
-      as.POSIXct(format = "%Y%m%d%H%M%OS", '20130102003020', tz = 'US/Pacific'),
-      as.POSIXct(format = "%Y%m%d%H%M%OS", '20130102003020', tz = 'CET'),
-      as.POSIXct(format = "%Y%m%d%H%M%OS", '20130102003020', tz = 'UTC'),
-      as.POSIXct(format = "%Y%m%d%H%M%OS", '20130102003020', tz = 'Hongkong')
-    )),
+    list(TZ = lapply(timezones, as_posixct_tz)),
     row.names = c(NA, -4L),
     class = "data.frame"
   ))
@@ -446,4 +455,3 @@ test_that("pandas from records convert successfully", {
   attr(df, "pandas.index") <- NULL
   expect_equal(df, data.frame(n = 1:2))
 })
-

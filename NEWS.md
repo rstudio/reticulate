@@ -1,4 +1,4 @@
-# reticulate (development version)
+# reticulate 1.44.0
 
 - Reticulate now clears its cache automatically every 120 days. Configure the interval
   in `.Rprofile` with: `options(reticulate.max_cache_age = as.difftime(30, units = "days"))`.

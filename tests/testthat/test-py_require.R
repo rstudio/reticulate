@@ -193,3 +193,24 @@ test_that("py_require() standard library module", {
     os <- import("os")
   }))
 })
+
+test_that("py_require() warns missing packages in a virtual env", {
+  local_edition(3)
+  venv <- tempfile("venv")
+  virtualenv_create(envname = venv)
+  expr = bquote({
+    library(reticulate)
+    use_virtualenv(.(venv), required = TRUE)
+    py_require("polars")
+    
+    config <- py_config()
+  })
+  expect_snapshot2(
+    do.call(r_session, list(force_managed_python = FALSE, exprs = expr)),
+    transform = function(x) {
+      x <- transform_scrub_python_patch(x)
+      # scrub paths
+      gsub("[A-Za-z]:[\\\\/][^\"' ]+|/[A-Za-z0-9._/\\\\-]+", "***", x)
+    } 
+  )
+})

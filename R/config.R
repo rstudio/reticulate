@@ -1,5 +1,3 @@
-
-
 #' Python configuration
 #'
 #' Retrieve information about the version of Python currently being used by
@@ -28,9 +26,9 @@ py_config <- function() {
 #'
 #' @export
 py_version <- function(patch = FALSE) {
-
-  if (!py_available(initialize = FALSE))
+  if (!py_available(initialize = FALSE)) {
     return(NULL)
+  }
 
   if (patch) {
     sys <- import("sys")
@@ -41,7 +39,6 @@ py_version <- function(patch = FALSE) {
 
   config <- py_config()
   numeric_version(config$version)
-
 }
 
 #' Python executable
@@ -65,14 +62,13 @@ py_version <- function(patch = FALSE) {
 #'
 #' @export
 py_exe <- function() {
-
   # if python has already been initialized, use that
-  if (!is.null(.globals$py_config))
+  if (!is.null(.globals$py_config)) {
     return(.globals$py_config$python)
+  }
 
   # otherwise, guess what version of python we'd use
   py_discover_config()$python
-
 }
 
 
@@ -86,8 +82,10 @@ py_config_error_message <- function(prefix) {
   message <- prefix
   config <- py_config()
   if (!is.null(config)) {
-    message <- paste0(message, "\n\nDetected Python configuration:\n\n",
-                      str(config), "\n")
+    message <- paste0(
+      message, "\n\nDetected Python configuration:\n\n",
+      str(config), "\n"
+    )
   }
   message
 }
@@ -105,30 +103,32 @@ py_config_error_message <- function(prefix) {
 #'
 #' @export
 py_available <- function(initialize = FALSE) {
-
-  if (is_python_initialized())
+  if (is_python_initialized()) {
     return(.globals$py_config$available)
+  }
 
-  if (!initialize)
+  if (!initialize) {
     return(FALSE)
+  }
 
-  tryCatch({
-    ensure_python_initialized()
-    .globals$py_config$available
-  }, error = function(e) FALSE)
-
+  tryCatch(
+    {
+      ensure_python_initialized()
+      .globals$py_config$available
+    },
+    error = function(e) FALSE
+  )
 }
 
 
 #' @rdname py_available
 #' @export
 py_numpy_available <- function(initialize = FALSE) {
-
-  if (!py_available(initialize = initialize))
+  if (!py_available(initialize = initialize)) {
     return(FALSE)
+  }
 
   py_numpy_available_impl()
-
 }
 
 
@@ -144,7 +144,13 @@ py_numpy_available <- function(initialize = FALSE) {
 #'
 #' @export
 py_module_available <- function(module) {
-  tryCatch({ import(module); TRUE }, error = clear_error_handler(FALSE))
+  tryCatch(
+    {
+      import(module)
+      TRUE
+    },
+    error = clear_error_handler(FALSE)
+  )
 }
 
 
@@ -167,18 +173,20 @@ py_module_available <- function(module) {
 #'
 #' @export
 py_discover_config <- function(required_module = NULL, use_environment = NULL) {
-
-  if (is.null(required_module) && length(.globals$delay_load_imports$module))
+  if (is.null(required_module) && length(.globals$delay_load_imports$module)) {
     required_module <- .globals$delay_load_imports$module[[1L]]
-  if (!is.null(required_module))
+  }
+  if (!is.null(required_module)) {
     required_module <- strsplit(required_module, ".", fixed = TRUE)[[1L]][[1L]]
+  }
 
   # check if python symbols can already be found in the current process
   main_process_info <- main_process_python_info()
   if (!is.null(main_process_info)) {
     python_version <- normalize_python_path(main_process_info$python)$path
     try(return(python_config(python_version, required_module,
-                             forced = "the current process")))
+      forced = "the current process"
+    )))
   }
 
   # if PYTHON_SESSION_INITIALIZED is specified then use it without scanning
@@ -188,42 +196,45 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
   if (!is.null(py_session_initialized)) {
     python_version <- normalize_python_path(py_session_initialized)$path
     try(return(python_config(python_version, required_module,
-                             forced = "PYTHON_SESSION_INITIALIZED")))
+      forced = "PYTHON_SESSION_INITIALIZED"
+    )))
   }
 
   # if RETICULATE_PYTHON is specified then use it without scanning further
   reticulate_env <- Sys.getenv("RETICULATE_PYTHON", unset = NA)
   if (!is.na(reticulate_env)) {
-
     if (reticulate_env == "managed") {
       return(python_config_ephemeral_uv_venv(required_module))
     }
 
     python_version <- normalize_python_path(reticulate_env)
-    if (!python_version$exists)
+    if (!python_version$exists) {
       stop("Python specified in RETICULATE_PYTHON (", reticulate_env, ") does not exist")
+    }
 
     python_version <- python_version$path
     try(return(python_config(python_version, required_module,
-                             forced = "RETICULATE_PYTHON")))
-
+      forced = "RETICULATE_PYTHON"
+    )))
   }
 
   # if RETICULATE_PYTHON_ENV is specified then use that
   # can be a bare envname or a path
   reticulate_python_env <- Sys.getenv("RETICULATE_PYTHON_ENV", unset = NA)
   if (!is.na(reticulate_python_env)) {
-
     # resolve the path to the environment directory
-    tryCatch({
-      python <- py_resolve(reticulate_python_env)
-    }, error = function(e) {
-      stop("Python specified in RETICULATE_PYTHON_ENV (", reticulate_python_env, ") does not exist")
-    })
+    tryCatch(
+      {
+        python <- py_resolve(reticulate_python_env)
+      },
+      error = function(e) {
+        stop("Python specified in RETICULATE_PYTHON_ENV (", reticulate_python_env, ") does not exist")
+      }
+    )
 
     try(return(python_config(python, required_module,
-                             forced = "RETICULATE_PYTHON_ENV")))
-
+      forced = "RETICULATE_PYTHON_ENV"
+    )))
   }
 
   # look for a required python version
@@ -232,7 +243,8 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
   if (!is.null(required_version)) {
     python_version <- normalize_python_path(required_version)$path
     try(return(python_config(python_version, required_module,
-                             forced = "use_python() function")))
+      forced = "use_python() function"
+    )))
   }
 
   if (tolower(Sys.getenv("RETICULATE_USE_MANAGED_VENV")) %in% c("true", "1", "yes")) {
@@ -245,20 +257,23 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
     # if (python_info(Sys.which("python"))$type == "virtualenv") {
     try(return(python_config(
       virtualenv_python(envpath), required_module,
-      forced = "VIRTUAL_ENV")))
+      forced = "VIRTUAL_ENV"
+    )))
   }
 
   # if we're working within a project that contains a pyproject.toml file,
   # then use the copy of Python associated with the poetry environment
   config <- tryCatch(poetry_config(required_module), error = identity)
-  if (!inherits(config, "error") && !is.null(config))
+  if (!inherits(config, "error") && !is.null(config)) {
     return(config)
+  }
 
   # if we're working within a project that contains a Pipfile, then
   # use the copy of Python associated with that pipenv
   config <- tryCatch(pipenv_config(required_module), error = identity)
-  if (!inherits(config, "error") && !is.null(config))
+  if (!inherits(config, "error") && !is.null(config)) {
     return(config)
+  }
 
   # if the current directory contains a venv, use it:
   for (dirpath in c("./venv", "./virtualenv", "./.venv", "./.virtualenv")) {
@@ -266,21 +281,24 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
       python <- virtualenv_python(dirpath)
       try(return(python_config(
         python, required_module,
-        forced = sprintf("'%s' existing in the current working directory", dirpath))))
+        forced = sprintf("'%s' existing in the current working directory", dirpath)
+      )))
     }
   }
 
   # look for any environment names supplied in a call like:
   #  import("bar", delayed = list(environment = "r-barlyr"))
   for (envname in c(use_environment, .globals$delay_load_imports$environment)) {
-    if (is.na(envname))
+    if (is.na(envname)) {
       next
+    }
     python <- tryCatch(py_resolve(envname), error = identity)
-    if (!inherits(python, "error"))
+    if (!inherits(python, "error")) {
       try(return(python_config(
         python, required_module,
         forced = sprintf('import("%s")', required_module)
       )))
+    }
   }
 
   # check for `use_python(required = FALSE)`. This should rarely be triggered
@@ -292,7 +310,7 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
     try(return(python_config(
       python, required_module,
       forced = "use_python(, required = FALSE)"
-      )))
+    )))
   }
 
   # look in virtual environments that have a required module derived name,
@@ -300,28 +318,32 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
   for (module in c(required_module, .globals$delay_load_imports$module)) {
     envname <- paste0("r-", module)
     python <- tryCatch(py_resolve(envname), error = identity)
-    if (!inherits(python, "error"))
+    if (!inherits(python, "error")) {
       try(return(python_config(
         python, required_module,
         forced = sprintf('import("%s")', required_module)
       )))
+    }
   }
 
   # if RETICULATE_PYTHON_FALLBACK is specified then use it
   reticulate_env <- Sys.getenv("RETICULATE_PYTHON_FALLBACK", unset = NA)
   if (!is.na(reticulate_env)) {
     python_version <- normalize_python_path(reticulate_env)
-    if (!python_version$exists)
+    if (!python_version$exists) {
       stop("Python specified in RETICULATE_PYTHON_FALLBACK (", reticulate_env, ") does not exist")
+    }
     python_version <- python_version$path
     try(return(python_config(python_version, required_module, python_version,
-                             forced = "RETICULATE_PYTHON_FALLBACK")))
+      forced = "RETICULATE_PYTHON_FALLBACK"
+    )))
   }
 
   # Look for a "r-reticulate" venv or condaenv. if found, use that.
   python <- tryCatch(py_resolve("r-reticulate", type = "virtualenv"), error = identity)
-  if (!inherits(python, "error"))
+  if (!inherits(python, "error")) {
     try(return(python_config(python, required_module)))
+  }
 
   ## At this point, the user, (and package authors on behalf of the user), has
   ## expressed no preference for any particular python installation, or the
@@ -366,8 +388,9 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
   }
 
   # filter locations by existence
-  if (length(python_versions) > 0)
+  if (length(python_versions) > 0) {
     python_versions <- python_versions[file.exists(python_versions)]
+  }
 
   if (is_windows()) {
     # remove 'fake' / inaccessible python executables
@@ -386,13 +409,17 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
     # E.g.: "C:\foo\bar" -> "/c/foo/bar" and  "/foo/bar" -> "C:\rtools43\foo\bar"
     # https://github.com/rstudio/reticulate/issues/1325
     get_platform <- function(python) {
-      tryCatch({
-        plat <- system2(python,
-          args = c("-c", shQuote("import sys; print(sys.platform)")),
-          stdout = TRUE, stderr = FALSE
-        )
-        if (rlang::is_string(plat)) plat else ""
-      }, warning = function(w) "", error = function(e) "")
+      tryCatch(
+        {
+          plat <- system2(python,
+            args = c("-c", shQuote("import sys; print(sys.platform)")),
+            stdout = TRUE, stderr = FALSE
+          )
+          if (rlang::is_string(plat)) plat else ""
+        },
+        warning = function(w) "",
+        error = function(e) ""
+      )
     }
     python_sys_platforms <- vapply(python_versions, get_platform, "")
 
@@ -403,68 +430,75 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
   # scan until we find a version of python that meets our qualifying conditions
   valid_python_versions <- c()
   for (python_version in python_versions) {
-
     # get the config
     config <- try(python_config(python_version, required_module, python_versions,
-                                forced = if (python_version %in% windows_registry_python)
-                                  "Windows Registry" else "PATH"))
-    if(inherits(config, "try-error"))
+      forced = if (python_version %in% windows_registry_python) {
+        "Windows Registry"
+      } else {
+        "PATH"
+      }
+    ))
+    if (inherits(config, "try-error")) {
       next
+    }
 
     # if we have a required module ensure it's satisfied.
     # also check architecture (can be an issue on windows)
     has_python_gte_36 <- as.numeric_version(config$version) >= "3.6"
     has_compatible_arch <- !is_incompatible_arch(config)
     has_preferred_numpy <- !is.null(config$numpy) && config$numpy$version >= "1.6"
-    if (has_compatible_arch && has_preferred_numpy)
+    if (has_compatible_arch && has_preferred_numpy) {
       append(valid_python_versions) <- python_version
+    }
     has_required_module <- is.null(config$required_module) || !is.null(config$required_module_path)
-    if (has_python_gte_36 && has_compatible_arch && has_preferred_numpy && has_required_module)
+    if (has_python_gte_36 && has_compatible_arch && has_preferred_numpy && has_required_module) {
       return(config)
+    }
   }
 
   # no preferred found, return first with valid config if we have it or NULL
-  if (length(valid_python_versions) > 0)
+  if (length(valid_python_versions) > 0) {
     try(return(python_config(valid_python_versions[[1]], required_module, python_versions)))
-  else if (length(python_versions) > 0)
+  } else if (length(python_versions) > 0) {
     try(return(python_config(python_versions[[1]], required_module, python_versions)))
-  else
+  } else {
     return(NULL)
+  }
 }
 
 python_config_ephemeral_uv_venv <- function(required_module) {
   if (isTRUE(getOption("reticulate.python.initializing"))) {
     python <- try(uv_get_or_create_env())
-    if (!is.null(python) && !inherits(python, "try-error"))
+    if (!is.null(python) && !inherits(python, "try-error")) {
       try({
         config <- python_config(python, required_module, forced = "py_require()")
         config$ephemeral <- TRUE
         return(config)
-        })
+      })
+    }
   }
   # most likely called from py_exe()
   NULL
 }
 
 py_discover_config_fallbacks <- function() {
-
   # prefer conda python if available
   conda <- find_conda()[[1L]]
   if (!is.null(conda) && file.exists(conda)) {
-
     pythons <- tryCatch(
       conda_python(envname = "base", conda = conda, all = TRUE),
       error = identity
     )
 
-    if (is.character(pythons))
+    if (is.character(pythons)) {
       return(pythons)
-
+    }
   }
 
   # on Windows, try looking in the registry
-  if (is_windows())
+  if (is_windows()) {
     return(py_versions_windows()$executable_path)
+  }
 
   # otherwise, just search some default locations
   prefixes <- c(
@@ -483,52 +517,57 @@ py_discover_config_fallbacks <- function() {
   )
 
   paste(grid$prefix, grid$suffix, sep = "/")
-
 }
 
 try_create_default_virtualenv <- function(package = "reticulate", ...) {
-
   # If the environment already exists, use it
   envname <- paste0("r-", package)
-  if (virtualenv_exists(envname))
+  if (virtualenv_exists(envname)) {
     return(virtualenv_python(envname))
+  }
 
-  if (!isTRUE(getOption("reticulate.python.initializing")))
+  if (!isTRUE(getOption("reticulate.python.initializing"))) {
     return(NULL)
+  }
 
   # if we're in a recursive call, return NULL (we've already asked.)
   #   py_discover_config() -> try_create_default_virtualenv() ->
   #   virtualenv_create() -> virtualenv_starter() -> py_exe() ->
   #   py_discover_config() -> try_create_default_virtualenv()
-  for(cl in sys.calls()[-length(sys.calls())])
-    if (identical(cl[[1L]], quote(try_create_default_virtualenv)))
+  for (cl in sys.calls()[-length(sys.calls())]) {
+    if (identical(cl[[1L]], quote(try_create_default_virtualenv))) {
       return(NULL)
+    }
+  }
 
   permission <- tolower(Sys.getenv("RETICULATE_AUTOCREATE_PACKAGE_VENV", ""))
 
-  if (permission %in% c("false", "0", "no"))
+  if (permission %in% c("false", "0", "no")) {
     return(NULL)
+  }
 
   if (permission == "") {
     return(NULL)
     if (is_interactive()) {
       permission <- utils::askYesNo(sprintf(
         "Would you like to create a default Python environment for the %s package?",
-        package))
-      if (!isTRUE(permission))
+        package
+      ))
+      if (!isTRUE(permission)) {
         return(NULL)
+      }
       permission <- "true"
     }
   }
 
-  if (!permission %in% c("true", "yes", "1"))
+  if (!permission %in% c("true", "yes", "1")) {
     return(NULL)
+  }
 
   virtualenv_create(
     envname = envname,
     ...
   )
-
 }
 
 
@@ -558,13 +597,13 @@ python_virtualenv_versions <- function() {
 }
 
 python_conda_versions <- function() {
-
   if (is_windows()) {
-
     # list all conda environments
-    conda_envs <- data.frame(name = character(),
-                             python = character(),
-                             stringsAsFactors = FALSE)
+    conda_envs <- data.frame(
+      name = character(),
+      python = character(),
+      stringsAsFactors = FALSE
+    )
     registry_versions <- py_versions_windows()
     anaconda_registry_versions <- subset(registry_versions, registry_versions$type == "Anaconda")
     for (conda in file.path(anaconda_registry_versions$install_path, "Scripts", "conda.exe")) {
@@ -572,41 +611,41 @@ python_conda_versions <- function() {
     }
 
     conda_envs
-
   } else {
-
-    env_dirs <- c("~/anaconda/envs",
-                  "~/anaconda2/envs",
-                  "~/anaconda3/envs",
-                  "~/anaconda4/envs",
-                  "~/miniconda/envs",
-                  "~/miniconda2/envs",
-                  "~/miniconda3/envs",
-                  "~/miniconda4/envs",
-                  "/anaconda/envs",
-                  "/anaconda2/envs",
-                  "/anaconda3/envs",
-                  "/anaconda4/envs",
-                  "/miniconda/envs",
-                  "/miniconda2/envs",
-                  "/miniconda3/envs",
-                  "/miniconda4/envs",
-                  "~/opt/anaconda/envs",
-                  "~/opt/anaconda2/envs",
-                  "~/opt/anaconda3/envs",
-                  "~/opt/anaconda4/envs",
-                  "~")
+    env_dirs <- c(
+      "~/anaconda/envs",
+      "~/anaconda2/envs",
+      "~/anaconda3/envs",
+      "~/anaconda4/envs",
+      "~/miniconda/envs",
+      "~/miniconda2/envs",
+      "~/miniconda3/envs",
+      "~/miniconda4/envs",
+      "/anaconda/envs",
+      "/anaconda2/envs",
+      "/anaconda3/envs",
+      "/anaconda4/envs",
+      "/miniconda/envs",
+      "/miniconda2/envs",
+      "/miniconda3/envs",
+      "/miniconda4/envs",
+      "~/opt/anaconda/envs",
+      "~/opt/anaconda2/envs",
+      "~/opt/anaconda3/envs",
+      "~/opt/anaconda4/envs",
+      "~"
+    )
 
     python_env_binaries <- python_environments(env_dirs)
-    data.frame(name = basename(dirname(dirname(python_env_binaries))),
-               python = python_env_binaries,
-               stringsAsFactors = FALSE)
+    data.frame(
+      name = basename(dirname(dirname(python_env_binaries))),
+      python = python_env_binaries,
+      stringsAsFactors = FALSE
+    )
   }
-
 }
 
 python_environments <- function(env_dirs, required_module = NULL) {
-
   # filter env_dirs by existence
   env_dirs <- env_dirs[utils::file_test("-d", env_dirs)]
 
@@ -624,21 +663,23 @@ python_environments <- function(env_dirs, required_module = NULL) {
 
       # otherwise return all
     } else {
-      envs <- c(envs, path.expand(sprintf("%s/%s",
-                                          list.dirs(env_dir, recursive = FALSE),
-                                          python_bin)))
+      envs <- c(envs, path.expand(sprintf(
+        "%s/%s",
+        list.dirs(env_dir, recursive = FALSE),
+        python_bin
+      )))
     }
   }
 
   # filter by existence
-  if (length(envs) > 0)
+  if (length(envs) > 0) {
     envs[file.exists(envs)]
-  else
+  } else {
     envs
+  }
 }
 
 python_munge_path <- function(python) {
-
   # add the python bin dir to the PATH (so that any execution of python from
   # within the interpreter, from a system call, or from within a terminal
   # hosted within the front end will use the same version of python.
@@ -680,11 +721,11 @@ python_munge_path <- function(python) {
   }
 
   if (is_windows()) {
-
     # include the Scripts path, as well
     python_scripts <- file.path(python_home, "Scripts")
-    if (file.exists(python_scripts))
+    if (file.exists(python_scripts)) {
       python_dirs <- c(python_dirs, normalizePath(python_scripts))
+    }
 
     # we saw some crashes occurring when Python modules attempted to load
     # dynamic libraries at runtime; e.g.
@@ -694,27 +735,27 @@ python_munge_path <- function(python) {
     # we work around this by putting the associated binary directory
     # on the PATH so it can be successfully resolved
     python_library_bin <- file.path(python_home, "Library/bin")
-    if (file.exists(python_library_bin))
+    if (file.exists(python_library_bin)) {
       python_dirs <- c(python_dirs, normalizePath(python_library_bin))
+    }
   }
 
 
   path_prepend(python_dirs)
-
 }
 
 python_config_impl <- function(python) {
-
-  if(!file.exists(python)) {
+  if (!file.exists(python)) {
     # Test if `python` is broken symlink, which can happen with a venv if the
     # venv starter is moved/removed
     msg <- paste0("Error running ", shQuote(python), ": No such file.")
     info <- python_info(python)
     if (info$type == "virtualenv") {
-      msg <- paste0(sep = "", c(msg, "\n",
-          "The Python installation used to create the virtualenv has been moved or removed",
-          if(is.null(info$starter)) "." else ":\n  ", shQuote(info$starter)
-        ))
+      msg <- paste0(sep = "", c(
+        msg, "\n",
+        "The Python installation used to create the virtualenv has been moved or removed",
+        if (is.null(info$starter)) "." else ":\n  ", shQuote(info$starter)
+      ))
     }
     stop(msg)
   }
@@ -742,19 +783,20 @@ python_config_impl <- function(python) {
   if (is_osx()) {
     clt <- "/Library/Developer/CommandLineTools"
     xcode <- "/Applications/Xcode.app/Contents/Developer"
-    if (file.exists(clt))
+    if (file.exists(clt)) {
       config <- gsub(xcode, clt, config, fixed = TRUE)
+    }
   }
 
   # return config
   config
-
 }
 
 
 local_prefix_python_lib_to_ld_library_path <- function(python, envir = parent.frame()) {
-  if(!is_linux())
+  if (!is_linux()) {
     return(invisible())
+  }
 
   oldlibpath <- prefix_python_lib_to_ld_library_path(python)
   if (is.na(oldlibpath)) {
@@ -762,13 +804,13 @@ local_prefix_python_lib_to_ld_library_path <- function(python, envir = parent.fr
   } else {
     defer(Sys.setenv(LD_LIBRARY_PATH = oldlibpath), envir = envir)
   }
-
 }
 
 prefix_python_lib_to_ld_library_path <- function(python) {
   # might need to do something similar on macOS too, eventually.
-  if(!is_linux())
+  if (!is_linux()) {
     return(invisible())
+  }
 
   # resolve the <prefix>/lib path for both the venv, and the venv starter
   python <- c(python, normalizePath(python, mustWork = FALSE))
@@ -788,8 +830,7 @@ prefix_python_lib_to_ld_library_path <- function(python) {
 python_config <- function(python,
                           required_module = NULL,
                           python_versions = python,
-                          forced = NULL)
-{
+                          forced = NULL) {
   # normalize and remove duplicates
   python <- canonical_path(python)
   python_versions <- canonical_path(python_versions)
@@ -802,8 +843,9 @@ python_config <- function(python,
   # set LD_LIBRARY_PATH on Linux as well, just to make sure Python libraries
   # can be resolved if necessary (also need to guard against users who munge
   # LD_LIBRARY_PATH in a way that breaks dynamic lookup of Python libraries)
-  if (is_linux())
+  if (is_linux()) {
     local_prefix_python_lib_to_ld_library_path(python)
+  }
 
   # collect configuration information
   if (!is.null(required_module)) {
@@ -832,7 +874,6 @@ python_config <- function(python,
     # either we have the main process libpython, or NA in case of PIE executable
     libpython <- main_process_info$libpython
   } else if (is_windows()) {
-
     # construct DLL name
     dll <- sprintf("python%s.dll", gsub(".", "", version, fixed = TRUE))
 
@@ -854,9 +895,7 @@ python_config <- function(python,
         break
       }
     }
-
   } else {
-
     # default to NULL
     libpython <- NULL
 
@@ -864,29 +903,28 @@ python_config <- function(python,
     # (necessary for virtualenvs that don't copy over the shared library)
     libsrcs <- c("LIBPL", "LIBDIR", "Prefix", "ExecPrefix", "BaseExecPrefix")
     for (libsrc in libsrcs) {
-
       # skip null entries in config
       src <- config[[libsrc]]
-      if (is.null(src))
+      if (is.null(src)) {
         next
+      }
 
       # get appropriate libpython extension for platform
-      ext <- switch(
-        Sys.info()[["sysname"]],
+      ext <- switch(Sys.info()[["sysname"]],
         Darwin  = ".dylib",
         Windows = ".dll",
         ".so"
       )
 
       # try to resolve libpython in this location
-      pattern <- sprintf("^libpython%sd?m?%s", version, ext)
+      pattern <- sprintf("^libpython%s(t)?d?m?%s", version, ext)
       candidates <- list.files(c(src, file.path(src, "lib")),
-                               pattern = pattern, full.names = TRUE)
+        pattern = pattern, full.names = TRUE
+      )
       if (length(candidates)) {
         libpython <- candidates
         break
       }
-
     }
   }
 
@@ -916,17 +954,19 @@ python_config <- function(python,
 
   # check to see if this is a Python virtualenv
   root <- dirname(dirname(python))
-  virtualenv <- if (is_virtualenv(root))
+  virtualenv <- if (is_virtualenv(root)) {
     root
-  else
+  } else {
     ""
+  }
 
   # check for virtualenv activate script
   activate_this <- file.path(dirname(python), "activate_this.py")
-  if (file.exists(activate_this))
+  if (file.exists(activate_this)) {
     virtualenv_activate <- activate_this
-  else
+  } else {
     virtualenv_activate <- ""
+  }
 
   # check for required module
   required_module_path <- config$RequiredModulePath
@@ -968,19 +1008,20 @@ str.py_config <- function(object, ...) {
 
 #' @export
 format.py_config <- function(x, ...) {
-
   out <- ""
   out <- paste0(out, "python:         ", x$python, "\n")
   out <- paste0(out, "libpython:      ", ifelse(is.null(x$libpython), "[NOT FOUND]", x$libpython), ifelse(is_windows() || is.null(x$libpython) || is.na(x$libpython) || file.exists(x$libpython), "", "[NOT FOUND]"), "\n")
   out <- paste0(out, "pythonhome:     ", ifelse(is.null(x$pythonhome), "[NOT FOUND]", x$pythonhome), "\n")
 
-  if (nzchar(x$virtualenv_activate))
+  if (nzchar(x$virtualenv_activate)) {
     out <- paste0(out, "virtualenv:     ", x$virtualenv_activate, "\n")
+  }
 
   out <- paste0(out, "version:        ", x$version_string, "\n")
 
-  if (is_windows())
+  if (is_windows()) {
     out <- paste0(out, "Architecture:   ", x$architecture, "\n")
+  }
 
   if (!is.null(x$numpy)) {
     out <- paste0(out, "numpy:          ", x$numpy$path, "\n")
@@ -991,10 +1032,11 @@ format.py_config <- function(x, ...) {
 
   if (!is.null(x$required_module)) {
     out <- paste0(out, sprintf("%-16s", paste0(x$required_module, ":")))
-    if (!is.null(x$required_module_path))
+    if (!is.null(x$required_module_path)) {
       out <- paste0(out, x$required_module_path, "\n")
-    else
+    } else {
       out <- paste0(out, "[NOT FOUND]\n")
+    }
   }
 
   if (!is.null(x$forced)) {
@@ -1059,8 +1101,9 @@ is_rstudio <- function() {
 }
 
 is_rstudio_desktop <- function() {
-  if (!exists("RStudio.Version", envir = globalenv()))
+  if (!exists("RStudio.Version", envir = globalenv())) {
     return(FALSE)
+  }
 
   RStudio.Version <- get("RStudio.Version", envir = globalenv())
   version <- RStudio.Version()
@@ -1076,7 +1119,6 @@ clean_version <- function(version) {
 }
 
 reticulate_python_versions <- function() {
-
   # python versions to return
   python_versions <- c()
 
@@ -1087,8 +1129,9 @@ reticulate_python_versions <- function() {
   if (length(reticulate_python_options) > 0) {
     for (i in 1:length(reticulate_python_options)) {
       python <- normalize_python_path(reticulate_python_options[[i]])
-      if (python$exists)
+      if (python$exists) {
         python_versions <- c(python_versions, python$path)
+      }
     }
   }
 
@@ -1098,28 +1141,28 @@ reticulate_python_versions <- function() {
 
 
 normalize_python_path <- function(python) {
-
   # normalize trailing slash and expand
   python <- gsub("[\\/]+$", "", python)
   python <- path.expand(python)
 
   # check for existence
   if (!utils::file_test("-d", python) &&
-      !utils::file_test("-f", python)) {
+    !utils::file_test("-f", python)) {
     list(
       path = python,
       exists = FALSE
     )
   } else {
-
     # append binary if it's a directory
-    if (utils::file_test("-d", python))
+    if (utils::file_test("-d", python)) {
       python <- file.path(python, "python")
+    }
 
     # append .exe if necessary on windows
     # accept .bat for pyenv-win shim
-    if (is_windows() && (!grepl("^.*\\.(exe|bat)$", tolower(python))))
+    if (is_windows() && (!grepl("^.*\\.(exe|bat)$", tolower(python)))) {
       python <- paste0(python, ".exe")
+    }
 
     # return
     list(
@@ -1127,20 +1170,23 @@ normalize_python_path <- function(python) {
       exists = TRUE
     )
   }
-
 }
 
 
 windows_registry_anaconda_versions <- function() {
-  rbind(read_python_versions_from_registry("HCU", key = "ContinuumAnalytics", type = "Anaconda"),
-        read_python_versions_from_registry("HLM", key = "ContinuumAnalytics", type = "Anaconda"))
+  rbind(
+    read_python_versions_from_registry("HCU", key = "ContinuumAnalytics", type = "Anaconda"),
+    read_python_versions_from_registry("HLM", key = "ContinuumAnalytics", type = "Anaconda")
+  )
 }
 
-read_python_versions_from_registry <- function(hive, key, type=key) {
-
-  python_core_key <- tryCatch(utils::readRegistry(
-    key = paste0("SOFTWARE\\Python\\", key), hive = hive, maxdepth = 3),
-    error = function(e) NULL)
+read_python_versions_from_registry <- function(hive, key, type = key) {
+  python_core_key <- tryCatch(
+    utils::readRegistry(
+      key = paste0("SOFTWARE\\Python\\", key), hive = hive, maxdepth = 3
+    ),
+    error = function(e) NULL
+  )
 
 
   types <- c()
@@ -1156,14 +1202,12 @@ read_python_versions_from_registry <- function(hive, key, type=key) {
       if (is.list(version_key) && !is.null(version_key$InstallPath)) {
         version_dir <- version_key$InstallPath$`(Default)`
         if (!is.null(version_dir) && utils::file_test("-d", version_dir)) {
-
           # determine install_path and executable_path
           install_path <- version_dir
           executable_path <- file.path(install_path, "python.exe")
 
           # proceed if it exists
           if (file.exists(executable_path)) {
-
             # determine version and arch
             if (type == "Anaconda") {
               matches <- regexec("^Anaconda.*(32|64).*$", version)
@@ -1172,8 +1216,10 @@ read_python_versions_from_registry <- function(hive, key, type=key) {
                 version <- version_key$SysVersion
                 arch <- matches[[2]]
               } else {
-                warning("Unexpected format for Anaconda version: ", version,
-                        "\n(Please install a more recent version of Anaconda)")
+                warning(
+                  "Unexpected format for Anaconda version: ", version,
+                  "\n(Please install a more recent version of Anaconda)"
+                )
                 arch <- NA
               }
             } else { # type == "PythonCore"
@@ -1183,9 +1229,9 @@ read_python_versions_from_registry <- function(hive, key, type=key) {
                 version <- paste(matches[[2]], matches[[3]], sep = ".")
                 arch <- matches[[4]]
                 if (!nzchar(arch)) {
-                  if (numeric_version(version) >= "3.0")
+                  if (numeric_version(version) >= "3.0") {
                     arch <- "64"
-                  else {
+                  } else {
                     python_arch <- python_arch(executable_path)
                     arch <- gsub("bit", "", python_arch, fixed = TRUE)
                   }
@@ -1198,10 +1244,11 @@ read_python_versions_from_registry <- function(hive, key, type=key) {
 
             if (!is.na(arch)) {
               # convert to R arch
-              if (arch == "32")
+              if (arch == "32") {
                 arch <- "i386"
-              else if (arch == "64")
+              } else if (arch == "64") {
                 arch <- "x64"
+              }
 
               # append to vectors
               types <- c(types, type)
@@ -1231,36 +1278,37 @@ read_python_versions_from_registry <- function(hive, key, type=key) {
 
 # get the architecture from a python binary
 python_arch <- function(python) {
-
   # run command
   result <- system2(python, stdout = TRUE, args = c("-c", shQuote(
-    "import sys; import platform; sys.stdout.write(platform.architecture()[0])")))
+    "import sys; import platform; sys.stdout.write(platform.architecture()[0])"
+  )))
 
   # check for error
   error_status <- attr(result, "status")
-  if (!is.null(error_status))
+  if (!is.null(error_status)) {
     stop("Error ", error_status, " occurred while checking for python architecture", call. = FALSE)
+  }
 
   # return arch
   result
-
 }
 
 # convert R arch to python arch
 current_python_arch <- function() {
-  if (.Platform$r_arch == "i386")
+  if (.Platform$r_arch == "i386") {
     "32bit"
-  else if (.Platform$r_arch == "x64")
+  } else if (.Platform$r_arch == "x64") {
     "64bit"
-  else
+  } else {
     "Unknown"
+  }
 }
 
 
 # check for compatible architecture
 is_incompatible_arch <- function(config) {
   if (is_windows()) {
-    !identical(current_python_arch(),config$architecture)
+    !identical(current_python_arch(), config$architecture)
   } else {
     FALSE
   }
@@ -1268,7 +1316,6 @@ is_incompatible_arch <- function(config) {
 
 
 py_session_initialized_binary <- function() {
-
   # binary to return
   python_binary <- NULL
 
@@ -1290,7 +1337,8 @@ py_session_initialized_binary <- function() {
       }
     } else {
       warning("PYTHON_SESSION_INITIALIZED does not include current_pid and sys.executable",
-              call. = FALSE)
+        call. = FALSE
+      )
     }
   }
 
@@ -1304,12 +1352,16 @@ is_windows_app_store_python <- function(python) {
   # access to a windows machine with the app store installed.
   python <- normalizePath(python, winslash = "/", mustWork = FALSE)
   grepl("/Program Files/WindowsApps/PythonSoftwareFoundation.Python",
-        python, fixed = TRUE)
+    python,
+    fixed = TRUE
+  )
 }
 
 
 find_all_pythons <- function(root = "/") {
-  cmd <- sprintf("find %s -type f -regex '.*/python[0-9.]*$' -executable 2>/dev/null",
-                 root)
+  cmd <- sprintf(
+    "find %s -type f -regex '.*/python[0-9.]*$' -executable 2>/dev/null",
+    root
+  )
   as.character(suppressWarnings(system(cmd, intern = TRUE)))
 }

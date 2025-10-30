@@ -5,7 +5,8 @@
 
 
 ark_positron_variable_display_value.python.builtin.object <- function(x, ..., width = getOption("width")) {
-  .globals$get_positron_variable_inspector(x)$get_display_value(width)[[1L]]
+  val <- .globals$get_positron_variable_inspector(x)$get_display_value()[[1L]]
+  substr(val, 1L, width)
 }
 
 

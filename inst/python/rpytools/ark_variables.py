@@ -9,7 +9,14 @@ def get_keys_and_children(inspector):
     keys_iterator = iter(inspector.get_children())
     for key in islice(keys_iterator, MAX_DISPLAY):
         keys.append(str(key))
-        values.append(inspector.get_child(key))
+        try:
+            val = inspector.get_child(key)
+        except Exception:
+            # TODO: ideally this should be a sentiel value indicating it's
+            # not a python string, but the actual display value we want. For now,
+            # at least indicate some error.
+            val = "<error>"
+        values.append(val)
 
     if len(keys) == MAX_DISPLAY:
         # check if there are more children

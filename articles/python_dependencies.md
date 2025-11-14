@@ -1,0 +1,341 @@
+# Managing an R Package's Python Dependencies
+
+> ## **⚠ Deprecated Vignette**
+>
+> This vignette is retained for reference but outlines an outdated
+> method for managing Python dependencies in R packages.
+>
+> It is now recommended to use
+> [`py_require()`](https://rstudio.github.io/reticulate/reference/py_require.md)
+> to specify Python dependencies. For details, see `?py_require()` and
+> the [Using reticulate in an R
+> Package](https://rstudio.github.io/reticulate/articles/package.md)
+> vignette.
+
+If you’re writing an R package that uses `reticulate` as an interface to
+a Python session, you likely also need one or more Python packages
+installed on the user’s machine for your package to work properly. In
+addition, you’d likely prefer to spare users as much as possible from
+details around how Python + `reticulate` are configured. This vignette
+documents a few approaches for accomplishing these goals.
+
+## Creating a “Pit of Success”
+
+Overall, the goal of an R package author using reticulate is to create a
+default experience that works reliably and doesn’t require users to
+intervene or to have a sophisticated understanding of Python
+installation management. At the same time, it should also be easy to
+adjust the default behavior. There are two key questions to keep in
+mind:
+
+- What will the default behavior be when the user expresses no
+  preference for any specific Python installation?
+- How can users express a preference for a specific Python installation
+  that is satisfiable (and why would they want to)?
+
+Packages like [tensorflow](https://tensorflow.rstudio.com) approach this
+task by providing a helper function, `tensorflow::install_tensorflow()`,
+and documenting that users can call this function to prepare the
+environment. For example:
+
+``` r
+library(tensorflow)
+install_tensorflow()
+# use tensorflow
+```
+
+As a best practice, an R package’s Python dependencies should default to
+installing in an isolated virtual environment specifically designated
+for the R package. This minimizes the risk of inadvertently disrupting
+another Python installation on the user’s system.
+
+As an example, `install_tensorflow()` takes an argument `envname` with a
+default value of `"r-tensorflow"`. This default value ensures that
+`install_tensorflow()` will install into an environment named
+`"r-tensorflow"`, optionally creating it as needed.
+
+The counterpart to the default behavior of `install_tensorflow()` is the
+work that happens in `tensorflow::.onLoad()`, where the R package
+expresses a preference, on behalf of the user, to use the `r-tensorflow`
+environment if it exists. Inside the package, these two parts work
+together to create a “pit of success”:
+
+``` r
+install_tensorflow <- function(..., envname = "r-tensorflow") {
+  reticulate::py_install("tensorflow", envname = envname, ...)
+}
+
+
+.onLoad <- function(...) {
+  use_virtualenv("r-tensorflow", required = FALSE)
+}
+```
+
+The R package:
+
+- in `.onLoad()` expresses to reticulate a soft preference for an
+  environment named “r-tensorflow”, and
+
+- with `install_tensorflow()`, provides a convenient way to make the
+  optional hint in `.onLoad()` actionable, by actually creating the
+  “r-tensorflow” environment.
+
+With this setup, the default experience is for the user to call
+`install_tensorflow()` once (creating a “r-tensorflow” environment).
+Subsequently, calls to
+[`library(tensorflow)`](https://github.com/rstudio/tensorflow) will
+cause reticulate to use the `r-tensorflow` environment, and for
+everything to “just work”. The risk of disrupting another Python
+environment, or of this one being disrupting, is minimal, since the
+environment is designated for the R package. At the same time, if the
+environment is disrupted at some time later (perhaps because something
+with conflicting Python dependencies was manually installed), the user
+can easily revert to a working state by calling `install_tensorflow()`.
+
+Python environments can occasionally get into a broken state when
+conflicting package versions are installed, and the most reliable way to
+get back to a working state is to delete the environment and start over
+with a fresh one. For this reason, `install_tensorflow()` removes any
+pre-existing “r-tensorflow” Python environments first. Deleting a Python
+environment however is not something to be done lightly, so the default
+is to only delete the default “r-tensorflow” environment. Here is an
+example of the helper `install_tensorflow()` with the “reset” behavior.
+
+``` r
+#' @importFrom reticulate py_install virtualenv_exists virtualenv_remove
+install_tensorflow <-
+  function(...,
+           envname = "r-tensorflow",
+           new_env = identical(envname, "r-tensorflow")) {
+
+  if(new_env && virtualenv_exists(envname))
+    virtualenv_remove(envname)
+
+  py_install(packages = "tensorflow", envname = envname, ...)
+}
+```
+
+## Managing Multiple Package Dependencies
+
+One drawback of the isolated-package-environments approach is that if
+multiple R packages using reticulate are in use, then those packages
+won’t all be able to use their preferred Python environment in the same
+R session (since there can only be one active Python environment at a
+time within an R session). To resolve this, users will have to take a
+slightly more active role in managing their Python environments.
+However, this can be as simple as supplying a unique environment name.
+
+The most straightforward approach is for users to create a dedicated
+Python environment for a specific project. For example, a user can
+create a virtual environment in the project directory, like this:
+
+``` r
+envname <- "./venv"
+tensorflow::install_tensorflow(envname = envname)
+pysparklyr::install_pyspark(envname = envname)
+```
+
+As described in the [Order of Python
+Discovery](https://rstudio.github.io/reticulate/articles/versions.md)
+guide, reticulate will automatically discover and use a Python virtual
+environment in the current working directory like this. Alternatively,
+if the environment exists outside the project directory, the user could
+then place an `.Renviron` or `.Rprofile` file in the project directory,
+ensuring that reticulate will use always use the Python environment
+configured for that project. For example, an `.Renviron` file in the
+project directory could contain:
+
+``` sh
+RETICULATE_PYTHON_ENV=~/my/project/venv
+```
+
+Or an `.Rprofile` file in the project directory could contain:
+
+``` r
+Sys.setenv("RETICULATE_PYTHON_ENV" = "~/my/project/venv")
+```
+
+This approach minimizes the risk that an existing, already working,
+Python environment will accidentally be broken by installing packages,
+due to inadvertently upgrading or downgrading other Python packages
+already installed in the environment.
+
+Another approach is for users to install your R packages’ Python
+dependencies into another Python environment that is already on the
+search path. For example, users can *opt-in* to installing into the
+default `r-reticulate` venv:
+
+``` r
+tensorflow::install_tensorflow(envname = "r-reticulate")
+```
+
+Or they can install one package’s dependencies into another package’s
+default environment. For example, installing spark into the default
+`"r-tensorflow"` environment:
+
+``` r
+tensorflow::install_tensorflow() # creates an "r-tensorflow" env
+pysparklyr::install_pyspark(envname = "r-tensorflow")
+```
+
+This approach—exporting an installation helper function that defaults to
+a particular environment, and a hint in `.onLoad()` to use that
+environment—is one way to create a “pit of success”. It encourages a
+default workflow that is robust and reliable, especially for users not
+yet familiar with the mechanics of Python installation management. At
+the same time, an installation helper function empowers users to manage
+Python environments through simply providing an environment name. It
+makes it easy to combine dependencies of multiple R packages, and,
+should anything go wrong due to conflicting Python dependencies, it also
+provides a straightforward way to revert to a working state at any time,
+by calling the helper function without arguments.
+
+## Automatic Configuration
+
+An alternative approach to the one described above is to do automatic
+configuration. It’s possible for client packages to declare their Python
+dependencies in such a way that they are automatically installed in the
+currently activated Python environment. This is a maximally convenient
+approach; when it works it can feel a little bit magical, but it is also
+potentially dangerous and can result in frustration if something goes
+wrong. You can opt in to this behavior as a package author through your
+packages `DESCRIPTION` file, with the use of the `Config/reticulate`
+field.
+
+With automatic configuration, `reticulate` envisions a world wherein
+different R packages wrapping Python packages can live together in the
+same Python environment / R session. This approach only works when the
+Python packages being wrapped don’t have conflicting dependencies.
+
+You must be a judge of the Python dependencies your R package
+requires–if automatically bootstrapping an installation of the Python
+package into the user’s active Python environment, whatever it may
+contain, is a safe action to perform by default. For example, this is
+most likely a safe action for a Python package like `requests`, but
+perhaps not a safe choice for a frequently updated package with many
+dependencies, like `torch` or `tensorflow` (e.g., it’s not uncommon for
+`torch` and `tensorflow` to have conflicting version requirements for
+dependencies like `numpy` or `cuda`). Keep in mind that, unlike CRAN,
+PyPI does not perform any compatibility or consistency checks across the
+package repository.
+
+### Using `Config/reticulate`
+
+As a package author, you can opt in to automatic configuration like
+this. For example, if we had a package `rscipy` that acted as an
+interface to the [SciPy](https://scipy.org) Python package, we might use
+the following `DESCRIPTION` file:
+
+    Package: rscipy
+    Title: An R Interface to scipy
+    Version: 1.0.0
+    Description: Provides an R interface to the Python package scipy.
+    Config/reticulate:
+      list(
+        packages = list(
+          list(package = "scipy")
+        )
+      )
+    < ... other fields ... >
+
+### Installation
+
+With this, `reticulate` will take care of automatically configuring a
+Python environment for the user when the `rscipy` package is loaded and
+used (i.e. it’s no longer necessary to provide the user with a special
+`install_tensorflow()`-type function, though it’s still recommended to
+do so).
+
+Specifically, after the `rscipy` package is loaded, the following will
+occur:
+
+1.  Unless the user has explicitly instructed `reticulate` to use an
+    existing Python environment, `reticulate` will prompt the user to
+    download and install
+    [Miniconda](https://docs.conda.io/en/latest/miniconda.html) (if
+    necessary).
+
+2.  After this, when the Python session is initialized by `reticulate`,
+    all declared dependencies of loaded packages in `Config/reticulate`
+    will be discovered.
+
+3.  These dependencies will then be installed into an appropriate Conda
+    environment, as provided by the Miniconda installation.
+
+In this case, the end user workflow will be exactly as with an R package
+that has no Python dependencies:
+
+``` r
+library(rscipy)
+# use the package
+```
+
+If the user has no compatible version of Python available on their
+system, they will be prompted to install Miniconda. If they do have
+Python already, then the required Python packages (in this case `scipy`)
+will be installed in the standard shared environment for R sessions
+(typically a virtual environment, or a Conda environment named
+“r-reticulate”).
+
+In effect, users have to pay a one-time, mostly automated initialization
+cost in order to use your package, and then things will work as any
+other R package would. In particular, users are otherwise spared from
+details about how `reticulate` works.
+
+### `.onLoad` Configuration
+
+In some cases, a user may try to load your package after Python has
+already been initialized. To ensure that `reticulate` can still
+configure the active Python environment, you can include the following
+code:
+
+``` r
+.onLoad <- function(libname, pkgname) {
+  reticulate::configure_environment(pkgname)
+}
+```
+
+This will instruct `reticulate` to immediately try to configure the
+active Python environment, installing any required Python packages as
+necessary.
+
+## Versions
+
+The goal of these mechanisms is to allow easy interoperability between R
+packages that have Python dependencies, as well as to minimize
+specialized version/configuration steps for end users. To that end,
+`reticulate` will (by default) track an older version of Python than the
+current release, giving Python packages time to adapt. Python 2 will not
+be supported.
+
+Tools for breaking these rules are not yet implemented, but will be
+provided as the need arises.
+
+## Format
+
+Declared Python package dependencies should have the following format:
+
+- **package**: The name of the Python package.
+
+- **version**: The version of the package that should be installed. When
+  left unspecified, the latest available version will be installed. This
+  should only be set in exceptional cases—for example, if the most
+  recently-released version of a Python package breaks compatibility
+  with your package (or other Python packages) in a fundamental way. If
+  multiple R packages request different versions of a particular Python
+  package, `reticulate` will signal a warning.
+
+- **pip**: Whether this package should be retrieved from the
+  [PyPI](https://pypi.org) using `pip`. If `FALSE`, it will be
+  downloaded from the Anaconda repositories instead.
+
+For example, we could change the `Config/reticulate` directive from
+above to specify that `scipy [1.3.0]` be installed from PyPI (with
+`pip`):
+
+    Config/reticulate:
+      list(
+        packages = list(
+          list(package = "scipy", version = "1.3.0", pip = TRUE)
+        )
+      )

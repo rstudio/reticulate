@@ -1,0 +1,393 @@
+# Installing Python Packages
+
+## Declaring Python Requirements with `py_require()`
+
+[`py_require()`](https://rstudio.github.io/reticulate/reference/py_require.md)
+is the recommended way to declare Python dependencies. A
+[`py_require()`](https://rstudio.github.io/reticulate/reference/py_require.md)
+call is similar to a [`library()`](https://rdrr.io/r/base/library.html)
+call for Python packages.
+
+[`py_require()`](https://rstudio.github.io/reticulate/reference/py_require.md):
+
+- Should appear near the beginning of an R script.
+- Declares the Python dependencies needed for the script.
+- Applies only to the current R session.
+- Has no effect if called multiple times with the same arguments.
+
+R packages can also call
+[`py_require()`](https://rstudio.github.io/reticulate/reference/py_require.md)
+when loaded, and their declared dependencies are combined with those
+declared by the user and other loaded R packages.
+
+Calling `py_require("pkg")` updates the Python requirements manifest
+that reticulate maintains for the current R session. This manifest is
+used only if no manually managed Python environment is found earlier in
+the Python [Order of
+Discovery](https://rstudio.github.io/reticulate/versions#order-of-discovery).
+The manifest is not consulted and requirements are not resolved until
+reticulate needs to initialize Python, typically at the first
+[`import()`](https://rstudio.github.io/reticulate/reference/import.md)
+call. Requirements are resolved into a cached ephemeral environment
+specific to the unique set of dependencies declared.
+
+While not required, it is generally recommended to declare all Python
+dependencies before reticulate initializes Python. The simplest approach
+is to place all
+[`py_require()`](https://rstudio.github.io/reticulate/reference/py_require.md)
+calls at the start of the script, alongside
+[`library()`](https://rdrr.io/r/base/library.html) calls.
+
+Usage example:
+
+``` r
+library(reticulate)
+py_require("jax")    # Declare jax is a requirement
+
+jax <- import("jax") # <-- initialize Python with declared requirements
+```
+
+### Unsatisfiable requirements.
+
+It’s possible to inadvertently declare an unsatisfiable set of Python
+requirements. This can happen for a variety of reasons, most often due
+to:
+
+- Incompatible requirements declared by different R packages.
+- A recently published Python package version that introduces conflicts.
+
+To troubleshoot:
+
+1.  Figure out what the conflicting requirements are and where they are
+    coming from.
+2.  Update the requirements to resolve conflicts.
+
+To help with step 1, calling
+[`py_require()`](https://rstudio.github.io/reticulate/reference/py_require.md)
+with no arguments will print out a manifest of the current requirements,
+as well as a table showing what requirements were declared by different
+R packages.
+
+Additionally, attempting to initialize Python will print out a detailed
+error message.
+
+For example:
+
+``` r
+library(reticulate)
+py_require("numpy>2")
+py_require("numpy<2")
+import("numpy")
+```
+
+      × No solution found when resolving `--with` dependencies:
+      ╰─▶ Because you require numpy>2 and numpy<2, we can conclude that your
+          requirements are unsatisfiable.
+    uv error code: 1
+    -- Current requirements -------------------------------------------------
+     Python:   3.11.11 (reticulate default)
+     Packages: numpy, numpy>2, numpy<2
+    -------------------------------------------------------------------------
+    Error in uv_get_or_create_env() :
+      Call `py_require()` to remove or replace conflicting requirements.
+
+You can call
+[`py_require()`](https://rstudio.github.io/reticulate/reference/py_require.md)
+again to update the requirements and make them satisfiable. Options for
+resolving issues include:
+
+1.  **Rolling Back to a Known Working State**
+
+    If your requirements were previously satisfiable but recently broke,
+    it is likely due to a newly published package version. You can roll
+    back to a known working state by specifying a date with
+    `exclude_newer`.
+
+    ``` r
+    # Roll back to a known working state.
+    py_require(exclude_newer = "2025-01-19")
+    ```
+
+2.  **Removing Conflicting Requirements**
+
+    If your requirements cannot be satisfied due to conflicts, you can
+    use `action = "remove"` or `action = "set"` to update or remove
+    specific packages.
+
+    ``` r
+    py_require("numpy<2", action = "remove")
+    ```
+
+    You can also retrieve and modify the full set of current
+    requirements if needed. For example, given a larger set of
+    conflicting tensorflow requirements:
+
+    ``` r
+    # Declare conflicting requirements.
+    py_require(c("tensorflow==2.17.*",
+                 "tensorflow<=2.16",
+                 "tensorflow[and-cuda]",
+                 "tensorflow-cpu",
+                 "tensorflow<=2.18"))
+    ```
+
+    You can use `action = "remove"` to remove all TensorFlow-related
+    requirements:
+
+    ``` r
+    # Remove all TensorFlow requirements.
+    all_py_pkgs <- py_require()$packages
+    tf_pkgs <- grep("tensorflow", all_py_pkgs, value = TRUE)
+    py_require(tf_pkgs, action = "remove")
+    ```
+
+    Or you can use `action = "set"` to replace all declared
+    requirements:
+
+    ``` r
+    # Replace all package requirements except TensorFlow.
+    all_py_pkgs <- py_require()$packages
+    all_py_pkgs_sans_tf <- grep("tensorflow", all_py_pkgs, value = TRUE, invert = TRUE)
+    py_require(all_py_pkgs_sans_tf, action = "set")
+    ```
+
+3.  **Installing a Development Version**
+
+    If a development version of a package has fixed the issue but has
+    not yet been published to PyPi, you can install it directly from
+    GitHub or the local filesystem.
+
+    ``` r
+    # Install the 'markitdown' package from GitHub.
+    py_require("markitdown@git+https://github.com/microsoft/markitdown.git@main#subdirectory=packages/markitdown")
+
+    # Install it from the local filesystem.
+    py_require("markitdown@/Users/tomasz/github/microsoft/markitdown/packages/markitdown/")
+    ```
+
+    See
+    [`py_require()`](https://rstudio.github.io/reticulate/reference/py_require.md)
+    for more examples.
+
+## Manually managing Python installations
+
+> ## **⚠ Updated Guidance**
+>
+> The remainder of this vignette describes how to manually manage Python
+> installations. Manually managing Python installations is no longer
+> necessary nor recommended.
+>
+> It is instead recommended to use
+> [`py_require()`](https://rstudio.github.io/reticulate/reference/py_require.md)
+> to specify Python dependencies. Note that
+> [`py_require()`](https://rstudio.github.io/reticulate/reference/py_require.md)
+> has no effect if using a self-managed Python installation.
+
+## Overview
+
+Python packages are typically installed from one of two package
+repositories:
+
+1.  [PyPI](https://pypi.org/); or
+
+2.  [Conda](https://docs.conda.io/docs/)
+
+Any Python package you install from PyPI or Conda can be used from R
+with reticulate.
+
+Each installation of Python on your system has its own set of packages.
+How reticulate selects a Python installation, and how you can configure
+the behavior, is described in the
+[version](https://rstudio.github.io/reticulate/articles/versions.md)
+vignette.
+
+### Python environments
+
+When installing Python packages it’s best practice to isolate them
+within a Python environment (a named Python installation that exists for
+a specific project or purpose). This provides a measure of isolation, so
+that updating a Python package for one project doesn’t impact other
+projects. The risk for package incompatibilities is significantly higher
+with Python packages than it is with R packages, because unlike CRAN,
+PyPI does not enforce, or even check, if the current versions of
+packages currently available are compatible.
+
+The reticulate package includes functions for creating Python
+environments (either virtualenvs or conda envs) and installing packages
+within them. Both virtual environments and conda environments are
+supported on all platforms (Linux, macOS, and Windows).
+
+Note that facilities to create and manage virtual environments (commonly
+refereed to as a “venv”) come with the Python standard library, and are
+the recommended way to create isolated python installations. Conda
+environments are supported as well, but be aware that there is the
+potential for binary incompatibilities between packages built by conda
+and packages built outside of conda (e.g.,
+[CRAN](https://cran.r-project.org/), or
+[PPM](https://packagemanager.posit.co/)).
+
+## Simple Installation
+
+The reticulate package includes a
+[`py_install()`](https://rstudio.github.io/reticulate/reference/py_install.md)
+function that can be used to install one or more Python packages. The
+packages will be by default be installed within a virtualenv or Conda
+environment named “r-reticulate”. For example:
+
+``` r
+library(reticulate)
+py_install("pandas")
+```
+
+This provides a straightforward high-level interface to package
+installation and helps encourage the use of a common default environment
+(“r-reticulate”) across the installation of distinct Python packages.
+
+There are also functions available for directly managing both Conda and
+virtualenvs for situations where you want more control over how packages
+are installed. These functions are covered in the sections below.
+
+## Virtualenv installation
+
+The following functions are available for managing Python virtualenvs:
+
+| Function                                                                                     | Description                                        |
+|----------------------------------------------------------------------------------------------|----------------------------------------------------|
+| [`virtualenv_list()`](https://rstudio.github.io/reticulate/reference/virtualenv-tools.md)    | List all available virtualenvs                     |
+| [`virtualenv_create()`](https://rstudio.github.io/reticulate/reference/virtualenv-tools.md)  | Create a new virtualenv                            |
+| [`virtualenv_install()`](https://rstudio.github.io/reticulate/reference/virtualenv-tools.md) | Install a package within a virtualenv              |
+| [`virtualenv_remove()`](https://rstudio.github.io/reticulate/reference/virtualenv-tools.md)  | Remove individual packages or an entire virtualenv |
+
+Virtual environments are by default located at `~/.virtualenvs`. You can
+change this behavior by defining the `WORKON_HOME` environment variable.
+
+Here’s an example of using these functions to create an environment,
+install packages within it, then use the environment from R:
+
+``` r
+library(reticulate)
+
+# create a new environment
+virtualenv_create("r-reticulate")
+
+# install SciPy
+virtualenv_install("r-reticulate", "scipy")
+
+# import SciPy (it will be automatically discovered in "r-reticulate")
+scipy <- import("scipy")
+```
+
+Note that you may have a given Python package installed in multiple
+environments, in that case you may want to call the
+[`use_virtualenv()`](https://rstudio.github.io/reticulate/reference/use_python.md)
+function to ensure that a specific virtualenv is utilized by reticulate:
+
+``` r
+library(reticulate)
+
+# indicate that we want to use a specific virtualenv
+use_virtualenv("r-reticulate")
+
+# import SciPy (will use "r-reticulate" as per call to use_virtualenv)
+scipy <- import("scipy")
+```
+
+Virtual environments are typically derived from (created using) a
+“starter” python installation. That is, there must be a python
+installation already installed on the system before you can create
+virtual environments. You can install a “venv starter” python in a
+variety of ways, however is most convenient:
+
+- On macOS and Windows, visit <https://www.python.org/downloads/> and
+  install a suitable version for your system.
+- On Linux, you can use prebuilt python binaries from
+  <https://github.com/rstudio/python-builds>
+- On all platforms, you can use
+  [`reticulate::install_python()`](https://rstudio.github.io/reticulate/reference/install_python.md).
+  Note that on macOS and Linux, this will build Python from source on
+  your system, which may take up to a few minutes.
+
+There can be multiple versions of Python installed along-side each other
+on a system (for example, Python versions 3.9, 3.10, and 3.11). By
+default, reticulate will use the latest version installed on the system
+for creating the virtualenv. If you have specific version constraints on
+the version of Python required, you can supply those to the `version`
+argument–for example: `virtualenv_create(version = ">=3.9")`
+
+At anytime, you can see all the available virtualenv starters on your
+system by calling `virtualenv_starter(all = TRUE)`. If you have Python
+venv starters installed in non-standard locations, you can inform
+reticulate where to look by setting the environment variable
+`RETICULATE_VIRTUALENV_STARTER`.
+
+## Conda installation
+
+The following functions are available for managing Conda environments:
+
+| Function                                                                           | Description                                               |
+|------------------------------------------------------------------------------------|-----------------------------------------------------------|
+| [`conda_list()`](https://rstudio.github.io/reticulate/reference/conda-tools.md)    | List all available conda environments                     |
+| [`conda_create()`](https://rstudio.github.io/reticulate/reference/conda-tools.md)  | Create a new conda environment                            |
+| [`conda_install()`](https://rstudio.github.io/reticulate/reference/conda-tools.md) | Install a package within a conda environment              |
+| [`conda_remove()`](https://rstudio.github.io/reticulate/reference/conda-tools.md)  | Remove individual packages or an entire conda environment |
+
+Here’s an example of using these functions to create an environment,
+install packages within it, then use the environment from R:
+
+``` r
+library(reticulate)
+
+# create a new environment
+conda_create("r-reticulate")
+
+# install SciPy
+conda_install("r-reticulate", "scipy")
+
+# import SciPy (it will be automatically discovered in "r-reticulate")
+scipy <- import("scipy")
+```
+
+Note that you may have a given Python package installed in multiple
+Conda environments, in that case you may want to call the
+[`use_condaenv()`](https://rstudio.github.io/reticulate/reference/use_python.md)
+function to ensure that a specific Conda environment is utilized by
+reticulate:
+
+``` r
+library(reticulate)
+
+# indicate that we want to use a specific condaenv
+use_condaenv("r-reticulate")
+
+# import SciPy (will use "r-reticulate" as per call to use_condaenv)
+scipy <- import("scipy")
+```
+
+## Shell installation
+
+You can also use standard shell installation utilities (`pip` or
+`conda`) to install Python packages:
+
+``` bash
+# install into system level Python
+$ sudo pip install SciPy
+
+# install into active Conda environment
+$ conda install SciPy
+```
+
+When doing this, be sure to make note of which version of Python your
+package has been installed within, and call
+[`use_python()`](https://rstudio.github.io/reticulate/reference/use_python.md)
+functions as appropriate to ensure that this version is used by
+reticulate.
+
+Alternatively, within
+[`repl_python()`](https://rstudio.github.io/reticulate/reference/repl_python.md),
+you can prefix `!` to send a shell command, and the version of `pip` or
+`conda` used will already be configured for the Python installation
+reticulate is currently using.
+
+``` shell
+!pip install scipy
+```

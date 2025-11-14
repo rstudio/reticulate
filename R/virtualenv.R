@@ -512,9 +512,20 @@ virtualenv_starter <- function(version = NULL, all = FALSE) {
                          stringsAsFactors = FALSE)
 
   find_starters <- function(glob) {
-    # accept NULL, NA, and "" as a no-op
-    if(is.null(glob) || isTRUE(is.na(glob)) || isFALSE(nzchar(glob)))
+    # accept NULL, NA, "", and 0-length vectors as a no-op
+    glob <- as.character(unlist(glob, use.names = FALSE))
+    glob <- glob[!is.na(glob)]
+    glob <- glob[nzchar(glob)]
+    if (!length(glob))
       return(invisible(starters))
+
+    if (length(glob) > 1L) {
+      for (g in glob)
+        find_starters(g)
+      return(invisible(starters))
+    }
+
+    # `glob` must now be a string (non-empty, non-NA, length-1 character)
 
     # if not a glob,
     if (!grepl("*", glob, fixed = TRUE)) {

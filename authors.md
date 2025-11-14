@@ -27,7 +27,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/rstudio/reticulate/blob/v1.44.1/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/rstudio/reticulate/blob/main/DESCRIPTION)
 
 Ushey K, Allaire J, Tang Y (2025). *reticulate: Interface to 'Python'*.
 R package version 1.44.1, <https://rstudio.github.io/reticulate/>.

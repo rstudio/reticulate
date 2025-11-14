@@ -618,11 +618,11 @@ virtualenv_starter <- function(version = NULL, all = FALSE) {
   # try to discover orphaned pyenv installs by looking in the default install location
   # (i.e., pyenv deleted, but python remains)
   if (is_windows()) {
-      default_pyenv_root <- file.path(user_data_dir("r-reticulate"), "pyenv", "pyenv-win")
-      find_starters(file.path(pyenv_root, "versions/*/python*.exe"))
+    default_pyenv_root <- file.path(user_data_dir("r-reticulate"), "pyenv", "pyenv-win")
+    find_starters(file.path(default_pyenv_root, "versions/*/python*.exe"))
   } else {
     default_pyenv_root <- "~/.pyenv"
-    find_starters(file.path(pyenv_root, "versions/*/bin/python*"))
+    find_starters(file.path(default_pyenv_root, "versions/*/bin/python*"))
   }
 
 

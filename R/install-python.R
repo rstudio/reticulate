@@ -61,7 +61,7 @@
 #' On Windows, prebuilt installers from <https://www.python.org> are used.
 #'
 #' @export
-install_python <- function(version = "3.11:latest",
+install_python <- function(version = "3.12:latest",
                            list = FALSE,
                            force = FALSE,
                            optimized = TRUE)

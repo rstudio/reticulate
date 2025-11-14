@@ -330,7 +330,7 @@ miniconda_python_envpath <- function() {
 
 # the version of python to use in the environment
 miniconda_python_version <- function() {
-  Sys.getenv("RETICULATE_MINICONDA_PYTHON_VERSION", unset = "3.10")
+  Sys.getenv("RETICULATE_MINICONDA_PYTHON_VERSION", unset = "3.12")
 }
 
 miniconda_python_package <- function() {

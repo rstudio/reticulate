@@ -663,7 +663,10 @@ virtualenv_starter <- function(version = NULL, all = FALSE) {
 
   # If the user has installed uv, we can use its managed Python interpreters.
   # We skip reticulate-managed uv installs because reticulate deletes their Pythons when it clears its cache.
-  if (!isTRUE(attr(uv_binary(FALSE), "reticulate-managed", TRUE))) {
+  uv <- uv_binary(bootstrap_install = FALSE)
+  is_user_uv <-
+    !is.null(uv) && !isTRUE(attr(uv_binary(FALSE), "reticulate-managed", TRUE))
+  if (is_user_uv) {
     find_starters(uv_exec(c(
       "python dir --managed-python",
       "--color never --quiet --offline --no-config --no-progress"),

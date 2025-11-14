@@ -46,7 +46,9 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="reticulate-development-version">reticulate (development version)<a class="anchor" aria-label="anchor" href="#reticulate-development-version"></a></h2>
-</div>
+<ul><li><p>Fix error in <code><a href="../reference/virtualenv-tools.html">virtualenv_create()</a></code>/<code><a href="../reference/virtualenv-tools.html">virtualenv_starter()</a></code> (<a href="https://github.com/rstudio/reticulate/issues/1861" class="external-link">#1861</a>).</p></li>
+<li><p>Fix display of Python variables in the Positron Variables Pane (<a href="https://github.com/rstudio/reticulate/issues/1859" class="external-link">#1859</a>).</p></li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.44.0" id="reticulate-1440">reticulate 1.44.0<a class="anchor" aria-label="anchor" href="#reticulate-1440"></a></h2><p class="text-muted">CRAN release: 2025-10-25</p>
 <ul><li><p>Reticulate now clears its cache automatically every 120 days. Configure the interval in <code>.Rprofile</code> with: <code>options(reticulate.max_cache_age = as.difftime(30, units = "days"))</code>.</p></li>
@@ -786,7 +788,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

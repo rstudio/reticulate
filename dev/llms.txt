@@ -1,0 +1,579 @@
+# R Interface to Python
+
+The **reticulate** package provides a comprehensive set of tools for
+interoperability between Python and R. The package includes facilities
+for:
+
+![reticulated python](reference/figures/reticulated_python.png)
+
+- Calling Python from R in a variety of ways including R Markdown,
+  sourcing Python scripts, importing Python modules, and using Python
+  interactively within an R session.
+
+- Translation between R and Python objects (for example, between R and
+  Pandas data frames, or between R matrices and NumPy arrays).
+
+- Flexible binding to different versions of Python including virtual
+  environments and Conda environments.
+
+Reticulate embeds a Python session within your R session, enabling
+seamless, high-performance interoperability. If you are an R developer
+that uses Python for some of your work or a member of data science team
+that uses both languages, reticulate can dramatically streamline your
+workflow!
+
+### Getting started
+
+#### Installation
+
+Install the **reticulate** package from CRAN as follows:
+
+``` r
+install.packages("reticulate")
+```
+
+#### Python version
+
+By default, reticulate uses an isolated python virtual environment named
+“r-reticulate”.
+
+The
+[`use_python()`](https://rstudio.github.io/reticulate/dev/reference/use_python.md)
+function enables you to specify an alternate python, for example:
+
+``` r
+library(reticulate)
+use_python("/usr/local/bin/python")
+```
+
+The
+[`use_virtualenv()`](https://rstudio.github.io/reticulate/dev/reference/use_python.md)
+and
+[`use_condaenv()`](https://rstudio.github.io/reticulate/dev/reference/use_python.md)
+functions enable you to specify versions of Python in virtual or Conda
+environments, for example:
+
+``` r
+library(reticulate)
+use_virtualenv("myenv")
+```
+
+See the article on [Python Version
+Configuration](https://rstudio.github.io/reticulate/articles/versions.html)
+for additional details.
+
+#### Python packages
+
+You can install any required Python packages using standard shell tools
+like `pip` and `conda`. Alternately, reticulate includes a set of
+functions for managing and installing packages within virtualenvs and
+Conda environments. See the article on [Installing Python
+Packages](https://rstudio.github.io/reticulate/articles/python_packages.html)
+for additional details.
+
+#### Calling Python
+
+There are a variety of ways to integrate Python code into your R
+projects:
+
+1.  [Python in R Markdown](#python-in-r-markdown) — A new Python
+    language engine for R Markdown that supports bi-directional
+    communication between R and Python (R chunks can access Python
+    objects and vice-versa).
+
+2.  [Importing Python modules](#importing-python-modules) — The
+    [`import()`](https://rstudio.github.io/reticulate/dev/reference/import.md)
+    function enables you to import any Python module and call it’s
+    functions directly from R.
+
+3.  [Sourcing Python scripts](#sourcing-python-scripts) — The
+    [`source_python()`](https://rstudio.github.io/reticulate/dev/reference/source_python.md)
+    function enables you to source a Python script the same way you
+    would [`source()`](https://rdrr.io/r/base/source.html) an R script
+    (Python functions and objects defined within the script become
+    directly available to the R session).
+
+4.  [Python REPL](#python-repl) — The
+    [`repl_python()`](https://rstudio.github.io/reticulate/dev/reference/repl_python.md)
+    function creates an interactive Python console within R. Objects you
+    create within Python are available to your R session (and
+    vice-versa).
+
+Each of these techniques is explained in more detail below.
+
+## Python in R Markdown
+
+The **reticulate** package includes a Python engine for [R
+Markdown](https://rmarkdown.rstudio.com/) with the following features:
+
+1.  Run Python chunks in a single Python session embedded within your R
+    session (shared variables/state between Python chunks)
+
+2.  Printing of Python output, including graphical output from
+    [matplotlib](https://matplotlib.org/).
+
+3.  Access to objects created within Python chunks from R using the `py`
+    object (e.g. `py$x` would access an `x` variable created within
+    Python from R).
+
+4.  Access to objects created within R chunks from Python using the `r`
+    object (e.g. `r.x` would access to `x` variable created within R
+    from Python)
+
+Built in conversion for many Python object types is provided, including
+[NumPy](https://numpy.org/) arrays and
+[Pandas](https://pandas.pydata.org/) data frames. For example, you can
+use Pandas to read and manipulate data then easily plot the Pandas data
+frame using [ggplot2](https://ggplot2.tidyverse.org/):
+
+![](reference/figures/rmarkdown_engine_zoomed.png)
+
+Note that the reticulate Python engine is enabled by default within R
+Markdown whenever reticulate is installed.
+
+See the [R Markdown Python
+Engine](https://rstudio.github.io/reticulate/articles/r_markdown.html)
+documentation for additional details.
+
+## Importing Python modules
+
+You can use the
+[`import()`](https://rstudio.github.io/reticulate/dev/reference/import.md)
+function to import any Python module and call it from R. For example,
+this code imports the Python `os` module and calls the `listdir()`
+function:
+
+``` r
+library(reticulate)
+os <- import("os")
+os$listdir(".")
+```
+
+``` text
+ [1] ".git"             ".gitignore"       ".Rbuildignore"    ".RData"
+ [5] ".Rhistory"        ".Rproj.user"      ".travis.yml"      "appveyor.yml"
+ [9] "DESCRIPTION"      "docs"             "external"         "index.html"
+[13] "index.Rmd"        "inst"             "issues"           "LICENSE"
+[17] "man"              "NAMESPACE"        "NEWS.md"          "pkgdown"
+[21] "R"                "README.md"        "reticulate.Rproj" "src"
+[25] "tests"            "vignettes"
+```
+
+Functions and other data within Python modules and classes can be
+accessed via the `$` operator (analogous to the way you would interact
+with an R list, environment, or reference class).
+
+Imported Python modules support code completion and inline help:
+
+![](reference/figures/reticulate_completion.png)
+
+See [Calling Python from
+R](https://rstudio.github.io/reticulate/articles/calling_python.html)
+for additional details on interacting with Python objects from within R.
+
+## Sourcing Python scripts
+
+You can source any Python script just as you would source an R script
+using the
+[`source_python()`](https://rstudio.github.io/reticulate/dev/reference/source_python.md)
+function. For example, if you had the following Python script
+*flights.py*:
+
+``` python
+import pandas
+def read_flights(file):
+  flights = pandas.read_csv(file)
+  flights = flights[flights['dest'] == "ORD"]
+  flights = flights[['carrier', 'dep_delay', 'arr_delay']]
+  flights = flights.dropna()
+  return flights
+```
+
+Then you can source the script and call the `read_flights()` function as
+follows:
+
+``` r
+source_python("flights.py")
+flights <- read_flights("flights.csv")
+
+library(ggplot2)
+ggplot(flights, aes(carrier, arr_delay)) + geom_point() + geom_jitter()
+```
+
+See the
+[`source_python()`](https://rstudio.github.io/reticulate/dev/reference/source_python.md)
+documentation for additional details on sourcing Python code.
+
+## Python REPL
+
+If you want to work with Python interactively you can call the
+[`repl_python()`](https://rstudio.github.io/reticulate/dev/reference/repl_python.md)
+function, which provides a Python REPL embedded within your R session.
+Objects created within the Python REPL can be accessed from R using the
+`py` object exported from reticulate. For example:
+
+![](reference/figures/python_repl.png)
+
+Enter `exit` within the Python REPL to return to the R prompt.
+
+Note that Python code can also access objects from within the R session
+using the `r` object (e.g. `r.flights`). See the
+[`repl_python()`](https://rstudio.github.io/reticulate/dev/reference/repl_python.md)
+documentation for additional details on using the embedded Python REPL.
+
+## Type conversions
+
+When calling into Python, R data types are automatically converted to
+their equivalent Python types. When values are returned from Python to R
+they are converted back to R types. Types are converted as follows:
+
+| R                                           | Python            | Examples                                         |
+|---------------------------------------------|-------------------|--------------------------------------------------|
+| Single-element atomic vector                | Scalar            | `1`, `1L`, `TRUE`, `"foo"`                       |
+| Unnamed list or multi-element atomic vector | List              | `c(1.0, 2.0, 3.0)`, `c(1L, 2L, 3L)`              |
+| Named list                                  | Dict              | `list(a = 1L, b = 2.0)`, `dict(x = x_data)`      |
+| Matrix/Array                                | NumPy ndarray     | `matrix(c(1,2,3,4), nrow = 2, ncol = 2)`         |
+| Data Frame                                  | Pandas DataFrame  | `data.frame(x = c(1,2,3), y = c("a", "b", "c"))` |
+| Function                                    | Python function   | `function(x) x + 1`                              |
+| NULL, TRUE, FALSE                           | None, True, False | `NULL`, `TRUE`, `FALSE`                          |
+
+If a Python object of a custom class is returned then an R reference to
+that object is returned. You can call methods and access properties of
+the object just as if it was an instance of an R reference class.
+
+## Learning more
+
+The following articles cover the various aspects of using
+**reticulate**:
+
+- [Calling Python from
+  R](https://rstudio.github.io/reticulate/articles/calling_python.html)
+  — Describes the various ways to access Python objects from R as well
+  as functions available for more advanced interactions and conversion
+  behavior.
+
+- [R Markdown Python
+  Engine](https://rstudio.github.io/reticulate/articles/r_markdown.html)
+  — Provides details on using Python chunks within R Markdown documents,
+  including how call Python code from R chunks and vice-versa.
+
+- [Python Version
+  Configuration](https://rstudio.github.io/reticulate/articles/versions.html)
+  — Describes facilities for determining which version of Python is used
+  by reticulate within an R session.
+
+- [Installing Python
+  Packages](https://rstudio.github.io/reticulate/articles/python_packages.html)
+  — Documentation on installing Python packages from PyPI or Conda, and
+  managing package installations using virtualenvs and Conda
+  environments.
+
+- [Using reticulate in an R
+  Package](https://rstudio.github.io/reticulate/articles/package.html) —
+  Guidelines and best practices for using reticulate in an R package.
+
+- [Arrays in R and
+  Python](https://rstudio.github.io/reticulate/articles/arrays.html) —
+  Advanced discussion of the differences between arrays in R and Python
+  and the implications for conversion and interoperability.
+
+- [Python
+  Primer](https://rstudio.github.io/reticulate/articles/python_primer.html)
+  — Introduction to Python for R users.
+
+## Why reticulate?
+
+From the [Wikipedia](https://en.wikipedia.org/wiki/Reticulated_python)
+article on the reticulated python:
+
+> The reticulated python is a species of python found in Southeast Asia.
+> They are the world’s longest snakes and longest reptiles…The specific
+> name, reticulatus, is Latin meaning “net-like”, or reticulated, and is
+> a reference to the complex colour pattern.
+
+From the
+[Merriam-Webster](https://www.merriam-webster.com/dictionary/reticulate)
+definition of reticulate:
+
+> 1: resembling a net or network; especially : having veins, fibers, or
+> lines crossing a reticulate leaf. 2: being or involving evolutionary
+> change dependent on genetic recombination involving diverse
+> interbreeding populations.
+
+The package enables you to *reticulate* Python code into R, creating a
+new breed of project that weaves together the two languages.
+
+# Package index
+
+## Python Requirements
+
+- [`py_require()`](https://rstudio.github.io/reticulate/dev/reference/py_require.md)
+  : Declare Python Requirements
+- [`py_write_requirements()`](https://rstudio.github.io/reticulate/dev/reference/py_requirements_files.md)
+  [`py_read_requirements()`](https://rstudio.github.io/reticulate/dev/reference/py_requirements_files.md)
+  : Write and read Python requirements files
+
+## Python Execution
+
+- [`import()`](https://rstudio.github.io/reticulate/dev/reference/import.md)
+  [`import_main()`](https://rstudio.github.io/reticulate/dev/reference/import.md)
+  [`import_builtins()`](https://rstudio.github.io/reticulate/dev/reference/import.md)
+  [`import_from_path()`](https://rstudio.github.io/reticulate/dev/reference/import.md)
+  : Import a Python module
+- [`source_python()`](https://rstudio.github.io/reticulate/dev/reference/source_python.md)
+  : Read and evaluate a Python script
+- [`repl_python()`](https://rstudio.github.io/reticulate/dev/reference/repl_python.md)
+  : Run a Python REPL
+- [`eng_python()`](https://rstudio.github.io/reticulate/dev/reference/eng_python.md)
+  : A reticulate Engine for Knitr
+- [`py_run_string()`](https://rstudio.github.io/reticulate/dev/reference/py_run.md)
+  [`py_run_file()`](https://rstudio.github.io/reticulate/dev/reference/py_run.md)
+  : Run Python code
+- [`py_eval()`](https://rstudio.github.io/reticulate/dev/reference/py_eval.md)
+  : Evaluate a Python Expression
+- [`py`](https://rstudio.github.io/reticulate/dev/reference/py.md) :
+  Interact with the Python Main Module
+
+## Python Types
+
+- [`dict()`](https://rstudio.github.io/reticulate/dev/reference/dict.md)
+  [`py_dict()`](https://rstudio.github.io/reticulate/dev/reference/dict.md)
+  : Create Python dictionary
+- [`tuple()`](https://rstudio.github.io/reticulate/dev/reference/tuple.md)
+  : Create Python tuple
+- [`as_iterator()`](https://rstudio.github.io/reticulate/dev/reference/iterate.md)
+  [`iterate()`](https://rstudio.github.io/reticulate/dev/reference/iterate.md)
+  [`iter_next()`](https://rstudio.github.io/reticulate/dev/reference/iterate.md)
+  : Traverse a Python iterator or generator
+- [`py_iterator()`](https://rstudio.github.io/reticulate/dev/reference/py_iterator.md)
+  : Create a Python iterator from an R function
+- [`with(`*`<python.builtin.object>`*`)`](https://rstudio.github.io/reticulate/dev/reference/with.python.builtin.object.md)
+  : Evaluate an expression within a context.
+
+## Python Configuration
+
+- [`install_python()`](https://rstudio.github.io/reticulate/dev/reference/install_python.md)
+  : Install Python
+- [`py_config()`](https://rstudio.github.io/reticulate/dev/reference/py_config.md)
+  : Python configuration
+- [`py_discover_config()`](https://rstudio.github.io/reticulate/dev/reference/py_discover_config.md)
+  : Discover the version of Python to use with reticulate.
+- [`py_available()`](https://rstudio.github.io/reticulate/dev/reference/py_available.md)
+  [`py_numpy_available()`](https://rstudio.github.io/reticulate/dev/reference/py_available.md)
+  : Check if Python is available on this system
+- [`py_module_available()`](https://rstudio.github.io/reticulate/dev/reference/py_module_available.md)
+  : Check if a Python module is available on this system.
+- [`use_python()`](https://rstudio.github.io/reticulate/dev/reference/use_python.md)
+  [`use_python_version()`](https://rstudio.github.io/reticulate/dev/reference/use_python.md)
+  [`use_virtualenv()`](https://rstudio.github.io/reticulate/dev/reference/use_python.md)
+  [`use_condaenv()`](https://rstudio.github.io/reticulate/dev/reference/use_python.md)
+  [`use_miniconda()`](https://rstudio.github.io/reticulate/dev/reference/use_python.md)
+  : Use Python
+- [`py_exe()`](https://rstudio.github.io/reticulate/dev/reference/py_exe.md)
+  : Python executable
+- [`py_version()`](https://rstudio.github.io/reticulate/dev/reference/py_version.md)
+  : Python version
+
+## Python Output
+
+- [`py_capture_output()`](https://rstudio.github.io/reticulate/dev/reference/py_capture_output.md)
+  : Capture and return Python output
+- [`py_suppress_warnings()`](https://rstudio.github.io/reticulate/dev/reference/py_suppress_warnings.md)
+  : Suppress Python warnings for an expression
+
+## Arrays
+
+- [`np_array()`](https://rstudio.github.io/reticulate/dev/reference/np_array.md)
+  : NumPy array
+- [`array_reshape()`](https://rstudio.github.io/reticulate/dev/reference/array_reshape.md)
+  : Reshape an Array
+
+## Persistence
+
+- [`py_save_object()`](https://rstudio.github.io/reticulate/dev/reference/py_save_object.md)
+  [`py_load_object()`](https://rstudio.github.io/reticulate/dev/reference/py_save_object.md)
+  : Save and Load Python Objects
+
+## Low-Level Interface
+
+- [`py_has_attr()`](https://rstudio.github.io/reticulate/dev/reference/py_has_attr.md)
+  : Check if a Python object has an attribute
+
+- [`py_get_attr()`](https://rstudio.github.io/reticulate/dev/reference/py_get_attr.md)
+  : Get an attribute of a Python object
+
+- [`py_set_attr()`](https://rstudio.github.io/reticulate/dev/reference/py_set_attr.md)
+  : Set an attribute of a Python object
+
+- [`py_del_attr()`](https://rstudio.github.io/reticulate/dev/reference/py_del_attr.md)
+  : Delete an attribute of a Python object
+
+- [`py_list_attributes()`](https://rstudio.github.io/reticulate/dev/reference/py_list_attributes.md)
+  : List all attributes of a Python object
+
+- [`py_get_item()`](https://rstudio.github.io/reticulate/dev/reference/py_get_item.md)
+  [`py_set_item()`](https://rstudio.github.io/reticulate/dev/reference/py_get_item.md)
+  [`py_del_item()`](https://rstudio.github.io/reticulate/dev/reference/py_get_item.md)
+  [`` `[`( ``*`<python.builtin.object>`*`)`](https://rstudio.github.io/reticulate/dev/reference/py_get_item.md)
+  [`` `[<-`( ``*`<python.builtin.object>`*`)`](https://rstudio.github.io/reticulate/dev/reference/py_get_item.md)
+  : Get/Set/Delete an item from a Python object
+
+- [`py_call()`](https://rstudio.github.io/reticulate/dev/reference/py_call.md)
+  : Call a Python callable object
+
+- [`r_to_py()`](https://rstudio.github.io/reticulate/dev/reference/r-py-conversion.md)
+  [`py_to_r()`](https://rstudio.github.io/reticulate/dev/reference/r-py-conversion.md)
+  : Convert between Python and R objects
+
+- [`as.character(`*`<python.builtin.bytes>`*`)`](https://rstudio.github.io/reticulate/dev/reference/as.character.python.builtin.bytes.md)
+  [`as.raw(`*`<python.builtin.bytes>`*`)`](https://rstudio.github.io/reticulate/dev/reference/as.character.python.builtin.bytes.md)
+  : Convert Python bytes to an R character or raw vector
+
+- [`as.character(`*`<python.builtin.str>`*`)`](https://rstudio.github.io/reticulate/dev/reference/as.character.python.builtin.str.md)
+  : Convert a Python string to an R Character Vector
+
+- [`py_is_null_xptr()`](https://rstudio.github.io/reticulate/dev/reference/py_is_null_xptr.md)
+  [`py_validate_xptr()`](https://rstudio.github.io/reticulate/dev/reference/py_is_null_xptr.md)
+  : Check if a Python object is a null externalptr
+
+- [`py_id()`](https://rstudio.github.io/reticulate/dev/reference/py_id.md)
+  : Unique identifer for Python object
+
+- [`py_len()`](https://rstudio.github.io/reticulate/dev/reference/py_len.md)
+  : Length of Python object
+
+- [`py_bool()`](https://rstudio.github.io/reticulate/dev/reference/py_bool.md)
+  : Python Truthiness
+
+- [`py_repr()`](https://rstudio.github.io/reticulate/dev/reference/py_str.md)
+  [`py_str()`](https://rstudio.github.io/reticulate/dev/reference/py_str.md)
+  : String representation of a python object.
+
+- [`py_unicode()`](https://rstudio.github.io/reticulate/dev/reference/py_unicode.md)
+  : Convert to Python Unicode Object
+
+- [`py_set_seed()`](https://rstudio.github.io/reticulate/dev/reference/py_set_seed.md)
+  : Set Python and NumPy random seeds
+
+- [`py_clear_last_error()`](https://rstudio.github.io/reticulate/dev/reference/py_last_error.md)
+  [`py_last_error()`](https://rstudio.github.io/reticulate/dev/reference/py_last_error.md)
+  : Get or (re)set the last Python error encountered.
+
+- [`py_help()`](https://rstudio.github.io/reticulate/dev/reference/py_help.md)
+  : Documentation for Python Objects
+
+- [`py_func()`](https://rstudio.github.io/reticulate/dev/reference/py_func.md)
+  : Wrap an R function in a Python function with the same signature.
+
+- [`py_main_thread_func()`](https://rstudio.github.io/reticulate/dev/reference/py_main_thread_func.md)
+  :
+
+  [Deprecated](https://rdrr.io/r/base/Deprecated.html) Create a Python
+  function that will always be called on the main thread
+
+- [`py_ellipsis()`](https://rstudio.github.io/reticulate/dev/reference/py_ellipsis.md)
+  : The builtin constant Ellipsis
+
+- [`py_none()`](https://rstudio.github.io/reticulate/dev/reference/py_none.md)
+  : The Python None object
+
+- [`PyClass()`](https://rstudio.github.io/reticulate/dev/reference/PyClass.md)
+  : Create a python class
+
+- [`py_function_custom_scaffold()`](https://rstudio.github.io/reticulate/dev/reference/py_function_custom_scaffold.md)
+  : Custom Scaffolding of R Wrappers for Python Functions
+
+- [`nameOfClass(`*`<python.builtin.type>`*`)`](https://rstudio.github.io/reticulate/dev/reference/nameOfClass.python.builtin.type.md)
+  :
+
+  [`nameOfClass()`](https://rdrr.io/r/base/class.html) for Python
+  objects
+
+- [`` `==`( ``*`<python.builtin.object>`*`)`](https://rstudio.github.io/reticulate/dev/reference/Ops-python-methods.md)
+  [`` `!=`( ``*`<python.builtin.object>`*`)`](https://rstudio.github.io/reticulate/dev/reference/Ops-python-methods.md)
+  [`` `<`( ``*`<python.builtin.object>`*`)`](https://rstudio.github.io/reticulate/dev/reference/Ops-python-methods.md)
+  [`` `>`( ``*`<python.builtin.object>`*`)`](https://rstudio.github.io/reticulate/dev/reference/Ops-python-methods.md)
+  [`` `>=`( ``*`<python.builtin.object>`*`)`](https://rstudio.github.io/reticulate/dev/reference/Ops-python-methods.md)
+  [`` `<=`( ``*`<python.builtin.object>`*`)`](https://rstudio.github.io/reticulate/dev/reference/Ops-python-methods.md)
+  [`` `+`( ``*`<python.builtin.object>`*`)`](https://rstudio.github.io/reticulate/dev/reference/Ops-python-methods.md)
+  [`` `-`( ``*`<python.builtin.object>`*`)`](https://rstudio.github.io/reticulate/dev/reference/Ops-python-methods.md)
+  [`` `*`( ``*`<python.builtin.object>`*`)`](https://rstudio.github.io/reticulate/dev/reference/Ops-python-methods.md)
+  [`` `/`( ``*`<python.builtin.object>`*`)`](https://rstudio.github.io/reticulate/dev/reference/Ops-python-methods.md)
+  [`` `%/%`( ``*`<python.builtin.object>`*`)`](https://rstudio.github.io/reticulate/dev/reference/Ops-python-methods.md)
+  [`` `%%`( ``*`<python.builtin.object>`*`)`](https://rstudio.github.io/reticulate/dev/reference/Ops-python-methods.md)
+  [`` `^`( ``*`<python.builtin.object>`*`)`](https://rstudio.github.io/reticulate/dev/reference/Ops-python-methods.md)
+  [`` `&`( ``*`<python.builtin.object>`*`)`](https://rstudio.github.io/reticulate/dev/reference/Ops-python-methods.md)
+  [`` `|`( ``*`<python.builtin.object>`*`)`](https://rstudio.github.io/reticulate/dev/reference/Ops-python-methods.md)
+  [`` `!`( ``*`<python.builtin.object>`*`)`](https://rstudio.github.io/reticulate/dev/reference/Ops-python-methods.md)
+  [`` `%*%`( ``*`<python.builtin.object>`*`)`](https://rstudio.github.io/reticulate/dev/reference/Ops-python-methods.md)
+  : S3 Ops Methods for Python Objects
+
+## Package Installation
+
+- [`py_install()`](https://rstudio.github.io/reticulate/dev/reference/py_install.md)
+  : Install Python packages
+- [`py_list_packages()`](https://rstudio.github.io/reticulate/dev/reference/py_list_packages.md)
+  : List installed Python packages
+- [`virtualenv_create()`](https://rstudio.github.io/reticulate/dev/reference/virtualenv-tools.md)
+  [`virtualenv_install()`](https://rstudio.github.io/reticulate/dev/reference/virtualenv-tools.md)
+  [`virtualenv_remove()`](https://rstudio.github.io/reticulate/dev/reference/virtualenv-tools.md)
+  [`virtualenv_list()`](https://rstudio.github.io/reticulate/dev/reference/virtualenv-tools.md)
+  [`virtualenv_root()`](https://rstudio.github.io/reticulate/dev/reference/virtualenv-tools.md)
+  [`virtualenv_python()`](https://rstudio.github.io/reticulate/dev/reference/virtualenv-tools.md)
+  [`virtualenv_exists()`](https://rstudio.github.io/reticulate/dev/reference/virtualenv-tools.md)
+  [`virtualenv_starter()`](https://rstudio.github.io/reticulate/dev/reference/virtualenv-tools.md)
+  : Interface to Python Virtual Environments
+- [`configure_environment()`](https://rstudio.github.io/reticulate/dev/reference/configure_environment.md)
+  : Configure a Python Environment
+- [`conda_list()`](https://rstudio.github.io/reticulate/dev/reference/conda-tools.md)
+  [`conda_create()`](https://rstudio.github.io/reticulate/dev/reference/conda-tools.md)
+  [`conda_clone()`](https://rstudio.github.io/reticulate/dev/reference/conda-tools.md)
+  [`conda_export()`](https://rstudio.github.io/reticulate/dev/reference/conda-tools.md)
+  [`conda_remove()`](https://rstudio.github.io/reticulate/dev/reference/conda-tools.md)
+  [`conda_install()`](https://rstudio.github.io/reticulate/dev/reference/conda-tools.md)
+  [`conda_binary()`](https://rstudio.github.io/reticulate/dev/reference/conda-tools.md)
+  [`conda_exe()`](https://rstudio.github.io/reticulate/dev/reference/conda-tools.md)
+  [`conda_version()`](https://rstudio.github.io/reticulate/dev/reference/conda-tools.md)
+  [`conda_update()`](https://rstudio.github.io/reticulate/dev/reference/conda-tools.md)
+  [`conda_python()`](https://rstudio.github.io/reticulate/dev/reference/conda-tools.md)
+  [`conda_search()`](https://rstudio.github.io/reticulate/dev/reference/conda-tools.md)
+  [`condaenv_exists()`](https://rstudio.github.io/reticulate/dev/reference/conda-tools.md)
+  : Conda Tools
+- [`conda_run2()`](https://rstudio.github.io/reticulate/dev/reference/conda_run2.md)
+  : Run a command in a conda environment
+- [`uv_run_tool()`](https://rstudio.github.io/reticulate/dev/reference/uv_run_tool.md)
+  : uv run tool
+
+## Miniconda
+
+- [`install_miniconda()`](https://rstudio.github.io/reticulate/dev/reference/install_miniconda.md)
+  : Install Miniconda
+- [`miniconda_uninstall()`](https://rstudio.github.io/reticulate/dev/reference/miniconda_uninstall.md)
+  : Remove Miniconda
+- [`miniconda_path()`](https://rstudio.github.io/reticulate/dev/reference/miniconda_path.md)
+  : Path to Miniconda
+- [`miniconda_update()`](https://rstudio.github.io/reticulate/dev/reference/miniconda_update.md)
+  : Update Miniconda
+
+# Articles
+
+### All vignettes
+
+- [Arrays in R and
+  Python](https://rstudio.github.io/reticulate/dev/articles/arrays.md):
+- [Calling Python from
+  R](https://rstudio.github.io/reticulate/dev/articles/calling_python.md):
+- [Using reticulate in an R
+  Package](https://rstudio.github.io/reticulate/dev/articles/package.md):
+- [Managing an R Package's Python
+  Dependencies](https://rstudio.github.io/reticulate/dev/articles/python_dependencies.md):
+- [Installing Python
+  Packages](https://rstudio.github.io/reticulate/dev/articles/python_packages.md):
+- [Primer on Python for R
+  Users](https://rstudio.github.io/reticulate/dev/articles/python_primer.md):
+- [R Markdown Python
+  Engine](https://rstudio.github.io/reticulate/dev/articles/r_markdown.md):
+- [RStudio IDE Tools for
+  reticulate](https://rstudio.github.io/reticulate/dev/articles/rstudio_ide.md):
+- [Python Version
+  Configuration](https://rstudio.github.io/reticulate/dev/articles/versions.md):

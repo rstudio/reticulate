@@ -1393,15 +1393,18 @@ SEXP py_to_r_wrapper(SEXP x) {
   if(x == x2) // no method, py_to_r_wrapper.default() reflects
     return(x);
 
-  // copy over all attributes ("class" and "py_object", typically)
-  // similar to Rf_copyMostAttrib(x, x2);, but copies *all* attribs
   PROTECT(x2);
-  SEXP a = ATTRIB(x);
-  while (a != R_NilValue) {
+
+#if defined(R_VERSION) && R_VERSION >= R_Version(3, 6, 0)
+  // Prefer the official helper when available (R 3.6+ exports DUPLICATE_ATTRIB).
+  DUPLICATE_ATTRIB(x2, x);
+#else
+  // Fall back to copying attributes one at a time on older R versions.
+  for (SEXP a = ATTRIB(x); a != R_NilValue; a = CDR(a)) {
     Rf_setAttrib(x2, TAG(a), CAR(a));
-    a = CDR(a);
   }
-  SET_OBJECT(x2, 1);
+#endif
+
   UNPROTECT(1);
   return x2;
 }

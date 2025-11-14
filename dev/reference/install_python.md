@@ -8,7 +8,7 @@ Download and install Python, using the
 
 ``` r
 install_python(
-  version = "3.11:latest",
+  version = "3.12:latest",
   list = FALSE,
   force = FALSE,
   optimized = TRUE

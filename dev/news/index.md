@@ -2,6 +2,13 @@
 
 ## reticulate (development version)
 
+- The default Python version in
+  [`install_python()`](https://rstudio.github.io/reticulate/dev/reference/install_python.md)
+  and
+  [`conda_create()`](https://rstudio.github.io/reticulate/dev/reference/conda-tools.md)
+  is now 3.12
+  ([\#1862](https://github.com/rstudio/reticulate/issues/1862)).
+
 - Fix error in
   [`virtualenv_create()`](https://rstudio.github.io/reticulate/dev/reference/virtualenv-tools.md)/[`virtualenv_starter()`](https://rstudio.github.io/reticulate/dev/reference/virtualenv-tools.md)
   ([\#1861](https://github.com/rstudio/reticulate/issues/1861)).

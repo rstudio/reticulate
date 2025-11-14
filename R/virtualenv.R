@@ -667,12 +667,11 @@ virtualenv_starter <- function(version = NULL, all = FALSE) {
   is_user_uv <-
     !is.null(uv) && !isTRUE(attr(uv_binary(FALSE), "reticulate-managed", TRUE))
   if (is_user_uv) {
-    find_starters(uv_exec(c(
+    find_starters(suppressWarnings(uv_exec(c(
       "python dir --managed-python",
-      "--color never --quiet --offline --no-config --no-progress"),
-      stdout = TRUE
-    ))
-    # lapply(uv_python_list(uv, "only-managed")$path, find_starters)
+      "--color never --offline --no-config --no-progress"),
+      stdout = TRUE, stderr = FALSE
+    )))
   }
 
   # if specific version requested, filter for that.

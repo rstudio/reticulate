@@ -11,6 +11,8 @@ README\.html
 ^appveyor\.yml$
 ^derby\.log$
 ^docs$
+^deps$
+^devtools-check.*\.log$
 ^images$
 ^index\.Rmd$
 ^internal$
@@ -41,3 +43,6 @@ __pycache__
 ^rchk$
 ^\.cache$
 ^compile_commands\.json$
+^\.venvs$
+^\.ruff_cache$
+^scratch\.r$

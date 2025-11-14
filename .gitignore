@@ -11,11 +11,17 @@ src/*.so
 src/*.dll
 revdep/
 issues/
+deps/
 README.html
 index.html
 inst/doc
 .vscode/
 rchk
 .cache
+.ruff_cache/
+.venvs/
 compile_commands.json
 *.Dockerfile
+devtools-check*.log
+scratch.r
+reticulate_*.tar.gz

@@ -584,7 +584,10 @@ uv_binary <- function(bootstrap_install = TRUE) {
     uv <- Sys.getenv("RETICULATE_UV", NA)
     if (!is.na(uv)) {
       if (uv == "managed") {
-        on.exit(Sys.setenv(RETICULATE_UV = uv), add = TRUE)
+        on.exit(
+          if(is_usable_uv(uv)) Sys.setenv(RETICULATE_UV = uv),
+          add = TRUE
+        )
         break
       } else {
         return(uv)
@@ -600,7 +603,7 @@ uv_binary <- function(bootstrap_install = TRUE) {
     # observed to be 0.2s for just `uv --version`.
     # This is an approach to avoid paying that cost on each invocation, mostly
     # motivated by uv_run_tool()
-    on.exit(options(reticulate.uv_binary = uv), add = TRUE)
+    on.exit(if(is_usable_uv(uv)) options(reticulate.uv_binary = uv), add = TRUE)
     maybe_clear_reticulate_uv_cache()
 
     uv <- as.character(Sys.which("uv"))

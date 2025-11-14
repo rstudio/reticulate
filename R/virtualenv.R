@@ -512,9 +512,20 @@ virtualenv_starter <- function(version = NULL, all = FALSE) {
                          stringsAsFactors = FALSE)
 
   find_starters <- function(glob) {
-    # accept NULL, NA, and "" as a no-op
-    if(is.null(glob) || isTRUE(is.na(glob)) || isFALSE(nzchar(glob)))
+    # accept NULL, NA, "", and 0-length vectors as a no-op
+    glob <- as.character(unlist(glob, use.names = FALSE))
+    glob <- glob[!is.na(glob)]
+    glob <- glob[nzchar(glob)]
+    if (!length(glob))
       return(invisible(starters))
+
+    if (length(glob) > 1L) {
+      for (g in glob)
+        find_starters(g)
+      return(invisible(starters))
+    }
+
+    # `glob` must now be a string (non-empty, non-NA, length-1 character)
 
     # if not a glob,
     if (!grepl("*", glob, fixed = TRUE)) {
@@ -604,6 +615,17 @@ virtualenv_starter <- function(version = NULL, all = FALSE) {
     }
   }
 
+  # try to discover orphaned pyenv installs by looking in the default install location
+  # (i.e., pyenv deleted, but python remains)
+  if (is_windows()) {
+    default_pyenv_root <- file.path(user_data_dir("r-reticulate"), "pyenv", "pyenv-win")
+    find_starters(file.path(default_pyenv_root, "versions/*/python*.exe"))
+  } else {
+    default_pyenv_root <- "~/.pyenv"
+    find_starters(file.path(default_pyenv_root, "versions/*/bin/python*"))
+  }
+
+
   # official python.org installer for macOS default location
   # "/Library/Frameworks/Python.framework/Versions/3.11/bin/python3.11"
   if (is_macos())
@@ -652,13 +674,15 @@ virtualenv_starter <- function(version = NULL, all = FALSE) {
 
   # If the user has installed uv, we can use its managed Python interpreters.
   # We skip reticulate-managed uv installs because reticulate deletes their Pythons when it clears its cache.
-  if (!isTRUE(attr(uv_binary(FALSE), "reticulate-managed", TRUE))) {
-    find_starters(uv_exec(c(
+  uv <- uv_binary(bootstrap_install = FALSE)
+  is_user_uv <-
+    !is.null(uv) && !isTRUE(attr(uv_binary(FALSE), "reticulate-managed", TRUE))
+  if (is_user_uv) {
+    find_starters(suppressWarnings(uv_exec(c(
       "python dir --managed-python",
-      "--color never --quiet --offline --no-config --no-progress"),
-      stdout = TRUE
-    ))
-    # lapply(uv_python_list(uv, "only-managed")$path, find_starters)
+      "--color never --offline --no-config --no-progress"),
+      stdout = TRUE, stderr = FALSE
+    )))
   }
 
   # if specific version requested, filter for that.

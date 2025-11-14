@@ -1,5 +1,8 @@
 # reticulate (development version)
 
+- The default Python version in `install_python()` 
+  and `conda_create()` is now 3.12 (#1862).
+
 - Fix error in `virtualenv_create()`/`virtualenv_starter()` (#1861).
 
 - Fix display of Python variables in the Positron Variables Pane (#1859).

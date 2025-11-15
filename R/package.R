@@ -291,8 +291,124 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
     }
   }
 
+  if (nzchar(config$virtualenv)) {
+    check_required_packages <- Sys.getenv("RETICULATE_CHECK_REQUIRED_PACKAGES", "true")
+    check_required_packages <- tolower(check_required_packages) %in% c("true", "1", "yes")
+    if (check_required_packages) {
+      tryCatch(check_virtualenv_required_packages(config), error = function(e) {
+        # ignore errors, this should never block initialization
+      })
+    }
+  }
+
   # return config
   config
+}
+
+#' @returns Invisibly returns TRUE if all required packages are installed.
+#'  It returns `NULL` if it is unable to perform the check.
+#'  Returns `FALSE` if required packages are missing, but also issues warnings
+#'  containing more details about the missing packages.
+check_virtualenv_required_packages <- function(config) {
+
+  # TODO: also check py_require()$python_version.
+  # TODO: also warn if py_require() is called after reticulate has initialize Python.
+
+  # we don't install uv if it's not yet installed
+  uv <- uv_binary(bootstrap_install = FALSE)
+  if (is.null(uv)) {
+    return(invisible(NULL))
+  }
+  # force uv to use the selected python binary.
+  # in principle this could be ommited assuming that VIRTUAL_ENV is set
+
+  packages <- py_require()$packages
+  if (length(packages) == 0) {
+    return(invisible(TRUE))
+  }
+
+  args <- c("pip install --dry-run --no-deps",
+            "--color never --no-progress",
+            "--no-build",
+            # "--verbose",
+            # "--offline", # we don't set offline because it blocks env resolution
+            "--no-config",
+            "--python", maybe_shQuote(config$python),
+            maybe_shQuote(packages))
+
+  suppressWarnings({
+    pip_output <- uv_exec(args, stdout = TRUE, stderr = TRUE)
+  })
+
+  status <- attr(pip_output, "status") %||% 0L
+  if (status != 0L) {
+    # check failed.
+    # there are a few possible reasons:
+    # 1) a required package is not available in the index.
+    # No solution found when resolving dependencies:
+    #   ╰─▶ Because <pkg> was not found in the package registry and you require <pkg>,
+    #       we can conclude that your requirements are unsatisfiable.
+    # 2) Any failure to access the index (timeouts, network issues, etc)
+    #    same error as above. Since there's no way to differentiate these cases,
+    #    we just return NULL.
+    return(invisible(NULL))
+  }
+
+  # we don't want this to trigger package downloads. we forward
+  # downloading lines to warnings so that we can detect if a download
+  # happened on CI.
+  # In case uv downloads a package with the --no-progress option it would show something
+  # like:
+  # Resolved 3 packages in 2ms
+  # Downloading numba (2.6MiB) <-
+  # Downloading numba <-
+  # Prepared 1 package in 579ms
+  # Uninstalled 2 packages in 61ms
+  # Installed 2 packages in 11ms
+  # - llvmlite==0.43.0
+  # + llvmlite==0.44.0
+  # - numba==0.60.0
+  # + numba==0.61.0
+  if (any(grepl("downloading", pip_output, ignore.case = TRUE))) {
+    warning(paste(
+      pip_output[grepl("downloading", pip_output, ignore.case = TRUE)],
+      collapse = "\n"
+    ))
+  }
+
+  # uv pip doesn't have an option to produce structured output,
+  # the best we can do is parse using a regex.
+  # the output contains lines like:
+  # > Would install <n> packages
+  # we use that to determine if any packages would be installed
+  pattern <- "Would install (\\d+) package(s)?"
+  would_install <- any(grepl(pattern, pip_output))
+
+  if (would_install) {
+    # subset the py_require()$packages vector to keep only those that
+    # match output from `uv pip install`.
+
+    # keep lines that list package versions like " + docutils==1.2.3"
+    would_install_pkgs <- grep("==", pip_output, fixed = TRUE, value = TRUE)
+
+    # extract just the package name like "docutils"
+    would_install_pkgs <- sub("(...)([^=]+)(==.*)", "\\2", would_install_pkgs)
+
+    # subset packages to keep only entries found in `uv pip` output.
+    would_install_pkgs <- packages[
+      vapply(packages, function(pkg) any(startsWith(pkg, would_install_pkgs)), TRUE,
+             USE.NAMES = FALSE)
+    ]
+    warning(
+      "Some Python package requirements declared via `py_require()` are not",
+      " installed in the selected Python environment: (", config$python, ")\n",
+      "  ", paste0(would_install_pkgs, collapse=" "),
+      call. = FALSE
+    )
+    return(invisible(FALSE))
+  }
+
+  invisible(TRUE)
 }
 
 # unused presently, formerly called from initialize_python()

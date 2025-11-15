@@ -357,3 +357,21 @@
       success: false
       exit_code: 1
 
+# py_require() warns missing packages in a virtual env
+
+    Code
+      do.call(r_session, list(force_managed_python = FALSE, exprs = expr))
+    Output
+      > library(reticulate)
+      > use_virtualenv("***", 
+      +     required = TRUE)
+      > py_require("polars")
+      > config <- py_config()
+      Warning message:
+      Some Python package requirements declared via `py_require()` are not installed in the selected Python environment: (***)
+        polars 
+      > 
+      ------- session end -------
+      success: true
+      exit_code: 0
+

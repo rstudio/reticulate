@@ -4,6 +4,8 @@
 
 ## reticulate 1.44.1
 
+CRAN release: 2025-11-14
+
 - The default Python version in
   [`install_python()`](https://rstudio.github.io/reticulate/dev/reference/install_python.md)
   and
@@ -74,6 +76,13 @@ CRAN release: 2025-10-25
   Added support for assigning `%system` command output to multiple
   variables via unpacking
   ([\#1844](https://github.com/rstudio/reticulate/issues/1844)).
+
+- reticulate now warns when
+  [`py_require()`](https://rstudio.github.io/reticulate/dev/reference/py_require.md)d
+  packages are not found in the selected Python virtual environment.
+  This behavior can be disabled by setting the environment variable
+  `RETICULATE_CHECK_REQUIRED_PACKAGES=0`
+  ([\#1850](https://github.com/rstudio/reticulate/issues/1850)).
 
 ## reticulate 1.43.0
 

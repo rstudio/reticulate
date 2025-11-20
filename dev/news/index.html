@@ -48,7 +48,7 @@
 <h2 class="pkg-version" data-toc-text="development version" id="reticulate-development-version">reticulate (development version)<a class="anchor" aria-label="anchor" href="#reticulate-development-version"></a></h2>
 </div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.44.1" id="reticulate-1441">reticulate 1.44.1<a class="anchor" aria-label="anchor" href="#reticulate-1441"></a></h2>
+<h2 class="pkg-version" data-toc-text="1.44.1" id="reticulate-1441">reticulate 1.44.1<a class="anchor" aria-label="anchor" href="#reticulate-1441"></a></h2><p class="text-muted">CRAN release: 2025-11-14</p>
 <ul><li><p>The default Python version in <code><a href="../reference/install_python.html">install_python()</a></code> and <code><a href="../reference/conda-tools.html">conda_create()</a></code> is now 3.12 (<a href="https://github.com/rstudio/reticulate/issues/1862" class="external-link">#1862</a>).</p></li>
 <li><p>Fix error in <code><a href="../reference/virtualenv-tools.html">virtualenv_create()</a></code>/<code><a href="../reference/virtualenv-tools.html">virtualenv_starter()</a></code> (<a href="https://github.com/rstudio/reticulate/issues/1861" class="external-link">#1861</a>).</p></li>
 <li><p>Fix display of Python variables in the Positron Variables Pane (<a href="https://github.com/rstudio/reticulate/issues/1859" class="external-link">#1859</a>).</p></li>
@@ -65,6 +65,7 @@
 <li><p>Positron’s reticulate integration will now be automatically enabled when the reticulate package is loaded in Positron (<a href="https://github.com/rstudio/reticulate/issues/1822" class="external-link">#1822</a>).</p></li>
 <li><p><code><a href="https://rdrr.io/r/base/with.html" class="external-link">with()</a></code> now forwards errors to Python context manager exit handlers (e.g., so database transactions can roll back cleanly) (<a href="https://github.com/rstudio/reticulate/issues/1840" class="external-link">#1840</a>, <a href="https://github.com/rstudio/reticulate/issues/1841" class="external-link">#1841</a>)</p></li>
 <li><p>Fixed <code>!!</code> in string literals being wrongly expanded to a <code>%system</code> magic in <code><a href="../reference/repl_python.html">repl_python()</a></code>. Added support for assigning <code>%system</code> command output to multiple variables via unpacking (<a href="https://github.com/rstudio/reticulate/issues/1844" class="external-link">#1844</a>).</p></li>
+<li><p>reticulate now warns when <code><a href="../reference/py_require.html">py_require()</a></code>d packages are not found in the selected Python virtual environment. This behavior can be disabled by setting the environment variable <code>RETICULATE_CHECK_REQUIRED_PACKAGES=0</code> (<a href="https://github.com/rstudio/reticulate/issues/1850" class="external-link">#1850</a>).</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.43.0" id="reticulate-1430">reticulate 1.43.0<a class="anchor" aria-label="anchor" href="#reticulate-1430"></a></h2><p class="text-muted">CRAN release: 2025-07-21</p>

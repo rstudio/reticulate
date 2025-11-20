@@ -84,3 +84,32 @@ ark_positron_variable_has_children.rpytools.ark_variables.ChildrenOverflow <-
   function(x, ...) {
     FALSE
   }
+
+ark_positron_help_get_handler.python.builtin.object <- local({
+  positron_ipykernel <- NULL
+  pydoc_thread <- NULL
+
+  function(obj, ...) {
+    if (is.null(positron_ipykernel)) {
+      positron_ipykernel <<- import_from_path("positron", path = dirname(.globals$positron_ipykernel_path))
+    }
+
+    if (is.null(pydoc_thread)) {
+      pydoc_thread <<- positron_ipykernel$pydoc$start_server(port = 64216L)
+    }
+
+    .ps.help.browse_external_url <- get(".ps.help.browse_external_url", globalenv())
+
+    function(topic) {
+      url <- paste0(
+        pydoc_thread$url,
+        "get?key=",
+        positron_ipykernel$utils$get_qualname(obj)
+      )
+
+      .ps.help.browse_external_url(url)
+      TRUE
+    }
+  }
+})
+  

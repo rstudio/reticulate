@@ -70,44 +70,78 @@
     })
 
     setHook("reticulate.onPyInit", function() {
-
-      disable <- nzchar(Sys.getenv("_RETICULATE_POSITRON_DISABLE_VARIABLE_INSPECTORS_"))
-      if (disable)
-        return()
-
-      # options("ark.testing" = TRUE)
-      inspectors <- tryCatch(import_positron_ipykernel_inspectors(), error = function(e) NULL)
-      if(is.null(inspectors)) {
-        # warning("positron_ipykernel.inspectors could not be found, variables pane support for Python objects will be limited")
-        return()
-      }
-
-      .globals$get_positron_variable_inspector <- inspectors$get_inspector
-
-      .ark.register_method <- get(".ark.register_method", envir = globalenv())
-
-      for (method_name in c(
-        "ark_positron_variable_display_value",
-        "ark_positron_variable_display_type",
-        "ark_positron_variable_has_children",
-        "ark_positron_variable_kind",
-        "ark_positron_variable_get_child_at",
-        "ark_positron_variable_get_children"
-      )) {
-        for (class_name in c("python.builtin.object",
-                             "rpytools.ark_variables.ChildrenOverflow")) {
-          method <- get0(paste0(method_name, ".", class_name))
-          if (!is.null(method)) {
-            .ark.register_method(method_name, class_name, method)
-          }
-        }
-      }
+      register_ark_methods()
     })
   }
+}
 
+register_ark_methods <- function() {
+  disable <- nzchar(Sys.getenv("_RETICULATE_POSITRON_DISABLE_VARIABLE_INSPECTORS_"))
+  if (disable) {
+    return()
+  }
+  
+  if (!is_positron()) {
+    return()
+  }
+
+  # before registering ark methods we make sure we can find the ipykernel path
+  # which will be needed for the variable inspectors and for help handlers
+  # this can'rt be executed during handling of RPC's, so it's important that it's cached.
+  .ps.ui.executeCommand <- get(".ps.ui.executeCommand", globalenv())
+  .globals$positron_ipykernel_path <- .ps.ui.executeCommand("positron.reticulate.getIPykernelPath")
+
+  # register help handler
+  tryCatch({
+    .ark.register_method <- get(".ark.register_method", envir = globalenv())
+    .ark.register_method(
+      "ark_positron_help_get_handler",
+      "python.builtin.object",
+      ark_positron_help_get_handler.python.builtin.object
+    )
+  }, error = function(e) {
+
+  })
+
+  # register variables pane handlers
+  tryCatch({
+    register_ark_methods_variables()
+  }, error = function(e) {
+    
+  })
 
 }
 
+register_ark_methods_variables <- function() {
+  
+  # options("ark.testing" = TRUE)
+  inspectors <- tryCatch(import_positron_ipykernel_inspectors(), error = function(e) NULL)
+  if(is.null(inspectors)) {
+    # warning("positron_ipykernel.inspectors could not be found, variables pane support for Python objects will be limited")
+    return()
+  }
+  # cache the inspector that's used across methods
+  .globals$get_positron_variable_inspector <- inspectors$get_inspector
+  
+  .ark.register_method <- get(".ark.register_method", envir = globalenv())
+
+  for (method_name in c(
+    "ark_positron_variable_display_value",
+    "ark_positron_variable_display_type",
+    "ark_positron_variable_has_children",
+    "ark_positron_variable_kind",
+    "ark_positron_variable_get_child_at",
+    "ark_positron_variable_get_children"
+  )) {
+    for (class_name in c("python.builtin.object",
+                          "rpytools.ark_variables.ChildrenOverflow")) {
+      method <- get0(paste0(method_name, ".", class_name))
+      if (!is.null(method)) {
+        .ark.register_method(method_name, class_name, method)
+      }
+    }
+  }
+}
 
 maybe_enable_positron_reticulate_integration <- function() {
   is_not_auto <- eval(call(
@@ -128,7 +162,6 @@ maybe_enable_positron_reticulate_integration <- function() {
   # enable reticulate when in auto mode for this project
   eval(call(".ps.ui.executeCommand", "positron.reticulate.setAutoEnabled"))
 }
-
 
 # .onUnload <- function(libpath) {
 # # .onUnLoad() hook is not run by default on R session exit

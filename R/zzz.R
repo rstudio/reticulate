@@ -89,7 +89,9 @@ register_ark_methods <- function() {
   # which will be needed for the variable inspectors and for help handlers
   # this can'rt be executed during handling of RPC's, so it's important that it's cached.
   .ps.ui.executeCommand <- get(".ps.ui.executeCommand", globalenv())
-  .globals$positron_ipykernel_path <- .ps.ui.executeCommand("positron.reticulate.getIPykernelPath")
+  if (is.null(.globals$positron_ipykernel_path)) {
+    .globals$positron_ipykernel_path <- .ps.ui.executeCommand("positron.reticulate.getIPykernelPath")
+  }
 
   # register help handler
   tryCatch({

@@ -62,6 +62,9 @@ py_run_file_on_thread <- function(file, ..., args = NULL) {
                     basename(dirname(file)) %in% c("positron", "posit"))
 
   if (launching_lsp) {
+    # this is equivalent to the result of .getIpykernelPath UI command.
+    .globals$positron_ipykernel_path <- file.path(dirname(file), "positron")
+
     main_dict <- py_eval("__import__('__main__').__dict__.copy()", FALSE)
     py_get_attr(main_dict, "pop")("__annotations__")
     # IPykernel will create a thread that redirects all output from fileno of

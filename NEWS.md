@@ -1,5 +1,7 @@
 # reticulate (development version)
 
+- Fix spurious `Error: ignoring SIGPIPE signal` on Unix when embedded Python writes to a closed pipe (#1868).
+
 # reticulate 1.44.1
 
 - The default Python version in `install_python()` 

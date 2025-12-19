@@ -2853,6 +2853,11 @@ static void interrupt_handler(int signum) {
 
 PyOS_sighandler_t orig_interrupt_handler = NULL;
 
+#ifndef _WIN32
+static bool s_restore_sigpipe_handler = false;
+static PyOS_sighandler_t s_orig_sigpipe_handler = SIG_DFL;
+#endif
+
 PyOS_sighandler_t install_interrupt_handlers_() {
   // Installs a C handler and a Python handler
   // Exported as an R symbol in case the user did some action that cleared the
@@ -3171,6 +3176,16 @@ void py_initialize(const std::string& python,
       // initialize python
       Py_InitializeEx(0); // 0 means "do not install signal handlers"
       s_was_python_initialized_by_reticulate = true;
+
+#ifndef _WIN32
+      // Python ignores SIGPIPE by default to avoid the process being
+      // interrupted during normal pipe / IPC usage (EPIPE is handled as an
+      // exception instead). Because reticulate uses Py_InitializeEx(0), we
+      // must explicitly mirror that behavior.
+      s_orig_sigpipe_handler = PyOS_setsig(SIGPIPE, SIG_IGN);
+      s_restore_sigpipe_handler = true;
+#endif
+
       const wchar_t *argv[1] = {s_python_v3.c_str()};
       PySys_SetArgv_v3(1, const_cast<wchar_t**>(argv));
 
@@ -3262,6 +3277,14 @@ void py_finalize() {
     Py_MakePendingCalls();
     if (orig_interrupt_handler)
       reticulate_setsig(SIGINT, orig_interrupt_handler);
+
+#ifndef _WIN32
+    if (s_restore_sigpipe_handler) {
+      PyOS_setsig(SIGPIPE, s_orig_sigpipe_handler);
+      s_restore_sigpipe_handler = false;
+    }
+#endif
+
     is_py_finalized = true;
     Py_Finalize();
   }

@@ -6,6 +6,14 @@
   Python writes to a closed pipe
   ([\#1868](https://github.com/rstudio/reticulate/issues/1868)).
 
+- Fixed Positron UI interactions, such as restart/create new session
+  with reticulate
+  ([\#1871](https://github.com/rstudio/reticulate/issues/1871),
+  [\#1869](https://github.com/rstudio/reticulate/issues/1869)).
+
+- Added support for F1 help for reticulate Python objects in Positron
+  ([\#1866](https://github.com/rstudio/reticulate/issues/1866)).
+
 ## reticulate 1.44.1
 
 CRAN release: 2025-11-14

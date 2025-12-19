@@ -88,9 +88,20 @@ register_ark_methods <- function() {
   # before registering ark methods we make sure we can find the ipykernel path
   # which will be needed for the variable inspectors and for help handlers
   # this can'rt be executed during handling of RPC's, so it's important that it's cached.
-  .ps.ui.executeCommand <- get(".ps.ui.executeCommand", globalenv())
   if (is.null(.globals$positron_ipykernel_path)) {
-    .globals$positron_ipykernel_path <- .ps.ui.executeCommand("positron.reticulate.getIPykernelPath")
+    tryCatch({
+      .ps.ui.executeCommand <- get(".ps.ui.executeCommand", globalenv())
+      .globals$positron_ipykernel_path <- .ps.ui.executeCommand("positron.reticulate.getIPykernelPath")
+    }, error = function(err) {
+      # schedule for executing at top level, so we don't error when this is executed from
+      # Positron RPC methods, which don't allow calling .ps.ui.executeCommand.
+      addTaskCallback(function(...) {
+        .ps.ui.executeCommand <- get(".ps.ui.executeCommand", globalenv())
+        .globals$positron_ipykernel_path <- .ps.ui.executeCommand("positron.reticulate.getIPykernelPath")
+        # returning FALSE makes sure the callback is removed.
+        FALSE
+      })
+    })
   }
 
   # register help handler

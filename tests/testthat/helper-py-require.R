@@ -56,10 +56,18 @@ registerS3method("print", "r_session_record", print.r_session_record,
 
 
 py_require_tested_packages <- function() {
+  python_version <- py_require()$python_version
+  use_kaleido <- !(is.character(python_version) &&
+                   any(grepl("t$", python_version)))
   py_require(c(
     "docutils", "pandas", "scipy", "matplotlib", "ipython",
-    "tabulate", "plotly", "psutil", "kaleido", "wrapt"
+    "tabulate", "plotly", "psutil", if (use_kaleido) "kaleido", "wrapt"
   ))
+}
+
+test_python_version <- Sys.getenv("RETICULATE_TEST_PYTHON_VERSION", "")
+if (nzchar(test_python_version)) {
+  py_require(python_version = test_python_version, action = "set")
 }
 
 py_require_tested_packages()

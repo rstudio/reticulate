@@ -879,7 +879,11 @@ python_config <- function(python,
       )
 
       # try to resolve libpython in this location
-      pattern <- sprintf("^libpython%sd?m?%s", version, ext)
+      # allow common ABI suffixes:
+      # - d: debug build
+      # - m: pymalloc build (older CPython)
+      # - t: free-threaded build
+      pattern <- sprintf("^libpython%s[dmt]*%s", version, ext)
       candidates <- list.files(c(src, file.path(src, "lib")),
                                pattern = pattern, full.names = TRUE)
       if (length(candidates)) {

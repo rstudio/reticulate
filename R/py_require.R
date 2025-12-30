@@ -1026,6 +1026,12 @@ resolve_python_version <- function(constraints = NULL, uv = uv_binary()) {
   constraints <- trimws(unlist(strsplit(constraints, ",", fixed = TRUE)))
   constraints <- constraints[nzchar(constraints)]
 
+  # Allow direct freethreaded version strings like "3.14t".
+  if (length(constraints) == 1L &&
+      grepl("^\\d+(\\.\\d+){1,2}t$", constraints)) {
+    return(constraints)
+  }
+
   # We perform custom constraint resolution to prefer slightly older Python releases.
   # uv tends to select the latest version, which often lack package support
   # See: https://devguide.python.org/versions/

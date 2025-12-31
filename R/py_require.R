@@ -1026,9 +1026,88 @@ resolve_python_version <- function(constraints = NULL, uv = uv_binary()) {
   constraints <- trimws(unlist(strsplit(constraints, ",", fixed = TRUE)))
   constraints <- constraints[nzchar(constraints)]
 
+  is_free_threaded_python <- function(python, major, minor) {
+    if (!nzchar(python) || !file.exists(python))
+      return(FALSE)
+
+    code <- paste(
+      "import sys, sysconfig",
+      "gil = sysconfig.get_config_var('Py_GIL_DISABLED')",
+      "free = bool(gil) if gil is not None else ('free-threading build' in sys.version)",
+      "print(int(free))",
+      "print(f\"{sys.version_info[0]}.{sys.version_info[1]}\")",
+      sep = "; "
+    )
+
+    out <- tryCatch(
+      system2(python, c("-c", shQuote(code)), stdout = TRUE, stderr = ""),
+      error = function(e) character()
+    )
+
+    if (length(out) < 2L)
+      return(FALSE)
+
+    if (!identical(trimws(out[[1L]]), "1"))
+      return(FALSE)
+
+    if (!identical(trimws(out[[2L]]), paste(major, minor, sep = ".")))
+      return(FALSE)
+
+    TRUE
+  }
+
+  find_free_threaded_python <- function(version) {
+    version <- sub("t$", "", version)
+    parts <- strsplit(version, "\\.", fixed = FALSE)[[1L]]
+    if (length(parts) < 2L)
+      return(NULL)
+
+    major <- parts[[1L]]
+    minor <- parts[[2L]]
+
+    python_names <- c(
+      paste0("python", version, "t"),
+      paste0("python", version),
+      "python3",
+      "python"
+    )
+
+    candidates <- Sys.which(python_names)
+    candidates <- candidates[nzchar(candidates)]
+
+    pyenv_root <- Sys.getenv("PYENV_ROOT", "")
+    if (!nzchar(pyenv_root))
+      pyenv_root <- path.expand("~/.pyenv")
+
+    pyenv_versions_dir <- file.path(pyenv_root, "versions")
+    if (dir.exists(pyenv_versions_dir)) {
+      pattern <- paste0("^", major, "\\.", minor, ".*t$")
+      pyenv_versions <- list.files(pyenv_versions_dir,
+                                   pattern = pattern,
+                                   full.names = TRUE)
+      if (length(pyenv_versions)) {
+        pyenv_bins <- file.path(pyenv_versions,
+                                "bin",
+                                paste0("python", major, ".", minor))
+        candidates <- c(candidates, pyenv_bins)
+      }
+    }
+
+    candidates <- unique(candidates[nzchar(candidates) & file.exists(candidates)])
+    for (candidate in candidates) {
+      if (is_free_threaded_python(candidate, major, minor))
+        return(candidate)
+    }
+
+    NULL
+  }
+
   # Allow direct freethreaded version strings like "3.14t".
   if (length(constraints) == 1L &&
       grepl("^\\d+(\\.\\d+){1,2}t$", constraints)) {
+    python <- find_free_threaded_python(constraints)
+    if (!is.null(python))
+      return(python)
     return(constraints)
   }
 

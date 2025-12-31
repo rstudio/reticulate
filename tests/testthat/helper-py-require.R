@@ -56,9 +56,15 @@ registerS3method("print", "r_session_record", print.r_session_record,
 
 
 py_require_tested_packages <- function() {
+  requested_version <- Sys.getenv("RETICULATE_TEST_PYTHON_VERSION", "")
   python_version <- py_require()$python_version
-  use_kaleido <- !(is.character(python_version) &&
-                   any(grepl("t$", python_version)))
+  # uv currently resolves "3.14" to a free-threaded build in test runs.
+  free_threaded_requested <- nzchar(requested_version) &&
+    (grepl("t$", requested_version) ||
+     grepl("^3\\.14(\\.|$)", requested_version))
+  free_threaded_set <- is.character(python_version) &&
+    any(grepl("t$", python_version))
+  use_kaleido <- !(free_threaded_requested || free_threaded_set)
   py_require(c(
     "docutils", "pandas", "scipy", "matplotlib", "ipython",
     "tabulate", "plotly", "psutil", if (use_kaleido) "kaleido", "wrapt"

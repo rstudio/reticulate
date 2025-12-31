@@ -1072,7 +1072,9 @@ is_rstudio_desktop <- function() {
 }
 
 is_positron <- function() {
-  exists(".ps.ark.version", envir = globalenv())
+  # Ark can be embedded outside Positron; require the UI command hook too.
+  exists(".ps.ark.version", envir = globalenv()) &&
+    exists(".ps.ui.executeCommand", envir = globalenv())
 }
 
 clean_version <- function(version) {

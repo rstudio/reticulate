@@ -1,5 +1,7 @@
 # reticulate (development version)
 
+- Added support for pandas 3.0 (#1874, #1875).
+
 - Fix spurious `Error: ignoring SIGPIPE signal` on Unix when embedded Python writes to a closed pipe (#1868).
 
 - Fixed Positron UI interactions, such as restart/create new session with reticulate (#1871, #1869).

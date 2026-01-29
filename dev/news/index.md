@@ -2,6 +2,10 @@
 
 ## reticulate (development version)
 
+- Added support for pandas 3.0
+  ([\#1874](https://github.com/rstudio/reticulate/issues/1874),
+  [\#1875](https://github.com/rstudio/reticulate/issues/1875)).
+
 - Fix spurious `Error: ignoring SIGPIPE signal` on Unix when embedded
   Python writes to a closed pipe
   ([\#1868](https://github.com/rstudio/reticulate/issues/1868)).

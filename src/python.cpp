@@ -4382,9 +4382,8 @@ PyObject* r_to_py_pandas_nullable_series (const RObject& column, const bool conv
   // strings are not built using np array + mask. Instead they take a
   // np array with OBJECT type, with None's in the place of NA's
   if (TYPEOF(column) == STRSXP) {
-    PyObjectPtr args(PyTuple_New(2));
+    PyObjectPtr args(PyTuple_New(1));
     PyTuple_SetItem(args, 0, (PyObject*)r_to_py_numpy(column, convert));
-    PyTuple_SetItem(args, 1, Py_False);
 
     PyObject* pd_col(PyObject_Call(constructor, args, NULL));
 

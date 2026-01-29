@@ -737,7 +737,7 @@ eng_python_autoprint <- function(captured, options) {
     .engine_context$pending_plots$push(included_path)
     return("")
 
-  } else if (inherits(value, "pandas.core.frame.DataFrame")) {
+  } else if (inherits(value, c("pandas.core.frame.DataFrame", "pandas.DataFrame"))) {
 
     return(captured)
 

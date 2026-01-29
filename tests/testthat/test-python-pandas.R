@@ -1,5 +1,10 @@
 context("pandas")
 
+pandas_version <- function() {
+  pd <- import("pandas", convert = TRUE)
+  numeric_version(pd$`__version__`)
+}
+
 test_that("Simple Pandas data frames can be roundtripped", {
   skip_if_no_pandas()
 
@@ -293,12 +298,12 @@ test_that("can cast from pandas nullable types", {
 
 test_that("NA in string columns don't prevent simplification", {
   skip_if_no_pandas()
-
+  
   pd <- import("pandas", convert = FALSE)
   np <- import("numpy", convert = FALSE)
 
   x <- pd$Series(list("a", pd$`NA`, NULL, np$nan))
-  expect_equal(py_to_r(x$dtype$name), "object")
+  expect_equal(py_to_r(x$dtype$name), if (pandas_version() < "3") "object" else "str")
 
   r <- py_to_r(x)
 

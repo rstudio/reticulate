@@ -187,6 +187,9 @@ py_to_r.pandas.core.series.Series <- function(x) {
 }
 
 #' @export
+py_to_r.pandas.Series <- py_to_r.pandas.core.series.Series
+
+#' @export
 py_to_r.pandas.core.categorical.Categorical <- function(x) {
   local_conversion_scope(x, FALSE)
   values <- py_to_r(x$get_values())
@@ -198,6 +201,11 @@ py_to_r.pandas.core.categorical.Categorical <- function(x) {
 #' @export
 py_to_r.pandas.core.arrays.categorical.Categorical <-
   py_to_r.pandas.core.categorical.Categorical
+
+#' @export
+py_to_r.pandas.arrays.NumpyExtensionArray <- function(x) {
+  py_to_r(x$to_numpy())
+}
 
 #' @export
 py_to_r.pandas._libs.missing.NAType <- function(x) {
@@ -222,6 +230,9 @@ summary.pandas.core.series.Series <- function(object, ...) {
 }
 
 #' @export
+summary.pandas.Series <- summary.pandas.core.series.Series
+
+#' @export
 length.pandas.core.series.Series <- function(x) {
   if (py_is_null_xptr(x) || !py_available())
     0L
@@ -231,9 +242,15 @@ length.pandas.core.series.Series <- function(x) {
 }
 
 #' @export
+length.pandas.Series <- length.pandas.core.series.Series
+
+#' @export
 dim.pandas.core.series.Series <- function(x) {
   NULL
 }
+
+#' @export
+dim.pandas.Series <- dim.pandas.core.series.Series
 
 #' @export
 r_to_py.data.frame <- function(x, convert = FALSE) {
@@ -313,10 +330,14 @@ py_to_r.pandas.core.frame.DataFrame <- function(x) {
   attr(df, "pandas.index") <- index
 
   if (inherits(index, c("pandas.core.indexes.base.Index",
-                        "pandas.indexes.base.Index"))) {
+                        "pandas.indexes.base.Index",
+                        "pandas.Index"
+                      ))) {
 
     if (inherits(index, c("pandas.core.indexes.range.RangeIndex",
-                          "pandas.indexes.range.RangeIndex")) &&
+                          "pandas.indexes.range.RangeIndex",
+                          "pandas.RangeIndex"
+                        )) &&
         np$issubdtype(index$dtype, np$number))
     {
       # check for a range index from 0 -> n. in such a case, we don't need
@@ -347,7 +368,9 @@ py_to_r.pandas.core.frame.DataFrame <- function(x) {
     }
 
     else if (inherits(index, c("pandas.core.indexes.datetimes.DatetimeIndex",
-                               "pandas.tseries.index.DatetimeIndex"))) {
+                               "pandas.tseries.index.DatetimeIndex",
+                               "pandas.DatetimeIndex"
+                              ))) {
 
       converted <- tryCatch(py_to_r(index$values), error = identity)
 
@@ -381,7 +404,13 @@ py_to_r.pandas.core.frame.DataFrame <- function(x) {
 }
 
 #' @export
+py_to_r.pandas.DataFrame <- py_to_r.pandas.core.frame.DataFrame
+
+#' @export
 summary.pandas.core.frame.DataFrame <- summary.pandas.core.series.Series
+
+#' @export
+summary.pandas.DataFrame <- summary.pandas.core.frame.DataFrame
 
 #' @export
 length.pandas.core.frame.DataFrame <- function(x) {
@@ -393,12 +422,19 @@ length.pandas.core.frame.DataFrame <- function(x) {
 }
 
 #' @export
+length.pandas.DataFrame <- length.pandas.core.frame.DataFrame
+
+#' @export
 dim.pandas.core.frame.DataFrame <- function(x) {
   if (py_is_null_xptr(x) || !py_available())
     NULL
   else
     py_object_shape(x)
 }
+
+#' @export
+dim.pandas.DataFrame <- dim.pandas.core.frame.DataFrame
+
 
 # Scipy sparse matrices
 #' @importFrom Matrix Matrix

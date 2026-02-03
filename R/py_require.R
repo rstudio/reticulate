@@ -271,7 +271,7 @@ py_require <- function(packages = NULL,
               old <- paste0("`", old, "`", collapse = ", ")
               signal_and_exit(paste(
                 "After Python has initialized, only `action = 'add'` with new packages is supported.",
-                "You tried to add", new, "but requirements contains", old, " already."
+                "You tried to add", new, "but requirements contain", old, " already."
               ))
               packages <- NULL
             }

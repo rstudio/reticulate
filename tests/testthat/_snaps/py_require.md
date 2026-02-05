@@ -30,20 +30,53 @@
       success: false
       exit_code: 1
 
+# Adding packages after Python init works; conflicting versions error
+
+    Code
+      r_session({
+        library(reticulate)
+        py_require("numpy")
+        import("sys")
+        py_require("pandas")
+        import("pandas")
+        py_require(c("numpy", "requests"))
+        try(py_require("numpy>2"))
+      })
+    Output
+      > library(reticulate)
+      > py_require("numpy")
+      > import("sys")
+      Installed 1 package in 12ms
+      Module(sys)
+      > py_require("pandas")
+      Installed 4 packages in 15ms
+      > import("pandas")
+      Module(pandas)
+      > py_require(c("numpy", "requests"))
+      > try(py_require("numpy>2"))
+      Error in py_require("numpy>2") : 
+        After Python has initialized, only `action = 'add'` with new packages is supported. You tried to add `numpy>2` but requirements contain `numpy`  already.
+      > 
+      ------- session end -------
+      success: true
+      exit_code: 0
+
 # Setting py_require(python_version) after initializing Python 
 
     Code
       r_session({
         Sys.unsetenv("RETICULATE_PYTHON")
         Sys.setenv(RETICULATE_USE_MANAGED_VENV = "yes")
-        pkg_py_require <- (function(...) reticulate::py_require(...))
+        pkg_py_require <- (function(...) reticulate::py_require(
+          ...))
         pkg_py_require <- rlang::zap_srcref(pkg_py_require)
         environment(pkg_py_require) <- asNamespace("stats")
         library(reticulate)
         py_require(python_version = ">=3.9", "pandas")
         py_require(python_version = ">=3.8,<3.14")
         py_require(python_version = "3.11")
-        pkg_py_require(packages = c("pandas", "numpy"), python_version = ">=3.10")
+        pkg_py_require(packages = c("pandas", "numpy"),
+        python_version = ">=3.10")
         prefix <- import("sys")$prefix
         import("numpy")
         import("pandas")
@@ -363,8 +396,7 @@
       do.call(r_session, list(force_managed_python = FALSE, exprs = expr))
     Output
       > library(reticulate)
-      > use_virtualenv("***", 
-      +     required = TRUE)
+      > use_virtualenv("***", required = TRUE)
       > py_require("polars")
       > config <- py_config()
       Warning message:

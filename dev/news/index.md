@@ -18,6 +18,14 @@
   reticulate
   ([\#1883](https://github.com/rstudio/reticulate/issues/1883)).
 
+- Fixed
+  [`py_require()`](https://rstudio.github.io/reticulate/dev/reference/py_require.md)
+  to allow `action = "add"` with already-required packages after Python
+  initialization, while still erroring on true version conflicts
+  ([\#1878](https://github.com/rstudio/reticulate/issues/1878),
+  [\#1872](https://github.com/rstudio/reticulate/issues/1872);
+  [@JBGruber](https://github.com/JBGruber)).
+
 - Fix spurious `Error: ignoring SIGPIPE signal` on Unix when embedded
   Python writes to a closed pipe
   ([\#1868](https://github.com/rstudio/reticulate/issues/1868)).

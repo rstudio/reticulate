@@ -1,5 +1,8 @@
 transform_scrub_python_patch <- function(x) {
-  sub("3\\.([0-9]{1,2})\\.[0-9]{1,2}", "3.\\1.xx", x)
+  x <- sub("3\\.([0-9]{1,2})\\.[0-9]{1,2}", "3.\\1.xx", x)
+  # uv may report install timing depending on cache state; keep snapshots stable.
+  x <- gsub("Installed [0-9]+ package(s)? in [0-9]+ms\\n", "", x)
+  x
 }
 
 expect_snapshot2 <- function(..., transform = transform_scrub_python_patch) {

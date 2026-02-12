@@ -46,10 +46,8 @@
       > library(reticulate)
       > py_require("numpy")
       > import("sys")
-      Installed 1 package in 12ms
       Module(sys)
       > py_require("pandas")
-      Installed 4 packages in 15ms
       > import("pandas")
       Module(pandas)
       > py_require(c("numpy", "requests"))
@@ -67,16 +65,14 @@
       r_session({
         Sys.unsetenv("RETICULATE_PYTHON")
         Sys.setenv(RETICULATE_USE_MANAGED_VENV = "yes")
-        pkg_py_require <- (function(...) reticulate::py_require(
-          ...))
+        pkg_py_require <- (function(...) reticulate::py_require(...))
         pkg_py_require <- rlang::zap_srcref(pkg_py_require)
         environment(pkg_py_require) <- asNamespace("stats")
         library(reticulate)
         py_require(python_version = ">=3.9", "pandas")
         py_require(python_version = ">=3.8,<3.14")
         py_require(python_version = "3.11")
-        pkg_py_require(packages = c("pandas", "numpy"),
-        python_version = ">=3.10")
+        pkg_py_require(packages = c("pandas", "numpy"), python_version = ">=3.10")
         prefix <- import("sys")$prefix
         import("numpy")
         import("pandas")

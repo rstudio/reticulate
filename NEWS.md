@@ -1,5 +1,7 @@
 # reticulate (development version)
 
+- Fixed CRAN NOTE on R-devel (4.6) about relative vignette URLs (#1882).
+
 - Added support for pandas 3.0 (#1874, #1875).
 
 - Fix spurious `Error: ignoring SIGPIPE signal` on Unix when embedded Python writes to a closed pipe (#1868).

@@ -4,6 +4,12 @@
 
 - Added support for pandas 3.0 (#1874, #1875).
 
+- Fixed conversion of direct pandas categorical objects (e.g.,
+  `py_to_r(pd$Categorical(...))`) for pandas 2.x and 3.x (#1883).
+
+- `virtualenv_starter()` now excludes free-threaded CPython builds,
+  which are not supported by reticulate (#1883).
+
 - Fix spurious `Error: ignoring SIGPIPE signal` on Unix when embedded Python writes to a closed pipe (#1868).
 
 - Fixed Positron UI interactions, such as restart/create new session with reticulate (#1871, #1869).

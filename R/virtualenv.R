@@ -504,8 +504,11 @@ virtualenv_starter <- function(version = NULL, all = FALSE) {
   if(!is.null(version) &&
      is_string(version) &&
      file.exists(version) &&
-     grepl("^python[0-9.]*(\\.exe)?$", basename(version)))
+     grepl("^python[0-9.]*(\\.exe)?$", basename(version))) {
+    if (python_is_free_threaded(version))
+      return(NULL)
     return(version)
+  }
 
   starters <- data.frame(version = numeric_version(character()),
                          path = character(),
@@ -578,6 +581,8 @@ virtualenv_starter <- function(version = NULL, all = FALSE) {
     df <- data.frame(version = v, path = p,
                      row.names = NULL, stringsAsFactors = FALSE)
     df <- df[!is.na(df$version), ]
+    is_free_threaded <- vapply(df$path, python_is_free_threaded, logical(1))
+    df <- df[!is_free_threaded, ]
     df <- df[order(df$version, decreasing = TRUE), ]
 
     df <- rbind(starters, df, stringsAsFactors = FALSE)
@@ -765,6 +770,9 @@ check_can_be_virtualenv_starter <- function(python, version) {
 
 can_be_virtualenv_starter <- function(python) {
   if (is.null(python) || !file.exists(python))
+    return(FALSE)
+
+  if (python_is_free_threaded(python))
     return(FALSE)
 
   # get version

@@ -1,7 +1,8 @@
-
-
 transform_scrub_python_patch <- function(x) {
-  sub("3\\.([0-9]{1,2})\\.[0-9]{1,2}", "3.\\1.xx", x)
+  x <- sub("3\\.([0-9]{1,2})\\.[0-9]{1,2}", "3.\\1.xx", x)
+  # uv may report install timing depending on cache state; keep snapshots stable.
+  x <- x[!grepl("^\\s*Installed [0-9]+ package(s)? in [0-9]+ms\\s*$", x)]
+  x
 }
 
 expect_snapshot2 <- function(..., transform = transform_scrub_python_patch) {
@@ -25,6 +26,30 @@ test_that("Error requesting conflicting package versions", {
   }))
 })
 
+test_that("Adding packages after Python init works; conflicting versions error", {
+  local_edition(3)
+
+  # dry run to pre-cache environments and avoid download messages in snapshot
+  try(uv_get_or_create_env(c("numpy", "requests")))
+  try(uv_get_or_create_env(c("numpy", "requests", "pandas")))
+
+  expect_snapshot2(r_session({
+    library(reticulate)
+    py_require("numpy")
+    import("sys") # force Python to initialize
+
+    # happy path: adding a completely new package should work
+    py_require("pandas")
+    import("pandas")
+
+    # adding a new package and the same version of an existing one should work
+    py_require(c("numpy", "requests"))
+
+    # error: adding a conflicting version of an already-required package
+    try(py_require("numpy>2"))
+  }))
+})
+
 
 test_that("Setting py_require(python_version) after initializing Python ", {
   test_py_require_reset()
@@ -34,7 +59,6 @@ test_that("Setting py_require(python_version) after initializing Python ", {
   try(uv_get_or_create_env(c("numpy", "pandas", "requests"), "3.11"))
 
   expect_snapshot2(r_session({
-
     Sys.unsetenv("RETICULATE_PYTHON")
     Sys.setenv("RETICULATE_USE_MANAGED_VENV" = "yes")
     # Sys.setenv("RETICULATE_PYTHON"="managed")
@@ -84,9 +108,7 @@ test_that("Setting py_require(python_version) after initializing Python ", {
     try(py_require(exclude_newer = "2020-01-01"))
     try(py_require(python_version = ">=3.12"))
     try(py_require("pandas", action = "remove"))
-
   }))
-
 })
 
 
@@ -97,9 +119,11 @@ test_that("Error requesting newer package version against an older snapshot", {
       exclude_newer = "2024-10-20"
     )
   })
-  expect_match(session,
+  expect_match(
+    session,
     "Call `py_require()` to remove or replace conflicting requirements",
-    fixed = TRUE, all = FALSE
+    fixed = TRUE,
+    all = FALSE
   )
   expect_true(attr(session, "status", TRUE) != 0L)
 })
@@ -114,15 +138,20 @@ test_that("Error requesting a package that does not exists", {
 
 test_that("Error requesting conflicting Python versions", {
   local_edition(3)
-  expect_snapshot2(r_session(attach_namespace = TRUE, {
-    py_require(python_version = ">=3.10")
-    py_require(python_version = "<3.10")
-    uv_get_or_create_env()
-  }), transform = function(x) {
-    sub("^Available Python versions found: 3\\.1[1-9]\\..*",
+  expect_snapshot2(
+    r_session(attach_namespace = TRUE, {
+      py_require(python_version = ">=3.10")
+      py_require(python_version = "<3.10")
+      uv_get_or_create_env()
+    }),
+    transform = function(x) {
+      sub(
+        "^Available Python versions found: 3\\.1[1-9]\\..*",
         "Available Python versions found: 3.11.xx ....",
-        x)
-  })
+        x
+      )
+    }
+  )
 })
 
 test_that("Simple tests", {
@@ -158,8 +187,9 @@ test_that("Simple tests", {
 test_that("can bootstrap install uv in reticulate cache", {
   # This test needs rethinking. It assumes that uv is not already installed on the users system,
   # and fails if it is.
-  if (Sys.which("uv") != "" || file.exists("~/.local/bin/uv"))
+  if (Sys.which("uv") != "" || file.exists("~/.local/bin/uv")) {
     skip("uv installed by user")
+  }
   local_edition(3)
   test_py_require_reset()
   uv_exec <- ifelse(is_windows(), "uv.exe", "uv")
@@ -202,7 +232,7 @@ test_that("py_require() warns missing packages in a virtual env", {
     library(reticulate)
     use_virtualenv(.(venv), required = TRUE)
     py_require("polars")
-    
+
     config <- py_config()
   })
   expect_snapshot2(
@@ -211,6 +241,6 @@ test_that("py_require() warns missing packages in a virtual env", {
       x <- transform_scrub_python_patch(x)
       # scrub paths
       gsub("[A-Za-z]:[\\\\/][^\"' ]+|/[A-Za-z0-9._/\\\\-]+", "***", x)
-    } 
+    }
   )
 })

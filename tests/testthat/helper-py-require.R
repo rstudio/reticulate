@@ -28,7 +28,7 @@ r_session <- function(exprs, echo = TRUE, color = FALSE,
       'attach(asNamespace("reticulate"), name = "namespace:reticulate", warn.conflicts = FALSE)',
     if (echo)
       "options(echo = TRUE)",
-    lapply(exprs, deparse)
+    lapply(exprs, deparse, width.cutoff = 500L)
   ))
 
   writeLines(exprs, file <- tempfile(fileext = ".R"))

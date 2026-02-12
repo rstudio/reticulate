@@ -10,6 +10,9 @@
 - `virtualenv_starter()` now excludes free-threaded CPython builds,
   which are not supported by reticulate (#1883).
 
+- Fixed `py_require()` to allow `action = "add"` with already-required packages
+  after Python initialization, while still erroring on true version conflicts (#1878, #1872; @JBGruber).
+
 - Fix spurious `Error: ignoring SIGPIPE signal` on Unix when embedded Python writes to a closed pipe (#1868).
 
 - Fixed Positron UI interactions, such as restart/create new session with reticulate (#1871, #1869).
@@ -18,7 +21,7 @@
 
 # reticulate 1.44.1
 
-- The default Python version in `install_python()` 
+- The default Python version in `install_python()`
   and `conda_create()` is now 3.12 (#1862).
 
 - Fix error in `virtualenv_create()`/`virtualenv_starter()` (#1861).

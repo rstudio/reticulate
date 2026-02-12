@@ -262,9 +262,17 @@ py_require <- function(packages = NULL,
             packages <- NULL # no-op, skip activating new env
           } else {
             bare_name <- function(x) sub("^([^[!=><]+).*", "\\1", x)
-            if (any(bare_name(packages) %in% bare_name(pr$packages))) {
-              # e.g., if user calls 'numpy<2' after already initialized with 'numpy>2'
-              signal_and_exit("After Python has initialized, only `action = 'add'` with new packages is supported.")
+            packages <- setdiff(packages, pr$packages)
+            # e.g., if user calls 'numpy<2' after already initialized with 'numpy>2'
+            conflicts <- bare_name(packages) %in% bare_name(pr$packages)
+            if (any(conflicts)) {
+              new <- paste0("`", sort(packages[conflicts]), "`", collapse = ", ")
+              old <- sort(pr$packages[bare_name(pr$packages) %in% bare_name(packages)])
+              old <- paste0("`", old, "`", collapse = ", ")
+              signal_and_exit(paste(
+                "After Python has initialized, only `action = 'add'` with new packages is supported.",
+                "You tried to add", new, "but requirements contain", old, " already."
+              ))
               packages <- NULL
             }
             pr$packages <- unique(c(packages, pr$packages))

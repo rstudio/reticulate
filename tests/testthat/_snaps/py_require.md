@@ -30,6 +30,35 @@
       success: false
       exit_code: 1
 
+# Adding packages after Python init works; conflicting versions error
+
+    Code
+      r_session({
+        library(reticulate)
+        py_require("numpy")
+        import("sys")
+        py_require("pandas")
+        import("pandas")
+        py_require(c("numpy", "requests"))
+        try(py_require("numpy>2"))
+      })
+    Output
+      > library(reticulate)
+      > py_require("numpy")
+      > import("sys")
+      Module(sys)
+      > py_require("pandas")
+      > import("pandas")
+      Module(pandas)
+      > py_require(c("numpy", "requests"))
+      > try(py_require("numpy>2"))
+      Error in py_require("numpy>2") : 
+        After Python has initialized, only `action = 'add'` with new packages is supported. You tried to add `numpy>2` but requirements contain `numpy`  already.
+      > 
+      ------- session end -------
+      success: true
+      exit_code: 0
+
 # Setting py_require(python_version) after initializing Python 
 
     Code
@@ -363,8 +392,7 @@
       do.call(r_session, list(force_managed_python = FALSE, exprs = expr))
     Output
       > library(reticulate)
-      > use_virtualenv("***", 
-      +     required = TRUE)
+      > use_virtualenv("***", required = TRUE)
       > py_require("polars")
       > config <- py_config()
       Warning message:

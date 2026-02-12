@@ -9,6 +9,15 @@
   ([\#1874](https://github.com/rstudio/reticulate/issues/1874),
   [\#1875](https://github.com/rstudio/reticulate/issues/1875)).
 
+- Fixed conversion of direct pandas categorical objects (e.g.,
+  `py_to_r(pd$Categorical(...))`) for pandas 2.x and 3.x
+  ([\#1883](https://github.com/rstudio/reticulate/issues/1883)).
+
+- [`virtualenv_starter()`](https://rstudio.github.io/reticulate/dev/reference/virtualenv-tools.md)
+  now excludes free-threaded CPython builds, which are not supported by
+  reticulate
+  ([\#1883](https://github.com/rstudio/reticulate/issues/1883)).
+
 - Fix spurious `Error: ignoring SIGPIPE signal` on Unix when embedded
   Python writes to a closed pipe
   ([\#1868](https://github.com/rstudio/reticulate/issues/1868)).

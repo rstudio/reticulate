@@ -1,7 +1,7 @@
 transform_scrub_python_patch <- function(x) {
   x <- sub("3\\.([0-9]{1,2})\\.[0-9]{1,2}", "3.\\1.xx", x)
   # uv may report install timing depending on cache state; keep snapshots stable.
-  x <- gsub("Installed [0-9]+ package(s)? in [0-9]+ms\\n", "", x)
+  x <- x[!grepl("^\\s*Installed [0-9]+ package(s)? in [0-9]+ms\\s*$", x)]
   x
 }
 

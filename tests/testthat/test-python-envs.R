@@ -1,5 +1,20 @@
 context("envs")
 
+python_is_free_threaded_via_vv <- function(python) {
+  output <- tryCatch(
+    system2(python, c("-E", "-VV"), stdout = TRUE, stderr = TRUE),
+    error = identity
+  )
+  if (inherits(output, "error"))
+    return(FALSE)
+
+  status <- attr(output, "status") %||% 0L
+  if (status != 0L || !length(output))
+    return(FALSE)
+
+  any(grepl("free-thread(?:ed|ing) build", output, ignore.case = TRUE))
+}
+
 test_that("conda utility functions work as expected", {
   # TODO: reenable these tests
   skip_if_no_test_environments()
@@ -67,3 +82,52 @@ test_that("Python version checker does not support pattern 'x.*.x'", {
   expect_false(check[[1]]("4.1"))
 })
 
+test_that("python_is_free_threaded matches interpreter config", {
+  skip_if_no_python()
+
+  python <- Sys.which("python3")
+  if (!nzchar(python))
+    python <- Sys.which("python")
+  if (!nzchar(python))
+    skip("No python interpreter available for testing")
+
+  expect_identical(
+    python_is_free_threaded(python),
+    python_is_free_threaded_via_vv(python)
+  )
+})
+
+test_that("virtualenv_starter excludes free-threaded Python builds", {
+  skip_if_no_python()
+
+  starters <- virtualenv_starter(all = TRUE)
+  if (!nrow(starters))
+    skip("No virtualenv starters found")
+
+  is_free_threaded <- vapply(
+    starters$path,
+    python_is_free_threaded_via_vv,
+    logical(1),
+    USE.NAMES = FALSE
+  )
+  expect_false(any(is_free_threaded))
+})
+
+test_that("virtualenv_starter rejects explicitly requested free-threaded Python", {
+  candidates <- c(
+    Sys.glob("~/.pyenv/versions/*t*/bin/python*"),
+    Sys.glob("~/.pyenv/versions/*t*/python*.exe")
+  )
+  candidates <- candidates[grep("^python[0-9.]*(\\.exe)?$", basename(candidates))]
+  candidates <- candidates[utils::file_test("-x", candidates)]
+  candidates <- candidates[utils::file_test("-f", candidates)]
+  candidates <- unique(normalizePath(candidates, winslash = "/", mustWork = FALSE))
+  candidates <- candidates[vapply(
+    candidates, python_is_free_threaded_via_vv, logical(1), USE.NAMES = FALSE
+  )]
+
+  if (!length(candidates))
+    skip("No free-threaded Python installations found")
+
+  expect_null(virtualenv_starter(candidates[[1L]]))
+})

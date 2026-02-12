@@ -24,7 +24,7 @@ Calling `py_require("pkg")` updates the Python requirements manifest
 that reticulate maintains for the current R session. This manifest is
 used only if no manually managed Python environment is found earlier in
 the Python [Order of
-Discovery](https://rstudio.github.io/reticulate/dev/versions#order-of-discovery).
+Discovery](https://rstudio.github.io/reticulate/articles/versions.html#order-of-discovery).
 The manifest is not consulted and requirements are not resolved until
 reticulate needs to initialize Python, typically at the first
 [`import()`](https://rstudio.github.io/reticulate/dev/reference/import.md)

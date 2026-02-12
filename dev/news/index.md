@@ -2,6 +2,9 @@
 
 ## reticulate (development version)
 
+- Fixed CRAN NOTE on R-devel (4.6) about relative vignette URLs
+  ([\#1882](https://github.com/rstudio/reticulate/issues/1882)).
+
 - Added support for pandas 3.0
   ([\#1874](https://github.com/rstudio/reticulate/issues/1874),
   [\#1875](https://github.com/rstudio/reticulate/issues/1875)).

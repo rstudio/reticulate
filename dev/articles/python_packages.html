@@ -93,11 +93,11 @@ and other loaded R packages.</p>
 <p>Calling <code>py_require("pkg")</code> updates the Python
 requirements manifest that reticulate maintains for the current R
 session. This manifest is used only if no manually managed Python
-environment is found earlier in the Python <a href="../versions#order-of-discovery">Order of Discovery</a>. The
-manifest is not consulted and requirements are not resolved until
-reticulate needs to initialize Python, typically at the first
-<code><a href="../reference/import.html">import()</a></code> call. Requirements are resolved into a cached
-ephemeral environment specific to the unique set of dependencies
+environment is found earlier in the Python <a href="https://rstudio.github.io/reticulate/articles/versions.html#order-of-discovery">Order
+of Discovery</a>. The manifest is not consulted and requirements are not
+resolved until reticulate needs to initialize Python, typically at the
+first <code><a href="../reference/import.html">import()</a></code> call. Requirements are resolved into a
+cached ephemeral environment specific to the unique set of dependencies
 declared.</p>
 <p>While not required, it is generally recommended to declare all Python
 dependencies before reticulate initializes Python. The simplest approach

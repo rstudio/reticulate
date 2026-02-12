@@ -192,7 +192,7 @@ py_to_r.pandas.Series <- py_to_r.pandas.core.series.Series
 #' @export
 py_to_r.pandas.core.categorical.Categorical <- function(x) {
   local_conversion_scope(x, FALSE)
-  values <- py_to_r(x$get_values())
+  values <- py_to_r(x$to_numpy())
   levels <- py_to_r(x$categories$values)
   ordered <- py_to_r(x$dtype$ordered)
   factor(values, levels = levels, ordered = ordered)
@@ -201,6 +201,9 @@ py_to_r.pandas.core.categorical.Categorical <- function(x) {
 #' @export
 py_to_r.pandas.core.arrays.categorical.Categorical <-
   py_to_r.pandas.core.categorical.Categorical
+
+#' @export
+py_to_r.pandas.Categorical <- py_to_r.pandas.core.categorical.Categorical
 
 #' @export
 py_to_r.pandas.arrays.NumpyExtensionArray <- function(x) {

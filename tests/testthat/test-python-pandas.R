@@ -256,6 +256,18 @@ df = pd.DataFrame({"FCT": pd.Categorical(["No", "Yes"]),
 
 })
 
+test_that("direct pandas categoricals are converted to factors", {
+  skip_if_no_pandas()
+
+  pd <- import("pandas", convert = FALSE)
+  p_cat <- pd$Categorical(list("a", "b", NULL), ordered = TRUE)
+  r_cat <- py_to_r(p_cat)
+
+  expect_true(is.factor(r_cat))
+  expect_true(is.ordered(r_cat))
+  expect_identical(as.character(r_cat), c("a", "b", NA_character_))
+})
+
 test_that("can cast from pandas nullable types", {
   skip_if_no_pandas()
   pd <- import("pandas", convert = FALSE)

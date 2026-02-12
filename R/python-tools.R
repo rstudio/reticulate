@@ -28,6 +28,22 @@ python_version <- function(python) {
   numeric_version(sanitized)
 }
 
+python_is_free_threaded <- function(python) {
+  args <- c("-E", "-VV")
+  output <- tryCatch(
+    system2(python, args, stdout = TRUE, stderr = TRUE),
+    error = identity
+  )
+  if (inherits(output, "error"))
+    return(FALSE)
+
+  status <- attr(output, "status") %||% 0L
+  if (status != 0L || !length(output))
+    return(FALSE)
+
+  any(grepl("free-thread(?:ed|ing) build", output, ignore.case = TRUE))
+}
+
 python_module_version <- function(python, module) {
   fmt <- "import %1$s; print(%1$s.__version__)"
   code <- sprintf(fmt, module)

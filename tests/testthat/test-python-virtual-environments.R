@@ -11,6 +11,9 @@ test_that("reticulate can bind to virtual environments created with venv", {
 
   # ensure cacert.pem goes to right folder
   withr::local_envvar(TMPDIR = tempdir())
+  # this test only verifies venv activation mechanics; package requirement
+  # warnings are covered in test-py_require.R snapshots.
+  withr::local_envvar(RETICULATE_CHECK_REQUIRED_PACKAGES = "false")
 
   # find Python 3 binary for testing
   python3 <- Sys.which("python3")

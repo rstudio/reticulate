@@ -370,10 +370,10 @@ check_virtualenv_required_packages <- function(config) {
   # - numba==0.60.0
   # + numba==0.61.0
   if (any(grepl("downloading", pip_output, ignore.case = TRUE))) {
-    warning(paste(
+    warning_or_startup_message(paste(
       pip_output[grepl("downloading", pip_output, ignore.case = TRUE)],
       collapse = "\n"
-    ))
+    ), call. = FALSE)
   }
 
   # uv pip doesn't have an option to produce structured output,
@@ -399,7 +399,7 @@ check_virtualenv_required_packages <- function(config) {
       vapply(packages, function(pkg) any(startsWith(pkg, would_install_pkgs)), TRUE,
              USE.NAMES = FALSE)
     ]
-    warning(
+    warning_or_startup_message(
       "Some Python package requirements declared via `py_require()` are not",
       " installed in the selected Python environment: (", config$python, ")\n",
       "  ", paste0(would_install_pkgs, collapse=" "),
@@ -433,14 +433,7 @@ check_forbidden_initialization <- function() {
 
     call <- calls[[i]]
     frame <- frames[[i]]
-    if (!identical(call[[1]], as.name("runHook")))
-      next
-
-    bad <-
-      identical(call[[2]], ".onLoad") ||
-      identical(call[[2]], ".onAttach")
-
-    if (!bad)
+    if (!is_package_loading(list(call)))
       next
 
     pkgname <- tryCatch(

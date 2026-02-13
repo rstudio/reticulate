@@ -278,20 +278,10 @@ use_miniconda <- function(condaenv = NULL, required = NULL) {
 
 use_python_required <- function() {
 
-  # for now, assume that calls from within a package's .onLoad() are
+  # for now, assume that calls from within package load hooks are
   # advisory, but we may consider relaxing this in the future
-  calls <- sys.calls()
-  for (call in calls) {
-
-    match <-
-      length(call) >= 2 &&
-      identical(call[[1L]], as.name("runHook")) &&
-      identical(call[[2L]], ".onLoad")
-
-    if (match)
-      return(FALSE)
-
-  }
+  if (is_package_loading())
+    return(FALSE)
 
   # default to TRUE
   TRUE

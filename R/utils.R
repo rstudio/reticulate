@@ -742,6 +742,36 @@ parent.pkg <- function(env = parent.frame(2)) {
     NULL # print visible
 }
 
+is_package_loading <- function(calls = sys.calls()) {
+  for (call in calls) {
+    if (length(call) < 2L)
+      next
+
+    hook <- call[[2L]]
+    if (is.symbol(hook))
+      hook <- as.character(hook)
+
+    match <-
+      identical(call[[1L]], as.name("runHook")) &&
+      is.character(hook) &&
+      hook %in% c(".onLoad", ".onAttach")
+
+    if (match)
+      return(TRUE)
+  }
+
+  FALSE
+}
+
+warning_or_startup_message <- function(..., call. = TRUE) {
+  msg <- .makeMessage(...)
+  if (is_package_loading()) {
+    packageStartupMessage(msg)
+  } else {
+    warning(msg, call. = call.)
+  }
+}
+
 warn_and_return <- function(..., call. = TRUE) {
   cond <- if (inherits(..1, "condition")) {
     ..1

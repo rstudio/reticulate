@@ -244,3 +244,39 @@ test_that("py_require() warns missing packages in a virtual env", {
     }
   )
 })
+
+test_that("package load hooks get startup messages, not warnings", {
+  expect_true(is_package_loading(list(quote(runHook(".onLoad", foo)))))
+  expect_true(is_package_loading(list(quote(runHook(.onAttach, foo)))))
+  expect_false(is_package_loading(list(quote(runHook(".onUnload", foo)))))
+
+  msg <- paste(
+    "Some Python package requirements declared via `py_require()` are not",
+    "installed in the selected Python environment: (/path/to/python)\n",
+    "  numpy"
+  )
+
+  expect_warning(
+    warning_or_startup_message(msg, call. = FALSE),
+    "Some Python package requirements declared via `py_require()` are not",
+    fixed = TRUE
+  )
+
+  runHook <- function(name, expr) expr()
+  expect_message(
+    expect_warning(
+      runHook(".onLoad", function() warning_or_startup_message(msg, call. = FALSE)),
+      NA
+    ),
+    "Some Python package requirements declared via `py_require()` are not",
+    fixed = TRUE
+  )
+  expect_message(
+    expect_warning(
+      runHook(".onAttach", function() warning_or_startup_message(msg, call. = FALSE)),
+      NA
+    ),
+    "Some Python package requirements declared via `py_require()` are not",
+    fixed = TRUE
+  )
+})

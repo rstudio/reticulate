@@ -1,23 +1,31 @@
 # reticulate (development version)
 
-- Fixed CRAN NOTE on R-devel (4.6) about relative vignette URLs (#1882).
+## New features
 
-- Added support for pandas 3.0 (#1874, #1875).
+- Positron now supports F1 help for reticulate Python objects (#1866).
 
-- Fixed conversion of direct pandas categorical objects (e.g.,
-  `py_to_r(pd$Categorical(...))`) for pandas 2.x and 3.x (#1883).
+- Reticulate now supports pandas 3.0 (#1874, #1875).
+
+- `py_require()` now allows `action = "add"` for already-required packages
+  after Python initialization, while still erroring on true version conflicts
+  (@JBGruber, #1872, #1878).
+
+- `py_to_r()` now converts direct pandas categorical objects (for example,
+  `pd$Categorical(...)`) for pandas 2.x and 3.x (#1883).
+
+## Minor improvements and fixes
+
+- Positron now handles reticulate-backed UI actions, such as restarting or
+  creating a new session, more reliably (#1869, #1871).
+
+- Reticulate now avoids spurious `Error: ignoring SIGPIPE signal` messages on
+  Unix when embedded Python writes to a closed pipe (#1868).
+
+- Reticulate no longer triggers a CRAN NOTE on R-devel (4.6) for relative
+  vignette URLs (#1882).
 
 - `virtualenv_starter()` now excludes free-threaded CPython builds,
   which are not supported by reticulate (#1883).
-
-- Fixed `py_require()` to allow `action = "add"` with already-required packages
-  after Python initialization, while still erroring on true version conflicts (#1878, #1872; @JBGruber).
-
-- Fix spurious `Error: ignoring SIGPIPE signal` on Unix when embedded Python writes to a closed pipe (#1868).
-
-- Fixed Positron UI interactions, such as restart/create new session with reticulate (#1871, #1869).
-
-- Added support for F1 help for reticulate Python objects in Positron (#1866).
 
 # reticulate 1.44.1
 

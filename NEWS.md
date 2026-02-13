@@ -1,4 +1,4 @@
-# reticulate (development version)
+# reticulate 1.45.0
 
 ## New features
 

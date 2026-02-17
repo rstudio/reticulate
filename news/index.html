@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">reticulate</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.44.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.45.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,11 +41,28 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/rstudio/reticulate/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/rstudio/reticulate/blob/v1.45.0/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.44.1" id="reticulate-1441">reticulate 1.44.1<a class="anchor" aria-label="anchor" href="#reticulate-1441"></a></h2>
+<h2 class="pkg-version" data-toc-text="1.45.0" id="reticulate-1450">reticulate 1.45.0<a class="anchor" aria-label="anchor" href="#reticulate-1450"></a></h2><p class="text-muted">CRAN release: 2026-02-13</p>
+<div class="section level3">
+<h3 id="new-features-1-45-0">New features<a class="anchor" aria-label="anchor" href="#new-features-1-45-0"></a></h3>
+<ul><li><p>Positron now supports F1 help for reticulate Python objects (<a href="https://github.com/rstudio/reticulate/issues/1866" class="external-link">#1866</a>).</p></li>
+<li><p>Reticulate now supports pandas 3.0 (<a href="https://github.com/rstudio/reticulate/issues/1874" class="external-link">#1874</a>, <a href="https://github.com/rstudio/reticulate/issues/1875" class="external-link">#1875</a>).</p></li>
+<li><p><code><a href="../reference/py_require.html">py_require()</a></code> now allows <code>action = "add"</code> for already-required packages after Python initialization, while still erroring on true version conflicts (<a href="https://github.com/JBGruber" class="external-link">@JBGruber</a>, <a href="https://github.com/rstudio/reticulate/issues/1872" class="external-link">#1872</a>, <a href="https://github.com/rstudio/reticulate/issues/1878" class="external-link">#1878</a>).</p></li>
+<li><p><code><a href="../reference/r-py-conversion.html">py_to_r()</a></code> now converts direct pandas categorical objects (for example, <code>pd$Categorical(...)</code>) for pandas 2.x and 3.x (<a href="https://github.com/rstudio/reticulate/issues/1883" class="external-link">#1883</a>).</p></li>
+</ul></div>
+<div class="section level3">
+<h3 id="minor-improvements-and-fixes-1-45-0">Minor improvements and fixes<a class="anchor" aria-label="anchor" href="#minor-improvements-and-fixes-1-45-0"></a></h3>
+<ul><li><p>Positron now handles reticulate-backed UI actions, such as restarting or creating a new session, more reliably (<a href="https://github.com/rstudio/reticulate/issues/1869" class="external-link">#1869</a>, <a href="https://github.com/rstudio/reticulate/issues/1871" class="external-link">#1871</a>).</p></li>
+<li><p>Reticulate now avoids spurious <code>Error: ignoring SIGPIPE signal</code> messages on Unix when embedded Python writes to a closed pipe (<a href="https://github.com/rstudio/reticulate/issues/1868" class="external-link">#1868</a>).</p></li>
+<li><p>Reticulate no longer triggers a CRAN NOTE on R-devel (4.6) for relative vignette URLs (<a href="https://github.com/rstudio/reticulate/issues/1882" class="external-link">#1882</a>).</p></li>
+<li><p><code><a href="../reference/virtualenv-tools.html">virtualenv_starter()</a></code> now excludes free-threaded CPython builds, which are not supported by reticulate (<a href="https://github.com/rstudio/reticulate/issues/1883" class="external-link">#1883</a>).</p></li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.44.1" id="reticulate-1441">reticulate 1.44.1<a class="anchor" aria-label="anchor" href="#reticulate-1441"></a></h2><p class="text-muted">CRAN release: 2025-11-14</p>
 <ul><li><p>The default Python version in <code><a href="../reference/install_python.html">install_python()</a></code> and <code><a href="../reference/conda-tools.html">conda_create()</a></code> is now 3.12 (<a href="https://github.com/rstudio/reticulate/issues/1862" class="external-link">#1862</a>).</p></li>
 <li><p>Fix error in <code><a href="../reference/virtualenv-tools.html">virtualenv_create()</a></code>/<code><a href="../reference/virtualenv-tools.html">virtualenv_starter()</a></code> (<a href="https://github.com/rstudio/reticulate/issues/1861" class="external-link">#1861</a>).</p></li>
 <li><p>Fix display of Python variables in the Positron Variables Pane (<a href="https://github.com/rstudio/reticulate/issues/1859" class="external-link">#1859</a>).</p></li>
@@ -62,6 +79,7 @@
 <li><p>Positron’s reticulate integration will now be automatically enabled when the reticulate package is loaded in Positron (<a href="https://github.com/rstudio/reticulate/issues/1822" class="external-link">#1822</a>).</p></li>
 <li><p><code><a href="https://rdrr.io/r/base/with.html" class="external-link">with()</a></code> now forwards errors to Python context manager exit handlers (e.g., so database transactions can roll back cleanly) (<a href="https://github.com/rstudio/reticulate/issues/1840" class="external-link">#1840</a>, <a href="https://github.com/rstudio/reticulate/issues/1841" class="external-link">#1841</a>)</p></li>
 <li><p>Fixed <code>!!</code> in string literals being wrongly expanded to a <code>%system</code> magic in <code><a href="../reference/repl_python.html">repl_python()</a></code>. Added support for assigning <code>%system</code> command output to multiple variables via unpacking (<a href="https://github.com/rstudio/reticulate/issues/1844" class="external-link">#1844</a>).</p></li>
+<li><p>reticulate now warns when <code><a href="../reference/py_require.html">py_require()</a></code>d packages are not found in the selected Python virtual environment. This behavior can be disabled by setting the environment variable <code>RETICULATE_CHECK_REQUIRED_PACKAGES=0</code> (<a href="https://github.com/rstudio/reticulate/issues/1850" class="external-link">#1850</a>).</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.43.0" id="reticulate-1430">reticulate 1.43.0<a class="anchor" aria-label="anchor" href="#reticulate-1430"></a></h2><p class="text-muted">CRAN release: 2025-07-21</p>

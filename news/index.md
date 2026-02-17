@@ -1,6 +1,53 @@
 # Changelog
 
+## reticulate 1.45.0
+
+CRAN release: 2026-02-13
+
+### New features
+
+- Positron now supports F1 help for reticulate Python objects
+  ([\#1866](https://github.com/rstudio/reticulate/issues/1866)).
+
+- Reticulate now supports pandas 3.0
+  ([\#1874](https://github.com/rstudio/reticulate/issues/1874),
+  [\#1875](https://github.com/rstudio/reticulate/issues/1875)).
+
+- [`py_require()`](https://rstudio.github.io/reticulate/reference/py_require.md)
+  now allows `action = "add"` for already-required packages after Python
+  initialization, while still erroring on true version conflicts
+  ([@JBGruber](https://github.com/JBGruber),
+  [\#1872](https://github.com/rstudio/reticulate/issues/1872),
+  [\#1878](https://github.com/rstudio/reticulate/issues/1878)).
+
+- [`py_to_r()`](https://rstudio.github.io/reticulate/reference/r-py-conversion.md)
+  now converts direct pandas categorical objects (for example,
+  `pd$Categorical(...)`) for pandas 2.x and 3.x
+  ([\#1883](https://github.com/rstudio/reticulate/issues/1883)).
+
+### Minor improvements and fixes
+
+- Positron now handles reticulate-backed UI actions, such as restarting
+  or creating a new session, more reliably
+  ([\#1869](https://github.com/rstudio/reticulate/issues/1869),
+  [\#1871](https://github.com/rstudio/reticulate/issues/1871)).
+
+- Reticulate now avoids spurious `Error: ignoring SIGPIPE signal`
+  messages on Unix when embedded Python writes to a closed pipe
+  ([\#1868](https://github.com/rstudio/reticulate/issues/1868)).
+
+- Reticulate no longer triggers a CRAN NOTE on R-devel (4.6) for
+  relative vignette URLs
+  ([\#1882](https://github.com/rstudio/reticulate/issues/1882)).
+
+- [`virtualenv_starter()`](https://rstudio.github.io/reticulate/reference/virtualenv-tools.md)
+  now excludes free-threaded CPython builds, which are not supported by
+  reticulate
+  ([\#1883](https://github.com/rstudio/reticulate/issues/1883)).
+
 ## reticulate 1.44.1
+
+CRAN release: 2025-11-14
 
 - The default Python version in
   [`install_python()`](https://rstudio.github.io/reticulate/reference/install_python.md)
@@ -72,6 +119,13 @@ CRAN release: 2025-10-25
   Added support for assigning `%system` command output to multiple
   variables via unpacking
   ([\#1844](https://github.com/rstudio/reticulate/issues/1844)).
+
+- reticulate now warns when
+  [`py_require()`](https://rstudio.github.io/reticulate/reference/py_require.md)d
+  packages are not found in the selected Python virtual environment.
+  This behavior can be disabled by setting the environment variable
+  `RETICULATE_CHECK_REQUIRED_PACKAGES=0`
+  ([\#1850](https://github.com/rstudio/reticulate/issues/1850)).
 
 ## reticulate 1.43.0
 

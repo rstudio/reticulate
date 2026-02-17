@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">reticulate</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.44.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.45.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -67,7 +67,7 @@
       <h1>Installing Python Packages</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/rstudio/reticulate/blob/main/vignettes/python_packages.Rmd" class="external-link"><code>vignettes/python_packages.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/rstudio/reticulate/blob/v1.45.0/vignettes/python_packages.Rmd" class="external-link"><code>vignettes/python_packages.Rmd</code></a></small>
       <div class="d-none name"><code>python_packages.Rmd</code></div>
     </div>
 
@@ -92,11 +92,11 @@ and other loaded R packages.</p>
 <p>Calling <code>py_require("pkg")</code> updates the Python
 requirements manifest that reticulate maintains for the current R
 session. This manifest is used only if no manually managed Python
-environment is found earlier in the Python <a href="../versions#order-of-discovery">Order of Discovery</a>. The
-manifest is not consulted and requirements are not resolved until
-reticulate needs to initialize Python, typically at the first
-<code><a href="../reference/import.html">import()</a></code> call. Requirements are resolved into a cached
-ephemeral environment specific to the unique set of dependencies
+environment is found earlier in the Python <a href="https://rstudio.github.io/reticulate/articles/versions.html#order-of-discovery">Order
+of Discovery</a>. The manifest is not consulted and requirements are not
+resolved until reticulate needs to initialize Python, typically at the
+first <code><a href="../reference/import.html">import()</a></code> call. Requirements are resolved into a
+cached ephemeral environment specific to the unique set of dependencies
 declared.</p>
 <p>While not required, it is generally recommended to declare all Python
 dependencies before reticulate initializes Python. The simplest approach

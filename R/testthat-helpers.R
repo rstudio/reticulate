@@ -80,6 +80,27 @@ skip_if_no_numpy <- function() {
 
 }
 
+skip_if_freethreaded <- function() {
+
+  skip_on_cran()
+  skip_if_no_python()
+
+  config <- py_config()
+  if (is.character(config$version) &&
+      grepl("free-threading build", config$version, fixed = TRUE)) {
+    skip("free-threaded Python build not supported for this test")
+  }
+
+}
+
+is_gil_enabled <- function() {
+  tryCatch(
+    py_eval("import sys; getattr(sys, '_is_gil_enabled', lambda: True)()",
+            convert = TRUE),
+    error = function(e) TRUE
+  )
+}
+
 skip_if_no_docutils <- function() {
 
   skip_on_cran()
@@ -94,6 +115,9 @@ skip_if_no_pandas <- function() {
 
   skip_on_cran()
   skip_if_no_python()
+
+  if (isFALSE(is_gil_enabled()))
+    skip("pandas requires the GIL in free-threaded builds")
 
   if (!py_module_available("pandas"))
     skip("pandas not available for testing")

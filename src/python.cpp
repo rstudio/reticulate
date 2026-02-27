@@ -4860,7 +4860,7 @@ SEXP py_iterate(PyObjectRef x, Function f, bool simplify = true) {
 
   default:
       // should never happen
-      Rf_error("Internal error: unexpected type encountered in py_iterate");
+      Rcpp::stop("Internal error: unexpected type encountered in py_iterate");
   }
   }
   done:

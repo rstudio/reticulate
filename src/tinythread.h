@@ -876,7 +876,7 @@ inline void * thread::wrapper_function(void * aArg)
   {
     // Uncaught exceptions will terminate the application (default behavior
     // according to C++11)
-    Rf_error("[reticulate] Internal error: exception in %s\n", __func__);
+    (Rf_error)("[reticulate] Internal error: exception in %s\n", __func__);
   }
 
   // The thread is no longer executing
@@ -923,7 +923,7 @@ inline thread::thread(void (*aFunction)(void *), void * aArg)
 inline thread::~thread()
 {
   if (joinable())
-    Rf_error("[reticulate] Internal error: destructor called on joinable thread.\n");
+    (Rf_error)("[reticulate] Internal error: destructor called on joinable thread.\n");
 }
 
 inline void thread::join()

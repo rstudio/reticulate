@@ -101,7 +101,7 @@ void input_handler_function(void* userData) {
 void initialize(std::function<void()> run_pending_calls_func) {
   run_pending_calls = run_pending_calls_func;
   if (pipe(pipe_fds) == -1)
-    Rf_error("Failed to create pipe for pending Python calls notifier");
+    (Rf_error)("Failed to create pipe for pending Python calls notifier");
 
   input_handler = addInputHandler(R_InputHandlers,
                                   pipe_fds[0], input_handler_function,

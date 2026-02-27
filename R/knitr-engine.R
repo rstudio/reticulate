@@ -197,7 +197,7 @@ eng_python <- function(options) {
 
   # Stash some options.
   is_hold <- identical(options$results, "hold")
-  is_include <- isTRUE(options$include)
+  is_hidden <- identical(options$results, "hide")
   jupyter_compat <- isTRUE(options$jupyter_compat)
 
   # line index from which source should be emitted
@@ -305,8 +305,8 @@ eng_python <- function(options) {
         outputs$push(output)
       }
 
-      # append captured outputs (respecting 'include' option)
-      if (is_include) {
+      # append captured outputs (respecting 'results = "hide"' option)
+      if (!is_hidden) {
         # append captured output
         if (!identical(captured, ""))
           outputs_target$push(captured)
@@ -348,10 +348,11 @@ eng_python <- function(options) {
       plt$show()
   }
 
-  for (plot in .engine_context$pending_plots$data())
-    outputs_target$push(plot)
-  .engine_context$pending_plots$clear()
-
+  if (!is_hidden) {
+    for (plot in .engine_context$pending_plots$data())
+      outputs_target$push(plot)
+    .engine_context$pending_plots$clear()
+  }
 
   # if we were using held outputs, we just inject the source in now
   if (is_hold) {

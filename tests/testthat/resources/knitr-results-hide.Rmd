@@ -1,0 +1,16 @@
+---
+title: "Hide and include"
+output: md_document
+---
+
+```{python, results = 'hide'}
+class MyClass:
+    def _repr_html_(self):
+        return "<p>uh-oh</p>"
+
+MyClass()
+```
+
+```{python, include = FALSE}
+1 + 1
+```

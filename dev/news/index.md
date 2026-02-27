@@ -2,6 +2,9 @@
 
 ## reticulate (development version)
 
+- Internal updates for Rcpp compatibility around `Rf_error` handling
+  ([\#1887](https://github.com/rstudio/reticulate/issues/1887)).
+
 ## reticulate 1.45.0
 
 CRAN release: 2026-02-13

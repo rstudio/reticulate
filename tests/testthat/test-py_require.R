@@ -50,6 +50,17 @@ test_that("Adding packages after Python init works; conflicting versions error",
   }))
 })
 
+test_that("py_list_packages() works in managed uv environments", {
+  local_edition(3)
+
+  python <- uv_get_or_create_env("numpy")
+
+  expect_no_warning(
+    pkgs <- py_list_packages(python = python)
+  )
+  expect_true("numpy" %in% pkgs$package)
+})
+
 
 test_that("Setting py_require(python_version) after initializing Python ", {
   test_py_require_reset()

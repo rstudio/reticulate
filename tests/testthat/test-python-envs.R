@@ -65,6 +65,21 @@ test_that("virtualenv utility functions work as expected", {
 
 })
 
+test_that("py_list_packages() works for virtualenv-created environments when uv is installed", {
+  skip_if_no_test_environments()
+  skip_if(is.null(uv_binary(bootstrap_install = FALSE)), "uv not installed")
+
+  envname <- tempfile("reticulate-py-list-packages-venv")
+  on.exit(virtualenv_remove(envname, confirm = FALSE), add = TRUE)
+
+  virtualenv_create(envname)
+  virtualenv_install(envname, "numpy")
+
+  pkgs <- py_list_packages(python = virtualenv_python(envname))
+
+  expect_true(all(c("numpy", "pip") %in% pkgs$package))
+})
+
 test_that("Python version checker support a 'x.x.*' pattern", {
   check <- as_version_constraint_checkers("==3.12.*")
   expect_false(check[[1]]("3.9"))

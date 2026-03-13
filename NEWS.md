@@ -2,6 +2,8 @@
 
 - Internal updates for Rcpp compatibility around `Rf_error` handling (#1887).
 
+- Fixed `py_list_packages()` for `uv`-managed environments. (#1890, #1891)
+
 # reticulate 1.45.0
 
 ## New features

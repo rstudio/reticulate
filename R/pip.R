@@ -89,12 +89,26 @@ pip_uninstall <- function(python, packages) {
 }
 
 pip_freeze <- function(python) {
+  stopifnot(is.character(python), length(python) == 1L, nzchar(python))
 
   local_prefix_python_lib_to_ld_library_path(python)
 
-  # run pip freeze to list dependencies
-  args <- c("-m", "pip", "freeze")
-  output <- system2(python, args, stdout = TRUE)
+  uv <- uv_binary(bootstrap_install = FALSE)
+
+  output <- if (!is.null(uv)) {
+    uv_exec(
+      c(
+        "pip", "freeze",
+        "--no-progress",
+        "--color", "never",
+        "--python", maybe_shQuote(python)
+      ),
+      stdout = TRUE,
+      stderr = FALSE
+    )
+  } else {
+    system2(python, c("-m", "pip", "freeze"), stdout = TRUE)
+  }
 
   # match explicit version requests + direct references
   matches <- strsplit(output, "(==|@)")

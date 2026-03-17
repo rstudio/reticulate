@@ -424,15 +424,8 @@ int narrow_array_typenum(int typenum) {
 }
 
 npy_intp PyArray_ITEMSIZE(PyArrayObject* array) {
-  PyArray_Descr *descr = ((PyArrayObject_fields*)array)->descr;
-  switch (PyArray_RUNTIME_VERSION) {
-  case NPY_VERSION_2:
-    return ((_PyArray_DescrNumPy2*)descr)->elsize;
-  case NPY_VERSION_1:
-    return ((_PyArray_DescrNumPy1*)descr)->elsize;
-  default:
-    return -1;
-  }
+  PyArray_Descr *descr = PyArray_DESCR(array);
+  return PyArray_DescrItemSize(descr);
 }
 
 int narrow_array_typenum(PyArrayObject* array) {
@@ -440,7 +433,7 @@ int narrow_array_typenum(PyArrayObject* array) {
 }
 
 int narrow_array_typenum(PyArray_Descr* descr) {
-  return narrow_array_typenum(descr->type_num);
+  return narrow_array_typenum(PyArray_DescrTypeNum(descr));
 }
 
 bool is_numpy_str(PyObject* x) {
@@ -1827,7 +1820,7 @@ SEXP py_to_r_cpp(PyObject* x, bool convert, bool simple) {
 
     // determine the type to convert to
     PyArray_DescrPtr descrPtr(PyArray_DescrFromScalar(x));
-    int og_typenum = descrPtr.get()->type_num;
+    int og_typenum = PyArray_DescrTypeNum(descrPtr.get());
     int typenum = narrow_array_typenum(og_typenum);
     if (typenum == -1) {
       simple = false;
@@ -2936,20 +2929,25 @@ PyMethodDef RPYCallMethods[] = {
   { NULL, NULL, 0, NULL }
 };
 
-static struct PyModuleDef RPYCallModuleDef = {
-  PyModuleDef_HEAD_INIT,
-  "rpycall",
-  NULL,
-  -1,
-  RPYCallMethods,
-  NULL,
-  NULL,
-  NULL,
-  NULL
-};
-
 extern "C" PyObject* initializeRPYCall(void) {
-  return PyModule_Create(&RPYCallModuleDef, _PYTHON3_ABI_VERSION);
+  PyObject* module = PyModule_New("rpycall");
+  if (module == NULL) {
+    return NULL;
+  }
+
+  if (PyModule_AddFunctions(module, RPYCallMethods) != 0) {
+    Py_DecRef(module);
+    return NULL;
+  }
+
+  if (PyUnstable_Module_SetGIL != NULL) {
+    if (PyUnstable_Module_SetGIL(module, Py_MOD_GIL_NOT_USED) < 0) {
+      Py_DecRef(module);
+      return NULL;
+    }
+  }
+
+  return module;
 }
 
 
@@ -3157,8 +3155,12 @@ void py_initialize(const std::string& python,
       // if R is embedded in a python environment, rpycall has to be loaded as a regular
       // module.
       GILScope scope;
-      PyImport_AddModule("rpycall");
-      PyDict_SetItemString(PyImport_GetModuleDict(), "rpycall", initializeRPYCall());
+      PyObject* rpycall = initializeRPYCall();
+      if (rpycall == NULL) {
+        PyErr_Print();
+        stop("Failed to initialize rpycall module");
+      }
+      PyDict_SetItemString(PyImport_GetModuleDict(), "rpycall", rpycall);
 
     } else {
 
@@ -3169,9 +3171,6 @@ void py_initialize(const std::string& python,
       // set program home
       s_pythonhome_v3 = to_wstring(pythonhome);
       Py_SetPythonHome_v3(const_cast<wchar_t*>(s_pythonhome_v3.c_str()));
-
-      // add rpycall module
-      PyImport_AppendInittab("rpycall", &initializeRPYCall);
 
       // initialize python
       Py_InitializeEx(0); // 0 means "do not install signal handlers"
@@ -3188,6 +3187,16 @@ void py_initialize(const std::string& python,
 
       const wchar_t *argv[1] = {s_python_v3.c_str()};
       PySys_SetArgv_v3(1, const_cast<wchar_t**>(argv));
+
+      {
+        GILScope scope;
+        PyObject* rpycall = initializeRPYCall();
+        if (rpycall == NULL) {
+          PyErr_Print();
+          stop("Failed to initialize rpycall module");
+        }
+        PyDict_SetItemString(PyImport_GetModuleDict(), "rpycall", rpycall);
+      }
 
       orig_interrupt_handler = install_interrupt_handlers_();
     }
@@ -3218,6 +3227,8 @@ void py_initialize(const std::string& python,
     orig_interrupt_handler = install_interrupt_handlers_();
     reticulate_setsig(SIGINT, interrupt_handler);
   }
+
+  initialize_pyobject_type_offset();
 
   s_main_thread = tthread::this_thread::get_id();
   s_is_python_initialized = true;

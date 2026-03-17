@@ -65,6 +65,7 @@ test_that("py_list_packages() works in managed uv environments", {
 test_that("Setting py_require(python_version) after initializing Python ", {
   test_py_require_reset()
   local_edition(3)
+  skip_if_no_pandas()
   # dry run to avoid installation messages in snapshot
   try(uv_get_or_create_env(c("numpy", "pandas"), "3.11"))
   try(uv_get_or_create_env(c("numpy", "pandas", "requests"), "3.11"))

@@ -8,6 +8,7 @@ using namespace reticulate::libpython;
 #define RCPP_NO_MODULES
 #define RCPP_NO_SUGAR
 #include <Rcpp.h>
+#include "r_api.h"
 
 inline void python_object_finalize(SEXP object);
 SEXP py_callable_as_function(SEXP refenv, bool convert);
@@ -82,7 +83,7 @@ public:
   // or throw an exception if it can't return a valid PyObject*
   PyObject* get() const {
 
-    SEXP xptr = Rf_findVarInFrame(get_refenv(), sym_pyobj);
+    SEXP xptr = reticulate_get_var_in_frame(get_refenv(), sym_pyobj);
 
     if(TYPEOF(xptr) == EXTPTRSXP) {
       PyObject* pyobj = (PyObject*) R_ExternalPtrAddr(xptr);
@@ -126,7 +127,7 @@ public:
 
   // This will *not* initialize Python or resolve module proxies
   bool is_null_xptr() const {
-    SEXP xptr = Rf_findVarInFrame(get_refenv(), sym_pyobj);
+    SEXP xptr = reticulate_get_var_in_frame(get_refenv(), sym_pyobj);
     if(TYPEOF(xptr) == EXTPTRSXP)
       return ((PyObject*) R_ExternalPtrAddr(xptr) == NULL);
     if(xptr == R_UnboundValue)
@@ -137,7 +138,7 @@ public:
   }
 
   bool convert() const {
-    SEXP sexp = Rf_findVarInFrame(get_refenv(), sym_convert);
+    SEXP sexp = reticulate_get_var_in_frame(get_refenv(), sym_convert);
 
     if(TYPEOF(sexp) == LGLSXP)
       return (bool) Rf_asLogical(sexp);
@@ -146,7 +147,7 @@ public:
   }
 
   bool simple() const {
-    SEXP sexp = Rf_findVarInFrame(get_refenv(), sym_simple);
+    SEXP sexp = reticulate_get_var_in_frame(get_refenv(), sym_simple);
 
     if(TYPEOF(sexp) == LGLSXP)
       return (bool) Rf_asLogical(sexp);

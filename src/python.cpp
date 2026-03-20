@@ -7,6 +7,7 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 
+#include "r_api.h"
 #include "signals.h"
 #include "reticulate_types.h"
 #include "common.h"
@@ -68,14 +69,14 @@ void reticulate_init(DllInfo *dll) {
   sym_convert = Rf_install("convert");
   sym_pyobj = Rf_install("pyobj");
 
-  ns_reticulate = Rf_findVarInFrame(R_NamespaceRegistry, Rf_install("reticulate"));
+  ns_reticulate = reticulate_get_var_in_frame(R_NamespaceRegistry, Rf_install("reticulate"));
 
-  r_func_py_filter_classes = Rf_findVar(Rf_install("py_filter_classes"), ns_reticulate);
-  r_func_py_callable_as_function = Rf_findVar(Rf_install("py_callable_as_function"), ns_reticulate);
-  r_func_r_to_py = Rf_findVar(Rf_install("r_to_py"), ns_reticulate);
-  r_func_py_to_r = Rf_findVar(Rf_install("py_to_r"), ns_reticulate);
-  r_func_py_to_r_wrapper = Rf_findVar(Rf_install("py_to_r_wrapper"), ns_reticulate);
-  r_func_get_r_trace = Rf_findVar(Rf_install("get_r_trace"), ns_reticulate);
+  r_func_py_filter_classes = reticulate_get_var(Rf_install("py_filter_classes"), ns_reticulate);
+  r_func_py_callable_as_function = reticulate_get_var(Rf_install("py_callable_as_function"), ns_reticulate);
+  r_func_r_to_py = reticulate_get_var(Rf_install("r_to_py"), ns_reticulate);
+  r_func_py_to_r = reticulate_get_var(Rf_install("py_to_r"), ns_reticulate);
+  r_func_py_to_r_wrapper = reticulate_get_var(Rf_install("py_to_r_wrapper"), ns_reticulate);
+  r_func_get_r_trace = reticulate_get_var(Rf_install("get_r_trace"), ns_reticulate);
 
   s_main_thread = tthread::this_thread::get_id();
 }

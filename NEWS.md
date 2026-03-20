@@ -1,5 +1,8 @@
 # reticulate (development version)
 
+- Internal updates to remove `Rf_findVar*` calls in compiled code on R-devel (4.6)
+  (#1892).
+
 - Internal updates for Rcpp compatibility around `Rf_error` handling (#1887).
 
 - Fixed `py_list_packages()` for `uv`-managed environments. (#1890, #1891)

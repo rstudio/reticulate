@@ -2,6 +2,10 @@
 
 ## reticulate (development version)
 
+- Internal updates to remove `Rf_findVar*` calls in compiled code on
+  R-devel (4.6)
+  ([\#1892](https://github.com/rstudio/reticulate/issues/1892)).
+
 - Internal updates for Rcpp compatibility around `Rf_error` handling
   ([\#1887](https://github.com/rstudio/reticulate/issues/1887)).
 

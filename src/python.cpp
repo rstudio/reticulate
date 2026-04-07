@@ -28,6 +28,12 @@ using namespace Rcpp;
 
 using namespace reticulate::libpython;
 
+SEXP ns_reticulate;
+
+inline SEXP reticulate_get_ns_var(const char* name) {
+  return reticulate_get_var(Rf_install(name), ns_reticulate);
+}
+
 int _Py_Check(PyObject* o) {
   // default impl we assign to some Python api functions until we've initialized Python;
   return 0;
@@ -35,7 +41,7 @@ int _Py_Check(PyObject* o) {
 
 
 PyGILState_STATE _initialize_python_and_PyGILState_Ensure() {
-  Function initialize_python = Environment::namespace_env("reticulate")["ensure_python_initialized"];
+  Function initialize_python(reticulate_get_ns_var("ensure_python_initialized"));
   initialize_python();
   return PyGILState_Ensure();
 }
@@ -45,14 +51,14 @@ SEXP sym_py_object;
 SEXP sym_simple;
 SEXP sym_convert;
 
-SEXP ns_reticulate;
-
 SEXP r_func_py_filter_classes;
 SEXP r_func_get_r_trace;
 SEXP r_func_py_callable_as_function;
 SEXP r_func_r_to_py;
 SEXP r_func_py_to_r;
 SEXP r_func_py_to_r_wrapper;
+SEXP r_func_r_convert_dataframe_column;
+SEXP r_func_py_resolve_module_proxy;
 
 tthread::thread::id s_main_thread = 0;
 
@@ -69,14 +75,16 @@ void reticulate_init(DllInfo *dll) {
   sym_convert = Rf_install("convert");
   sym_pyobj = Rf_install("pyobj");
 
-  ns_reticulate = reticulate_get_var_in_frame(R_NamespaceRegistry, Rf_install("reticulate"));
+  ns_reticulate = reticulate_find_namespace("reticulate");
 
-  r_func_py_filter_classes = reticulate_get_var(Rf_install("py_filter_classes"), ns_reticulate);
-  r_func_py_callable_as_function = reticulate_get_var(Rf_install("py_callable_as_function"), ns_reticulate);
-  r_func_r_to_py = reticulate_get_var(Rf_install("r_to_py"), ns_reticulate);
-  r_func_py_to_r = reticulate_get_var(Rf_install("py_to_r"), ns_reticulate);
-  r_func_py_to_r_wrapper = reticulate_get_var(Rf_install("py_to_r_wrapper"), ns_reticulate);
-  r_func_get_r_trace = reticulate_get_var(Rf_install("get_r_trace"), ns_reticulate);
+  r_func_py_filter_classes = reticulate_get_ns_var("py_filter_classes");
+  r_func_py_callable_as_function = reticulate_get_ns_var("py_callable_as_function");
+  r_func_r_to_py = reticulate_get_ns_var("r_to_py");
+  r_func_py_to_r = reticulate_get_ns_var("py_to_r");
+  r_func_py_to_r_wrapper = reticulate_get_ns_var("py_to_r_wrapper");
+  r_func_get_r_trace = reticulate_get_ns_var("get_r_trace");
+  r_func_r_convert_dataframe_column = reticulate_get_ns_var("r_convert_dataframe_column");
+  r_func_py_resolve_module_proxy = reticulate_get_ns_var("py_resolve_module_proxy");
 
   s_main_thread = tthread::this_thread::get_id();
 }
@@ -924,8 +932,7 @@ bool option_is_true(const std::string& name) {
 }
 
 bool traceback_enabled() {
-  Environment pkgEnv = Environment::namespace_env("reticulate");
-  Function func = pkgEnv["traceback_enabled"];
+  Function func(reticulate_get_ns_var("traceback_enabled"));
   return as<bool>(func());
 }
 
@@ -1150,8 +1157,7 @@ std::string conditionMessage_from_py_exception(PyObject* exc) {
     oss << as_std_string(PyList_GetItem(formatted, i));
 
   static std::string hint = []() {
-    Environment pkg_env(Environment::namespace_env("reticulate"));
-    Function hint_fn = pkg_env[".py_last_error_hint"];
+    Function hint_fn(reticulate_get_ns_var(".py_last_error_hint"));
     CharacterVector r_result = hint_fn();
     return Rcpp::as<std::string>(r_result[0]);
   }();
@@ -3898,16 +3904,17 @@ PyObjectRef py_module_import(const std::string& module, bool convert) {
 
 // [[Rcpp::export]]
 void py_module_proxy_import(PyObjectRef proxy) {
-  Rcpp::Environment refenv = proxy.get_refenv();
-  if (refenv.exists("module")) {
+  SEXP refenv = proxy.get_refenv();
+  SEXP module_sym = Rf_install("module");
+  SEXP r_module = reticulate_get_var_or_null(refenv, module_sym);
+  if (r_module != NULL) {
     GILScope _gil;
-    Rcpp::RObject r_module = refenv.get("module");
-    std::string module = as<std::string>(r_module);
+    std::string module = as<std::string>(Rcpp::RObject(r_module));
     PyObject* pModule = py_import(module);
     if (pModule == NULL)
       throw PythonException(py_fetch_error());
     proxy.set(pModule);
-    refenv.remove("module");
+    R_removeVarFromFrame(module_sym, refenv);
   }// else, if !exists("module", <refenv>),
    // then we're unwinding a recursive py_resolve_module_proxy() call, e.g.:
    // -> py_resolve_module_proxy() -> import() -> py_module_onload() ->
@@ -4417,8 +4424,7 @@ PyObject* r_to_py_pandas_nullable_series (const RObject& column, const bool conv
 // [[Rcpp::export]]
 PyObjectRef r_convert_dataframe(RObject dataframe, bool convert) {
   GILScope _gil;
-  Function r_convert_dataframe_column =
-    Environment::namespace_env("reticulate")["r_convert_dataframe_column"];
+  Function r_convert_dataframe_column(r_func_r_convert_dataframe_column);
 
   PyObjectPtr dict(PyDict_New());
 
@@ -4871,8 +4877,7 @@ SEXP py_iterate(PyObjectRef x, Function f, bool simplify = true) {
 
 
 bool try_py_resolve_module_proxy(SEXP proxy) {
-  Rcpp::Environment pkgEnv = Rcpp::Environment::namespace_env("reticulate");
-  Rcpp::Function py_resolve_module_proxy = pkgEnv["py_resolve_module_proxy"];
+  Rcpp::Function py_resolve_module_proxy(r_func_py_resolve_module_proxy);
   return py_resolve_module_proxy(proxy);
 }
 

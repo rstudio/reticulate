@@ -83,20 +83,20 @@ public:
   // or throw an exception if it can't return a valid PyObject*
   PyObject* get() const {
 
-    SEXP xptr = reticulate_get_var_in_frame(get_refenv(), sym_pyobj);
+    SEXP refenv = get_refenv();
+    SEXP xptr = reticulate_get_var_or_null(refenv, sym_pyobj);
+    if (xptr == NULL) {
+      if (try_py_resolve_module_proxy(refenv)) {
+        return get();
+      }
+      Rcpp::stop("malformed pyobj");
+    }
 
     if(TYPEOF(xptr) == EXTPTRSXP) {
       PyObject* pyobj = (PyObject*) R_ExternalPtrAddr(xptr);
       if(pyobj == NULL)
         Rcpp::stop("Unable to access object (object is from previous session and is now invalid)");
       return pyobj;
-    }
-
-    // might be a (lazy) module_proxy
-    if(xptr == R_UnboundValue) {
-      if(try_py_resolve_module_proxy(get_refenv())) {
-        return get();
-      }
     }
 
     Rcpp::stop("malformed pyobj");
@@ -127,18 +127,23 @@ public:
 
   // This will *not* initialize Python or resolve module proxies
   bool is_null_xptr() const {
-    SEXP xptr = reticulate_get_var_in_frame(get_refenv(), sym_pyobj);
+    SEXP refenv = get_refenv();
+    SEXP xptr = reticulate_get_var_or_null(refenv, sym_pyobj);
+    if (xptr == NULL)
+      return false; // return false for lazy module proxy
+
     if(TYPEOF(xptr) == EXTPTRSXP)
       return ((PyObject*) R_ExternalPtrAddr(xptr) == NULL);
-    if(xptr == R_UnboundValue)
-      return false; // return false for lazy module proxy
     if(xptr == R_NilValue)
       return true; // ??? manually finalized obj? ??? should never happen ???
     return false; // should never happen
   }
 
   bool convert() const {
-    SEXP sexp = reticulate_get_var_in_frame(get_refenv(), sym_convert);
+    SEXP refenv = get_refenv();
+    SEXP sexp = reticulate_get_var_or_null(refenv, sym_convert);
+    if (sexp == NULL)
+      return true;
 
     if(TYPEOF(sexp) == LGLSXP)
       return (bool) Rf_asLogical(sexp);
@@ -147,7 +152,10 @@ public:
   }
 
   bool simple() const {
-    SEXP sexp = reticulate_get_var_in_frame(get_refenv(), sym_simple);
+    SEXP refenv = get_refenv();
+    SEXP sexp = reticulate_get_var_or_null(refenv, sym_simple);
+    if (sexp == NULL)
+      return true;
 
     if(TYPEOF(sexp) == LGLSXP)
       return (bool) Rf_asLogical(sexp);

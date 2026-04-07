@@ -1,5 +1,8 @@
 # reticulate (development version)
 
+- Internal updates to avoid `R_NamespaceRegistry` and `R_UnboundValue` in
+  compiled code on R-devel (4.6) (#1894).
+
 - Internal updates to remove `Rf_findVar*` calls in compiled code on R-devel (4.6)
   (#1892).
 

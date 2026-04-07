@@ -46,7 +46,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="reticulate-development-version">reticulate (development version)<a class="anchor" aria-label="anchor" href="#reticulate-development-version"></a></h2>
-<ul><li><p>Internal updates to remove <code>Rf_findVar*</code> calls in compiled code on R-devel (4.6) (<a href="https://github.com/rstudio/reticulate/issues/1892" class="external-link">#1892</a>).</p></li>
+<ul><li><p>Internal updates to avoid <code>R_NamespaceRegistry</code> and <code>R_UnboundValue</code> in compiled code on R-devel (4.6) (<a href="https://github.com/rstudio/reticulate/issues/1894" class="external-link">#1894</a>).</p></li>
+<li><p>Internal updates to remove <code>Rf_findVar*</code> calls in compiled code on R-devel (4.6) (<a href="https://github.com/rstudio/reticulate/issues/1892" class="external-link">#1892</a>).</p></li>
 <li><p>Internal updates for Rcpp compatibility around <code>Rf_error</code> handling (<a href="https://github.com/rstudio/reticulate/issues/1887" class="external-link">#1887</a>).</p></li>
 <li><p>Fixed <code><a href="../reference/py_list_packages.html">py_list_packages()</a></code> for <code>uv</code>-managed environments. (<a href="https://github.com/rstudio/reticulate/issues/1890" class="external-link">#1890</a>, <a href="https://github.com/rstudio/reticulate/issues/1891" class="external-link">#1891</a>)</p></li>
 </ul></div>

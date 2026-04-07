@@ -11,4 +11,6 @@ test_that("compiled code avoids deprecated variable lookup entry points", {
   symbols <- system2(nm, c("-u", dylib), stdout = TRUE, stderr = TRUE)
 
   expect_false(any(grepl("\\b_?Rf_findVar(InFrame)?$", symbols)))
+  expect_false(any(grepl("\\b_?R_NamespaceRegistry$", symbols)))
+  expect_false(any(grepl("\\b_?R_UnboundValue$", symbols)))
 })

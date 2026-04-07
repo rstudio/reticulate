@@ -28,6 +28,8 @@ inline SEXP reticulate_get_var(SEXP sym, SEXP env) {
   SEXP value = Rf_findVarInFrame(env, sym);
   if (value == R_UnboundValue)
     value = NULL;
+  else if (TYPEOF(value) == PROMSXP)
+    value = Rcpp::internal::Rcpp_eval_impl(value, env);
 #endif
   if (value == NULL)
     Rf_error("object '%s' not found", CHAR(PRINTNAME(sym)));

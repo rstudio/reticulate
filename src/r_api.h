@@ -32,7 +32,7 @@ inline SEXP reticulate_get_var(SEXP sym, SEXP env) {
     value = Rcpp::internal::Rcpp_eval_impl(value, env);
 #endif
   if (value == NULL)
-    Rf_error("object '%s' not found", CHAR(PRINTNAME(sym)));
+    Rcpp::stop("object '%s' not found", CHAR(PRINTNAME(sym)));
   return value;
 }
 

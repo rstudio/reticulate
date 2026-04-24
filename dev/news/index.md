@@ -2,6 +2,10 @@
 
 ## reticulate (development version)
 
+## reticulate 1.46.0
+
+CRAN release: 2026-04-09
+
 - Internal updates to avoid `R_NamespaceRegistry` and `R_UnboundValue`
   in compiled code on R-devel (4.6)
   ([\#1894](https://github.com/rstudio/reticulate/issues/1894)).

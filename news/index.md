@@ -1,5 +1,26 @@
 # Changelog
 
+## reticulate 1.46.0
+
+CRAN release: 2026-04-09
+
+- Internal updates to avoid `R_NamespaceRegistry` and `R_UnboundValue`
+  in compiled code on R-devel (4.6)
+  ([\#1894](https://github.com/rstudio/reticulate/issues/1894)).
+
+- Internal updates to remove `Rf_findVar*` calls in compiled code on
+  R-devel (4.6)
+  ([\#1892](https://github.com/rstudio/reticulate/issues/1892)).
+
+- Internal updates for Rcpp compatibility around `Rf_error` handling
+  ([\#1887](https://github.com/rstudio/reticulate/issues/1887)).
+
+- Fixed
+  [`py_list_packages()`](https://rstudio.github.io/reticulate/reference/py_list_packages.md)
+  for `uv`-managed environments.
+  ([\#1890](https://github.com/rstudio/reticulate/issues/1890),
+  [\#1891](https://github.com/rstudio/reticulate/issues/1891))
+
 ## reticulate 1.45.0
 
 CRAN release: 2026-02-13

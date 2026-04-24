@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">reticulate</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.45.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">1.46.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -41,9 +41,16 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/rstudio/reticulate/blob/v1.45.0/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/rstudio/reticulate/blob/v1.46.0/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.46.0" id="reticulate-1460">reticulate 1.46.0<a class="anchor" aria-label="anchor" href="#reticulate-1460"></a></h2><p class="text-muted">CRAN release: 2026-04-09</p>
+<ul><li><p>Internal updates to avoid <code>R_NamespaceRegistry</code> and <code>R_UnboundValue</code> in compiled code on R-devel (4.6) (<a href="https://github.com/rstudio/reticulate/issues/1894" class="external-link">#1894</a>).</p></li>
+<li><p>Internal updates to remove <code>Rf_findVar*</code> calls in compiled code on R-devel (4.6) (<a href="https://github.com/rstudio/reticulate/issues/1892" class="external-link">#1892</a>).</p></li>
+<li><p>Internal updates for Rcpp compatibility around <code>Rf_error</code> handling (<a href="https://github.com/rstudio/reticulate/issues/1887" class="external-link">#1887</a>).</p></li>
+<li><p>Fixed <code><a href="../reference/py_list_packages.html">py_list_packages()</a></code> for <code>uv</code>-managed environments. (<a href="https://github.com/rstudio/reticulate/issues/1890" class="external-link">#1890</a>, <a href="https://github.com/rstudio/reticulate/issues/1891" class="external-link">#1891</a>)</p></li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.45.0" id="reticulate-1450">reticulate 1.45.0<a class="anchor" aria-label="anchor" href="#reticulate-1450"></a></h2><p class="text-muted">CRAN release: 2026-02-13</p>
 <div class="section level3">

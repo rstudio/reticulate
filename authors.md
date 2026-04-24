@@ -27,15 +27,15 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/rstudio/reticulate/blob/v1.45.0/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/rstudio/reticulate/blob/v1.46.0/DESCRIPTION)
 
 Ushey K, Allaire J, Tang Y (2026). *reticulate: Interface to 'Python'*.
-R package version 1.45.0, <https://rstudio.github.io/reticulate/>.
+R package version 1.46.0, <https://rstudio.github.io/reticulate/>.
 
     @Manual{,
       title = {reticulate: Interface to 'Python'},
       author = {Kevin Ushey and JJ Allaire and Yuan Tang},
       year = {2026},
-      note = {R package version 1.45.0},
+      note = {R package version 1.46.0},
       url = {https://rstudio.github.io/reticulate/},
     }

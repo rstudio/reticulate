@@ -40,3 +40,45 @@ test_that("reticulate can bind to virtual environments created with venv", {
   expect_true(grepl(venv, site))
 
 })
+
+test_that("reticulate does not warn about Poetry for non-Poetry pyproject.toml", {
+  skip_if_no_python()
+  skip_on_cran()
+  skip_on_os("windows")
+
+  python3 <- Sys.which("python3")
+  if (!nzchar(python3))
+    skip("test requires Python 3 binary with venv module")
+
+  project <- tempfile("python-project-")
+  dir.create(project)
+  on.exit(unlink(project, recursive = TRUE), add = TRUE)
+
+  venv <- file.path(project, ".venv")
+  virtualenv_create(envname = venv, python = python3, packages = FALSE)
+
+  writeLines(c(
+    "[project]",
+    'name = "reticulate-test"',
+    'version = "0.0.0"'
+  ), file.path(project, "pyproject.toml"))
+
+  expr <- bquote({
+    library(reticulate)
+    Sys.setenv(RETICULATE_CHECK_REQUIRED_PACKAGES = "false")
+    options(reticulate.poetry.exe = .(file.path(project, "missing-poetry")))
+
+    setwd(.(project))
+    config <- py_config()
+
+    stopifnot(
+      grepl("[/\\\\][.]venv[/\\\\]", config$python),
+      identical(config$forced, "'./.venv' existing in the current working directory")
+    )
+  })
+
+  result <- do.call(r_session, list(force_managed_python = FALSE, exprs = expr))
+
+  expect_null(attr(result, "status"))
+  expect_false(any(grepl("Poetry", result, fixed = TRUE)))
+})

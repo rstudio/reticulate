@@ -46,16 +46,14 @@ test_that("reticulate does not warn about Poetry for non-Poetry pyproject.toml",
   skip_on_cran()
   skip_on_os("windows")
 
-  python3 <- Sys.which("python3")
-  if (!nzchar(python3))
-    skip("test requires Python 3 binary with venv module")
-
   project <- tempfile("python-project-")
   dir.create(project)
   on.exit(unlink(project, recursive = TRUE), add = TRUE)
 
   venv <- file.path(project, ".venv")
-  virtualenv_create(envname = venv, python = python3, packages = FALSE)
+  status <- system2(py_exe(), c("-m", "venv", venv))
+  if (!identical(status, 0L))
+    skip("test requires Python with venv module")
 
   writeLines(c(
     "[project]",

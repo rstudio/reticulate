@@ -7,6 +7,7 @@ classes, and functions. For example, this code imports the Python `os`
 module and calls some functions within it:
 
 ``` r
+
 library(reticulate)
 os <- import("os")
 os$listdir(".")
@@ -35,6 +36,7 @@ By default, reticulate uses the version of Python found on your `PATH`
 function enables you to specify an alternate version, for example:
 
 ``` r
+
 library(reticulate)
 use_python("/usr/local/bin/python")
 ```
@@ -47,6 +49,7 @@ functions enable you to specify versions of Python in virtual or conda
 environments, for example:
 
 ``` r
+
 library(reticulate)
 use_virtualenv("myenv")
 ```
@@ -70,17 +73,17 @@ When calling into Python, R data types are automatically converted to
 their equivalent Python types. When values are returned from Python to R
 they are converted back to R types. Types are converted as follows:
 
-| R                      | Python            | Examples                                         |
-|------------------------|-------------------|--------------------------------------------------|
-| Single-element vector  | Scalar            | `1`, `1L`, `TRUE`, `"foo"`                       |
-| Multi-element vector   | List              | `c(1.0, 2.0, 3.0)`, `c(1L, 2L, 3L)`              |
-| List of multiple types | Tuple             | `list(1L, TRUE, "foo")`                          |
-| Named list             | Dict              | `list(a = 1L, b = 2.0)`, `dict(x = x_data)`      |
-| Matrix/Array           | NumPy ndarray     | `matrix(c(1,2,3,4), nrow = 2, ncol = 2)`         |
-| Data Frame             | Pandas DataFrame  | `data.frame(x = c(1,2,3), y = c("a", "b", "c"))` |
-| Function               | Python function   | `function(x) x + 1`                              |
-| Raw                    | Python bytearray  | `as.raw(c(1:10))`                                |
-| NULL, TRUE, FALSE      | None, True, False | `NULL`, `TRUE`, `FALSE`                          |
+| R | Python | Examples |
+|----|----|----|
+| Single-element vector | Scalar | `1`, `1L`, `TRUE`, `"foo"` |
+| Multi-element vector | List | `c(1.0, 2.0, 3.0)`, `c(1L, 2L, 3L)` |
+| List of multiple types | Tuple | `list(1L, TRUE, "foo")` |
+| Named list | Dict | `list(a = 1L, b = 2.0)`, `dict(x = x_data)` |
+| Matrix/Array | NumPy ndarray | `matrix(c(1,2,3,4), nrow = 2, ncol = 2)` |
+| Data Frame | Pandas DataFrame | `data.frame(x = c(1,2,3), y = c("a", "b", "c"))` |
+| Function | Python function | `function(x) x + 1` |
+| Raw | Python bytearray | `as.raw(c(1:10))` |
+| NULL, TRUE, FALSE | None, True, False | `NULL`, `TRUE`, `FALSE` |
 
 If a Python object of a custom class is returned then an R reference to
 that object is returned. You can call methods and access properties of
@@ -93,6 +96,7 @@ The
 function can be used to import any Python module. For example:
 
 ``` r
+
 difflib <- import("difflib")
 difflib$ndiff(foo, bar)
 
@@ -108,6 +112,7 @@ functions give you access to the main module where code is executed by
 default and the collection of built in Python functions. For example:
 
 ``` r
+
 main <- import_main()
 
 builtins <- import_builtins()
@@ -136,6 +141,7 @@ We source it using the
 function and then can call the `add()` function directly from R:
 
 ``` r
+
 source_python('add.py')
 add(5, 10)
 ```
@@ -149,6 +155,7 @@ You can execute Python code within the main module using the
 objects created using the `py` object exported by reticulate:
 
 ``` r
+
 library(reticulate)
 
 py_run_file("script.py")
@@ -169,6 +176,7 @@ to R conversion will be disabled for the module returned from `import`.
 For example:
 
 ``` r
+
 # import numpy and specify no automatic Python to R conversion
 np <- import("numpy", convert = FALSE)
 
@@ -192,6 +200,7 @@ You can print documentation on any Python object using the
 function. For example:
 
 ``` r
+
 os <- import("os")
 py_help(os$chdir)
 ```
@@ -207,6 +216,7 @@ element R vector it will be converted to a Python scalar. To overcome
 this simply use the R `list` function explicitly:
 
 ``` r
+
 foo$bar(indexes = list(42L))
 ```
 
@@ -216,6 +226,7 @@ that case you can use the
 function:
 
 ``` r
+
 tuple("a", "b", "c")
 ```
 
@@ -225,6 +236,7 @@ explicitly create a Python dictionary using the
 function:
 
 ``` r
+
 dict(foo = "bar", index = 42L)
 ```
 
@@ -242,6 +254,7 @@ sure to use the `L` suffix within R. For example, if the `foo` function
 requires an integer as its `index` argument you would do this:
 
 ``` r
+
 foo$bar(index = 42L)
 ```
 
@@ -250,6 +263,7 @@ Python collections are addressed using 0-based indices rather than the
 first item of an array in R you would write:
 
 ``` r
+
 items[[1]]
 ```
 
@@ -257,6 +271,7 @@ Whereas if you are calling a method in Python via reticulate that takes
 an index you would write this to address the first item:
 
 ``` r
+
 items$get(0L)
 ```
 
@@ -284,6 +299,7 @@ uses of
 [`np_array()`](https://rstudio.github.io/reticulate/dev/reference/np_array.md):
 
 ``` r
+
 a <- np_array(c(1:8), dtype = "float16")
 a <- np_array(c(1:8), order = "C")
 ```
@@ -326,6 +342,7 @@ arrays by setting the `reticulate.pandas_use_nullable_dtypes` to `TRUE`.
 For example:
 
 ``` r
+
 df <- data.frame(
   int = c(NA, 1:4),
   num = c(NA, rnorm(4)),
@@ -413,6 +430,7 @@ context manager objects (in Python you use the `with` keyword to do the
 same). For example:
 
 ``` r
+
 py <- import_builtins()
 with(py$open("output.txt", "w") %as% file, {
   file$write("Hello, there!")
@@ -434,6 +452,7 @@ function can be used to apply an R function to each item yielded by the
 iterator:
 
 ``` r
+
 iterate(iter, print)
 ```
 
@@ -441,6 +460,7 @@ If you don’t pass a function to `iterate` the results will be collected
 into an R vector:
 
 ``` r
+
 results <- iterate(iter)
 ```
 
@@ -448,6 +468,7 @@ Note that the `Iterators` will be drained of their values by
 [`iterate()`](https://rstudio.github.io/reticulate/dev/reference/iterate.md):
 
 ``` r
+
 a <- iterate(iter) # results are not empty
 b <- iterate(iter) # results are empty since items have already been drained
 ```
@@ -459,6 +480,7 @@ You can also iterate on an element-by-element basis using the
 function. For example:
 
 ``` r
+
 while (TRUE) {
   item <- iter_next(iter)
   if (is.null(item))
@@ -472,6 +494,7 @@ will return `NULL` when the iteration is complete but you can provide a
 custom `completed` value it will be returned instead. For example:
 
 ``` r
+
 while (TRUE) {
   item <- iter_next(iter, completed = NA)
   if (is.na(item))
@@ -497,6 +520,7 @@ previous iterations. In R, this can be done by returning a function that
 mutates its enclosing environment via the \<\<- operator. For example:
 
 ``` r
+
 # define a generator function
 sequence_generator <-function(start) {
   value <- start
@@ -514,6 +538,7 @@ If you want to indicate the end of the iteration, return `NULL` from the
 function:
 
 ``` r
+
 sequence_generator <-function(start) {
   value <- start
   function() {
@@ -601,25 +626,25 @@ their R equivalents when possible. The following functions enable you to
 interact with Python objects at a lower level (e.g. no conversion to R
 is done unless you explicitly call the `py_to_r` function):
 
-| Function                                                                                           | Description                                                 |
-|----------------------------------------------------------------------------------------------------|-------------------------------------------------------------|
-| [`py_has_attr()`](https://rstudio.github.io/reticulate/dev/reference/py_has_attr.md)               | Check if an object has a specified attribute.               |
-| [`py_get_attr()`](https://rstudio.github.io/reticulate/dev/reference/py_get_attr.md)               | Get an attribute of a Python object.                        |
-| [`py_set_attr()`](https://rstudio.github.io/reticulate/dev/reference/py_set_attr.md)               | Set an attribute of a Python object.                        |
-| [`py_list_attributes()`](https://rstudio.github.io/reticulate/dev/reference/py_list_attributes.md) | List all attributes of a Python object.                     |
-| [`py_len()`](https://rstudio.github.io/reticulate/dev/reference/py_len.md)                         | Length of Python object.                                    |
-| [`py_call()`](https://rstudio.github.io/reticulate/dev/reference/py_call.md)                       | Call a Python callable object with the specified arguments. |
-| [`py_to_r()`](https://rstudio.github.io/reticulate/dev/reference/r-py-conversion.md)               | Convert a Python object to its R equivalent                 |
-| [`r_to_py()`](https://rstudio.github.io/reticulate/dev/reference/r-py-conversion.md)               | Convert an R object to its Python equivalent                |
+| Function | Description |
+|----|----|
+| [`py_has_attr()`](https://rstudio.github.io/reticulate/dev/reference/py_has_attr.md) | Check if an object has a specified attribute. |
+| [`py_get_attr()`](https://rstudio.github.io/reticulate/dev/reference/py_get_attr.md) | Get an attribute of a Python object. |
+| [`py_set_attr()`](https://rstudio.github.io/reticulate/dev/reference/py_set_attr.md) | Set an attribute of a Python object. |
+| [`py_list_attributes()`](https://rstudio.github.io/reticulate/dev/reference/py_list_attributes.md) | List all attributes of a Python object. |
+| [`py_len()`](https://rstudio.github.io/reticulate/dev/reference/py_len.md) | Length of Python object. |
+| [`py_call()`](https://rstudio.github.io/reticulate/dev/reference/py_call.md) | Call a Python callable object with the specified arguments. |
+| [`py_to_r()`](https://rstudio.github.io/reticulate/dev/reference/r-py-conversion.md) | Convert a Python object to its R equivalent |
+| [`r_to_py()`](https://rstudio.github.io/reticulate/dev/reference/r-py-conversion.md) | Convert an R object to its Python equivalent |
 
 ### Pickle
 
 You can save and load Python objects (via pickle) using the
 `py_save_object` and `py_load_object` functions:
 
-| Function                                                                                   | Description                                        |
-|--------------------------------------------------------------------------------------------|----------------------------------------------------|
-| [`py_save_object()`](https://rstudio.github.io/reticulate/dev/reference/py_save_object.md) | Save a Python object to a file with pickle.        |
+| Function | Description |
+|----|----|
+| [`py_save_object()`](https://rstudio.github.io/reticulate/dev/reference/py_save_object.md) | Save a Python object to a file with pickle. |
 | [`py_load_object()`](https://rstudio.github.io/reticulate/dev/reference/py_save_object.md) | Load a previously saved Python object from a file. |
 
 ### Configuration
@@ -627,34 +652,34 @@ You can save and load Python objects (via pickle) using the
 The following functions enable you to query for information about the
 Python configuration available on the current system.
 
-| Function                                                                                             | Description                                                                  |
-|------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------|
-| [`py_available()`](https://rstudio.github.io/reticulate/dev/reference/py_available.md)               | Check whether a Python interface is available on this system.                |
-| [`py_numpy_available()`](https://rstudio.github.io/reticulate/dev/reference/py_available.md)         | Check whether the R interface to NumPy is available (requires NumPy \>= 1.6) |
-| [`py_module_available()`](https://rstudio.github.io/reticulate/dev/reference/py_module_available.md) | Check whether a Python module is available on this system.                   |
-| [`py_config()`](https://rstudio.github.io/reticulate/dev/reference/py_config.md)                     | Get information on the location and version of Python in use.                |
+| Function | Description |
+|----|----|
+| [`py_available()`](https://rstudio.github.io/reticulate/dev/reference/py_available.md) | Check whether a Python interface is available on this system. |
+| [`py_numpy_available()`](https://rstudio.github.io/reticulate/dev/reference/py_available.md) | Check whether the R interface to NumPy is available (requires NumPy \>= 1.6) |
+| [`py_module_available()`](https://rstudio.github.io/reticulate/dev/reference/py_module_available.md) | Check whether a Python module is available on this system. |
+| [`py_config()`](https://rstudio.github.io/reticulate/dev/reference/py_config.md) | Get information on the location and version of Python in use. |
 
 ### Output Control
 
 These functions enable you to capture or suppress output from Python:
 
-| Function                                                                                               | Description                                                                                |
-|--------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------|
-| [`py_capture_output()`](https://rstudio.github.io/reticulate/dev/reference/py_capture_output.md)       | Capture Python output for the specified expression and return it as an R character vector. |
-| [`py_suppress_warnings()`](https://rstudio.github.io/reticulate/dev/reference/py_suppress_warnings.md) | Execute the specified expression, suppressing the display Python warnings.                 |
+| Function | Description |
+|----|----|
+| [`py_capture_output()`](https://rstudio.github.io/reticulate/dev/reference/py_capture_output.md) | Capture Python output for the specified expression and return it as an R character vector. |
+| [`py_suppress_warnings()`](https://rstudio.github.io/reticulate/dev/reference/py_suppress_warnings.md) | Execute the specified expression, suppressing the display Python warnings. |
 
 ### Miscellaneous
 
 The functions provide miscellaneous other lower-level capabilities:
 
-| Function                                                                                                                                                | Description                                                                      |
-|---------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------|
-| [`py_set_seed()`](https://rstudio.github.io/reticulate/dev/reference/py_set_seed.md)                                                                    | Set Python and NumPy random seeds.                                               |
-| [`py_unicode()`](https://rstudio.github.io/reticulate/dev/reference/py_unicode.md)                                                                      | Convert a string to a Python unicode object.                                     |
-| [`py_str()`](https://rstudio.github.io/reticulate/dev/reference/py_str.md), [`py_repr()`](https://rstudio.github.io/reticulate/dev/reference/py_str.md) | Get the string representation of Python object.                                  |
-| [`py_id()`](https://rstudio.github.io/reticulate/dev/reference/py_id.md)                                                                                | Get a unique identifier for a Python object                                      |
-| [`py_is_null_xptr()`](https://rstudio.github.io/reticulate/dev/reference/py_is_null_xptr.md)                                                            | Check whether a Python object is a null externalptr.                             |
-| [`py_validate_xptr()`](https://rstudio.github.io/reticulate/dev/reference/py_is_null_xptr.md)                                                           | Check whether a Python object is a null externalptr and throw an error if it is. |
+| Function | Description |
+|----|----|
+| [`py_set_seed()`](https://rstudio.github.io/reticulate/dev/reference/py_set_seed.md) | Set Python and NumPy random seeds. |
+| [`py_unicode()`](https://rstudio.github.io/reticulate/dev/reference/py_unicode.md) | Convert a string to a Python unicode object. |
+| [`py_str()`](https://rstudio.github.io/reticulate/dev/reference/py_str.md), [`py_repr()`](https://rstudio.github.io/reticulate/dev/reference/py_str.md) | Get the string representation of Python object. |
+| [`py_id()`](https://rstudio.github.io/reticulate/dev/reference/py_id.md) | Get a unique identifier for a Python object |
+| [`py_is_null_xptr()`](https://rstudio.github.io/reticulate/dev/reference/py_is_null_xptr.md) | Check whether a Python object is a null externalptr. |
+| [`py_validate_xptr()`](https://rstudio.github.io/reticulate/dev/reference/py_is_null_xptr.md) | Check whether a Python object is a null externalptr and throw an error if it is. |
 
 ## Learning More
 

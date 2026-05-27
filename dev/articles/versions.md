@@ -23,6 +23,7 @@
 > ephemeral env, you can remove it:
 >
 > ``` r
+>
 > virtualenv_remove("r-reticulate")
 > ```
 >
@@ -47,6 +48,7 @@ been compiled with shared library support (i.e. with the
 Consider the following code:
 
 ``` r
+
 library(reticulate)
 py_eval("1+1")
 ```
@@ -58,6 +60,7 @@ to an environment named “r-reticulate”, creating it if necessary.
 Consider another case:
 
 ``` r
+
 library(reticulate)
 scipy <- import("scipy")
 scipy$amin(c(1,3,5,7))
@@ -82,15 +85,16 @@ should be used:
 
 2.  By calling one of the these functions:
 
-| Function                                                                               | Description                                           |
-|----------------------------------------------------------------------------------------|-------------------------------------------------------|
-| [`use_python()`](https://rstudio.github.io/reticulate/dev/reference/use_python.md)     | Specify the path a specific Python binary.            |
+| Function | Description |
+|----|----|
+| [`use_python()`](https://rstudio.github.io/reticulate/dev/reference/use_python.md) | Specify the path a specific Python binary. |
 | [`use_virtualenv()`](https://rstudio.github.io/reticulate/dev/reference/use_python.md) | Specify the name of (or path to) a Python virtualenv. |
-| [`use_condaenv()`](https://rstudio.github.io/reticulate/dev/reference/use_python.md)   | Specify the name of a Conda environment.              |
+| [`use_condaenv()`](https://rstudio.github.io/reticulate/dev/reference/use_python.md) | Specify the name of a Conda environment. |
 
 For example:
 
 ``` r
+
 library(reticulate)
 use_python("/usr/local/bin/python")
 use_virtualenv("~/myenv")
@@ -111,6 +115,7 @@ want to use a specific alternate version you can use the `conda`
 parameter. For example:
 
 ``` r
+
 use_condaenv(condaenv = "r-nlp", conda = "/opt/anaconda3/bin/conda")
 ```
 
@@ -216,6 +221,7 @@ in use as well as a list of other Python versions discovered on the
 system:
 
 ``` r
+
 py_config()
 ```
 
@@ -225,5 +231,6 @@ function to see what version of Python will be used without actually
 loading Python:
 
 ``` r
+
 py_discover_config()
 ```

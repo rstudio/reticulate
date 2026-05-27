@@ -1,6 +1,7 @@
 # Primer on Python for R Users
 
 ``` r
+
 library(reticulate)
 ```
 
@@ -22,6 +23,7 @@ done by making the expressions share an indentation level. For example,
 an expression with an R code block might be:
 
 ``` r
+
 if (TRUE) {
   cat("This is one expression. \n")
   cat("This is another expression. \n")
@@ -370,6 +372,7 @@ next(it)
 In R, you can use reticulate to step through an iterator the same way.
 
 ``` r
+
 library(reticulate)
 l <- r_to_py(list(1, 2, 3))
 it <- as_iterator(l)
@@ -449,6 +452,7 @@ my_function("Friend")
 The equivalent R snippet would be
 
 ``` r
+
 my_function <- function(name = "World") {
   cat("Hello", name, "\n")
 }
@@ -846,6 +850,7 @@ symbol `numpy`.
 The closest equivalent to this in R might be:
 
 ``` r
+
 dplyr <- loadNamespace("dplyr")
 ```
 
@@ -953,6 +958,7 @@ def a_strict_Python_function(x):
 When calling it from R, you must be sure to call it with an integer:
 
 ``` r
+
 library(reticulate)
 py$a_strict_Python_function(3)             # error
 #> x is not an int

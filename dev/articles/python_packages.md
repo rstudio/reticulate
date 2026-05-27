@@ -41,6 +41,7 @@ calls at the start of the script, alongside
 Usage example:
 
 ``` r
+
 library(reticulate)
 py_require("jax")    # Declare jax is a requirement
 
@@ -74,6 +75,7 @@ error message.
 For example:
 
 ``` r
+
 library(reticulate)
 py_require("numpy>2")
 py_require("numpy<2")
@@ -104,6 +106,7 @@ resolving issues include:
     `exclude_newer`.
 
     ``` r
+
     # Roll back to a known working state.
     py_require(exclude_newer = "2025-01-19")
     ```
@@ -115,6 +118,7 @@ resolving issues include:
     specific packages.
 
     ``` r
+
     py_require("numpy<2", action = "remove")
     ```
 
@@ -123,6 +127,7 @@ resolving issues include:
     conflicting tensorflow requirements:
 
     ``` r
+
     # Declare conflicting requirements.
     py_require(c("tensorflow==2.17.*",
                  "tensorflow<=2.16",
@@ -135,6 +140,7 @@ resolving issues include:
     requirements:
 
     ``` r
+
     # Remove all TensorFlow requirements.
     all_py_pkgs <- py_require()$packages
     tf_pkgs <- grep("tensorflow", all_py_pkgs, value = TRUE)
@@ -145,6 +151,7 @@ resolving issues include:
     requirements:
 
     ``` r
+
     # Replace all package requirements except TensorFlow.
     all_py_pkgs <- py_require()$packages
     all_py_pkgs_sans_tf <- grep("tensorflow", all_py_pkgs, value = TRUE, invert = TRUE)
@@ -158,6 +165,7 @@ resolving issues include:
     GitHub or the local filesystem.
 
     ``` r
+
     # Install the 'markitdown' package from GitHub.
     py_require("markitdown@git+https://github.com/microsoft/markitdown.git@main#subdirectory=packages/markitdown")
 
@@ -235,6 +243,7 @@ packages will be by default be installed within a virtualenv or Conda
 environment named “r-reticulate”. For example:
 
 ``` r
+
 library(reticulate)
 py_install("pandas")
 ```
@@ -251,12 +260,12 @@ are installed. These functions are covered in the sections below.
 
 The following functions are available for managing Python virtualenvs:
 
-| Function                                                                                         | Description                                        |
-|--------------------------------------------------------------------------------------------------|----------------------------------------------------|
-| [`virtualenv_list()`](https://rstudio.github.io/reticulate/dev/reference/virtualenv-tools.md)    | List all available virtualenvs                     |
-| [`virtualenv_create()`](https://rstudio.github.io/reticulate/dev/reference/virtualenv-tools.md)  | Create a new virtualenv                            |
-| [`virtualenv_install()`](https://rstudio.github.io/reticulate/dev/reference/virtualenv-tools.md) | Install a package within a virtualenv              |
-| [`virtualenv_remove()`](https://rstudio.github.io/reticulate/dev/reference/virtualenv-tools.md)  | Remove individual packages or an entire virtualenv |
+| Function | Description |
+|----|----|
+| [`virtualenv_list()`](https://rstudio.github.io/reticulate/dev/reference/virtualenv-tools.md) | List all available virtualenvs |
+| [`virtualenv_create()`](https://rstudio.github.io/reticulate/dev/reference/virtualenv-tools.md) | Create a new virtualenv |
+| [`virtualenv_install()`](https://rstudio.github.io/reticulate/dev/reference/virtualenv-tools.md) | Install a package within a virtualenv |
+| [`virtualenv_remove()`](https://rstudio.github.io/reticulate/dev/reference/virtualenv-tools.md) | Remove individual packages or an entire virtualenv |
 
 Virtual environments are by default located at `~/.virtualenvs`. You can
 change this behavior by defining the `WORKON_HOME` environment variable.
@@ -265,6 +274,7 @@ Here’s an example of using these functions to create an environment,
 install packages within it, then use the environment from R:
 
 ``` r
+
 library(reticulate)
 
 # create a new environment
@@ -283,6 +293,7 @@ environments, in that case you may want to call the
 function to ensure that a specific virtualenv is utilized by reticulate:
 
 ``` r
+
 library(reticulate)
 
 # indicate that we want to use a specific virtualenv
@@ -324,17 +335,18 @@ reticulate where to look by setting the environment variable
 
 The following functions are available for managing Conda environments:
 
-| Function                                                                               | Description                                               |
-|----------------------------------------------------------------------------------------|-----------------------------------------------------------|
-| [`conda_list()`](https://rstudio.github.io/reticulate/dev/reference/conda-tools.md)    | List all available conda environments                     |
-| [`conda_create()`](https://rstudio.github.io/reticulate/dev/reference/conda-tools.md)  | Create a new conda environment                            |
-| [`conda_install()`](https://rstudio.github.io/reticulate/dev/reference/conda-tools.md) | Install a package within a conda environment              |
-| [`conda_remove()`](https://rstudio.github.io/reticulate/dev/reference/conda-tools.md)  | Remove individual packages or an entire conda environment |
+| Function | Description |
+|----|----|
+| [`conda_list()`](https://rstudio.github.io/reticulate/dev/reference/conda-tools.md) | List all available conda environments |
+| [`conda_create()`](https://rstudio.github.io/reticulate/dev/reference/conda-tools.md) | Create a new conda environment |
+| [`conda_install()`](https://rstudio.github.io/reticulate/dev/reference/conda-tools.md) | Install a package within a conda environment |
+| [`conda_remove()`](https://rstudio.github.io/reticulate/dev/reference/conda-tools.md) | Remove individual packages or an entire conda environment |
 
 Here’s an example of using these functions to create an environment,
 install packages within it, then use the environment from R:
 
 ``` r
+
 library(reticulate)
 
 # create a new environment
@@ -354,6 +366,7 @@ function to ensure that a specific Conda environment is utilized by
 reticulate:
 
 ``` r
+
 library(reticulate)
 
 # indicate that we want to use a specific condaenv

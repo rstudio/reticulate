@@ -88,6 +88,7 @@ in `"\n"` (stderr is not captured).
 
 ## Example
 
+
     # enter the Python REPL, create a dictionary, and exit
     repl_python()
     dictionary = {'alpha': 1, 'beta': 2}

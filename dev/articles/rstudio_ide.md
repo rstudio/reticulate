@@ -44,6 +44,7 @@ All of the features described below require that you have previously
 installed the reticulate package, which you can do as follows:
 
 ``` r
+
 install.packages("reticulate")
 ```
 

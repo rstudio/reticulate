@@ -1,5 +1,9 @@
 # reticulate (development version)
 
+- Fixed a spurious warning about Poetry being unavailable when a project had a
+  `pyproject.toml` without a `[tool.poetry]` section, such as uv or PEP 621
+  projects. (#1900)
+
 # reticulate 1.46.0
 
 - Internal updates to avoid `R_NamespaceRegistry` and `R_UnboundValue` in

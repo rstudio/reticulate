@@ -21,7 +21,7 @@ poetry_config <- function(required_module) {
 
   # check that it has a 'tool.poetry' section
   info <- tryCatch(toml[[c("tool", "poetry")]], error = identity)
-  if (inherits(info, "error"))
+  if (is.null(info) || inherits(info, "error"))
     return(NULL)
 
   # validate that 'poetry' is available

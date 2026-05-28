@@ -107,7 +107,9 @@
 #' If an existing installation of `uv` is not found, `reticulate` will
 #' automatically download and store it, along with other downloaded artifacts
 #' and ephemeral environments, in the `tools::R_user_dir("reticulate", "cache")`
-#' directory. To clear this cache manually, delete the directory:
+#' directory. Set `R_USER_CACHE_DIR` to configure this location; see
+#' `tools::R_user_dir()` for details. To clear this cache manually, delete the
+#' directory:
 #'
 #' ```r
 #' # delete uv, ephemeral virtual environments, and all downloaded artifacts

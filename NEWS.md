@@ -4,6 +4,9 @@
   `pyproject.toml` without a `[tool.poetry]` section, such as uv or PEP 621
   projects. (#1900)
 
+- Documented that `R_USER_CACHE_DIR` can be used to configure the location of
+  reticulate's managed `uv` cache (#1901).
+
 # reticulate 1.46.0
 
 - Internal updates to avoid `R_NamespaceRegistry` and `R_UnboundValue` in

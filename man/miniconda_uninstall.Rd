@@ -13,8 +13,8 @@ miniconda_uninstall(path = miniconda_path())
 Uninstall Miniconda.
 }
 \seealso{
-Other miniconda-tools: 
-\code{\link{install_miniconda}()},
-\code{\link{miniconda_update}()}
+Other miniconda-tools:
+\code{\link[=install_miniconda]{install_miniconda()}},
+\code{\link[=miniconda_update]{miniconda_update()}}
 }
 \concept{miniconda-tools}

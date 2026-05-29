@@ -9,6 +9,8 @@
 #' @format An \R object acting as an interface to the
 #'   Python main module.
 #'
+#' @usage py
+#'
 #' @export
 "py"
 

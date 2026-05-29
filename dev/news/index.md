@@ -7,6 +7,10 @@
   or PEP 621 projects.
   ([\#1900](https://github.com/rstudio/reticulate/issues/1900))
 
+- Documented that `R_USER_CACHE_DIR` can be used to configure the
+  location of reticulate’s managed `uv` cache
+  ([\#1901](https://github.com/rstudio/reticulate/issues/1901)).
+
 ## reticulate 1.46.0
 
 CRAN release: 2026-04-09

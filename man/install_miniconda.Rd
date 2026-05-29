@@ -31,8 +31,8 @@ scripted build and installation of Python from sources can be performed by
 \code{\link[=install_python]{install_python()}}
 }
 \seealso{
-Other miniconda-tools: 
-\code{\link{miniconda_uninstall}()},
-\code{\link{miniconda_update}()}
+Other miniconda-tools:
+\code{\link[=miniconda_uninstall]{miniconda_uninstall()}},
+\code{\link[=miniconda_update]{miniconda_update()}}
 }
 \concept{miniconda-tools}

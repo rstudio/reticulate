@@ -15,8 +15,8 @@ that the Miniconda installer does not support paths containing spaces. See
 Update Miniconda to the latest version.
 }
 \seealso{
-Other miniconda-tools: 
-\code{\link{install_miniconda}()},
-\code{\link{miniconda_uninstall}()}
+Other miniconda-tools:
+\code{\link[=install_miniconda]{install_miniconda()}},
+\code{\link[=miniconda_uninstall]{miniconda_uninstall()}}
 }
 \concept{miniconda-tools}

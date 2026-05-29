@@ -9,7 +9,7 @@ An \R object acting as an interface to the
 Python main module.
 }
 \usage{
-py
+data(py)
 }
 \description{
 The \code{py} object provides a means for interacting

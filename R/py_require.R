@@ -712,14 +712,13 @@ uv_binary <- function(bootstrap_install = TRUE) {
       writeLines(stderr_lines, con = stderr())
     }
 
-    failed <- !length(status) || is.na(status) || status != 0L
+    failed <- !identical(status, 0L)
     if (failed || !file.exists(uv)) {
       details <- c(
         if (length(stdout_lines)) c("stdout:", paste0("  ", stdout_lines)),
         if (length(stderr_lines)) c("stderr:", paste0("  ", stderr_lines))
       )
       msg <- if (failed) {
-        status <- if (length(status) && !is.na(status)) status else "<unknown>"
         sprintf("uv bootstrap failed with exit status %s.", status)
       } else {
         sprintf("uv bootstrap failed: installer completed without creating %s.",

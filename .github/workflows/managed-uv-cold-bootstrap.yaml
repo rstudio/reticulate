@@ -24,7 +24,10 @@ jobs:
           cache: false
 
       - name: Import stdlib module from a cold managed uv bootstrap
-        shell: Rscript {0}
+        shell: Rscript --vanilla {0}
+        env:
+          R_LIBS: ${{ runner.temp }}\Library
+          R_LIBS_USER: NULL
         run: |
           cache <- tools::R_user_dir("reticulate", "cache")
           unlink(cache, recursive = TRUE, force = TRUE)
@@ -32,12 +35,27 @@ jobs:
 
           Sys.setenv(
             RETICULATE_PYTHON = "managed",
-            RETICULATE_UV = "managed",
-            "_RETICULATE_DEBUG_UV_" = "1"
+            RETICULATE_UV = "managed"
           )
+          Sys.unsetenv("_RETICULATE_DEBUG_UV_")
 
           library(reticulate)
           print(reticulate:::uv_binary(bootstrap_install = FALSE))
-          json <- import("json")
+
+          err <- NULL
+          tryCatch(
+            json <- import("json"),
+            error = function(e) err <<- e
+          )
+
+          if (!is.null(err)) {
+            message("reticulate import failed: ", conditionMessage(err))
+            managed_uv <- file.path(cache, "uv", "bin", "uv.exe")
+            message("managed uv path: ", managed_uv)
+            message("managed uv exists: ", file.exists(managed_uv))
+            print(list.files(cache, recursive = TRUE, full.names = TRUE))
+            stop(err)
+          }
+
           print(json$dumps(list(ok = TRUE)))
           print(py_config())

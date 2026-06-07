@@ -105,7 +105,7 @@ jobs:
           show_command("where powershell", "where.exe", "powershell")
           show_command("powershell version", "powershell", c("-NoProfile", "-Command", "$PSVersionTable.PSVersion.ToString()"))
 
-          show_value("reticulate.package.path", path.package("reticulate"))
+          show_value("reticulate.package.path", find.package("reticulate"))
           show_value("reticulate.package.version", as.character(packageVersion("reticulate")))
           show_value("reticulate.cache", cache)
           show_value("reticulate.cache.short", short_path(cache))

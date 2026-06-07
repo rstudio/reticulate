@@ -660,8 +660,7 @@ uv_binary <- function(bootstrap_install = TRUE) {
 
     dir.create(dirname(uv), showWarnings = FALSE, recursive = TRUE)
     file_ext <- if (is_windows()) ".ps1" else ".sh"
-    url <- getOption("reticulate.uv_install_url",
-                     paste0("https://astral.sh/uv/install", file_ext))
+    url <- paste0("https://astral.sh/uv/install", file_ext)
     install_uv <- tempfile("install-uv-", fileext = file_ext)
     message("Downloading uv...", appendLF = FALSE)
     download.file(url, install_uv, quiet = TRUE)

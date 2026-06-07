@@ -651,129 +651,86 @@ uv_binary <- function(bootstrap_install = TRUE) {
     return()
   }
 
-  # Install 'uv' in the 'r-reticulate' sub-folder inside the user's cache directory
-  # https://github.com/astral-sh/uv/blob/main/docs/configuration/installer.md
+    # Install 'uv' in the 'r-reticulate' sub-folder inside the user's cache directory
+    # https://github.com/astral-sh/uv/blob/main/docs/configuration/installer.md
 
-  # Ensure the cache directory is empty, in case an earlier
-  # cache clear action was interrupted.
-  unlink(dirname(dirname(uv)), recursive = TRUE, force = TRUE)
+    # Ensure the cache directory is empty, in case an earlier
+    # cache clear action was interrupted.
+    unlink(dirname(dirname(uv)), recursive = TRUE, force = TRUE)
 
-  dir.create(dirname(uv), showWarnings = FALSE, recursive = TRUE)
-  file_ext <- if (is_windows()) ".ps1" else ".sh"
-  url <- paste0("https://astral.sh/uv/install", file_ext)
-  install_uv <- tempfile("install-uv-", fileext = file_ext)
-  message("Downloading uv...", appendLF = FALSE)
-  download.file(url, install_uv, quiet = TRUE)
-  if (!file.exists(install_uv)) {
-    return(NULL)
-    # stop("Unable to download Python dependencies. Please install `uv` manually.")
-  }
-  message("Done!")
-  uv_bootstrap_install(install_uv, uv)
+    dir.create(dirname(uv), showWarnings = FALSE, recursive = TRUE)
+    file_ext <- if (is_windows()) ".ps1" else ".sh"
+    url <- getOption("reticulate.uv_install_url",
+                     paste0("https://astral.sh/uv/install", file_ext))
+    install_uv <- tempfile("install-uv-", fileext = file_ext)
+    message("Downloading uv...", appendLF = FALSE)
+    download.file(url, install_uv, quiet = TRUE)
+    if (!file.exists(install_uv)) {
+      return(NULL)
+      # stop("Unable to download Python dependencies. Please install `uv` manually.")
+    }
+    message("Done!")
+    if (debug_uv <- Sys.getenv("_RETICULATE_DEBUG_UV_") == "1")
+      system2 <- system2t
+
+    uv_stdout <- tempfile("install-uv-stdout-")
+    uv_stderr <- tempfile("install-uv-stderr-")
+    on.exit(unlink(c(uv_stdout, uv_stderr)), add = TRUE)
+
+    if (is_windows()) {
+
+      withr::with_envvar(c(
+        "UV_UNMANAGED_INSTALL" = utils::shortPathName(dirname(uv)),
+        "PSModulePath" = NA
+      ), {
+        status <- system2("powershell.exe", c(
+          "-NoProfile",
+          "-NonInteractive",
+          "-ExecutionPolicy", "Bypass",
+          "-File", utils::shortPathName(install_uv)),
+          stdout = uv_stdout,
+          stderr = uv_stderr
+        )
+      })
+
+    } else {
+
+      Sys.chmod(install_uv, mode = "0755")
+      withr::with_envvar(c("UV_UNMANAGED_INSTALL" = dirname(uv)), {
+        status <- system2(install_uv,
+                          stdout = uv_stdout,
+                          stderr = uv_stderr)
+      })
+
+    }
+
+    stdout_lines <- if (file.exists(uv_stdout)) readLines(uv_stdout, warn = FALSE)
+    stderr_lines <- if (file.exists(uv_stderr)) readLines(uv_stderr, warn = FALSE)
+
+    if (debug_uv) {
+      writeLines(stdout_lines)
+      writeLines(stderr_lines, con = stderr())
+    }
+
+    failed <- !length(status) || is.na(status) || status != 0L
+    if (failed || !file.exists(uv)) {
+      details <- c(
+        if (length(stdout_lines)) c("stdout:", paste0("  ", stdout_lines)),
+        if (length(stderr_lines)) c("stderr:", paste0("  ", stderr_lines))
+      )
+      msg <- if (failed) {
+        status <- if (length(status) && !is.na(status)) status else "<unknown>"
+        sprintf("uv bootstrap failed with exit status %s.", status)
+      } else {
+        sprintf("uv bootstrap failed: installer completed without creating %s.",
+                shQuote(uv))
+      }
+      stop(paste(c(msg, details), collapse = "\n"), call. = FALSE)
+    }
 
   # if we bootstrap-installed successfully, return the path to the uv binary
   # if not, reset `uv` for the on.exit() hook and return NULL visibly
   if (file.exists(uv)) uv else (uv <- NULL)
-}
-
-uv_bootstrap_install <- function(install_uv, uv,
-                                 debug_uv = Sys.getenv("_RETICULATE_DEBUG_UV_") == "1") {
-  stdout_file <- tempfile("reticulate-uv-install-stdout-")
-  stderr_file <- tempfile("reticulate-uv-install-stderr-")
-  on.exit(unlink(c(stdout_file, stderr_file)), add = TRUE)
-
-  if (is_windows()) {
-    command <- "powershell.exe"
-    args <- c(
-      "-NoProfile",
-      "-NonInteractive",
-      "-ExecutionPolicy", "Bypass",
-      "-File", utils::shortPathName(install_uv)
-    )
-    env <- c(
-      UV_UNMANAGED_INSTALL = utils::shortPathName(dirname(uv)),
-      PSModulePath = NA
-    )
-  } else {
-    Sys.chmod(install_uv, mode = "0755")
-    command <- install_uv
-    args <- character()
-    env <- c(UV_UNMANAGED_INSTALL = dirname(uv))
-  }
-
-  if (debug_uv) {
-    message(paste(
-      "+",
-      maybe_shQuote(command),
-      paste(maybe_shQuote(args), collapse = " ")
-    ))
-  }
-
-  status <- withr::with_envvar(env, {
-    suppressWarnings(system2(
-      command, args,
-      stdout = stdout_file,
-      stderr = stderr_file
-    ))
-  })
-
-  stdout_lines <- uv_bootstrap_read_output(stdout_file)
-  stderr_lines <- uv_bootstrap_read_output(stderr_file)
-
-  if (debug_uv) {
-    writeLines(stdout_lines, con = stdout())
-    writeLines(stderr_lines, con = stderr())
-  }
-
-  if (!length(status) || is.na(status) || status != 0L) {
-    status <- if (length(status)) status else "<unknown>"
-    uv_bootstrap_error(
-      sprintf("uv bootstrap failed with exit status %s.", status),
-      command, args, stdout_lines, stderr_lines
-    )
-  }
-
-  if (!file.exists(uv)) {
-    uv_bootstrap_error(
-      sprintf(
-        "uv bootstrap failed: installer completed without creating %s.",
-        shQuote(uv)
-      ),
-      command, args, stdout_lines, stderr_lines
-    )
-  }
-
-  invisible(uv)
-}
-
-uv_bootstrap_read_output <- function(path) {
-  if (!file.exists(path))
-    return(character())
-  enc2utf8(readLines(path, warn = FALSE))
-}
-
-uv_bootstrap_error <- function(header, command, args, stdout, stderr) {
-  format_output <- function(label, output) {
-    if (!length(output))
-      return(character())
-    n <- length(output)
-    if (n > 40L) {
-      output <- c(output[seq_len(40L)], sprintf("... omitted %d lines", n - 40L))
-    }
-    c(paste0(label, ":"), paste0("  ", output))
-  }
-
-  msg <- c(
-    header,
-    paste(
-      "Command:",
-      paste(c(maybe_shQuote(command), maybe_shQuote(args)), collapse = " ")
-    ),
-    format_output("stdout", stdout),
-    format_output("stderr", stderr)
-  )
-
-  stop(paste(msg, collapse = "\n"), call. = FALSE)
 }
 
 uv_get_or_create_env <- function(packages = py_reqs_get("packages"),

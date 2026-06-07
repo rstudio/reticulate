@@ -217,26 +217,34 @@ test_that("Windows uv bootstrap isolates PowerShell module paths", {
   local_edition(3)
 
   install_uv <- tempfile("install-uv-", fileext = ".ps1")
-  uv <- file.path(tempfile("uv-bootstrap-"), "bin", "uv.exe")
-  dir.create(dirname(uv), showWarnings = FALSE, recursive = TRUE)
-
   writeLines(c(
     "$ErrorActionPreference = 'Stop'",
-    "if ($env:PSModulePath) { Write-Error 'PSModulePath should be unset'; exit 42 }",
+    "if ($env:PSModulePath -match [regex]::Escape('C:\\Program Files\\PowerShell\\7\\Modules')) { Write-Error 'PowerShell 7 module path leaked'; exit 42 }",
     "if (-not $env:UV_UNMANAGED_INSTALL) { Write-Error 'UV_UNMANAGED_INSTALL missing'; exit 43 }",
     "if (-not $PSCommandPath) { Write-Error 'installer should be run with -File'; exit 44 }",
     "$commandLine = [Environment]::CommandLine",
     "if ($commandLine -notmatch '-NoProfile') { Write-Error 'missing -NoProfile'; exit 45 }",
     "if ($commandLine -notmatch '-NonInteractive') { Write-Error 'missing -NonInteractive'; exit 46 }",
+    "Get-ExecutionPolicy | Out-Null",
     "Set-Content -LiteralPath (Join-Path $env:UV_UNMANAGED_INSTALL 'uv.exe') -Value 'fake uv'"
   ), install_uv)
 
   withr::local_envvar(c(
+    RETICULATE_UV = NA,
+    R_USER_CACHE_DIR = tempfile("reticulate-cache-"),
     PSModulePath = "C:\\Program Files\\PowerShell\\7\\Modules"
   ))
+  withr::local_options(list(
+    reticulate.uv_binary = "managed",
+    reticulate.uv_install_url = paste0(
+      "file:///",
+      normalizePath(install_uv, winslash = "/", mustWork = TRUE)
+    )
+  ))
 
-  expect_equal(uv_bootstrap_install(install_uv, uv), uv)
-  expect_true(file.exists(uv))
+  uv <- reticulate_cache_dir("uv", "bin", "uv.exe")
+  expect_equal(normalizePath(uv_binary(), winslash = "/"),
+               normalizePath(uv, winslash = "/"))
 })
 
 test_that("uv bootstrap reports installer failures", {
@@ -245,7 +253,6 @@ test_that("uv bootstrap reports installer failures", {
   if (is_windows()) {
     skip_if(Sys.which("powershell.exe") == "", "powershell.exe not available")
     install_uv <- tempfile("install-uv-", fileext = ".ps1")
-    uv <- file.path(tempfile("uv-bootstrap-"), "bin", "uv.exe")
     script <- c(
       "Write-Output 'installer stdout sentinel'",
       "Write-Error 'installer stderr sentinel'",
@@ -253,7 +260,6 @@ test_that("uv bootstrap reports installer failures", {
     )
   } else {
     install_uv <- tempfile("install-uv-", fileext = ".sh")
-    uv <- file.path(tempfile("uv-bootstrap-"), "bin", "uv")
     script <- c(
       "#!/bin/sh",
       "echo 'installer stdout sentinel'",
@@ -262,11 +268,21 @@ test_that("uv bootstrap reports installer failures", {
     )
   }
 
-  dir.create(dirname(uv), showWarnings = FALSE, recursive = TRUE)
   writeLines(script, install_uv)
+  withr::local_envvar(c(
+    RETICULATE_UV = NA,
+    R_USER_CACHE_DIR = tempfile("reticulate-cache-")
+  ))
+  withr::local_options(list(
+    reticulate.uv_binary = "managed",
+    reticulate.uv_install_url = paste0(
+      "file:///",
+      normalizePath(install_uv, winslash = "/", mustWork = TRUE)
+    )
+  ))
 
   err <- tryCatch(
-    uv_bootstrap_install(install_uv, uv),
+    uv_binary(),
     error = conditionMessage
   )
 

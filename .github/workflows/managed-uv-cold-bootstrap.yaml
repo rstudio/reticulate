@@ -1,5 +1,7 @@
 on:
   workflow_dispatch:
+  push:
+    branches: [windows-cold-bootstrap-fix]
   pull_request:
     branches: [main, master]
 

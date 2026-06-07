@@ -27,35 +27,190 @@ jobs:
         shell: Rscript --vanilla {0}
         env:
           R_LIBS: ${{ runner.temp }}\Library
-          R_LIBS_USER: NULL
+          R_LIBS_USER: "NULL"
         run: |
           cache <- tools::R_user_dir("reticulate", "cache")
+
+          show_value <- function(name, value) {
+            cat(name, "=", value, "\n", sep = "")
+          }
+
+          short_path <- function(path) {
+            if (.Platform$OS.type == "windows" && file.exists(path)) {
+              utils::shortPathName(path)
+            } else {
+              path
+            }
+          }
+
+          show_env <- function(names) {
+            for (name in names) {
+              value <- Sys.getenv(name, unset = "<unset>")
+              cat("env.", name, "=", value, "\n", sep = "")
+            }
+          }
+
+          show_command <- function(label, command, args = character()) {
+            cat("## ", label, "\n", sep = "")
+            cat("$ ", command, " ", paste(args, collapse = " "), "\n", sep = "")
+            out <- suppressWarnings(system2(command, args, stdout = TRUE, stderr = TRUE))
+            status <- attr(out, "status")
+            if (is.null(status)) status <- 0L
+            cat("status=", status, "\n", sep = "")
+            if (length(out)) writeLines(out)
+          }
+
+          show_tree <- function(root) {
+            show_value("tree.root", root)
+            show_value("tree.exists", file.exists(root))
+            if (!file.exists(root)) return()
+
+            entries <- list.files(root, recursive = TRUE, full.names = TRUE, all.files = TRUE)
+            show_value("tree.count", length(entries))
+            if (!length(entries)) return()
+
+            priority <- entries[
+              grepl("uv(\\.exe)?$|python(\\.exe)?$|python[0-9]+\\.dll$|uv-cache|uv-python", entries, ignore.case = TRUE)
+            ]
+            shown <- unique(c(priority, entries[seq_len(min(length(entries), 200L))]))
+            writeLines(shown)
+            if (length(entries) > length(shown)) {
+              show_value("tree.omitted", length(entries) - length(shown))
+            }
+          }
+
+          show_value("parent.R.version", R.version.string)
+          show_value("parent.R.home", R.home())
+          show_value("parent.Rscript", file.path(R.home("bin"), "Rscript"))
+          show_value("parent.getcwd", getwd())
+          show_value("parent.libPaths", paste(.libPaths(), collapse = .Platform$path.sep))
+          show_env(c(
+            "R_LIBS",
+            "R_LIBS_USER",
+            "R_LIBS_SITE",
+            "R_USER_CACHE_DIR",
+            "RETICULATE_PYTHON",
+            "RETICULATE_UV",
+            "_RETICULATE_DEBUG_UV_",
+            "UV_CACHE_DIR",
+            "UV_PYTHON_INSTALL_DIR",
+            "LOCALAPPDATA",
+            "USERPROFILE",
+            "TEMP",
+            "TMP",
+            "PATH"
+          ))
+          show_command("where Rscript", "where.exe", "Rscript")
+          show_command("where uv", "where.exe", "uv")
+          show_command("where powershell", "where.exe", "powershell")
+          show_command("powershell version", "powershell", c("-NoProfile", "-Command", "$PSVersionTable.PSVersion.ToString()"))
+
+          show_value("reticulate.package.path", path.package("reticulate"))
+          show_value("reticulate.package.version", as.character(packageVersion("reticulate")))
+          show_value("reticulate.cache", cache)
+          show_value("reticulate.cache.short", short_path(cache))
+
+          child <- tempfile("managed-uv-child-", fileext = ".R")
+          writeLines(c(
+            "show_value <- function(name, value) cat(name, '=', value, '\\n', sep = '')",
+            "short_path <- function(path) if (.Platform$OS.type == 'windows' && file.exists(path)) utils::shortPathName(path) else path",
+            "show_env <- function(names) for (name in names) cat('env.', name, '=', Sys.getenv(name, unset = '<unset>'), '\\n', sep = '')",
+            "show_command <- function(label, command, args = character(), env = character()) {",
+            "  cat('## ', label, '\\n', sep = '')",
+            "  cat('$ ', command, ' ', paste(args, collapse = ' '), '\\n', sep = '')",
+            "  out <- suppressWarnings(system2(command, args, stdout = TRUE, stderr = TRUE, env = env))",
+            "  status <- attr(out, 'status')",
+            "  if (is.null(status)) status <- 0L",
+            "  cat('status=', status, '\\n', sep = '')",
+            "  if (length(out)) writeLines(out)",
+            "}",
+            "show_tree <- function(root) {",
+            "  show_value('tree.root', root)",
+            "  show_value('tree.exists', file.exists(root))",
+            "  if (!file.exists(root)) return()",
+            "  entries <- list.files(root, recursive = TRUE, full.names = TRUE, all.files = TRUE)",
+            "  show_value('tree.count', length(entries))",
+            "  if (!length(entries)) return()",
+            "  priority <- entries[grepl('uv(\\\\.exe)?$|python(\\\\.exe)?$|python[0-9]+\\\\.dll$|uv-cache|uv-python', entries, ignore.case = TRUE)]",
+            "  shown <- unique(c(priority, entries[seq_len(min(length(entries), 200L))]))",
+            "  writeLines(shown)",
+            "  if (length(entries) > length(shown)) show_value('tree.omitted', length(entries) - length(shown))",
+            "}",
+            "show_value('child.R.version', R.version.string)",
+            "show_value('child.R.home', R.home())",
+            "show_value('child.Rscript', file.path(R.home('bin'), 'Rscript'))",
+            "show_value('child.getcwd', getwd())",
+            "show_value('child.libPaths.before', paste(.libPaths(), collapse = .Platform$path.sep))",
+            "show_env(c('R_LIBS', 'R_LIBS_USER', 'R_LIBS_SITE', 'R_USER_CACHE_DIR', 'RETICULATE_PYTHON', 'RETICULATE_UV', '_RETICULATE_DEBUG_UV_', 'UV_CACHE_DIR', 'UV_PYTHON_INSTALL_DIR', 'LOCALAPPDATA', 'USERPROFILE', 'TEMP', 'TMP', 'PATH'))",
+            "Sys.setenv(RETICULATE_PYTHON = 'managed')",
+            "Sys.unsetenv('RETICULATE_UV')",
+            "show_value('child.RETICULATE_PYTHON.after', Sys.getenv('RETICULATE_PYTHON', unset = '<unset>'))",
+            "show_value('child.RETICULATE_UV.after', Sys.getenv('RETICULATE_UV', unset = '<unset>'))",
+            "library(reticulate)",
+            "show_value('child.libPaths.after', paste(.libPaths(), collapse = .Platform$path.sep))",
+            "show_value('reticulate.package.path', path.package('reticulate'))",
+            "show_value('reticulate.package.version', as.character(packageVersion('reticulate')))",
+            "cache <- reticulate:::reticulate_cache_dir()",
+            "managed_uv <- reticulate:::reticulate_cache_dir('uv', 'bin', if (.Platform$OS.type == 'windows') 'uv.exe' else 'uv')",
+            "show_value('reticulate.cache', cache)",
+            "show_value('reticulate.cache.short', short_path(cache))",
+            "show_value('managed.uv', managed_uv)",
+            "show_value('managed.uv.dir.short', short_path(dirname(managed_uv)))",
+            "show_value('managed.uv.exists.before', file.exists(managed_uv))",
+            "print(file.info(managed_uv))",
+            "print(reticulate:::uv_binary(bootstrap_install = FALSE))",
+            "err <- NULL",
+            "json <- tryCatch(import('json'), error = function(e) { err <<- e; NULL })",
+            "show_value('managed.uv.exists.after', file.exists(managed_uv))",
+            "print(file.info(managed_uv))",
+            "if (file.exists(managed_uv)) {",
+            "  show_command('managed uv version', managed_uv, '--version')",
+            "  show_command('managed uv python dir', managed_uv, c('python', 'dir'), env = c(paste0('UV_CACHE_DIR=', reticulate:::reticulate_cache_dir('uv', 'cache')), paste0('UV_PYTHON_INSTALL_DIR=', reticulate:::reticulate_cache_dir('uv', 'python'))))",
+            "  show_command('managed uv python list', managed_uv, c('python', 'list'), env = c(paste0('UV_CACHE_DIR=', reticulate:::reticulate_cache_dir('uv', 'cache')), paste0('UV_PYTHON_INSTALL_DIR=', reticulate:::reticulate_cache_dir('uv', 'python'))))",
+            "}",
+            "show_tree(cache)",
+            "if (!is.null(err)) {",
+            "  show_value('reticulate.import.error.class', paste(class(err), collapse = ','))",
+            "  show_value('reticulate.import.error.message', conditionMessage(err))",
+            "  stop(err)",
+            "}",
+            "show_value('reticulate.json', json$dumps(list(ok = TRUE)))",
+            "print(py_config())"
+          ), child)
+
+          run_child <- function(debug_uv) {
+            unlink(cache, recursive = TRUE, force = TRUE)
+            stopifnot(!file.exists(cache))
+
+            Sys.setenv(RETICULATE_PYTHON = "managed")
+            Sys.unsetenv("RETICULATE_UV")
+
+            if (debug_uv) {
+              Sys.setenv("_RETICULATE_DEBUG_UV_" = "1")
+            } else {
+              Sys.unsetenv("_RETICULATE_DEBUG_UV_")
+            }
+
+            show_value("child.debug_uv", debug_uv)
+            show_value("child.script", child)
+            out <- suppressWarnings(system2(
+              file.path(R.home("bin"), "Rscript"),
+              c("--vanilla", child),
+              stdout = TRUE,
+              stderr = TRUE
+            ))
+            status <- attr(out, "status")
+            if (is.null(status)) status <- 0L
+            show_value("child.status", status)
+            if (length(out)) writeLines(out)
+            status
+          }
+
           unlink(cache, recursive = TRUE, force = TRUE)
           stopifnot(!file.exists(cache))
 
-          Sys.setenv(
-            RETICULATE_PYTHON = "managed",
-            RETICULATE_UV = "managed"
-          )
-          Sys.unsetenv("_RETICULATE_DEBUG_UV_")
-
-          library(reticulate)
-          print(reticulate:::uv_binary(bootstrap_install = FALSE))
-
-          err <- NULL
-          tryCatch(
-            json <- import("json"),
-            error = function(e) err <<- e
-          )
-
-          if (!is.null(err)) {
-            message("reticulate import failed: ", conditionMessage(err))
-            managed_uv <- file.path(cache, "uv", "bin", "uv.exe")
-            message("managed uv path: ", managed_uv)
-            message("managed uv exists: ", file.exists(managed_uv))
-            print(list.files(cache, recursive = TRUE, full.names = TRUE))
-            stop(err)
+          status <- run_child(debug_uv = FALSE)
+          if (status != 0L) {
+            debug_status <- run_child(debug_uv = TRUE)
+            stop("managed uv cold bootstrap failed; non-debug status=", status, ", debug status=", debug_status)
           }
-
-          print(json$dumps(list(ok = TRUE)))
-          print(py_config())

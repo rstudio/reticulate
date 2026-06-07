@@ -211,6 +211,70 @@ test_that("can bootstrap install uv in reticulate cache", {
   )
 })
 
+test_that("Windows uv bootstrap isolates PowerShell module paths", {
+  skip_if_not(is_windows())
+  skip_if(Sys.which("powershell.exe") == "", "powershell.exe not available")
+  local_edition(3)
+
+  install_uv <- tempfile("install-uv-", fileext = ".ps1")
+  uv <- file.path(tempfile("uv-bootstrap-"), "bin", "uv.exe")
+  dir.create(dirname(uv), showWarnings = FALSE, recursive = TRUE)
+
+  writeLines(c(
+    "$ErrorActionPreference = 'Stop'",
+    "if ($env:PSModulePath) { Write-Error 'PSModulePath should be unset'; exit 42 }",
+    "if (-not $env:UV_UNMANAGED_INSTALL) { Write-Error 'UV_UNMANAGED_INSTALL missing'; exit 43 }",
+    "if (-not $PSCommandPath) { Write-Error 'installer should be run with -File'; exit 44 }",
+    "$commandLine = [Environment]::CommandLine",
+    "if ($commandLine -notmatch '-NoProfile') { Write-Error 'missing -NoProfile'; exit 45 }",
+    "if ($commandLine -notmatch '-NonInteractive') { Write-Error 'missing -NonInteractive'; exit 46 }",
+    "Set-Content -LiteralPath (Join-Path $env:UV_UNMANAGED_INSTALL 'uv.exe') -Value 'fake uv'"
+  ), install_uv)
+
+  withr::local_envvar(c(
+    PSModulePath = "C:\\Program Files\\PowerShell\\7\\Modules"
+  ))
+
+  expect_equal(uv_bootstrap_install(install_uv, uv), uv)
+  expect_true(file.exists(uv))
+})
+
+test_that("uv bootstrap reports installer failures", {
+  local_edition(3)
+
+  if (is_windows()) {
+    skip_if(Sys.which("powershell.exe") == "", "powershell.exe not available")
+    install_uv <- tempfile("install-uv-", fileext = ".ps1")
+    uv <- file.path(tempfile("uv-bootstrap-"), "bin", "uv.exe")
+    script <- c(
+      "Write-Output 'installer stdout sentinel'",
+      "Write-Error 'installer stderr sentinel'",
+      "exit 37"
+    )
+  } else {
+    install_uv <- tempfile("install-uv-", fileext = ".sh")
+    uv <- file.path(tempfile("uv-bootstrap-"), "bin", "uv")
+    script <- c(
+      "#!/bin/sh",
+      "echo 'installer stdout sentinel'",
+      "echo 'installer stderr sentinel' >&2",
+      "exit 37"
+    )
+  }
+
+  dir.create(dirname(uv), showWarnings = FALSE, recursive = TRUE)
+  writeLines(script, install_uv)
+
+  err <- tryCatch(
+    uv_bootstrap_install(install_uv, uv),
+    error = conditionMessage
+  )
+
+  expect_match(err, "uv bootstrap failed with exit status 37", fixed = TRUE)
+  expect_match(err, "installer stdout sentinel", fixed = TRUE)
+  expect_match(err, "installer stderr sentinel", fixed = TRUE)
+})
+
 test_that("Multiple py_require() calls from package are shows in one row", {
   local_edition(3)
   expect_snapshot2(r_session(attach_namespace = TRUE, {

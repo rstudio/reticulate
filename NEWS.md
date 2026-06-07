@@ -1,5 +1,8 @@
 # reticulate (development version)
 
+- Fixed managed `uv` bootstrapping on Windows when R inherits a PowerShell 7
+  `PSModulePath`, such as from GitHub Actions `pwsh` steps.
+
 - Fixed a spurious warning about Poetry being unavailable when a project had a
   `pyproject.toml` without a `[tool.poetry]` section, such as uv or PEP 621
   projects. (#1900)

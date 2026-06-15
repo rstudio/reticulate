@@ -46,7 +46,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="reticulate-development-version">reticulate (development version)<a class="anchor" aria-label="anchor" href="#reticulate-development-version"></a></h2>
-<ul><li><p>Fixed a spurious warning about Poetry being unavailable when a project had a <code>pyproject.toml</code> without a <code>[tool.poetry]</code> section, such as uv or PEP 621 projects. (<a href="https://github.com/rstudio/reticulate/issues/1900" class="external-link">#1900</a>)</p></li>
+<ul><li><p>Fixed managed <code>uv</code> bootstrapping on Windows when R inherits a PowerShell 7 <code>PSModulePath</code>, such as from GitHub Actions <code>pwsh</code> steps.</p></li>
+<li><p>Fixed a spurious warning about Poetry being unavailable when a project had a <code>pyproject.toml</code> without a <code>[tool.poetry]</code> section, such as uv or PEP 621 projects. (<a href="https://github.com/rstudio/reticulate/issues/1900" class="external-link">#1900</a>)</p></li>
 <li><p>Documented that <code>R_USER_CACHE_DIR</code> can be used to configure the location of reticulate’s managed <code>uv</code> cache (<a href="https://github.com/rstudio/reticulate/issues/1901" class="external-link">#1901</a>).</p></li>
 </ul></div>
     <div class="section level2">

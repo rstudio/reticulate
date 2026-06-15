@@ -78,6 +78,18 @@ jobs:
           cache-version: 5
           upgrade: 'TRUE'
 
+      - name: Test managed uv bootstrap from pwsh
+        if: runner.os == 'Windows' && matrix.config.python == ''
+        shell: pwsh
+        env:
+          RETICULATE_PYTHON: managed
+          RETICULATE_UV: managed
+          R_USER_CACHE_DIR: ${{ runner.temp }}\cold-reticulate-cache
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Remove-Item -Recurse -Force $env:R_USER_CACHE_DIR -ErrorAction SilentlyContinue
+          Rscript --vanilla -e "{ reticulate::import('json'); uv <- reticulate:::uv_binary(FALSE); stopifnot(!is.null(uv), file.exists(uv)) }"
+
       - name: setup r-reticulate venv
         if: matrix.config.python != '' && matrix.config.python != 'debug'
         shell: Rscript {0}

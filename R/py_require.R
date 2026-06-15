@@ -672,14 +672,23 @@ uv_binary <- function(bootstrap_install = TRUE) {
     if (debug_uv <- Sys.getenv("_RETICULATE_DEBUG_UV_") == "1")
       system2 <- system2t
 
+    uv_stdout <- tempfile("install-uv-stdout-")
+    uv_stderr <- tempfile("install-uv-stderr-")
+    on.exit(unlink(c(uv_stdout, uv_stderr)), add = TRUE)
+
     if (is_windows()) {
 
-      withr::with_envvar(c("UV_UNMANAGED_INSTALL" = utils::shortPathName(dirname(uv))), {
-        system2("powershell", c(
-          "-ExecutionPolicy", "ByPass", "-c",
-          sprintf("irm %s | iex", utils::shortPathName(install_uv))),
-          stdout = if (debug_uv) "" else FALSE,
-          stderr = if (debug_uv) "" else FALSE
+      withr::with_envvar(c(
+        "UV_UNMANAGED_INSTALL" = utils::shortPathName(dirname(uv)),
+        "PSModulePath" = NA
+      ), {
+        status <- system2("powershell.exe", c(
+          "-NoProfile",
+          "-NonInteractive",
+          "-ExecutionPolicy", "Bypass",
+          "-File", utils::shortPathName(install_uv)),
+          stdout = uv_stdout,
+          stderr = uv_stderr
         )
       })
 
@@ -687,11 +696,34 @@ uv_binary <- function(bootstrap_install = TRUE) {
 
       Sys.chmod(install_uv, mode = "0755")
       withr::with_envvar(c("UV_UNMANAGED_INSTALL" = dirname(uv)), {
-        system2(install_uv,
-                stdout = if (debug_uv) "" else FALSE,
-                stderr = if (debug_uv) "" else FALSE)
+        status <- system2(install_uv,
+                          stdout = uv_stdout,
+                          stderr = uv_stderr)
       })
 
+    }
+
+    stdout_lines <- if (file.exists(uv_stdout)) readLines(uv_stdout, warn = FALSE)
+    stderr_lines <- if (file.exists(uv_stderr)) readLines(uv_stderr, warn = FALSE)
+
+    if (debug_uv) {
+      writeLines(stdout_lines)
+      writeLines(stderr_lines, con = stderr())
+    }
+
+    failed <- !identical(status, 0L)
+    if (failed || !file.exists(uv)) {
+      details <- c(
+        if (length(stdout_lines)) c("stdout:", paste0("  ", stdout_lines)),
+        if (length(stderr_lines)) c("stderr:", paste0("  ", stderr_lines))
+      )
+      msg <- if (failed) {
+        sprintf("uv bootstrap failed with exit status %s.", status)
+      } else {
+        sprintf("uv bootstrap failed: installer completed without creating %s.",
+                shQuote(uv))
+      }
+      stop(paste(c(msg, details), collapse = "\n"), call. = FALSE)
     }
 
   # if we bootstrap-installed successfully, return the path to the uv binary

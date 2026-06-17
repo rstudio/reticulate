@@ -4,6 +4,7 @@
 
 #include <string>
 #include <ostream>
+#include <stddef.h>
 #include <stdint.h>
 
 #ifndef LIBPYTHON_CPP
@@ -68,6 +69,21 @@ typedef struct _object {
 PyObject_HEAD
 } PyObject;
 
+typedef struct {
+  uint8_t _bits;
+} PyMutex;
+
+typedef struct _object_free_threaded {
+_PyObject_HEAD_EXTRA
+  alignas(uintptr_t) uintptr_t ob_tid;
+  uint16_t ob_flags;
+  PyMutex ob_mutex;
+  uint8_t ob_gc_bits;
+  uint32_t ob_ref_local;
+  Py_ssize_t ob_ref_shared;
+  PyTypeObject *ob_type;
+} PyObject_FreeThreaded;
+
 typedef PyObject *(*PyCFunction)(PyObject *, PyObject *);
 
 struct PyMethodDef {
@@ -116,6 +132,14 @@ typedef struct PyModuleDef{
   freefunc m_free;
 } PyModuleDef;
 
+#ifndef Py_MOD_GIL_USED
+#define Py_MOD_GIL_USED ((void *)0)
+#endif
+
+#ifndef Py_MOD_GIL_NOT_USED
+#define Py_MOD_GIL_NOT_USED ((void *)1)
+#endif
+
 typedef struct PyCompilerFlags{
   int cf_flags;
   int cf_feature_version;
@@ -150,8 +174,14 @@ LIBPYTHON_EXTERN PyObject* PyExc_RuntimeError;
 LIBPYTHON_EXTERN PyObject* PyExc_ValueError;
 
 void initialize_type_objects(bool python3);
+void initialize_pyobject_type_offset();
 
-#define Py_TYPE(ob) (((PyObject*)(ob))->ob_type)
+LIBPYTHON_EXTERN size_t PyObject_TypeOffset;
+LIBPYTHON_EXTERN bool Py_IsFreeThreadedBuild;
+
+static inline PyTypeObject* Py_TYPE(PyObject* ob) {
+  return *(PyTypeObject**)(((char*)ob) + PyObject_TypeOffset);
+}
 
 #define PyType_HasFeature(type, feature)  ((PyType_GetFlags(type) & (feature)) != 0)
 #define PyType_FastSubclass(type, flag) PyType_HasFeature(type, flag)
@@ -222,7 +252,10 @@ LIBPYTHON_EXTERN PyObject* (*PyImport_GetModuleDict)();
 
 
 LIBPYTHON_EXTERN PyObject* (*PyModule_Create)(PyModuleDef *def, int);
+LIBPYTHON_EXTERN PyObject* (*PyModule_New)(const char *name);
+LIBPYTHON_EXTERN int (*PyModule_AddFunctions)(PyObject *module, PyMethodDef *functions);
 LIBPYTHON_EXTERN int (*PyImport_AppendInittab)(const char *name, PyObject* (*initfunc)());
+LIBPYTHON_EXTERN int (*PyUnstable_Module_SetGIL)(PyObject *module, void *gil);
 
 LIBPYTHON_EXTERN PyObject* (*Py_BuildValue)(const char *format, ...);
 
@@ -497,6 +530,22 @@ typedef struct {
   // void *reserved_null[2];
 } _PyArray_DescrNumPy2;
 
+typedef struct {
+  PyObject_FreeThreaded ob_base;
+  PyTypeObject *typeobj;
+  char kind;
+  char type;
+  char byteorder;
+  char _former_flags;
+  int type_num;
+  npy_uint64 flags;
+  npy_intp elsize;
+  // npy_intp alignment;
+  // PyObject *metadata;
+  // npy_hash_t hash;
+  // void *reserved_null[2];
+} _PyArray_DescrNumPy2_FreeThreaded;
+
 
 /*
 * Semi-private struct with additional field of legacy descriptors (must
@@ -522,6 +571,25 @@ typedef struct _PyArray_Descr {
   // NpyAuxData *c_metadata;
   // npy_hash_t hash;
 } _PyArray_DescrNumPy1;
+
+typedef struct _PyArray_Descr_FreeThreaded {
+  PyObject_FreeThreaded ob_base;
+   PyTypeObject *typeobj;
+  char kind;
+  char type;
+  char byteorder;
+  char flags;
+  int type_num;
+  int elsize;
+  // int alignment;
+  // struct _arr_descr *subarray;
+  // PyObject *fields;
+  // PyObject *names;
+  // PyArray_ArrFuncs *f;
+  // PyObject *metadata;
+  // NpyAuxData *c_metadata;
+  // npy_hash_t hash;
+} _PyArray_DescrNumPy1_FreeThreaded;
 
 // #define NPY_DT_LEGACY 1 << 0
 // #define NPY_DT_is_legacy(dtype) (((dtype)->flags & NPY_DT_LEGACY) != 0)
@@ -566,6 +634,46 @@ typedef struct tagPyArrayObject_fields {
   /* For weak references */
   PyObject *weakreflist;
 } PyArrayObject_fields;
+
+typedef struct tagPyArrayObject_fields_free_threaded {
+  PyObject_FreeThreaded ob_base;
+  /* Pointer to the raw data buffer */
+  char *data;
+  /* The number of dimensions, also called 'ndim' */
+  int nd;
+  /* The size in each dimension, also called 'shape' */
+  npy_intp *dimensions;
+  /*
+  * Number of bytes to jump to get to the
+  * next element in each dimension
+  */
+  npy_intp *strides;
+  /*
+  * This object is decref'd upon
+  * deletion of array. Except in the
+  * case of UPDATEIFCOPY which has
+  * special handling.
+  *
+  * For views it points to the original
+  * array, collapsed so no chains of
+  * views occur.
+  *
+  * For creation from buffer object it
+  * points to an object that should be
+  * decref'd on deletion
+  *
+  * For UPDATEIFCOPY flag this is an
+  * array to-be-updated upon deletion
+  * of this one
+  */
+  PyObject *base;
+  /* Pointer to type structure */
+  PyArray_Descr *descr;
+  /* Flags describing array -- see below */
+  int flags;
+  /* For weak references */
+  PyObject *weakreflist;
+} PyArrayObject_fields_FreeThreaded;
 
 
 
@@ -641,25 +749,79 @@ LIBPYTHON_EXTERN unsigned int PyArray_RUNTIME_VERSION;
           PyArray_New(&PyArray_Type, nd, dims, typenum, NULL, NULL, 0, 0, NULL)
 
 inline void* PyArray_DATA(PyArrayObject *arr) {
-  return ((PyArrayObject_fields *)arr)->data;
+  if (Py_IsFreeThreadedBuild)
+    return reinterpret_cast<PyArrayObject_fields_FreeThreaded*>(arr)->data;
+  return reinterpret_cast<PyArrayObject_fields*>(arr)->data;
 }
 
-#define PyArray_BASE(arr) (((PyArrayObject_fields *)(arr))->base)
+inline PyObject** PyArray_BASE_PTR(void *arr) {
+  if (Py_IsFreeThreadedBuild)
+    return &reinterpret_cast<PyArrayObject_fields_FreeThreaded*>(arr)->base;
+  return &reinterpret_cast<PyArrayObject_fields*>(arr)->base;
+}
+
+#define PyArray_BASE(arr) (*PyArray_BASE_PTR(arr))
 
 inline npy_intp* PyArray_DIMS(PyArrayObject *arr) {
-  return ((PyArrayObject_fields *)arr)->dimensions;
+  if (Py_IsFreeThreadedBuild)
+    return reinterpret_cast<PyArrayObject_fields_FreeThreaded*>(arr)->dimensions;
+  return reinterpret_cast<PyArrayObject_fields*>(arr)->dimensions;
+}
+
+inline PyArray_Descr* PyArray_DESCR(PyArrayObject *arr) {
+  if (Py_IsFreeThreadedBuild)
+    return reinterpret_cast<PyArrayObject_fields_FreeThreaded*>(arr)->descr;
+  return reinterpret_cast<PyArrayObject_fields*>(arr)->descr;
+}
+
+inline const PyArray_Descr* PyArray_DESCR(const PyArrayObject *arr) {
+  if (Py_IsFreeThreadedBuild)
+    return reinterpret_cast<const PyArrayObject_fields_FreeThreaded*>(arr)->descr;
+  return reinterpret_cast<const PyArrayObject_fields*>(arr)->descr;
+}
+
+inline int PyArray_DescrTypeNum(const PyArray_Descr *descr) {
+  if (PyArray_RUNTIME_VERSION == NPY_VERSION_2) {
+    if (Py_IsFreeThreadedBuild)
+      return reinterpret_cast<const _PyArray_DescrNumPy2_FreeThreaded*>(descr)->type_num;
+    return reinterpret_cast<const _PyArray_DescrNumPy2*>(descr)->type_num;
+  }
+  if (PyArray_RUNTIME_VERSION == NPY_VERSION_1) {
+    if (Py_IsFreeThreadedBuild)
+      return reinterpret_cast<const _PyArray_DescrNumPy1_FreeThreaded*>(descr)->type_num;
+    return reinterpret_cast<const _PyArray_DescrNumPy1*>(descr)->type_num;
+  }
+  return -1;
+}
+
+inline npy_intp PyArray_DescrItemSize(const PyArray_Descr *descr) {
+  if (PyArray_RUNTIME_VERSION == NPY_VERSION_2) {
+    if (Py_IsFreeThreadedBuild)
+      return reinterpret_cast<const _PyArray_DescrNumPy2_FreeThreaded*>(descr)->elsize;
+    return reinterpret_cast<const _PyArray_DescrNumPy2*>(descr)->elsize;
+  }
+  if (PyArray_RUNTIME_VERSION == NPY_VERSION_1) {
+    if (Py_IsFreeThreadedBuild)
+      return reinterpret_cast<const _PyArray_DescrNumPy1_FreeThreaded*>(descr)->elsize;
+    return reinterpret_cast<const _PyArray_DescrNumPy1*>(descr)->elsize;
+  }
+  return -1;
 }
 
 inline int PyArray_TYPE(const PyArrayObject *arr) {
-  return ((PyArrayObject_fields *)arr)->descr->type_num;
+  return PyArray_DescrTypeNum(PyArray_DESCR(arr));
 }
 
 inline int PyArray_NDIM(const PyArrayObject *arr) {
-  return ((PyArrayObject_fields *)arr)->nd;
+  if (Py_IsFreeThreadedBuild)
+    return reinterpret_cast<const PyArrayObject_fields_FreeThreaded*>(arr)->nd;
+  return reinterpret_cast<const PyArrayObject_fields*>(arr)->nd;
 }
 
 inline int PyArray_FLAGS(PyArrayObject *arr) {
-  return ((PyArrayObject_fields *)arr)->flags;
+  if (Py_IsFreeThreadedBuild)
+    return reinterpret_cast<const PyArrayObject_fields_FreeThreaded*>(arr)->flags;
+  return reinterpret_cast<const PyArrayObject_fields*>(arr)->flags;
 }
 
 #define PyArray_SIZE(m) PyArray_MultiplyList(PyArray_DIMS(m), PyArray_NDIM(m))

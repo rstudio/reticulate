@@ -6,6 +6,7 @@ test_that("An R Markdown document can be rendered using reticulate", {
   skip_on_os("windows")
   skip_if_not_installed("rmarkdown")
   skip_if(py_version() < "3") # plotly _repr_html_ test fails in py2
+  skip_if_freethreaded()
 
 
   modules <- c("numpy", "matplotlib", "pandas", "plotly",

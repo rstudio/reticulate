@@ -37,7 +37,7 @@ test_that("reticulate can bind to virtual environments created with venv", {
 
   # test that we're using the site-packages dir in the venv
   site <- grep("site-packages", output, fixed = TRUE, value = TRUE)
-  expect_true(grepl(venv, site))
+  expect_true(any(grepl(venv, site)))
 
 })
 

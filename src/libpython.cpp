@@ -17,6 +17,8 @@
 #include <vector>
 #include <iostream>
 #include <sstream>
+#include <cstddef>
+#include <cstring>
 
 namespace reticulate {
 namespace libpython {
@@ -171,6 +173,141 @@ void initialize_type_objects(bool python3) {
   }
 }
 
+static bool get_sysconfig_bool(const char* name, bool* value) {
+  if (PyImport_ImportModule == NULL || PyObject_CallMethod == NULL)
+    return false;
+
+  PyObject* sysconfig = PyImport_ImportModule("sysconfig");
+  if (sysconfig == NULL) {
+    PyErr_Clear();
+    return false;
+  }
+
+  PyObject* result = PyObject_CallMethod(sysconfig, "get_config_var", "s", name);
+  Py_DecRef(sysconfig);
+  if (result == NULL) {
+    PyErr_Clear();
+    return false;
+  }
+
+  PyErr_Clear();
+  long as_long = PyLong_AsLong(result);
+  if (!(as_long == -1 && PyErr_Occurred())) {
+    *value = as_long != 0;
+    Py_DecRef(result);
+    return true;
+  }
+  PyErr_Clear();
+
+  PyObject* result_str = PyObject_Str(result);
+  Py_DecRef(result);
+  if (result_str == NULL) {
+    PyErr_Clear();
+    return false;
+  }
+
+  const char* text = PyUnicode_AsUTF8(result_str);
+  Py_DecRef(result_str);
+  if (text == NULL) {
+    PyErr_Clear();
+    return false;
+  }
+
+  if (std::strcmp(text, "1") == 0) {
+    *value = true;
+    return true;
+  }
+
+  if (std::strcmp(text, "0") == 0) {
+    *value = false;
+    return true;
+  }
+
+  return false;
+}
+
+static bool get_sys_abiflags_free_threaded(bool* value) {
+  if (PySys_GetObject == NULL || PyUnicode_AsUTF8 == NULL)
+    return false;
+
+  PyObject* abiflags = PySys_GetObject("abiflags"); // borrowed reference
+  if (abiflags == NULL)
+    return false;
+
+  const char* flags = PyUnicode_AsUTF8(abiflags);
+  if (flags == NULL) {
+    PyErr_Clear();
+    return false;
+  }
+
+  *value = std::strchr(flags, 't') != NULL;
+  return true;
+}
+
+static bool is_free_threaded_python() {
+  bool free_threaded = false;
+
+  // Prefer the documented build flag, then fall back to ABI flags/version strings.
+  if (get_sysconfig_bool("Py_GIL_DISABLED", &free_threaded))
+    return free_threaded;
+
+  if (get_sys_abiflags_free_threaded(&free_threaded))
+    return free_threaded;
+
+  if (Py_GetVersion != NULL) {
+    const char* version = Py_GetVersion();
+    if (version != NULL) {
+      return std::strstr(version, "free-threading build") != NULL;
+    }
+  }
+
+  return false;
+}
+
+void initialize_pyobject_type_offset() {
+  PyObject_TypeOffset = offsetof(PyObject, ob_type);
+
+  const bool free_threaded = is_free_threaded_python();
+  struct PyObjectFreeThreadedLayout {
+    uintptr_t ob_tid;
+    uint16_t ob_flags;
+    uint8_t ob_mutex_bits;
+    uint8_t ob_gc_bits;
+    uint32_t ob_ref_local;
+    Py_ssize_t ob_ref_shared;
+    PyTypeObject* ob_type;
+  };
+
+  if (free_threaded)
+    PyObject_TypeOffset = offsetof(PyObjectFreeThreadedLayout, ob_type);
+
+  Py_IsFreeThreadedBuild = free_threaded;
+
+  PyObject* sample = PyList_New(0);
+  if (sample == NULL)
+    return;
+
+  PyObject* type_obj = PyObject_Type(sample);
+  if (type_obj == NULL) {
+    Py_DecRef(sample);
+    return;
+  }
+
+  const uintptr_t target = reinterpret_cast<uintptr_t>(type_obj);
+  uintptr_t observed = 0;
+  std::memcpy(&observed,
+              reinterpret_cast<char*>(sample) + PyObject_TypeOffset,
+              sizeof(observed));
+
+  Py_DecRef(type_obj);
+  Py_DecRef(sample);
+
+  if (observed != target) {
+    Rf_error("Unexpected PyObject layout for %s build",
+             free_threaded ? "free-threaded" : "GIL");
+  }
+}
+
 #define LOAD_PYTHON_SYMBOL_AS(name, as)             \
 if (!loadSymbol(pLib_, #name, (void**)&as, pError)) \
   return false;
@@ -271,6 +408,8 @@ bool LibPython::loadSymbols(int python_major_ver, int python_minor_ver, std::str
   LOAD_PYTHON_SYMBOL(PyRun_FileEx)
   LOAD_PYTHON_SYMBOL(PyEval_EvalCode)
   LOAD_PYTHON_SYMBOL(PyModule_GetDict)
+  LOAD_PYTHON_SYMBOL(PyModule_New)
+  LOAD_PYTHON_SYMBOL(PyModule_AddFunctions)
   LOAD_PYTHON_SYMBOL(PyImport_AddModule)
   LOAD_PYTHON_SYMBOL(PyImport_ImportModule)
   LOAD_PYTHON_SYMBOL(PyImport_Import)
@@ -351,6 +490,10 @@ bool LibPython::loadSymbols(int python_major_ver, int python_minor_ver, std::str
 #endif
 
     LOAD_PYTHON_SYMBOL(PyImport_AppendInittab)
+    if (python_minor_ver >= 13) {
+      loadSymbol(pLib_, "PyUnstable_Module_SetGIL",
+                 (void**)&PyUnstable_Module_SetGIL, NULL);
+    }
     LOAD_PYTHON_SYMBOL_AS(Py_SetProgramName, Py_SetProgramName_v3)
     LOAD_PYTHON_SYMBOL_AS(Py_SetPythonHome, Py_SetPythonHome_v3)
     LOAD_PYTHON_SYMBOL_AS(PySys_SetArgv, PySys_SetArgv_v3)

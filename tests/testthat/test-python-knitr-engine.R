@@ -86,7 +86,7 @@ test_that("knitr 'warning=FALSE' option", {
 
 })
 
-test_that("Output streams are remaped when kniting", {
+test_that("Output streams are remapped when kniting", {
 
   skip_on_cran()
   skip_if_not_installed("rmarkdown")
@@ -99,7 +99,7 @@ test_that("Output streams are remaped when kniting", {
   rendered <- test_path("resources", "knitr-print.md")
   expect_snapshot_file(rendered)
 
-  # if remaping is set by default we have no way to check that the options
+  # if remapping is set by default we have no way to check that the options
   # is correctly reset
   skip_if(!is.na(Sys.getenv("RETICULATE_REMAP_OUTPUT_STREAMS", unset = NA)))
 

@@ -20,7 +20,7 @@
 #' @param packages A character vector, indicating package names which should be
 #'   installed or removed. Use  \verb{<package>==<version>} to request the installation
 #'   of a specific version of a package. A `NULL` value for [conda_remove()]
-#'   will be interpretted to `"--all"`, removing the entire environment.
+#'   will be interpreted to `"--all"`, removing the entire environment.
 #'
 #' @param environment The path to an environment definition, generated via
 #'   (for example) [conda_export()], or via `conda env export`. When provided,
@@ -951,7 +951,7 @@ Run `miniconda_update('%s')` to update conda.", conda)
 #'
 #' Note that, whilst the syntax is similar to [`system2()`], the function
 #' dynamically generates a shell script with commands to activate the chosen
-#' conda environent. This avoids issues with quoting, as discussed in this
+#' conda environment. This avoids issues with quoting, as discussed in this
 #' [GitHub issue](https://github.com/conda/conda/issues/10972).
 #'
 #' @param cmd The system command to be invoked, as a character string.
@@ -976,7 +976,7 @@ Run `miniconda_update('%s')` to update conda.", conda)
 #' @returns
 #' `conda_run2()` runs a command in the desired conda environment. If
 #' `intern = TRUE` the output is returned as a character vector; if `intern = FALSE` (the
-#' deafult), then the return value is the error code (0 for success). See
+#' default), then the return value is the error code (0 for success). See
 #' [shell()] (on windows) or [`system2()`] on macOS or Linux for more details.
 #'
 #' @export

@@ -127,7 +127,7 @@ test_that("Error requesting newer package version against an older snapshot", {
   session <- r_session(attach_namespace = TRUE, {
     uv_get_or_create_env(
       packages = "tensorflow==2.18.*",
-      exclude_newer = "2024-10-20"
+      exclude_newer = "2024-09-29"
     )
   })
   expect_match(

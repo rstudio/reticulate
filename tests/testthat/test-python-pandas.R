@@ -18,6 +18,19 @@ test_that("Simple Pandas data frames can be roundtripped", {
 
 })
 
+test_that("Pandas data frames with character columns can be roundtripped, #1910", {
+  skip_if_no_pandas()
+
+  before <- data.frame(
+    num = c(1, 2, 3),
+    str = c("A", "B", "C")
+  )
+  after <- py_to_r(r_to_py(before))
+  attr(after, "pandas.index") <- NULL
+
+  expect_identical(after, before)
+})
+
 test_that("Ordered factors are preserved", {
   skip_if_no_pandas()
 

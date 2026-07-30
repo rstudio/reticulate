@@ -1,5 +1,8 @@
 # reticulate (development version)
 
+- Fixed `py_to_r()` conversion of pandas data frames and series containing
+  Arrow-backed string columns (#1910).
+
 - Fixed managed `uv` bootstrapping on Windows when R inherits a PowerShell 7
   `PSModulePath`, such as from GitHub Actions `pwsh` steps.
 

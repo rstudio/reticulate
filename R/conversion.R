@@ -211,6 +211,14 @@ py_to_r.pandas.arrays.NumpyExtensionArray <- function(x) {
 }
 
 #' @export
+py_to_r.pandas.core.arrays.string_arrow.ArrowStringArray <-
+  py_to_r.pandas.arrays.NumpyExtensionArray
+
+#' @export
+py_to_r.pandas.arrays.ArrowStringArray <-
+  py_to_r.pandas.arrays.NumpyExtensionArray
+
+#' @export
 py_to_r.pandas._libs.missing.NAType <- function(x) {
   NA
 }

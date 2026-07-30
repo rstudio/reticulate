@@ -117,15 +117,16 @@
 #' ```
 #'
 #' Reticulate also clears its managed cache automatically on an interval,
-#' defaulting to every 120 days. Set `RETICULATE_MAX_CACHE_AGE` to a number of
-#' days in `.Renviron`:
+#' defaulting to every 120 days. Set `RETICULATE_MAX_CACHE_AGE_DAYS` to a
+#' possibly fractional number of days in `.Renviron`:
 #'
 #' ```
-#' RETICULATE_MAX_CACHE_AGE=30
+#' RETICULATE_MAX_CACHE_AGE_DAYS=30
 #' ```
 #'
-#' The `reticulate.max_cache_age` R option takes precedence. Configure it in
-#' `.Rprofile` with:
+#' The environment variable takes precedence over the
+#' `reticulate.max_cache_age` R option. Configure the option in `.Rprofile`
+#' with:
 #'
 #' ```r
 #' options(reticulate.max_cache_age = as.difftime(30, units = "days"))
@@ -1158,11 +1159,15 @@ maybe_clear_reticulate_uv_cache <- function() {
   if (!file.exists(uv))
     return()
 
-  max_age <- getOption("reticulate.max_cache_age")
-  if (is.null(max_age)) {
-    max_age <- Sys.getenv("RETICULATE_MAX_CACHE_AGE", unset = "120")
+  max_age <- Sys.getenv("RETICULATE_MAX_CACHE_AGE_DAYS", unset = NA)
+  if (!is.na(max_age)) {
     max_age <- suppressWarnings(as.numeric(max_age))
     max_age <- as.difftime(max_age, units = "days")
+  } else {
+    max_age <- getOption(
+      "reticulate.max_cache_age",
+      as.difftime(120, units = "days")
+    )
   }
   if (is.na(max_age))
     return()

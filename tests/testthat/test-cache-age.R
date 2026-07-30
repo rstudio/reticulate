@@ -1,14 +1,17 @@
-test_that("RETICULATE_MAX_CACHE_AGE configures automatic cache clearing", {
+test_that("RETICULATE_MAX_CACHE_AGE_DAYS takes precedence over the R option", {
   skip_if(getRversion() <= "4.0")
 
   cache_root <- withr::local_tempdir()
   withr::local_envvar(c(
     R_USER_CACHE_DIR = cache_root,
-    RETICULATE_MAX_CACHE_AGE = "0",
+    RETICULATE_MAX_CACHE_AGE_DAYS = "0",
     RETICULATE_PYTHON = file.path(cache_root, "missing-python"),
     UV_OFFLINE = NA
   ))
-  withr::local_options(reticulate.uv_binary = NULL)
+  withr::local_options(
+    reticulate.uv_binary = NULL,
+    reticulate.max_cache_age = as.difftime(30, units = "days")
+  )
 
   cache_dir <- tools::R_user_dir("reticulate", "cache")
   uv <- file.path(

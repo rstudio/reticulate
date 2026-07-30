@@ -165,7 +165,14 @@ unlink(tools::R_user_dir("reticulate", "cache"), recursive = TRUE)
 }\if{html}{\out{</div>}}
 
 Reticulate also clears its managed cache automatically on an interval,
-defaulting to every 120 days. Configure this interval in \code{.Rprofile} with:
+defaulting to every 120 days. Set \code{RETICULATE_MAX_CACHE_AGE} to a number of
+days in \code{.Renviron}:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{RETICULATE_MAX_CACHE_AGE=30
+}\if{html}{\out{</div>}}
+
+The \code{reticulate.max_cache_age} R option takes precedence. Configure it in
+\code{.Rprofile} with:
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{options(reticulate.max_cache_age = as.difftime(30, units = "days"))
 }\if{html}{\out{</div>}}

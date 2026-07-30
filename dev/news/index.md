@@ -15,6 +15,10 @@
 - Fixed managed `uv` bootstrapping on Windows when R inherits a
   PowerShell 7 `PSModulePath`, such as from GitHub Actions `pwsh` steps.
 
+- Fixed Pipenv interpreter discovery when `here` cannot resolve a
+  project root.
+  ([\#1909](https://github.com/rstudio/reticulate/issues/1909))
+
 - Fixed a spurious warning about Poetry being unavailable when a project
   had a `pyproject.toml` without a `[tool.poetry]` section, such as uv
   or PEP 621 projects.

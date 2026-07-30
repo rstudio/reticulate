@@ -190,7 +190,13 @@ details. To clear this cache manually, delete the directory:
     unlink(tools::R_user_dir("reticulate", "cache"), recursive = TRUE)
 
 Reticulate also clears its managed cache automatically on an interval,
-defaulting to every 120 days. Configure this interval in `.Rprofile`
+defaulting to every 120 days. Set `RETICULATE_MAX_CACHE_AGE_DAYS` to a
+possibly fractional number of days in `.Renviron`:
+
+    RETICULATE_MAX_CACHE_AGE_DAYS=30
+
+The environment variable takes precedence over the
+`reticulate.max_cache_age` R option. Configure the option in `.Rprofile`
 with:
 
     options(reticulate.max_cache_age = as.difftime(30, units = "days"))

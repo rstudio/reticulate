@@ -202,7 +202,12 @@ directory:</p>
 <p></p><div class="sourceCode r"><pre><code><span><span class="co"># delete uv, ephemeral virtual environments, and all downloaded artifacts</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="fu">tools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/tools/userdir.html" class="external-link">R_user_dir</a></span><span class="op">(</span><span class="st">"reticulate"</span>, <span class="st">"cache"</span><span class="op">)</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre><p></p></div>
 <p>Reticulate also clears its managed cache automatically on an interval,
-defaulting to every 120 days. Configure this interval in <code>.Rprofile</code> with:</p>
+defaulting to every 120 days. Set <code>RETICULATE_MAX_CACHE_AGE_DAYS</code> to a
+possibly fractional number of days in <code>.Renviron</code>:</p>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>RETICULATE_MAX_CACHE_AGE_DAYS<span class="ot">=</span><span class="dv">30</span></span></code></pre><p></p></div>
+<p>The environment variable takes precedence over the
+<code>reticulate.max_cache_age</code> R option. Configure the option in <code>.Rprofile</code>
+with:</p>
 <p></p><div class="sourceCode r"><pre><code><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>reticulate.max_cache_age <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/difftime.html" class="external-link">as.difftime</a></span><span class="op">(</span><span class="fl">30</span>, units <span class="op">=</span> <span class="st">"days"</span><span class="op">)</span><span class="op">)</span></span></code></pre><p></p></div>
 </div>
 

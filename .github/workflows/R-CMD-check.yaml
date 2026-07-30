@@ -99,7 +99,7 @@ jobs:
             envname = "r-reticulate",
             python = Sys.which("python"), # placed on PATH by the setup-python action
             packages = c(
-              "docutils", "pandas", "scipy", "matplotlib", "ipython",
+              "docutils", "pandas", "pyarrow", "scipy", "matplotlib", "ipython",
               "tabulate", "plotly", "psutil", "kaleido", "wrapt"
             )
           )

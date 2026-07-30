@@ -5,7 +5,7 @@ pipenv_config <- function(required_module) {
   if (!file.exists(pipfile))
     return(NULL)
 
-  python <- pipenv_python()
+  python <- pipenv_python(dirname(pipfile))
   python_config(python, required_module, forced = "Pipfile")
 
 }
@@ -25,14 +25,18 @@ pipenv_pipfile_path <- function() {
 
 }
 
-pipenv_python <- function() {
+pipenv_python <- function(root = NULL) {
 
   # validate that pipenv is available on the PATH
   if (!nzchar(Sys.which("pipenv")))
     stop("'pipenv' is not available")
 
   # move to root directory
-  root <- here::here()
+  if (is.null(root))
+    root <- tryCatch(here::here(), error = function(e) NULL)
+  if (is.null(root))
+    return(NULL)
+
   owd <- setwd(root)
   on.exit(setwd(owd), add = TRUE)
 

@@ -21,11 +21,13 @@ testthat::test_that("pipenv discovery uses the located Pipfile directory", {
       file.create(pipfile)
 
       envpath <- file.path(project, ".venv")
-      reticulate::virtualenv_create(
-        envpath,
-        python = python,
-        packages = FALSE
+      status <- system2(
+        python,
+        c("-m", "venv", "--without-pip", shQuote(envpath)),
+        stdout = FALSE,
+        stderr = FALSE
       )
+      stopifnot(status == 0L)
 
       bindir <- file.path(project, "bin")
       dir.create(bindir)

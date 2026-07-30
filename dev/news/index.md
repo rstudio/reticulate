@@ -2,6 +2,12 @@
 
 ## reticulate (development version)
 
+- Fixed
+  [`py_to_r()`](https://rstudio.github.io/reticulate/dev/reference/r-py-conversion.md)
+  conversion of pandas data frames and series containing Arrow-backed
+  string columns
+  ([\#1910](https://github.com/rstudio/reticulate/issues/1910)).
+
 - `RETICULATE_MAX_CACHE_AGE_DAYS` can now configure the maximum age, in
   days, of reticulate’s managed `uv` cache before it is cleared
   ([\#1905](https://github.com/rstudio/reticulate/issues/1905)).

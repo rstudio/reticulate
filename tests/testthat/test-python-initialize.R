@@ -14,7 +14,7 @@ test_that("sys.executable points to the correct python", {
 })
 
 
-test_that("__main__ initialzed with only 'r'", {
+test_that("__main__ initialized with only 'r'", {
 
   expect_identical(
     callr::r(function() names(reticulate::import_main())),

@@ -327,7 +327,7 @@ py_has_method <- function(object, name) {
     .Call(`_reticulate_py_has_method`, object, name)
 }
 
-#' Unique identifer for Python object
+#' Unique identifier for Python object
 #'
 #' Get a globally unique identifier for a Python object.
 #'
@@ -336,7 +336,7 @@ py_has_method <- function(object, name) {
 #'
 #' @param object Python object
 #'
-#' @return Unique identifer (as string) or `NULL`
+#' @return Unique identifier (as string) or `NULL`
 #'
 #' @export
 py_id <- function(object) {
@@ -372,4 +372,3 @@ py_allow_threads_impl <- function(allow = TRUE) {
 readline <- function(prompt) {
     .Call(`_reticulate_readline`, prompt)
 }
-

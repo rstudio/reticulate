@@ -301,7 +301,7 @@ py_list_packages <- function(envname = NULL,
 #' This approach is only recommended if you are using `git`.
 #'
 #' Alternatively, you can transition away from using ephemeral python
-#' environemnts via `py_require()` to using a persistent local virtual
+#' environments via `py_require()` to using a persistent local virtual
 #' environment you manage. You can create a local virtual environment from
 #' `requirements.txt` and `.python-version` using [virtualenv_create()]:
 #'

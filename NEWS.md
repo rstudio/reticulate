@@ -3,6 +3,9 @@
 - Fixed `py_to_r()` conversion of pandas data frames and series containing
   Arrow-backed string columns (#1910).
 
+- `RETICULATE_MAX_CACHE_AGE_DAYS` can now configure the maximum age, in days,
+  of reticulate's managed `uv` cache before it is cleared (#1905).
+
 - Fixed managed `uv` bootstrapping on Windows when R inherits a PowerShell 7
   `PSModulePath`, such as from GitHub Actions `pwsh` steps.
 

@@ -6,6 +6,7 @@ test_that("RETICULATE_MAX_CACHE_AGE_DAYS takes precedence over the R option", {
     R_USER_CACHE_DIR = cache_root,
     RETICULATE_MAX_CACHE_AGE_DAYS = "0",
     RETICULATE_PYTHON = file.path(cache_root, "missing-python"),
+    RETICULATE_UV = NA,
     UV_OFFLINE = NA
   ))
   withr::local_options(

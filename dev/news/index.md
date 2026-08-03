@@ -6,6 +6,9 @@
   reticulate
   ([\#1917](https://github.com/rstudio/reticulate/issues/1917)).
 
+- Reticulate now converts base R’s built-in `abort` restart to a Python
+  exception when Python calls R, instead of jumping to R’s top level.
+
 - Fixed
   [`py_to_r()`](https://rstudio.github.io/reticulate/dev/reference/r-py-conversion.md)
   conversion of pandas data frames and series containing Arrow-backed

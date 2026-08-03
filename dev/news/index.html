@@ -47,6 +47,7 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="reticulate-development-version">reticulate (development version)<a class="anchor" aria-label="anchor" href="#reticulate-development-version"></a></h2>
 <ul><li><p>Fixed a <code>-Wnonnull</code> compiler warning from Clang 21 when building reticulate (<a href="https://github.com/rstudio/reticulate/issues/1917" class="external-link">#1917</a>).</p></li>
+<li><p>Reticulate now converts base R’s built-in <code>abort</code> restart to a Python exception when Python calls R, instead of jumping to R’s top level.</p></li>
 <li><p>Fixed <code><a href="../reference/r-py-conversion.html">py_to_r()</a></code> conversion of pandas data frames and series containing Arrow-backed string columns (<a href="https://github.com/rstudio/reticulate/issues/1910" class="external-link">#1910</a>).</p></li>
 <li><p><code>RETICULATE_MAX_CACHE_AGE_DAYS</code> can now configure the maximum age, in days, of reticulate’s managed <code>uv</code> cache before it is cleared (<a href="https://github.com/rstudio/reticulate/issues/1905" class="external-link">#1905</a>).</p></li>
 <li><p>Fixed managed <code>uv</code> bootstrapping on Windows when R inherits a PowerShell 7 <code>PSModulePath</code>, such as from GitHub Actions <code>pwsh</code> steps.</p></li>

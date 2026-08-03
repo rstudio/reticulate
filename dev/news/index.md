@@ -2,6 +2,10 @@
 
 ## reticulate (development version)
 
+- Fixed a `-Wnonnull` compiler warning from Clang 21 when building
+  reticulate
+  ([\#1917](https://github.com/rstudio/reticulate/issues/1917)).
+
 - Fixed
   [`py_to_r()`](https://rstudio.github.io/reticulate/dev/reference/r-py-conversion.md)
   conversion of pandas data frames and series containing Arrow-backed

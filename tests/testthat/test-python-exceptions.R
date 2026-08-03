@@ -140,6 +140,72 @@ def catch_clear_errstatus_then_raise_new_exception(fn):
 })
 
 
+test_that("R abort restarts become Python exceptions", {
+  skip_if_no_python()
+
+  abort_state <- new.env(parent = emptyenv())
+
+  abort_without_condition <- function() {
+    invokeRestart("abort")
+  }
+
+  abort_with_condition <- function() {
+    cnd <- simpleError("cancelled from R")
+    cnd$trace <- rlang::trace_back()
+    abort_state$trace <- cnd$trace
+    invokeRestart("abort", cnd)
+  }
+
+  ordinary_error <- function() {
+    stop("ordinary R error")
+  }
+
+  py_run_string("
+try:
+    r.abort_without_condition()
+except RuntimeError as exc:
+    abort_exception = exc
+else:
+    raise AssertionError('expected an exception')
+
+assert str(abort_exception) == 'R evaluation aborted'
+survived_first_abort = True
+")
+
+  expect_true(py$survived_first_abort)
+  expect_false(py_has_attr(py$abort_exception, "trace"))
+
+  py_run_string("
+try:
+    r.abort_with_condition()
+except RuntimeError as exc:
+    condition_exception = exc
+else:
+    raise AssertionError('expected an exception')
+
+assert str(condition_exception) == 'cancelled from R'
+assert r.identity(42) == 42
+survived_second_abort = True
+")
+
+  expect_true(py$survived_second_abort)
+  expect_identical(py$condition_exception$trace, abort_state$trace)
+
+  py_run_string("
+try:
+    r.ordinary_error()
+except RuntimeError as exc:
+    ordinary_exception = exc
+else:
+    raise AssertionError('expected an exception')
+
+assert str(ordinary_exception) == 'ordinary R error'
+")
+
+  expect_s3_class(py$ordinary_exception$trace, "rlang_trace")
+})
+
+
 test_that("confirm rlang/purrr can catch the exception", {
   skip_if_no_python()
 

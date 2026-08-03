@@ -137,6 +137,13 @@ call_r_function <- function(fn, args, named_args) {
 
     raise_py_exception = function(e) {
       list(NULL, e)
+    },
+
+    abort = function(cnd = NULL, ...) {
+      if (!inherits(cnd, "condition"))
+        cnd <- simpleError("R evaluation aborted")
+
+      list(NULL, cnd)
     }
   ) # end withRestarts()
 }

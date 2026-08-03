@@ -1,5 +1,8 @@
 # reticulate (development version)
 
+- Fixed a `-Wnonnull` compiler warning from Clang 21 when building reticulate
+  (#1917).
+
 - Fixed `py_to_r()` conversion of pandas data frames and series containing
   Arrow-backed string columns (#1910).
 

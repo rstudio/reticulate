@@ -647,7 +647,7 @@ std::string get_module_name(PyObject* classPtr) {
       }
       if (PyErr_Occurred()) PyErr_Print();
       REprintf("as_r_class: failed to convert __module__ bytes object to string\n");
-      return NULL;
+      return "";
     }
 
     // Fallback, if type(class) != type (i.e., it's a metaclass),

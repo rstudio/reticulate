@@ -1,5 +1,8 @@
 # reticulate (development version)
 
+- Fixed a `-Wnonnull` compiler warning from Clang 21 when building reticulate
+  (#1917).
+
 - Reticulate now converts base R's built-in `abort` restart to a Python
   exception when Python calls R, instead of jumping to R's top level.
 

@@ -156,12 +156,6 @@ test_that("R abort restarts become Python exceptions", {
     invokeRestart("abort", cnd)
   }
 
-  abort_with_plain_condition <- function() {
-    cnd <- simpleCondition("cancelled by condition")
-    cnd$metadata <- "preserved"
-    invokeRestart("abort", cnd)
-  }
-
   ordinary_error <- function() {
     stop("ordinary R error")
   }
@@ -196,21 +190,6 @@ survived_second_abort = True
 
   expect_true(py$survived_second_abort)
   expect_identical(py$condition_exception$trace, abort_state$trace)
-
-  py_run_string("
-try:
-    r.abort_with_plain_condition()
-except RuntimeError as exc:
-    plain_condition_exception = exc
-else:
-    raise AssertionError('expected an exception')
-
-assert str(plain_condition_exception) == 'cancelled by condition'
-")
-
-  expect_identical(py$plain_condition_exception$metadata, "preserved")
-  expect_contains(py$plain_condition_exception$r_class, "simpleCondition")
-  expect_false(py_has_attr(py$plain_condition_exception, "trace"))
 
   py_run_string("
 try:

@@ -1,5 +1,8 @@
 # reticulate (development version)
 
+- Reticulate now converts base R's built-in `abort` restart to a Python
+  exception when Python calls R, instead of jumping to R's top level.
+
 - Fixed `py_to_r()` conversion of pandas data frames and series containing
   Arrow-backed string columns (#1910).
 

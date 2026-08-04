@@ -20,6 +20,11 @@ remap_output_streams <- function() {
 set_output_streams <- function(tty) {
   stream_context <- output_stream_context(tty)
   stream_context$`__enter__`()
+
+  os <- import("os")
+  # Native extensions that bypass CPython's fork hooks are unsupported.
+  if (py_has_attr(os, "register_at_fork"))
+    os$register_at_fork(after_in_child = stream_context$`__exit__`)
 }
 
 set_knitr_python_stdout_hook <- function() {

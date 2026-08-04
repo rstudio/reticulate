@@ -1,5 +1,8 @@
 # reticulate (development version)
 
+- Reticulate now restores Python's original output streams in child processes
+  created by `os.fork()` when output remapping is enabled.
+
 - Fixed a `-Wnonnull` compiler warning from Clang 21 when building reticulate
   (#1917).
 

@@ -25,6 +25,57 @@ test_that("Python stderr stream can be captured", {
   expect_equal(capture_test_output(type = "stderr") , "err\n")
 })
 
+test_that("forked children restore fd-backed Python output streams", {
+  skip_on_os("windows")
+  skip_if_no_python()
+
+  os <- import("os")
+  skip_if(!py_has_attr(os, "register_at_fork"))
+
+  p <- callr::r_bg(
+    function() {
+      library(reticulate)
+
+      py_run_string("
+import os
+import sys
+
+inherited_stdout = sys.stdout
+inherited_stderr = sys.stderr
+pid = os.fork()
+
+if pid == 0:
+    if sys.stdout is inherited_stdout or sys.stderr is inherited_stderr:
+        os._exit(1)
+
+    sys.stdout.write('fork child stdout\\n')
+    sys.stderr.write('fork child stderr\\n')
+    sys.stdout.flush()
+    sys.stderr.flush()
+    os._exit(0)
+
+_, status = os.waitpid(pid, 0)
+if status != 0:
+    raise RuntimeError('forked child inherited remapped output streams')
+if sys.stdout is not inherited_stdout or sys.stderr is not inherited_stderr:
+    raise RuntimeError('parent output streams were restored')
+")
+
+      TRUE
+    },
+    env = c(
+      RETICULATE_PYTHON = py_exe(),
+      RETICULATE_REMAP_OUTPUT_STREAMS = "1"
+    )
+  )
+
+  p$wait()
+  expect_identical(p$get_exit_status(), 0L)
+  expect_true(p$get_result())
+  expect_match(p$read_all_output(), "fork child stdout", fixed = TRUE)
+  expect_match(p$read_all_error(), "fork child stderr", fixed = TRUE)
+})
+
 test_that("Python loggers work with py_capture_output", {
 
   skip_if(py_version() < "3.2")

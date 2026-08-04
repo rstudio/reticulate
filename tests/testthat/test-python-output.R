@@ -44,6 +44,7 @@ inherited_stdout = sys.stdout
 inherited_stderr = sys.stderr
 pid = os.fork()
 
+# os.fork() returns 0 in the child and the child's PID in the parent.
 if pid == 0:
     if sys.stdout is inherited_stdout or sys.stderr is inherited_stderr:
         os._exit(1)
@@ -76,6 +77,7 @@ sys.stdout = custom_stdout
 sys.stderr = custom_stderr
 pid = os.fork()
 
+# os.fork() returns 0 in the child and the child's PID in the parent.
 if pid == 0:
     if sys.stdout is not custom_stdout or sys.stderr is not custom_stderr:
         os._exit(1)

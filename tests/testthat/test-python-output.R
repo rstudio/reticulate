@@ -59,6 +59,44 @@ if status != 0:
     raise RuntimeError('forked child inherited remapped output streams')
 if sys.stdout is not inherited_stdout or sys.stderr is not inherited_stderr:
     raise RuntimeError('parent output streams were restored')
+
+class StreamProxy:
+    def __init__(self, stream):
+        self.stream = stream
+
+    def write(self, message):
+        return self.stream.write(message)
+
+    def flush(self):
+        return self.stream.flush()
+
+custom_stdout = StreamProxy(sys.__stdout__)
+custom_stderr = StreamProxy(sys.__stderr__)
+sys.stdout = custom_stdout
+sys.stderr = custom_stderr
+pid = os.fork()
+
+if pid == 0:
+    if sys.stdout is not custom_stdout or sys.stderr is not custom_stderr:
+        os._exit(1)
+
+    sys.stdout.write('custom fork child stdout\\n')
+    sys.stderr.write('custom fork child stderr\\n')
+    sys.stdout.flush()
+    sys.stderr.flush()
+    os._exit(0)
+
+_, status = os.waitpid(pid, 0)
+parent_streams_preserved = (
+    sys.stdout is custom_stdout and sys.stderr is custom_stderr
+)
+sys.stdout = inherited_stdout
+sys.stderr = inherited_stderr
+
+if status != 0:
+    raise RuntimeError('forked child did not preserve custom output streams')
+if not parent_streams_preserved:
+    raise RuntimeError('parent custom output streams were replaced')
 ")
 
       TRUE
@@ -72,8 +110,12 @@ if sys.stdout is not inherited_stdout or sys.stderr is not inherited_stderr:
   p$wait()
   expect_identical(p$get_exit_status(), 0L)
   expect_true(p$get_result())
-  expect_match(p$read_all_output(), "fork child stdout", fixed = TRUE)
-  expect_match(p$read_all_error(), "fork child stderr", fixed = TRUE)
+  stdout <- p$read_all_output()
+  stderr <- p$read_all_error()
+  expect_match(stdout, "fork child stdout", fixed = TRUE)
+  expect_match(stderr, "fork child stderr", fixed = TRUE)
+  expect_match(stdout, "custom fork child stdout", fixed = TRUE)
+  expect_match(stderr, "custom fork child stderr", fixed = TRUE)
 })
 
 test_that("Python loggers work with py_capture_output", {

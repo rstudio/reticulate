@@ -149,5 +149,7 @@ class RemapOutputStreams:
         _remap_output_streams(self.r_stdout, self.r_stderr, self.tty)
 
     def __exit__(self, *args):
-        sys.stdout = self._stdout
-        sys.stderr = self._stderr
+        if isinstance(sys.stdout, OutputRemap):
+            sys.stdout = self._stdout
+        if isinstance(sys.stderr, OutputRemap):
+            sys.stderr = self._stderr

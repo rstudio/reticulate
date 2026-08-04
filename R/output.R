@@ -22,9 +22,13 @@ set_output_streams <- function(tty) {
   stream_context$`__enter__`()
 
   os <- import("os")
+  # The first context owns the original streams restored after a fork.
   # Native extensions that bypass CPython's fork hooks are unsupported.
-  if (py_has_attr(os, "register_at_fork"))
+  if (py_has_attr(os, "register_at_fork") &&
+      !isTRUE(.globals$output_stream_fork_hook_registered)) {
     os$register_at_fork(after_in_child = stream_context$`__exit__`)
+    .globals$output_stream_fork_hook_registered <- TRUE
+  }
 }
 
 set_knitr_python_stdout_hook <- function() {

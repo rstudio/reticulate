@@ -25,6 +25,101 @@ test_that("Python stderr stream can be captured", {
   expect_equal(capture_test_output(type = "stderr") , "err\n")
 })
 
+test_that("forked children restore fd-backed Python output streams", {
+  skip_on_os("windows")
+  skip_if_no_python()
+
+  os <- import("os")
+  skip_if(!py_has_attr(os, "register_at_fork"))
+
+  p <- callr::r_bg(
+    function() {
+      library(reticulate)
+
+      py_run_string("
+import os
+import sys
+
+inherited_stdout = sys.stdout
+inherited_stderr = sys.stderr
+pid = os.fork()
+
+# os.fork() returns 0 in the child and the child's PID in the parent.
+if pid == 0:
+    if sys.stdout is inherited_stdout or sys.stderr is inherited_stderr:
+        os._exit(1)
+
+    sys.stdout.write('fork child stdout\\n')
+    sys.stderr.write('fork child stderr\\n')
+    sys.stdout.flush()
+    sys.stderr.flush()
+    os._exit(0)
+
+_, status = os.waitpid(pid, 0)
+if status != 0:
+    raise RuntimeError('forked child inherited remapped output streams')
+if sys.stdout is not inherited_stdout or sys.stderr is not inherited_stderr:
+    raise RuntimeError('parent output streams were restored')
+
+class StreamProxy:
+    def __init__(self, stream):
+        self.stream = stream
+
+    def write(self, message):
+        return self.stream.write(message)
+
+    def flush(self):
+        return self.stream.flush()
+
+custom_stdout = StreamProxy(sys.__stdout__)
+custom_stderr = StreamProxy(sys.__stderr__)
+sys.stdout = custom_stdout
+sys.stderr = custom_stderr
+pid = os.fork()
+
+# os.fork() returns 0 in the child and the child's PID in the parent.
+if pid == 0:
+    if sys.stdout is not custom_stdout or sys.stderr is not custom_stderr:
+        os._exit(1)
+
+    sys.stdout.write('custom fork child stdout\\n')
+    sys.stderr.write('custom fork child stderr\\n')
+    sys.stdout.flush()
+    sys.stderr.flush()
+    os._exit(0)
+
+_, status = os.waitpid(pid, 0)
+parent_streams_preserved = (
+    sys.stdout is custom_stdout and sys.stderr is custom_stderr
+)
+sys.stdout = inherited_stdout
+sys.stderr = inherited_stderr
+
+if status != 0:
+    raise RuntimeError('forked child did not preserve custom output streams')
+if not parent_streams_preserved:
+    raise RuntimeError('parent custom output streams were replaced')
+")
+
+      TRUE
+    },
+    env = c(
+      RETICULATE_PYTHON = py_exe(),
+      RETICULATE_REMAP_OUTPUT_STREAMS = "1"
+    )
+  )
+
+  p$wait()
+  expect_identical(p$get_exit_status(), 0L)
+  expect_true(p$get_result())
+  stdout <- p$read_all_output()
+  stderr <- p$read_all_error()
+  expect_match(stdout, "fork child stdout", fixed = TRUE)
+  expect_match(stderr, "fork child stderr", fixed = TRUE)
+  expect_match(stdout, "custom fork child stdout", fixed = TRUE)
+  expect_match(stderr, "custom fork child stderr", fixed = TRUE)
+})
+
 test_that("Python loggers work with py_capture_output", {
 
   skip_if(py_version() < "3.2")

@@ -1,17 +1,26 @@
-test_that("RETICULATE_MAX_CACHE_AGE_DAYS takes precedence over the R option", {
+test_that("expired uv cache is retained when the installer is unavailable", {
   skip_if(getRversion() <= "4.0")
+
+  system_uv <- Sys.which("uv")
+  skip_if(!nzchar(system_uv), "uv is not installed")
+  version <- suppressWarnings(numeric_version(
+    sub("uv ([0-9.]+).*", "\\1", system2(system_uv, "--version", stdout = TRUE)),
+    strict = FALSE
+  ))
+  skip_if(anyNA(version) || version < "0.6.3", "uv is too old")
 
   cache_root <- withr::local_tempdir()
   withr::local_envvar(c(
     R_USER_CACHE_DIR = cache_root,
-    RETICULATE_MAX_CACHE_AGE_DAYS = "0",
-    RETICULATE_PYTHON = file.path(cache_root, "missing-python"),
-    RETICULATE_UV = NA,
-    UV_OFFLINE = NA
+    RETICULATE_MAX_CACHE_AGE_DAYS = "-1",
+    RETICULATE_UV = "managed",
+    UV_OFFLINE = NA,
+    UV_PYTHON_PREFERENCE = "only-managed"
   ))
   withr::local_options(
-    reticulate.uv_binary = NULL,
-    reticulate.max_cache_age = as.difftime(30, units = "days")
+    download.file.method = "invalid",
+    reticulate.max_cache_age = as.difftime(30, units = "days"),
+    reticulate.uv_binary = NULL
   )
 
   cache_dir <- tools::R_user_dir("reticulate", "cache")
@@ -21,15 +30,20 @@ test_that("RETICULATE_MAX_CACHE_AGE_DAYS takes precedence over the R option", {
     "bin",
     if (.Platform$OS.type == "windows") "uv.exe" else "uv"
   )
-  dir.create(dirname(uv), recursive = TRUE)
   marker <- file.path(cache_dir, "uv", "marker")
-  stopifnot(file.create(uv), file.create(marker))
+  dir.create(dirname(uv), recursive = TRUE)
+  stopifnot(file.copy(system_uv, uv), file.create(marker))
 
-  expect_message(
-    virtualenv_starter(all = TRUE),
-    "Clearing reticulate's uv cache",
-    fixed = TRUE,
-    all = FALSE
+  expect_error(
+    expect_message(
+      uv_run_tool("example", python_version = ">999"),
+      "Retaining reticulate's uv cache",
+      fixed = TRUE,
+      all = FALSE
+    ),
+    "could not be satisfied",
+    fixed = TRUE
   )
-  expect_false(file.exists(marker))
+  expect_true(file.exists(uv))
+  expect_true(file.exists(marker))
 })

@@ -681,7 +681,7 @@ virtualenv_starter <- function(version = NULL, all = FALSE) {
   # We skip reticulate-managed uv installs because reticulate deletes their Pythons when it clears its cache.
   uv <- uv_binary(bootstrap_install = FALSE)
   is_user_uv <-
-    !is.null(uv) && !isTRUE(attr(uv_binary(FALSE), "reticulate-managed", TRUE))
+    !is.null(uv) && !isTRUE(attr(uv, "reticulate-managed", TRUE))
   if (is_user_uv) {
     find_starters(suppressWarnings(uv_exec(c(
       "python dir --managed-python",

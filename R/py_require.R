@@ -132,6 +132,10 @@
 #' options(reticulate.max_cache_age = as.difftime(30, units = "days"))
 #' ```
 #'
+#' Before cleanup, reticulate downloads the `uv` installer and reuses it if a
+#' replacement is needed. If the download fails, reticulate retains the expired
+#' cache and defers cleanup.
+#'
 #' @param packages A character vector of Python packages to be available during
 #'   the session. These can be simple package names like `"jax"` or names with
 #'   version constraints like `"jax[cpu]>=0.5"`. Pip style syntax for installing
@@ -585,8 +589,14 @@ py_reqs_get <- function(x = NULL) {
 
 # uv ---------------------------------------------------------------------------
 
+uv_installer_url <- function() {
+  file_ext <- if (is_windows()) ".ps1" else ".sh"
+  paste0("https://astral.sh/uv/install", file_ext)
+}
+
 uv_binary <- function(bootstrap_install = TRUE) {
   min_uv_version <- numeric_version("0.6.3")
+  install_uv <- NULL
   is_usable_uv <- function(uv) {
     if (is.null(uv) || is.na(uv) || uv == "" || !file.exists(uv)) {
       return(FALSE)
@@ -604,7 +614,8 @@ uv_binary <- function(bootstrap_install = TRUE) {
     if (!is.na(uv)) {
       if (uv == "managed") {
         on.exit(
-          if(is_usable_uv(uv)) Sys.setenv(RETICULATE_UV = uv),
+          if (bootstrap_install && is_usable_uv(uv))
+            Sys.setenv(RETICULATE_UV = uv),
           add = TRUE
         )
         break
@@ -622,8 +633,14 @@ uv_binary <- function(bootstrap_install = TRUE) {
     # observed to be 0.2s for just `uv --version`.
     # This is an approach to avoid paying that cost on each invocation, mostly
     # motivated by uv_run_tool()
-    on.exit(if(is_usable_uv(uv)) options(reticulate.uv_binary = uv), add = TRUE)
-    maybe_clear_reticulate_uv_cache()
+    on.exit(
+      if ((bootstrap_install ||
+           !isTRUE(attr(uv, "reticulate-managed", exact = TRUE))) &&
+          is_usable_uv(uv)) {
+        options(reticulate.uv_binary = uv)
+      },
+      add = TRUE
+    )
 
     uv <- as.character(Sys.which("uv"))
     if (is_usable_uv(uv)) {
@@ -640,6 +657,12 @@ uv_binary <- function(bootstrap_install = TRUE) {
 
   uv <- reticulate_cache_dir("uv", "bin", if (is_windows()) "uv.exe" else "uv")
   attr(uv, "reticulate-managed") <- TRUE
+
+  if (bootstrap_install) {
+    install_uv <- maybe_clear_reticulate_uv_cache()
+    if (!is.null(install_uv))
+      on.exit(unlink(install_uv), add = TRUE)
+  }
 
   if (is_usable_uv(uv)) {
     return(uv)
@@ -668,16 +691,18 @@ uv_binary <- function(bootstrap_install = TRUE) {
     unlink(dirname(dirname(uv)), recursive = TRUE, force = TRUE)
 
     dir.create(dirname(uv), showWarnings = FALSE, recursive = TRUE)
-    file_ext <- if (is_windows()) ".ps1" else ".sh"
-    url <- paste0("https://astral.sh/uv/install", file_ext)
-    install_uv <- tempfile("install-uv-", fileext = file_ext)
-    message("Downloading uv...", appendLF = FALSE)
-    download.file(url, install_uv, quiet = TRUE)
-    if (!file.exists(install_uv)) {
-      return(NULL)
-      # stop("Unable to download Python dependencies. Please install `uv` manually.")
+    if (is.null(install_uv)) {
+      file_ext <- if (is_windows()) ".ps1" else ".sh"
+      install_uv <- tempfile("install-uv-", fileext = file_ext)
+      on.exit(unlink(install_uv), add = TRUE)
+      message("Downloading uv...", appendLF = FALSE)
+      download.file(uv_installer_url(), install_uv, quiet = TRUE)
+      if (!file.exists(install_uv)) {
+        return(NULL)
+        # stop("Unable to download Python dependencies. Please install `uv` manually.")
+      }
+      message("Done!")
     }
-    message("Done!")
     if (debug_uv <- Sys.getenv("_RETICULATE_DEBUG_UV_") == "1")
       system2 <- system2t
 
@@ -1181,6 +1206,21 @@ maybe_clear_reticulate_uv_cache <- function() {
     if (Sys.getenv("UV_OFFLINE") == "1")
       return()
 
+    file_ext <- if (is_windows()) ".ps1" else ".sh"
+    installer <- tempfile("install-uv-", fileext = file_ext)
+    status <- suppressWarnings(try(
+      download.file(uv_installer_url(), installer, quiet = TRUE),
+      silent = TRUE
+    ))
+    if (!identical(status, 0L) || !file.exists(installer)) {
+      unlink(installer)
+      message(
+        "Retaining reticulate's uv cache because access to the uv ",
+        "installer could not be verified."
+      )
+      return()
+    }
+
     cache_dir <- reticulate_cache_dir("uv")
     # best-effort; avoid surfacing errors
     message("Clearing reticulate's uv cache...", appendLF = FALSE)
@@ -1196,5 +1236,6 @@ maybe_clear_reticulate_uv_cache <- function() {
       error = warning
     )
     message("Done!")
+    installer
   }
 }

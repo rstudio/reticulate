@@ -15,6 +15,10 @@
 - `RETICULATE_MAX_CACHE_AGE_DAYS` can now configure the maximum age, in days,
   of reticulate's managed `uv` cache before it is cleared (#1905).
 
+- Before automatic managed `uv` cache cleanup, reticulate now downloads the
+  `uv` installer and reuses it if a replacement is needed. If the download
+  fails, reticulate retains the expired cache (#1876).
+
 - Fixed managed `uv` bootstrapping on Windows when R inherits a PowerShell 7
   `PSModulePath`, such as from GitHub Actions `pwsh` steps.
 

@@ -177,5 +177,9 @@ with:
 
 \if{html}{\out{<div class="sourceCode r">}}\preformatted{options(reticulate.max_cache_age = as.difftime(30, units = "days"))
 }\if{html}{\out{</div>}}
+
+Before cleanup, reticulate downloads the \code{uv} installer and reuses it if a
+replacement is needed. If the download fails, reticulate retains the expired
+cache and defers cleanup.
 }
 }

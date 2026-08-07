@@ -1,5 +1,6 @@
-local_expired_uv_cache <- function(max_cache_age = NULL,
-                                   reticulate_uv = NA_character_) {
+local_uv_cache <- function(max_cache_age = NULL,
+                           reticulate_uv = NA_character_,
+                           installed = TRUE) {
   local_envir <- parent.frame()
   cache_root <- withr::local_tempdir(.local_envir = local_envir)
   home <- withr::local_tempdir(.local_envir = local_envir)
@@ -29,14 +30,17 @@ local_expired_uv_cache <- function(max_cache_age = NULL,
     "bin",
     if (.Platform$OS.type == "windows") "uv.exe" else "uv"
   )
-  dir.create(dirname(uv), recursive = TRUE)
   marker <- file.path(cache_dir, "uv", "marker")
-  stopifnot(file.create(uv), file.create(marker))
+  if (installed) {
+    dir.create(dirname(uv), recursive = TRUE)
+    stopifnot(file.create(uv), file.create(marker))
+  }
 
   state <- new.env(parent = emptyenv())
   state$bin_dir <- bin_dir
   state$downloads <- 0L
   state$installer <- NULL
+  state$installer_runs <- 0L
   state$marker <- marker
   state$uv <- uv
   state
@@ -95,6 +99,7 @@ mock_uv_system2 <- function(state, python_version, install = FALSE) {
         same_file_path(command, state$installer)
       }
     if (is_installer && install) {
+      state$installer_runs <- state$installer_runs + 1L
       dir.create(dirname(state$uv), recursive = TRUE, showWarnings = FALSE)
       stopifnot(file.create(state$uv))
       return(0L)
@@ -107,7 +112,7 @@ mock_uv_system2 <- function(state, python_version, install = FALSE) {
 test_that("RETICULATE_MAX_CACHE_AGE_DAYS takes precedence over the R option", {
   skip_if(getRversion() <= "4.0")
 
-  state <- local_expired_uv_cache(as.difftime(30, units = "days"))
+  state <- local_uv_cache(as.difftime(30, units = "days"))
   result <- testthat::with_mocked_bindings(
     testthat::with_mocked_bindings(
       expect_message(
@@ -125,14 +130,36 @@ test_that("RETICULATE_MAX_CACHE_AGE_DAYS takes precedence over the R option", {
 
   expect_equal(result, 0L)
   expect_equal(state$downloads, 1L)
+  expect_equal(state$installer_runs, 1L)
   expect_false(file.exists(state$installer))
   expect_false(file.exists(state$marker))
+})
+
+test_that("missing uv is bootstrapped from the downloaded installer", {
+  skip_if(getRversion() <= "4.0")
+
+  state <- local_uv_cache(installed = FALSE)
+  result <- testthat::with_mocked_bindings(
+    testthat::with_mocked_bindings(
+      uv_run_tool("example", python_version = "3.12.995"),
+      system2 = mock_uv_system2(state, "3.12.995", install = TRUE),
+      .package = "base"
+    ),
+    download.file = mock_installer_download(state),
+    .package = "reticulate"
+  )
+
+  expect_equal(result, 0L)
+  expect_equal(state$downloads, 1L)
+  expect_equal(state$installer_runs, 1L)
+  expect_true(file.exists(state$uv))
+  expect_false(file.exists(state$installer))
 })
 
 test_that("expired uv cache is retained when the uv installer is unavailable", {
   skip_if(getRversion() <= "4.0")
 
-  state <- local_expired_uv_cache()
+  state <- local_uv_cache()
   result <- testthat::with_mocked_bindings(
     testthat::with_mocked_bindings(
       expect_message(
@@ -161,7 +188,7 @@ test_that("uv availability probes do not clear the expired cache", {
   for (reticulate_uv in list(NA_character_, "managed")) {
     local({
       python_version <- if (is.na(reticulate_uv)) "3.12.997" else "3.12.996"
-      state <- local_expired_uv_cache(reticulate_uv = reticulate_uv)
+      state <- local_uv_cache(reticulate_uv = reticulate_uv)
       system2 <- base::system2
       uv_version_checks <- 0L
 
@@ -200,6 +227,7 @@ test_that("uv availability probes do not clear the expired cache", {
 
       expect_equal(result, 0L)
       expect_equal(state$downloads, 1L)
+      expect_equal(state$installer_runs, 1L)
       expect_false(file.exists(state$installer))
       expect_false(file.exists(state$marker))
     })

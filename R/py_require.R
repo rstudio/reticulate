@@ -589,9 +589,13 @@ py_reqs_get <- function(x = NULL) {
 
 # uv ---------------------------------------------------------------------------
 
-uv_installer_url <- function() {
+download_uv_installer <- function(path) {
   file_ext <- if (is_windows()) ".ps1" else ".sh"
-  paste0("https://astral.sh/uv/install", file_ext)
+  download.file(
+    paste0("https://astral.sh/uv/install", file_ext),
+    path,
+    quiet = TRUE
+  )
 }
 
 uv_binary <- function(bootstrap_install = TRUE) {
@@ -696,7 +700,7 @@ uv_binary <- function(bootstrap_install = TRUE) {
       install_uv <- tempfile("install-uv-", fileext = file_ext)
       on.exit(unlink(install_uv), add = TRUE)
       message("Downloading uv...", appendLF = FALSE)
-      download.file(uv_installer_url(), install_uv, quiet = TRUE)
+      download_uv_installer(install_uv)
       if (!file.exists(install_uv)) {
         return(NULL)
         # stop("Unable to download Python dependencies. Please install `uv` manually.")
@@ -1209,7 +1213,7 @@ maybe_clear_reticulate_uv_cache <- function() {
     file_ext <- if (is_windows()) ".ps1" else ".sh"
     installer <- tempfile("install-uv-", fileext = file_ext)
     status <- suppressWarnings(try(
-      download.file(uv_installer_url(), installer, quiet = TRUE),
+      download_uv_installer(installer),
       silent = TRUE
     ))
     if (!identical(status, 0L) || !file.exists(installer)) {

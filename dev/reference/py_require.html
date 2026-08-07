@@ -209,6 +209,9 @@ possibly fractional number of days in <code>.Renviron</code>:</p>
 <code>reticulate.max_cache_age</code> R option. Configure the option in <code>.Rprofile</code>
 with:</p>
 <p></p><div class="sourceCode r"><pre><code><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>reticulate.max_cache_age <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/difftime.html" class="external-link">as.difftime</a></span><span class="op">(</span><span class="fl">30</span>, units <span class="op">=</span> <span class="st">"days"</span><span class="op">)</span><span class="op">)</span></span></code></pre><p></p></div>
+<p>Before cleanup, reticulate downloads the <code>uv</code> installer and reuses it if a
+replacement is needed. If the download fails, reticulate retains the expired
+cache and defers cleanup.</p>
 </div>
 
     </div>

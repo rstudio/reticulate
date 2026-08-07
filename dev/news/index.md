@@ -22,6 +22,10 @@
   days, of reticulate’s managed `uv` cache before it is cleared
   ([\#1905](https://github.com/rstudio/reticulate/issues/1905)).
 
+- Reticulate now checks that it can download the `uv` installer before
+  clearing an expired managed cache
+  ([\#1876](https://github.com/rstudio/reticulate/issues/1876)).
+
 - Fixed managed `uv` bootstrapping on Windows when R inherits a
   PowerShell 7 `PSModulePath`, such as from GitHub Actions `pwsh` steps.
 

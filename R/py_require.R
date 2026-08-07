@@ -589,13 +589,22 @@ py_reqs_get <- function(x = NULL) {
 
 # uv ---------------------------------------------------------------------------
 
-download_uv_installer <- function(path) {
+download_uv_installer <- function() {
   file_ext <- if (is_windows()) ".ps1" else ".sh"
-  download.file(
+  installer <- tempfile("install-uv-", fileext = file_ext)
+  downloaded <- FALSE
+  on.exit(if (!downloaded) unlink(installer), add = TRUE)
+
+  status <- download.file(
     paste0("https://astral.sh/uv/install", file_ext),
-    path,
+    installer,
     quiet = TRUE
   )
+  if (!identical(status, 0L) || !file.exists(installer))
+    return()
+
+  downloaded <- TRUE
+  installer
 }
 
 uv_binary <- function(bootstrap_install = TRUE) {
@@ -696,15 +705,13 @@ uv_binary <- function(bootstrap_install = TRUE) {
 
     dir.create(dirname(uv), showWarnings = FALSE, recursive = TRUE)
     if (is.null(install_uv)) {
-      file_ext <- if (is_windows()) ".ps1" else ".sh"
-      install_uv <- tempfile("install-uv-", fileext = file_ext)
-      on.exit(unlink(install_uv), add = TRUE)
       message("Downloading uv...", appendLF = FALSE)
-      download_uv_installer(install_uv)
-      if (!file.exists(install_uv)) {
+      install_uv <- download_uv_installer()
+      if (is.null(install_uv)) {
         return(NULL)
         # stop("Unable to download Python dependencies. Please install `uv` manually.")
       }
+      on.exit(unlink(install_uv), add = TRUE)
       message("Done!")
     }
     if (debug_uv <- Sys.getenv("_RETICULATE_DEBUG_UV_") == "1")
@@ -1210,14 +1217,11 @@ maybe_clear_reticulate_uv_cache <- function() {
     if (Sys.getenv("UV_OFFLINE") == "1")
       return()
 
-    file_ext <- if (is_windows()) ".ps1" else ".sh"
-    installer <- tempfile("install-uv-", fileext = file_ext)
-    status <- suppressWarnings(try(
-      download_uv_installer(installer),
+    installer <- suppressWarnings(try(
+      download_uv_installer(),
       silent = TRUE
     ))
-    if (!identical(status, 0L) || !file.exists(installer)) {
-      unlink(installer)
+    if (inherits(installer, "try-error") || is.null(installer)) {
       message(
         "Retaining reticulate's uv cache because access to the uv ",
         "installer could not be verified."

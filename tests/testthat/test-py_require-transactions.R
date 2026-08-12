@@ -196,3 +196,33 @@ test_that("failed package late additions do not change requirements", {
 
   expect_null(attr(session, "status", exact = TRUE), info = paste(session, collapse = "\n"))
 })
+
+test_that("freezing requirements pins an initialized managed Python", {
+  session <- r_session(echo = FALSE, {
+    library(reticulate)
+    py_require(python_version = ">=3.10")
+
+    testthat::with_mocked_bindings(
+      py_write_requirements(
+        packages = NULL,
+        python_version = NULL,
+        freeze = TRUE,
+        python = NULL,
+        quiet = TRUE
+      ),
+      is_ephemeral_venv_initialized = function(python = NULL) TRUE,
+      py_version = function(patch = FALSE) {
+        stopifnot(patch)
+        numeric_version("3.11.9")
+      },
+      uv_binary = function(...) "uv",
+      resolve_python_version = function(constraints = NULL, uv = NULL) {
+        stop("resolved: ", constraints, call. = FALSE)
+      },
+      .package = "reticulate"
+    )
+  })
+
+  expect_match(session, "resolved: 3.11.9", fixed = TRUE, all = FALSE)
+  expect_true(attr(session, "status", exact = TRUE) != 0L)
+})

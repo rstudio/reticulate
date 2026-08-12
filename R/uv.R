@@ -188,7 +188,7 @@ uv_install_managed <- function(uv, installer) {
 }
 
 uv_get_or_create_env <- function(packages = py_reqs_get()$packages,
-                                 python_version = py_reqs_get()$python_version,
+                                 python_version = py_reqs_python_version(),
                                  exclude_newer = py_reqs_get()$exclude_newer) {
 
   uv <- uv_binary() %||% return() # error?
@@ -269,6 +269,14 @@ uv_get_or_create_env <- function(packages = py_reqs_get()$packages,
   if (debug)
     message("resolved ephemeral python: ", cached_python)
   cached_python
+}
+
+
+py_reqs_python_version <- function() {
+  if (is_ephemeral_venv_initialized())
+    return(as.character(py_version(patch = TRUE)))
+
+  py_reqs_get()$python_version
 }
 
 

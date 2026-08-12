@@ -104,7 +104,8 @@ pip_freeze <- function(python) {
         "--python", maybe_shQuote(python)
       ),
       stdout = TRUE,
-      stderr = FALSE
+      stderr = FALSE,
+      uv = uv
     )
   } else {
     system2(python, c("-m", "pip", "freeze"), stdout = TRUE)

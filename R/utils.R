@@ -658,10 +658,10 @@ rm_all_reticulate_state <- function(external = FALSE) {
 
   if (external) {
     if (!is.null(uv <- uv_binary(FALSE))) {
-      system2(uv, c("cache", "clean"))
+      uv_exec(c("cache", "clean"), uv = uv)
       withr::with_envvar(c("NO_COLOR"="1"), {
-        rm_rf(system2(uv, c("python", "dir"), stdout = TRUE))
-        rm_rf(system2(uv, c("tool", "dir"), stdout = TRUE))
+        rm_rf(uv_exec(c("python", "dir"), stdout = TRUE, uv = uv))
+        rm_rf(uv_exec(c("tool", "dir"), stdout = TRUE, uv = uv))
       })
     }
 
@@ -742,13 +742,6 @@ expand_env_vars <- function(x) {
 
 `%""%` <- function(x, y) if(identical(x, "")) y else x
 
-parent.pkg <- function(env = parent.frame(2)) {
-  if (isNamespace(env <- topenv(env)))
-    as.character(getNamespaceName(env)) # unname
-  else
-    NULL # print visible
-}
-
 is_package_loading <- function(calls = sys.calls()) {
   for (call in calls) {
     if (length(call) < 2L)
@@ -777,19 +770,6 @@ warning_or_startup_message <- function(..., call. = TRUE) {
   } else {
     warning(msg, call. = call.)
   }
-}
-
-warn_and_return <- function(..., call. = TRUE) {
-  cond <- if (inherits(..1, "condition")) {
-    ..1
-  } else {
-    simpleWarning(.makeMessage(...))
-  }
-
-  cond$call <- if (call.) sys.call(-1L) else NULL
-
-  warning(cond)
-  rlang::eval_bare(quote(return(invisible())), parent.frame())
 }
 
 # paste collapse and

@@ -1,5 +1,9 @@
 # reticulate (development version)
 
+- `py_require()` now applies late package additions atomically. Failed
+  package-originated additions warn without changing the declared requirements,
+  and printing requirements no longer invokes `uv`.
+
 - Reticulate now restores Python's original output streams in child processes
   created by `os.fork()` when output remapping is enabled.
 

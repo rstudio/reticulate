@@ -428,25 +428,110 @@ py_reqs_activate <- function(manifest) {
 
 
 #' @export
-print.python_requirements <- function(x, ...) {
-  writeLines(format(x, ...))
+print.python_requirements <- function(x, ..., width = 73L) {
+  if (py_reqs_cli_available())
+    py_reqs_print_cli(x, width)
+  else
+    py_reqs_print_base(x, width)
   invisible()
 }
 
 #' @export
 format.python_requirements <- function(x, ..., width = 73L) {
-  field <- function(label, value, indent = 2L, empty = NULL) {
+  sections <- py_reqs_print_sections(x, width, current_indent = 2L)
+  c(
+    "Python requirements:",
+    sections$current,
+    if (length(sections$history))
+      c("Python requirement requests (in order):", sections$history)
+  )
+}
+
+
+py_reqs_cli_available <- function() {
+  requireNamespace("cli", quietly = TRUE)
+}
+
+
+py_reqs_print_cli <- function(x, width) {
+  withr::local_options(list(cli.width = width))
+  app <- cli::start_app(output = "stdout", .auto_close = FALSE)
+  on.exit(cli::stop_app(app))
+  sections <- py_reqs_print_sections(x, width, use_cli = TRUE)
+
+  py_reqs_cli_rule("Python requirements", line_type = "double", center = TRUE)
+  py_reqs_cli_rule("Current requirements")
+  writeLines(sections$current)
+
+  if (length(sections$history)) {
+    py_reqs_cli_rule("Python requirement requests (in order)")
+    writeLines(sections$history)
+  }
+}
+
+
+py_reqs_cli_rule <- function(title, line_type = "single", center = FALSE) {
+  theme <- list(rule = list("line-type" = line_type))
+  if (identical(line_type, "double"))
+    theme$rule$color <- "cyan"
+
+  id <- cli::cli_div(theme = theme, .auto_close = FALSE)
+  on.exit(cli::cli_end(id))
+
+  if (center)
+    cli::cli_rule(center = title)
+  else
+    cli::cli_rule(title)
+}
+
+
+py_reqs_print_base <- function(x, width) {
+  sections <- py_reqs_print_sections(x, width)
+  title <- " Python requirements "
+  fill <- max(width - nchar(title), 0L)
+  left <- fill %/% 2L
+  title <- paste0(strrep("=", left), title, strrep("=", fill - left))
+  rule <- function(title) {
+    prefix <- paste0("-- ", title, " ")
+    paste0(prefix, strrep("-", max(width - nchar(prefix), 0L)))
+  }
+
+  writeLines(c(
+    title,
+    rule("Current requirements"),
+    sections$current,
+    if (length(sections$history))
+      c(rule("Python requirement requests (in order)"), sections$history)
+  ))
+}
+
+
+py_reqs_print_sections <- function(x,
+                                   width,
+                                   use_cli = FALSE,
+                                   current_indent = 1L) {
+  field <- function(label, value, indent = current_indent, empty = NULL) {
     if (!length(value))
       value <- empty
     if (!length(value))
       return(character())
+
     prefix <- paste0(label, ": ")
-    strwrap(
+    lines <- strwrap(
       paste0(prefix, paste(value, collapse = ", ")),
       width = width,
       indent = indent,
       exdent = indent + nchar(prefix)
     )
+    if (!use_cli)
+      return(lines)
+
+    value <- substring(lines, indent + nchar(prefix) + 1L)
+    line_prefix <- c(
+      paste0(strrep(" ", indent), cli::col_blue(paste0(label, ":")), " "),
+      rep(strrep(" ", indent + nchar(prefix)), length(lines) - 1L)
+    )
+    paste0(line_prefix, cli::col_grey(value))
   }
 
   python_version <- x$python_version
@@ -463,8 +548,7 @@ format.python_requirements <- function(x, ..., width = 73L) {
     )
   }
 
-  out <- c(
-    "Python requirements:",
+  current <- c(
     field("Python", python_version),
     field("Packages", x$packages, empty = "[No packages specified]"),
     if (length(x$exclude_newer))
@@ -475,35 +559,35 @@ format.python_requirements <- function(x, ..., width = 73L) {
     function(event) !identical(event$requested_from, "R_GlobalEnv"),
     x$history
   )
-  if (!length(history))
-    return(out)
-
-  out <- c(out, "Python requirement requests (in order):")
+  history_lines <- character()
   for (i in seq_along(history)) {
     event <- history[[i]]
-    source <- if (event$env_is_package) {
+    source <- if (isTRUE(event$env_is_package)) {
       paste("R package", event$requested_from)
     } else if (nzchar(event$requested_from)) {
       paste("R environment", event$requested_from)
     } else {
       "R environment"
     }
-    out <- c(
-      out,
-      sprintf("  %d. %s:", i, source),
+    heading <- sprintf("%d. %s:", i, source)
+    if (use_cli)
+      heading <- cli::style_bold(heading)
+
+    history_lines <- c(
+      history_lines,
+      paste0("  ", heading),
       field("Action", event$action, indent = 4L),
       field("Packages", event$packages, indent = 4L),
       field("Python", event$python_version, indent = 4L),
       if (isTRUE(event$exclude_newer_supplied))
         field(
-          "Exclude",
-          event$exclude_newer,
-          indent = 4L,
-          empty = "[No cutoff]"
+          "Exclude", event$exclude_newer,
+          indent = 4L, empty = "[No cutoff]"
         )
     )
   }
-  out
+
+  list(current = current, history = history_lines)
 }
 
 

@@ -77,6 +77,8 @@ test_that("querying requirements does not invoke uv", {
 })
 
 test_that("printing names the default Python and source of requirements", {
+  skip_if_not_installed("cli")
+
   session <- r_session(echo = FALSE, {
     library(reticulate)
 
@@ -86,13 +88,81 @@ test_that("printing names the default Python and source of requirements", {
     package_py_require("example-package")
 
     printed <- capture.output(print(py_require()))
+    stopifnot(startsWith(printed[[1L]], "═"))
+    stopifnot(any(grepl("Current requirements", printed, fixed = TRUE)))
     stopifnot(any(grepl("Will default to", printed, fixed = TRUE)))
     stopifnot(any(grepl(
-      "Python requirement requests (in order):",
+      "Python requirement requests (in order)",
       printed,
       fixed = TRUE
     )))
     stopifnot(any(grepl("R package stats", printed, fixed = TRUE)))
+  })
+
+  expect_null(attr(session, "status", exact = TRUE), info = paste(session, collapse = "\n"))
+})
+
+test_that("printing requirements has a base fallback", {
+  session <- r_session(echo = FALSE, {
+    library(reticulate)
+
+    package_py_require <- function(...) reticulate::py_require(...)
+    package_py_require <- rlang::zap_srcref(package_py_require)
+    environment(package_py_require) <- asNamespace("stats")
+    package_py_require("example-package")
+    environment(package_py_require) <- asNamespace("graphics")
+    package_py_require("example-package", action = "remove")
+
+    printed <- testthat::with_mocked_bindings(
+      capture.output(print(py_require())),
+      py_reqs_cli_available = function() FALSE,
+      .package = "reticulate"
+    )
+    stopifnot(grepl(
+      "^=+ Python requirements =+$",
+      printed[[1L]]
+    ))
+    stopifnot(any(grepl(
+      "^-- Current requirements -+$",
+      printed
+    )))
+    stopifnot(any(grepl(
+      "^-- Python requirement requests \\(in order\\) -+$",
+      printed
+    )))
+    stats <- grep("R package stats", printed, fixed = TRUE)
+    graphics <- grep("R package graphics", printed, fixed = TRUE)
+    add <- grep("Action: add", printed, fixed = TRUE)
+    remove <- grep("Action: remove", printed, fixed = TRUE)
+    stopifnot(length(stats) == 1L, length(graphics) == 1L)
+    add <- add[add > stats][[1L]]
+    remove <- remove[remove > graphics][[1L]]
+    stopifnot(stats < add, add < graphics, graphics < remove)
+  })
+
+  expect_null(attr(session, "status", exact = TRUE), info = paste(session, collapse = "\n"))
+})
+
+test_that("formatting requirements preserves its plain text layout", {
+  session <- r_session(echo = FALSE, {
+    library(reticulate)
+    py_require(
+      packages = c("numpy", "package-one", "package-two"),
+      python_version = ">=3.10",
+      action = "set"
+    )
+
+    formatted <- format(py_require(), width = 30L)
+    stopifnot(identical(
+      head(formatted, 5L),
+      c(
+        "Python requirements:",
+        "  Python: >=3.10",
+        "  Packages: numpy,",
+        "            package-one,",
+        "            package-two"
+      )
+    ))
   })
 
   expect_null(attr(session, "status", exact = TRUE), info = paste(session, collapse = "\n"))

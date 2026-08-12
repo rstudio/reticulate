@@ -61,7 +61,7 @@ test_that("py_require() clears exclude_newer with its documented sentinels", {
   expect_null(attr(session, "status", exact = TRUE), info = paste(session, collapse = "\n"))
 })
 
-test_that("querying and printing requirements does not invoke uv", {
+test_that("querying requirements does not invoke uv", {
   session <- r_session(echo = FALSE, {
     Sys.setenv(RETICULATE_UV = file.path(tempdir(), "uv-that-must-not-run"))
     library(reticulate)
@@ -71,7 +71,27 @@ test_that("querying and printing requirements does not invoke uv", {
       names(requirements),
       c("packages", "python_version", "exclude_newer")
     ))
-    capture.output(print(requirements))
+  })
+
+  expect_null(attr(session, "status", exact = TRUE), info = paste(session, collapse = "\n"))
+})
+
+test_that("printing names the default Python and source of requirements", {
+  session <- r_session(echo = FALSE, {
+    library(reticulate)
+
+    package_py_require <- function(...) reticulate::py_require(...)
+    package_py_require <- rlang::zap_srcref(package_py_require)
+    environment(package_py_require) <- asNamespace("stats")
+    package_py_require("example-package")
+
+    printed <- capture.output(print(py_require()))
+    stopifnot(any(grepl("Will default to", printed, fixed = TRUE)))
+    stopifnot(any(grepl(
+      "Python requirements declared by R packages:",
+      printed,
+      fixed = TRUE
+    )))
   })
 
   expect_null(attr(session, "status", exact = TRUE), info = paste(session, collapse = "\n"))

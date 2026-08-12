@@ -217,9 +217,9 @@
       > py_require("numpy==2")
       > py_require()
       Python requirements:
-        Python: [No Python version specified]
+        Python: [No Python version specified. Will default to '3.12.xx']
         Packages: numpy, pandas, numpy==2
-      R package requests:
+      Python requirements declared by R packages:
         reticulate:
           Packages: numpy
       > 
@@ -242,9 +242,9 @@
       > py_require("numpy==2", action = "remove")
       > py_require()
       Python requirements:
-        Python: [No Python version specified]
+        Python: [No Python version specified. Will default to '3.12.xx']
         Packages: numpy, pandas
-      R package requests:
+      Python requirements declared by R packages:
         reticulate:
           Packages: numpy
       > 
@@ -269,10 +269,10 @@
       > py_require(exclude_newer = "1990-01-01")
       > py_require()
       Python requirements:
-        Python: [No Python version specified]
+        Python: [No Python version specified. Will default to '3.12.xx']
         Packages: numpy, pandas
         Exclude: Anything newer than 1990-01-01
-      R package requests:
+      Python requirements declared by R packages:
         reticulate:
           Packages: numpy
       > 
@@ -302,7 +302,7 @@
         Python: <=3.11, >=3.10
         Packages: numpy, pandas
         Exclude: Anything newer than 1990-01-01
-      R package requests:
+      Python requirements declared by R packages:
         reticulate:
           Packages: numpy
       > 
@@ -337,7 +337,7 @@
         Packages: numpy, package11, package12, package13, package14,
                   package15, package16, package17, package18, package19,
                   package20
-      R package requests:
+      Python requirements declared by R packages:
         reticulate:
           Packages: numpy
         graphics:

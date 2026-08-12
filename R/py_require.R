@@ -447,13 +447,23 @@ format.python_requirements <- function(x, ..., width = 73L) {
     )
   }
 
+  python_version <- x$python_version
+  if (!length(python_version)) {
+    default <- resolve_python_version()
+    default_message <- if (is_ephemeral_venv_initialized())
+      "Defaulted"
+    else
+      "Will default"
+    python_version <- sprintf(
+      "[No Python version specified. %s to '%s']",
+      default_message,
+      default
+    )
+  }
+
   out <- c(
     "Python requirements:",
-    field(
-      "Python",
-      x$python_version,
-      empty = "[No Python version specified]"
-    ),
+    field("Python", python_version),
     field("Packages", x$packages, empty = "[No packages specified]"),
     if (length(x$exclude_newer))
       field("Exclude", paste("Anything newer than", x$exclude_newer))
@@ -487,8 +497,14 @@ format.python_requirements <- function(x, ..., width = 73L) {
   is_package <- vapply(sources, `[[`, logical(1), "is_package")
   c(
     out,
-    add_sources(sources[is_package], "R package requests"),
-    add_sources(sources[!is_package], "Environment requests")
+    add_sources(
+      sources[is_package],
+      "Python requirements declared by R packages"
+    ),
+    add_sources(
+      sources[!is_package],
+      "Python requirements declared by R environments"
+    )
   )
 }
 

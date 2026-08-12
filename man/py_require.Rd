@@ -48,9 +48,11 @@ provided ones. Packages and the Python version can be set independently.
 the manifest of "Python requirements" for the current R session  that
 reticulate maintains internally. \code{py_require()} usually returns \code{NULL}
 invisibly. If \code{py_require()} is called with no arguments, it returns the
-current manifest--a list with names \code{packages}, \code{python_version}, and
-\code{exclude_newer.} The list also has a class attribute, to provide a print
-method.
+current manifest--a list with names \code{python_version}, \code{packages},
+\code{exclude_newer}, and \code{history}. \code{history} is an append-only record of
+successful requests, retained to help diagnose where requirements came
+from. It is not used to resolve the manifest. The list also has a class
+attribute, to provide a print method.
 }
 \description{
 \code{py_require()} allows you to declare Python requirements for the R session,

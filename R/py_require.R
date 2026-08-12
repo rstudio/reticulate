@@ -168,9 +168,11 @@
 #'   the manifest of "Python requirements" for the current R session  that
 #'   reticulate maintains internally. `py_require()` usually returns `NULL`
 #'   invisibly. If `py_require()` is called with no arguments, it returns the
-#'   current manifest--a list with names `packages`, `python_version`, and
-#'   `exclude_newer.` The list also has a class attribute, to provide a print
-#'   method.
+#'   current manifest--a list with names `python_version`, `packages`,
+#'   `exclude_newer`, and `history`. `history` is an append-only record of
+#'   successful requests, retained to help diagnose where requirements came
+#'   from. It is not used to resolve the manifest. The list also has a class
+#'   attribute, to provide a print method.
 #'
 #' @export
 py_require <- function(packages = NULL,
@@ -260,9 +262,9 @@ py_reqs_request <- function(packages,
 
 py_reqs_transition <- function(current, request, initialized) {
   plan <- py_reqs_plan(current, request, initialized)
-  manifest <- py_reqs_record_source(plan$manifest, request)
   config <- if (plan$activate)
-    py_reqs_activate(manifest)
+    py_reqs_activate(plan$manifest)
+  manifest <- py_reqs_record_history(plan$manifest, request)
 
   list(manifest = manifest, config = config)
 }
@@ -469,43 +471,39 @@ format.python_requirements <- function(x, ..., width = 73L) {
       field("Exclude", paste("Anything newer than", x$exclude_newer))
   )
 
-  sources <- attr(x, "sources", exact = TRUE)
-  if (!length(sources))
+  history <- Filter(
+    function(event) !identical(event$requested_from, "R_GlobalEnv"),
+    x$history
+  )
+  if (!length(history))
     return(out)
 
-  add_sources <- function(sources, heading) {
-    sources <- Filter(
-      function(source)
-        length(source$packages) || length(source$python_version),
-      sources
-    )
-    if (!length(sources))
-      return(character())
-
-    lines <- paste0(heading, ":")
-    for (source in sources) {
-      lines <- c(
-        lines,
-        paste0("  ", source$name, ":"),
-        field("Packages", source$packages, indent = 4L),
-        field("Python", source$python_version, indent = 4L)
-      )
+  out <- c(out, "Python requirement requests (in order):")
+  for (i in seq_along(history)) {
+    event <- history[[i]]
+    source <- if (event$env_is_package) {
+      paste("R package", event$requested_from)
+    } else if (nzchar(event$requested_from)) {
+      paste("R environment", event$requested_from)
+    } else {
+      "R environment"
     }
-    lines
-  }
-
-  is_package <- vapply(sources, `[[`, logical(1), "is_package")
-  c(
-    out,
-    add_sources(
-      sources[is_package],
-      "Python requirements declared by R packages"
-    ),
-    add_sources(
-      sources[!is_package],
-      "Python requirements declared by R environments"
+    out <- c(
+      out,
+      sprintf("  %d. %s:", i, source),
+      field("Action", event$action, indent = 4L),
+      field("Packages", event$packages, indent = 4L),
+      field("Python", event$python_version, indent = 4L),
+      if (isTRUE(event$exclude_newer_supplied))
+        field(
+          "Exclude",
+          event$exclude_newer,
+          indent = 4L,
+          empty = "[No cutoff]"
+        )
     )
-  )
+  }
+  out
 }
 
 
@@ -520,46 +518,17 @@ py_reqs_action <- function(action, x, current = NULL) {
 }
 
 
-py_reqs_record_source <- function(manifest, request) {
-  if (identical(request$source, "R_GlobalEnv"))
-    return(manifest)
-
-  sources <- attr(manifest, "sources", exact = TRUE) %||% list()
-  matches <- vapply(sources, function(source) {
-    identical(source$name, request$source) &&
-      identical(source$is_package, request$source_is_package)
-  }, logical(1))
-
-  if (any(matches)) {
-    i <- which(matches)[[1L]]
-    source <- sources[[i]]
-  } else {
-    i <- length(sources) + 1L
-    source <- list(
-      name = request$source,
-      is_package = request$source_is_package,
-      packages = NULL,
-      python_version = NULL
-    )
-  }
-
-  if (!is.null(request$packages)) {
-    source$packages <- py_reqs_action(
-      request$action,
-      request$packages,
-      source$packages
-    )
-  }
-  if (!is.null(request$python_version)) {
-    source$python_version <- py_reqs_action(
-      request$action,
-      request$python_version,
-      source$python_version
-    )
-  }
-
-  sources[[i]] <- source
-  attr(manifest, "sources") <- sources
+py_reqs_record_history <- function(manifest, request) {
+  event <- list(
+    requested_from = request$source,
+    env_is_package = request$source_is_package,
+    packages = request$packages,
+    python_version = request$python_version,
+    exclude_newer = request$exclude_newer,
+    exclude_newer_supplied = request$exclude_newer_supplied,
+    action = request$action
+  )
+  manifest$history <- c(manifest$history, list(event))
   manifest
 }
 
@@ -598,16 +567,17 @@ py_reqs_get <- function() {
   packages <- c("numpy", if (is_positron()) "ipykernel")
   manifest <- structure(
     list(
-      packages = packages,
       python_version = NULL,
-      exclude_newer = NULL
-    ),
-    sources = list(list(
-      name = "reticulate",
-      is_package = TRUE,
       packages = packages,
-      python_version = NULL
-    )),
+      exclude_newer = NULL,
+      history = list(list(
+        requested_from = "reticulate",
+        env_is_package = TRUE,
+        action = "add",
+        packages = packages,
+        exclude_newer_supplied = FALSE
+      ))
+    ),
     class = "python_requirements"
   )
   .globals$python_requirements <- manifest

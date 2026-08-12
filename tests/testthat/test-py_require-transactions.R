@@ -46,7 +46,7 @@ test_that("py_require() clears exclude_newer with its documented sentinels", {
     stopifnot(is.null(py_require()$exclude_newer))
     stopifnot(identical(
       names(py_require()),
-      c("packages", "python_version", "exclude_newer")
+      c("python_version", "packages", "exclude_newer", "history")
     ))
 
     py_require(exclude_newer = "2020-01-01")
@@ -54,7 +54,7 @@ test_that("py_require() clears exclude_newer with its documented sentinels", {
     stopifnot(is.null(py_require()$exclude_newer))
     stopifnot(identical(
       names(py_require()),
-      c("packages", "python_version", "exclude_newer")
+      c("python_version", "packages", "exclude_newer", "history")
     ))
   })
 
@@ -69,7 +69,7 @@ test_that("querying requirements does not invoke uv", {
     requirements <- py_require()
     stopifnot(identical(
       names(requirements),
-      c("packages", "python_version", "exclude_newer")
+      c("python_version", "packages", "exclude_newer", "history")
     ))
   })
 
@@ -88,10 +88,11 @@ test_that("printing names the default Python and source of requirements", {
     printed <- capture.output(print(py_require()))
     stopifnot(any(grepl("Will default to", printed, fixed = TRUE)))
     stopifnot(any(grepl(
-      "Python requirements declared by R packages:",
+      "Python requirement requests (in order):",
       printed,
       fixed = TRUE
     )))
+    stopifnot(any(grepl("R package stats", printed, fixed = TRUE)))
   })
 
   expect_null(attr(session, "status", exact = TRUE), info = paste(session, collapse = "\n"))
@@ -119,6 +120,59 @@ test_that("printed request sources are part of the returned snapshot", {
   expect_null(attr(session, "status", exact = TRUE), info = paste(session, collapse = "\n"))
 })
 
+test_that("diagnostic history retains committed requests in order", {
+  session <- r_session(echo = FALSE, {
+    library(reticulate)
+
+    py_require("global-package")
+
+    package_py_require <- function(...) reticulate::py_require(...)
+    package_py_require <- rlang::zap_srcref(package_py_require)
+
+    environment(package_py_require) <- asNamespace("stats")
+    package_py_require("diagnostic-package")
+
+    environment(package_py_require) <- asNamespace("graphics")
+    package_py_require("diagnostic-package", action = "remove")
+
+    requirements <- py_require()
+    history <- requirements$history
+    events <- tail(history, 3L)
+
+    stopifnot(!"diagnostic-package" %in% requirements$packages)
+    stopifnot(identical(history[[1L]]$requested_from, "reticulate"))
+    stopifnot("numpy" %in% history[[1L]]$packages)
+    stopifnot(identical(
+      vapply(events, `[[`, character(1), "requested_from"),
+      c("R_GlobalEnv", "stats", "graphics")
+    ))
+    stopifnot(identical(
+      vapply(events, `[[`, character(1), "action"),
+      c("add", "add", "remove")
+    ))
+    stopifnot(identical(
+      lapply(events, `[[`, "packages"),
+      list(
+        "global-package",
+        "diagnostic-package",
+        "diagnostic-package"
+      )
+    ))
+
+    printed <- capture.output(print(requirements))
+    stats <- grep("R package stats", printed, fixed = TRUE)
+    graphics <- grep("R package graphics", printed, fixed = TRUE)
+    add <- grep("Action: add", printed, fixed = TRUE)
+    remove <- grep("Action: remove", printed, fixed = TRUE)
+    stopifnot(length(stats) == 1L, length(graphics) == 1L)
+    add <- add[add > stats][[1L]]
+    remove <- remove[remove > graphics][[1L]]
+    stopifnot(stats < add, add < graphics, graphics < remove)
+  })
+
+  expect_null(attr(session, "status", exact = TRUE), info = paste(session, collapse = "\n"))
+})
+
 test_that("failed package late additions do not change requirements", {
   session <- r_session(echo = FALSE, {
     library(reticulate)
@@ -136,10 +190,7 @@ test_that("failed package late additions do not change requirements", {
     after <- py_require()
 
     stopifnot(length(warnings()) > 0L)
-    stopifnot(identical(
-      before[c("packages", "python_version", "exclude_newer")],
-      after[c("packages", "python_version", "exclude_newer")]
-    ))
+    stopifnot(identical(before, after))
     stopifnot(identical(before_print, capture.output(print(after))))
   })
 

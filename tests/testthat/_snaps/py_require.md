@@ -219,8 +219,9 @@
       Python requirements:
         Python: [No Python version specified. Will default to '3.12.xx']
         Packages: numpy, pandas, numpy==2
-      Python requirements declared by R packages:
-        reticulate:
+      Python requirement requests (in order):
+        1. R package reticulate:
+          Action: add
           Packages: numpy
       > 
       ------- session end -------
@@ -244,8 +245,9 @@
       Python requirements:
         Python: [No Python version specified. Will default to '3.12.xx']
         Packages: numpy, pandas
-      Python requirements declared by R packages:
-        reticulate:
+      Python requirement requests (in order):
+        1. R package reticulate:
+          Action: add
           Packages: numpy
       > 
       ------- session end -------
@@ -272,8 +274,9 @@
         Python: [No Python version specified. Will default to '3.12.xx']
         Packages: numpy, pandas
         Exclude: Anything newer than 1990-01-01
-      Python requirements declared by R packages:
-        reticulate:
+      Python requirement requests (in order):
+        1. R package reticulate:
+          Action: add
           Packages: numpy
       > 
       ------- session end -------
@@ -302,8 +305,9 @@
         Python: <=3.11, >=3.10
         Packages: numpy, pandas
         Exclude: Anything newer than 1990-01-01
-      Python requirements declared by R packages:
-        reticulate:
+      Python requirement requests (in order):
+        1. R package reticulate:
+          Action: add
           Packages: numpy
       > 
       ------- session end -------
@@ -337,12 +341,22 @@
         Packages: numpy, package11, package12, package13, package14,
                   package15, package16, package17, package18, package19,
                   package20
-      Python requirements declared by R packages:
-        reticulate:
+      Python requirement requests (in order):
+        1. R package reticulate:
+          Action: add
           Packages: numpy
-        graphics:
-          Packages: package11, package12, package13, package14, package15,
+        2. R package graphics:
+          Action: add
+          Packages: package1, package2, package3, package4, package5,
+                    package6, package7, package8, package9, package10,
+                    package11, package12, package13, package14, package15,
                     package16, package17, package18, package19, package20
+        3. R package graphics:
+          Action: remove
+          Packages: package1, package2, package3, package4, package5,
+                    package6, package7, package8, package9, package10
+        4. R package graphics:
+          Action: add
           Python: <=3.11, >=3.10
       > 
       ------- session end -------

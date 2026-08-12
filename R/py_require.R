@@ -429,7 +429,7 @@ py_reqs_activate <- function(manifest) {
 
 #' @export
 print.python_requirements <- function(x, ..., width = 73L) {
-  if (py_reqs_cli_available())
+  if (requireNamespace("cli", quietly = TRUE))
     py_reqs_print_cli(x, width)
   else
     py_reqs_print_base(x, width)
@@ -445,11 +445,6 @@ format.python_requirements <- function(x, ..., width = 73L) {
     if (length(sections$history))
       c("Python requirement requests (in order):", sections$history)
   )
-}
-
-
-py_reqs_cli_available <- function() {
-  requireNamespace("cli", quietly = TRUE)
 }
 
 

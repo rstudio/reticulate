@@ -113,10 +113,16 @@ test_that("printing requirements has a base fallback", {
     environment(package_py_require) <- asNamespace("graphics")
     package_py_require("example-package", action = "remove")
 
+    require_namespace <- base::requireNamespace
     printed <- testthat::with_mocked_bindings(
       capture.output(print(py_require())),
-      py_reqs_cli_available = function() FALSE,
-      .package = "reticulate"
+      requireNamespace = function(package, ...) {
+        if (identical(package, "cli"))
+          FALSE
+        else
+          require_namespace(package, ...)
+      },
+      .package = "base"
     )
     stopifnot(grepl(
       "^=+ Python requirements =+$",

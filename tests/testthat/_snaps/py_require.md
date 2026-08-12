@@ -318,7 +318,7 @@
       success: true
       exit_code: 0
 
-# Multiple py_require() calls from package are shows in one row
+# package py_require() calls print as ordered history
 
     Code
       r_session(attach_namespace = TRUE, {

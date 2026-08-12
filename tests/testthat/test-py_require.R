@@ -211,7 +211,7 @@ test_that("can bootstrap install uv in reticulate cache", {
   )
 })
 
-test_that("Multiple py_require() calls from package are shows in one row", {
+test_that("package py_require() calls print as ordered history", {
   local_edition(3)
   expect_snapshot2(r_session(attach_namespace = TRUE, {
     gr_package <- function() {

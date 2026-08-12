@@ -47,3 +47,40 @@ test_that("expired uv cache is retained when the installer is unavailable", {
   expect_true(file.exists(uv))
   expect_true(file.exists(marker))
 })
+
+test_that("uv_run_tool() rejects an unusable managed uv install", {
+  skip_if(getRversion() <= "4.0")
+
+  cache_root <- withr::local_tempdir()
+  installer <- tempfile("install-uv-")
+  file.create(installer)
+  withr::local_envvar(c(
+    R_USER_CACHE_DIR = cache_root,
+    RETICULATE_UV = "managed"
+  ))
+  withr::local_options(reticulate.uv_binary = NULL)
+
+  testthat::with_mocked_bindings(
+    expect_error(
+      uv_run_tool("example"),
+      "installed uv binary is not usable",
+      fixed = TRUE
+    ),
+    download_uv_installer = function() installer,
+    uv_install_managed = function(uv, installer) {
+      rscript <- file.path(
+        R.home("bin"),
+        if (.Platform$OS.type == "windows") "Rscript.exe" else "Rscript"
+      )
+      dir.create(dirname(uv), recursive = TRUE)
+      stopifnot(file.copy(rscript, uv))
+      invisible()
+    },
+    resolve_python_version = function(...) {
+      stop("unusable uv reached the resolver", call. = FALSE)
+    },
+    .package = "reticulate"
+  )
+
+  expect_identical(Sys.getenv("RETICULATE_UV"), "managed")
+})

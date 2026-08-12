@@ -122,6 +122,12 @@ uv_managed_binary <- function(bootstrap_install) {
   }
 
   uv_install_managed(uv, installer)
+  if (!uv_is_usable(uv)) {
+    stop(
+      "uv bootstrap failed: installed uv binary is not usable.",
+      call. = FALSE
+    )
+  }
   uv
 }
 

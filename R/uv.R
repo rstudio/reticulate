@@ -19,26 +19,76 @@ download_uv_installer <- function() {
 }
 
 uv_binary <- function(bootstrap_install = TRUE) {
-  configured <- Sys.getenv("RETICULATE_UV", unset = NA)
-  configured_from_env <- !is.na(configured)
-  if (!configured_from_env)
-    configured <- getOption("reticulate.uv_binary")
+  # Fast paths: use a configured or cached binary without probing it.
+  configured_uv <- Sys.getenv("RETICULATE_UV", unset = NA)
+  configured_from_env <- !is.na(configured_uv)
+  if (configured_from_env && !identical(configured_uv, "managed")) {
+    # RETICULATE_UV stores only text, so a managed result cached there has lost
+    # the attribute that identifies it as reticulate's managed binary.
+    managed_uv <- reticulate_cache_dir(
+      "uv", "bin", if (is_windows()) "uv.exe" else "uv"
+    )
+    if (identical(configured_uv, managed_uv))
+      attr(configured_uv, "reticulate-managed") <- TRUE
+    return(configured_uv)
+  }
 
-  if (length(configured) && !identical(configured, "managed"))
-    return(uv_mark_managed(configured))
+  cached_uv <- if (!configured_from_env)
+    getOption("reticulate.uv_binary")
+  if (length(cached_uv) && !identical(cached_uv, "managed"))
+    return(cached_uv)
 
-  force_managed <- identical(configured, "managed")
+  force_managed <- identical(configured_uv, "managed") ||
+    identical(cached_uv, "managed")
+
+  # Slow path: discover and validate a user-installed uv.
   if (!force_managed) {
-    uv <- uv_find()
-    if (!is.null(uv)) {
-      options(reticulate.uv_binary = uv)
-      return(uv)
+    candidates <- c(as.character(Sys.which("uv")), path.expand("~/.local/bin/uv"))
+    for (uv in candidates) {
+      if (uv_is_usable(uv)) {
+        options(reticulate.uv_binary = uv)
+        return(uv)
+      }
     }
   }
 
-  uv <- uv_managed_binary(bootstrap_install)
-  if (is.null(uv))
-    return()
+  # Managed path: validate the cached binary or install it.
+  uv <- reticulate_cache_dir(
+    "uv", "bin", if (is_windows()) "uv.exe" else "uv"
+  )
+  attr(uv, "reticulate-managed") <- TRUE
+  installer <- NULL
+
+  if (bootstrap_install) {
+    installer <- maybe_clear_reticulate_uv_cache()
+    if (length(installer))
+      on.exit(unlink(installer), add = TRUE)
+  }
+
+  if (!uv_is_usable(uv)) {
+    if (file.exists(uv))
+      unlink(reticulate_cache_dir("uv"), recursive = TRUE, force = TRUE)
+
+    if (!bootstrap_install)
+      return()
+
+    if (is.null(installer)) {
+      message("Downloading uv...", appendLF = FALSE)
+      installer <- download_uv_installer()
+      if (is.null(installer))
+        return()
+      on.exit(unlink(installer), add = TRUE)
+      message("Done!")
+    }
+
+    uv_install_managed(uv, installer)
+    if (!uv_is_usable(uv)) {
+      stop(
+        "uv bootstrap failed: installed uv binary is not usable.",
+        call. = FALSE
+      )
+    }
+  }
 
   if (bootstrap_install && configured_from_env)
     Sys.setenv(RETICULATE_UV = uv)
@@ -46,16 +96,6 @@ uv_binary <- function(bootstrap_install = TRUE) {
     options(reticulate.uv_binary = uv)
 
   uv
-}
-
-
-uv_find <- function() {
-  candidates <- c(as.character(Sys.which("uv")), path.expand("~/.local/bin/uv"))
-  for (uv in candidates) {
-    if (uv_is_usable(uv))
-      return(uv)
-  }
-  NULL
 }
 
 
@@ -74,61 +114,6 @@ uv_is_usable <- function(uv) {
     strict = FALSE
   )
   !is.na(version) && version >= "0.6.3"
-}
-
-
-uv_managed_path <- function() {
-  uv <- reticulate_cache_dir(
-    "uv", "bin", if (is_windows()) "uv.exe" else "uv"
-  )
-  attr(uv, "reticulate-managed") <- TRUE
-  uv
-}
-
-
-uv_mark_managed <- function(uv) {
-  if (identical(as.character(uv), as.character(uv_managed_path())))
-    attr(uv, "reticulate-managed") <- TRUE
-  uv
-}
-
-
-uv_managed_binary <- function(bootstrap_install) {
-  uv <- uv_managed_path()
-  installer <- NULL
-
-  if (bootstrap_install) {
-    installer <- maybe_clear_reticulate_uv_cache()
-    if (length(installer))
-      on.exit(unlink(installer), add = TRUE)
-  }
-
-  if (uv_is_usable(uv))
-    return(uv)
-
-  if (file.exists(uv))
-    unlink(reticulate_cache_dir("uv"), recursive = TRUE, force = TRUE)
-
-  if (!bootstrap_install)
-    return()
-
-  if (is.null(installer)) {
-    message("Downloading uv...", appendLF = FALSE)
-    installer <- download_uv_installer()
-    if (is.null(installer))
-      return()
-    on.exit(unlink(installer), add = TRUE)
-    message("Done!")
-  }
-
-  uv_install_managed(uv, installer)
-  if (!uv_is_usable(uv)) {
-    stop(
-      "uv bootstrap failed: installed uv binary is not usable.",
-      call. = FALSE
-    )
-  }
-  uv
 }
 
 

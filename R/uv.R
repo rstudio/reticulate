@@ -23,13 +23,13 @@ uv_binary <- function(bootstrap_install = TRUE) {
   configured_uv <- Sys.getenv("RETICULATE_UV", unset = NA)
   configured_from_env <- !is.na(configured_uv)
   if (configured_from_env && !identical(configured_uv, "managed")) {
-    # RETICULATE_UV stores only text, so a managed result cached there has lost
-    # the attribute that identifies it as reticulate's managed binary.
-    managed_uv <- reticulate_cache_dir(
-      "uv", "bin", if (is_windows()) "uv.exe" else "uv"
-    )
-    if (identical(configured_uv, managed_uv))
-      attr(configured_uv, "reticulate-managed") <- TRUE
+    # A managed result cached in RETICULATE_UV has lost its R attributes.
+    # Recover the attributed object from the option without rebuilding its path.
+    cached_uv <- getOption("reticulate.uv_binary")
+    if (identical(as.character(cached_uv), configured_uv) &&
+        isTRUE(attr(cached_uv, "reticulate-managed", exact = TRUE))) {
+      return(cached_uv)
+    }
     return(configured_uv)
   }
 
@@ -90,10 +90,12 @@ uv_binary <- function(bootstrap_install = TRUE) {
     }
   }
 
-  if (bootstrap_install && configured_from_env)
-    Sys.setenv(RETICULATE_UV = uv)
-  else if (bootstrap_install && !force_managed)
+  if (bootstrap_install && configured_from_env) {
     options(reticulate.uv_binary = uv)
+    Sys.setenv(RETICULATE_UV = uv)
+  } else if (bootstrap_install && !force_managed) {
+    options(reticulate.uv_binary = uv)
+  }
 
   uv
 }

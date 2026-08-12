@@ -19,9 +19,11 @@ Useful links:
 
 ## Author
 
-**Maintainer**: Tomasz Kalinowski <tomasz@posit.co> \[contributor\]
+**Maintainer**: Tomasz Kalinowski <tomasz@posit.co>
 
 Authors:
+
+- Tomasz Kalinowski <tomasz@posit.co>
 
 - Kevin Ushey <kevin@posit.co>
 

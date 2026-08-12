@@ -2,7 +2,7 @@
 
 ## Authors
 
-- **Tomasz Kalinowski**. Contributor, maintainer.
+- **Tomasz Kalinowski**. Author, maintainer.
 
 - **Kevin Ushey**. Author.
 
@@ -29,12 +29,13 @@
 Source:
 [`DESCRIPTION`](https://github.com/rstudio/reticulate/blob/main/DESCRIPTION)
 
-Ushey K, Allaire J, Tang Y (2026). *reticulate: Interface to 'Python'*.
-R package version 1.46.0.9000, <https://rstudio.github.io/reticulate/>.
+Kalinowski T, Ushey K, Allaire J, Tang Y (2026). *reticulate: Interface
+to 'Python'*. R package version 1.46.0.9000,
+<https://rstudio.github.io/reticulate/>.
 
     @Manual{,
       title = {reticulate: Interface to 'Python'},
-      author = {Kevin Ushey and JJ Allaire and Yuan Tang},
+      author = {Tomasz Kalinowski and Kevin Ushey and JJ Allaire and Yuan Tang},
       year = {2026},
       note = {R package version 1.46.0.9000},
       url = {https://rstudio.github.io/reticulate/},

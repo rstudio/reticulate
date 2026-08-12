@@ -22,10 +22,11 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Tomasz Kalinowski \email{tomasz@posit.co} [contributor]
+\strong{Maintainer}: Tomasz Kalinowski \email{tomasz@posit.co}
 
 Authors:
 \itemize{
+  \item Tomasz Kalinowski \email{tomasz@posit.co}
   \item Kevin Ushey \email{kevin@posit.co}
   \item JJ Allaire \email{jj@posit.co}
   \item Yuan Tang \email{terrytangyuan@gmail.com} (\href{https://orcid.org/0000-0001-5243-233X}{ORCID}) [copyright holder]

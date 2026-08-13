@@ -181,24 +181,12 @@ format_exclude_newer <- function(x) {
   if (!inherits(x, "POSIXt"))
     return(x)
 
-  time <- as.numeric(as.POSIXct(x))
-  seconds <- floor(time)
-  microseconds <- as.integer(round((time - seconds) * 1e6))
-  carry <- !is.na(microseconds) & microseconds == 1e6L
-  seconds[carry] <- seconds[carry] + 1
-  microseconds[carry] <- 0L
-
-  timestamp <- format(
-    as.POSIXct(seconds, origin = "1970-01-01", tz = "UTC"),
-    "%Y-%m-%dT%H:%M:%S",
+  # Convert POSIXlt to an instant before changing its time zone.
+  strftime(
+    as.POSIXct(x),
+    "%Y-%m-%dT%H:%M:%SZ",
     tz = "UTC"
   )
-  fraction <- sub("0+$", "", sprintf(".%06d", microseconds))
-  fraction[!is.na(microseconds) & microseconds == 0L] <- ""
-
-  out <- paste0(timestamp, fraction, "Z")
-  out[is.na(time)] <- NA_character_
-  out
 }
 
 
@@ -328,7 +316,7 @@ builtin_module_names <- c('abc', 'aifc', 'antigravity', 'argparse', 'ast', 'asyn
 #'   timestamp strings (e.g., `"2006-12-02T02:07:43Z"`), local-date strings
 #'   (e.g., `"2006-12-02"`) or `Date` objects, and `POSIXt` objects. Local dates
 #'   use your system's configured time zone; `POSIXt` values are converted to
-#'   UTC.
+#'   UTC at whole-second precision.
 #' @inheritDotParams base::system2 -command
 #'
 #' @details

@@ -13,7 +13,7 @@ test_that("py_require() accepts R date and date-time cutoffs", {
       py_require(exclude_newer = cutoff, action = "set")
       stopifnot(identical(
         py_require()$exclude_newer,
-        "2006-12-02T07:07:43.125Z"
+        "2006-12-02T07:07:43Z"
       ))
     }
   })
@@ -30,8 +30,7 @@ test_that("uv_run_tool() accepts R date and date-time cutoffs", {
   cutoffs <- list(
     as.Date("2006-12-02"),
     datetime,
-    as.POSIXlt(datetime),
-    as.POSIXct("2006-12-02 02:07:59", tz = "UTC") + 0.9999996
+    as.POSIXlt(datetime)
   )
   args <- list()
   testthat::with_mocked_bindings(
@@ -58,8 +57,7 @@ test_that("uv_run_tool() accepts R date and date-time cutoffs", {
     exclude_newer,
     c(
       "2006-12-02",
-      rep("2006-12-02T07:07:43.125Z", 2L),
-      "2006-12-02T02:08:00Z"
+      rep("2006-12-02T07:07:43Z", 2L)
     )
   )
 })

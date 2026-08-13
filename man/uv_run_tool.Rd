@@ -67,7 +67,7 @@ workflow. Accepts RFC 3339
 timestamp strings (e.g., \code{"2006-12-02T02:07:43Z"}), local-date strings
 (e.g., \code{"2006-12-02"}) or \code{Date} objects, and \code{POSIXt} objects. Local dates
 use your system's configured time zone; \code{POSIXt} values are converted to
-UTC.}
+UTC at whole-second precision.}
 }
 \value{
 Return value of \code{\link[=system2]{system2()}}

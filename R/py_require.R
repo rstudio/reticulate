@@ -193,8 +193,7 @@ py_require <- function(packages = NULL,
     packages = packages,
     python_version = python_version,
     exclude_newer = exclude_newer,
-    exclude_newer_supplied =
-      !missing(exclude_newer) && !is.null(exclude_newer),
+    exclude_newer_supplied = !is.null(exclude_newer),
     action = match.arg(action),
     source = environmentName(caller),
     source_is_package = called_from_package

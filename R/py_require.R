@@ -28,8 +28,8 @@
 #' declared requirements.
 #'
 #' R packages can also call `py_require()` (e.g., in `.onLoad()` or elsewhere)
-#' to declare Python dependencies. The print method for `py_require()` displays
-#' the Python dependencies declared by R packages in the current session.
+#' to declare Python dependencies. The print method shows successful requests
+#' from R packages and other environments in chronological order.
 #'
 #' @note
 #'
@@ -162,15 +162,18 @@
 #'   workflow. Accepts strings formatted as RFC 3339 timestamps (e.g.,
 #'   `"2006-12-02T02:07:43Z"`) and local dates in the same format (e.g.,
 #'   `"2006-12-02"`) in your system's configured time zone. Once `exclude_newer`
-#'   is set, only the `set` action can override it.
+#'   is set, `action = "add"` cannot change it. Use `action = "set"` to replace
+#'   it. To clear it, use `action = "remove"` with the same value, `NA`, or `""`.
 #'
 #' @returns `py_require()` is primarily called for its side effect of modifying
 #'   the manifest of "Python requirements" for the current R session  that
 #'   reticulate maintains internally. `py_require()` usually returns `NULL`
 #'   invisibly. If `py_require()` is called with no arguments, it returns the
-#'   current manifest--a list with names `packages`, `python_version`, and
-#'   `exclude_newer.` The list also has a class attribute, to provide a print
-#'   method.
+#'   current manifest--a list with names `python_version`, `packages`,
+#'   `exclude_newer`, and `history`. `history` is an append-only record of
+#'   successful requests, retained to help diagnose where requirements came
+#'   from. It is not used to resolve the manifest. The list also has a class
+#'   attribute, to provide a print method.
 #'
 #' @export
 py_require <- function(packages = NULL,
@@ -178,1072 +181,428 @@ py_require <- function(packages = NULL,
                        ...,
                        exclude_newer = NULL,
                        action = c("add", "remove", "set")) {
-
   if (length(list(...)))
     stop("... must be empty")
 
-  pr <- py_reqs_get()
-
   if (missing(packages) && missing(python_version) && missing(exclude_newer)) {
-    return(pr)
+    return(py_reqs_get())
   }
-
-  action <- match.arg(action)
-  called_from_package <- isNamespace(topenv(parent.frame()))
-  ephemeral_venv_initialized <- is_ephemeral_venv_initialized()
-  if (missing(packages))
-    packages <- NULL
-
-  # TODO: called_from_package_onLoad <- in_onload()
-  signal_and_exit <- if (called_from_package) warn_and_return else stop
 
   if (!is.null(python_version)) {
-    python_version <- unlist(strsplit(python_version, ",", fixed = TRUE))
-
-    if (ephemeral_venv_initialized) {
-
-      current_py_version <- py_version(patch = TRUE)
-      for (check in as_version_constraint_checkers(python_version)) {
-        if (!isTRUE(check(current_py_version))) {
-          signal_and_exit(paste0(collapse = "",
-            "Python version requirements cannot be ",
-            "changed after Python has been initialized.\n",
-            "* Python version request: '", python_version, "'",
-            if (called_from_package) paste0(" (from package:", parent.pkg(), ")"),
-            "\n",
-            "* Python version initialized: '", as.character(current_py_version), "'"
-          ))
-        }
-      }
-
-    } else {
-
-      pr$python_version <- py_reqs_action(action,
-                                          python_version,
-                                          py_reqs_get("python_version"))
-
-    }
-
+    python_version <- trimws(unlist(
+      strsplit(python_version, ",", fixed = TRUE),
+      use.names = FALSE
+    ))
   }
 
-  if (!is.null(exclude_newer)) {
-    if (called_from_package) {
-      stop("`exclude_newer` cannot be set inside a package")
-    }
-
-    if (ephemeral_venv_initialized) {
-
-      if (!identical(exclude_newer, pr$exclude_newer))
-        stop("`exclude_newer` cannot be changed after Python has initialized.")
-
-    } else {
-
-      switch(action,
-        add = {
-          if (!is.null(pr$exclude_newer)) {
-            # TODO: we can check if the new request is already satisfied
-            # by the old request. e.g.,
-            #   as.POSIXct(exclude_newer) >= as.POSIXct(pr$exclude_newer)
-            stop(
-              "`exclude_newer` is already set to '",
-              py_reqs_get("exclude_newer"),
-              "', use `action = 'set'` to override"
-            )
-          }
-        },
-        remove = {
-          if (identical(exclude_newer, pr$exclude_newer)) {
-            exclude_newer <- NA
-          }
-        },
-        set = {}
-      )
-
-      if (is.na(exclude_newer) || identical(exclude_newer, "")) {
-        # NA or "" are the sentinel for removing exclude_newer
-        # (since NULL sentinel already is taken)
-        exclude_newer <- NULL
-      }
-
-      pr$exclude_newer <- exclude_newer
-    }
+  exclude_newer_supplied <- !is.null(exclude_newer)
+  if (exclude_newer_supplied) {
+    if (length(exclude_newer) != 1L)
+      stop("`exclude_newer` must be a single value")
+    if (is.na(exclude_newer) || identical(exclude_newer, ""))
+      exclude_newer <- NULL
   }
 
-  if (!is.null(packages)) {
-    if (ephemeral_venv_initialized) {
-      switch(action,
-        add = {
-          if(all(packages %in% pr$packages)) {
-            packages <- NULL # no-op, skip activating new env
-          } else {
-            bare_name <- function(x) sub("^([^[!=><]+).*", "\\1", x)
-            packages <- setdiff(packages, pr$packages)
-            # e.g., if user calls 'numpy<2' after already initialized with 'numpy>2'
-            conflicts <- bare_name(packages) %in% bare_name(pr$packages)
-            if (any(conflicts)) {
-              new <- paste0("`", sort(packages[conflicts]), "`", collapse = ", ")
-              old <- sort(pr$packages[bare_name(pr$packages) %in% bare_name(packages)])
-              old <- paste0("`", old, "`", collapse = ", ")
-              signal_and_exit(paste(
-                "After Python has initialized, only `action = 'add'` with new packages is supported.",
-                "You tried to add", new, "but requirements contain", old, " already."
-              ))
-              packages <- NULL
-            }
-            pr$packages <- unique(c(packages, pr$packages))
-          }
-        },
-        remove = {
-          if (any(packages %in% pr$packages))
-            signal_and_exit("After Python has initialized, only `action = 'add'` is supported.")
-        },
-        set = {
-          if (!base::setequal(packages, pr$packages))
-            signal_and_exit("After Python has initialized, only `action = 'add'` is supported.")
-        })
-    } else {
-      pr$packages <- py_reqs_action(action, packages, py_reqs_get("packages"))
-    }
-  }
-
-  if (ephemeral_venv_initialized && action == "add" && !is.null(packages)) {
-    tryCatch({
-      new_path <- uv_get_or_create_env(pr$packages, pr$python_version, pr$exclude_newer)
-      new_config <- python_config(new_path)
-      new_config$ephemeral <- TRUE
-      if (new_config$libpython == .globals$py_config$libpython) {
-        py_activate_virtualenv(file.path(dirname(new_path), "activate_this.py"))
-        .globals$py_config <- new_config
-        .globals$py_config$available <- TRUE
-        # TODO: sync os.environ with R Sys.getenv()?
-      } else {
-        # TODO: Better error message?
-        signal_and_exit(
-          "New environment does not use the same Python binary\n",
-          "new libpython: ", new_config$libpython, "\n",
-          "old libpython: ", .globals$py_config$libpython)
-      }
-    }, error = signal_and_exit)
-  }
-
-  pr$history <- c(pr$history, list(list(
-    requested_from = environmentName(topenv(parent.frame())),
-    env_is_package = called_from_package,
+  caller <- topenv(parent.frame())
+  request <- list(
+    requested_from = environmentName(caller),
+    env_is_package = isNamespace(caller),
     packages = packages,
     python_version = python_version,
     exclude_newer = exclude_newer,
-    action = action
-  )))
-  .globals$python_requirements <- pr
+    exclude_newer_supplied = exclude_newer_supplied,
+    action = match.arg(action)
+  )
 
+  if (request$exclude_newer_supplied && request$env_is_package)
+    stop("`exclude_newer` cannot be set inside a package")
 
+  transition <- tryCatch(
+    py_reqs_transition(
+      current = py_reqs_get(),
+      request = request,
+      initialized = is_ephemeral_venv_initialized()
+    ),
+    error = identity
+  )
+  if (inherits(transition, "error")) {
+    if (request$env_is_package) {
+      warning(conditionMessage(transition))
+      return(invisible())
+    }
+    stop(conditionMessage(transition))
+  }
+
+  if (!is.null(transition$config))
+    .globals$py_config <- transition$config
+
+  .globals$python_requirements <- transition$manifest
   invisible()
 }
 
-#' @export
-print.python_requirements <- function(x, ...) {
-  packages <- x$packages
-  if (is.null(packages)) {
-    packages <- "[No package(s) specified]"
+
+py_reqs_transition <- function(current, request, initialized) {
+  plan <- py_reqs_plan(current, request, initialized)
+  config <- if (plan$activate)
+    py_reqs_activate(plan$manifest)
+  manifest <- plan$manifest
+  manifest$history <- c(manifest$history, list(request))
+
+  list(manifest = manifest, config = config)
+}
+
+
+py_reqs_plan <- function(current, request, initialized) {
+  if (!initialized) {
+    candidate <- current
+
+    if (!is.null(request$packages)) {
+      candidate$packages <- py_reqs_action(
+        request$action,
+        request$packages,
+        current$packages
+      )
+    }
+
+    if (!is.null(request$python_version)) {
+      candidate$python_version <- py_reqs_action(
+        request$action,
+        request$python_version,
+        current$python_version
+      )
+    }
+
+    if (request$exclude_newer_supplied) {
+      exclude_newer <- switch(request$action,
+        add = {
+          if (!is.null(current$exclude_newer)) {
+            stop(
+              "`exclude_newer` is already set to '", current$exclude_newer,
+              "', use `action = 'set'` to override"
+            )
+          }
+          request$exclude_newer
+        },
+        remove = {
+          if (is.null(request$exclude_newer) ||
+              identical(request$exclude_newer, current$exclude_newer))
+            NULL
+          else
+            current$exclude_newer
+        },
+        set = request$exclude_newer
+      )
+      # `$<- NULL` would remove the field from the manifest.
+      candidate["exclude_newer"] <- list(exclude_newer)
+    }
+
+    return(list(
+      manifest = candidate,
+      activate = FALSE
+    ))
   }
-  python_version <- x$python_version
-  if (is.null(python_version)) {
-    if(is_ephemeral_venv_initialized()) {
-      python_version <- paste0(
-        "[No Python version specified. Defaulted to '",
-        resolve_python_version() , "']"
-      )
-    } else {
-      python_version <- paste0(
-        "[No Python version specified. Will default to '",
-        resolve_python_version() , "']"
-      )
+
+  candidate <- current
+  activate <- FALSE
+
+  if (!is.null(request$python_version)) {
+    current_version <- py_version(patch = TRUE)
+    for (check in as_version_constraint_checkers(request$python_version)) {
+      if (!isTRUE(check(current_version))) {
+        stop(paste0(
+          "Python version requirements cannot be changed after Python has ",
+          "been initialized.\n",
+          "* Python version request: '",
+          paste(request$python_version, collapse = ","), "'",
+          if (request$env_is_package)
+            paste0(" (from package:", request$requested_from, ")"),
+          "\n* Python version initialized: '", current_version, "'"
+        ))
+      }
     }
   }
 
-  requested_from <- as.character(lapply(x$history, function(x) x$requested_from))
-  history <- x$history[requested_from != "R_GlobalEnv"]
-  is_package <- as.logical(lapply(history, function(x) x$env_is_package))
-  longest_pkg <- max(nchar(packages)) + 13
-  if(longest_pkg < 73) {
-    console_width <- 73
-  } else {
-    console_width <- longest_pkg
+  if (request$exclude_newer_supplied &&
+      !identical(request$exclude_newer, current$exclude_newer)) {
+    stop("`exclude_newer` cannot be changed after Python has initialized.")
   }
-  if (requireNamespace("cli", quietly = TRUE)) {
-    withr::with_options(
-      list("cli.width" = console_width),
-      {
-        cli::cli_div(
-          theme = list(rule = list(color = "cyan", "line-type" = "double"))
-        )
-        cli::cli_rule(center = "Python requirements")
-        cli::cli_div(
-          theme = list(rule = list("line-type" = "single"))
-        )
-        cli::cli_rule("Current requirements")
-        cat(py_reqs_format(
-          packages = packages,
-          python_version = python_version,
-          exclude_newer = x$exclude_newer,
-          use_cli = TRUE,
-          console_width = console_width
-        ))
-        cat("\n")
-        if (any(is_package)) {
-          cli::cli_rule("R package requests")
-          py_reqs_table(history[is_package], "R package", use_cli = TRUE, console_width)
+
+  if (!is.null(request$packages)) {
+    switch(request$action,
+      add = {
+        added <- setdiff(request$packages, current$packages)
+        if (length(added)) {
+          added_names <- py_requirement_name(added)
+          current_names <- py_requirement_name(current$packages)
+          conflicts <- added_names %in% current_names
+          if (any(conflicts)) {
+            new <- paste0("`", sort(added[conflicts]), "`", collapse = ", ")
+            old <- current$packages[current_names %in% added_names[conflicts]]
+            old <- paste0("`", sort(old), "`", collapse = ", ")
+            stop(paste(
+              "After Python has initialized, only `action = 'add'` with new packages is supported.",
+              "You tried to add", new, "but requirements contain", old, "already."
+            ))
+          }
+          candidate$packages <- unique(c(added, current$packages))
+          activate <- TRUE
         }
-        if (any(!is_package)) {
-          cli::cli_rule("Environment requests")
-          py_reqs_table(history[!is_package], "R package", use_cli = TRUE, console_width)
-        }
+      },
+      remove = {
+        if (any(request$packages %in% current$packages))
+          stop("After Python has initialized, only `action = 'add'` is supported.")
+      },
+      set = {
+        if (!setequal(request$packages, current$packages))
+          stop("After Python has initialized, only `action = 'add'` is supported.")
       }
     )
-  } else {
-    pr_width <- ceiling((console_width - 21) / 2)
-    cat(paste0(rep("=", pr_width), collapse = ""))
-    cat(" Python requirements ")
-    cat(paste0(rep("=", pr_width), collapse = ""), "\n")
-    cat(
-      py_reqs_format(
-        packages = packages,
-        python_version = python_version,
-        exclude_newer = x$exclude_newer,
-        console_width = console_width
-        )
-      )
-    cat("\n")
-    if (any(is_package)) {
-      cat("-- R package requests ")
-      cat(paste0(rep("-", console_width - 22), collapse = ""), "\n")
-      py_reqs_table(history[is_package], "R package", console_width = console_width)
-    }
-    if (any(!is_package)) {
-      cat("-- Environment requests ")
-      cat(paste0(rep("-", console_width - 24), collapse = ""), "\n")
-      py_reqs_table(history[!is_package], "R package", console_width = console_width)
-    }
   }
+
+  list(manifest = candidate, activate = activate)
+}
+
+
+py_requirement_name <- function(requirement) {
+  # Canonicalize named requirements, but leave unnamed paths and URLs distinct.
+  requirement <- trimws(requirement, which = "left")
+  match <- regexpr("^[[:alnum:]][[:alnum:]_.-]*", requirement)
+  match_length <- attr(match, "match.length")
+  named <- match == 1L
+  remainder <- requirement
+  remainder[named] <- substring(
+    requirement[named],
+    match_length[named] + 1L
+  )
+  named <- named & grepl("^$|^[[:space:]\\[(@<>=!~;]", remainder)
+
+  name <- requirement
+  name[named] <- substring(requirement[named], 1L, match_length[named])
+  name[named] <- tolower(gsub("[-_.]+", "-", name[named]))
+  name
+}
+
+
+py_reqs_activate <- function(manifest) {
+  new_path <- uv_get_or_create_env(
+    packages = manifest$packages,
+    python_version = as.character(py_version(patch = TRUE)),
+    exclude_newer = manifest$exclude_newer
+  )
+  new_config <- python_config(new_path)
+  new_config$ephemeral <- TRUE
+
+  if (!identical(new_config$libpython, .globals$py_config$libpython)) {
+    stop(
+      "New environment does not use the same Python binary\n",
+      "new libpython: ", new_config$libpython, "\n",
+      "old libpython: ", .globals$py_config$libpython
+    )
+  }
+
+  py_activate_virtualenv(file.path(dirname(new_path), "activate_this.py"))
+  new_config$available <- TRUE
+  new_config
+}
+
+
+#' @export
+print.python_requirements <- function(x, ..., width = 73L) {
+  if (requireNamespace("cli", quietly = TRUE))
+    py_reqs_print_cli(x, width)
+  else
+    py_reqs_print_base(x, width)
   invisible()
 }
+
+py_reqs_print_cli <- function(x, width) {
+  withr::local_options(list(cli.width = width))
+  cli::start_app(output = "stdout")
+  sections <- py_reqs_print_sections(x, width, use_cli = TRUE)
+
+  cli::cli_div(
+    theme = list(rule = list(color = "cyan", "line-type" = "double"))
+  )
+  cli::cli_rule(center = "Python requirements")
+  cli::cli_div(theme = list(rule = list("line-type" = "single")))
+  cli::cli_rule("Current requirements")
+  writeLines(sections$current)
+
+  cli::cli_rule("Python requirement requests (in order)")
+  writeLines(sections$history)
+}
+
+
+py_reqs_print_base <- function(x, width) {
+  sections <- py_reqs_print_sections(x, width)
+  title <- " Python requirements "
+  fill <- max(width - nchar(title), 0L)
+  left <- fill %/% 2L
+  title <- paste0(strrep("=", left), title, strrep("=", fill - left))
+  rule <- function(title) {
+    prefix <- paste0("-- ", title, " ")
+    paste0(prefix, strrep("-", max(width - nchar(prefix), 0L)))
+  }
+
+  writeLines(c(
+    title,
+    rule("Current requirements"),
+    sections$current,
+    rule("Python requirement requests (in order)"),
+    sections$history
+  ))
+}
+
+
+py_reqs_print_sections <- function(x,
+                                   width,
+                                   use_cli = FALSE) {
+  field <- function(label, value, indent = 1L, empty = NULL) {
+    if (!length(value))
+      value <- empty
+    if (!length(value))
+      return(character())
+
+    label <- paste0(label, ":")
+    prefix <- sprintf("%-10s", label)
+    value <- strwrap(
+      paste(value, collapse = ", "),
+      width = width - indent - nchar(prefix)
+    )
+    line_prefix <- rep(strrep(" ", indent + nchar(prefix)), length(value))
+    line_prefix[1L] <- paste0(strrep(" ", indent), prefix)
+    if (!use_cli)
+      return(paste0(line_prefix, value))
+
+    label <- paste0(
+      cli::col_blue(label),
+      substring(prefix, nchar(label) + 1L)
+    )
+    line_prefix[[1L]] <- paste0(strrep(" ", indent), label)
+    paste0(line_prefix, cli::col_grey(value))
+  }
+
+  python_version <- x$python_version
+  if (!length(python_version)) {
+    initialized <- is_ephemeral_venv_initialized()
+    default <- if (initialized)
+      as.character(py_version(patch = TRUE))
+    else
+      resolve_python_version()
+    default_message <- if (initialized)
+      "Defaulted"
+    else
+      "Will default"
+    python_version <- sprintf(
+      "[No Python version specified. %s to '%s']",
+      default_message,
+      default
+    )
+  }
+
+  current <- c(
+    field("Python", python_version),
+    field("Packages", x$packages, empty = "[No packages specified]"),
+    if (length(x$exclude_newer))
+      field("Exclude", paste("Anything newer than", x$exclude_newer))
+  )
+
+  history <- Filter(
+    function(event) !identical(event$requested_from, "R_GlobalEnv"),
+    x$history
+  )
+  history_lines <- character()
+  for (i in seq_along(history)) {
+    event <- history[[i]]
+    source <- if (event$env_is_package) {
+      paste("R package", event$requested_from)
+    } else if (nzchar(event$requested_from)) {
+      paste("R environment", event$requested_from)
+    } else {
+      "R environment"
+    }
+    heading <- sprintf("%d. %s:", i, source)
+    if (use_cli)
+      heading <- cli::style_bold(heading)
+
+    history_lines <- c(
+      history_lines,
+      paste0("  ", heading),
+      field("Action", event$action, indent = 4L),
+      field("Packages", event$packages, indent = 4L),
+      field("Python", event$python_version, indent = 4L),
+      if (event$exclude_newer_supplied)
+        field(
+          "Exclude", event$exclude_newer,
+          indent = 4L, empty = "[No cutoff]"
+        )
+    )
+  }
+
+  list(current = current, history = history_lines)
+}
+
 
 # Python requirements - utils --------------------------------------------------
 
-py_reqs_pad <- function(x = "", len, use_cli, is_title = FALSE) {
-
-  if(nchar(x) > len) {
-    x <- paste0(substr(x, 1, len-3), "...")
-  }
-
-  padding <- paste0(rep(" ", len - nchar(x)), collapse = "")
-  ret <- paste0(x, padding)
-  if (use_cli) {
-    if (is_title) {
-      ret <- cli::col_blue(ret)
-    } else {
-      ret <- cli::col_grey(ret)
-    }
-  }
-  ret
-}
-
-py_reqs_table <- function(history, from_label, use_cli = FALSE, console_width = 73) {
-  python_width <- 20
-  requested_from <- as.character(lapply(history, function(x) x$requested_from))
-  pkg_names <- c(unique(requested_from), from_label)
-  name_width <- max(nchar(pkg_names)) + 1
-  pkg_width <- console_width - python_width - name_width
-  header <- list(list(
-    requested_from = from_label,
-    packages = "Python packages",
-    python_version = "Python version",
-    is_title = 1
-  ))
-  history <- lapply(unique(requested_from), py_reqs_flatten, history)
-  history <- c(header, history)
-  for (pkg_entry in history) {
-    pkg_lines <- strwrap(
-      x = paste0(pkg_entry$packages, collapse = ", "),
-      width = pkg_width
-    )
-    python_lines <- strwrap(
-      x = paste0(pkg_entry$python_version, collapse = ", "),
-      width = python_width
-    )
-    max_lines <- max(c(length(python_lines), length(pkg_lines)))
-    for (i in seq_len(max_lines)) {
-      nm <- ifelse(i == 1, pkg_entry$requested_from, "")
-      pk <- ifelse(i <= length(pkg_lines), pkg_lines[i], "")
-      py <- ifelse(i <= length(python_lines), python_lines[i], "")
-      cat(py_reqs_pad(nm, name_width, use_cli, !is.null(pkg_entry$is_title)))
-      cat(py_reqs_pad(pk, pkg_width, use_cli, !is.null(pkg_entry$is_title)))
-      cat(py_reqs_pad(py, python_width, use_cli, !is.null(pkg_entry$is_title)))
-      cat("\n")
-    }
-  }
-}
-
-py_reqs_action <- function(action, x, y = NULL) {
-  if (is.null(x)) {
-    return(y)
-  }
+py_reqs_action <- function(action, x, current) {
   switch(action,
-    add = unique(c(y, x)),
-    remove = setdiff(y, x),
+    add = unique(c(current, x)),
+    remove = setdiff(current, x),
     set = x
   )
 }
 
-py_reqs_flatten <- function(r_pkg = "", history) {
-  req_packages <- NULL
-  req_python <- NULL
-  for (entry in history) {
-    if (entry$requested_from == r_pkg | r_pkg == "") {
-      req_packages <- py_reqs_action(entry$action, entry$packages, req_packages)
-      req_python <- py_reqs_action(entry$action, entry$python_version, req_python)
-    }
-  }
-  list(
-    requested_from = r_pkg,
-    packages = req_packages,
-    python_version = req_python
-  )
-}
 
 py_reqs_format <- function(packages = NULL,
                            python_version = NULL,
                            exclude_newer = NULL,
-                           use_cli = FALSE,
-                           console_width = 73) {
-  msg <- c(
-    if (!use_cli) {
-      paste0(
-        "-- Current requirements ",
-        paste0(rep("-", console_width - 24), collapse = ""),
-        collapse = ""
-      )
-    },
-    if (!is.null(python_version)) {
-      python <- ifelse(use_cli, cli::col_blue("Python:"), "Python:")
-      python_version <- paste0(python_version, collapse = ", ")
-      python_version <- ifelse(use_cli, cli::col_grey(python_version), python_version)
-      paste0(" ", python, "   ", python_version)
-    },
-    if (!is.null(packages)) {
-      tbl_width <- console_width - 13
-      pkg_lines <- strwrap(paste0(packages, collapse = ", "), tbl_width)
-      pkgs <- "Packages:"
-      if (use_cli) {
-        pkgs <- cli::col_blue(pkgs)
-        pkg_lines <- as.character(lapply(pkg_lines, cli::col_grey))
-      }
-      pkg_col <- c(paste0(" ", pkgs, " "), rep("           ", length(pkg_lines) - 1))
-      out <- NULL
-      for (i in seq_along(pkg_lines)) {
-        out <- c(out, paste0(pkg_col[[i]], pkg_lines[[i]]))
-      }
-      out
-    },
-    if (!is.null(exclude_newer)) {
-      exclude <- ifelse(use_cli, cli::col_blue("Exclude:"), "Exclude:")
-      exclude_newer <- paste0("  Anything newer than ", exclude_newer)
-      exclude_newer <- ifelse(use_cli, cli::col_grey(exclude_newer), exclude_newer)
-      paste0(" ", exclude, exclude_newer)
-    }
-  )
-  paste0(msg, collapse = "\n")
+                           console_width = 73L) {
+  package_lines <- if (length(packages)) {
+    packages <- strwrap(
+      paste(packages, collapse = ", "),
+      width = console_width - 13L
+    )
+    paste0(
+      c(" Packages: ", rep("           ", length(packages) - 1L)),
+      packages
+    )
+  }
+
+  paste(c(
+    paste0("-- Current requirements ", strrep("-", console_width - 24L)),
+    if (length(python_version))
+      paste0(" Python:   ", paste(python_version, collapse = ", ")),
+    package_lines,
+    if (length(exclude_newer))
+      paste0(" Exclude:  Anything newer than ", exclude_newer)
+  ), collapse = "\n")
 }
 
-py_reqs_get <- function(x = NULL) {
-  pr <- .globals$python_requirements
-  if (is.null(pr)) {
-    pr <- structure(
-      list(
+
+py_reqs_get <- function() {
+  manifest <- .globals$python_requirements
+  if (!is.null(manifest))
+    return(manifest)
+
+  packages <- c("numpy", if (is_positron()) "ipykernel")
+  manifest <- structure(
+    list(
+      python_version = NULL,
+      packages = packages,
+      exclude_newer = NULL,
+      history = list(list(
+        requested_from = "reticulate",
+        env_is_package = TRUE,
+        packages = packages,
         python_version = NULL,
-        packages = NULL,
         exclude_newer = NULL,
-        history = list()
-      ),
-      class = "python_requirements"
-    )
-    pkg_prime <- c("numpy", if (is_positron()) "ipykernel")
-    pr$packages <- pkg_prime
-    pr$history <- list(list(
-      requested_from = "reticulate",
-      env_is_package = TRUE,
-      action = "add",
-      packages = pkg_prime
-    ))
-    .globals$python_requirements <- pr
-  }
-  if (is.null(x)) {
-    return(pr)
-  }
-  if (x == "python_version") {
-    if (is_ephemeral_venv_initialized())
-      return(as.character(py_version(TRUE)))
-  }
-  pr[[x]]
-}
-
-# uv ---------------------------------------------------------------------------
-
-download_uv_installer <- function() {
-  file_ext <- if (is_windows()) ".ps1" else ".sh"
-  installer <- tempfile("install-uv-", fileext = file_ext)
-  downloaded <- FALSE
-  on.exit(if (!downloaded) unlink(installer), add = TRUE)
-
-  status <- download.file(
-    paste0("https://astral.sh/uv/install", file_ext),
-    installer,
-    quiet = TRUE
-  )
-  if (!identical(status, 0L) || !file.exists(installer))
-    return()
-
-  downloaded <- TRUE
-  installer
-}
-
-uv_binary <- function(bootstrap_install = TRUE) {
-  min_uv_version <- numeric_version("0.6.3")
-  install_uv <- NULL
-  is_usable_uv <- function(uv) {
-    if (is.null(uv) || is.na(uv) || uv == "" || !file.exists(uv)) {
-      return(FALSE)
-    }
-    ver <- suppressWarnings(system2(uv, "--version", stderr = TRUE, stdout = TRUE))
-    if (!is.null(attr(ver, "status"))) {
-      return(FALSE)
-    }
-    ver <- numeric_version(sub("uv ([0-9.]+).*", "\\1", ver), strict = FALSE)
-    !is.na(ver) && ver >= min_uv_version
-  }
-
-  repeat {
-    uv <- Sys.getenv("RETICULATE_UV", NA)
-    if (!is.na(uv)) {
-      if (uv == "managed") {
-        on.exit(
-          if (bootstrap_install && is_usable_uv(uv))
-            Sys.setenv(RETICULATE_UV = uv),
-          add = TRUE
-        )
-        break
-      } else {
-        return(uv)
-      }
-    }
-
-    uv <- getOption("reticulate.uv_binary")
-    if (!is.null(uv)) {
-      if (uv == "managed") break else return(uv)
-    }
-
-    # on Windows, the invocation cost of `uv` is non-negligible,
-    # observed to be 0.2s for just `uv --version`.
-    # This is an approach to avoid paying that cost on each invocation, mostly
-    # motivated by uv_run_tool()
-    on.exit(
-      if ((bootstrap_install ||
-           !isTRUE(attr(uv, "reticulate-managed", exact = TRUE))) &&
-          is_usable_uv(uv)) {
-        options(reticulate.uv_binary = uv)
-      },
-      add = TRUE
-    )
-
-    uv <- as.character(Sys.which("uv"))
-    if (is_usable_uv(uv)) {
-      return(uv)
-    }
-
-    uv <- path.expand("~/.local/bin/uv")
-    if (is_usable_uv(uv)) {
-      return(uv)
-    }
-
-    break
-  }
-
-  uv <- reticulate_cache_dir("uv", "bin", if (is_windows()) "uv.exe" else "uv")
-  attr(uv, "reticulate-managed") <- TRUE
-
-  if (bootstrap_install) {
-    install_uv <- maybe_clear_reticulate_uv_cache()
-    if (!is.null(install_uv))
-      on.exit(unlink(install_uv), add = TRUE)
-  }
-
-  if (is_usable_uv(uv)) {
-    return(uv)
-  }
-
-  if (file.exists(uv)) {
-    # exists, but version too old
-    unlink(reticulate_cache_dir("uv"), recursive = TRUE, force = TRUE)
-    ## We don't do `system2(uv, "self update")` because self update is only
-    ## supported on a "managed" uv installations, and uv only supports one
-    ## managed installation per system. uv installs and maintains a config file
-    ## for the auto updater in XDG_CONFIG_DIRS/uv/uv-receipt.json and errors if
-    ## multiple uv installations attempt to modify that config file.
-  }
-
-  if (!bootstrap_install) {
-    uv <- NULL
-    return()
-  }
-
-    # Install 'uv' in the 'r-reticulate' sub-folder inside the user's cache directory
-    # https://github.com/astral-sh/uv/blob/main/docs/configuration/installer.md
-
-    # Ensure the cache directory is empty, in case an earlier
-    # cache clear action was interrupted.
-    unlink(dirname(dirname(uv)), recursive = TRUE, force = TRUE)
-
-    dir.create(dirname(uv), showWarnings = FALSE, recursive = TRUE)
-    if (is.null(install_uv)) {
-      message("Downloading uv...", appendLF = FALSE)
-      install_uv <- download_uv_installer()
-      if (is.null(install_uv)) {
-        return(NULL)
-        # stop("Unable to download Python dependencies. Please install `uv` manually.")
-      }
-      on.exit(unlink(install_uv), add = TRUE)
-      message("Done!")
-    }
-    if (debug_uv <- Sys.getenv("_RETICULATE_DEBUG_UV_") == "1")
-      system2 <- system2t
-
-    uv_stdout <- tempfile("install-uv-stdout-")
-    uv_stderr <- tempfile("install-uv-stderr-")
-    on.exit(unlink(c(uv_stdout, uv_stderr)), add = TRUE)
-
-    if (is_windows()) {
-
-      withr::with_envvar(c(
-        "UV_UNMANAGED_INSTALL" = utils::shortPathName(dirname(uv)),
-        "PSModulePath" = NA
-      ), {
-        status <- system2("powershell.exe", c(
-          "-NoProfile",
-          "-NonInteractive",
-          "-ExecutionPolicy", "Bypass",
-          "-File", utils::shortPathName(install_uv)),
-          stdout = uv_stdout,
-          stderr = uv_stderr
-        )
-      })
-
-    } else {
-
-      Sys.chmod(install_uv, mode = "0755")
-      withr::with_envvar(c("UV_UNMANAGED_INSTALL" = dirname(uv)), {
-        status <- system2(install_uv,
-                          stdout = uv_stdout,
-                          stderr = uv_stderr)
-      })
-
-    }
-
-    stdout_lines <- if (file.exists(uv_stdout)) readLines(uv_stdout, warn = FALSE)
-    stderr_lines <- if (file.exists(uv_stderr)) readLines(uv_stderr, warn = FALSE)
-
-    if (debug_uv) {
-      writeLines(stdout_lines)
-      writeLines(stderr_lines, con = stderr())
-    }
-
-    failed <- !identical(status, 0L)
-    if (failed || !file.exists(uv)) {
-      details <- c(
-        if (length(stdout_lines)) c("stdout:", paste0("  ", stdout_lines)),
-        if (length(stderr_lines)) c("stderr:", paste0("  ", stderr_lines))
-      )
-      msg <- if (failed) {
-        sprintf("uv bootstrap failed with exit status %s.", status)
-      } else {
-        sprintf("uv bootstrap failed: installer completed without creating %s.",
-                shQuote(uv))
-      }
-      stop(paste(c(msg, details), collapse = "\n"), call. = FALSE)
-    }
-
-  # if we bootstrap-installed successfully, return the path to the uv binary
-  # if not, reset `uv` for the on.exit() hook and return NULL visibly
-  if (file.exists(uv)) uv else (uv <- NULL)
-}
-
-uv_get_or_create_env <- function(packages = py_reqs_get("packages"),
-                                 python_version = py_reqs_get("python_version"),
-                                 exclude_newer = py_reqs_get("exclude_newer")) {
-
-  uv <- uv_binary() %||% return() # error?
-
-  withr::local_envvar(c(
-    VIRTUAL_ENV = NA,
-    if (is_positron())
-      c(RUST_LOG = NA),
-    if (isTRUE(attr(uv, "reticulate-managed", TRUE)))
-      c(
-        UV_CACHE_DIR = reticulate_cache_dir("uv", "cache"),
-        UV_PYTHON_INSTALL_DIR = reticulate_cache_dir("uv", "python")
-      )
-  ))
-
-  resolved_python_version <-
-    resolve_python_version(constraints = python_version, uv = uv)
-
-  if (!length(resolved_python_version)) {
-    return() # error?
-  }
-
-  # capture args; maybe used in error message later
-  call_args <- list(
-    packages = packages,
-    python_version = python_version %||%
-      paste(resolved_python_version, "(reticulate default)"),
-    exclude_newer = exclude_newer
-  )
-
-  if (length(packages))
-    packages <- as.vector(rbind("--with", packages))
-
-  python_version <- c("--python", resolved_python_version)
-
-  if (!is.null(exclude_newer)) {
-    # todo, accept a POSIXct/lt, format correctly
-    exclude_newer <- c("--exclude-newer", exclude_newer)
-  }
-
-  uv_output_file <- tempfile()
-  on.exit(unlink(uv_output_file), add = TRUE)
-
-  uv_args <- c(
-    "tool", "run",
-    "--isolated",
-    python_version,
-    exclude_newer,
-    packages,
-    "--",
-    "python", "-c",
-    # chr(119) == "w", but avoiding a string literal to minimize the need for
-    # shell quoting shenanigans
-    "import sys; f=open(sys.argv[-1], chr(119)); f.write(sys.executable); f.close();",
-    uv_output_file
-  )
-
-  # debug print system call
-  if (debug <- Sys.getenv("_RETICULATE_DEBUG_UV_") == "1")
-    message(paste0(c(shQuote(uv), maybe_shQuote(uv_args)), collapse = " "))
-
-  error_code <- suppressWarnings(system2(uv, maybe_shQuote(uv_args)))
-
-  if (error_code) {
-    cat("uv error code: ", error_code, "\n", sep = "", file = stderr())
-    msg <- do.call(py_reqs_format, call_args)
-    writeLines(c(msg, strrep("-", 73L)), con = stderr())
-    if (error_code == 2) {
-      cat(
-        "Hint: If you are temporarily offline, try setting `Sys.setenv(UV_OFFLINE=1)`.\n",
-        file = stderr()
-      )
-    }
-
-    if (any(call_args$packages %in% builtin_module_names)) {
-      requested_builtin_modules <- intersect(call_args$packages, builtin_module_names)
-      invalid <- unique(c("sys", "os", requested_builtin_modules))
-      writeLines(con = stderr(), c(
-        "Hint: `py_require()` expects Python package names rather than Python module names.",
-        sprintf(
-          "Modules provided by the Python standard library such as %s should not be passed to `py_require()`.",
-          pc_and("`", invalid, "`")
-        ),
-        strrep("-", 73L)
+        exclude_newer_supplied = FALSE,
+        action = "add"
       ))
-    }
-
-    stop("Call `py_require()` to remove or replace conflicting requirements.")
-  }
-
-  cached_python <- readLines(uv_output_file, warn = FALSE)
-  if (debug)
-    message("resolved ephemeral python: ", cached_python)
-  cached_python
-}
-
-
-# uv_get_or_create_env(packages = NULL) |>
-#   system2("-", stdout = TRUE, input = '
-# import pkgutil
-#
-# modules = [
-#     module.name
-#     for module in pkgutil.iter_modules()
-#     if not module.name.startswith("_")
-# ]
-#
-# print("c", tuple(sorted(modules)), sep = "")
-# ') |>
-#   clipr::write_clip()
-
-builtin_module_names <- c('abc', 'aifc', 'antigravity', 'argparse', 'ast', 'asynchat', 'asyncio', 'asyncore', 'base64', 'bdb', 'bisect', 'bz2', 'cProfile', 'calendar', 'cgi', 'cgitb', 'chunk', 'cmd', 'code', 'codecs', 'codeop', 'collections', 'colorsys', 'compileall', 'concurrent', 'configparser', 'contextlib', 'contextvars', 'copy', 'copyreg', 'crypt', 'csv', 'ctypes', 'curses', 'dataclasses', 'datetime', 'dbm', 'decimal', 'difflib', 'dis', 'distutils', 'doctest', 'email', 'encodings', 'ensurepip', 'enum', 'filecmp', 'fileinput', 'fnmatch', 'fractions', 'ftplib', 'functools', 'genericpath', 'getopt', 'getpass', 'gettext', 'glob', 'graphlib', 'gzip', 'hashlib', 'heapq', 'hmac', 'html', 'http', 'idlelib', 'imaplib', 'imghdr', 'imp', 'importlib', 'inspect', 'io', 'ipaddress', 'json', 'keyword', 'lib2to3', 'linecache', 'locale', 'logging', 'lzma', 'mailbox', 'mailcap', 'mimetypes', 'modulefinder', 'multiprocessing', 'netrc', 'nntplib', 'ntpath', 'nturl2path', 'numbers', 'opcode', 'operator', 'optparse', 'os', 'pathlib', 'pdb', 'pickle', 'pickletools', 'pip', 'pipes', 'pkg_resources', 'pkgutil', 'platform', 'plistlib', 'poplib', 'posixpath', 'pprint', 'profile', 'pstats', 'pty', 'py_compile', 'pyclbr', 'pydoc', 'pydoc_data', 'queue', 'quopri', 'random', 're', 'reprlib', 'rlcompleter', 'runpy', 'sched', 'secrets', 'selectors', 'setuptools', 'shelve', 'shlex', 'shutil', 'signal', 'site', 'smtpd', 'smtplib', 'sndhdr', 'socket', 'socketserver', 'sqlite3', 'sre_compile', 'sre_constants', 'sre_parse', 'ssl', 'stat', 'statistics', 'string', 'stringprep', 'struct', 'subprocess', 'sunau', 'symtable', 'sysconfig', 'tabnanny', 'tarfile', 'telnetlib', 'tempfile', 'textwrap', 'this', 'threading', 'timeit', 'tkinter', 'tm', 'token', 'tokenize', 'tomllib', 'trace', 'traceback', 'tracemalloc', 'tty', 'turtle', 'turtledemo', 'types', 'typing', 'unittest', 'urllib', 'uu', 'uuid', 'venv', 'warnings', 'wave', 'weakref', 'webbrowser', 'wsgiref', 'xdrlib', 'xml', 'xmlrpc', 'zipapp', 'zipfile', 'zipimport', 'zoneinfo')
-
-#' uv run tool
-#'
-#' Run a Command Line Tool distributed as a Python package. Packages are
-#' automatically download and installed into a cached, ephemeral, and isolated
-#' environment on the first run.
-#'
-#' @param tool,args A character vector of command and arguments. Arguments are
-#'   not quoted for the shell, so you may need to use [`shQuote()`].
-#' @param from Use the given Python package to provide the command.
-#' @param with Run with the given Python packages installed. You can also
-#'   specify version constraints like `"ruff>=0.3.0"`.
-#' @param python_version A Python version string, or character vector of Python
-#'   version constraints.
-#' @param exclude_newer String. Limit package versions to those published before
-#'   a specified date. This offers a lightweight alternative to freezing package
-#'   versions, helping guard against Python package updates that break a
-#'   workflow. Accepts strings formatted as RFC 3339 timestamps (e.g.,
-#'   `"2006-12-02T02:07:43Z"`) and local dates in the same format (e.g.,
-#'   `"2006-12-02"`) in your system's configured time zone.
-#' @inheritDotParams base::system2 -command
-#'
-#' @details
-#'
-#' ## Examples
-#' ```r
-#' uv_run_tool("pycowsay", shQuote("hello from reticulate"))
-#' uv_run_tool("markitdown", shQuote(file.path(R.home("doc"), "NEWS.pdf")), stdout = TRUE)
-#' uv_run_tool("kaggle competitions download -c dogs-vs-cats")
-#' uv_run_tool("ruff", "--help")
-#' uv_run_tool("ruff format", shQuote(Sys.glob("**.py")))
-#' uv_run_tool("http", from = "httpie")
-#' uv_run_tool("http", "--version", from = "httpie<3.2.4", stdout = TRUE)
-#' uv_run_tool("saved_model_cli", "--help", from = "tensorflow")
-#' ```
-#' @seealso <https://docs.astral.sh/uv/guides/tools/>
-#' @returns Return value of [`system2()`]
-#' @export
-#' @md
-uv_run_tool <- function(tool,
-                        args = character(),
-                        ...,
-                        from = NULL,
-                        with = NULL,
-                        python_version = NULL,
-                        exclude_newer = NULL) {
-  uv <- uv_binary()
-  withr::local_envvar(c(
-    VIRTUAL_ENV = NA,
-    if (is_positron())
-      c(RUST_LOG = NA),
-    if (isTRUE(attr(uv, "reticulate-managed", TRUE)))
-      c(
-        UV_CACHE_DIR = reticulate_cache_dir("uv", "cache"),
-        UV_PYTHON_INSTALL_DIR = reticulate_cache_dir("uv", "python")
-      )
-  ))
-
-  python <- .globals$cached_uv_run_tool_python_version[[python_version %||% "default"]]
-  if (is.null(python)) {
-    .globals$cached_uv_run_tool_python_version[[python_version %||% "default"]] <-
-      python <-
-      resolve_python_version(constraints = python_version, uv = uv)
-  }
-
-  system2(uv, c(
-    "tool",
-    "run",
-    "--isolated",
-    "--python", python,
-    if (length(exclude_newer)) c("--exclude-newer", exclude_newer),
-    if (length(from)) c("--from", maybe_shQuote(from)),
-    if (length(with)) c(rbind("--with", maybe_shQuote(with))),
-    "--",
-    tool,
-    args
-  ), ...)
-}
-
-
-# uv - utils -------------------------------------------------------------------
-
-
-is_reticulate_managed_uv <- function(uv = uv_binary(bootstrap_install = FALSE)) {
-  if (is.null(uv)) {
-    # no user-installed uv - uv will be bootstrapped by reticulate
-    return(TRUE)
-  }
-
-  isTRUE(attr(uv, "reticulate-managed", TRUE))
-}
-
-
-
-# return a dataframe of python options sorted by default reticulate preference
-uv_python_list <- function(
-  uv = uv_binary(),
-  python_preference = Sys.getenv("UV_PYTHON_PREFERENCE", "only-managed")
-) {
-  if (isTRUE(attr(uv, "reticulate-managed", TRUE)))
-    withr::local_envvar(c(
-      UV_CACHE_DIR = reticulate_cache_dir("uv", "cache"),
-      UV_PYTHON_INSTALL_DIR = reticulate_cache_dir("uv", "python")
-    ))
-
-
-  if (Sys.getenv("_RETICULATE_DEBUG_UV_") == "1")
-    system2 <- system2t
-
-  # valid values of python_preference are: only-managed, managed, system, only-system
-  # https://docs.astral.sh/uv/reference/settings/#python-preference
-  if (python_preference != "only-managed") {
-    # uv does not find many pythons that are found by `virtualenv_starter(all=T)`,
-    # including pythons installed by `install_python()`
-    # To help uv find them, we temporarily place them on the PATH.
-    withr::local_path(
-      dirname(virtualenv_starter(all = TRUE)$path),
-      action = "suffix"
-    )
-  }
-
-  x <- system2(uv, c(
-    "python list",
-    "--all-versions",
-    "--color never",
-    "--output-format json",
-    "--python-preference ", python_preference
     ),
-    stdout = TRUE
+    class = "python_requirements"
   )
-
-  x <- paste0(x, collapse = "")
-  x <- jsonlite::parse_json(x, simplifyVector = TRUE)
-
-  if (!length(x) &&
-        missing(python_preference) &&
-        is.na(Sys.getenv("UV_PYTHON_PREFERENCE", NA))) {
-    return(uv_python_list(uv, "only-system"))
-  }
-
-  x <- x[is.na(x$symlink) , ]             # ignore local filesystem symlinks
-  x <- x[x$variant == "default", ]        # ignore "freethreaded"
-  x <- x[x$implementation == "cpython", ] # ignore "pypy"
-
-  x$is_prerelease <- x$version != paste(x$version_parts$major,
-                                        x$version_parts$minor,
-                                        x$version_parts$patch,
-                                        sep = ".")
-  # x <- x[!x$is_prerelease, ] # ignore versions like "3.14.0a5"
-
-  # x$path is local file path, NA if not downloaded yet.
-  # x$url is populated if not downloaded yet.
-  is_uv_downloadable <- !is.na(x$url)
-  is_uv_downloaded <- grepl(
-    "/uv/python/",
-    normalizePath(as.character(x$path), winslash = "/", mustWork = FALSE),
-    fixed = TRUE
-  )
-  x$is_uv_python <- is_uv_downloadable | is_uv_downloaded
-
-  # order first to easily resolve the latest preferred patch for each minor version
-  x <- x[order(
-    !x$is_prerelease,
-    x$is_uv_python,
-    x$version_parts$major,
-    x$version_parts$minor,
-    x$version_parts$patch,
-    decreasing = TRUE
-  ), ]
-
-  # Order so the latest patch level for each minor version appears first,
-  # prioritizing two versions behind the latest minor release.
-  # Sort by the distance of the minor version from the preferred minor version,
-  # breaking ties in favor of older minor versions.
-  latest_minor <- max(x$version_parts$minor[!x$is_prerelease])
-  preferred_minor <- latest_minor - 2L
-  x$is_latest_patch <- !duplicated(x$version_parts[c("major", "minor")])
-
-  x <- x[order(
-    !x$is_prerelease,
-    x$is_uv_python,
-    x$is_latest_patch,
-    -abs(x$version_parts$minor - preferred_minor) +
-      (-0.5 * (x$version_parts$minor > preferred_minor)),
-    x$version_parts$major == 3L,
-    x$version_parts$minor,
-    x$version_parts$patch,
-    decreasing = TRUE
-  ), ]
-
-  x
-}
-
-uvx_binary <- function(...) {
-  uv <- uv_binary(...)
-  if(is.null(uv)) {
-    return()
-  }
-  uvx <- file.path(dirname(uv), if (is_windows()) "uvx.exe" else "uvx")
-  if (file.exists(uvx)) uvx else NULL # print visible
-}
-
-uv_exec <- function(args, ...) {
-  uv <- uv_binary()
-  withr::local_envvar(c(
-    VIRTUAL_ENV = NA,
-    if (is_positron())
-      c(RUST_LOG = NA),
-    if (isTRUE(attr(uv, "reticulate-managed", TRUE)))
-      c(
-        UV_CACHE_DIR = reticulate_cache_dir("uv", "cache"),
-        UV_PYTHON_INSTALL_DIR = reticulate_cache_dir("uv", "python")
-      )
-  ))
-
-  system2(uv, args, ...)
-}
-
-resolve_python_version <- function(constraints = NULL, uv = uv_binary()) {
-  constraints <- as.character(constraints %||% "")
-  constraints <- trimws(unlist(strsplit(constraints, ",", fixed = TRUE)))
-  constraints <- constraints[nzchar(constraints)]
-
-  # We perform custom constraint resolution to prefer slightly older Python releases.
-  # uv tends to select the latest version, which often lack package support
-  # See: https://devguide.python.org/versions/
-
-  # Get latest patch for each minor version
-  # E.g., candidates might be:
-  #  c("3.13.1", "3.12.8", "3.11.11", "3.10.16", "3.9.21", "3.8.20" , ...)
-  all_candidates <- candidates <- uv_python_list(uv)$version
-
-  if (length(constraints) == 0L) {
-    return(as.character(candidates[1L])) # default
-  }
-
-  # reflect a direct version specification like "3.14.0a3"
-  if (length(constraints) == 1L && constraints %in% candidates) {
-    return(constraints)
-  }
-
-  candidates <- numeric_version(candidates, strict = FALSE)
-  candidates <- candidates[!is.na(candidates)]
-
-  for (check in as_version_constraint_checkers(constraints)) {
-    satisfies_constraint <- check(candidates)
-    candidates <- candidates[satisfies_constraint]
-  }
-
-  if (!length(candidates)) {
-    constraints <- paste0(constraints, collapse = ",")
-    msg <- paste0(
-      'Requested Python version constraints could not be satisfied.\n',
-      '  constraints: "', constraints, '"\n',
-      'Hint: Call `py_require(python_version = <string>, action = "set")` to replace constraints.\n',
-      'Available Python versions found: ', paste0(all_candidates, collapse = ", "), "\n"
-    )
-    stop(msg)
-  }
-
-  as.character(candidates[1L])
-}
-
-
-uv_diff_exclude_newer <- function(from = -3L, to = Sys.Date(),
-                                  packages = py_reqs_get("packages"),
-                                  python_version = py_reqs_get("python_version"),
-                                  show = TRUE) {
-  uv <- uv_binary()
-  if(rlang::is_bare_numeric(from))
-    from <- to + from
-  from <- format(from)
-  to <- format(to)
-  manifest <- lapply(list(from = from, to = to), function(exclude_newer) {
-    python <- uv_get_or_create_env(packages, python_version, exclude_newer)
-    manifest <- jsonlite::parse_json(system2(
-      uv,
-      c("pip list --quiet --format json --python", shQuote(python)),
-      stdout = TRUE
-    ), simplifyVector = TRUE)
-    attr(manifest, "python") <- python
-    attr(manifest, "exclude_newer") <- exclude_newer
-    manifest
-  })
-
-  if (show) {
-    rlang::check_installed("diffobj")
-    print(
-      asNamespace("diffobj")$diffPrint(
-        manifest$from,
-        manifest$to,
-        tar.banner = sprintf("from: %s", from),
-        cur.banner = sprintf("to: %s", to)
-      )
-    )
-  }
+  .globals$python_requirements <- manifest
   manifest
-}
-
-
-maybe_clear_reticulate_uv_cache <- function() {
-  uv <- reticulate_cache_dir("uv", "bin", if (is_windows()) "uv.exe" else "uv")
-  if (!file.exists(uv))
-    return()
-
-  max_age <- Sys.getenv("RETICULATE_MAX_CACHE_AGE_DAYS", unset = NA)
-  if (!is.na(max_age)) {
-    max_age <- suppressWarnings(as.numeric(max_age))
-    max_age <- as.difftime(max_age, units = "days")
-  } else {
-    max_age <- getOption(
-      "reticulate.max_cache_age",
-      as.difftime(120, units = "days")
-    )
-  }
-  if (is.na(max_age))
-    return()
-  if (!inherits(max_age, "difftime"))
-    return()
-
-  uv_ctime <- file.info(uv, extra_cols = FALSE)$ctime
-  actual_age <- difftime(Sys.time(), uv_ctime, units = units(max_age))
-
-  if (actual_age > max_age) {
-    if (Sys.getenv("UV_OFFLINE") == "1")
-      return()
-
-    installer <- suppressWarnings(try(
-      download_uv_installer(),
-      silent = TRUE
-    ))
-    if (inherits(installer, "try-error") || is.null(installer)) {
-      message(
-        "Retaining reticulate's uv cache because access to the uv ",
-        "installer could not be verified."
-      )
-      return()
-    }
-
-    cache_dir <- reticulate_cache_dir("uv")
-    # best-effort; avoid surfacing errors
-    message("Clearing reticulate's uv cache...", appendLF = FALSE)
-    tryCatch(
-      {
-        # Delete the uv binary first, so if the unlink(cache_dir) call is interrupted,
-        # the cache is still invalidated and we trigger a fresh bootstrap install on next run.
-        # The delete command is re-run before bootstrapping to double-check/confirm
-        # the cache_dir is empty.
-        unlink(uv, force = TRUE)
-        unlink(cache_dir, recursive = TRUE, force = TRUE)
-      },
-      error = warning
-    )
-    message("Done!")
-    installer
-  }
 }

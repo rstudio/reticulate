@@ -686,7 +686,7 @@ virtualenv_starter <- function(version = NULL, all = FALSE) {
     find_starters(suppressWarnings(uv_exec(c(
       "python dir --managed-python",
       "--color never --offline --no-config --no-progress"),
-      stdout = TRUE, stderr = FALSE
+      stdout = TRUE, stderr = FALSE, uv = uv
     )))
   }
 

@@ -29,7 +29,8 @@ versions, helping guard against Python package updates that break a
 workflow. Accepts strings formatted as RFC 3339 timestamps (e.g.,
 \code{"2006-12-02T02:07:43Z"}) and local dates in the same format (e.g.,
 \code{"2006-12-02"}) in your system's configured time zone. Once \code{exclude_newer}
-is set, only the \code{set} action can override it.}
+is set, \code{action = "add"} cannot change it. Use \code{action = "set"} to replace
+it. To clear it, use \code{action = "remove"} with the same value, \code{NA}, or \code{""}.}
 
 \item{action}{Determines how \code{py_require()} processes the provided
 requirements. Options are:
@@ -48,9 +49,11 @@ provided ones. Packages and the Python version can be set independently.
 the manifest of "Python requirements" for the current R session  that
 reticulate maintains internally. \code{py_require()} usually returns \code{NULL}
 invisibly. If \code{py_require()} is called with no arguments, it returns the
-current manifest--a list with names \code{packages}, \code{python_version}, and
-\code{exclude_newer.} The list also has a class attribute, to provide a print
-method.
+current manifest--a list with names \code{python_version}, \code{packages},
+\code{exclude_newer}, and \code{history}. \code{history} is an append-only record of
+successful requests, retained to help diagnose where requirements came
+from. It is not used to resolve the manifest. The list also has a class
+attribute, to provide a print method.
 }
 \description{
 \code{py_require()} allows you to declare Python requirements for the R session,
@@ -81,8 +84,8 @@ Calling \code{py_require()} without arguments returns a list of the currently
 declared requirements.
 
 R packages can also call \code{py_require()} (e.g., in \code{.onLoad()} or elsewhere)
-to declare Python dependencies. The print method for \code{py_require()} displays
-the Python dependencies declared by R packages in the current session.
+to declare Python dependencies. The print method shows successful requests
+from R packages and other environments in chronological order.
 }
 \note{
 Reticulate uses \href{https://docs.astral.sh/uv/}{\code{uv}} to resolve Python

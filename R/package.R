@@ -337,7 +337,7 @@ check_virtualenv_required_packages <- function(config) {
             maybe_shQuote(packages))
 
   suppressWarnings({
-    pip_output <- uv_exec(args, stdout = TRUE, stderr = TRUE)
+    pip_output <- uv_exec(args, stdout = TRUE, stderr = TRUE, uv = uv)
   })
 
   status <- attr(pip_output, "status") %||% 0L

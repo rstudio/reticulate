@@ -28,8 +28,8 @@
 #' declared requirements.
 #'
 #' R packages can also call `py_require()` (e.g., in `.onLoad()` or elsewhere)
-#' to declare Python dependencies. The print method for `py_require()` displays
-#' the Python dependencies declared by R packages in the current session.
+#' to declare Python dependencies. The print method shows successful requests
+#' from R packages and other environments in chronological order.
 #'
 #' @note
 #'
@@ -162,7 +162,8 @@
 #'   workflow. Accepts strings formatted as RFC 3339 timestamps (e.g.,
 #'   `"2006-12-02T02:07:43Z"`) and local dates in the same format (e.g.,
 #'   `"2006-12-02"`) in your system's configured time zone. Once `exclude_newer`
-#'   is set, only the `set` action can override it.
+#'   is set, `action = "add"` cannot change it. Use `action = "set"` to replace
+#'   it. To clear it, use `action = "remove"` with the same value, `NA`, or `""`.
 #'
 #' @returns `py_require()` is primarily called for its side effect of modifying
 #'   the manifest of "Python requirements" for the current R session  that
@@ -187,19 +188,33 @@ py_require <- function(packages = NULL,
     return(py_reqs_get())
   }
 
+  if (!is.null(python_version)) {
+    python_version <- trimws(unlist(
+      strsplit(python_version, ",", fixed = TRUE),
+      use.names = FALSE
+    ))
+  }
+
+  exclude_newer_supplied <- !is.null(exclude_newer)
+  if (exclude_newer_supplied) {
+    if (length(exclude_newer) != 1L)
+      stop("`exclude_newer` must be a single value")
+    if (is.na(exclude_newer) || identical(exclude_newer, ""))
+      exclude_newer <- NULL
+  }
+
   caller <- topenv(parent.frame())
-  called_from_package <- isNamespace(caller)
-  request <- py_reqs_request(
+  request <- list(
+    requested_from = environmentName(caller),
+    env_is_package = isNamespace(caller),
     packages = packages,
     python_version = python_version,
     exclude_newer = exclude_newer,
-    exclude_newer_supplied = !is.null(exclude_newer),
-    action = match.arg(action),
-    source = environmentName(caller),
-    source_is_package = called_from_package
+    exclude_newer_supplied = exclude_newer_supplied,
+    action = match.arg(action)
   )
 
-  if (request$exclude_newer_supplied && called_from_package)
+  if (request$exclude_newer_supplied && request$env_is_package)
     stop("`exclude_newer` cannot be set inside a package")
 
   transition <- tryCatch(
@@ -211,7 +226,7 @@ py_require <- function(packages = NULL,
     error = identity
   )
   if (inherits(transition, "error")) {
-    if (called_from_package) {
+    if (request$env_is_package) {
       warning(conditionMessage(transition))
       return(invisible())
     }
@@ -226,44 +241,12 @@ py_require <- function(packages = NULL,
 }
 
 
-py_reqs_request <- function(packages,
-                            python_version,
-                            exclude_newer,
-                            exclude_newer_supplied,
-                            action,
-                            source,
-                            source_is_package) {
-  if (!is.null(python_version)) {
-    python_version <- trimws(unlist(
-      strsplit(python_version, ",", fixed = TRUE),
-      use.names = FALSE
-    ))
-  }
-
-  if (exclude_newer_supplied) {
-    if (length(exclude_newer) != 1L)
-      stop("`exclude_newer` must be a single value")
-    if (is.na(exclude_newer) || identical(exclude_newer, ""))
-      exclude_newer <- NULL
-  }
-
-  list(
-    packages = packages,
-    python_version = python_version,
-    exclude_newer = exclude_newer,
-    exclude_newer_supplied = exclude_newer_supplied,
-    action = action,
-    source = source,
-    source_is_package = source_is_package
-  )
-}
-
-
 py_reqs_transition <- function(current, request, initialized) {
   plan <- py_reqs_plan(current, request, initialized)
   config <- if (plan$activate)
     py_reqs_activate(plan$manifest)
-  manifest <- py_reqs_record_history(plan$manifest, request)
+  manifest <- plan$manifest
+  manifest$history <- c(manifest$history, list(request))
 
   list(manifest = manifest, config = config)
 }
@@ -271,8 +254,50 @@ py_reqs_transition <- function(current, request, initialized) {
 
 py_reqs_plan <- function(current, request, initialized) {
   if (!initialized) {
+    candidate <- current
+
+    if (!is.null(request$packages)) {
+      candidate$packages <- py_reqs_action(
+        request$action,
+        request$packages,
+        current$packages
+      )
+    }
+
+    if (!is.null(request$python_version)) {
+      candidate$python_version <- py_reqs_action(
+        request$action,
+        request$python_version,
+        current$python_version
+      )
+    }
+
+    if (request$exclude_newer_supplied) {
+      exclude_newer <- switch(request$action,
+        add = {
+          if (!is.null(current$exclude_newer)) {
+            stop(
+              "`exclude_newer` is already set to '", current$exclude_newer,
+              "', use `action = 'set'` to override"
+            )
+          }
+          request$exclude_newer
+        },
+        remove = {
+          if (is.null(request$exclude_newer) ||
+              identical(request$exclude_newer, current$exclude_newer))
+            NULL
+          else
+            current$exclude_newer
+        },
+        set = request$exclude_newer
+      )
+      # `$<- NULL` would remove the field from the manifest.
+      candidate["exclude_newer"] <- list(exclude_newer)
+    }
+
     return(list(
-      manifest = py_reqs_apply(current, request),
+      manifest = candidate,
       activate = FALSE
     ))
   }
@@ -289,8 +314,8 @@ py_reqs_plan <- function(current, request, initialized) {
           "been initialized.\n",
           "* Python version request: '",
           paste(request$python_version, collapse = ","), "'",
-          if (request$source_is_package)
-            paste0(" (from package:", request$source, ")"),
+          if (request$env_is_package)
+            paste0(" (from package:", request$requested_from, ")"),
           "\n* Python version initialized: '", current_version, "'"
         ))
       }
@@ -338,53 +363,8 @@ py_reqs_plan <- function(current, request, initialized) {
 }
 
 
-py_reqs_apply <- function(current, request) {
-  candidate <- current
-
-  if (!is.null(request$packages)) {
-    candidate$packages <- py_reqs_action(
-      request$action,
-      request$packages,
-      current$packages
-    )
-  }
-
-  if (!is.null(request$python_version)) {
-    candidate$python_version <- py_reqs_action(
-      request$action,
-      request$python_version,
-      current$python_version
-    )
-  }
-
-  if (request$exclude_newer_supplied) {
-    exclude_newer <- switch(request$action,
-      add = {
-        if (!is.null(current$exclude_newer)) {
-          stop(
-            "`exclude_newer` is already set to '", current$exclude_newer,
-            "', use `action = 'set'` to override"
-          )
-        }
-        request$exclude_newer
-      },
-      remove = {
-        if (is.null(request$exclude_newer) ||
-            identical(request$exclude_newer, current$exclude_newer))
-          NULL
-        else
-          current$exclude_newer
-      },
-      set = request$exclude_newer
-    )
-    candidate["exclude_newer"] <- list(exclude_newer)
-  }
-
-  candidate
-}
-
-
 py_requirement_name <- function(requirement) {
+  # Canonicalize named requirements, but leave unnamed paths and URLs distinct.
   requirement <- trimws(requirement, which = "left")
   match <- regexpr("^[[:alnum:]][[:alnum:]_.-]*", requirement)
   match_length <- attr(match, "match.length")
@@ -435,47 +415,21 @@ print.python_requirements <- function(x, ..., width = 73L) {
   invisible()
 }
 
-#' @export
-format.python_requirements <- function(x, ..., width = 73L) {
-  sections <- py_reqs_print_sections(x, width, current_indent = 2L)
-  c(
-    "Python requirements:",
-    sections$current,
-    if (length(sections$history))
-      c("Python requirement requests (in order):", sections$history)
-  )
-}
-
-
 py_reqs_print_cli <- function(x, width) {
   withr::local_options(list(cli.width = width))
-  app <- cli::start_app(output = "stdout", .auto_close = FALSE)
-  on.exit(cli::stop_app(app))
+  cli::start_app(output = "stdout")
   sections <- py_reqs_print_sections(x, width, use_cli = TRUE)
 
-  py_reqs_cli_rule("Python requirements", line_type = "double", center = TRUE)
-  py_reqs_cli_rule("Current requirements")
+  cli::cli_div(
+    theme = list(rule = list(color = "cyan", "line-type" = "double"))
+  )
+  cli::cli_rule(center = "Python requirements")
+  cli::cli_div(theme = list(rule = list("line-type" = "single")))
+  cli::cli_rule("Current requirements")
   writeLines(sections$current)
 
-  if (length(sections$history)) {
-    py_reqs_cli_rule("Python requirement requests (in order)")
-    writeLines(sections$history)
-  }
-}
-
-
-py_reqs_cli_rule <- function(title, line_type = "single", center = FALSE) {
-  theme <- list(rule = list("line-type" = line_type))
-  if (identical(line_type, "double"))
-    theme$rule$color <- "cyan"
-
-  id <- cli::cli_div(theme = theme, .auto_close = FALSE)
-  on.exit(cli::cli_end(id))
-
-  if (center)
-    cli::cli_rule(center = title)
-  else
-    cli::cli_rule(title)
+  cli::cli_rule("Python requirement requests (in order)")
+  writeLines(sections$history)
 }
 
 
@@ -494,44 +448,48 @@ py_reqs_print_base <- function(x, width) {
     title,
     rule("Current requirements"),
     sections$current,
-    if (length(sections$history))
-      c(rule("Python requirement requests (in order)"), sections$history)
+    rule("Python requirement requests (in order)"),
+    sections$history
   ))
 }
 
 
 py_reqs_print_sections <- function(x,
                                    width,
-                                   use_cli = FALSE,
-                                   current_indent = 1L) {
-  field <- function(label, value, indent = current_indent, empty = NULL) {
+                                   use_cli = FALSE) {
+  field <- function(label, value, indent = 1L, empty = NULL) {
     if (!length(value))
       value <- empty
     if (!length(value))
       return(character())
 
-    prefix <- paste0(label, ": ")
-    lines <- strwrap(
-      paste0(prefix, paste(value, collapse = ", ")),
-      width = width,
-      indent = indent,
-      exdent = indent + nchar(prefix)
+    label <- paste0(label, ":")
+    prefix <- sprintf("%-10s", label)
+    value <- strwrap(
+      paste(value, collapse = ", "),
+      width = width - indent - nchar(prefix)
     )
+    line_prefix <- rep(strrep(" ", indent + nchar(prefix)), length(value))
+    line_prefix[1L] <- paste0(strrep(" ", indent), prefix)
     if (!use_cli)
-      return(lines)
+      return(paste0(line_prefix, value))
 
-    value <- substring(lines, indent + nchar(prefix) + 1L)
-    line_prefix <- c(
-      paste0(strrep(" ", indent), cli::col_blue(paste0(label, ":")), " "),
-      rep(strrep(" ", indent + nchar(prefix)), length(lines) - 1L)
+    label <- paste0(
+      cli::col_blue(label),
+      substring(prefix, nchar(label) + 1L)
     )
+    line_prefix[[1L]] <- paste0(strrep(" ", indent), label)
     paste0(line_prefix, cli::col_grey(value))
   }
 
   python_version <- x$python_version
   if (!length(python_version)) {
-    default <- resolve_python_version()
-    default_message <- if (is_ephemeral_venv_initialized())
+    initialized <- is_ephemeral_venv_initialized()
+    default <- if (initialized)
+      as.character(py_version(patch = TRUE))
+    else
+      resolve_python_version()
+    default_message <- if (initialized)
       "Defaulted"
     else
       "Will default"
@@ -556,7 +514,7 @@ py_reqs_print_sections <- function(x,
   history_lines <- character()
   for (i in seq_along(history)) {
     event <- history[[i]]
-    source <- if (isTRUE(event$env_is_package)) {
+    source <- if (event$env_is_package) {
       paste("R package", event$requested_from)
     } else if (nzchar(event$requested_from)) {
       paste("R environment", event$requested_from)
@@ -573,7 +531,7 @@ py_reqs_print_sections <- function(x,
       field("Action", event$action, indent = 4L),
       field("Packages", event$packages, indent = 4L),
       field("Python", event$python_version, indent = 4L),
-      if (isTRUE(event$exclude_newer_supplied))
+      if (event$exclude_newer_supplied)
         field(
           "Exclude", event$exclude_newer,
           indent = 4L, empty = "[No cutoff]"
@@ -587,27 +545,12 @@ py_reqs_print_sections <- function(x,
 
 # Python requirements - utils --------------------------------------------------
 
-py_reqs_action <- function(action, x, current = NULL) {
+py_reqs_action <- function(action, x, current) {
   switch(action,
     add = unique(c(current, x)),
     remove = setdiff(current, x),
     set = x
   )
-}
-
-
-py_reqs_record_history <- function(manifest, request) {
-  event <- list(
-    requested_from = request$source,
-    env_is_package = request$source_is_package,
-    packages = request$packages,
-    python_version = request$python_version,
-    exclude_newer = request$exclude_newer,
-    exclude_newer_supplied = request$exclude_newer_supplied,
-    action = request$action
-  )
-  manifest$history <- c(manifest$history, list(event))
-  manifest
 }
 
 
@@ -651,9 +594,11 @@ py_reqs_get <- function() {
       history = list(list(
         requested_from = "reticulate",
         env_is_package = TRUE,
-        action = "add",
         packages = packages,
-        exclude_newer_supplied = FALSE
+        python_version = NULL,
+        exclude_newer = NULL,
+        exclude_newer_supplied = FALSE,
+        action = "add"
       ))
     ),
     class = "python_requirements"

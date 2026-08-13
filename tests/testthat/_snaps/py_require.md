@@ -218,11 +218,11 @@
       > py_require()
       ══════════════════════════ Python requirements ══════════════════════════
       ── Current requirements ─────────────────────────────────────────────────
-       Python: [No Python version specified. Will default to '3.12.xx']
+       Python:   [No Python version specified. Will default to '3.12.xx']
        Packages: numpy, pandas, numpy==2
       ── Python requirement requests (in order) ───────────────────────────────
         1. R package reticulate:
-          Action: add
+          Action:   add
           Packages: numpy
       > 
       ------- session end -------
@@ -245,11 +245,11 @@
       > py_require()
       ══════════════════════════ Python requirements ══════════════════════════
       ── Current requirements ─────────────────────────────────────────────────
-       Python: [No Python version specified. Will default to '3.12.xx']
+       Python:   [No Python version specified. Will default to '3.12.xx']
        Packages: numpy, pandas
       ── Python requirement requests (in order) ───────────────────────────────
         1. R package reticulate:
-          Action: add
+          Action:   add
           Packages: numpy
       > 
       ------- session end -------
@@ -274,12 +274,12 @@
       > py_require()
       ══════════════════════════ Python requirements ══════════════════════════
       ── Current requirements ─────────────────────────────────────────────────
-       Python: [No Python version specified. Will default to '3.12.xx']
+       Python:   [No Python version specified. Will default to '3.12.xx']
        Packages: numpy, pandas
-       Exclude: Anything newer than 1990-01-01
+       Exclude:  Anything newer than 1990-01-01
       ── Python requirement requests (in order) ───────────────────────────────
         1. R package reticulate:
-          Action: add
+          Action:   add
           Packages: numpy
       > 
       ------- session end -------
@@ -306,12 +306,12 @@
       > py_require()
       ══════════════════════════ Python requirements ══════════════════════════
       ── Current requirements ─────────────────────────────────────────────────
-       Python: <=3.11, >=3.10
+       Python:   <=3.11, >=3.10
        Packages: numpy, pandas
-       Exclude: Anything newer than 1990-01-01
+       Exclude:  Anything newer than 1990-01-01
       ── Python requirement requests (in order) ───────────────────────────────
         1. R package reticulate:
-          Action: add
+          Action:   add
           Packages: numpy
       > 
       ------- session end -------
@@ -342,26 +342,26 @@
       > py_require()
       ══════════════════════════ Python requirements ══════════════════════════
       ── Current requirements ─────────────────────────────────────────────────
-       Python: <=3.11, >=3.10
+       Python:   <=3.11, >=3.10
        Packages: numpy, package11, package12, package13, package14, package15,
                  package16, package17, package18, package19, package20
       ── Python requirement requests (in order) ───────────────────────────────
         1. R package reticulate:
-          Action: add
+          Action:   add
           Packages: numpy
         2. R package graphics:
-          Action: add
+          Action:   add
           Packages: package1, package2, package3, package4, package5,
                     package6, package7, package8, package9, package10,
                     package11, package12, package13, package14, package15,
                     package16, package17, package18, package19, package20
         3. R package graphics:
-          Action: remove
+          Action:   remove
           Packages: package1, package2, package3, package4, package5,
                     package6, package7, package8, package9, package10
         4. R package graphics:
-          Action: add
-          Python: <=3.11, >=3.10
+          Action:   add
+          Python:   <=3.11, >=3.10
       > 
       ------- session end -------
       success: true

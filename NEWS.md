@@ -2,7 +2,7 @@
 
 - `py_require()` now applies late package additions atomically. Failed
   package-originated additions warn without changing the declared requirements.
-  Its printed summary now shows successful package requests in chronological
+  Its printed summary now shows successful requirement requests in chronological
   order, including their source and action.
 
 - Reticulate now restores Python's original output streams in child processes

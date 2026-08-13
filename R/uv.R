@@ -21,21 +21,17 @@ download_uv_installer <- function() {
 uv_binary <- function(bootstrap_install = TRUE) {
   # Fast paths: use a configured or cached binary without probing it.
   configured_uv <- Sys.getenv("RETICULATE_UV", unset = NA)
-  configured_from_env <- !is.na(configured_uv)
-  if (configured_from_env && !identical(configured_uv, "managed")) {
-    # A managed result cached in RETICULATE_UV has lost its R attributes.
-    # Recover the attributed object from the option without rebuilding its path.
-    cached_uv <- getOption("reticulate.uv_binary")
-    if (identical(as.character(cached_uv), configured_uv) &&
-        isTRUE(attr(cached_uv, "reticulate-managed", exact = TRUE))) {
-      return(cached_uv)
-    }
+  if (!is.na(configured_uv) && !identical(configured_uv, "managed"))
     return(configured_uv)
-  }
 
-  cached_uv <- if (!configured_from_env)
-    getOption("reticulate.uv_binary")
-  if (length(cached_uv) && !identical(cached_uv, "managed"))
+  cached_uv <- getOption("reticulate.uv_binary")
+  if (is.na(configured_uv) &&
+      length(cached_uv) &&
+      !identical(cached_uv, "managed"))
+    return(cached_uv)
+
+  if (identical(configured_uv, "managed") &&
+      isTRUE(attr(cached_uv, "reticulate-managed", exact = TRUE)))
     return(cached_uv)
 
   force_managed <- identical(configured_uv, "managed") ||
@@ -60,14 +56,14 @@ uv_binary <- function(bootstrap_install = TRUE) {
   installer <- NULL
 
   if (bootstrap_install) {
-    installer <- maybe_clear_reticulate_uv_cache()
-    if (length(installer))
+    installer <- maybe_clear_reticulate_uv_cache(uv)
+    if (!is.null(installer))
       on.exit(unlink(installer), add = TRUE)
   }
 
   if (!uv_is_usable(uv)) {
     if (file.exists(uv))
-      unlink(reticulate_cache_dir("uv"), recursive = TRUE, force = TRUE)
+      unlink(dirname(dirname(uv)), recursive = TRUE, force = TRUE)
 
     if (!bootstrap_install)
       return()
@@ -90,12 +86,9 @@ uv_binary <- function(bootstrap_install = TRUE) {
     }
   }
 
-  if (bootstrap_install && configured_from_env) {
+  # Keep RETICULATE_UV as configuration and cache the attributed result in R.
+  if (bootstrap_install)
     options(reticulate.uv_binary = uv)
-    Sys.setenv(RETICULATE_UV = uv)
-  } else if (bootstrap_install && !force_managed) {
-    options(reticulate.uv_binary = uv)
-  }
 
   uv
 }
@@ -184,16 +177,14 @@ uv_get_or_create_env <- function(packages = py_reqs_get()$packages,
                                  python_version = py_reqs_python_version(),
                                  exclude_newer = py_reqs_get()$exclude_newer) {
 
-  uv <- uv_binary() %||% return() # error?
+  uv <- uv_binary() %||% return()
 
   resolved_python_version <-
     resolve_python_version(constraints = python_version, uv = uv)
 
-  if (!length(resolved_python_version)) {
-    return() # error?
-  }
+  if (!length(resolved_python_version))
+    return()
 
-  # capture args; maybe used in error message later
   call_args <- list(
     packages = packages,
     python_version = python_version %||%
@@ -206,10 +197,8 @@ uv_get_or_create_env <- function(packages = py_reqs_get()$packages,
 
   python_version <- c("--python", resolved_python_version)
 
-  if (!is.null(exclude_newer)) {
-    # todo, accept a POSIXct/lt, format correctly
+  if (!is.null(exclude_newer))
     exclude_newer <- c("--exclude-newer", exclude_newer)
-  }
 
   uv_output_file <- tempfile()
   on.exit(unlink(uv_output_file), add = TRUE)
@@ -228,7 +217,6 @@ uv_get_or_create_env <- function(packages = py_reqs_get()$packages,
     uv_output_file
   )
 
-  debug <- Sys.getenv("_RETICULATE_DEBUG_UV_") == "1"
   error_code <- suppressWarnings(uv_exec(maybe_shQuote(uv_args), uv = uv))
 
   if (error_code) {
@@ -243,8 +231,9 @@ uv_get_or_create_env <- function(packages = py_reqs_get()$packages,
     }
 
     if (any(call_args$packages %in% builtin_module_names)) {
-      requested_builtin_modules <- intersect(call_args$packages, builtin_module_names)
-      invalid <- unique(c("sys", "os", requested_builtin_modules))
+      invalid <- unique(c(
+        "sys", "os", intersect(call_args$packages, builtin_module_names)
+      ))
       writeLines(con = stderr(), c(
         "Hint: `py_require()` expects Python package names rather than Python module names.",
         sprintf(
@@ -259,7 +248,7 @@ uv_get_or_create_env <- function(packages = py_reqs_get()$packages,
   }
 
   cached_python <- readLines(uv_output_file, warn = FALSE)
-  if (debug)
+  if (Sys.getenv("_RETICULATE_DEBUG_UV_") == "1")
     message("resolved ephemeral python: ", cached_python)
   cached_python
 }
@@ -336,9 +325,10 @@ uv_run_tool <- function(tool,
                         exclude_newer = NULL) {
   uv <- uv_binary()
 
-  python <- .globals$cached_uv_run_tool_python_version[[python_version %||% "default"]]
+  key <- python_version %||% "default"
+  python <- .globals$cached_uv_run_tool_python_version[[key]]
   if (is.null(python)) {
-    .globals$cached_uv_run_tool_python_version[[python_version %||% "default"]] <-
+    .globals$cached_uv_run_tool_python_version[[key]] <-
       python <-
       resolve_python_version(constraints = python_version, uv = uv)
   }
@@ -515,8 +505,7 @@ resolve_python_version <- function(constraints = NULL, uv = uv_binary()) {
 }
 
 
-maybe_clear_reticulate_uv_cache <- function() {
-  uv <- reticulate_cache_dir("uv", "bin", if (is_windows()) "uv.exe" else "uv")
+maybe_clear_reticulate_uv_cache <- function(uv) {
   if (!file.exists(uv))
     return()
 
@@ -537,38 +526,38 @@ maybe_clear_reticulate_uv_cache <- function() {
 
   uv_ctime <- file.info(uv, extra_cols = FALSE)$ctime
   actual_age <- difftime(Sys.time(), uv_ctime, units = units(max_age))
+  if (actual_age <= max_age)
+    return()
 
-  if (actual_age > max_age) {
-    if (Sys.getenv("UV_OFFLINE") == "1")
-      return()
+  if (Sys.getenv("UV_OFFLINE") == "1")
+    return()
 
-    installer <- suppressWarnings(try(
-      download_uv_installer(),
-      silent = TRUE
-    ))
-    if (inherits(installer, "try-error") || is.null(installer)) {
-      message(
-        "Retaining reticulate's uv cache because access to the uv ",
-        "installer could not be verified."
-      )
-      return()
-    }
-
-    cache_dir <- reticulate_cache_dir("uv")
-    # best-effort; avoid surfacing errors
-    message("Clearing reticulate's uv cache...", appendLF = FALSE)
-    tryCatch(
-      {
-        # Delete the uv binary first, so if the unlink(cache_dir) call is interrupted,
-        # the cache is still invalidated and we trigger a fresh bootstrap install on next run.
-        # The delete command is re-run before bootstrapping to double-check/confirm
-        # the cache_dir is empty.
-        unlink(uv, force = TRUE)
-        unlink(cache_dir, recursive = TRUE, force = TRUE)
-      },
-      error = warning
+  installer <- suppressWarnings(try(
+    download_uv_installer(),
+    silent = TRUE
+  ))
+  if (inherits(installer, "try-error") || is.null(installer)) {
+    message(
+      "Retaining reticulate's uv cache because access to the uv ",
+      "installer could not be verified."
     )
-    message("Done!")
-    installer
+    return()
   }
+
+  cache_dir <- dirname(dirname(uv))
+  # best-effort; avoid surfacing errors
+  message("Clearing reticulate's uv cache...", appendLF = FALSE)
+  tryCatch(
+    {
+      # Delete the uv binary first, so if the unlink(cache_dir) call is interrupted,
+      # the cache is still invalidated and we trigger a fresh bootstrap install on next run.
+      # The delete command is re-run before bootstrapping to double-check/confirm
+      # the cache_dir is empty.
+      unlink(uv, force = TRUE)
+      unlink(cache_dir, recursive = TRUE, force = TRUE)
+    },
+    error = warning
+  )
+  message("Done!")
+  installer
 }

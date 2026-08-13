@@ -658,10 +658,10 @@ rm_all_reticulate_state <- function(external = FALSE) {
 
   if (external) {
     if (!is.null(uv <- uv_binary(FALSE))) {
-      uv_exec(c("cache", "clean"), uv = uv)
+      system2(uv, c("cache", "clean"))
       withr::with_envvar(c("NO_COLOR"="1"), {
-        rm_rf(uv_exec(c("python", "dir"), stdout = TRUE, uv = uv))
-        rm_rf(uv_exec(c("tool", "dir"), stdout = TRUE, uv = uv))
+        rm_rf(system2(uv, c("python", "dir"), stdout = TRUE))
+        rm_rf(system2(uv, c("tool", "dir"), stdout = TRUE))
       })
     }
 

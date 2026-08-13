@@ -53,7 +53,6 @@ test_that("uv_run_tool() rejects an unusable managed uv install", {
 
   cache_root <- withr::local_tempdir()
   installer <- tempfile("install-uv-")
-  file.create(installer)
   withr::local_envvar(c(
     R_USER_CACHE_DIR = cache_root,
     RETICULATE_UV = "managed"
@@ -74,7 +73,6 @@ test_that("uv_run_tool() rejects an unusable managed uv install", {
       )
       dir.create(dirname(uv), recursive = TRUE)
       stopifnot(file.copy(rscript, uv))
-      invisible()
     },
     resolve_python_version = function(...) {
       stop("unusable uv reached the resolver", call. = FALSE)
@@ -82,43 +80,51 @@ test_that("uv_run_tool() rejects an unusable managed uv install", {
     .package = "reticulate"
   )
 
-  expect_identical(Sys.getenv("RETICULATE_UV"), "managed")
 })
 
 test_that("uv_run_tool() caches a managed uv without rebuilding its path", {
-  cache_root <- withr::local_tempdir()
-  withr::local_envvar(RETICULATE_UV = "managed")
-  withr::local_options(reticulate.uv_binary = NULL)
+  for (configured_from_env in c(TRUE, FALSE)) local({
+    cache_root <- withr::local_tempdir()
+    withr::local_envvar(
+      RETICULATE_UV = if (configured_from_env) "managed" else NA
+    )
+    withr::local_options(
+      reticulate.uv_binary = if (configured_from_env) NULL else "managed"
+    )
 
-  path_calls <- usable_calls <- 0L
-  testthat::with_mocked_bindings(
-    {
-      expect_error(
-        uv_run_tool("example", python_version = "cache-fast-path"),
-        "resolved",
-        fixed = TRUE
-      )
-      expect_error(
-        uv_run_tool("example", python_version = "cache-fast-path"),
-        "resolved",
-        fixed = TRUE
-      )
-    },
-    reticulate_cache_dir = function(...) {
-      path_calls <<- path_calls + 1L
-      file.path(cache_root, ...)
-    },
-    maybe_clear_reticulate_uv_cache = function() NULL,
-    uv_is_usable = function(...) {
-      usable_calls <<- usable_calls + 1L
-      TRUE
-    },
-    resolve_python_version = function(...) {
-      stop("resolved", call. = FALSE)
-    },
-    .package = "reticulate"
-  )
+    path_calls <- usable_calls <- 0L
+    testthat::with_mocked_bindings(
+      {
+        expect_error(
+          uv_run_tool("example", python_version = "cache-fast-path"),
+          "resolved",
+          fixed = TRUE
+        )
+        expect_error(
+          uv_run_tool("example", python_version = "cache-fast-path"),
+          "resolved",
+          fixed = TRUE
+        )
+      },
+      reticulate_cache_dir = function(...) {
+        path_calls <<- path_calls + 1L
+        file.path(cache_root, ...)
+      },
+      maybe_clear_reticulate_uv_cache = function(...) NULL,
+      uv_is_usable = function(...) {
+        usable_calls <<- usable_calls + 1L
+        TRUE
+      },
+      resolve_python_version = function(constraints = NULL, uv = NULL) {
+        stopifnot(isTRUE(attr(uv, "reticulate-managed", exact = TRUE)))
+        stop("resolved", call. = FALSE)
+      },
+      .package = "reticulate"
+    )
 
-  expect_identical(path_calls, 1L)
-  expect_identical(usable_calls, 1L)
+    expect_identical(path_calls, 1L)
+    expect_identical(usable_calls, 1L)
+    if (configured_from_env)
+      expect_identical(Sys.getenv("RETICULATE_UV"), "managed")
+  })
 })

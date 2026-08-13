@@ -45,7 +45,9 @@ py_require(
   Accepts strings formatted as RFC 3339 timestamps (e.g.,
   `"2006-12-02T02:07:43Z"`) and local dates in the same format (e.g.,
   `"2006-12-02"`) in your system's configured time zone. Once
-  `exclude_newer` is set, only the `set` action can override it.
+  `exclude_newer` is set, `action = "add"` cannot change it. Use
+  `action = "set"` to replace it. To clear it, use `action = "remove"`
+  with the same value, `NA`, or `""`.
 
 - action:
 
@@ -70,9 +72,11 @@ py_require(
 manifest of "Python requirements" for the current R session that
 reticulate maintains internally. `py_require()` usually returns `NULL`
 invisibly. If `py_require()` is called with no arguments, it returns the
-current manifest–a list with names `packages`, `python_version`, and
-`exclude_newer.` The list also has a class attribute, to provide a print
-method.
+current manifest–a list with names `python_version`, `packages`,
+`exclude_newer`, and `history`. `history` is an append-only record of
+successful requests, retained to help diagnose where requirements came
+from. It is not used to resolve the manifest. The list also has a class
+attribute, to provide a print method.
 
 ## Details
 
@@ -101,9 +105,9 @@ Calling `py_require()` without arguments returns a list of the currently
 declared requirements.
 
 R packages can also call `py_require()` (e.g., in `.onLoad()` or
-elsewhere) to declare Python dependencies. The print method for
-`py_require()` displays the Python dependencies declared by R packages
-in the current session.
+elsewhere) to declare Python dependencies. The print method shows
+successful requests from R packages and other environments in
+chronological order.
 
 ## Note
 

@@ -2,6 +2,12 @@
 
 ## reticulate (development version)
 
+- [`py_require()`](https://rstudio.github.io/reticulate/dev/reference/py_require.md)
+  now applies late package additions atomically. Failed
+  package-originated additions warn without changing the declared
+  requirements. Its printed summary now shows successful requirement
+  requests in chronological order, including their source and action.
+
 - Reticulate now restores Python’s original output streams in child
   processes created by `os.fork()` when output remapping is enabled.
 

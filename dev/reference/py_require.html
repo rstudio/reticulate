@@ -99,7 +99,8 @@ versions, helping guard against Python package updates that break a
 workflow. Accepts strings formatted as RFC 3339 timestamps (e.g.,
 <code>"2006-12-02T02:07:43Z"</code>) and local dates in the same format (e.g.,
 <code>"2006-12-02"</code>) in your system's configured time zone. Once <code>exclude_newer</code>
-is set, only the <code>set</code> action can override it.</p></dd>
+is set, <code>action = "add"</code> cannot change it. Use <code>action = "set"</code> to replace
+it. To clear it, use <code>action = "remove"</code> with the same value, <code>NA</code>, or <code>""</code>.</p></dd>
 
 
 <dt id="arg-action">action<a class="anchor" aria-label="anchor" href="#arg-action"></a></dt>
@@ -120,9 +121,11 @@ provided ones. Packages and the Python version can be set independently.</p></li
 the manifest of "Python requirements" for the current R session  that
 reticulate maintains internally. <code>py_require()</code> usually returns <code>NULL</code>
 invisibly. If <code>py_require()</code> is called with no arguments, it returns the
-current manifest–a list with names <code>packages</code>, <code>python_version</code>, and
-<code>exclude_newer.</code> The list also has a class attribute, to provide a print
-method.</p>
+current manifest–a list with names <code>python_version</code>, <code>packages</code>,
+<code>exclude_newer</code>, and <code>history</code>. <code>history</code> is an append-only record of
+successful requests, retained to help diagnose where requirements came
+from. It is not used to resolve the manifest. The list also has a class
+attribute, to provide a print method.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -143,8 +146,8 @@ the Python version, or modifying <code>exclude_newer</code> is not possible.</p>
 <p>Calling <code>py_require()</code> without arguments returns a list of the currently
 declared requirements.</p>
 <p>R packages can also call <code>py_require()</code> (e.g., in <code>.onLoad()</code> or elsewhere)
-to declare Python dependencies. The print method for <code>py_require()</code> displays
-the Python dependencies declared by R packages in the current session.</p>
+to declare Python dependencies. The print method shows successful requests
+from R packages and other environments in chronological order.</p>
     </div>
     <div class="section level2">
     <h2 id="note">Note<a class="anchor" aria-label="anchor" href="#note"></a></h2>

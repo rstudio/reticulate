@@ -1,8 +1,7 @@
 # reticulate (development version)
 
 - The `exclude_newer` arguments to `py_require()` and `uv_run_tool()` now
-  accept `Date` and `POSIXt` objects. Date-times are converted to whole-second
-  UTC RFC 3339 timestamps.
+  accept `Date` and `POSIXt` objects.
 
 - `py_require()` now applies late package additions atomically. Failed
   package-originated additions warn without changing the declared requirements.

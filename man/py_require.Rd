@@ -28,9 +28,8 @@ specified date. This offers a lightweight alternative to freezing package
 versions, helping guard against Python package updates that break a
 workflow. Accepts RFC 3339
 timestamp strings (e.g., \code{"2006-12-02T02:07:43Z"}), local-date strings
-(e.g., \code{"2006-12-02"}) or \code{Date} objects, and \code{POSIXt} objects. Local dates
-use your system's configured time zone; \code{POSIXt} values are converted to
-UTC at whole-second precision. Once
+(e.g., \code{"2006-12-02"}), \code{Date} objects, and \code{POSIXt} objects. Local dates
+use your system's configured time zone. Once
 \code{exclude_newer} is set, \code{action = "add"} cannot change it. Use
 \code{action = "set"} to replace it. To clear it, use \code{action = "remove"} with
 the same value, \code{NA}, or \code{""}.}

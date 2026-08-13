@@ -314,9 +314,8 @@ builtin_module_names <- c('abc', 'aifc', 'antigravity', 'argparse', 'ast', 'asyn
 #'   versions, helping guard against Python package updates that break a
 #'   workflow. Accepts RFC 3339
 #'   timestamp strings (e.g., `"2006-12-02T02:07:43Z"`), local-date strings
-#'   (e.g., `"2006-12-02"`) or `Date` objects, and `POSIXt` objects. Local dates
-#'   use your system's configured time zone; `POSIXt` values are converted to
-#'   UTC at whole-second precision.
+#'   (e.g., `"2006-12-02"`), `Date` objects, and `POSIXt` objects. Local dates
+#'   use your system's configured time zone.
 #' @inheritDotParams base::system2 -command
 #'
 #' @details

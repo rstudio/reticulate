@@ -161,9 +161,8 @@
 #'   versions, helping guard against Python package updates that break a
 #'   workflow. Accepts RFC 3339
 #'   timestamp strings (e.g., `"2006-12-02T02:07:43Z"`), local-date strings
-#'   (e.g., `"2006-12-02"`) or `Date` objects, and `POSIXt` objects. Local dates
-#'   use your system's configured time zone; `POSIXt` values are converted to
-#'   UTC at whole-second precision. Once
+#'   (e.g., `"2006-12-02"`), `Date` objects, and `POSIXt` objects. Local dates
+#'   use your system's configured time zone. Once
 #'   `exclude_newer` is set, `action = "add"` cannot change it. Use
 #'   `action = "set"` to replace it. To clear it, use `action = "remove"` with
 #'   the same value, `NA`, or `""`.

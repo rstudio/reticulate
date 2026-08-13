@@ -189,10 +189,9 @@ py_require <- function(packages = NULL,
   }
 
   if (!is.null(python_version)) {
-    python_version <- trimws(unlist(
-      strsplit(python_version, ",", fixed = TRUE),
-      use.names = FALSE
-    ))
+    python_version <- trimws(unname(unlist(
+      strsplit(python_version, ",", fixed = TRUE)
+    )))
   }
 
   exclude_newer_supplied <- !is.null(exclude_newer)

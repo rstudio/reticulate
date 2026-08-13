@@ -2,6 +2,12 @@
 
 ## reticulate (development version)
 
+- The `exclude_newer` arguments to
+  [`py_require()`](https://rstudio.github.io/reticulate/dev/reference/py_require.md)
+  and
+  [`uv_run_tool()`](https://rstudio.github.io/reticulate/dev/reference/uv_run_tool.md)
+  now accept `Date` and `POSIXt` objects.
+
 - [`py_require()`](https://rstudio.github.io/reticulate/dev/reference/py_require.md)
   now applies late package additions atomically. Failed
   package-originated additions warn without changing the declared

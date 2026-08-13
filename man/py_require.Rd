@@ -26,11 +26,13 @@ from local files or a git repository is also supported (see details).}
 \item{exclude_newer}{Limit package versions to those published before a
 specified date. This offers a lightweight alternative to freezing package
 versions, helping guard against Python package updates that break a
-workflow. Accepts strings formatted as RFC 3339 timestamps (e.g.,
-\code{"2006-12-02T02:07:43Z"}) and local dates in the same format (e.g.,
-\code{"2006-12-02"}) in your system's configured time zone. Once \code{exclude_newer}
-is set, \code{action = "add"} cannot change it. Use \code{action = "set"} to replace
-it. To clear it, use \code{action = "remove"} with the same value, \code{NA}, or \code{""}.}
+workflow. Accepts RFC 3339
+timestamp strings (e.g., \code{"2006-12-02T02:07:43Z"}), local-date strings
+(e.g., \code{"2006-12-02"}), \code{Date} objects, and \code{POSIXt} objects. Local dates
+use your system's configured time zone. Once
+\code{exclude_newer} is set, \code{action = "add"} cannot change it. Use
+\code{action = "set"} to replace it. To clear it, use \code{action = "remove"} with
+the same value, \code{NA}, or \code{""}.}
 
 \item{action}{Determines how \code{py_require()} processes the provided
 requirements. Options are:

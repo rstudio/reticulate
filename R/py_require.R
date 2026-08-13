@@ -159,11 +159,13 @@
 #' @param exclude_newer Limit package versions to those published before a
 #'   specified date. This offers a lightweight alternative to freezing package
 #'   versions, helping guard against Python package updates that break a
-#'   workflow. Accepts strings formatted as RFC 3339 timestamps (e.g.,
-#'   `"2006-12-02T02:07:43Z"`) and local dates in the same format (e.g.,
-#'   `"2006-12-02"`) in your system's configured time zone. Once `exclude_newer`
-#'   is set, `action = "add"` cannot change it. Use `action = "set"` to replace
-#'   it. To clear it, use `action = "remove"` with the same value, `NA`, or `""`.
+#'   workflow. Accepts RFC 3339
+#'   timestamp strings (e.g., `"2006-12-02T02:07:43Z"`), local-date strings
+#'   (e.g., `"2006-12-02"`), `Date` objects, and `POSIXt` objects. Local dates
+#'   use your system's configured time zone. Once
+#'   `exclude_newer` is set, `action = "add"` cannot change it. Use
+#'   `action = "set"` to replace it. To clear it, use `action = "remove"` with
+#'   the same value, `NA`, or `""`.
 #'
 #' @returns `py_require()` is primarily called for its side effect of modifying
 #'   the manifest of "Python requirements" for the current R session  that
@@ -189,16 +191,16 @@ py_require <- function(packages = NULL,
   }
 
   if (!is.null(python_version)) {
-    python_version <- trimws(unlist(
-      strsplit(python_version, ",", fixed = TRUE),
-      use.names = FALSE
-    ))
+    python_version <- trimws(unname(unlist(
+      strsplit(python_version, ",", fixed = TRUE)
+    )))
   }
 
   exclude_newer_supplied <- !is.null(exclude_newer)
   if (exclude_newer_supplied) {
     if (length(exclude_newer) != 1L)
       stop("`exclude_newer` must be a single value")
+    exclude_newer <- format_exclude_newer(exclude_newer)
     if (is.na(exclude_newer) || identical(exclude_newer, ""))
       exclude_newer <- NULL
   }

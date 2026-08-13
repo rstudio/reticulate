@@ -190,9 +190,9 @@ py_require <- function(packages = NULL,
   caller <- topenv(parent.frame())
   called_from_package <- isNamespace(caller)
   request <- py_reqs_request(
-    packages = if (missing(packages)) NULL else packages,
-    python_version = if (missing(python_version)) NULL else python_version,
-    exclude_newer = if (missing(exclude_newer)) NULL else exclude_newer,
+    packages = packages,
+    python_version = python_version,
+    exclude_newer = exclude_newer,
     exclude_newer_supplied =
       !missing(exclude_newer) && !is.null(exclude_newer),
     action = match.arg(action),

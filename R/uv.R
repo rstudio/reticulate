@@ -175,6 +175,9 @@ uv_install_managed <- function(uv, installer) {
 
 
 format_exclude_newer <- function(x) {
+  if (is.null(x))
+    return()
+
   if (inherits(x, "Date"))
     return(format(x, "%Y-%m-%d"))
 

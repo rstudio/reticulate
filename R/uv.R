@@ -173,10 +173,40 @@ uv_install_managed <- function(uv, installer) {
   stop(paste(c(msg, details), collapse = "\n"), call. = FALSE)
 }
 
+
+format_exclude_newer <- function(x) {
+  if (inherits(x, "Date"))
+    return(format(x, "%Y-%m-%d"))
+
+  if (!inherits(x, "POSIXt"))
+    return(x)
+
+  time <- as.numeric(as.POSIXct(x))
+  seconds <- floor(time)
+  microseconds <- as.integer(round((time - seconds) * 1e6))
+  carry <- !is.na(microseconds) & microseconds == 1e6L
+  seconds[carry] <- seconds[carry] + 1
+  microseconds[carry] <- 0L
+
+  timestamp <- format(
+    as.POSIXct(seconds, origin = "1970-01-01", tz = "UTC"),
+    "%Y-%m-%dT%H:%M:%S",
+    tz = "UTC"
+  )
+  fraction <- sub("0+$", "", sprintf(".%06d", microseconds))
+  fraction[!is.na(microseconds) & microseconds == 0L] <- ""
+
+  out <- paste0(timestamp, fraction, "Z")
+  out[is.na(time)] <- NA_character_
+  out
+}
+
+
 uv_get_or_create_env <- function(packages = py_reqs_get()$packages,
                                  python_version = py_reqs_python_version(),
                                  exclude_newer = py_reqs_get()$exclude_newer) {
 
+  exclude_newer <- format_exclude_newer(exclude_newer)
   uv <- uv_binary() %||% return()
 
   resolved_python_version <-
@@ -291,12 +321,14 @@ builtin_module_names <- c('abc', 'aifc', 'antigravity', 'argparse', 'ast', 'asyn
 #'   specify version constraints like `"ruff>=0.3.0"`.
 #' @param python_version A Python version string, or character vector of Python
 #'   version constraints.
-#' @param exclude_newer String. Limit package versions to those published before
-#'   a specified date. This offers a lightweight alternative to freezing package
+#' @param exclude_newer Limit package versions to those published before a
+#'   specified date. This offers a lightweight alternative to freezing package
 #'   versions, helping guard against Python package updates that break a
-#'   workflow. Accepts strings formatted as RFC 3339 timestamps (e.g.,
-#'   `"2006-12-02T02:07:43Z"`) and local dates in the same format (e.g.,
-#'   `"2006-12-02"`) in your system's configured time zone.
+#'   workflow. Accepts RFC 3339
+#'   timestamp strings (e.g., `"2006-12-02T02:07:43Z"`), local-date strings
+#'   (e.g., `"2006-12-02"`) or `Date` objects, and `POSIXt` objects. Local dates
+#'   use your system's configured time zone; `POSIXt` values are converted to
+#'   UTC.
 #' @inheritDotParams base::system2 -command
 #'
 #' @details
@@ -323,6 +355,7 @@ uv_run_tool <- function(tool,
                         with = NULL,
                         python_version = NULL,
                         exclude_newer = NULL) {
+  exclude_newer <- format_exclude_newer(exclude_newer)
   uv <- uv_binary()
 
   key <- python_version %||% "default"

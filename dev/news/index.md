@@ -2,6 +2,11 @@
 
 ## reticulate (development version)
 
+- [`r_to_py()`](https://rstudio.github.io/reticulate/dev/reference/r-py-conversion.md)
+  now preserves explicit integer row names as the index when converting
+  an R data frame to a pandas data frame
+  ([\#1924](https://github.com/rstudio/reticulate/issues/1924)).
+
 - The `exclude_newer` arguments to
   [`py_require()`](https://rstudio.github.io/reticulate/dev/reference/py_require.md)
   and

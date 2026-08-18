@@ -148,6 +148,21 @@ test_that("single-row data.frames with rownames can be converted", {
 
 })
 
+test_that("explicit integer row names become the pandas index, #1924", {
+  skip_if_no_pandas()
+
+  for (row_names in list(c(1L, 2L, 4L), 1:3, 4L)) {
+    df <- data.frame(x = seq_along(row_names))
+    attr(df, "row.names") <- row_names
+
+    index <- r_to_py(df)$index$tolist()
+    expect_identical(py_to_r(index), row_names)
+  }
+
+  index <- r_to_py(data.frame(x = 1:3))$index$tolist()
+  expect_identical(py_to_r(index), 0:2)
+})
+
 test_that("Time zones are respected if available", {
   skip_if_no_pandas()
 

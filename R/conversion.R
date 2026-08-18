@@ -280,7 +280,9 @@ r_to_py.data.frame <- function(x, convert = FALSE) {
 
   # copy over row names if they exist
   rni <- .row_names_info(x, type = 0L)
-  if (is.character(rni)) {
+  if (.row_names_info(x, type = 1L) > 0L) {
+    if (length(rni) == 2L && is.na(rni[[1L]]))
+      rni <- seq_len(rni[[2L]])
     if (length(rni) == 1)
       rni <- as.list(rni)
     pdf$index <- rni

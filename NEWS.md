@@ -1,5 +1,8 @@
 # reticulate (development version)
 
+- `r_to_py()` now preserves explicit integer row names as the index when
+  converting an R data frame to a pandas data frame (#1924).
+
 - The `exclude_newer` arguments to `py_require()` and `uv_run_tool()` now
   accept `Date` and `POSIXt` objects.
 

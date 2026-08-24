@@ -1,5 +1,9 @@
 # reticulate (development version)
 
+- After a live `py_require()` activation, `sys.executable` and an already-loaded
+  `multiprocessing` launcher now point to the updated managed environment, so
+  child Python processes can import newly added packages.
+
 - `r_to_py()` now preserves explicit integer row names as the index when
   converting an R data frame to a pandas data frame (#1924).
 

@@ -50,6 +50,38 @@ test_that("Adding packages after Python init works; conflicting versions error",
   }))
 })
 
+test_that("late py_require() updates child process executables", {
+  result <- r_session({
+    library(reticulate)
+
+    sys <- import("sys")
+    spawn <- import("multiprocessing.spawn")
+    previous_config <- py_config()
+
+    py_require("joblib")
+    config <- py_config()
+    os <- import("os")
+
+    stopifnot(
+      !identical(previous_config$python, config$python),
+      !identical(previous_config$executable, config$executable),
+      identical(sys$executable, config$executable),
+      identical(os$fsdecode(spawn$get_executable()), config$executable)
+    )
+
+    import("joblib")
+    import("subprocess")$run(
+      c(sys$executable, "-c", "import joblib"),
+      check = TRUE
+    )
+  }, echo = FALSE)
+
+  expect_null(
+    attr(result, "status", exact = TRUE),
+    info = paste(result, collapse = "\n")
+  )
+})
+
 test_that("py_list_packages() works in managed uv environments", {
   local_edition(3)
 

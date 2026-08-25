@@ -403,6 +403,14 @@ py_reqs_activate <- function(manifest) {
   }
 
   py_activate_virtualenv(file.path(dirname(new_path), "activate_this.py"))
+
+  sys <- import("sys", convert = FALSE)
+  sys$executable <- new_config$executable
+
+  multiprocessing <- sys$modules[["multiprocessing"]]
+  if (!py_is_none(multiprocessing))
+    multiprocessing$set_executable(new_config$executable)
+
   new_config$available <- TRUE
   new_config
 }

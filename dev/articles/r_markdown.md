@@ -47,8 +47,9 @@ Here’s an R Markdown document that demonstrates this:
 
 ![](images/python_chunks.png)
 
-[RStudio v1.2](https://posit.co/download/rstudio-desktop/) or greater
-for reticulate IDE support.
+[RStudio
+v1.2](https://docs.posit.co/ide/user/#rstudio-ide-oss-downloads) or
+greater for reticulate IDE support.
 
 ## Calling Python from R
 

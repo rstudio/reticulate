@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">reticulate</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">1.46.0.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="In-development version">1.47.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,21 +46,36 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="reticulate-development-version">reticulate (development version)<a class="anchor" aria-label="anchor" href="#reticulate-development-version"></a></h2>
-<ul><li><p>After a live <code><a href="../reference/py_require.html">py_require()</a></code> activation, <code>sys.executable</code> and an already-loaded <code>multiprocessing</code> launcher now point to the updated managed environment, so child Python processes can import newly added packages.</p></li>
-<li><p><code><a href="../reference/r-py-conversion.html">r_to_py()</a></code> now preserves explicit integer row names as the index when converting an R data frame to a pandas data frame (<a href="https://github.com/rstudio/reticulate/issues/1924" class="external-link">#1924</a>).</p></li>
-<li><p>The <code>exclude_newer</code> arguments to <code><a href="../reference/py_require.html">py_require()</a></code> and <code><a href="../reference/uv_run_tool.html">uv_run_tool()</a></code> now accept <code>Date</code> and <code>POSIXt</code> objects.</p></li>
-<li><p><code><a href="../reference/py_require.html">py_require()</a></code> now applies late package additions atomically. Failed package-originated additions warn without changing the declared requirements. Its printed summary now shows successful requirement requests in chronological order, including their source and action.</p></li>
-<li><p>Reticulate now restores Python’s original output streams in child processes created by <code>os.fork()</code> when output remapping is enabled.</p></li>
-<li><p>Fixed a <code>-Wnonnull</code> compiler warning from Clang 21 when building reticulate (<a href="https://github.com/rstudio/reticulate/issues/1917" class="external-link">#1917</a>).</p></li>
-<li><p>Reticulate now converts base R’s built-in <code>abort</code> restart to a Python exception when Python calls R, instead of jumping to R’s top level.</p></li>
-<li><p>Fixed <code><a href="../reference/r-py-conversion.html">py_to_r()</a></code> conversion of pandas data frames and series containing Arrow-backed string columns (<a href="https://github.com/rstudio/reticulate/issues/1910" class="external-link">#1910</a>).</p></li>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.47.0" id="reticulate-1470">reticulate 1.47.0<a class="anchor" aria-label="anchor" href="#reticulate-1470"></a></h2>
+<div class="section level3">
+<h3 id="python-requirements-and-environments-1-47-0">Python requirements and environments<a class="anchor" aria-label="anchor" href="#python-requirements-and-environments-1-47-0"></a></h3>
+<ul><li><p><code><a href="../reference/py_require.html">py_require()</a></code> now applies late package additions atomically. Failed package-originated additions warn without changing the declared requirements. Its printed summary now shows successful requirement requests in chronological order, including their source and action.</p></li>
+<li><p><code><a href="../reference/py_require.html">py_require()</a></code> and <code><a href="../reference/uv_run_tool.html">uv_run_tool()</a></code> now accept <code>Date</code> and <code>POSIXt</code> objects for <code>exclude_newer</code>.</p></li>
+<li><p><code><a href="../reference/py_require.html">py_require()</a></code> now updates <code>sys.executable</code> and an already-loaded <code>multiprocessing</code> launcher after a live activation, so child Python processes can import newly added packages.</p></li>
 <li><p><code>RETICULATE_MAX_CACHE_AGE_DAYS</code> can now configure the maximum age, in days, of reticulate’s managed <code>uv</code> cache before it is cleared (<a href="https://github.com/rstudio/reticulate/issues/1905" class="external-link">#1905</a>).</p></li>
-<li><p>Reticulate now checks that it can download the <code>uv</code> installer before clearing an expired managed cache (<a href="https://github.com/rstudio/reticulate/issues/1876" class="external-link">#1876</a>).</p></li>
-<li><p>Fixed managed <code>uv</code> bootstrapping on Windows when R inherits a PowerShell 7 <code>PSModulePath</code>, such as from GitHub Actions <code>pwsh</code> steps.</p></li>
-<li><p>Fixed Pipenv interpreter discovery when <code>here</code> cannot resolve a project root. (<a href="https://github.com/rstudio/reticulate/issues/1909" class="external-link">#1909</a>)</p></li>
-<li><p>Fixed a spurious warning about Poetry being unavailable when a project had a <code>pyproject.toml</code> without a <code>[tool.poetry]</code> section, such as uv or PEP 621 projects. (<a href="https://github.com/rstudio/reticulate/issues/1900" class="external-link">#1900</a>)</p></li>
-<li><p>Documented that <code>R_USER_CACHE_DIR</code> can be used to configure the location of reticulate’s managed <code>uv</code> cache (<a href="https://github.com/rstudio/reticulate/issues/1901" class="external-link">#1901</a>).</p></li>
+<li><p>Managed <code>uv</code> bootstrapping now works on Windows when R inherits a PowerShell 7 <code>PSModulePath</code>, such as from GitHub Actions <code>pwsh</code> steps.</p></li>
+<li><p>Pipenv interpreter discovery now uses a located Pipfile even when <code>here</code> cannot resolve a project root (<a href="https://github.com/rstudio/reticulate/issues/1909" class="external-link">#1909</a>).</p></li>
+<li><p>Reticulate now treats projects with a <code>pyproject.toml</code> but no <code>[tool.poetry]</code> section, such as uv or PEP 621 projects, as non-Poetry projects (<a href="https://github.com/rstudio/reticulate/issues/1900" class="external-link">#1900</a>).</p></li>
+<li><p>Reticulate now retains an expired managed <code>uv</code> cache when it cannot download the installer needed to replace it (<a href="https://github.com/rstudio/reticulate/issues/1876" class="external-link">#1876</a>).</p></li>
 </ul></div>
+<div class="section level3">
+<h3 id="conversion-1-47-0">Conversion<a class="anchor" aria-label="anchor" href="#conversion-1-47-0"></a></h3>
+<ul><li><p><code><a href="../reference/r-py-conversion.html">py_to_r()</a></code> now converts pandas data frames and series containing Arrow-backed string columns (<a href="https://github.com/rstudio/reticulate/issues/1910" class="external-link">#1910</a>).</p></li>
+<li><p><code><a href="../reference/r-py-conversion.html">r_to_py()</a></code> now preserves explicit integer row names as the index when converting an R data frame to a pandas data frame (<a href="https://github.com/rstudio/reticulate/issues/1924" class="external-link">#1924</a>).</p></li>
+</ul></div>
+<div class="section level3">
+<h3 id="other-improvements-and-fixes-1-47-0">Other improvements and fixes<a class="anchor" aria-label="anchor" href="#other-improvements-and-fixes-1-47-0"></a></h3>
+<ul><li><p>Child processes created by <code>os.fork()</code> now use Python’s original output streams when output remapping is enabled.</p></li>
+<li><p>Python calls to R now convert base R’s built-in <code>abort</code> restart to a Python exception instead of jumping to R’s top level.</p></li>
+<li><p>Reticulate now builds with Clang 21 without a spurious <code>-Wnonnull</code> compiler warning (<a href="https://github.com/rstudio/reticulate/issues/1917" class="external-link">#1917</a>).</p></li>
+</ul></div>
+<div class="section level3">
+<h3 id="documentation-1-47-0">Documentation<a class="anchor" aria-label="anchor" href="#documentation-1-47-0"></a></h3>
+<ul><li>The <code><a href="../reference/py_require.html">py_require()</a></code> documentation now explains how <code>R_USER_CACHE_DIR</code> configures the location of reticulate’s managed <code>uv</code> cache (<a href="https://github.com/rstudio/reticulate/issues/1899" class="external-link">#1899</a>).</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.46.0" id="reticulate-1460">reticulate 1.46.0<a class="anchor" aria-label="anchor" href="#reticulate-1460"></a></h2><p class="text-muted">CRAN release: 2026-04-09</p>
 <ul><li><p>Internal updates to avoid <code>R_NamespaceRegistry</code> and <code>R_UnboundValue</code> in compiled code on R-devel (4.6) (<a href="https://github.com/rstudio/reticulate/issues/1894" class="external-link">#1894</a>).</p></li>

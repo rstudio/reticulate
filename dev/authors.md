@@ -30,13 +30,13 @@ Source:
 [`DESCRIPTION`](https://github.com/rstudio/reticulate/blob/main/DESCRIPTION)
 
 Kalinowski T, Ushey K, Allaire J, Tang Y (2026). *reticulate: Interface
-to 'Python'*. R package version 1.46.0.9000,
+to 'Python'*. R package version 1.47.0.9000,
 <https://rstudio.github.io/reticulate/>.
 
     @Manual{,
       title = {reticulate: Interface to 'Python'},
       author = {Tomasz Kalinowski and Kevin Ushey and JJ Allaire and Yuan Tang},
       year = {2026},
-      note = {R package version 1.46.0.9000},
+      note = {R package version 1.47.0.9000},
       url = {https://rstudio.github.io/reticulate/},
     }

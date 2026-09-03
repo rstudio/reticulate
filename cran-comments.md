@@ -4,13 +4,7 @@ New features and fixes. See NEWS.md for details.
 
 ## revdepcheck results
 
-We checked 291 reverse dependencies, comparing R CMD check results across CRAN and dev versions of this package.
+We checked 324 reverse dependencies, comparing R CMD check results across CRAN and dev versions of this package.
 
  * We saw 0 new problems
- * We failed to check 1 packages
-
-Issues with CRAN packages are summarised below.
-
-### Failed to check
-
-* ClustAssess (NA)
+ * We failed to check 0 packages

@@ -1,50 +1,57 @@
-# reticulate (development version)
+# reticulate 1.47.0
 
-- After a live `py_require()` activation, `sys.executable` and an already-loaded
-  `multiprocessing` launcher now point to the updated managed environment, so
-  child Python processes can import newly added packages.
-
-- `r_to_py()` now preserves explicit integer row names as the index when
-  converting an R data frame to a pandas data frame (#1924).
-
-- The `exclude_newer` arguments to `py_require()` and `uv_run_tool()` now
-  accept `Date` and `POSIXt` objects.
+## Python requirements and environments
 
 - `py_require()` now applies late package additions atomically. Failed
   package-originated additions warn without changing the declared requirements.
   Its printed summary now shows successful requirement requests in chronological
   order, including their source and action.
 
-- Reticulate now restores Python's original output streams in child processes
-  created by `os.fork()` when output remapping is enabled.
+- `py_require()` and `uv_run_tool()` now accept `Date` and `POSIXt` objects for
+  `exclude_newer`.
 
-- Fixed a `-Wnonnull` compiler warning from Clang 21 when building reticulate
-  (#1917).
-
-- Reticulate now converts base R's built-in `abort` restart to a Python
-  exception when Python calls R, instead of jumping to R's top level.
-
-- Fixed `py_to_r()` conversion of pandas data frames and series containing
-  Arrow-backed string columns (#1910).
+- `py_require()` now updates `sys.executable` and an already-loaded
+  `multiprocessing` launcher after a live activation, so child Python processes
+  can import newly added packages.
 
 - `RETICULATE_MAX_CACHE_AGE_DAYS` can now configure the maximum age, in days,
   of reticulate's managed `uv` cache before it is cleared (#1905).
 
-- Reticulate now checks that it can download the `uv` installer before clearing
-  an expired managed cache (#1876).
-
-- Fixed managed `uv` bootstrapping on Windows when R inherits a PowerShell 7
+- Managed `uv` bootstrapping now works on Windows when R inherits a PowerShell 7
   `PSModulePath`, such as from GitHub Actions `pwsh` steps.
 
-- Fixed Pipenv interpreter discovery when `here` cannot resolve a project root.
-  (#1909)
+- Pipenv interpreter discovery now uses a located Pipfile even when `here`
+  cannot resolve a project root (#1909).
 
-- Fixed a spurious warning about Poetry being unavailable when a project had a
-  `pyproject.toml` without a `[tool.poetry]` section, such as uv or PEP 621
-  projects. (#1900)
+- Reticulate now treats projects with a `pyproject.toml` but no `[tool.poetry]`
+  section, such as uv or PEP 621 projects, as non-Poetry projects (#1900).
 
-- Documented that `R_USER_CACHE_DIR` can be used to configure the location of
-  reticulate's managed `uv` cache (#1901).
+- Reticulate now retains an expired managed `uv` cache when it cannot download
+  the installer needed to replace it (#1876).
+
+## Conversion
+
+- `py_to_r()` now converts pandas data frames and series containing Arrow-backed
+  string columns (#1910).
+
+- `r_to_py()` now preserves explicit integer row names as the index when
+  converting an R data frame to a pandas data frame (#1924).
+
+## Other improvements and fixes
+
+- Child processes created by `os.fork()` now use Python's original output
+  streams when output remapping is enabled.
+
+- Python calls to R now convert base R's built-in `abort` restart to a Python
+  exception instead of jumping to R's top level.
+
+- Reticulate now builds with Clang 21 without a spurious `-Wnonnull` compiler
+  warning (#1917).
+
+## Documentation
+
+- The `py_require()` documentation now explains how `R_USER_CACHE_DIR` configures
+  the location of reticulate's managed `uv` cache (#1899).
 
 # reticulate 1.46.0
 

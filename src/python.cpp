@@ -1182,14 +1182,26 @@ std::string conditionMessage_from_py_exception(PyObject* exc) {
     // towards the tail. Since the tail is the most useful part of the message,
     // truncate from the middle of the exception by default, after including the
     // first two lines.
-    int over(error.size() - max_msg_len);
-    int first_line_end_pos(error.find("\n"));
-    int second_line_start_pos(error.find("\n", first_line_end_pos + 1));
-    std::string head(error.substr(0, second_line_start_pos + 1));
-    std::string tail(
-        error.substr(over + head.size() + trunc.size() + 20,
-                     std::string::npos));
     // +20 to accommodate "Error: " and similar accruals from R signal handlers.
+    std::size_t reserved(trunc.size() + 20);
+    std::size_t budget(max_msg_len > reserved ? max_msg_len - reserved : 0);
+
+    std::size_t first_line_end_pos(error.find("\n"));
+    std::size_t second_line_start_pos(
+        first_line_end_pos == std::string::npos
+            ? std::string::npos
+            : error.find("\n", first_line_end_pos + 1));
+    std::string head(second_line_start_pos == std::string::npos
+                         ? std::string()
+                         : error.substr(0, second_line_start_pos + 1));
+
+    // The first two lines can fill the budget on their own, e.g. a SyntaxError
+    // carrying a long source line. Keeping them would put the start of the
+    // tail past the end of the string.
+    if (head.size() > budget)
+      head.clear();
+
+    std::string tail(error.substr(error.size() - (budget - head.size())));
     error = head + trunc + tail;
   }
 

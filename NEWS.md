@@ -1,5 +1,11 @@
 # reticulate (development version)
 
+- Fixed an error while formatting a long Python exception message. A message
+  whose first two lines already exceeded `getOption("warning.length")` made the
+  truncation index past the end of the string, so the R error became
+  `basic_string::substr: __pos > this->size()` instead of the Python message.
+  A `SyntaxError` raised over a long source line hit this reliably.
+
 # reticulate 1.47.0
 
 ## Python requirements and environments

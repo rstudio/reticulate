@@ -33,6 +33,7 @@ within your R package as required.
 is typically called from `.onLoad()`, as shown below:
 
 ``` r
+
 .onLoad <- function(libname, pkgname) {
   reticulate::py_require("scipy")
 }
@@ -50,6 +51,7 @@ a different one using the `use_backend()` function. This function calls
 with different values based on the selected backend:
 
 ``` r
+
 .onLoad <- function(...) {
   py_require("keras")
   use_backend("tensorflow") # Default to TensorFlow
@@ -76,6 +78,7 @@ use_backend <- function(backend, gpu = TRUE) {
 `keras3` users can then specify a backend like this:
 
 ``` r
+
 library(keras3)
 use_backend("jax")
 ```
@@ -102,6 +105,7 @@ requirements, like `exclude_newer`.
 An example user script header:
 
 ``` r
+
 library(pysparklyr) # declares requirements for PySpark
 library(keras3)     # declares requirements for default 'tensorflow' backend
 use_backend("jax")  # removes 'tensorflow' requirements, adds 'jax' requirements
@@ -124,6 +128,7 @@ for rarely used optional dependencies, the requirement can be declared
 right before use:
 
 ``` r
+
 model_to_dot <- function(x, ...) {
   reticulate::py_require("pydot")
   keras$utils$model_to_dot(x, ...)
@@ -153,6 +158,7 @@ to allow:
 Example:
 
 ``` r
+
 scipy <- NULL
 
 .onLoad <- function(libname, pkgname) {
@@ -178,6 +184,7 @@ The packages will by default be installed within the currently active
 Python installation.
 
 ``` r
+
 library(reticulate)
 py_install("scipy")
 ```
@@ -189,6 +196,7 @@ Alternatively, create a wrapper function for
 that installs dependencies in a dedicated environment:
 
 ``` r
+
 install_scipy <- function(envname = "r-scipy", method = "auto", ...) {
   reticulate::py_install("scipy", envname = envname, method = method, ...)
 }
@@ -207,6 +215,7 @@ To ensure your package is well behaved on CRAN:
 1.  Use `delay_load` to defer module loading:
 
     ``` r
+
     scipy <- NULL
 
     .onLoad <- function(libname, pkgname) {
@@ -218,6 +227,7 @@ To ensure your package is well behaved on CRAN:
 2.  Skip tests when required modules are unavailable:
 
     ``` r
+
     skip_if_no_scipy <- function() {
       if (!reticulate::py_module_available("scipy"))
         skip("scipy not available for testing")
@@ -243,6 +253,7 @@ To safely handle these cases, use
 as shown in this example:
 
 ``` r
+
 print.my_python_object <- function(x, ...) {
   if (py_is_null_xptr(x)) {
     cat("<Python object is no longer available>\n")
@@ -276,6 +287,7 @@ To support changing S3 classes, instead of registering methods in
 NAMESPACE with roxygen, manually register them in `.onLoad()`:
 
 ``` r
+
 # Python class `DocumentConverterResult` changes with different MarkItDown versions.
 py_to_r.markitdown.DocumentConverterResult <- function(x) {
   paste0("# ", x$title, "\n\n", x$text_content)
@@ -329,6 +341,7 @@ the created Python object are converted. To illustrate, consider the
 difference between these two cases:
 
 ``` r
+
 library(reticulate)
 
 # [convert = TRUE] => convert Python objects to R when appropriate
@@ -358,6 +371,7 @@ This is typically done by:
 As an example of the second:
 
 ``` r
+
 # suppose 'make_python_object()' creates a Python object
 # from R objects of class 'my_r_object'.
 r_to_py.my_r_object <- function(x, convert) {

@@ -1,5 +1,5 @@
-pandoc: 3.1.11
-pkgdown: 2.2.0
+pandoc: 3.8.3
+pkgdown: 2.2.1
 pkgdown_sha: ~
 articles:
   arrays: arrays.html
@@ -11,7 +11,7 @@ articles:
   r_markdown: r_markdown.html
   rstudio_ide: rstudio_ide.html
   versions: versions.html
-last_built: 2026-04-24T15:55Z
+last_built: 2026-09-03T14:09Z
 urls:
   reference: https://rstudio.github.io/reticulate/reference
   article: https://rstudio.github.io/reticulate/articles

@@ -29,6 +29,7 @@ workflow!
 Install the **reticulate** package from CRAN as follows:
 
 ``` r
+
 install.packages("reticulate")
 ```
 
@@ -42,6 +43,7 @@ The
 function enables you to specify an alternate python, for example:
 
 ``` r
+
 library(reticulate)
 use_python("/usr/local/bin/python")
 ```
@@ -54,6 +56,7 @@ functions enable you to specify versions of Python in virtual or Conda
 environments, for example:
 
 ``` r
+
 library(reticulate)
 use_virtualenv("myenv")
 ```
@@ -144,6 +147,7 @@ this code imports the Python `os` module and calls the `listdir()`
 function:
 
 ``` r
+
 library(reticulate)
 os <- import("os")
 os$listdir(".")
@@ -193,6 +197,7 @@ Then you can source the script and call the `read_flights()` function as
 follows:
 
 ``` r
+
 source_python("flights.py")
 flights <- read_flights("flights.csv")
 
@@ -227,15 +232,15 @@ When calling into Python, R data types are automatically converted to
 their equivalent Python types. When values are returned from Python to R
 they are converted back to R types. Types are converted as follows:
 
-| R                                           | Python            | Examples                                         |
-|---------------------------------------------|-------------------|--------------------------------------------------|
-| Single-element atomic vector                | Scalar            | `1`, `1L`, `TRUE`, `"foo"`                       |
-| Unnamed list or multi-element atomic vector | List              | `c(1.0, 2.0, 3.0)`, `c(1L, 2L, 3L)`              |
-| Named list                                  | Dict              | `list(a = 1L, b = 2.0)`, `dict(x = x_data)`      |
-| Matrix/Array                                | NumPy ndarray     | `matrix(c(1,2,3,4), nrow = 2, ncol = 2)`         |
-| Data Frame                                  | Pandas DataFrame  | `data.frame(x = c(1,2,3), y = c("a", "b", "c"))` |
-| Function                                    | Python function   | `function(x) x + 1`                              |
-| NULL, TRUE, FALSE                           | None, True, False | `NULL`, `TRUE`, `FALSE`                          |
+| R | Python | Examples |
+|----|----|----|
+| Single-element atomic vector | Scalar | `1`, `1L`, `TRUE`, `"foo"` |
+| Unnamed list or multi-element atomic vector | List | `c(1.0, 2.0, 3.0)`, `c(1L, 2L, 3L)` |
+| Named list | Dict | `list(a = 1L, b = 2.0)`, `dict(x = x_data)` |
+| Matrix/Array | NumPy ndarray | `matrix(c(1,2,3,4), nrow = 2, ncol = 2)` |
+| Data Frame | Pandas DataFrame | `data.frame(x = c(1,2,3), y = c("a", "b", "c"))` |
+| Function | Python function | `function(x) x + 1` |
+| NULL, TRUE, FALSE | None, True, False | `NULL`, `TRUE`, `FALSE` |
 
 If a Python object of a custom class is returned then an R reference to
 that object is returned. You can call methods and access properties of

@@ -99,6 +99,7 @@ following example that creates and displays identical 4x3x2 arrays in R
 and Python:
 
 ``` r
+
 array(1:24, c(4,3,2))
 
 ## , , 1
@@ -145,6 +146,7 @@ out values along just the first “row”, that is values with a first index
 of 1 (R) or 0 (Python):
 
 ``` r
+
 array(1:24, c(4, 3, 2))[1,, ,drop=FALSE]
 
 ## , , 1
@@ -169,6 +171,7 @@ above. If we use `drop=TRUE` (the default) then R returns a 3x2 array in
 column-major order–exactly the same result as Python above.
 
 ``` r
+
 array(1:24, c(4, 3, 2))[1,, ,drop=TRUE]
 
 ##      [,1] [,2]
@@ -228,6 +231,7 @@ row-major ordering and imports it into R. Despite the fact that they
 print out differently, they are in fact the same.
 
 ``` r
+
 library(reticulate)
 np <- import("numpy", convert=FALSE)
 (x <- np$arange(1, 9)$reshape(2L, 2L, 2L))
@@ -258,6 +262,7 @@ without dropping the unused dimension to show precisely what we’re
 indexing here:
 
 ``` r
+
 y[1,,, drop=FALSE]
 
 ## , , 1
@@ -288,6 +293,7 @@ clear (hopefully). Consider the following 4x3x2 array constructed in
 Python in row-major order:
 
 ``` r
+
 np <- import("numpy", convert=FALSE)
 (x <- np$reshape(np$arange(1, 25), c(4L, 3L, 2L)))
 
@@ -329,6 +335,7 @@ the same. Let’s pick out the sub-array with third index = 0 (Python),
 equivalently the third index = 1 in R.
 
 ``` r
+
 np$take(x, 0L, 2L)
 
 ## [[  1.   3.   5.]
@@ -364,6 +371,7 @@ in Python. Let’s see what happens when we start with column-major arrays
 from R and work with them in Python.
 
 ``` r
+
 (y <- array(1:24, c(4, 3, 2)))  # In R
 
 ## , , 1
@@ -403,6 +411,7 @@ Note that the Python version takes advantage of NumPy’s extraordinary
 flexibility and preserves R’s column-major ordering:
 
 ``` r
+
 x$flags
 
 ##   C_CONTIGUOUS : False
@@ -419,6 +428,7 @@ example selects a subarray such that the third index of each array is 0
 (Python) or 1 (R):
 
 ``` r
+
 y[, , 1]
 
 ##      [,1] [,2] [,3]
@@ -439,6 +449,7 @@ It’s important to remember that the order is preserved from Python when
 copying an array result back into R:
 
 ``` r
+
 py_to_r(np$take(x, 0L, 2L))
 
 ##      [,1] [,2] [,3]
@@ -459,6 +470,7 @@ to use R’s column-major format directly in Python, for example using the
 “F” flag below (for Fortran):
 
 ``` r
+
 np$reshape(np$arange(1, 25), c(4L, 3L, 2L), "F")
 
 ## [[[  1.  13.]
@@ -489,6 +501,7 @@ with [`aperm()`](https://rdrr.io/r/base/aperm.html). Here is one
 somewhat inefficient example:
 
 ``` r
+
 y <- aperm(array(matrix(1:24, c(3 * 4, 2), byrow=TRUE),
            c(3, 4, 2)), c(2, 1, 3))
 ```
@@ -499,6 +512,7 @@ We can verify that the above ugly expression exactly reproduces a NumPy
 row-major array by subtracting our R array from a native Python one:
 
 ``` r
+
 np <- import("numpy", convert=FALSE)
 o  <- import("operator", convert=FALSE)
 
@@ -530,6 +544,7 @@ In R you would typically reshape an array using the `dim<-()` function.
 For example:
 
 ``` r
+
 dim(x) <- c(1000, 28, 28)
 ```
 
@@ -549,12 +564,14 @@ function which will reshape an R array using row-major semantics
 order). The example above would be re-written as:
 
 ``` r
+
 x <- array_reshape(x, c(1000, 28, 28))
 ```
 
 Here’s a further example to illustrate the difference:
 
 ``` r
+
 # let's construct a 2x2 array from a vector of 4 elements
 x <- 1:4
 
@@ -592,6 +609,7 @@ It’s easy to be confused by this, so let’s see an example using a 4x3x2
 array, first in Python:
 
 ``` r
+
 library(reticulate)
 np <- import("numpy", convert=FALSE)
 x  <- np$arange(1, 25)$reshape(c(4L, 3L, 2L))
@@ -610,6 +628,7 @@ x$sum(tuple(1L, 2L))
 And now the corresponding sums in R:
 
 ``` r
+
 y <- py_to_r(x)
 apply(y, dim(y)[-1], sum)
 
@@ -631,6 +650,7 @@ and Python and how they are printed and stored. A lightly-edited
 reproduction of the reference Python code in the issue appears below.
 
 ``` r
+
 library(tensorflow)
 np   <- import("numpy", convert=FALSE)
 a    <- np$arange(1, 9)$reshape(c(2L, 2L, 2L))
@@ -648,6 +668,7 @@ The issue goes on to reproduce the example using R-generated arrays as
 follows:
 
 ``` r
+
 A <- list(matrix(1:4, nrow=2, byrow=T), matrix(5:8, nrow=2, byrow=T))
 A <- array(unlist(A), dim=c(2,2,2))
 ```
@@ -661,6 +682,7 @@ the same simply because of the way the arrays are printed! The R array
 looks superficially the same as the printed Python array.
 
 ``` r
+
 print(a)
 
 ## [[[ 1.  2.]
@@ -697,6 +719,7 @@ row-major order of Python, discussed in the previous sections. We can
 use many approaches including:
 
 ``` r
+
 (A <- np$array(aperm(array(1:8, c(2,2,2)), c(3,2,1))))
 
 ## [[[1 2]
@@ -711,6 +734,7 @@ replicating the example in R (with the same result as the reference
 Python example above).
 
 ``` r
+
 A <- np$array(aperm(array(1:8, c(2,2,2)), c(3,2,1)))
 B <- np$array(aperm(array(1:4, c(2,2,1)), c(2,1,3)))
 C <- tf$matmul(tf$constant(A), tf$constant(B))

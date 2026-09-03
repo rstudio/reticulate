@@ -42,10 +42,12 @@ py_require(
   Limit package versions to those published before a specified date.
   This offers a lightweight alternative to freezing package versions,
   helping guard against Python package updates that break a workflow.
-  Accepts strings formatted as RFC 3339 timestamps (e.g.,
-  `"2006-12-02T02:07:43Z"`) and local dates in the same format (e.g.,
-  `"2006-12-02"`) in your system's configured time zone. Once
-  `exclude_newer` is set, only the `set` action can override it.
+  Accepts RFC 3339 timestamp strings (e.g., `"2006-12-02T02:07:43Z"`),
+  local-date strings (e.g., `"2006-12-02"`), `Date` objects, and
+  `POSIXt` objects. Local dates use your system's configured time zone.
+  Once `exclude_newer` is set, `action = "add"` cannot change it. Use
+  `action = "set"` to replace it. To clear it, use `action = "remove"`
+  with the same value, `NA`, or `""`.
 
 - action:
 
@@ -70,9 +72,11 @@ py_require(
 manifest of "Python requirements" for the current R session that
 reticulate maintains internally. `py_require()` usually returns `NULL`
 invisibly. If `py_require()` is called with no arguments, it returns the
-current manifest–a list with names `packages`, `python_version`, and
-`exclude_newer.` The list also has a class attribute, to provide a print
-method.
+current manifest–a list with names `python_version`, `packages`,
+`exclude_newer`, and `history`. `history` is an append-only record of
+successful requests, retained to help diagnose where requirements came
+from. It is not used to resolve the manifest. The list also has a class
+attribute, to provide a print method.
 
 ## Details
 
@@ -101,9 +105,9 @@ Calling `py_require()` without arguments returns a list of the currently
 declared requirements.
 
 R packages can also call `py_require()` (e.g., in `.onLoad()` or
-elsewhere) to declare Python dependencies. The print method for
-`py_require()` displays the Python dependencies declared by R packages
-in the current session.
+elsewhere) to declare Python dependencies. The print method shows
+successful requests from R packages and other environments in
+chronological order.
 
 ## Note
 
@@ -181,14 +185,26 @@ the following system commands to `uv`:
 If an existing installation of `uv` is not found, `reticulate` will
 automatically download and store it, along with other downloaded
 artifacts and ephemeral environments, in the
-`tools::R_user_dir("reticulate", "cache")` directory. To clear this
-cache manually, delete the directory:
+`tools::R_user_dir("reticulate", "cache")` directory. Set
+`R_USER_CACHE_DIR` to configure this location; see
+[`tools::R_user_dir()`](https://rdrr.io/r/tools/userdir.html) for
+details. To clear this cache manually, delete the directory:
 
     # delete uv, ephemeral virtual environments, and all downloaded artifacts
     unlink(tools::R_user_dir("reticulate", "cache"), recursive = TRUE)
 
 Reticulate also clears its managed cache automatically on an interval,
-defaulting to every 120 days. Configure this interval in `.Rprofile`
+defaulting to every 120 days. Set `RETICULATE_MAX_CACHE_AGE_DAYS` to a
+possibly fractional number of days in `.Renviron`:
+
+    RETICULATE_MAX_CACHE_AGE_DAYS=30
+
+The environment variable takes precedence over the
+`reticulate.max_cache_age` R option. Configure the option in `.Rprofile`
 with:
 
     options(reticulate.max_cache_age = as.difftime(30, units = "days"))
+
+Before cleanup, reticulate downloads the `uv` installer and reuses it if
+a replacement is needed. If the download fails, reticulate retains the
+expired cache and defers cleanup.

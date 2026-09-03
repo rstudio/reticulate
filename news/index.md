@@ -1,5 +1,77 @@
 # Changelog
 
+## reticulate 1.47.0
+
+### Python requirements and environments
+
+- [`py_require()`](https://rstudio.github.io/reticulate/reference/py_require.md)
+  now applies late package additions atomically. Failed
+  package-originated additions warn without changing the declared
+  requirements. Its printed summary now shows successful requirement
+  requests in chronological order, including their source and action.
+
+- [`py_require()`](https://rstudio.github.io/reticulate/reference/py_require.md)
+  and
+  [`uv_run_tool()`](https://rstudio.github.io/reticulate/reference/uv_run_tool.md)
+  now accept `Date` and `POSIXt` objects for `exclude_newer`.
+
+- [`py_require()`](https://rstudio.github.io/reticulate/reference/py_require.md)
+  now updates `sys.executable` and an already-loaded `multiprocessing`
+  launcher after a live activation, so child Python processes can import
+  newly added packages.
+
+- `RETICULATE_MAX_CACHE_AGE_DAYS` can now configure the maximum age, in
+  days, of reticulate’s managed `uv` cache before it is cleared
+  ([\#1905](https://github.com/rstudio/reticulate/issues/1905)).
+
+- Managed `uv` bootstrapping now works on Windows when R inherits a
+  PowerShell 7 `PSModulePath`, such as from GitHub Actions `pwsh` steps.
+
+- Pipenv interpreter discovery now uses a located Pipfile even when
+  `here` cannot resolve a project root
+  ([\#1909](https://github.com/rstudio/reticulate/issues/1909)).
+
+- Reticulate now treats projects with a `pyproject.toml` but no
+  `[tool.poetry]` section, such as uv or PEP 621 projects, as non-Poetry
+  projects
+  ([\#1900](https://github.com/rstudio/reticulate/issues/1900)).
+
+- Reticulate now retains an expired managed `uv` cache when it cannot
+  download the installer needed to replace it
+  ([\#1876](https://github.com/rstudio/reticulate/issues/1876)).
+
+### Conversion
+
+- [`py_to_r()`](https://rstudio.github.io/reticulate/reference/r-py-conversion.md)
+  now converts pandas data frames and series containing Arrow-backed
+  string columns
+  ([\#1910](https://github.com/rstudio/reticulate/issues/1910)).
+
+- [`r_to_py()`](https://rstudio.github.io/reticulate/reference/r-py-conversion.md)
+  now preserves explicit integer row names as the index when converting
+  an R data frame to a pandas data frame
+  ([\#1924](https://github.com/rstudio/reticulate/issues/1924)).
+
+### Other improvements and fixes
+
+- Child processes created by `os.fork()` now use Python’s original
+  output streams when output remapping is enabled.
+
+- Python calls to R now convert base R’s built-in `abort` restart to a
+  Python exception instead of jumping to R’s top level.
+
+- Reticulate now builds with Clang 21 without a spurious `-Wnonnull`
+  compiler warning
+  ([\#1917](https://github.com/rstudio/reticulate/issues/1917)).
+
+### Documentation
+
+- The
+  [`py_require()`](https://rstudio.github.io/reticulate/reference/py_require.md)
+  documentation now explains how `R_USER_CACHE_DIR` configures the
+  location of reticulate’s managed `uv` cache
+  ([\#1899](https://github.com/rstudio/reticulate/issues/1899)).
+
 ## reticulate 1.46.0
 
 CRAN release: 2026-04-09
@@ -974,6 +1046,7 @@ CRAN release: 2023-06-05
   this now works:
 
   ``` r
+
   np <- reticulate::import("numpy", convert = FALSE)
   x <- np$array(1:5)
   y <- np$array(6:10)

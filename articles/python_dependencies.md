@@ -39,6 +39,7 @@ and documenting that users can call this function to prepare the
 environment. For example:
 
 ``` r
+
 library(tensorflow)
 install_tensorflow()
 # use tensorflow
@@ -61,6 +62,7 @@ environment if it exists. Inside the package, these two parts work
 together to create a “pit of success”:
 
 ``` r
+
 install_tensorflow <- function(..., envname = "r-tensorflow") {
   reticulate::py_install("tensorflow", envname = envname, ...)
 }
@@ -102,6 +104,7 @@ is to only delete the default “r-tensorflow” environment. Here is an
 example of the helper `install_tensorflow()` with the “reset” behavior.
 
 ``` r
+
 #' @importFrom reticulate py_install virtualenv_exists virtualenv_remove
 install_tensorflow <-
   function(...,
@@ -130,6 +133,7 @@ Python environment for a specific project. For example, a user can
 create a virtual environment in the project directory, like this:
 
 ``` r
+
 envname <- "./venv"
 tensorflow::install_tensorflow(envname = envname)
 pysparklyr::install_pyspark(envname = envname)
@@ -152,6 +156,7 @@ RETICULATE_PYTHON_ENV=~/my/project/venv
 Or an `.Rprofile` file in the project directory could contain:
 
 ``` r
+
 Sys.setenv("RETICULATE_PYTHON_ENV" = "~/my/project/venv")
 ```
 
@@ -166,6 +171,7 @@ search path. For example, users can *opt-in* to installing into the
 default `r-reticulate` venv:
 
 ``` r
+
 tensorflow::install_tensorflow(envname = "r-reticulate")
 ```
 
@@ -174,6 +180,7 @@ default environment. For example, installing spark into the default
 `"r-tensorflow"` environment:
 
 ``` r
+
 tensorflow::install_tensorflow() # creates an "r-tensorflow" env
 pysparklyr::install_pyspark(envname = "r-tensorflow")
 ```
@@ -266,6 +273,7 @@ In this case, the end user workflow will be exactly as with an R package
 that has no Python dependencies:
 
 ``` r
+
 library(rscipy)
 # use the package
 ```
@@ -290,6 +298,7 @@ configure the active Python environment, you can include the following
 code:
 
 ``` r
+
 .onLoad <- function(libname, pkgname) {
   reticulate::configure_environment(pkgname)
 }

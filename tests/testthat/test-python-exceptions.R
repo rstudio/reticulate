@@ -229,3 +229,32 @@ test_that("confirm rlang/purrr can catch the exception", {
   }
 
 })
+
+
+
+test_that("a long exception message is truncated, not indexed past its end", {
+  skip_if_no_python()
+
+  # The first two lines are kept, then the tail. When they alone exceed the
+  # message budget there is no tail left to index, which used to throw
+  # std::out_of_range out of the C++ formatter.
+  old <- options(warning.length = 1000)
+  on.exit(options(old), add = TRUE)
+
+  py_run_string("
+def raise_long_first_lines(n):
+    raise ValueError('y' * n + '\\nsecond line\\n')
+")
+  msg <- conditionMessage(tryCatch(
+    import_main()$raise_long_first_lines(2000L), error = identity))
+  expect_match(msg, "<...truncated...>", fixed = TRUE)
+  expect_lt(nchar(msg, type = "bytes"), 1000L)
+
+  # A SyntaxError reaches the same path through the source line Python embeds
+  # in the message.
+  msg <- conditionMessage(tryCatch(
+    py_eval("compile('1 +* 2' + ' + 0' * 1000, '<string>', 'eval')"),
+    error = identity))
+  expect_match(msg, "<...truncated...>", fixed = TRUE)
+  expect_lt(nchar(msg, type = "bytes"), 1000L)
+})

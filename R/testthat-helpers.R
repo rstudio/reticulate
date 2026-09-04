@@ -100,6 +100,17 @@ skip_if_no_pandas <- function() {
 
 }
 
+skip_if_no_geopandas <- function() {
+
+  skip_on_cran()
+  skip_if_no_python()
+
+  if (!py_module_available("geopandas"))
+    skip("geopandas not available for testing")
+
+}
+
+
 skip_if_no_scipy <- function() {
 
   skip_on_cran()

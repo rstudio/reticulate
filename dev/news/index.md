@@ -4,6 +4,8 @@
 
 ## reticulate 1.47.0
 
+CRAN release: 2026-09-03
+
 ### Python requirements and environments
 
 - [`py_require()`](https://rstudio.github.io/reticulate/dev/reference/py_require.md)

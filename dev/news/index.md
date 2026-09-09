@@ -2,6 +2,10 @@
 
 ## reticulate (development version)
 
+- Fixed `KeyError: '__annotations__'` when starting a reticulate Python
+  console in Positron with Python 3.14
+  ([\#1930](https://github.com/rstudio/reticulate/issues/1930)).
+
 ## reticulate 1.47.0
 
 CRAN release: 2026-09-03

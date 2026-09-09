@@ -17,7 +17,7 @@ jobs:
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v7
 
       - uses: r-lib/actions/setup-pandoc@v2
 
@@ -30,9 +30,9 @@ jobs:
           extra-packages: any::pkgdown, local::.
           needs: website
 
-      - uses: actions/setup-python@v2
+      - uses: actions/setup-python@v7
         with:
-          python-version: '3.10'
+          python-version: '3.12'
 
       - name: Setup r-reticulate env
         run: reticulate::virtualenv_create("r-reticulate", Sys.which("python"))

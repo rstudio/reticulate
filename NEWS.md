@@ -1,5 +1,8 @@
 # reticulate (development version)
 
+- Fixed `KeyError: '__annotations__'` when starting a reticulate Python console
+  in Positron with Python 3.14 (#1930).
+
 # reticulate 1.47.0
 
 ## Python requirements and environments

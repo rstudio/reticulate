@@ -66,7 +66,8 @@ py_run_file_on_thread <- function(file, ..., args = NULL) {
     .globals$positron_ipykernel_path <- file.path(dirname(file), "positron")
 
     main_dict <- py_eval("__import__('__main__').__dict__.copy()", FALSE)
-    py_get_attr(main_dict, "pop")("__annotations__")
+    # Python 3.14 may not populate __annotations__ until it is accessed.
+    py_get_attr(main_dict, "pop")("__annotations__", NULL)
     # IPykernel will create a thread that redirects all output from fileno of
     # the current sys.stdout and sys.stderr to its IO channels.
     # This is not correctly cleaned up when IPykernel closes.

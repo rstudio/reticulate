@@ -229,3 +229,37 @@ test_that("confirm rlang/purrr can catch the exception", {
   }
 
 })
+
+
+test_that("a Python error formatted while the error hint is computed is handled", {
+  skip_if_no_python()
+
+  # The hint is computed once per session, so this runs in a fresh one. The
+  # replacement .py_last_error_hint() stands in for an event handler (e.g.
+  # RStudio's) that formats another Python error while R computes the hint;
+  # this used to deadlock (libstdc++) or abort (libc++).
+  withr::local_envvar(RETICULATE_PYTHON = py_config()$python)
+  result <- callr::r(function() {
+    library(reticulate)
+
+    ns <- asNamespace("reticulate")
+    hint <- get(".py_last_error_hint", envir = ns)
+    entered <- FALSE
+    nested <- NULL
+    reentrant <- function() {
+      if (!entered) {
+        entered <<- TRUE
+        nested <<- tryCatch(py_eval("1 / 0"), error = conditionMessage)
+      }
+      hint()
+    }
+    unlockBinding(".py_last_error_hint", ns)
+    assign(".py_last_error_hint", reentrant, envir = ns)
+
+    outer <- tryCatch(py_eval("None.missing"), error = conditionMessage)
+    list(outer = outer, nested = nested)
+  }, timeout = 60)
+
+  expect_match(result$outer, "AttributeError")
+  expect_match(result$nested, "ZeroDivisionError")
+})

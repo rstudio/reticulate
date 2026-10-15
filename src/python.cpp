@@ -1156,11 +1156,19 @@ std::string conditionMessage_from_py_exception(PyObject* exc) {
   for (Py_ssize_t i = 0, n = PyList_Size(formatted); i < n; i++)
     oss << as_std_string(PyList_GetItem(formatted, i));
 
-  static std::string hint = []() {
+  // The hint is computed by R code, which can process events and re-enter
+  // this function (e.g. RStudio answering a request that formats another
+  // Python exception). A function-local static initialized here would then
+  // deadlock (libstdc++) or abort (libc++) on its own init guard, so cache
+  // the value only once it has been computed.
+  static std::string hint;
+  static bool hint_computed = false;
+  if (!hint_computed) {
     Function hint_fn(reticulate_get_ns_var(".py_last_error_hint"));
     CharacterVector r_result = hint_fn();
-    return Rcpp::as<std::string>(r_result[0]);
-  }();
+    hint = Rcpp::as<std::string>(r_result[0]);
+    hint_computed = true;
+  }
 
   oss << hint;
   std::string error = oss.str();

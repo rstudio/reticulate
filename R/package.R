@@ -156,6 +156,10 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
 
   )
 
+  # computed now rather than while formatting a Python error, where running R
+  # code could process events that re-enter error formatting (#1935)
+  error_hint <- .py_last_error_hint()
+
   # if we're a virtual environment then set VIRTUAL_ENV (need to
   # set this before initializing Python so that module paths are
   # set as appropriate)
@@ -221,7 +225,8 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
                     config$version$major,
                     config$version$minor,
                     interactive(),
-                    numpy_load_error)
+                    numpy_load_error,
+                    error_hint)
 
     })
 

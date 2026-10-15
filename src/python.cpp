@@ -108,6 +108,10 @@ bool is_interactive() {
   return s_isInteractive;
 }
 
+// appended to Python error messages; computed by R when Python is initialized
+// rather than while formatting the first error, which it could re-enter (#1935)
+std::string s_error_hint;
+
 // track whether we have required numpy
 std::string s_numpy_load_error;
 bool haveNumPy() {
@@ -1120,29 +1124,29 @@ class PyFlushOutputOnScopeExit {
 
 
 
+// Resolved when Python is initialized, before reticulate's import hook is
+// installed. Importing 'traceback' while formatting the first error would run
+// the hook's R callback, which can re-enter error formatting (#1935).
+PyObject* s_format_exception_only = NULL;
+
+void initialize_format_exception_only() {
+  PyObjectPtr tb_module(py_import("traceback"));
+  if (tb_module.is_null()) {
+    PyErr_Print();
+    Rcpp::stop("Failed to initialize Python; could not import traceback module");
+  }
+
+  s_format_exception_only = PyObject_GetAttrString(tb_module, "format_exception_only");
+  if (s_format_exception_only == NULL) {
+    PyErr_Print();
+    Rcpp::stop("Failed to initialize Python; could not get traceback.format_exception_only");
+  }
+}
+
 std::string conditionMessage_from_py_exception(PyObject* exc) {
   // invoke 'traceback.format_exception_only(<traceback>)'
-
-  static PyObject* format_exception_only = []() {
-    PyObjectPtr tb_module(py_import("traceback"));
-    if (tb_module.is_null()) {
-      PyErr_Print();
-      Rcpp::stop("Failed to format Python Exception; could not import traceback module");
-    }
-
-    PyObject* format_exception_only = PyObject_GetAttrString(tb_module, "format_exception_only");
-
-    if (format_exception_only == NULL) {
-      PyErr_Print();
-      Rcpp::stop("Failed to format Python Exception; could not get traceback.format_exception_only");
-    }
-
-    return format_exception_only;
-  }();
-
-
   PyObjectPtr formatted(PyObject_CallFunctionObjArgs(
-      format_exception_only, Py_TYPE(exc), exc, NULL));
+      s_format_exception_only, Py_TYPE(exc), exc, NULL));
 
   if (formatted.is_null()) {
     PyErr_Print();
@@ -1156,21 +1160,7 @@ std::string conditionMessage_from_py_exception(PyObject* exc) {
   for (Py_ssize_t i = 0, n = PyList_Size(formatted); i < n; i++)
     oss << as_std_string(PyList_GetItem(formatted, i));
 
-  // The hint is computed by R code, which can process events and re-enter
-  // this function (e.g. RStudio answering a request that formats another
-  // Python exception). A function-local static initialized here would then
-  // deadlock (libstdc++) or abort (libc++) on its own init guard, so cache
-  // the value only once it has been computed.
-  static std::string hint;
-  static bool hint_computed = false;
-  if (!hint_computed) {
-    Function hint_fn(reticulate_get_ns_var(".py_last_error_hint"));
-    CharacterVector r_result = hint_fn();
-    hint = Rcpp::as<std::string>(r_result[0]);
-    hint_computed = true;
-  }
-
-  oss << hint;
+  oss << s_error_hint;
   std::string error = oss.str();
 
   SEXP max_msg_len_s = PROTECT(Rf_GetOption1(Rf_install("warning.length")));
@@ -3152,11 +3142,13 @@ void py_initialize(const std::string& python,
                    int python_major_version,
                    int python_minor_version,
                    bool interactive,
-                   const std::string& numpy_load_error) {
+                   const std::string& numpy_load_error,
+                   const std::string& error_hint) {
 
   // set python3 and interactive flags
   s_isPython3 = python_major_version == 3;
   s_isInteractive = interactive;
+  s_error_hint = error_hint;
 
   if(!s_isPython3)
     warning("Python 2 reached EOL on January 1, 2020. Python 2 compatability will be removed in an upcoming reticulate release.");
@@ -3240,6 +3232,9 @@ void py_initialize(const std::string& python,
 
   // initialize type objects
   initialize_type_objects(is_python3());
+
+  // needed to format Python errors, which the steps below can raise
+  initialize_format_exception_only();
 
   // execute activate_this.py script for virtualenv if necessary
   if (!virtualenv_activate.empty())

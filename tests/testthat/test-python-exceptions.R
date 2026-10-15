@@ -231,35 +231,48 @@ test_that("confirm rlang/purrr can catch the exception", {
 })
 
 
-test_that("a Python error formatted while the error hint is computed is handled", {
+test_that("formatting a Python error does not compute the error hint", {
   skip_if_no_python()
 
-  # The hint is computed once per session, so this runs in a fresh one. The
-  # replacement .py_last_error_hint() stands in for an event handler (e.g.
-  # RStudio's) that formats another Python error while R computes the hint;
-  # this used to deadlock (libstdc++) or abort (libc++).
+  # Computing the hint runs R code, which can process events that format
+  # another Python error. Doing that from error formatting used to deadlock
+  # (libstdc++) or abort (libc++), so the hint is computed when Python is
+  # initialized instead (#1935). The first error of a session used to compute
+  # it, so this runs in a fresh one.
   withr::local_envvar(RETICULATE_PYTHON = py_config()$python)
   result <- callr::r(function() {
     library(reticulate)
+    stopifnot(py_available(initialize = TRUE))
 
     ns <- asNamespace("reticulate")
-    hint <- get(".py_last_error_hint", envir = ns)
-    entered <- FALSE
-    nested <- NULL
-    reentrant <- function() {
-      if (!entered) {
-        entered <<- TRUE
-        nested <<- tryCatch(py_eval("1 / 0"), error = conditionMessage)
-      }
-      hint()
-    }
     unlockBinding(".py_last_error_hint", ns)
-    assign(".py_last_error_hint", reentrant, envir = ns)
+    assign(".py_last_error_hint", function() stop("hint computed"), envir = ns)
 
-    outer <- tryCatch(py_eval("None.missing"), error = conditionMessage)
-    list(outer = outer, nested = nested)
+    tryCatch(py_eval("1 / 0"), error = conditionMessage)
   }, timeout = 60)
 
-  expect_match(result$outer, "AttributeError")
-  expect_match(result$nested, "ZeroDivisionError")
+  expect_match(result, "ZeroDivisionError")
+  expect_match(result, "reticulate::py_last_error()", fixed = TRUE)
+})
+
+
+test_that("a Python error formatted from a 'traceback' load hook is handled", {
+  skip_if_no_python()
+
+  # Formatting the first error of a session used to import 'traceback', which
+  # ran its load hooks (R code) while formatting that error. Formatting another
+  # error from there deadlocked (libstdc++) or aborted (libc++) (#1935).
+  withr::local_envvar(RETICULATE_PYTHON = py_config()$python)
+  result <- callr::r(function() {
+    library(reticulate)
+    stopifnot(py_available(initialize = TRUE))
+
+    py_register_load_hook("traceback", function() {
+      tryCatch(py_eval("1 / 0"), error = conditionMessage)
+    })
+
+    tryCatch(py_eval("None.missing"), error = conditionMessage)
+  }, timeout = 60)
+
+  expect_match(result, "AttributeError")
 })

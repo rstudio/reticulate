@@ -13,12 +13,11 @@
       > py_require("numpy<2")
       > py_require("numpy>=2")
       > import("numpy")
-        × No solution found when resolving tool dependencies:
-        ╰─▶ Because you require numpy<2 and numpy>=2, we can conclude that your
-            requirements are unsatisfiable.
+      error: No solution found when resolving tool dependencies
+        cause: Because you require numpy<2 and numpy>=2, we can conclude that your requirements are unsatisfiable.
       uv error code: 1
       -- Current requirements -------------------------------------------------
-       Python:   3.12.xx (reticulate default)
+       Python:   <version> (reticulate default)
        Packages: numpy, numpy<2, numpy>=2
       -------------------------------------------------------------------------
       Error in uv_get_or_create_env() : 
@@ -166,12 +165,11 @@
     Output
       > py_require(c("pandas", "numpy", "notexists"))
       > uv_get_or_create_env()
-        × No solution found when resolving tool dependencies:
-        ╰─▶ Because notexists was not found in the package registry and you require
-            notexists, we can conclude that your requirements are unsatisfiable.
+      error: No solution found when resolving tool dependencies
+        cause: Because notexists was not found in the package registry and you require notexists, we can conclude that your requirements are unsatisfiable.
       uv error code: 1
       -- Current requirements -------------------------------------------------
-       Python:   3.12.xx (reticulate default)
+       Python:   <version> (reticulate default)
        Packages: numpy, pandas, notexists
       -------------------------------------------------------------------------
       Error in uv_get_or_create_env() : 
@@ -218,7 +216,7 @@
       > py_require()
       ══════════════════════════ Python requirements ══════════════════════════
       ── Current requirements ─────────────────────────────────────────────────
-       Python:   [No Python version specified. Will default to '3.12.xx']
+       Python:   [No Python version specified. Will default to '<version>']
        Packages: numpy, pandas, numpy==2
       ── Python requirement requests (in order) ───────────────────────────────
         1. R package reticulate:
@@ -245,7 +243,7 @@
       > py_require()
       ══════════════════════════ Python requirements ══════════════════════════
       ── Current requirements ─────────────────────────────────────────────────
-       Python:   [No Python version specified. Will default to '3.12.xx']
+       Python:   [No Python version specified. Will default to '<version>']
        Packages: numpy, pandas
       ── Python requirement requests (in order) ───────────────────────────────
         1. R package reticulate:
@@ -274,7 +272,7 @@
       > py_require()
       ══════════════════════════ Python requirements ══════════════════════════
       ── Current requirements ─────────────────────────────────────────────────
-       Python:   [No Python version specified. Will default to '3.12.xx']
+       Python:   [No Python version specified. Will default to '<version>']
        Packages: numpy, pandas
        Exclude:  Anything newer than 1990-01-01
       ── Python requirement requests (in order) ───────────────────────────────
@@ -379,12 +377,11 @@
       > library(reticulate)
       > py_require("os")
       > os <- import("os")
-        × No solution found when resolving tool dependencies:
-        ╰─▶ Because os was not found in the package registry and you require os, we
-            can conclude that your requirements are unsatisfiable.
+      error: No solution found when resolving tool dependencies
+        cause: Because os was not found in the package registry and you require os, we can conclude that your requirements are unsatisfiable.
       uv error code: 1
       -- Current requirements -------------------------------------------------
-       Python:   3.12.xx (reticulate default)
+       Python:   <version> (reticulate default)
        Packages: numpy, os
       -------------------------------------------------------------------------
       Hint: `py_require()` expects Python package names rather than Python module names.

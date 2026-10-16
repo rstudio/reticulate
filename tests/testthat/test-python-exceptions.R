@@ -231,7 +231,6 @@ test_that("confirm rlang/purrr can catch the exception", {
 })
 
 
-
 test_that("a long exception message is truncated, not indexed past its end", {
   skip_if_no_python()
 
@@ -257,4 +256,51 @@ def raise_long_first_lines(n):
     error = identity))
   expect_match(msg, "<...truncated...>", fixed = TRUE)
   expect_lt(nchar(msg, type = "bytes"), 1000L)
+})
+
+
+test_that("initializing Python and formatting an error do not recompute the error hint", {
+  skip_if_no_python()
+
+  # Computing the hint runs R code, which can process events that format
+  # another Python error. Doing that from error formatting used to deadlock
+  # (libstdc++) or abort (libc++), so the hint is computed when reticulate is
+  # loaded instead (#1935). Run in a fresh session to check initialization and
+  # the first error without recomputing the hint.
+  withr::local_envvar(RETICULATE_PYTHON = py_config()$python)
+  result <- callr::r(function() {
+    library(reticulate)
+
+    ns <- asNamespace("reticulate")
+    unlockBinding(".py_last_error_hint", ns)
+    assign(".py_last_error_hint", function() stop("hint computed"), envir = ns)
+
+    stopifnot(py_available(initialize = TRUE))
+    tryCatch(py_eval("1 / 0"), error = conditionMessage)
+  }, timeout = 60)
+
+  expect_match(result, "ZeroDivisionError")
+  expect_match(result, "reticulate::py_last_error()", fixed = TRUE)
+})
+
+
+test_that("a Python error formatted from a 'traceback' load hook is handled", {
+  skip_if_no_python()
+
+  # Formatting the first error of a session used to import 'traceback', which
+  # ran its load hooks (R code) while formatting that error. Formatting another
+  # error from there deadlocked (libstdc++) or aborted (libc++) (#1935).
+  withr::local_envvar(RETICULATE_PYTHON = py_config()$python)
+  result <- callr::r(function() {
+    library(reticulate)
+    stopifnot(py_available(initialize = TRUE))
+
+    py_register_load_hook("traceback", function() {
+      tryCatch(py_eval("1 / 0"), error = conditionMessage)
+    })
+
+    tryCatch(py_eval("None.missing"), error = conditionMessage)
+  }, timeout = 60)
+
+  expect_match(result, "AttributeError")
 })

@@ -6,6 +6,14 @@
   `basic_string::substr: __pos > this->size()` instead of the Python message.
   A `SyntaxError` raised over a long source line hit this reliably.
 
+- Fixed `KeyError: '__annotations__'` when starting a reticulate Python console
+  in Positron with Python 3.14 (#1930).
+
+- Fixed a hang (Linux) or crash (macOS) when another Python error was
+  formatted while reticulate was still formatting the first Python error of
+  the session, for example by RStudio listing Python objects in the
+  Environment pane as the Python REPL started (#1935).
+
 # reticulate 1.47.0
 
 ## Python requirements and environments

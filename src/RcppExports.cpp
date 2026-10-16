@@ -200,8 +200,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // py_initialize
-void py_initialize(const std::string& python, const std::string& libpython, const std::string& pythonhome, const std::string& virtualenv_activate, int python_major_version, int python_minor_version, bool interactive, const std::string& numpy_load_error, const std::string& error_hint);
-RcppExport SEXP _reticulate_py_initialize(SEXP pythonSEXP, SEXP libpythonSEXP, SEXP pythonhomeSEXP, SEXP virtualenv_activateSEXP, SEXP python_major_versionSEXP, SEXP python_minor_versionSEXP, SEXP interactiveSEXP, SEXP numpy_load_errorSEXP, SEXP error_hintSEXP) {
+void py_initialize(const std::string& python, const std::string& libpython, const std::string& pythonhome, const std::string& virtualenv_activate, int python_major_version, int python_minor_version, bool interactive, const std::string& numpy_load_error);
+RcppExport SEXP _reticulate_py_initialize(SEXP pythonSEXP, SEXP libpythonSEXP, SEXP pythonhomeSEXP, SEXP virtualenv_activateSEXP, SEXP python_major_versionSEXP, SEXP python_minor_versionSEXP, SEXP interactiveSEXP, SEXP numpy_load_errorSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const std::string& >::type python(pythonSEXP);
@@ -212,8 +212,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type python_minor_version(python_minor_versionSEXP);
     Rcpp::traits::input_parameter< bool >::type interactive(interactiveSEXP);
     Rcpp::traits::input_parameter< const std::string& >::type numpy_load_error(numpy_load_errorSEXP);
-    Rcpp::traits::input_parameter< const std::string& >::type error_hint(error_hintSEXP);
-    py_initialize(python, libpython, pythonhome, virtualenv_activate, python_major_version, python_minor_version, interactive, numpy_load_error, error_hint);
+    py_initialize(python, libpython, pythonhome, virtualenv_activate, python_major_version, python_minor_version, interactive, numpy_load_error);
     return R_NilValue;
 END_RCPP
 }
@@ -856,7 +855,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_reticulate_py_activate_virtualenv", (DL_FUNC) &_reticulate_py_activate_virtualenv, 1},
     {"_reticulate_main_process_python_info", (DL_FUNC) &_reticulate_main_process_python_info, 0},
     {"_reticulate_py_clear_error", (DL_FUNC) &_reticulate_py_clear_error, 0},
-    {"_reticulate_py_initialize", (DL_FUNC) &_reticulate_py_initialize, 9},
+    {"_reticulate_py_initialize", (DL_FUNC) &_reticulate_py_initialize, 8},
     {"_reticulate_py_finalize", (DL_FUNC) &_reticulate_py_finalize, 0},
     {"_reticulate_py_is_none", (DL_FUNC) &_reticulate_py_is_none, 1},
     {"_reticulate_py_compare_impl", (DL_FUNC) &_reticulate_py_compare_impl, 3},

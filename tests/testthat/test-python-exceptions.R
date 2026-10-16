@@ -231,23 +231,23 @@ test_that("confirm rlang/purrr can catch the exception", {
 })
 
 
-test_that("formatting a Python error does not compute the error hint", {
+test_that("initializing Python and formatting an error do not recompute the error hint", {
   skip_if_no_python()
 
   # Computing the hint runs R code, which can process events that format
   # another Python error. Doing that from error formatting used to deadlock
-  # (libstdc++) or abort (libc++), so the hint is computed when Python is
-  # initialized instead (#1935). The first error of a session used to compute
-  # it, so this runs in a fresh one.
+  # (libstdc++) or abort (libc++), so the hint is computed when reticulate is
+  # loaded instead (#1935). Run in a fresh session to check initialization and
+  # the first error without recomputing the hint.
   withr::local_envvar(RETICULATE_PYTHON = py_config()$python)
   result <- callr::r(function() {
     library(reticulate)
-    stopifnot(py_available(initialize = TRUE))
 
     ns <- asNamespace("reticulate")
     unlockBinding(".py_last_error_hint", ns)
     assign(".py_last_error_hint", function() stop("hint computed"), envir = ns)
 
+    stopifnot(py_available(initialize = TRUE))
     tryCatch(py_eval("1 / 0"), error = conditionMessage)
   }, timeout = 60)
 

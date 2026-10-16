@@ -108,7 +108,7 @@ bool is_interactive() {
   return s_isInteractive;
 }
 
-// appended to Python error messages; computed by R when Python is initialized
+// appended to Python error messages; computed by R when the namespace is loaded
 // rather than while formatting the first error, which it could re-enter (#1935)
 std::string s_error_hint;
 
@@ -3142,13 +3142,14 @@ void py_initialize(const std::string& python,
                    int python_major_version,
                    int python_minor_version,
                    bool interactive,
-                   const std::string& numpy_load_error,
-                   const std::string& error_hint) {
+                   const std::string& numpy_load_error) {
 
   // set python3 and interactive flags
   s_isPython3 = python_major_version == 3;
   s_isInteractive = interactive;
-  s_error_hint = error_hint;
+
+  Environment globals(reticulate_get_ns_var(".globals"));
+  s_error_hint = as<std::string>(globals["py_last_error_hint"]);
 
   if(!s_isPython3)
     warning("Python 2 reached EOL on January 1, 2020. Python 2 compatability will be removed in an upcoming reticulate release.");

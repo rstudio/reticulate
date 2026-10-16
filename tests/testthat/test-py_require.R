@@ -1,11 +1,22 @@
-transform_scrub_python_patch <- function(x) {
+transform_scrub_python_version <- function(x) {
   x <- sub("3\\.([0-9]{1,2})\\.[0-9]{1,2}", "3.\\1.xx", x)
+  # The default Python version moves with each new Python release.
+  x <- sub(
+    "3\\.[0-9]{1,2}\\.xx \\(reticulate default\\)",
+    "<version> (reticulate default)",
+    x
+  )
+  x <- sub(
+    "Will default to '3\\.[0-9]{1,2}\\.xx'",
+    "Will default to '<version>'",
+    x
+  )
   # uv may report install timing depending on cache state; keep snapshots stable.
   x <- x[!grepl("^\\s*Installed [0-9]+ package(s)? in [0-9]+ms\\s*$", x)]
   x
 }
 
-expect_snapshot2 <- function(..., transform = transform_scrub_python_patch) {
+expect_snapshot2 <- function(..., transform = transform_scrub_python_version) {
   expect_snapshot(..., transform = transform)
 }
 
@@ -281,7 +292,7 @@ test_that("py_require() warns missing packages in a virtual env", {
   expect_snapshot2(
     do.call(r_session, list(force_managed_python = FALSE, exprs = expr)),
     transform = function(x) {
-      x <- transform_scrub_python_patch(x)
+      x <- transform_scrub_python_version(x)
       # scrub paths
       gsub("[A-Za-z]:[\\\\/][^\"' ]+|/[A-Za-z0-9._/\\\\-]+", "***", x)
     }

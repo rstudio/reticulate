@@ -1,5 +1,11 @@
 # reticulate (development version)
 
+- Fixed an error while formatting a long Python exception message. A message
+  whose first two lines already exceeded `getOption("warning.length")` made the
+  truncation index past the end of the string, so the R error became
+  `basic_string::substr: __pos > this->size()` instead of the Python message.
+  A `SyntaxError` raised over a long source line hit this reliably.
+
 - Fixed `KeyError: '__annotations__'` when starting a reticulate Python console
   in Positron with Python 3.14 (#1930).
 

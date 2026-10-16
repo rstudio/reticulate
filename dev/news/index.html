@@ -46,7 +46,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="reticulate-development-version">reticulate (development version)<a class="anchor" aria-label="anchor" href="#reticulate-development-version"></a></h2>
-<ul><li><p>Fixed <code>KeyError: '__annotations__'</code> when starting a reticulate Python console in Positron with Python 3.14 (<a href="https://github.com/rstudio/reticulate/issues/1930" class="external-link">#1930</a>).</p></li>
+<ul><li><p>Fixed an error while formatting a long Python exception message. A message whose first two lines already exceeded <code>getOption("warning.length")</code> made the truncation index past the end of the string, so the R error became <code>basic_string::substr: __pos &gt; this-&gt;size()</code> instead of the Python message. A <code>SyntaxError</code> raised over a long source line hit this reliably.</p></li>
+<li><p>Fixed <code>KeyError: '__annotations__'</code> when starting a reticulate Python console in Positron with Python 3.14 (<a href="https://github.com/rstudio/reticulate/issues/1930" class="external-link">#1930</a>).</p></li>
 <li><p>Fixed a hang (Linux) or crash (macOS) when another Python error was formatted while reticulate was still formatting the first Python error of the session, for example by RStudio listing Python objects in the Environment pane as the Python REPL started (<a href="https://github.com/rstudio/reticulate/issues/1935" class="external-link">#1935</a>).</p></li>
 </ul></div>
     <div class="section level2">

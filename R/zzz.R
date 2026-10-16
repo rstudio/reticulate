@@ -16,6 +16,9 @@
 
 .onLoad <- function(libname, pkgname) {
 
+  # Computing the hint can run R code, so cache it before Python starts (#1935).
+  .globals$py_last_error_hint <- .py_last_error_hint()
+
   main <- NULL
   makeActiveBinding("py", env = asNamespace(pkgname), function() {
 

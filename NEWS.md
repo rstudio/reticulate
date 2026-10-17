@@ -1,5 +1,9 @@
 # reticulate (development version)
 
+- Generic Altair `ConcatChart` objects are now recognized by the Python knitr
+  engine, giving each HTML output a unique container ID and preventing charts
+  from replacing earlier outputs in R Markdown and Quarto documents.
+
 - Fixed an error while formatting a long Python exception message. A message
   whose first two lines already exceeded `getOption("warning.length")` made the
   truncation index past the end of the string, so the R error became

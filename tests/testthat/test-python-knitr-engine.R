@@ -1,5 +1,44 @@
 context("knitr")
 
+test_that("Altair chart detection includes generic concatenation", {
+
+  # Detection only inspects class names, so these tests need no Python modules.
+  chart_types <- c("Chart", "ConcatChart", "HConcatChart", "VConcatChart",
+                   "LayerChart", "RepeatChart", "FacetChart")
+  for (version in c(4L, 5L, 6L)) {
+    for (chart_type in chart_types) {
+      klass <- sprintf("altair.vegalite.v%d.api.%s", version, chart_type)
+      chart <- structure(list(), class = klass)
+      expect_true(eng_python_is_altair_chart(chart), info = klass)
+    }
+  }
+
+})
+
+test_that("Altair chart detection accepts inherited chart classes", {
+
+  chart <- structure(list(), class = c(
+    "custom.Chart",
+    "altair.vegalite.v6.api.ConcatChart",
+    "python.builtin.object"
+  ))
+  expect_true(eng_python_is_altair_chart(chart))
+
+})
+
+test_that("Altair chart detection rejects unrelated Python classes", {
+
+  classes <- c("python.builtin.object", "other.ConcatChart",
+               "altair.vegalite.v6.api.NotAChart",
+               "altair.vegalite.v6.api.ConcatChartExtra",
+               "altair.vegalite.v6.schema.core.ConcatSpec")
+  for (klass in classes) {
+    expect_false(eng_python_is_altair_chart(structure(list(), class = klass)),
+                 info = klass)
+  }
+
+})
+
 test_that("An R Markdown document can be rendered using reticulate", {
 
   skip_on_cran()

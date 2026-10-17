@@ -682,7 +682,7 @@ eng_python_is_altair_chart <- function(value) {
   # support different API versions, assuming that the class name
   # otherwise remains compatible
   classes <- class(value)
-  pattern <- "^altair\\.vegalite\\.v[[:digit:]]+\\.api\\.(HConcat|VConcat|Layer|Repeat|Facet)?Chart$"
+  pattern <- "^altair\\.vegalite\\.v[[:digit:]]+\\.api\\.(HConcat|VConcat|Concat|Layer|Repeat|Facet)?Chart$"
   any(grepl(pattern, classes))
 
 }

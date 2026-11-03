@@ -4,6 +4,8 @@
   engine, giving each HTML output a unique container ID and preventing charts
   from replacing earlier outputs in R Markdown and Quarto documents.
 
+- Compatibility updates for changes to S4 in R 4.7 (@jaganmn, #1939).
+
 - Fixed an error while formatting a long Python exception message. A message
   whose first two lines already exceeded `getOption("warning.length")` made the
   truncation index past the end of the string, so the R error became

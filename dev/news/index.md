@@ -2,6 +2,12 @@
 
 ## reticulate (development version)
 
+- Generic Altair `ConcatChart` objects are now recognized by the Python
+  knitr engine, giving each HTML output a unique container ID and
+  preventing charts from replacing earlier outputs in R Markdown and
+  Quarto documents ([@joelostblom](https://github.com/joelostblom),
+  [\#1938](https://github.com/rstudio/reticulate/issues/1938)).
+
 - Compatibility updates for changes to S4 in R 4.7
   ([@jaganmn](https://github.com/jaganmn),
   [\#1939](https://github.com/rstudio/reticulate/issues/1939)).

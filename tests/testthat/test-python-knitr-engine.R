@@ -1,5 +1,24 @@
 context("knitr")
 
+test_that("Altair concatenations have unique containers within and across chunks", {
+
+  skip_on_cran()
+  skip_if_not_installed("rmarkdown")
+  skip_if_not(py_module_available("altair"))
+
+  dir <- withr::local_tempdir()
+  input <- file.path(dir, "altair-concat.Rmd")
+  file.copy(test_path("resources", "altair-concat.Rmd"), input)
+  output <- rmarkdown::render(input, quiet = TRUE)
+
+  html <- paste(readLines(output), collapse = "\n")
+  pattern <- '<div id="[^"]+-altair-viz(-[0-9]+)?"></div>'
+  containers <- regmatches(html, gregexpr(pattern, html))[[1L]]
+  expect_length(containers, 3L)
+  expect_length(unique(containers), 3L)
+
+})
+
 test_that("An R Markdown document can be rendered using reticulate", {
 
   skip_on_cran()

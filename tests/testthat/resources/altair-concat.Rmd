@@ -1,0 +1,31 @@
+---
+title: "Altair concatenation"
+output:
+  html_document:
+    self_contained: false
+---
+
+```{r setup, include=FALSE}
+library(reticulate)
+```
+
+```{r unrelated-output, echo=FALSE}
+# An unrelated empty div must not count as a chart container.
+knitr::raw_html('<div id="unrelated-output"></div>')
+```
+
+```{python first}
+import altair as alt
+
+chart = alt.Chart(alt.Data(values=[{"x": 1, "y": 2}])).mark_point().encode(
+    x="x:Q", y="y:Q"
+)
+concatenated = alt.concat(chart, chart)
+# Each output in this chunk needs its own container ID.
+concatenated
+concatenated
+```
+
+```{python second}
+concatenated
+```

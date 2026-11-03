@@ -2,7 +2,8 @@
 
 - Generic Altair `ConcatChart` objects are now recognized by the Python knitr
   engine, giving each HTML output a unique container ID and preventing charts
-  from replacing earlier outputs in R Markdown and Quarto documents.
+  from replacing earlier outputs in R Markdown and Quarto documents
+  (@joelostblom, #1938).
 
 - Compatibility updates for changes to S4 in R 4.7 (@jaganmn, #1939).
 

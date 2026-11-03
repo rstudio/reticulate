@@ -1,0 +1,25 @@
+---
+title: "Altair concatenation"
+output:
+  html_document:
+    self_contained: false
+---
+
+```{r setup, include=FALSE}
+library(reticulate)
+```
+
+```{python first}
+import altair as alt
+
+chart = alt.Chart(alt.Data(values=[{"x": 1, "y": 2}])).mark_point().encode(
+    x="x:Q", y="y:Q"
+)
+concatenated = alt.concat(chart, chart)
+concatenated
+concatenated
+```
+
+```{python second}
+concatenated
+```

@@ -1,41 +1,20 @@
 context("knitr")
 
-test_that("Altair chart detection includes generic concatenation", {
+test_that("Altair concatenations have unique containers within and across chunks", {
 
-  # Detection only inspects class names, so these tests need no Python modules.
-  chart_types <- c("Chart", "ConcatChart", "HConcatChart", "VConcatChart",
-                   "LayerChart", "RepeatChart", "FacetChart")
-  for (version in c(4L, 5L, 6L)) {
-    for (chart_type in chart_types) {
-      klass <- sprintf("altair.vegalite.v%d.api.%s", version, chart_type)
-      chart <- structure(list(), class = klass)
-      expect_true(eng_python_is_altair_chart(chart), info = klass)
-    }
-  }
+  skip_on_cran()
+  skip_if_not_installed("rmarkdown")
+  skip_if_not(py_module_available("altair"))
 
-})
+  dir <- withr::local_tempdir()
+  input <- file.path(dir, "altair-concat.Rmd")
+  file.copy(test_path("resources", "altair-concat.Rmd"), input)
+  output <- rmarkdown::render(input, quiet = TRUE)
 
-test_that("Altair chart detection accepts inherited chart classes", {
-
-  chart <- structure(list(), class = c(
-    "custom.Chart",
-    "altair.vegalite.v6.api.ConcatChart",
-    "python.builtin.object"
-  ))
-  expect_true(eng_python_is_altair_chart(chart))
-
-})
-
-test_that("Altair chart detection rejects unrelated Python classes", {
-
-  classes <- c("python.builtin.object", "other.ConcatChart",
-               "altair.vegalite.v6.api.NotAChart",
-               "altair.vegalite.v6.api.ConcatChartExtra",
-               "altair.vegalite.v6.schema.core.ConcatSpec")
-  for (klass in classes) {
-    expect_false(eng_python_is_altair_chart(structure(list(), class = klass)),
-                 info = klass)
-  }
+  html <- paste(readLines(output), collapse = "\n")
+  containers <- regmatches(html, gregexpr('<div id="[^"]+"></div>', html))[[1L]]
+  expect_length(containers, 3L)
+  expect_length(unique(containers), 3L)
 
 })
 

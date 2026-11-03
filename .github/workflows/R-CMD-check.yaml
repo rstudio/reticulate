@@ -101,7 +101,7 @@ jobs:
             python = Sys.which("python"), # placed on PATH by the setup-python action
             packages = c(
               "docutils", "pandas", "pyarrow", "scipy", "matplotlib", "ipython",
-              "tabulate", "plotly", "psutil", "kaleido", "wrapt"
+              "tabulate", "plotly", "psutil", "kaleido", "wrapt", "altair"
             )
           )
           writeLines(

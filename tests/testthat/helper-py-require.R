@@ -58,7 +58,7 @@ registerS3method("print", "r_session_record", print.r_session_record,
 py_require_tested_packages <- function() {
   py_require(c(
     "docutils", "pandas", "scipy", "matplotlib", "ipython",
-    "tabulate", "plotly", "psutil", "kaleido", "wrapt"
+    "tabulate", "plotly", "psutil", "kaleido", "wrapt", "altair"
   ))
 }
 

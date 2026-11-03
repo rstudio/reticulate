@@ -2,6 +2,10 @@
 
 ## reticulate (development version)
 
+- Compatibility updates for changes to S4 in R 4.7
+  ([@jaganmn](https://github.com/jaganmn),
+  [\#1939](https://github.com/rstudio/reticulate/issues/1939)).
+
 - Fixed an error while formatting a long Python exception message. A
   message whose first two lines already exceeded
   `getOption("warning.length")` made the truncation index past the end

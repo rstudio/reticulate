@@ -4,7 +4,7 @@ library(methods)
 library(Matrix)
 
 # https://github.com/r-lib/testthat/issues/1556
-if (!inherits("t", "standardGeneric"))
+if (!is(t, "genericFunction"))
   setGeneric("t")
 
 check_matrix_conversion <- function(r_matrix, python_matrix) {

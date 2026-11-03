@@ -12,7 +12,8 @@ test_that("Altair concatenations have unique containers within and across chunks
   output <- rmarkdown::render(input, quiet = TRUE)
 
   html <- paste(readLines(output), collapse = "\n")
-  containers <- regmatches(html, gregexpr('<div id="[^"]+"></div>', html))[[1L]]
+  pattern <- '<div id="[^"]+-altair-viz(-[0-9]+)?"></div>'
+  containers <- regmatches(html, gregexpr(pattern, html))[[1L]]
   expect_length(containers, 3L)
   expect_length(unique(containers), 3L)
 

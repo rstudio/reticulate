@@ -6,7 +6,7 @@
   paths like `C:/Python312/python.exe` apart at the drive letter, so the
   setting was silently ignored and the newest Python found elsewhere was used
   instead. On Windows, multiple paths are now separated with `;` only
-  (@kbenoit, #<issue>).
+  (@kbenoit, #1941).
 
 - Generic Altair `ConcatChart` objects are now recognized by the Python knitr
   engine, giving each HTML output a unique container ID and preventing charts

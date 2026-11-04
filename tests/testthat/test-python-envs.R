@@ -146,3 +146,66 @@ test_that("virtualenv_starter rejects explicitly requested free-threaded Python"
 
   expect_null(virtualenv_starter(candidates[[1L]]))
 })
+
+test_that("virtualenv starter paths keep Windows drive letters intact", {
+  # Windows: only ";" separates entries
+  expect_identical(
+    split_virtualenv_starter_paths("C:/Python312/python.exe", windows = TRUE),
+    "C:/Python312/python.exe"
+  )
+  expect_identical(
+    split_virtualenv_starter_paths(
+      "C:\\Python312\\python.exe;D:/tools/Python/*/x64/python.exe",
+      windows = TRUE
+    ),
+    c("C:\\Python312\\python.exe", "D:/tools/Python/*/x64/python.exe")
+  )
+  expect_identical(
+    split_virtualenv_starter_paths(
+      c("C:/Python311/python.exe", "C:/Python312/python.exe"),
+      windows = TRUE
+    ),
+    c("C:/Python311/python.exe", "C:/Python312/python.exe")
+  )
+
+  # elsewhere: ":" and ";" both separate entries
+  expect_identical(
+    split_virtualenv_starter_paths(
+      "/opt/python/3.12/bin/python3:/usr/bin/python3;/usr/local/bin/python3",
+      windows = FALSE
+    ),
+    c("/opt/python/3.12/bin/python3", "/usr/bin/python3", "/usr/local/bin/python3")
+  )
+
+  expect_null(split_virtualenv_starter_paths(NULL, windows = TRUE))
+  expect_identical(split_virtualenv_starter_paths("", windows = TRUE), character())
+})
+
+test_that("virtualenv_starter respects RETICULATE_VIRTUALENV_STARTER paths", {
+  skip_if_no_python()
+
+  python <- Sys.which("python3")
+  if (!nzchar(python))
+    python <- Sys.which("python")
+  if (!nzchar(python))
+    skip("No python interpreter available for testing")
+  if (python_is_free_threaded_via_vv(python))
+    skip("Python interpreter is a free-threaded build")
+
+  python <- normalizePath(python, winslash = "/", mustWork = TRUE)
+  if (is_windows() && is_windows_app_store_python(python))
+    skip("Python interpreter is a Windows App Store alias")
+
+  # An absolute path, which on Windows starts with a drive letter and colon.
+  # Precede it with a path that does not exist, to check that ";" separates
+  # entries on all platforms.
+  missing <- file.path(tempfile("no-python-"), "python")
+  starter <- paste(missing, python, sep = ";")
+
+  withr::local_envvar(RETICULATE_VIRTUALENV_STARTER = starter)
+  expect_identical(virtualenv_starter(), python)
+
+  withr::local_envvar(RETICULATE_VIRTUALENV_STARTER = NA)
+  withr::local_options(reticulate.virtualenv.starter = python)
+  expect_identical(virtualenv_starter(), python)
+})

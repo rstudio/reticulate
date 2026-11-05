@@ -600,9 +600,11 @@ virtualenv_starter <- function(version = NULL, all = FALSE) {
   for (custom_loc in list(Sys.getenv("RETICULATE_VIRTUALENV_STARTER"),
                           getOption("reticulate.virtualenv.starter", ""))) {
     # Accept user customization, a character vector (or a string separated by
-    # ";", or also by ":" on non-Windows platforms) of file paths to python
-    # binaries. Paths can be globs, as they are passed on to Sys.glob()
-    lapply(split_virtualenv_starter_paths(custom_loc), find_starters)
+    # `.Platform$path.sep`, i.e. ";" on Windows and ":" elsewhere) of file paths
+    # to python binaries. Paths can be globs, as they are passed on to
+    # Sys.glob()
+    lapply(unlist(strsplit(custom_loc, .Platform$path.sep, fixed = TRUE)),
+           find_starters)
   }
 
   # Find pythons installed via `install_python()` or by directly using pyenv.
@@ -762,17 +764,6 @@ as_version_constraint_checkers <- function(version) {
   }, list(op, ver, ver_string, version), NULL)
 }
 
-
-# Split the value of `RETICULATE_VIRTUALENV_STARTER` or the
-# `reticulate.virtualenv.starter` option into individual paths. Entries are
-# separated by ";" on all platforms, and also by ":" on non-Windows platforms.
-# ":" is not a separator on Windows, since splitting on it would break absolute
-# paths apart at the drive letter (e.g., "C:/Python312/python.exe").
-split_virtualenv_starter_paths <- function(x, windows = is_windows()) {
-  x <- as.character(unlist(x, use.names = FALSE))
-  sep <- if (windows) ";" else "[:;]"
-  unlist(strsplit(x, sep))
-}
 
 check_can_be_virtualenv_starter <- function(python, version) {
   if(!can_be_virtualenv_starter(python))

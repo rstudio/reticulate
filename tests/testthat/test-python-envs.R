@@ -147,40 +147,6 @@ test_that("virtualenv_starter rejects explicitly requested free-threaded Python"
   expect_null(virtualenv_starter(candidates[[1L]]))
 })
 
-test_that("virtualenv starter paths keep Windows drive letters intact", {
-  # Windows: only ";" separates entries
-  expect_identical(
-    split_virtualenv_starter_paths("C:/Python312/python.exe", windows = TRUE),
-    "C:/Python312/python.exe"
-  )
-  expect_identical(
-    split_virtualenv_starter_paths(
-      "C:\\Python312\\python.exe;D:/tools/Python/*/x64/python.exe",
-      windows = TRUE
-    ),
-    c("C:\\Python312\\python.exe", "D:/tools/Python/*/x64/python.exe")
-  )
-  expect_identical(
-    split_virtualenv_starter_paths(
-      c("C:/Python311/python.exe", "C:/Python312/python.exe"),
-      windows = TRUE
-    ),
-    c("C:/Python311/python.exe", "C:/Python312/python.exe")
-  )
-
-  # elsewhere: ":" and ";" both separate entries
-  expect_identical(
-    split_virtualenv_starter_paths(
-      "/opt/python/3.12/bin/python3:/usr/bin/python3;/usr/local/bin/python3",
-      windows = FALSE
-    ),
-    c("/opt/python/3.12/bin/python3", "/usr/bin/python3", "/usr/local/bin/python3")
-  )
-
-  expect_null(split_virtualenv_starter_paths(NULL, windows = TRUE))
-  expect_identical(split_virtualenv_starter_paths("", windows = TRUE), character())
-})
-
 test_that("virtualenv_starter respects RETICULATE_VIRTUALENV_STARTER paths", {
   skip_if_no_python()
 
@@ -197,10 +163,10 @@ test_that("virtualenv_starter respects RETICULATE_VIRTUALENV_STARTER paths", {
     skip("Python interpreter is a Windows App Store alias")
 
   # An absolute path, which on Windows starts with a drive letter and colon.
-  # Precede it with a path that does not exist, to check that ";" separates
-  # entries on all platforms.
+  # Precede it with a path that does not exist, to check that entries are
+  # separated by `.Platform$path.sep`.
   missing <- file.path(tempfile("no-python-"), "python")
-  starter <- paste(missing, python, sep = ";")
+  starter <- paste(missing, python, sep = .Platform$path.sep)
 
   withr::local_envvar(RETICULATE_VIRTUALENV_STARTER = starter)
   expect_identical(virtualenv_starter(), python)

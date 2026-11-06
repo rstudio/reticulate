@@ -2,6 +2,17 @@
 
 ## reticulate (development version)
 
+- [`virtualenv_starter()`](https://rstudio.github.io/reticulate/dev/reference/virtualenv-tools.md)
+  no longer ignores absolute paths supplied through
+  `RETICULATE_VIRTUALENV_STARTER` or the `reticulate.virtualenv.starter`
+  option on Windows. The value was split on `:` as well as `;`, which
+  broke paths like `C:/Python312/python.exe` apart at the drive letter,
+  so the setting was silently ignored and the newest Python found
+  elsewhere was used instead. Multiple paths are now separated with
+  `.Platform$path.sep`: `;` on Windows and `:` elsewhere
+  ([@kbenoit](https://github.com/kbenoit),
+  [\#1941](https://github.com/rstudio/reticulate/issues/1941)).
+
 - Generic Altair `ConcatChart` objects are now recognized by the Python
   knitr engine, giving each HTML output a unique container ID and
   preventing charts from replacing earlier outputs in R Markdown and

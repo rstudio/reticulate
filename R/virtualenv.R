@@ -599,10 +599,12 @@ virtualenv_starter <- function(version = NULL, all = FALSE) {
 
   for (custom_loc in list(Sys.getenv("RETICULATE_VIRTUALENV_STARTER"),
                           getOption("reticulate.virtualenv.starter", ""))) {
-    # Accept user customization, a character vector (or ":" separated string) of
-    # file paths to python binaries. Paths can be globs, as they are passed on
-    # to Sys.glob()
-    lapply(unlist(strsplit(custom_loc, "[:;]")), find_starters)
+    # Accept user customization, a character vector (or a string separated by
+    # `.Platform$path.sep`, i.e. ";" on Windows and ":" elsewhere) of file paths
+    # to python binaries. Paths can be globs, as they are passed on to
+    # Sys.glob()
+    lapply(unlist(strsplit(custom_loc, .Platform$path.sep, fixed = TRUE)),
+           find_starters)
   }
 
   # Find pythons installed via `install_python()` or by directly using pyenv.

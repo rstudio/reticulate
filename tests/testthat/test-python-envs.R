@@ -146,3 +146,32 @@ test_that("virtualenv_starter rejects explicitly requested free-threaded Python"
 
   expect_null(virtualenv_starter(candidates[[1L]]))
 })
+
+test_that("virtualenv_starter respects RETICULATE_VIRTUALENV_STARTER paths", {
+  skip_if_no_python()
+
+  python <- Sys.which("python3")
+  if (!nzchar(python))
+    python <- Sys.which("python")
+  if (!nzchar(python))
+    skip("No python interpreter available for testing")
+  if (python_is_free_threaded_via_vv(python))
+    skip("Python interpreter is a free-threaded build")
+
+  python <- normalizePath(python, winslash = "/", mustWork = TRUE)
+  if (is_windows() && is_windows_app_store_python(python))
+    skip("Python interpreter is a Windows App Store alias")
+
+  # An absolute path, which on Windows starts with a drive letter and colon.
+  # Precede it with a path that does not exist, to check that entries are
+  # separated by `.Platform$path.sep`.
+  missing <- file.path(tempfile("no-python-"), "python")
+  starter <- paste(missing, python, sep = .Platform$path.sep)
+
+  withr::local_envvar(RETICULATE_VIRTUALENV_STARTER = starter)
+  expect_identical(virtualenv_starter(), python)
+
+  withr::local_envvar(RETICULATE_VIRTUALENV_STARTER = NA)
+  withr::local_options(reticulate.virtualenv.starter = python)
+  expect_identical(virtualenv_starter(), python)
+})

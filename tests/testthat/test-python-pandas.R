@@ -10,15 +10,16 @@ test_that("pandas factor conversion allocates one R integer buffer", {
 
   path <- tempfile()
   on.exit(unlink(path), add = TRUE)
-  Rprofmem(path)
+  # Only record allocations large enough to hold the integer codes.
+  # Smaller conversion overhead varies across R versions.
+  Rprofmem(path, threshold = n * 4)
   on.exit(Rprofmem(NULL), add = TRUE)
   converted <- py_to_r(x)
   Rprofmem(NULL)
   sizes <- suppressWarnings(as.numeric(sub(" .*", "", readLines(path))))
 
   expect_identical(converted$x, factor(rep(c("a", "b"), n / 2L)))
-  # The result needs four bytes per code. Allow overhead without room for a copy.
-  expect_lt(sum(sizes, na.rm = TRUE), n * 6)
+  expect_length(sizes[!is.na(sizes)], 1L)
 })
 
 test_that("factor conversion avoids expanding category labels", {

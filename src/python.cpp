@@ -94,14 +94,6 @@ bool is_main_thread() {
   return s_main_thread == tthread::this_thread::get_id();
 }
 
-// track whether we are using python 3 (set during py_initialize)
-bool s_isPython3 = false;
-
-// [[Rcpp::export]]
-bool is_python3() {
-  return s_isPython3;
-}
-
 // track whether this is an interactive session
 bool s_isInteractive = false;
 bool is_interactive() {
@@ -137,10 +129,8 @@ bool isPyArrayScalar(PyObject* object) {
 }
 
 // static buffers for Py_SetProgramName / Py_SetPythonHome
-std::string s_python;
-std::wstring s_python_v3;
-std::string s_pythonhome;
-std::wstring s_pythonhome_v3;
+std::wstring s_python;
+std::wstring s_pythonhome;
 
 
 
@@ -331,9 +321,7 @@ std::string as_std_string(PyObject* str) {
 
   char* buffer;
   Py_ssize_t length;
-  int res = is_python3() ?
-    PyBytes_AsStringAndSize(str, &buffer, &length) :
-    PyString_AsStringAndSize(str, &buffer, &length);
+  int res = PyBytes_AsStringAndSize(str, &buffer, &length);
   if (res == -1)
     throw PythonException(py_fetch_error());
 
@@ -348,34 +336,11 @@ PyObject* as_python_str(SEXP strSEXP, bool handle_na=false) {
     return Py_None;
   }
 
-  if (is_python3()) {
-    // python3 doesn't have PyString and all strings are unicode so
-    // make sure we get a unicode representation from R
-    const char * value = Rf_translateCharUTF8(strSEXP);
-    return PyUnicode_FromString(value);
-  } else {
-    const char * value = Rf_translateChar(strSEXP);
-    return PyString_FromString(value);
-  }
+  return PyUnicode_FromString(Rf_translateCharUTF8(strSEXP));
 }
 
 PyObject* as_python_str(const std::string& str) {
-  if (is_python3()) {
-    return PyUnicode_FromString(str.c_str());
-  } else {
-    return PyString_FromString(str.c_str());
-  }
-}
-
-bool has_null_bytes(PyObject* str) {
-  char* buffer;
-  int res = PyString_AsStringAndSize(str, &buffer, NULL);
-  if (res == -1) {
-    py_fetch_error();
-    return true;
-  } else {
-    return false;
-  }
+  return PyUnicode_FromString(str.c_str());
 }
 
 // helpers to narrow python array type to something convertable from R,
@@ -466,21 +431,7 @@ bool is_numpy_str(PyObject* x) {
 }
 
 bool is_python_str(PyObject* x) {
-
-  if (PyUnicode_Check(x))
-    return true;
-
-  // python3 doesn't have PyString_* so mask it out (all strings in
-  // python3 will get caught by PyUnicode_Check, we'll ignore
-  // PyBytes entirely and let it remain a python object)
-  else if (!is_python3() && PyString_Check(x) && !has_null_bytes(x))
-    return true;
-
-  else if (is_numpy_str(x))
-    return true;
-
-  else
-    return false;
+  return PyUnicode_Check(x) || is_numpy_str(x);
 }
 
 // check whether a PyObject is None
@@ -998,7 +949,7 @@ SEXP py_fetch_error(bool maybe_reuse_cached_r_trace) {
 
   PyErr_NormalizeException(&excType, &excValue, &excTraceback);
 
-  if (excTraceback != NULL && excValue != NULL && s_isPython3) {
+  if (excTraceback != NULL && excValue != NULL) {
     PyException_SetTraceback(excValue, excTraceback);
     Py_DecRef(excTraceback);
   }
@@ -1219,7 +1170,7 @@ int r_scalar_type(PyObject* x) {
     return LGLSXP;
 
   // integer
-  else if (PyInt_Check(x) || PyLong_Check(x))
+  else if (PyLong_Check(x))
     return INTSXP;
 
   // double
@@ -1526,7 +1477,7 @@ SEXP py_to_r_cpp(PyObject* x, bool convert, bool simple) {
 
     // integer
     else if (scalarType == INTSXP)
-      return IntegerVector::create(PyInt_AsLong(x));
+      return IntegerVector::create(PyLong_AsLong(x));
 
     // double
     else if (scalarType == REALSXP)
@@ -1561,7 +1512,7 @@ SEXP py_to_r_cpp(PyObject* x, bool convert, bool simple) {
     } else if (scalarType == INTSXP) {
       Rcpp::IntegerVector vec(len);
       for (Py_ssize_t i = 0; i<len; i++)
-        vec[i] = PyInt_AsLong(PyList_GetItem(x, i));
+        vec[i] = PyLong_AsLong(PyList_GetItem(x, i));
       return vec;
     } else if (scalarType == CPLXSXP) {
       Rcpp::ComplexVector vec(len);
@@ -2301,13 +2252,13 @@ PyObject* r_to_py_cpp(RObject x, bool convert) {
 
     // handle scalars
     if (len == 1)
-      return PyInt_FromLong(psexp[0]);
+      return PyLong_FromLong(psexp[0]);
 
     PyObjectPtr list(PyList_New(len));
     for (R_xlen_t i = 0; i<len; i++) {
       int value = psexp[i];
       // NOTE: reference to added value is "stolen" by the list
-      if (PyList_SetItem(list, i, PyInt_FromLong(value)))
+      if (PyList_SetItem(list, i, PyLong_FromLong(value)))
         throw PythonException(py_fetch_error());
     }
 
@@ -3095,16 +3046,14 @@ SEXP main_process_python_info_unix() {
 
   GILScope scope;
 
+  // Discovery can run before the R initialization checks.
+  if (Py_GetVersion()[0] < '3')
+    stop("Python 3 is required; Python 2 is no longer supported.");
+
   // read Python program path
-  std::string python_path;
-  if (Py_GetVersion()[0] >= '3') {
-    loadSymbol(pLib, "Py_GetProgramFullPath", (void**) &Py_GetProgramFullPath); // deprecated in 3.13
-    const std::wstring wide_python_path(Py_GetProgramFullPath());
-    python_path = to_string(wide_python_path);
-  } else {
-    loadSymbol(pLib, "Py_GetProgramFullPath", (void**) &Py_GetProgramFullPath_v2);
-    python_path = Py_GetProgramFullPath_v2();
-  }
+  loadSymbol(pLib, "Py_GetProgramFullPath", (void**) &Py_GetProgramFullPath); // deprecated in 3.13
+  const std::wstring wide_python_path(Py_GetProgramFullPath());
+  std::string python_path = to_string(wide_python_path);
 
   RObject libpython;
   // read libpython file path
@@ -3151,92 +3100,57 @@ void py_initialize(const std::string& python,
                    const std::string& libpython,
                    const std::string& pythonhome,
                    const std::string& virtualenv_activate,
-                   int python_major_version,
                    int python_minor_version,
                    bool interactive,
                    const std::string& numpy_load_error) {
 
-  // set python3 and interactive flags
-  s_isPython3 = python_major_version == 3;
   s_isInteractive = interactive;
 
   Environment globals(reticulate_get_ns_var(".globals"));
   s_error_hint = as<std::string>(globals["py_last_error_hint"]);
 
-  if(!s_isPython3)
-    warning("Python 2 reached EOL on January 1, 2020. Python 2 compatability will be removed in an upcoming reticulate release.");
-
   // load the library
   std::string err;
-  if (!libPython().load(libpython, python_major_version, python_minor_version, &err))
+  if (!libPython().load(libpython, python_minor_version, &err))
     stop(err);
 
-  if (is_python3()) {
+  if (Py_IsInitialized()) {
+    // if R is embedded in a python environment, rpycall has to be loaded as a regular
+    // module.
+    GILScope scope;
+    PyImport_AddModule("rpycall");
+    PyDict_SetItemString(PyImport_GetModuleDict(), "rpycall", initializeRPYCall());
 
-    if (Py_IsInitialized()) {
-      // if R is embedded in a python environment, rpycall has to be loaded as a regular
-      // module.
-      GILScope scope;
-      PyImport_AddModule("rpycall");
-      PyDict_SetItemString(PyImport_GetModuleDict(), "rpycall", initializeRPYCall());
-
-    } else {
-
-      // set program name
-      s_python_v3 = to_wstring(python);
-      Py_SetProgramName_v3(const_cast<wchar_t*>(s_python_v3.c_str()));
-
-      // set program home
-      s_pythonhome_v3 = to_wstring(pythonhome);
-      Py_SetPythonHome_v3(const_cast<wchar_t*>(s_pythonhome_v3.c_str()));
-
-      // add rpycall module
-      PyImport_AppendInittab("rpycall", &initializeRPYCall);
-
-      // initialize python
-      Py_InitializeEx(0); // 0 means "do not install signal handlers"
-      s_was_python_initialized_by_reticulate = true;
-
-#ifndef _WIN32
-      // Python ignores SIGPIPE by default to avoid the process being
-      // interrupted during normal pipe / IPC usage (EPIPE is handled as an
-      // exception instead). Because reticulate uses Py_InitializeEx(0), we
-      // must explicitly mirror that behavior.
-      s_orig_sigpipe_handler = PyOS_setsig(SIGPIPE, SIG_IGN);
-      s_restore_sigpipe_handler = true;
-#endif
-
-      const wchar_t *argv[1] = {s_python_v3.c_str()};
-      PySys_SetArgv_v3(1, const_cast<wchar_t**>(argv));
-
-      orig_interrupt_handler = install_interrupt_handlers_();
-    }
-
-  } else { // python2
+  } else {
 
     // set program name
-    s_python = python;
-    Py_SetProgramName(const_cast<char*>(s_python.c_str()));
+    s_python = to_wstring(python);
+    Py_SetProgramName(const_cast<wchar_t*>(s_python.c_str()));
 
     // set program home
-    s_pythonhome = pythonhome;
-    Py_SetPythonHome(const_cast<char*>(s_pythonhome.c_str()));
-
-    if (!Py_IsInitialized()) {
-      // initialize python
-      Py_InitializeEx(0);
-      s_was_python_initialized_by_reticulate = true;
-    }
+    s_pythonhome = to_wstring(pythonhome);
+    Py_SetPythonHome(const_cast<wchar_t*>(s_pythonhome.c_str()));
 
     // add rpycall module
-    Py_InitModule4("rpycall", RPYCallMethods, (char *)NULL, (PyObject *)NULL,
-                      _PYTHON_API_VERSION);
+    PyImport_AppendInittab("rpycall", &initializeRPYCall);
 
-    const char *argv[1] = {s_python.c_str()};
-    PySys_SetArgv(1, const_cast<char**>(argv));
+    // initialize python
+    Py_InitializeEx(0); // 0 means "do not install signal handlers"
+    s_was_python_initialized_by_reticulate = true;
+
+#ifndef _WIN32
+    // Python ignores SIGPIPE by default to avoid the process being
+    // interrupted during normal pipe / IPC usage (EPIPE is handled as an
+    // exception instead). Because reticulate uses Py_InitializeEx(0), we
+    // must explicitly mirror that behavior.
+    s_orig_sigpipe_handler = PyOS_setsig(SIGPIPE, SIG_IGN);
+    s_restore_sigpipe_handler = true;
+#endif
+
+    const wchar_t *argv[1] = {s_python.c_str()};
+    PySys_SetArgv(1, const_cast<wchar_t**>(argv));
 
     orig_interrupt_handler = install_interrupt_handlers_();
-    reticulate_setsig(SIGINT, interrupt_handler);
   }
 
   s_main_thread = tthread::this_thread::get_id();
@@ -3244,7 +3158,7 @@ void py_initialize(const std::string& python,
   GILScope _gil;
 
   // initialize type objects
-  initialize_type_objects(is_python3());
+  initialize_type_objects();
 
   // needed to format Python errors, which the steps below can raise
   initialize_format_exception_only();
@@ -3255,7 +3169,7 @@ void py_initialize(const std::string& python,
 
   // resovlve numpy
   if (numpy_load_error.empty())
-    import_numpy_api(is_python3(), &s_numpy_load_error);
+    import_numpy_api(&s_numpy_load_error);
   else
     s_numpy_load_error = numpy_load_error;
 
@@ -3664,7 +3578,6 @@ IntegerVector py_get_attr_types(
     else if (isPyArray(attr))
       types[i] = ARRAY;
     else if (PyBool_Check(attr)   ||
-             PyInt_Check(attr)    ||
              PyLong_Check(attr)   ||
              PyFloat_Check(attr)  ||
              is_python_str(attr))
@@ -3950,7 +3863,7 @@ CharacterVector py_list_submodules(const std::string& module) {
   Py_ssize_t pos = 0;
   std::string prefix = module + ".";
   while (PyDict_Next(modulesDict, &pos, &key, &value)) {
-    if (PyString_Check(key) && !py_is_none(value)) {
+    if (PyBytes_Check(key) && !py_is_none(value)) {
       std::string name = as_std_string(key);
       if (name.find(prefix) == 0) {
         std::string submodule = name.substr(prefix.length());
@@ -4054,12 +3967,8 @@ PyObjectRef py_run_file_impl(const std::string& file,
 SEXP py_eval_impl(const std::string& code, bool convert = true) {
   GILScope _gil;
   // compile the code
-  PyObjectPtr compiledCode;
-  if (Py_CompileStringExFlags != NULL)
-    compiledCode.assign(Py_CompileStringExFlags(code.c_str(), "reticulate_eval", Py_eval_input, NULL, 0));
-  else
-    compiledCode.assign(Py_CompileString(code.c_str(), "reticulate_eval", Py_eval_input));
-
+  PyObjectPtr compiledCode(Py_CompileStringExFlags(
+    code.c_str(), "reticulate_eval", Py_eval_input, NULL, 0));
 
   if (compiledCode.is_null())
     throw PythonException(py_fetch_error());

@@ -12,7 +12,6 @@
 #define LIBPYTHON_EXTERN
 #endif
 
-#define _PYTHON_API_VERSION 1013
 #define _PYTHON3_ABI_VERSION 3
 
 namespace reticulate {
@@ -131,8 +130,6 @@ LIBPYTHON_EXTERN PyTypeObject* PyMethod_Type;
 
 LIBPYTHON_EXTERN PyObject* Py_None;
 LIBPYTHON_EXTERN PyObject* Py_Unicode;
-LIBPYTHON_EXTERN PyObject* Py_String;
-LIBPYTHON_EXTERN PyObject* Py_Int;
 LIBPYTHON_EXTERN PyObject* Py_Long;
 LIBPYTHON_EXTERN PyObject* Py_Bool;
 LIBPYTHON_EXTERN PyObject* Py_True;
@@ -149,7 +146,7 @@ LIBPYTHON_EXTERN PyObject* PyExc_AttributeError;
 LIBPYTHON_EXTERN PyObject* PyExc_RuntimeError;
 LIBPYTHON_EXTERN PyObject* PyExc_ValueError;
 
-void initialize_type_objects(bool python3);
+void initialize_type_objects();
 
 #define Py_TYPE(ob) (((PyObject*)(ob))->ob_type)
 
@@ -186,8 +183,6 @@ void initialize_type_objects(bool python3);
 #define PyType_Check(op) PyType_FastSubclass(Py_TYPE(op), Py_TPFLAGS_TYPE_SUBCLASS)
 #define PyType_CheckExact(op) (Py_TYPE(op) == PyType_Type)
 
-#define PyString_Check(o)    (Py_TYPE(o) == Py_TYPE(Py_String))
-#define PyInt_Check(o)       (Py_TYPE(o) == Py_TYPE(Py_Int))
 #define PyFloat_Check(o)     (Py_TYPE(o) == Py_TYPE(Py_Float))
 #define PyComplex_Check(o)   (Py_TYPE(o) == Py_TYPE(Py_Complex))
 #define PyByteArray_Check(o) (Py_TYPE(o) == Py_TYPE(Py_ByteArray))
@@ -203,7 +198,6 @@ LIBPYTHON_EXTERN void (*Py_InitializeEx)(int);
 LIBPYTHON_EXTERN void (*Py_Finalize)();
 LIBPYTHON_EXTERN int (*Py_IsInitialized)();
 LIBPYTHON_EXTERN const char* (*Py_GetVersion)();
-LIBPYTHON_EXTERN char* (*Py_GetProgramFullPath_v2)();
 LIBPYTHON_EXTERN wchar_t* (*Py_GetProgramFullPath)();
 
 
@@ -211,10 +205,6 @@ LIBPYTHON_EXTERN int (*Py_AddPendingCall)(int (*func)(void *), void *arg);
 LIBPYTHON_EXTERN int (*Py_MakePendingCalls)();
 LIBPYTHON_EXTERN void (*PyErr_SetInterrupt)();
 LIBPYTHON_EXTERN void (*PyErr_CheckSignals)();
-
-LIBPYTHON_EXTERN PyObject* (*Py_InitModule4)(const char *name, PyMethodDef *methods,
-           const char *doc, PyObject *self,
-           int apiver);
 
 LIBPYTHON_EXTERN PyObject* (*PyImport_ImportModule)(const char *name);
 LIBPYTHON_EXTERN PyObject* (*PyImport_Import)(PyObject * name);
@@ -280,16 +270,6 @@ LIBPYTHON_EXTERN Py_ssize_t (*PyList_Size)(PyObject *);
 LIBPYTHON_EXTERN PyObject* (*PyList_GetItem)(PyObject *, Py_ssize_t);
 LIBPYTHON_EXTERN int (*PyList_SetItem)(PyObject *, Py_ssize_t, PyObject *);
 
-LIBPYTHON_EXTERN int (*PyString_AsStringAndSize)(
-    PyObject *obj,	/* string or Unicode object */
-    char **s,		/* pointer to buffer variable */
-    Py_ssize_t *len	/* pointer to length variable or NULL
-  (only possible for 0-terminated
-  strings) */
-);
-
-LIBPYTHON_EXTERN PyObject* (*PyString_FromString)(const char *);
-LIBPYTHON_EXTERN PyObject* (*PyString_FromStringAndSize)(const char *, Py_ssize_t);
 LIBPYTHON_EXTERN int (*PyUnicode_CompareWithASCIIString)(PyObject *unicode, const char *string);
 
 LIBPYTHON_EXTERN PyObject* (*PyUnicode_EncodeLocale)(PyObject *unicode, const char *errors);
@@ -336,7 +316,6 @@ LIBPYTHON_EXTERN PyObject* (*PyImport_AddModule)(const char *);
 
 LIBPYTHON_EXTERN PyObject* (*PyRun_FileEx)(FILE*, const char*, int, PyObject*, PyObject*, int);
 LIBPYTHON_EXTERN PyObject* (*PyRun_StringFlags)(const char *, int, PyObject*, PyObject*, void*);
-LIBPYTHON_EXTERN PyObject* (*Py_CompileString)(const char *str, const char *filename, int start);
 LIBPYTHON_EXTERN PyObject* (*PyEval_EvalCode)(PyObject *co, PyObject *globals, PyObject *locals);
 
 LIBPYTHON_EXTERN PyObject* (*PyObject_GetIter)(PyObject *);
@@ -365,8 +344,6 @@ LIBPYTHON_EXTERN Py_ssize_t (*PyDict_Size)(PyObject *mp);
 LIBPYTHON_EXTERN PyObject* (*PyDict_Copy)(PyObject *mp);
 
 LIBPYTHON_EXTERN PyObject*  (*PyMapping_Items)(PyObject *o);
-LIBPYTHON_EXTERN PyObject* (*PyInt_FromLong)(long);
-LIBPYTHON_EXTERN long (*PyInt_AsLong)(PyObject *);
 LIBPYTHON_EXTERN PyObject* (*PyLong_FromLong)(long);
 LIBPYTHON_EXTERN long (*PyLong_AsLong)(PyObject *);
 LIBPYTHON_EXTERN PyObject* (*PySlice_New)(PyObject *start, PyObject *stop, PyObject *step);
@@ -380,22 +357,18 @@ LIBPYTHON_EXTERN PyObject* (*PyComplex_FromDoubles)(double real, double imag);
 LIBPYTHON_EXTERN double (*PyComplex_RealAsDouble)(PyObject *op);
 LIBPYTHON_EXTERN double (*PyComplex_ImagAsDouble)(PyObject *op);
 
-LIBPYTHON_EXTERN void* (*PyCObject_AsVoidPtr)(PyObject *);
 
 LIBPYTHON_EXTERN int (*PyType_IsSubtype)(PyTypeObject *, PyTypeObject *);
 LIBPYTHON_EXTERN unsigned long (*PyType_GetFlags)(PyTypeObject *type);
 
-LIBPYTHON_EXTERN void (*Py_SetProgramName)(char *);
-LIBPYTHON_EXTERN void (*Py_SetProgramName_v3)(wchar_t *);
+LIBPYTHON_EXTERN void (*Py_SetProgramName)(wchar_t *);
 
-LIBPYTHON_EXTERN void (*Py_SetPythonHome)(char *);
-LIBPYTHON_EXTERN void (*Py_SetPythonHome_v3)(wchar_t *);
+LIBPYTHON_EXTERN void (*Py_SetPythonHome)(wchar_t *);
 
 LIBPYTHON_EXTERN PyOS_sighandler_t (*PyOS_getsig)(int i);
 LIBPYTHON_EXTERN PyOS_sighandler_t (*PyOS_setsig)(int i, PyOS_sighandler_t h);
 
-LIBPYTHON_EXTERN void (*PySys_SetArgv)(int, char **);
-LIBPYTHON_EXTERN void (*PySys_SetArgv_v3)(int, wchar_t **);
+LIBPYTHON_EXTERN void (*PySys_SetArgv)(int, wchar_t **);
 
 LIBPYTHON_EXTERN void (*PySys_WriteStderr)(const char *format, ...);
 LIBPYTHON_EXTERN PyObject* (*PySys_GetObject)(const char *name);
@@ -676,7 +649,7 @@ inline int PyArray_FLAGS(PyArrayObject *arr) {
          (PyArray_IsZeroDim(m)))                                 \
 
 
-bool import_numpy_api(bool python3, std::string* pError);
+bool import_numpy_api(std::string* pError);
 
 #define NPY_ARRAY_C_CONTIGUOUS    0x0001
 #define NPY_ARRAY_F_CONTIGUOUS    0x0002
@@ -693,12 +666,12 @@ bool import_numpy_api(bool python3, std::string* pError);
 class SharedLibrary {
 
 public:
-  bool load(const std::string& libPath, int major_ver, int minor_ver, std::string* pError);
+  bool load(const std::string& libPath, int minor_ver, std::string* pError);
   bool unload(std::string* pError);
   virtual ~SharedLibrary() {}
 
 private:
-  virtual bool loadSymbols(int major_ver, int minor_ver, std::string* pError) = 0;
+  virtual bool loadSymbols(int minor_ver, std::string* pError) = 0;
 
 protected:
   SharedLibrary() : pLib_(NULL) {}
@@ -713,7 +686,7 @@ class LibPython : public SharedLibrary {
 private:
   LibPython() : SharedLibrary() {}
   friend SharedLibrary& libPython();
-  virtual bool loadSymbols(int major_ver, int minor_ver, std::string* pError);
+  virtual bool loadSymbols(int minor_ver, std::string* pError);
 };
 
 inline SharedLibrary& libPython() {

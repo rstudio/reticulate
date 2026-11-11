@@ -1,5 +1,41 @@
 context("helper handlers")
 
+test_that("completion help formats empty and nested sequence defaults", {
+  skip_if_no_python()
+  scope <- py_run_string("
+class Defaults:
+    def empty(values=[], pair=(), members=set()):
+        pass
+
+    def nested(values=[(1, True), ['two', None]], members={3}):
+        pass
+", local = TRUE, convert = FALSE)
+
+  expect_identical(
+    py_help_handler("completion", "empty", scope$Defaults)$signature,
+    "empty(values = c(), pair = list(), members = list())"
+  )
+  expect_identical(
+    py_help_handler("completion", "nested", scope$Defaults)$signature,
+    'nested(values = c(list(1L, TRUE), c("two", NULL)), members = list(3L))'
+  )
+})
+
+test_that("completion help closes large sequence defaults", {
+  skip_if_no_python()
+  scope <- py_run_string("
+class Defaults:
+    def large(values=list(range(258))):
+        pass
+", local = TRUE, convert = FALSE)
+
+  expected <- paste0("large(values = c(", paste0(0:257, "L", collapse = ", "), "))")
+  expect_identical(
+    py_help_handler("completion", "large", scope$Defaults)$signature,
+    expected
+  )
+})
+
 test_that("Documentations in Sphinx style can be extracted correctly for help handlers", {
   skip_if_no_docutils()
 

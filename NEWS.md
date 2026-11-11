@@ -1,5 +1,8 @@
 # reticulate (development version)
 
+- Completion help now closes the parentheses around empty and large sequence
+  defaults in Python function signatures.
+
 - Removed legacy Python 2 compatibility code. Selecting a Python 2 interpreter
   now reports an error before initialization (#1232).
 

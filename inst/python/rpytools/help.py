@@ -63,20 +63,10 @@ def get_r_representation(default):
             arg_value = "%rL" % default
         elif isinstance(default, float):
             arg_value = "%r" % default
-        elif isinstance(default, list):
-            arg_value = "c("
-            for i, item in enumerate(default):
-                if i is (len(default) - 1):
-                    arg_value += "%s)" % get_r_representation(item)
-                else:
-                    arg_value += "%s, " % get_r_representation(item)
-        elif isinstance(default, (tuple, set)):
-            arg_value = "list("
-            for i, item in enumerate(default):
-                if i is (len(default) - 1):
-                    arg_value += "%s)" % get_r_representation(item)
-                else:
-                    arg_value += "%s, " % get_r_representation(item)
+        elif isinstance(default, (list, tuple, set)):
+            constructor = "c" if isinstance(default, list) else "list"
+            entries = ", ".join(get_r_representation(item) for item in default)
+            arg_value = "%s(%s)" % (constructor, entries)
         elif isinstance(default, dict):
             dict_entries = ", ".join(
                 [

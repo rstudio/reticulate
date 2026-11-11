@@ -644,33 +644,20 @@ bool import_numpy_api(std::string* pError);
 #define NPY_ARRAY_FARRAY       (NPY_ARRAY_F_CONTIGUOUS | NPY_ARRAY_BEHAVED)
 
 
-class SharedLibrary {
+class LibPython {
 
 public:
   bool load(const std::string& libPath, int minor_ver, std::string* pError);
-  bool unload(std::string* pError);
-  virtual ~SharedLibrary() {}
 
 private:
-  virtual bool loadSymbols(int minor_ver, std::string* pError) = 0;
-
-protected:
-  SharedLibrary() : pLib_(NULL) {}
-private:
-  SharedLibrary(const SharedLibrary&);
-
-protected:
+  LibPython() : pLib_(NULL) {}
+  LibPython(const LibPython&);
+  friend LibPython& libPython();
+  bool loadSymbols(int minor_ver, std::string* pError);
   void* pLib_;
 };
 
-class LibPython : public SharedLibrary {
-private:
-  LibPython() : SharedLibrary() {}
-  friend SharedLibrary& libPython();
-  virtual bool loadSymbols(int minor_ver, std::string* pError);
-};
-
-inline SharedLibrary& libPython() {
+inline LibPython& libPython() {
   static LibPython instance;
   return instance;
 }

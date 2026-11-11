@@ -3200,7 +3200,7 @@ void py_finalize() {
     // To allow to call py_initialize() again would take:
     // - tracking and invalidating all objects declared in functions with
     //   `static PyObject*` (including static modules like numpy).
-    // - unloading the library: libpython::SharedLibrary::unload(&error);
+    // - unloading the Python shared library;
     // - setting all loaded symbols to NULL;
     // - check if internal symbols Python loads persist in the process, and
     //   if they need to be somehow discovered and unloaded.

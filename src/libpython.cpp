@@ -103,24 +103,6 @@ bool loadSymbol(void* pLib, const std::string& name, void** ppSymbol, std::strin
   }
 }
 
-bool closeLibrary(void* pLib, std::string* pError)
-{
-#ifdef _WIN32
-  if (!::FreeLibrary((HMODULE)pLib))
-#else
-  if (::dlclose(pLib) != 0)
-#endif
-  {
-    lastDLErrorMessage(pError);
-    return false;
-  }
-  else
-  {
-    return true;
-  }
-}
-
-
 } // anonymous namespace
 
 
@@ -158,7 +140,7 @@ if (!loadSymbol(pLib_, #name, (void**)&as, pError)) \
 if (!loadSymbol(pLib_, #name, (void**) &libpython::name, pError)) \
   return false;
 
-bool SharedLibrary::load(const std::string& libPath, int minor_ver, std::string* pError)
+bool LibPython::load(const std::string& libPath, int minor_ver, std::string* pError)
 {
   if (!loadLibrary(libPath, &pLib_, pError))
     return false;
@@ -322,14 +304,6 @@ bool LibPython::loadSymbols(int python_minor_ver, std::string* pError)
   }
 
   return true;
-}
-
-bool SharedLibrary::unload(std::string* pError)
-{
-  if (pLib_ != NULL)
-    return closeLibrary(pLib_, pError);
-  else
-    return true;
 }
 
 bool import_numpy_api(std::string* pError) {

@@ -24,3 +24,15 @@ test_that("The list function forces single-element vectors to be lists", {
   expect_false(test$isScalar(list(TRUE)))
 })
 
+test_that("atomic vectors preserve scalar and list conversion", {
+  for (values in list(c(-1L, 2L), c(-Inf, NaN), c(1+2i, -3i),
+                      c(TRUE, FALSE), c("\u03bb", ""))) {
+    for (n in 0:2) {
+      x <- values[seq_len(n)]
+      object <- r_to_py(x)
+      expect_identical(py_to_r(object), if (n) x else list())
+      expect_identical(inherits(object, "python.builtin.list"), n != 1L)
+    }
+  }
+})
+

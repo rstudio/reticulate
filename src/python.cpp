@@ -2220,6 +2220,20 @@ PyObject* r_to_py(RObject x, bool convert) {
 }
 
 
+template <typename Convert>
+PyObject* r_vector_to_py(R_xlen_t length, const Convert& convert) {
+  if (length == 1)
+    return convert(0);
+
+  PyObjectPtr list(PyList_New(length));
+  for (R_xlen_t i = 0; i < length; i++) {
+    // PyList_SetItem steals the converted value's reference.
+    if (PyList_SetItem(list, i, convert(i)))
+      throw PythonException(py_fetch_error());
+  }
+  return list.detach();
+}
+
 // convert an R object to a python object (the returned object
 // will have an active reference count on it)
 // the convert arg is only applicable to R functions that will being wrapped in python functions.
@@ -2252,109 +2266,39 @@ PyObject* r_to_py_cpp(RObject x, bool convert) {
     return r_to_py_numpy(x, convert);
   }
 
-  // integer (pass length 1 vectors as scalars, otherwise pass list)
+  // Atomic vectors of length 1 become scalars; other lengths become lists.
   if (type == INTSXP) {
-
-    R_xlen_t len = XLENGTH(sexp);
     int* psexp = INTEGER(sexp);
-
-    // handle scalars
-    if (len == 1)
-      return PyLong_FromLong(psexp[0]);
-
-    PyObjectPtr list(PyList_New(len));
-    for (R_xlen_t i = 0; i<len; i++) {
-      int value = psexp[i];
-      // NOTE: reference to added value is "stolen" by the list
-      if (PyList_SetItem(list, i, PyLong_FromLong(value)))
-        throw PythonException(py_fetch_error());
-    }
-
-    return list.detach();
-
+    return r_vector_to_py(XLENGTH(sexp), [psexp](R_xlen_t i) {
+      return PyLong_FromLong(psexp[i]);
+    });
   }
 
-  // numeric (pass length 1 vectors as scalars, otherwise pass list)
   if (type == REALSXP) {
-
-    // handle scalars
-    R_xlen_t len = XLENGTH(sexp);
     double* psexp = REAL(sexp);
-    if (len == 1)
-      return PyFloat_FromDouble(psexp[0]);
-
-    PyObjectPtr list(PyList_New(len));
-    for (R_xlen_t i = 0; i<len; i++) {
-      double value = psexp[i];
-      // NOTE: reference to added value is "stolen" by the list
-      if (PyList_SetItem(list, i, PyFloat_FromDouble(value)))
-        throw PythonException(py_fetch_error());
-    }
-
-    return list.detach();
-
+    return r_vector_to_py(XLENGTH(sexp), [psexp](R_xlen_t i) {
+      return PyFloat_FromDouble(psexp[i]);
+    });
   }
 
-  // complex (pass length 1 vectors as scalars, otherwise pass list)
   if (type == CPLXSXP) {
-
-    R_xlen_t len = XLENGTH(sexp);
     Rcomplex* psexp = COMPLEX(sexp);
-    if (len == 1) {
-      Rcomplex cplx = psexp[0];
-      return PyComplex_FromDoubles(cplx.r, cplx.i);
-    }
-
-    PyObjectPtr list(PyList_New(len));
-    for (R_xlen_t i = 0; i<len; i++) {
-      Rcomplex cplx = psexp[i];
-      // NOTE: reference to added value is "stolen" by the list
-      if (PyList_SetItem(list, i, PyComplex_FromDoubles(cplx.r, cplx.i)))
-        throw PythonException(py_fetch_error());
-    }
-
-    return list.detach();
-
+    return r_vector_to_py(XLENGTH(sexp), [psexp](R_xlen_t i) {
+      return PyComplex_FromDoubles(psexp[i].r, psexp[i].i);
+    });
   }
 
-  // logical (pass length 1 vectors as scalars, otherwise pass list)
   if (type == LGLSXP) {
-
-    R_xlen_t len = XLENGTH(sexp);
     int* psexp = LOGICAL(sexp);
-
-    if (len == 1)
-      return PyBool_FromLong(psexp[0]);
-
-    PyObjectPtr list(PyList_New(len));
-    for (R_xlen_t i = 0; i<len; i++) {
-      int value = psexp[i];
-      // NOTE: reference to added value is "stolen" by the list
-      if (PyList_SetItem(list, i, PyBool_FromLong(value)))
-        throw PythonException(py_fetch_error());
-    }
-
-    return list.detach();
-
+    return r_vector_to_py(XLENGTH(sexp), [psexp](R_xlen_t i) {
+      return PyBool_FromLong(psexp[i]);
+    });
   }
 
-  // character (pass length 1 vectors as scalars, otherwise pass list)
   if (type == STRSXP) {
-
-    R_xlen_t len = XLENGTH(sexp);
-
-    if (len == 1)
-      return as_python_str(STRING_ELT(sexp, 0));
-
-    PyObjectPtr list(PyList_New(len));
-    for (R_xlen_t i = 0; i<len; i++) {
-      // NOTE: reference to added value is "stolen" by the list
-      int res = PyList_SetItem(list, i, as_python_str(STRING_ELT(sexp, i)));
-      if (res != 0)
-        throw PythonException(py_fetch_error());
-    }
-
-    return list.detach();
+    return r_vector_to_py(XLENGTH(sexp), [sexp](R_xlen_t i) {
+      return as_python_str(STRING_ELT(sexp, i));
+    });
   }
 
   // bytes

@@ -1,7 +1,7 @@
 # reticulate (development version)
 
-- Python 2 is no longer supported. Selecting a Python 2 interpreter now reports
-  an error before initializing it.
+- Removed legacy Python 2 compatibility code. Selecting a Python 2 interpreter
+  now reports an error before initialization (#1232).
 
 - `virtualenv_starter()` no longer ignores absolute paths supplied through
   `RETICULATE_VIRTUALENV_STARTER` or the `reticulate.virtualenv.starter`

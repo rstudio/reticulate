@@ -1,5 +1,48 @@
 context("pandas")
 
+test_that("factor conversion avoids expanding category labels", {
+  skip_if_no_pandas()
+  skip_if_no_numpy()
+  np <- import("numpy", convert = FALSE)
+  skip_if(package_version(py_to_r(np$`__version__`)) < "1.13")
+  tracemalloc <- import("tracemalloc", convert = FALSE)
+  skip_if(py_to_r(tracemalloc$is_tracing()))
+
+  n <- 100000L
+  before <- data.frame(x = factor(rep(c("a", "b", NA), length.out = n)))
+  invisible(r_to_py(head(before)))
+  tracemalloc$start()
+  on.exit(tracemalloc$stop(), add = TRUE)
+  converted <- r_to_py(before)
+  peak <- py_to_r(tracemalloc$get_traced_memory())[[2L]]
+  tracemalloc$stop()
+
+  expect_equal(py_to_r(converted$shape[[0L]]), n)
+  # Allow pandas temporaries and metadata around the one-byte category codes.
+  expect_lt(peak, n * 10)
+})
+
+test_that("large categorical code buffers remain independent of R", {
+  skip_if_no_pandas()
+  levels <- paste0("level", seq_len(32768L))
+  before <- data.frame(x = factor(c(levels[1L], NA, levels[32768L]),
+                                  levels = levels))
+  snapshot <- unserialize(serialize(before, NULL))
+  converted <- r_to_py(before)
+  gc()
+
+  mutate <- py_run_string("
+def mutate(frame):
+    frame.loc[0, 'x'] = frame.loc[2, 'x']
+    frame.loc[1, 'x'] = frame.loc[2, 'x']
+", local = TRUE)$mutate
+  mutate(converted)
+  expect_identical(before, snapshot)
+
+  before$x[3L] <- levels[2L]
+  expect_identical(as.character(py_to_r(converted$x)), rep(levels[32768L], 3L))
+})
+
 pandas_version <- function() {
   pd <- import("pandas", convert = TRUE)
   numeric_version(pd$`__version__`)

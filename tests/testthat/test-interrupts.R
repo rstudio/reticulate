@@ -3,27 +3,33 @@ test_that("Running Python scripts can be interrupted", {
 
   skip_on_cran()
 
-  time <- import("time", convert = TRUE)
+  p <- callr::r_bg(args = list(python = py_exe()), function(python) {
+    Sys.setenv(RETICULATE_PYTHON = python)
+    library(reticulate)
 
-  # interrupt this process shortly
-  interruptor <- callr::r_bg(args = list(pid = Sys.getpid()), function(pid) {
-    Sys.sleep(1)
-    system2("kill", c("-s", "INT", pid))
-    # ps::ps_interrupt(ps::ps_handle(pid))
+    tryCatch({
+      py_run_string("
+import time
+print('Sleeping', flush=True)
+time.sleep(5)
+print('Sleep completed', flush=True)
+")
+      FALSE
+    }, interrupt = function(e) TRUE)
   })
+  on.exit(p$kill(), add = TRUE)
 
-  # tell Python to sleep
-  before <- Sys.time()
-  interrupted <- tryCatch(time$sleep(5), interrupt = identity)
-  after <- Sys.time()
+  # Wait for Python's checkpoint, independently of process startup time.
+  while (!length(checkpoint <- p$read_output_lines(1)) && p$is_alive())
+    callr::poll(list(p$get_output_connection()), -1)
+  expect_identical(checkpoint, "Sleeping")
 
-  # check that we caught an interrupt
-  expect_s3_class(interrupted, "interrupt")
+  p$interrupt()
+  p$wait()
 
-  # check that we took a small amount of time
-  diff <- difftime(after, before, units = "secs")
-  expect_true(diff < 2)
-
+  expect_identical(p$get_exit_status(), 0L)
+  expect_true(p$get_result())
+  expect_identical(p$read_all_output(), "")
 })
 
 

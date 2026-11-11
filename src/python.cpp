@@ -4075,44 +4075,27 @@ SEXP py_convert_pandas_series(PyObjectRef series_) {
     // if a time zone is present, dtype is "object"
     py_has_attr(series, "dt")) {
 
-    // pd.Series.items() returns an iterator over (index, value) pairs
-    PyObjectPtr items(PyObject_CallMethod(series, "items", NULL));
+    Py_ssize_t size = PyObject_Size(series);
+    if (size < 0)
+      throw PythonException(py_fetch_error());
+    PyObjectPtr iter(PyObject_GetIter(series));
+    if (iter.is_null())
+      throw PythonException(py_fetch_error());
 
-    std::vector<double> posixct;
+    DatetimeVector R_posixct(size);
+    for (Py_ssize_t i = 0; i < size; ++i) {
+      PyObjectPtr value(PyIter_Next(iter));
+      if (value.is_null())
+        throw PythonException(py_fetch_error());
 
-    while (true) {
-
-      // get next tuple
-      PyObjectPtr tuple(PyIter_Next(items));
-      if (tuple.is_null()) {
-        if (PyErr_Occurred())
-          throw PythonException(py_fetch_error());
-        else
-          break;
+      // timestamp() respects time zones; NaT raises instead of returning a value.
+      PyObjectPtr timestamp(PyObject_CallMethod(value, "timestamp", NULL));
+      if (timestamp.is_null()) {
+        R_posixct[i] = R_NaN;
+        PyErr_Clear();
+      } else {
+        R_posixct[i] = PyFloat_AsDouble(timestamp);
       }
-
-     // access value in slot 1
-     PyObjectPtr values(PySequence_GetItem(tuple, 1));
-     // convert to POSIX timestamp, taking into account time zone (if set)
-     PyObjectPtr timestamp(PyObject_CallMethod(values, "timestamp", NULL));
-
-     Datetime R_timestamp;
-
-     // NaT will have thrown "NaTType does not support timestamp"
-     if (PyErr_Occurred()) {
-       R_timestamp = R_NaN;
-       PyErr_Clear();
-     } else {
-       R_timestamp = py_to_r(timestamp, true);
-     }
-
-     posixct.push_back(R_timestamp);
-
-    }
-
-    DatetimeVector R_posixct(posixct.size());
-    for (std::size_t i = 0; i < posixct.size(); ++i) {
-      R_posixct[i] = posixct[i];
     }
 
     return R_posixct;

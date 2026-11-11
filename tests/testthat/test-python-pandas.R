@@ -375,6 +375,34 @@ test_that("NaT is converted to NA", {
 
 })
 
+test_that("pandas datetime columns retain timestamps and missing values", {
+  skip_if_no_pandas()
+  pd <- import("pandas", convert = FALSE)
+  values <- list(pd$Timestamp("1969-12-31 23:59:59.5"),
+                 pd$Timestamp("2020-01-01 00:00:00.25"), pd$NaT)
+  expected <- c(-0.5, 1577836800.25, NaN)
+
+  for (tz in list(NULL, "America/New_York")) {
+    dates <- pd$DatetimeIndex(values)$tz_localize(tz)
+    for (index in list(c("x", "y", "z"), c("x", "x", "z"))) {
+      frame <- pd$DataFrame(dict(x = dates), index = index)
+      if (anyDuplicated(index))
+        expect_warning(converted <- py_to_r(frame), "index contains duplicated values")
+      else
+        converted <- py_to_r(frame)
+      actual <- converted$x
+      expect_s3_class(actual, "POSIXct")
+      offset <- if (is.null(tz)) 0 else 5 * 3600
+      expect_equal(as.numeric(actual), expected + offset)
+    }
+  }
+
+  empty <- pd$DataFrame(dict(x = pd$DatetimeIndex(list())))
+  actual <- py_to_r(empty)$x
+  expect_s3_class(actual, "POSIXct")
+  expect_length(actual, 0L)
+})
+
 test_that("pandas NAs are converted to R NAs", {
   skip_if_no_pandas()
 

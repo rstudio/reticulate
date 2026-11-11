@@ -9,10 +9,6 @@ write_stderr <- function(text) {
     .Call(`_reticulate_write_stderr`, text)
 }
 
-is_python3 <- function() {
-    .Call(`_reticulate_is_python3`)
-}
-
 was_python_initialized_by_reticulate <- function() {
     .Call(`_reticulate_was_python_initialized_by_reticulate`)
 }
@@ -102,8 +98,8 @@ py_clear_error <- function() {
     invisible(.Call(`_reticulate_py_clear_error`))
 }
 
-py_initialize <- function(python, libpython, pythonhome, virtualenv_activate, python_major_version, python_minor_version, interactive, numpy_load_error) {
-    invisible(.Call(`_reticulate_py_initialize`, python, libpython, pythonhome, virtualenv_activate, python_major_version, python_minor_version, interactive, numpy_load_error))
+py_initialize <- function(python, libpython, pythonhome, virtualenv_activate, python_minor_version, interactive, numpy_load_error) {
+    invisible(.Call(`_reticulate_py_initialize`, python, libpython, pythonhome, virtualenv_activate, python_minor_version, interactive, numpy_load_error))
 }
 
 py_finalize <- function() {

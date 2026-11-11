@@ -33,16 +33,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// is_python3
-bool is_python3();
-RcppExport SEXP _reticulate_is_python3() {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    rcpp_result_gen = Rcpp::wrap(is_python3());
-    return rcpp_result_gen;
-END_RCPP
-}
 // was_python_initialized_by_reticulate
 bool was_python_initialized_by_reticulate();
 RcppExport SEXP _reticulate_was_python_initialized_by_reticulate() {
@@ -200,19 +190,18 @@ BEGIN_RCPP
 END_RCPP
 }
 // py_initialize
-void py_initialize(const std::string& python, const std::string& libpython, const std::string& pythonhome, const std::string& virtualenv_activate, int python_major_version, int python_minor_version, bool interactive, const std::string& numpy_load_error);
-RcppExport SEXP _reticulate_py_initialize(SEXP pythonSEXP, SEXP libpythonSEXP, SEXP pythonhomeSEXP, SEXP virtualenv_activateSEXP, SEXP python_major_versionSEXP, SEXP python_minor_versionSEXP, SEXP interactiveSEXP, SEXP numpy_load_errorSEXP) {
+void py_initialize(const std::string& python, const std::string& libpython, const std::string& pythonhome, const std::string& virtualenv_activate, int python_minor_version, bool interactive, const std::string& numpy_load_error);
+RcppExport SEXP _reticulate_py_initialize(SEXP pythonSEXP, SEXP libpythonSEXP, SEXP pythonhomeSEXP, SEXP virtualenv_activateSEXP, SEXP python_minor_versionSEXP, SEXP interactiveSEXP, SEXP numpy_load_errorSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const std::string& >::type python(pythonSEXP);
     Rcpp::traits::input_parameter< const std::string& >::type libpython(libpythonSEXP);
     Rcpp::traits::input_parameter< const std::string& >::type pythonhome(pythonhomeSEXP);
     Rcpp::traits::input_parameter< const std::string& >::type virtualenv_activate(virtualenv_activateSEXP);
-    Rcpp::traits::input_parameter< int >::type python_major_version(python_major_versionSEXP);
     Rcpp::traits::input_parameter< int >::type python_minor_version(python_minor_versionSEXP);
     Rcpp::traits::input_parameter< bool >::type interactive(interactiveSEXP);
     Rcpp::traits::input_parameter< const std::string& >::type numpy_load_error(numpy_load_errorSEXP);
-    py_initialize(python, libpython, pythonhome, virtualenv_activate, python_major_version, python_minor_version, interactive, numpy_load_error);
+    py_initialize(python, libpython, pythonhome, virtualenv_activate, python_minor_version, interactive, numpy_load_error);
     return R_NilValue;
 END_RCPP
 }
@@ -839,7 +828,6 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_reticulate_write_stdout", (DL_FUNC) &_reticulate_write_stdout, 1},
     {"_reticulate_write_stderr", (DL_FUNC) &_reticulate_write_stderr, 1},
-    {"_reticulate_is_python3", (DL_FUNC) &_reticulate_is_python3, 0},
     {"_reticulate_was_python_initialized_by_reticulate", (DL_FUNC) &_reticulate_was_python_initialized_by_reticulate, 0},
     {"_reticulate_py_is_null_xptr", (DL_FUNC) &_reticulate_py_is_null_xptr, 1},
     {"_reticulate_py_validate_xptr", (DL_FUNC) &_reticulate_py_validate_xptr, 1},
@@ -855,7 +843,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_reticulate_py_activate_virtualenv", (DL_FUNC) &_reticulate_py_activate_virtualenv, 1},
     {"_reticulate_main_process_python_info", (DL_FUNC) &_reticulate_main_process_python_info, 0},
     {"_reticulate_py_clear_error", (DL_FUNC) &_reticulate_py_clear_error, 0},
-    {"_reticulate_py_initialize", (DL_FUNC) &_reticulate_py_initialize, 8},
+    {"_reticulate_py_initialize", (DL_FUNC) &_reticulate_py_initialize, 7},
     {"_reticulate_py_finalize", (DL_FUNC) &_reticulate_py_finalize, 0},
     {"_reticulate_py_is_none", (DL_FUNC) &_reticulate_py_is_none, 1},
     {"_reticulate_py_compare_impl", (DL_FUNC) &_reticulate_py_compare_impl, 3},

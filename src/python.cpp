@@ -362,7 +362,7 @@ PyObject* as_python_str(const std::string& str) {
 }
 
 // helpers to narrow python array type to something convertable from R,
-// guaranteed to return NPY_BOOL, NPY_LONG, NPY_DOUBLE, NPY_CDOUBLE, or NPY_VOID
+// guaranteed to return NPY_BOOL, NPY_INT, NPY_DOUBLE, NPY_CDOUBLE, or NPY_VOID
 // or -1 if it's unable to return one of these types.
 int narrow_array_typenum(int typenum) {
 
@@ -377,7 +377,7 @@ int narrow_array_typenum(int typenum) {
   case NPY_SHORT:
   case NPY_USHORT:
   case NPY_INT:
-    typenum = NPY_LONG;
+    typenum = NPY_INT;
     break;
     // double
   case NPY_UINT:
@@ -429,10 +429,6 @@ npy_intp PyArray_ITEMSIZE(PyArrayObject* array) {
   default:
     return -1;
   }
-}
-
-int narrow_array_typenum(PyArrayObject* array) {
-  return narrow_array_typenum(PyArray_TYPE(array));
 }
 
 int narrow_array_typenum(PyArray_Descr* descr) {
@@ -1670,8 +1666,8 @@ SEXP py_to_r_cpp(PyObject* x, bool convert, bool simple) {
         break;
       }
 
-      case NPY_LONG: {
-        npy_long* pData = (npy_long*)PyArray_DATA(array);
+      case NPY_INT: {
+        int* pData = (int*)PyArray_DATA(array);
         rArray = Rf_allocArray(INTSXP, dimsVector);
         int* rArray_ptr = INTEGER(rArray);
         for (int i=0; i<len; i++)
@@ -1837,7 +1833,7 @@ SEXP py_to_r_cpp(PyObject* x, bool convert, bool simple) {
 
     PyArray_DescrPtr toDescr(PyArray_DescrFromType(typenum));
 
-    // convert to R type (guaranteed to by NPY_BOOL, NPY_LONG, or NPY_DOUBLE
+    // convert to R type (guaranteed to by NPY_BOOL, NPY_INT, or NPY_DOUBLE
     // as per the contract of narrow_arrow_typenum)
     switch(typenum) {
 
@@ -1848,9 +1844,9 @@ SEXP py_to_r_cpp(PyObject* x, bool convert, bool simple) {
       return LogicalVector::create(value);
     }
 
-    case NPY_LONG:
+    case NPY_INT:
     {
-      npy_long value;
+      int value;
       PyArray_CastScalarToCtype(x, (void*)&value, toDescr);
       return IntegerVector::create(value);
     }

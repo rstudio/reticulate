@@ -412,7 +412,6 @@ typedef struct tagPyArrayObject {
 
 
 typedef unsigned char npy_bool;
-typedef long npy_long;
 typedef double npy_double;
 typedef unsigned char npy_ubyte;
 // with numpy 2.0, direct field access of complex numbers is no longer valid.

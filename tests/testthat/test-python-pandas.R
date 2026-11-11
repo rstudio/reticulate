@@ -31,6 +31,50 @@ test_that("Pandas data frames with character columns can be roundtripped, #1910"
   expect_identical(after, before)
 })
 
+test_that("empty data.frames retain their columns and shape in pandas", {
+  skip_if_no_pandas()
+
+  # Empty index representations differ between pandas versions, so inspect
+  # the constructed frame directly rather than roundtripping its row names.
+  for (before in list(data.frame(), data.frame(z = integer()))) {
+    after <- r_to_py(before)
+    expect_identical(as.character(py_to_r(after$columns$tolist())), names(before))
+    expect_identical(dim(after), dim(before))
+  }
+})
+
+test_that("data.frame construction preserves column order and shape", {
+  skip_if_no_pandas()
+
+  frames <- list(
+    data.frame(z = 1L),
+    data.frame(z = 1:3, a = c("c", "b", "a"), row.names = c("x", "y", "z"))
+  )
+
+  for (before in frames) {
+    after <- py_to_r(r_to_py(before))
+    attr(after, "pandas.index") <- NULL
+    expect_identical(after, before)
+  }
+
+  before <- data.frame(z = 1:3, a = 4:6, z = 7:9, check.names = FALSE)
+  after <- py_to_r(r_to_py(before))
+  expect_identical(names(after), names(before))
+  expect_identical(dim(after), dim(before))
+})
+
+test_that("converted pandas data.frames can be modified independently", {
+  skip_if_no_pandas()
+
+  before <- data.frame(z = c(1, 2), a = c(3, 4))
+  snapshot <- unserialize(serialize(before, NULL))
+  after <- r_to_py(before)
+  py_set_item(after$iloc, tuple(0L, 0L), 99)
+
+  expect_identical(before, snapshot)
+  expect_identical(py_to_r(after$iloc[0L, 0L]), 99)
+})
+
 test_that("Ordered factors are preserved", {
   skip_if_no_pandas()
 

@@ -171,7 +171,7 @@ test_that("Time zones are respected if available", {
   base_stamp <- "20130102003020"
   timezones <- c(
     "America/Los_Angeles",
-    "CET",
+    "Europe/Brussels",
     "UTC",
     "Asia/Hong_Kong"
   )

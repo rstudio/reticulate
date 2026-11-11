@@ -3619,15 +3619,16 @@ SEXP py_call_impl(PyObjectRef x, List args = R_NilValue, List keywords = R_NilVa
 PyObjectRef py_dict_impl(const List& keys, const List& items, bool convert) {
   GILScope _gil;
 
-  PyObject* dict = PyDict_New();
+  PyObjectPtr dict(PyDict_New());
 
   for (R_xlen_t i = 0; i < keys.length(); i++) {
     PyObjectPtr key(r_to_py(keys.at(i), convert));
     PyObjectPtr val(r_to_py(items.at(i), convert));
-    PyDict_SetItem(dict, key, val);
+    if (PyDict_SetItem(dict, key, val))
+      throw PythonException(py_fetch_error());
   }
 
-  return py_ref(dict, convert);
+  return py_ref(dict.detach(), convert);
 
 }
 
@@ -3672,7 +3673,8 @@ void py_dict_set_item(PyObjectRef dict, RObject key, RObject val) {
 
   PyObjectPtr py_key(r_to_py(key, dict.convert()));
   PyObjectPtr py_val(r_to_py(val, dict.convert()));
-  PyDict_SetItem(dict_, py_key, py_val);
+  if (PyDict_SetItem(dict_, py_key, py_val))
+    throw PythonException(py_fetch_error());
 
 }
 

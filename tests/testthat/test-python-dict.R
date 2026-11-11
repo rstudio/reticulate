@@ -18,6 +18,20 @@ test_that("Python dictionaries can use python objects as keys", {
   expect_is(py_dict(list(key), list("foo")), "python.builtin.dict")
 })
 
+test_that("Dictionary insertion reports unhashable keys", {
+  skip_if_no_python()
+  key <- r_to_py(list(1L, 2L))
+
+  expect_error(py_dict(list(key), list(42L)),
+               "unhashable type: 'list'", class = "python.builtin.TypeError")
+  expect_identical(py_eval("1 + 1"), 2L)
+
+  d <- dict(valid = 1L)
+  expect_error(d[[key]] <- 42L,
+               "unhashable type: 'list'", class = "python.builtin.TypeError")
+  expect_identical(py_to_r(d), list(valid = 1L))
+})
+
 test_that("Python dictionaries have numeric keys", {
   skip_if_no_python()
   expect_error(dict(`42` = "foo"), NA)

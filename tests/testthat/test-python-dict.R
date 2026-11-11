@@ -121,6 +121,20 @@ mapping['keep'] = 3
   expect_length(main$mapping, 0L)
 })
 
+test_that("Dictionary conversion propagates key stringification errors", {
+  skip_if_no_python()
+  main <- py_run_string("
+class BadKey:
+    def __str__(self):
+        raise ValueError('key conversion failed')
+mapping = {BadKey(): 1}
+", local = TRUE, convert = FALSE)
+
+  expect_error(py_to_r(main$mapping), "key conversion failed",
+               class = "python.builtin.ValueError")
+  expect_identical(py_eval("1 + 1"), 2L)
+})
+
 test_that("py_to_r(dict) converts recursively, #1221", {
   skip_if_no_python()
   skip_if_no_numpy()

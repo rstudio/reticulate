@@ -1588,6 +1588,8 @@ SEXP py_to_r_cpp(PyObject* x, bool convert, bool simple) {
         names[idx] = as_utf8_r_string(key);
       } else {
         PyObjectPtr str(PyObject_Str(key));
+        if (str.is_null())
+          throw PythonException(py_fetch_error());
         names[idx] = as_utf8_r_string(str);
       }
       list[idx] = py_to_r(value, convert);

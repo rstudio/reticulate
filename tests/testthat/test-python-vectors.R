@@ -36,3 +36,16 @@ test_that("atomic vectors preserve scalar and list conversion", {
   }
 })
 
+test_that("Homogeneous Python lists convert to atomic vectors", {
+  skip_if_no_python()
+  expect_identical(py_eval("[0, -1, 2147483647]"), c(0L, -1L, 2147483647L))
+  expect_identical(py_eval("[0., -1.5, float('inf'), float('nan')]"),
+                   c(0, -1.5, Inf, NaN))
+  expect_identical(py_eval("[True, False, True]"), c(TRUE, FALSE, TRUE))
+  expect_identical(py_eval("[0j, 1+2j, -3j]"), c(0i, 1+2i, -3i))
+  expect_identical(py_eval("['', 'x', '\\u00fc']"), c("", "x", "\u00fc"))
+  expect_identical(py_eval("[]"), list())
+  expect_identical(py_eval("[1, 2.5, False, 3j, 'x']"),
+                   list(1L, 2.5, FALSE, 3i, "x"))
+})
+

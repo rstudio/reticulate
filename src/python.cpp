@@ -1519,17 +1519,17 @@ SEXP py_to_r_cpp(PyObject* x, bool convert, bool simple) {
     Py_ssize_t len = PyList_Size(x);
     int scalarType = scalar_list_type(x);
     if (scalarType == REALSXP) {
-      Rcpp::NumericVector vec(len);
+      Rcpp::NumericVector vec = no_init(len);
       for (Py_ssize_t i = 0; i<len; i++)
         vec[i] = PyFloat_AsDouble(PyList_GetItem(x, i));
       return vec;
     } else if (scalarType == INTSXP) {
-      Rcpp::IntegerVector vec(len);
+      Rcpp::IntegerVector vec = no_init(len);
       for (Py_ssize_t i = 0; i<len; i++)
         vec[i] = PyLong_AsLong(PyList_GetItem(x, i));
       return vec;
     } else if (scalarType == CPLXSXP) {
-      Rcpp::ComplexVector vec(len);
+      Rcpp::ComplexVector vec = no_init(len);
       for (Py_ssize_t i = 0; i<len; i++) {
         PyObject* item = PyList_GetItem(x, i);
         Rcomplex cplx;
@@ -1539,7 +1539,7 @@ SEXP py_to_r_cpp(PyObject* x, bool convert, bool simple) {
       }
       return vec;
     } else if (scalarType == LGLSXP) {
-      Rcpp::LogicalVector vec(len);
+      Rcpp::LogicalVector vec = no_init(len);
       for (Py_ssize_t i = 0; i<len; i++)
         vec[i] = PyList_GetItem(x, i) == Py_True;
       return vec;
@@ -1576,7 +1576,7 @@ SEXP py_to_r_cpp(PyObject* x, bool convert, bool simple) {
     // copy the dict and allocate
     PyObjectPtr dict(PyDict_Copy(x));
     Py_ssize_t size = PyDict_Size(dict);
-    std::vector<std::string> names(size);
+    Rcpp::CharacterVector names(size);
     Rcpp::List list(size);
 
     // iterate over dict
@@ -2454,22 +2454,11 @@ PythonCallResult actually_call_r_function(PyObject* args, PyObject* keywords) {
 
   bool convert = (bool)PyCapsule_GetContext(capsule);
 
-  // convert remainder of positional arguments to R list
-  PyObjectPtr funcArgs(PyTuple_GetSlice(args, 1, PyTuple_Size(args)));
-  List rArgs;
-  if (convert) {
-    rArgs = py_to_r(funcArgs, convert);
-  } else {
-    Py_ssize_t len = PyTuple_Size(funcArgs);
-    std::vector<PyObjectRef> values;
-    values.reserve(len);
-    for (Py_ssize_t index = 0; index<len; index++) {
-      PyObject* item = PyTuple_GetItem(funcArgs, index); // borrowed
-      Py_IncRef(item);
-      values.push_back(py_ref(item, convert));
-    }
-    rArgs = List(values.begin(), values.end());
-  }
+  // The first positional argument is the R function capsule.
+  Py_ssize_t nargs = PyTuple_Size(args) - 1;
+  List rArgs(nargs);
+  for (Py_ssize_t i = 0; i < nargs; i++)
+    rArgs[i] = py_to_r(PyTuple_GetItem(args, i + 1), convert);
 
   // get keyword arguments
   List rKeywords;
@@ -2481,25 +2470,19 @@ PythonCallResult actually_call_r_function(PyObject* args, PyObject* keywords) {
 
       PyObject *key, *value;
       Py_ssize_t pos = 0;
-      std::vector<PyObjectRef> values;
-      std::vector<std::string> names;
-
       Py_ssize_t size = PyDict_Size(keywords);
-      names.reserve(size);
-      values.reserve(size);
+      rKeywords = List(size);
+      CharacterVector names(size);
+      Py_ssize_t i = 0;
 
-      // NOTE: PyDict_Next uses borrowed references,
-      // so anything we return should be Py_IncRef'd
       while (PyDict_Next(keywords, &pos, &key, &value)) {
         PyObjectPtr str(PyObject_Str(key));
-        names.push_back(as_std_string(str));
-
-        Py_IncRef(value);
-        values.push_back(py_ref(value, convert));
+        names[i] = as_utf8_r_string(str);
+        rKeywords[i] = py_to_r(value, convert);
+        i++;
       }
 
-      rKeywords = List(values.begin(), values.end());
-      rKeywords.names() = Rcpp::wrap(names);
+      rKeywords.names() = names;
     }
 
   }
@@ -3580,19 +3563,18 @@ SEXP py_call_impl(PyObjectRef x, List args = R_NilValue, List keywords = R_NilVa
 
   // unnamed arguments
   PyObjectPtr pyArgs(PyTuple_New(args.length()));
-  if (args.length() > 0) {
-    for (R_xlen_t i = 0; i<args.size(); i++) {
-      PyObject* arg = r_to_py(args.at(i), convert);
-      // NOTE: reference to arg is "stolen" by the tuple
-      int res = PyTuple_SetItem(pyArgs, i, arg);
-      if (res != 0)
-        throw PythonException(py_fetch_error());
-    }
+  for (R_xlen_t i = 0; i<args.size(); i++) {
+    PyObject* arg = r_to_py(args.at(i), convert);
+    // NOTE: reference to arg is "stolen" by the tuple
+    int res = PyTuple_SetItem(pyArgs, i, arg);
+    if (res != 0)
+      throw PythonException(py_fetch_error());
   }
 
   // named arguments
-  PyObjectPtr pyKeywords(PyDict_New());
+  PyObjectPtr pyKeywords;
   if (keywords.length() > 0) {
+    pyKeywords.assign(PyDict_New());
     CharacterVector names = keywords.names();
     SEXP namesSEXP = names;
     for (R_xlen_t i = 0; i<keywords.length(); i++) {

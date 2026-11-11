@@ -100,6 +100,27 @@ test_that("ordered dictionaries can be converted", {
 
 })
 
+test_that("Dictionary conversion preserves names and a snapshot of entries", {
+  skip_if_no_python()
+
+  expect_identical(py_eval("{'\\u00fc\\U0001f40d': 1, 2: 3}"),
+                   setNames(list(1L, 3L), c("\u00fc\U0001f40d", "2")))
+
+  main <- py_run_string("
+class Key:
+    def __init__(self, mapping):
+        self.mapping = mapping
+    def __str__(self):
+        self.mapping.clear()
+        return 'key'
+mapping = {}
+mapping[Key(mapping)] = [1, 2]
+mapping['keep'] = 3
+", local = TRUE, convert = FALSE)
+  expect_identical(py_to_r(main$mapping), list(key = 1:2, keep = 3L))
+  expect_length(main$mapping, 0L)
+})
+
 test_that("py_to_r(dict) converts recursively, #1221", {
   skip_if_no_python()
   skip_if_no_numpy()

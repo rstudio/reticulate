@@ -21,6 +21,7 @@ using namespace Rcpp;
 
 #ifndef _WIN32
 #include <dlfcn.h>
+#include <pthread.h>
 #else
 #define WIN32_LEAN_AND_MEAN 1
 #include <windows.h>
@@ -60,7 +61,19 @@ SEXP r_func_py_to_r_wrapper;
 SEXP r_func_r_convert_dataframe_column;
 SEXP r_func_py_resolve_module_proxy;
 
-tthread::thread::id s_main_thread = 0;
+#ifdef _WIN32
+DWORD s_main_thread;
+#else
+pthread_t s_main_thread;
+#endif
+
+void initialize_main_thread() {
+#ifdef _WIN32
+  s_main_thread = GetCurrentThreadId();
+#else
+  s_main_thread = pthread_self();
+#endif
+}
 
 // [[Rcpp::init]]
 void reticulate_init(DllInfo *dll) {
@@ -86,12 +99,17 @@ void reticulate_init(DllInfo *dll) {
   r_func_r_convert_dataframe_column = reticulate_get_ns_var("r_convert_dataframe_column");
   r_func_py_resolve_module_proxy = reticulate_get_ns_var("py_resolve_module_proxy");
 
-  s_main_thread = tthread::this_thread::get_id();
+  initialize_main_thread();
 }
 
 inline
 bool is_main_thread() {
-  return s_main_thread == tthread::this_thread::get_id();
+  // Avoid TinyThread's mutex and map lookups for native thread IDs.
+#ifdef _WIN32
+  return s_main_thread == GetCurrentThreadId();
+#else
+  return pthread_equal(s_main_thread, pthread_self());
+#endif
 }
 
 // track whether this is an interactive session
@@ -3105,7 +3123,7 @@ void py_initialize(const std::string& python,
     orig_interrupt_handler = install_interrupt_handlers_();
   }
 
-  s_main_thread = tthread::this_thread::get_id();
+  initialize_main_thread();
   s_is_python_initialized = true;
   GILScope _gil;
 

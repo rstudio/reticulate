@@ -868,8 +868,8 @@ py_bool <- function(x) {
 #'
 #' @param str Single element character vector to convert
 #'
-#' @details R character vectors are converted to Python Unicode strings.
-#'   This function is equivalent to `r_to_py(str)`.
+#' @details This function was needed for Python 2 compatibility.
+#'   It is equivalent to `r_to_py(str)`.
 #'
 #' @export
 py_unicode <- function(str) {

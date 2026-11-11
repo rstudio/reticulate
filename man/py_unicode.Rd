@@ -13,6 +13,6 @@ py_unicode(str)
 Convert to Python Unicode Object
 }
 \details{
-R character vectors are converted to Python Unicode strings.
-This function is equivalent to \code{r_to_py(str)}.
+This function was needed for Python 2 compatibility.
+It is equivalent to \code{r_to_py(str)}.
 }

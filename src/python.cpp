@@ -4693,6 +4693,7 @@ SEXP py_iterate(PyObjectRef x, Function f, bool simplify = true) {
     throw PythonException(py_fetch_error());
 
   bool convert(x.convert());
+  int outType = simplify && convert ? NILSXP : VECSXP;
   // loop over it
   while (true) {
 
@@ -4709,50 +4710,32 @@ SEXP py_iterate(PyObjectRef x, Function f, bool simplify = true) {
 
     // get sexp (PyObjectRef or converted r obj)
     SEXP ret = py_to_r(item, convert);
-    list.push_back(f(ret));
-  }
+    RObject value = f(ret);
 
-  auto list_size = list.size();
-
-  if (list_size == 0) {
-    out = PROTECT(Rf_allocVector(VECSXP, 0));
-    goto done;
-  }
-
-  int outType;
-  if (simplify && convert)
-  {
-      // iterate over `list` to see if we have a common SEXP atomic type and length
-      outType = TYPEOF(list[0]);
-      switch (outType)
-      {
+    // Check each result while collecting, including the first one.
+    if (outType == NILSXP) {
+      switch (TYPEOF(value)) {
       case INTSXP:
       case REALSXP:
       case LGLSXP:
       case STRSXP:
       case CPLXSXP:
-          // iterate over list, see if all items are scalar atomics of the same type
-          // If not, break early and return a list
-          for (size_t i = 1; i < list_size; i++)
-          {
-              SEXP item = list[i];
-              if (TYPEOF(item) != outType ||
-                  Rf_isObject(item) ||
-                  Rf_length(item) != 1)
-              {
-                  outType = VECSXP;
-                  break;
-              }
-          }
-          break;
+        outType = TYPEOF(value);
+        break;
       default:
-          outType = VECSXP;
+        outType = VECSXP;
       }
-  }
-  else
-  {
+    }
+    if (outType != VECSXP &&
+        (TYPEOF(value) != outType || Rf_isObject(value) || Rf_xlength(value) != 1))
       outType = VECSXP;
+
+    list.push_back(value);
   }
+
+  auto list_size = list.size();
+  if (list_size == 0)
+    outType = VECSXP;
   // allocate an R object of type outType
   // copy over the list elements
   out = PROTECT(Rf_allocVector(outType, list_size));
@@ -4803,7 +4786,6 @@ SEXP py_iterate(PyObjectRef x, Function f, bool simplify = true) {
       Rcpp::stop("Internal error: unexpected type encountered in py_iterate");
   }
   }
-  done:
   UNPROTECT(1);
   return out;
 }

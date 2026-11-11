@@ -2,6 +2,10 @@
 
 ## reticulate (development version)
 
+- Removed legacy Python 2 compatibility code. Selecting a Python 2
+  interpreter now reports an error before initialization
+  ([\#1232](https://github.com/rstudio/reticulate/issues/1232)).
+
 - [`virtualenv_starter()`](https://rstudio.github.io/reticulate/dev/reference/virtualenv-tools.md)
   no longer ignores absolute paths supplied through
   `RETICULATE_VIRTUALENV_STARTER` or the `reticulate.virtualenv.starter`

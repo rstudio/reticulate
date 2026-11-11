@@ -54,9 +54,7 @@ via the `$` operator, or via
 ## Python Built-ins
 
 Python's built-in functions (e.g. `len()`) can be accessed via Python's
-built-in module. Because the name of this module has changed between
-Python 2 and Python 3, we provide the function `import_builtins()` to
-abstract over that name change.
+built-in module, which can be imported with `import_builtins()`.
 
 ## Delay Load
 

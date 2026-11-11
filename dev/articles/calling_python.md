@@ -25,8 +25,8 @@ Functions and other data within Python modules and classes can be
 accessed via the `$` operator (analogous to the way you would interact
 with an R list, environment, or reference class).
 
-The **reticulate** package is compatible with all versions of Python \>=
-2.7. Integration with NumPy is optional and requires NumPy \>= 1.6.
+The **reticulate** package requires Python 3 or newer. Integration with
+NumPy is optional and requires NumPy \>= 1.6.
 
 ## Python Version
 

@@ -1,10 +1,5 @@
 remap_output_streams <- function() {
-  # force remapping of output streams (required with Windows + Python 2
-  # as otherwise output from Python is lost)
-  force <- is_windows() && !is_python3()
-  remap <- Sys.getenv("RETICULATE_REMAP_OUTPUT_STREAMS", unset = NA)
-  if (!is.na(remap))
-    force <- identical(remap, "1")
+  force <- identical(Sys.getenv("RETICULATE_REMAP_OUTPUT_STREAMS"), "1")
 
   # if stdout is NULL in Python we want to force remapping too.
   if (!force) {

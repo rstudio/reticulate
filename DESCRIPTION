@@ -26,12 +26,12 @@ Authors@R: c(
 Description: Interface to 'Python' modules, classes, and functions. When calling
     into 'Python', R data types are automatically converted to their equivalent 'Python'
     types. When values are returned from 'Python' to R they are converted back to R
-    types. Compatible with all versions of 'Python' >= 2.7.
+    types. Requires 'Python' 3 or newer.
 License: Apache License 2.0
 URL: https://rstudio.github.io/reticulate/,
     https://github.com/rstudio/reticulate
 BugReports: https://github.com/rstudio/reticulate/issues
-SystemRequirements: Python (>= 2.7.0)
+SystemRequirements: Python (>= 3.0.0)
 Encoding: UTF-8
 Depends:
     R (>= 3.5)

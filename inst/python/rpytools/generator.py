@@ -1,13 +1,6 @@
 import rpycall
 import threading
-
-import sys
-
-is_py2 = sys.version[0] == "2"
-if is_py2:
-    import Queue as queue
-else:
-    import queue as queue
+import queue
 
 _completed_sentinel = object()
 

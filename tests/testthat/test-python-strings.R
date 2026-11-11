@@ -1,5 +1,13 @@
 context("strings")
 
+test_that("py_unicode preserves Unicode strings", {
+  skip_if_no_python()
+  value <- "\u00fc\U0001f40d"
+  converted <- py_unicode(value)
+  expect_s3_class(converted, "python.builtin.str")
+  expect_identical(py_to_r(converted), value)
+})
+
 test_that("Unicode strings are handled by py_str", {
   skip_if_no_python()
   skip_on_cran()

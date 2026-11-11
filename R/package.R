@@ -134,6 +134,9 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
   # check for basic python pre-requisites
   if (is.null(config)) {
     python_not_found("Installation of Python not found, Python bindings not loaded.")
+  } else if (config$version < "3") {
+    stop(sprintf("Python 3 or newer is required; found Python %s.",
+                 config$version), call. = FALSE)
   } else if (!is_windows() && is.null(config$libpython)) {
     python_not_found("Python shared library not found, Python bindings not loaded.")
   } else if (is_incompatible_arch(config)) {

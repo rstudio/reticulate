@@ -1,10 +1,6 @@
 import sys
 import threading
-
-if sys.version_info.major < 3:
-    import __builtin__ as builtins
-else:
-    import builtins
+import builtins
 
 
 # The R callback to be run. Initialized in the 'initialize()' method.

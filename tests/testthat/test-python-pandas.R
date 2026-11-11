@@ -87,6 +87,35 @@ test_that("Ordered factors are preserved", {
 
 })
 
+test_that("factor codes and levels survive pandas conversion", {
+  skip_if_no_pandas()
+
+  factors <- list(
+    factor(character()),
+    factor(NA_character_),
+    factor("b", levels = c("unused", "b", "a")),
+    ordered(c("b", NA, "a", "b"), levels = c("unused", "b", "a")),
+    factor(c("level300", NA), levels = paste0("level", seq_len(300)))
+  )
+
+  for (column in factors) {
+    before <- data.frame(x = column)
+    snapshot <- unserialize(serialize(before, NULL))
+    converted <- r_to_py(before)
+
+    expect_identical(
+      as.character(py_to_r(converted$x$cat$categories$tolist())),
+      levels(column)
+    )
+    expect_identical(py_to_r(converted$x$cat$ordered), is.ordered(column))
+
+    after <- py_to_r(converted)
+    attr(after, "pandas.index") <- NULL
+    expect_identical(after, before)
+    expect_identical(before, snapshot)
+  }
+})
+
 test_that("Generic methods for pandas objects produce correct results", {
   skip_if_no_pandas()
 

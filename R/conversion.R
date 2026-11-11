@@ -597,9 +597,14 @@ r_convert_dataframe_column <- function(column, convert) {
 
   pd <- import("pandas", convert = FALSE)
   if (is.factor(column)) {
-    pd$Categorical(as.list(as.character(column)),
-                   categories = as.list(levels(column)),
-                   ordered = inherits(column, "ordered"))
+    # Both representations store category codes; pandas uses -1 for missing.
+    codes <- as.integer(column) - 1L
+    codes[is.na(codes)] <- -1L
+    pd$Categorical$from_codes(
+      np_array(codes),
+      categories = as.list(levels(column)),
+      ordered = inherits(column, "ordered")
+    )
   } else if (is.numeric(column) || is.character(column)) {
     np_array(column)
   } else if (inherits(column, "POSIXt")) {

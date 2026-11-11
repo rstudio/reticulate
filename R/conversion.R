@@ -257,8 +257,8 @@ r_to_py.data.frame <- function(x, convert = FALSE) {
   # manually convert each column to associated Python vector type
   columns <- r_convert_dataframe(x, convert = convert)
 
-  # generate DataFrame from dictionary
-  pdf <- pd$DataFrame$from_dict(columns)
+  # preserve column order without reindexing and copying the completed frame
+  pdf <- pd$DataFrame(columns, columns = as.list(names(x)))
 
   # copy over row names if they exist
   rni <- .row_names_info(x, type = 0L)
@@ -269,10 +269,6 @@ r_to_py.data.frame <- function(x, convert = FALSE) {
       rni <- as.list(rni)
     pdf$index <- rni
   }
-
-  # re-order based on original columns
-  if (length(x) > 1)
-    pdf <- pdf$reindex(columns = names(x))
 
   pdf
 

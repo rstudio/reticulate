@@ -7,19 +7,25 @@ test_that("factor conversion avoids expanding category labels", {
   skip_if(package_version(py_to_r(np$`__version__`)) < "1.13")
   tracemalloc <- import("tracemalloc", convert = FALSE)
   skip_if(py_to_r(tracemalloc$is_tracing()))
+  pd <- import("pandas", convert = FALSE)
+
+  peak_allocations <- function(expr) {
+    tracemalloc$start()
+    on.exit(tracemalloc$stop())
+    force(expr)
+    py_to_r(tracemalloc$get_traced_memory())[[2L]]
+  }
 
   n <- 100000L
   before <- data.frame(x = factor(rep(c("a", "b", NA), length.out = n)))
-  invisible(r_to_py(head(before)))
-  tracemalloc$start()
-  on.exit(tracemalloc$stop(), add = TRUE)
-  converted <- r_to_py(before)
-  peak <- py_to_r(tracemalloc$get_traced_memory())[[2L]]
-  tracemalloc$stop()
+  columns <- dict(x = r_to_py(before)$x$values)
+  constructor_peak <- peak_allocations(pd$DataFrame(columns, columns = list("x")))
+  peak <- peak_allocations(converted <- r_to_py(before))
 
   expect_equal(py_to_r(converted$shape[[0L]]), n)
-  # Allow pandas temporaries and metadata around the one-byte category codes.
-  expect_lt(peak, n * 10)
+  # pandas versions allocate different temporaries during frame construction.
+  # Allow ten bytes per row for conversion beyond that shared overhead.
+  expect_lt(peak - constructor_peak, n * 10)
 })
 
 test_that("large categorical code buffers remain independent of R", {

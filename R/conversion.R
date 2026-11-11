@@ -600,11 +600,16 @@ r_convert_dataframe_column <- function(column, convert) {
     # Both representations store category codes; pandas uses -1 for missing.
     codes <- as.integer(column) - 1L
     codes[is.na(codes)] <- -1L
-    pd$Categorical$from_codes(
+    categorical <- pd$Categorical$from_codes(
       np_array(codes),
       categories = as.list(levels(column)),
       ordered = inherits(column, "ordered")
     )
+    # Older pandas keeps the categorical's potentially read-only code buffer
+    # when constructing a DataFrame. pandas 1.3 and newer already copy it.
+    if (numeric_version(clean_version(as_r_value(pd$`__version__`))) < "1.3")
+      categorical <- categorical$copy()
+    categorical
   } else if (is.numeric(column) || is.character(column)) {
     np_array(column)
   } else if (inherits(column, "POSIXt")) {

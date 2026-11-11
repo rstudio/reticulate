@@ -2,6 +2,20 @@
 
 ## reticulate (development version)
 
+- [`r_to_py()`](https://rstudio.github.io/reticulate/dev/reference/r-py-conversion.md)
+  converts factor columns to pandas directly from their integer codes,
+  reducing conversion time and temporary allocations.
+
+- [`r_to_py()`](https://rstudio.github.io/reticulate/dev/reference/r-py-conversion.md)
+  avoids a redundant copy of data-frame columns when pandas
+  copy-on-write is disabled.
+
+- [`py_to_r()`](https://rstudio.github.io/reticulate/dev/reference/r-py-conversion.md)
+  uses less temporary memory when converting compatible NumPy arrays.
+
+- Completion help now closes the parentheses around empty and large
+  sequence defaults in Python function signatures.
+
 - Removed legacy Python 2 compatibility code. Selecting a Python 2
   interpreter now reports an error before initialization
   ([\#1232](https://github.com/rstudio/reticulate/issues/1232)).

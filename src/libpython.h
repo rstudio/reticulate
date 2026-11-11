@@ -551,7 +551,7 @@ LIBPYTHON_EXTERN unsigned int PyArray_RUNTIME_VERSION;
 // Confirmed that the PyArray_API indexes we use did not change between Numpy 1.x and 2.0.
 // If NPY_VERSION changes again, confirm that PyArray_API indexes are still valid.
 // https://github.com/numpy/numpy/blob/main/numpy/_core/code_generators/numpy_api.py
-// Current indexes in use: 0, 2, 10, 45, 49, 57, 63, 93, 158, 211, 282
+// Current indexes in use: 0, 2, 10, 45, 49, 57, 63, 69, 93, 158, 211, 282
 // update with: $ rg 'PyArray_API\['
 #define NPY_VERSION_1 0x01000009
 #define NPY_VERSION_2 0x02000000
@@ -572,6 +572,10 @@ LIBPYTHON_EXTERN unsigned int PyArray_RUNTIME_VERSION;
 #define PyArray_CastToType                                \
 (*(PyObject * (*)(PyArrayObject *, PyArray_Descr *, int)) \
    PyArray_API[49])
+
+#define PyArray_FromAny                                                \
+ (*(PyObject * (*)(PyObject *, PyArray_Descr *, int, int, int, PyObject *)) \
+    PyArray_API[69])
 
 #define PyArray_SetBaseObject             \
  (*(int (*)(PyArrayObject *, PyObject *)) \
@@ -654,6 +658,7 @@ bool import_numpy_api(std::string* pError);
 #define NPY_ARRAY_C_CONTIGUOUS    0x0001
 #define NPY_ARRAY_F_CONTIGUOUS    0x0002
 #define NPY_ARRAY_OWNDATA         0x0004
+#define NPY_ARRAY_FORCECAST       0x0010
 #define NPY_ARRAY_ALIGNED         0x0100
 #define NPY_ARRAY_FARRAY_RO    (NPY_ARRAY_F_CONTIGUOUS | NPY_ARRAY_ALIGNED)
 #define NPY_ARRAY_CARRAY_RO    (NPY_ARRAY_C_CONTIGUOUS | NPY_ARRAY_ALIGNED)

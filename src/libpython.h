@@ -255,7 +255,6 @@ LIBPYTHON_EXTERN Py_ssize_t (*PyTuple_Size)(PyObject *);
 LIBPYTHON_EXTERN PyObject* (*PyTuple_GetItem)(PyObject *, Py_ssize_t);
 LIBPYTHON_EXTERN PyObject* (*PyTuple_New)(Py_ssize_t size);
 LIBPYTHON_EXTERN int (*PyTuple_SetItem)(PyObject *, Py_ssize_t, PyObject *);
-LIBPYTHON_EXTERN PyObject* (*PyTuple_GetSlice)(PyObject *, Py_ssize_t, Py_ssize_t);
 
 LIBPYTHON_EXTERN PyObject* (*PyList_New)(Py_ssize_t size);
 LIBPYTHON_EXTERN Py_ssize_t (*PyList_Size)(PyObject *);

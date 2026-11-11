@@ -103,8 +103,11 @@ test_that("ordered dictionaries can be converted", {
 test_that("Dictionary conversion preserves names and a snapshot of entries", {
   skip_if_no_python()
 
-  expect_identical(py_eval("{'\\u00fc\\U0001f40d': 1, 2: 3}"),
+  named <- py_eval("{'\\u00fc\\U0001f40d': 1, 2: 3}")
+  expect_identical(named,
                    setNames(list(1L, 3L), c("\u00fc\U0001f40d", "2")))
+  expect_identical(Encoding(names(named)), c("unknown", "unknown"))
+  expect_identical(py_eval("{'a\\x00b': 1}"), list(a = 1L))
 
   main <- py_run_string("
 class Key:

@@ -1585,12 +1585,12 @@ SEXP py_to_r_cpp(PyObject* x, bool convert, bool simple) {
     Py_ssize_t idx = 0;
     while (PyDict_Next(dict, &pos, &key, &value)) {
       if (is_python_str(key)) {
-        names[idx] = as_utf8_r_string(key);
+        names[idx] = as_std_string(key);
       } else {
         PyObjectPtr str(PyObject_Str(key));
         if (str.is_null())
           throw PythonException(py_fetch_error());
-        names[idx] = as_utf8_r_string(str);
+        names[idx] = as_std_string(str);
       }
       list[idx] = py_to_r(value, convert);
       idx++;
@@ -2479,7 +2479,7 @@ PythonCallResult actually_call_r_function(PyObject* args, PyObject* keywords) {
 
       while (PyDict_Next(keywords, &pos, &key, &value)) {
         PyObjectPtr str(PyObject_Str(key));
-        names[i] = as_utf8_r_string(str);
+        names[i] = as_std_string(str);
         rKeywords[i] = py_to_r(value, convert);
         i++;
       }

@@ -1,5 +1,26 @@
 context("pandas")
 
+test_that("pandas factor conversion allocates one R integer buffer", {
+  skip_if_no_pandas()
+  skip_if_not(capabilities("profmem"))
+  pd <- import("pandas", convert = FALSE)
+  n <- 100000L
+  x <- pd$DataFrame(dict(x = pd$Categorical(rep(c("a", "b"), n / 2L))))
+  invisible(py_to_r(x))
+
+  path <- tempfile()
+  on.exit(unlink(path), add = TRUE)
+  Rprofmem(path)
+  on.exit(Rprofmem(NULL), add = TRUE)
+  converted <- py_to_r(x)
+  Rprofmem(NULL)
+  sizes <- suppressWarnings(as.numeric(sub(" .*", "", readLines(path))))
+
+  expect_identical(converted$x, factor(rep(c("a", "b"), n / 2L)))
+  # The result needs four bytes per code. Allow overhead without room for a copy.
+  expect_lt(sum(sizes, na.rm = TRUE), n * 6)
+})
+
 test_that("factor conversion avoids expanding category labels", {
   skip_if_no_pandas()
   skip_if_no_numpy()

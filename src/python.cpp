@@ -4036,7 +4036,7 @@ SEXP py_convert_pandas_series(PyObjectRef series_) {
     PyObjectPtr cat(PyObject_GetAttrString(series, "cat"));
     PyObjectPtr codes(PyObject_GetAttrString(cat, "codes"));
     PyObjectPtr code_values(PyObject_GetAttrString(codes, "values"));
-    RObject R_values = py_to_r(code_values, true);
+    IntegerVector factor = py_to_r(code_values, true);
 
     // get levels and convert to R
     PyObjectPtr categories(PyObject_GetAttrString(dtype, "categories"));
@@ -4047,17 +4047,13 @@ SEXP py_convert_pandas_series(PyObjectRef series_) {
     PyObjectPtr ordered(PyObject_GetAttrString(dtype, "ordered"));
 
 
-    // populate integer vector to hold factor values
-    // note that we need to convert 0->1 indexing, and handle NAs
-    int* codes_int = INTEGER(R_values);
-    int n = Rf_xlength(R_values);
-
-    // values need to start at 1
-    IntegerVector factor(n);
-    for (int i = 0; i < n; ++i) {
+    // Conversion already copied the codes into R-owned storage. Reindex in place.
+    int* codes_int = INTEGER(factor);
+    for (R_xlen_t i = 0, n = factor.size(); i < n; ++i) {
       int code = codes_int[i];
-      factor[i] = code == -1 ? NA_INTEGER : code + 1;
+      codes_int[i] = code == -1 ? NA_INTEGER : code + 1;
     }
+    factor.attr("dim") = R_NilValue;
 
     // populate character vector to hold levels
     CharacterVector factor_levels(R_levels);

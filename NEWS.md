@@ -1,5 +1,8 @@
 # reticulate (development version)
 
+- `r_to_py()` avoids a redundant copy of data-frame columns when pandas
+  copy-on-write is disabled.
+
 - `py_to_r()` uses less temporary memory when converting compatible NumPy arrays.
 
 - Completion help now closes the parentheses around empty and large sequence

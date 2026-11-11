@@ -9,7 +9,7 @@
 R interface to Python modules, classes, and functions. When calling into
 Python R data types are automatically converted to their equivalent Python
 types. When values are returned from Python to R they are converted back to R
-types. The reticulate package is compatible with all versions of Python >= 3.6.
+types. The reticulate package requires Python 3 or newer.
 Integration with NumPy requires NumPy version 1.6 or higher.
 }
 \seealso{

@@ -1,11 +1,5 @@
-# NOTE: indirection required here for Python 2.7 support
-# TypeError: unicode argument expected, got 'str'
 import sys
-
-if sys.version_info < (3, 0):
-    from io import BytesIO as StringIO
-else:
-    from io import StringIO
+from io import StringIO
 
 
 def _setStream(handler, stream):

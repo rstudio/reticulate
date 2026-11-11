@@ -1,14 +1,4 @@
-import sys
-import types
 import inspect
-
-
-def isstring(s):
-    # if we use Python 3
-    if sys.version_info[0] >= 3:
-        return isinstance(s, str)
-    # we use Python 2
-    return isinstance(s, basestring)
 
 
 def normalize_func(func):
@@ -38,10 +28,7 @@ def get_property_doc(target, prop):
 
 def get_argspec(func):
     try:
-        if sys.version_info[0] >= 3:
-            return inspect.getfullargspec(func)
-        else:
-            return inspect.getargspec(func)
+        return inspect.getfullargspec(func)
     except TypeError:
         return None
 
@@ -70,7 +57,7 @@ def get_r_representation(default):
                 arg_value = "TRUE"
             else:
                 arg_value = "FALSE"
-        elif isstring(default):
+        elif isinstance(default, str):
             arg_value = '"%s"' % default
         elif isinstance(default, int):
             arg_value = "%rL" % default
@@ -131,14 +118,6 @@ def generate_signature_for_function(func):
             continue
         args_list.append(arg)
 
-    if (
-        argspec.varargs == "args"
-        and hasattr(argspec, "keywords")
-        and argspec.keywords == "kwds"
-    ):
-        original_func = func.__closure__[0].cell_contents
-        return generate_signature_for_function(original_func)
-
     if argspec.defaults:
         for arg, default in zip(
             argspec.args[first_arg_with_default:], argspec.defaults
@@ -146,7 +125,5 @@ def generate_signature_for_function(func):
             arg_value = get_r_representation(default)
             args_list.append("%s = %s" % (arg, arg_value))
     if argspec.varargs:
-        args_list.append("...")
-    if hasattr(argspec, "keywords") and argspec.keywords:
         args_list.append("...")
     return "(" + ", ".join(args_list) + ")"

@@ -44,9 +44,7 @@ Import the specified Python module, making it available for use from \R.
 
 
 Python's built-in functions (e.g. \code{len()}) can be accessed via Python's
-built-in module. Because the name of this module has changed between Python 2
-and Python 3, we provide the function \code{import_builtins()} to abstract over
-that name change.
+built-in module, which can be imported with \code{import_builtins()}.
 }
 
 \section{Delay Load}{

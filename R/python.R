@@ -868,21 +868,12 @@ py_bool <- function(x) {
 #'
 #' @param str Single element character vector to convert
 #'
-#' @details By default R character vectors are converted to Python strings.
-#'   In Python 3 these values are unicode objects however in Python 2
-#'   they are 8-bit string objects. This function enables you to
-#'   obtain a Python unicode object from an R character vector
-#'   when running under Python 2 (under Python 3 a standard Python
-#'   string object is returned).
+#' @details R character vectors are converted to Python Unicode strings.
+#'   This function is equivalent to `r_to_py(str)`.
 #'
 #' @export
 py_unicode <- function(str) {
-  if (is_python3()) {
-    r_to_py(str)
-  } else {
-    py <- import_builtins()
-    py_call(py_get_attr(py, "unicode"), str)
-  }
+  r_to_py(str)
 }
 
 
@@ -1558,13 +1549,12 @@ py_inject_hooks <- function() {
       readline(prompt)
     }
 
-    name <- if (is_python3()) "input" else "raw_input"
-    .globals$og_input_builtin <- builtins[[name]]
-    builtins[[name]] <- input
+    .globals$og_input_builtin <- builtins$input
+    builtins$input <- input
   }
 
   # register module import callback
-  useImportHook <- getOption("reticulate.useImportHook", default = is_python3())
+  useImportHook <- getOption("reticulate.useImportHook", default = TRUE)
   if (useImportHook) {
     loader <- import("rpytools.loader", convert = TRUE)
     loader$initialize(py_module_onload)

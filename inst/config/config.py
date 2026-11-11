@@ -2,6 +2,8 @@ import platform
 import sys
 import os
 
+# Discovery also inspects unsupported interpreters so initialization can report
+# the Python version requirement before loading their shared libraries.
 # The 'sysconfig' module is only available with Python 2.7 and newer, but
 # an equivalent module in 'distutils' is available for Python 2.6.
 if sys.version_info < (2, 7):

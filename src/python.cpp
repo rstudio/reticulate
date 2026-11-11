@@ -2237,7 +2237,7 @@ PyObject* r_to_py(RObject x, bool convert) {
 
 
 template <typename Convert>
-PyObject* r_vector_to_py(R_xlen_t length, const Convert& convert) {
+PyObject* r_vector_to_py(R_xlen_t length, Convert convert) {
   if (length == 1)
     return convert(0);
 

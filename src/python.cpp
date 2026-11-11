@@ -1622,10 +1622,18 @@ SEXP py_to_r_cpp(PyObject* x, bool convert, bool simple) {
       array = (PyArrayObject*) array2;
     }
 
-    // cast it to a fortran array (PyArray_CastToType steals the descr)
-    // (note that we will decref the copied array below)
+    // Reuse compatible Fortran arrays; only the final R array needs its own
+    // buffer. Both conversion functions steal the descriptor.
     PyArray_Descr* descr = PyArray_DescrFromType(typenum);
-    array = (PyArrayObject*) PyArray_CastToType(array, descr, NPY_ARRAY_FARRAY);
+    if (typenum == NPY_OBJECT) {
+      // Custom py_to_r() methods can mutate the source array while its
+      // elements are being converted. Keep a snapshot of the object refs.
+      array = (PyArrayObject*) PyArray_CastToType(array, descr, NPY_ARRAY_FARRAY);
+    } else {
+      array = (PyArrayObject*) PyArray_FromAny(
+        (PyObject*) array, descr, 0, 0,
+        NPY_ARRAY_FARRAY_RO | NPY_ARRAY_FORCECAST, NULL);
+    }
     if (array == NULL)
       throw PythonException(py_fetch_error());
 

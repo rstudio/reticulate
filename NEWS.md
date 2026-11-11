@@ -1,5 +1,7 @@
 # reticulate (development version)
 
+- `py_to_r()` uses less temporary memory when converting compatible NumPy arrays.
+
 - Completion help now closes the parentheses around empty and large sequence
   defaults in Python function signatures.
 

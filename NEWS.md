@@ -1,5 +1,8 @@
 # reticulate (development version)
 
+- `r_to_py()` converts factor columns to pandas directly from their integer codes,
+  reducing conversion time and temporary allocations.
+
 - `r_to_py()` avoids a redundant copy of data-frame columns when pandas
   copy-on-write is disabled.
 

@@ -2,6 +2,12 @@
 
 ## reticulate (development version)
 
+- R callbacks invoked by Python background threads now return interrupts
+  and `SystemExit` to the requesting thread. Callback scheduling no
+  longer blocks Python from draining a full pending-call queue, and
+  event polling retries when its queue submission fails
+  ([\#1954](https://github.com/rstudio/reticulate/issues/1954)).
+
 - Fixed a reference-counting error that could crash Python 3.11 and
   earlier after repeated data-frame conversions with
   `options(reticulate.pandas_use_nullable_dtypes = TRUE)`

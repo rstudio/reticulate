@@ -2,6 +2,21 @@
 
 ## reticulate (development version)
 
+- Native conversion uses fewer temporary buffers for NumPy integer
+  arrays, pandas categorical and datetime columns, dictionaries, and R
+  callbacks
+  ([\#1950](https://github.com/rstudio/reticulate/issues/1950)).
+
+- [`iterate()`](https://rstudio.github.io/reticulate/dev/reference/iterate.md)
+  preserves an empty, non-scalar, or classed first result when
+  simplifying the collected values
+  ([\#1950](https://github.com/rstudio/reticulate/issues/1950)).
+
+- Python dictionary insertion errors are reported at the failing
+  operation. Converting a dictionary whose key raises from `__str__()`
+  now reports the Python error instead of crashing
+  ([\#1950](https://github.com/rstudio/reticulate/issues/1950)).
+
 - [`r_to_py()`](https://rstudio.github.io/reticulate/dev/reference/r-py-conversion.md)
   converts factor columns to pandas directly from their integer codes,
   reducing conversion time and temporary allocations.

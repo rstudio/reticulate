@@ -46,7 +46,10 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="reticulate-development-version">reticulate (development version)<a class="anchor" aria-label="anchor" href="#reticulate-development-version"></a></h2>
-<ul><li><p><code><a href="../reference/r-py-conversion.html">r_to_py()</a></code> converts factor columns to pandas directly from their integer codes, reducing conversion time and temporary allocations.</p></li>
+<ul><li><p>Native conversion uses fewer temporary buffers for NumPy integer arrays, pandas categorical and datetime columns, dictionaries, and R callbacks (<a href="https://github.com/rstudio/reticulate/issues/1950" class="external-link">#1950</a>).</p></li>
+<li><p><code><a href="../reference/iterate.html">iterate()</a></code> preserves an empty, non-scalar, or classed first result when simplifying the collected values (<a href="https://github.com/rstudio/reticulate/issues/1950" class="external-link">#1950</a>).</p></li>
+<li><p>Python dictionary insertion errors are reported at the failing operation. Converting a dictionary whose key raises from <code>__str__()</code> now reports the Python error instead of crashing (<a href="https://github.com/rstudio/reticulate/issues/1950" class="external-link">#1950</a>).</p></li>
+<li><p><code><a href="../reference/r-py-conversion.html">r_to_py()</a></code> converts factor columns to pandas directly from their integer codes, reducing conversion time and temporary allocations.</p></li>
 <li><p><code><a href="../reference/r-py-conversion.html">r_to_py()</a></code> avoids a redundant copy of data-frame columns when pandas copy-on-write is disabled.</p></li>
 <li><p><code><a href="../reference/r-py-conversion.html">py_to_r()</a></code> uses less temporary memory when converting compatible NumPy arrays.</p></li>
 <li><p>Completion help now closes the parentheses around empty and large sequence defaults in Python function signatures.</p></li>

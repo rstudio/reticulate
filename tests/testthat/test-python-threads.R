@@ -89,3 +89,69 @@ except Exception as e: set_val(e.args[0])
   expect_equal(val, "foo-bar-baz")
 
 })
+
+
+for (kind in c("value", "RuntimeError", "KeyboardInterrupt", "SystemExit")) {
+  test_that(paste("Background R callbacks deliver", kind, "to their caller"), {
+    skip_on_cran()
+    result <- callr::r(function(python, kind) {
+      Sys.setenv(RETICULATE_PYTHON = python)
+      library(reticulate)
+      main <- import_main()
+
+      main$callback <- switch(kind,
+        value = function() 42L,
+        RuntimeError = function() stop("callback failed"),
+        KeyboardInterrupt = function() rlang::interrupt(),
+        SystemExit = function() stop(import_builtins()$SystemExit("cancelled"))
+      )
+      main$success <- function() 42L
+
+      # Keep executing Python on the main thread so pending R calls can run.
+      # The subprocess timeout also contains a regression that strands a worker.
+      py_run_string("
+import threading
+
+outcome = None
+done = threading.Event()
+
+def worker() -> None:
+    global outcome
+    try:
+        outcome = ['value', callback()]
+    except BaseException as exc:
+        outcome = [type(exc).__name__, str(exc)]
+    finally:
+        done.set()
+
+thread = threading.Thread(target=worker, daemon=True)
+thread.start()
+while not done.wait(0.01):
+    pass
+thread.join()
+
+# A cancelled callback must not prevent the next callback from completing.
+callback = success
+done.clear()
+first_outcome = outcome
+thread = threading.Thread(target=worker, daemon=True)
+thread.start()
+while not done.wait(0.01):
+    pass
+thread.join()
+
+assert outcome == ['value', 42]
+")
+      main$first_outcome
+    }, args = list(python = py_exe(), kind = kind), timeout = 15)
+
+    expect_identical(result[[1]], kind)
+    expected <- switch(kind,
+      value = 42L,
+      RuntimeError = "callback failed",
+      KeyboardInterrupt = "",
+      SystemExit = "cancelled"
+    )
+    expect_identical(result[[2]], expected)
+  })
+}

@@ -2563,6 +2563,8 @@ extern "C" PyObject* call_r_function(PyObject *self, PyObject* args, PyObject* k
     }();
 
     PyObjectPtr res_(PyObject_Call(safe_call_r_function_on_main_thread, args, keywords));
+    if (res_.is_null())
+      return NULL;
 
     PyObject *exception = PyTuple_GetItem(res_, 1);
     if (exception == Py_None) { // No Exception raised
@@ -2702,9 +2704,11 @@ extern "C" PyObject* schedule_python_function_on_main_thread(
     if (Py_AddPendingCall(call_python_function, call) == 0)
       break;
 
-    // otherwise sleep for wait_ms
-
-    tthread::this_thread::sleep_for(tthread::chrono::milliseconds(wait_ms));
+    // Let the main thread acquire the GIL and drain the pending-call queue.
+    {
+      AllowPyThreadsScope allow_threads;
+      tthread::this_thread::sleep_for(tthread::chrono::milliseconds(wait_ms));
+    }
 
     // increment total wait time and print a warning every 60 seconds
     waited_ms += wait_ms;
@@ -4271,6 +4275,7 @@ PyObject* r_to_py_pandas_nullable_series (const RObject& column, const bool conv
   PyObjectPtr args(PyTuple_New(3));
   PyTuple_SetItem(args, 0, (PyObject*)r_to_py_numpy(column, convert)); // value
   PyTuple_SetItem(args, 1, (PyObject*)na_mask(column));                // mask
+  Py_IncRef(Py_False); // PyTuple_SetItem steals a reference.
   PyTuple_SetItem(args, 2, Py_False);                                  // copy=False
 
   PyObject* pd_col(PyObject_Call(constructor, args, NULL));

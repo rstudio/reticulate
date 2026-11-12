@@ -6,7 +6,8 @@ from rpycall import call_r_function, schedule_python_function_on_main_thread
 def safe_call_r_function(f, args, kwargs):
     try:
         return call_r_function(f, *args, **kwargs), None
-    except Exception as e:  # TODO: should we catch BaseException too? KeyboardInterrupt?
+    except BaseException as e:
+        # Interrupts and SystemExit must reach the waiting worker too.
         return None, e
 
 

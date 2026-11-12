@@ -370,9 +370,7 @@ py_to_r.pandas.core.frame.DataFrame <- function(x) {
                             "pandas.tseries.index.DatetimeIndex",
                             "pandas.DatetimeIndex"))) {
         tz <- index[["tz"]]
-        if (inherits(tz, "pytz.tzinfo.BaseTzInfo") ||
-            inherits(tz, "pytz.UTC"))
-        {
+        if (inherits(tz, c("pytz.tzinfo.BaseTzInfo", "pytz.UTC"))) {
           zone <- tryCatch(py_to_r(tz$zone), error = function(e) NULL)
           if (!is.null(zone) && zone %in% OlsonNames())
             attr(converted, "tzone") <- zone

@@ -4096,17 +4096,20 @@ SEXP py_convert_pandas_series(PyObjectRef series_) {
         continue;
       }
 
+      PyObjectPtr normalized;
+      PyObject* scalar = value.get();
       if (kind == "M" && (PyObject*) Py_TYPE(value) == datetime_type.get()) {
         // Older Arrow arrays yield Python datetimes, whose naive timestamp()
         // uses local time. Normalize them to pandas' UTC interpretation.
-        value.assign(PyObject_CallMethod(pandas, "Timestamp", "O", value.get()));
-        if (value.is_null())
+        normalized.assign(PyObject_CallMethod(pandas, "Timestamp", "O", value.get()));
+        if (normalized.is_null())
           throw PythonException(py_fetch_error());
+        scalar = normalized.get();
       }
 
       PyObjectPtr seconds(kind == "M" ?
-        PyObject_CallMethod(value, "timestamp", NULL) :
-        PyObject_CallMethod(value, "__truediv__", "O", second.get()));
+        PyObject_CallMethod(scalar, "timestamp", NULL) :
+        PyObject_CallMethod(scalar, "__truediv__", "O", second.get()));
       if (seconds.is_null())
         throw PythonException(py_fetch_error());
       result[i] = PyFloat_AsDouble(seconds);

@@ -478,13 +478,20 @@ test_that("Arrow timestamp columns preserve values and nulls", {
   skip_if_not(py_module_available("pyarrow"))
   pd <- import("pandas", convert = FALSE)
   skip_if(pandas_version() < "2.0")
+  pa <- import("pyarrow", convert = FALSE)
 
-  for (values in list(list(NULL), list(pd$Timestamp("2020-01-01"), NULL))) {
-    column <- pd$Series(values, dtype = "timestamp[us][pyarrow]")
-    actual <- py_to_r(column$to_frame("x"))$x
-    expect_s3_class(actual, "POSIXct")
-    expected <- if (length(values) == 1L) NA_real_ else c(1577836800, NA_real_)
-    expect_identical(as.numeric(actual), expected)
+  for (tz in list(NULL, "America/New_York")) {
+    dates <- list(pd$Timestamp("2020-01-01", tz = tz),
+                  pd$Timestamp("2500-01-01", tz = tz), NULL)
+    for (values in list(list(NULL), dates)) {
+      column <- pd$Series(values, dtype = pd$ArrowDtype(pa$timestamp("us", tz = tz)))
+      actual <- py_to_r(column$to_frame("x"))$x
+      expect_s3_class(actual, "POSIXct")
+      offset <- if (is.null(tz)) 0 else 5 * 3600
+      expected <- if (length(values) == 1L) NA_real_ else
+        c(1577836800, 16725225600, NA_real_) + offset
+      expect_identical(as.numeric(actual), expected)
+    }
   }
 })
 
@@ -493,11 +500,18 @@ test_that("Arrow duration columns preserve values and nulls", {
   skip_if_not(py_module_available("pyarrow"))
   pd <- import("pandas", convert = FALSE)
   skip_if(pandas_version() < "2.0")
+  datetime <- import("datetime", convert = FALSE)
+  pa <- import("pyarrow", convert = FALSE)
 
-  for (values in list(list(NULL), list(pd$Timedelta("1.5s"), NULL))) {
-    column <- pd$Series(values, dtype = "duration[us][pyarrow]")
+  durations <- list(datetime$timedelta(seconds = 1.5),
+                    datetime$timedelta(microseconds = -1L),
+                    datetime$timedelta(days = 1000000L), NULL)
+  for (values in list(list(NULL), durations)) {
+    dtype <- pa$duration("us")
+    column <- pd$Series(pa$array(values, type = dtype), dtype = pd$ArrowDtype(dtype))
     actual <- py_to_r(column$to_frame("x"))$x
-    expected <- if (length(values) == 1L) NA_real_ else c(1.5, NA_real_)
+    expected <- if (length(values) == 1L) NA_real_ else
+      c(1.5, -1e-6, 86400000000, NA_real_)
     expect_identical(actual, as.difftime(expected, units = "secs"))
     expect_identical(unname(py_to_r(column)), actual)
   }

@@ -4047,10 +4047,19 @@ SEXP py_convert_pandas_series(PyObjectRef series_) {
     PyObjectPtr nat(PyObject_GetAttrString(pandas, "NaT"));
     if (nat.is_null())
       throw PythonException(py_fetch_error());
+    PyObjectPtr datetime(PyImport_ImportModule("datetime"));
+    if (datetime.is_null())
+      throw PythonException(py_fetch_error());
+    PyObjectPtr datetime_type;
     PyObjectPtr second;
-    if (kind == "m") {
-      // Older pandas total_seconds() truncates sub-microsecond durations.
-      second.assign(PyObject_CallMethod(numpy(), "timedelta64", "is", 1, "s"));
+    if (kind == "M") {
+      datetime_type.assign(PyObject_GetAttrString(datetime, "datetime"));
+      if (datetime_type.is_null())
+        throw PythonException(py_fetch_error());
+    } else {
+      // Older Arrow arrays yield Python timedeltas. A Python divisor works
+      // with both scalar types and preserves pandas sub-microsecond values.
+      second.assign(PyObject_CallMethod(datetime, "timedelta", "ii", 0, 1));
       if (second.is_null())
         throw PythonException(py_fetch_error());
     }
@@ -4071,6 +4080,14 @@ SEXP py_convert_pandas_series(PyObjectRef series_) {
       if (value.get() == nat.get() || value.get() == Py_None || is_pandas_na(value)) {
         result[i] = NA_REAL;
         continue;
+      }
+
+      if (kind == "M" && (PyObject*) Py_TYPE(value) == datetime_type.get()) {
+        // Older Arrow arrays yield Python datetimes, whose naive timestamp()
+        // uses local time. Normalize them to pandas' UTC interpretation.
+        value.assign(PyObject_CallMethod(pandas, "Timestamp", "O", value.get()));
+        if (value.is_null())
+          throw PythonException(py_fetch_error());
       }
 
       PyObjectPtr seconds(kind == "M" ?

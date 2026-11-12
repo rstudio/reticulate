@@ -235,6 +235,10 @@ R data frames can be automatically converted to and from [Pandas](https://pandas
 
 If the R data frame has row names, the generated Pandas DataFrame will be re-indexed using those row names (and vice versa). Special handling is also available for a `DatetimeIndex` associated with a Pandas DataFrame; however, because R only supports character vectors for row names they are converted to character first.
 
+If index labels are missing or become duplicated as R row names, reticulate
+warns and keeps the default row names. The original pandas index is preserved
+in the data frame's `pandas.index` attribute.
+
 Pandas datetime columns convert to `POSIXct`, and timedelta columns convert to
 `difftime` in seconds. Missing temporal values become `NA`. These conversions
 also apply to standalone pandas Series.

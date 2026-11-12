@@ -307,6 +307,59 @@ test_that("explicit integer row names become the pandas index, #1924", {
   expect_identical(py_to_r(index), 0:2)
 })
 
+test_that("integer pandas indexes retain integer R row names", {
+  skip_if_no_pandas()
+  skip_if(pandas_version() < "2.0")
+  pd <- import("pandas", convert = FALSE)
+  np <- import("numpy", convert = FALSE)
+  index <- pd$Index(np$array(c(1L, 2L, 4L), dtype = "int32"))
+  frame <- pd$DataFrame(dict(x = c(10, 20, 30)), index = index)
+  actual <- py_to_r(frame)
+  expect_type(attr(actual, "row.names"), "integer")
+  expect_identical(rownames(actual), c("1", "2", "4"))
+})
+
+test_that("missing pandas index labels preserve the table and original index", {
+  skip_if_no_pandas()
+  pd <- import("pandas", convert = FALSE)
+  np <- import("numpy", convert = FALSE)
+  dates <- pd$DatetimeIndex(list("2020-01-01", pd$NaT))
+  indexes <- list(dates, dates$tz_localize("America/New_York"),
+                  pd$DatetimeIndex(list(pd$NaT, pd$NaT)),
+                  pd$Index(list("a", NULL), dtype = "object"),
+                  pd$Index(list(1, np$nan)))
+  for (index in indexes) {
+    frame <- pd$DataFrame(dict(x = c(10, 20)), index = index)
+    expect_warning(actual <- py_to_r(frame),
+                   "index contains missing values: row names not set")
+    expect_identical(actual$x, c(10, 20))
+    expect_identical(rownames(actual), c("1", "2"))
+    expect_true(py_to_r(index$equals(attr(actual, "pandas.index"))))
+  }
+})
+
+test_that("datetime index labels must be unique as R row names", {
+  skip_if_no_pandas()
+  pd <- import("pandas", convert = FALSE)
+  withr::local_envvar(TZ = "UTC")
+  indexes <- list(
+    pd$DatetimeIndex(c("2020-01-01", "2020-01-01")),
+    pd$to_datetime(c(1000000000L, 1000000001L), unit = "ns")
+  )
+  for (index in indexes) {
+    frame <- pd$DataFrame(dict(x = c(10, 20)), index = index)
+    expect_warning(actual <- py_to_r(frame),
+                   "index contains duplicated values: row names not set")
+    expect_identical(actual$x, c(10, 20))
+    expect_identical(rownames(actual), c("1", "2"))
+    expect_true(py_to_r(index$equals(attr(actual, "pandas.index"))))
+  }
+
+  index <- pd$DatetimeIndex(c("2020-01-01", "2020-01-02"))
+  actual <- py_to_r(pd$DataFrame(dict(x = c(10, 20)), index = index))
+  expect_identical(rownames(actual), c("2020-01-01", "2020-01-02"))
+})
+
 test_that("Time zones are respected if available", {
   skip_if_no_pandas()
 

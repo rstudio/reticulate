@@ -5,6 +5,10 @@
   become `NA`; unrelated conversion errors are reported. NumPy datetime
   conversion preserves dates outside the nanosecond range, including year 2500.
 
+- Converting a pandas data frame with missing or duplicated index labels keeps
+  the default R row names and warns. The original index remains available in
+  the `pandas.index` attribute.
+
 - Native conversion uses fewer temporary buffers for NumPy integer arrays,
   pandas categorical and datetime columns, dictionaries, and R callbacks (#1950).
 

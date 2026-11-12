@@ -1,5 +1,10 @@
 # reticulate (development version)
 
+- On R >= 4.3, NumPy arrays can be tibble columns. Row slicing, filtering,
+  sorting by metadata, and binding preserve NumPy dtypes and trailing
+  dimensions without converting array contents to R vectors. See
+  `?np_array` for supported operations and limitations (#1481).
+
 - Native conversion uses fewer temporary buffers for NumPy integer arrays,
   pandas categorical and datetime columns, dictionaries, and R callbacks (#1950).
 

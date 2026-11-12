@@ -4,46 +4,22 @@
 #' Create NumPy arrays and convert the data type and in-memory
 #' ordering of existing NumPy arrays.
 #'
-#' @param data Vector or existing NumPy array providing data for the array
+#' @param data Vector, NumPy array, or [np_array_column()] providing data for
+#'   the array.
 #' @param dtype Numpy data type (e.g. "float32", "float64", etc.)
 #' @param order Memory ordering for array. "C" means C order, "F" means Fortran
 #'   order.
 #'
 #' @return A NumPy array object.
 #'
-#' @section NumPy columns in tibbles:
-#' On R >= 4.3, unconverted NumPy arrays can be columns in a
-#' [tibble::tibble()]. The first dimension gives the number of rows; any
-#' remaining dimensions belong to each row. For example:
-#'
-#' ```r
-#' np <- import("numpy", convert = FALSE)
-#' frames <- np$zeros(c(3L, 64L, 64L), dtype = "uint8")
-#' videos <- tibble::tibble(frame = 1:3, pixels = frames)
-#' dplyr::filter(videos, frame > 1L)
-#' ```
-#'
-#' Tibble row subsetting and dplyr operations such as `filter()`, `arrange()`,
-#' and `slice()` preserve the NumPy dtype and trailing dimensions. A lazy
-#' vctrs proxy keeps array contents in Python, including dtypes without an
-#' exact R equivalent. Row binding requires matching dtypes and trailing
-#' dimensions. Use NumPy to cast or reshape arrays before binding if needed.
-#'
-#' NumPy columns retain Python reference semantics: changing the original
-#' array also changes a column that refers to it. Subsetting rows creates a
-#' new NumPy array. No automatic conversion takes place when constructing
-#' a tibble; use `convert = FALSE` when importing NumPy.
-#'
-#' Use ordinary R columns for grouping, sorting, and join keys. Missing rows
-#' and vctrs comparisons of NumPy columns are not supported. This includes
-#' joins that introduce missing rows and `vctrs::vec_c()`, which initializes
-#' missing rows internally; use `dplyr::bind_rows()` for complete columns.
-#' Keep these columns in tibbles: base data-frame row subsetting uses Python's
-#' indexing methods, which have different semantics. Direct `[` indexing on
-#' a NumPy array continues to use Python's zero-based indexing.
+#' @seealso [np_array_column()] for wrapping arrays as dataframe columns with
+#'   R row indexing and deferred array gathering.
 #'
 #' @export
 np_array <- function(data, dtype = NULL, order = "C") {
+
+  if (inherits(data, "np_array_column"))
+    data <- r_to_py(data, convert = FALSE)
 
   # convert to numpy if required
   if (!inherits(data, "numpy.ndarray")) {

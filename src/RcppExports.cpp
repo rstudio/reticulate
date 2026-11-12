@@ -11,26 +11,26 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// numpy_array_proxy
-SEXP numpy_array_proxy(SEXP array, int size);
-RcppExport SEXP _reticulate_numpy_array_proxy(SEXP arraySEXP, SEXP sizeSEXP) {
+// numpy_column_sources
+SEXP numpy_column_sources(SEXP source, int size);
+RcppExport SEXP _reticulate_numpy_column_sources(SEXP sourceSEXP, SEXP sizeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< SEXP >::type array(arraySEXP);
+    Rcpp::traits::input_parameter< SEXP >::type source(sourceSEXP);
     Rcpp::traits::input_parameter< int >::type size(sizeSEXP);
-    rcpp_result_gen = Rcpp::wrap(numpy_array_proxy(array, size));
+    rcpp_result_gen = Rcpp::wrap(numpy_column_sources(source, size));
     return rcpp_result_gen;
 END_RCPP
 }
-// numpy_array_proxy_data
-SEXP numpy_array_proxy_data(SEXP proxy);
-RcppExport SEXP _reticulate_numpy_array_proxy_data(SEXP proxySEXP) {
+// numpy_column_source
+SEXP numpy_column_source(SEXP sources);
+RcppExport SEXP _reticulate_numpy_column_source(SEXP sourcesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< SEXP >::type proxy(proxySEXP);
-    rcpp_result_gen = Rcpp::wrap(numpy_array_proxy_data(proxy));
+    Rcpp::traits::input_parameter< SEXP >::type sources(sourcesSEXP);
+    rcpp_result_gen = Rcpp::wrap(numpy_column_source(sources));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -849,8 +849,8 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_reticulate_numpy_array_proxy", (DL_FUNC) &_reticulate_numpy_array_proxy, 2},
-    {"_reticulate_numpy_array_proxy_data", (DL_FUNC) &_reticulate_numpy_array_proxy_data, 1},
+    {"_reticulate_numpy_column_sources", (DL_FUNC) &_reticulate_numpy_column_sources, 2},
+    {"_reticulate_numpy_column_source", (DL_FUNC) &_reticulate_numpy_column_source, 1},
     {"_reticulate_write_stdout", (DL_FUNC) &_reticulate_write_stdout, 1},
     {"_reticulate_write_stderr", (DL_FUNC) &_reticulate_write_stderr, 1},
     {"_reticulate_was_python_initialized_by_reticulate", (DL_FUNC) &_reticulate_was_python_initialized_by_reticulate, 0},
@@ -925,11 +925,11 @@ static const R_CallMethodDef CallEntries[] = {
     {NULL, NULL, 0}
 };
 
-void numpy_array_proxy_init(DllInfo* dll);
+void numpy_column_init(DllInfo* dll);
 void reticulate_init(DllInfo *dll);
 RcppExport void R_init_reticulate(DllInfo *dll) {
     R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
     R_useDynamicSymbols(dll, FALSE);
-    numpy_array_proxy_init(dll);
+    numpy_column_init(dll);
     reticulate_init(dll);
 }

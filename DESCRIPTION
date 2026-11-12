@@ -58,7 +58,7 @@ Suggests:
     pillar,
     testthat,
     tibble,
-    vctrs
+    vctrs (>= 0.7.0)
 LinkingTo: Rcpp
 Roxygen: list(markdown = TRUE)
 VignetteBuilder: knitr

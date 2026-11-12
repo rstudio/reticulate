@@ -1,9 +1,10 @@
 # reticulate (development version)
 
-- On R >= 4.3, NumPy arrays can be tibble columns. Row slicing, filtering,
-  sorting by metadata, and binding preserve NumPy dtypes and trailing
-  dimensions without converting array contents to R vectors. See
-  `?np_array` for supported operations and limitations (#1481).
+- `np_array_column()` wraps NumPy arrays as dataframe and tibble columns with
+  R row indexing. Slicing, binding, and printing use compact row metadata;
+  array contents are gathered when passed to Python or used in arithmetic.
+  Grouped dplyr operations and joins can retain missing rows until conversion
+  to NumPy. Requires R >= 4.3 and vctrs >= 0.7.0 (#1481).
 
 - Native conversion uses fewer temporary buffers for NumPy integer arrays,
   pandas categorical and datetime columns, dictionaries, and R callbacks (#1950).

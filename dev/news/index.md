@@ -2,6 +2,11 @@
 
 ## reticulate (development version)
 
+- [`py_capture_output()`](https://rstudio.github.io/reticulate/dev/reference/py_capture_output.md)
+  restores redirected Python logging handlers to their original streams,
+  so subsequent logging no longer writes to a previous capture buffer.
+  Explicit handler stream changes made during capture are preserved.
+
 - R callbacks invoked by Python background threads now return interrupts
   and `SystemExit` to the requesting thread. Callback scheduling no
   longer blocks Python from draining a full pending-call queue, and

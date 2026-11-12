@@ -3,7 +3,7 @@
 - R callbacks invoked by Python background threads now return interrupts and
   `SystemExit` to the requesting thread. Callback scheduling no longer blocks
   Python from draining a full pending-call queue, and event polling retries
-  when its queue submission fails.
+  when its queue submission fails (#1954).
 
 - Native conversion uses fewer temporary buffers for NumPy integer arrays,
   pandas categorical and datetime columns, dictionaries, and R callbacks (#1950).

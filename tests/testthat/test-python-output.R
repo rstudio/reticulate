@@ -144,6 +144,109 @@ test_that("Python loggers work with py_capture_output", {
 
 })
 
+local_output_logger <- function(name, envir = parent.frame()) {
+  sys <- import("sys")
+  io <- import("io")
+  logging <- import("logging")
+  logger <- logging$getLogger(name)
+  old_stdout <- sys$stdout
+  old_stderr <- sys$stderr
+  old_handlers <- logger$handlers
+  old_level <- logger$level
+  old_propagate <- logger$propagate
+
+  stdout <- io$StringIO()
+  stderr <- io$StringIO()
+  stdout_handler <- logging$StreamHandler(stdout)
+  stderr_handler <- logging$StreamHandler(stderr)
+  withr::defer({
+    sys$stdout <- old_stdout
+    sys$stderr <- old_stderr
+    logger$handlers <- old_handlers
+    logger$setLevel(old_level)
+    logger$propagate <- old_propagate
+    stdout_handler$close()
+    stderr_handler$close()
+  }, envir)
+
+  sys$stdout <- stdout
+  sys$stderr <- stderr
+  logger$handlers <- list(stdout_handler, stderr_handler)
+  logger$setLevel("INFO")
+  logger$propagate <- FALSE
+
+  list(logger = logger, stdout = stdout, stderr = stderr,
+       stdout_handler = stdout_handler, stderr_handler = stderr_handler)
+}
+
+for (logger_name in c("", "reticulate.test.output")) {
+  logger_label <- if (nzchar(logger_name)) "named" else "root"
+
+  test_that(paste(logger_label, "logger streams survive repeated captures"), {
+    log <- local_output_logger(logger_name)
+
+    expect_equal(py_capture_output(log$logger$info("first")), "first\nfirst\n")
+    expect_equal(py_capture_output(log$logger$info("second")), "second\nsecond\n")
+    expect_identical(py_id(log$stdout_handler$stream), py_id(log$stdout))
+    expect_identical(py_id(log$stderr_handler$stream), py_id(log$stderr))
+
+    log$logger$info("after")
+    expect_equal(log$stdout$getvalue(), "after\n")
+    expect_equal(log$stderr$getvalue(), "after\n")
+  })
+
+  test_that(paste(logger_label, "logger streams survive nested captures"), {
+    log <- local_output_logger(logger_name)
+
+    outer <- py_capture_output({
+      log$logger$info("before inner")
+      inner <- py_capture_output(log$logger$info("inner"))
+      log$logger$info("after inner")
+    })
+
+    expect_equal(inner, "inner\ninner\n")
+    expect_equal(outer, "before inner\nbefore inner\nafter inner\nafter inner\n")
+    expect_identical(py_id(log$stdout_handler$stream), py_id(log$stdout))
+    expect_identical(py_id(log$stderr_handler$stream), py_id(log$stderr))
+
+    log$logger$info("after outer")
+    expect_equal(log$stdout$getvalue(), "after outer\n")
+    expect_equal(log$stderr$getvalue(), "after outer\n")
+  })
+
+  test_that(paste(logger_label, "logger streams survive selective captures"), {
+    log <- local_output_logger(logger_name)
+
+    expect_equal(py_capture_output(type = "stdout", log$logger$info("first")),
+                 "first\n")
+    expect_equal(log$stderr$getvalue(), "first\n")
+    expect_equal(py_capture_output(type = "stderr", log$logger$info("second")),
+                 "second\n")
+    expect_equal(log$stdout$getvalue(), "second\n")
+    expect_identical(py_id(log$stdout_handler$stream), py_id(log$stdout))
+    expect_identical(py_id(log$stderr_handler$stream), py_id(log$stderr))
+
+    log$logger$info("after")
+    expect_equal(log$stdout$getvalue(), "second\nafter\n")
+    expect_equal(log$stderr$getvalue(), "first\nafter\n")
+  })
+
+  test_that(paste(logger_label, "logger streams are restored after an error"), {
+    log <- local_output_logger(logger_name)
+
+    expect_error(py_capture_output({
+      log$logger$info("before error")
+      stop("capture error")
+    }), "capture error")
+    expect_identical(py_id(log$stdout_handler$stream), py_id(log$stdout))
+    expect_identical(py_id(log$stderr_handler$stream), py_id(log$stderr))
+
+    log$logger$info("after error")
+    expect_equal(log$stdout$getvalue(), "after error\n")
+    expect_equal(log$stderr$getvalue(), "after error\n")
+  })
+}
+
 
 test_that("nested py_capture_output() calls work", {
 

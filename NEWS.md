@@ -1,5 +1,9 @@
 # reticulate (development version)
 
+- `py_capture_output()` restores redirected Python logging handlers to their
+  original streams, so subsequent logging no longer writes to a previous
+  capture buffer.
+
 - Native conversion uses fewer temporary buffers for NumPy integer arrays,
   pandas categorical and datetime columns, dictionaries, and R callbacks (#1950).
 

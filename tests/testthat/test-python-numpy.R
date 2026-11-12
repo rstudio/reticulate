@@ -267,3 +267,63 @@ test_that("raw arrays convert", {
     }, list(as.character(py_version()))))
 
 })
+
+test_that("numpy datetime64 values retain units, range, and missing values", {
+  skip_if_no_numpy()
+  np <- import("numpy", convert = FALSE)
+
+  for (unit in c("Y", "M", "W", "D", "h", "m", "s", "ms", "us")) {
+    dates <- np$array(c("2500-01-01", "1600-01-01", "NaT"),
+                      dtype = paste0("datetime64[", unit, "]"))
+    # Weeks are measured from Thursday, 1970-01-01.
+    expected <- as.numeric(as.Date(c("2500-01-01", "1600-01-01")))
+    if (unit == "W")
+      expected <- floor(expected / 7) * 7
+    expected <- c(expected * 86400, NA_real_)
+    actual <- py_to_r(dates)
+    expect_s3_class(actual, "POSIXct")
+    expect_equal(as.numeric(actual), expected)
+    for (i in seq_along(expected)) {
+      actual <- py_to_r(dates[[i - 1L]])
+      expect_s3_class(actual, "POSIXct")
+      expect_equal(as.numeric(actual), expected[[i]])
+    }
+  }
+
+  for (unit in c("ms", "us", "ns", "ps", "fs", "as", "10ms")) {
+    dates <- np$array(c(-1L, 0L, 1L), dtype = paste0("datetime64[", unit, "]"))
+    scale <- c(ms = 1e-3, us = 1e-6, ns = 1e-9, ps = 1e-12,
+               fs = 1e-15, as = 1e-18, "10ms" = 1e-2)[[unit]]
+    expect_equal(as.numeric(py_to_r(dates)), c(-1, 0, 1) * scale,
+                 tolerance = 1e-20)
+    expect_equal(as.numeric(py_to_r(dates[[0L]])), -scale,
+                 tolerance = 1e-20)
+  }
+
+  expect_identical(as.numeric(py_to_r(np$datetime64("NaT"))), NA_real_)
+  near_nat <- np$array("-9223372036854775807", dtype = "int64")$astype("datetime64[ns]")
+  expect_true(is.finite(as.numeric(py_to_r(near_nat))))
+})
+
+test_that("numpy datetime64 arrays preserve shape and order", {
+  skip_if_no_numpy()
+  np <- import("numpy", convert = FALSE)
+  dates <- np$array(c("2500-01-01", "NaT", "1970-01-01", "1600-01-01"),
+                    dtype = "datetime64[D]")$reshape(c(2L, 2L))
+  expected <- matrix(as.numeric(as.Date(c("2500-01-01", NA,
+                                         "1970-01-01", "1600-01-01"))) * 86400,
+                     nrow = 2, byrow = TRUE)
+  arrays <- list(dates, np$asfortranarray(dates), dates$T,
+                 dates$astype(">M8[D]"))
+  for (i in seq_along(arrays)) {
+    actual <- py_to_r(arrays[[i]])
+    expect_s3_class(actual, "POSIXct")
+    expect_identical(dim(actual), c(2L, 2L))
+    expect_equal(matrix(as.numeric(actual), nrow = 2),
+                 if (i == 3L) t(expected) else expected)
+  }
+  expect_length(py_to_r(np$array(list(), dtype = "datetime64[D]")), 0L)
+  scalar_array <- np$array("2500-01-01", dtype = "datetime64[D]")
+  expect_identical(dim(py_to_r(scalar_array)), 1L)
+  expect_equal(as.numeric(py_to_r(scalar_array)), expected[[1]])
+})

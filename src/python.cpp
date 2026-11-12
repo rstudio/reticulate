@@ -17,6 +17,7 @@ using namespace Rcpp;
 #include "pending_py_calls_notifier.h"
 
 #include <fstream>
+#include <map>
 #include <time.h>
 
 #ifndef _WIN32
@@ -388,7 +389,6 @@ int narrow_array_typenum(int typenum) {
   case NPY_HALF:
   case NPY_FLOAT:
   case NPY_DOUBLE:
-  case NPY_DATETIME: // needs some additional special handling
     typenum = NPY_DOUBLE;
     break;
 
@@ -1224,56 +1224,15 @@ int scalar_list_type(PyObject* x) {
   return scalarType;
 }
 
-bool py_equal(PyObject* x, const std::string& str) {
-
-  PyObjectPtr pyStr(as_python_str(str));
-  if (pyStr.is_null())
-    throw PythonException(py_fetch_error());
-
-  return PyObject_RichCompareBool(x, pyStr, Py_EQ) == 1;
-
-}
-
 bool is_pandas_na(PyObject* x) {
-
-  // don't want to prematurely import pandas if we don't need it.
-  // ideally we would be able to do something like this
-  // static PyObject* pandas_NAType = NULL;
-  // if (pandas_NAType == NULL) {
-  //   PyObjectPtr inspect(py_import("pandas"));
-  //   if (inspect.is_null())
-  //     throw PythonException(py_fetch_error());
-  // }
-  //  PyObject* type = (PyObject*) Py_TYPE(object);
-  // if (type == NULL)
-  //   throw PythonException(py_fetch_error());
-
-  // call inspect.getmro to get the class and it's bases in
-  // method resolution order
-
-
-  // retrieve class object
-  PyObjectPtr pyClass(py_get_attr(x, "__class__"));
-  if (pyClass.is_null())
+  // Compare the singleton: NAType's module changes across pandas versions.
+  // Look up only an already imported module, without caching its absence.
+  static PyObject* pandas_name = as_python_str("pandas");
+  static PyObject* na_name = as_python_str("NA");
+  PyObject* pandas = PyDict_GetItem(PyImport_GetModuleDict(), pandas_name);
+  if (pandas == NULL)
     return false;
-
-  PyObjectPtr pyModule(py_get_attr(pyClass, "__module__"));
-  if (pyModule.is_null())
-    return false;
-
-  // check for expected module name
-  if (!py_equal(pyModule, "pandas._libs.missing"))
-    return false;
-
-  // retrieve class name
-  PyObjectPtr pyName(py_get_attr(pyClass, "__name__"));
-  if (pyName.is_null())
-    return false;
-
-  // check for expected names
-  return py_equal(pyName, "NAType") ||
-    py_equal(pyName, "C_NAType");
-
+  return x == PyDict_GetItem(PyModule_GetDict(pandas), na_name);
 }
 
 #define STATIC_MODULE(module)                                      \
@@ -1285,6 +1244,57 @@ bool is_pandas_na(PyObject* x) {
 
 PyObject* numpy () {
   STATIC_MODULE("numpy")
+}
+
+RObject numpy_datetime_to_r(PyObject* x, const IntegerVector& dims) {
+  PyObjectPtr dtype(PyObject_GetAttrString(x, "dtype"));
+  if (dtype.is_null())
+    throw PythonException(py_fetch_error());
+  PyObjectPtr metadata(PyObject_CallMethod(numpy(), "datetime_data", "O", dtype.get()));
+  if (metadata.is_null())
+    throw PythonException(py_fetch_error());
+  std::string unit = as_std_string(PyTuple_GetItem(metadata, 0));
+  double multiplier = PyLong_AsLong(PyTuple_GetItem(metadata, 1));
+  if (PyErr_Occurred())
+    throw PythonException(py_fetch_error());
+
+  PyObjectPtr normalized;
+  if (unit == "Y" || unit == "M") {
+    // Calendar units have no fixed duration. Let NumPy resolve them to days;
+    // dates outside the datetime64[D] range are not supported here.
+    normalized.assign(PyObject_CallMethod(x, "astype", "s", "datetime64[D]"));
+    if (normalized.is_null())
+      throw PythonException(py_fetch_error());
+    x = normalized;
+    unit = "D";
+    multiplier = 1;
+  }
+
+  const static std::map<std::string, double> seconds_per_unit = {
+    {"W", 604800}, {"D", 86400}, {"h", 3600}, {"m", 60}, {"s", 1},
+    {"ms", 1e-3}, {"us", 1e-6}, {"ns", 1e-9}, {"ps", 1e-12},
+    {"fs", 1e-15}, {"as", 1e-18}, {"generic", 1}
+  };
+  double scale = seconds_per_unit.at(unit) * multiplier;
+
+  // Keep the integer counts until NaT has been identified. Converting them
+  // to nanoseconds can overflow, and converting to double first loses the
+  // distinction between NaT and nearby valid int64 values.
+  PyObjectPtr counts(PyArray_FromAny(
+    x, PyArray_DescrFromType(NPY_LONGLONG), 0, 0,
+    NPY_ARRAY_FARRAY_RO | NPY_ARRAY_FORCECAST, NULL));
+  if (counts.is_null())
+    throw PythonException(py_fetch_error());
+  PyArrayObject* array = (PyArrayObject*) counts.get();
+  int64_t* data = (int64_t*) PyArray_DATA(array);
+  R_xlen_t size = PyArray_SIZE(array);
+  NumericVector result = no_init(size);
+  for (R_xlen_t i = 0; i < size; ++i)
+    result[i] = data[i] == INT64_MIN ? NA_REAL : data[i] * scale;
+  if (dims.size())
+    result.attr("dim") = dims;
+  result.attr("class") = CharacterVector::create("POSIXct", "POSIXt");
+  return result;
 }
 
 PyObject* pandas_arrays () {
@@ -1608,7 +1618,6 @@ SEXP py_to_r_cpp(PyObject* x, bool convert, bool simple) {
 
     // get the array
     PyArrayObject* array = (PyArrayObject*) x;
-    PyObjectPtr array_; // in case we need to decref before we're done;
 
     // get the dimensions -- treat 0-dim array (numpy scalar) as
     // a 1-dim for conversion to R (will end up with a single
@@ -1625,17 +1634,12 @@ SEXP py_to_r_cpp(PyObject* x, bool convert, bool simple) {
     }
     // determine the target type of the array
     int og_typenum = PyArray_TYPE(array);
+    if (og_typenum == NPY_DATETIME)
+      return numpy_datetime_to_r(x, dimsVector);
     int typenum = narrow_array_typenum(og_typenum);
     if (typenum == -1) {
       simple = false;
       goto cant_convert;
-    }
-
-    if(og_typenum == NPY_DATETIME) {
-      PyObjectPtr dtype_str(as_python_str("datetime64[ns]"));
-      PyObject* array2 = PyObject_CallMethod(x, "astype", "O", (PyObject*) dtype_str.get()); // new ref
-      array_.assign(array2); // decref new array on scope exit
-      array = (PyArrayObject*) array2;
     }
 
     // Reuse compatible Fortran arrays; only the final R array needs its own
@@ -1683,15 +1687,6 @@ SEXP py_to_r_cpp(PyObject* x, bool convert, bool simple) {
         double* rArray_ptr = REAL(rArray);
         for (int i=0; i<len; i++)
           rArray_ptr[i] = pData[i];
-        if(og_typenum == NPY_DATETIME) {
-          for (int i = 0; i<len; i++)
-            rArray_ptr[i] /= 1e9; // ns to s
-          RObject klass_(Rf_allocVector(STRSXP, 2));
-          SEXP klass = klass_;
-          Rf_setAttrib(rArray, R_ClassSymbol, klass); // protects, but rchk doesn't know
-          SET_STRING_ELT(klass, 0, Rf_mkChar("POSIXct"));
-          SET_STRING_ELT(klass, 1, Rf_mkChar("POSIXt"));
-        }
         break;
       }
 
@@ -1820,17 +1815,12 @@ SEXP py_to_r_cpp(PyObject* x, bool convert, bool simple) {
     // determine the type to convert to
     PyArray_DescrPtr descrPtr(PyArray_DescrFromScalar(x));
     int og_typenum = descrPtr.get()->type_num;
+    if (og_typenum == NPY_DATETIME)
+      return numpy_datetime_to_r(x, IntegerVector());
     int typenum = narrow_array_typenum(og_typenum);
     if (typenum == -1) {
       simple = false;
       goto cant_convert;
-    }
-
-    PyObjectPtr x_;
-    if(og_typenum == NPY_DATETIME) {
-      PyObjectPtr dtype_str(as_python_str("datetime64[ns]"));
-      x = PyObject_CallMethod(x, "astype", "O", (PyObject*) dtype_str.get()); // new ref
-      x_.assign(x); // decref new array on scope exit
     }
 
     PyArray_DescrPtr toDescr(PyArray_DescrFromType(typenum));
@@ -1858,13 +1848,6 @@ SEXP py_to_r_cpp(PyObject* x, bool convert, bool simple) {
       npy_double value;
       PyArray_CastScalarToCtype(x, (void*)&value, toDescr);
       SEXP out = PROTECT(Rf_ScalarReal(value)); //  NumericVector::create(value);
-      if (og_typenum == NPY_DATETIME) {
-        REAL(out)[0] /= 1e9;
-        SEXP klass = Rf_allocVector(STRSXP, 2);
-        Rf_setAttrib(out, R_ClassSymbol, klass); // protects
-        SET_STRING_ELT(klass, 0, Rf_mkChar("POSIXct"));
-        SET_STRING_ELT(klass, 1, Rf_mkChar("POSIXt"));
-      }
       UNPROTECT(1);
       return out;
     }
@@ -4008,6 +3991,7 @@ SEXP py_convert_pandas_series(PyObjectRef series_) {
   // extract dtype
   PyObjectPtr dtype(PyObject_GetAttrString(series, "dtype"));
   const auto name = as_std_string(PyObjectPtr(PyObject_GetAttrString(dtype, "name")));
+  const auto kind = as_std_string(PyObjectPtr(PyObject_GetAttrString(dtype, "kind")));
 
   const static std::set<std::string> nullable_dtypes({
     NULLABLE_INTEGERS,
@@ -4057,13 +4041,46 @@ SEXP py_convert_pandas_series(PyObjectRef series_) {
 
     R_obj = factor;
 
-  // special treatment for pd.TimeStamp
-  // if available, time zone information will be respected,
-  // but values returned to R will be in UTC
-  } else if (name == "datetime64[ns]" ||
+  // Datetimes and timedeltas both expose .dt, as do periods. Dispatch on
+  // dtype instead. timestamp() respects time zones and returns UTC seconds.
+  } else if (kind == "M" || kind == "m") {
 
-    // if a time zone is present, dtype is "object"
-    py_has_attr(series, "dt")) {
+    PyObjectPtr pandas(PyImport_ImportModule("pandas"));
+    if (pandas.is_null())
+      throw PythonException(py_fetch_error());
+    PyObjectPtr sparse_dtype(PyObject_GetAttrString(pandas, "SparseDtype"));
+    if (sparse_dtype.is_null())
+      throw PythonException(py_fetch_error());
+    int is_sparse = PyObject_IsInstance(dtype, sparse_dtype);
+    if (is_sparse < 0)
+      throw PythonException(py_fetch_error());
+    if (is_sparse) {
+      // Keep sparse columns as Python arrays.
+      PyObjectPtr values(PyObject_GetAttrString(series, "values"));
+      if (values.is_null())
+        throw PythonException(py_fetch_error());
+      return py_to_r(values, true);
+    }
+
+    PyObjectPtr nat(PyObject_GetAttrString(pandas, "NaT"));
+    if (nat.is_null())
+      throw PythonException(py_fetch_error());
+    PyObjectPtr datetime(PyImport_ImportModule("datetime"));
+    if (datetime.is_null())
+      throw PythonException(py_fetch_error());
+    PyObjectPtr datetime_type;
+    PyObjectPtr second;
+    if (kind == "M") {
+      datetime_type.assign(PyObject_GetAttrString(datetime, "datetime"));
+      if (datetime_type.is_null())
+        throw PythonException(py_fetch_error());
+    } else {
+      // Older Arrow arrays yield Python timedeltas. A Python divisor works
+      // with both scalar types and preserves pandas sub-microsecond values.
+      second.assign(PyObject_CallMethod(datetime, "timedelta", "ii", 0, 1));
+      if (second.is_null())
+        throw PythonException(py_fetch_error());
+    }
 
     Py_ssize_t size = PyObject_Size(series);
     if (size < 0)
@@ -4072,23 +4089,45 @@ SEXP py_convert_pandas_series(PyObjectRef series_) {
     if (iter.is_null())
       throw PythonException(py_fetch_error());
 
-    DatetimeVector R_posixct(size);
+    NumericVector result(size);
     for (Py_ssize_t i = 0; i < size; ++i) {
       PyObjectPtr value(PyIter_Next(iter));
       if (value.is_null())
         throw PythonException(py_fetch_error());
 
-      // timestamp() respects time zones; NaT raises instead of returning a value.
-      PyObjectPtr timestamp(PyObject_CallMethod(value, "timestamp", NULL));
-      if (timestamp.is_null()) {
-        R_posixct[i] = R_NaN;
-        PyErr_Clear();
-      } else {
-        R_posixct[i] = PyFloat_AsDouble(timestamp);
+      if (value.get() == nat.get() || value.get() == Py_None || is_pandas_na(value)) {
+        result[i] = NA_REAL;
+        continue;
       }
+
+      PyObjectPtr normalized;
+      PyObject* scalar = value.get();
+      if (kind == "M" && (PyObject*) Py_TYPE(value) == datetime_type.get()) {
+        // Older Arrow arrays yield Python datetimes, whose naive timestamp()
+        // uses local time. Normalize them to pandas' UTC interpretation.
+        normalized.assign(PyObject_CallMethod(pandas, "Timestamp", "O", value.get()));
+        if (normalized.is_null())
+          throw PythonException(py_fetch_error());
+        scalar = normalized.get();
+      }
+
+      PyObjectPtr seconds(kind == "M" ?
+        PyObject_CallMethod(scalar, "timestamp", NULL) :
+        PyObject_CallMethod(scalar, "__truediv__", "O", second.get()));
+      if (seconds.is_null())
+        throw PythonException(py_fetch_error());
+      result[i] = PyFloat_AsDouble(seconds);
+      if (PyErr_Occurred())
+        throw PythonException(py_fetch_error());
     }
 
-    return R_posixct;
+    if (kind == "M") {
+      result.attr("class") = CharacterVector::create("POSIXct", "POSIXt");
+    } else {
+      result.attr("class") = "difftime";
+      result.attr("units") = "secs";
+    }
+    return result;
 
 
   // Data types starting with Capitalized case are used as the nullable datatypes in
@@ -4109,6 +4148,40 @@ SEXP py_convert_pandas_series(PyObjectRef series_) {
 
   // default case
   } else {
+
+    PyObjectPtr pandas(PyImport_ImportModule("pandas"));
+    if (pandas.is_null())
+      throw PythonException(py_fetch_error());
+    PyObjectPtr period_dtype(PyObject_GetAttrString(pandas, "PeriodDtype"));
+    if (period_dtype.is_null())
+      throw PythonException(py_fetch_error());
+    int is_period = PyObject_IsInstance(dtype, period_dtype);
+    if (is_period < 0)
+      throw PythonException(py_fetch_error());
+    if (is_period) {
+      // Keep the frequency and interval intact; callers can explicitly choose
+      // labels or start/end timestamps in pandas before converting to R.
+      PyObjectPtr nat(PyObject_GetAttrString(pandas, "NaT"));
+      if (nat.is_null())
+        throw PythonException(py_fetch_error());
+      Py_ssize_t size = PyObject_Size(series);
+      if (size < 0)
+        throw PythonException(py_fetch_error());
+      PyObjectPtr iter(PyObject_GetIter(series));
+      if (iter.is_null())
+        throw PythonException(py_fetch_error());
+      List result(size);
+      for (Py_ssize_t i = 0; i < size; ++i) {
+        PyObjectPtr value(PyIter_Next(iter));
+        if (value.is_null())
+          throw PythonException(py_fetch_error());
+        if (value.get() == nat.get())
+          result[i] = LogicalVector::create(NA_LOGICAL);
+        else
+          result[i] = py_to_r(value, true);
+      }
+      return result;
+    }
 
     PyObjectPtr values(PyObject_GetAttrString(series, "values"));
     R_obj = py_to_r(values, true);

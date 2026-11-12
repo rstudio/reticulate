@@ -307,6 +307,59 @@ test_that("explicit integer row names become the pandas index, #1924", {
   expect_identical(py_to_r(index), 0:2)
 })
 
+test_that("integer pandas indexes retain integer R row names", {
+  skip_if_no_pandas()
+  skip_if(pandas_version() < "2.0")
+  pd <- import("pandas", convert = FALSE)
+  np <- import("numpy", convert = FALSE)
+  index <- pd$Index(np$array(c(1L, 2L, 4L), dtype = "int32"))
+  frame <- pd$DataFrame(dict(x = c(10, 20, 30)), index = index)
+  actual <- py_to_r(frame)
+  expect_type(attr(actual, "row.names"), "integer")
+  expect_identical(rownames(actual), c("1", "2", "4"))
+})
+
+test_that("missing pandas index labels preserve the table and original index", {
+  skip_if_no_pandas()
+  pd <- import("pandas", convert = FALSE)
+  np <- import("numpy", convert = FALSE)
+  dates <- pd$DatetimeIndex(list("2020-01-01", pd$NaT))
+  indexes <- list(dates, dates$tz_localize("America/New_York"),
+                  pd$DatetimeIndex(list(pd$NaT, pd$NaT)),
+                  pd$Index(list("a", NULL), dtype = "object"),
+                  pd$Index(list(1, np$nan)))
+  for (index in indexes) {
+    frame <- pd$DataFrame(dict(x = c(10, 20)), index = index)
+    expect_warning(actual <- py_to_r(frame),
+                   "index contains missing values: row names not set")
+    expect_identical(actual$x, c(10, 20))
+    expect_identical(rownames(actual), c("1", "2"))
+    expect_true(py_to_r(index$equals(attr(actual, "pandas.index"))))
+  }
+})
+
+test_that("datetime index labels must be unique as R row names", {
+  skip_if_no_pandas()
+  pd <- import("pandas", convert = FALSE)
+  withr::local_envvar(TZ = "UTC")
+  indexes <- list(
+    pd$DatetimeIndex(c("2020-01-01", "2020-01-01")),
+    pd$to_datetime(c(1000000000L, 1000000001L), unit = "ns")
+  )
+  for (index in indexes) {
+    frame <- pd$DataFrame(dict(x = c(10, 20)), index = index)
+    expect_warning(actual <- py_to_r(frame),
+                   "index contains duplicated values: row names not set")
+    expect_identical(actual$x, c(10, 20))
+    expect_identical(rownames(actual), c("1", "2"))
+    expect_true(py_to_r(index$equals(attr(actual, "pandas.index"))))
+  }
+
+  index <- pd$DatetimeIndex(c("2020-01-01", "2020-01-02"))
+  actual <- py_to_r(pd$DataFrame(dict(x = c(10, 20)), index = index))
+  expect_identical(rownames(actual), c("2020-01-01", "2020-01-02"))
+})
+
 test_that("Time zones are respected if available", {
   skip_if_no_pandas()
 
@@ -381,7 +434,7 @@ test_that("pandas datetime columns retain timestamps and missing values", {
   pd <- import("pandas", convert = FALSE)
   values <- list(pd$Timestamp("1969-12-31 23:59:59.5"),
                  pd$Timestamp("2020-01-01 00:00:00.25"), pd$NaT)
-  expected <- c(-0.5, 1577836800.25, NaN)
+  expected <- c(-0.5, 1577836800.25, NA_real_)
 
   for (tz in list(NULL, "America/New_York")) {
     dates <- pd$DatetimeIndex(values)$tz_localize(tz)
@@ -402,6 +455,140 @@ test_that("pandas datetime columns retain timestamps and missing values", {
   actual <- py_to_r(empty)$x
   expect_s3_class(actual, "POSIXct")
   expect_length(actual, 0L)
+})
+
+test_that("pandas timedelta columns convert to difftime", {
+  skip_if_no_pandas()
+  pd <- import("pandas", convert = FALSE)
+  values <- pd$to_timedelta(c("1.5s", "-0.25s", "NaT"))
+  actual <- py_to_r(pd$DataFrame(dict(x = values)))$x
+  expect_identical(actual, as.difftime(c(1.5, -0.25, NA_real_), units = "secs"))
+  expect_identical(unname(py_to_r(pd$Series(values))), actual)
+
+  empty <- pd$DataFrame(dict(x = pd$to_timedelta(list())))
+  expect_identical(py_to_r(empty)$x, as.difftime(numeric(), units = "secs"))
+
+  nanos <- pd$to_timedelta(c(-1L, 0L, 1L), unit = "ns")
+  actual <- py_to_r(pd$DataFrame(dict(x = nanos)))$x
+  expect_equal(as.numeric(actual), c(-1e-9, 0, 1e-9), tolerance = 1e-20)
+})
+
+test_that("Arrow timestamp columns preserve values and nulls", {
+  skip_if_no_pandas()
+  skip_if_not(py_module_available("pyarrow"))
+  pd <- import("pandas", convert = FALSE)
+  skip_if(pandas_version() < "2.0")
+  pa <- import("pyarrow", convert = FALSE)
+
+  for (tz in list(NULL, "America/New_York")) {
+    dates <- list(pd$Timestamp("2020-01-01", tz = tz),
+                  pd$Timestamp("2500-01-01", tz = tz), NULL)
+    for (values in list(list(NULL), dates)) {
+      column <- pd$Series(values, dtype = pd$ArrowDtype(pa$timestamp("us", tz = tz)))
+      actual <- py_to_r(column$to_frame("x"))$x
+      expect_s3_class(actual, "POSIXct")
+      offset <- if (is.null(tz)) 0 else 5 * 3600
+      expected <- if (length(values) == 1L) NA_real_ else
+        c(1577836800, 16725225600, NA_real_) + offset
+      expect_identical(as.numeric(actual), expected)
+    }
+  }
+})
+
+test_that("Arrow duration columns preserve values and nulls", {
+  skip_if_no_pandas()
+  skip_if_not(py_module_available("pyarrow"))
+  pd <- import("pandas", convert = FALSE)
+  skip_if(pandas_version() < "2.0")
+  datetime <- import("datetime", convert = FALSE)
+  pa <- import("pyarrow", convert = FALSE)
+
+  durations <- list(datetime$timedelta(seconds = 1.5),
+                    datetime$timedelta(microseconds = -1L),
+                    datetime$timedelta(days = 1000000L), NULL)
+  for (values in list(list(NULL), durations)) {
+    dtype <- pa$duration("us")
+    column <- pd$Series(pa$array(values, type = dtype), dtype = pd$ArrowDtype(dtype))
+    actual <- py_to_r(column$to_frame("x"))$x
+    expected <- if (length(values) == 1L) NA_real_ else
+      c(1.5, -1e-6, 86400000000, NA_real_)
+    expect_identical(actual, as.difftime(expected, units = "secs"))
+    expect_identical(unname(py_to_r(column)), actual)
+  }
+})
+
+test_that("pandas datetime Series preserve nanosecond fractions", {
+  skip_if_no_pandas()
+  pd <- import("pandas", convert = FALSE)
+  values <- pd$Series(pd$to_datetime(c(-1L, 0L, 1L), unit = "ns"))
+  expect_equal(as.numeric(py_to_r(values)), c(-1e-9, 0, 1e-9),
+               tolerance = 1e-20)
+})
+
+test_that("sparse temporal columns remain Python SparseArrays", {
+  skip_if_no_pandas()
+  pd <- import("pandas", convert = FALSE)
+  np <- import("numpy", convert = FALSE)
+  bt <- import("builtins")
+
+  for (dtype in c("datetime64[ns]", "timedelta64[ns]")) {
+    first <- if (dtype == "datetime64[ns]") "2020-01-01" else "1"
+    for (values in list(c(first, "NaT"), c("NaT", "NaT"), character())) {
+      sparse <- pd$arrays$SparseArray(np$array(values, dtype = dtype),
+                                     dtype = pd$SparseDtype(dtype))
+      ordinary <- as.numeric(seq_along(values))
+      frame <- pd$DataFrame(dict(x = sparse, y = ordinary))
+      actual <- py_to_r(frame)
+      expect_true(bt$isinstance(actual$x, pd$arrays$SparseArray))
+      expect_identical(py_id(actual$x), py_id(frame$x$values))
+      expect_identical(nrow(actual), length(values))
+      expect_identical(actual$y, ordinary)
+    }
+  }
+})
+
+test_that("pandas periods remain Python objects in a list column", {
+  skip_if_no_pandas()
+  pd <- import("pandas", convert = FALSE)
+  bt <- import("builtins")
+  for (freq in c("M", "D")) {
+    values <- pd$PeriodIndex(list("2020-01-01", NULL), freq = freq)
+    actual <- py_to_r(pd$DataFrame(dict(x = values)))$x
+    expect_type(actual, "list")
+    expect_true(bt$isinstance(actual[[1L]], pd$Period))
+    expect_true(py_to_r(actual[[1L]]$`__eq__`(values[[0L]])))
+    expect_identical(actual[[2L]], NA)
+    series <- py_to_r(pd$Series(values))
+    expect_true(py_to_r(series[[1L]]$`__eq__`(values[[0L]])))
+    expect_identical(series[[2L]], NA)
+  }
+
+  empty <- pd$DataFrame(dict(x = pd$PeriodIndex(list(), freq = "M")))
+  expect_identical(py_to_r(empty)$x, list())
+})
+
+test_that("pandas temporal conversion propagates unrelated errors", {
+  skip_if_no_pandas()
+  objects <- py_run_string("
+def make_frame():
+    import pandas as pd
+
+    class BrokenTimestamp:
+        def timestamp(self):
+            raise ValueError('timestamp conversion failed')
+
+    class BrokenSeries(pd.Series):
+        def __iter__(self):
+            yield BrokenTimestamp()
+
+    class BrokenFrame(pd.DataFrame):
+        _constructor_sliced = BrokenSeries
+
+    return BrokenFrame({'x': pd.to_datetime(['2020-01-01'])})
+
+frame = make_frame()
+", local = TRUE, convert = FALSE)
+  expect_error(py_to_r(objects$frame), "ValueError: timestamp conversion failed")
 })
 
 test_that("pandas NAs are converted to R NAs", {
@@ -522,6 +709,14 @@ test_that("NA in string columns don't prevent simplification", {
   expect_equal(typeof(r), "character")
   expect_equal(as.logical(is.na(r)), c(FALSE, TRUE, TRUE, TRUE))
 
+})
+
+test_that("pandas NA allows string object arrays to simplify", {
+  skip_if_no_pandas()
+  pd <- import("pandas", convert = FALSE)
+  np <- import("numpy", convert = FALSE)
+  x <- np$array(list("a", pd$`NA`), dtype = "object")
+  expect_identical(py_to_r(x), array(c("a", NA_character_)))
 })
 
 test_that("NA's are preserved in pandas columns", {

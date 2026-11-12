@@ -1,10 +1,19 @@
 # reticulate (development version)
 
+- `py_to_r()` converts pandas timedelta columns to `difftime` and preserves
+  period values as Python objects in list columns. Temporal missing values
+  become `NA`; unrelated conversion errors are reported. NumPy datetime
+  conversion preserves dates outside the nanosecond range, including year 2500.
+
+- Converting a pandas data frame with missing or duplicated index labels keeps
+  the default R row names and warns. The original index remains available in
+  the `pandas.index` attribute.
+
 - `py_capture_output()` restores redirected Python logging handlers to their
   original streams, so subsequent logging no longer writes to a previous
   capture buffer. Explicit handler stream changes made during capture are
   preserved.
-  
+
 - R callbacks invoked by Python background threads now return interrupts and
   `SystemExit` to the requesting thread. Callback scheduling no longer blocks
   Python from draining a full pending-call queue, and event polling retries

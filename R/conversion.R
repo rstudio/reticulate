@@ -161,9 +161,14 @@ py_to_r.collections.OrderedDict <- function(x) {
 #' @export
 py_to_r.pandas.core.series.Series <- function(x) {
   local_conversion_scope(x, FALSE)
-  values <- py_to_r(x$values)
-  index <- py_to_r(x$index)
   bt <- import("builtins")
+  pd <- import("pandas", convert = FALSE)
+  dtype <- x$dtype
+  values <- if (as_r_value(dtype$kind) == "m" || bt$isinstance(dtype, pd$PeriodDtype))
+    py_convert_pandas_series(x)
+  else
+    py_to_r(x$values)
+  index <- py_to_r(x$index)
   names(values) <- as.character(bt$list(index$map(bt$str)))
   values
 }
@@ -358,32 +363,32 @@ py_to_r.pandas.core.frame.DataFrame <- function(x) {
       }
     }
 
-    else if (inherits(index, c("pandas.core.indexes.datetimes.DatetimeIndex",
-                               "pandas.tseries.index.DatetimeIndex",
-                               "pandas.DatetimeIndex"
-                              ))) {
-
-      converted <- tryCatch(py_to_r(index$values), error = identity)
-
-      tz <- index[["tz"]]
-      if (inherits(tz, "pytz.tzinfo.BaseTzInfo") ||
-          inherits(tz, "pytz.UTC"))
-      {
-        zone <- tryCatch(py_to_r(tz$zone), error = function(e) NULL)
-        if (!is.null(zone) && zone %in% OlsonNames())
-          attr(converted, "tzone") <- zone
-      }
-
-      rownames(df) <- converted
-    }
-
     else {
       converted <- tryCatch(py_to_r(index$values), error = identity)
-      if (is.character(converted) || is.numeric(converted)) {
-        if (any(duplicated(converted))) {
-          warning("index contains duplicated values: row names not set")
+
+      if (inherits(index, c("pandas.core.indexes.datetimes.DatetimeIndex",
+                            "pandas.tseries.index.DatetimeIndex",
+                            "pandas.DatetimeIndex"))) {
+        tz <- index[["tz"]]
+        if (inherits(tz, c("pytz.tzinfo.BaseTzInfo", "pytz.UTC"))) {
+          zone <- tryCatch(py_to_r(tz$zone), error = function(e) NULL)
+          if (!is.null(zone) && zone %in% OlsonNames())
+            attr(converted, "tzone") <- zone
+        }
+      }
+
+      if (is.character(converted) || is.numeric(converted) ||
+          inherits(converted, "POSIXct")) {
+        if (anyNA(converted)) {
+          warning("index contains missing values: row names not set")
         } else {
-          rownames(df) <- converted
+          # Distinct timestamps can format to the same R row name.
+          row_names <- as.character(converted)
+          if (anyDuplicated(row_names)) {
+            warning("index contains duplicated values: row names not set")
+          } else {
+            rownames(df) <- converted
+          }
         }
       }
 

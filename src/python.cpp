@@ -4275,6 +4275,7 @@ PyObject* r_to_py_pandas_nullable_series (const RObject& column, const bool conv
   PyObjectPtr args(PyTuple_New(3));
   PyTuple_SetItem(args, 0, (PyObject*)r_to_py_numpy(column, convert)); // value
   PyTuple_SetItem(args, 1, (PyObject*)na_mask(column));                // mask
+  Py_IncRef(Py_False); // PyTuple_SetItem steals a reference.
   PyTuple_SetItem(args, 2, Py_False);                                  // copy=False
 
   PyObject* pd_col(PyObject_Call(constructor, args, NULL));

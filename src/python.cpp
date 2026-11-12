@@ -4044,6 +4044,20 @@ SEXP py_convert_pandas_series(PyObjectRef series_) {
     PyObjectPtr pandas(PyImport_ImportModule("pandas"));
     if (pandas.is_null())
       throw PythonException(py_fetch_error());
+    PyObjectPtr sparse_dtype(PyObject_GetAttrString(pandas, "SparseDtype"));
+    if (sparse_dtype.is_null())
+      throw PythonException(py_fetch_error());
+    int is_sparse = PyObject_IsInstance(dtype, sparse_dtype);
+    if (is_sparse < 0)
+      throw PythonException(py_fetch_error());
+    if (is_sparse) {
+      // Keep sparse columns as Python arrays.
+      PyObjectPtr values(PyObject_GetAttrString(series, "values"));
+      if (values.is_null())
+        throw PythonException(py_fetch_error());
+      return py_to_r(values, true);
+    }
+
     PyObjectPtr nat(PyObject_GetAttrString(pandas, "NaT"));
     if (nat.is_null())
       throw PythonException(py_fetch_error());

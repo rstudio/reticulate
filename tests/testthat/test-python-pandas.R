@@ -525,6 +525,28 @@ test_that("pandas datetime Series preserve nanosecond fractions", {
                tolerance = 1e-20)
 })
 
+test_that("sparse temporal columns remain Python SparseArrays", {
+  skip_if_no_pandas()
+  pd <- import("pandas", convert = FALSE)
+  np <- import("numpy", convert = FALSE)
+  bt <- import("builtins")
+
+  for (dtype in c("datetime64[ns]", "timedelta64[ns]")) {
+    first <- if (dtype == "datetime64[ns]") "2020-01-01" else "1"
+    for (values in list(c(first, "NaT"), c("NaT", "NaT"), character())) {
+      sparse <- pd$arrays$SparseArray(np$array(values, dtype = dtype),
+                                     dtype = pd$SparseDtype(dtype))
+      ordinary <- as.numeric(seq_along(values))
+      frame <- pd$DataFrame(dict(x = sparse, y = ordinary))
+      actual <- py_to_r(frame)
+      expect_true(bt$isinstance(actual$x, pd$arrays$SparseArray))
+      expect_identical(py_id(actual$x), py_id(frame$x$values))
+      expect_identical(nrow(actual), length(values))
+      expect_identical(actual$y, ordinary)
+    }
+  }
+})
+
 test_that("pandas periods remain Python objects in a list column", {
   skip_if_no_pandas()
   pd <- import("pandas", convert = FALSE)

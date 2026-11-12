@@ -243,6 +243,8 @@ Pandas datetime columns convert to `POSIXct`, and timedelta columns convert to
 `difftime` in seconds. Missing temporal values become `NA`. These conversions
 also apply to standalone pandas Series.
 
+Sparse columns in data frames remain Python `SparseArray` objects.
+
 Pandas periods represent intervals with a frequency, such as a month or a
 quarter. They convert to list columns containing Python `Period` objects, with
 `NA` for missing periods, preserving the interval and its frequency. To use

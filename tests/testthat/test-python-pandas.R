@@ -745,6 +745,35 @@ test_that("NA's are preserved in pandas columns", {
   expect_identical(r_df$string, df$string)
 })
 
+test_that("repeated nullable pandas conversions preserve False references", {
+  skip_if_no_pandas()
+  skip_if(pandas_version() < "1.2")
+  # Python 3.12+ makes booleans immortal, masking reference ownership errors.
+  skip_if(py_version() >= "3.12")
+  withr::local_options(reticulate.pandas_use_nullable_dtypes = TRUE)
+
+  df <- data.frame(
+    int = c(1L, NA_integer_),
+    num = c(1, NA_real_),
+    bool = c(FALSE, NA)
+  )
+  refcount <- py_eval("lambda: __import__('sys').getrefcount(False)")
+  collect <- import("gc")$collect
+
+  # Initialize pandas caches and release temporary conversion objects first.
+  invisible(r_to_py(df))
+  gc()
+  collect()
+  before <- refcount()
+
+  for (i in seq_len(25L))
+    invisible(r_to_py(df))
+  gc()
+  collect()
+
+  expect_identical(refcount(), before)
+})
+
 test_that("Round strip for string columns with NA's work correctly", {
   skip_if_no_pandas()
   df <- data.frame(string = c(NA, letters[1:10]))

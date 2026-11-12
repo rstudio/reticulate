@@ -161,9 +161,14 @@ py_to_r.collections.OrderedDict <- function(x) {
 #' @export
 py_to_r.pandas.core.series.Series <- function(x) {
   local_conversion_scope(x, FALSE)
-  values <- py_to_r(x$values)
-  index <- py_to_r(x$index)
   bt <- import("builtins")
+  pd <- import("pandas", convert = FALSE)
+  dtype <- x$dtype
+  values <- if (as_r_value(dtype$kind) == "m" || bt$isinstance(dtype, pd$PeriodDtype))
+    py_convert_pandas_series(x)
+  else
+    py_to_r(x$values)
+  index <- py_to_r(x$index)
   names(values) <- as.character(bt$list(index$map(bt$str)))
   values
 }

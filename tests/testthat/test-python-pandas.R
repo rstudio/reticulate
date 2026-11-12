@@ -381,7 +381,7 @@ test_that("pandas datetime columns retain timestamps and missing values", {
   pd <- import("pandas", convert = FALSE)
   values <- list(pd$Timestamp("1969-12-31 23:59:59.5"),
                  pd$Timestamp("2020-01-01 00:00:00.25"), pd$NaT)
-  expected <- c(-0.5, 1577836800.25, NaN)
+  expected <- c(-0.5, 1577836800.25, NA_real_)
 
   for (tz in list(NULL, "America/New_York")) {
     dates <- pd$DatetimeIndex(values)$tz_localize(tz)
@@ -402,6 +402,74 @@ test_that("pandas datetime columns retain timestamps and missing values", {
   actual <- py_to_r(empty)$x
   expect_s3_class(actual, "POSIXct")
   expect_length(actual, 0L)
+})
+
+test_that("pandas timedelta columns convert to difftime", {
+  skip_if_no_pandas()
+  pd <- import("pandas", convert = FALSE)
+  values <- pd$to_timedelta(c("1.5s", "-0.25s", "NaT"))
+  actual <- py_to_r(pd$DataFrame(dict(x = values)))$x
+  expect_identical(actual, as.difftime(c(1.5, -0.25, NA_real_), units = "secs"))
+  expect_identical(unname(py_to_r(pd$Series(values))), actual)
+
+  empty <- pd$DataFrame(dict(x = pd$to_timedelta(list())))
+  expect_identical(py_to_r(empty)$x, as.difftime(numeric(), units = "secs"))
+
+  nanos <- pd$to_timedelta(c(-1L, 0L, 1L), unit = "ns")
+  actual <- py_to_r(pd$DataFrame(dict(x = nanos)))$x
+  expect_equal(as.numeric(actual), c(-1e-9, 0, 1e-9), tolerance = 1e-20)
+})
+
+test_that("pandas datetime Series preserve nanosecond fractions", {
+  skip_if_no_pandas()
+  pd <- import("pandas", convert = FALSE)
+  values <- pd$Series(pd$to_datetime(c(-1L, 0L, 1L), unit = "ns"))
+  expect_equal(as.numeric(py_to_r(values)), c(-1e-9, 0, 1e-9),
+               tolerance = 1e-20)
+})
+
+test_that("pandas periods remain Python objects in a list column", {
+  skip_if_no_pandas()
+  pd <- import("pandas", convert = FALSE)
+  bt <- import("builtins")
+  for (freq in c("M", "D")) {
+    values <- pd$PeriodIndex(list("2020-01-01", NULL), freq = freq)
+    actual <- py_to_r(pd$DataFrame(dict(x = values)))$x
+    expect_type(actual, "list")
+    expect_true(bt$isinstance(actual[[1L]], pd$Period))
+    expect_true(py_to_r(actual[[1L]]$`__eq__`(values[[0L]])))
+    expect_identical(actual[[2L]], NA)
+    series <- py_to_r(pd$Series(values))
+    expect_true(py_to_r(series[[1L]]$`__eq__`(values[[0L]])))
+    expect_identical(series[[2L]], NA)
+  }
+
+  empty <- pd$DataFrame(dict(x = pd$PeriodIndex(list(), freq = "M")))
+  expect_identical(py_to_r(empty)$x, list())
+})
+
+test_that("pandas temporal conversion propagates unrelated errors", {
+  skip_if_no_pandas()
+  objects <- py_run_string("
+def make_frame():
+    import pandas as pd
+
+    class BrokenTimestamp:
+        def timestamp(self):
+            raise ValueError('timestamp conversion failed')
+
+    class BrokenSeries(pd.Series):
+        def __iter__(self):
+            yield BrokenTimestamp()
+
+    class BrokenFrame(pd.DataFrame):
+        _constructor_sliced = BrokenSeries
+
+    return BrokenFrame({'x': pd.to_datetime(['2020-01-01'])})
+
+frame = make_frame()
+", local = TRUE, convert = FALSE)
+  expect_error(py_to_r(objects$frame), "ValueError: timestamp conversion failed")
 })
 
 test_that("pandas NAs are converted to R NAs", {

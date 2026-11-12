@@ -1,5 +1,10 @@
 # reticulate (development version)
 
+- `py_to_r()` converts pandas timedelta columns to `difftime` and preserves
+  period values as Python objects in list columns. Temporal missing values
+  become `NA`; unrelated conversion errors are reported. NumPy datetime
+  conversion preserves dates outside the nanosecond range, including year 2500.
+
 - Native conversion uses fewer temporary buffers for NumPy integer arrays,
   pandas categorical and datetime columns, dictionaries, and R callbacks (#1950).
 

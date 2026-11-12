@@ -235,6 +235,22 @@ R data frames can be automatically converted to and from [Pandas](https://pandas
 
 If the R data frame has row names, the generated Pandas DataFrame will be re-indexed using those row names (and vice versa). Special handling is also available for a `DatetimeIndex` associated with a Pandas DataFrame; however, because R only supports character vectors for row names they are converted to character first.
 
+Pandas datetime columns convert to `POSIXct`, and timedelta columns convert to
+`difftime` in seconds. Missing temporal values become `NA`. These conversions
+also apply to standalone pandas Series.
+
+Pandas periods represent intervals with a frequency, such as a month or a
+quarter. They convert to list columns containing Python `Period` objects, with
+`NA` for missing periods, preserving the interval and its frequency. To use
+labels or dates in R, choose the representation in pandas before conversion:
+
+```r
+# x is a pandas Series with a period dtype
+py_to_r(x$astype("str"))                     # labels, such as "2020-01"
+py_to_r(x$dt$to_timestamp(how = "start"))     # interval starts
+py_to_r(x$dt$to_timestamp(how = "end"))       # interval ends
+```
+
 ### Using Pandas nullable data types
 
 Pandas has experimental support for nullable data types. Those data types have built-in

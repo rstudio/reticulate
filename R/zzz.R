@@ -65,6 +65,12 @@
   ## Register S3 method for suggested package
   s3_register <- asNamespace("rlang")$s3_register
   s3_register("pillar::type_sum", "python.builtin.object")
+  s3_register("pillar::pillar_shaft", "numpy.ndarray")
+  for (generic in c("vec_proxy", "vec_restore", "vec_proxy_equal",
+                    "vec_proxy_compare"))
+    s3_register(paste0("vctrs::", generic), "numpy.ndarray")
+  for (generic in c("vec_ptype2", "vec_cast"))
+    s3_register(paste0("vctrs::", generic), "numpy.ndarray.numpy.ndarray")
 
   if (is_positron()) {
 

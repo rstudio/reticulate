@@ -53,9 +53,12 @@ Suggests:
     knitr,
     glue,
     cli,
+    dplyr,
     rmarkdown,
     pillar,
-    testthat
+    testthat,
+    tibble,
+    vctrs (>= 0.7.0)
 LinkingTo: Rcpp
 Roxygen: list(markdown = TRUE)
 VignetteBuilder: knitr

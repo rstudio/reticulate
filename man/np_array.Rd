@@ -7,7 +7,8 @@
 np_array(data, dtype = NULL, order = "C")
 }
 \arguments{
-\item{data}{Vector or existing NumPy array providing data for the array}
+\item{data}{Vector, NumPy array, or \code{\link[=np_array_column]{np_array_column()}} providing data for
+the array.}
 
 \item{dtype}{Numpy data type (e.g. "float32", "float64", etc.)}
 
@@ -20,4 +21,8 @@ A NumPy array object.
 \description{
 Create NumPy arrays and convert the data type and in-memory
 ordering of existing NumPy arrays.
+}
+\seealso{
+\code{\link[=np_array_column]{np_array_column()}} for wrapping arrays as dataframe columns with
+R row indexing and deferred array gathering.
 }

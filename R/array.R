@@ -4,15 +4,22 @@
 #' Create NumPy arrays and convert the data type and in-memory
 #' ordering of existing NumPy arrays.
 #'
-#' @param data Vector or existing NumPy array providing data for the array
+#' @param data Vector, NumPy array, or [np_array_column()] providing data for
+#'   the array.
 #' @param dtype Numpy data type (e.g. "float32", "float64", etc.)
 #' @param order Memory ordering for array. "C" means C order, "F" means Fortran
 #'   order.
 #'
 #' @return A NumPy array object.
 #'
+#' @seealso [np_array_column()] for wrapping arrays as dataframe columns with
+#'   R row indexing and deferred array gathering.
+#'
 #' @export
 np_array <- function(data, dtype = NULL, order = "C") {
+
+  if (inherits(data, "np_array_column"))
+    data <- r_to_py(data, convert = FALSE)
 
   # convert to numpy if required
   if (!inherits(data, "numpy.ndarray")) {

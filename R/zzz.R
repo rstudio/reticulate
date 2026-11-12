@@ -65,6 +65,13 @@
   ## Register S3 method for suggested package
   s3_register <- asNamespace("rlang")$s3_register
   s3_register("pillar::type_sum", "python.builtin.object")
+  s3_register("pillar::type_sum", "np_array_column")
+  s3_register("pillar::pillar_shaft", "np_array_column")
+  for (generic in c("vec_ptype", "vec_proxy_equal",
+                    "vec_proxy_compare"))
+    s3_register(paste0("vctrs::", generic), "np_array_column")
+  for (generic in c("vec_ptype2", "vec_cast"))
+    s3_register(paste0("vctrs::", generic), "np_array_column.np_array_column")
 
   if (is_positron()) {
 

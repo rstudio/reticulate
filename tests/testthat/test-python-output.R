@@ -220,7 +220,8 @@ for (logger_name in c("", "reticulate.test.output")) {
 
     output <- py_capture_output({
       log$logger$info("before")
-      log$stdout_handler$setStream(destination)
+      # setStream() is only available in Python >= 3.7.
+      log$stdout_handler$stream <- destination
       log$logger$info("during")
     })
 
@@ -242,7 +243,7 @@ for (logger_name in c("", "reticulate.test.output")) {
       log$logger$info("outer before")
       inner <- py_capture_output({
         log$logger$info("inner before")
-        log$stderr_handler$setStream(destination)
+        log$stderr_handler$stream <- destination
         log$logger$info("inner after")
       })
       log$logger$info("outer after")

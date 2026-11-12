@@ -2,6 +2,11 @@
 
 ## reticulate (development version)
 
+- Fixed a reference-counting error that could crash Python 3.11 and
+  earlier after repeated data-frame conversions with
+  `options(reticulate.pandas_use_nullable_dtypes = TRUE)`
+  ([\#1952](https://github.com/rstudio/reticulate/issues/1952)).
+
 - Native conversion uses fewer temporary buffers for NumPy integer
   arrays, pandas categorical and datetime columns, dictionaries, and R
   callbacks

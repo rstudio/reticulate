@@ -214,6 +214,51 @@ for (logger_name in c("", "reticulate.test.output")) {
     expect_equal(log$stderr$getvalue(), "after outer\n")
   })
 
+  test_that(paste(logger_label, "logger stream changes survive capture"), {
+    log <- local_output_logger(logger_name)
+    destination <- import("io")$StringIO()
+
+    output <- py_capture_output({
+      log$logger$info("before")
+      log$stdout_handler$setStream(destination)
+      log$logger$info("during")
+    })
+
+    expect_equal(output, "before\nbefore\nduring\n")
+    expect_identical(py_id(log$stdout_handler$stream), py_id(destination))
+    expect_identical(py_id(log$stderr_handler$stream), py_id(log$stderr))
+
+    log$logger$info("after")
+    expect_equal(destination$getvalue(), "during\nafter\n")
+    expect_equal(log$stdout$getvalue(), "")
+    expect_equal(log$stderr$getvalue(), "after\n")
+  })
+
+  test_that(paste(logger_label, "logger stream changes survive nested captures"), {
+    log <- local_output_logger(logger_name)
+    destination <- import("io")$StringIO()
+
+    outer <- py_capture_output({
+      log$logger$info("outer before")
+      inner <- py_capture_output({
+        log$logger$info("inner before")
+        log$stderr_handler$setStream(destination)
+        log$logger$info("inner after")
+      })
+      log$logger$info("outer after")
+    })
+
+    expect_equal(inner, "inner before\ninner before\ninner after\n")
+    expect_equal(outer, "outer before\nouter before\nouter after\n")
+    expect_identical(py_id(log$stdout_handler$stream), py_id(log$stdout))
+    expect_identical(py_id(log$stderr_handler$stream), py_id(destination))
+
+    log$logger$info("after")
+    expect_equal(destination$getvalue(), "inner after\nouter after\nafter\n")
+    expect_equal(log$stdout$getvalue(), "after\n")
+    expect_equal(log$stderr$getvalue(), "")
+  })
+
   test_that(paste(logger_label, "logger streams survive selective captures"), {
     log <- local_output_logger(logger_name)
 

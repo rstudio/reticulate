@@ -86,10 +86,11 @@ class OutputCaptureContext:
         if self._capture_stderr:
             sys.stderr = self._prev_stderr
 
-        # stdout and stderr share a capture buffer, so restore each handler's
-        # original stream rather than searching for the capture buffer.
+        # stdout and stderr share a capture buffer. Restore their saved streams
+        # only if the handler has not been explicitly redirected during capture.
         for handler, stream in self._overridden_streams:
-            _setStream(handler, stream)
+            if handler.stream is self._capturing_stream:
+                _setStream(handler, stream)
 
     def collect_output(self, clear=True):
         output = self._capturing_stream.getvalue()

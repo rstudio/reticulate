@@ -2,7 +2,8 @@
 
 - `py_capture_output()` restores redirected Python logging handlers to their
   original streams, so subsequent logging no longer writes to a previous
-  capture buffer.
+  capture buffer. Explicit handler stream changes made during capture are
+  preserved.
 
 - Native conversion uses fewer temporary buffers for NumPy integer arrays,
   pandas categorical and datetime columns, dictionaries, and R callbacks (#1950).

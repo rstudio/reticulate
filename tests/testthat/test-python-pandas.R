@@ -420,6 +420,36 @@ test_that("pandas timedelta columns convert to difftime", {
   expect_equal(as.numeric(actual), c(-1e-9, 0, 1e-9), tolerance = 1e-20)
 })
 
+test_that("Arrow timestamp columns preserve values and nulls", {
+  skip_if_no_pandas()
+  skip_if_not(py_module_available("pyarrow"))
+  pd <- import("pandas", convert = FALSE)
+  skip_if(pandas_version() < "2.0")
+
+  for (values in list(list(NULL), list(pd$Timestamp("2020-01-01"), NULL))) {
+    column <- pd$Series(values, dtype = "timestamp[us][pyarrow]")
+    actual <- py_to_r(column$to_frame("x"))$x
+    expect_s3_class(actual, "POSIXct")
+    expected <- if (length(values) == 1L) NA_real_ else c(1577836800, NA_real_)
+    expect_identical(as.numeric(actual), expected)
+  }
+})
+
+test_that("Arrow duration columns preserve values and nulls", {
+  skip_if_no_pandas()
+  skip_if_not(py_module_available("pyarrow"))
+  pd <- import("pandas", convert = FALSE)
+  skip_if(pandas_version() < "2.0")
+
+  for (values in list(list(NULL), list(pd$Timedelta("1.5s"), NULL))) {
+    column <- pd$Series(values, dtype = "duration[us][pyarrow]")
+    actual <- py_to_r(column$to_frame("x"))$x
+    expected <- if (length(values) == 1L) NA_real_ else c(1.5, NA_real_)
+    expect_identical(actual, as.difftime(expected, units = "secs"))
+    expect_identical(unname(py_to_r(column)), actual)
+  }
+})
+
 test_that("pandas datetime Series preserve nanosecond fractions", {
   skip_if_no_pandas()
   pd <- import("pandas", convert = FALSE)
@@ -590,6 +620,14 @@ test_that("NA in string columns don't prevent simplification", {
   expect_equal(typeof(r), "character")
   expect_equal(as.logical(is.na(r)), c(FALSE, TRUE, TRUE, TRUE))
 
+})
+
+test_that("pandas NA allows string object arrays to simplify", {
+  skip_if_no_pandas()
+  pd <- import("pandas", convert = FALSE)
+  np <- import("numpy", convert = FALSE)
+  x <- np$array(list("a", pd$`NA`), dtype = "object")
+  expect_identical(py_to_r(x), array(c("a", NA_character_)))
 })
 
 test_that("NA's are preserved in pandas columns", {

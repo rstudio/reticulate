@@ -1224,56 +1224,15 @@ int scalar_list_type(PyObject* x) {
   return scalarType;
 }
 
-bool py_equal(PyObject* x, const std::string& str) {
-
-  PyObjectPtr pyStr(as_python_str(str));
-  if (pyStr.is_null())
-    throw PythonException(py_fetch_error());
-
-  return PyObject_RichCompareBool(x, pyStr, Py_EQ) == 1;
-
-}
-
 bool is_pandas_na(PyObject* x) {
-
-  // don't want to prematurely import pandas if we don't need it.
-  // ideally we would be able to do something like this
-  // static PyObject* pandas_NAType = NULL;
-  // if (pandas_NAType == NULL) {
-  //   PyObjectPtr inspect(py_import("pandas"));
-  //   if (inspect.is_null())
-  //     throw PythonException(py_fetch_error());
-  // }
-  //  PyObject* type = (PyObject*) Py_TYPE(object);
-  // if (type == NULL)
-  //   throw PythonException(py_fetch_error());
-
-  // call inspect.getmro to get the class and it's bases in
-  // method resolution order
-
-
-  // retrieve class object
-  PyObjectPtr pyClass(py_get_attr(x, "__class__"));
-  if (pyClass.is_null())
+  // Compare the singleton: NAType's module changes across pandas versions.
+  // Look up only an already imported module, without caching its absence.
+  static PyObject* pandas_name = as_python_str("pandas");
+  static PyObject* na_name = as_python_str("NA");
+  PyObject* pandas = PyDict_GetItem(PyImport_GetModuleDict(), pandas_name);
+  if (pandas == NULL)
     return false;
-
-  PyObjectPtr pyModule(py_get_attr(pyClass, "__module__"));
-  if (pyModule.is_null())
-    return false;
-
-  // check for expected module name
-  if (!py_equal(pyModule, "pandas._libs.missing"))
-    return false;
-
-  // retrieve class name
-  PyObjectPtr pyName(py_get_attr(pyClass, "__name__"));
-  if (pyName.is_null())
-    return false;
-
-  // check for expected names
-  return py_equal(pyName, "NAType") ||
-    py_equal(pyName, "C_NAType");
-
+  return x == PyDict_GetItem(PyModule_GetDict(pandas), na_name);
 }
 
 #define STATIC_MODULE(module)                                      \

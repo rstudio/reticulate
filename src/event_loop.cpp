@@ -30,6 +30,7 @@ using namespace reticulate::libpython;
 
 #include "signals.h"
 #include "tinythread.h"
+#include <atomic>
 
 namespace reticulate {
 namespace event_loop {
@@ -37,7 +38,7 @@ namespace event_loop {
 namespace {
 
 // Tracks whether we've requested Python to poll on the main thread.
-volatile sig_atomic_t s_pollingRequested;
+std::atomic<bool> s_pollingRequested(false);
 bool s_flush_std_buffers = true;
 
 bool running = true;
@@ -59,10 +60,11 @@ void eventPollingWorker(void *) {
     // thread: "This function doesn’t need a current thread state to run, and it
     // doesn’t need the global interpreter lock."
     // (see: https://docs.python.org/3/c-api/init.html#c.Py_AddPendingCall)
-    if (s_pollingRequested == 0)
+    if (!s_pollingRequested)
     {
-      s_pollingRequested = 1;
-      Py_AddPendingCall(pollForEvents, NULL);
+      s_pollingRequested = true;
+      if (Py_AddPendingCall(pollForEvents, NULL) != 0)
+        s_pollingRequested = false;
     }
 
     // Throttle via sleep
@@ -98,7 +100,7 @@ int pollForEvents(void*) {
   // Request that the background thread schedule us to be called again
   // (this is delegated to a background thread so that these requests
   // can be throttled)
-  s_pollingRequested = 0;
+  s_pollingRequested = false;
 
   // Periodically flush stdout/stderr buffers to ensure that any output from
   // long-running Python calls is visible in the R console.

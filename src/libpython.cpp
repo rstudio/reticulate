@@ -103,24 +103,6 @@ bool loadSymbol(void* pLib, const std::string& name, void** ppSymbol, std::strin
   }
 }
 
-bool closeLibrary(void* pLib, std::string* pError)
-{
-#ifdef _WIN32
-  if (!::FreeLibrary((HMODULE)pLib))
-#else
-  if (::dlclose(pLib) != 0)
-#endif
-  {
-    lastDLErrorMessage(pError);
-    return false;
-  }
-  else
-  {
-    return true;
-  }
-}
-
-
 } // anonymous namespace
 
 
@@ -129,7 +111,6 @@ void initialize_type_objects() {
   Py_None = Py_BuildValue("z", NULL);
   Py_Unicode = Py_BuildValue("u", L"a");
   Py_Long = PyLong_FromLong(1024L);
-  Py_Bool = PyBool_FromLong(1L);
   Py_True = PyBool_FromLong(1L);
   Py_False = PyBool_FromLong(0L);
   Py_Dict = Py_BuildValue("{s:i}", "a", 1024);
@@ -138,7 +119,6 @@ void initialize_type_objects() {
   Py_List = Py_BuildValue("[i]", 1024);
   Py_Complex = PyComplex_FromDoubles(0.0, 0.0);
   Py_ByteArray = PyByteArray_FromStringAndSize("a", 1);
-  Py_DictClass = PyObject_Type(Py_Dict);
 
   PyObject* builtins = PyImport_AddModule("builtins"); // borrowed ref
   if (builtins == NULL) goto error;
@@ -160,7 +140,7 @@ if (!loadSymbol(pLib_, #name, (void**)&as, pError)) \
 if (!loadSymbol(pLib_, #name, (void**) &libpython::name, pError)) \
   return false;
 
-bool SharedLibrary::load(const std::string& libPath, int minor_ver, std::string* pError)
+bool LibPython::load(const std::string& libPath, int minor_ver, std::string* pError)
 {
   if (!loadLibrary(libPath, &pLib_, pError))
     return false;
@@ -195,14 +175,9 @@ bool LibPython::loadSymbols(int python_minor_ver, std::string* pError)
   LOAD_PYTHON_SYMBOL(Py_AddPendingCall)
   LOAD_PYTHON_SYMBOL(Py_MakePendingCalls)
   LOAD_PYTHON_SYMBOL(PyErr_SetInterrupt)
-  LOAD_PYTHON_SYMBOL(PyErr_CheckSignals)
   LOAD_PYTHON_SYMBOL(Py_IncRef)
   LOAD_PYTHON_SYMBOL(Py_DecRef)
   LOAD_PYTHON_SYMBOL(PyObject_Size)
-  LOAD_PYTHON_SYMBOL(PyObject_Type)
-  LOAD_PYTHON_SYMBOL(PyObject_GetAttr)
-  LOAD_PYTHON_SYMBOL(PyObject_HasAttr)
-  LOAD_PYTHON_SYMBOL(PyObject_SetAttr)
   LOAD_PYTHON_SYMBOL(PyObject_GetAttrString)
   LOAD_PYTHON_SYMBOL(PyObject_HasAttrString)
   if (python_minor_ver >= 13) {
@@ -220,7 +195,6 @@ bool LibPython::loadSymbols(int python_minor_ver, std::string* pError)
   LOAD_PYTHON_SYMBOL(PyTuple_GetItem)
   LOAD_PYTHON_SYMBOL(PyTuple_New)
   LOAD_PYTHON_SYMBOL(PyTuple_SetItem)
-  LOAD_PYTHON_SYMBOL(PyTuple_GetSlice)
   LOAD_PYTHON_SYMBOL(PyList_New)
   LOAD_PYTHON_SYMBOL(PyList_Size)
   LOAD_PYTHON_SYMBOL(PyList_GetItem)
@@ -231,14 +205,10 @@ bool LibPython::loadSymbols(int python_minor_ver, std::string* pError)
   LOAD_PYTHON_SYMBOL(PyErr_Restore)
   LOAD_PYTHON_SYMBOL(PyErr_Occurred)
   LOAD_PYTHON_SYMBOL(PyErr_SetNone)
-  LOAD_PYTHON_SYMBOL(PyErr_SetString)
   LOAD_PYTHON_SYMBOL(PyErr_SetObject)
-  LOAD_PYTHON_SYMBOL(PyErr_BadArgument)
   LOAD_PYTHON_SYMBOL(PyErr_NormalizeException)
   LOAD_PYTHON_SYMBOL(PyErr_ExceptionMatches)
   LOAD_PYTHON_SYMBOL(PyErr_GivenExceptionMatches)
-  LOAD_PYTHON_SYMBOL(PyErr_PrintEx)
-  LOAD_PYTHON_SYMBOL(PyObject_Print)
   LOAD_PYTHON_SYMBOL(PyObject_Str)
   LOAD_PYTHON_SYMBOL(PyObject_Repr)
   LOAD_PYTHON_SYMBOL(PyObject_Dir)
@@ -261,14 +231,12 @@ bool LibPython::loadSymbols(int python_minor_ver, std::string* pError)
   LOAD_PYTHON_SYMBOL(PySlice_New)
   LOAD_PYTHON_SYMBOL(PyBool_FromLong)
   LOAD_PYTHON_SYMBOL(PyDict_New)
-  LOAD_PYTHON_SYMBOL(PyDict_Contains)
   LOAD_PYTHON_SYMBOL(PyDict_GetItem)
   LOAD_PYTHON_SYMBOL(PyDict_SetItem)
   LOAD_PYTHON_SYMBOL(PyDict_SetItemString)
   LOAD_PYTHON_SYMBOL(PyDict_DelItemString)
   LOAD_PYTHON_SYMBOL(PyDict_Next)
   LOAD_PYTHON_SYMBOL(PyDict_Keys)
-  LOAD_PYTHON_SYMBOL(PyDict_Values)
   LOAD_PYTHON_SYMBOL(PyDict_Size)
   LOAD_PYTHON_SYMBOL(PyDict_Copy)
   LOAD_PYTHON_SYMBOL(PyFloat_AsDouble)
@@ -288,12 +256,9 @@ bool LibPython::loadSymbols(int python_minor_ver, std::string* pError)
   LOAD_PYTHON_SYMBOL(PyObject_CallFunctionObjArgs)
   LOAD_PYTHON_SYMBOL(PyType_IsSubtype)
   LOAD_PYTHON_SYMBOL(PyType_GetFlags)
-  LOAD_PYTHON_SYMBOL(PyMapping_Items)
-  LOAD_PYTHON_SYMBOL(PyOS_getsig)
   LOAD_PYTHON_SYMBOL(PyOS_setsig)
   LOAD_PYTHON_SYMBOL(PySys_WriteStderr)
   LOAD_PYTHON_SYMBOL(PySys_GetObject)
-  LOAD_PYTHON_SYMBOL(PyEval_SetProfile)
   LOAD_PYTHON_SYMBOL(PyGILState_GetThisThreadState)
   LOAD_PYTHON_SYMBOL(PyGILState_Ensure)
   LOAD_PYTHON_SYMBOL(PyGILState_Release)
@@ -303,7 +268,6 @@ bool LibPython::loadSymbols(int python_minor_ver, std::string* pError)
   LOAD_PYTHON_SYMBOL(PyObject_CallMethod)
   LOAD_PYTHON_SYMBOL(PySequence_GetItem)
   LOAD_PYTHON_SYMBOL(PyObject_IsTrue)
-  LOAD_PYTHON_SYMBOL(PyCapsule_Import)
   LOAD_PYTHON_SYMBOL(PyUnicode_AsUTF8)
   LOAD_PYTHON_SYMBOL(PyUnicode_CompareWithASCIIString)
 
@@ -323,12 +287,7 @@ bool LibPython::loadSymbols(int python_minor_ver, std::string* pError)
   LOAD_PYTHON_SYMBOL(Py_SetProgramName)
   LOAD_PYTHON_SYMBOL(Py_SetPythonHome)
   LOAD_PYTHON_SYMBOL(PySys_SetArgv)
-  LOAD_PYTHON_SYMBOL(PyUnicode_EncodeLocale)
-#ifdef _WIN32
-  LOAD_PYTHON_SYMBOL(PyUnicode_AsMBCSString)
-#endif
   LOAD_PYTHON_SYMBOL(PyBytes_AsStringAndSize)
-  LOAD_PYTHON_SYMBOL(PyBytes_FromStringAndSize)
   LOAD_PYTHON_SYMBOL(PyUnicode_FromString)
   LOAD_PYTHON_SYMBOL(Py_CompileStringExFlags)
   LOAD_PYTHON_SYMBOL(PyCapsule_New)
@@ -344,14 +303,6 @@ bool LibPython::loadSymbols(int python_minor_ver, std::string* pError)
   }
 
   return true;
-}
-
-bool SharedLibrary::unload(std::string* pError)
-{
-  if (pLib_ != NULL)
-    return closeLibrary(pLib_, pError);
-  else
-    return true;
 }
 
 bool import_numpy_api(std::string* pError) {

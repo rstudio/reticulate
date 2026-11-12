@@ -5,20 +5,23 @@ test_that("converting compatible NumPy arrays avoids an intermediate buffer", {
   tracemalloc <- import("tracemalloc", convert = FALSE)
   skip_if(py_to_r(tracemalloc$is_tracing()))
 
-  x <- np$ones(c(1024L, 1024L), dtype = "float64", order = "F")
-  x$setflags(write = FALSE)
-  invisible(py_to_r(x))
-  size <- py_to_r(x$nbytes)
+  # 'i' is NumPy's C int dtype, matching R's integer storage on every platform.
+  for (dtype in c("float64", "i")) {
+    x <- np$ones(c(1024L, 1024L), dtype = dtype, order = "F")
+    x$setflags(write = FALSE)
+    invisible(py_to_r(x))
+    size <- py_to_r(x$nbytes)
 
-  tracemalloc$start()
-  on.exit(tracemalloc$stop(), add = TRUE)
-  result <- py_to_r(x)
-  peak <- py_to_r(tracemalloc$get_traced_memory())[[2L]]
-  tracemalloc$stop()
+    tracemalloc$start()
+    on.exit(tracemalloc$stop(), add = TRUE)
+    result <- py_to_r(x)
+    peak <- py_to_r(tracemalloc$get_traced_memory())[[2L]]
+    tracemalloc$stop()
 
-  expect_identical(dim(result), c(1024L, 1024L))
-  expect_true(all(result == 1))
-  expect_lt(peak, size / 2)
+    expect_identical(dim(result), c(1024L, 1024L))
+    expect_true(all(result == 1))
+    expect_lt(peak, size / 2)
+  }
 })
 
 test_that("NumPy conversion preserves values across array layouts", {
@@ -38,7 +41,7 @@ def layouts(dtype):
             x.astype(x.dtype.newbyteorder()), x[:0], x[:1, :1].reshape(())]
 ", local = TRUE, convert = FALSE)
 
-  for (dtype in c("bool", "int16", "uint32", "float32", "float64", "complex128")) {
+  for (dtype in c("bool", "int16", "i", "uint32", "float32", "float64", "complex128")) {
     for (x in iterate(fixtures$layouts(dtype), simplify = FALSE)) {
       before <- x$copy()
       result <- py_to_r(x)

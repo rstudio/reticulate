@@ -18,6 +18,20 @@ test_that("Python dictionaries can use python objects as keys", {
   expect_is(py_dict(list(key), list("foo")), "python.builtin.dict")
 })
 
+test_that("Dictionary insertion reports unhashable keys", {
+  skip_if_no_python()
+  key <- r_to_py(list(1L, 2L))
+
+  expect_error(py_dict(list(key), list(42L)),
+               "unhashable type: 'list'", class = "python.builtin.TypeError")
+  expect_identical(py_eval("1 + 1"), 2L)
+
+  d <- dict(valid = 1L)
+  expect_error(d[[key]] <- 42L,
+               "unhashable type: 'list'", class = "python.builtin.TypeError")
+  expect_identical(py_to_r(d), list(valid = 1L))
+})
+
 test_that("Python dictionaries have numeric keys", {
   skip_if_no_python()
   expect_error(dict(`42` = "foo"), NA)
@@ -84,6 +98,44 @@ test_that("ordered dictionaries can be converted", {
   result <- py_eval("lambda x: x", convert = FALSE)(od) # no conversion
   expect_identical(py_id(result), py_id(od))
 
+})
+
+test_that("Dictionary conversion preserves names and a snapshot of entries", {
+  skip_if_no_python()
+
+  named <- py_eval("{'\\u00fc\\U0001f40d': 1, 2: 3}")
+  expect_identical(named,
+                   setNames(list(1L, 3L), c("\u00fc\U0001f40d", "2")))
+  expect_identical(Encoding(names(named)), c("unknown", "unknown"))
+  expect_identical(py_eval("{'a\\x00b': 1}"), list(a = 1L))
+
+  main <- py_run_string("
+class Key:
+    def __init__(self, mapping):
+        self.mapping = mapping
+    def __str__(self):
+        self.mapping.clear()
+        return 'key'
+mapping = {}
+mapping[Key(mapping)] = [1, 2]
+mapping['keep'] = 3
+", local = TRUE, convert = FALSE)
+  expect_identical(py_to_r(main$mapping), list(key = 1:2, keep = 3L))
+  expect_length(main$mapping, 0L)
+})
+
+test_that("Dictionary conversion propagates key stringification errors", {
+  skip_if_no_python()
+  main <- py_run_string("
+class BadKey:
+    def __str__(self):
+        raise ValueError('key conversion failed')
+mapping = {BadKey(): 1}
+", local = TRUE, convert = FALSE)
+
+  expect_error(py_to_r(main$mapping), "key conversion failed",
+               class = "python.builtin.ValueError")
+  expect_identical(py_eval("1 + 1"), 2L)
 })
 
 test_that("py_to_r(dict) converts recursively, #1221", {

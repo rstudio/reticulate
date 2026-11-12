@@ -1,5 +1,27 @@
 context("pandas")
 
+test_that("pandas factor conversion allocates one R integer buffer", {
+  skip_if_no_pandas()
+  skip_if_not(capabilities("profmem"))
+  pd <- import("pandas", convert = FALSE)
+  n <- 100000L
+  x <- pd$DataFrame(dict(x = pd$Categorical(rep(c("a", "b"), n / 2L))))
+  invisible(py_to_r(x))
+
+  path <- tempfile()
+  on.exit(unlink(path), add = TRUE)
+  # Only record allocations large enough to hold the integer codes.
+  # Smaller conversion overhead varies across R versions.
+  Rprofmem(path, threshold = n * 4)
+  on.exit(Rprofmem(NULL), add = TRUE)
+  converted <- py_to_r(x)
+  Rprofmem(NULL)
+  sizes <- suppressWarnings(as.numeric(sub(" .*", "", readLines(path))))
+
+  expect_identical(converted$x, factor(rep(c("a", "b"), n / 2L)))
+  expect_length(sizes[!is.na(sizes)], 1L)
+})
+
 test_that("factor conversion avoids expanding category labels", {
   skip_if_no_pandas()
   skip_if_no_numpy()
@@ -352,6 +374,34 @@ test_that("NaT is converted to NA", {
 
   expect_equal(py_to_r(before), py_to_r(after))
 
+})
+
+test_that("pandas datetime columns retain timestamps and missing values", {
+  skip_if_no_pandas()
+  pd <- import("pandas", convert = FALSE)
+  values <- list(pd$Timestamp("1969-12-31 23:59:59.5"),
+                 pd$Timestamp("2020-01-01 00:00:00.25"), pd$NaT)
+  expected <- c(-0.5, 1577836800.25, NaN)
+
+  for (tz in list(NULL, "America/New_York")) {
+    dates <- pd$DatetimeIndex(values)$tz_localize(tz)
+    for (index in list(c("x", "y", "z"), c("x", "x", "z"))) {
+      frame <- pd$DataFrame(dict(x = dates), index = index)
+      if (anyDuplicated(index))
+        expect_warning(converted <- py_to_r(frame), "index contains duplicated values")
+      else
+        converted <- py_to_r(frame)
+      actual <- converted$x
+      expect_s3_class(actual, "POSIXct")
+      offset <- if (is.null(tz)) 0 else 5 * 3600
+      expect_equal(as.numeric(actual), expected + offset)
+    }
+  }
+
+  empty <- pd$DataFrame(dict(x = pd$DatetimeIndex(list())))
+  actual <- py_to_r(empty)$x
+  expect_s3_class(actual, "POSIXct")
+  expect_length(actual, 0L)
 })
 
 test_that("pandas NAs are converted to R NAs", {

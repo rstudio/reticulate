@@ -1,5 +1,15 @@
 # reticulate (development version)
 
+- Native conversion uses fewer temporary buffers for NumPy integer arrays,
+  pandas categorical and datetime columns, dictionaries, and R callbacks (#1950).
+
+- `iterate()` preserves an empty, non-scalar, or classed first result when
+  simplifying the collected values (#1950).
+
+- Python dictionary insertion errors are reported at the failing operation.
+  Converting a dictionary whose key raises from `__str__()` now reports the
+  Python error instead of crashing (#1950).
+
 - `r_to_py()` converts factor columns to pandas directly from their integer codes,
   reducing conversion time and temporary allocations.
 

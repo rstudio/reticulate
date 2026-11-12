@@ -156,3 +156,20 @@ test_that("iterate(simplify=TRUE) for atomic types", {
     expect_s3_class(el, "python.builtin.object")
 
 })
+
+test_that("iterator simplification checks the first result", {
+  for (value in list(integer(), c(10L, 11L), as.Date("2020-01-01"))) {
+    expect_identical(
+      iterate(py_eval("iter([1])"), function(x) value),
+      list(value)
+    )
+    expect_identical(
+      iterate(py_eval("iter([1, 2])"), function(x) if (x == 1L) value else x),
+      list(value, 2L)
+    )
+  }
+
+  expect_identical(iterate(py_eval("iter([])")), list())
+  expect_identical(iterate(py_eval("iter([1, 2])"), simplify = FALSE),
+                   list(1L, 2L))
+})

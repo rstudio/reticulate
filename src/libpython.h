@@ -131,11 +131,9 @@ LIBPYTHON_EXTERN PyTypeObject* PyMethod_Type;
 LIBPYTHON_EXTERN PyObject* Py_None;
 LIBPYTHON_EXTERN PyObject* Py_Unicode;
 LIBPYTHON_EXTERN PyObject* Py_Long;
-LIBPYTHON_EXTERN PyObject* Py_Bool;
 LIBPYTHON_EXTERN PyObject* Py_True;
 LIBPYTHON_EXTERN PyObject* Py_False;
 LIBPYTHON_EXTERN PyObject* Py_Dict;
-LIBPYTHON_EXTERN PyObject* Py_DictClass;
 LIBPYTHON_EXTERN PyObject* Py_Float;
 LIBPYTHON_EXTERN PyObject* Py_List;
 LIBPYTHON_EXTERN PyObject* Py_Tuple;
@@ -144,7 +142,6 @@ LIBPYTHON_EXTERN PyObject* Py_ByteArray;
 LIBPYTHON_EXTERN PyObject* PyExc_KeyboardInterrupt;
 LIBPYTHON_EXTERN PyObject* PyExc_AttributeError;
 LIBPYTHON_EXTERN PyObject* PyExc_RuntimeError;
-LIBPYTHON_EXTERN PyObject* PyExc_ValueError;
 
 void initialize_type_objects();
 
@@ -204,7 +201,6 @@ LIBPYTHON_EXTERN wchar_t* (*Py_GetProgramFullPath)();
 LIBPYTHON_EXTERN int (*Py_AddPendingCall)(int (*func)(void *), void *arg);
 LIBPYTHON_EXTERN int (*Py_MakePendingCalls)();
 LIBPYTHON_EXTERN void (*PyErr_SetInterrupt)();
-LIBPYTHON_EXTERN void (*PyErr_CheckSignals)();
 
 LIBPYTHON_EXTERN PyObject* (*PyImport_ImportModule)(const char *name);
 LIBPYTHON_EXTERN PyObject* (*PyImport_Import)(PyObject * name);
@@ -219,7 +215,6 @@ LIBPYTHON_EXTERN PyObject* (*Py_BuildValue)(const char *format, ...);
 LIBPYTHON_EXTERN void (*Py_IncRef)(PyObject *);
 LIBPYTHON_EXTERN void (*Py_DecRef)(PyObject *);
 
-LIBPYTHON_EXTERN int (*PyObject_Print)(PyObject* o, FILE* fp, int flags);
 LIBPYTHON_EXTERN PyObject* (*PyObject_Str)(PyObject *);
 LIBPYTHON_EXTERN PyObject* (*PyObject_Repr)(PyObject *);
 
@@ -242,9 +237,6 @@ LIBPYTHON_EXTERN PyObject* (*PyObject_CallFunctionObjArgs)(PyObject *callable,
            ...);
 
 LIBPYTHON_EXTERN Py_ssize_t (*PyObject_Size)(PyObject*);
-LIBPYTHON_EXTERN PyObject* (*PyObject_GetAttr)(PyObject*, PyObject*);
-LIBPYTHON_EXTERN int (*PyObject_HasAttr)(PyObject*, PyObject*);
-LIBPYTHON_EXTERN int (*PyObject_SetAttr)(PyObject*, PyObject*, PyObject*);
 
 LIBPYTHON_EXTERN PyObject* (*PyObject_GetAttrString)(PyObject*, const char *);
 LIBPYTHON_EXTERN int (*PyObject_HasAttrString)(PyObject*, const char *);
@@ -263,7 +255,6 @@ LIBPYTHON_EXTERN Py_ssize_t (*PyTuple_Size)(PyObject *);
 LIBPYTHON_EXTERN PyObject* (*PyTuple_GetItem)(PyObject *, Py_ssize_t);
 LIBPYTHON_EXTERN PyObject* (*PyTuple_New)(Py_ssize_t size);
 LIBPYTHON_EXTERN int (*PyTuple_SetItem)(PyObject *, Py_ssize_t, PyObject *);
-LIBPYTHON_EXTERN PyObject* (*PyTuple_GetSlice)(PyObject *, Py_ssize_t, Py_ssize_t);
 
 LIBPYTHON_EXTERN PyObject* (*PyList_New)(Py_ssize_t size);
 LIBPYTHON_EXTERN Py_ssize_t (*PyList_Size)(PyObject *);
@@ -272,7 +263,6 @@ LIBPYTHON_EXTERN int (*PyList_SetItem)(PyObject *, Py_ssize_t, PyObject *);
 
 LIBPYTHON_EXTERN int (*PyUnicode_CompareWithASCIIString)(PyObject *unicode, const char *string);
 
-LIBPYTHON_EXTERN PyObject* (*PyUnicode_EncodeLocale)(PyObject *unicode, const char *errors);
 LIBPYTHON_EXTERN PyObject* (*PyUnicode_AsEncodedString)(PyObject *unicode, const char *encoding, const char *errors);
 LIBPYTHON_EXTERN int (*PyBytes_AsStringAndSize)(
     PyObject *obj,      /* string or Unicode object */
@@ -283,11 +273,6 @@ LIBPYTHON_EXTERN int (*PyBytes_AsStringAndSize)(
 );
 LIBPYTHON_EXTERN const char* (*PyUnicode_AsUTF8)(PyObject *unicode);
 
-#ifdef _WIN32
-LIBPYTHON_EXTERN PyObject* (*PyUnicode_AsMBCSString)(PyObject *unicode);
-#endif
-
-LIBPYTHON_EXTERN PyObject* (*PyBytes_FromStringAndSize)(const char *, Py_ssize_t);
 LIBPYTHON_EXTERN Py_ssize_t (*PyByteArray_Size)(PyObject *bytearray);
 LIBPYTHON_EXTERN PyObject* (*PyByteArray_FromStringAndSize)(const char *string, Py_ssize_t len);
 LIBPYTHON_EXTERN char* (*PyByteArray_AsString)(PyObject *bytearray);
@@ -296,13 +281,10 @@ LIBPYTHON_EXTERN PyObject* (*PyUnicode_FromString)(const char *u);
 LIBPYTHON_EXTERN void (*PyErr_Clear)();
 LIBPYTHON_EXTERN void (*PyErr_Print)();
 
-LIBPYTHON_EXTERN void (*PyErr_PrintEx)(int set_sys_last_vars);
 LIBPYTHON_EXTERN void (*PyErr_Fetch)(PyObject **, PyObject **, PyObject **);
 LIBPYTHON_EXTERN void (*PyErr_Restore)(PyObject *, PyObject *, PyObject *);
 LIBPYTHON_EXTERN void (*PyErr_SetNone)(PyObject*);
 LIBPYTHON_EXTERN void (*PyErr_SetObject)(PyObject*, PyObject*);
-LIBPYTHON_EXTERN void (*PyErr_SetString)(PyObject*, const char *);
-LIBPYTHON_EXTERN void (*PyErr_BadArgument)();
 LIBPYTHON_EXTERN PyObject* (*PyErr_Occurred)(void);
 LIBPYTHON_EXTERN void (*PyErr_NormalizeException)(PyObject**, PyObject**, PyObject**);
 LIBPYTHON_EXTERN int (*PyErr_GivenExceptionMatches)(PyObject *given, PyObject *exc);
@@ -331,7 +313,6 @@ LIBPYTHON_EXTERN int (*PyCapsule_IsValid)(PyObject *capsule, const char *name);
 
 
 LIBPYTHON_EXTERN PyObject* (*PyDict_New)(void);
-LIBPYTHON_EXTERN int (*PyDict_Contains)(PyObject *mp, PyObject *key);
 LIBPYTHON_EXTERN PyObject* (*PyDict_GetItem)(PyObject *mp, PyObject *key);
 LIBPYTHON_EXTERN int (*PyDict_SetItem)(PyObject *mp, PyObject *key, PyObject *item);
 LIBPYTHON_EXTERN int (*PyDict_SetItemString)(PyObject *dp, const char *key, PyObject *item);
@@ -339,11 +320,9 @@ LIBPYTHON_EXTERN int (*PyDict_DelItemString)(PyObject *dp, const char *key);
 LIBPYTHON_EXTERN int (*PyDict_Next)(
     PyObject *mp, Py_ssize_t *pos, PyObject **key, PyObject **value);
 LIBPYTHON_EXTERN PyObject* (*PyDict_Keys)(PyObject *mp);
-LIBPYTHON_EXTERN PyObject* (*PyDict_Values)(PyObject *mp);
 LIBPYTHON_EXTERN Py_ssize_t (*PyDict_Size)(PyObject *mp);
 LIBPYTHON_EXTERN PyObject* (*PyDict_Copy)(PyObject *mp);
 
-LIBPYTHON_EXTERN PyObject*  (*PyMapping_Items)(PyObject *o);
 LIBPYTHON_EXTERN PyObject* (*PyLong_FromLong)(long);
 LIBPYTHON_EXTERN long (*PyLong_AsLong)(PyObject *);
 LIBPYTHON_EXTERN PyObject* (*PySlice_New)(PyObject *start, PyObject *stop, PyObject *step);
@@ -365,7 +344,6 @@ LIBPYTHON_EXTERN void (*Py_SetProgramName)(wchar_t *);
 
 LIBPYTHON_EXTERN void (*Py_SetPythonHome)(wchar_t *);
 
-LIBPYTHON_EXTERN PyOS_sighandler_t (*PyOS_getsig)(int i);
 LIBPYTHON_EXTERN PyOS_sighandler_t (*PyOS_setsig)(int i, PyOS_sighandler_t h);
 
 LIBPYTHON_EXTERN void (*PySys_SetArgv)(int, wchar_t **);
@@ -379,9 +357,6 @@ LIBPYTHON_EXTERN int (*PyObject_IsTrue)(PyObject *o);
 
 LIBPYTHON_EXTERN PyObject* (*Py_CompileStringExFlags)(const char *str, const char *filename, int start, PyCompilerFlags *flags, int optimize);
 
-LIBPYTHON_EXTERN void* (*PyCapsule_Import)(const char *name, int no_block);
-
-LIBPYTHON_EXTERN PyObject* (*PyObject_Type)(PyObject* o);
 #define PyObject_TypeCheck(o, tp) ((PyTypeObject*)Py_TYPE(o) == (tp)) || PyType_IsSubtype((PyTypeObject*)Py_TYPE(o), (tp))
 
 
@@ -436,7 +411,6 @@ typedef struct tagPyArrayObject {
 
 
 typedef unsigned char npy_bool;
-typedef long npy_long;
 typedef double npy_double;
 typedef unsigned char npy_ubyte;
 // with numpy 2.0, direct field access of complex numbers is no longer valid.
@@ -668,33 +642,20 @@ bool import_numpy_api(std::string* pError);
 #define NPY_ARRAY_FARRAY       (NPY_ARRAY_F_CONTIGUOUS | NPY_ARRAY_BEHAVED)
 
 
-class SharedLibrary {
+class LibPython {
 
 public:
   bool load(const std::string& libPath, int minor_ver, std::string* pError);
-  bool unload(std::string* pError);
-  virtual ~SharedLibrary() {}
 
 private:
-  virtual bool loadSymbols(int minor_ver, std::string* pError) = 0;
-
-protected:
-  SharedLibrary() : pLib_(NULL) {}
-private:
-  SharedLibrary(const SharedLibrary&);
-
-protected:
+  LibPython() : pLib_(NULL) {}
+  LibPython(const LibPython&);
+  friend LibPython& libPython();
+  bool loadSymbols(int minor_ver, std::string* pError);
   void* pLib_;
 };
 
-class LibPython : public SharedLibrary {
-private:
-  LibPython() : SharedLibrary() {}
-  friend SharedLibrary& libPython();
-  virtual bool loadSymbols(int minor_ver, std::string* pError);
-};
-
-inline SharedLibrary& libPython() {
+inline LibPython& libPython() {
   static LibPython instance;
   return instance;
 }
@@ -822,7 +783,6 @@ typedef
   enum {PyGILState_LOCKED, PyGILState_UNLOCKED}
 PyGILState_STATE;
 
-LIBPYTHON_EXTERN void (*PyEval_SetProfile)(Py_tracefunc func, PyObject *obj);
 LIBPYTHON_EXTERN PyThreadState* (*PyGILState_GetThisThreadState)(void);
 LIBPYTHON_EXTERN PyGILState_STATE (*PyGILState_Ensure)(void);
 LIBPYTHON_EXTERN void (*PyGILState_Release)(PyGILState_STATE);

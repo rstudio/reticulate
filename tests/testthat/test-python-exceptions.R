@@ -206,6 +206,72 @@ assert str(ordinary_exception) == 'ordinary R error'
 })
 
 
+test_that("Python errors converting R function arguments are raised in Python", {
+  skip_if_no_python()
+
+  # The dict key cannot be converted to an R name, so converting the argument
+  # raises before the R function is called.
+  call_r <- py_run_string("
+def call_r_with_unconvertible_argument(f, keyword):
+    class UnnamedKey:
+        def __str__(self):
+            raise ValueError('key has no name')
+
+    value = {UnnamedKey(): 1}
+    events = []
+    try:
+        f(x=value) if keyword else f(value)
+    except ValueError as exc:
+        events.append('except: ' + str(exc))
+    finally:
+        events.append('finally')
+    return events
+", local = TRUE)$call_r_with_unconvertible_argument
+
+  called <- FALSE
+  f <- function(x) called <<- TRUE
+
+  expected <- c("except: key has no name", "finally")
+  expect_identical(call_r(f, keyword = FALSE), expected)
+  expect_identical(call_r(f, keyword = TRUE), expected)
+  expect_false(called)
+
+  # A background thread waits for the main thread to call the R function, and
+  # must receive the error too.
+  call_r_on_thread <- py_run_string("
+def call_r_on_thread_with_unconvertible_argument(f):
+    import threading
+
+    class UnnamedKey:
+        def __str__(self):
+            raise ValueError('key has no name')
+
+    events = []
+    done = threading.Event()
+
+    def worker():
+        try:
+            f({UnnamedKey(): 1})
+        except ValueError as exc:
+            events.append('except: ' + str(exc))
+        finally:
+            events.append('finally')
+            done.set()
+
+    thread = threading.Thread(target=worker, daemon=True)
+    thread.start()
+    # Waiting releases the GIL and lets the main thread run the scheduled call.
+    while not done.wait(0.01):
+        pass
+    thread.join()
+    return events
+", local = TRUE)$call_r_on_thread_with_unconvertible_argument
+
+  expect_identical(call_r_on_thread(f), expected)
+  expect_false(called)
+})
+
+
 test_that("confirm rlang/purrr can catch the exception", {
   skip_if_no_python()
 

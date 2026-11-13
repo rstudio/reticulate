@@ -5,6 +5,10 @@
   vectors. Integers too large for a double raise an error
   (#1647, #1835, #1956).
 
+- Python errors raised while converting arguments to an R function are now
+  raised in the calling Python code, where they can be handled by `except`
+  and `finally` blocks (#1957).
+
 - `py_capture_output()` restores redirected Python logging handlers to their
   original streams, so subsequent logging no longer writes to a previous
   capture buffer. Explicit handler stream changes made during capture are

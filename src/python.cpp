@@ -1201,6 +1201,20 @@ double py_long_as_double(PyObject* x) {
   return result;
 }
 
+// Convert a list of Python ints to an R double vector. The first `n_done`
+// elements were already converted to `done`; reuse them rather than
+// extracting those Python integers again.
+static
+SEXP py_int_list_as_double(PyObject* x, const int* done, Py_ssize_t n_done) {
+  Py_ssize_t len = PyList_Size(x);
+  Rcpp::NumericVector vec = no_init(len);
+  for (Py_ssize_t i = 0; i<n_done; i++)
+    vec[i] = done[i];
+  for (Py_ssize_t i = n_done; i<len; i++)
+    vec[i] = py_long_as_double(PyList_GetItem(x, i));
+  return vec;
+}
+
 // check whether the PyObject can be mapped to an R scalar type
 int r_scalar_type(PyObject* x) {
 
@@ -1553,19 +1567,10 @@ SEXP py_to_r_cpp(PyObject* x, bool convert, bool simple) {
       return vec;
     } else if (scalarType == INTSXP) {
       Rcpp::IntegerVector vec = no_init(len);
+      int* ivec = INTEGER(vec);
       for (Py_ssize_t i = 0; i<len; i++) {
-        int value;
-        if (!py_long_as_int(PyList_GetItem(x, i), &value)) {
-          // Promote once, reusing the converted prefix rather than extracting
-          // those Python integers again. No separate range scan is needed.
-          Rcpp::NumericVector dvec = no_init(len);
-          for (Py_ssize_t j = 0; j<i; j++)
-            dvec[j] = vec[j];
-          for (Py_ssize_t j = i; j<len; j++)
-            dvec[j] = py_long_as_double(PyList_GetItem(x, j));
-          return dvec;
-        }
-        vec[i] = value;
+        if (!py_long_as_int(PyList_GetItem(x, i), &ivec[i]))
+          return py_int_list_as_double(x, ivec, i);
       }
       return vec;
     } else if (scalarType == CPLXSXP) {

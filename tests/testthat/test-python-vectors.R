@@ -107,6 +107,29 @@ test_that("integers beyond double range raise and clear Python errors", {
   }
 })
 
+test_that("integers beyond double range raise in Python when passed to R functions", {
+  skip_if_no_python()
+
+  call_r <- py_run_string("
+def call_r_with_huge_int(f, keyword):
+    events = []
+    try:
+        f(x=10**400) if keyword else f(10**400)
+    except OverflowError:
+        events.append('except')
+    finally:
+        events.append('finally')
+    return events
+", local = TRUE)$call_r_with_huge_int
+
+  called <- FALSE
+  f <- function(x) called <<- TRUE
+
+  expect_identical(call_r(f, keyword = FALSE), c("except", "finally"))
+  expect_identical(call_r(f, keyword = TRUE), c("except", "finally"))
+  expect_false(called)
+})
+
 test_that("Python INT_MIN preserves R missing integers through promotion", {
   skip_if_no_python()
 

@@ -2507,34 +2507,45 @@ PythonCallResult actually_call_r_function(PyObject* args, PyObject* keywords) {
   // The first positional argument is the R function capsule.
   Py_ssize_t nargs = PyTuple_Size(args) - 1;
   List rArgs(nargs);
-  for (Py_ssize_t i = 0; i < nargs; i++)
-    rArgs[i] = py_to_r(PyTuple_GetItem(args, i + 1), convert);
-
-  // get keyword arguments
   List rKeywords;
-  if (keywords != NULL) {
 
-    if (convert) {
-      rKeywords = py_to_r(keywords, convert);
-    } else {
+  // A Python error raised while converting the arguments (e.g., an int too
+  // large for a double) is returned to the Python caller. Throwing it as a C++
+  // exception would unwind through the calling Python frames without running
+  // their `except` and `finally` blocks.
+  try {
 
-      PyObject *key, *value;
-      Py_ssize_t pos = 0;
-      Py_ssize_t size = PyDict_Size(keywords);
-      rKeywords = List(size);
-      CharacterVector names(size);
-      Py_ssize_t i = 0;
+    for (Py_ssize_t i = 0; i < nargs; i++)
+      rArgs[i] = py_to_r(PyTuple_GetItem(args, i + 1), convert);
 
-      while (PyDict_Next(keywords, &pos, &key, &value)) {
-        PyObjectPtr str(PyObject_Str(key));
-        names[i] = as_std_string(str);
-        rKeywords[i] = py_to_r(value, convert);
-        i++;
+    // get keyword arguments
+    if (keywords != NULL) {
+
+      if (convert) {
+        rKeywords = py_to_r(keywords, convert);
+      } else {
+
+        PyObject *key, *value;
+        Py_ssize_t pos = 0;
+        Py_ssize_t size = PyDict_Size(keywords);
+        rKeywords = List(size);
+        CharacterVector names(size);
+        Py_ssize_t i = 0;
+
+        while (PyDict_Next(keywords, &pos, &key, &value)) {
+          PyObjectPtr str(PyObject_Str(key));
+          names[i] = as_std_string(str);
+          rKeywords[i] = py_to_r(value, convert);
+          i++;
+        }
+
+        rKeywords.names() = names;
       }
 
-      rKeywords.names() = names;
     }
 
+  } catch (const PythonException& e) {
+    return PythonCallResult{NULL, r_to_py(e.condition, true)};
   }
 
   static SEXP call_r_function_s = []() {

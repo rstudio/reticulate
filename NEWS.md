@@ -1,5 +1,10 @@
 # reticulate (development version)
 
+- Python integers outside the 32-bit signed range now convert to R doubles
+  instead of being truncated. Lists containing such integers convert to double
+  vectors. Integers too large for a double raise an error
+  (#1647, #1835, #1956).
+
 - Python errors raised while converting arguments to an R function are now
   raised in the calling Python code, where they can be handled by `except`
   and `finally` blocks (#1957).

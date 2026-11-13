@@ -2,6 +2,11 @@
 
 ## reticulate (development version)
 
+- Python errors raised while converting arguments to an R function are
+  now raised in the calling Python code, where they can be handled by
+  `except` and `finally` blocks
+  ([\#1957](https://github.com/rstudio/reticulate/issues/1957)).
+
 - [`py_capture_output()`](https://rstudio.github.io/reticulate/dev/reference/py_capture_output.md)
   restores redirected Python logging handlers to their original streams,
   so subsequent logging no longer writes to a previous capture buffer.

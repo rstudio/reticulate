@@ -1,5 +1,10 @@
 # reticulate (development version)
 
+- Python errors raised while converting arguments to an R function called from
+  Python are now raised in the Python caller as the original exception, so
+  Python `except` and `finally` blocks run as usual. The R function is not
+  called if argument conversion fails.
+
 - `py_capture_output()` restores redirected Python logging handlers to their
   original streams, so subsequent logging no longer writes to a previous
   capture buffer. Explicit handler stream changes made during capture are

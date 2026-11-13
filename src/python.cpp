@@ -1179,13 +1179,14 @@ std::string conditionMessage_from_py_exception(PyObjectRef exc) {
 }
 
 // Python ints are unbounded, and C long is only 32 bits on Windows.
-// Exclude INT_MIN because R reserves that value for NA_integer_.
+// INT_MIN is accepted: R exports NA_integer_ as that Python int, so it
+// converts back to NA_integer_.
 // `x` must be a Python int, for which this extraction cannot raise.
 static inline
 bool py_long_as_int(PyObject* x, int* value) {
   int overflow;
   long result = PyLong_AsLongAndOverflow(x, &overflow);
-  if (overflow != 0 || result <= INT_MIN || result > INT_MAX)
+  if (overflow != 0 || result < INT_MIN || result > INT_MAX)
     return false;
   *value = static_cast<int>(result);
   return true;
@@ -1203,15 +1204,17 @@ double py_long_as_double(PyObject* x) {
 
 // Convert a list of Python ints to an R double vector. The first `n_done`
 // elements were already converted to `done`; reuse them rather than
-// extracting those Python integers again.
+// extracting those Python integers again. INT_MIN stays missing.
 static
 SEXP py_int_list_as_double(PyObject* x, const int* done, Py_ssize_t n_done) {
   Py_ssize_t len = PyList_Size(x);
   Rcpp::NumericVector vec = no_init(len);
   for (Py_ssize_t i = 0; i<n_done; i++)
-    vec[i] = done[i];
-  for (Py_ssize_t i = n_done; i<len; i++)
-    vec[i] = py_long_as_double(PyList_GetItem(x, i));
+    vec[i] = done[i] == NA_INTEGER ? NA_REAL : done[i];
+  for (Py_ssize_t i = n_done; i<len; i++) {
+    double value = py_long_as_double(PyList_GetItem(x, i));
+    vec[i] = value == NA_INTEGER ? NA_REAL : value;
+  }
   return vec;
 }
 

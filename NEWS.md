@@ -1,14 +1,18 @@
 # reticulate (development version)
 
-- Python integers outside R's non-missing integer range now convert to doubles
-  instead of being truncated. A homogeneous integer list becomes a double vector
-  if any element needs promotion. Integers beyond the exact range of doubles may
-  round; integers too large for a finite double raise an error (#1647).
+- Python integers outside the 32-bit signed range now convert to R doubles
+  instead of being truncated. For example, `py_eval("2**40")` previously
+  returned `0L`. A list of Python integers becomes a double vector if any
+  element is outside that range; otherwise, it remains an integer vector. This
+  also applies to element-wise conversion inside dicts, tuples, nested lists,
+  and NumPy object arrays. Integers with magnitude greater than 2^53 may be
+  rounded to the nearest double; those too large for a finite double raise a
+  Python `OverflowError` as an R error (#1647).
 
-- Python `-2147483648` now converts to a double rather than `NA_integer_`.
-  Since R currently exports `NA_integer_` as that same Python integer, an R
-  missing integer also returns as `-2147483648` when converted back from a
-  Python scalar or list. NumPy numeric-array conversion is unchanged.
+- Python `-2147483648` continues to convert to `NA_integer_`, the value used
+  when R exports `NA_integer_` to Python. In a list promoted to a double
+  vector, it becomes `NA_real_`. Conversion of NumPy numeric arrays is
+  unchanged.
 
 - `py_capture_output()` restores redirected Python logging handlers to their
   original streams, so subsequent logging no longer writes to a previous

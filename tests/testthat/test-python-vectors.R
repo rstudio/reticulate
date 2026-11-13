@@ -107,18 +107,18 @@ test_that("integers beyond double range raise and clear Python errors", {
   }
 })
 
-test_that("Python INT_MIN is numeric even when exported from R missing integers", {
+test_that("Python INT_MIN preserves R missing integers through promotion", {
   skip_if_no_python()
 
-  # R exports NA_integer_ as an ordinary Python INT_MIN. There is no
-  # provenance left to distinguish it from a genuine Python integer.
-  expect_identical(py_eval("-(2**31)"), -2147483648)
-  expect_identical(py_eval("[1, -(2**31), -1]"), c(1, -2147483648, -1))
-  expect_identical(py_eval("[1, -(2**31), 2**40]"), c(1, -2147483648, 2^40))
-  expect_identical(py_eval("[2**40, -(2**31), -1]"), c(2^40, -2147483648, -1))
-  expect_identical(py_to_r(r_to_py(NA_integer_)), -2147483648)
+  # R exports NA_integer_ as an ordinary Python INT_MIN. Retain its
+  # sentinel meaning, including before and after promotion to double.
+  expect_identical(py_eval("-(2**31)"), NA_integer_)
+  expect_identical(py_eval("[1, -(2**31), -1]"), c(1L, NA_integer_, -1L))
+  expect_identical(py_eval("[1, -(2**31), 2**40]"), c(1, NA_real_, 2^40))
+  expect_identical(py_eval("[2**40, -(2**31), -1]"), c(2^40, NA_real_, -1))
+  expect_identical(py_to_r(r_to_py(NA_integer_)), NA_integer_)
   expect_identical(py_to_r(r_to_py(c(1L, NA_integer_, -1L))),
-                   c(1, -2147483648, -1))
+                   c(1L, NA_integer_, -1L))
 })
 
 test_that("NumPy object arrays use checked Python integer conversion", {

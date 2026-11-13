@@ -325,6 +325,8 @@ LIBPYTHON_EXTERN PyObject* (*PyDict_Copy)(PyObject *mp);
 
 LIBPYTHON_EXTERN PyObject* (*PyLong_FromLong)(long);
 LIBPYTHON_EXTERN long (*PyLong_AsLong)(PyObject *);
+LIBPYTHON_EXTERN long (*PyLong_AsLongAndOverflow)(PyObject *, int *);
+LIBPYTHON_EXTERN double (*PyLong_AsDouble)(PyObject *);
 LIBPYTHON_EXTERN PyObject* (*PySlice_New)(PyObject *start, PyObject *stop, PyObject *step);
 
 LIBPYTHON_EXTERN PyObject* (*PyBool_FromLong)(long);

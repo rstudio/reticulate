@@ -16,6 +16,7 @@ using namespace Rcpp;
 #include "tinythread.h"
 #include "pending_py_calls_notifier.h"
 
+#include <climits>
 #include <fstream>
 #include <time.h>
 
@@ -1177,6 +1178,30 @@ std::string conditionMessage_from_py_exception(PyObjectRef exc) {
   return conditionMessage_from_py_exception(exc.get());
 }
 
+// Python ints are unbounded, and C long is only 32 bits on Windows.
+// Exclude INT_MIN because R reserves that value for NA_integer_.
+static inline
+bool py_long_as_int(PyObject* x, int* value) {
+  int overflow = 0;
+  long result = PyLong_AsLongAndOverflow(x, &overflow);
+  if (overflow == 0 && result == -1 && PyErr_Occurred())
+    throw PythonException(py_fetch_error());
+  if (overflow != 0 || result <= INT_MIN || result > INT_MAX)
+    return false;
+  *value = static_cast<int>(result);
+  return true;
+}
+
+// PyLong_AsDouble rounds to the nearest double and reports overflow when
+// the original Python integer is too large for a finite double.
+static inline
+double py_long_as_double(PyObject* x) {
+  double result = PyLong_AsDouble(x);
+  if (result == -1.0 && PyErr_Occurred())
+    throw PythonException(py_fetch_error());
+  return result;
+}
+
 // check whether the PyObject can be mapped to an R scalar type
 int r_scalar_type(PyObject* x) {
 
@@ -1489,9 +1514,13 @@ SEXP py_to_r_cpp(PyObject* x, bool convert, bool simple) {
     if (scalarType == LGLSXP)
       return LogicalVector::create(x == Py_True);
 
-    // integer
-    else if (scalarType == INTSXP)
-      return IntegerVector::create(PyLong_AsLong(x));
+    // integer (promote values that do not fit in an R integer)
+    else if (scalarType == INTSXP) {
+      int value;
+      if (py_long_as_int(x, &value))
+        return IntegerVector::create(value);
+      return NumericVector::create(py_long_as_double(x));
+    }
 
     // double
     else if (scalarType == REALSXP)
@@ -1525,8 +1554,20 @@ SEXP py_to_r_cpp(PyObject* x, bool convert, bool simple) {
       return vec;
     } else if (scalarType == INTSXP) {
       Rcpp::IntegerVector vec = no_init(len);
-      for (Py_ssize_t i = 0; i<len; i++)
-        vec[i] = PyLong_AsLong(PyList_GetItem(x, i));
+      for (Py_ssize_t i = 0; i<len; i++) {
+        int value;
+        if (!py_long_as_int(PyList_GetItem(x, i), &value)) {
+          // Promote once, reusing the converted prefix rather than extracting
+          // those Python integers again. No separate range scan is needed.
+          Rcpp::NumericVector dvec = no_init(len);
+          for (Py_ssize_t j = 0; j<i; j++)
+            dvec[j] = vec[j];
+          for (Py_ssize_t j = i; j<len; j++)
+            dvec[j] = py_long_as_double(PyList_GetItem(x, j));
+          return dvec;
+        }
+        vec[i] = value;
+      }
       return vec;
     } else if (scalarType == CPLXSXP) {
       Rcpp::ComplexVector vec = no_init(len);

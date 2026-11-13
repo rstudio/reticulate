@@ -2509,10 +2509,9 @@ PythonCallResult actually_call_r_function(PyObject* args, PyObject* keywords) {
   List rArgs(nargs);
   List rKeywords;
 
-  // A Python error raised while converting the arguments (e.g., an int too
-  // large for a double) is returned to the Python caller. Throwing it as a C++
-  // exception would unwind through the calling Python frames without running
-  // their `except` and `finally` blocks.
+  // A Python error raised while converting the arguments is returned to the
+  // Python caller. Throwing it as a C++ exception would unwind through the
+  // calling Python frames without running their `except` and `finally` blocks.
   try {
 
     for (Py_ssize_t i = 0; i < nargs; i++)

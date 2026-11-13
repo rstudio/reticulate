@@ -1180,12 +1180,11 @@ std::string conditionMessage_from_py_exception(PyObjectRef exc) {
 
 // Python ints are unbounded, and C long is only 32 bits on Windows.
 // Exclude INT_MIN because R reserves that value for NA_integer_.
+// `x` must be a Python int, for which this extraction cannot raise.
 static inline
 bool py_long_as_int(PyObject* x, int* value) {
-  int overflow = 0;
+  int overflow;
   long result = PyLong_AsLongAndOverflow(x, &overflow);
-  if (overflow == 0 && result == -1 && PyErr_Occurred())
-    throw PythonException(py_fetch_error());
   if (overflow != 0 || result <= INT_MIN || result > INT_MAX)
     return false;
   *value = static_cast<int>(result);

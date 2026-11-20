@@ -1,6 +1,7 @@
 # reticulate (development version)
 
-- Native R on Windows ARM64 can now initialize an ARM64 Python interpreter.
+- Native R on Windows ARM64 can now initialize ARM64 Python and skip x64
+  interpreters when selecting a compatible Python on `PATH`.
 
 - Python integers outside the 32-bit signed range now convert to R doubles
   instead of being truncated. Lists containing such integers convert to double

@@ -3,6 +3,16 @@ stopifnot(.Platform$OS.type == "windows", R.version$arch == "aarch64")
 pythons <- commandArgs(trailingOnly = TRUE)
 stopifnot(length(pythons) == 2L, all(file.exists(pythons)))
 
+Sys.setenv(RETICULATE_USE_MANAGED_VENV = "no")
+
+# With only x64 Python on PATH, discover ARM64 Python from the registry.
+config <- withr::with_path(dirname(pythons[[1L]]), action = "replace",
+                          reticulate::py_discover_config())
+registered <- subset(reticulate::py_versions_windows(), type == "PythonCore" & arch == "arm64")
+stopifnot(identical(config$forced, "Windows Registry"), identical(config$platform, "win-arm64"),
+          any(registered$version == as.character(config$version) &
+              normalizePath(registered$executable_path) == normalizePath(config$python)))
+
 # Give the two PATH candidates independent installations of NumPy.
 venvs <- file.path(tempdir(), c("x64", "arm64"))
 for (i in seq_along(pythons))
@@ -13,7 +23,6 @@ python3 <- file.path(bins[[1L]], "python3.exe")
 python <- file.path(bins[[2L]], "python.exe")
 stopifnot(file.rename(file.path(bins[[1L]], "python.exe"), python3))
 withr::local_path(bins)
-Sys.setenv(RETICULATE_USE_MANAGED_VENV = "no")
 stopifnot(file.exists(python), file.exists(python3),
           normalizePath(Sys.which("python3")) == normalizePath(python3),
           normalizePath(Sys.which("python")) == normalizePath(python))

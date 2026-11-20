@@ -1,7 +1,42 @@
 context("py_initialize")
 
+in_fresh_r <- function(code) {
+  source_path <- if (pkgload::is_dev_package("reticulate"))
+    getNamespaceInfo("reticulate", "path")
+
+  callr::r(function(path, code) {
+    if (!is.null(path))
+      pkgload::load_all(path, export_all = FALSE, helpers = FALSE)
+    eval(code, globalenv())
+  }, args = list(source_path, substitute(code)))
+}
+
+# The package's test_that() skips tests when Python fails to initialize.
+testthat::test_that("Python initializes with the same pointer width as R", {
+  testthat::skip_if_not(file.exists(Sys.getenv("RETICULATE_PYTHON")),
+                        "requires an explicitly configured interpreter")
+  size <- py_eval("__import__('struct').calcsize('P')")
+  expect_identical(size, .Machine$sizeof.pointer)
+})
+
+test_that("embedding a venv preserves its environment and base prefixes", {
+  venv <- tempfile("venv")
+  withr::defer(unlink(venv, recursive = TRUE))
+  expect_equal(system2(py_exe(), c("-m", "venv", "--without-pip", shQuote(venv))), 0L)
+  python <- virtualenv_python(venv)
+  withr::local_envvar(RETICULATE_PYTHON = python, RETICULATE_CHECK_REQUIRED_PACKAGES = "false")
+
+  code <- "import sys; print(sys.prefix, sys.exec_prefix, sys.base_prefix, sys.base_exec_prefix, sep='\\n')"
+  standalone <- system2(python, c("-c", shQuote(code)), stdout = TRUE)
+  embedded <- in_fresh_r({
+    sys <- reticulate::import("sys")
+    c(sys$prefix, sys$exec_prefix, sys$base_prefix, sys$base_exec_prefix)
+  })
+  expect_identical(normalizePath(embedded), normalizePath(standalone))
+})
+
 test_that("Python 2 is rejected before initialization changes the environment", {
-  result <- callr::r(function() {
+  result <- in_fresh_r({
     testthat::local_mocked_bindings(
       py_discover_config = function(...) list(version = numeric_version("2.7")),
       .package = "reticulate"
@@ -38,6 +73,6 @@ test_that("sys.executable points to the correct python", {
 test_that("__main__ initialized with only 'r'", {
 
   expect_identical(
-    callr::r(function() names(reticulate::import_main())),
+    in_fresh_r(names(reticulate::import_main())),
     "r")
 })

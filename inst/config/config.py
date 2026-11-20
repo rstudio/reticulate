@@ -8,8 +8,10 @@ import os
 # an equivalent module in 'distutils' is available for Python 2.6.
 if sys.version_info < (2, 7):
     from distutils import sysconfig
+    from distutils.util import get_platform
 else:
     import sysconfig
+    from sysconfig import get_platform
 
 # The 'imp' module is deprecated since Python 3.4, and the use of
 # 'importlib' is recommended instead.
@@ -41,11 +43,13 @@ this_script_dir = os.path.dirname(__file__)
 # fmt: off
 config = {
   "Architecture"     : platform.architecture()[0],
+  "Platform"         : get_platform(),
   "Version"          : str(sys.version).replace("\n", " "),
   "VersionNumber"    : str(sys.version_info[0]) + "." + str(sys.version_info[1]),
   "Prefix"           : getattr(sys, "prefix", ""),
   "ExecPrefix"       : getattr(sys, "exec_prefix", ""),
-  "BaseExecPrefix"   : getattr(sys, "base_exec_prefix", ""),
+  "BasePrefix"       : getattr(sys, "base_prefix", sys.prefix),
+  "BaseExecPrefix"   : getattr(sys, "base_exec_prefix", sys.exec_prefix),
   "PythonPath"       : pathsep.join((x or "." for x in sys.path
                                      if x != this_script_dir)),
   "LIBPL"            : sysconfig.get_config_var("LIBPL"),

@@ -55,6 +55,7 @@ Suggests:
     cli,
     rmarkdown,
     pillar,
+    pkgload,
     testthat
 LinkingTo: Rcpp
 Roxygen: list(markdown = TRUE)

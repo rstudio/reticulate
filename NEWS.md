@@ -1,5 +1,11 @@
 # reticulate (development version)
 
+- Native R on Windows ARM64 can now find ARM64 Python on `PATH` or in the
+  Windows registry and skip incompatible x64 interpreters.
+
+- Virtual environments now use their base Python installation to find the
+  standard library. This fixes a startup warning with Python 3.15.
+
 - Python integers outside the 32-bit signed range now convert to R doubles
   instead of being truncated. Lists containing such integers convert to double
   vectors. Integers too large for a double raise an error

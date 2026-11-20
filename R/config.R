@@ -401,7 +401,7 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
   }
 
   # scan until we find a version of python that meets our qualifying conditions
-  valid_python_versions <- c()
+  first_compatible <- first_with_numpy <- NULL
   for (python_version in python_versions) {
 
     # get the config
@@ -411,22 +411,26 @@ py_discover_config <- function(required_module = NULL, use_environment = NULL) {
     if(inherits(config, "try-error"))
       next
 
-    # if we have a required module ensure it's satisfied.
-    # also check architecture (can be an issue on windows)
+    if (is_incompatible_arch(config))
+      next
+    first_compatible <- first_compatible %||% config
+
+    if (is.null(config$numpy) || config$numpy$version < "1.6")
+      next
+    first_with_numpy <- first_with_numpy %||% config
+
     has_python_gte_36 <- as.numeric_version(config$version) >= "3.6"
-    has_compatible_arch <- !is_incompatible_arch(config)
-    has_preferred_numpy <- !is.null(config$numpy) && config$numpy$version >= "1.6"
-    if (has_compatible_arch && has_preferred_numpy)
-      append(valid_python_versions) <- python_version
     has_required_module <- is.null(config$required_module) || !is.null(config$required_module_path)
-    if (has_python_gte_36 && has_compatible_arch && has_preferred_numpy && has_required_module)
+    if (has_python_gte_36 && has_required_module)
       return(config)
   }
 
-  # no preferred found, return first with valid config if we have it or NULL
-  if (length(valid_python_versions) > 0)
-    try(return(python_config(valid_python_versions[[1]], required_module, python_versions)))
-  else if (length(python_versions) > 0)
+  fallback <- first_with_numpy %||% first_compatible
+  if (!is.null(fallback))
+    return(fallback)
+
+  # Let initialization report why the first candidate cannot be used.
+  if (length(python_versions) > 0)
     try(return(python_config(python_versions[[1]], required_module, python_versions)))
   else
     return(NULL)
@@ -890,15 +894,10 @@ python_config <- function(python,
     }
   }
 
-  # determine PYTHONHOME
-  pythonhome <- NULL
-  if (!is.null(config$Prefix)) {
-    pythonhome <- canonical_path(config$Prefix)
-    if (!is_windows()) {
-      exec_prefix <- canonical_path(config$ExecPrefix)
-      pythonhome <- paste(pythonhome, exec_prefix, sep = ":")
-    }
-  }
+  # A virtual environment uses the standard library from its base installation.
+  pythonhome <- canonical_path(config$BasePrefix)
+  if (!is_windows())
+    pythonhome <- paste(pythonhome, canonical_path(config$BaseExecPrefix), sep = ":")
 
   as_numeric_version <- function(version) {
     version <- clean_version(version)
@@ -947,6 +946,7 @@ python_config <- function(python,
     version_string       = version_string,
     version              = as.package_version(version),
     architecture         = architecture,
+    platform             = config$Platform,
     anaconda             = anaconda,
     conda                = config$IsConda,
     numpy                = numpy,
@@ -1177,7 +1177,7 @@ read_python_versions_from_registry <- function(hive, key, type=key) {
                 arch <- NA
               }
             } else { # type == "PythonCore"
-              matches <- regexec("^(\\d+)\\.(\\d+)(?:-(32|64))?$", version)
+              matches <- regexec("^(\\d+)\\.(\\d+)(?:-(32|64|arm64))?$", version)
               matches <- regmatches(version, matches)[[1]]
               if (length(matches) == 4) {
                 version <- paste(matches[[2]], matches[[3]], sep = ".")
@@ -1246,24 +1246,19 @@ python_arch <- function(python) {
 
 }
 
-# convert R arch to python arch
-current_python_arch <- function() {
-  if (.Platform$r_arch == "i386")
-    "32bit"
-  else if (.Platform$r_arch == "x64")
-    "64bit"
-  else
-    "Unknown"
+# Windows targets from sysconfig.get_platform(), keyed by R's build architecture.
+windows_python_platform <- function() {
+  switch(R.version$arch,
+         i386    = "win32",
+         x86_64  = "win-amd64",
+         aarch64 = "win-arm64",
+         stop("Unsupported Windows R architecture: ", R.version$arch))
 }
 
 
 # check for compatible architecture
 is_incompatible_arch <- function(config) {
-  if (is_windows()) {
-    !identical(current_python_arch(),config$architecture)
-  } else {
-    FALSE
-  }
+  is_windows() && !identical(windows_python_platform(), config$platform)
 }
 
 

@@ -140,8 +140,8 @@ initialize_python <- function(required_module = NULL, use_environment = NULL) {
   } else if (!is_windows() && is.null(config$libpython)) {
     python_not_found("Python shared library not found, Python bindings not loaded.")
   } else if (is_incompatible_arch(config)) {
-    fmt <- "Your current architecture is %s; however, this version of Python was compiled for %s."
-    msg <- sprintf(fmt, current_python_arch(), config$architecture)
+    fmt <- "This build of R requires %s Python. The selected interpreter was built for %s."
+    msg <- sprintf(fmt, windows_python_platform(), config$platform)
     python_not_found(msg)
   }
 

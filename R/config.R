@@ -1246,14 +1246,9 @@ python_arch <- function(python) {
 
 }
 
-# convert R arch to python arch
+# Express R's pointer width in the format used by platform.architecture().
 current_python_arch <- function() {
-  if (.Platform$r_arch == "i386")
-    "32bit"
-  else if (.Platform$r_arch == "x64")
-    "64bit"
-  else
-    "Unknown"
+  paste0(.Machine$sizeof.pointer * 8L, "bit")
 }
 
 

@@ -1,5 +1,7 @@
 # reticulate (development version)
 
+- Native R on Windows ARM64 can now initialize an ARM64 Python interpreter.
+
 - Python integers outside the 32-bit signed range now convert to R doubles
   instead of being truncated. Lists containing such integers convert to double
   vectors. Integers too large for a double raise an error

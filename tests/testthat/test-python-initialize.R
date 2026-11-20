@@ -19,6 +19,22 @@ testthat::test_that("Python initializes with the same pointer width as R", {
   expect_identical(size, .Machine$sizeof.pointer)
 })
 
+test_that("embedding a venv preserves its environment and base prefixes", {
+  venv <- tempfile("venv")
+  withr::defer(unlink(venv, recursive = TRUE))
+  expect_equal(system2(py_exe(), c("-m", "venv", "--without-pip", shQuote(venv))), 0L)
+  python <- virtualenv_python(venv)
+  withr::local_envvar(RETICULATE_PYTHON = python, RETICULATE_CHECK_REQUIRED_PACKAGES = "false")
+
+  code <- "import sys; print(sys.prefix, sys.exec_prefix, sys.base_prefix, sys.base_exec_prefix, sep='\\n')"
+  standalone <- system2(python, c("-c", shQuote(code)), stdout = TRUE)
+  embedded <- in_fresh_r({
+    sys <- reticulate::import("sys")
+    c(sys$prefix, sys$exec_prefix, sys$base_prefix, sys$base_exec_prefix)
+  })
+  expect_identical(normalizePath(embedded), normalizePath(standalone))
+})
+
 test_that("Python 2 is rejected before initialization changes the environment", {
   result <- in_fresh_r({
     testthat::local_mocked_bindings(

@@ -1,7 +1,11 @@
 context("py_initialize")
 
-test_that("Python initializes with the same pointer width as R", {
-  expect_identical(py_eval("__import__('struct').calcsize('P')"), .Machine$sizeof.pointer)
+# The package's test_that() skips tests when Python fails to initialize.
+testthat::test_that("Python initializes with the same pointer width as R", {
+  testthat::skip_if_not(file.exists(Sys.getenv("RETICULATE_PYTHON")),
+                        "requires an explicitly configured interpreter")
+  size <- callr::r(function() reticulate::py_eval("__import__('struct').calcsize('P')"))
+  expect_identical(size, .Machine$sizeof.pointer)
 })
 
 test_that("Python 2 is rejected before initialization changes the environment", {

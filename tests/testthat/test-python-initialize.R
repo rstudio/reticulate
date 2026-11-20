@@ -1,5 +1,16 @@
 context("py_initialize")
 
+in_fresh_r <- function(code) {
+  source_path <- if (pkgload::is_dev_package("reticulate"))
+    getNamespaceInfo("reticulate", "path")
+
+  callr::r(function(path, code) {
+    if (!is.null(path))
+      pkgload::load_all(path, export_all = FALSE, helpers = FALSE)
+    eval(code, globalenv())
+  }, args = list(source_path, substitute(code)))
+}
+
 # The package's test_that() skips tests when Python fails to initialize.
 testthat::test_that("Python initializes with the same pointer width as R", {
   testthat::skip_if_not(file.exists(Sys.getenv("RETICULATE_PYTHON")),
@@ -9,7 +20,7 @@ testthat::test_that("Python initializes with the same pointer width as R", {
 })
 
 test_that("Python 2 is rejected before initialization changes the environment", {
-  result <- callr::r(function() {
+  result <- in_fresh_r({
     testthat::local_mocked_bindings(
       py_discover_config = function(...) list(version = numeric_version("2.7")),
       .package = "reticulate"
@@ -46,6 +57,6 @@ test_that("sys.executable points to the correct python", {
 test_that("__main__ initialized with only 'r'", {
 
   expect_identical(
-    callr::r(function() names(reticulate::import_main())),
+    in_fresh_r(names(reticulate::import_main())),
     "r")
 })

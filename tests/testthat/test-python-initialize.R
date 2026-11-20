@@ -4,7 +4,7 @@ context("py_initialize")
 testthat::test_that("Python initializes with the same pointer width as R", {
   testthat::skip_if_not(file.exists(Sys.getenv("RETICULATE_PYTHON")),
                         "requires an explicitly configured interpreter")
-  size <- callr::r(function() reticulate::py_eval("__import__('struct').calcsize('P')"))
+  size <- py_eval("__import__('struct').calcsize('P')")
   expect_identical(size, .Machine$sizeof.pointer)
 })
 

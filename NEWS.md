@@ -1,7 +1,7 @@
 # reticulate (development version)
 
-- Native R on Windows ARM64 can now initialize ARM64 Python and skip x64
-  interpreters when selecting a compatible Python on `PATH`.
+- Native R on Windows ARM64 can now find ARM64 Python on `PATH` or in the
+  Windows registry and skip incompatible x64 interpreters.
 
 - Virtual environments now use their base Python installation to find the
   standard library. This fixes a startup warning with Python 3.15.

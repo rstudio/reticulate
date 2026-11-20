@@ -1,5 +1,9 @@
 context("py_initialize")
 
+test_that("Python initializes with the same pointer width as R", {
+  expect_identical(py_eval("__import__('struct').calcsize('P')"), .Machine$sizeof.pointer)
+})
+
 test_that("Python 2 is rejected before initialization changes the environment", {
   result <- callr::r(function() {
     testthat::local_mocked_bindings(

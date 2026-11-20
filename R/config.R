@@ -894,15 +894,10 @@ python_config <- function(python,
     }
   }
 
-  # determine PYTHONHOME
-  pythonhome <- NULL
-  if (!is.null(config$Prefix)) {
-    pythonhome <- canonical_path(config$Prefix)
-    if (!is_windows()) {
-      exec_prefix <- canonical_path(config$ExecPrefix)
-      pythonhome <- paste(pythonhome, exec_prefix, sep = ":")
-    }
-  }
+  # A virtual environment uses the standard library from its base installation.
+  pythonhome <- canonical_path(config$BasePrefix)
+  if (!is_windows())
+    pythonhome <- paste(pythonhome, canonical_path(config$BaseExecPrefix), sep = ":")
 
   as_numeric_version <- function(version) {
     version <- clean_version(version)

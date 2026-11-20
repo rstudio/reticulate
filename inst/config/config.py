@@ -48,7 +48,8 @@ config = {
   "VersionNumber"    : str(sys.version_info[0]) + "." + str(sys.version_info[1]),
   "Prefix"           : getattr(sys, "prefix", ""),
   "ExecPrefix"       : getattr(sys, "exec_prefix", ""),
-  "BaseExecPrefix"   : getattr(sys, "base_exec_prefix", ""),
+  "BasePrefix"       : getattr(sys, "base_prefix", sys.prefix),
+  "BaseExecPrefix"   : getattr(sys, "base_exec_prefix", sys.exec_prefix),
   "PythonPath"       : pathsep.join((x or "." for x in sys.path
                                      if x != this_script_dir)),
   "LIBPL"            : sysconfig.get_config_var("LIBPL"),
